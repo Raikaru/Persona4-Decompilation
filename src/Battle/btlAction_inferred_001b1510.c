@@ -16,7 +16,7 @@ typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -1711,7 +1711,7 @@ s32 btlMainRevivalUpdate(void)
 
     temp_16 = (s64 *)(*(u8 **)(D_0076449C + 0x170));
     if (btlUnitRecordFindByActionUID(*temp_16, (s64)0x3FFFFFFFFFFFFFFF) == 0) {
-        func_00106620(0x31E, ((func_00106600(0x31E) & 0xFF) - 1) & 0xFF);
+        datItemSetCount(0x31E, ((datItemCount(0x31E) & 0xFF) - 1) & 0xFF);
         btlActionEnableQueue();
         if (btlCheckBattleEnd() == 0) {
             temp_4 = D_0076449C;

@@ -112,15 +112,15 @@ s32 func_002bdff0(s16 arg0)
     if (func_00106850(arg0) != 3) {
         goto false_result;
     }
-    temp_16 = func_002be100((u8)func_00106ac0(arg0)) & 0xFF;
+    temp_16 = func_002be100((u8)datItemAvailableMonth(arg0)) & 0xFF;
     if (temp_16 < (func_002be100(fclCalendarMonth()) & 0xFF)) {
         return 1;
     }
-    temp_16_2 = func_002be100((u8)func_00106ac0(arg0)) & 0xFF;
+    temp_16_2 = func_002be100((u8)datItemAvailableMonth(arg0)) & 0xFF;
     if (temp_16_2 != (func_002be100(fclCalendarMonth()) & 0xFF)) {
         goto false_result;
     }
-    temp_16_3 = (s8)func_00106af0(arg0);
+    temp_16_3 = (s8)datItemAvailableDay(arg0);
     if (temp_16_3 <= (fclCalendarDay() & 0xFF)) {
         return 1;
     }

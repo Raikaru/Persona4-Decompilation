@@ -298,7 +298,7 @@ s32 func_0026fff0(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    func_00106620((s16)temp_16, temp_17 & 0xFF);
+    datItemSetCount((s16)temp_16, temp_17 & 0xFF);
     return 0;
 }
 

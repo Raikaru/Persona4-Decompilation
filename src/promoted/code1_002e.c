@@ -36,8 +36,8 @@ extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
 
 
 extern void sdkSndFadeOutChannelFrames(s16 arg0, s32 arg1, s32 arg2);
-extern s32 func_00106b20(s16 arg0);
-extern s32 func_00106b50(s16 arg0);
+extern s32 datItemMoonGateFirst(s16 arg0);
+extern s32 datItemMoonGateSecond(s16 arg0);
 
 
 
@@ -497,21 +497,21 @@ s32 shopSystemCreate(s32 arg0)
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
 
     for (i = 0; i < 0x2FF; i++) {
-        if (((func_00106b20((s16)i) & 0xFFF00) >> 8) == 0 &&
-            ((func_00106b50((s16)i) & 0xFFF00) >> 8) == 0) {
+        if (((datItemMoonGateFirst((s16)i) & 0xFFF00) >> 8) == 0 &&
+            ((datItemMoonGateSecond((s16)i) & 0xFFF00) >> 8) == 0) {
             datSetStateTableEntry(i, (clndGetMoonPhase(i) & 0xFF) | 4);
-        } else if ((func_00106b20((s16)i) & 0xFF) == 0 &&
-                   (func_00106b50((s16)i) & 0xFF) == 0) {
+        } else if ((datItemMoonGateFirst((s16)i) & 0xFF) == 0 &&
+                   (datItemMoonGateSecond((s16)i) & 0xFF) == 0) {
             datSetStateTableEntry(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100((u8)func_00106ac0((s16)i)) & 0xFF) <
+        if ((func_002be100((u8)datItemAvailableMonth((s16)i)) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
             datSetStateTableEntry(i, (clndGetMoonPhase(i) & 0xFF) | 4);
-        } else if ((func_002be100((u8)func_00106ac0((s16)i)) & 0xFF) ==
+        } else if ((func_002be100((u8)datItemAvailableMonth((s16)i)) & 0xFF) ==
                    (func_002be100(4) & 0xFF) &&
-                   (s8)func_00106af0((s16)i) < 2) {
+                   (s8)datItemAvailableDay((s16)i) < 2) {
             datSetStateTableEntry(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         }
     }
@@ -596,7 +596,7 @@ void fclAddMoney(s32 arg0)
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(105) + 0x10), 0) == 1) { \
             frFontExDrawTextDeferredOutB(*(f32 *)(fclSpriteEntry(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
                           fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
-                          (const char *)func_0010d6d0(1), 0, 0, D_00794E70, 24); \
+                          (const char *)datPersonaNamePart1(1), 0, 0, D_00794E70, 24); \
         } \
     } while (0)
 // Fcl combine menu update: runs the menu state machine (draws the text and returns a status).
@@ -607,7 +607,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     u8 *fclSpriteEntry(s16 arg0);
     s16 fclSpriteFlagBit(s16 arg0, s16 arg1);
     s32 fclPackRgba(u8, u8, u8, u8);
-    u32 func_0010d6d0(s16 arg0);
+    u32 datPersonaNamePart1(s16 arg0);
     
     void fclDrawSetFlag(u8 *arg0, s8 arg1);
     void fclCombineMenuFusion(u8 *arg0);

@@ -783,7 +783,7 @@ loop_1_check:
     i = 0;
     goto loop_3_check;
 loop_3:
-    func_00106620((s16)i, 0);
+    datItemSetCount((s16)i, 0);
     i++;
 loop_3_check:
     if (i < 1536) {
@@ -847,7 +847,7 @@ void datCarryOverPersistentState(void)
     s32 buf[344];
     s32 func_001064f0(s32);
     void func_00106550(s32, u32);
-    s32 func_00106600(s16);
+    s32 datItemCount(s16);
     s32 datGetFlag(s32);
     void datSetFlag(s32, s32);
     s16 datGetCategoryValueById(s16, s16);
@@ -866,87 +866,87 @@ void datCarryOverPersistentState(void)
     *(Vec4 *)buf = *(Vec4 *)D_005E4700;
     value = func_001064f0(0x7C);
     end_date = (s32)datGetClearedWord() + 1;
-    if ((func_00106600(0x4A0) & 0xFF) > 0) {
+    if ((datItemCount(0x4A0) & 0xFF) > 0) {
         buf[4] = 0x4A0;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A1) & 0xFF) > 0) {
+    if ((datItemCount(0x4A1) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A1;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A2) & 0xFF) > 0) {
+    if ((datItemCount(0x4A2) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A2;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A3) & 0xFF) > 0) {
+    if ((datItemCount(0x4A3) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A3;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A4) & 0xFF) > 0) {
+    if ((datItemCount(0x4A4) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A4;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A5) & 0xFF) > 0) {
+    if ((datItemCount(0x4A5) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A5;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A6) & 0xFF) > 0) {
+    if ((datItemCount(0x4A6) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A6;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A7) & 0xFF) > 0) {
+    if ((datItemCount(0x4A7) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A7;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A8) & 0xFF) > 0) {
+    if ((datItemCount(0x4A8) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A8;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4A9) & 0xFF) > 0) {
+    if ((datItemCount(0x4A9) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4A9;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4AA) & 0xFF) > 0) {
+    if ((datItemCount(0x4AA) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4AA;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4AB) & 0xFF) > 0) {
+    if ((datItemCount(0x4AB) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4AB;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4AC) & 0xFF) > 0) {
+    if ((datItemCount(0x4AC) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4AC;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4AD) & 0xFF) > 0) {
+    if ((datItemCount(0x4AD) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4AD;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4AE) & 0xFF) > 0) {
+    if ((datItemCount(0x4AE) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4AE;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4AF) & 0xFF) > 0) {
+    if ((datItemCount(0x4AF) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4AF;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4B0) & 0xFF) > 0) {
+    if ((datItemCount(0x4B0) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4B0;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4B1) & 0xFF) > 0) {
+    if ((datItemCount(0x4B1) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4B1;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4B2) & 0xFF) > 0) {
+    if ((datItemCount(0x4B2) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4B2;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x4B3) & 0xFF) > 0) {
+    if ((datItemCount(0x4B3) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x4B3;
         count = (count + 1) & 0xFF;
     }
-    if ((func_00106600(0x418) & 0xFF) > 0) {
+    if ((datItemCount(0x418) & 0xFF) > 0) {
         buf[4 + (count & 0xFF)] = 0x418;
         count = (count + 1) & 0xFF;
     }
@@ -1024,7 +1024,7 @@ loop5_done:
     count &= 0xFF;
     goto loop6_check;
 loop6:
-    func_00106620(((s16 *)buf)[8 + i * 2], 1);
+    datItemSetCount(((s16 *)buf)[8 + i * 2], 1);
     i++;
 loop6_check:
     if (i < count) {
