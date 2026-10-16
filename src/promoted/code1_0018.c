@@ -10,6 +10,7 @@
 #include "g_data_internal.h"
 #include "field_frame_internal.h"
 #include "field_panel_internal.h"
+#include "field_npc_control_internal.h"
 extern void *FldRc_ReplaceGeometryTextures(void *object, void *data);
 
 typedef struct RwV3d {
@@ -2762,7 +2763,7 @@ s32 FldNpcControlUpdate(u8 *param_1)
 #pragma pop
 // FUN_0018BAD0
 void FldNpcControlDestroy(u8 *arg0) {
-    s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x14);
+    s32 h = ((FldNpcControlWork *)*(u8 **)(arg0 + 0x38))->handle;
 
     if (h != 0) {
         func_003e0f40(h);
@@ -2781,8 +2782,8 @@ s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1)
     if (temp_2 == NULL)
         return 0;
     temp_17 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, FldNpcControlUpdate, FldNpcControlDestroy, (u8 *)(temp_2));
-    *(s32 *)(temp_2 + 0xC) = arg1;
-    *(f32 *)(temp_2 + 0x48) = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
+    ((FldNpcControlWork *)temp_2)->actor = arg1;
+    ((FldNpcControlWork *)temp_2)->cameraHeight = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
     return temp_17;
 }
 // FUN_0018BBF0
@@ -2793,7 +2794,7 @@ s32 FldNpcControlReady(u8 *arg0)
     if (arg0 == NULL) {
         return 1;
     }
-    value = *(u32 *)(*(u8 **)(arg0 + 0x38));
+    value = ((FldNpcControlWork *)*(u8 **)(arg0 + 0x38))->state;
     return value >= 4;
 }
 /* Shared animation contracts: CSE retains the common transition constant.
