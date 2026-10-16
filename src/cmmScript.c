@@ -12,7 +12,7 @@ extern s32 func_0045aeb0(s16 channel, const char *name);
 extern s32 func_0045af60(s16 channel, s16 stream, s16 arg2, s16 arg3);
 extern void kAssertFail(void *file, s32 line);
 
-u16 func_00248b80();
+u16 cmmTopReversedCommunity();
 extern void scrSetReturnInt(s32 arg0);
 
 u16 func_00247270();
@@ -66,7 +66,7 @@ extern s32 func_00455f70(void* arg0, u32* arg1);
 extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
 extern u8* cmmItemInfoRecord(s32 arg0);
-extern void func_002483c0(s32 arg0);
+extern void cmmAdvanceReverseProgress(s32 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
@@ -199,7 +199,7 @@ typedef struct {
 
 typedef struct cmmMsgState
 {
-    u16 unk00;   // 0x00, passed to func_002483c0
+    u16 unk00;   // 0x00, passed to cmmAdvanceReverseProgress
     u8 pad02[6];
     union
     {
@@ -277,7 +277,7 @@ s32 cmmMsgStreamUpdate(void)
                 p->counter = 0;
             } else {
                 datDestroyTaskByName();
-                func_002483c0(p->unk00);
+                cmmAdvanceReverseProgress(p->unk00);
                 return 1;
             }
         }
@@ -506,7 +506,7 @@ u32 func_0024AB40(void)
 {
     u16 value;
 
-    value = func_00248b80();
+    value = cmmTopReversedCommunity();
     scrSetReturnInt(value);
     return 1;
 }
