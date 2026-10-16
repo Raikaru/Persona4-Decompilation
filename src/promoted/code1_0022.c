@@ -23,7 +23,7 @@ extern u16 datCalcMaxHp(DatUnit *unit);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern u32 func_001064f0(s32 counter);
 extern void func_00106550(s32 counter, u32 value);
-extern void func_001fae60(s32 initialize, s32 update, s32 packet);
+extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);

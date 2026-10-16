@@ -758,7 +758,7 @@ s32 btlTaskSlotLinkedSlot4(void) {
 
 
 // FUN_001FAE60
-void func_001fae60(s32 arg0, s32 arg1, s32 arg2)
+void btlEncounterSetSequence(s32 arg0, s32 arg1, s32 arg2)
 {
     *(s32 *)(D_0076449C + 0xB40) = arg0;
     *(s32 *)(D_0076449C + 0xB44) = arg1;
@@ -896,7 +896,7 @@ loop_24_exit:
 
 
 // FUN_001FB170
-s32 func_001fb170(s32 arg0) {
+s32 btlConditionMessageId(s32 arg0) {
     u32 temp_2;
 
     temp_2 = arg0 & 0xFFFF;

@@ -502,7 +502,7 @@ void btlActionCommandUpdate(u8 *arg0)
             break;
         }
         if (bVar != 0) {
-            sVar2 = func_001fb170(f);
+            sVar2 = btlConditionMessageId(f);
             if (sVar2 != 0) {
                 sdkSndStartStream(0, 15, 0, 8);
                 btlUiSelectEffect(*(s32 *)(arg0 + 0x30), sVar2);
@@ -627,7 +627,7 @@ void btlActionTargetUpdate(u8 *action) {
     extern u16 D_008C024C[];
     extern void btlUnitTickIdleAnims(void);
     extern void func_0019fc60(void);
-    extern s32 func_001fb170(s32 condition);
+    extern s32 btlConditionMessageId(s32 condition);
     extern void btlUiSelectEffect(s32 unit, u32 message);
     extern void btlPanelSetActive(s32 task);
     extern void btlPanelReset(s32 task);
@@ -752,7 +752,7 @@ select_action:
             condition = 0;
             break;
         }
-        messageId = (s16)func_001fb170(condition);
+        messageId = (s16)btlConditionMessageId(condition);
         if (messageId != 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
             btlUiSelectEffect(*(s32 *)(action + 0x30), (u32)messageId);

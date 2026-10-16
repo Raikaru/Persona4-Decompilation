@@ -23,7 +23,7 @@ extern u16 datCalcMaxHp(DatUnit *unit);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
 extern u32 func_001064f0(s32 counter);
 extern void func_00106550(s32 counter, u32 value);
-extern void func_001fae60(s32 initialize, s32 update, s32 packet);
+extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
@@ -1351,7 +1351,7 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
             remaining = func_001064f0(0x7A);
             remaining += (u32)*hpDelta;
             if ((s32)remaining <= 0) {
-                func_001fae60((s32)btlEncounterResetSlots, (s32)btlEncounterWaitIdle, (s32)packet);
+                btlEncounterSetSequence((s32)btlEncounterResetSlots, (s32)btlEncounterWaitIdle, (s32)packet);
                 remaining = 0;
             }
             func_00106550(0x7A, remaining);
@@ -1382,7 +1382,7 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
             percentage = 100;
         if (btlCond_MYHP(packet, 100 - percentage) ||
             *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8) < 2)
-            func_001fae60((s32)btlEncounterStartSequence, (s32)btlEncounterFinishStep, (s32)packet);
+            btlEncounterSetSequence((s32)btlEncounterStartSequence, (s32)btlEncounterFinishStep, (s32)packet);
         break;
     case 0x107:
         if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
@@ -1455,7 +1455,7 @@ void btlUnitApplyPacketFlags(u8 *packet)
         switch (btlCurrentUnitId()) {
         case 0x215:
             if (*(u16 *)(packet + 0x6C) == 2 && *(u16 *)(packet + 0x6E) == 0x115)
-                func_001fae60((s32)btlEncounterResetUnit, (s32)func_0022bac0, (s32)packet);
+                btlEncounterSetSequence((s32)btlEncounterResetUnit, (s32)func_0022bac0, (s32)packet);
             break;
         }
         return;
@@ -1575,7 +1575,7 @@ void btlUnitApplyPacketFlags(u8 *packet)
             switch (*(u16 *)(packet + 0x6E)) {
             case 0x17B:
             case 0x184:
-                func_001fae60((s32)btlActionRunPresentation, (s32)btlEncounterWaitCleared, (s32)packet);
+                btlEncounterSetSequence((s32)btlActionRunPresentation, (s32)btlEncounterWaitCleared, (s32)packet);
                 *(u16 *)(packet + 0x6C) = 8;
                 btlActionSetState((BtlAction *)packet, 25);
                 *(s32 *)(DAT_0076449c + 0xC38) = 3;
@@ -1608,7 +1608,7 @@ void btlUnitApplyPacketFlags(u8 *packet)
                     node = *(u8 **)(node + 0x450);
                 }
                 if (node != NULL) {
-                    func_001fae60((s32)btlActionRunMotionSequence, (s32)btlEncounterReleaseFlags, (s32)packet);
+                    btlEncounterSetSequence((s32)btlActionRunMotionSequence, (s32)btlEncounterReleaseFlags, (s32)packet);
                     started = 1;
                 }
             }
@@ -1617,7 +1617,7 @@ void btlUnitApplyPacketFlags(u8 *packet)
         if (*counter > 0 && started == 0) {
             *counter -= 1;
             if (*(s32 *)(DAT_0076449c + 0xC3C) <= 0 && datGetFlag(0x1435) != 0)
-                func_001fae60((s32)btlEncounterStartCameraState, (s32)btlEncounterWaitReleaseEvents, (s32)packet);
+                btlEncounterSetSequence((s32)btlEncounterStartCameraState, (s32)btlEncounterWaitReleaseEvents, (s32)packet);
         }
         break;
     case 0x10A:

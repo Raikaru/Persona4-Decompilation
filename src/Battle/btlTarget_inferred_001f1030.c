@@ -102,7 +102,7 @@ extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern void func_001f9cd0(void);
-extern s32 func_001fb170(s32 arg0);
+extern s32 btlConditionMessageId(s32 arg0);
 extern s32 func_001fb1f0(u8 *arg0, s32 arg1);
 extern s32 func_001fb360(u8 *arg0, s32 arg1);
 static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
@@ -321,7 +321,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     /* lint: allow H011 -- retail passes (arg0, unit, id); the empty callee ignores all arguments. */
     extern void func_001f9cd0(u8 *, u8 *, s32);
     /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
-    extern s32 func_001fb170(u16);
+    extern s32 btlConditionMessageId(u16);
     /* lint: allow H011 -- retail explicitly loads flags into $a2; the callee leaves that argument unused. */
     extern s32 func_001fb1f0(u8 *, s32, s32);
     /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
@@ -743,7 +743,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
             lastMsg = *(u16 *)(uctx + 0x2C);
         }
         if (special != 0) {
-            msg = (s16)func_001fb170(special);
+            msg = (s16)btlConditionMessageId(special);
             arg0[0xD8] |= 1;
         } else if (!(recordResult & 6)) {
             msg = (s16)func_001f0260(idw);
@@ -792,7 +792,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
         u16 t = func_001fb1f0(arg0, idw, flags);
 
         if (t != 0 && *(s32 *)(arg0 + 0xE8) != 1) {
-            *(s16 *)(arg0 + 0xEC) = func_001fb170(t);
+            *(s16 *)(arg0 + 0xEC) = btlConditionMessageId(t);
         }
     }
     arg0[0xDB] = status;
