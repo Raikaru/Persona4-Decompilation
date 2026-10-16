@@ -15,5 +15,5 @@ s32 FldEnvResolveState(s32 field, s32 room, s32 condition);
 u8 *FldHbnOpenTable(s32 fieldId, s32 roomId);
 
 /* Creates the field-area task and returns the registration handle. */
-s32 func_00186640(u8 *parent);
+s32 FldNoiseTaskCreate(u8 *parent);
 #endif

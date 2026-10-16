@@ -282,7 +282,7 @@ s32 FldRootUpdate(u8 *task)
             func_002b2950(1);
         }
         if (FldStepIndex() != 0) {
-            D_007D253C[0] = func_00186640(task);
+            D_007D253C[0] = FldNoiseTaskCreate(task);
         }
         if (sndRequestAreaTrack() == 0) {
             sndPlayAreaCue();

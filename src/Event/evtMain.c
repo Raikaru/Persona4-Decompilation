@@ -2113,7 +2113,7 @@ s32 evtCmdTaskHandle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             if (*(u32 *)(arg2 + 0x768) != 0 && kwlnTaskIsLinked((void *)*(u32 *)(arg2 + 0x768)) != 0) {
                 kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
             }
-            *(u32 *)(arg2 + 0x768) = func_00186640((u8 *)t);
+            *(u32 *)(arg2 + 0x768) = FldNoiseTaskCreate((u8 *)t);
         } else {
             if (*(u32 *)(arg2 + 0x768) != 0 && kwlnTaskIsLinked((void *)*(u32 *)(arg2 + 0x768)) != 0) {
                 kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
