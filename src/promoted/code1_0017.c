@@ -75,8 +75,8 @@ extern s32 D_007EF9F8[];
 extern u32 D_007EFA04[];
 extern u8 D_007EF9B0[];
 extern s32 FldMap_IsCurrentInEitherBand(void);
-extern s32 func_0015a100(void);
-extern s32 func_0015a130(void);
+extern s32 FldStepGetScriptData(void);
+extern s32 FldStepGetScriptSize(void);
 extern void func_0015a7c0(s32 arg0);
 extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005F18C0[];
@@ -333,8 +333,8 @@ s32 FldCampTriggerRun(u8 *arg0)
             if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(FldStepIndex());
                 datSetFlag(0x1401, 0);
-                temp_17 = func_0015a100();
-                scrStartProcedureChecked(0xF, temp_17, func_0015a130(), 5);
+                temp_17 = FldStepGetScriptData();
+                scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 5);
                 *(s32 *)(temp_16 + 4) = 3;
             } else {
                 if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
@@ -357,7 +357,7 @@ s32 FldCampTriggerRun(u8 *arg0)
 }
 
 // FUN_00170E10
-s32 func_00170e10(u8 *arg0)
+s32 FldFieldScriptTriggerTest(u8 *arg0)
 {
     u8 *temp;
 
@@ -370,7 +370,7 @@ s32 func_00170e10(u8 *arg0)
 }
 
 // FUN_00170E50
-s32 func_00170e50(u8 *arg0)
+s32 FldFieldScriptTriggerRun(u8 *arg0)
 {
     s32 state;
     u8 *temp_16;
@@ -482,7 +482,7 @@ loop_21_done:
 }
 
 // FUN_001711B0
-s32 func_001711b0(u8 *arg0)
+s32 FldStepAreaTriggerTest(u8 *arg0)
 {
     s32 var_2;
     u8 *temp_16;
@@ -506,7 +506,7 @@ s32 func_001711b0(u8 *arg0)
 }
 
 // FUN_00171280
-s32 func_00171280(u8 *arg0)
+s32 FldStepAreaTriggerRun(u8 *arg0)
 {
     s32 temp_17;
     s32 state;
@@ -521,9 +521,9 @@ s32 func_00171280(u8 *arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
-        temp_17 = func_0015a100();
+        temp_17 = FldStepGetScriptData();
         *(s32 *)(temp_16 + 0x10) =
-            scrStartProcedureChecked(0xF, temp_17, func_0015a130(), 0);
+            scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 0);
         FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
@@ -543,7 +543,7 @@ s32 func_00171280(u8 *arg0)
 }
 
 // FUN_001713E0
-s32 func_001713e0(u8 *arg0)
+s32 FldStepAreaAltTriggerTest(u8 *arg0)
 {
     s32 var_2;
     u8 *temp_16;
@@ -567,7 +567,7 @@ s32 func_001713e0(u8 *arg0)
 }
 
 // FUN_001714B0
-s32 func_001714b0(u8 *arg0)
+s32 FldStepAreaAltTriggerRun(u8 *arg0)
 {
     s32 temp_17;
     s32 state;
@@ -582,9 +582,9 @@ s32 func_001714b0(u8 *arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
-        temp_17 = func_0015a100();
+        temp_17 = FldStepGetScriptData();
         *(s32 *)(temp_16 + 0x10) =
-            scrStartProcedureChecked(0xF, temp_17, func_0015a130(), 1);
+            scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 1);
         FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;

@@ -2332,7 +2332,7 @@ s32 FldStepEntry(void)
     return *(s32 *)(p + 0x20) + (*(s32 *)(p + 4) * 0x10);
 }
 // FUN_0015A100
-s32 func_0015a100(void)
+s32 FldStepGetScriptData(void)
 {
     u8 *work;
 
@@ -2346,7 +2346,7 @@ s32 func_0015a100(void)
 
 
 // FUN_0015A130
-s32 func_0015a130(void)
+s32 FldStepGetScriptSize(void)
 {
     u8 *work;
 
