@@ -129,7 +129,7 @@ class LinkFloorIdentityTests(unittest.TestCase):
 class FieldLinkFloorTests(unittest.TestCase):
     def test_committed_policy_requires_field_c_despite_unrelated_gains(self):
         policy = json.loads(build.LINK_FLOOR.read_text())
-        source = 'src/promoted/k_fldEvent.c'
+        source = 'src/Kosaka/Field/k_fldEvent.c'
         self.assertIn('00174e10', policy['required_c_functions'][source])
         # Satisfy all committed requirements first. Then an unrelated addition
         # raises the total above the floor without excusing loss of Field C.

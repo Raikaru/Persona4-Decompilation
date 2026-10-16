@@ -1,0 +1,1217 @@
+#include "mt_scene_internal.h"
+#include "field_transition_internal.h"
+/* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "type.h"
+#include "sdk_sprite_loader.h"
+#include "sdk_task_registration.h"
+#include "include_asm.h"
+
+typedef struct RwMatrix RwMatrix;
+typedef struct RwV3d RwV3d;
+
+extern void (*jtbl_008873EC[])(void *);
+typedef struct Vec3 { f32 x; f32 y; f32 z; } Vec3;
+extern void *(*D_008873F4[])(size_t, size_t, u32);
+extern void (*D_00887300[])(s32, s32);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
+extern void func_00440b68();
+extern void sprintf(u8 *dst, u8 *src);
+extern u8 *func_00454a60(u8 *param, s32 mode);
+extern void H_Cdvd_Destroy(u8 *ptr);
+extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
+extern s32 func_00455f70(u8 *param, s32 *out);
+extern s32 func_0046a750(s32 param);
+extern void sdkSpriteRelease(void *ptr);
+
+extern void func_003e0f40(u8 *param);
+extern void fieldSceneUnload();
+extern void RpSkyRenderStateSet(s32 param, s32 value);
+extern u8 *func_00460990();
+extern void func_00460ac0(void *param, u8 *work);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern f32 RwV3dNormalize(f32 *param, f32 *out);
+extern u8 *mdlGetMatrix(s32 param);
+extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+extern u8 *func_00457120();
+extern void func_00457630(u8 *param, u8 *src, u8 *dst, s32 mode);
+extern f32 sinf(f32 param);
+extern f32 cosf(f32 param);
+extern s64 datGetDateIndex();
+extern s32 datGetTimeSlot();
+extern s64 calGetDayEntryByPhase(s64 param, s32 param2);
+extern s32 datGetFlag(s32 id);
+extern u8 *func_003e0f80();
+extern void fieldSceneLoad(s32 a, s32 b);
+extern void func_00144ed0(s64 param);
+extern s32 fieldSceneLoadStep();
+extern u8 *MT_Scene_GetCameraResFirst();
+extern f32 MT_Scene_GetCameraFov();
+extern s32 sndRequestAreaTrack();
+extern void sndPlayAreaCue();
+extern void func_00122640(s32 a, s32 b);
+extern s32 fadeStatus();
+extern void func_00122520(s32 a, s32 b);
+extern s32 kwlnTaskIsLinked(u8 *param);
+extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
+extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
+extern void K_View_SetFov(u8 *param, f32 value);
+extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
+void func_00187f50(void);
+void func_00188030(void);
+extern u8 D_005F1EF8[];
+extern u8 D_005F1FB8[];
+extern u8 D_005F1FA8[];
+extern u8 D_005F1FD0[];
+extern u8 D_005F1FF0[];
+extern u8 D_005F1E40[];
+extern u8 D_005F1E60[];
+extern u8 D_005F1E80[];
+extern u8 D_005F1EA0[];
+extern u8 D_005F1EC0[];
+extern u8 D_005F1EE0[];
+extern u8 D_005F1F10[];
+extern u8 D_005F1F30[];
+extern u8 D_005F1F50[];
+extern u8 D_005F1F70[];
+extern u8 D_005F1F90[];
+extern u8 D_005F2010[];
+extern u8 D_005F2030[];
+extern u8 D_005F2050[];
+extern u8 D_005F2070[];
+extern u8 D_005F2090[];
+extern s32 func_00186ac0(u8 *arg0);
+extern s32 func_00188be0(u8 *arg0);
+extern s32 func_001891d0(u8 *arg0);
+extern u8 D_005F2180[];
+extern f32 D_005F20B0[];
+extern f32 D_005F20B4[];
+extern f32 D_005F20B8[];
+extern f32 D_005F20BC[];
+extern f32 D_005F20C0[];
+extern f32 D_005F20C4[];
+extern f32 D_005F2130[];
+extern f32 D_005F2134[];
+extern f32 D_005F2138[];
+extern f32 D_005F213C[];
+extern f32 D_005F2190[];
+extern f32 D_005F2194[];
+extern f32 D_005F2198[];
+extern f32 D_005F219C[];
+extern f32 D_005F21A0[];
+extern f32 D_005F21A4[];
+extern f32 D_005F1E20[];
+extern u16 D_008C024E[];
+extern u16 D_008C0252[];
+extern u8 D_00795E60[];
+extern char iGpffff9f68;
+extern char iGpffff9f70;
+extern f32 iGpffff84a4;
+extern f32 iGpffff8538;
+void func_00188200(u8 *arg0, u8 *arg1);
+void func_00188320(u8 *arg0, u8 *arg1);
+void func_00188590(u8 *arg0, u8 *arg1, s32 arg2);
+void func_00188690(u8 *arg0, u8 *arg1, s32 arg2);
+void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2);
+void func_00188940(u8 *arg0, u8 *arg1, s32 arg2);
+u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2);
+void func_00189060(u8 *arg0, s32 arg1, f32 fparg0);
+u8 *func_00189550(u8 *arg0);
+void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
+
+/* Source unit: src/promoted/k_fldLmap.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldLmap.c; members 001866d0-00189550 */
+
+extern s32 func_00186eb0(u8 *arg0);
+typedef struct FldLmapMatrix {
+    s32 words[16];
+} FldLmapMatrix;
+static inline f32 mulFp(f32 left, f32 right) { return left * right; }
+// FUN_001866D0
+s32 func_001866d0(u8 *arg0)
+{
+    s32 sp8C;
+    u8 sp40[0x4C];
+    s32 temp_17_2;
+    s32 temp_3;
+    s64 temp_17;
+    s64 temp_18;
+    s64 temp_3_2;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_3 = *(s32 *)temp_16;
+    switch (temp_3) {
+    case 0:
+        temp_17 = (s16)datGetDateIndex();
+        temp_18 = (s8)calGetDayEntryByPhase(temp_17, datGetTimeSlot() & 0xFF);
+        temp_17_2 = datGetTimeSlot() & 0xFF;
+        if (datGetFlag(0x8A) == 1) {
+            if ((s8)temp_18 == 1) {
+                sprintf(sp40, D_005F1E40);
+            } else {
+                sprintf(sp40, D_005F1E60);
+            }
+        } else {
+            temp_3_2 = (s8)temp_18;
+            if (temp_3_2 == 0) {
+                if ((temp_17_2 & 0xFF) < 4) {
+                    sprintf(sp40, D_005F1E80);
+                } else {
+                    sprintf(sp40, D_005F1EA0);
+                }
+            } else if (temp_3_2 == 2) {
+                sprintf(sp40, D_005F1EC0);
+            } else if (temp_3_2 == 1) {
+                sprintf(sp40, D_005F1EE0);
+            } else {
+                kAssertFail(D_005F1EF8, 0xC5);
+            }
+        }
+        func_00440b68(&iGpffff9f68, D_005F1EF8, 0xC8);
+        *(u8 **)(temp_16 + 4) = func_00454a60(sp40, 1);
+        *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
+        /* fallthrough */
+    case 1:
+        if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 4)) != 0) {
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F10, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F30, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F50, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F70, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F90, &sp8C));
+            *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
+        }
+        break;
+    case 2:
+        if ((func_0046a750(*(s32 *)(*(u8 **)(temp_16 + 8) + 0x38)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(temp_16 + 8) + 0x40)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(temp_16 + 8) + 0x44)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(temp_16 + 8) + 0x48)) != 0)) {
+            *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
+        }
+        break;
+    case 3:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+
+// FUN_00186A60
+void func_00186a60(u8 *arg0)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(*(u8 **)(temp_4 + 8) + 4) = 1;
+    H_Cdvd_Destroy(*(u8 **)(temp_4 + 4));
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
+
+/* measured re-triage: switch CFG candidate reproduces the main state/update
+   path, but MWCC b210 still folds the retail mtc1 $0 + swc1 zero store to
+   sw $0 and leaves the candidate 8 bytes short of the retail window. Best
+   candidate: normalized_diff 103, object 456/464; discarded. */
+// FUN_00186AC0
+s32 func_00186ac0(u8 *arg0)
+{
+    s32 *temp_3_2;
+    s32 *temp_3_3;
+    s32 temp_2;
+    s32 temp_2_2;
+    s32 temp_3;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_3 = *(s32 *)temp_16;
+    switch (temp_3) {
+    case 0:
+        if (!((*(f32 *)(temp_16 + 0x10) - *(f32 *)(temp_16 + 0xC)) <= 0.0f)) {
+            *(f32 *)(temp_16 + 0x14) = -1.0f;
+        } else {
+            *(f32 *)(temp_16 + 0x14) = 1.0f;
+        }
+        *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
+    case 1:
+        temp_2 = *(s32 *)(temp_16 + 0x24);
+        if (temp_2 > 0) {
+            *(s32 *)(temp_16 + 0x24) = temp_2 - 1;
+            goto block_19;
+        }
+        if (*(f32 *)(temp_16 + 0x14) < 0.0f) {
+            *(f32 *)(*(u8 **)(temp_16 + 4)) = (*(f32 *)(temp_16 + 0x10) - *(f32 *)(temp_16 + 0xC)) * -sinf((iGpffff84a4 * (f32)*(s32 *)(temp_16 + 0x20)) / (f32)*(s32 *)(temp_16 + 0x1C));
+        } else {
+            *(f32 *)(*(u8 **)(temp_16 + 4)) = (*(f32 *)(temp_16 + 0x10) - *(f32 *)(temp_16 + 0xC)) * cosf((iGpffff84a4 * (f32)*(s32 *)(temp_16 + 0x20)) / (f32)*(s32 *)(temp_16 + 0x1C));
+        }
+        *(f32 *)(*(u8 **)(temp_16 + 4) + 4) = 0.0f;
+        temp_2_2 = *(s32 *)(temp_16 + 0x20);
+        if (temp_2_2 > 0) {
+            *(s32 *)(temp_16 + 0x20) = temp_2_2 - 1;
+            goto block_19;
+        }
+        *(f32 *)(*(u8 **)(temp_16 + 4)) = *(f32 *)(temp_16 + 0x10);
+        *(f32 *)(*(u8 **)(temp_16 + 4) + 4) = 0.0f;
+        temp_3_2 = *(s32 **)(temp_16 + 8);
+        if (temp_3_2 != NULL) {
+            *temp_3_2 = 0xC3660000;
+        }
+        temp_3_3 = *(s32 **)(temp_16 + 0x28);
+        if (temp_3_3 != NULL) {
+            *temp_3_3 = 1;
+        }
+        return -1;
+block_19:
+        ;
+    default:
+        return 0;
+    }
+}
+
+// FUN_00186C90
+void func_00186c90(u8 *arg0)
+{
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
+
+// FUN_00186CC0
+u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5)
+{
+    u8 *temp_2_2;
+    u8 *temp_2;
+    u8 *temp_3;
+    u8 *temp_5;
+
+    chkmemAllocSiteTag(D_005F1EF8, 0x175);
+    temp_2_2 = (u8 *)D_008873F4[0](1, 0x2C, 0x40000);
+    if (temp_2_2 == NULL) {
+        return NULL;
+    }
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1FB8), 0xF, 0, 0, func_00186ac0, func_00186c90, (u8 *)(temp_2_2));
+    temp_3 = temp_2_2 + 4;
+    *(u8 **)(temp_2_2 + 4) = arg1;
+    *(f32 *)(temp_2_2 + 0xC) = fparg0;
+    *(f32 *)(temp_2_2 + 0x10) = fparg1;
+    temp_5 = temp_2_2 + 8;
+    *(u8 **)(temp_2_2 + 8) = arg2;
+    *(u8 **)(temp_2_2 + 0x28) = arg3;
+    *(s32 *)(temp_2_2 + 0x1C) = arg4;
+    *(s32 *)(temp_2_2 + 0x20) = arg4;
+    *(s32 *)(temp_2_2 + 0x24) = arg5;
+    if (arg2 != NULL) {
+        *(s32 *)(*(u8 **)temp_3 + 8) = 0x43960000;
+        *(s32 *)(*(u8 **)temp_5 + 8) = 0x43C80000;
+    }
+    return temp_2;
+}
+
+// FUN_00186E10
+/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
+ * constant 1 (addiu $a1, $zero, 1) inside the loop body at both store sites;
+ * retail hoists it to the preheader. The pragma restores the hoist (nd 35 -> 0). */
+/* measured: func_00186e10 MATCH -> MISMATCH without this pragma. */
+#pragma opt_loop_invariants on
+static void func_00186e10(u8 *arg0)
+{
+    s32 var_7;
+    u8 *var_6;
+
+    var_7 = 0;
+    while (var_7 < 5) {
+        if ((u32)*(u32 *)arg0 > 8U) {
+            var_6 = arg0 + (var_7 * 4);
+            *(s32 *)(var_6 + 0x4C) = 0;
+            *(s32 *)(var_6 + 0x60) = 0;
+        } else {
+            if (*(s32 *)(arg0 + 0xC) != var_7) {
+                var_6 = arg0 + (var_7 * 4);
+                *(s32 *)(var_6 + 0x4C) = 1;
+            } else {
+                var_6 = arg0 + (var_7 * 4);
+                *(s32 *)(var_6 + 0x4C) = 0;
+            }
+            if (*(s32 *)(arg0 + 0xC) == var_7) {
+                *(s32 *)(var_6 + 0x60) = 1;
+            } else {
+                *(s32 *)(var_6 + 0x60) = 0;
+            }
+        }
+        var_7 += 1;
+    }
+}
+
+/* measured: see annotation above. */
+#pragma push
+/* measured: byte-exact (953/953 instructions, 0 differing words).  The camera
+   matrix copy is a 64-byte struct assignment (retail's 8 x two-word loop), the
+   pad globals are arrays (absolute %hi/%lo, not gp), the local zeroing loop
+   counts an unsigned n (bnez, not bgtz), and func_00186e10 is static so the
+   caller keeps $a0 across it.  The two scroll updates address the panel slot
+   as `off + (s32)st` so the index is the first addu operand, as retail has it.
+   opt_loop_invariants hoists the case-0 constants. */
+// FUN_00186EB0
+s32 func_00186eb0(u8 *arg0)
+{
+    u8 *arg_save;
+    u8 *st;
+    s32 i;
+    u8 buf[12];
+    s32 out;
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
+
+    arg_save = arg0;
+    st = *(u8 **)(arg0 + 0x38);
+    if (*(u32 *)st > 4U) {
+        {
+            u8 *p;
+            u32 n;
+            p = buf;
+            n = 12;
+            if (p != 0) {
+                do {
+                    *p++ = 0;
+                    n--;
+                } while (n != 0);
+            }
+        }
+        func_00186e10(st);
+        *(f32 *)(st + 0x98) = 700.0f;
+        func_00188200(st, st + 0x90);
+        *(f32 *)(buf + 8) = (f32)590;
+        for (i = 0; i < 5; i++) {
+            if (*(s32 *)(st + i * 4 + 0x4C) != 0) {
+                func_00188590(st, buf, i);
+                func_00188690(st, st + i * 12 + 0x9C, i);
+            }
+        }
+        for (i = 0; i < 5; i++) {
+            if (*(s32 *)(st + i * 4 + 0x60) != 0) {
+                func_001887f0(st, st + i * 12 + 0xD8, i);
+            }
+        }
+        *(f32 *)(st + 0x98) = 500.0f;
+        func_00188320(st, st + 0x90);
+        if ((*(s32 *)(st + 4) != 0) && (*(s32 *)(st + 0x74) != 0)) {
+            if (*(f32 *)(st + 0x11C) >= *(f32 *)(st + 0x128)) {
+                func_00188940(st, st + 0x114, *(s32 *)(st + 0x80));
+                func_00188940(st, st + 0x120, *(s32 *)(st + 0x84));
+            } else {
+                func_00188940(st, st + 0x120, *(s32 *)(st + 0x84));
+                func_00188940(st, st + 0x114, *(s32 *)(st + 0x80));
+            }
+        }
+    }
+    switch (*(s32 *)st) {
+    case 0: {
+        s32 k;
+        f32 m427 = (f32)-427;
+        f32 m550 = (f32)550;
+        s32 c374 = 0xC3BB0000;
+        s32 c600 = 0x44160000;
+        for (k = 0; k < 5; k++) {
+            u8 *p = st + k * 12;
+            *(s32 *)(p + 0x9C) = c374;
+            *(s32 *)(p + 0xA0) = 0;
+            *(s32 *)(p + 0xA4) = c600;
+            *(f32 *)(p + 0xD8) = m427;
+            *(s32 *)(p + 0xDC) = 0;
+            *(f32 *)(p + 0xE0) = m550;
+        }
+        *(s32 *)(st + 0x74) = 1;
+        *(f32 *)(st + 0x88) = -330.0f;
+        *(f32 *)(st + 0x8C) = -330.0f;
+        *(f32 *)(st + 0x114) = -230.0f;
+        *(s32 *)(st + 0x118) = 0;
+        *(f32 *)(st + 0x11C) = 400.0f;
+        *(f32 *)(st + 0x120) = -230.0f;
+        *(s32 *)(st + 0x124) = 0;
+        *(f32 *)(st + 0x128) = 400.0f;
+        *(f32 *)(st + 0x12C) = 36.0f;
+        *(s32 *)(st + 0x130) = 0;
+        *(f32 *)(st + 0x134) = 200.0f;
+        *(s32 *)(st + 0x78) = 1;
+        *(s32 *)st = *(s32 *)st + 1;
+    }
+    /* fallthrough */
+    case 1:
+        *(u8 **)(st + 0x18) = func_003e0f80();
+        fieldSceneLoad(1, 1);
+        func_00144ed0((s16)func_001546a0(1, 1));
+        func_00440b68(&iGpffff9f68, D_005F1EF8, 0x211);
+        *(u8 **)(st + 0x1C) = func_00454a60(D_005F1FD0, 1);
+        func_00440b68(&iGpffff9f68, D_005F1EF8, 0x212);
+        *(u8 **)(st + 0x20) = func_00454a60(D_005F1FF0, 0);
+        *(s32 *)st = *(s32 *)st + 1;
+    /* fallthrough */
+    case 2: {
+        if (fieldSceneLoadStep() == 0) {
+            break;
+        }
+        if (H_Cdvd_IsFileLoaded(*(u8 **)(st + 0x1C)) == 0) {
+            break;
+        }
+        if (H_Cdvd_IsFileLoaded(*(u8 **)(st + 0x20)) == 0) {
+            break;
+        }
+        *(FldLmapMatrix *)*(u8 **)(st + 0x18) = *(FldLmapMatrix *)MT_Scene_GetCameraResFirst();
+        {
+            u8 *tmp = func_00457120();
+            K_View_SetFov(tmp, MT_Scene_GetCameraFov());
+        }
+        {
+            u8 *tmp2 = func_00457120();
+            func_003e9cb0(*(s32 *)(tmp2 + 4), *(u8 **)(st + 0x18), 0);
+        }
+        *(s32 *)(st + 0x24) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2010, &out));
+        *(s32 *)(st + 0x2C) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2030, &out));
+        *(s32 *)(st + 0x30) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2050, &out));
+        *(s32 *)(st + 0x28) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2070, &out));
+        *(s32 *)(st + 0x34) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2090, &out));
+        *(u8 **)(st + 0x160) = func_0029db50(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), 0);
+        *(s32 *)st = *(s32 *)st + 1;
+    }
+    /* fallthrough */
+    case 3:
+        if (func_0046a750(*(s32 *)(st + 0x24)) == 0) {
+            break;
+        }
+        if (func_0046a750(*(s32 *)(st + 0x2C)) == 0) {
+            break;
+        }
+        if (func_0046a750(*(s32 *)(st + 0x30)) == 0) {
+            break;
+        }
+        if (func_0046a750(*(s32 *)(st + 0x28)) == 0) {
+            break;
+        }
+        if (func_0046a750(*(s32 *)(st + 0x34)) == 0) {
+            break;
+        }
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x160)) == 1) {
+            break;
+        }
+        H_Cdvd_Destroy(*(u8 **)(st + 0x1C));
+        *(u8 **)(st + 0x1C) = NULL;
+        *(s32 *)(st + 4) = 0;
+        chkmemAllocSiteTag(D_005F1EF8, 0x104);
+        {
+            u8 *mem = (u8 *)D_008873F4[0](1, 12, 0x40000);
+            s32 h;
+            if (mem == NULL) {
+                h = 0;
+            } else {
+                h = (s32)kwlnTaskCreateChild((void *)(arg_save), (const void *)(D_005F1FA8), 15, 0, 0, func_001866d0, func_00186a60, (u8 *)(mem));
+                *(u8 **)(mem + 8) = st;
+            }
+            *(s32 *)(st + 0x15C) = h;
+        }
+        *(s32 *)(st + 0x140) = (s32)MT_Scene_GetRes(0x280A);
+        *(s32 *)(st + 0x144) = (s32)MT_Scene_GetRes(0x2809);
+        *(s32 *)(st + 0x148) = (s32)MT_Scene_GetRes(0x2806);
+        *(s32 *)(st + 0x14C) = (s32)MT_Scene_GetRes(0x2808);
+        *(s32 *)(st + 0x150) = (s32)MT_Scene_GetRes(0x2807);
+        *(s32 *)(st + 0x154) = (s32)MT_Scene_GetRes(0x2805);
+        *(u8 **)(st + 0x164) = func_00188f20(arg_save, *(s32 *)(st + 0x140), st + 0x144);
+        func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
+        *(u8 **)(st + 0x168) = func_00189550(arg_save);
+        func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0xC), *(s32 *)(st + 0xC), 0.0f);
+        if (sndRequestAreaTrack() == 0) {
+            sndPlayAreaCue();
+        }
+        func_00122640(1, 0);
+        *(s32 *)st = *(s32 *)st + 1;
+    /* fallthrough */
+    case 4:
+        if (fadeStatus() == 0) {
+            break;
+        }
+        *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + 0x90, -230.0f, 0.0f, NULL, NULL, 10, 0);
+        *(s32 *)st = *(s32 *)st + 1;
+    /* fallthrough */
+    case 5:
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
+            break;
+        }
+        func_00186cc0(arg_save, st + 0x9C, -200.0f, 0.0f, NULL, NULL, 8, 0);
+        func_00186cc0(arg_save, st + 0xA8, -200.0f, 0.0f, NULL, NULL, 8, 2);
+        func_00186cc0(arg_save, st + 0xB4, -200.0f, 0.0f, NULL, NULL, 8, 4);
+        func_00186cc0(arg_save, st + 0xC0, -200.0f, 0.0f, NULL, NULL, 8, 6);
+        func_00186cc0(arg_save, st + 0xCC, -200.0f, 0.0f, NULL, NULL, 8, 8);
+        func_00186cc0(arg_save, st + 0xD8, -200.0f, 0.0f, NULL, NULL, 8, 0);
+        func_00186cc0(arg_save, st + 0xE4, -200.0f, 0.0f, NULL, NULL, 8, 2);
+        func_00186cc0(arg_save, st + 0xF0, -200.0f, 0.0f, NULL, NULL, 8, 4);
+        func_00186cc0(arg_save, st + 0xFC, -200.0f, 0.0f, NULL, NULL, 8, 6);
+        *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + 0x108, -200.0f, 0.0f, NULL, NULL, 8, 8);
+        *(s32 *)st = *(s32 *)st + 1;
+    /* fallthrough */
+    case 6:
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
+            break;
+        }
+        *(s32 *)st = *(s32 *)st + 1;
+    /* fallthrough */
+    case 7:
+        if (*(s32 *)(st + 8) == 1) {
+            if (((D_008C024E[0] & 4) != 0) || ((D_008C024E[0] & 1) != 0) || ((D_008C024E[0] & 8) != 0) || ((D_008C024E[0] & 2) != 0)) {
+                *(s32 *)(st + 0x74) = !(*(s32 *)(st + 0x78));
+                *(s32 *)(st + 0x78) = !(*(s32 *)(st + 0x78));
+            }
+        }
+        if ((D_008C024E[0] & 0x40) != 0) {
+            s32 k;
+            for (k = 0; k < 5; k++) {
+                if (*(s32 *)(st + 0xC) == k) {
+                    func_00186cc0(arg_save, st + k * 12 + 0xD8, 0.0f, -300.0f, NULL, NULL, 10, 6);
+                } else {
+                    *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + k * 12 + 0x9C, 0.0f, -230.0f, NULL, NULL, 10, 0);
+                }
+            }
+            *(s32 *)(st + 0x78) = 0;
+            *(s32 *)st = 8;
+            sdkSndStartStream(0, 0, 0, 1);
+            break;
+        } else {
+            if ((D_008C0252[0] & 0x1000) != 0) {
+                sdkSndStartStream(0, 0, 0, 0);
+                *(s32 *)(st + 0xC) = *(s32 *)(st + 0xC) - 1;
+                *(s32 *)(st + 0x14) = 0;
+            } else if ((D_008C0252[0] & 0x4000) != 0) {
+                sdkSndStartStream(0, 0, 0, 0);
+                *(s32 *)(st + 0xC) = *(s32 *)(st + 0xC) + 1;
+                *(s32 *)(st + 0x14) = 0;
+            }
+            if (*(s32 *)(st + 0xC) < 0) {
+                *(s32 *)(st + 0xC) = 4;
+            }
+            if (*(s32 *)(st + 0xC) > 4) {
+                *(s32 *)(st + 0xC) = 0;
+            }
+            if (*(s32 *)(st + 0x10) != *(s32 *)(st + 0xC)) {
+                *(s32 *)(st + 0x14) = *(s32 *)(st + 0x14) + 1;
+            }
+            func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
+            if (*(s32 *)(st + 0x14) > 5) {
+                ((s32 *)(st + 0x80))[*(s32 *)(st + 0x7C)] = *(s32 *)(st + 0xC);
+                {
+                    s32 cur = *(s32 *)(st + 0x7C);
+                    s32 nxt = !cur;
+                    func_00186cc0(arg_save, st + cur * 12 + 0x114, -230.0f, 0.0f, st + nxt * 12 + 0x114, st + 0x170, 8, 0);
+                }
+                ((f32 *)(st + 0x88))[*(s32 *)(st + 0x7C)] = -330.0f;
+                *(s32 *)(st + 0x7C) = !(*(s32 *)(st + 0x7C));
+                func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0x10), *(s32 *)(st + 0xC), 3.0f);
+                *(s32 *)(st + 0x10) = *(s32 *)(st + 0xC);
+                *(s32 *)(st + 0x14) = 0;
+                *(f32 *)(st + 0x12C) = 0.0f;
+            }
+            if (*(s32 *)(st + 0x16C) == 0) {
+                s32 off = !(*(s32 *)(st + 0x7C)) * 4;
+                u8 *slot = (u8 *)(off + (s32)st);
+
+                if (*(f32 *)(slot + 0x88) < 0.0f) {
+                    if (*(s32 *)(st + 0x174) == 0) {
+                        *(f32 *)(slot + 0x88) = *(f32 *)(slot + 0x88) + 1.0f;
+                    }
+                } else {
+                    *(s32 *)(st + 0x174) = 90;
+                    *(s32 *)(st + 0x16C) = 1;
+                }
+            } else {
+                s32 off = !(*(s32 *)(st + 0x7C)) * 4;
+                u8 *slot = (u8 *)(off + (s32)st);
+
+                if (*(f32 *)(slot + 0x88) > -330.0f) {
+                    if (*(s32 *)(st + 0x174) == 0) {
+                        *(f32 *)(slot + 0x88) = *(f32 *)(slot + 0x88) - 1.0f;
+                    }
+                } else {
+                    *(s32 *)(st + 0x174) = 90;
+                    *(s32 *)(st + 0x16C) = 0;
+                }
+            }
+            if (*(s32 *)(st + 0x174) > 0) {
+                *(s32 *)(st + 0x174) = *(s32 *)(st + 0x174) - 1;
+            }
+            if (*(s32 *)(st + 0x170) != 0) {
+                *(s32 *)(st + 0x16C) = 0;
+                *(s32 *)(st + 0x170) = 0;
+                *(s32 *)(st + 0x174) = 0;
+            }
+            *(f32 *)(st + 0x12C) = *(f32 *)(st + 0x12C) - 2.0f;
+            {
+                s32 cur4 = !(*(s32 *)(st + 0x7C));
+                s32 idx = ((s32 *)(st + 0x80))[cur4];
+                if (*(f32 *)(st + 0x12C) < D_005F1E20[idx]) {
+                    *(f32 *)(st + 0x12C) = 36.0f;
+                }
+            }
+        }
+        break;
+    case 8:
+        if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
+            break;
+        }
+        func_00186cc0(arg_save, st + 0x90, 0.0f, -230.0f, NULL, NULL, 10, 0);
+        func_00186cc0(arg_save, st + 0x114, 0.0f, -230.0f, NULL, NULL, 10, 0);
+        func_00186cc0(arg_save, st + 0x120, 0.0f, -230.0f, NULL, NULL, 10, 0);
+        func_00122520(1, 0);
+        *(s32 *)st = *(s32 *)st + 1;
+        break;
+    case 9:
+        if (fadeStatus() == 0) {
+            break;
+        }
+        if (*(s32 *)(st + 4) == 0) {
+            break;
+        }
+        if (*(s32 *)(st + 8) == 0) {
+            func_0029db50(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), *(s32 *)(st + 0xC) + 1);
+        }
+        *(s32 *)st = *(s32 *)st + 1;
+        break;
+    case 10:
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
+
+#pragma pop
+// FUN_00187DA0
+void func_00187da0(u8 *arg0)
+{
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x24));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x2C));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x30));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x28));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x34));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x38));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x3C));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x40));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x44));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x48));
+    fieldSceneUnload();
+    func_003e0f40(*(u8 **)(temp_16 + 0x18));
+    H_Cdvd_Destroy(*(u8 **)(temp_16 + 0x20));
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
+
+// FUN_00187E80
+u8 *func_00187e80(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 *temp_2_2;
+    u8 *temp_2;
+
+    chkmemAllocSiteTag(D_005F1EF8, 0x343);
+    temp_2_2 = (u8 *)D_008873F4[0](1, 0x178, 0x40000);
+    if (temp_2_2 == NULL) {
+        return NULL;
+    }
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f70), 0xF, 0, 0, func_00186eb0, func_00187da0, (u8 *)(temp_2_2));
+    *(s32 *)(temp_2_2 + 0xC) = arg1;
+    *(s32 *)(temp_2_2 + 0x10) = -1;
+    *(s32 *)(temp_2_2 + 8) = arg2;
+    return temp_2;
+}
+
+// FUN_00187F50
+void func_00187f50(void)
+{
+    void (**tbl)(s32, s32);
+
+    tbl = (void (**)(s32, s32))(u32)D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x71009);
+}
+
+// FUN_00188030
+void func_00188030(void)
+{
+    void (**tbl)(s32, s32);
+
+    tbl = (void (**)(s32, s32))(u32)D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x7100D);
+}
+
+// FUN_00188110
+void func_00188110(void)
+{
+    void (**tbl)(s32, s32);
+
+    tbl = (void (**)(s32, s32))(u32)D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    tbl[0](1, 0);
+    RpSkyRenderStateSet(2, 0x44);
+    RpSkyRenderStateSet(3, 0x72001);
+}
+
+/* measured re-triage: corrected generated-style candidate has the complete
+   color-call setup and exact size, but MWCC b210 serialises the retail
+   constant-before-load and cross-chain float scheduling. Best candidate:
+   normalized_diff 154, object 288/288; discarded. */
+// FUN_00188200
+void func_00188200(u8 *arg0, u8 *arg1)
+{
+    f32 x;
+    f32 y;
+
+    x = -32.0f;
+    x += *(f32 *)arg1;
+    y = -7.0f + *(f32 *)(arg1 + 4);
+    sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, 0, *(void **)(arg0 + 0x24), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+    x = -32.0f;
+    x += *(f32 *)arg1;
+    y = 224.0f + *(f32 *)(arg1 + 4);
+    sdkSpriteDrawQueued((f32)(s32)x, (f32)(s32)y, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, 1, *(void **)(arg0 + 0x24), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+}
+
+/* Exact under MWCC b210/O2: preserve the float input view and associate the
+   column offset before adding the caller's x coordinate. */
+// FUN_00188320
+void func_00188320(u8 *arg0, u8 *arg1)
+{
+    s32 temp_17;
+    s32 temp_16;
+    u8 *temp_2;
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f20;
+    const f32 *p;
+
+    p = (const f32 *)arg1;
+    temp_2 = func_00460990();
+    *(void (**)(void))(temp_2 + 8) = func_00187f50;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2);
+    temp_f0 = -44.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = -7.0f + *(f32 *)(arg1 + 4);
+    sdkSpriteDrawQueued(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0x313131,
+        0xFF,
+        0,
+        *(void **)(arg0 + 0x2C),
+        0,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_f0 = -44.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
+    sdkSpriteDrawQueued(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0x313131,
+        0xFF,
+        1,
+        *(void **)(arg0 + 0x2C),
+        0,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_17 = 0;
+    while (temp_17 < 5) {
+        temp_16 = 0;
+        temp_f20 = 102.0f * (f32)temp_17;
+        while (temp_16 < 2) {
+            temp_f0 = 93.0f * (f32)temp_16 + (-5.0f + p[0]);
+            temp_f1 = -40.0f + *(f32 *)(arg1 + 4) + temp_f20;
+            sdkSpriteDrawQueued(
+                (f32)(s32)temp_f0,
+                (f32)(s32)temp_f1,
+                *(f32 *)(arg1 + 8),
+                0x393939,
+                0xFF,
+                3,
+                *(void **)(arg0 + 0x2C),
+                1,
+                0,
+                0,
+                0.0f,
+                1.0f,
+                1.0f,
+                D_00795E60);
+            temp_16 += 1;
+        }
+        temp_17 += 1;
+    }
+}
+
+// FUN_00188590
+void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_3;
+    u8 *temp_2;
+    f32 temp_f14;
+    temp_2 = func_00460990();
+    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00188030;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2);
+    temp_3 = arg2 * 0x18;
+    temp_f14 = *(f32 *)(arg1 + 8);
+    sdkSpriteDrawQueued((f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0xFF0000, 2, arg2, *(void **)(arg0 + 0x34), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+}
+
+/* measured re-triage: corrected two-call body has the expected setup and
+   near-retail size, but MWCC b210 sinks the f14 load below the integer
+   arguments and does not interleave the f13 chain. Best candidate:
+   normalized_diff 82, object 344/352; discarded. */
+// FUN_00188690
+void func_00188690(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_16;
+    f32 temp_f1;
+    f32 temp_f2;
+
+    temp_16 = arg2 * 0x18;
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B8 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20BC + temp_16);
+    sdkSpriteDrawQueued((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xFFFF81, 0xFF, 7, *(void **)(arg0 + 0x34), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F20C0 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20C4 + temp_16);
+    sdkSpriteDrawQueued((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xEC7C00, 0xFF, arg2 + 7, *(void **)(arg0 + 0x28), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+}
+
+/* measured re-triage: corrected two-call body has exact size, but MWCC b210
+   sinks the f14 load below the integer arguments and serialises the f13
+   chain. Best candidate: normalized_diff 79, object 336/336; discarded. */
+// FUN_001887F0
+void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_16;
+    f32 temp_f1;
+    f32 temp_f2;
+
+    temp_16 = arg2 * 0x10;
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F2130 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F2134 + temp_16);
+    sdkSpriteDrawQueued((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0x313131, 0xFF, 6, *(void **)(arg0 + 0x34), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F2138 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F213C + temp_16);
+    sdkSpriteDrawQueued((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, arg2 + 7, *(void **)(arg0 + 0x28), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+}
+
+// FUN_00188940
+void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f1;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    s32 temp_16;
+
+    temp_2 = func_00460990();
+    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00187f50;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2);
+    temp_f0 = -45.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = -5.0f + *(f32 *)(arg1 + 4);
+    sdkSpriteDrawQueued((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFF0000, 0xFF, 0, *(void **)(arg0 + 0x2C), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+    temp_f0 = -45.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
+    sdkSpriteDrawQueued((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFF0000, 0xFF, 1, *(void **)(arg0 + 0x2C), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+    temp_2_2 = func_00460990();
+    *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))func_00188110;
+    *(s32 *)(temp_2_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2_2);
+    temp_f0 = 185.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = 0.0f;
+    sdkSpriteDrawQueued((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFFFFFF, 0, 7, *(void **)(arg0 + 0x30), 0, 0, 0, 0, iGpffff8538, 1.0f, D_00795E60);
+    temp_16 = (arg2 ^ *(s32 *)(arg0 + 0x80)) != 0;
+    temp_16 *= 4;
+    temp_2 = (u8 *)(temp_16 + (s32)arg0);
+    temp_f1 = *(f32 *)(temp_2 + 0x88);
+    temp_f0_2 = *(f32 *)arg1 - 1.0f;
+    temp_f0_2 += temp_f1;
+    temp_f1 = *(f32 *)(arg1 + 4);
+    temp_f1 -= 1.0f;
+    temp_16 = arg2 * 4;
+    temp_2 = (u8 *)(temp_16 + (s32)arg0);
+    sdkSpriteDrawQueued((f32)(s32)temp_f0_2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, 0, *(void **)(temp_2 + 0x38), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+}
+
+// FUN_00188BE0
+/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
+ * ~2 mask (addiu $v1, $zero, -3) inside the loop body; retail hoists it to the
+ * preheader. The pragma restores the hoist. */
+s32 func_00188be0(u8 *arg0)
+{
+    Vec3 sp30;
+    Vec3 sp20;
+    f32 temp_f1;
+    s32 temp_2;
+    s32 temp_3;
+    s32 var_5;
+    u8 *temp_16;
+    u8 *temp_2_2;
+    u8 *temp_4_2;
+    u8 *temp_4;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    var_5 = 0;
+    while (var_5 < 5) {
+        if (var_5 == *(s32 *)(temp_16 + 0x5C)) {
+            temp_4 = *(u8 **)(*(u8 **)(temp_16 + 8) + (var_5 * 4));
+            *(s32 *)(temp_4 + 0x28) = *(s32 *)(temp_4 + 0x28) | 2;
+        } else {
+            temp_4_2 = *(u8 **)(*(u8 **)(temp_16 + 8) + (var_5 * 4));
+            *(s32 *)(temp_4_2 + 0x28) = *(s32 *)(temp_4_2 + 0x28) & ~2;
+        }
+        var_5 += 1;
+    }
+    temp_3 = *(s32 *)temp_16;
+    switch (temp_3) {
+    case 0:
+        *(s32 *)temp_16 = temp_3 + 1;
+        break;
+    case 1:
+        break;
+    case 2:
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144));
+        temp_f1 = *(f32 *)(temp_2_2 + 0x30);
+        temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+        temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+        sp30.x = *(f32 *)(temp_2_2 + 0xC) - temp_f1;
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144));
+        temp_f1 = *(f32 *)(temp_2_2 + 0x34);
+        temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+        temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+        sp30.y = *(f32 *)(temp_2_2 + 0x10) - temp_f1;
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144));
+        temp_f1 = *(f32 *)(temp_2_2 + 0x38);
+        temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+        temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+        sp30.z = *(f32 *)(temp_2_2 + 0x14) - temp_f1;
+        RwV3dNormalize(&sp30.x, &sp30.x);
+        sp30.x = sp30.x * *(f32 *)(temp_16 + 0x54);
+        sp30.y = sp30.y * *(f32 *)(temp_16 + 0x54);
+        sp30.z = sp30.z * *(f32 *)(temp_16 + 0x54);
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144));
+        temp_f1 = *(f32 *)(temp_2_2 + 0x30);
+        sp20.x = sp30.x + temp_f1;
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144));
+        temp_f1 = *(f32 *)(temp_2_2 + 0x34);
+        sp20.y = sp30.y + temp_f1;
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144));
+        temp_f1 = *(f32 *)(temp_2_2 + 0x38);
+        sp20.z = sp30.z + temp_f1;
+        temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+        temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+        sp30.x = *(f32 *)(temp_2_2 + 0xC) - sp20.x;
+        temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+        temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+        sp30.y = *(f32 *)(temp_2_2 + 0x10) - sp20.y;
+        temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+        temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+        sp30.z = *(f32 *)(temp_2_2 + 0x14) - sp20.z;
+        RwV3dNormalize(&sp30.x, &sp30.x);
+        if (*(f32 *)(temp_16 + 0x48) * sp30.x + *(f32 *)(temp_16 + 0x4C) * sp30.y + *(f32 *)(temp_16 + 0x50) * sp30.z <= 0.0f) {
+            temp_2 = *(s32 *)(temp_16 + 0x58) * 0xC;
+            temp_2_2 = (u8 *)(temp_2 + (s32)temp_16);
+            *(Vec3 *)(&sp20.x) = *(Vec3 *)(temp_2_2 + 0xC);
+            *(s32 *)(temp_16 + 0x5C) = *(s32 *)(temp_16 + 0x58);
+            *(s32 *)(temp_16 + 0x58) = -1;
+            *(s32 *)temp_16 = 1;
+        }
+        mdlTranslateMatrix((RwMatrix *)*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), (const RwV3d *)&sp20, 0);
+        break;
+    case 3:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+
+/* measured: see annotation above. */
+// FUN_00188EF0
+void func_00188ef0(u8 *arg0)
+{
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
+
+// FUN_00188F20
+u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
+{
+    u8 *temp_18;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_3;
+    s32 var_16;
+
+    chkmemAllocSiteTag(D_005F1EF8, 0x622);
+    temp_2 = (u8 *)D_008873F4[0](1, 0x60, 0x40000);
+    if (temp_2 == NULL) {
+        return NULL;
+    }
+    temp_18 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_00188be0, func_00188ef0, (u8 *)(temp_2));
+    *(s32 *)(temp_2 + 4) = arg1;
+    *(u8 **)(temp_2 + 8) = arg2;
+    *(s32 *)(temp_2 + 0x58) = -1;
+    *(s32 *)(temp_2 + 0x5C) = -1;
+    var_16 = 0;
+    while (var_16 < 5) {
+        temp_2_2 = mdlGetMatrix(*(s32 *)(*(u8 **)(arg2 + (var_16 * 4)) + 0x144));
+        temp_3 = temp_2 + (var_16 * 0xC);
+        *(Vec3 *)(temp_3 + 0xC) = *(Vec3 *)(temp_2_2 + 0x30);
+        var_16 += 1;
+    }
+    return temp_18;
+}
+
+// FUN_00189060
+void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
+{
+    f32 *temp_4_2;
+    s32 temp_4;
+    u8 *temp_16;
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    *(f32 *)(temp_16 + 0x54) = fparg0;
+    temp_4 = *(s32 *)temp_16;
+    if (((temp_4 != 1) || (*(s32 *)(temp_16 + 0x5C) != arg1)) && ((temp_4 != 2) || (*(s32 *)(temp_16 + 0x58) != arg1))) {
+        if (fparg0 != 0.0f) {
+            *(s32 *)(temp_16 + 0x58) = arg1;
+            *(s32 *)(temp_16 + 0x5C) = -1;
+            *(f32 *)(temp_16 + 0x48) = *(f32 *)((u8 *)(*(s32 *)(temp_16 + 0x58) * 0xC) + (u32)temp_16 + 0xC) - *(f32 *)(mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x30);
+            *(f32 *)(temp_16 + 0x4C) = *(f32 *)((u8 *)(*(s32 *)(temp_16 + 0x58) * 0xC) + (u32)temp_16 + 0x10) - *(f32 *)(mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x34);
+            *(f32 *)(temp_16 + 0x50) = *(f32 *)((u8 *)(*(s32 *)(temp_16 + 0x58) * 0xC) + (u32)temp_16 + 0x14) - *(f32 *)(mdlGetMatrix(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x38);
+            temp_4_2 = (f32 *)(temp_16 + 0x48);
+            RwV3dNormalize(temp_4_2, temp_4_2);
+            *(s32 *)temp_16 = 2;
+            return;
+        }
+        *(s32 *)(temp_16 + 0x58) = -1;
+        *(s32 *)(temp_16 + 0x5C) = arg1;
+        mdlTranslateMatrix((RwMatrix *)*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), (const RwV3d *)(temp_16 + (arg1 * 0xC) + 0xC), 0);
+    }
+}
+
+// FUN_001891D0
+s32 func_001891d0(u8 *arg0)
+{
+    f32 sp40[3];
+    f32 temp_f20;
+    f32 temp_f2_2;
+    f32 temp_f2;
+    s32 temp_3_2;
+    s32 temp_3_3;
+    s32 temp_3_4;
+    s32 temp_3;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_2_2;
+    u8 *temp_2;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    func_00457120();
+    temp_3 = *(s32 *)temp_16;
+    switch (temp_3) {
+    case 0:
+        *(s32 *)temp_16 = temp_3 + 1;
+        break;
+    case 1:
+        break;
+    case 2:
+        temp_f20 = sinf((iGpffff84a4 * (f32)*(s32 *)(temp_16 + 0x24)) / (f32)*(s32 *)(temp_16 + 0x28));
+        temp_3_2 = *(s32 *)(temp_16 + 0x30) * 0x18;
+        sp40[0] = *(f32 *)((u8 *)D_005F2190 + temp_3_2) - *(f32 *)(temp_16 + 4);
+        sp40[1] = *(f32 *)((u8 *)D_005F2194 + temp_3_2) - *(f32 *)(temp_16 + 8);
+        sp40[2] = *(f32 *)((u8 *)D_005F2198 + temp_3_2) - *(f32 *)(temp_16 + 0xC);
+        temp_f2 = mulFp(RwV3dNormalize(&sp40[0], &sp40[0]), temp_f20);
+        sp40[0] = sp40[0] * temp_f2;
+        sp40[1] = sp40[1] * temp_f2;
+        sp40[2] = sp40[2] * temp_f2;
+        *(f32 *)(temp_16 + 4) = *(f32 *)(temp_16 + 4) + sp40[0];
+        *(f32 *)(temp_16 + 8) = *(f32 *)(temp_16 + 8) + sp40[1];
+        *(f32 *)(temp_16 + 0xC) = *(f32 *)(temp_16 + 0xC) + sp40[2];
+        temp_3_3 = *(s32 *)(temp_16 + 0x30) * 0x18;
+        sp40[0] = *(f32 *)((u8 *)D_005F219C + temp_3_3) - *(f32 *)(temp_16 + 0x10);
+        sp40[1] = *(f32 *)((u8 *)D_005F21A0 + temp_3_3) - *(f32 *)(temp_16 + 0x14);
+        sp40[2] = *(f32 *)((u8 *)D_005F21A4 + temp_3_3) - *(f32 *)(temp_16 + 0x18);
+        temp_f2_2 = mulFp(RwV3dNormalize(&sp40[0], &sp40[0]), temp_f20);
+        sp40[0] = sp40[0] * temp_f2_2;
+        sp40[1] = sp40[1] * temp_f2_2;
+        sp40[2] = sp40[2] * temp_f2_2;
+        *(f32 *)(temp_16 + 0x10) = *(f32 *)(temp_16 + 0x10) + sp40[0];
+        *(f32 *)(temp_16 + 0x14) = *(f32 *)(temp_16 + 0x14) + sp40[1];
+        *(f32 *)(temp_16 + 0x18) = *(f32 *)(temp_16 + 0x18) + sp40[2];
+        func_00457630(func_00457120(), temp_16 + 4, temp_16 + 0x10, 0);
+        temp_3_4 = *(s32 *)(temp_16 + 0x24) + 1;
+        *(s32 *)(temp_16 + 0x24) = temp_3_4;
+        if (*(s32 *)(temp_16 + 0x28) < temp_3_4) {
+            temp_17 = (u8 *)D_005F2190 + (*(s32 *)(temp_16 + 0x30) * 0x18);
+            func_00457630(func_00457120(), temp_17, temp_17 + 0xC, 0);
+            temp_2 = (u8 *)D_005F2190 + (*(s32 *)(temp_16 + 0x30) * 0x18);
+            *(Vec3 *)(temp_16 + 4) = *(Vec3 *)(temp_2 + 0);
+            temp_2_2 = (u8 *)D_005F219C + (*(s32 *)(temp_16 + 0x30) * 0x18);
+            *(Vec3 *)(temp_16 + 0x10) = *(Vec3 *)(temp_2_2 + 0);
+            *(s32 *)(temp_16 + 0x24) = 0;
+            *(s32 *)temp_16 = 1;
+        }
+        break;
+    case 3:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+
+// FUN_00189520
+void func_00189520(u8 *arg0)
+{
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
+
+// FUN_00189550
+u8 *func_00189550(u8 *arg0)
+{
+    u8 *temp_2_2;
+    u8 *temp_2;
+
+    chkmemAllocSiteTag(D_005F1EF8, 0x735);
+    temp_2_2 = (u8 *)D_008873F4[0](1, 0x34, 0x40000);
+    if (temp_2_2 == NULL) {
+        return NULL;
+    }
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_001891d0, func_00189520, (u8 *)(temp_2_2));
+    *(s32 *)(temp_2_2 + 0x30) = -1;
+    return temp_2;
+}
+
