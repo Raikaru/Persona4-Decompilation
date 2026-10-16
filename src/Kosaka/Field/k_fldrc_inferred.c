@@ -151,7 +151,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 D_00762EA0;
 
 extern s32 func_004b1130(s32 arg0);
-extern void func_004b1170(s32 arg0);
+extern void mdlEffectStart(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(void *object, f32 *position);
 
@@ -744,7 +744,7 @@ loop_done_4:
         *(s16 *)(p4_e740_add(var_17 * 2, temp_16) + 0x64) = temp_3;
         *(s32 *)(temp_16 + 0x20) = *(s32 *)(temp_16 + 0x20) + 1;
     } else {
-        func_004b1170(*(s32 *)(temp_16 + 0x14));
+        mdlEffectStart(*(s32 *)(temp_16 + 0x14));
         func_004b1250(*(void **)(temp_16 + 0x14), arg1);
         *(s32 *)(temp_16 + 0x18) = 0;
         temp_4 = 1;

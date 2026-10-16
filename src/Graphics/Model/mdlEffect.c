@@ -24,11 +24,11 @@ extern void mdlEffectListReleaseNodes(u32 *param_1);
 
 extern void func_004b11d0(s32 arg0, s32 arg1);
 
-extern void func_004b1170();
+extern void mdlEffectStart();
 
 extern void mdlEffectSetPackedColor(void *object, s32 *color);
 
-extern void func_004b13d0(float param_1, u8 param_2[][16]);
+extern void mdlEffectSetUniformScale(float param_1, u8 param_2[][16]);
 extern void mdlEffectListReleaseHandles(u32 *param_1);
 extern void func_004b1150_i(int param_1);
 extern u32 func_004b1130_u32(u32 param_1);
@@ -509,7 +509,7 @@ void mdlEffectListCallFlagged(u32 *param_1)
 
     if ((piVar1[2] != 0) && ((*(u32 *)(*piVar1 + 0xc) & 1) != 0)) {
 
-      func_004b1170(piVar1[2]);
+      mdlEffectStart(piVar1[2]);
     }
 
 
@@ -550,7 +550,7 @@ void mdlEffectListSetUniformScale(int *param_1,float *param_2)
     average = (param_2[0] + param_2[1] + param_2[2]) / 3.0f;
     for (current = *param_1; current != 0; current = *(int*)(current + 0x10)) {
         if (*(int*)(current + 8) != 0) {
-            func_004b13d0(average,(u8 (*)[16])*(u32*)(current + 8));
+            mdlEffectSetUniformScale(average,(u8 (*)[16])*(u32*)(current + 8));
         }
     }
 }

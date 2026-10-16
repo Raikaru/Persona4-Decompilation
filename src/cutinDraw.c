@@ -19,9 +19,9 @@ u8 *func_004b1130();
 
 void func_004b11d0();
 void func_004b1250();
-s32 func_004b1520();
-s32 func_004b1540();
-void func_004b1560();
+s32 mdlEffectIsFinished();
+s32 mdlEffectIsActive();
+void mdlEffectUpdate();
 
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -74,7 +74,7 @@ s32 func_00120bc0(u8 *arg0)
         sp220.z = 0;
         if (*(s32 *)(temp_16 + 0x14) != 0) {
             if (*(s32 *)(temp_16 + 0xC) != 0 && *(s32 *)(temp_16 + 0x10) != 0) {
-                func_004b1560(*(s32 *)(temp_16 + 0x24));
+                mdlEffectUpdate(*(s32 *)(temp_16 + 0x24));
                 *(s32 *)(temp_16 + 0x10) = 0;
                 *(s32 *)(temp_16 + 0xC) = 0;
             }
@@ -85,10 +85,10 @@ s32 func_00120bc0(u8 *arg0)
             func_004b1250(*(s32 *)(temp_16 + 0x24), &sp220);
             func_004b1190(*(u8 **)(temp_16 + 0x24));
             func_004b11d0(D_005DC974, *(s32 *)(temp_16 + 0x24));
-            if (func_004b1540(*(s32 *)(temp_16 + 0x24)) != 0) {
+            if (mdlEffectIsActive(*(s32 *)(temp_16 + 0x24)) != 0) {
                 *(s32 *)(temp_16 + 0xC) = 1;
             }
-            if (func_004b1520(*(s32 *)(temp_16 + 0x24)) != 0) {
+            if (mdlEffectIsFinished(*(s32 *)(temp_16 + 0x24)) != 0) {
                 return -1;
             }
         }
