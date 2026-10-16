@@ -19,19 +19,19 @@ typedef struct Resrc Resrc;
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s64 nmMesWindowAcquire(void *arg0);
 extern void strcpy(u8 *arg0, u8 *arg1);
-extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
+extern void nmMesWindowSetSlotString(s8 arg0, s32 arg1, void *arg2);
 extern s32 func_00248f20(s32 arg0, s32 arg1);
 extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
-extern s32 func_002bb680(s8 arg0);
-extern void func_002bb420(s8 arg0);
+extern s32 nmMesWindowSlotStatus(s8 arg0);
+extern void nmMesWindowRestartSlot(s8 arg0);
 extern s16 datCategoryRank(s16 arg0);
 extern s16 datGetCategoryValueById(s16 arg0, s16 arg1);
 extern void datSetCategoryValueById(s16 arg0, s16 arg1, s16 arg2);
 extern s32 cmmRankStringAt(s16 arg0, s16 arg1);
 extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
-extern void func_002bb550(s8 arg0);
-extern void func_002bbcf0(s32 arg0);
+extern void nmMesWindowDestroySlot(s8 arg0);
+extern void nmMesWindowStepSlotRelease(s32 arg0);
 extern s32 func_0025c790(u8 *task);
 extern u32 kwlnTaskGetWork(void *task);
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
@@ -77,7 +77,7 @@ s32 func_0025c790(u8 *task)
         work->slot = (s8)nmMesWindowAcquire(D_00636850);
         if (work->slot != -1) {
             strcpy(name, D_00636820[work->index]);
-            func_002bbd80((s8)work->slot, 0, name);
+            nmMesWindowSetSlotString((s8)work->slot, 0, name);
             message = func_00248f20((s16)work->index, work->value);
             if (message < 0 || message > 2)
                 kAssertFail(D_00636838, 0xD1);
@@ -88,8 +88,8 @@ s32 func_0025c790(u8 *task)
         work->state = 1;
         break;
     case 1:
-        if (func_002bb680((s8)work->slot) == 0) {
-            func_002bb420((s8)work->slot);
+        if (nmMesWindowSlotStatus((s8)work->slot) == 0) {
+            nmMesWindowRestartSlot((s8)work->slot);
             old_rank = datCategoryRank((s16)work->index);
             increment = work->value;
             index = work->index;
@@ -104,29 +104,29 @@ s32 func_0025c790(u8 *task)
                 new_rank = datCategoryRank((s16)work->index);
                 sdkSndStartStream(1, 0, 3, 0);
                 strcpy(name, D_00636820[work->index]);
-                func_002bbd80((s8)work->slot, 0, name);
+                nmMesWindowSetSlotString((s8)work->slot, 0, name);
                 frFontExCopyString((char *)(u32)cmmRankStringAt((s16)work->index, (s16)old_rank), (char *)old_name, 32);
                 frFontExCopyString((char *)(u32)cmmRankStringAt((s16)work->index, (s16)new_rank), (char *)new_name, 32);
-                func_002bbd80((s8)work->slot, 1, old_name);
-                func_002bbd80((s8)work->slot, 2, new_name);
+                nmMesWindowSetSlotString((s8)work->slot, 1, old_name);
+                nmMesWindowSetSlotString((s8)work->slot, 2, new_name);
                 nmMesWindowShowSlotRecord((s8)work->slot, 3);
                 work->state = 2;
             } else {
-                func_002bb550((s8)work->slot);
+                nmMesWindowDestroySlot((s8)work->slot);
                 return -1;
             }
         }
         break;
     case 2:
-        if (func_002bb680((s8)work->slot) == 0) {
-            func_002bb420((s8)work->slot);
-            func_002bb550((s8)work->slot);
+        if (nmMesWindowSlotStatus((s8)work->slot) == 0) {
+            nmMesWindowRestartSlot((s8)work->slot);
+            nmMesWindowDestroySlot((s8)work->slot);
             return -1;
         }
         break;
     }
     if (work->slot >= 0)
-        func_002bbcf0((s8)work->slot);
+        nmMesWindowStepSlotRelease((s8)work->slot);
     return 0;
 }
 // FUN_0025CB80

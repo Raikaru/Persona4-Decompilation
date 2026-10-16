@@ -4557,8 +4557,8 @@ u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
 u16 ShdSkill_GetPendingSkill(u8 *);
 s16 ShdSkill_FindSlot(u8 *, s32);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
-void func_002bb7c0(s32);
-s32 func_002bb4e0(void);
+void nmMesWindowStepCurrent(s32);
+s32 nmMesWindowResetCurrent(void);
 s32 nmMesWindowCurrentOpenState(void);
 u32 nmMesWindowCloseCurrent(s32);
 s32 nmMesWindowCurrentAnimFlag(void);
@@ -4653,7 +4653,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         break;
     }
     case 2:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             shdPersonaAdvanceSkillList(work);
@@ -4669,7 +4669,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                 sdkSndStartStream(1, 3, 3, 1);
             }
         }
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             *(s32 *)(work + 0xC) = *(s32 *)(work + 0xC) + 1;
@@ -4741,7 +4741,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     }
         /* fallthrough */
     case 6: {
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             u8 *b;
             u16 vv;
@@ -4780,7 +4780,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                 break;
             }
             if (idx >= 0) {
-                func_002bb4e0();
+                nmMesWindowResetCurrent();
                 if (*(s32 *)(work + 0x28) == 0) {
                     kAssertFail(D_005E4868, 0x13AD);
                 }
@@ -4789,7 +4789,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                 *(s32 *)(work + 0x14) = 0xF;
             } else if (datPersonaCountSkills(first) == 8) {
                 *(s32 *)(work + 0x14) = 7;
-                func_002bb4e0();
+                nmMesWindowResetCurrent();
                 *(u8 **)(work + 0x18) = shdPersonaSkillReplaceCreate(0, *(u8 **)(work + 0x1C), *(s32 *)(work + 0x24), work + 0x2C);
             } else {
                 u16 vv2;
@@ -4818,7 +4818,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         }
         break;
     case 8:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             s32 t;
             nmMesWindowCloseCurrent(1);
@@ -4882,7 +4882,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     }
         /* fallthrough */
     case 11:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             *(s32 *)(work + 0x14) = 0xC;
@@ -4897,7 +4897,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         }
         shdPersonaFillStatusForState(base, *(u8 **)base);
         datPersonaFillSkillRows(*(s32 *)base, base + 0x8C);
-        func_002bb4e0();
+        nmMesWindowResetCurrent();
         *(u16 *)(work + 2) = 0;
         *(s32 *)(work + 0x14) = 0xD;
         /* fallthrough */
@@ -4912,7 +4912,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     case 0xE:
         break;
     case 15:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             u16 vv;
             u8 *bb;
@@ -4926,7 +4926,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             }
             *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
             nmMesWindowCloseCurrent(1);
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
             nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x24)));
             shdPersonaAdvanceSkillList(work);
         }
@@ -5004,8 +5004,8 @@ s32 shdPersonaDestroyTask(u8 *task)
 
 u16 ShdSkill_GetPendingSkill(u8 *);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
-void func_002bb7c0(s32);
-s32 func_002bb4e0(void);
+void nmMesWindowStepCurrent(s32);
+s32 nmMesWindowResetCurrent(void);
 s32 nmMesWindowCurrentOpenState(void);
 u32 nmMesWindowCloseCurrent(s32 arg0);
 s32 nmMesWindowCurrentAnimFlag(void);
@@ -5046,7 +5046,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
     }
         /* fallthrough */
     case 1:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             *(s32 *)(work + 8) = 2;
@@ -5086,7 +5086,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
         break;
     }
     case 3:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             s32 choice;
             nmMesWindowCloseCurrent(1);
@@ -5203,7 +5203,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x34));
         /* fallthrough */
     case 6:
-            func_002bb7c0(1);
+            nmMesWindowStepCurrent(1);
             if (nmMesWindowCurrentOpenState() == 0) {
                 nmMesWindowCloseCurrent(1);
                 *(s32 *)(work + 8) = 7;
@@ -5212,7 +5212,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
         break;
     }
     case 7:
-        func_002bb4e0();
+        nmMesWindowResetCurrent();
         *(s32 *)(work + 8) = 8;
         break;
     case 8:

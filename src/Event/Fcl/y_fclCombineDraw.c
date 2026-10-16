@@ -70,7 +70,7 @@ extern s16 fclSpriteFlagBit(s16, s16);
 extern void fclSpriteReset(s16, s16);
 extern u8 *yListSlotWork(s8 arg0);
 extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
-extern void func_002ba970(u8 *, s16, FclDrawColor);
+extern void nmMesWindowSetNumberColor(u8 *, s16, FclDrawColor);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 datPersonaRosterCapacity(void);
 extern void fclSpriteStartColorAt(s16, s32, s32, s32, s32, s32);
@@ -1556,7 +1556,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
         } else {
             c29C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
         }
-        func_002ba080(*(u8 **)(t + 0x2BC), (s8)(u32)arg2, arg4, arg1, c29C, 3, (s16)arg5, 46.0f, 0x59, arg6);
+        nmMesWindowShowNumber(*(u8 **)(t + 0x2BC), (s8)(u32)arg2, arg4, arg1, c29C, 3, (s16)arg5, 46.0f, 0x59, arg6);
         return;
     }
     if ((s8)arg6 == 1) {
@@ -1687,7 +1687,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
         /* The persona lookup is complete; this scalar now carries the digit delay. */
         persona = delay;
         digitRow = (s8)(rowIndex + 0xC);
-        func_002ba080(work->digitTask, digitRow, (s16)level, func_002b2970(position.x - 16.0f, rowY),
+        nmMesWindowShowNumber(work->digitTask, digitRow, (s16)level, func_002b2970(position.x - 16.0f, rowY),
                       func_002b2a60(0xCC, 0xFF, 0xFF, 0x80), 3, persona, 46.0f, 0x59, mode);
         if (rowAvailability == 2) {
             sprite = (s16)(rowIndex + 0x270);
@@ -1738,7 +1738,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
                 fclSpriteSetFlag(0x2E8, 2, 1);
                 ((FclCombineRowSprite *)fclSpriteEntry(0x2E8))->flag73 = 1;
                 ((FclCombineRowSprite *)fclSpriteEntry((s16)(rowIndex + 0x2A3)))->color = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                func_002ba970(work->digitTask, digitRow, func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF));
+                nmMesWindowSetNumberColor(work->digitTask, digitRow, func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF));
                 return;
             }
             fclSpriteSetFlag(0x1C7, 0, 1);
@@ -1993,7 +1993,7 @@ void fclCombineSelectSlotEntry(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             *(FclByte4 *)(p + 0x85) = cC4;
             ret = func_002b2a30(0, 0, 0x66, 0xFF);
             cC0.channels = func_002b2a60(0, 0, 0x66, 0xFF);
-            func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cC0.channels);
+            nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s8)arg1, cC0.channels);
         }
         if ((s8)arg4 == 0) {
             s16 j = 0;
@@ -2072,7 +2072,7 @@ s32 fclCombineApplySlotState(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         q = fclSpriteEntry((s16)(v16 + 0x39));
         *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
         cB4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, cB4.channels);
+        nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s8)arg1, cB4.channels);
         ret = func_002b2a30(0x2D, 0x2D, 0x2D, arg3);
     } else {
         s32 v16;
@@ -2100,7 +2100,7 @@ s32 fclCombineApplySlotState(u8 *arg0, s8 arg1, s8 arg2, u8 arg3) {
         cA0 = func_002b2a60(0, 0, 0x66, 0xFF);
         *(FclByte4 *)(fclSpriteEntry((s16)(v16 + 0x250)) + 0x85) = cA0;
         c9C.channels = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-        func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, c9C.channels);
+        nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s8)arg1, c9C.channels);
         ret = func_002b2a30(0xCC, 0xFF, 0xFF, arg3);
     }
     return ret;
@@ -3338,7 +3338,7 @@ void fclCombineRefreshRosterSelection(u8 *arg0) {
                 p = fclSpriteEntry((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cD8;
                 cD4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.channels);
+                nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.channels);
                 func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
                 if (*(s8 *)(yListSlotWork(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                     fclSpriteSetFlag(0xCF, 0, 1);
@@ -3359,7 +3359,7 @@ void fclCombineRefreshRosterSelection(u8 *arg0) {
                 p = fclSpriteEntry((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cCC;
                 cC8.channels = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cC8.channels);
+                nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cC8.channels);
                 func_002b2a30(0xFF, 0xCC, 0xFA, 0xFF);
                 fclSpriteSetFlag(0xCF, 0, 0);
                 fclSpriteSetFlag(0xD2, 0, 0);
@@ -3382,7 +3382,7 @@ void fclCombineRefreshRosterSelection(u8 *arg0) {
                 p = fclSpriteEntry((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cBC;
                 cB8.channels = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cB8.channels);
+                nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cB8.channels);
                 func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
             }
             if (*(s8 *)(t + 0x128) != (s16)i && *(s8 *)(t + 0x129) != (s16)i) {
@@ -3637,7 +3637,7 @@ void fclCombineDrawPairLayout(u8 *arg0, s32 arg1, s8 arg2) {
         p = fclSpriteEntry(0x2A3);
         *(FclByte4 *)(p + 0x85) = c118;
         c114 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002ba970(*(u8 **)(t + 0x2BC), (s16)(i + 0xC), c114);
+        nmMesWindowSetNumberColor(*(u8 **)(t + 0x2BC), (s16)(i + 0xC), c114);
     }
     v = (FclVec2 *)D_006440F8;
     fclSpriteCreate(0x71, func_002b2970(v->x, v->y), 138.0f, 0x41);

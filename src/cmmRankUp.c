@@ -3218,10 +3218,10 @@ extern void kwlnTaskDestroyWithHierarchy();
 extern s32 kwlnTaskGetTaskByName();
 extern s32 itfMesWindowInstall();
 extern void itfMesWindowReleaseIfActive();
-extern s32 func_002bb680();
-extern void func_002bb420();
-extern void func_002bb550();
-extern void func_002bbcf0(s32);
+extern s32 nmMesWindowSlotStatus();
+extern void nmMesWindowRestartSlot();
+extern void nmMesWindowDestroySlot();
+extern void nmMesWindowStepSlotRelease(s32);
 extern s8 nmMesWindowAcquire();
 extern s32 nmMesWindowShowSlotRecord(s8 slot, s32 message);
 extern void nmMesWindowShowSlotRecordStyle1();
@@ -3234,7 +3234,7 @@ extern u8 *cmmPersonaRecord();
 extern u8 *datPersonaGetRow(u16 personaId);
 extern char *strcpy(char *destination, const char *source);
 extern void frFontExCopyString(char *source, char *destination, s32 capacity);
-extern void func_002bbd80(s8 handle, s32 variable, void *text);
+extern void nmMesWindowSetSlotString(s8 handle, s32 variable, void *text);
 extern s32 datGetFlag();
 extern void datSetFlag();
 extern u16 *datPersonaGetRecord(u16 character);
@@ -3444,7 +3444,7 @@ s32 func_0025b240(u8 *arg0) {
         *(s8 *)(ctx + 0x3C) = nmMesWindowAcquire(*(void **)(ctx + 0x38));
         tmp4 = *(s32 *)(ctx + 0x1C);
         if (tmp4 == 0) {
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
             if (*(s32 *)(ctx + 0x18) == 7) {
                 nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0xC);
             } else {
@@ -3452,12 +3452,12 @@ s32 func_0025b240(u8 *arg0) {
             }
         } else if (tmp4 == 10) {
             frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, sp160);
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
             frFontExCopyString((char *)cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 2, sp160);
             strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))) + 0x40)));
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 3, sp160);
             nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {
             nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 5);
@@ -3476,16 +3476,16 @@ s32 func_0025b240(u8 *arg0) {
                 sdkSndFadeOutChannel(3, 0);
             }
             frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, sp160);
             sprintf(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, sp160);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, sp160);
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
             nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 3);
         }
     case 14:
-        if (func_002bb680(*(s8 *)(ctx + 0x3C)) == 0) {
+        if (nmMesWindowSlotStatus(*(s8 *)(ctx + 0x3C)) == 0) {
             s8 completedRank;
-            func_002bb420(*(s8 *)(ctx + 0x3C));
+            nmMesWindowRestartSlot(*(s8 *)(ctx + 0x3C));
             tmp4 = *(s32 *)(ctx + 0x1C);
             completedRank = (s8)tmp4;
             if (completedRank == 0) {
@@ -3494,12 +3494,12 @@ s32 func_0025b240(u8 *arg0) {
             if (tmp4 != 0xB && tmp4 != 0xC && func_00255ed0(*(s32 *)(ctx + 0x18), completedRank) != 0) {
                 *(s32 *)(ctx + 4) = 0xF;
             } else {
-                func_002bb550(*(s8 *)(ctx + 0x3C));
+                nmMesWindowDestroySlot(*(s8 *)(ctx + 0x3C));
                 *(s32 *)(ctx + 4) = 1;
                 *(s32 *)ctx |= 4;
             }
         }
-        func_002bbcf0(*(s8 *)(ctx + 0x3C));
+        nmMesWindowStepSlotRelease(*(s8 *)(ctx + 0x3C));
         goto tail;
     case 15:
         *(s32 *)(ctx + 4) = 0x10;
@@ -3535,7 +3535,7 @@ s32 func_0025b240(u8 *arg0) {
             *(s32 *)ctx |= 0x20;
         }
         frFontExCopyString((char *)cmmTextRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
-        func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
+        nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, sp160);
         switch (c) {
         case 2:
             nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 7);
@@ -3554,19 +3554,19 @@ s32 func_0025b240(u8 *arg0) {
             break;
         case 7:
             skill = 0x113;
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
             nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0x12);
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x113);
             break;
         case 8:
             skill = 0x112;
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
             nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0x13);
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x112);
             break;
         case 9:
             skill = 0x10D;
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x13F7));
+            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x13F7));
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x10D);
             break;
         }
@@ -3579,17 +3579,17 @@ s32 func_0025b240(u8 *arg0) {
         /* fallthrough */
     case 16:
     case16tail:
-        if (func_002bb680(*(s8 *)(ctx + 0x3C)) == 0) {
-            func_002bb420(*(s8 *)(ctx + 0x3C));
+        if (nmMesWindowSlotStatus(*(s8 *)(ctx + 0x3C)) == 0) {
+            nmMesWindowRestartSlot(*(s8 *)(ctx + 0x3C));
             if ((*(s32 *)ctx & 0x20) != 0) {
                 *(s32 *)(ctx + 4) = 0xF;
             } else {
-                func_002bb550(*(s8 *)(ctx + 0x3C));
+                nmMesWindowDestroySlot(*(s8 *)(ctx + 0x3C));
                 *(s32 *)(ctx + 4) = 1;
                 *(s32 *)ctx |= 4;
             }
         }
-        func_002bbcf0(*(s8 *)(ctx + 0x3C));
+        nmMesWindowStepSlotRelease(*(s8 *)(ctx + 0x3C));
         goto tail;
     default:
         goto tail;

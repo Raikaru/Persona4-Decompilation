@@ -92,12 +92,12 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma push
 #pragma pop
 /* Row and value are signed halfwords; retail discards incoming row high bits.
-   Rewritten on the matched func_002ba5d0 pattern. Retail passes both colours
+   Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
    as words (the parameter home reloaded with lw, the stored digit colour with
    lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
    copies are spelled differently so only post-colouring CSE shares them.
    The redraw positions are named locals, which puts their frame slots above
-   secondPosition as in retail. Depth precedes layer, as in func_002ba5d0:
+   secondPosition as in retail. Depth precedes layer, as in nmMesWindowSetNumber:
    retail copies $f12 before $t3 in the prologue, and both callers still
    match. opt_dead_assignments off reproduces retail's late argument loads. */
 #pragma push
@@ -109,8 +109,9 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
+// Intent: sets string variable `variable` of the window in slot `arg0` to `text`.
 // FUN_002BBD80
-void func_002bbd80(s8 arg0, s32 variable, void *text) {
+void nmMesWindowSetSlotString(s8 arg0, s32 variable, void *text) {
     u8 *p;
 
     p = D_00882F40[(s8)arg0];

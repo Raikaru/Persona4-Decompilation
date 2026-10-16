@@ -35,7 +35,7 @@ extern char D_00629660[];
 s32 btlLogoUnlockStage(u8* work);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
 void nmMesWindowShowCurrentRecord(s32 param);
-void func_002bb4e0(void);
+void nmMesWindowResetCurrent(void);
 void nmMesWindowSetCurrentString(s32 param, void* text);
 s32 datMemberNoticeTryBegin(s32 param);
 void sprintf(void* dst, void* fmt, s32 value);
@@ -180,7 +180,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         }
         break;
     case 4:
-        func_002bb4e0();
+        nmMesWindowResetCurrent();
         work_p->count = 0;
         work->state40 = 5;
         /* fallthrough */
@@ -248,7 +248,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
         break;
     case 3:
         if (datMemberNoticeTryBegin(1) == 0) {
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
             work->flags &= 0xFFFE;
             work->state = 6;
         }

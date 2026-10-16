@@ -217,7 +217,7 @@ void sdkSpriteRelease(void *);
 void H_Cdvd_Destroy(void *);
 void yListDestroy(void);
 s64 nmMesWindowAcquire(void *);
-void func_002bbd80(s8, s32, void *);
+void nmMesWindowSetSlotString(s8, s32, void *);
 s32 nmMesWindowShowSlotRecord(s8, s32);
 void nmMesWindowSetSlotParam(s32, s32);
 void nmMesWindowSetSlotFlag(s32, s32);
@@ -347,9 +347,9 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern s32 func_002b32a0(s32, s32, s32, s32);
     extern s32 nmMesWindowShowSlotRecordStyle1(s64, s32);
     extern s32 func_002bb1c0(s8);
-    extern void func_002bb550(s8);
-    extern s32 func_002bb680(s8);
-    extern void func_002bbcf0(s32);
+    extern void nmMesWindowDestroySlot(s8);
+    extern s32 nmMesWindowSlotStatus(s8);
+    extern void nmMesWindowStepSlotRelease(s32);
     extern void yListCreate(s32, s32, s32, s32);
     extern s32 yListAuxValueAtFor(void *, s32);
     extern u8 func_002e78a0(void);
@@ -963,10 +963,10 @@ s32 fclShopStateUpdate(u8 *arg0)
         }
         break;
     case 0xC:                                       /* switch 1 */
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             datSetFlag(0x1324, 1);
             (*(s8 *)(work + 0)) = 0xD;
         }
@@ -991,10 +991,10 @@ s32 fclShopStateUpdate(u8 *arg0)
         (*(s8 *)(work + 0)) = 0xF;
         break;
     case 0xF:                                       /* switch 1 */
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             (*(s8 *)(work + 0)) = 0xE;
         }
         break;
@@ -1688,11 +1688,11 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclShopDrawStats(arg0);
         fclDrawNumber(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
             sdkSndStartStream(0, 0, 0, 6);
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             func_002e7a80(func_002e7a60() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             sp698.v0 = yListValueAt((*(s16 *)(work + 2)));
             sp698.v1 = 0;
@@ -1700,7 +1700,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             (*(s8 *)(work + 0)) = 0x1E;
         } else {
             func_002d7300(arg0);
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             (*(s8 *)(work + 0)) = 0x1B;
             func_002e04f0((*(void * *)(work + 0xC8C)), 0, 0);
             func_002e04f0((*(void * *)(work + 0xC90)), 0, 0);
@@ -1710,18 +1710,18 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclShopDrawStats(arg0);
         fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
         fclDrawNumber(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
                 sdkSndStartStream(0, 0, 0, 7);
-                func_002bb550((*(s8 *)(work + 0x10)));
+                nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
                 sp690.v0 = (s32) ((s16) (func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
                 sp690.v1 = 0;
                 (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 5, &sp690, 1);
                 (*(s8 *)(work + 0)) = 0x1F;
             } else {
-                func_002bb550((*(s8 *)(work + 0x10)));
+                nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
                 func_00106620(((s16) (yListValueAt((*(s16 *)(work + 2))))), ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) + 1) & 0xFF);
                 (*(s8 *)(work + 0)) = 0x1B;
             }
@@ -1738,8 +1738,8 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclShopDrawStats(arg0);
         func_002cb6c0(arg0, 1);
         fclDrawNumber(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
                 func_002e7a80(func_002e7a60() + (datItemPrice(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
@@ -1748,7 +1748,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 func_00106620(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((func_00106600(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
             }
             func_00106d40((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)), (s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))));
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             (*(s8 *)(work + 0)) = 0x1B;
         }
         break;
@@ -1954,11 +1954,11 @@ block_368:
         break;
     case 0x23:                                      /* switch 1 */
         fclShopListInputStep(arg0);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
             sdkSndStartStream(0, 0, 0, 6);
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             func_002d3ee0(arg0);
             func_002e04f0((*(void * *)(work + 0xDC8)), 0, 1);
             func_002e04f0((*(void * *)(work + 0xDD0)), 0, 1);
@@ -1971,7 +1971,7 @@ block_368:
             func_002e7a80(func_002e7a60() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             (*(s8 *)(work + 0)) = 0x1E;
         } else {
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             (*(s8 *)(work + 0)) = 0x21;
         }
         break;
@@ -2182,8 +2182,8 @@ block_368:
         temp_23_2 = (*(s16 *)(work + 2));
         temp_30 = (*(s16 *)(work + 4));
         fclShopDrawItemDetail(arg0, temp_19_7, temp_16_75 & 0xFF);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
             (*(s16 *)(work + 0xC16)) = 0;
             (*(s16 *)(work + 0xC18)) = 0;
@@ -2243,7 +2243,7 @@ block_368:
                 func_002d4760(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
             }
             func_002df4c0(arg0);
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             func_002e0660((*(void * *)(work + 0xCCC)), 0xFFU, 0U, 0U, 5, 0);
             func_002e0660((*(void * *)(work + 0xCD0)), 0xFFU, 0U, 0U, 5, 0);
             func_002e04f0((*(void * *)(work + 0xCC8)), 0, 1);
@@ -2266,13 +2266,13 @@ block_368:
         break;
     case 0x2E:                                      /* switch 1 */
         func_002cdf80(arg0, 2);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
             (*(s16 *)(work + 0xC16)) = 0;
             (*(s16 *)(work + 0xC18)) = 0;
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
-                func_002bb550((*(s8 *)(work + 0x10)));
+                nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
                 sdkSndStartStream(0, 0, 0, 6);
                 for (var_18_6 = 1; var_18_6 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_6++) {
                     temp_19_8 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
@@ -2315,7 +2315,7 @@ block_368:
                     (*(s8 *)(work + 0)) = 0x29;
                 }
             } else {
-                func_002bb550((*(s8 *)(work + 0x10)));
+                nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
                 (*(s8 *)(work + 0)) = 0x24;
                 if ((*(s8 *)(work + 0xC24)) == 1) {
                     func_002d8600(arg0);
@@ -2326,10 +2326,10 @@ block_368:
     case 0x29:                                      /* switch 1 */
         func_002cdf80(arg0, 2);
         fclShopDrawScrollThumb(arg0);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             sdkSndStartChannel(2, (const char *) D_0063FAF0);
             (*(s8 *)(work + 0)) = 0x2A;
         }
@@ -2347,10 +2347,10 @@ block_368:
     case 0x2B:                                      /* switch 1 */
         func_002cdf80(arg0, 2);
         fclShopDrawScrollThumb(arg0);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             sp670.v0 = (s32) (((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]);
             sp670.v1 = 0;
             (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 3, &sp670, 0);
@@ -2368,12 +2368,12 @@ block_368:
     case 0x2D:                                      /* switch 1 */
         func_002cdf80(arg0, 2);
         fclShopDrawScrollThumb(arg0);
-        if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
-            func_002bbcf0((*(s8 *)(work + 0x10)));
+        if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
+            nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
             temp_3_flag = clndGetMoonPhase((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]));
             datSetStateTableEntry((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]), temp_3_flag | 1);
-            func_002bb550((*(s8 *)(work + 0x10)));
+            nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             temp_2_98 = (*(s16 *)(work + 0xC18)) + 1;
             (*(s16 *)(work + 0xC18)) = temp_2_98;
             if (((s16) ((s64) temp_2_98)) >= (*(s16 *)(work + 0xC16))) {
@@ -7102,7 +7102,7 @@ s32 fclShopPlaySound(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     handle = (s8)nmMesWindowAcquire(*(void **)((u8 *)t + 0x110));
     v = handle;
     if (arg2 != 0) {
-        func_002bbd80(handle, 0, arg2);
+        nmMesWindowSetSlotString(handle, 0, arg2);
     }
     nmMesWindowShowSlotRecord(handle, (s16)arg1);
     if (arg3 == 1) {
@@ -7123,8 +7123,8 @@ s32 fclShopPlaySoundParams(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4
     t = *(void **)((u8 *)*(void **)((u8 *)arg0 + 0x38) + 0xF2C);
     handle = (s8)nmMesWindowAcquire(*(void **)((u8 *)t + 0x110));
     v = handle;
-    func_002bbd80(handle, 0, arg2);
-    func_002bbd80(handle, 1, arg3);
+    nmMesWindowSetSlotString(handle, 0, arg2);
+    nmMesWindowSetSlotString(handle, 1, arg3);
     nmMesWindowShowSlotRecord(handle, (s16)arg1);
     if (arg4 == 1) {
         nmMesWindowSetSlotParam(v, 0);

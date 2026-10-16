@@ -14,16 +14,16 @@ extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern s8 nmMesWindowAcquire(void *);
 extern s32 nmMesWindowShowSlotRecord(s8, s32);
-extern void func_002bbd80(s8, s32, void *);
+extern void nmMesWindowSetSlotString(s8, s32, void *);
 extern void *datGetItemNameId(s16);
 extern void frFontExCopyString(void *, void *, s32);
 extern s32 datGetFlag(s32);
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_002be100(u8);
-extern s32 func_002bb680(s8);
-extern void func_002bbcf0(s32);
-extern void func_002bb550(s8);
+extern s32 nmMesWindowSlotStatus(s8);
+extern void nmMesWindowStepSlotRelease(s32);
+extern void nmMesWindowDestroySlot(s8);
 extern u8 D_00645240[];
 extern u8 D_006450E0[];
 extern u8 D_00647EE0[];
@@ -105,11 +105,11 @@ scan_next:
     goto done;
 
 state_one:
-    if (func_002bb680(work[1]) != 0) {
-        func_002bbcf0(work[1]);
+    if (nmMesWindowSlotStatus(work[1]) != 0) {
+        nmMesWindowStepSlotRelease(work[1]);
         goto done;
     }
-    func_002bb550(work[1]);
+    nmMesWindowDestroySlot(work[1]);
     return -1;
 
 done:
@@ -141,22 +141,22 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
     t = (s16)((arg2 & 0xFFF00) >> 8);
     if (arg2 == 0) {
         *(work + 1) = nmMesWindowAcquire(D_00645240);
-        func_002bbd80(*(work + 1), 0, datGetItemNameId(t));
+        nmMesWindowSetSlotString(*(work + 1), 0, datGetItemNameId(t));
         nmMesWindowShowSlotRecord(*(work + 1), 0x1E);
         return;
     }
     *(work + 1) = nmMesWindowAcquire(D_00645240);
-    func_002bbd80(*(work + 1), 0, datGetItemNameId(t));
+    nmMesWindowSetSlotString(*(work + 1), 0, datGetItemNameId(t));
     temp_2 = func_002be1b0((s16)arg1);
     if (temp_2 == 0xE) {
         frFontExCopyString((void *)D_0064A07C[0], sp40, 0x20);
-        func_002bbd80(*(work + 1), 1, sp40);
+        nmMesWindowSetSlotString(*(work + 1), 1, sp40);
     } else if (temp_2 == 0xF) {
         frFontExCopyString((void *)D_0064A080[0], sp40, 0x20);
-        func_002bbd80(*(work + 1), 1, sp40);
+        nmMesWindowSetSlotString(*(work + 1), 1, sp40);
     } else {
         frFontExCopyString((void *)D_0064A078[0], sp40, 0x20);
-        func_002bbd80(*(work + 1), 1, sp40);
+        nmMesWindowSetSlotString(*(work + 1), 1, sp40);
     }
     nmMesWindowShowSlotRecord(*(work + 1), 0x1F);
 }
@@ -259,11 +259,11 @@ state_two_32520:
     goto done_32520;
 
 state_three_32520:
-    if (func_002bb680(work[1]) != 0) {
-        func_002bbcf0(work[1]);
+    if (nmMesWindowSlotStatus(work[1]) != 0) {
+        nmMesWindowStepSlotRelease(work[1]);
         goto done_32520;
     }
-    func_002bb550(work[1]);
+    nmMesWindowDestroySlot(work[1]);
     return -1;
 
 done_32520:

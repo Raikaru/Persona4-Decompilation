@@ -106,8 +106,8 @@ extern void fclCombineRefreshGridCells(u8 *, s16);
 extern void fclCombineStepSidePanel(u8 *, s16, s8);
 extern u32 RpRandom(void);
 extern void fclSpriteSetFlag(s16, s16, s8);
-extern s32 func_002bb550(s64);
-extern void func_002bbcf0(s32);
+extern s32 nmMesWindowDestroySlot(s64);
+extern void nmMesWindowStepSlotRelease(s32);
 extern s32 yListSlotContainsId(s8, s16);
 extern void fclCombineLayoutTransition(u8 *, s32);
 extern s8 func_00105f50(u16);
@@ -118,7 +118,7 @@ extern void yListSlotFillByLevel(s8, u16 *, s8);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 datPersonaCountSkills(u8 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
-extern s32 func_002bb680(s32);
+extern s32 nmMesWindowSlotStatus(s32);
 extern s32 fadeStatus(void);
 extern s32 func_00122520(s32, s32);
 extern s16 cmmTopCommunityOfArcana(s32);
@@ -154,13 +154,13 @@ extern s32 fclCombineFindRandomSkillIndex(u8 *);
 extern s32 datPersonaReplaceSkill(u8 *, s16, u16);
 extern u16 datPersonaCountValidMembers(void);
 extern u8 *datStagedRecord(void);
-extern void func_002ba970(u8 *, s16, FclDrawColor);
+extern void nmMesWindowSetNumberColor(u8 *, s16, FclDrawColor);
 extern s64 nmMesWindowAcquire(void *);
 extern s32 nmMesWindowShowSlotRecord(s8, s32);
 extern s32 nmMesWindowSetSlotParam(s64, s32);
 extern void nmMesWindowSetSlotFlag(s64, s8);
 extern int sprintf(char *, const char *, ...);
-extern void func_002ba5d0(u8 *, s16, s32, FclVec2, FclDrawColor, f32, s64);
+extern void nmMesWindowSetNumber(u8 *, s16, s32, FclVec2, FclDrawColor, f32, s64);
 extern u32 func_002e7a60(void);
 extern u8 *func_00349290(u8 *, s8);
 
@@ -183,7 +183,7 @@ extern s8 D_007490F8[];
 extern u16 *datPersonaRosterSlot(s16);
 extern u8 datPersonaGetArcana(u16);
 extern s32 func_00331660(void);
-extern void func_002bbd80(s8, s32, void *);
+extern void nmMesWindowSetSlotString(s8, s32, void *);
 extern s32 func_00110140(void);
 extern void *datGetItemNameId(s16);
 extern s16 D_00749040[];
@@ -576,11 +576,11 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         break;
     case 0x13:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         p[1] = 0x12;
         break;
     case 0x14:
@@ -598,7 +598,7 @@ void fclCombineMenuRoot(u8 *arg0)
             entry = D_00641870 + p[0x13F] * 8;
             p[0xD] = nmMesWindowAcquire((void *)func_00331660());
             sprintf(text, &iGpffffa8a0, *(s8 *)entry);
-            func_002bbd80(p[0xD], 0, text);
+            nmMesWindowSetSlotString(p[0xD], 0, text);
             if (func_00109190() >= 1.0f) {
                 nmMesWindowShowSlotRecord(p[0xD], 8);
             } else {
@@ -610,26 +610,26 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         break;
     case 0x15:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         entry = D_00641870 + p[0x13F] * 8;
         p[0xD] = nmMesWindowAcquire((void *)func_00331660());
         msgArgs0[0] = *(s16 *)(entry + 2);
         msgArgs0[1] = 0;
-        func_002bbd80(p[0xD], 0, msgArgs0);
+        nmMesWindowSetSlotString(p[0xD], 0, msgArgs0);
         nmMesWindowShowSlotRecord(p[0xD], 9);
         func_00106620(*(s16 *)(entry + 2), (u8)((u8)func_00106600(*(s16 *)(entry + 2)) + 1));
         p[1] = 0x16;
         break;
     case 0x16:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         datSetFlag(*(s32 *)(D_00641870 + p[0x13F] * 8 + 4), 1);
         selected2 = -1;
         for (k2 = 0; k2 < 2; k2++) {
@@ -649,7 +649,7 @@ void fclCombineMenuRoot(u8 *arg0)
         p[0xD] = nmMesWindowAcquire((void *)func_00331660());
         msgArgs1[0] = *(s16 *)(entry + 2);
         msgArgs1[1] = 0;
-        func_002bbd80(p[0xD], 0, msgArgs1);
+        nmMesWindowSetSlotString(p[0xD], 0, msgArgs1);
         nmMesWindowShowSlotRecord(p[0xD], 9);
         func_00106620(*(s16 *)(entry + 2), (u8)((u8)func_00106600(*(s16 *)(entry + 2)) + 1));
         break;
@@ -804,19 +804,19 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         break;
     case 0x22:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         fclCombineBuildRows(arg0);
         break;
     case 0x21:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         vec = (FclVec2 *)D_00641660;
         pos13 = func_002b2970(vec->x, vec->y);
         fclSpriteCreate(0x1C6, pos13, 242.0f, 0x3D);
@@ -836,11 +836,11 @@ void fclCombineMenuRoot(u8 *arg0)
         p[0] = 0xB;
         break;
     case 0x97:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         if (fclCombineClaimSlot(arg0) == 0) {
             p[1] = 0x18;
         }
@@ -1020,11 +1020,11 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         break;
     case 0x20:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         for (j = 0; j < p[0xB7]; j++) {
             off = j * 2;
             pos14 = func_002b2970(26.0f, (f32)(j * 34 + 87));
@@ -1360,7 +1360,7 @@ void fclCombineBuildRows(u8 *arg0) {
    37 s64 temporaries narrowed to s32 (3963 -> 3659) with four - var_16, var_16_2, var_16_3, var_17_2 - kept s64
    to land 3659 inside the band, the switch-3 labels restored as case 0-2 (retail jtbl, +157 to 3816, still inside),
    the m2c arg-count hallucinations on fclSpriteEntry/func_0010b5b0/fclCombineRowsBusy/fclDrawGetState/fclSpriteFlagBit/
-   func_002bb680/func_00122720 cut back to the retail arg counts, the (f32)(s32) float wrappers collapsed
+   nmMesWindowSlotStatus/func_00122720 cut back to the retail arg counts, the (f32)(s32) float wrappers collapsed
    (0x437F0000->255.0f, 0x43000000->128.0f, 0x422C0000->43.0f), and D_008C027A/024E to [0]. */
 /* measured 002ed430 (owner, 2026-09-19): fnalign **2865 -> 2856 edits**, count
    3816 -> 3814 against retail 3764, by writing m2c's top-tested `loop_N:` /
@@ -1757,7 +1757,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     col254 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x2A3) + 0x85) = col254;
                     col250 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col250);
+                    nmMesWindowSetNumberColor((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col250);
                     var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, spE0);
                     if (*(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
                         fclSpriteSetFlag(0xCF, 0, 1);
@@ -1776,7 +1776,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     col248 = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
                     *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x2A3) + 0x85) = col248;
                     col244 = func_002b2a60(0xFF, 0xCC, 0xFA, 0xFF);
-                    func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col244);
+                    nmMesWindowSetNumberColor((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col244);
                     var_21 = func_002b2a30(0xFF, 0xCC, 0xFA, spE0);
                     fclSpriteSetFlag(0xCF, 0, 0);
                     fclSpriteSetFlag(0xD2, 0, 0);
@@ -1795,7 +1795,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     col238 = func_002b2a60(0, 0, 0x66, 0xFF);
                     *(FclDrawColor *)(fclSpriteEntry(var_19_2 + 0x2A3) + 0x85) = col238;
                     col234 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-                    func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col234);
+                    nmMesWindowSetNumberColor((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col234);
                     var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, spE0);
                 }
                 temp_f20_2 = (f32)(var_19_2 * 0x17 + 0x80);
@@ -2137,8 +2137,8 @@ void fclCombineMenuFusion(u8 *arg0) {
         }
         break;
     case 0x30:                                      /* switch 1 */
-        if ((s32)((s32)(func_002bb680((s8)(temp_18->fD)))) != (s32)((s32)(0))) {
-            func_002bbcf0((s8)(temp_18->fD));
+        if ((s32)((s32)(nmMesWindowSlotStatus((s8)(temp_18->fD)))) != (s32)((s32)(0))) {
+            nmMesWindowStepSlotRelease((s8)(temp_18->fD));
             return;
         }
         if ((s32)((s32)(func_002bb1c0(temp_18->fD))) == (s32)((s32)(0))) {
@@ -2147,14 +2147,14 @@ void fclCombineMenuFusion(u8 *arg0) {
         } else {
             temp_18->f1 = 0x2DU;
         }
-        func_002bb550((s8)(temp_18->fD));
+        nmMesWindowDestroySlot((s8)(temp_18->fD));
         return;
     case 0x31:                                      /* switch 1 */
-        if ((s32)((s32)(func_002bb680((s8)(temp_18->fD)))) != (s32)((s32)(0))) {
-            func_002bbcf0((s8)(temp_18->fD));
+        if ((s32)((s32)(nmMesWindowSlotStatus((s8)(temp_18->fD)))) != (s32)((s32)(0))) {
+            nmMesWindowStepSlotRelease((s8)(temp_18->fD));
             return;
         }
-        func_002bb550((s8)(temp_18->fD));
+        nmMesWindowDestroySlot((s8)(temp_18->fD));
         temp_18->f1 = 0x2DU;
         return;
     case 0x33:                                      /* switch 1 */
@@ -3469,8 +3469,8 @@ block_215:
         temp_17->f1 = 0x49U;
         return;
     case 0x49:                                      /* switch 1 */
-        if ((s32)((s32)(func_002bb680((s8)(temp_17->fD)))) != (s32)((s32)(0))) {
-            func_002bbcf0((s8)(temp_17->fD));
+        if ((s32)((s32)(nmMesWindowSlotStatus((s8)(temp_17->fD)))) != (s32)((s32)(0))) {
+            nmMesWindowStepSlotRelease((s8)(temp_17->fD));
             return;
         }
         if ((s32)((s32)(func_002bb1c0(temp_17->fD))) == (s32)((s32)(0))) {
@@ -3479,14 +3479,14 @@ block_215:
         } else {
             temp_17->f1 = 0x46U;
         }
-        func_002bb550((s8)(temp_17->fD));
+        nmMesWindowDestroySlot((s8)(temp_17->fD));
         return;
     case 0x4A:                                      /* switch 1 */
-        if ((s32)((s32)(func_002bb680((s8)(temp_17->fD)))) != (s32)((s32)(0))) {
-            func_002bbcf0((s8)(temp_17->fD));
+        if ((s32)((s32)(nmMesWindowSlotStatus((s8)(temp_17->fD)))) != (s32)((s32)(0))) {
+            nmMesWindowStepSlotRelease((s8)(temp_17->fD));
             return;
         }
-        func_002bb550((s8)(temp_17->fD));
+        nmMesWindowDestroySlot((s8)(temp_17->fD));
         temp_17->f1 = 0x46U;
         return;
     case 0x4C:                                      /* switch 1 */
@@ -3770,7 +3770,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 shade = 0x66;
                 fclSpriteEntry(i + 0x21C)[0x6E] = shade;
                 fclSpriteEntry(row + 0x22B)[0x6E] = shade;
-                func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, 0, rowPos.position, color3 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha), 46.0f, 0x59);
+                nmMesWindowSetNumber(*(u8 **)(p + 0x2BC), (s8)i, 0, rowPos.position, color3 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             } else {
                 row = i;
                 color4 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
@@ -3780,7 +3780,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 shade = 0xCC;
                 fclSpriteEntry(i + 0x21C)[0x6E] = shade;
                 fclSpriteEntry(row + 0x22B)[0x6E] = shade;
-                func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, ((u8 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[4],
+                nmMesWindowSetNumber(*(u8 **)(p + 0x2BC), (s8)i, ((u8 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[4],
                               rowPos.position, color6 = func_002b2a60(shade, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             }
         }
@@ -3789,15 +3789,15 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                                        *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
             if (*(s16 *)(p + 0x11E) == k) {
                 color7 = func_002b2a60(0x2D, 0x2D, 0x2D, alpha2);
-                func_002ba970((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color7);
+                nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color7);
             } else if (func_003139d0(p[0x1A], (s8)k) == 1) {
                 color8 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha2);
-                func_002ba970((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color8);
+                nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color8);
             } else {
                 alpha2 = (u8)func_002b2aa0(0, 0.0f, 128.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
                                            *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
                 color9 = func_002b2a60(0xCC, 0xFF, 0xFF, alpha2);
-                func_002ba970((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color9);
+                nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color9);
             }
             rgba2 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha2);
             if (*(s16 *)(p + 0x11E) == k) {
@@ -4148,8 +4148,8 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         p[1] = 0x5A;
         break;
     case 0x5A:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
         if (func_002bb1c0(p[0xD]) == 0) {
@@ -4158,14 +4158,14 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         } else {
             p[1] = 0x57;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         break;
     case 0x5B:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         p[1] = 0x57;
         break;
     case 0x5D:
@@ -4389,7 +4389,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                 }
                 color = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
                 rowColor = func_002b2a60(0xCC, 0xFF, 0xFF, alpha);
-                func_002ba970((u8 *)*(u8 **)(p + 0x2BC), i, *(FclDrawColor *)&rowColor);
+                nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), i, *(FclDrawColor *)&rowColor);
                 frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, color, 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(0, i))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
@@ -4397,7 +4397,7 @@ void fclCombineMenuPreview(u8 *arg0) {
         alpha3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
                               *(s16 *)(fclSpriteEntry(0x270) + 0x40));
         color0C = func_002b2a60(0x2D, 0x2D, 0x2D, alpha3);
-        func_002ba970((u8 *)*(u8 **)(p + 0x2BC), 0xC, *(FclDrawColor *)&color0C);
+        nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), 0xC, *(FclDrawColor *)&color0C);
         frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0x2D, 0x2D, 0x2D, alpha3), 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         fclSpriteEntry(0x270)[0x6E] = fclSpriteEntry(0x27D)[0x6E] = 0xFF;
@@ -4629,8 +4629,8 @@ void fclCombineMenuPreview(u8 *arg0) {
         }
         break;
     case 0x6A:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
         if (func_002bb1c0(p[0xD]) == 0) {
@@ -4639,14 +4639,14 @@ void fclCombineMenuPreview(u8 *arg0) {
         } else {
             p[1] = 0x69;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         break;
     case 0x6B:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
             break;
         }
-        func_002bb550(p[0xD]);
+        nmMesWindowDestroySlot(p[0xD]);
         p[1] = 0x69;
         break;
     case 0x6C:
@@ -4800,7 +4800,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         fclSpriteSetFlag(0x27D, 2, 1);
         *(FclDrawColor *)(fclSpriteEntry(p->f11E + 0x270) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(p->f11E + 0x27D)) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(p->f11E + 0x28B)) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(p->f11E + 0x297)) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         *(FclDrawColor *)(fclSpriteEntry(p->f11E + 0x2A3) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002ba970((u8 *)p->f2BC, (s8)(p->f11E + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
+        nmMesWindowSetNumberColor((u8 *)p->f2BC, (s8)(p->f11E + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
         return;
     case 0x8D:
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
@@ -4822,7 +4822,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             drawSlot = (s8)(var_18 + 0xC);
-            func_002ba5d0((u8 *)p->f2BC, drawSlot,
+            nmMesWindowSetNumber((u8 *)p->f2BC, drawSlot,
                           *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4),
                           func_002b2970(146.0f, 111.0f + 23.0f * (f32)var_18),
                           fc_colW5, 46.0f, 0x59);
@@ -4832,13 +4832,13 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970((u8 *)p->f2BC, drawSlot, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
+                    nmMesWindowSetNumberColor((u8 *)p->f2BC, drawSlot, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
                 } else {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0x80;
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
-                    func_002ba970((u8 *)p->f2BC, drawSlot, func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
+                    nmMesWindowSetNumberColor((u8 *)p->f2BC, drawSlot, func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
                 }
             }
             var_19++;
@@ -4939,8 +4939,8 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         p->f13A = 0;
         break;
     case 0x95:
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
         if (func_002bb1c0(p->fD) == 0) {
@@ -4953,14 +4953,14 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             } else {
                 datPersonaCacheRecord(yListSlotEntry(0, p->f11E));
             }
-            func_002bb550(p->fD);
+            nmMesWindowDestroySlot(p->fD);
             p->fD = nmMesWindowAcquire((void *)func_00331660());
             nmMesWindowShowSlotRecord(p->fD, 0xD);
             p->f1 = 0x91;
             return;
         }
         p->f1 = 0x8F;
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         return;
     case 0x96:
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
@@ -4982,8 +4982,8 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             var_19++;
             var_18++;
         }
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
         if (func_002bb1c0(p->fD) == 0) {
@@ -5000,7 +5000,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 }
                 var_19++;
             }
-            func_002bb550(p->fD);
+            nmMesWindowDestroySlot(p->fD);
             p->fD = nmMesWindowAcquire((void *)func_00331660());
             nmMesWindowShowSlotRecord(p->fD, 0xD);
             p->f1 = 0x92;
@@ -5008,7 +5008,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             return;
         }
         p->f1 = 0x8D;
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         return;
     case 0x8E:
         if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x270) + 0x10), 1) != 1) {
@@ -5157,7 +5157,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         } else if (D_008C024E[0] & 0x40) {
             p->fD = nmMesWindowAcquire((void *)func_00331660());
             sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
-            func_002bbd80(p->fD, 0, &sp2A0);
+            nmMesWindowSetSlotString(p->fD, 0, &sp2A0);
             nmMesWindowSetSlotParam(p->fD, 0);
             nmMesWindowShowSlotRecord(p->fD, 0xB);
             nmMesWindowSetSlotFlag(p->fD, 0);
@@ -5215,22 +5215,22 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         }
         break;
     case 0x91:
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         fclDrawSetStateByte(p->f148, 3);
         fclCombineDrawStageBanner(arg0, 0, 1);
         yListSlotCreate(6, 0);
         p->f1 = 0x90;
         return;
     case 0x92:
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         fclCombineDrawActionList(arg0);
         fclCombineSlideInSlotSprites(arg0, 0x96, 0x118);
         fclCombineLayoutDetailSprites(arg0, 0);
@@ -5238,11 +5238,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         p->f1 = 0x1B;
         return;
     case 0x93:
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         fclCombineDrawActionList(arg0);
         fclCombineSlideInSlotSprites(arg0, 0x96, 0x118);
         fclCombineLayoutDetailSprites(arg0, 0);
@@ -5250,11 +5250,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         p->f1 = 0x1B;
         return;
     case 0x97:
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         if (fclCombineClaimSlot(arg0) == 0) {
             if ((s8)fclDrawGetState(p->f148) == 5) {
                 fclDrawSetStateByte(p->f148, 3);
@@ -5318,7 +5318,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             sp1B0 = (s8)(var_18 + 0xC);
             tmpu8 = *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4);
-            func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
+            nmMesWindowSetNumber((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
             fclDrawNumber(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
@@ -5326,13 +5326,13 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970((u8 *)p->f2BC, sp1B0, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
+                    nmMesWindowSetNumberColor((u8 *)p->f2BC, sp1B0, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
                 } else {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0x80;
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
-                    func_002ba970((u8 *)p->f2BC, sp1B0, func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
+                    nmMesWindowSetNumberColor((u8 *)p->f2BC, sp1B0, func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
                 }
             }
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x10), 1) == 0) {
@@ -5450,11 +5450,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             *(s8 *)(fclCombineGetWork((u8 *)p->f254) + 1) = 1;
             shdPersonaSetOpacity(fclDrawGetResource(p->f148), 0.0f);
         }
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         p->f1 = 0x9A;
         return;
     case 0x9E:
@@ -5464,8 +5464,8 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             *(s8 *)(fclCombineGetWork((u8 *)p->f254) + 1) = 1;
             shdPersonaSetOpacity(fclDrawGetResource(p->f148), 0.0f);
         }
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
         if (func_002bb1c0(p->fD) == 0) {
@@ -5473,9 +5473,9 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) + 0x7D0;
             saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
             func_002e7a80(func_002e7a60() - saved);
-            func_002bb550(p->fD);
+            nmMesWindowDestroySlot(p->fD);
             p->fD = nmMesWindowAcquire((void *)func_00331660());
-            func_002bbd80(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11)));
+            nmMesWindowSetSlotString(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11)));
             nmMesWindowShowSlotRecord(p->fD, 0x10);
             p->f1 = 0x9F;
             sdkSndStartStream(1, 0, 2, 6);
@@ -5485,7 +5485,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             p->f2B8 = (s32)func_00349290(arg0, p->f122);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         p->f1 = 0x9A;
         return;
     case 0x9F:
@@ -5495,11 +5495,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             *(s8 *)(fclCombineGetWork((u8 *)p->f254) + 1) = 1;
             shdPersonaSetOpacity(fclDrawGetResource(p->f148), 0.0f);
         }
-        if (func_002bb680(p->fD) != 0) {
-            func_002bbcf0(p->fD);
+        if (nmMesWindowSlotStatus(p->fD) != 0) {
+            nmMesWindowStepSlotRelease(p->fD);
             return;
         }
-        func_002bb550(p->fD);
+        nmMesWindowDestroySlot(p->fD);
         p->f1 = 0x9A;
         return;
     case 0x99:
@@ -5646,9 +5646,9 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (func_002e7a60() >= saved) {
                 p->fD = nmMesWindowAcquire((void *)func_00331660());
                 sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
-                func_002bbd80(p->fD, 0, &sp2A0);
+                nmMesWindowSetSlotString(p->fD, 0, &sp2A0);
                 sprintf(sp220, &iGpffffa8a0, saved);
-                func_002bbd80(p->fD, 1, &sp220);
+                nmMesWindowSetSlotString(p->fD, 1, &sp220);
                 nmMesWindowSetSlotParam(p->fD, 0);
                 nmMesWindowShowSlotRecord(p->fD, 0xF);
                 nmMesWindowSetSlotFlag(p->fD, 0);
@@ -5734,13 +5734,13 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970((u8 *)p->f2BC, (s8)(var_18 + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
+                    nmMesWindowSetNumberColor((u8 *)p->f2BC, (s8)(var_18 + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
                 } else {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0x80;
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x270)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x27D)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x28B)))) + 0x85) = *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x297)))) + 0x85) = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                     *(FclDrawColor *)((fclSpriteEntry(((var_18 + 0x2A3)))) + 0x85) = func_002b2a60(0, 0, 0x66, 0xFF);
-                    func_002ba970((u8 *)p->f2BC, (s8)(var_18 + 0xC), func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
+                    nmMesWindowSetNumberColor((u8 *)p->f2BC, (s8)(var_18 + 0xC), func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF));
                 }
             }
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x21F))) + 0x10), 1) == 0) {
@@ -5818,7 +5818,7 @@ s32 fclCombineClaimSlot(u8 *arg0) {
         if ((datGetFlag((s32)i + 0x1309) == 0) && (func_00110140() >= D_00749100[(s32)i])) {
             *(s8 *)(p + 0x130) = (s8)i;
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
-            func_002bbd80(*(s8 *)(p + 0xD), 0, datGetItemNameId((s16)(*(s8 *)(p + 0x130) + 0x464)));
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, datGetItemNameId((s16)(*(s8 *)(p + 0x130) + 0x464)));
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), *(s8 *)(p + 0x130) + 0x17);
             datSetFlag((s32)i + 0x1309, 1);
             func_00106620((s16)(i + 0x464), 1);
@@ -5929,17 +5929,17 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         func_00313b50(arg0);
         *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
         sprintf(buf, (const char *)&iGpffffa8a0, func_002e78a0());
-        func_002bbd80(*(s8 *)(p + 0xD), 0, buf);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, buf);
         sprintf(buf, (const char *)&iGpffffa8a0, (u8)func_002e78e0());
-        func_002bbd80(*(s8 *)(p + 0xD), 1, buf);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, buf);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x4A);
         p[1] = 0x71;
         break;
     case 0x71:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0x72;
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x4B);
@@ -5957,10 +5957,10 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         }
         break;
     case 0x72:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0x73;
         }
     case 0x73:
@@ -6019,7 +6019,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 fclCombineSlidePanelColumn(arg0, 1, sp1B0, sp1A8, 0, 1);
                 *(s8 *)(p + 0x122) = 1;
             } else if ((D_008C024E[0] & 0x20) && p[1] == 0x73) {
-                func_002bb550(*(s8 *)(p + 0xD));
+                nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
                 sdkSndStartStream(0, 0, 0, 2);
                 fclCombineDrawStageBanner(arg0, 2, 1);
                 if (*(s8 *)(p + 0x122) == 1) {
@@ -6079,10 +6079,10 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         }
         break;
     case 0x6F:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0x70;
             sp130 = func_002b2970(640.0f, 98.0f);
             sp128 = func_002b2970((f32)413, 99.0f);
@@ -6822,10 +6822,10 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         }
         break;
     case 0x76:
-        if (func_002bb680(work->fD) != 0) {
-            func_002bbcf0(work->fD);
+        if (nmMesWindowSlotStatus(work->fD) != 0) {
+            nmMesWindowStepSlotRelease(work->fD);
         } else {
-            func_002bb550(work->fD);
+            nmMesWindowDestroySlot(work->fD);
             work->f1 = 0x77;
         }
         break;
@@ -7093,7 +7093,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     col2E4 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     *(FclDrawColor *)(fclSpriteEntry(var_19_4 + 0x2A3) + 0x85) = col2E4;
                     col2E0 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-                    func_002ba970(work->f2BC, (s8)(var_19_4 + 0xC), col2E0);
+                    nmMesWindowSetNumberColor(work->f2BC, (s8)(var_19_4 + 0xC), col2E0);
                     var_18_4 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
                 } else {
                     id27D_2 = var_19_4 + 0x27D;
@@ -7110,7 +7110,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     col2D4 = func_002b2a60(0, 0, 0x66, 0xFF);
                     *(FclDrawColor *)(fclSpriteEntry(var_19_4 + 0x2A3) + 0x85) = col2D4;
                     col2D0 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-                    func_002ba970(work->f2BC, (s8)(var_19_4 + 0xC), col2D0);
+                    nmMesWindowSetNumberColor(work->f2BC, (s8)(var_19_4 + 0xC), col2D0);
                     var_18_4 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
                 }
                 temp_f20 = (f32) ((var_19_4 * 0x17) + 0x80);
@@ -7491,8 +7491,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         }
         break;
     case 0x83:                                      /* switch 1 */
-        if (func_002bb680(work->fD) != 0) {
-            func_002bbcf0(work->fD);
+        if (nmMesWindowSlotStatus(work->fD) != 0) {
+            nmMesWindowStepSlotRelease(work->fD);
             return;
         }
         if (func_002bb1c0(work->fD) == 0) {
@@ -7549,7 +7549,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         } else {
             work->f1 = 0x81U;
         }
-        func_002bb550(work->fD);
+        nmMesWindowDestroySlot(work->fD);
         return;
     case 0x84:                                      /* switch 1 */
         if (((s8)(fclDrawGetState((u8 *)work->f148))) == 0xE) {
@@ -7564,12 +7564,12 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         }
         break;
     case 0x85:                                      /* switch 1 */
-        if (func_002bb680(work->fD) != 0) {
-            func_002bbcf0(work->fD);
+        if (nmMesWindowSlotStatus(work->fD) != 0) {
+            nmMesWindowStepSlotRelease(work->fD);
             return;
         }
         work->f1 = 0x86U;
-        func_002bb550(work->fD);
+        nmMesWindowDestroySlot(work->fD);
         temp_16_38 = datPersonaCountValidMembers() & 0xFFFF;
         if (temp_16_38 == (datPersonaRosterCapacity() & 0xFFFF)) {
             fclCombinePlayCue(arg0, 0x23, 0);
@@ -7584,8 +7584,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         fclCombinePlayCue(arg0, 0x1E, 1);
         return;
     case 0x86:                                      /* switch 1 */
-        if (func_002bb680(work->fD) != 0) {
-            func_002bbcf0(work->fD);
+        if (nmMesWindowSlotStatus(work->fD) != 0) {
+            nmMesWindowStepSlotRelease(work->fD);
             return;
         }
         if (func_002bb1c0(work->fD) == 0) {
@@ -7603,7 +7603,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 temp_16_39 = (u16 *)((u8 *)iGpffffb3ec + temp_3_18 * 4);
                 work->fD = nmMesWindowAcquire((void *)func_00331660());
                 sprintf(skillName, (const char *)&iGpffffa8a4, (const char *)func_00243840(*temp_16_39));
-                func_002bbd80(work->fD, 0, &skillName);
+                nmMesWindowSetSlotString(work->fD, 0, &skillName);
                 nmMesWindowSetSlotParam(work->fD, 0);
                 nmMesWindowShowSlotRecord(work->fD, 0x24);
                 nmMesWindowSetSlotFlag(work->fD, 0);
@@ -7624,20 +7624,20 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
 block_274:
         fclDrawSetStateByte((u8 *)work->f148, 0xB);
         work->f1 = 0x84U;
-        func_002bb550(work->fD);
+        nmMesWindowDestroySlot(work->fD);
         return;
     case 0x88:                                      /* switch 1 */
-        if (func_002bb680(work->fD) != 0) {
-            func_002bbcf0(work->fD);
+        if (nmMesWindowSlotStatus(work->fD) != 0) {
+            nmMesWindowStepSlotRelease(work->fD);
             return;
         }
         if (func_002bb1c0(work->fD) == 0) {
-            func_002bb550(work->fD);
+            nmMesWindowDestroySlot(work->fD);
             work->f2D8 = 0;
             work->f1 = 0x89U;
             return;
         }
-        func_002bb550(work->fD);
+        nmMesWindowDestroySlot(work->fD);
         fclDrawSetStateByte((u8 *)work->f148, 0xB);
         work->f1 = 0x84U;
         datPersonaInsertRosterRecord((u8 *)datStagedRecord());
@@ -7656,9 +7656,9 @@ block_274:
         if (work->f2D8 >= 0x28) {
             work->fD = nmMesWindowAcquire((void *)func_00331660());
             sprintf(skillName, (const char *)&iGpffffa8a4, (const char *)func_00243840(temp_16_40->original));
-            func_002bbd80(work->fD, 0, &skillName);
+            nmMesWindowSetSlotString(work->fD, 0, &skillName);
             sprintf(skillName, (const char *)&iGpffffa8a4, (const char *)func_00243840(temp_16_40->replacement));
-            func_002bbd80(work->fD, 1, &skillName);
+            nmMesWindowSetSlotString(work->fD, 1, &skillName);
             nmMesWindowShowSlotRecord(work->fD, 0x57);
             work->f1 = 0x87U;
             datPersonaInsertRosterRecord((u8 *)datStagedRecord());
@@ -7669,13 +7669,13 @@ block_274:
         }
         break;
     case 0x87:                                      /* switch 1 */
-        if (func_002bb680(work->fD) != 0) {
-            func_002bbcf0(work->fD);
+        if (nmMesWindowSlotStatus(work->fD) != 0) {
+            nmMesWindowStepSlotRelease(work->fD);
             return;
         }
         fclDrawSetStateByte((u8 *)work->f148, 0xB);
         work->f1 = 0x84U;
-        func_002bb550(work->fD);
+        nmMesWindowDestroySlot(work->fD);
         for (var_4_7 = 0; var_4_7 < 5; var_4_7++) {
             sp2A0[var_4_7] = 0;
         }
@@ -8120,17 +8120,17 @@ void fclCombineMenuResult(u8 *arg0) {
             }
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-            func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
             p[1] = 0xCA;
         }
         break;
     case 0xC8:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         if (fclCombineCheckIds(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
             p[1] = 0xCB;
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
@@ -8144,35 +8144,35 @@ void fclCombineMenuResult(u8 *arg0) {
         }
         *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
         sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-        func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
         p[1] = 0xCA;
         break;
     case 0xC9:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         p[1] = 0xC7;
         break;
     case 0xCA:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         p[1] = 0xCC;
         if (datGetFlag(0x5B) != 0) {
             p[1] = 0xCC;
         }
         break;
     case 0xCB:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         if (datGetFlag(0x5B) != 0) {
             if (iGpffffb3d4[cls * 0xE + 0xD] == 0) {
                 p[1] = 0xCC;
@@ -8180,7 +8180,7 @@ void fclCombineMenuResult(u8 *arg0) {
             }
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-            func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
             p[1] = 0xCA;
         } else if (datGetFlag(0x5C) != 0) {
@@ -8243,21 +8243,21 @@ void fclCombineMenuResult(u8 *arg0) {
             }
         } else {
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
-            func_002bbd80(*(s8 *)(p + 0xD), 0,
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0,
                           iGpffffb44c + datPersonaGetArcana(*(u16 *)((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9),
                                                                              *(s8 *)(p + 0x2FA)) + 1)) * 0x15);
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-            func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x3A);
             p[1] = 0xCD;
         }
         break;
     case 0xCD:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         if (fclCombineHasEntry(arg0, 8) == 1) {
             v = cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]);
             *(s32 *)(p + 0x10) = func_00311930(v, yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
@@ -8265,9 +8265,9 @@ void fclCombineMenuResult(u8 *arg0) {
                 *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
                 sprintf(spA0, (const char *)&iGpffffa8a4, func_00311900(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2])));
                 frFontExCopyString(spA0, sp80, 0x20);
-                func_002bbd80(*(s8 *)(p + 0xD), 0, sp80);
+                nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, sp80);
                 sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-                func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
+                nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
                 nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x55);
                 *(s8 *)(p + 0x21) = 1;
                 p[1] = 0xD0;
@@ -8286,11 +8286,11 @@ void fclCombineMenuResult(u8 *arg0) {
         }
         break;
     case 0xCE:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         p[1] = 0xCF;
         if (fclCombineCheckIds(arg0) == 1) {
             if (fclCombineHasEntry(arg0, 7) == 1) {
@@ -8352,11 +8352,11 @@ void fclCombineMenuResult(u8 *arg0) {
         fclDrawSetState((u8 *)*(s32 *)(p + 0x148), 0);
         break;
     case 0xD0:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
             return;
         }
-        func_002bb550(*(s8 *)(p + 0xD));
+        nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         fclCombineClearState(*(s32 *)(p + 0x254));
         datSetFlag(0x59, 1);
         fclCombineStartFade(arg0);
@@ -8499,10 +8499,10 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
         }
         break;
     case 0xC4:
-        if (func_002bb680((s8)*(p + 0xD)) != 0) {
-            func_002bbcf0((s8)*(p + 0xD));
+        if (nmMesWindowSlotStatus((s8)*(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease((s8)*(p + 0xD));
         } else {
-            func_002bb550((s8)*(p + 0xD));
+            nmMesWindowDestroySlot((s8)*(p + 0xD));
             *(p + 1) = 0xC3;
         }
         break;
@@ -8691,10 +8691,10 @@ void fclCombineMenuOptionPick(u8 *arg0) {
         }
         break;
     case 0xC4:
-        if (func_002bb680((s8)*(p + 0xD)) != 0) {
-            func_002bbcf0((s8)*(p + 0xD));
+        if (nmMesWindowSlotStatus((s8)*(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease((s8)*(p + 0xD));
         } else {
-            func_002bb550((s8)*(p + 0xD));
+            nmMesWindowDestroySlot((s8)*(p + 0xD));
             *(p + 1) = 0xC3;
         }
         break;
@@ -9006,10 +9006,10 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xCE:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
             if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasSlotKind(arg0, 7) == 1) {
@@ -9076,15 +9076,15 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             text[i2] = 0;
         }
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-        func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x54);
         p[1] = 0xA9;
         break;
     case 0xA9:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             for (i3 = 0; i3 < 5; i3++) {
                 list[i3] = 0;
             }
@@ -9105,7 +9105,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             p[0x13D] = best;
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)D_00641B90[best]);
             frFontExCopyString(text, name, 0x20);
-            func_002bbd80(*(s8 *)(p + 0xD), 0, name);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, name);
             list[*(s8 *)(p + 0x13D)] = *(s8 *)(p + 0x13C);
             ((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x13D) + 0x1C] += (u8)p[0x13C];
             for (i6 = 0; i6 < 0x20; i6++) {
@@ -9113,7 +9113,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 text[i6] = 0;
             }
             sprintf(text, &iGpffffa8a0, *(s8 *)(p + 0x13C));
-            func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             e = (u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             best = 0;
             top = e[0x1C];
@@ -9137,10 +9137,10 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (*(s8 *)(p + 0xB0) == 0xF) {
             sdkSndStartStream(1, 3, 3, 1);
         }
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[0xD] = nmMesWindowAcquire((void *)func_00331660());
             for (i8 = 0; i8 < 0x20; i8++) {
                 name[i8] = 0;
@@ -9148,13 +9148,13 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             }
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)D_00641B90[*(s8 *)(p + 0x13E)]);
             frFontExCopyString(text, name, 0x20);
-            func_002bbd80(*(s8 *)(p + 0xD), 0, name);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, name);
             for (i9 = 0; i9 < 0x20; i9++) {
                 name[i9] = 0;
                 text[i9] = 0;
             }
             sprintf(text, &iGpffffa8a0, *(s8 *)(p + 0x13C));
-            func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x3E);
             p[1] = 0xAB;
             p[0xB0] = 0;
@@ -9165,10 +9165,10 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (*(s8 *)(p + 0xB0) == 0xF) {
             sdkSndStartStream(1, 3, 3, 1);
         }
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
             if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasSlotKind(arg0, 0xA) == 1) {
@@ -9227,9 +9227,9 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (*(s16 *)(p + 0x2D8) >= 0x14) {
             p[0xD] = nmMesWindowAcquire((void *)func_00331660());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-            func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-            func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x51);
             p[1] = 0xB6;
         }
@@ -9269,10 +9269,10 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xB6:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xB7;
             e = yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
@@ -9282,7 +9282,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 if (datPersonaFindSkillSlot(e, selectedSkill) != -1) {
                     p[0xD] = nmMesWindowAcquire((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-                    func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x52);
                     p[1] = 0xB4;
                 } else if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
@@ -9293,10 +9293,10 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xB4:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
             shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
             for (j6 = 0; j6 < 6; j6++) {
@@ -9384,9 +9384,9 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
             p[0xD] = nmMesWindowAcquire((void *)func_00331660());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-            func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
-            func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         } else {
             kind = *(s8 *)(p + 0x1F);
             roll = func_002b2cb0(*(s8 *)(p + 0x1E), 1, 9, 0, 1);
@@ -9394,9 +9394,9 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                 p[0xD] = nmMesWindowAcquire((void *)func_00331660());
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-                func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+                nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
-                func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                 *(s16 *)(p + 0x1C) = item;
             } else {
                 kind = *(s8 *)(p + 0x1F);
@@ -9405,17 +9405,17 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                     p[0xD] = nmMesWindowAcquire((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-                    func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
-                    func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                     *(s16 *)(p + 0x1C) = item;
                 } else {
                     p[0x20] = 1;
                     p[0xD] = nmMesWindowAcquire((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-                    func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-                    func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                 }
             }
         }
@@ -9423,17 +9423,17 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         p[1] = 0xB0;
         break;
     case 0xAD:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             if (*(s8 *)(p + 0x20) == 1) {
                 for (j8 = 0; j8 < 8; j8++) {
                     if (((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6] != 0 &&
                         *(s16 *)(p + 0x1C) == ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6]) {
                         p[0xD] = nmMesWindowAcquire((void *)func_00331660());
                         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-                        func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x52);
                         p[1] = 0xAE;
                     }
@@ -9441,9 +9441,9 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 if (p[1] != 0xAE) {
                     p[0xD] = nmMesWindowAcquire((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-                    func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-                    func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+                    nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x53);
                     p[1] = 0xAE;
                 }
@@ -9508,10 +9508,10 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xAE:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             for (i15 = 0; i15 < *(s8 *)(p + 0x2DF); i15++) {
                 if (*(s8 *)(p + i15 + 0x2DA) > 0 && *(s8 *)(p + i15 + 0x2DA) < 7) {
                     p[1] = 0xAC;
@@ -9529,7 +9529,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         } while ((s16)func_00313690(((s16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]) == 0);
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]));
         *(s16 *)(p + 0x1C) = ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6];
-        func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x56);
         nmMesWindowSetSlotParam(*(s8 *)(p + 0xD), 0);
         nmMesWindowSetSlotFlag(*(s8 *)(p + 0xD), 0);
@@ -9537,16 +9537,16 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         p[1] = 0xB9;
         break;
     case 0xB9:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             yListSlotCopyEntry((u8 *)&info, *(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             *(s16 *)(p + 0x24) = fclCombinePickCandidateId(info, *(s16 *)(p + 0x1C));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xBA;
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
         }
         break;
@@ -9566,40 +9566,40 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
             p[0xD] = nmMesWindowAcquire((void *)func_00331660());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x24)));
-            func_002bbd80(*(s8 *)(p + 0xD), 1, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
-            func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x57);
             p[1] = 0xBB;
         }
         break;
     case 0xBB:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
         }
         break;
     case 0xBC:
         p[0xD] = nmMesWindowAcquire((void *)func_00331660());
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-        func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x47);
         p[1] = 0xBE;
         break;
     case 0xBD:
         p[0xD] = nmMesWindowAcquire((void *)func_00331660());
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-        func_002bbd80(*(s8 *)(p + 0xD), 0, text);
+        nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x48);
         p[1] = 0xBE;
         break;
     case 0xBE:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[0x21] = 1;
             p[1] = p[0x22];
         }
@@ -9739,16 +9739,16 @@ void fclCombineMenuFinish(u8 *arg0) {
     case 0xD5:
         if (datGetFlag(0x5B) != 0) {
             *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
-            func_002bbd80(*(s8 *)(p + 0xD), 0, iGpffffb440 + cls * 0x11);
+            nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, iGpffffb440 + cls * 0x11);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x49);
             *(p + 1) = 0xD6;
         }
         break;
     case 0xD6:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             *(p + 1) = 0xD7;
             datSetFlag(0x59, 1);
         }
@@ -9896,10 +9896,10 @@ void fclCombineMenuFinish(u8 *arg0) {
         }
         break;
     case 0x97:
-        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
-            func_002bbcf0(*(s8 *)(p + 0xD));
+        if (nmMesWindowSlotStatus(*(s8 *)(p + 0xD)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
-            func_002bb550(*(s8 *)(p + 0xD));
+            nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             if (fclCombineClaimSlot(arg0) == 0) {
                 *p = 0;
                 *(p + 1) = 0x17;
@@ -10055,7 +10055,7 @@ void fclCombinePlayResultCue(u8 *arg0, u16 arg1) {
     s4 = D_00749480[t[0]] * 100 + t[1];
     s3 = D_00749480[t[2]] * 100 + t[3];
     p[0xD] = nmMesWindowAcquire((void *)func_00331660());
-    func_002bbd80(p[0xD], 0, iGpffffb44c + (datPersonaGetArcana(arg1) & 0xFF) * 21);
+    nmMesWindowSetSlotString(p[0xD], 0, iGpffffb44c + (datPersonaGetArcana(arg1) & 0xFF) * 21);
     if (s0 < s4) {
         nmMesWindowShowSlotRecord(p[0xD], 0x2B);
     } else if (s0 >= s3) {
@@ -10109,10 +10109,10 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         }
         break;
     case 7:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
         } else {
-            func_002bb550(p[0xD]);
+            nmMesWindowDestroySlot(p[0xD]);
             p[0] = 1;
         }
         break;
@@ -10201,10 +10201,10 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         }
         break;
     case 15:
-        if (func_002bb680(p[0xD]) != 0) {
-            func_002bbcf0(p[0xD]);
+        if (nmMesWindowSlotStatus(p[0xD]) != 0) {
+            nmMesWindowStepSlotRelease(p[0xD]);
         } else {
-            func_002bb550(p[0xD]);
+            nmMesWindowDestroySlot(p[0xD]);
             if ((cmmCommunityRecordValue(0x14) & 0xFFFF) == 0xA) {
                 func_00106620(0x4A2, ((func_00106600(0x4A2) & 0xFF) + 1) & 0xFF);
             }

@@ -53,10 +53,10 @@ extern void btlShuffleEffRelease(s32 a);
 extern void btlShuffleDrawCardReset(s32 a);
 extern void func_002bd7b0(s32 a);
 extern void func_002bd840(s32 a);
-extern void func_002bb7c0(s32 a);
+extern void nmMesWindowStepCurrent(s32 a);
 extern s32 nmMesWindowCurrentOpenState(void);
 extern void nmMesWindowCloseCurrent(s32 a);
-extern void func_002bb4e0(void);
+extern void nmMesWindowResetCurrent(void);
 extern s32 nmMesWindowCurrentAnimFlag(void);
 extern void memset(void *dst, s32 c, s32 n);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
@@ -539,11 +539,11 @@ s32 btlShuffleSeqStep(u8 *arg0) {
     seq = (s32 *)(arg0 + 0x1F210);
     switch (*seq) {
     case 0:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
             *seq = 1;
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
         }
         goto done;
 
@@ -596,11 +596,11 @@ s32 btlShuffleSeqStep(u8 *arg0) {
         goto done;
 
     case 3:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0, 0);
             *seq = 4;
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
         }
         goto done;
 
@@ -658,11 +658,11 @@ s32 btlShuffleSeqFlag(u8 *arg0) {
         *(s32 *)base = 1;
         /* fallthrough */
     case 1:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             *(s32 *)base = 2;
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
         }
         break;
     case 2:
@@ -693,7 +693,7 @@ s32 btlShuffleSeqStateCheck(u8 *arg0) {
         *(s32 *)base = 1;
         /* fallthrough */
     case 1:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             s32 r = nmMesWindowCurrentAnimFlag();
             switch (r) {
@@ -709,7 +709,7 @@ s32 btlShuffleSeqStateCheck(u8 *arg0) {
             }
             nmMesWindowCloseCurrent(1);
             *(s32 *)base = 2;
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
         }
         break;
     case 2:
