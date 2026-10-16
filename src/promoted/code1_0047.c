@@ -80,247 +80,19 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
 }
 
 
-// FUN_00470210
-void sdkLboxDestroy(u8 *arg0)
-{
-    sdkLboxClear(arg0);
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
-}
-// FUN_00470C10
-void sdkLboxSetRefValue(u8 *arg0, s32 arg1, s32 arg2)
-{
-    u8 *node;
-
-    node = sdkLboxFindEntry(arg0, arg1);
-    if (node != NULL) {
-        *(s32 *)(node + 4) = 2;
-        *(s32 *)(node + 0x208) = arg2;
-        *(s32 *)(node + 0x210) = 0;
-        *(s32 *)(node + 0x214) = 1;
-        sdkLboxRecalcLayout(arg0);
-    }
-}
 
 
 
-// FUN_00470C80
-void sdkLboxSetFloatRange(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
-{
-    u8 *node;
-
-    node = sdkLboxFindEntry(arg0, arg1);
-    if (node != NULL) {
-        *(s32 *)(node + 4) = 4;
-        *(f32 *)(node + 0x20C) = (f32)arg2;
-        *(s32 *)(node + 0x210) = arg3;
-        *(s32 *)(node + 0x214) = arg4;
-        sdkLboxRecalcLayout(arg0);
-    }
-}
 
 
 
-// FUN_00470D10
-u8 *sdkLboxFindEntry(u8 *arg0, s32 key)
-{
-    u8 *node;
-
-    node = *(u8 **)(*(u8 **)(arg0 + 0x38) + 0x144);
-    if (key == -1) {
-        return NULL;
-    }
-    if (node == NULL) {
-        return NULL;
-    }
-    goto compare;
-advance:
-    node = *(u8 **)(node + 0x228);
-    if (node == NULL) {
-        return NULL;
-    }
-compare:
-    if (*(s32 *)node != key) {
-        goto advance;
-    }
-    return node;
-}
-
-// FUN_00470D70
-void sdkLboxClear(u8 *arg0)
-{
-    u8 *work;
-    u8 *node;
-
-    work = *(u8 **)(arg0 + 0x38);
-    node = *(u8 **)(work + 0x144);
-    while (node != NULL) {
-        u8 *next;
-
-        next = *(u8 **)(node + 0x228);
-        jtbl_008873EC[0](node);
-        node = next;
-    }
-    *(s32 *)(work + 0x144) = 0;
-    *(s32 *)(work + 0x148) = 0;
-    *(s32 *)(work + 0x140) = 0;
-    *(s32 *)(work + 0x134) = 0;
-    *(s32 *)(work + 0x138) = 0;
-    func_00453ce0(work + 0x164, 0);
-    *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
-    *(s32 *)(work + 0x138) = func_00453d70(work + 0x164);
-    *(s32 *)(work + 0x134) = func_00453dc0(work + 0x164);
-}
-// FUN_00470E20
-s32 sdkLboxGetSelectedId(u8 *arg0)
-{
-    s32 target;
-    s32 index;
-    u8 *work;
-    u8 *node;
-
-    work = *(u8 **)(arg0 + 0x38);
-    node = *(u8 **)(work + 0x144);
-    target = *(s32 *)(work + 0x138);
-    target = viewAddReverse(target, *(s32 *)(work + 0x134));
-    if (target >= *(s32 *)(work + 0x140)) {
-        return -1;
-    }
-    index = 0;
-    while (index < target) {
-        node = *(u8 **)(node + 0x228);
-        index += 1;
-    }
-    return *(s32 *)node;
-}
 
 
-/* Advances the load state byte at +0x3C of the aux block at +0x30C: waits for the file, reads its tables, runs the material and texture steps, then frees the file. Returns 1 when done, 0 while a step is pending. */
-// FUN_0047CE00
-s32 mdlAdvanceAuxLoad(u8 *arg0)
-{
-    s32 ret;
-    u8 *obj;
-    u32 sp4C;
 
-    obj = *(u8 **)(arg0 + 0x30C);
-    if (obj == NULL) {
-        return 1;
-    }
-    ret = 0;
-    switch (*(u8 *)(obj + 0x3C)) {
-    case 0:
-        if (*(u8 **)(obj + 0x38) != NULL) {
-            if ((*(s32 *)(arg0 + 0xD8) & 0x4000) != 0) {
-                H_Cdvd_ReadSync(*(u8 **)(obj + 0x38));
-            }
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(obj + 0x38)) == 0) {
-                goto ret_label;
-            }
-            if (*(s32 *)(obj + 0x40) == 0) {
-                *(s32 *)(obj + 0x2C) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x110);
-                *(s32 *)(obj + 0x30) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x118);
-            } else {
-                *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, (s32 *)&sp4C);
-                *(s32 *)(obj + 0x30) = sp4C;
-                func_0047e450((void **)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
-                              (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, (s32 *)&sp4C), sp4C);
-            }
-            *(u8 *)(obj + 0x3C) = 2;
-        }
-        if (*(s32 *)(obj + 0) == 0) {
-            *(s32 *)(obj + 0) = func_003e2f60(3, 1, (s32 *)(obj + 0x2C));
-            *(u8 *)(obj + 0x3C) = 2;
-        }
-    case 1:
-        if (*(u8 *)(obj + 0x3C) == 1) {
-c660_again:
-            if (mdlPollAuxResources(arg0) == 0) {
-                goto ret_label;
-            }
-            *(u8 *)(obj + 0x3C) = 2;
-        }
-    case 2:
-        if (mdlReadAuxChunks(arg0) == 0) {
-            goto L_case2_fail;
-        }
-        *(u8 *)(obj + 0x3C) = 3;
-        goto L_D8_check;
-L_case2_fail:
-        *(u8 *)(obj + 0x3C) = 1;
-        goto c660_again;
-L_D8_check:
-        if ((*(s32 *)(arg0 + 0xD8) & 0x4000) != 0) {
-            *(u8 *)(obj + 0x3C) = 4;
-            goto L_after_c3;
-        }
-    case 3:
-        if (mdlPollAuxResources(arg0) == 0) {
-            goto ret_label;
-        }
-        *(u8 *)(obj + 0x3C) = 4;
-L_after_c3:
-    case 4:
-        if (*(s32 *)(obj + 0x34) != 0) {
-            K_Clump_FreeTextureNameList(*(void **)(obj + 0x34));
-        }
-        func_003e2e40(*(s32 *)(obj + 0), (s32 *)(obj + 0x2C));
-        if (*(u8 **)(obj + 0x38) != NULL) {
-            H_Cdvd_Destroy(*(u8 **)(obj + 0x38));
-        }
-        *(u8 *)(obj + 0x3C) = 5;
-    case 5:
-        ret = 1;
-    default:
-    ret_label:
-        return ret;
-    }
-}
-// FUN_0047D050
-void mdlResetModelTable(s32 arg0)
-{
-    memset(D_00922BE0, 0, 0x30);
-    iGpffffbb28 = arg0;
-}
-// FUN_0047D090
-s32 mdlSetModelCallbacks(MdlNameCallback arg0, MdlTypeCallback arg1, MdlNameCallback arg2,
-                 MdlSetupCallback arg3, MdlDataCallback arg4)
-{
-    iGpffffbb2c = arg0;
-    iGpffffbb30 = arg1;
-    iGpffffbb34 = arg2;
-    iGpffffbb38 = arg3;
-    iGpffffbb3c = (void (*)())arg4;
-    return 1;
-}
-// FUN_0047D0B0
-s32 mdlGetModelNameForId(u32 type, u16 id, char *output)
-{
-    return iGpffffbb2c(type, id, output);
-}
 
-// FUN_0047D0E0
-s32 mdlQueryModelType(u32 type, u16 id)
-{
-    return iGpffffbb30(type, id);
-}
 
-// FUN_0047D110
-s32 mdlBuildModelPath(u32 type, u16 id, char *output)
-{
-    return iGpffffbb34(type, id, output);
-}
 
-// FUN_0047D140
-void mdlRunSetupCallback(void *model)
-{
-    iGpffffbb38(model);
-}
 
-// FUN_0047D170
-void mdlRunDataCallback(void *model)
-{
-    iGpffffbb3c(model);
-}
 
 // FUN_0047DD40
 /* All three retail callers pass the owning model in a1 (00476808,
@@ -332,16 +104,6 @@ void mdlRefreshSecondaryEffect(u8 *arg0, void *model)
     effect = *(u8 **)(arg0 + 4);
     if (effect != NULL) {
         Vpad_RefreshSelection(effect);
-    }
-}
-// FUN_0047DD70
-void mdlMarkSecondaryDirty(u8 *arg0, u8 *arg1)
-{
-    s32 handle;
-
-    handle = *(s32 *)(arg1 + 4);
-    if (handle != 0) {
-        Vpad_MarkDirty(handle);
     }
 }
 
@@ -366,197 +128,11 @@ void mdlSetAttachmentColor(u8* attachment, const u8* color)
         Vpad_SetColor(work, color);
     }
 }
-// FUN_0047EA40
-void mdlRetainObject(u8 **arg0, u8 **arg1)
-{
-    u8 *object;
-
-    object = *arg1;
-    if (object != NULL) {
-        *(s32 *)(object + 8) = *(s32 *)(object + 8) + 1;
-        *arg0 = object;
-    }
-}
-// FUN_0047EA70
-void mdlInitObjectSlots(u8 *arg0)
-{
-    *(s32 *)(arg0 + 0) = 0;
-    *(s16 *)(arg0 + 8) = -1;
-    *(s16 *)(arg0 + 0x16) = -1;
-    *(s16 *)(arg0 + 0x24) = -1;
-    *(s16 *)(arg0 + 0x26) = -1;
-    *(u16 *)(arg0 + 0x10) |= 0x20;
-}
-/* Drops one reference on the object held in *arg0 (the count at +8, paired with mdlRetainObject). At zero it frees the object and its inner block, then clears the slot. */
-// FUN_0047EAA0
-void mdlReleaseObject(u8 *arg0)
-{
-    u8 *object;
-    s32 refCount;
-    u8 *inner;
-
-    object = *(u8 **)arg0;
-    if (object != NULL) {
-        refCount = *(s32 *)(object + 8) - 1;
-        *(s32 *)(object + 8) = refCount;
-        if (refCount == 0) {
-            inner = *(u8 **)object;
-            if (inner != NULL) {
-                jtbl_008873EC[0](inner);
-            }
-            jtbl_008873EC[0](object);
-        }
-        *(s32 *)arg0 = 0;
-    }
-}
-/* Requests animation arg1 with blend ticks arg2 on a motion state, restarting it when the state's current request does not match. Requests tied to a starting sound slot are queued in the pending fields and started by mdlTickMotionState. */
-// FUN_0047EB20
-void mdlRequestMotionAnim(u8 *arg0, s16 arg1, u16 arg2)
-{
-    u16 status;
-    s32 kind;
-    u16 type;
-
-    if ((*(u16 *)(arg0 + 0x10) & 0x10) == 0) {
-        return;
-    }
-    if (*(u8 **)arg0 == NULL) {
-        return;
-    }
-    if ((*(u16 *)(*(u8 **)arg0 + 0x12) & 1) == 0) {
-        return;
-    }
-    if (*(s32 *)(arg0 + 0xC) != 0) {
-        type = *(u16 *)(*(u8 **)arg0 + 0xC);
-        if (type == 1) {
-            status = 2;
-        } else {
-            status = 3;
-        }
-        if ((type == 1 &&
-             (arg1 != 0xE || *(s16 *)(arg0 + 4) != arg1 ||
-              func_0045af90(status) == 0)) ||
-            (*(u16 *)(*(u8 **)arg0 + 0xC) == 2 &&
-             (arg1 != 2 || *(s16 *)(arg0 + 4) != arg1 ||
-              func_0045af90(status) == 0))) {
-            if (func_0047e0f0(arg0, 0, arg1, arg2) != 0) {
-                *(s16 *)(arg0 + 8) = 0;
-                *(s16 *)(arg0 + 4) = arg1;
-                *(u16 *)(arg0 + 6) = arg2;
-                return;
-            }
-            *(s16 *)(arg0 + 8) = -1;
-            return;
-        }
-        *(s16 *)(arg0 + 8) = -1;
-        return;
-    }
-    if (*(u16 *)(*(u8 **)arg0 + 0x10) == 2 &&
-        (arg1 == 4 || arg1 == 5) &&
-        hsndSlotIsStarting(*(s16 *)(*(u8 **)arg0 + 4)) != 0) {
-        *(s16 *)(arg0 + 0x1C) = *(s32 *)(*(u8 **)arg0 + 4);
-        *(s16 *)(arg0 + 0x24) = arg2;
-        *(s16 *)(arg0 + 0x20) = 0;
-        *(s16 *)(arg0 + 0x22) = arg1 - 4;
-        kind = *(s32 *)(*(u8 **)arg0 + 4);
-        switch (kind) {
-        case 3:
-            *(s16 *)(arg0 + 0x1E) = 1;
-            break;
-        case 4:
-            *(s16 *)(arg0 + 0x1E) = 2;
-            break;
-        case 5:
-            *(s16 *)(arg0 + 0x1E) = 3;
-            break;
-        }
-        *(s16 *)(arg0 + 4) = arg1;
-    }
-}
 static inline void code1_0047_abd0(s16 arg0, s32 arg1, s16 arg2)
 {
     func_0045abd0(arg0, arg1, arg2);
 }
 
-/* measured: the retry counter is stored as an s32 sum and re-read through the s16 slot
-   (`n = x + 1; x = n; temp = x;`): the reload forwards to a dsll32/dsra32 after the sh,
-   as retail. The call argument re-reads the slot as `*(s16 *)((u32)arg0 + 8)` so it is
-   not CSE'd with the forwarded value and stays a real lh (retail). */
-/* Advances a motion state by one tick: counts down the wait and pending-start timers, starts a queued request when its timer expires, and retries a failed start up to eight times. */
-// FUN_0047ED60
-void mdlTickMotionState(u8 *arg0)
-{
-    s16 waitTicks;
-    s16 scratch;
-    s16 retryCount;
-    s16 pendingTicks;
-    s16 pendingSlot;
-    s32 retryReady;
-    u8 *object;
-    s16 call_a0;
-    s16 call_a2;
-    s32 call_a1;
-    s32 retry;
-
-    func_0047e6f0((void **)arg0);
-    object = *(u8 **)arg0;
-    if (object != NULL && (*(u16 *)(object + 0x12) & 1) != 0) {
-        retryReady = 1;
-        waitTicks = *(s16 *)(arg0 + 0x16);
-        if (waitTicks >= 0) {
-            if (waitTicks == 0) {
-                scratch = ((*(u16 *)(arg0 + 0x10) & 0x20) != 0);
-                if (scratch != 0) {
-                    call_a0 = *(s16 *)(arg0 + 0x12);
-                    call_a2 = *(s16 *)(arg0 + 0x14);
-                    call_a1 = *(s32 *)(arg0 + 0x18);
-                    code1_0047_abd0((s16)call_a0, (s32)call_a1, (s16)call_a2);
-                }
-                *(s16 *)(arg0 + 0x16) = -1;
-            } else {
-                *(s16 *)(arg0 + 0x16) = waitTicks - 1;
-                retryReady = 0;
-            }
-        }
-        pendingTicks = *(s16 *)(arg0 + 0x24);
-        if (pendingTicks >= 0) {
-            if (pendingTicks == 0) {
-                call_a0 = *(s16 *)(arg0 + 0x1E);
-                call_a2 = *(s16 *)(arg0 + 0x20);
-                scratch = *(s16 *)(arg0 + 0x22);
-                func_0045af60(*(s16 *)(arg0 + 0x1C), call_a0, call_a2,
-                              scratch);
-                *(s16 *)(arg0 + 0x26) = *(s16 *)(arg0 + 0x1C);
-                *(s16 *)(arg0 + 0x24) = -1;
-            } else {
-                *(s16 *)(arg0 + 0x24) = pendingTicks - 1;
-                retryReady = 0;
-            }
-        } else if (pendingTicks == -2) {
-            pendingSlot = *(s16 *)(arg0 + 0x26);
-            if (pendingSlot >= 0) {
-                func_0045aa90(pendingSlot, *(s16 *)(arg0 + 0x1E));
-                *(s16 *)(arg0 + 0x26) = -1;
-            }
-            *(s16 *)(arg0 + 0x24) = -1;
-        }
-        if (*(s32 *)(arg0 + 0xC) != 0 && retryReady == 1 &&
-            *(s16 *)(arg0 + 8) != -1) {
-            retry = *(s16 *)(arg0 + 8) + 1;
-            *(s16 *)(arg0 + 8) = retry;
-            retryCount = *(s16 *)(arg0 + 8);
-            if (retryCount < 8) {
-                call_a1 = *(u16 *)(arg0 + 0x06);
-                if (func_0047e0f0(arg0, *(s16 *)((u32)arg0 + 8),
-                                  *(s16 *)(arg0 + 0x04), (u16)call_a1) == 0) {
-                    *(s16 *)(arg0 + 8) = -1;
-                }
-            } else {
-                *(s16 *)(arg0 + 8) = -1;
-            }
-        }
-    }
-}
 /* Binary search over a track's key times: returns the index of the last key whose time is at or before fparg0. */
 // FUN_0047EF10
 static s32 mdlFindTrackKeyIndex(u8 *arg0, f32 fparg0)
@@ -891,12 +467,6 @@ void mdlStoreColorBytes(void *arg0, void *arg1)
     dst[1] = (u8)(255.0f * ((f32 *)arg0)[2]);
     dst[2] = (u8)(255.0f * ((f32 *)arg0)[3]);
 }
-/* Returns the shared sample scratch buffer D_00922C50. */
-// FUN_0047F830
-u8 *mdlGetSampleScratch(void)
-{
-    return D_00922C50;
-}
 /* The callback rows share one C interface. Borrowed sample/blend buffers
  * carry kind-specific values; apply callbacks interpret those values and
  * their target objects. */
@@ -916,53 +486,6 @@ typedef struct Code47Targets {
 
 extern Code47Dispatch D_00713220[4];
 
-/* measured: direct table indexing with loop-invariant optimization matches
- * all 412 executable bytes in the 416-byte retail window. The count is a
- * snapshot; callback and item-array loads remain visible after callbacks. */
 #pragma push
 #pragma opt_loop_invariants on
-/* Runs the four track row kinds against the target list at +0x50: a row with data on both sides is blended with the matching right-hand row, otherwise it is sampled, and its apply callback writes the result to every target. */
-// FUN_0047F850
-void mdlDispatchTrackRows(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
-                   f32 fparg2)
-{
-    u32 count;
-    Code47Targets *targets;
-    u32 kind;
-
-    targets = *(Code47Targets **)(arg0 + 0x50);
-    count = targets->count;
-    for (kind = 0; kind < 4; kind++) {
-        s32 offset;
-        u8 *left;
-        u8 *right;
-
-        offset = kind * 0x10;
-        if (D_00713220[kind].apply == NULL) {
-            continue;
-        }
-        left = arg0 + offset;
-        if (*(s32 *)(left + 0xC) == 0) {
-            continue;
-        }
-        right = arg1 + offset;
-        if (*(s32 *)(right + 0xC) != 0) {
-            void *result;
-            u32 target;
-
-            result = D_00713220[kind].blend(left, fparg0, right, fparg1, fparg2);
-            for (target = 0; target < count; target++) {
-                D_00713220[kind].apply(result, targets->items[target]);
-            }
-        } else {
-            void *result;
-            u32 target;
-
-            result = D_00713220[kind].sample(left, fparg0, arg0 + 0x40, fparg2);
-            for (target = 0; target < count; target++) {
-                D_00713220[kind].apply(result, targets->items[target]);
-            }
-        }
-    }
-}
 #pragma pop

@@ -11,9 +11,6 @@
 
 
 
-// FUN_0047F840
-void func_0047f840(void *result, void *target) {
-}
 
 
 
