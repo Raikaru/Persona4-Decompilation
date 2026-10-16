@@ -59,8 +59,8 @@ struct BtlPacket
 };
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-extern u32 func_00193750(void* work);
-extern u32 func_001937c0(void* work);
+extern u32 btlSetFlagsPacketUpdate(void* work);
+extern u32 btlClearFlagsPacketUpdate(void* work);
 
 
 
@@ -96,7 +96,7 @@ u16 btlFindFreeCharResId(void)
 
 
 // FUN_00192610
-s32 func_00192610(u8 *unusedTask)
+s32 btlUpdateTask(u8 *unusedTask)
 {
     if (iGpffffb3ac->flags & 1) {
         btlPacketStepSide(0);
@@ -117,7 +117,7 @@ s32 func_00192610(u8 *unusedTask)
     return 0;
 }
 // FUN_001926C0
-s32 func_001926c0(u8 *unusedTask)
+s32 btlUpdateDraw3DTask(u8 *unusedTask)
 {
     if (func_003e8120(func_00457120()) != 0) {
         btlPacketStepSide(2);
@@ -161,7 +161,7 @@ u32 func_001935f0(void)
 
 
 // FUN_00193750
-u32 func_00193750(void* work)
+u32 btlSetFlagsPacketUpdate(void* work)
 {
     BtlBattleFlagPacket* packet;
 
@@ -179,7 +179,7 @@ BtlPacket* btlCreateSetFlagsPacket(u32 flags)
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0xFF02, sizeof(BtlBattleFlagPacket));
-    packet->updateFunc = func_00193750;
+    packet->updateFunc = btlSetFlagsPacketUpdate;
     ((BtlBattleFlagPacket*)packet->workData)->flags = flags;
 
     return packet;
@@ -190,7 +190,7 @@ BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 #pragma optimization_level 1
 
 // FUN_001937C0
-u32 func_001937c0(void* work)
+u32 btlClearFlagsPacketUpdate(void* work)
 {
     BtlBattleFlagPacket* packet;
     Battle* btl;
@@ -211,7 +211,7 @@ BtlPacket* btlCreateRemoveFlagsPacket(u32 flags)
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0xFF03, sizeof(BtlBattleFlagPacket));
-    packet->updateFunc = func_001937c0;
+    packet->updateFunc = btlClearFlagsPacketUpdate;
     ((BtlBattleFlagPacket*)packet->workData)->flags = flags;
 
     return packet;
