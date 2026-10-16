@@ -25,7 +25,7 @@ s16 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
 void func_00106300(s64 arg0);
 void func_00106310(s32 arg0);
 void func_00106320(s32 arg0);
-s32 func_001106f0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+s32 calIsDayInRange(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 
 s32 datGetTimeSlot(void);
@@ -109,7 +109,7 @@ s32 func_0025c600(void) {
     temp_18 = scrGetParamInt(1);
     temp_17 = scrGetParamInt(2);
     temp_16 = scrGetParamInt(3);
-    if (func_001106f0(datGetDateIndex(), temp_19, temp_18, temp_17, temp_16) == 1) {
+    if (calIsDayInRange(datGetDateIndex(), temp_19, temp_18, temp_17, temp_16) == 1) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
