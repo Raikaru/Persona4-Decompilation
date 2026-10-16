@@ -2727,7 +2727,7 @@ done:
         work += arg2 << 8;
         work += arg1 << 4;
         *(u8 *)(D_007D3E2B + temp_16 * 0xC00 +
-                (arg2 << 7) + (arg1 << 3)) = *(u8 *)(work + 0x5F);
+                (arg2 << 7) + (arg1 << 3)) = ((FldFrameCell *)(work + 0x54))->unk0B;
         return 1;
     }
     kAssertFail(D_005F05E8, 0x8ED);
