@@ -62,13 +62,13 @@ extern u8 *evtPolygonMovieAlloc(void);
 extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
                          u8 *secondary, u8 *overlay);
 extern s32 evtEffectTableCreate(void);
-extern void func_00290ec0(s32 arg0, s32 arg1);
+extern void mtMiscAppendEntry(s32 arg0, u32 arg1);
 extern void evtEffectSequenceReset(s32 arg0);
 extern s32 evtEffectLoadStep(s32 arg0);
 extern void mtMiscBuildScene(s32 arg0, u8 *arg1);
 extern s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1);
 extern s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2);
-extern void func_00298100(s32 arg0);
+extern void mtMiscPlayCue(s32 arg0); /* lint: allow H011 -- measured: retyping to the u64(s16) definition changes evtStepEventTask codegen (nd 89); keep the caller's s32 argument */
 extern void evtLoadEventTables(u8 *arg0);
 extern void evtEnvSlotSave(u8 *arg0, s32 arg1);
 extern void evtCamPosSave(u8 *arg0);
@@ -227,7 +227,7 @@ func_00285dd0_loop_body:
         entry = resource + i * 0x10;
         switch (*(s32 *)(entry + 8)) {
         case 4:
-            func_00290ec0(*(s32 *)(data + 0x5D0),
+            mtMiscAppendEntry(*(s32 *)(data + 0x5D0),
                           *(s32 *)(*(u8 **)(data + 4) + 0x10) +
                               *(s32 *)(entry + 4));
             break;
@@ -279,7 +279,7 @@ func_00285dd0_loop_check:
                                    *(s32 *)(data + 0x790),
                                    *(s32 *)(data + 0x794));
             if (result > 0) {
-                func_00298100(result);
+                mtMiscPlayCue(result);
             }
         }
         flag = (*(u32 *)data & 0x80000000) != 0;
