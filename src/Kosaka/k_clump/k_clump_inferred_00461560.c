@@ -93,9 +93,9 @@ extern s32 iGpffffaf60;
 extern void func_003c21e0(s32 arg0, s32 (*callback)(u8 *, s32 *), s32 *result);
 extern u8 *func_003bfae0(s32 arg0);
 extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
-extern void func_00461560(u8 *arg0);
-extern void func_00461a40(u8 *arg0);
-extern void func_00461be0(u8 *arg0);
+extern void movieNativeDrawPass1(u8 *arg0);
+extern void movieNativeDrawPass2(u8 *arg0);
+extern void movieNativeDrawPass3(u8 *arg0);
 
 extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;
@@ -237,7 +237,7 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_00461560
-void func_00461560(u8 *arg0)
+void movieNativeDrawPass1(u8 *arg0)
 {
     s32 sp4C;
     s32 sp48;
@@ -381,10 +381,10 @@ loop_00461560_fourth_test:
     }
 }
 
-/* measured: func_00461a40 MATCH -> MISMATCH without this pragma. */
+/* measured: movieNativeDrawPass2 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00461A40
-void func_00461a40(u8 *arg0)
+void movieNativeDrawPass2(u8 *arg0)
 {
     s32 sp3C;
     s32 sp38;
@@ -434,9 +434,9 @@ loop_00461A40_test:
     }
 }
 
-// measured: closes opt_propagation around func_00461a40.
+// measured: closes opt_propagation around movieNativeDrawPass2.
 // FUN_00461BE0
-void func_00461be0(u8 *arg0)
+void movieNativeDrawPass3(u8 *arg0)
 {
     s32 sp4C;
     s32 sp48;

@@ -123,9 +123,9 @@ extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
 extern void mdlClumpSetEnvMapValue(s32 arg0, s32 arg1);
 extern void mdlDrawSkyPass(u8 *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
-extern void func_00461560(u8 *arg0);
-extern void func_00461a40(u8 *arg0);
-extern void func_00461be0(u8 *arg0);
+extern void movieNativeDrawPass1(u8 *arg0);
+extern void movieNativeDrawPass2(u8 *arg0);
+extern void movieNativeDrawPass3(u8 *arg0);
 extern u8 *H_Calloc(s32 arg0, s32 arg1);
 
 extern s32 mwPlayerUpdate(u8 *arg0);
