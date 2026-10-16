@@ -16,6 +16,7 @@
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
 #include "datPersona_internal.h"
+#include "btl_unit_internal.h"
 extern s32 datItemCount(s16 id);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
@@ -676,7 +677,7 @@ void btlMainUnitCreateInit(void) {
                 SceneDraw_SetDirectionalOnly(*(u16 *)(unit + 0x9FE), 1);
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
-                btlUnitSetMotion(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
+                btlUnitSetMotion(unit, ((BtlUnit *)unit)->restMotion, 0, ((BtlUnit *)unit)->restRate, ((BtlUnit *)unit)->restOption);
                 btlUnitSetRandomAnimFrame(unit);
                 tmp = *(u8 **)(unit + 0xA00);
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
@@ -1375,7 +1376,7 @@ s32 btlMainStartUpdate(void)
 loop:
         *(u16 *)(var_16 + 0x9D8) &= 0xFFBF;
         btlUnitUpdateStatusMotion(var_16, 0);
-        btlUnitSetMotion(var_16, *(s16 *)(var_16 + 0x9EC), 8, *(f32 *)(var_16 + 0x9F0), *(s8 *)(var_16 + 0x9F4));
+        btlUnitSetMotion(var_16, ((BtlUnit *)var_16)->restMotion, 8, ((BtlUnit *)var_16)->restRate, ((BtlUnit *)var_16)->restOption);
         var_16 = *(u8 **)(var_16 + 0xA68);
 check:
         if (var_16 != NULL) goto loop;
