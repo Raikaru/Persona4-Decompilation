@@ -75,8 +75,8 @@ extern void datEntryDrawByKind(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 ar
 extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0012e2f0(u8 *arg0);
-extern s32 func_0012e8b0(u8 *arg0);
-extern s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2);
+extern s32 titleAdvanceWait(u8 *arg0);
+extern s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00353fb0(void);
 extern void func_00353fe0(void);
 extern s32 func_00354030(void);
@@ -1328,8 +1328,8 @@ process:
             high = 0;
         }
     }
-    func_0012ff40((s32)arg0, 0, (s16)high);
-    func_0012ff40((s32)arg0, 1, (s16)low);
+    radarPushHistoryValue((s32)arg0, 0, (s16)high);
+    radarPushHistoryValue((s32)arg0, 1, (s16)low);
     return 1;
 }
 #pragma opt_propagation on
@@ -1348,7 +1348,7 @@ process:
 // Intent: Item-use menu state machine: step the item selection, apply the chosen item to its recipients, and return the menu's result [inferred]
 // FUN_0013BCF0
 s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
-    extern s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2);
     u8 buf[0x30];
     f32 temp_f1;
     f32 var_f1;
@@ -1365,7 +1365,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         *arg0 = 1;
         break;
     case 1:
-        temp_16 = func_0012e8b0(arg2);
+        temp_16 = titleAdvanceWait(arg2);
         if (temp_16 & func_0034c210()) {
             *arg0 = 3;
             func_0034bb20(0xB);
@@ -1410,8 +1410,8 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((temp_2_2 = func_00453960(buf)) > 0) {
-                func_0012ff40((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                func_0012ff40((s32)arg2, 1, *(s32 *)(buf + 0x28));
+                radarPushHistoryValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
+                radarPushHistoryValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
                     radarResetIndicator(arg2);
                 }
@@ -1445,7 +1445,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00453670(buf, 4, *(s16 *)(arg2 + 0x3C), *(s16 *)(arg2 + 0x26), 0);
             func_004538e0(buf, 0x4000, 0x1000, 0, 0);
             if (func_00453960(buf) != 0) {
-                func_0012ff40((s32)arg2, 2, *(s32 *)(buf + 0x24));
+                radarPushHistoryValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
                 radarPushSlotState(arg2);
                 func_0045af60(0, 1, 0, 0);
             }
@@ -1505,8 +1505,8 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((temp_2_3 = func_00453960(buf)) > 0) {
-                func_0012ff40((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                func_0012ff40((s32)arg2, 1, *(s32 *)(buf + 0x28));
+                radarPushHistoryValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
+                radarPushHistoryValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
                     radarResetIndicator(arg2);
                 }
@@ -1839,12 +1839,12 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
                 func_0012e7c0(arg2);
                 selection = *(s16 *)(arg2 + 0xc3e);
                 if (selection < 6) {
-                    func_0012ff40((s32)arg2, 1, 0);
+                    radarPushHistoryValue((s32)arg2, 1, 0);
                     selection = *(s16 *)(arg2 + 0xc3e) - 1;
-                    if (selection < *(s16 *)(arg2 + 0x22)) func_0012ff40((s32)arg2, 0, selection);
+                    if (selection < *(s16 *)(arg2 + 0x22)) radarPushHistoryValue((s32)arg2, 0, selection);
                 } else {
                     selection -= 6;
-                    if (selection < *(s16 *)(arg2 + 0x24)) func_0012ff40((s32)arg2, 1, selection);
+                    if (selection < *(s16 *)(arg2 + 0x24)) radarPushHistoryValue((s32)arg2, 1, selection);
                 }
                 state = 2;
             }
