@@ -13,7 +13,7 @@ typedef struct RwMatrix RwMatrix;
 extern s32 iGpffff9ef8;
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void K_View_SetFov(void *arg0, f32 arg1);
-extern void func_0016e590();
+extern void FldCameraAdvanceCurve();
 extern s32 iGpffff9f08;
 
 extern s32* MT_Scene_GetFrameState(void);
@@ -1835,7 +1835,7 @@ s32 FldFrame_GetStatus(u8 *arg0)
    the two 64-byte matrix copies (case 6 at sp+0x70, case 7 at sp+0x30), each a
    two-word copy loop from func_00457120()->frame + 0x10; `prev = cur` is the
    RwV3d struct copy (ld/sd + lwc1/swc1). */
-void func_0016e590(u8 *arg0, s32 arg1)
+void FldCameraAdvanceCurve(u8 *arg0, s32 arg1)
 {
     extern s32 func_003bb330(u8 *arg0);
     extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
@@ -2486,12 +2486,12 @@ void func_0016f630(FldEventSnapshot *arg0, u8 *arg1)
 }
 
 /* measured: restore baseline optimization level after func_0016f630. */
-/* measured: func_0016f750, FldEvent_GetStickHeading, func_0016fd00, func_0016fe80, func_0016ffd0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraApplyRecord, FldEvent_GetStickHeading, func_0016fd00, func_0016fe80, func_0016ffd0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
-/* measured: func_0016f750 compiles to object 348B against the 352B retail
+/* measured: FldCameraApplyRecord compiles to object 348B against the 352B retail
    window (normalized_diff 0; pointer-typed hoist fixes final-call setup). */
 // FUN_0016F750
-void func_0016f750(u8 *arg0, u8 *arg1)
+void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
 {
     u8 *temp_16;
     u8 *temp_3;
@@ -2502,7 +2502,7 @@ void func_0016f750(u8 *arg0, u8 *arg1)
     K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x40));
     func_003e9cb0(*(void **)(func_00457120() + 4), arg1, 0);
     temp_18 = *(u16 *)(arg1 + 0x44);
-    func_0016e590(arg0, temp_18);
+    FldCameraAdvanceCurve(arg0, temp_18);
     temp_3 = *(u8 **)(arg0 + 0x38);
     *(RwV3d *)(temp_3 + 0x14) = *(RwV3d *)(arg1 + 0x48);
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x20) = *(f32 *)(arg1 + 0x54);
