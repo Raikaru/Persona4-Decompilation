@@ -18,7 +18,7 @@ void memset(void *dst, s32 value, u32 size);
 
 
 void func_00440b68();
-void func_0012d140(void);
+void cmpMainSetDefaultTableIndex(void);
 u8 *func_00454a60(u8 *param, s32 mode);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 void H_Cdvd_Destroy(u8 *ptr);
@@ -43,7 +43,7 @@ s32 func_0012d630(u8 *arg0);
 s32 radarStepSlotAnimA(u8 *arg0);
 s32 cmpSkillMenuUpdate(u8 *arg0);
 s32 datCommunityPanelUpdate(u8 *arg0);
-s32 func_00131910(u8 *arg0);
+s32 cmpEquipMenuUpdate(u8 *arg0);
 s32 cmpPersonaMenuUpdate(u8 *arg0);
 s32 func_0013ffd0(u8 *arg0);
 s32 datCommunityMenuUpdate(u8 *arg0);
@@ -82,7 +82,7 @@ extern u8 *iGpffff9cb4;
 extern u8 iGpffff9cc0;
 
 // FUN_0012C510
-s32 func_0012c510(u8 *unusedTask) {
+s32 cmpMainTaskStep(u8 *unusedTask) {
     u8 *p;
     u32 state;
     s32 r;
@@ -312,7 +312,7 @@ s32 func_0012c510(u8 *unusedTask) {
 }
 
 // FUN_0012CC50
-void func_0012cc50(u8 *arg0) {
+void cmpMainTaskDestroy(u8 *arg0) {
     u8 *p;
     u32 state;
 
@@ -372,7 +372,7 @@ void func_0012cc50(u8 *arg0) {
 #pragma opt_propagation off
 
 // FUN_0012CD90
-void func_0012cd90(void) {
+void cmpMainUpdateMenus(void) {
     void (**base)(s32, s32);
     s32 sp4C;
     s32 result;
@@ -409,7 +409,7 @@ void func_0012cd90(void) {
             }
         }
         if (*(s32 *)(p + 0x10) & 0x10) {
-            result = func_00131910(p + 0x31DC);
+            result = cmpEquipMenuUpdate(p + 0x31DC);
             if (result != 0) {
                 *(s32 *)(p + 0x10) &= ~0x10;
             }
@@ -442,7 +442,7 @@ void func_0012cd90(void) {
 #pragma opt_propagation on
 
 // FUN_0012D000
-s32 func_0012d000(s32 arg0, s16 arg1) {
+s32 cmpMainTaskCreate(s32 arg0, s16 arg1) {
     s32 r;
     u8 *p;
 
@@ -456,32 +456,32 @@ s32 func_0012d000(s32 arg0, s16 arg1) {
         return 0;
     }
     *(u16 *)(p + 0xC) = arg1;
-    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, func_0012c510, func_0012cc50, (u8 *)(p));
+    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, cmpMainTaskStep, cmpMainTaskDestroy, (u8 *)(p));
     func_0034bb20(0);
     func_0034c260(1);
     memset(p + 0x970C, 0, 0x30);
-    *(s32 *)(p + 0x9714) = (s32)func_0012cd90;
+    *(s32 *)(p + 0x9714) = (s32)cmpMainUpdateMenus;
     *(s32 *)(p + 0x971C) = 0;
-    func_0012d140();
+    cmpMainSetDefaultTableIndex();
     return r;
 }
 
 // FUN_0012D140
-void func_0012d140(void) {
+void cmpMainSetDefaultTableIndex(void) {
     *(u16 *)(iGpffffb1ec + 0x973C) = 0xB1;
 }
 
 // FUN_0012D160
-void func_0012d160(u8 *arg0) {
+void cmpAssetLoaderDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
 /* Declared here because func_00451de0 below takes this function's address as a
    callback. */
-s32 func_0012d190(u8 *arg0);
+s32 cmpAssetLoaderStep(u8 *arg0);
 
 // FUN_0012D190
-s32 func_0012d190(u8 *arg0) {
+s32 cmpAssetLoaderStep(u8 *arg0) {
     s32 i;
     s32 j;
     s32 r;
@@ -544,7 +544,7 @@ done:
     return r;
 }
 // FUN_0012D320
-s32 func_0012d320(void) {
+s32 cmpAssetLoaderTaskCreate(void) {
     s32 r;
     u8 *p;
 
@@ -553,7 +553,7 @@ s32 func_0012d320(void) {
     if (p == NULL) {
         return 0;
     }
-    r = (s32)kwlnTaskCreate((const void *)(D_005E58B0), 0xF, 0, 0, func_0012d190, func_0012d160, (u8 *)(p));
+    r = (s32)kwlnTaskCreate((const void *)(D_005E58B0), 0xF, 0, 0, cmpAssetLoaderStep, cmpAssetLoaderDestroy, (u8 *)(p));
     *(u16 *)p = 0;
     *(u8 **)(p + 4) = D_005E5830;
     *(u8 **)(p + 8) = D_005E5850;

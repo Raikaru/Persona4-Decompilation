@@ -90,7 +90,7 @@ extern u16 D_008C024E[];
 extern void func_0018a000(s32 arg0, s32 arg1);
 extern void smapRefreshCells(u8 *arg0, s8 arg1);
 extern void smapSetPhase(s32 arg0, s32 arg1);
-extern s32 func_0012d000(s32 arg0, s32 arg1);
+extern s32 cmpMainTaskCreate(s32 arg0, s32 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 s32 FldShadow_CasterStep(u8 *arg0);
 void FldShadow_CasterDestroy(u8 *arg0);
@@ -320,7 +320,7 @@ s32 func_00170bc0(u8 *arg0)
         func_002bd410();
         func_002bd3c0();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
-        *(s32 *)(temp_16 + 0x10) = func_0012d000((s32)arg0, 1);
+        *(s32 *)(temp_16 + 0x10) = cmpMainTaskCreate((s32)arg0, 1);
         if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
             smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 1);
         func_00182310(1);
