@@ -32,7 +32,7 @@ extern s32 func_00107ac0(s32 idx);
 extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 arg1);
 extern u16 cmmCommunityGetTableHead(void);
 extern s32 datPersonaRosterSlotRank(s32 idx);
-extern s64 func_00248760(s32 idx);
+extern s64 cmmCommunityArcana(s32 idx);
 extern s32 cmmCommunityHasRecord(u16 idx);
 extern u8 datPersonaGetArcana(u16 idx);
 extern s32 datPersonaRosterSlotId(s32 idx);
@@ -41,7 +41,7 @@ extern void func_001104d0(s32 seed, s32 *month, s32 *day);
 extern s32 func_00110600(s32 a, s32 b);
 extern s32 func_00110d30(s32 idx);
 extern s32 cmmDateTableFindIndex();
-extern u16 func_002489c0(s32 arg0);
+extern u16 cmmCommunityCategory(s32 arg0);
 extern s32 cmmReversedAtRank(s32 arg0);
 extern void func_00113480(s32 a, s32 b, s32 c, s32 d);
 extern void chkmemAllocSiteTag(void *, s32);
@@ -403,7 +403,7 @@ s32 cmmHasPendingUnlock(void) {
    residuals were mask-CSE at the nested call/tail. The opt_common_subs-off
    probe measured nd 207 at object 648/640 from duplicated pointer loads, so
    no pragma or body was retained. */
-// Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must pass func_002488e0 == 0. Returns the first match, or 0.
+// Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must fail cmmCommunityHasTierBit(id, 1..9) for the scan tier. Returns the first match, or 0.
 // FUN_00247270
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 #pragma opt_common_subs off
@@ -433,7 +433,7 @@ s32 cmmFindFreshReverseCandidate(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -465,7 +465,7 @@ s32 cmmFindFreshReverseCandidate(void) {
    CSEs the call-arg masks into $s2 and emits move $a0, $s2 instead of andi
    (nd 33, all diffs from this one pattern; u32 vs s32 temp_18 unchanged).
    Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
-// Find reverse candidate: returns the first rank-up-ready community that is not reversed or broken and passes func_002488e0 != 0, its kind flags, and the marked and condition checks; 0 when none qualifies. The pair with cmmFindFreshReverseCandidate.
+// Find reverse candidate: returns the first rank-up-ready community that is not reversed or broken, passes cmmCommunityHasTierBit for the scan tier, has its kind flags, and passes the marked and condition checks; 0 when none qualifies. The pair with cmmFindFreshReverseCandidate.
 // FUN_002474F0
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 #pragma opt_common_subs off
@@ -495,7 +495,7 @@ s32 cmmFindReverseCandidate(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -527,7 +527,7 @@ s32 cmmFindReverseCandidate(void) {
    declared FIRST (measured: nd 12 -> 0) so the allocator picks
    best=$s2/bestId=$s1/se=$s0/i=$s3; `target=(s16)arg0` sign-extends once
    before the loop; `i=1` is set before the empty-init for. */
-// Top community of arcana: returns the community id whose arcana (func_00248760) equals arg0 and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
+// Top community of arcana: returns the community id whose arcana (cmmCommunityArcana) equals arg0 and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
 // FUN_00247770
 #pragma opt_common_subs off
 s16 cmmTopCommunityOfArcana(s32 arg0) {
@@ -541,7 +541,7 @@ s16 cmmTopCommunityOfArcana(s32 arg0) {
     i = 1;
     target = (s16)arg0;
     for (; i < 0x1F; i++) {
-        if (target == (s8)func_00248760(i & 0xFFFF)) {
+        if (target == (s8)cmmCommunityArcana(i & 0xFFFF)) {
             s32 v = func_00107ac0(i & 0xFFFF) & 0xFFFF;
             if (largest < v) {
                 largest = v;
@@ -570,7 +570,7 @@ s16 cmmTopPersonaOfArcana(s32 arg0) {
 
     largest = 0;
     result = 0;
-    target = (s8)func_00248760(arg0 & 0xFFFF);
+    target = (s8)cmmCommunityArcana(arg0 & 0xFFFF);
     for (i = 0; i < (datPersonaCountValidMembers() & 0xFFFF); i++) {
         v = datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF;
         if (target == (datPersonaGetArcana(v) & 0xFF)) {
@@ -587,8 +587,9 @@ s16 cmmTopPersonaOfArcana(s32 arg0) {
 /* measured: 796 executable bytes match all 20 resolved relocations; the
    800-byte retail window ends with one unreachable alignment word.
    Ordinary s32 target/threshold lifetimes reproduce both sq/lq spills. */
+// Arcana candidate: for arcana arg0 and level threshold arg1, lists the personas at or below the threshold plus the nearest one above it, sorted by level. arg2 of -1 returns the count; otherwise the arg2-th entry, or 0.
 // FUN_00247900
-s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
+s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2) {
     s32 target;
     s32 threshold;
     s32 *left;
@@ -609,14 +610,14 @@ s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
     u16 flags;
     u8 level;
 
-    target = (s8)func_00248760(arg0);
+    target = (s8)cmmCommunityArcana(arg0);
     nextLevel = 0;
     nextId = 0;
     list = 0;
     count = 0;
     capacity = 0;
     if (arg2 != -1) {
-        capacity = func_00247900(arg0, arg1, -1);
+        capacity = cmmArcanaCandidateAt(arg0, arg1, -1);
         chkmemAllocSiteTag(D_006359D0, 0x23A);
         list = (s32 *)D_008873F4[0](1, capacity * 4, 0x40000);
     }
@@ -682,8 +683,9 @@ s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
     return count;
 }
 
+// Roster has arcana: returns 1 when any valid roster persona has arcana arg0, else 0.
 // FUN_00247C20
-s32 func_00247c20(s16 arg0) {
+s32 cmmRosterHasArcana(s16 arg0) {
     s32 i = 0;
     s32 key = (s32)arg0;
 
@@ -708,8 +710,9 @@ s32 func_00247c20(s16 arg0) {
    `move $v0,$s0`. Guard spelling probes (`n >= 4` versus `n > 3`) were
    measured separately on cmmDateTableAddCount; the base spelling was retained.
    Committed at nd 0. */
+// Community for arcana: maps arcana arg0 (2 to 8) to its community id, using the alternate id when the primary community has no record. Returns 0 when neither has one.
 // FUN_00247CB0
-u16 func_00247cb0(s64 arg0) {
+u16 cmmCommunityForArcana(s64 arg0) {
     u16 var_16;
     s64 temp_2;
 
@@ -760,8 +763,9 @@ u16 func_00247cb0(s64 arg0) {
    category call, avoiding a cached masked counter across calls. Reuse the
    existing address-order helper. Exact 228B instructions plus 12B zero tail;
    retain the caller's s32 ABI and pass the index omitted by IDA explicitly. */
+// Find community of category: returns the first community that has a record, flag 4 in its kind record, and category arg0 (cmmCommunityCategory). Returns 0 when none matches.
 // FUN_00247DD0
-s32 func_00247dd0(s32 arg0)
+s32 cmmFindCommunityOfCategory(s32 arg0)
 {
     s32 i;
     u32 target;
@@ -777,7 +781,7 @@ s32 func_00247dd0(s32 arg0)
         }
         offset = (i & 0xFFFF) * 100;
         if (*(u32 *)(cmmMiscAddOff(offset, (s32)base) + 12) & 4) {
-            if (target == (u16)func_002489c0(i & 0xFFFF) &&
+            if (target == (u16)cmmCommunityCategory(i & 0xFFFF) &&
                 cmmCommunityHasRecord((u16)i) != 0) {
                 return (u16)i;
             }
@@ -787,8 +791,9 @@ s32 func_00247dd0(s32 arg0)
     return 0;
 }
 
+// Date listed: returns 1 when the (month, day) pair for the date seed arg0 is in the D_00881498 pair list, else 0. The positive counterpart of cmmDateNotListed.
 // FUN_00247EC0
-s32 func_00247ec0(s32 seed) {
+s32 cmmDateListed(s32 seed) {
     u8 *p = D_00881498[0] + 8;
     s32 a, b;
     s32 a0, b0;
@@ -849,8 +854,9 @@ done:
     return 1;
 }
 #pragma opt_loop_invariants off
+// Next unlisted date: returns the next date seed after arg0 (below 0x16D) whose (month, day) pair is not in the D_00881498 list and whose date is valid. Returns 0 when there is none.
 // FUN_00248040
-s32 func_00248040(s32 arg0) {
+s32 cmmNextUnlistedDate(s32 arg0) {
     s32 var_16 = arg0 + 1;
     s32 var_2;
     goto body;
@@ -863,7 +869,7 @@ incr:
 body:
     if (func_00110d30(var_16) == 0) {
         var_2 = 0;
-    } else if (func_00247ec0(var_16) != 0) {
+    } else if (cmmDateListed(var_16) != 0) {
         var_2 = 0;
     } else {
         var_2 = 1;
@@ -877,8 +883,9 @@ body:
    of line) with 8 saved regs; mwcc b210 inlines the fail skips and balloons
    to 10 saved registers (best nd 30 without the ret booleanize, 82 with).
    Register-pressure + if-chain-layout floor. */
+// Nth eligible community: returns the id of the arg0-th community in the D_00881490 table for (arg1, arg2) whose rank is inside its bounds, is not rank 10, is not flagged 3, and is not the table head. Returns 0 when there is no such entry.
 // FUN_002480E0
-u16 func_002480e0(s32 arg0, s32 arg1, s32 arg2) {
+u16 cmmNthEligibleCommunity(s32 arg0, s32 arg1, s32 arg2) {
     s32 temp_22;
     s32 temp_3;
     u8 *var_18;
@@ -1146,8 +1153,9 @@ u8 *cmmMsgStreamEntry(s32 arg0, s32 arg1) {
     return NULL;
 }
 #pragma opt_loop_invariants off
+// Community arcana: returns the arcana byte at +0x10 of community arg0's kind record (chunk 0), asserting the id is in range.
 // FUN_00248760
-s64 func_00248760(s32 arg0) {
+s64 cmmCommunityArcana(s32 arg0) {
     u8 *temp_16 = D_00881480[0];
     s32 off;
 
@@ -1158,8 +1166,9 @@ s64 func_00248760(s32 arg0) {
     return *(s8 *)(off + (u32)temp_16 + 0x10);
 }
 
+// Community event value: returns the s8 value for slot arg1 (0 to 7) of community arg0's record array (stride 8, value at +0x28) when the slot's gate at +0x24 is zero or its datGetFlag is set. Returns 0 otherwise.
 // FUN_002487E0
-s8 func_002487e0(s32 arg0, s8 arg1) {
+s8 cmmCommunityEventValue(s32 arg0, s8 arg1) {
     u8 *base;
     s32 off;
     s32 elem;
@@ -1190,8 +1199,9 @@ s8 func_002487e0(s32 arg0, s8 arg1) {
     }
     return 0;
 }
+// Community tier bit: returns 1 when bit (arg1 - 1) is set in the u16 at +0xC of community arg0's kind record. arg1 must be 1 to 9.
 // FUN_002488E0
-s32 func_002488e0(s32 arg0, s32 arg1) {
+s32 cmmCommunityHasTierBit(s32 arg0, s32 arg1) {
     s32 temp_3;
     s32 var_4;
     u8 *temp_16 = D_00881480[0];
@@ -1214,8 +1224,9 @@ s32 func_002488e0(s32 arg0, s32 arg1) {
     }
     return (var_4 & (1 << (temp_3 - 1))) != 0;
 }
+// Community category: returns the u16 at +0xE of community arg0's kind record (chunk 0), asserting the id is in range.
 // FUN_002489C0
-u16 func_002489c0(s32 arg0) {
+u16 cmmCommunityCategory(s32 arg0) {
     u8 *temp_16 = D_00881480[0];
     s32 off;
     u8 *temp_2;
@@ -1340,9 +1351,10 @@ block_10:
    loop and keeps the loop count in $t0; without #pragma opt_loop_invariants
    mwcc b210 rematerializes lui per iteration (nd 16). Declarations must be
    count/var_10/var_9/temp_7 order for the $t0/$t1/$t2 allocation. */
+// Table lookup value: scans the 12-byte entries at D_008814C0 for the key (arg0 high half, arg1 low half, arg2 at +4) and returns the value at +8, or -1.
 // FUN_00248D00
 #pragma opt_loop_invariants on
-s32 func_00248d00(s32 arg0, s32 arg1, s32 arg2) {
+s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2) {
     s32 count;
     u8 *var_10;
     s32 var_9;
@@ -1368,10 +1380,11 @@ s32 func_00248d00(s32 arg0, s32 arg1, s32 arg2) {
    the caller pass the already-masked key in $s1, reproducing the retail move
    and the complete -0x40 frame/s0-s2 prologue. With propagation disabled,
    this body is MATCH at nd 0 (object 148B/window 160B). */
+// Resolve counterpart: returns the counterpart of community arg0 when arg0 has no record and its counterpart does; otherwise returns arg0.
 // FUN_00248D80
 /* measured: opt_propagation off preserves retail's raw/key lifetimes. */
 #pragma opt_propagation off
-s64 func_00248d80(s64 arg0)
+s64 cmmResolveCounterpart(s64 arg0)
 {
     s64 raw;
     s64 key;
@@ -1393,8 +1406,9 @@ s64 func_00248d80(s64 arg0)
 
 
 
+// Table lookup flagged: scans the 12-byte entries at D_008814C8 for the key (arg0 high half, arg1 low half, arg2 or 0xFFFF) and returns the u16 at +0xA when its 0x8000 bit is set. Returns -1 otherwise.
 // FUN_00248E20
-s32 func_00248e20(s32 arg0, s32 arg1, s32 arg2) {
+s32 cmmTableLookupFlagged(s32 arg0, s32 arg1, s32 arg2) {
     s32 temp_16;
     s32 temp_3;
     s32 temp_4;

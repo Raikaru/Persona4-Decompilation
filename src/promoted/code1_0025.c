@@ -76,7 +76,7 @@ extern void func_0025ec10(s32 arg0, u8 *arg1);
 extern void func_0025ec50(s32 arg0, u8 *arg1);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
-extern s64 func_00248760(s32 arg0);
+extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 func_0025ef20(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
 extern s32 func_0035adc0(s32 arg0, s64 arg1, s32 arg2);

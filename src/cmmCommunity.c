@@ -11,8 +11,8 @@ extern s32 kwlnTaskGetTaskByName(void *path);
 extern u32 kwlnTaskGetWork(s32 task);
 extern void kAssertFail(const void *file, u32 line);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-extern s64 func_00248760(s32 arg0);
-extern s32 func_00247dd0(s32 arg0);
+extern s64 cmmCommunityArcana(s32 arg0);
+extern s32 cmmFindCommunityOfCategory(s32 arg0);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
@@ -30,7 +30,7 @@ extern f32 D_005E42F0[];
 extern f32 D_005E42F8[];
 extern f32 D_005E42FC[];
 extern f32 D_005E4300[];
-extern s32 func_00247c20(s32 arg0);
+extern s32 cmmRosterHasArcana(s32 arg0);
 extern void *cmmEarnScaleTable(void);
 extern u8 *cmmEntryValueRecord(void);
 extern s32 datRankForPoints(s16 arg0, s16 arg1);
@@ -480,7 +480,7 @@ s32 func_00107890(s32 arg0)
     id = arg0 & 0xFFFF;
     while (i < 0x1F)
     {
-        if ((id == (s8)func_00248760(i & 0xFFFF)) && (cmmCommunityFindRecord(i & 0xFFFFu) != 0))
+        if ((id == (s8)cmmCommunityArcana(i & 0xFFFF)) && (cmmCommunityFindRecord(i & 0xFFFFu) != 0))
         {
             return func_00107ac0((u16)i) & 0xFFFF;
         }
@@ -489,28 +489,28 @@ s32 func_00107890(s32 arg0)
     return 0;
 }
 
-// Community active slot: returns the first active slot id in group arg0 (0 = slots 1-2, 1 = slots 3-4) as tested by func_00247dd0, or 0 when none is active.
+// Community active slot: returns the first active slot id in group arg0 (0 = slots 1-2, 1 = slots 3-4), or 0 when none is active.
 // FUN_00107930
 s32 cmmCommunityFindActiveSlotInGroup(s32 arg0)
 {
     switch (arg0)
     {
     case 0:
-        if (func_00247dd0(1) & 0xFFFF)
+        if (cmmFindCommunityOfCategory(1) & 0xFFFF)
         {
             return 1;
         }
-        if (func_00247dd0(2) & 0xFFFF)
+        if (cmmFindCommunityOfCategory(2) & 0xFFFF)
         {
             return 2;
         }
         break;
     case 1:
-        if (func_00247dd0(3) & 0xFFFF)
+        if (cmmFindCommunityOfCategory(3) & 0xFFFF)
         {
             return 3;
         }
-        if (func_00247dd0(4) & 0xFFFF)
+        if (cmmFindCommunityOfCategory(4) & 0xFFFF)
         {
             return 4;
         }
@@ -860,7 +860,7 @@ ret:
    u32-typed and `0 < x` spellings into a direct and;beqz (2 missing sltu words
    shift the whole tail; nd 64). Everything else matched on the first draft.
    Booleanize floor. */
-// Earn scale: returns the float multiplier for points community arg0 earns, from the kind flag (func_00247c20), the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
+// Earn scale: returns the float multiplier for points community arg0 earns, from cmmRosterHasArcana on its arcana, the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
 // FUN_001080C0
 /* The character lookup receives this function's incoming identifier.
    With that argument explicit, the configured O2 profile preserves every
@@ -876,7 +876,7 @@ f32 cmmCommunityEarnScale(s32 arg0) {
     s32 hit;
 
     v = 1.0f;
-    if (func_00247c20((s8)func_00248760(arg0)) != 0) {
+    if (cmmRosterHasArcana((s8)cmmCommunityArcana(arg0)) != 0) {
         v = v * *(f32 *)cmmEarnScaleTable();
     }
     if (*(s32 *)((u8 *)cmmEarnScaleTable() + 4) != 0) {
@@ -951,7 +951,7 @@ ret:
         return 0;
     }
     v = 1.0f;
-    if (func_00247c20((s8)func_00248760(x)) != 0) {
+    if (cmmRosterHasArcana((s8)cmmCommunityArcana(x)) != 0) {
         v = v * *(f32 *)cmmEarnScaleTable();
     }
     if (*(s32 *)((u8 *)cmmEarnScaleTable() + 4) != 0) {

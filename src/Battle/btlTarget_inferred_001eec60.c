@@ -88,7 +88,7 @@ extern u8 *iGpffffb428;
 extern u16 func_00107ac0(s32 arg0);
 extern void func_00106550(s32 arg0, s32 arg1);
 extern s32 datCalcIsStatusBlocked(u16 *arg0);
-extern u16 func_00247cb0(s64 arg0);
+extern u16 cmmCommunityForArcana(s64 arg0);
 extern u8 *iGpffffb42c;
 
 /* Source unit: src/promoted/code1_001e.c */
@@ -680,7 +680,7 @@ s32 btlActionPickStatusTarget(u8 *action)
     if (datCalcIsStatusBlocked(*(u16 **)(*(u8 **)(action + 0x30) + 0xA64)) != 0) {
         return 0;
     }
-    rank = func_00107ac0(func_00247cb0(
+    rank = func_00107ac0(cmmCommunityForArcana(
         *(s16 *)(*(u8 **)(action + 0x30) + 0xA4)) & 0xFFFF) & 0xFFFF;
     count1 = 0;
     count100000 = 0;
@@ -792,7 +792,7 @@ u8 *btlActionPickRandomCandidate(u8 *arg0)
                  (datCalcChkBadStatus(*(s32 *)(temp_16 + 0xA64), 0x1001FF) == 0)) &&
                 (datCalcIsDead(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
                 ((var_17 != 0) ||
-                 ((func_00107ac0((func_00247cb0(*(s16 *)(temp_16 + 0xA4)) &
+                 ((func_00107ac0((cmmCommunityForArcana(*(s16 *)(temp_16 + 0xA4)) &
                                    0xFFFF)) &
                    0xFFFF) > 0))) {
                 candidates[var_18] = (s32)var_19;
@@ -848,7 +848,7 @@ s32 btlActionPickCounterTarget(u8 *arg0)
                                 0x1001FF) == 0) &&
                 (datCalcIsDead(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
                 (datCalcIsStatusBlocked(*(u16 **)(temp_16 + 0xA64)) == 0) &&
-                ((func_00107ac0((func_00247cb0(
+                ((func_00107ac0((cmmCommunityForArcana(
                                     *(s16 *)(temp_16 + 0xA4)) &
                                   0xFFFF)) &
                   0xFFFF) >= 3)) {

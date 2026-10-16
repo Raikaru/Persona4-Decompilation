@@ -41,7 +41,7 @@ extern void cmmCommunityAdvanceForm(s32 arg0);
 extern void cmmCommunitySetMarked(s32 arg0);
 extern void datDestroyTaskByName(void);
 extern void cmmCommunitySetCurrent(u16 arg0);
-extern s16 func_00248d80(s16 arg0);
+extern s16 cmmResolveCounterpart(s16 arg0);
 extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
 extern s16 cmmTopPersonaOfArcana(s16 arg0);
 extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
@@ -73,13 +73,13 @@ extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
 extern s32 func_00102980(void);
 extern s32 func_0029d030(void);
 extern s32 datPersonaDisplayName(s16 arg0);
-extern s8 func_002487e0(s32 arg0, s32 arg1);
+extern s8 cmmCommunityEventValue(s32 arg0, s32 arg1);
 extern s32 cmmNameRecord(s32 arg0);
-extern s64 func_00248760(s32 arg0);
+extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 func_002438b0(s32 arg0);
 extern s32 cmmLabelRecord(s32 arg0);
 extern s32 func_00107ac0(s32 arg0);
-extern s32 func_00248040(s32 arg0);
+extern s32 cmmNextUnlistedDate(s32 arg0);
 extern s32 func_00110580(s32 arg0, s32* arg1, s32* arg2);
 extern s32 cmmTextRecord(s32 arg0);
 extern s32 datGetItemNameId(s32 arg0);
@@ -148,7 +148,7 @@ extern u8* func_00285af0(void);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 cmmMonthProfileRecord(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
-extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2);
 
 extern void chkmemAllocSiteTag(const void* arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -329,21 +329,21 @@ s32 cmmPersonaDetailShow(void)
     if (mesMgr < 0) {
         kAssertFail(D_006359F0, 0x140);
     }
-    key = func_002487e0(id & 0xFFFF, 0);
+    key = cmmCommunityEventValue(id & 0xFFFF, 0);
     if (key != 0) {
         itfMesWindowSetString(mesMgr, 0, datPersonaDisplayName((s16)key));
     }
     frFontExCopyString(cmmNameRecord(id & 0xFFFF), buf, 0x80);
     itfMesWindowSetString(mesMgr, 1, buf);
-    itfMesWindowSetString(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
-    frFontExCopyString(cmmLabelRecord((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
+    itfMesWindowSetString(mesMgr, 2, func_002438b0((u8)cmmCommunityArcana(id & 0xFFFF)));
+    frFontExCopyString(cmmLabelRecord((s8)cmmCommunityArcana(id & 0xFFFF)), buf, 0x80);
     itfMesWindowSetString(mesMgr, 3, buf);
     itfMesWindowFormatValue(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
     key = cmmTopPersonaOfArcana((s16)id);
     if (key != 0) {
         itfMesWindowSetString(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));
     }
-    idx = func_00248040(func_001060b0());
+    idx = cmmNextUnlistedDate(func_001060b0());
     if (idx != 0) {
         src = D_00635A00;
         dst = tbl;
@@ -391,7 +391,7 @@ s32 cmmPersonaInfoLookupShow(void)
     if (entry == 0) {
         entry = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    entry = func_00247900(entry & 0xFFFF, datCalcGetLevelById(1), param1);
+    entry = cmmArcanaCandidateAt(entry & 0xFFFF, datCalcGetLevelById(1), param1);
     if (entry != 0) {
         u8 *base = iGpffffb3d4;
         s32 off = entry * 14;
@@ -574,7 +574,7 @@ s32 func_0024ac50(void)
 // FUN_0024ACA0
 s32 func_0024aca0(void)
 {
-    scrSetReturnInt(func_00248d80((s16)(scrGetParamInt(0) & 0xFFFF)));
+    scrSetReturnInt(cmmResolveCounterpart((s16)(scrGetParamInt(0) & 0xFFFF)));
     return 1;
 }
 

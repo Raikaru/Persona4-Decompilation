@@ -2070,7 +2070,7 @@ extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern void func_0018bed0(unsigned char *, s32);
 extern s32 func_0018bf50(unsigned char *);
-extern s64 func_00248d80(s64);
+extern s64 cmmResolveCounterpart(s64);
 extern float func_003e4180(float *);
 extern s32 func_00457120(void);
 extern void FldRc_SetClumpVector(void *, void *);
@@ -2441,7 +2441,7 @@ s32 func_0018a200(u8 *param_1)
         resourceKey = (u16)temp_v3;
         temp_v4 = (s32)cmmKindRecord(resourceKey);
         if ((*(unsigned int *)(temp_v4 + 4) & 1) != 0) {
-          temp_v10 = func_00248d80((s16)resourceKey);
+          temp_v10 = cmmResolveCounterpart((s16)resourceKey);
           temp_v3 = (short)temp_v10;
         }
         eventResource = temp_v3;

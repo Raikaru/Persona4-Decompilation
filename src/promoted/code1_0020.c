@@ -17,7 +17,7 @@ typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
-extern s32 func_00247cb0(s16 arg0);
+extern s32 cmmCommunityForArcana(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern void btlSelectionResetSubList(u8 *arg0, u8 *arg1);
 extern u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1);
