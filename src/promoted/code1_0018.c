@@ -2978,7 +2978,7 @@ typedef struct MaterialTextureContext {
 } MaterialTextureContext;
 
 // FUN_0018C610
-struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data) {
+struct RpMaterial *FldRcMaterialSetMipmapTex(struct RpMaterial *material, void *data) {
     MaterialTextureContext *context = data;
 
     if (K_Clump_MatUsrDataHasData((u8 *)material, D_005F5438) != 0) {
@@ -2989,7 +2989,7 @@ struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data) {
 }
 
 // FUN_0018C6C0
-s32 func_0018c6c0(u8 *arg0, s32 arg1)
+s32 FldRcClumpSetMipmapTex(u8 *arg0, s32 arg1)
 {
     MaterialTextureContext context;
 
@@ -2999,7 +2999,7 @@ s32 func_0018c6c0(u8 *arg0, s32 arg1)
     return context.found;
 }
 // FUN_0018C700
-void func_0018c700(f32 fp0) {
+void FldMipmapSetFloatParam(f32 fp0) {
     s32 a;
     s32 b;
 
@@ -3016,7 +3016,7 @@ void func_0018c700(f32 fp0) {
    rather than inline, gives object 136B/window 144B, normalized_diff 0. */
 #pragma optimization_level 1
 // FUN_0018C750
-void func_0018c750(f32 fparg0)
+void FldMipmapSetFixedParam(f32 fparg0)
 {
     s32 temp_2;
     s32 var_5;
@@ -3035,7 +3035,7 @@ positive:
 done:
     func_003f68a0(temp_2, var_5);
 }
-/* measured: restore optimization level after func_0018c750. */
+/* measured: restore optimization level after FldMipmapSetFixedParam. */
 #pragma optimization_level 2
 /* MATCHED from a 40-word reconstruction.  Two source shapes carried it.
    The dungeon chain's dead final arm is `else if (dungeon < 0xA0) { res = 0; }`,

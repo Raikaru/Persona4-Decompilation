@@ -506,7 +506,7 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern void FldStepRefreshBandResVisibility(void);
     extern void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2);
     extern void *mdlGetClump(void *arg0);
-    extern s32 func_0018c6c0(u8 *arg0, s32 arg1);
+    extern s32 FldRcClumpSetMipmapTex(u8 *arg0, s32 arg1);
     extern s32 func_003ef6d0(void);
     extern s32 func_003ef650(s32 arg0, u8 *arg1);
     extern void memcpy(void *dst, const void *src, s32 size);
@@ -929,7 +929,7 @@ block_123:
                         temp_4_8 = (u8 *)(iGpffff9db0);
                         if ((*( s32 * )(temp_4_8 + 0) != 0x14) || (*( s32 * )(temp_4_8 + 4) != 1)) {
                             temp_18_2 = (s32)(mdlGetClump(*( void ** )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C)));
-                            if (func_0018c6c0((u8 *)(temp_18_2), func_003ef650(func_003ef6d0(), D_005EFCB0)) == 1) {
+                            if (FldRcClumpSetMipmapTex((u8 *)(temp_18_2), func_003ef650(func_003ef6d0(), D_005EFCB0)) == 1) {
                                 temp_2_6 = (u8 *)(MT_Scene_GetRes(temp_19));
                                 *( s32 * )(temp_2_6 + 0x28) = (s32) (*( s32 * )(temp_2_6 + 0x28) | 0x01000000);
                             }
