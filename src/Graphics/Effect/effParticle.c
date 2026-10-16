@@ -359,11 +359,12 @@ void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
     case 7: {
         u8 *p;
 
+        /* The source handle reads and the store stay as raw offsets: typed forms changed the codegen (measured). */
         if (*(s32 *)(arg1 + 0x48) == 0) {
             kAssertFail(D_00713CD0, 0x156);
         }
-        if (*(s32 *)(arg0 + 0x48) != 0) {
-            TlpRelease(*(s32 *)(arg0 + 0x48));
+        if (((EffParticleInstance *)arg0)->tlpRef != 0) {
+            TlpRelease(((EffParticleInstance *)arg0)->tlpRef);
         }
         *(s32 *)(arg0 + 0x48) = TlpAddRef(*(s32 *)(arg1 + 0x48));
         if (((EffParticleInstance *)arg0)->link != NULL) {
