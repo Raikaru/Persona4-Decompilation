@@ -61,11 +61,11 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
 }
 extern void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1);
 extern void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
-extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
@@ -540,19 +540,19 @@ void sflDataDrawEntry(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
             sflDataDrawSpritePair(*(PairBits *)&arg0, arg4, arg1);
             return;
         case 2:
-            func_003676f0(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawByteValuePanel(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 3:
             func_00367940(arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 4:
-            func_003679c0(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawNumberValue(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 5:
-            func_00367b80(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawTitledIcon(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 6:
-            func_00367d00(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawLevelBadge(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             break;
         }
     }
@@ -593,7 +593,7 @@ void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     f32 y = *((f32 *)&arg0 + 1);
     PairBits pos;
-    extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+    extern void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 
     if (arg1 & 0xFF) {
         pos.f.x = *(f32 *)&arg0 - 10.0f;
@@ -602,7 +602,7 @@ void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
         pos.f.x = *(f32 *)&arg0 + 17.0f;
         pos.f.y = y + 76.0f;
-        func_00367d00(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawLevelBadge(pos.raw, fparg0, arg1, arg2);
 
         pos.f.x = *(f32 *)&arg0 + 105.0f;
         pos.f.y = y + 23.0f;
@@ -610,15 +610,15 @@ void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
         pos.f.x = *(f32 *)&arg0 + 98.0f;
         pos.f.y = y + 85.0f;
-        func_003679c0(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawNumberValue(pos.raw, fparg0, arg1, arg2);
 
         pos.f.x = *(f32 *)&arg0 + 22.0f;
         pos.f.y = y + 111.0f;
-        func_003676f0(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawByteValuePanel(pos.raw, fparg0, arg1, arg2);
 
         pos.f.x = *(f32 *)&arg0 + 106.0f;
         pos.f.y = *(f32 *)&arg0 + 108.0f;
-        func_00367b80(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawTitledIcon(pos.raw, fparg0, arg1, arg2);
     }
 }
 
@@ -642,8 +642,9 @@ void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1)
                   0xFB, 0xA2, 0, fparg0, 0);
 }
 
+// Intent: Draws a panel frame and a byte-valued count as digit sprites at the panel origin [inferred]
 // FUN_003676F0
-void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     f32 factor;
     s32 alpha;
@@ -696,13 +697,14 @@ void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 // FUN_00367940
 void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 buf[12]; f32 factor; factor = fparg0; func_0011fd30(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, buf, 1); }
 
+// Intent: Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px [inferred]
 // FUN_003679C0
 /* measured: nd 9 -> 0. opt_loop_invariants on hoists the digit loop's 16.0f and 10
    ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
    loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
 /* measured: func_003679c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     f32 scale;
     s32 tex1;
@@ -741,13 +743,14 @@ void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     } while (value > 0);
 }
 
+// Intent: Draws a label string from the font followed by an icon chosen by a one-based index (1-31) [inferred]
 // FUN_00367B80
 /* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
    its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
    masks once into $s0 (nd 78). */
 /* measured: func_00367b80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     
     f32 scale;
@@ -781,11 +784,12 @@ void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
    ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
    loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
 /* measured: closes the loop-invariant bracket; the file default is off. */
+// Intent: Draws a level badge: a label sprite and the level number as digit sprites, with the level looked up from the persona id [inferred]
 // FUN_00367D00
 // measured: test ordered float loads with propagation disabled
 /* measured: func_00367d00 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     s32 alpha;
     u8 value;
