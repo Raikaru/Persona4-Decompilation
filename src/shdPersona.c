@@ -121,9 +121,9 @@ extern void (*jtbl_008873EC[])(void *);
 
 // Intent: Return the EXP still needed to reach the next level after arg1 extra levels, or 0 when already past it [inferred]
 // FUN_00115890
-s32 shdPersonaCalcExpRemaining(u8 *arg0, s32 arg1)
+s32 shdPersonaCalcExpRemaining(DatPersonaRecord *arg0, s32 arg1)
 {
-    u8 c = *(u8 *)(arg0 + 4);
+    u8 c = arg0->level;
     s32 s17;
     s32 r;
     if (c == 0x63) {
@@ -4552,7 +4552,7 @@ void shdPersonaAdvanceSkillList(u8 *arg0)
 
 
 s32 datPersonaAddStat(u8 *, s32, s32);
-s32 datPersonaCountSkills(u8 *);
+s32 datPersonaCountSkills(DatPersonaRecord *);
 s32 datBlockStageIsEight(u8 *);
 u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
 u16 ShdSkill_GetPendingSkill(u8 *);
@@ -4598,14 +4598,14 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     u8 *b2;
     u8 *pc;
     ShdPersonaLevelUpWork *work;
-    u8 *first;
+    DatPersonaRecord *first;
     u8 *base;
     s32 r;
     s32 i;
     s32 j;
     work = (ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work;
     base = work->parentTask->work;
-    first = *(u8 **)base;
+    first = *(DatPersonaRecord **)base;
     pc = work->learnList;
     switch (work->state) {
     case 0: {
@@ -4616,10 +4616,10 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         *(s16 *)(base + 0x520) = 0;
         *(s16 *)(base + 0x522) = 0;
         *(s16 *)(base + 0x524) = 0;
-        *(u8 *)(first + 4) = *(u8 *)(first + 4) + *(u8 *)pc;
+        first->level = first->level + *(u8 *)pc;
         i = 0;
         while (i < 5) {
-            datPersonaAddStat(first, i & 0xFFFF, *(s8 *)(pc + i + 0x82));
+            datPersonaAddStat((u8 *)first, i & 0xFFFF, *(s8 *)(pc + i + 0x82));
             i += 1;
         }
         r = shdPersonaCalcExpRemaining(first, 0);
