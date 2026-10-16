@@ -13,8 +13,8 @@ extern void hsndQueueSound(s32 arg0, s32 arg1);
 extern s32 sdkSpriteRequestLoad(u8 *name);
 extern s32 func_0046a750(s32 handle);
 extern s32 kwlnTaskGetState(s32 handle);
-extern s32 func_002a1f20(u8 *arg0);
-extern void func_002a2310(u8 *arg0);
+extern s32 yTimeLimitTaskUpdate(u8 *arg0);
+extern void yTimeLimitTaskDestroy(u8 *arg0);
 extern u8 D_0063E900[];
 extern u8 D_0063E8F0[];
 extern s32 D_00764630;
@@ -26,7 +26,7 @@ extern s32 func_002a2420(u8 *arg0);
    shared `return 0`, declared in that object order.
    Two prototypes had to be widened for this: kwlnTaskCreateChild's `init` callback
    returns s32 (retail's func_002a2420 leaves 0 or -1 in $v0 and the window
-   manager takes it), and func_002a1f20 is one of those callbacks. */
+   manager takes it), and yTimeLimitTaskUpdate is one of those callbacks. */
 s32 func_002a2420(u8 *arg0) {
     u8 *st;
     u8 *mem;
@@ -54,7 +54,7 @@ s32 func_002a2420(u8 *arg0) {
             r = 0;
         } else {
             memset(mem, 0, 0x1C6C);
-            r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, func_002a1f20, func_002a2310, (u8 *)(mem));
+            r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, yTimeLimitTaskUpdate, yTimeLimitTaskDestroy, (u8 *)(mem));
         }
         *(s32 *)(st + 0x10) = r;
         *(s32 *)st = 3;
