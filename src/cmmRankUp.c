@@ -3236,7 +3236,7 @@ extern void shdEffectSetFargParams(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 f
 extern s32 shdEffectCreateBlurTask(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext);
 extern u8 *cmmRankUpFindResEntry();
 extern void func_002518d0();
-extern s32 func_00189fa0();
+extern s32 FldPanel2dRelease();
 extern void kwlnTaskDestroyWithHierarchy();
 extern s32 kwlnTaskGetTaskByName();
 extern s32 itfMesWindowInstall();
@@ -3395,7 +3395,7 @@ s32 cmmCdvdLoadStep(u8 *arg0) {
     case 6:
         tmp3 = *(s32 *)(ctx + 8) + 1;
         *(s32 *)(ctx + 8) = tmp3;
-        if (tmp3 == 5 && func_00189fa0() != 0) {
+        if (tmp3 == 5 && FldPanel2dRelease() != 0) {
             *(s32 *)ctx |= 1;
         }
         if (*(s32 *)(ctx + 8) < 0x35) {

@@ -80,7 +80,7 @@ void FldPlayerIconSetActive(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
 s32 func_0018bea0();
 void func_0018bc20(s32);
-void func_0018bed0(s32, s32);
+void FldNpcSetPositionLock(s32, s32);
 void func_0018bdd0(s32);
 void mdlSetLayerWeight(u8 *, s32, f32);
 void MT_Scene_BeginValueStep(u8 *, u16, u16, u16);
@@ -440,7 +440,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
     case 1:
         v = *(s32 *)(*(u8 **)(h + 0x20) + 0x294);
         if (v == 0 || i != 1 || func_0018bea0(v) != 1) {
-            func_0018bed0(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 1);
+            FldNpcSetPositionLock(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 1);
             s2 = *(u8 **)(h + 0x20);
             if (*(s32 *)(s2 + 0x234) == 1) {
                 t = *(s32 *)(*(u8 **)(s2 + 0x280) + 0xC);
@@ -482,7 +482,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
             if (v != 0 && i == 1) {
                 func_0018bdd0(v);
             }
-            func_0018bed0(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 0);
+            FldNpcSetPositionLock(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 0);
             func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 0);
             FldSlotBroadcastState(0);
             (*(s32 *)(h + 4))++;
@@ -828,7 +828,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldStepSetPresentFlag(s32);
     void calendarSetMode(s32);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *);
-    void func_0018a000(u8 *, s32);
+    void FldPanel2dSetState(u8 *, s32);
     void func_002bd410(void);
     void func_002bd3c0(void);
     void func_0016f630(FldEventSnapshot *, u8 *);
@@ -1218,7 +1218,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = 0;
                     }
                     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
-                        func_0018a000((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 1);
+                        FldPanel2dSetState((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 1);
                     }
                     func_002bd410();
                     func_002bd3c0();
@@ -1397,7 +1397,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 t10 = FldNoiseTaskCreate(*(u8 **)(u8 *)MT_Scene_GetFrameState());
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = t10;
                 if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
-                    func_0018a000((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 0);
+                    FldPanel2dSetState((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 0);
                 }
                 calendarSetMode(1);
                 FldUnit_UpdateSlots(1);
