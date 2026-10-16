@@ -105,8 +105,8 @@ extern s32 shdEffectTaskCreate(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern s32 func_0025ff60(s32 arg0);
 extern void func_004b12e0(s32 arg0, s32 arg1);
 extern void func_004b1250(void *object, f32 *position);
-extern void func_004b14f0(void *object, s32 *color);
-extern void func_004b13f0(void *object, s32 *color);
+extern void mdlEffectGetPackedColor(void *object, s32 *color);
+extern void mdlEffectSetPackedColor(void *object, s32 *color);
 extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
 extern u8 *kwlnGetCamera(void);
 extern s32 func_003e9700(s32 arg0);
@@ -2727,9 +2727,9 @@ s32 cmmRankUpRender(u8 *task) {
             temp_20_13 = func_0025ff60(temp_20_12);
             func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_13), position);
-            func_004b14f0((void *)temp_20_13, &drawColorValue.packed);
+            mdlEffectGetPackedColor((void *)temp_20_13, &drawColorValue.packed);
             rankUpScaleEffectAlpha(&drawColorValue, 0.5f);
-            func_004b13f0((void *)temp_20_13, &drawColorValue.packed);
+            mdlEffectSetPackedColor((void *)temp_20_13, &drawColorValue.packed);
         }
         if (*(s32 *)(context + 8) == 0x21C) {
             temp_20_14 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));

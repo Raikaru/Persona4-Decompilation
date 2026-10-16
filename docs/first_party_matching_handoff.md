@@ -5232,7 +5232,7 @@ though most of its initializer looked equivalent. The recovered initializer
 keeps four real `$vf0` stores, then overwrites only the fields retail overwrites.
 
 Lane conversion and packing order also matter. The packed-color path in
-`func_004865c0` is:
+`mdlEffectApplyPackedColor` (was `func_004865c0`) is:
 
 ```text
 packed bytes -> pextlb/pextlh -> qmtc2 -> vitof0
@@ -5269,7 +5269,7 @@ When auditing those existing bridges:
 6. Reload callback-mutated list state in C after the bridge; a hardware block
    does not waive ordinary aliasing and mutation rules.
 
-`func_004865c0` demonstrates the boundary: C owns `baseColor`, `childColor`,
+`mdlEffectApplyPackedColor` demonstrates the boundary: C owns `baseColor`, `childColor`,
 the 16-byte-aligned parent snapshot, `packedColor`, list traversal, callback
 lookup, and the post-callback next-pointer reload. The bridge names
 `packedColor` as its memory output and uses quadword scratch for unpacking.
@@ -5299,7 +5299,7 @@ Recorded 2026-09-16; remeasure before acting.
 | Function | Current evidence | Decision |
 | --- | --- | --- |
 | `func_00484b30` | 120/128 bytes, three relocations, exact executable prefix, eight zero-tail bytes | Existing exact bridge: typed state, four real `$vf0` stores, `u_long128` copy/return, scoped propagation off |
-| `func_004865c0` | 276/288 bytes, exact executable prefix, twelve zero-tail bytes | Existing exact bridge with C-owned state and packed-color VU operations |
+| `mdlEffectApplyPackedColor` (was `func_004865c0`) | 276/288 bytes, exact executable prefix, twelve zero-tail bytes | Existing exact bridge with C-owned state and packed-color VU operations |
 | `mdlEffectProjectAnchorDepth` (was `func_0048a460`) | 176/176 bytes, fifteen differing instruction words, ten exact relocations | Honest `void` floor; `$vf10` is the output. Production stays ASM because of the measured residual, not because `lqc2` is unreachable from C |
 | `func_0048a980` | 584/592 bytes, five executable FPR differences and two zero-tail words | Plain-C quaternion arithmetic with a final `$vf10` load. Production stays ASM because of the measured FPR/code-shape floor, not the terminal `lqc2` |
 | `EffModelDrawableUpdate` (was `func_004ad030`) | Retail contains an interior `qmtc2`/`vitof0`/`vmulx`/`vmul`/`vftoi0`/`qmfc2` pipeline | Requires function-specific recovery; do not infer either C reachability or an assembly requirement from the transfer opcodes alone |

@@ -63,7 +63,7 @@ extern u_long128 func_00484b30(u8 *arg0);
 extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void func_00486330(u8 *arg0, u8 *arg1);
 extern void func_00486400(u8 *arg0, f32 arg1);
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern u8 *func_00486780(u8 *arg0, s32 arg1);
 extern s32 func_004867e0(u8 *arg0, u8 *arg1);
 extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
@@ -103,7 +103,7 @@ u8 *func_00484bb0(u8 *arg0)
     extern void func_004861f0(u8 *arg0, f32 *arg1);
     extern void func_00486330(u8 *arg0, u8 *arg1);
     extern void func_00486400(u8 *arg0, f32 arg1);
-    extern void func_004865c0(u8 *arg0, s32 arg1);
+    extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
     extern char *strcpy(char *destination, const char *source);
     s32 func_004867e0(u8 *arg0, u8 *arg1);
     u8 *func_00486780(u8 *arg0, s32 arg1);
@@ -367,7 +367,7 @@ u8 *func_00484bb0(u8 *arg0)
         func_004861f0(clone, (f32 *)&vf0quad);
         func_00486330(clone, (u8 *)&vf0quad);
         func_00486400(clone, 1.0f);
-        func_004865c0(clone, -1);
+        mdlEffectApplyPackedColor(clone, -1);
         return clone;
     }
 }

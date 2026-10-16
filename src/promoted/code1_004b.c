@@ -113,7 +113,7 @@ extern void DistortParticleProjectRecords();
 
 
 
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 
 
 

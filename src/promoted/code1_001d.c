@@ -48,7 +48,7 @@ extern void func_00485870(s32 arg0);
 extern s32 TnGetTableBase(void);
 extern void TnSetTableBase(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);

@@ -26,7 +26,7 @@ extern void func_004b11d0(s32 arg0, s32 arg1);
 
 extern void func_004b1170();
 
-extern void func_004b13f0(void *object, s32 *color);
+extern void mdlEffectSetPackedColor(void *object, s32 *color);
 
 extern void func_004b13d0(float param_1, u8 param_2[][16]);
 extern void mdlEffectListReleaseHandles(u32 *param_1);
@@ -521,7 +521,7 @@ void mdlEffectListCallFlagged(u32 *param_1)
 
 
 
-/* Applies a colour to each node's payload through func_004b13f0. */
+/* Applies a colour to each node's payload through mdlEffectSetPackedColor. */
 // FUN_0047D8A0
 void mdlEffectListSetColor(u8 **arg0, s32 *arg1)
 {
@@ -532,7 +532,7 @@ void mdlEffectListSetColor(u8 **arg0, s32 *arg1)
     while (var_16 != NULL) {
         temp_4 = *(s32 *)(var_16 + 8);
         if (temp_4 != 0) {
-            func_004b13f0((void *)temp_4, arg1);
+            mdlEffectSetPackedColor((void *)temp_4, arg1);
         }
         var_16 = *(u8 **)(var_16 + 0x10);
     }
@@ -3578,7 +3578,7 @@ extern void func_00486330(u8 *arg0, void *arg1);
 extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
 extern void func_004866f0(u8 *arg0, u32 *arg1);
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern u32 func_00486700(void *object);
 typedef signed __int128 s128;
 extern void *func_004b16c0(void *opaqueSource);
@@ -3629,8 +3629,9 @@ void func_004b1250(void *arg0, f32 *arg1)
 }
 
 
+// Converts the Euler angles arg1..arg3, each scaled by iGpffff836c, to a quaternion and passes it with arg0 to 00486330.
 // FUN_004B1290
-void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+void mdlEffectSetEulerRotation(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 {
     u8 scratch[16];
 
@@ -3642,9 +3643,10 @@ void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 
 
 
+// Sets the object's packed colour to *arg1 through mdlEffectApplyPackedColor.
 // FUN_004B13F0
-void func_004b13f0(void *object, s32 *arg1) {
-    func_004865c0(object, *arg1);
+void mdlEffectSetPackedColor(void *object, s32 *arg1) {
+    mdlEffectApplyPackedColor(object, *arg1);
 }
 
 
@@ -3666,8 +3668,9 @@ void func_004b1470(u8 *arg0, u8 *arg1)
 }
 
 
+// Reads the object's packed colour through 00486700 into *arg1.
 // FUN_004B14F0
-void func_004b14f0(void *object, s32 *arg1) {
+void mdlEffectGetPackedColor(void *object, s32 *arg1) {
     *arg1 = func_00486700(object);
 }
 
