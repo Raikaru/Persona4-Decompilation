@@ -39,7 +39,6 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 extern s32 datCalcGetHp();
 
 extern s32 datCalcSkillElement(u8 *unit, u16 skill);
-extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
@@ -305,8 +304,8 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
         scrSetReturnInt((s16)element);
         return 1;
     }
-    count = datCalcGetTableLength(*(u8 **)(entry + 0xA64)) & 0xFFFF;
-    base = datCalcSkillList(*(u8 **)(entry + 0xA64));
+    count = datCalcGetTableLength(*(DatUnit **)(entry + 0xA64)) & 0xFFFF;
+    base = datCalcSkillList(*(DatUnit **)(entry + 0xA64));
     index = 0;
     while (index < count) {
         skill = *(u16 *)(base + index * 2);
@@ -538,8 +537,8 @@ s32 btlEffectScriptChooseBestSkill(void) {
     bestSkill = -1;
     bestCost = 0x3E7;
     bestScore = -1.0f;
-    outerLimit = ((datCalcGetTableLength(*(u8 **)(unit + 0xA64)) & 0xFFFF) + 1) & 0xFFFF;
-    table = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
+    outerLimit = ((datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)) & 0xFFFF) + 1) & 0xFFFF;
+    table = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
     outer = 0;
     outerCount = outerLimit & 0xFFFF;
     goto outer_test;

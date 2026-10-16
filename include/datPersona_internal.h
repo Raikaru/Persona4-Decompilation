@@ -22,7 +22,7 @@ u8 datPersonaRosterSlotRank(s32 arg0);
 // Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
 u16 datPersonaRosterSlotFlags(s32 arg0);
 // Intent: writes the skill ids (arg1) and levels (arg2, optional) of persona record arg0's level-table entries it has not learned yet; returns the count.
-s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2);
+s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *arg1, void *arg2);
 // Intent: passes skill slot arg1 of persona record arg0 to datCalcSkillSlotValue; fatal on bad id or slot.
 void datPersonaRunSkillSlot(u8 *arg0, s32 arg1);
 // Intent: skill-slot value of persona id arg0 at slot arg1, read through datCalcSkillSlotValue; fatal when out of range.
@@ -122,7 +122,7 @@ s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2);
 // Intent: index of skill arg1 in the 8-slot list of record arg0, or -1 when absent.
 s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 // Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
-s32 datPersonaCountSkills(u8 *arg0);
+s32 datPersonaCountSkills(DatPersonaRecord *arg0);
 // Intent: skill id in slot arg1 (0..7) of persona record arg0.
 u16 datPersonaGetSkillAt(DatPersonaRecord *arg0, s16 arg1);
 // Intent: stores source record arg2 (persona id arg1, its skills and stat bonuses) into the 0x30-byte record arg0; returns 1.

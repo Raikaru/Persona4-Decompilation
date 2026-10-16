@@ -182,7 +182,7 @@ mode_valid:
             index = 0;
             while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                 if (datCalcHasBuffMask(
-                        *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                        *(DatUnit **)(*(u8 **)(*(u8 **)(arg1 +
                                                       (u32)(u16)index * 4) +
                                          0x30) +
                                  0xA64),
