@@ -38,7 +38,7 @@ extern s32 func_00285af0();
 extern u8 *func_00285480();
 extern u8 *func_00285b80();
 extern s32 scrGetParamInt();
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 evtFindTask();
 extern void itfMesWindowApplySlots(s32 arg0);
@@ -126,7 +126,7 @@ s32 func_00298550(void)
 
     v0 = scrGetParamInt(0);
     v1 = scrGetParamInt(1);
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         id = (u16)(((v0 + 0x384) & 0x3FF) | 0xC00);
         if (MT_Scene_GetRes(id) != 0) {
             p = (u8 *)MT_Scene_GetRes(id);

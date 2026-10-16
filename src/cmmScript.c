@@ -46,7 +46,7 @@ extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
 extern s16 cmmTopPersonaOfArcana(s16 arg0);
 extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0025c310(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
@@ -773,7 +773,7 @@ s32 func_0024b380(void)
     param0 = scrGetParamInt(0);
     param1 = scrGetParamInt(1);
     param2 = scrGetParamInt(2);
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         func_0025c230(0, param0, param1, param2);
         goto block_4;
     }
@@ -2215,7 +2215,7 @@ s32 func_002502f0(void)
     s32 st;
     s32 ret;
 
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         parent = func_00285af0();
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
             if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
@@ -2272,7 +2272,7 @@ s32 func_00250560(void)
     s32 st;
     s32 ret;
 
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         parent = func_00285af0();
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
             if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
@@ -2324,14 +2324,14 @@ s32 cmmScriptStopEntries(void)
 {
     s32 i;
 
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         cmmScriptArmEntry(2, 0);
         for (i = 0; i < 5; i++) {
             cmmScriptTaskDestroyHandle(i);
         }
         goto ret0;
     }
-    if (func_0029d020() < 30) {
+    if (scrGetCmdTimer() < 30) {
         goto ret0;
     }
     sdkSndFadeOutChannelFrames(2, 0, 0x1E);

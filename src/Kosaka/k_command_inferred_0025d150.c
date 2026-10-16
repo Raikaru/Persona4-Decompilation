@@ -27,7 +27,7 @@ extern s32 iGpffffb480;
 
 
 
-s32 func_0029d020(void);
+s32 scrGetCmdTimer(void);
 void func_001227d0(void);
 s32 func_001227f0(void);
 
@@ -164,7 +164,7 @@ s32 scrCommonSetCharStat(void) {
 s32 func_0025d440(void) {
     s32 temp_2;
 
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         mcIconTaskCreate(0, 1);
         goto block_4;
     }
@@ -181,7 +181,7 @@ block_4:
 s32 func_0025d4b0(void) {
     s32 temp_2;
 
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         mcIconTaskCreate(0, 0);
     } else {
         temp_2 = func_002aa3f0();
@@ -260,7 +260,7 @@ s32 func_0025d650(void) {
     local.f1 = (f32)scrGetParamInt(1);
     temp_17 = scrGetParamInt(2);
     temp_16 = scrGetParamInt(3);
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         local.h0 = (s16)temp_17;
         local.h1 = (s16)temp_16;
         iGpffffb480 = func_00120e20(0, *(s32 *)&local.h0);
@@ -282,7 +282,7 @@ s32 func_0025d760(void) {
     s32 temp_16;
 
     temp_16 = scrGetParamInt(0);
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         if (kwlnTaskIsLinked(temp_16) != 0) {
             func_00120f20(temp_16);
         }
@@ -301,11 +301,11 @@ s32 func_0025d760(void) {
    Un-chaining the && and negating the inner test do NOT help - both stay nd 2. */
 // FUN_0025D7E0
 s32 func_0025d7e0(void) {
-    if (func_0029d020() == 0xA) {
+    if (scrGetCmdTimer() == 0xA) {
         func_001227d0();
         goto block_5;
     }
-    if ((func_0029d020() > 0xA) && (func_001227f0() != 0)) {
+    if ((scrGetCmdTimer() > 0xA) && (func_001227f0() != 0)) {
         return 1;
     }
 block_5:

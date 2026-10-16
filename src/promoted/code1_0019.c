@@ -86,7 +86,7 @@ extern s32 btlUnitReactToDeath(void);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern u8 *scrGetContext(void);
 extern void datCalcIsDeadById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);

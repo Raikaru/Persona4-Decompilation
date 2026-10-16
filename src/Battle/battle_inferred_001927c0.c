@@ -78,7 +78,7 @@ extern s32 btlUnitReactToDeath(void);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern u8 *scrGetContext(void);
 extern void datCalcIsDeadById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
@@ -609,7 +609,7 @@ s32 func_00193450(void)
     u32 var_16;
     u32 dep;
 
-    if (func_0029d020() > 0xA) {
+    if (scrGetCmdTimer() > 0xA) {
         if (iGpffffb3ac != NULL) {
             iGpffffb3b0 = 0;
             return 0;

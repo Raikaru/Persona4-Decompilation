@@ -4,7 +4,7 @@
 typedef struct KwlnTask KwlnTask;
 
 extern s32 scrGetParamInt(s32 paramIdx);
-extern u32 func_0029d020(void);
+extern u32 scrGetCmdTimer(void);
 
 void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 /* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
@@ -118,7 +118,7 @@ u32 func_00298f40(void)
 // FUN_00298F90
 u32 func_00298f90(void)
 {
-    return func_0029d020() != 0;
+    return scrGetCmdTimer() != 0;
 }
 
 // FUN_00298FC0
@@ -131,7 +131,7 @@ u32 scrCommand_WAIT()
         return 1;
     }
 
-    cmdTimer = func_0029d020();
+    cmdTimer = scrGetCmdTimer();
 
     return scrGetParamInt(0) <= cmdTimer;
 }

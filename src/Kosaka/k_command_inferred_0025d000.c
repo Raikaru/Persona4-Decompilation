@@ -22,7 +22,7 @@ extern s32 iGpffffb480;
 
 
 
-s32 func_0029d020(void);
+s32 scrGetCmdTimer(void);
 
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
@@ -71,7 +71,7 @@ block_1:
 // Intent: Common script command CALL_NAME_ENTRY (p4flow Common 0x0051): opens the name entry screen (mode 0x1C) [inferred]
 // FUN_0025D090
 s32 scrCommonCallNameEntry(void) {
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         func_001029a0(0x1C, 0, 0, 0);
         goto block_4;
     }

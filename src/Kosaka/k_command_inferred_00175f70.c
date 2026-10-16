@@ -78,7 +78,7 @@ extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 
 
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern s32 func_00110f00(void);
 extern s32 func_00110fc0(void);
 extern s32 sndRequestAreaTrack(void);
@@ -233,7 +233,7 @@ s32 func_001761f0(void)
 // FUN_00176220
 s32 func_00176220(void)
 {
-    if (func_0029d020() > 3) {
+    if (scrGetCmdTimer() > 3) {
         scrSetReturnInt(func_00110f00());
         return 1;
     }
@@ -346,9 +346,9 @@ s32 K_Cmd_CALL_EVENT(void)
 
 
     var_16 = 0;
-    temp_17 = func_0029d020();
+    temp_17 = scrGetCmdTimer();
     if (func_0015f660() == 0) {
-        iGpffffb304 = func_0029d020();
+        iGpffffb304 = scrGetCmdTimer();
         return 0;
     }
     if ((temp_17 == 0) || ((temp_17 - 1) == iGpffffb304))
