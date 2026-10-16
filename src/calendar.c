@@ -19,7 +19,7 @@ extern void chkmemAllocSiteTag(u8 *file, s32 line);
 
 
 extern s32 calendarStepTimeSlot(u8 *task);
-extern void func_00121170(u8 *task);
+extern void taskRecordDestroy(u8 *task);
 extern s32 func_001211a0(u8 *task);
 extern s32 calendarDraw(u8 *task);
 extern s32 calGetMonthLength(s32 arg0);
@@ -55,7 +55,7 @@ void calendarOpenFlagClear(void)
     chkmemAllocSiteTag(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, calendarStepTimeSlot, func_00121170, (u8 *)(work));
+        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, calendarStepTimeSlot, taskRecordDestroy, (u8 *)(work));
         D_007242B0 = (s32)work;
         (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }
@@ -254,7 +254,7 @@ void calendarOpenFlagSet(void)
     chkmemAllocSiteTag(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, calendarStepTimeSlot, func_00121170, (u8 *)(work));
+        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, calendarStepTimeSlot, taskRecordDestroy, (u8 *)(work));
         D_007242B0 = (s32)work;
         (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }

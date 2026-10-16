@@ -485,7 +485,7 @@ s32 calendarStepTimeSlot(u8 *arg0) {
     }
 }
 // FUN_00121170
-void func_00121170(u8 *arg0)
+void taskRecordDestroy(u8 *arg0)
 {
     void *p = *(void **)((u8 *)arg0 + 0x38);
     D_007242B0 = 0;
@@ -507,7 +507,7 @@ s32 func_00121af0(u8 *unusedTask)
     return 0;
 }
 // FUN_00121B20
-void func_00121b20(void) {
+void tickerStartTask(void) {
     func_00103a60();
     kwlnTaskCreate((const void *)(&iGpffff9c58), 0xF, 0, 0, func_00121af0, 0, (u8 *)(0));
 }
@@ -1766,7 +1766,7 @@ done:
     return var_17;
 }
 // FUN_00124830
-s32 func_00124830(u8 *arg0)
+s32 titleMusicStreamStep(u8 *arg0)
 {
     u8 sp40[0x30];
     s32 temp_18;
@@ -3873,7 +3873,7 @@ s32 func_0012aa70(u8 *task)
     extern u8 *sdkSpritePackCreate(u8 *task);
     extern s32 func_0025f110(u8 *task);
     extern s32 taskLoadSlotModels(u8 *task);
-    extern s32 func_00124830(u8 *task);
+    extern s32 titleMusicStreamStep(u8 *task);
     extern s32 func_00124350(u8 *unusedWork);
     extern s32 calReadDayFlagMask(void);
     extern void calWriteDayFlagMask(s32 task);
@@ -4089,7 +4089,7 @@ s32 func_0012aa70(u8 *task)
             *(s32 *)(work + 0x2C) = 0xD;
             *(s32 *)work = 6;
         } else {
-            result = func_00124830(work);
+            result = titleMusicStreamStep(work);
             switch (result) {
             case 0:
                 *(s32 *)(work + 0x14) = 0;
