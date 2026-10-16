@@ -11,7 +11,7 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* act
 
 /* Source unit: src/Battle/btlOrder_001b0d00.c */
 
-extern s32 func_001b0fa0(u8 *arg0);
+extern s32 btlActionQueueMoveToBack(u8 *arg0);
 // FUN_001B0D00
 static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action)
 {
@@ -91,7 +91,7 @@ void btlOrderQueueAction(u8 *arg0)
     global = (u8 *)iGpffffb3ac;
     if ((*(s32 *)(global + 0xC) & 8) != 0) {
         *(u8 **)(global + 0x298) = ptr;
-        func_001b0fa0(ptr);
+        btlActionQueueMoveToBack(ptr);
     }
 done:
     global = (u8 *)iGpffffb3ac;
