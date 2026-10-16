@@ -416,7 +416,7 @@ room_done:
 
 
 
-s32 func_0014cfd0(u8 *position);
+s32 FldEvent_IsCellOccupied(u8 *position);
 
 #pragma push
 #pragma opt_common_subs off
@@ -499,7 +499,7 @@ checked_party:
         s32 result;
         s32 yes;
 
-        result = func_0014cfd0(choice + 0x140);
+        result = FldEvent_IsCellOccupied(choice + 0x140);
         yes = 1;
         if (result == yes || rejected == yes) {
             goto retry;

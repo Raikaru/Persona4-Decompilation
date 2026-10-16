@@ -176,7 +176,7 @@ extern s32 D_007642F0;
 
 extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *arg0, u8 *arg1);
-extern void func_0014d290(u8 *arg0, u8 *arg1);
+extern void FldEventDrawMarker(u8 *arg0, u8 *arg1);
 
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
@@ -616,7 +616,7 @@ loop_test_0014cef0:
 
 /* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
 // FUN_0014CFD0
-s32 func_0014cfd0(u8 *arg0)
+s32 FldEvent_IsCellOccupied(u8 *arg0)
 {
     s32 temp_21;
     s32 temp_20;
@@ -682,7 +682,7 @@ loop_test_0014cfd0:
 }
 
 // FUN_0014D290
-void func_0014d290(u8 *arg0, u8 *arg1)
+void FldEventDrawMarker(u8 *arg0, u8 *arg1)
 {
     extern void func_003bb5b0(u8 *arg0, s32 arg1, void *arg2, s32 arg3, f32 arg4);
     extern s32 func_003bb330(u8 *arg0);
@@ -735,7 +735,7 @@ void func_0014d290(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0014D470
-s32 func_0014d470(u8 *arg0)
+s32 FldEventQueueDraw(u8 *arg0)
 {
     u8 *work;
     u8 *obj;
@@ -745,7 +745,7 @@ s32 func_0014d470(u8 *arg0)
         return 0;
     }
     obj = PrimAllocQueueNode();
-    *(void **)(obj + 8) = func_0014d290;
+    *(void **)(obj + 8) = FldEventDrawMarker;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x110), obj);
     return 0;
