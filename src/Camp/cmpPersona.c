@@ -317,7 +317,7 @@ void cmpPersonaMenuDraw(u8* work)
     extern void shdPersonaDispCtlGetPosition(u8 *work, u8 *arg1);
     extern s32 shdPersonaDispCtlGetLoadedValue(u8 *work);
     extern f32 cosf(f32 angle);
-    extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
+    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
                               u8 *texture, s32 mode, s32 flag);
     extern void kAssertFail(void *file, s32 line);
     extern PersonaMenuColor D_005EB540[8];
@@ -505,7 +505,7 @@ void cmpPersonaMenuDraw(u8* work)
                         pulseOpacity = 0;
                     }
                     pulseColor = (pulseOpacity & 0xFF) | 0xDCDCDC00;
-                    func_00364680(0.0f, pulseColor, position.x, position.y, position.x, position.y, 512.0f, 512.0f,
+                    shdDrawColourQuad(0.0f, pulseColor, position.x, position.y, position.x, position.y, 512.0f, 512.0f,
                                   (u8 *)textureHandle, 0, 1);
                     RpSkyRenderStateSet(3, 0x717FB);
                     RpSkyRenderStateSet(2, 0x44);

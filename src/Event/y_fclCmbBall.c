@@ -15,7 +15,7 @@ extern char D_0064A740[];
 extern char D_0064A750[];
 extern char D_0064A770[];
 extern s32 fclCmbBallUpdate(u8 *);
-extern u8 *func_00461390(void *, s32, void *, s32);
+extern u8 *PrimQueueDrawPrimitive(void *, s32, void *, s32);
 extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern s32 fclAddClamped(s32, s32, s32, s32, s8);
 extern s32 fclSubClamped(s32, s32, s32, s32, s8);
@@ -200,7 +200,7 @@ s32 fclCmbBallUpdate(u8 *arg0) {
         s16 i;
 
         for (i = 0; i < 0xE; i++) {
-            u8 *q = (u8 *)func_00461390(D_00793E80 + *(s16 *)p * 0x30, 4,
+            u8 *q = (u8 *)PrimQueueDrawPrimitive(D_00793E80 + *(s16 *)p * 0x30, 4,
                                         p + i * 0x100 + 0x10, 4);
             *(void **)(q + 8) = (void *)fclCmbBallDraw;
             *(u8 **)(q + 0x10) = p;

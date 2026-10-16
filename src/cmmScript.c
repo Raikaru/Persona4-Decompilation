@@ -101,7 +101,7 @@ extern u8 D_00635AE0[];
 extern u8 D_00635B00[];
 extern u8 D_00635B20[];
 extern u8 D_005DC7D0[];
-extern s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3);
+extern s32 shdEffectTaskCreate(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern s32 func_0025ff60(s32 arg0);
 extern u8* cmmFishingEntryRecord(s32 arg0);
 extern s32 cmmDateTableRollValue(s32 arg0);
@@ -1047,29 +1047,29 @@ s32 cmmScriptSpawnHandle(s32 arg0) {
     }
     switch (arg0) {
     case 0:
-        temp_2_3 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
+        temp_2_3 = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_3)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_3;
         break;
     case 1:
-        temp_2_4 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
+        temp_2_4 = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_4)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_4;
         break;
     case 2:
-        temp_2_5 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
+        temp_2_5 = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_5)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_5;
         break;
     case 3:
-        temp_2_6 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
+        temp_2_6 = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
         temp_2_7 = func_0025ff60(temp_2_6);
         (*(f32*)((u8*)&pos + 4)) -= 10.0f;
         func_004b1250((void *)(u32)(temp_2_7), (f32 *)((void*)&pos));
         *temp_16 = temp_2_6;
         break;
     case 4:
-        temp_2_8 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
+        temp_2_8 = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_8)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_8;
         break;

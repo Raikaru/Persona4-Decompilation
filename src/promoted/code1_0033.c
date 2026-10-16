@@ -389,7 +389,7 @@ void func_00332a80(void)
 // FUN_00332B60
 void func_00332b60(u8 *arg0, u8 *arg1)
 {
-    func_00364320(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, fclGetMoney());
+    shdDrawNumberText(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, fclGetMoney());
 }
 
 // Identical to fclObjectGetWork (code1_002e.c).

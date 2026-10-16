@@ -51,7 +51,7 @@ void radarDrawEdge(s32 param, s32 a, s32 b, s32 c);
 void datScreenWipeSetColor(s32 param, s32 mode);
 s32 btlShuffleOverlayIdle(void);
 extern u8* kwlnTaskGetWork(u32 param);
-void func_00460ac0(void* param, void* work);
+void PrimAppendNode(void* param, void* work);
 s32 resourceFindByName(u32 param);
 extern u32 D_00795F20[];
 extern s32 iGpffffa5C0;
@@ -205,7 +205,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
 
     work->field0C = 0;
     work->field10 = 0;
-    func_00460ac0(D_00795F20, &work->field0C);
+    PrimAppendNode(D_00795F20, &work->field0C);
     switch (work->state) {
     case 0:
         sflDataResetPersonaState(&work->field58);

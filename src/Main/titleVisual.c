@@ -4,7 +4,7 @@
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 *PrimAllocQueueNode();
-extern void func_00460ac0(void *arg0, void *arg1);
+extern void PrimAppendNode(void *arg0, void *arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0063EE50[];
@@ -13,8 +13,8 @@ extern void func_002ab550(u8 *arg0, s8 *arg1);
 extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 state, u32 value);
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern void mdlSetColor(void *arg0, void *arg1);
@@ -70,7 +70,7 @@ void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32
         temp_2 = PrimAllocQueueNode();
         *(void **)(temp_2 + 8) = (void *)titleVisualDraw;
         *(u8 **)(temp_2 + 0x10) = temp_16;
-        func_00460ac0(arg2, temp_2);
+        PrimAppendNode(arg2, temp_2);
     } else {
         titleVisualDraw(NULL, temp_16);
     }
@@ -122,7 +122,7 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
         RpSkyRenderStateSet(2, 0x58);
     }
     if ((temp_1 & 0x40) != 0) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     if ((temp_1 & 0x10) != 0) {
         mdlEffectEmitMaskedTagPair();
@@ -132,7 +132,7 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
         mdlEffectEmitTagPair();
     }
     if ((temp_1 & 0x40) != 0) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     jtbl_008873EC[0](arg1);
 }
@@ -156,7 +156,7 @@ void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         temp_2_2 = PrimAllocQueueNode();
         *(void **)(temp_2_2 + 8) = (void *)func_002ab0e0;
         *(u8 **)(temp_2_2 + 0x10) = temp_2;
-        func_00460ac0(arg5, temp_2_2);
+        PrimAppendNode(arg5, temp_2_2);
         return;
     }
     func_002ab0e0(NULL, temp_2);
@@ -210,7 +210,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
         render[0](8, 1);
     }
     if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
         mdlEffectEmitMaskedTagPair();
@@ -221,7 +221,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
     mdlPrepareItemSlots(arg0);
     mdlDrawVisibleAtomics(*(s32 *)(arg0 + 0xDC));
     if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
         mdlEffectEmitTagPair();
@@ -333,7 +333,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
         temp_2_4 = PrimAllocQueueNode();
         *(void **)(temp_2_4 + 8) = (void *)func_002ab4b0;
         *(u8 **)(temp_2_4 + 0x10) = temp_2_2;
-        func_00460ac0(arg4, temp_2_4);
+        PrimAppendNode(arg4, temp_2_4);
     } else {
         var_2_2 = mdlGetMatrix((u32)(s32)arg3);
         var_6_3 = (u8 *)spE0;
@@ -423,7 +423,7 @@ void func_002abb30(
         callback = PrimAllocQueueNode();
         *(void **)(callback + 8) = (void *)titleVisualDraw;
         *(u8 **)(callback + 0x10) = packet;
-        func_00460ac0(arg4, callback);
+        PrimAppendNode(arg4, callback);
     } else {
         titleVisualDraw(NULL, packet);
     }
@@ -456,7 +456,7 @@ void func_002abb30(
         callback = PrimAllocQueueNode();
         *(void **)(callback + 8) = (void *)titleVisualDraw;
         *(u8 **)(callback + 0x10) = packet;
-        func_00460ac0(arg4, callback);
+        PrimAppendNode(arg4, callback);
     } else {
         titleVisualDraw(NULL, packet);
     }
@@ -483,7 +483,7 @@ void func_002abb30(
         callback = PrimAllocQueueNode();
         *(void **)(callback + 8) = (void *)titleVisualDraw;
         *(u8 **)(callback + 0x10) = packet3;
-        func_00460ac0(arg4, callback);
+        PrimAppendNode(arg4, callback);
     } else {
         titleVisualDraw(NULL, packet3);
     }

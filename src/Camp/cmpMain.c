@@ -6,7 +6,7 @@
 
 void chkmemAllocSiteTag(void *file, s32 line);
 void kAssertFail(void *arg0, s32 arg1);
-void func_00460ac0(void *param, void *work);
+void PrimAppendNode(void *param, void *work);
 s32 nLineSelectSet(s32 arg0);
 void nLineSetActive(s32 arg0);
 void resrcMngUnsuppressRender(void);
@@ -100,7 +100,7 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
     p = iGpffffb1ec;
     *(s32 *)(p + 0x970C) = 0;
     *(s32 *)(p + 0x9710) = 0;
-    func_00460ac0((u8 *)D_00793E80 + *(u16 *)(p + 0x973C) * 0x30, p + 0x970C);
+    PrimAppendNode((u8 *)D_00793E80 + *(u16 *)(p + 0x973C) * 0x30, p + 0x970C);
     state = *(u32 *)p;
     switch (state) {
     case 0:

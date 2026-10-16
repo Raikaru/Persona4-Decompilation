@@ -81,7 +81,7 @@ extern s32 btlResultOverlayTick(u8 *task);
 extern u8 D_00795F20[];
 extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
-extern void func_00460ac0(u8 *list, u8 *node);
+extern void PrimAppendNode(u8 *list, u8 *node);
 extern u16 datPersonaCountValidMembers(void);
 extern u16 *datPersonaRosterSlot(s16 slot);
 extern u8 *shdPersonaTaskCreate(s32 parent, s32 priority, s32 mode, s32 layout, s32 option);
@@ -395,8 +395,8 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern void func_00364c50(void);
-    extern void func_00364c70(void);
+    extern void shdEnableBlendFlag(void);
+    extern void shdDisableBlendFlag(void);
     extern void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4);
     extern f32 fGpffff8384;
     extern f32 fGpffff8388;
@@ -450,9 +450,9 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
         colors[i].b = 0xFF;
         colors[i].a = alpha;
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     PrimDrawPoints((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
-    func_00364c70();
+    shdDisableBlendFlag();
 
     pos.x = 348.0f + 292.0f * var_f24;
     pos.y = 0.0f;
@@ -468,9 +468,9 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
         colors[i].b = 0x11;
         colors[i].a = alpha;
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     PrimDrawPoints((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
-    func_00364c70();
+    shdDisableBlendFlag();
 
     base.x = (220.0f + fGpffff8384 * var_f21) - 9.0f;
     base.y = -94.0f + fGpffff8388 * var_f21;
@@ -516,7 +516,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     extern void datScreenWipeGetPositions(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern void datScreenWipeGetScale(u8 *arg0, f32 *arg1);
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_00364680(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
+    extern void shdDrawColourQuad(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
                               f32 width, f32 height, s32 color, s32 texture,
                               s32 shadow, s32 mode);
     extern void sflDataDrawEntry(DescriptorPair origin, f32 depth, s32 alpha, s16 *descriptor);
@@ -570,7 +570,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                 opacity = fGpffff838c * (f32)alpha;
                 overlayAlpha = (u8)(opacity * (1.0f - phase));
                 color = (s32)(overlayAlpha | 0xFFFFFF00U);
-                func_00364680(0.0f, drawX, drawY, drawX, drawY,
+                shdDrawColourQuad(0.0f, drawX, drawY, drawX, drawY,
                               256.0f * scale[0], 512.0f * scale[1],
                               color, texture, 0, 1);
                 RpSkyRenderStateSet(3, 0x717FB);
@@ -649,7 +649,7 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
     results = *(u8 **)(work + 0x40);
     *(u32 *)(work + 8) = 0;
     *(u32 *)(work + 0xC) = 0;
-    func_00460ac0(D_00795F20, work + 8);
+    PrimAppendNode(D_00795F20, work + 8);
 
     switch (*(u32 *)(work + 4)) {
     case 0:

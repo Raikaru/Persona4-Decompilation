@@ -40,7 +40,7 @@ extern s32 func_00348c10(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
 extern s32 func_00285b30(void);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *, void *);
+extern void PrimAppendNode(void *, void *);
 extern s16 fclAddClamped(s32, s32, s32, s32, s32);
 extern void mdlQueueModelForDraw(void *, u8 *);
 extern void mdlSetAttachedOwner(u8 *, void *);
@@ -501,7 +501,7 @@ s32 cmbEffModelUpdate(u8 *arg0)
             void *tmp1 = PrimAllocQueueNode();
             *(void **)((u8 *)tmp1 + 8) = (void *)func_00349440;
             *(u8 **)((u8 *)tmp1 + 0x10) = obj;
-            func_00460ac0(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], tmp1);
+            PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], tmp1);
             {
                 s16 cur = *(s16 *)(obj + 2);
                 if (cur < 3) {
@@ -519,7 +519,7 @@ s32 cmbEffModelUpdate(u8 *arg0)
                 void *tmp2 = PrimAllocQueueNode();
                 *(void **)((u8 *)tmp2 + 8) = (void *)func_00349b90;
                 *(u8 **)((u8 *)tmp2 + 0x10) = obj;
-                func_00460ac0(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], tmp2);
+                PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], tmp2);
             }
         }
         break;

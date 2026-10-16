@@ -37,7 +37,7 @@ extern s32 func_004a7e30(u8 *arg0, void *arg1);
 extern void func_004a8250(u8 *arg0, void *arg1);
 extern void func_004a8440(u8 *arg0, void *arg1);
 extern void func_004a86c0(u8 *arg0, void *arg1);
-extern void func_00460ac0(s32 param, void *work);
+extern void PrimAppendNode(s32 param, void *work);
 extern s32 TnGetOffset38(u16 param);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
@@ -1517,7 +1517,7 @@ void effBlurFilterCopiedDispatch(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_0071439C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
 }
 
-/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to func_00460ac0. */
+/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to PrimAppendNode. */
 // FUN_004AB300
 void effBlurFilterCopiedSync(u8 *param_1) {
     u8 *p;
@@ -1525,7 +1525,7 @@ void effBlurFilterCopiedSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 /* Runs the update handler, increments the step counter, and syncs once it is positive. */
@@ -1540,7 +1540,7 @@ void effBlurFilterCopiedAdvanceAndSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 typedef signed __int128 s128;
@@ -1651,7 +1651,7 @@ void effBlurFilterDirectDispatch(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_0071446C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
 }
 
-/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to func_00460ac0. */
+/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to PrimAppendNode. */
 // FUN_004AB840
 void effBlurFilterDirectSync(u8 *param_1) {
     u8 *p;
@@ -1659,7 +1659,7 @@ void effBlurFilterDirectSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 /* Runs the update handler, increments the step counter, and syncs once it is positive. */
@@ -1674,7 +1674,7 @@ void effBlurFilterDirectAdvanceAndSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 /* Copies a 128-bit value into the node's first field and returns it. */

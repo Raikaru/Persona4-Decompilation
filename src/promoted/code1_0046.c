@@ -89,7 +89,7 @@ extern s32 func_004633f0(u8 *task);
 struct MovieNativeWork;
 extern void movieNativeTaskUpdate(void *arg0, struct MovieNativeWork *work);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
-extern void func_00460ac0(char *name, u8 *task);
+extern void PrimAppendNode(char *name, u8 *task);
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
 extern u8 D_00800000[];
@@ -416,7 +416,7 @@ s32 mwPlayerUpdate(u8 *arg0) {
     task = PrimAllocQueueNode();
     *(void **)(task + 8) = (void *)movieNativeTaskUpdate;
     *(u8 **)(task + 0x10) = ctx;
-    func_00460ac0(*(char **)(ctx + 0x218), task);
+    PrimAppendNode(*(char **)(ctx + 0x218), task);
     return 0;
 }
 

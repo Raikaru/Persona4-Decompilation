@@ -29,7 +29,7 @@ typedef struct PersonaWork PersonaWork;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void func_00369440(void);
 extern f32 iGpffff84a4;
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
@@ -105,6 +105,6 @@ void pscModelEnqueueDrawNode(s32 arg0, u8 *arg1) {
     p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)func_00369440;
     *(s32 *)(p + 0x10) = arg0;
-    func_00460ac0(arg1, p);
+    PrimAppendNode(arg1, p);
 }
 

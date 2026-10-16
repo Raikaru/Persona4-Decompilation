@@ -32,7 +32,7 @@ extern s32 TnGetOffset38(u16 arg0);
 extern void EffModelDrawableUpdate();
 extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
-extern void func_00460ac0();
+extern void PrimAppendNode();
 extern void ObjectParticleUpdateRecords();
 extern f32 iGpffff8080;
 extern void mdlDestroyModelObject();

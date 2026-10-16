@@ -29,14 +29,14 @@ extern s32 seqYajiTaskUpdate(u8 *arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_003f6690(s32 arg0, s32 *arg1);
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *arg0, void *arg1);
+extern void PrimAppendNode(void *arg0, void *arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern void func_002a1ef0(u8 *arg0);
@@ -339,7 +339,7 @@ s32 loadingSpinnerTaskUpdate(u8 *arg0) {
         temp_2 = PrimAllocQueueNode();
         *(void **)(temp_2 + 8) = (void *)loadingSpinnerDraw;
         *(u8 **)(temp_2 + 0x10) = arg0;
-        func_00460ac0(D_007966A0, temp_2);
+        PrimAppendNode(D_007966A0, temp_2);
         break;
     }
     return 0;
@@ -483,7 +483,7 @@ void titleVisualDraw(void *arg0, u8 *arg1) {
     }
     temp_17_2 = temp_19 & 0x40;
     if (temp_17_2 != 0) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     temp_16 = temp_19 & 0x10;
     if (temp_16 != 0) {
@@ -494,7 +494,7 @@ void titleVisualDraw(void *arg0, u8 *arg1) {
         mdlEffectEmitTagPair();
     }
     if (temp_17_2 != 0) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     jtbl_008873EC[0](ptr);
 }

@@ -19,7 +19,7 @@ typedef struct RuntimeListNode
 extern void* D_00764C98;
 extern s32 D_00922DB0[];
 extern s32 D_00922DB4[];
-extern void func_00460ac0(void* arg0, s32* arg1);
+extern void PrimAppendNode(void* arg0, s32* arg1);
 extern void* D_00764C9C;
 extern RuntimeListNode* D_00764CA0;
 extern void effAfterResetCommand(void* arg0, void* arg1);
@@ -504,13 +504,13 @@ void AfPackListAppend(void* node)
     }
     D_00764C9C = node;
 }
-// Task callback: clears two words of the update state and runs func_00460ac0 on the pack registered in D_00764C98.
+// Task callback: clears two words of the update state and runs PrimAppendNode on the pack registered in D_00764C98.
 // FUN_004B6E40
 s32 AfPackTaskUpdate(u8 *unusedTask)
 {
     D_00922DB0[0] = 0;
     D_00922DB4[0] = 0;
-    func_00460ac0(D_00764C98, D_00922DB0);
+    PrimAppendNode(D_00764C98, D_00922DB0);
     return 0;
 }
 

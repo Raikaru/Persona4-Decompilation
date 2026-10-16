@@ -23,7 +23,7 @@ extern u16 D_008C024E[];
 extern u8 D_00795E60[];
 
 extern void *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *param, void *work);
+extern void PrimAppendNode(void *param, void *work);
 extern s32 kwlnTaskDestroyWithHierarchy(void *task);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern s32 kwlnTaskIsLinked(void *target);
@@ -279,7 +279,7 @@ s32 func_00298b80(u8 *sdkTaskBytes)
     p = (u8 *)PrimAllocQueueNode();
     *(void **)(p + 8) = (void *)func_00298990;
     *(s32 *)(p + 0x10) = arg0;
-    func_00460ac0(D_00795E60, p);
+    PrimAppendNode(D_00795E60, p);
     return 0;
 }
 // FUN_00298C10

@@ -75,7 +75,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
     extern struct RwFrame *func_003e9320(void);
     extern struct RwFrame *func_003e9df0(struct RwFrame *frame);
     extern u8 *PrimAllocQueueNode(void);
-    extern void func_00460ac0(u8 *pool, u8 *node);
+    extern void PrimAppendNode(u8 *pool, u8 *node);
     extern void mdlQueueModelForDraw(void *pool, u8 *model);
     extern RwRGBA iGpffff9f48;
     extern f32 fGpffff82bc;
@@ -208,7 +208,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 u8 *command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdProjectBounds;
                 *(u8 **)(command + 0x10) = ctx;
-                func_00460ac0(D_00794330, command);
+                PrimAppendNode(D_00794330, command);
             }
             break;
         case 2:
@@ -218,12 +218,12 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 u8 *command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdBeginFlip;
                 *(u8 **)(command + 0x10) = ctx;
-                func_00460ac0(D_00794330, command);
+                PrimAppendNode(D_00794330, command);
                 mdlQueueModelForDraw(D_00794330, *(u8 **)(ctx + 0x10));
                 command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdEndFlip;
                 *(u8 **)(command + 0x10) = ctx;
-                func_00460ac0(D_00794330, command);
+                PrimAppendNode(D_00794330, command);
             }
             break;
         case 3:
@@ -235,7 +235,7 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdRender;
                 *(u8 **)(command + 0x10) = ctx;
-                func_00460ac0(D_00794330, command);
+                PrimAppendNode(D_00794330, command);
             }
             break;
         }
@@ -827,7 +827,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
     extern s32 FldDayEventActive(void);
     extern u8 *PrimAllocQueueNode(void);
     extern void PrimClearNodes(void *, s32);
-    extern void func_00460ac0(void *, void *);
+    extern void PrimAppendNode(void *, void *);
     extern void sdkOtFlushBuckets(void *);
     extern void mdlQueueModelForDraw(void *, void *);
     extern void FldShadow_SaveFrameSlots(u8 *, u8 *);
@@ -857,14 +857,14 @@ s32 FldShadow_CasterStep(u8 *arg0)
         work = PrimAllocQueueNode();
         *(void **)(work + 8) = (void *)FldShadow_SaveFrameSlots;
         *(u8 **)(work + 0x10) = state;
-        func_00460ac0(state + 4, work);
+        PrimAppendNode(state + 4, work);
         while (list1 != NULL) {
             if ((*(s32 *)(list1 + 0x28) & 2) != 0 &&
                 *(u16 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38) + 0xA) == 1) {
                 work = PrimAllocQueueNode();
                 *(void **)(work + 8) = (void *)FldShadow_UpdateSceneShadow;
                 *(u8 **)(work + 0x10) = list1;
-                func_00460ac0(state + 4, work);
+                PrimAppendNode(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38)) > 0) {
                     if (FldMap_IsCurrentInEitherBand() == 1 || FldDayEventActive() == 1) {
                         i = 0;
@@ -889,7 +889,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                 work = PrimAllocQueueNode();
                 *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobPacket;
                 *(u8 **)(work + 0x14) = list1;
-                func_00460ac0(state + 4, work);
+                PrimAppendNode(state + 4, work);
             }
             list1 = *(u8 **)(list1 + 0x138);
         }
@@ -899,21 +899,21 @@ s32 FldShadow_CasterStep(u8 *arg0)
                 work = PrimAllocQueueNode();
                 *(void **)(work + 8) = (void *)FldShadow_UpdateModelShadow;
                 *(u8 **)(work + 0x10) = list1;
-                func_00460ac0(state + 4, work);
+                PrimAppendNode(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38)) > 0) {
                     mdlQueueModelForDraw(state + 4, *(u8 **)(list3 + 0x164));
                 }
                 work = PrimAllocQueueNode();
                 *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobModel;
                 *(u8 **)(work + 0x14) = list1;
-                func_00460ac0(state + 4, work);
+                PrimAppendNode(state + 4, work);
             }
             list3 = *(u8 **)(list3 + 0x138);
         }
         work = PrimAllocQueueNode();
         *(void **)(work + 0xC) = (void *)FldShadow_RestoreFrameSlots;
         *(u8 **)(work + 0x14) = state;
-        func_00460ac0(state + 4, work);
+        PrimAppendNode(state + 4, work);
         sdkOtFlushBuckets(state + 4);
         break;
     }

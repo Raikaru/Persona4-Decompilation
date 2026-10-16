@@ -193,6 +193,6 @@ void func_002be4a0(void)
     sp18 = fclMakeVec2(
                   580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()),
                   15.0f);
-    func_00364320(sp18, 1.0f, 0xFF, fclGetMoney());
+    shdDrawNumberText(sp18, 1.0f, 0xFF, fclGetMoney());
 }
 

@@ -24,7 +24,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
 extern PolygonWindColor iGpffffbb64;
 extern u8 *func_004a6c00(u8 *arg0);
 extern u8 D_0071413C[];
-extern void func_00460ac0();
+extern void PrimAppendNode();
 extern void ObjectParticleUpdateRecords();
 extern f32 iGpffff8080;
 
@@ -110,7 +110,7 @@ void func_004af520(u8 *arg0) {
         inner = *(u8 **)(temp + 0x20);
         *(s32 *)(arg0 + 0x64) = 0;
         *(s32 *)(arg0 + 0x68) = 0;
-        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
+        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
     }
 }
 
@@ -124,7 +124,7 @@ void func_004af580(u8 *arg0) {
         inner = *(u8 **)(temp + 0x20);
         *(s32 *)(arg0 + 0x64) = 0;
         *(s32 *)(arg0 + 0x68) = 0;
-        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
+        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
     }
 }
 
