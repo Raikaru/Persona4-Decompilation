@@ -2216,7 +2216,7 @@ void RingSetVec3(u8 *arg0, f32 *arg1) {
 
 extern void func_004a5ef0(u8 *arg0, u8 *arg1);
 extern void func_004ade80(u8 *arg0);
-extern void func_004a5fc0(u8 *arg0);
+extern void EffSpriteUpdate(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
 extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
@@ -2475,23 +2475,26 @@ void *func_004a5e50(void *source)
 }
 
 
+/* Sets the sprite frame counter at +0x2C to zero. */
 // FUN_004A5F90
-void func_004a5f90(u8 *arg0)
+void EffSpriteClearFrameCount(u8 *arg0)
 {
     *(s32 *)(arg0 + 0x2C) = 0;
 }
 
 
+/* Increments the sprite frame counter at +0x2C. */
 // FUN_004A5FA0
-void func_004a5fa0(u8 *arg0) {
+void EffSpriteIncrementFrameCount(u8 *arg0) {
     (*(s32 *)(arg0 + 0x2C))++;
 }
 
 
+/* Increments the sprite frame counter at +0x2C, then runs the sprite update. */
 // FUN_004A6B90
-void func_004a6b90(u8 *arg0) {
+void EffSpriteAdvanceFrame(u8 *arg0) {
     (*(s32 *)(arg0 + 0x2C))++;
-    func_004a5fc0(arg0);
+    EffSpriteUpdate(arg0);
 }
 
 
