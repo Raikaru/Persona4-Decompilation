@@ -58,8 +58,8 @@ extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void func_004b1a00(u8 *arg0, u8 *arg1);
 extern s32 func_00481e30(s32 arg0);
 extern void func_00481ee0(s32 arg0);
-extern void func_004829c0(s32 arg0);
-extern s32 func_00482a70(s32 arg0);
+extern void TlpRelease(s32 arg0);
+extern s32 TlpAddRef(s32 arg0);
 
 /* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
    func_004bd628, func_004bd640, func_004bd658, func_004bd670,
@@ -78,7 +78,7 @@ extern u8 D_00756900[];
 extern void func_004bd6a0(u8 *arg0, s32 arg1);
 extern void func_004bd9f8(u8 *arg0);
 extern void func_00486330(u8 *arg0, void *arg1);
-extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
+extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
 extern void func_004866f0(u8 *arg0, u32 *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
@@ -93,7 +93,7 @@ extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 TnSlotObject(u16 arg0);
 extern void func_003c42b0(s32 arg0, s32 arg1);
-extern s32 func_00482800(u16 *arg0);
+extern s32 TlpCreate(u16 *arg0);
 extern void func_003e8110(u8 *arg0);
 extern s32 func_003e8120(u8 *arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
@@ -160,7 +160,7 @@ void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 {
     u8 scratch[16];
 
-    func_004bcf20(iGpffff836c * arg1, iGpffff836c * arg2, iGpffff836c * arg3);
+    effMiscEulerToQuatVU(iGpffff836c * arg1, iGpffff836c * arg2, iGpffff836c * arg3);
     __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(scratch) : "memory");
     func_00486330(arg0, scratch);
 }
@@ -274,7 +274,7 @@ void func_004b18e0(u8 *arg0)
 
     h = *(s32 *)(arg0 + 0xA8);
     if (h != 0) {
-        func_004829c0(h);
+        TlpRelease(h);
     }
     h = *(s32 *)(arg0 + 0xAC);
     if (h != 0) {
@@ -324,9 +324,9 @@ void func_004b1a00(u8 *arg0, u8 *arg1) {
     if (*(s32 *)(arg1 + 0xA8) != 0) {
         temp_4_2 = *(s32 *)(arg0 + 0xA8);
         if (temp_4_2 != 0) {
-            func_004829c0(temp_4_2);
+            TlpRelease(temp_4_2);
         }
-        *(s32 *)(arg0 + 0xA8) = func_00482a70(*(s32 *)(arg1 + 0xA8));
+        *(s32 *)(arg0 + 0xA8) = TlpAddRef(*(s32 *)(arg1 + 0xA8));
     }
 }
 // FUN_004B1AA0
@@ -595,7 +595,7 @@ void *func_004b53c0(void *opaqueSource)
     s32 tex;
     s32 (*setup4)(s32, s32, s32, s32);
     void (*post)(u8 *);
-    extern u8 *func_004b50f0();
+    extern u8 *EffBattleAllocWork();
 
     id = *(s32 *)(arg0 + 0x2C);
     base = (s32)iGpffffbba0;
@@ -603,7 +603,7 @@ void *func_004b53c0(void *opaqueSource)
     if (*(s32 *)(off + base + 0xC) == 0) {
         tex = *(s32 *)(arg0 + 0x38);
         off = id & 0xFFFF;
-        work = func_004b50f0(off, tex);
+        work = EffBattleAllocWork(off, tex);
         if (iGpffffbba4() != 0) {
             off = (off & 0xFFFF) * 0x1C;
             base = (s32)iGpffffbba0;
@@ -622,7 +622,7 @@ void *func_004b53c0(void *opaqueSource)
         }
         result = work;
     } else {
-        work = func_004b50f0((id = id & 0xFFFF),
+        work = EffBattleAllocWork((id = id & 0xFFFF),
                              (id, *(s32 *)(arg0 + 0x38)));
         {
             s32 idx2;

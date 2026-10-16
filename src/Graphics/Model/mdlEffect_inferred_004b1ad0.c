@@ -82,7 +82,7 @@ void func_004b1ad0(u8 *arg0)
     extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
     extern void func_00482730(s32 arg0, u32 arg1);
     extern void func_00482700(s32 arg0, f32 *arg1);
-    extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
+    extern void TlpSelectFrame(void *arg0, u32 arg1, f32 *arg2);
     extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
@@ -193,7 +193,7 @@ void func_004b1ad0(u8 *arg0)
         s32 w;
         s32 h;
 
-        func_00482ad0(*(void **)(arg0 + 0xA8), count, texture);
+        TlpSelectFrame(*(void **)(arg0 + 0xA8), count, texture);
         w = (s32)(16.0f * texture[2]);
         h = (s32)(16.0f * texture[3]);
         info.corner[2] = 0;

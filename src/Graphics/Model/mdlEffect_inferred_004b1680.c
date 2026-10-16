@@ -55,7 +55,7 @@ extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 TnSlotObject(u16 arg0);
 extern void func_003c42b0(s32 arg0, s32 arg1);
-extern s32 func_00482800(u16 *arg0);
+extern s32 TlpCreate(u16 *arg0);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -128,7 +128,7 @@ void *func_004b16c0(void *opaqueSource) {
                           TnSlotObject(*temp_2_4));
             break;
         case 7:
-            *(s32 *)(temp_2 + 0xA8) = func_00482800(temp_2_4);
+            *(s32 *)(temp_2 + 0xA8) = TlpCreate(temp_2_4);
             break;
         default:
             kAssertFail(&iGpffffb118, 0x5C);
