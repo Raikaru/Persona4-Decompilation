@@ -13,7 +13,7 @@ void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
 void memcpy(void *dst, const void *src, u32 size);
-void func_004b4430(u8 *arg0, u8 *arg1);
+void LineNovaUpdateVertices(u8 *arg0, u8 *arg1);
 
 extern u8 D_00713310[];
 extern u8 D_00714628[];
@@ -45,8 +45,9 @@ extern void (*jtbl_008873EC[])(void *ptr);
    hoisting to the preheader), loads-before-calls (adds a 4th saved reg),
    u64 shift spellings (all add sext+canonicalize pairs). Saved-register
    rotation floor family. */
+// Creates a line-nova instance: a block for n entries, a geometry copy, then the colour rows.
 // FUN_004B32F0
-u8 *func_004b32f0(u8 *arg0)
+u8 *LineNovaCreate(u8 *arg0)
 {
     s32 n;
     u8 *r;
@@ -89,15 +90,17 @@ u8 *func_004b32f0(u8 *arg0)
     return r;
 }
 
+// Frees a line-nova instance: its geometry handle, then the instance block.
 // FUN_004B3420
-void func_004b3420(u8 *arg0) {
+void LineNovaDestroy(u8 *arg0) {
     func_004833f0(*(void **)(arg0 + 4));
     (*jtbl_008873EC)(*(void **)(arg0 + 8));
 }
 
 
+// Reseeds the eight-byte particle records: random 16-bit position, alpha byte and scale, then resets the delay from the emitter.
 // FUN_004B3470
-void func_004b3470(u8 *arg0) {
+void LineNovaReseedParticles(u8 *arg0) {
     u8 *p20;
     u8 *p17;
     u32 count;
@@ -174,8 +177,9 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
+// Builds the eight-byte camera-corner particle quads (see the note above).
 // FUN_004B36B0
-void func_004b36b0(u8 *unused, u8 *effect)
+void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
 {
 
     extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
@@ -434,8 +438,9 @@ vertices[8] = *(f32 *)D_00713D18;
 #pragma pop
 
 
+// Binds the line-nova resource for the kind: looks up the kind's resource handle and stores it in the entry.
 // FUN_004B3D90
-void func_004b3d90(u8 *arg0) {
+void LineNovaBindResource(u8 *arg0) {
     u8 *p6;
     u8 *p16;
     u32 v5;
@@ -463,8 +468,9 @@ void func_004b3d90(u8 *arg0) {
 }
 
 
+// Writes the line colour into the row and selects the six-byte vertex update as the entry's callback.
 // FUN_004B3E40
-void func_004b3e40(u8 *arg0) {
+void LineNovaUseVertexUpdate(u8 *arg0) {
     u8 *p10;
     u8 *dst;
 
@@ -478,13 +484,14 @@ void func_004b3e40(u8 *arg0) {
         *(LineNovaColor *)(dst + 4) = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
-    *(s32 *)(p10 + 0x20) = (s32)func_004b4430;
+    *(s32 *)(p10 + 0x20) = (s32)LineNovaUpdateVertices;
     *(s32 *)(p10 + 0x28) = (s32)arg0;
 }
 
 
+// Creates a line-nova instance whose colour alpha comes from the source's alpha byte, then fills one colour row per entry.
 // FUN_004B3ED0
-u8 *func_004b3ed0(u8 *arg0)
+u8 *LineNovaCreateAlpha(u8 *arg0)
 {
     f32 temp_f1;
     f32 temp_f1_2;
@@ -550,15 +557,17 @@ u8 *func_004b3ed0(u8 *arg0)
     return temp_2;
 }
 
+// Frees a line-nova instance: same body as LineNovaDestroy.
 // FUN_004B4170
-void func_004b4170(u8 *arg0) {
+void LineNovaDestroyAlt(u8 *arg0) {
     func_004833f0(*(void **)(arg0 + 4));
     (*jtbl_008873EC)(*(void **)(arg0 + 8));
 }
 
 
+// Reseeds the six-byte vertex records: three random 16-bit components, then resets the delay from the emitter.
 // FUN_004B41C0
-void func_004b41c0(u8 *arg0) {
+void LineNovaReseedVertices(u8 *arg0) {
     u8 *p20;
     u8 *p17;
     u32 count;
@@ -611,15 +620,16 @@ void func_004b41c0(u8 *arg0) {
 
 /* Six-byte particles place six XYZ vertices between the projected endpoints.
  * The rotation axis is twelve bytes, with both source parts loaded first.
- * As in func_004b36b0: (s32) conversions on the last two sampler arguments,
+ * As in LineNovaUpdateCameraQuads: (s32) conversions on the last two sampler arguments,
  * effectVuUnpackColor10V0 for the $v0 colour transfers, and the vertex pointer
  * declared after the loop counter. The Y camera offset forms its depth factor
  * before the 224 difference, unlike the X call through novaCameraOffset. */
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
+// Places six XYZ vertices per particle between the projected endpoints (the six-byte particle update).
 // FUN_004B4430
-void func_004b4430(u8 *unused, u8 *effect)
+void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 {
 
     extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
@@ -817,8 +827,9 @@ vertices[17] = *(f32 *)D_00713D18;
 
 
 
+// Binds the line-nova resource for its kind; same body as LineNovaBindResource.
 // FUN_004B4C00
-void func_004b4c00(u8 *arg0) {
+void LineNovaBindResourceAlt(u8 *arg0) {
     u8 *p6;
     u8 *p16;
     u32 v5;
@@ -846,8 +857,9 @@ void func_004b4c00(u8 *arg0) {
 }
 
 
+// Creates a line-nova kind instance (kind below three): allocates the instance block, copies the kind's parameters and runs its init callback.
 // FUN_004B4CB0
-u8 *func_004b4cb0(s32 arg0, u8 *arg1) {
+u8 *LineNovaCreateKindInstance(s32 arg0, u8 *arg1) {
     u8 *w;
     s32 size;
     u32 idx;
@@ -875,15 +887,16 @@ u8 *func_004b4cb0(s32 arg0, u8 *arg1) {
     (*(void (**)(u8 *))(&D_00714650[0] + idx2))(w);
     return w;
 }
+// Creates a line-nova kind instance for an object: resolves the object's record (asserts on a missing record), then builds the kind instance.
 // FUN_004B4E10
-void *func_004b4e10(void *arg0) {
+void *LineNovaCreateKindInstanceFromObject(void *arg0) {
     u8 *p;
 
     p = func_00484490(arg0);
     if (p == NULL) {
         kAssertFail(D_00714628, 0x2B3);
     }
-    p = func_004b4cb0(*(u16 *)((u8 *)arg0 + 0xC), p);
+    p = LineNovaCreateKindInstance(*(u16 *)((u8 *)arg0 + 0xC), p);
     if (p == NULL) {
         kAssertFail(D_00714628, 0x2B5);
     }
