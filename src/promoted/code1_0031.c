@@ -41,9 +41,9 @@ static inline s8 findDateEntry(u8 month, u8 day)
 }
 
 // FUN_00311900
-void func_00311900(s64 arg0)
+s32 cmmCommunityName(s64 arg0)
 {
-    cmmNameRecord(arg0 & 0xFFFF);
+    return cmmNameRecord(arg0 & 0xFFFF);
 }
 /* MATCH.  Two levers, both measured on 2026-09-18:
    1. The float-to-unsigned conversion temporary is allocated out of the CSE
