@@ -61,10 +61,10 @@ extern u8 *func_00294040(s32 arg0);
 extern u8 *func_0028fb90(void);
 extern u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary,
                          u8 *secondary, u8 *overlay);
-extern s32 func_00290f00(void);
+extern s32 evtEffectTableCreate(void);
 extern void func_00290ec0(s32 arg0, s32 arg1);
-extern void func_00291060(s32 arg0);
-extern s32 func_00291080(s32 arg0);
+extern void evtEffectSequenceReset(s32 arg0);
+extern s32 evtEffectLoadStep(s32 arg0);
 extern void mtMiscBuildScene(s32 arg0, u8 *arg1);
 extern s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1);
 extern s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2);
@@ -219,7 +219,7 @@ s32 evtStepEventTask(u8 *sdkTaskBytes) {
         }
     case 9:
         *(s32 *)(data + 0x76C) = 10;
-        *(s32 *)(data + 0x5D0) = func_00290f00();
+        *(s32 *)(data + 0x5D0) = evtEffectTableCreate();
         i = 0;
         goto func_00285dd0_loop_check;
 func_00285dd0_loop_body:
@@ -238,9 +238,9 @@ func_00285dd0_loop_check:
         if (i < *(s32 *)(resource + 0x44)) {
             goto func_00285dd0_loop_body;
         }
-        func_00291060(*(s32 *)(data + 0x5D0));
+        evtEffectSequenceReset(*(s32 *)(data + 0x5D0));
     case 10:
-        if (func_00291080(*(s32 *)(data + 0x5D0)) != 0) {
+        if (evtEffectLoadStep(*(s32 *)(data + 0x5D0)) != 0) {
             *(s32 *)(data + 0x76C) = 11;
         }
         break;
