@@ -91,7 +91,7 @@ static inline f32 formationCapacityLimit(s32 limit)
     return (f32)limit;
 }
 // FUN_001D1310
-void func_001d1310(u16 *arg0) {
+void btlCameraCountUnitsByBand(u16 *arg0) {
     u8 *node;
     f32 scale;
     f32 x;
@@ -126,11 +126,11 @@ void func_001d1310(u16 *arg0) {
     }
 }
 
-/* measured: opt_propagation off probe for func_001d14b0 loop masks. */
-/* measured: func_001d14b0 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
+/* measured: btlCameraFindFormationForCounts MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001D14B0
-s32 func_001d14b0(u8 *arg0)
+s32 btlCameraFindFormationForCounts(u8 *arg0)
 {
     s32 index;
     u16 masked_index;
@@ -164,11 +164,11 @@ test:
     return 0x18;
 }
 
-/* measured: close opt_propagation after func_001d14b0 probe. */
-/* measured: func_001d1680 MATCH -> MISMATCH without this pragma. */
+/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
+/* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_001D1540
-void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
+void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2) {
     u8 temp_4;
 
     temp_4 = *(u8 *)(arg0 + 0xA2);
@@ -187,7 +187,7 @@ void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
    cursor keeps induction and explicitly narrowed selection in retail's
    distinct registers without adding stack storage. */
 // FUN_001D15A0
-s16 func_001d15a0(void)
+s16 btlCameraSelectFormationIndex(void)
 {
     u16 counts[4];
     struct {
@@ -204,7 +204,7 @@ s16 func_001d15a0(void)
     if (btlUnitRealignCells() == 1) {
         return -1;
     }
-    func_001d1310(counts);
+    btlCameraCountUnitsByBand(counts);
     cursor.index = 0;
     first = counts[0];
     second = counts[1];
@@ -225,15 +225,15 @@ done:
 }
 
 #pragma push
-/* measured: func_001d1680 MATCH -> MISMATCH without this pragma. */
+/* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-/* measured: func_001d1680 MATCH -> MISMATCH without this pragma. */
+/* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 /* Assign party/enemy formation slots, optionally snap positions, then face
  * each side toward the other. MWCC b210: 1592 bytes and eight zero tail bytes.
  * The capacity scan has five candidates; 5 denotes no fitting candidate. */
 // FUN_001D1680
-void func_001d1680(s32 applyPositions, s32 unused)
+void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
 {
     RwV3d position;
     RwV3d actorCenter;
@@ -256,8 +256,8 @@ void func_001d1680(s32 applyPositions, s32 unused)
     if (btlUnitRealignCells() == 1) {
         formation = -1;
     } else {
-        func_001d1310(counts);
-        formation = (s16)func_001d14b0((u8 *)counts);
+        btlCameraCountUnitsByBand(counts);
+        formation = (s16)btlCameraFindFormationForCounts((u8 *)counts);
     }
     /* Keep sentinel comparison separate from the signed table-row conversion. */
     if ((s64)formation != -1) {
@@ -406,7 +406,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
 
 #pragma pop
 // FUN_001D1CC0
-s32 func_001d1cc0(u8 *arg0)
+s32 btlCameraNudgeUnitPair(u8 *arg0)
 {
     struct Frame {
         f32 value40;

@@ -92,7 +92,7 @@ extern f32 fGpffff8110;
 /* Source unit: src/promoted/code1_001d.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d4eb0-001d5b20 */
 
-extern s32 func_001d14b0(u8 *arg0);
+extern s32 btlCameraFindFormationForCounts(u8 *arg0);
 typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
 typedef struct BtlAttachV3
 {
@@ -167,8 +167,8 @@ static inline f32 btlAttachFieldScale(u8 *unit)
     }
     return s;
 }
-/* measured: opt_propagation off probe for func_001d14b0 loop masks. */
-/* measured: close opt_propagation after func_001d14b0 probe. */
+/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
+/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 #pragma push
 #pragma pop
 // FUN_001D4EB0

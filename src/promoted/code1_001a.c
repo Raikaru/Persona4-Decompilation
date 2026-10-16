@@ -184,7 +184,7 @@ extern void btlMessageStartShort(u8 *task, u8 *unit);
 extern s32 btlMessageIsActive(s32 task);
 extern s32 btlMessageGetResult(s32 task);
 extern void btlMessageReset(s32 task);
-s16 func_001d15a0(void);
+s16 btlCameraSelectFormationIndex(void);
 void func_001eb7f0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
