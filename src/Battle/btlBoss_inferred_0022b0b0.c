@@ -167,7 +167,7 @@ extern void btlFormationSetSlot(s32 formation, u32 data);
 extern u8 *btlFormationGetRecord(s32 arg0);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
@@ -2106,7 +2106,7 @@ s32 btlUnitReactToDeath(void)
         temp_2_2 = btlUnitFindInSideById(1, 0x102);
         if ((temp_2_2 == NULL) ||
             (datCalcIsDead(*(s32 **)(temp_2_2 + 0xA64), 0) != 0)) {
-            func_001f0a10((u8 *)&sp30);
+            btlTargetClearResultBuffer((u8 *)&sp30);
             *(s32 *)&sp30 = 0xFFF00001;
             var_17 = *(u8 **)(DAT_0076449c + 0x174);
             goto loop_0022f520_14_check;
@@ -2140,7 +2140,7 @@ loop_0022f520_14_check:
         temp_2_3 = btlUnitFindInSideById(1, 0x103);
         if ((temp_2_3 == NULL) ||
             (datCalcIsDead(*(s32 **)(temp_2_3 + 0xA64), 0) != 0)) {
-            func_001f0a10((u8 *)&sp30);
+            btlTargetClearResultBuffer((u8 *)&sp30);
             *(s32 *)&sp30 = 0xFFF00001;
             var_16 = *(u8 **)(DAT_0076449c + 0x174);
             goto loop_0022f520_25_check;

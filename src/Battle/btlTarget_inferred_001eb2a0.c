@@ -56,7 +56,7 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern void func_001eb410(u8 *arg0);
+extern void btlTargetResetRecordCounter(u8 *arg0);
 extern u32 datCalcRandomBelow(u32 arg0);
 
 
@@ -150,7 +150,7 @@ s32 func_001eb370(void)
 }
 
 // FUN_001EB380
-void func_001eb380(u8 *arg0) {
+void btlTargetClearRecord(u8 *arg0) {
     memset(arg0, 0, 0x5C);
 }
 
@@ -159,7 +159,7 @@ void func_001eb3b0(u8 *arg0) {
     u8 *temp;
 
     temp = arg0;
-    func_001eb410(temp);
+    btlTargetResetRecordCounter(temp);
     *(s16 *)(temp + 0x36) = 0;
     *(s16 *)(temp + 0x38) = 0;
     *(s16 *)(temp + 0x34) = 0;
@@ -170,7 +170,7 @@ void func_001eb3b0(u8 *arg0) {
 }
 
 // FUN_001EB410
-void func_001eb410(u8 *arg0) {
+void btlTargetResetRecordCounter(u8 *arg0) {
     *(s16 *)(arg0 + 0x32) = 0;
 }
 

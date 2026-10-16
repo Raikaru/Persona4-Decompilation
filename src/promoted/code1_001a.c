@@ -130,14 +130,14 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
 u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
-extern void func_001eb410(u8 *arg0);
+extern void btlTargetResetRecordCounter(u8 *arg0);
 extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
 extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode);
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 btlSoundCalcStatusHpSpDelta(u8 *arg0);
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -163,7 +163,7 @@ s32 func_0019ff60(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
 s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
-s32 func_001f01a0(u8 *arg0, u8 *arg1);
+s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);

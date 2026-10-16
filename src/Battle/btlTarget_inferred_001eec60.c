@@ -96,7 +96,7 @@ extern u8 *iGpffffb42c;
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
-extern void func_001ec5e0(u8 *arg0, f32 arg1);
+extern void btlTargetInitSpring(u8 *arg0, f32 arg1);
 extern void btlTargetRebuildRadiusLinks(f32 radius);
 extern s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius);
 extern f32 RwV2dLength(f32 *vector);
@@ -153,7 +153,7 @@ static inline s32 routeInClosedList(RouteNode *scan, RouteNode *node)
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: closes opt_propagation probe for func_001ec5e0. */
+/* measured: closes opt_propagation probe for btlTargetInitSpring. */
 #pragma push
 #pragma pop
 /* The first pass through the route loop reads `cur`, `last` and `seg[1]`

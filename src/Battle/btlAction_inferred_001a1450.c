@@ -127,13 +127,13 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
 u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
-extern void func_001eb410(u8 *arg0);
+extern void btlTargetResetRecordCounter(u8 *arg0);
 extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, f32 distance, f32 speed, u32 flags);
 extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode);
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -157,7 +157,7 @@ s32 func_0019ff60(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
 s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
-s32 func_001f01a0(u8 *arg0, u8 *arg1);
+s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
@@ -1296,7 +1296,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                     *(s64 *)(packet + 8) = *(s64 *)(animationPacket + 0x58);
                     btlPacketEnqueue(packet, 1);
                 }
-                func_001f0a10((u8 *)&result);
+                btlTargetClearResultBuffer((u8 *)&result);
                 result.words[3] = 0x100001;
                 {
                     u8 *packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
@@ -1361,7 +1361,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
                 btlPacketEnqueue(packet, 0);
             }
-            func_001f0a10((u8 *)&result);
+            btlTargetClearResultBuffer((u8 *)&result);
             result.words[3] = resultFlags;
             {
                 u8 *packet = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
@@ -1484,7 +1484,7 @@ void btlActionCooperateInit(register BtlAction *actionState)
         break;
     }
     btlActionFinishPresentation((BtlAction *)action);
-    func_001eb410(action + 0x38);
+    btlTargetResetRecordCounter(action + 0x38);
     *(u8 **)(action + 0x38) = target;
     *(s16 *)(action + 0x6A) = 1;
     if ((u16)beforeVoice != 0) {
@@ -1579,7 +1579,7 @@ void btlActionCooperateInit(register BtlAction *actionState)
             btlPacketEnqueue(packet, 2);
         }
     }
-    func_001f0a10((u8 *)&result);
+    btlTargetClearResultBuffer((u8 *)&result);
     result.values[3] = resultFlags;
     {
         u8 *packet;
@@ -1642,7 +1642,7 @@ loop_test:
             (u8 *)action,
             datCalcSkillElement(
                 *(u8 **)(*(u8 **)((u8 *)action + 0x30) + 0xA64),
-                func_001f01a0((u8 *)action, *(u8 **)((u8 *)action + 0x90)) & 0xFFFF) & 0xFFFF,
+                btlTargetGetStatusEffectMsgCode((u8 *)action, *(u8 **)((u8 *)action + 0x90)) & 0xFFFF) & 0xFFFF,
             2, 0x80000, 2, btlAICommandNomalStatusCheck);
     }
     if (status == 0) {
@@ -1794,7 +1794,7 @@ void btlActionPursuitUpdate(u8 *action)
         return;
     }
     referenceAction = *(u8 **)(action + 0x90);
-    skill = func_001f01a0(action, referenceAction);
+    skill = btlTargetGetStatusEffectMsgCode(action, referenceAction);
     targetMode = btlSkillClassifyTargets(action, action + 0x98, skill, 0);
     rawElement = datCalcSkillElement(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill);
     hasReferenceAction = 0;
@@ -2596,7 +2596,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern u8 *btlFormationCreatePacket();
     extern u16 btlTargetGetUnitIndex(BtlTarget *target);
     extern s32 func_001f08c0();
-    extern void func_001f0a10(u8 *result);
+    extern void btlTargetClearResultBuffer(u8 *result);
     extern s32 btlActionAnyTargetSpecialHit();
     extern s32 func_001f0dd0();
     extern u32 func_001f0f70(u8 *action);
@@ -2968,7 +2968,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
         (*(s16 *)((u8 *)(effectPacketB) + (0x48))) = startDelay;
         (*(s64 *)((u8 *)(effectPacketB) + (0x60))) = actionUid;
         btlPacketEnqueue(effectPacketB, 2);
-        func_001f0a10((u8 *)&result);
+        btlTargetClearResultBuffer((u8 *)&result);
         result.addedStatus = 0x100000;
         resultPacket = (u8 *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
         (*(s8 *)((u8 *)(resultPacket) + (0))) = 5;
@@ -3519,7 +3519,7 @@ void btlActionSkillUpdate(u8 *arg0) {
      * this caller saw u16 parameters (the definitions take u32/s32). */
     extern void btlFormationFormatName(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern BtlPacket *btlMainCreateUnitTintPacket(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
-    extern void func_001f0a10(u8 *result);
+    extern void btlTargetClearResultBuffer(u8 *result);
     extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
     extern s32 btlActionAnyTargetSpecialHit(u8 *arg0);
     extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
@@ -5151,7 +5151,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 hpTransfer = (s16 *)(hitRowBase + 0x108);
                 if ((*(s16 *)(hitRowBase + 0x108) > 0) || (hitRow->result.spTransfer > 0)) {
                     hitDelayS16 = (s16)(hitDelay + 0x2B);
-                    func_001f0a10((u8 *)&result);
+                    btlTargetClearResultBuffer((u8 *)&result);
                     spRow = btlHitResult_001a59a0(targetAction, &hitIndex);
                     result.hpDelta = *hpTransfer;
                     result.spDelta = (s32) *(s16 *)(spRow + 0x1A);
@@ -5285,7 +5285,7 @@ reactionPacket:
             btlPacketEnqueue((u8 *)followCameraPkt, 0);
         }
         if ((s32)((*( u8 * )((u8 *)(act->unit) + (0xA2)))) == (s32)(0)) {
-            func_001f0a10((u8 *)&result);
+            btlTargetClearResultBuffer((u8 *)&result);
             result.hpDelta = -((s32)(datCalcGetHp((*( s32 * )((u8 *)(act->unit) + (0xA64)))) & 0xFFFF) - 1);
             pkt4 = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
             if (sp2D0 == 1) {
@@ -5311,7 +5311,7 @@ reactionPacket:
             pkt133->ownerId = actionId;
             btlPacketEnqueue((u8 *)pkt133, 3);
         } else {
-            func_001f0a10((u8 *)&result);
+            btlTargetClearResultBuffer((u8 *)&result);
             result.addedStatus = 0x80000;
             pkt4 = (BtlPacketTiming *)(btlTargetCreateDataPacket((s32)(arg0), (s32)(arg0), &result, 1U, 1U));
             if (sp2D0 == 1) {
@@ -6154,7 +6154,7 @@ void btlActionEndureUpdate(u8 *arg0) {
     s32 func_00106600(s16 id);
     u8 *btlCreateRemoveFlagsPacket(s32 arg0);
     u8 *btlPacketCreateImmediate(void);
-    void func_001f0a10(u8 *arg0);
+    void btlTargetClearResultBuffer(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 
@@ -6221,7 +6221,7 @@ void btlActionEndureUpdate(u8 *arg0) {
             }
         }
         if (*(u16 *)(arg0 + 0x3F4) == 0x210) {
-            func_001f0a10((u8 *)&damageResult);
+            btlTargetClearResultBuffer((u8 *)&damageResult);
             value = datCalcMaxHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF;
             damageResult[0] = value - (datCalcGetHp(*(u8 **)(battleUnit + 0xA64)) & 0xFFFF);
             damagePacket = (u8 *)btlTargetCreateDataPacket((s32)arg0, (s32)arg0,
@@ -6267,7 +6267,7 @@ void btlActionWaitInit(void)
 u8 *btlPacketCreateImmediate(void);
 s32 btlUnitGetMotionState(u8 *arg0);
 
-void func_001f0a10(u8 *arg0);
+void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 s32 btlSoundCanReceiveStatus(u8 *arg0);
 
@@ -6320,7 +6320,7 @@ void btlActionWaitUpdate(u8 *arg0) {
                 *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
                 btlPacketEnqueue(recoveryPacket, 0);
             }
-            func_001f0a10((u8 *)&locals.sp30);
+            btlTargetClearResultBuffer((u8 *)&locals.sp30);
             locals.sp4E |= 0x80;
             packet = (u8 *)btlTargetCreateDataPacket((s32)arg0, (s32)arg0, &locals.sp30, 1, 1);
             *(s8 *)(packet + 0) = 4;

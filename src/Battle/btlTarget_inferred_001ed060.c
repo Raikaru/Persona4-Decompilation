@@ -83,7 +83,7 @@ extern u8 *iGpffffb42c;
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
-extern void func_001ec5e0(u8 *arg0, f32 arg1);
+extern void btlTargetInitSpring(u8 *arg0, f32 arg1);
 #pragma push
 #pragma pop
 /* measured probe: preserve the retail filter branch chain */
@@ -100,7 +100,7 @@ extern void func_001ec5e0(u8 *arg0, f32 arg1);
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: closes opt_propagation probe for func_001ec5e0. */
+/* measured: closes opt_propagation probe for btlTargetInitSpring. */
 // FUN_001ED060
 int func_001ed060(float *param_1, float *param_2)
 {

@@ -52,11 +52,11 @@ extern f32 func_0044b950(f32 arg0, f32 arg1);
 extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern s32 func_001f3900(u8 **arg0);
+extern s32 btlTargetClearFlaggedBuffs(u8 **arg0);
 extern s32 func_001f39d0(u8 **arg0);
 extern void btlSoundRequestPlayback(u16 command, u32 param); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
 extern u32 btlActionCachedDispatch(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
-extern u32 func_001f6090(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
+extern u32 btlTargetCancelPlayback(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern f32 RwV3dLength(const RwV3d* vector);
 extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fabsf(f32 x);
@@ -1007,7 +1007,7 @@ u8 *btlTargetCreateRecordPacket(u8 *arg0)
 
     packet = (u8 *)btlPacketAlloc(0x703, 4);
     *(void **)(packet + 0x68) = (void *)btlTargetAdvanceWorkPtr;
-    *(void **)(packet + 0x6C) = (void *)func_001f3900;
+    *(void **)(packet + 0x6C) = (void *)btlTargetClearFlaggedBuffs;
     *(void **)(packet + 0x70) = (void *)btlTargetAdvanceWorkCount;
     **(u8 ***)(packet + 0x78) = arg0;
     return packet;
@@ -1129,7 +1129,7 @@ u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work)
 BtlPacket* btlTargetCreateEmptyPacket(void)
 {
     BtlPacket* packet = btlPacketAlloc(0x802, 0);
-    packet->updateFunc = func_001f6090;
+    packet->updateFunc = btlTargetCancelPlayback;
     return packet;
 }
 
