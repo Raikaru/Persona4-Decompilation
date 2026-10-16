@@ -75,8 +75,8 @@ extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
 extern void func_002a7920(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
 extern void mcScreenStep(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
-extern void func_002a6b10(s32, s32, s32, void *);
-extern void func_002a7710(s32, u8 *);
+extern void mcDrawFadedColor(s32, s32, s32, void *);
+extern void mcSeedEntryTable(s32, u8 *);
 extern void mcDrawGlyph(s32, s32, s32, u8 *);
 extern void mcAdvanceMeter(s32, s32, s32, u8 *);
 extern void mcSetSkyRenderState(s32, s32, s32, s32, f32);
@@ -88,7 +88,7 @@ extern f32 iGpffff81e0;
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void func_0045dfd0(void *, void *, f32, s32, s32, s32);
-extern void func_002a66d0(f32, f32, f32, s32, s32, f32, f32, s32);
+extern void mcDrawCircleFan(f32, f32, f32, s32, s32, f32, f32, s32);
 extern void func_0045ed60(void *, void *, s32, f32);
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef struct { s32 x, y, width, height; } McRect;
@@ -1246,8 +1246,8 @@ s32 mcRunScreenFrame(s32 arg0)
     f32 half;
 
     p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
-    func_002a6b10(0, 0, 255, p);
-    func_002a7710(255, p);
+    mcDrawFadedColor(0, 0, 255, p);
+    mcSeedEntryTable(255, p);
     frame = *(s32 *)(p + 0x568);
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
@@ -1325,7 +1325,7 @@ s32 mcRunScreenFrame(s32 arg0)
             remaining -= wave;
             slide = 400.0f * remaining;
         }
-        func_002a66d0(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
+        mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
         func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     frame = *(s32 *)(p + 0x568) + 1;
@@ -1397,14 +1397,14 @@ s32 mcRunScreenExitFrame(s32 arg0)
     } else {
         ramp1 = 0.0f;
     }
-    func_002a6b10(0, 0, (s32)(255.0f * (1.0f - ramp1)), p);
+    mcDrawFadedColor(0, 0, (s32)(255.0f * (1.0f - ramp1)), p);
     frame = *(s32 *)(p + 0x568);
     if (frame < 10) {
         ramp2 = (f32)frame / 10.0f;
     } else {
         ramp2 = 1.0f;
     }
-    func_002a7710((s32)(255.0f * (1.0f - ramp2)), p);
+    mcSeedEntryTable((s32)(255.0f * (1.0f - ramp2)), p);
     frame = *(s32 *)(p + 0x568);
     if (frame < 10) {
         ramp3 = (f32)frame / 10.0f;
@@ -1487,7 +1487,7 @@ s32 mcRunScreenExitFrame(s32 arg0)
             pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
             scale = 1.0f + pulse;
             slide = 350.0f * wave;
-            func_002a66d0(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
+            mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
             func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
         }
     }
@@ -1533,8 +1533,8 @@ s32 mcDrawScreenSettled(s32 arg0)
     f32 half;
 
     p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
-    func_002a6b10(0, 0, 255, p);
-    func_002a7710(255, p);
+    mcDrawFadedColor(0, 0, 255, p);
+    mcSeedEntryTable(255, p);
     mcDrawGlyph(0, 0, 255, p);
     mcAdvanceMeter(0, 0, 255, p);
     target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
@@ -1593,7 +1593,7 @@ s32 mcDrawScreenSettled(s32 arg0)
         }
         pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
         scale = 1.0f + pulse;
-        func_002a66d0(72.0f, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
+        mcDrawCircleFan(72.0f, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
         func_002a7920(19.0f, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     func_002a6e30(5, -5, 0xFF, p);
@@ -1640,8 +1640,9 @@ void mcQueueDrawJob(s32 arg0) {
     func_00460ac0(&D_00796370, work);
 }
 
+// Intent: draws a ring of 40 segments around a centre as a fan (or a 40-point strip when bit 4 of the mode is set), with the colour packed in arg0/arg1.
 // FUN_002A66D0
-void func_002a66d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
+void mcDrawCircleFan(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
                    f32 fparg3, f32 fparg4, s32 arg2) {
     typedef struct { f32 a, b; } V2;
     void *setState;
@@ -1758,8 +1759,9 @@ s32 mcCurrentSlotValue(u8 *arg0) {
     return *(s32 *)(idx + (s32)arg0 + 0x14);
 }
 
+// Intent: sets the colour with alpha arg2 and draws it through func_0045d6e0 only when alpha is nonzero.
 // FUN_002A6B10
-void func_002a6b10(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
+void mcDrawFadedColor(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
     typedef union { f32 f; u8 b[4]; } U4;
     U4 u;
     Qword q;
@@ -1882,7 +1884,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     f1 = 1.0f - f20;
     f20 = -70.0f * f1;
     f24 = -30.0f * f1;
-    func_002a66d0((f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
+    mcDrawCircleFan((f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
     i = 0;
     f3 = (f32)(arg0 + 0xB) + f24;
     f1 = f20 + ((f32)(arg1 + 0x14) - 3.0f * f23);
@@ -1899,7 +1901,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     f1 = 1.0f - f21;
     f20 = 70.0f * f1;
     f21 = 30.0f * f1;
-    func_002a66d0((f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
+    mcDrawCircleFan((f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
     i = 0;
     f3 = (f32)(arg0 + 0x83) + f21;
     f1 = f20 + ((f32)(arg1 + 0x1AB) + 3.0f * f22);
@@ -2009,7 +2011,7 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     w = 2.0f * (f32)v;
     fx = *(f32 *)(rec + 8) - 512.0f * rate;
     fy = *(f32 *)(rec + 0xC) + 512.0f * rate;
-    func_002a66d0(fx, fy, 0.0f, 0xFFF267, scale, D_00761300 * w, w, 1);
+    mcDrawCircleFan(fx, fy, 0.0f, 0xFFF267, scale, D_00761300 * w, w, 1);
     *(s16 *)(rec + 0x10) += 1;
     total = *mcTableAt(*(s32 *)(rec + 4), sp60);
     ns = *(s16 *)(rec + 0x10);
@@ -2035,8 +2037,9 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     }
     return 0;
 }
+// Intent: when arg0 is nonzero, re-randomises the 20 table entries and seeds the four fixed entries (ids 0, 1, 2, 4) if the table is empty.
 // FUN_002A7710
-void func_002a7710(s32 arg0, u8 *arg1) {
+void mcSeedEntryTable(s32 arg0, u8 *arg1) {
     s32 i;
     u8 *work;
     u8 *p;
@@ -2214,10 +2217,10 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
     f23 = 9.0f + fparg2;
     f22 = 49.0f + fparg1;
     f21 = 53.0f + fparg0;
-    func_002a66d0(f21, f22, f23, 0xFFFFFF, 1, 2.0f + f28, 2.0f + f29, 2);
-    func_002a66d0(f21, f22, f23, 0xFFFFFF, arg0, f28, f29, 4);
+    mcDrawCircleFan(f21, f22, f23, 0xFFFFFF, 1, 2.0f + f28, 2.0f + f29, 2);
+    mcDrawCircleFan(f21, f22, f23, 0xFFFFFF, arg0, f28, f29, 4);
     f20 = 10.0f + fparg2;
-    func_002a66d0(f21, f22, f20, 0xFFFFFF, arg0, f28, f29, 2);
+    mcDrawCircleFan(f21, f22, f20, 0xFFFFFF, arg0, f28, f29, 2);
     if (arg3 != 0) {
         (*(void (**)(s32, s32))setState)(7, 2);
         (*(void (**)(s32, s32))setState)(9, 2);

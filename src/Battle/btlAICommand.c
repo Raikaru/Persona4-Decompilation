@@ -43,7 +43,7 @@ extern u32 datCalcGetTableLength(u8 *unit);
 extern u32 datCalcUnderlyingSkillId(u32 arg0);
 extern u32 *btlEffectFindUnitByIdAndStatus();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
-extern u32 func_0010f420(u32 arg0, u32 arg1);
+extern u32 datTestBitmapBit(u32 arg0, u32 arg1);
 extern void func_001d8bf0(u8 *arg0, u8 *arg1);
 extern u8 *D_0072449C;
 extern void *D_00609850[];
@@ -265,7 +265,7 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
     if (*(u8 *)(unit + 0xA2) == 1 &&
         func_001f9ce0(formation, (s16)index) == 0) {
         u32 queryIndex = (u16)index;
-        if (func_0010f420(*(u16 *)(unit + 0xA4), queryIndex) == 0)
+        if (datTestBitmapBit(*(u16 *)(unit + 0xA4), queryIndex) == 0)
             return 1;
     }
 
@@ -514,7 +514,7 @@ s32 btlCond_MYNOTNOMAL(u8 *arg0, s16 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x30);
     if (*(u8 *)(p + 0xA2) == 1 && func_001f9ce0(arg0, arg1) == 0) {
         u32 index = (u16)arg1;
-        if (func_0010f420(*(u16 *)(p + 0xA4), index) == 0)
+        if (datTestBitmapBit(*(u16 *)(p + 0xA4), index) == 0)
             return 0;
     }
     return (datCalcAilmentChance(*(u8 **)(p + 0xA64), (s32)arg1) & 0x7000000) != 0;
@@ -564,7 +564,7 @@ s32 btlAICommandAlwaysTrue(void) {
 
 /* MATCH.  `opt_dead_assignments off` is the whole difference: with it the
    two remaining words - retail evaluating the second argument of
-   func_0010f420(*(u16 *)(temp16 + 0xA4), index) first, `andi $a1, $s4,
+   datTestBitmapBit(*(u16 *)(temp16 + 0xA4), index) first, `andi $a1, $s4,
    0xffff` before `lhu $a0, 0xa4($s0)` - come out in retail's order.  Found by
    a pairwise sweep; the pragma is not in the usual four and had never been
    measured anywhere in this tree.  `opt_strength_reduction off` alone is
@@ -654,7 +654,7 @@ code arg5;
         }
         {
             u32 index = (u16)arg1;
-            if (func_0010f420(*(u16 *)(temp16 + 0xA4), index) == 0) {
+            if (datTestBitmapBit(*(u16 *)(temp16 + 0xA4), index) == 0) {
                 continue;
             }
         }

@@ -243,8 +243,9 @@ static inline u8* idxFirst(u32 a, u8* b)
     return (u8*)(a + (u32)b);
 }
 
+// Intent: copies one entry from the loaded table, with its record lists, into a new heap block and returns it.
 // FUN_00104900
-void* func_00104900(s32 arg0)
+void* datCloneEntryBlock(s32 arg0)
 {
     u8* new;
     u32 size;
@@ -269,8 +270,9 @@ void datFreeBlock(s32 arg0)
     DAT_008873ec_abs[0](arg0);
 }
 
+// Intent: reads the g_data entry table from disc (H_Cdvd_ReadSync) and builds the in-memory copy at iGpffffb1ac.
 // FUN_00104A60
-void func_00104a60(void)
+void datLoadEntryTable(void)
 {
     u8* obj;
     u8* src;
@@ -302,8 +304,9 @@ void func_00104a60(void)
     H_Cdvd_Destroy((struct HCdvd *)obj);
 }
 
+// Intent: points the entry table at the built-in copy D_0079BF00. Init calls it when the disc load fails.
 // FUN_00104C50
-void func_00104c50(void)
+void datEntryTableUseBuiltin(void)
 {
     D_007242A0 = (GDataEntry*)((u32)&D_0079BF00[0] + 0x10);
 }
@@ -1367,9 +1370,10 @@ s64 func_00106b80(s16 arg0)
    `#pragma opt_propagation off` is what keeps that single-use load right after
    the base addu, and only then does the local hold it in place. Measured 11 -> 3
    (the 3 are the window's trailing padding), verify reports MATCH. */
+// Intent: tests bit (arg1 + 4) of the 32-bit flag word at +0x30 of a g_data entry; callers are the equipment screen and the new-game script.
 // FUN_00106C30
 #pragma opt_propagation off
-s32 func_00106c30(s16 arg0, s16 arg1)
+s32 datEntryHasFlag(s16 arg0, s16 arg1)
 {
     u32 flags;
 
@@ -1418,8 +1422,9 @@ void func_00106d40(s16 arg0, s16 arg1, s16 arg2)
     }
 }
 
+// Intent: destroy callback of the community task (cmmCommunity.c); frees the task's work block.
 // FUN_00108CB0
-void func_00108cb0(u8 *unusedTask)
+void datFreeTaskWork(u8 *unusedTask)
 {
     int iVar1;
 
@@ -2337,16 +2342,18 @@ void func_0010f390(void)
 }
 
 /* Unsigned masks define bit 31 without changing either retail shift. */
+// Intent: sets bit (arg1 + arg0 * 8) in the bitmap D_0079BCD8. Pairs with datTestBitmapBit.
 // FUN_0010F3D0
-void func_0010f3d0(u32 arg0, u32 arg1)
+void datSetBitmapBit(u32 arg0, u32 arg1)
 {
     u32 bit = (arg1 & 0xffff) + (arg0 & 0xffff) * 8;
 
     *(u32*)((u8*)D_0079BCD8 + (bit >> 5) * 4) |= 1U << (bit & 0x1f);
 }
 
+// Intent: returns the state of bit (arg1 + arg0 * 8) in the bitmap D_0079BCD8. Reader for datSetBitmapBit.
 // FUN_0010F420
-u32 func_0010f420(u32 arg0, u32 arg1)
+u32 datTestBitmapBit(u32 arg0, u32 arg1)
 {
     u32 bit = (arg1 & 0xffff) + (arg0 & 0xffff) * 8;
     u32* p = &D_0079BCD8[bit >> 5];

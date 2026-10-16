@@ -43,7 +43,7 @@ extern void func_00106390(s32 a, s32 b);
 extern void cmmCommunitySetFlagBand(s32 a, s32 b);
 
 extern void datDestroyTaskByName(void);
-extern void func_00108cb0(u8 *task);
+extern void datFreeTaskWork(u8 *task);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_0079740C[];
 extern u8 D_00797410[];
@@ -1284,7 +1284,7 @@ void cmmCommunitySetCurrent(s32 arg0)
     chkmemAllocSiteTag(D_005E42C8, 0x271);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     *(s16 *)temp_2 = arg0;
-    kwlnTaskCreate((const void *)(D_005E4308), 0xF, 0, 0, cmmCommunityTaskNoop, func_00108cb0, (u8 *)(temp_2));
+    kwlnTaskCreate((const void *)(D_005E4308), 0xF, 0, 0, cmmCommunityTaskNoop, datFreeTaskWork, (u8 *)(temp_2));
 }
 
 // Community current work: returns the work pointer of the current community record, or 0 when none is set.

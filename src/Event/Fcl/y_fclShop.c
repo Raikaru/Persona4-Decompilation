@@ -23,7 +23,7 @@ s32 func_00454a60();
 void H_Cdvd_ReadSync();
 s32 func_00455f70();
 void func_002bc010();
-void func_00104a60();
+void datLoadEntryTable();
 s32 func_002bd8e0(u8 *task);
 void func_002bdb10(u8 *);
 
@@ -118,5 +118,5 @@ void func_002bdf20(void)
     for (i = 0; i < 9; i++) {
         func_002bc010(i, func_00455f70(items[i], &out));
     }
-    func_00104a60();
+    datLoadEntryTable();
 }

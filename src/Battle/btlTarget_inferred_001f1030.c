@@ -332,7 +332,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     extern s32 datCalcSkillElement(u8 *, s32);
     extern u8 *func_001efd50(u8 *);
     /* lint: allow H011 -- both IDs are halfwords here; g_data.c masks both word-formal arguments to 16 bits. */
-    extern void func_0010f3d0(u16, u16);
+    extern void datSetBitmapBit(u16, u16);
     extern s32 func_001eff50(u8 *);
     extern u8 *iGpffffb3cc;
     extern f32 fGpffff812c;
@@ -734,7 +734,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
             }
             res30 = *(u8 **)(unit + 0x30);
             if (res30[0xA2] == 1 && (s32)kind < 8 && !(recordResult & 6)) {
-                func_0010f3d0(*(u16 *)(res30 + 0xA4), kindU);
+                datSetBitmapBit(*(u16 *)(res30 + 0xA4), kindU);
             }
         }
         if (*(u16 *)(ctx + 0x2C) != 0) {

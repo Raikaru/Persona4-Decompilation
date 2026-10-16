@@ -58,7 +58,7 @@ extern s32 datCalcMaxHp(u8 *arg0);
 extern u16 datCalcMaxSp(u8 *arg0);
 extern s32 datCalcGetBadStatusNoDown(u8 *arg0);
 extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
-extern s32 func_0010f420(s32 arg0, s32 arg1);
+extern s32 datTestBitmapBit(s32 arg0, s32 arg1);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
