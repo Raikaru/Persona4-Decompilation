@@ -29,7 +29,7 @@ extern u8 *btlActionFindById();
 extern s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
 extern u32 scrGetParamInt();
 extern void scrSetReturnInt();
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern s32 btlSideSelectUnits();
 extern s32 datCalcSkillAmount(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
@@ -2070,9 +2070,9 @@ u32 btlAICommandTryReleaseProc(int param_1)
 // FUN_001DEF60
 u32 btlAICommandScriptSetDefaultAction(void)
 {
-  extern u8 *func_0029d050(void);
+  extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
-  char *pVar1 = (char *)func_0029d050();
+  char *pVar1 = (char *)scrGetAiState();
 
   btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8000);
   return 1;
@@ -2083,7 +2083,7 @@ u32 btlAICommandScriptSetDefaultAction(void)
 /* AI script command 0x203e (p4flow AI.json AI_FUNCTION_003E). */
 // FUN_001DEFA0
 s32 btlAICommandScriptSetActionParam(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     s32 r = scrGetParamInt(0);
     if (r == 0)
         btlAICommandSetActionCode(p, p + 0x38, 0x8000);
@@ -2097,7 +2097,7 @@ s32 btlAICommandScriptSetActionParam(void) {
 /* AI script command 0x2068 (p4flow AI.json AI_FUNCTION_0068). */
 // FUN_001DF040
 s32 btlAICommandScriptSetSkillAction(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     s32 r = scrGetParamInt(0);
     if (r >= 0) {
         *(u16 *)(p + 0x6C) = 3;
@@ -2113,11 +2113,11 @@ s32 btlAICommandScriptSetSkillAction(void) {
 // FUN_001DF0C0
 u32 btlAICommandScriptSetAction8001(void)
 {
-  extern u8 *func_0029d050(void);
+  extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = 0;
 
-  pVar1 = (char *)func_0029d050();
+  pVar1 = (char *)scrGetAiState();
   btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8001);
   return 1;
 }
@@ -2128,11 +2128,11 @@ u32 btlAICommandScriptSetAction8001(void)
 // FUN_001DF100
 u32 btlAICommandScriptSetAction8002(void)
 {
-  extern u8 *func_0029d050(void);
+  extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = 0;
 
-  pVar1 = (char *)func_0029d050();
+  pVar1 = (char *)scrGetAiState();
   btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8002);
   return 1;
 }
@@ -2142,7 +2142,7 @@ u32 btlAICommandScriptSetAction8002(void)
 /* AI script command 0x20d5 (p4flow AI.json AI_FUNCTION_00D5). */
 // FUN_001DF140
 s32 btlAICommandScriptSetActionSubword(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     *(u16 *)(p + 0xEC) = scrGetParamInt(0);
     btlAICommandSetActionCode(p, p + 0x38, 0x8002);
     return 1;
@@ -2151,7 +2151,7 @@ s32 btlAICommandScriptSetActionSubword(void) {
 /* AI script command 0x2041 (p4flow AI.json AI_FUNCTION_0041). */
 // FUN_001DF1A0
 s32 btlAICommandScriptSetAiPlan(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     *(u16 *)(p + 0x6C) = 9;
     *(u16 *)(p + 0x6E) = 0x111;
     *(u16 *)(p + 0x76) = scrGetParamInt(0);
@@ -2163,7 +2163,7 @@ s32 btlAICommandScriptSetAiPlan(void) {
 /* AI script command 0x2059 (p4flow AI.json AI_FUNCTION_0059). */
 // FUN_001DF230
 s32 btlAICommandScriptSetAiPlanWithArg(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     *(u16 *)(p + 0x6C) = 9;
     *(u16 *)(p + 0x6E) = 0x111;
     *(u16 *)(p + 0x76) = scrGetParamInt(0);
@@ -2177,11 +2177,11 @@ s32 btlAICommandScriptSetAiPlanWithArg(void) {
 // FUN_001DF2D0
 u32 btlAICommandScriptSetAction8007(void)
 {
-  extern u8 *func_0029d050(void);
+  extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = 0;
 
-  pVar1 = (char *)func_0029d050();
+  pVar1 = (char *)scrGetAiState();
   btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8007);
   return 1;
 }
@@ -2192,7 +2192,7 @@ u32 btlAICommandScriptSetAction8007(void)
 // FUN_001DF310
 s32 btlAICommandScriptQueryMyHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2208,7 +2208,7 @@ s32 btlAICommandScriptQueryMyHp(void) {
 // FUN_001DF3C0
 s32 btlAICommandScriptQueryMyMp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2224,7 +2224,7 @@ s32 btlAICommandScriptQueryMyMp(void) {
 // FUN_001DF470
 s32 btlAICommandScriptQueryFrHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2240,7 +2240,7 @@ s32 btlAICommandScriptQueryFrHp(void) {
 // FUN_001DF520
 s32 btlAICommandScriptQueryEnHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2256,7 +2256,7 @@ s32 btlAICommandScriptQueryEnHp(void) {
 // FUN_001DF5D0
 s32 btlAICommandScriptQueryEnHpO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2272,7 +2272,7 @@ s32 btlAICommandScriptQueryEnHpO(void) {
 // FUN_001DF680
 s32 btlAICommandScriptQueryMyLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2288,7 +2288,7 @@ s32 btlAICommandScriptQueryMyLvO(void) {
 // FUN_001DF730
 s32 btlAICommandScriptQueryFrLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x7000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2304,7 +2304,7 @@ s32 btlAICommandScriptQueryFrLvO(void) {
 // FUN_001DF7E0
 s32 btlAICommandScriptQueryEnLvO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x8000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2320,7 +2320,7 @@ s32 btlAICommandScriptQueryEnLvO(void) {
 // FUN_001DF890
 s32 btlAICommandScriptQueryFrCnt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2336,7 +2336,7 @@ s32 btlAICommandScriptQueryFrCnt(void) {
 // FUN_001DF940
 s32 btlAICommandScriptQueryEnCnt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2352,7 +2352,7 @@ s32 btlAICommandScriptQueryEnCnt(void) {
 // FUN_001DF9F0
 s32 btlAICommandScriptQueryMyBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2368,7 +2368,7 @@ s32 btlAICommandScriptQueryMyBad(void) {
 // FUN_001DFAA0
 s32 btlAICommandScriptQueryFrBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2384,7 +2384,7 @@ s32 btlAICommandScriptQueryFrBad(void) {
 // FUN_001DFB50
 s32 btlAICommandScriptQueryEnBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2400,7 +2400,7 @@ s32 btlAICommandScriptQueryEnBad(void) {
 // FUN_001DFC00
 s32 btlAICommandScriptQueryEnBadAll(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2416,7 +2416,7 @@ s32 btlAICommandScriptQueryEnBadAll(void) {
 // FUN_001DFCB0
 s32 btlAICommandScriptQueryFrId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2432,7 +2432,7 @@ s32 btlAICommandScriptQueryFrId(void) {
 // FUN_001DFD60
 s32 btlAICommandScriptQueryEnId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2448,7 +2448,7 @@ s32 btlAICommandScriptQueryEnId(void) {
 // FUN_001DFE10
 s32 btlAICommandScriptQueryFrHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x11000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2464,7 +2464,7 @@ s32 btlAICommandScriptQueryFrHojo(void) {
 // FUN_001DFEC0
 s32 btlAICommandScriptQueryEnHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x12000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2479,21 +2479,21 @@ s32 btlAICommandScriptQueryEnHojo(void) {
 /* AI script command 0x2012 (p4flow AI.json AI_FUNCTION_0012). */
 // FUN_001DFF70
 s32 btlAICommandScriptQueryEscape(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609934[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609934[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2013 (p4flow AI.json AI_FUNCTION_0013). */
 // FUN_001DFFC0
 s32 btlAICommandScriptQuerySummon(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609940[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609940[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2014 (p4flow AI.json AI_FUNCTION_0014). */
 // FUN_001E0010
 s32 btlAICommandScriptQuerySensei(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_0060994C[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_0060994C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
@@ -2501,7 +2501,7 @@ s32 btlAICommandScriptQuerySensei(void) {
 // FUN_001E0060
 s32 btlAICommandScriptQueryMyHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2517,7 +2517,7 @@ s32 btlAICommandScriptQueryMyHansya(void) {
 // FUN_001E0110
 s32 btlAICommandScriptQueryMyKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2533,7 +2533,7 @@ s32 btlAICommandScriptQueryMyKyusyu(void) {
 // FUN_001E01C0
 s32 btlAICommandScriptQueryMyMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2549,7 +2549,7 @@ s32 btlAICommandScriptQueryMyMukou(void) {
 // FUN_001E0270
 s32 btlAICommandScriptQueryMyWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2565,7 +2565,7 @@ s32 btlAICommandScriptQueryMyWeak(void) {
 // FUN_001E0320
 s32 btlAICommandScriptQueryFrHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2581,7 +2581,7 @@ s32 btlAICommandScriptQueryFrHansya(void) {
 // FUN_001E03D0
 s32 btlAICommandScriptQueryEnHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2597,7 +2597,7 @@ s32 btlAICommandScriptQueryEnHansya(void) {
 // FUN_001E0480
 s32 btlAICommandScriptQueryFrKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2613,7 +2613,7 @@ s32 btlAICommandScriptQueryFrKyusyu(void) {
 // FUN_001E0530
 s32 btlAICommandScriptQueryEnKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1D000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2629,7 +2629,7 @@ s32 btlAICommandScriptQueryEnKyusyu(void) {
 // FUN_001E05E0
 s32 btlAICommandScriptQueryFrMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1E000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2645,7 +2645,7 @@ s32 btlAICommandScriptQueryFrMukou(void) {
 // FUN_001E0690
 s32 btlAICommandScriptQueryEnMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1F000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2661,7 +2661,7 @@ s32 btlAICommandScriptQueryEnMukou(void) {
 // FUN_001E0740
 s32 btlAICommandScriptQueryFrWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x20000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2677,7 +2677,7 @@ s32 btlAICommandScriptQueryFrWeak(void) {
 // FUN_001E07F0
 s32 btlAICommandScriptQueryEnWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2693,7 +2693,7 @@ s32 btlAICommandScriptQueryEnWeak(void) {
 // FUN_001E08A0
 s32 btlAICommandScriptQueryMyUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x22000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2709,7 +2709,7 @@ s32 btlAICommandScriptQueryMyUseAttr(void) {
 // FUN_001E0950
 s32 btlAICommandScriptQueryFrUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2725,7 +2725,7 @@ s32 btlAICommandScriptQueryFrUseAttr(void) {
 // FUN_001E0A00
 s32 btlAICommandScriptQueryEnUseAttr(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2741,7 +2741,7 @@ s32 btlAICommandScriptQueryEnUseAttr(void) {
 // FUN_001E0AB0
 s32 btlAICommandScriptQueryMyUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x25000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2757,7 +2757,7 @@ s32 btlAICommandScriptQueryMyUseSkil(void) {
 // FUN_001E0B60
 s32 btlAICommandScriptQueryFrUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x26000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2773,7 +2773,7 @@ s32 btlAICommandScriptQueryFrUseSkil(void) {
 // FUN_001E0C10
 s32 btlAICommandScriptQueryEnUseSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x27000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2788,21 +2788,21 @@ s32 btlAICommandScriptQueryEnUseSkil(void) {
 /* AI script command 0x2027 (p4flow AI.json AI_FUNCTION_0027). */
 // FUN_001E0CC0
 s32 btlAICommandScriptQueryMyGroup(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A30[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A30[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2028 (p4flow AI.json AI_FUNCTION_0028). */
 // FUN_001E0D10
 s32 btlAICommandScriptQueryFrGroup(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A3C[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A3C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2029 (p4flow AI.json AI_FUNCTION_0029). */
 // FUN_001E0D60
 s32 btlAICommandScriptQueryEnGroup(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A48[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A48[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
@@ -2810,7 +2810,7 @@ s32 btlAICommandScriptQueryEnGroup(void) {
 // FUN_001E0DB0
 s32 btlAICommandScriptQueryTurn(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2B000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2826,7 +2826,7 @@ s32 btlAICommandScriptQueryTurn(void) {
 // FUN_001E0E60
 s32 btlAICommandScriptQueryTurnO(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2C000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2841,14 +2841,14 @@ s32 btlAICommandScriptQueryTurnO(void) {
 /* AI script command 0x2046 (p4flow AI.json AI_FUNCTION_0046). */
 // FUN_001E0F10
 s32 btlAICommandScriptQueryMyHrec(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A6C[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A6C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2047 (p4flow AI.json AI_FUNCTION_0047). */
 // FUN_001E0F60
 s32 btlAICommandScriptQueryMore(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A78[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A78[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
@@ -2856,7 +2856,7 @@ s32 btlAICommandScriptQueryMore(void) {
 // FUN_001E0FB0
 s32 btlAICommandScriptQueryFrHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2F000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2872,7 +2872,7 @@ s32 btlAICommandScriptQueryFrHansyaSt(void) {
 // FUN_001E1060
 s32 btlAICommandScriptQueryEnHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x30000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2888,7 +2888,7 @@ s32 btlAICommandScriptQueryEnHansyaSt(void) {
 // FUN_001E1110
 s32 btlAICommandScriptQueryFrKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x31000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2904,7 +2904,7 @@ s32 btlAICommandScriptQueryFrKyusyuSt(void) {
 // FUN_001E11C0
 s32 btlAICommandScriptQueryEnKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x32000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2920,7 +2920,7 @@ s32 btlAICommandScriptQueryEnKyusyuSt(void) {
 // FUN_001E1270
 s32 btlAICommandScriptQueryFrMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x33000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2936,7 +2936,7 @@ s32 btlAICommandScriptQueryFrMukouSt(void) {
 // FUN_001E1320
 s32 btlAICommandScriptQueryEnMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x34000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2952,7 +2952,7 @@ s32 btlAICommandScriptQueryEnMukouSt(void) {
 // FUN_001E13D0
 s32 btlAICommandScriptQueryFrWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x35000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -2968,7 +2968,7 @@ s32 btlAICommandScriptQueryFrWeakSt(void) {
 // FUN_001E1480
 s32 btlAICommandScriptQueryEnWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x36000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -3001,7 +3001,7 @@ u32 btlAICommandSideIdQueryMyHp(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3039,7 +3039,7 @@ u32 btlAICommandSideIdQueryMyMp(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3077,7 +3077,7 @@ u32 btlAICommandSideIdQueryMyLvO(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3117,7 +3117,7 @@ u32 btlAICommandSideIdQueryMyBad(void)
     int dispatchResult;
 
     argument = scrGetParamInt(1);
-    unit = func_0029d050();
+    unit = scrGetAiState();
     sideMask = 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff;
     if ((argument & 0x80000) != 0) {
         id = scrGetParamInt(0);
@@ -3144,7 +3144,7 @@ u32 btlAICommandSideIdQueryMyBad(void)
 /* AI script command 0x205e (p4flow AI.json AI_FUNCTION_005E). */
 // FUN_001E1940
 s32 btlAICommandSideIdQueryHasBuff(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
@@ -3172,7 +3172,7 @@ u32 btlAICommandSideIdQueryMyHansya(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3210,7 +3210,7 @@ u32 btlAICommandSideIdQueryMyKyusyu(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3248,7 +3248,7 @@ u32 btlAICommandSideIdQueryMyMukou(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3286,7 +3286,7 @@ u32 btlAICommandSideIdQueryMyWeak(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3324,7 +3324,7 @@ u32 btlAICommandSideIdQueryMyUseAttr(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3362,7 +3362,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -3386,7 +3386,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 /* AI script command 0x2065 (p4flow AI.json AI_FUNCTION_0065). */
 // FUN_001E1F90
 s32 btlAICommandSideIdQueryMyGroup(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
@@ -3400,7 +3400,7 @@ s32 btlAICommandSideIdQueryMyGroup(void) {
 /* AI script command 0x2066 (p4flow AI.json AI_FUNCTION_0066). */
 // FUN_001E2030
 s32 btlAICommandSideIdQueryMyHrec(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
@@ -3436,7 +3436,7 @@ u32 btlAICommandOppSideIdQueryMyHp(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -3491,7 +3491,7 @@ u32 btlAICommandOppSideIdQueryMyMp(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -3548,7 +3548,7 @@ u32 btlAICommandOppSideIdQueryMyLvO(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -3599,7 +3599,7 @@ u32 btlAICommandOppSideIdQueryMyBad(void)
     int dispatchResult;
 
     argument = scrGetParamInt(1);
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -3647,7 +3647,7 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
     u8 *np;
     u32 flag;
 
-    m = (1 << (*(u8 *)(*(u32 *)(func_0029d050() + 0x30) + 0xA2))) & 0xFFFF;
+    m = (1 << (*(u8 *)(*(u32 *)(scrGetAiState() + 0x30) + 0xA2))) & 0xFFFF;
     c0 = scrGetParamInt(0) & 0xFFFF;
     v = scrGetParamInt(1);
     n = 0;
@@ -3698,7 +3698,7 @@ s32 btlAICommandOppSideIdQueryAllBadStatus(void)
     s32 k;
     u32 flag;
 
-    if (*(u8 *)(*(u8 **)(func_0029d050() + 0x30) + 0xa2) != 0)
+    if (*(u8 *)(*(u8 **)(scrGetAiState() + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3747,7 +3747,7 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
     u32 *r;
     s32 x;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2) != 0)
+        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -3780,7 +3780,7 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
     u8 *np;
     u32 flag;
 
-    m = (1 << (*(u8 *)(*(u32 *)(func_0029d050() + 0x30) + 0xA2))) & 0xFFFF;
+    m = (1 << (*(u8 *)(*(u32 *)(scrGetAiState() + 0x30) + 0xA2))) & 0xFFFF;
     c0 = scrGetParamInt(0) & 0xFFFF;
     v = scrGetParamInt(1);
     n = 0;
@@ -3828,7 +3828,7 @@ s32 btlAICommandOppSideIdQueryAllHasBuff(void)
     s32 k;
     u32 flag;
 
-    if (*(u8 *)(*(u8 **)(func_0029d050() + 0x30) + 0xa2) != 0)
+    if (*(u8 *)(*(u8 **)(scrGetAiState() + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3889,7 +3889,7 @@ u32 btlAICommandOppSideIdQueryMyHansya(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -3946,7 +3946,7 @@ u32 btlAICommandOppSideIdQueryMyKyusyu(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -4003,7 +4003,7 @@ u32 btlAICommandOppSideIdQueryMyMukou(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -4060,7 +4060,7 @@ u32 btlAICommandOppSideIdQueryMyWeak(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -4117,7 +4117,7 @@ u32 btlAICommandOppSideIdQueryMyUseAttr(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -4174,7 +4174,7 @@ u32 btlAICommandOppSideIdQueryMyUseSkil(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
         goto nonzero;
     shift = 1;
@@ -4215,7 +4215,7 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
     u32 *r;
     s32 x;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2) != 0)
+        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -4245,7 +4245,7 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
     u32 *r;
     s32 x;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2) != 0)
+        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -4267,7 +4267,7 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
 /* AI script command 0x2069 (p4flow AI.json AI_FUNCTION_0069). */
 // FUN_001E33D0
 s32 btlAICommandScriptUnitIsIdOnSide(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
     u32 flag = 1;
@@ -4293,7 +4293,7 @@ s32 btlAICommandScriptUnitIsIdOnSide(void) {
 // FUN_001E34B0
 s32 btlAICommandScriptQueryFrAllHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x38000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4309,7 +4309,7 @@ s32 btlAICommandScriptQueryFrAllHp(void) {
 // FUN_001E3560
 s32 btlAICommandScriptQueryEnAllHp(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x39000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4325,7 +4325,7 @@ s32 btlAICommandScriptQueryEnAllHp(void) {
 // FUN_001E3610
 s32 btlAICommandScriptQueryMyAbleSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3A000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4341,7 +4341,7 @@ s32 btlAICommandScriptQueryMyAbleSkil(void) {
 // FUN_001E36C0
 s32 btlAICommandScriptQueryEnWeakPai(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3B000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4357,7 +4357,7 @@ s32 btlAICommandScriptQueryEnWeakPai(void) {
 // FUN_001E3770
 s32 btlAICommandScriptQueryEnWeakStPai(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3C000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4373,7 +4373,7 @@ s32 btlAICommandScriptQueryEnWeakStPai(void) {
 // FUN_001E3820
 s32 btlAICommandScriptQueryEnWeakDwPai(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3D000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4389,7 +4389,7 @@ s32 btlAICommandScriptQueryEnWeakDwPai(void) {
 // FUN_001E38D0
 s32 btlAICommandScriptQueryMyAttrSkil(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3E000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4405,7 +4405,7 @@ s32 btlAICommandScriptQueryMyAttrSkil(void) {
 // FUN_001E3980
 s32 btlAICommandScriptQueryMyNomal(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3F000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4421,7 +4421,7 @@ s32 btlAICommandScriptQueryMyNomal(void) {
 // FUN_001E3A30
 s32 btlAICommandScriptQueryEnNomal(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x40000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4437,7 +4437,7 @@ s32 btlAICommandScriptQueryEnNomal(void) {
 // FUN_001E3AE0
 s32 btlAICommandScriptQueryEnNomalSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x41000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4453,7 +4453,7 @@ s32 btlAICommandScriptQueryEnNomalSt(void) {
 // FUN_001E3B90
 s32 btlAICommandScriptQueryEnNomalDw(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x42000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4468,21 +4468,21 @@ s32 btlAICommandScriptQueryEnNomalDw(void) {
 /* AI script command 0x2092 (p4flow AI.json AI_FUNCTION_0092). */
 // FUN_001E3C40
 s32 btlAICommandScriptQueryAnalyze(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B74[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B74[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2093 (p4flow AI.json AI_FUNCTION_0093). */
 // FUN_001E3C90
 s32 btlAICommandScriptQueryDown(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B80[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B80[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
 /* AI script command 0x2094 (p4flow AI.json AI_FUNCTION_0094). */
 // FUN_001E3CE0
 s32 btlAICommandScriptQuerySlip(void) {
-    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B8C[0])(func_0029d050(), 0) != 0);
+    scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B8C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
@@ -4490,7 +4490,7 @@ s32 btlAICommandScriptQuerySlip(void) {
 // FUN_001E3D30
 s32 btlAICommandScriptQueryEnOverlv(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x46000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4689,7 +4689,7 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -4713,7 +4713,7 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 /* AI script command 0x20cc (p4flow AI.json AI_FUNCTION_00CC). */
 // FUN_001E43D0
 s32 btlAICommandScriptSelfHasBuff(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(datCalcHasBuffMask(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), scrGetParamInt(0)) != 0);
     return 1;
 }
@@ -4735,7 +4735,7 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
     int result;
     int dispatchResult;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
     context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
@@ -4759,7 +4759,7 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
 /* AI script command 0x20d9 (p4flow AI.json AI_FUNCTION_00D9). */
 // FUN_001E4520
 s32 btlAICommandScriptIsSelfListed(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 flag = 0;
     u16 i;
     for (i = 1; i < 0xC; i++) {
@@ -4788,7 +4788,7 @@ s32 btlAICommandScriptAlwaysFalse(void) {
 // FUN_001E4600
 s32 btlAICommandScriptQueryMyTaisei(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x48000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4804,7 +4804,7 @@ s32 btlAICommandScriptQueryMyTaisei(void) {
 // FUN_001E46B0
 s32 btlAICommandScriptQueryFrTaisei(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x49000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4820,7 +4820,7 @@ s32 btlAICommandScriptQueryFrTaisei(void) {
 // FUN_001E4760
 s32 btlAICommandScriptQueryEnTaisei(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4A000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = v & 0xFFFFFF;
     s32 x;
@@ -4835,7 +4835,7 @@ s32 btlAICommandScriptQueryEnTaisei(void) {
 /* AI script command 0x202c (p4flow AI.json AI_FUNCTION_002C). */
 // FUN_001E4810
 s32 btlAICommandScriptRunAi(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4844,7 +4844,7 @@ s32 btlAICommandScriptRunAi(void) {
 /* AI script command 0x202d (p4flow AI.json AI_FUNCTION_002D). */
 // FUN_001E4880
 s32 btlAICommandAiUnlessHpMin(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609CE8[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4853,7 +4853,7 @@ s32 btlAICommandAiUnlessHpMin(void) {
 /* AI script command 0x202e (p4flow AI.json AI_FUNCTION_002E). */
 // FUN_001E48F0
 s32 btlAICommandAiUnlessLvMin(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609CF0[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4862,7 +4862,7 @@ s32 btlAICommandAiUnlessLvMin(void) {
 /* AI script command 0x202f (p4flow AI.json AI_FUNCTION_002F). */
 // FUN_001E4960
 s32 btlAICommandAiUnlessMpMax(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609CF8[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4872,7 +4872,7 @@ s32 btlAICommandAiUnlessMpMax(void) {
 // FUN_001E49D0
 s32 btlAICommandCondQueryBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4882,7 +4882,7 @@ s32 btlAICommandCondQueryBad(void) {
 // FUN_001E4A80
 s32 btlAICommandCondQueryNotBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4893,7 +4893,7 @@ s32 btlAICommandCondQueryNotBad(void) {
 s32 btlAICommandScriptPickMyIdFromArgs(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
-    btlAICommandSelectCandidates(func_0029d050(), a, b, 0, 0, btlCond_MYID);
+    btlAICommandSelectCandidates(scrGetAiState(), a, b, 0, 0, btlCond_MYID);
     return 1;
 }
 
@@ -4901,7 +4901,7 @@ s32 btlAICommandScriptPickMyIdFromArgs(void) {
 // FUN_001E4BB0
 s32 btlAICommandCondQueryId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4910,7 +4910,7 @@ s32 btlAICommandCondQueryId(void) {
 /* AI script command 0x2033 (p4flow AI.json AI_FUNCTION_0033). */
 // FUN_001E4C60
 s32 btlAICommandAiUnlessMine(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609D18[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4919,7 +4919,7 @@ s32 btlAICommandAiUnlessMine(void) {
 /* AI script command 0x2034 (p4flow AI.json AI_FUNCTION_0034). */
 // FUN_001E4CD0
 s32 btlAICommandAiUnlessMyAi(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609D20[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4929,7 +4929,7 @@ s32 btlAICommandAiUnlessMyAi(void) {
 // FUN_001E4D40
 s32 btlAICommandCondQueryHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4939,7 +4939,7 @@ s32 btlAICommandCondQueryHansya(void) {
 // FUN_001E4DF0
 s32 btlAICommandCondQueryKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4949,7 +4949,7 @@ s32 btlAICommandCondQueryKyusyu(void) {
 // FUN_001E4EA0
 s32 btlAICommandCondQueryMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4959,7 +4959,7 @@ s32 btlAICommandCondQueryMukou(void) {
 // FUN_001E4F50
 s32 btlAICommandCondQueryWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4969,7 +4969,7 @@ s32 btlAICommandCondQueryWeak(void) {
 // FUN_001E5000
 s32 btlAICommandCondQueryNotHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4979,7 +4979,7 @@ s32 btlAICommandCondQueryNotHansya(void) {
 // FUN_001E50B0
 s32 btlAICommandCondQueryNotKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4989,7 +4989,7 @@ s32 btlAICommandCondQueryNotKyusyu(void) {
 // FUN_001E5160
 s32 btlAICommandCondQueryNotMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -4999,7 +4999,7 @@ s32 btlAICommandCondQueryNotMukou(void) {
 // FUN_001E5210
 s32 btlAICommandCondQueryNotWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5008,7 +5008,7 @@ s32 btlAICommandCondQueryNotWeak(void) {
 /* AI script command 0x2043 (p4flow AI.json AI_FUNCTION_0043). */
 // FUN_001E52C0
 s32 btlAICommandAiUnlessAppoint(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609D70[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5017,7 +5017,7 @@ s32 btlAICommandAiUnlessAppoint(void) {
 /* AI script command 0x2044 (p4flow AI.json AI_FUNCTION_0044). */
 // FUN_001E5330
 s32 btlAICommandAiUnlessDown(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609D78[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5026,7 +5026,7 @@ s32 btlAICommandAiUnlessDown(void) {
 /* AI script command 0x2045 (p4flow AI.json AI_FUNCTION_0045). */
 // FUN_001E53A0
 s32 btlAICommandAiUnlessStand(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609D80[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5036,7 +5036,7 @@ s32 btlAICommandAiUnlessStand(void) {
 // FUN_001E5410
 s32 btlAICommandCondQueryHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x15000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5046,7 +5046,7 @@ s32 btlAICommandCondQueryHansyaSt(void) {
 // FUN_001E54C0
 s32 btlAICommandCondQueryKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5056,7 +5056,7 @@ s32 btlAICommandCondQueryKyusyuSt(void) {
 // FUN_001E5570
 s32 btlAICommandCondQueryMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5066,7 +5066,7 @@ s32 btlAICommandCondQueryMukouSt(void) {
 // FUN_001E5620
 s32 btlAICommandCondQueryWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5076,7 +5076,7 @@ s32 btlAICommandCondQueryWeakSt(void) {
 // FUN_001E56D0
 s32 btlAICommandCondQueryNotHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5086,7 +5086,7 @@ s32 btlAICommandCondQueryNotHansyaSt(void) {
 // FUN_001E5780
 s32 btlAICommandCondQueryNotKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5096,7 +5096,7 @@ s32 btlAICommandCondQueryNotKyusyuSt(void) {
 // FUN_001E5830
 s32 btlAICommandCondQueryNotMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5106,7 +5106,7 @@ s32 btlAICommandCondQueryNotMukouSt(void) {
 // FUN_001E58E0
 s32 btlAICommandCondQueryNotWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5115,7 +5115,7 @@ s32 btlAICommandCondQueryNotWeakSt(void) {
 /* AI script command 0x2067 (p4flow AI.json AI_FUNCTION_0067). */
 // FUN_001E5990
 s32 btlAICommandScriptAppointCurrent(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 q = *(u32 *)(D_0072449C + 0x170);
     if (q != 0) {
         func_001d8bf0(p + 0x98, (u8 *)q + 0x98);
@@ -5129,7 +5129,7 @@ s32 btlAICommandScriptAppointCurrent(void) {
 // FUN_001E5A20
 s32 btlAICommandCondQueryNotId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5138,7 +5138,7 @@ s32 btlAICommandCondQueryNotId(void) {
 /* AI script command 0x209a (p4flow AI.json AI_FUNCTION_009A). */
 // FUN_001E5AD0
 s32 btlAICommandAiUnlessRnd(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609DF0[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5148,7 +5148,7 @@ s32 btlAICommandAiUnlessRnd(void) {
 // FUN_001E5B40
 s32 btlAICommandCondQueryHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5158,7 +5158,7 @@ s32 btlAICommandCondQueryHojo(void) {
 // FUN_001E5BF0
 s32 btlAICommandCondQueryNotHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
         ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5169,14 +5169,14 @@ s32 btlAICommandCondQueryNotHojo(void) {
 s32 btlAICommandScriptPickMyIdFiltered(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
-    btlAICommandSelectCandidates(func_0029d050(), a, b, 0x40, 0, btlCond_MYID);
+    btlAICommandSelectCandidates(scrGetAiState(), a, b, 0x40, 0, btlCond_MYID);
     return 1;
 }
 
 /* AI script command 0x2112 (p4flow AI.json AI_FUNCTION_0112). */
 // FUN_001E5D20
 s32 btlAICommandAiUnlessHpMax(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if (!((s32 (*)(u8 *, s32))D_00609E18[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     return 1;
@@ -5185,7 +5185,7 @@ s32 btlAICommandAiUnlessHpMax(void) {
 /* AI script command 0x2091 (p4flow AI.json AI_FUNCTION_0091). */
 // FUN_001E5D90
 s32 btlAICommandScriptSetId2ClearBuffs(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 q;
     datCalcClearBuffLevel(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), 8);
@@ -5200,7 +5200,7 @@ s32 btlAICommandScriptSetId2ClearBuffs(void) {
 /* AI script command 0x2095 (p4flow AI.json AI_FUNCTION_0095). */
 // FUN_001E5E40
 s32 btlAICommandScriptSetDownFlag(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if ((scrGetParamInt(0) & 0xFFFF) == 0) {
         u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
         *(u16 *)f |= 8;
@@ -5214,7 +5214,7 @@ s32 btlAICommandScriptSetDownFlag(void) {
 /* AI script command 0x2096 (p4flow AI.json AI_FUNCTION_0096). */
 // FUN_001E5EC0
 s32 btlAICommandScriptSetSlipFlag(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     if ((scrGetParamInt(0) & 0xFFFF) == 0) {
         u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
         *(u16 *)f |= 0x10;
@@ -5228,7 +5228,7 @@ s32 btlAICommandScriptSetSlipFlag(void) {
 /* AI script command 0x20db (p4flow AI.json AI_FUNCTION_00DB). */
 // FUN_001E5F40
 s32 btlAICommandScriptSetCommandOverride(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     *(u16 *)(p + 0x80) = scrGetParamInt(0);
     *(u8 *)(p + 0x82) = scrGetParamInt(1);
     return 1;
@@ -5237,7 +5237,7 @@ s32 btlAICommandScriptSetCommandOverride(void) {
 /* AI script command 0x2099 (p4flow AI.json AI_FUNCTION_0099). */
 // FUN_001E5F90
 s32 btlAICommandScriptGetSelfId2(void) {
-    u32 a = *(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64);
+    u32 a = *(u32 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA64);
     scrSetReturnInt(*(u16 *)(a + 4));
     return 1;
 }
@@ -5245,7 +5245,7 @@ s32 btlAICommandScriptGetSelfId2(void) {
 /* AI script command 0x20ab (p4flow AI.json AI_FUNCTION_00AB). */
 // FUN_001E5FD0
 s32 func_001e5fd0(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     scrSetReturnInt(r != 0 ? *(u32 *)((u8 *)r + 0x20) : 0);
     return 1;
@@ -5260,7 +5260,7 @@ s32 func_001e6050(void) {
     u32 shift;
     u32 *r;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2) != 0)
+        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -5278,7 +5278,7 @@ s32 func_001e6050(void) {
 /* AI script command 0x20b0 (p4flow AI.json AI_FUNCTION_00B0). */
 // FUN_001E60F0
 s32 btlAICommandScriptCountOwnHojo(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
@@ -5286,7 +5286,7 @@ s32 btlAICommandScriptCountOwnHojo(void) {
 /* AI script command 0x20b1 (p4flow AI.json AI_FUNCTION_00B1). */
 // FUN_001E6160
 s32 btlAICommandScriptCountOwnNotHojo(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
@@ -5294,7 +5294,7 @@ s32 btlAICommandScriptCountOwnNotHojo(void) {
 /* AI script command 0x20b2 (p4flow AI.json AI_FUNCTION_00B2). */
 // FUN_001E61D0
 s32 btlAICommandScriptCountOwnBad(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
@@ -5302,7 +5302,7 @@ s32 btlAICommandScriptCountOwnBad(void) {
 /* AI script command 0x20ea (p4flow AI.json AI_FUNCTION_00EA). */
 // FUN_001E6240
 s32 btlAICommandScriptCountOppBad(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
@@ -5310,7 +5310,7 @@ s32 btlAICommandScriptCountOppBad(void) {
 /* AI script command 0x20b3 (p4flow AI.json AI_FUNCTION_00B3). */
 // FUN_001E62B0
 s32 btlAICommandScriptCountOppHojo(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
@@ -5318,7 +5318,7 @@ s32 btlAICommandScriptCountOppHojo(void) {
 /* AI script command 0x20b4 (p4flow AI.json AI_FUNCTION_00B4). */
 // FUN_001E6320
 s32 btlAICommandScriptCountOppNotHojo(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
@@ -5326,7 +5326,7 @@ s32 btlAICommandScriptCountOppNotHojo(void) {
 /* AI script command 0x20cd (p4flow AI.json AI_FUNCTION_00CD). */
 // FUN_001E6390
 s32 btlAICommandScriptCountOwnHp(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
     return 1;
 }
@@ -5334,7 +5334,7 @@ s32 btlAICommandScriptCountOwnHp(void) {
 /* AI script command 0x20ce (p4flow AI.json AI_FUNCTION_00CE). */
 // FUN_001E6400
 s32 btlAICommandScriptAverageOwnLevel(void) {
-    scrSetReturnInt(btlSideAverageLevel((1 << (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
+    scrSetReturnInt(btlSideAverageLevel((1 << (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
     return -1;
 }
 
@@ -5346,7 +5346,7 @@ s32 btlAICommandScriptAverageOwnLevel(void) {
 s32 btlAICommandScriptAverageOppLevel(void) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA2) != 0)
+        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -5363,7 +5363,7 @@ s32 btlAICommandScriptAverageOppLevel(void) {
 /* AI script command 0x20d0 (p4flow AI.json AI_FUNCTION_00D0). */
 // FUN_001E64C0
 s32 btlAICommandScriptGetCommandRow(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     short r = (short)scrGetParamInt(0);
     scrSetReturnInt((s16)datCalcSkillElement(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), (u16)r));
     return -1;
@@ -5372,7 +5372,7 @@ s32 btlAICommandScriptGetCommandRow(void) {
 /* AI script command 0x20e1 (p4flow AI.json AI_FUNCTION_00E1). */
 // FUN_001E6530
 s32 btlAICommandScriptCountOwnAlive(void) {
-    func_0029d050();
+    scrGetAiState();
     scrSetReturnInt(btlSideCountNotBad(1, 0) & 0xFFFF);
     return 1;
 }
@@ -5380,7 +5380,7 @@ s32 btlAICommandScriptCountOwnAlive(void) {
 /* AI script command 0x20e2 (p4flow AI.json AI_FUNCTION_00E2). */
 // FUN_001E6570
 s32 btlAICommandScriptCountOppAlive(void) {
-    func_0029d050();
+    scrGetAiState();
     scrSetReturnInt(btlSideCountNotBad(2, 0) & 0xFFFF);
     return -1;
 }
@@ -5388,7 +5388,7 @@ s32 btlAICommandScriptCountOppAlive(void) {
 /* AI script command 0x2113 (p4flow AI.json AI_FUNCTION_0113). */
 // FUN_001E65B0
 s32 btlAICommandScriptGetSelfHp(void) {
-    scrSetReturnInt(datCalcGetHp(*(u32 *)(*(u8 **)((u8 *)func_0029d050() + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetHp(*(u32 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA64)) & 0xFFFF);
     return -1;
 }
 
@@ -5423,7 +5423,7 @@ s32 btlAICommandIdScriptQueryHasBuff(void) {
 /* AI script command 0x2077 (p4flow AI.json AI_FUNCTION_0077). */
 // FUN_001E6740
 s32 btlAICommandScriptWouldBeKilled(void) {
-    u8 *p = func_0029d050();
+    u8 *p = scrGetAiState();
     u8 *q = btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF);
     s32 x = datCalcSkillAmount(0, (u8 *)*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
     s32 off;
@@ -5443,7 +5443,7 @@ s32 btlAICommandScriptHasCommandOfType(void) {
     u32 temp_17;
     u8 *temp_18;
 
-    temp_18 = (u8 *)(func_0029d050());
+    temp_18 = (u8 *)(scrGetAiState());
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     scrSetReturnInt(~btlAICommandCollectCommandsOfType(temp_18, btlActionFindById(temp_17 & 0xFFFFFFF), (s16) temp_16, 0) != 0);
@@ -5457,7 +5457,7 @@ s32 btlAICommandScriptHasCommandOfType(void) {
 s32 btlAICommandScriptLookupOnlyFalse(void) {
     u32 temp_16;
 
-    func_0029d050();
+    scrGetAiState();
     temp_16 = scrGetParamInt(0);
     scrGetParamInt(1);
     btlActionFindById(temp_16 & 0xFFFFFFF);

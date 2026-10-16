@@ -40,7 +40,7 @@ extern s32 datCalcGetHp();
 extern u16 datCalcMaxSp();
 extern s32 datCalcGetSp();
 
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -115,7 +115,7 @@ s32 btlEffectScriptSelectSideUnit(void) {
     extern u32 datCalcRandomBelow(u32 arg0);
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
-    extern u8 *func_0029d050(void);
+    extern u8 *scrGetAiState(void);
     u8 *formation;
     u16 count;
     int selected;
@@ -124,7 +124,7 @@ s32 btlEffectScriptSelectSideUnit(void) {
     u16 index;
     int candidates[12];
 
-    unit = (u32)func_0029d050();
+    unit = (u32)scrGetAiState();
     selector = (u32)scrGetParamInt(0);
     count = btlSideSelectUnits(unit, selector, 0x80000, 1, 1,
                           &btlCond_MYHOJO, candidates);
@@ -156,7 +156,7 @@ s32 btlEffectScriptSelectHighestLevelUnit(void) {
     extern s32 datCalcGetLevel();
     extern s64 scrGetParamInt();
     extern void scrSetReturnInt();
-    extern u8 *func_0029d050();
+    extern u8 *scrGetAiState();
     u8 *var_19;
     s32 var_18;
     s32 temp_17;
@@ -164,7 +164,7 @@ s32 btlEffectScriptSelectHighestLevelUnit(void) {
     u8 *temp_2;
     u8 *sp50[12];
 
-    temp_16 = func_0029d050();
+    temp_16 = scrGetAiState();
     temp_17 = btlSideSelectUnits(temp_16, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, sp50) & 0xFFFF;
     if (temp_17 > 0) {
         var_19 = NULL;
@@ -196,7 +196,7 @@ loop_test:
 s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
 {
     extern s32 btlEffectCollectTargetUnits(u32, void *, s32, s32, s32);
-    extern u8 *func_0029d050(void);
+    extern u8 *scrGetAiState(void);
     extern u32 datCalcRandomBelow(u32);
     extern s32 datCalcGetLevel(u8 *);
     extern s32 datCalcIsDead(s32, s32);
@@ -216,7 +216,7 @@ s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
     u32 value;
     u32 desiredValue;
 
-    unit = func_0029d050();
+    unit = scrGetAiState();
     desired = p4_formation_get_opposing_genus((u32)unit);
     btlEffectCollectTargetUnits((u32)unit, &candidates, 2, 0, 0);
     highest = 0;
@@ -264,7 +264,7 @@ s32 btlEffectScriptPickHighestLevelHpUnit(void) {
     u32 var_16;
     u32 var_22;
 
-    temp_21 = func_0029d050();
+    temp_21 = scrGetAiState();
     if (btlAICommandSelectCandidates(temp_21, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(temp_21 + 0x6A) == 1) {
             var_19 = *(u8 **)(temp_21 + 0x38);
@@ -308,7 +308,7 @@ s32 btlEffectScriptPickRandomNoBadStatusUnit(void) {
     u8 *temp_16;
     u8 *sp50[12];
 
-    temp_19 = func_0029d050();
+    temp_19 = scrGetAiState();
     if (btlAICommandSelectCandidates(temp_19, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_17 = 0;
         var_18 = 0;
@@ -351,7 +351,7 @@ s32 btlEffectScriptPickRandomHighestLevelUnit(void) {
     extern s32 datCalcGetLevel();
     extern s64 scrGetParamInt();
     extern void scrSetReturnInt();
-    extern u8 *func_0029d050();
+    extern u8 *scrGetAiState();
     u8 *temp_20;
     u32 var_19;
     u32 var_18;
@@ -361,7 +361,7 @@ s32 btlEffectScriptPickRandomHighestLevelUnit(void) {
     u8 *sp60[12];
     u8 *var_2;
 
-    temp_20 = func_0029d050();
+    temp_20 = scrGetAiState();
     if (btlAICommandSelectCandidates(temp_20, scrGetParamInt(0), 0, 0x2C, 1, &btlAICommandNomalCheckNoGate) == 1) {
         if (*(u16 *)(temp_20 + 0x6A) == 1) {
             var_2 = *(u8 **)(temp_20 + 0x38);
@@ -402,12 +402,12 @@ s32 btlEffectScriptCountNoBadStatusUnits(void) {
     extern s32 datCalcGetBadStatusNoDown();
     extern s64 scrGetParamInt();
     extern void scrSetReturnInt();
-    extern u8 *func_0029d050();
+    extern u8 *scrGetAiState();
     u8 *temp_18;
     s32 var_17;
     s32 var_16;
 
-    temp_18 = func_0029d050();
+    temp_18 = scrGetAiState();
     if (btlAICommandSelectCandidates(temp_18, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_16 = 0;
         var_17 = 0;
@@ -432,7 +432,7 @@ loop_test:
 s32 btlEffectScriptGetCurrentUnit(void) {
     u8 *temp;
 
-    temp = func_0029d050();
+    temp = scrGetAiState();
     scrSetReturnInt(*(s32 *)(temp + 8) | 0x80000000);
     return 1;
 }
@@ -502,7 +502,7 @@ s32 btlEffectScriptPickRandomCandidate(void) {
     u16 count;
     u8 *work;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYHOJO) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
@@ -524,7 +524,7 @@ s32 btlEffectScriptPickHansyaUnit(void) {
     u16 count;
     u8 *result;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     flags = scrGetParamInt(0);
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYHANSYA) == 1) {
         count = *(u16 *)(work + 0x6A);
@@ -552,7 +552,7 @@ s32 btlEffectScriptPickKyusyuUnit(void) {
     u16 count;
     u8 *result;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     flags = scrGetParamInt(0);
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYKYUSYU) == 1) {
         count = *(u16 *)(work + 0x6A);
@@ -580,7 +580,7 @@ s32 btlEffectScriptPickMukouUnit(void) {
     u16 count;
     u8 *result;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     flags = scrGetParamInt(0);
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYMUKOU) == 1) {
         count = *(u16 *)(work + 0x6A);
@@ -608,7 +608,7 @@ s32 btlEffectScriptPickTaiseiUnit(void) {
     u16 count;
     u8 *result;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     flags = scrGetParamInt(0);
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYTAISEI) == 1) {
         count = *(u16 *)(work + 0x6A);
@@ -638,7 +638,7 @@ s32 btlEffectScriptPickLowestHpWeakUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -673,7 +673,7 @@ s32 btlEffectScriptPickLowestHpWeakFilteredUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -708,7 +708,7 @@ s32 btlEffectScriptPickLowestHpWeakWideUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -743,7 +743,7 @@ s32 btlEffectScriptPickHighestHpWeakUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -778,7 +778,7 @@ s32 btlEffectScriptPickHighestHpWeakFilteredUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -813,7 +813,7 @@ s32 btlEffectScriptPickHighestHpWeakWideUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);

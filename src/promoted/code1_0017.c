@@ -123,13 +123,13 @@ extern void sndPlayAreaCue(void);
 extern s32 func_00159f70(s32 arg0);
 extern s32 func_00155290(void);
 extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
-extern s32 func_0029d050(void);
+extern s32 scrGetAiState(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 
 extern s32 scrGetParamInt(s32 arg0);
 extern s64 datGetPartyId(s32 arg0);
-extern u8 *func_0029d040(void);
+extern u8 *scrGetContext(void);
 extern void func_002bd240(s32 arg0);
 extern void func_002bd270(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);

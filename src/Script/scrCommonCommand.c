@@ -28,11 +28,11 @@ extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
 extern s32 func_00102980(void);
 extern s32 scrGetLabelAddr(s32 index);
-extern void func_0029d010(s32 addr);
+extern void scrSetCurrentLabel(s32 addr);
 extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 extern void func_00113500(void);
 extern s32 func_001064f0(s32 index);
-extern void* func_0029d040(void);
+extern void* scrGetContext(void);
 extern void* func_0029d9b0(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
 
 extern char D_0063CFB0[];
@@ -225,7 +225,7 @@ u32 func_002991f0(void)
     {
         return 1;
     }
-    func_0029d010(scrGetLabelAddr(lblIdx));
+    scrSetCurrentLabel(scrGetLabelAddr(lblIdx));
     return 1;
 }
 
@@ -293,7 +293,7 @@ u32 func_00299450(void)
     s32 priority;
 
     prcdIdx = scrGetParamInt(0);
-    scr = (ScrData450 *)func_0029d040();
+    scr = (ScrData450 *)scrGetContext();
     if (scr == NULL)
     {
         return 1;

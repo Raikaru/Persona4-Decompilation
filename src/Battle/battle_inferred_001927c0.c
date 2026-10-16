@@ -79,7 +79,7 @@ extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
 extern s32 func_0029d020(void);
-extern u8 *func_0029d040(void);
+extern u8 *scrGetContext(void);
 extern void datCalcIsDeadById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void datCalcClearBadStatusById(s16 arg0, s32 arg1);
@@ -618,7 +618,7 @@ s32 func_00193450(void)
             if (datCalcIsDead(datUnitGetRecord(1), 0) != 0) {
                 dep = iGpffffb280;
                 func_0029db50(0xF, iGpffffb284, dep, 0);
-                KMisc_CreateScrShutdown(*(s32 *)(func_0029d040() + 0x148));
+                KMisc_CreateScrShutdown(*(s32 *)(scrGetContext() + 0x148));
                 sdlSchedulerEnable();
                 iGpffffb3b0 = 1;
                 goto block_13;

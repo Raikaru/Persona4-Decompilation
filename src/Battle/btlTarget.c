@@ -33,7 +33,7 @@ extern u8 *func_001f6030(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 arg
 extern s64 scrGetParamInt(); /* lint: allow H011 -- raw s64 call result feeds s64 temporaries, as in code1_001e */
 extern s32 scrGetParamIntS32(s32 index);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern u8 *func_0029d050(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
+extern u8 *scrGetAiState(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
 extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
 extern s32 btlAICommandPickTableAction(u8 *arg0); /* lint: allow H011 -- s32 view of the u8 definition, as in code1_001e; the u8 view changes the caller's extension */
 extern u8 *func_001dea90(u8 *arg0, u32 arg1);
@@ -101,7 +101,7 @@ s32 btlTargetAIPickAction(void) {
     u8 *temp_2_2;
     s32 (*callback)(u8 *, s64);
 
-    temp_2 = func_0029d050();
+    temp_2 = scrGetAiState();
     temp_2_2 = func_001dea90(temp_2, (u32)btlAICommandPickTableAction(temp_2) & 0xFFFF);
     btlAICommandSetActionCode(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
     temp_3 = *(s32 *)(temp_2_2 + 4);

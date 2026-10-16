@@ -51,7 +51,7 @@ extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern u8 *btlActionGetActiveOrQueueFront(void);
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 *iGpffffb3ac;
@@ -178,7 +178,7 @@ s32 func_001e6c60(void) {
     u8 *temp_2;
     u32 index;
 
-    temp_2 = func_0029d050();
+    temp_2 = scrGetAiState();
     if ((btlSkillClassifyTargets(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
         index = scrGetParamIntS32(0);
         *(u8 **)(temp_2 + 0x38) = btlActionFindById(index & 0xFFFFFFF);
@@ -194,7 +194,7 @@ s32 func_001e6fa0(void) {
     u16 count;
     u8 *work;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
@@ -212,7 +212,7 @@ s32 func_001e7080(void) {
     u16 count;
     u8 *work;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
@@ -230,7 +230,7 @@ s32 func_001e7160(void) {
     u16 count;
     u8 *work;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
@@ -248,7 +248,7 @@ s32 func_001e7240(void) {
     u16 count;
     u8 *work;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
@@ -266,7 +266,7 @@ s32 func_001e7320(void)
 {
     int count;
     u8 *work;
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
     {
         count = *(u16 *)(work + 0x6A);
@@ -320,7 +320,7 @@ s32 func_001e8bb0(void) {
     u8 *temp_19;
     u64 temp_18;
 
-    temp_19 = func_0029d050();
+    temp_19 = scrGetAiState();
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     temp_18 = scrGetParamInt(2);
@@ -335,7 +335,7 @@ s32 func_001e8cd0(void) {
     u64 temp_18;
     u64 temp_17;
 
-    temp_19 = func_0029d050();
+    temp_19 = scrGetAiState();
     temp_16 = scrGetParamInt(0);
     temp_18 = scrGetParamInt(1);
     temp_17 = scrGetParamInt(2);
@@ -351,7 +351,7 @@ s32 func_001ea2d0(void) {
     u8 *temp_18;
     u64 temp_17;
 
-    temp_18 = func_0029d050();
+    temp_18 = scrGetAiState();
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     btlUnitInitChild(*(u8 **)(temp_18 + 0x30), temp_17);

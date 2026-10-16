@@ -37,7 +37,7 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 }
 extern s32 datCalcGetHp();
 
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -156,7 +156,7 @@ s32 btlEffectScriptPickWeakCandidateUnit(void) {
     u16 count;
     u8 *result;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     flags = scrGetParamInt(0);
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);

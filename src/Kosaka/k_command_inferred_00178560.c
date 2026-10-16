@@ -76,11 +76,11 @@ extern u8 D_00794E70[];
 
 extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
-extern s32 func_0029d050(void);
+extern s32 scrGetAiState(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 
-extern u8 *func_0029d040(void);
+extern u8 *scrGetContext(void);
 extern void func_002bd240(s32 arg0);
 extern void func_002bd270(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -191,8 +191,8 @@ s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
     s32 temp_2;
     u8 *temp_16;
 
-    temp_16 = func_0029d040();
-    temp_2 = func_0029d050();
+    temp_16 = scrGetContext();
+    temp_2 = scrGetAiState();
     if (temp_2 == 0) {
         func_0029dfe0(*(s32 *)(temp_16 + 0x148), FldRc_CreateTransitionTask(0, 1));
         return 0;
@@ -249,7 +249,7 @@ s32 Cmd_StartFieldSequence(void)
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     func_002bd240(1);
-    func_002bd270(*(s32 *)(func_0029d040() + 0x124));
+    func_002bd270(*(s32 *)(scrGetContext() + 0x124));
     func_002bd280(temp_17, temp_16, 0, 0);
     return 1;
 }

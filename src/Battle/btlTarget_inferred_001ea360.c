@@ -36,7 +36,7 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -105,7 +105,7 @@ extern s32 btlCurrentUnitId(void);
 s32 btlEffectScriptSetActionMode5(void) {
     u8 *temp;
 
-    temp = func_0029d050();
+    temp = scrGetAiState();
     *(s16 *)(temp + 0x6C) = 5;
     return 1;
 }
@@ -117,7 +117,7 @@ s32 btlEffectScriptSetActionModeWithSlot(void)
     u8 *work;
     s32 index;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     index = scrGetParamIntS32(0);
     if ((iGpffffb3b8[index * 0x28] & 2) == 0) {
         kAssertFail(D_00609E30, 5711);

@@ -61,8 +61,9 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 0029d010-0029d050 */
 
+// Stores arg0 (a script label address) as the current label of the script context.
 // FUN_0029D010
-void func_0029d010(s32 arg0)
+void scrSetCurrentLabel(s32 arg0)
 {
     *(s32 *)(iGpffffb510 + 0x18) = arg0;
 }
@@ -79,14 +80,18 @@ s32 func_0029d030(void)
     return *(s32 *)(iGpffffb510 + 0x130);
 }
 
+// Returns the script context (the iGpffffb510 block) that the battle and script
+// code index into.
 // FUN_0029D040
-s32 func_0029d040(void)
+s32 scrGetContext(void)
 {
     return (s32)iGpffffb510;
 }
 
+// Returns the AI state pointer stored in the script context at +0x154; battle AI
+// commands use it as their action record.
 // FUN_0029D050
-s32 func_0029d050(void)
+s32 scrGetAiState(void)
 {
     return *(s32 *)(iGpffffb510 + 0x154);
 }
