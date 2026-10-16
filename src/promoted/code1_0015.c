@@ -519,7 +519,7 @@ s32 FldLoadTaskUpdate(u8 *task)
                     day = (s16)datGetDateIndex();
                     selection = (s8)calGetDayEntryByPhase(day, datGetTimeSlot() & 0xFF);
                 }
-                work->environmentState = func_00154720(work->fieldId, work->roomId, selection);
+                work->environmentState = FldEnvResolveState(work->fieldId, work->roomId, selection);
             } else {
                 work->environmentState = selectedEnvironment;
             }

@@ -8,8 +8,8 @@
 s32 FldLoadTaskFieldId(u8 *task);
 s32 FldLoadTaskRoomId(u8 *task);
 s32 FldLoadTaskMapState(u8 *task);
-s32 func_001546a0(s32 field, s32 room);
-s32 func_00154720(s32 field, s32 room, s32 condition);
+s32 FldEnvStateFromCalendar(s32 field, s32 room);
+s32 FldEnvResolveState(s32 field, s32 room, s32 condition);
 
 /* Field IDs travel as words; the file provider explicitly selects low 16 bits. */
 u8 *FldHbnOpenTable(s32 fieldId, s32 roomId);

@@ -443,13 +443,13 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
 
 #pragma pop
 // FUN_001546A0
-s32 func_001546a0(s32 arg0, s32 arg1)
+s32 FldEnvStateFromCalendar(s32 arg0, s32 arg1)
 {
-    return func_00154720(arg0, arg1, (s8)calGetDayEntryByPhase(datGetDateIndex(), datGetTimeSlot() & 0xFF));
+    return FldEnvResolveState(arg0, arg1, (s8)calGetDayEntryByPhase(datGetDateIndex(), datGetTimeSlot() & 0xFF));
 }
 
 // FUN_00154720
-s32 func_00154720(s32 fieldKind, s32 baseState, s32 condition)
+s32 FldEnvResolveState(s32 fieldKind, s32 baseState, s32 condition)
 {
     s32 environmentState;
     s32 period;
@@ -586,7 +586,7 @@ s32 func_00154720(s32 fieldKind, s32 baseState, s32 condition)
 }
 
 // FUN_00154B10
-s32 func_00154b10(void) {
+s32 FldCamOpenFile(void) {
     char sp90[0x80];
     char sp10[0x80];
 
@@ -606,7 +606,7 @@ s32 func_00154b10(void) {
 }
 
 // FUN_00154BE0
-s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
+s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
                   u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8)
 {
     char spEC[4];

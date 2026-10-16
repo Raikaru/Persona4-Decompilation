@@ -433,7 +433,7 @@ s32 func_00186eb0(u8 *arg0)
     case 1:
         *(u8 **)(st + 0x18) = func_003e0f80();
         fieldSceneLoad(1, 1);
-        func_00144ed0((s16)func_001546a0(1, 1));
+        func_00144ed0((s16)FldEnvStateFromCalendar(1, 1));
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x211);
         *(u8 **)(st + 0x1C) = func_00454a60(D_005F1FD0, 1);
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x212);

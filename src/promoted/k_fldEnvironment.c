@@ -91,7 +91,7 @@ static inline s32 fldEnvironmentEventState(s32 state)
 }
 
 
-/* measured: func_00154be0 (nd 110, obj 1188B vs window 1168B). Frame -0xF0
+/* measured: FldCamReadRecord (nd 110, obj 1188B vs window 1168B). Frame -0xF0
    correct once spA0=0x4C@0xA0, spEC=0x4@0xEC (declared spEC first). Residuals:
    (1) copy-loop source ptr colored $a2 instead of retail $a1 -- register alloc;
    (2) the 3-float store at var_16+0x54..0x5C to arg5 needs ONE struct assignment

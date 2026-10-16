@@ -65,7 +65,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
     case 0:
         *(u8 **)(temp_16 + 4) = (u8 *)func_003e0f80();
         fieldSceneLoad(9, 1);
-        func_00144ed0((s64)(s16)func_001546a0(9, 1));
+        func_00144ed0((s64)(s16)FldEnvStateFromCalendar(9, 1));
         if (clndIsDateInRange(4, 1, 7, 0x1F) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x58);
             *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F5470, 0);
