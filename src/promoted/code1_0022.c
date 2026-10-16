@@ -209,7 +209,7 @@ extern u8 D_0062AD40[];
 extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
-extern s32 func_001b1510(void);
+extern s32 btlActionGetActiveOrQueueFront(void);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 fGpffff834c;
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);

@@ -27,7 +27,7 @@ u32 btlBossLoadPakUpdate(void* work);
 extern s32 btlActionHasNoTargetClass();
 extern s32 btlActionSkillReachesTargets();
 extern s32 btlCurrentUnitId();
-extern s32 func_001b1540();
+extern s32 btlActionGetQueueFront();
 extern void func_001b0fa0(s32 arg0);
 extern void func_001b11c0(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -210,7 +210,7 @@ loop_4_done:
             (datCalcIsDead((*(BtlUnit **)(arg0 + 0x30))->datUnit, 0) == 0))
         {
 loop_16:
-            temp_2 = func_001b1540();
+            temp_2 = btlActionGetQueueFront();
             if ((temp_2 != 0) && ((u8 *)temp_2 != arg0))
             {
                 func_001b0fa0(temp_2);

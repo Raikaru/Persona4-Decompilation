@@ -145,7 +145,7 @@ extern u8 D_0062AD40[];
 extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
-extern s32 func_001b1510(void);
+extern s32 btlActionGetActiveOrQueueFront(void);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 fGpffff834c;
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
@@ -473,7 +473,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
     extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
     extern s32 func_001b0d70(u8 *arg0);
-    extern s32 func_001b1540(void);
+    extern s32 btlActionGetQueueFront(void);
     extern void btlBossCollectTargets(u8 *arg0);
     extern u8 *func_001f7650(u8 *arg0);
     extern u8 D_00630C50[];
@@ -497,7 +497,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
         *(u16 *)temp |= 0x20;
         *(u16 *)(arg0 + 0x1A) |= 0x100;
         func_001b0d70(arg0);
-        btlBossCollectTargets((u8 *)func_001b1540());
+        btlBossCollectTargets((u8 *)btlActionGetQueueFront());
         index = 0;
         fill = -1;
         goto loop_test;
@@ -2185,7 +2185,7 @@ s32 btlUnitGetEntryPosition(u8 *arg0, u8 *arg1) {
     temp_2 = btlCurrentUnitId();
     switch (temp_2) {
     case 0x208:
-        temp_2_2 = (u8 *)func_001b1510();
+        temp_2_2 = (u8 *)btlActionGetActiveOrQueueFront();
         if (temp_2_2 != NULL) {
             temp_4 = *(u8 **)(*(u8 **)(temp_2_2 + 0x30) + 0xA64);
             if ((temp_4 != NULL) && (datCalcChkBadStatus((s32)temp_4, 0x100) == 0)) {

@@ -66,7 +66,7 @@ extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCe
 extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 btlUnitGetEntryPosition(u8 *arg0, f32 *arg1, s32 arg2);
-extern u8 *func_001b1510(void);
+extern u8 *btlActionGetActiveOrQueueFront(void);
 extern void btlTargetBlendVectors(void *arg0, void *arg1, void *arg2);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void btlUnitGetSphereCenterTowardTarget(void *arg0, void *arg1, void *arg2);
@@ -224,7 +224,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
             break;
         case 1:
             if (btlUnitGetEntryPosition(arg0, frame.vec, temp_6_2) != 1) {
-                temp_2 = func_001b1510();
+                temp_2 = btlActionGetActiveOrQueueFront();
                 if ((temp_2 != NULL) &&
                     ((temp_4 = *(u8 **)(temp_2 + 0x30)),
                      (*(u8 *)(temp_4 + 0xA2) == 0)) &&
