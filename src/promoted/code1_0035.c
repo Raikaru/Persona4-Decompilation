@@ -4,7 +4,7 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
-extern void func_0034f5d0(u8 *arg0);
+extern void datCommunityEntryStep(u8 *arg0);
 
 extern void func_002bb550(s8 arg0);
 extern void (*D_008873EC[])(void *);
@@ -75,14 +75,14 @@ extern void func_003ef3a0(void *arg0);
 extern void memset(void *dst, s32 value, s32 size);
 extern void datGridEffectSetLayout(u8 *arg0, s64 arg1);
 extern void datGridEffectDraw(u8 *arg0, u8 *arg1);
-extern void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2);
-extern void func_0035c480(s32 arg0, u16 arg1, s32 arg2);
+extern void datPortraitSetValue(u8 *arg0, s8 arg1, s32 arg2);
+extern void datPortraitSetLabel(s32 arg0, u16 arg1, s32 arg2);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern void func_00361ae0(u8 *arg0);
 extern void func_00361ca0(u8 *arg0);
-extern void func_0035fd60(u8 *arg0);
-extern s32 func_0035aec0(u8 *arg0);
-extern void func_0035af10(u8 *arg0);
+extern void datCommunityMenuDraw(u8 *arg0);
+extern s32 datPortraitUpdate(u8 *arg0);
+extern void datPortraitDestroy(u8 *arg0);
 extern u8 D_0064CC98[];
 extern u8 D_0064CD40[];
 extern u8 D_0064CCB0[];
@@ -258,8 +258,9 @@ s32 datMemberIsUnlocked(s64 arg0)
     }
     return result;
 }
+// Intent: Member notice channel poll: prepare the channel and return 1 while it is busy; when it is idle, release it and return 0 [inferred]
 // FUN_00353F50
-s32 func_00353f50(s32 arg0)
+s32 datMemberNoticeTryBegin(s32 arg0)
 {
     func_002bb7c0(arg0);
     if (func_002bb600() == 0) {
@@ -286,16 +287,18 @@ s32 FldStepNotAtBoundaryQuery(void)
 {
     return FldStepNotAtBoundary();
 }
+// Intent: Request leaving the community menu: queue the exit script op, clear the fade and render state, and return the exit result [inferred]
 // FUN_00354030
-s32 func_00354030(void)
+s32 datCommunityRequestExit(void)
 {
     sdkSndStartStream(0, 2, 0, 4);
     func_0034c260(0);
     resrcMngSetRenderSuppressed(0);
     return func_0034bb10();
 }
+// Intent: Queue the cursor sound for a community menu move: indices 1 and 2 use one cue, 3 and 4 use another [inferred]
 // FUN_00354080
-void func_00354080(s32 arg0)
+void datCommunityCursorFeedback(s32 arg0)
 {
     if ((u32)(arg0 - 1) < 2U) {
         sdkSndStartStream(0, 1, 0, 0);
@@ -305,8 +308,9 @@ void func_00354080(s32 arg0)
         sdkSndStartStream(0, 1, 0, 5);
     }
 }
+// Intent: Member notice state step: advance the notice from its opening states to its ready states, and clear the channel once it closes [inferred]
 // FUN_003540F0
-s32 func_003540f0(u8 *arg0)
+s32 datMemberNoticeStep(u8 *arg0)
 {
     u8 *work;
     s32 state;
@@ -346,8 +350,9 @@ s32 func_003540f0(u8 *arg0)
     }
     return 0;
 }
+// Intent: Free the member notice work block and release its channel [inferred]
 // FUN_00354230
-void func_00354230(u8 *arg0)
+void datMemberNoticeDestroy(u8 *arg0)
 {
     u8 *work;
 
@@ -452,7 +457,7 @@ s32 datMemberNoticeScriptOpen(void) {
     if (newTask == NULL) {
         kAssertFail(&D_0064B310, 0x3AC);
     }
-    if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(newTask)) == NULL) {
+    if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, datMemberNoticeStep, datMemberNoticeDestroy, (u8 *)(newTask)) == NULL) {
         kAssertFail(&D_0064B310, 0x3B5);
     }
     datMemberNoticeSetup(newTask, slot, 0);
@@ -484,7 +489,7 @@ s32 datMemberNoticeScriptOpenAlt(void) {
     if (work == NULL) {
         kAssertFail(&D_0064B310, 0x3AC);
     }
-    if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(work)) == NULL) {
+    if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, datMemberNoticeStep, datMemberNoticeDestroy, (u8 *)(work)) == NULL) {
         kAssertFail(&D_0064B310, 0x3B5);
     }
     datMemberNoticeSetup(work, slot, 1);
@@ -1410,8 +1415,8 @@ void datCommunityMenuInit(u8 *arg0)
     extern void kAssertFail(const void *arg0, u32 arg1);
     extern s32 cmmAuxTable(void);
     extern void func_002bc010(s32 arg0, u8 *arg1);
-    extern u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
-    extern u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2);
+    extern u8 *datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
+    extern u8 *datPortraitTextTaskCreate(s32 arg0, u16 arg1, s32 arg2);
     s16 i;
     s16 j;
     s16 k;
@@ -1521,8 +1526,8 @@ void datCommunityMenuInit(u8 *arg0)
     datCommunitySetTableMode(arg0, 0);
     func_002bc010(0xB, (u8 *)cmmAuxTable());
     *(u8 **)(arg0 + 0x1308) = datScreenWipeTaskCreate(0, 1);
-    *(u8 **)(arg0 + 0x130C) = func_0035adc0(0, 0, 0);
-    *(u8 **)(arg0 + 0x1310) = func_0035bf10(0, 0, 0);
+    *(u8 **)(arg0 + 0x130C) = datPortraitTaskCreate(0, 0, 0);
+    *(u8 **)(arg0 + 0x1310) = datPortraitTextTaskCreate(0, 0, 0);
 }
 #pragma opt_loop_invariants off
 // Intent: Community panel open step: move the panel from its closed state to open and report it as ready [inferred]
@@ -1754,7 +1759,7 @@ void datCommunityListDraw(u8 *work) {
         u8 * resource1310;
     } CommunityMenuView;
     CommunityMenuView *menu;
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern s32 frFontExDrawTextOutB(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
     extern void func_0034c270(Vec2f, s32, s32, f32);
     extern void func_0045d6e0(u8 *, f32 *, f32, s32);
@@ -1766,18 +1771,18 @@ void datCommunityListDraw(u8 *work) {
     extern f32 sdkSpriteScaledWidth(u8 *);
     extern f32 sdkSpriteScaledHeight(u8 *);
     extern void kAssertFail(const void *, u32);
-    extern f32 func_0034f720(u8 *, f32, f32, f32);
+    extern f32 cmpGridCellFade(u8 *, f32, f32, f32);
     extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     extern u8 *cmmNameRecord(u32);
     extern u8 *cmmRankNameRecord(s16);
     extern u8 *cmmDetailRecord(s16);
     extern void func_002bc0b0(f32, f32, f32, u32, u32, u32, s32, s32);
-    extern f32 func_0035aff0(u8 *, u8);
-    extern f32 func_0035c040(u8 *, u8);
-    extern void func_0035c670(u8 *, Vec2f *);
+    extern f32 datCommunityPortraitDraw(u8 *, u8);
+    extern f32 datPortraitTextDraw(u8 *, u8);
+    extern void datPortraitGetPosition(u8 *, Vec2f *);
     extern u16 cmmCommunityRecordValue(s32);
     extern u32 datPersonaDisplayName(s16);
-    extern void func_0034f9d0(Vec2f, f32, u8, s32, s32);
+    extern void sdkSpriteDrawFooter(Vec2f, f32, u8, s32, s32);
     extern s32 (*D_00887300[])(s32, void *);
     extern u8 D_0064B2E0[];
     extern u8 D_0064B2E8[];
@@ -1929,7 +1934,7 @@ void datCommunityListDraw(u8 *work) {
 
     /* Entries are initialized by func_00356250 with display modes 0 through 3. */
     menu = (CommunityMenuView *)work;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     originX = (menu->origin.x);
     originY = (menu->origin.y);
     globalAlpha = (u8)(menu->opacity);
@@ -2046,7 +2051,7 @@ void datCommunityListDraw(u8 *work) {
             if (*( s16 *)((u8 *)(cell) + (0x960)) >= 0) {
                 cellX = (position.x + (f32) ((*( s32 *)((u8 *)(cell) + (0x96C)) - *( s32 *)((u8 *)(cell) + (0x964))) * 0x2C));
                 cellY = (position.y + (f32) ((*( s32 *)((u8 *)(cell) + (0x970)) - *( s32 *)((u8 *)(cell) + (0x968))) * 0x25));
-                cellBlend = (func_0034f720(cell + 0x960, 0.5f, 0.5f, 1.0f));
+                cellBlend = (cmpGridCellFade(cell + 0x960, 0.5f, 0.5f, 1.0f));
                 cellPaletteBytes = (u8 *)((s32)&D_0064CC48 + (*( s16 *)((u8 *)(cell) + (0x960)) * 4));
                 color = *(MenuColor *)cellPaletteBytes;
                 gridOpacityFloat = (f32)gridOpacity;
@@ -2160,7 +2165,7 @@ void datCommunityListDraw(u8 *work) {
             portraitOpacityProduct = portraitAlphaFloat * globalOpacity;
 
 
-            func_0035aff0(menu->resource130C, (u8)portraitOpacityProduct);
+            datCommunityPortraitDraw(menu->resource130C, (u8)portraitOpacityProduct);
         }
         switch (selectedMode) {
         case 1:
@@ -2223,20 +2228,20 @@ void datCommunityListDraw(u8 *work) {
             detailOpacityProduct = detailAlphaFloat * globalOpacity;
 
 
-            func_0035c040(menu->resource1310, (u8)detailOpacityProduct);
+            datPortraitTextDraw(menu->resource1310, (u8)detailOpacityProduct);
             switch (selectedMode) {
             case 0:
             case 1:
                 break;
             case 2:
-                func_0035c670(menu->resource1310, &position);
+                datPortraitGetPosition(menu->resource1310, &position);
                 position.x += 162.0f;
                 position.y += 7.0f;
                 sprite = menu->resource1280;
                 sdkSpriteDrawAt(sprite, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, detailOpacity);
                 break;
             case 3:
-                func_0035c670(menu->resource1310, &position);
+                datPortraitGetPosition(menu->resource1310, &position);
                 position.x += 162.0f;
                 position.y += 7.0f;
                 sprite = menu->resource1294;
@@ -2305,7 +2310,7 @@ void datCommunityListDraw(u8 *work) {
     cursorAlphaFloat = (f32)cursorAlpha;
     cursorOpacityProduct = cursorAlphaFloat * globalOpacity;
     cursorOpacity = (u8)cursorOpacityProduct;
-    func_0034f9d0(position, 0.0f, (u8)(cursorOpacity & 0xFF), menu->footerId, menu->resource1304);
+    sdkSpriteDrawFooter(position, 0.0f, (u8)(cursorOpacity & 0xFF), menu->footerId, menu->resource1304);
 }
 
 #pragma pop
@@ -2316,7 +2321,7 @@ void datCommunityEntriesStep(u8 *arg0) {
     s32 i;
 
     for (i = 0; i < 0x6C; i++) {
-        func_0034f5d0(arg0 + i * 0x14 + 0x960);
+        datCommunityEntryStep(arg0 + i * 0x14 + 0x960);
     }
 }
 
@@ -2830,8 +2835,9 @@ void datPartyHudDraw(s32 arg0, u8 *arg1)
 }
 #pragma pop
 
+// Intent: Set up a screen wipe slot from one of the two slot entries: initialise its positions or move it to its target, then set its offset and colour [inferred]
 // FUN_0035AC60
-void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+void datScreenWipeSetupSlot(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     Float2 pair;
     s32 value;
@@ -2863,8 +2869,9 @@ void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     datScreenWipeSetOffset(arg0, pair);
     datScreenWipeSetColor(arg0, value);
 }
+// Intent: Create the portrait task with its update and destroy callbacks and set up its first slot [inferred]
 // FUN_0035ADC0
-u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
+u8 *datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2)
 {
     u8 *work;
     u8 *task;
@@ -2874,18 +2881,19 @@ u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
     if (work == NULL) {
         kAssertFail(&D_0064CC98, 0x6EE);
     }
-    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, datPortraitUpdate, datPortraitDestroy, (u8 *)(work));
     *(s8 *)(work + 0x20) = 0;
     *(s32 *)(work + 0x2C) = 0;
     *(u8 **)(work + 0x140) = D_0064CCB0;
     {
-        extern void func_0035bc10();
-        func_0035bc10((s32)task, arg1, arg2);
+        extern void datPortraitSetValue();
+        datPortraitSetValue((s32)task, arg1, arg2);
     }
     return task;
 }
+// Intent: Portrait task update: start the portrait's text load when the portrait is active and not yet loaded [inferred]
 // FUN_0035AEC0
-s32 func_0035aec0(u8 *arg0)
+s32 datPortraitUpdate(u8 *arg0)
 {
     u8 *p;
 
@@ -2896,8 +2904,9 @@ s32 func_0035aec0(u8 *arg0)
     return 0;
 }
 
+// Intent: Portrait task destroy: release the portrait's text slot and the work block [inferred]
 // FUN_0035AF10
-void func_0035af10(u8 *arg0)
+void datPortraitDestroy(u8 *arg0)
 {
     u8 *work;
 
@@ -2906,8 +2915,9 @@ void func_0035af10(u8 *arg0)
     (*D_008873EC)(work);
 }
 
+// Intent: Report whether the portrait is loaded and active [inferred]
 // FUN_0035AF60
-s32 func_0035af60(u8 *arg0)
+s32 datPortraitIsLoaded(u8 *arg0)
 {
     u8 *work;
 
@@ -2917,8 +2927,9 @@ s32 func_0035af60(u8 *arg0)
     }
     return 1;
 }
+// Intent: Return the portrait's value once it is loaded and active, otherwise 0 [inferred]
 // FUN_0035AFA0
-s32 func_0035afa0(u8 *arg0) {
+s32 datPortraitValue(u8 *arg0) {
     s32 ready;
     u8 *work;
 
@@ -2942,18 +2953,19 @@ s32 func_0035afa0(u8 *arg0) {
  * reloading their callback slots. Loop invariants and scoped lifetimes retain
  * the retail color conversions and row/index bases without synthetic padding.
  * See docs/probe_archive/Community_portrait_0035aff0_20260930.md. */
+// Intent: Draw the community portrait: its sprite and rendering passes for the selected state [inferred]
 // FUN_0035AFF0
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
-f32 func_0035aff0(u8 *arg0, u8 arg1)
+f32 datCommunityPortraitDraw(u8 *arg0, u8 arg1)
 {
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
-    extern f32 func_0035bad0(u8 *arg0);
-    extern void func_0034f1e0(void);
+    extern f32 datPortraitMoveStep(u8 *arg0);
+    extern void sdkRenderStateSetDefault(void);
     extern s32 (*D_00887300[])(s32, void *);
     extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
     extern s32 (*D_00887314[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
@@ -2961,7 +2973,7 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern f32 cosf(f32 arg0);
-    extern f32 func_0035bd20(Float2 first, Float2 second, Float2 origin);
+    extern f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin);
     extern f32 fGpffff81e0;
     extern f32 fGpffff82fc;
     /* Full Sky2 layout from rw/sky2/rwplcore.h. The strip backends copy all
@@ -3048,7 +3060,7 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
             return 0.0f;
         }
     }
-    blend = func_0035bad0((u8 *)portrait);
+    blend = datPortraitMoveStep((u8 *)portrait);
     sx = 50.0f * portrait->scale.x;
     sy = 64.0f * portrait->scale.y;
     if (portrait->flags & 1) {
@@ -3104,7 +3116,7 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
     qs[3].reciprocalZ = q;
     {
         s32 (**drawFirst)(s32, void *, s32);
-        func_0034f1e0();
+        sdkRenderStateSetDefault();
         stateSet = D_00887300;
         stateSet[0](1, portrait->texture->raster);
         drawFirst = D_00887310;
@@ -3179,7 +3191,7 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
                 verts[vtx].u = u0 + u1 * ((f32)j / 4.0f);
                 verts[vtx].v = rowV;
                 verts[vtx].reciprocalZ = q;
-                grey = 255.0f * func_0035bd20(ptA, ptB, cur);
+                grey = 255.0f * datPortraitDirectionBlend(ptA, ptB, cur);
                 g8 = (u8)grey;
                 verts[vtx].red = (f32)g8;
                 verts[vtx].green = (f32)g8;
@@ -3227,8 +3239,9 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
 /* measured: inline func_0044b7b0 calls at both interpolation sites preserve
    source multiply order and reproduce the retail madd.s operands; target now
    matches at normalized_diff 0. */
+// Intent: Advance the portrait's move step: count its timer, step its interpolation ratio to a maximum of 1 and move its position along an arc to the target [inferred]
 // FUN_0035BAD0
-f32 func_0035bad0(u8 *arg0)
+f32 datPortraitMoveStep(u8 *arg0)
 {
     f32 ratio;
     f32 angle;
@@ -3255,8 +3268,9 @@ f32 func_0035bad0(u8 *arg0)
     *(f32 *)(arg0 + 0xC) = fromY + ((*(f32 *)(arg0 + 0x14) - fromY) * sinf(angle));
     return ratio;
 }
+// Intent: Set the portrait's text value: reset its position and step, and write its text slot as a placeholder, a blank, or a numbered label when the value changes [inferred]
 // FUN_0035BC10
-void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2)
+void datPortraitSetValue(u8 *arg0, s8 arg1, s32 arg2)
 {
     u8 *base;
     s8 old;
@@ -3298,10 +3312,11 @@ done:
     *(s32 *)(base + 0x2C) = 0;
 unchanged: ;
 }
+// Intent: Blend the direction of two portrait points against a fixed normal, returning the clamped weighted projection [inferred]
 // FUN_0035BD20
 // MATCH: 332B/336B; retail ends with four zero bytes.
 // IDA-backed Float2 values and in-place weighted COP1 accumulation.
-f32 func_0035bd20(Float2 first, Float2 second, Float2 origin)
+f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin)
 {
     struct Vector3 { Float2 xy; f32 z; } normal, direction;
     extern struct Vector3 D_0064CD30;
@@ -3325,8 +3340,9 @@ f32 func_0035bd20(Float2 first, Float2 second, Float2 origin)
     if (!(total <= 1.0f)) total = 1.0f;
     return total;
 }
+// Intent: Portrait text task update: start the text load once the portrait is active and not yet loaded [inferred]
 // FUN_0035BE70
-s32 func_0035be70(u8 *arg0)
+s32 datPortraitTextLoadUpdate(u8 *arg0)
 {
     u8 *p;
 
@@ -3337,8 +3353,9 @@ s32 func_0035be70(u8 *arg0)
     return 0;
 }
 
+// Intent: Portrait text task destroy: release the text slot and the work block [inferred]
 // FUN_0035BEC0
-void func_0035bec0(u8 *arg0)
+void datPortraitTextDestroy(u8 *arg0)
 {
     u8 *work;
 
@@ -3347,8 +3364,9 @@ void func_0035bec0(u8 *arg0)
     (*D_008873EC)(work);
 }
 
+// Intent: Create the portrait text task with its update and destroy callbacks and place it at its start position [inferred]
 // FUN_0035BF10
-u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
+u8 *datPortraitTextTaskCreate(s32 arg0, u16 arg1, s32 arg2)
 {
     u8 *work;
     u8 *task;
@@ -3358,14 +3376,14 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     if (work == NULL) {
         kAssertFail(&D_0064CC98, 0x906);
     }
-    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, datPortraitTextLoadUpdate, datPortraitTextDestroy, (u8 *)(work));
     *(s16 *)(work + 0x20) = 0;
     *(s32 *)(work + 0x2C) = 0;
     *(f32 *)(work + 0x10) = 353.0f;
     *(s32 *)(work + 0x14) = 0x42BC0000;
     *(f32 *)(work + 8) = 300.0f + *(f32 *)(work + 0x10);
     *(f32 *)(work + 0xC) = *(f32 *)(work + 0x14);
-    func_0035c480((s32)task, arg1, arg2);
+    datPortraitSetLabel((s32)task, arg1, arg2);
     return task;
 }
 /* MATCHED 2026-09-18.  Two levers, both measured:
@@ -3379,15 +3397,16 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
       source order, so the late `mtc1 $zero, $f12` and early `lw $a1` were
       pure argument-list evidence.  Same registers either way: the EABI keeps
       integer and float arguments in separate files. */
+// Intent: Draw the portrait text: its sprite pass with the portrait's colour, offset and opacity [inferred]
 // FUN_0035C040
-f32 func_0035c040(u8 *arg0, u8 arg1)
+f32 datPortraitTextDraw(u8 *arg0, u8 arg1)
 {
     f32 tx;
     f32 ty;
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern s32 (*D_00887300[])(s32, s32);
     extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
     typedef struct {
@@ -3488,7 +3507,7 @@ f32 func_0035c040(u8 *arg0, u8 arg1)
     qs[3].v = 0x3F800000;
     qs[3].q = q;
     func_00364680(0.0f, *(s32 *)(p + 0x28) | (arg1 & 0xFF), *(f32 *)(p + 0x18) + -30.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f, 256.0f, *(s32 **)(p + 0x3C), 1, 0);
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     D_00887300[0](1, **(s32 **)(p + 0x3C));
     D_00887310[0](4, &qs[0], 4);
     return ret;
@@ -3497,8 +3516,9 @@ f32 func_0035c040(u8 *arg0, u8 arg1)
 #pragma push
 #pragma opt_propagation off
 
+// Intent: Set the portrait label for an id and flag set: choose the colour and suffix from the flags and write the label text, blank for ids without a day label [inferred]
 // FUN_0035C480
-void func_0035c480(s32 arg0, u16 arg1, s32 arg2)
+void datPortraitSetLabel(s32 arg0, u16 arg1, s32 arg2)
 {
     s8 sp168[8];
     u8 sp60[0x100];
@@ -3590,14 +3610,16 @@ done:
     }
 }
 #pragma pop
+// Intent: Copy the portrait's stored position into the caller's vector [inferred]
 // FUN_0035C670
-void func_0035c670(u8 *arg0, Vec2f *position)
+void datPortraitGetPosition(u8 *arg0, Vec2f *position)
 {
     *position = *(Vec2f *)(*(u8 **)(arg0 + 0x38));
 }
 
+// Intent: Destroy the community overlay: free its eleven sprite nodes and release its work block [inferred]
 // FUN_0035E820
-void func_0035e820(u8 *arg0)
+void datCommunityOverlayDestroy(u8 *arg0)
 {
     u8 *base;
     s32 i;
@@ -3620,14 +3642,15 @@ loop_test:
     *(s32 *)(base + 0x24) = 0;
     (*D_008873EC)(base);
 }
+// Intent: Community menu state machine: open the menu, wait for it to be ready, run its list and cursor actions, and return 1 when it closes or 2 when the fade ends [inferred]
 // FUN_0035E8B0
-s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
+s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
 {
     extern u16 D_008C024E[];
-    extern s32 func_00354030(void);
+    extern s32 datCommunityRequestExit(void);
     extern s32 datCommunityPushValue(s32, s32, s32);
-    extern void func_0035ef80(u8 *);
-    extern void func_0035f020(u8 *);
+    extern void datCommunityPortraitSetRecord(u8 *);
+    extern void datCommunityPortraitSetSelected(u8 *);
     u8 buf[44];
     f32 alphaF;
     s32 result;
@@ -3664,7 +3687,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         if (datCommunityIsReady(arg2) != 0) {
             resrcMngSuppressRender();
             datScreenWipeSetTextureId((u8 *)*(s32 *)(arg2 + 0x1308), 1);
-            func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 1, 0);
+            datScreenWipeSetupSlot((u8 *)*(s32 *)(arg2 + 0x1308), 0, 1, 0);
             *arg0 = 4;
         }
         break;
@@ -3674,7 +3697,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 2;
             resrcMngUnsuppressRender();
             func_0034bb20(0x1B);
-            func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 0, 1);
+            datScreenWipeSetupSlot((u8 *)*(s32 *)(arg2 + 0x1308), 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             if (*(s16 *)(arg2 + 0x134) > 0) {
@@ -3683,14 +3706,14 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 *arg0 = 5;
                 datCommunityPushValue((s32)arg2, 2, 0);
                 func_0034bb20(0x1A);
-                func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 1, 0, 0);
-                func_0035ef80(arg2);
+                datScreenWipeSetupSlot((u8 *)*(s32 *)(arg2 + 0x1308), 1, 0, 0);
+                datCommunityPortraitSetRecord(arg2);
                 datCommunityFillVisibleRecords(arg2);
-                func_0035f020(arg2);
+                datCommunityPortraitSetSelected(arg2);
                 sdkSndStartStream(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 7;
         } else {
             func_00453670(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
@@ -3698,7 +3721,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
             if ((result = func_00453960(buf)) > 0) {
                 datCommunityPushValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                func_00354080(result);
+                datCommunityCursorFeedback(result);
             }
         }
         break;
@@ -3717,10 +3740,10 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 datCommunitySetTableMode(arg2, 4);
                 *arg0 = 3;
                 func_0034bd60(0x19);
-                func_0035c480(*(s32 *)(arg2 + 0x1310), 0, 0);
+                datPortraitSetLabel(*(s32 *)(arg2 + 0x1310), 0, 0);
                 sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
-                *(s32 *)(arg2 + 0x10) = func_00354030();
+                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 7;
             } else {
                 func_00453670(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
@@ -3730,17 +3753,17 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                     datCommunityPushValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                     datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                     datCommunityPushValue((s32)arg2, 2, 0);
-                    func_0035ef80(arg2);
+                    datCommunityPortraitSetRecord(arg2);
                     datCommunityResetOffset(arg2);
                     datCommunityFillVisibleRecords(arg2);
-                    func_0035f020(arg2);
+                    datCommunityPortraitSetSelected(arg2);
                     sdkSndStartStream(0, 1, 0, 5);
                 } else if (*(s32 *)(arg2 + 0x148) > 1) {
                     func_00453670(buf, 8, *(s32 *)(arg2 + 0x148), *(s16 *)(arg2 + 0x28), 0);
                     func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                     if (func_00453960(buf) != 0) {
                         datCommunityPushValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
-                        func_0035f020(arg2);
+                        datCommunityPortraitSetSelected(arg2);
                         sdkSndStartStream(0, 1, 0, 0);
                     }
                 }
@@ -3763,8 +3786,9 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
     }
     return 0;
 }
+// Intent: Set the community portrait's value from the selected record's state and kind flags [inferred]
 // FUN_0035EF80
-void func_0035ef80(u8 *arg0)
+void datCommunityPortraitSetRecord(u8 *arg0)
 {
     s32 flags;
     s32 kind;
@@ -3786,10 +3810,11 @@ void func_0035ef80(u8 *arg0)
         flags |= 4;
         break;
     }
-    func_0035bc10((u8 *)*(s32 *)(arg0 + 0x130C), state, flags);
+    datPortraitSetValue((u8 *)*(s32 *)(arg0 + 0x130C), state, flags);
 }
+// Intent: Set the community portrait for the selected entry: its label id and kind flags [inferred]
 // FUN_0035F020
-void func_0035f020(u8 *arg0)
+void datCommunityPortraitSetSelected(u8 *arg0)
 {
     s32 flags;
     s32 kind;
@@ -3811,7 +3836,7 @@ void func_0035f020(u8 *arg0)
         flags |= 4;
         break;
     }
-    func_0035c480(*(s32 *)(arg0 + 0x1310), id, flags);
+    datPortraitSetLabel(*(s32 *)(arg0 + 0x1310), id, flags);
 }
 /* MATCHED: built from func_0035e8b0 in this file, which is the same state
    machine - `*arg1 = (resultFlag = 1);`, a switch on `*arg0` whose arms
@@ -3821,12 +3846,13 @@ void func_0035f020(u8 *arg0)
    `*(s32 *)(arg2 + 0x1C)` switches are written `case 0:` before `case 1:`
    so the compare chain comes out 1-then-0 the way retail's does, and the
    two query arguments are full words, not the s16 narrowings m2c printed. */
+// Intent: Community detail state machine: open the detail panel, handle its cursor and actions, and return 1 when it closes or 2 when the fade ends [inferred]
 // FUN_0035F0C0
-s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
+s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
 {
     extern u16 D_008C024E[];
     extern u16 D_008C0276[];
-    extern s32 func_00354030(void);
+    extern s32 datCommunityRequestExit(void);
     u8 query[0x30];
     f32 alpha;
     s32 resultFlag;
@@ -3906,7 +3932,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
             if (*(s32 *)(arg2 + 0x1C) == 0) {
-                *(s32 *)(arg2 + 0x14) = func_00354030();
+                *(s32 *)(arg2 + 0x14) = datCommunityRequestExit();
                 *arg0 = 5;
             }
         } else {
@@ -3947,8 +3973,9 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
     }
     return 0;
 }
+// Intent: Panel open step, same body as datCommunityPanelOpenStep: advance from state 0 and report ready from states 0 and 1 [inferred]
 // FUN_0035FC40
-s32 func_0035fc40(u8 *arg0)
+s32 datCommunityPanelOpenStepAlt(u8 *arg0)
 {
     s32 v = *(s32 *)(arg0 + 0x14);
 
@@ -3963,8 +3990,9 @@ s32 func_0035fc40(u8 *arg0)
         return 0;
     }
 }
+// Intent: Community menu update: animate the 29 menu panels, update their helpers and draw the panel frame; returns 1 when no panel is still animating [inferred]
 // FUN_0035FC90
-s32 func_0035fc90(u8 *arg0)
+s32 datCommunityMenuUpdate(u8 *arg0)
 {
     s16 counter;
     s32 index;
@@ -3991,7 +4019,7 @@ loop_test:
     }
     func_00361ae0(arg0);
     func_00361ca0(arg0);
-    func_0035fd60(arg0);
+    datCommunityMenuDraw(arg0);
     return allIdle;
 }
 /* Draw the animated menu panels, eleven-column pip grids and scrolling list.
@@ -4001,16 +4029,17 @@ loop_test:
  * Measured b210 O2 with scoped lifetime/loop-invariant optimization:
  * 7176 instruction bytes plus the retail window's eight-byte zero tail.
  * See docs/probe_archive/Menu_renderer_0035fd60_20260930.md. */
+// Intent: Draw the community menu: its animated panels, pip grids and scrolling list [inferred]
 // FUN_0035FD60
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-void func_0035fd60(u8 *work)
+void datCommunityMenuDraw(u8 *work)
 {
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
     extern void sdkSpriteDrawAt(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u8 a);
-    extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 resource);
+    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 resource);
     extern void frFontExCopyString(void *src, void *dst, s32 n);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 depth, s32 color, s8 character, s32 font,
                             const char *text, s32 flags, s32 reserved);
@@ -4058,7 +4087,7 @@ void func_0035fd60(u8 *work)
     u8 opacity;
     u8 labelOpacity;
     u32 lastRowAlpha;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     originX = *(f32 *)(work + 4);
     originY = *(f32 *)(work + 8);
     opacityScale = (f32)*(u8 *)work / 255.0f;
@@ -4183,7 +4212,7 @@ void func_0035fd60(u8 *work)
         position.x = 640.0f + (originX + *(f32 *)(work + 0x1A8));
         position.y = 400.0f + (originY + *(f32 *)(work + 0x1AC));
         opacity = (u8)((f32)*(u8 *)(work + 0x1B2) * opacityScale);
-        func_0034f9d0(position, 0.0f, opacity, *(s16 *)(work + 0x34), *(s32 *)(work + 0x700));
+        sdkSpriteDrawFooter(position, 0.0f, opacity, *(s16 *)(work + 0x34), *(s32 *)(work + 0x700));
     }
     if (*(s32 *)(work + 0x1C) & 4) {
         gridX = 23.0f + (595.0f + (originX + *(f32 *)(work + 0x148)));
@@ -4308,7 +4337,7 @@ void func_0035fd60(u8 *work)
         position.x = 640.0f + (originX + *(f32 *)(work + 0x568));
         position.y = 400.0f + (originY + *(f32 *)(work + 0x56C));
         opacity = (u8)((f32)*(u8 *)(work + 0x572) * opacityScale);
-        func_0034f9d0(position, 0.0f, opacity, *(s16 *)(work + 0x34), *(s32 *)(work + 0x700));
+        sdkSpriteDrawFooter(position, 0.0f, opacity, *(s16 *)(work + 0x34), *(s32 *)(work + 0x700));
     }
 }
 #pragma pop

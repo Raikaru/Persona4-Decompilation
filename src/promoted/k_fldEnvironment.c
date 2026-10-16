@@ -17,7 +17,7 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_005EFE50[];
 extern char D_005EFE68[];
-extern s32 func_00153a00(u8 *task);
+extern s32 FldColorCrossfadeUpdate(u8 *task);
 extern void MT_Scene_CallTaskHook(u8 *task);
 
 
@@ -45,7 +45,7 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern void func_0016e590();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
-extern void func_0016ea30(s32 arg0, f32 arg1);
+extern void FldFrame_BindTypedRes(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
 extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
 extern void func_0016eb00(s32 arg0);

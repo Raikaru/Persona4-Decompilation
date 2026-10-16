@@ -77,10 +77,10 @@ extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
 extern void titleStateInit(u8 *arg0);
 extern s32 titleAdvanceWait(u8 *arg0);
 extern s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2);
-extern void func_00353fb0(void);
-extern void func_00353fe0(void);
-extern s32 func_00354030(void);
-extern void func_00354080(s32 arg0);
+extern void resrcMngUnsuppressRender(void);
+extern void resrcMngSuppressRender(void);
+extern s32 datCommunityRequestExit(void);
+extern void datCommunityCursorFeedback(s32 arg0);
 extern s32 func_0034bd60(s32 arg0);
 extern s32 radarAdvanceGroupSelection(u8 *arg0);
 extern s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2);
@@ -100,11 +100,11 @@ extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105730(s16 arg0, s16 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
-extern s32 func_00354010(void);
+extern s32 FldStepNotAtBoundaryQuery(void);
 extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
-extern s16 func_00353c10(s16 *arg0);
-extern s16 func_00353b50(s16 *arg0);
+extern s16 datBuildMemberIdList(s16 *arg0);
+extern s16 datBuildPartyIdList(s16 *arg0);
 extern s32 FldUnit_SpawnPartyTask(u8 *arg0);
 extern u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1);
 extern u8 *resourceFindByName(char *arg0);
@@ -696,7 +696,7 @@ s32 radarCollectPartyChanges(u8 *arg0) {
 
     count = 0;
     memset(changes, 0, sizeof(changes));
-    partyCount = func_00353b50(party);
+    partyCount = datBuildPartyIdList(party);
     for (member = 0; member < *(s16 *)(arg0 + 0x48); member++) {
         id = *(s16 *)(arg0 + member * 2 + 0x38);
         for (search = 0; search < partyCount && id != party[search]; search++) {}
@@ -1383,14 +1383,14 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (radarEntriesCoverValue(arg2) != 0) {
             titleSetMenuLayout(arg2, 3);
             *arg0 = 4;
-            func_00353fe0();
+            resrcMngSuppressRender();
         }
         break;
     case 4:
         if (D_008C024E[0] & 0x20) {
             titleSetMenuLayout(arg2, 1);
             *arg0 = 2;
-            func_00353fb0();
+            resrcMngUnsuppressRender();
             func_0034bb20(0xD);
             sdkSndStartStream(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
@@ -1402,7 +1402,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *(s32 *)(arg2 + 0xC44) = 1;
             sdkSndStartStream(0, 2, 0, 3);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xB;
         } else if (radarAdvanceGroupSelection(arg2) != 0) {
             sdkSndStartStream(0, 1, 0, 5);
@@ -1415,7 +1415,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
                     radarResetIndicator(arg2);
                 }
-                func_00354080(temp_2_2);
+                datCommunityCursorFeedback(temp_2_2);
             }
         }
         break;
@@ -1439,7 +1439,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0034bd60(0xB);
             }
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xB;
         } else {
             func_00453670(buf, 4, *(s16 *)(arg2 + 0x3C), *(s16 *)(arg2 + 0x26), 0);
@@ -1479,7 +1479,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 }
             }
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xB;
         }
         break;
@@ -1497,7 +1497,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
             radarHandleEntrySelect((s32 *)arg0, arg2);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xB;
         } else if (radarAdvanceGroupSelection(arg2) != 0) {
             sdkSndStartStream(0, 1, 0, 5);
@@ -1510,7 +1510,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
                     radarResetIndicator(arg2);
                 }
-                func_00354080(temp_2_3);
+                datCommunityCursorFeedback(temp_2_3);
             }
         }
         break;
@@ -1607,7 +1607,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if ((temp_4 == 0) || (kwlnTaskIsLinked(temp_4) == 0)) {
             *arg0 = 3;
             func_00134560(arg2, 1);
-            func_00353fb0();
+            resrcMngUnsuppressRender();
             func_0034bb20(7);
         case 3:
             if (radarWideEntriesCoverValue(arg2) != 0) {
@@ -1619,7 +1619,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 4:
         if (radarWideEntriesCoverValue(arg2) != 0) {
-            func_00353fe0();
+            resrcMngSuppressRender();
             func_00134560(arg2, 2);
             *arg0 = 5;
         }
@@ -1637,7 +1637,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x10) {
                 radarCollectPartyChanges(arg2);
-                *(s32 *)(arg2 + 0x10) = func_00354030();
+                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 0xD;
             } else {
                 func_00453670(buf, 8, *(s16 *)(arg2 + 0x48), *(s16 *)(arg2 + 0x28), 0);
@@ -1669,7 +1669,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             radarCollectPartyChanges(arg2);
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xD;
         } else {
             func_00453670(buf, 3, 3, *(s16 *)(arg2 + 0x2A), 0);
@@ -1708,7 +1708,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
                 radarCollectPartyChanges(arg2);
-                *(s32 *)(arg2 + 0x10) = func_00354030();
+                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 0xD;
             } else if (D_008C024E[0] & 0x80) {
                 if (*(s16 *)(arg2 + 0xC46) != 0) {
@@ -1725,7 +1725,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
                         radarResetLayout(arg2);
                     }
-                    func_00354080(temp_2_2);
+                    datCommunityCursorFeedback(temp_2_2);
                 }
             }
         }
@@ -1747,7 +1747,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
             radarCollectPartyChanges(arg2);
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xD;
         } else if (radarBeginPickList(arg2, arg0) == 0) {
             func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
@@ -1758,7 +1758,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
                     radarResetLayout(arg2);
                 }
-                func_00354080(temp_2_3);
+                datCommunityCursorFeedback(temp_2_3);
             }
         }
         break;
@@ -1804,7 +1804,7 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
     item = ((s16 *)(arg2 + 0x3E))[total * 2];
     item_type = *(u16 *)((u8 *)datEntryAt(item) + 0x24);
     if (item_type == 246) {
-        if (func_00354010() != 0) state = 3;
+        if (FldStepNotAtBoundaryQuery() != 0) state = 3;
         else state = 0;
     } else if (arg1 == -1) {
         s32 index_count;
@@ -1980,7 +1980,7 @@ void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
    retail's index-then-base `addu`, and the two func_002bb140 switches are
    written `case 0:` before `case 1:` so their compare chains come out
    1-then-0.  m2c's `&jtbl_00746A80` arguments to func_0010b7f0 and
-   func_00354030 are stale registers; both take none. */
+   datCommunityRequestExit are stale registers; both take none. */
 // Intent: Persona menu state machine: step the persona highlight and display states, and return the menu's result [inferred]
 // FUN_0013D8B0
 s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
@@ -1990,7 +1990,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern s32 func_00137dd0(u8 *arg0);
     extern void func_001377e0(u8 *arg0);
     extern void func_001371a0(u8 *arg0, s32 arg1);
-    extern void func_00355190(u8 *arg0, s32 arg1);
+    extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
     extern void func_00137e50(u8 *arg0, s32 a, s32 b, s32 c);
     extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
     extern void func_001374d0(u8 *arg0);
@@ -2037,8 +2037,8 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (func_00137dd0(arg2) != 0) {
             func_001371a0(arg2, 2);
             *arg0 = 4;
-            func_00353fe0();
-            func_00355190(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
+            resrcMngSuppressRender();
+            datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
             func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 1, 0);
             shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 0U, 0, 0);
         }
@@ -2048,7 +2048,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (D_008C024E[0] & 0x20) {
                 func_001371a0(arg2, 1);
                 *arg0 = 2;
-                func_00353fb0();
+                resrcMngUnsuppressRender();
                 func_0034bb20(0x14);
                 func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                 sdkSndStartStream(0, 2, 0, 4);
@@ -2079,14 +2079,14 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     shdPersonaClearFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                 }
             } else if (D_008C024E[0] & 0x10) {
-                *(s32 *)(arg2 + 0x10) = func_00354030();
+                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 0x10;
             } else {
                 func_00453670(buf, 8, *(s16 *)(arg2 + 0x34), *(s16 *)(arg2 + 0x50), 0);
                 func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                 if (func_00453960(buf) != 0) {
                     func_00136fa0(arg2, 0, *(s32 *)(buf + 0x24));
-                    func_00355190(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
+                    datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
                     sdkSndStartStream(0, 1, 0, 0);
                 }
             }
@@ -2097,7 +2097,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_001371a0(arg2, 4);
             *arg0 = 6;
             func_00137570(arg2);
-            func_00355190(*(u8 **)(arg2 + 0x1CB8), 0U);
+            datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), 0U);
         }
         break;
     case 6:
@@ -2174,7 +2174,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 9;
             } else if (D_008C024E[0] & 0x10) {
                 datPersonaRemoveSelectedRosterMember();
-                *(s32 *)(arg2 + 0x10) = func_00354030();
+                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
                 shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
                 *arg0 = 0x10;
@@ -2198,7 +2198,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             datPersonaRemoveSelectedRosterMember();
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
@@ -2211,7 +2211,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (func_00137dd0(arg2) != 0) {
             *arg0 = 0xB;
             func_001371a0(arg2, 7);
-            func_00355190(*(u8 **)(arg2 + 0x1CB8), 0U);
+            datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), 0U);
         }
         break;
     case 11:
@@ -2224,7 +2224,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
             *arg0 = 0xC;
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
@@ -2237,7 +2237,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 1);
             *arg0 = 0xB;
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
@@ -2246,7 +2246,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 13:
-        if ((func_00137dd0(arg2) != 0) && (func_00353f50(1) == 0)) {
+        if ((func_00137dd0(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
             temp_2 = func_002bb140();
             switch (temp_2) {
             case 0:
@@ -2263,7 +2263,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 14:
-        if ((func_00137dd0(arg2) != 0) && (func_00353f50(1) == 0)) {
+        if ((func_00137dd0(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
             temp_2_2 = func_002bb140();
             switch (temp_2_2) {
             case 0:
@@ -2286,7 +2286,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 15:
-        if (func_00353f50(1) == 0) {
+        if (datMemberNoticeTryBegin(1) == 0) {
             func_00137570(arg2);
             *arg0 = 5;
         }
@@ -2424,7 +2424,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             break;
         case 3:
             if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
-                func_00353fe0();
+                resrcMngSuppressRender();
                 *arg0 = 4;
                 func_0013a530(arg2, 2U);
                 func_0013a8a0(arg2);
@@ -2434,7 +2434,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (D_008C024E[0] & 0x20) {
                 func_0013a530(arg2, 1U);
                 *arg0 = 2;
-                func_00353fb0();
+                resrcMngUnsuppressRender();
                 func_0034bb20(0xA);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
@@ -2446,7 +2446,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     sdkSndStartStream(0, 0, 0, 1);
                 }
             } else if (D_008C024E[0] & 0x10) {
-                *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                 *arg0 = 0xD;
             } else {
                 func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), characterRow, 0);
@@ -2480,7 +2480,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *arg0 = 0xB;
                     sdkSndStartStream(0, 2, 0, 3);
                 } else if (D_008C024E[0] & 0x10) {
-                    *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                    *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                     *arg0 = 0xD;
                 } else {
                     func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
@@ -2491,7 +2491,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
                             func_0013a930(arg2);
                         }
-                        func_00354080(queryResult);
+                        datCommunityCursorFeedback(queryResult);
                     }
                 }
             }
@@ -2527,7 +2527,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 }
             } else {
                 if (D_008C024E[0] & 0x10) {
-                    *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                    *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                     *arg0 = 0xD;
                 } else {
                     func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), recipientRow, 0);
@@ -2572,7 +2572,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     }
                 } else {
                     if (D_008C024E[0] & 0x10) {
-                        *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                        *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                         *arg0 = 0xD;
                     }
                     break;
@@ -2597,7 +2597,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (alternateConfirm != 0) {
                     radarHandleEntryAction((s32 *)arg0, character, recipientValue, arg2);
                 } else if (D_008C024E[0] & 0x10) {
-                    *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                    *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                     *arg0 = 0xD;
                 } else {
                     func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
@@ -2608,7 +2608,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
                             func_0013a930(arg2);
                         }
-                        func_00354080(alternateQueryResult);
+                        datCommunityCursorFeedback(alternateQueryResult);
                     }
                 }
             }
