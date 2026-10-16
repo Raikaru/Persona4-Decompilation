@@ -324,30 +324,6 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma opt_propagation off
 #pragma pop
-// FUN_00453250
-void func_00453250(s32 arg0, u16 arg1, s32 arg2) {
-    s32 bits;
-    s32 off;
-    u16 *word;
-    u8 *timer;
-
-    off = arg0 * 0x4A;
-    bits = arg1 & 0xFFFF;
-    if (bits & *(u16 *)(D_008C02EE + off)) {
-        *(u8 *)(D_008C0300 + off + arg2) = 7;
-        return;
-    }
-    if (bits & *(u16 *)(D_008C02EC + off)) {
-        timer = D_008C0300 + off;
-        timer = timer + arg2;
-        *timer -= 1;
-        if (*timer == 0) {
-            word = (u16 *)(D_008C02F2 + off);
-            *word |= arg1;
-            *timer = 3;
-        }
-    }
-}
 // FUN_00453310
 void func_00453310(s32 arg0, u16 arg1, s32 arg2) {
     s32 off;
@@ -439,354 +415,19 @@ s32 func_004535b0(void)
     return iGpffffac74;
 }
 
-// FUN_004543D0
-s32 func_004543d0(u8 *arg0) {
-    s32 f14;
-    s32 next28;
-    s32 f28;
-    s32 reload20;
-    s32 f20;
-    s32 reload14;
-    s32 clamped;
-
-    f14 = *(s32 *)(arg0 + 0x14);
-    f20 = *(s32 *)(arg0 + 0x20);
-    clamped = f14;
-    if (f20 < f14) {
-        clamped = f20;
-    }
-    f28 = *(s32 *)(arg0 + 0x28);
-    if ((f28 + f14) >= f20) {
-        goto zero;
-    }
-    next28 = f28 + *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(arg0 + 0x28) = next28;
-    reload14 = *(s32 *)(arg0 + 0x14);
-    reload20 = *(s32 *)(arg0 + 0x20);
-    if (reload20 >= (next28 + reload14)) {
-        goto one;
-    }
-    *(s32 *)(arg0 + 0x28) = reload20 - reload14;
-    goto one;
-zero:
-    *(s32 *)(arg0 + 0x28) = f20 - clamped;
-    *(s32 *)(arg0 + 0x24) = clamped - 1;
-    return 0;
-one:
-    return 1;
-}
-// FUN_00454460
-/* The three exits are laid out with explicit gotos because retail places the
-   `return 0` block and the `return 1` block out of line, in that order, after
-   the main body. The natural nested-if / result-variable spellings all merge
-   them into one epilogue and come out two words short (nd 24). */
-s32 func_00454460(u8 *arg0) {
-    s32 v;
-    s32 t;
-
-    v = *(s32 *)(arg0 + 0x28);
-    if (v <= 0) {
-        goto zero;
-    }
-    t = v - *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(arg0 + 0x28) = t;
-    if (t >= 0) {
-        goto one;
-    }
-    *(s32 *)(arg0 + 0x28) = 0;
-    goto one;
-zero:
-    *(s32 *)(arg0 + 0x28) = 0;
-    *(s32 *)(arg0 + 0x24) = 0;
-    return 0;
-one:
-    return 1;
-}
-
-// FUN_004544B0
-void func_004544b0(void)
-{
-    s32 index;
-    u8 *table;
-
-    func_0042eae0(0);
-    sceCdMmode(2);
-    func_0042efe0(0);
-    *(u8 **)D_008D1B80 = NULL;
-    *(u8 **)D_008D1B84 = NULL;
-    *(s32 *)D_008D1C90 = 0;
-    *(s32 *)D_008D1C98 = 0;
-    *(s32 *)D_008D1B88 = 0;
-    index = 0;
-    table = D_008C8780;
-    while (index < 0x100) {
-        *(s32 *)(table + (index * 0x94)) = 0;
-        index += 1;
-    }
-    *(s32 *)D_008D1CD4 = 0;
-    func_00468a10(index);
-}
 
 
 
-/* measured: MWCC b210 -O2, 348B / 352B window; executable bytes exact.
- * Literal separators with loop-invariant motion and propagation disabled
- * recover the retail register allocation; the final word is zero alignment. */
-// FUN_00456530
+
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-void func_00456530(u8 *basePath, u8 *archive, s32 singleEntry) {
-    s32 recordLength;
-    u8 directory[0x100];
-    u8 fileName[0x100];
-    u8 entryPath[0x100];
-    s32 dataOffset;
-    u8 *cursor;
-    s8 character;
-    s32 alignedLength;
-    s32 biasedLength;
-    s32 offset;
-    s32 blocks;
-    s32 scan;
-
-    H_Cdvd_BuildPathUppercase((s32)basePath, directory);
-    offset = 0;
-next_entry:
-    memcpy(entryPath, directory, 0xFC);
-    memcpy(fileName, archive + offset, 0xFC);
-    if (*(s8 *)fileName != 0) {
-        memcpy(&recordLength, archive + (offset + 0xFC), 4);
-        dataOffset = offset + 0x100;
-        strcat(entryPath, fileName);
-        scan = 0;
-        {
-            s8 reloadedCharacter;
-            while (scan < 0xFF) {
-                cursor = entryPath + scan;
-                character = *(s8 *)cursor;
-                if ((character >= 'a') && (character <= 'z')) {
-                    *cursor = (u8)(character - 0x20);
-                }
-                reloadedCharacter = *(s8 *)cursor;
-                if (reloadedCharacter != 0) {
-                    if (reloadedCharacter == '/') {
-                        *cursor = '\\';
-                    }
-                    scan += 1;
-                } else {
-                    break;
-                }
-            }
-        }
-        func_00456400(archive, archive + dataOffset, recordLength, entryPath);
-        biasedLength = (s32)((u32)recordLength + 0x3FU);
-        blocks = biasedLength / 64;
-        alignedLength = blocks * 64;
-        recordLength = alignedLength;
-        offset = (s32)((u32)dataOffset + (u32)alignedLength);
-        if (singleEntry != 1) {
-            goto next_entry;
-        }
-    }
-}
 #pragma pop
-// FUN_004566C0
-s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
-    u8 sp50[0x100];
-    s32 bit0;
-    s32 handle;
-    s32 flags;
-    s32 bit1;
 
-    flags = 0;
-    func_004244c8(D_00711720, arg2);
-    strcpy((char *)sp50, (const char *)&iGpffffad88);
-    strcat(&sp50, arg2 + strlen(&sp50));
-    if (arg2 == 0) {
-        return 2;
-    }
-    bit0 = arg3 & 1;
-    if ((bit0 != 0) && (bit1 = arg3 & 2, (bit1 != 0))) {
-        flags |= 3;
-    } else {
-        if (bit0 != 0) {
-            flags |= 1;
-        }
-        bit1 = arg3 & 2;
-        if (bit1 != 0) {
-            flags |= 2;
-        }
-    }
-    if (arg3 & 4) {
-        flags |= 0x200;
-    }
-    if ((bit1 != 0) && !(arg3 & 8)) {
-        flags |= 0x400;
-    }
-    *(s32 *)(arg1 + 0x30) = 0;
-    *(s64 *)(arg1 + 0x10) = 0;
-    handle = func_00426cf0(&sp50, flags, 0x1FF);
-    *(s32 *)(arg1 + 0x74) = handle;
-    if (handle < 0) {
-        return 3;
-    }
-    *(s64 *)(arg1 + 0) = (s64)func_004270f8(handle, 0, 2);
-    func_004270f8(*(s32 *)(arg1 + 0x74), 0, 0);
-    *(s32 *)(arg1 + 0x3C) = 1;
-    return 1;
-}
-// FUN_00456840
-void func_00456840(u8 *arg0) {
-    func_004244c8(D_00711738);
-    *(s32 *)(arg0 + 0x38) = 1;
-    func_00426f80(*(s32 *)(arg0 + 0x74));
-    func_00428f08(&iGpffffad88, 0);
-}
-
-// FUN_00456C30
-u8 *func_00456c30(void)
-{
-    func_004244c8(D_007117B0);
-    return (u8 *)&iGpffffad88;
-}
-/* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
 #pragma opt_propagation off
-// FUN_00456C60
-u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s32 index;
-    void *(*(*alloc_table))(size_t, size_t, u32);
-    u8 *record;
-    u8 *entries;
-    u8 *entry;
-
-    if (func_003dd900(arg4) != 0) {
-        return NULL;
-    }
-    chkmemAllocSiteTag(D_007117C8, 0x106);
-    alloc_table = D_008873F4;
-    record = (*alloc_table)(1, 0x5C, 0x40000);
-    *(void **)(record + 0x14) = (void *)H_Cdvd_FileContextSlot;
-    *(void **)(record + 0x18) = (void *)H_Cdvd_FileContextFree;
-    *(void **)(record + 0x28) = (void *)func_004566c0;
-    *(void **)(record + 0x2C) = (void *)func_00456840;
-    *(void **)(record + 0x30) = (void *)H_Cdvd_SlotRead;
-    *(void **)(record + 0x34) = (void *)H_Cdvd_SlotWrite;
-    *(void **)(record + 0x44) = (void *)adminiSeqExitTest;
-    *(void **)(record + 0x38) = (void *)H_Cdvd_SlotSeek;
-    *(void **)(record + 0x4C) = (void *)H_Cdvd_ProbeFile;
-    *(void **)(record + 0x1C) = (void *)func_00456c30;
-    chkmemAllocSiteTag(D_007117C8, 0x116);
-    entries = (*alloc_table)(arg0, 0x90, 0x40000);
-    *(u8 **)(record + 0x58) = entries;
-    index = 0;
-    goto loop_00456c60_check;
-loop_00456c60_body:
-    entry = entries + (index * 0x90);
-    *(u8 **)(entry + 0x50) = record;
-    *(s32 *)(entry + 0x68) = (s32)(arg1 + (index * arg2));
-    *(s32 *)(entry + 0x6C) = arg2;
-    index += 1;
-loop_00456c60_check:
-    if (index < arg0) {
-        goto loop_00456c60_body;
-    }
-    if (func_003dd290(record, arg0, arg4, arg3) != 1) {
-        func_00440b68(D_007117E0, index);
-    }
-    return record;
-}
-/* measured probe: close opt_propagation scope after func_00456c60. */
 #pragma opt_propagation on
-// FUN_00456E40
-void func_00456e40(void) {
-    struct {
-        u8 sp40[0x10];
-        u8 sp50[8];
-        u8 pad[0x18];
-        u8 sp70[0x18];
-    } work;
-    u8 *slot;
-    u8 *parent;
-    u8 *obj;
+extern s32 func_00457120(void);
 
-    *(s32 *)(work.sp70 + 0x14) = 0xC3160000;
-    *(s32 *)(work.sp70 + 0x10) = 0xC3160000;
-    *(s32 *)(work.sp70 + 0xC) = 0xC3160000;
-    *(s32 *)(work.sp70 + 8) = 0x43160000;
-    *(s32 *)(work.sp70 + 4) = 0x43160000;
-    *(s32 *)(work.sp70 + 0) = 0x43160000;
-    obj = func_003c9eb0(work.sp70);
-    iGpffffba70 = (s32)obj;
-    if ((parent = func_003c3d20(2)) != NULL) {
-        func_003c38b0(parent, D_00711800);
-        func_003cbe80(obj, parent);
-    }
-    iGpffffba74 = parent;
-    parent = (u8 *)iGpffffba70;
-    if ((slot = func_003c3d20(1)) != NULL) {
-        if ((obj = func_003e9320()) != NULL) {
-            *(s8 *)(slot + 2) = 1;
-            func_003e9df0(obj);
-            func_003efd20(slot, obj);
-            func_003c38b0(slot, D_00711810);
-            func_003cbe80(parent, slot);
-        } else {
-            func_003c3cc0(slot);
-            goto loop_00456e40_second_done;
-        }
-    } else {
-loop_00456e40_second_done:
-        slot = NULL;
-    }
-    iGpffffba78 = slot;
-    parent = (u8 *)iGpffffba70;
-    if ((slot = func_003c3d20(1)) != NULL) {
-        if ((obj = func_003e9320()) != NULL) {
-            *(s8 *)(slot + 2) = 1;
-            func_003e9d50(obj, D_00756500, 0, 25.0f);
-            func_003e9d50(obj, D_00756510, 2, 170.0f);
-            func_003efd20(slot, obj);
-            func_003c38b0(slot, D_00711820);
-            func_003cbe80(parent, slot);
-        } else {
-            func_003c3cc0(slot);
-            goto loop_00456e40_third_done;
-        }
-    } else {
-loop_00456e40_third_done:
-        slot = NULL;
-    }
-    iGpffffba7c = slot;
-    parent = (u8 *)iGpffffba70;
-    func_003e8970(work.sp50, func_003e89c0());
-    if ((obj = kwlnCameraCreate(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
-        func_003e81c0(obj, 25600.0f);
-        func_003e8180(obj, 20.0f);
-        func_003cbc10(parent, obj);
-        *(s32 *)(work.sp40 + 0) = 0;
-        *(s32 *)(work.sp40 + 4) = 0;
-        *(s32 *)(work.sp40 + 8) = *(s32 *)work.sp50;
-        *(s32 *)(work.sp40 + 0xC) = *(s32 *)(work.sp50 + 4);
-        kwlnCameraResizeView(obj, work.sp40, 0.5f, fGpffff802c);
-        *(f32 *)(obj + 0x88) = fGpffff8030;
-    }
-    iGpffffba80 = (s32)obj;
-    func_00440b68(D_00711830, func_00410360(),
-                  *(s32 *)(*(u8 **)(obj + 0x60) + 0x14),
-                  *(s32 *)(*(u8 **)(obj + 0x64) + 0x14));
-}
-// FUN_00457120
-s32 func_00457120(void)
-{
-    return iGpffffba80;
-}
-
-// FUN_00457130
-s8 *func_00457130(void)
-{
-    return &iGpffffba88;
-}
 // FUN_00457140
 void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
@@ -794,11 +435,6 @@ void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
     iGpffffba89 = arg1;
     iGpffffba8a = arg2;
     iGpffffba8b = arg3;
-}
-// FUN_00457160
-s8 *func_00457160(void)
-{
-    return (s8 *)&iGpffffba84;
 }
 // FUN_00457170
 void func_00457170(s8 arg0, s8 arg1, s8 arg2, s8 arg3)
@@ -808,23 +444,8 @@ void func_00457170(s8 arg0, s8 arg1, s8 arg2, s8 arg3)
     iGpffffba86 = arg2;
     iGpffffba87 = arg3;
 }
-// FUN_00457190
-s32 func_00457190(void)
-{
-    return iGpffffba70;
-}
 
-// FUN_004571A0
-u8 *func_004571a0(void)
-{
-    return iGpffffba74;
-}
 
-// FUN_004571B0
-u8 *func_004571b0(void)
-{
-    return iGpffffba78;
-}
 
 // FUN_004571C0
 u8 *func_004571c0(void)
