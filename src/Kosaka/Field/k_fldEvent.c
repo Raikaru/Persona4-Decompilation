@@ -53,8 +53,8 @@ s32 *MT_Scene_GetFrameState(void);
 void FldFrameObjSetActive(s32, s32);
 void fclMiscStopAndClose(void);
 void fclMiscSetDoneFlag(void);
-s32 func_0015a100(void);
-s32 func_0015a130(void);
+s32 FldStepGetScriptData(void);
+s32 FldStepGetScriptSize(void);
 s32 scrStartProcedureChecked(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
@@ -248,7 +248,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
         fclMiscSetDoneFlag();
         r = (s32)MT_Scene_GetFrameState();
         FldFrameObjSetActive(*(s32 *)(r + 0x1C), 1);
-        h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 3);
+        h[4] = scrStartProcedureChecked(0xF, FldStepGetScriptData(), FldStepGetScriptSize(), 3);
         FldSlotBroadcastState(1);
         h[1]++;
         break;
@@ -309,7 +309,7 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
         fclMiscSetDoneFlag();
         r = (s32)MT_Scene_GetFrameState();
         FldFrameObjSetActive(*(s32 *)(r + 0x1C), 1);
-        h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 2);
+        h[4] = scrStartProcedureChecked(0xF, FldStepGetScriptData(), FldStepGetScriptSize(), 2);
         FldSlotBroadcastState(1);
         h[1]++;
         break;
@@ -860,8 +860,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     u32 FldUnit_IsSettled(u8 *);
     s32 func_00122640(s32, s32);
     s32 fadeStatus(void);
-    s32 func_0015a100(void);
-    s32 func_0015a130(void);
+    s32 FldStepGetScriptData(void);
+    s32 FldStepGetScriptSize(void);
     s32 scrStartProcedureChecked(s32, s32, s32, s32);
     s32 kwlnTaskIsLinked(void *);
     void datSetFlag(s32, s32);
@@ -1458,8 +1458,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             goto running;
         case 17:
             if (fadeStatus() != 0) {
-                s32 a = func_0015a100();
-                work->scriptTask = scrStartProcedureChecked(0xF, a, func_0015a130(), 6);
+                s32 a = FldStepGetScriptData();
+                work->scriptTask = scrStartProcedureChecked(0xF, a, FldStepGetScriptSize(), 6);
                 work->state = work->state + 1;
             }
             goto running;
