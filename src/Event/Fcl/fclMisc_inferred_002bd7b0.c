@@ -117,7 +117,7 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma push
 #pragma pop
 // FUN_002BD7B0
-s32 func_002bd7b0(void)
+s32 fclMiscEnsureMesWindow(void)
 {
     u8 *p;
     s32 temp_2;

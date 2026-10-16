@@ -73,7 +73,7 @@ extern s32 frFontNodeWidth(void *arg0);
 extern void frFontSetGlyphColor(void *arg0, s32 arg1);
 extern void itfMesListSetColorEntry(void *a0, s32 a1, s32 a2, s32 a3);
 extern void itfMesListSetRangeFlagEntry(void *a0, s32 a1, s32 a2, s32 a3);
-extern void func_002e0dd0(void);
+extern void fclBankCancelPending(void);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
@@ -541,7 +541,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
     extern f32 iGpffff81e8;
     extern f32 iGpffff81ec;
     extern s32 func_002e0fb0(void);
-    extern void func_002e0f90(void);
+    extern void fclBankSetReadyFlag(void);
     extern s32 frFontGetPendingFlag(void);
     extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
@@ -588,7 +588,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         break;
     case 4:
         if (func_002e0fb0() != 0) {
-            func_002e0f90();
+            fclBankSetReadyFlag();
         } else if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882000[0] & 2) == 0) {
                 D_00882000[0] |= 2;
@@ -596,7 +596,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
             }
             D_00882004[0]++;
             if (D_00882004[0] < 11) {
-                func_002e0f90();
+                fclBankSetReadyFlag();
             }
             if (D_00882004[0] < 11) {
                 f = cosf(iGpffff8094 * (float)D_00882004[0] / 10.0f);
@@ -733,7 +733,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         break;
     }
     case 7:
-        func_002e0dd0();
+        fclBankCancelPending();
         if ((sret & 0x200) != 0) {
             MsgProcWindowEntry *e2 = msgWinFreeEntry();
 
@@ -2087,7 +2087,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
         break;
     }
     case 7:
-        func_002e0dd0();
+        fclBankCancelPending();
         break;
     case 9: {
         s32 tmp;

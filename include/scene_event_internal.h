@@ -59,7 +59,7 @@ void evtStepLayerByChoice();
 void evtModelDestroy(void);
 void evtSetKindExclusiveRes();
 void evtResetPendingState(int param_1);
-void func_002e0dd0(void);
+void fclBankCancelPending(void);
 void evtReleaseRes(u8 *arg0);
 void evtMessageWindowResetTyped(u32 *param_1);
 void evtCustomEventReleaseRes(void);

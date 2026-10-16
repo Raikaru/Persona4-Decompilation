@@ -156,7 +156,7 @@ s32 nmMesWindowResetCurrent(void) {
         *(s8 *)((u8 *)(temp_2) + 4) = 0;
         *(s8 *)((u8 *)(temp_2) + 5) = 0;
     }
-    func_002e0dd0();
+    fclBankCancelPending();
     return 1;
 }
 
@@ -182,7 +182,7 @@ s32 nmMesWindowDestroySlot(s64 arg0)
         jtbl_008873EC[0](*temp_16);
         *temp_16 = NULL;
     }
-    func_002e0dd0();
+    fclBankCancelPending();
     return 1;
 }
 

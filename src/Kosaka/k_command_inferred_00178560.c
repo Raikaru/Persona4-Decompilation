@@ -83,7 +83,7 @@ extern s32 kwlnTaskIsLinked(s32 arg0);
 extern u8 *scrGetContext(void);
 extern void fclMiscOrStateFlags(s32 arg0);
 extern void fclMiscSetStatusCode(s32 arg0);
-extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void fclMiscAddRecord(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void *mdlGetMatrix(void *arg0);
 extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
@@ -250,7 +250,7 @@ s32 Cmd_StartFieldSequence(void)
     temp_16 = scrGetParamInt(1);
     fclMiscOrStateFlags(1);
     fclMiscSetStatusCode(*(s32 *)(scrGetContext() + 0x124));
-    func_002bd280(temp_17, temp_16, 0, 0);
+    fclMiscAddRecord(temp_17, temp_16, 0, 0);
     return 1;
 }
 

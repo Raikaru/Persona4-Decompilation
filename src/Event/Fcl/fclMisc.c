@@ -45,10 +45,10 @@ extern void fclMiscUpdateHandle(int *);
 extern u32 fclMiscCloseHandle();
 extern void fclMiscSetWord14();
 extern void func_002e22f0();
-extern s32 func_002bcbc0(u8 *, s32);
-extern s32 func_002bc890(u8 *, s32);
-extern s32 func_002bc9e0(u8 *);
-extern s32 func_002bcfb0(u8 *, u8 *);
+extern s32 fclMiscRequestSlotRelease(u8 *, s32);
+extern s32 fclMiscAttachSlot(u8 *, s32);
+extern s32 fclMiscUpdateSlots(u8 *);
+extern s32 fclMiscTryReleaseEntry(u8 *, u8 *);
 extern s32 fclMiscPendingIsEmpty(void);
 extern u32 PTR_DAT_00762ea0;
 extern u32 D_0076466C;
@@ -157,7 +157,7 @@ s32 msgAssistUpdate(u8 *unusedTask)
                 i = 0;
                 while (i < 0xb)
                 {
-                    func_002bcbc0(manager, i);
+                    fclMiscRequestSlotRelease(manager, i);
                     i++;
                 }
             }
@@ -177,8 +177,8 @@ process_item:
         }
         *(s32 *)(manager + 4) = flags & ~1;
         fclMiscAcquireHandle(item + 0x10, *(u8 **)(item + 0x28));
-        func_002bc890(manager, 0);
-        func_002bc890(manager, *(s32 *)(item + 0x2c));
+        fclMiscAttachSlot(manager, 0);
+        fclMiscAttachSlot(manager, *(s32 *)(item + 0x2c));
         *(s32 *)(item + 4) |= 2;
         *(s32 *)(item + 4) |= 1;
     }
@@ -189,7 +189,7 @@ update_tail:
         entry = *(u8 **)(head + 0x14);
         if ((*(s32 *)(entry + 4) & 2) != 0)
         {
-            if (func_002bcfb0(manager, entry) != 0)
+            if (fclMiscTryReleaseEntry(manager, entry) != 0)
             {
                 *(s32 *)(manager + 4) |= 1;
                 func_002e2240(*(int **)manager,
@@ -198,11 +198,11 @@ update_tail:
             }
         }
     }
-    func_002bc9e0(manager);
+    fclMiscUpdateSlots(manager);
     return 0;
 }
 // FUN_002BCFB0
-s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
+s32 fclMiscTryReleaseEntry(u8 *arg0, u8 *arg1) {
     extern u32 fclMiscCloseHandle(u32 *);
     /* measured: s8 here regresses func_002bcfb0 (MATCH -> MISMATCH); the s32 extern keeps its compare. */
     extern s32 fclMiscHandleState(int *); /* lint: allow H011 -- measured: s8 regresses func_002bcfb0 MATCH->MISMATCH; retail consumes the full register */

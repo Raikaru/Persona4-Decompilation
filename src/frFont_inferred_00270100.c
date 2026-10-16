@@ -9,7 +9,7 @@ extern u16 D_008C024E[];
 
 
 extern s32 frFontGetMode(void);
-extern void func_002e0f20(void);
+extern void fclBankMarkSettled(void);
 extern void frFontUpdateTextWork(u8 *arg0);
 extern void frFontLayoutText(u8 *arg0, u8 *arg1);
 
@@ -26,7 +26,7 @@ static inline u32 add_retail_ptr(u32 offset, u32 base) {
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 calGetDayWindowFlags(s32 arg0);
 extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
-extern void func_002e0f90(void);
+extern void fclBankSetReadyFlag(void);
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -155,7 +155,7 @@ s32 func_00270100(s32 arg0, u8 *arg1)
             flags | 0x200,
             key_a);
     }
-    func_002e0f90();
+    fclBankSetReadyFlag();
     return 0;
 }
 
@@ -165,7 +165,7 @@ s32 func_00270390(void)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    func_002e0f20();
+    fclBankMarkSettled();
     return 0;
 }
 

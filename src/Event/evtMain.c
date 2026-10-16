@@ -2602,7 +2602,7 @@ loop_6_test:
     if (var_16 < 3) {
         goto loop_6_body;
     }
-    func_002e0dd0();
+    fclBankCancelPending();
     datStopPadRumble();
     MT_Scene_StopShake();
     sceneLightSlotsReset();

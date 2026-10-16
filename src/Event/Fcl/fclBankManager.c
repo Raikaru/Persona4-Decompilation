@@ -45,7 +45,7 @@ void fclBankLogf(u8 *fmt, ...)
 }
 
 // FUN_002E0DD0
-void func_002e0dd0(void)
+void fclBankCancelPending(void)
 {
     s32 i;
     s16 *p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
@@ -71,7 +71,7 @@ void func_002e0dd0(void)
 }
 
 // FUN_002E0F20
-void func_002e0f20(void)
+void fclBankMarkSettled(void)
 {
     s32 i;
     s16 *p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
@@ -87,7 +87,7 @@ void func_002e0f20(void)
     }
 }
 // FUN_002E0F90
-void func_002e0f90(void)
+void fclBankSetReadyFlag(void)
 {
     *(s32 *)(*(int *)(iGpffffb588 + 0x24) + 0x2C) |= 1;
 }
@@ -177,7 +177,7 @@ s64 fclBankAcquire(int *node)
 }
 
 // FUN_002E1230
-void func_002e1230(s32 arg0, s64 arg1)
+void fclBankQueueRequest(s32 arg0, s64 arg1)
 {
     s32 i;
     s16 *p;
@@ -358,7 +358,7 @@ static inline s32 bankSlotHasMatchingVisiblePeer(s16 *slot)
 struct KwlnTask;
 
 // FUN_002E17F0
-s32 func_002e17f0(u8 *sdkTaskBytes)
+s32 fclBankManagerUpdate(u8 *sdkTaskBytes)
 {
     struct KwlnTask *task = (struct KwlnTask *)sdkTaskBytes;
     extern void kAssertFail(void *, s32);

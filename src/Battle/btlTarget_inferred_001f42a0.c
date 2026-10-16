@@ -957,7 +957,7 @@ case2:
     temp_4 = *(u8 **)(*(u8 **)(temp_3_2 + 0xA54) + 0x110);
     temp_16 = temp_4 + ((s32 *)(temp_4 + 4))[*(u16 *)(temp_3_2 + 0xA60) * 3];
     fclMiscSetStatusCode(temp_16, state_ptr, temp_6);
-    func_002bd280(*(u16 *)(iGpffffb3ac + 0xA4C),
+    fclMiscAddRecord(*(u16 *)(iGpffffb3ac + 0xA4C),
                   datCalcRandomBelow(itfMesRecordCount(temp_16)), 0, 0);
     temp_3_3 = iGpffffb3ac;
     *(s32 *)(temp_3_3 + 0xA58) = *(s32 *)(temp_3_3 + 0xA60);

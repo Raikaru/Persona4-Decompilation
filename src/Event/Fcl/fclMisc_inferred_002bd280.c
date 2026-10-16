@@ -102,7 +102,7 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma push
 #pragma pop
 // FUN_002BD280
-s32 func_002bd280(s32 arg0, s32 arg1, s32 arg2, s16 arg3)
+s32 fclMiscAddRecord(s32 arg0, s32 arg1, s32 arg2, s16 arg3)
 {
     s32 temp_20;
     u8 *temp_21;

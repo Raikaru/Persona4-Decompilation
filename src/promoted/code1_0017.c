@@ -132,7 +132,7 @@ extern s64 datGetPartyId(s32 arg0);
 extern u8 *scrGetContext(void);
 extern void fclMiscOrStateFlags(s32 arg0);
 extern void fclMiscSetStatusCode(s32 arg0);
-extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void fclMiscAddRecord(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 *kwlnGetCamera(void);
 extern void *mdlGetMatrix(void *arg0);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
