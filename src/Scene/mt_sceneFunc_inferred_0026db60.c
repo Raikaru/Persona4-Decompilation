@@ -15,7 +15,7 @@ extern s32 MT_SceneManager_TaskUpdate(u8 *task);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
-extern void func_0026dc30(u8 *task);
+extern void MT_Scene_ShakeStopTask(u8 *task);
 extern s32 MT_SceneManager_DrawUpdate(u8 *task);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void func_0026dd60(u8 *arg0);
@@ -194,7 +194,7 @@ second_exit:
 /* measured: func_0026dc50, rbRingBufCreate MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_0026DC30
-void func_0026dc30(u8 *unusedTask)
+void MT_Scene_ShakeStopTask(u8 *unusedTask)
 {
     MT_Scene_StopShake();
 }
@@ -365,7 +365,7 @@ s32 MT_SceneManager_Create(void)
 {
     s32 temp_2;
 
-    temp_2 = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, MT_SceneManager_TaskUpdate, func_0026dc30, (u8 *)(0));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, MT_SceneManager_TaskUpdate, MT_Scene_ShakeStopTask, (u8 *)(0));
     (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, MT_SceneManager_DrawUpdate, 0, (u8 *)(0));
     return temp_2;
 }

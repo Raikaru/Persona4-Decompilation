@@ -2017,7 +2017,7 @@ void func_0016ea30(u8 *arg0, f32 arg1)
 }
 
 // FUN_0016EA40
-void func_0016ea40(u8 *arg0, u16 arg1)
+void FldFrame_BindTypedRes(u8 *arg0, u16 arg1)
 {
     u8 *temp_16;
     s32 type;
@@ -2034,7 +2034,7 @@ void func_0016ea40(u8 *arg0, u16 arg1)
    into the pointer expression emits `base + index` (nd 1). The three floats
    are one RwV3d assignment because retail loads all three before storing
    any. */
-void func_0016eaa0(u8 *arg0, s32 arg1, RwV3d *arg2) {
+void FldFrame_SetSlotVector(u8 *arg0, s32 arg1, RwV3d *arg2) {
     u8 *base;
     s32 i;
     s32 off;
@@ -2294,7 +2294,7 @@ done:
 /* measured: func_0016f130, func_0016f3b0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0016F100
-void func_0016f100(u8 *arg0)
+void FldFrame_RotateTaskDestroy(u8 *arg0)
 {
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
@@ -2320,7 +2320,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
+            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
             *(s32 *)(temp_2 + 4) = arg1;
             temp_f20 = KDraw_MatrixYawDeg(
                 mdlGetMatrix(*(s32 *)D_007EFA00));
@@ -2380,7 +2380,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
+        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
         *(s32 *)(temp_2 + 4) = arg1;
         KDraw_MatrixYawDeg(mdlGetMatrix(*(s32 *)D_007EFA00));
         temp_f0 = KDraw_MatrixYawDeg(
@@ -2486,7 +2486,7 @@ void func_0016f630(FldEventSnapshot *arg0, u8 *arg1)
 }
 
 /* measured: restore baseline optimization level after func_0016f630. */
-/* measured: func_0016f750, func_0016f8b0, func_0016fd00, func_0016fe80, func_0016ffd0 MATCH -> MISMATCH without this pragma. */
+/* measured: func_0016f750, FldEvent_GetStickHeading, func_0016fd00, func_0016fe80, func_0016ffd0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 /* measured: func_0016f750 compiles to object 348B against the 352B retail
    window (normalized_diff 0; pointer-typed hoist fixes final-call setup). */
@@ -2539,7 +2539,7 @@ void func_0016f750(u8 *arg0, u8 *arg1)
 
 // FUN_0016F8B0
 // MATCH: 1100B/1104B, 13 resolved relocations, four zero tail bytes.
-f32 func_0016f8b0(s32 arg0, s32 arg1)
+f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
 {
     RwV3d normalized;
     RwV3d input;

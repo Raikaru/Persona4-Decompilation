@@ -6,12 +6,12 @@
 extern void kAssertFail(u8 *file, s32 line);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 
-extern s32 func_00102780(u8 *task);
+extern s32 FldShadowAnim_Update(u8 *task);
 extern void memcpy(void *dst, const void *src, s32 size);
 extern u8 D_005DCC64[];
 extern u8 D_005DCC68[];
 extern u8 D_005DCC6C[];
-extern void func_00102890(u8 *arg0);
+extern void FldShadowAnim_Destroy(u8 *arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005DCB28[];
 extern u8 D_005DCB40[];
@@ -29,7 +29,7 @@ s32 func_001028c0(void)
     }
     chkmemAllocSiteTag(D_005DCB28, 0x7D);
     mem = D_008873F4[0](1, 0x18, 0x40000);
-    handle = (s32)kwlnTaskCreate((const void *)(D_005DCB40), 0xF, 0, 0, func_00102780, func_00102890, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreate((const void *)(D_005DCB40), 0xF, 0, 0, FldShadowAnim_Update, FldShadowAnim_Destroy, (u8 *)(mem));
     *(s32 *)(mem + 4) = -1;
     *(s32 *)(mem + 8) = -1;
     iGpffffb1a8 = (u8 *)(u32)handle;

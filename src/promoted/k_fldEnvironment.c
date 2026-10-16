@@ -30,7 +30,7 @@ extern u8 *func_00454a60(void *arg0, s32 arg1);
 extern char D_005EFE78[];
 extern char D_005EFED0[];
 extern char D_005EFE90[];
-extern s32 func_0014a2a0();
+extern s32 FldMap_IsInBandB();
 extern u8 *iGpffff9db0;
 extern char iGpffff9e18;
 extern char iGpffff9e20;
@@ -46,7 +46,7 @@ extern void func_0016e590();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
-extern void func_0016eaa0(s32 arg0, s32 arg1, void *arg2);
+extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
 extern void func_0016eb00(s32 arg0);
 extern void func_0046d700(const char *arg0, s32 arg1, void *arg2, void *arg3);
@@ -127,7 +127,7 @@ s32 func_00153c00(s32 arg0) {
     }
     if (FldRc_GetLoadSource() == 0) {
         strcpy(&spA0, D_005EFE78);
-        if (func_0014a2a0(*(u16 *)iGpffff9db0, arg0 & 0xFFFF) != 0) {
+        if (FldMap_IsInBandB(*(u16 *)iGpffff9db0, arg0 & 0xFFFF) != 0) {
             sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0 - 0x14, arg0);
         } else {
             sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0, arg0);
@@ -200,7 +200,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         data = *(u8 **)(arg0 + 0x110);
     } else {
         sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0, arg1);
-        if (func_0014a2a0(*(u16 *)iGpffff9db0, arg1 & 0xFFFF) != 0) {
+        if (FldMap_IsInBandB(*(u16 *)iGpffff9db0, arg1 & 0xFFFF) != 0) {
             sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0 - 0x14, arg1);
         }
         {
@@ -724,7 +724,7 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
             if (id <= -1) {
                 goto CMR_loop_skip;
             }
-            func_0016eaa0(func_00155280()[1], id,
+            FldFrame_SetSlotVector(func_00155280()[1], id,
                           data + i * 0xC + 0x88);
 CMR_loop_skip:
             ;
