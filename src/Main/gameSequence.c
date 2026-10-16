@@ -13,7 +13,7 @@ extern char D_005E51C0[];
 extern char D_005E51D0[];
 extern void calendarResetPending(void);
 extern s32 clndSceneUpdate(u8 *task);
-extern void func_00124210(u8 *task);
+extern void taskReleaseSlotModel(u8 *task);
 
 /* Starts the "gameSequence" task with clndSceneUpdate as its update, then runs the scene start. */
 // FUN_00124240
@@ -24,7 +24,7 @@ void gameSequenceStart(void)
     func_0046a2d0(D_005E51C0, 0x178);
     temp_2 = H_Calloc(1, 0x10);
     if (temp_2 != 0) {
-        (s32)kwlnTaskCreate((const void *)(D_005E51D0), 0x100, 0, 0, clndSceneUpdate, func_00124210, (u8 *)(temp_2));
+        (s32)kwlnTaskCreate((const void *)(D_005E51D0), 0x100, 0, 0, clndSceneUpdate, taskReleaseSlotModel, (u8 *)(temp_2));
         calendarResetPending();
     }
 }
