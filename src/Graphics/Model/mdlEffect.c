@@ -3278,8 +3278,9 @@ void func_004abb60(void)
 #pragma push
 #pragma opt_propagation off
 #pragma pop
+// Resets a drawable: when its entry count at +0x9C is nonzero, runs func_00485fe0 on each entry of the list at +0x98 (count at +0x28); then zeroes the model layer time at +0xA0 and clears the counter at +0x2C.
 // FUN_004ADAB0
-void func_004adab0(u8 *arg0)
+void EffModelDrawableReset(u8 *arg0)
 {
     s32 *var_18;
     u32 temp_16;
