@@ -171,7 +171,7 @@ void func_0025fe00(u8 *task)
     void *t;
 
     t = (void *)kwlnTaskGetWork(task);
-    func_004b1150((u8 *)*(s32 *)t);
+    func_004b1150(*(u8 **)t);
     (*jtbl_008873EC)(t);
 }
 
@@ -190,7 +190,7 @@ s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
     }
     chkmemAllocSiteTag(D_00637290, 0xD9);
     buf = D_008873F4[0](1, 0xC, 0x40000);
-    *(s32 *)buf = (s32)func_004b1130(arg1);
+    *(u8 **)buf = func_004b1130(arg1);
     *(void **)(buf + 4) = arg3;
     *(s32 *)(buf + 8) = arg2;
     return (s32)kwlnTaskCreateChild((void *)(u32)arg0, &D_00763798,
