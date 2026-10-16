@@ -129,7 +129,7 @@ extern u8 D_005EF870[];
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern void func_004b1150(s32 arg0);
+extern void mdlEffectDestroy(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
@@ -160,7 +160,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 func_004b1130(s32 arg0);
+extern s32 mdlEffectCreateFromResource(s32 arg0);
 extern void func_004b1250(void *object, f32 *position);
 extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
 
@@ -298,7 +298,7 @@ s32 MT_Scene_CreateObjectRes(u16 arg0, s32 arg1, s8 arg2) {
     if (temp_2 == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x144) = func_004b1130(arg1);
+    *(s32 *)(temp_2 + 0x144) = mdlEffectCreateFromResource(arg1);
     *(s8 *)(temp_2 + 0x140) = arg2;
     sp[0] = 100.0f;
     sp[1] = 0.0f;
@@ -748,7 +748,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
                 slotHandleAddr = (void **)(slotAddr + 0x140);
                 slotHandle = *slotHandleAddr;
                 if (slotHandle != NULL) {
-                    func_004b1150((s32)slotHandle);
+                    mdlEffectDestroy((s32)slotHandle);
                     *slotHandleAddr = NULL;
                 }
                 slotValue += 1;
@@ -788,7 +788,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
                 slotHandleAddr = (void **)(slotAddrB + 0x140);
                 slotHandleB = *slotHandleAddr;
                 if (slotHandleB != NULL) {
-                    func_004b1150((s32)slotHandleB);
+                    mdlEffectDestroy((s32)slotHandleB);
                     *slotHandleAddr = NULL;
                 }
                 slotIndex += 1;
@@ -829,7 +829,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
         case RESRC_TYPE_11:
             handle144Case11 = resourceRecord->slotHandle[1];
             if (handle144Case11 != NULL) {
-                func_004b1150((s32)handle144Case11);
+                mdlEffectDestroy((s32)handle144Case11);
                 resourceRecord->slotHandle[1] = NULL;
                 func_00440b68(&D_005EF8F0, resourceRecord);
             }

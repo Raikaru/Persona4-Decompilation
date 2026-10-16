@@ -45,7 +45,7 @@ void effMiscRandInit(EffRandState *state, u32 seed);
 void *mdlEffectResolveRelPtrA(void *source);
 void *mdlEffectResolveRelPtrB(void *source);
 
-u8 *func_00484bb0(u8 *resource);
+u8 *mdlEffectBuildFromResource(u8 *resource);
 u8 *mdlEffectCloneWithNodes(u8 *resource);
 void mdlEffectCopyRecord(u8 *destination, u8 *source);
 u8 *mdlEffectFindNodeById(u8 *root, s32 identifier);

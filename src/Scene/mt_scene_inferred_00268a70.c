@@ -129,7 +129,7 @@ s32 MT_Scene_IconTaskUpdate(u8 *arg0)
     temp_2 = *(s32 *)temp_16 - 1;
     *(s32 *)temp_16 = temp_2;
     if (temp_2 < 0) {
-        func_004b1150((u8 *)*(s32 *)(temp_16 + 4));
+        mdlEffectDestroy((u8 *)*(s32 *)(temp_16 + 4));
         *(s32 *)(temp_16 + 4) = 0;
         return -1;
     }
@@ -146,7 +146,7 @@ void MT_Scene_IconTaskDestroy(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_4 = *(u8 **)(temp_16 + 4);
     if (temp_4 != NULL) {
-        func_004b1150(temp_4);
+        mdlEffectDestroy(temp_4);
         *(u8 **)(temp_16 + 4) = NULL;
     }
     jtbl_008873EC[0](temp_16);

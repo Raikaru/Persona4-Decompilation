@@ -30,9 +30,9 @@ extern void mdlEffectSetPackedColor(void *object, s32 *color);
 
 extern void mdlEffectSetUniformScale(float param_1, u8 param_2[][16]);
 extern void mdlEffectListReleaseHandles(u32 *param_1);
-extern void func_004b1150_i(int param_1);
-extern u32 func_004b1130_u32(u32 param_1);
-extern u32 func_004b11b0();
+extern void mdlEffectDestroy(int param_1);
+extern u32 mdlEffectCreateFromResource(u32 param_1);
+extern u32 mdlEffectClone();
 
 extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
 
@@ -593,14 +593,14 @@ void mdlEffectListRefreshHandles(u32 *param_1)
             if (current[2] == *(int*)(*current + 4)) {
                 *(u32*)(*current + 4) = 0;
             }
-            func_004b1150_i(current[2]);
+            mdlEffectDestroy(current[2]);
         }
         if (((u32*)*current)[1] == 0) {
-            value = func_004b1130_u32(*(u32*)*current);
+            value = mdlEffectCreateFromResource(*(u32*)*current);
             current[2] = value;
             *(u32*)(*current + 4) = value;
         } else {
-            value = func_004b11b0((u64*)((u32*)*current)[1]);
+            value = mdlEffectClone((u64*)((u32*)*current)[1]);
             current[2] = value;
         }
     }
@@ -625,7 +625,7 @@ void mdlEffectListReleaseHandles(u32 *param_1)
 
       }
 
-      func_004b1150_i(piVar1[2]);
+      mdlEffectDestroy(piVar1[2]);
 
       piVar1[2] = 0;
 
