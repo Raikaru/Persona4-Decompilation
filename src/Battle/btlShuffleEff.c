@@ -15,12 +15,12 @@ extern s32 func_0038d660(u8 *arg0);
 extern void btlShuffleEffRelease(u8 *arg0);
 extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 
-extern s32 func_004b1130();
-extern void func_004b1150(s32 a);
+extern u8 *func_004b1130();
+extern void func_004b1150(u8 *a);
 extern void func_004b1170(s32 a);
 extern void func_004b1250(s32 a, void *b);
-extern void func_004b1290(s32 a, f32 b, f32 c, f32 d);
-extern void func_004b13d0(s32 a, f32 b);
+extern void func_004b1290(u8 *a, f32 b, f32 c, f32 d);
+extern void func_004b13d0(u8 *a, f32 b);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
    float in the second position because mwcc b210 materialises call args in declaration
    order, and retail's bytes (addiu a0 / lwc1 f12 / addiu a1 before the jal) require that. */
@@ -50,7 +50,7 @@ void btlShuffleEffFree(u8 *arg0) {
         e = tbl + i * 8;
         eff = (s32 *)(e + 0xC);
         if (*eff != 0) {
-            func_004b1150(*eff);
+            func_004b1150((u8 *)*eff);
             *eff = 0;
         }
         *(u16 *)(tbl + 4) &= ~(1 << i);
@@ -92,7 +92,7 @@ void btlShuffleEffRelease(u8 *arg0) {
             e = tbl + i * 8;
             eff = (s32 *)(e + 0xC);
             if (*eff != 0) {
-                func_004b1150(*eff);
+                func_004b1150((u8 *)*eff);
                 *eff = 0;
             }
             *(u16 *)(tbl + 4) &= ~(1 << i);
@@ -133,8 +133,8 @@ void btlShuffleEffUpdate(u8 *arg0) {
             btlShuffleCalcStepPose(&sp68[0], src[2], &sp58[0]);
             btlShuffleCalcLookAt(sp58, sp58);
             func_004b1250(*(s32 *)(e + 4), sp58);
-            func_004b1290(*(s32 *)(e + 4), src[3], src[4], src[5]);
-            func_004b13d0(*(s32 *)(e + 4), src[6]);
+            func_004b1290((u8 *)*(s32 *)(e + 4), src[3], src[4], src[5]);
+            func_004b13d0((u8 *)*(s32 *)(e + 4), src[6]);
         }
     }
 }
@@ -213,7 +213,7 @@ void btlShuffleEffSetup(u8 *arg0, s32 arg1)
     slot = (s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
     held = *(s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
     if (held != 0) {
-        func_004b1150(held);
+        func_004b1150((u8 *)held);
         *slot = 0;
     }
     /* measured: the compound assignment evaluates the mask before loading the
