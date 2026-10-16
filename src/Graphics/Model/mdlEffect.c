@@ -37,7 +37,7 @@ extern u32 func_004b11b0();
 extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
 
 
-extern void ParticleProjectVertices(float param_1, int param_2);
+extern void ParticleProjectVertices(u8 *particle, f32 scale);
 extern void func_00487fb0_evt(float param_1);
 
 extern void func_00492e30(u16 *emitter, f32 scale);
@@ -60,7 +60,9 @@ extern void memset(void *dest, s32 value, s32 size);
 extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
 extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
-extern void func_004b12e0(s32 arg0, void *arg1);
+extern void func_004b12e0(u8 *arg0, u8 *arg1);
+typedef struct { u8 c0; u8 c1; u8 c2; u8 c3; } MdlCol;
+extern MdlCol iGpffffbb64;
 
 extern void effMiscNormalizeVU(void);
 extern void effMiscBuildRotationVU(void);
@@ -105,6 +107,73 @@ static inline u8 *mdlEffect_camera_matrix(u8 *base)
 extern void datEntryDrawGatedByFlag39(s32 a0, s32 a1, s32 a2, s32 a3);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_004abd60(s32 arg0);
+extern void func_00182b40(void);
+extern void func_00185370();
+/* measured: loop-invariant hoisting keeps the retail stride/base preheader for
+   the 0x750 slot scan. */
+#pragma opt_loop_invariants on
+/* measured: close loop-invariant hoisting around the slot scan. */
+#pragma opt_loop_invariants off
+/* measured probe: opt_propagation off tests caching the repeated render callback base. */
+#pragma opt_propagation off
+/* measured probe: restore opt_propagation after func_00182b40. */
+#pragma opt_propagation on
+#pragma push
+#pragma opt_loop_invariants on
+#pragma pop
+#pragma opt_propagation off
+/* measured: closing the single-function callback-base bracket. */
+#pragma opt_propagation on
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_loop_invariants on
+#pragma pop
+/* measured probe: O1 test for target byte-copy register allocation. */
+#pragma optimization_level 1
+/* measured probe: restore optimization level after target O1 test. */
+#pragma optimization_level 2
+/* measured: VU0 MMI builtins and O1 reproduce the target's pcpyld/sq packet. */
+#pragma enable_vu0_registers on
+/* measured: bind MMI packet registers as in retail. */
+#pragma vu0_mmi_reg_binding on
+/* measured: O1 preserves the target's packet construction order. */
+#pragma optimization_level 1
+/* measured: restore the file's O2 baseline after the target. */
+#pragma optimization_level 2
+/* measured: stop binding MMI packet registers after the target. */
+#pragma vu0_mmi_reg_binding off
+/* measured: stop VU0 register mode after the target. */
+#pragma enable_vu0_registers off
+/* measured: enable_vu0_registers + vu0_mmi_reg_binding with optimization_level 1
+   reproduces the sibling 112-byte pcpyld/sq skeleton; direct _pcpyld on separate
+   u64 pairs gives the retail register order and reload. */
+#pragma enable_vu0_registers on
+#pragma vu0_mmi_reg_binding on
+/* measured: optimization_level 1 is required with the VU0 pragmas above;
+   at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
+#pragma optimization_level 1
+// FUN_00185370
+void func_00185370(void)
+{
+    u_long128 *packet;
+    u_long128 packed;
+    u64 a, b, c, d;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = (u_long128 *)(u32)iGpffffb884;
+    *packet = packed;
+    c = 0x4C;
+    d = iGpffffb8c8;
+    packed = _pcpyld(c, d);
+    packet[1] = packed;
+    iGpffffb884 += 0x20;
+}
+
+#pragma optimization_level 2
+
 // Intent: release the UI handle stored at *arg0, then free its block. [inferred]
 // FUN_00200720
 void btlUiReleaseHandle(s32 *arg0) {
@@ -406,7 +475,7 @@ void mdlEffectListBuildTransforms(u8 **arg0, u8 *arg1)
                 out[0].flag = 3;
                 *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
             }
-            func_004b12e0(*(u32 *)(node + 8), (u8 *)out);
+            func_004b12e0((u8 *)*(u32 *)(node + 8), (u8 *)out);
             func_004b1190(*(u8 **)(node + 8));
             node = *(u8 **)(node + 16);
     }
@@ -818,6 +887,29 @@ u_long128 func_00484b30(u8 *arg0)
 }
 
 
+extern void func_00485630(u8 *arg0);
+extern void func_00485870(u8 *arg0);
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+// FUN_00485AE0
+void func_00485ae0(s32 arg0)
+{
+    func_00485630((u8 *)arg0);
+    func_00485870((u8 *)arg0);
+}
+
+
 /* Copies one 0x90-byte record from source to destination. */
 // FUN_00486710
 void mdlEffectCopyRecord(u8 *destination, u8 *source)
@@ -884,6 +976,26 @@ void mdlEffectSetUnitWeight(void)
   func_00487fb0_evt(1.0f);
 }
 
+
+
+#pragma opt_propagation off
+#pragma opt_propagation on
+    #pragma optimization_level 1
+    #pragma optimization_level 2
+#pragma optimization_level 1
+#pragma optimization_level 2
+// FUN_00489E80
+void func_00489e80(u8 *arg0)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0x4C);
+    if (temp_4 != 0) {
+        func_00492d10(temp_4);
+        ParticleUpdateScaled(arg0, 1.0f);
+    }
+    ParticleProjectVertices(arg0, 1.0f);
+}
 
 
 // FUN_00489EE0
@@ -1945,6 +2057,26 @@ void func_00492e30(u16 *arg0, f32 scale) {
 }
 
 
+extern void func_004841c0(u8 *arg0);
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_common_subs on
+#pragma opt_propagation on
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_pulloutconstants off
+#pragma pop
+// FUN_00494680
+void func_00494680(void *arg0)
+{
+    func_004841c0(*(void **)((u8 *)arg0 + 0x10));
+    func_004841c0(*(void **)((u8 *)arg0 + 0x14));
+    jtbl_008873EC[0](arg0);
+}
+
+
 /* Stores 0 in the slot-table entry for param_2 (table at +0x18); -1 is the free state. */
 // FUN_004946D0
 void mdlEffectSlotSetZero(u8 *param_1, u16 param_2)
@@ -2135,6 +2267,28 @@ void func_00498d10(u8 *arg0, f32 fparg0) {
 }
 
 
+#pragma push
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_00498D20
+void func_00498d20(u8 *arg0) {
+    u8 *temp_4;
+    u8 *temp_7;
+    u8 *temp_7_2;
+
+    temp_4 = *(u8 **)(*(u8 **)(arg0 + 0x3C));
+    if (iGpffffbb64.c3 != 0xFF) {
+        temp_7 = *(u8 **)(temp_4 + 0x14);
+        *(MdlCol *)(temp_7 + 4) = iGpffffbb64;
+        return;
+    }
+    iGpffffbb64.c3 = 0xFE;
+    temp_7_2 = *(u8 **)(temp_4 + 0x14);
+    *(MdlCol *)(temp_7_2 + 4) = iGpffffbb64;
+    iGpffffbb64.c3 = 0xFF;
+}
+
+
 /* Calls kind slot +0x08 on the child at +0x3C, then frees the object; the kind index is at +0x38. */
 // FUN_0049A570
 void RingInstanceDestroy(u8 *arg0) {
@@ -2248,6 +2402,8 @@ extern u8 *GeometryCloneBlock(s32 arg0);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_00485fe0(s32 arg0);
 extern void *func_004a5bb0(void *source);
+
+
 /* Calls kind destroy slot +0x08 on the child at +0x3C, then frees arg0 through the allocator free table. */
 // FUN_004A18E0
 void FlashQuadDestroy(u8 *arg0) {
@@ -2453,6 +2609,29 @@ void WindSetVec3(u8 *arg0, f32 *arg1) {
 }
 
 
+extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
+extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
+extern s32 func_00481e30(s32 arg0);
+extern void TlpRelease(s32 arg0);
+extern s32 TlpAddRef(s32 arg0);
+// FUN_004A5DE0
+void func_004a5de0(u8 *arg0) {
+    s32 temp_4;
+    s32 temp_4_2;
+
+    temp_4 = (s32)(*(s32 *)((u8 *)(arg0) + 0xCC));
+    if (temp_4 != 0) {
+        TlpRelease(temp_4);
+    }
+    temp_4_2 = (s32)(*(s32 *)((u8 *)(arg0) + 0xD0));
+    if (temp_4_2 != 0) {
+        func_00481ee0((u8 **)temp_4_2);
+    }
+    GeometryBlockDestroy(*(s32 *)((u8 *)(arg0) + 0xC8));
+    (*jtbl_008873EC)(arg0);
+}
+
+
 // FUN_004A5E50
 void *func_004a5e50(void *source)
 {
@@ -2472,6 +2651,30 @@ void *func_004a5e50(void *source)
     memcpy(temp_16 + 0x30, arg0 + 0x30, 0x98);
     func_004a5ef0(temp_16, arg0);
     return temp_16;
+}
+
+
+// FUN_004A5EF0
+void func_004a5ef0(u8 *arg0, u8 *arg1)
+{
+    s32 temp_4;
+    s32 temp_4_2;
+
+    if (*(s32 *)(arg1 + 0xD0) != 0) {
+        temp_4 = *(s32 *)(arg0 + 0xD0);
+        if (temp_4 != 0) {
+            func_00481ee0((u8 **)temp_4);
+        }
+        *(s32 *)(arg0 + 0xD0) = func_00481e30(*(s32 *)(arg1 + 0xD0));
+        return;
+    }
+    if (*(s32 *)(arg1 + 0xCC) != 0) {
+        temp_4_2 = *(s32 *)(arg0 + 0xCC);
+        if (temp_4_2 != 0) {
+            TlpRelease(temp_4_2);
+        }
+        *(s32 *)(arg0 + 0xCC) = TlpAddRef(*(s32 *)(arg1 + 0xCC));
+    }
 }
 
 
@@ -2540,6 +2743,16 @@ void *func_004a6d90(void *source) {
 }
 
 
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+// FUN_004A6DC0
+void func_004a6dc0(u8 *arg0)
+{
+    func_004841c0((u8 *)*(s32 *)(arg0 + 0x58));
+    jtbl_008873EC[0](arg0);
+}
+
+
 // FUN_004A6E10
 void *func_004a6e10(void *source) {
     u8 *arg0 = (u8 *)source;
@@ -2586,8 +2799,6 @@ void mdlEffectRenderFlares(u8 *arg0)
     extern f32 sqrtf(f32 x);
     extern u8 D_007141B0[];
     extern f32 D_00922D80[];
-    typedef struct { u8 c0; u8 c1; u8 c2; u8 c3; } MdlCol;
-    extern MdlCol iGpffffbb64;
     extern f32 fGpffff8044;
     f32 normalization;
     f32 proj[4] __attribute__((aligned(16)));
@@ -3067,6 +3278,73 @@ loop_004adab0_check:
 }
 
 
+#pragma push
+#pragma optimization_level 3
+#pragma schedule off
+#pragma opt_loop_invariants off
+#pragma opt_rotateloops off
+#pragma tailcall off
+#pragma opt_common_subs off
+#pragma opt_propagation off
+#pragma pop
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+// FUN_004ADE80
+void func_004ade80(u8 *arg0)
+{
+    u8 frame[0x50];
+    s32 *var_16_2;
+    s32 temp_4;
+    u32 temp_18;
+    u32 var_16;
+    u32 var_17;
+
+    if (*(s32 *)(arg0 + 0x9C) == 0) {
+        *(u8 *)(frame + 0x4C) = 0xFF;
+        *(u8 *)(frame + 0x4D) = 0xFF;
+        *(u8 *)(frame + 0x4E) = 0;
+        *(u8 *)(frame + 0x4F) = 0xFF;
+        var_16 = 0;
+        goto loop_004ade80_a_check;
+loop_004ade80_a_body:
+        if (mdlCopyIndexedMatrix(*(u8 **)(arg0 + 0xA0), var_16, frame) != 0) {
+            primQuad3D((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
+            primAxisLine3D((f32 *)frame, 1, 30.0f);
+        }
+        var_16 += 1;
+loop_004ade80_a_check:
+        if (var_16 < (u32)*(u32 *)(arg0 + 0x28)) {
+            goto loop_004ade80_a_body;
+        }
+        return;
+    }
+    temp_4 = *(s32 *)(arg0 + 0x90);
+    temp_18 = *(u32 *)(arg0 + 0x28);
+    var_16_2 = *(s32 **)(arg0 + 0x98);
+    if ((*(s32 *)(arg0 + 0x2C) < temp_4) || (temp_4 == 0)) {
+        var_17 = 0;
+        goto loop_004ade80_b_check;
+loop_004ade80_b_body:
+        func_00485870((u8 *)*var_16_2);
+        var_16_2++;
+        var_17 += 1;
+loop_004ade80_b_check:
+        if (var_17 < temp_18) {
+            goto loop_004ade80_b_body;
+        }
+    }
+}
+
+
 // FUN_004ADFA0
 void func_004adfa0(u8 *arg0) {
     func_004adb50();
@@ -3338,6 +3616,8 @@ void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 }
 
 
+
+
 // FUN_004B13F0
 void func_004b13f0(void *object, s32 *arg1) {
     func_004865c0(object, *arg1);
@@ -3409,6 +3689,8 @@ void mdlEffectSeqStep(void)
 }
 
 
+
+
 // FUN_004B1950
 void *func_004b1950(void *opaqueSource) {
     u8 *arg0 = opaqueSource;
@@ -3433,6 +3715,8 @@ void *func_004b1950(void *opaqueSource) {
     func_004b1a00(temp_2, arg0);
     return temp_2;
 }
+
+
 
 
 // FUN_004B1AA0
@@ -3466,6 +3750,11 @@ void mdlEffectStoreWord(u32 *param_1, u32 param_2)
 {
   *param_1 = param_2;
 }
+#pragma push
+#pragma opt_loop_invariants on
+#pragma pop
+
+
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma push
