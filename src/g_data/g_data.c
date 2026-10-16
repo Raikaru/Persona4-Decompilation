@@ -235,7 +235,7 @@ extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 extern u32 datPersonaGetNextExp(int persona);
 
 extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
-extern void func_0010d560(void);
+extern void datBuildPersonaDisplayName(void);
 extern u8 DAT_007973a0[0x24];
 
 static inline u8* idxFirst(u32 a, u8* b)
@@ -1629,7 +1629,7 @@ void func_0010d490(u8* param_1, u8* param_2)
         DAT_007973a0[index + 0x12] = value;
     }
 
-    func_0010d560();
+    datBuildPersonaDisplayName();
 }
 /* measured: see the annotation above the matching `on` pragma (func_0010d490). */
 #pragma opt_loop_invariants off
@@ -1637,7 +1637,7 @@ void func_0010d490(u8* param_1, u8* param_2)
 
 
 // FUN_0010D560
-void func_0010d560(void)
+void datBuildPersonaDisplayName(void)
 {
     FUN_0043f9c8(DAT_00796de0, 0, 0x12);
     FUN_0043f9c8(DAT_00796e00, 0, 0x12);
@@ -1648,7 +1648,7 @@ void func_0010d560(void)
 }
 
 // FUN_0010D620
-u32 func_0010d620(s16 arg0)
+u32 datPersonaDisplayName(s16 arg0)
 {
     if (arg0 == 1)
     {

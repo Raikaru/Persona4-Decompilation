@@ -222,7 +222,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
 {
     extern u8 *func_0046a770(char *filename);
     extern void kAssertFail(const void *file, s32 line);
-    extern u32 func_0010d620(s16 unit);
+    extern u32 datPersonaDisplayName(s16 unit);
     extern u32 func_0010d6d0(s16 unit);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
     extern u32 datCalcGetHpById(s16 unit);
@@ -304,7 +304,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     alpha = opacity & 0xFF;
     textColor = alpha | -0x100;
     if (fullName != 0) {
-        name = (u8 *)func_0010d620(unit);
+        name = (u8 *)datPersonaDisplayName(unit);
     } else {
         name = (u8 *)func_0010d6d0(unit);
     }

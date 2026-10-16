@@ -72,7 +72,7 @@ extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
 extern s32 func_00102980(void);
 extern s32 func_0029d030(void);
-extern s32 func_0010d620(s16 arg0);
+extern s32 datPersonaDisplayName(s16 arg0);
 extern s8 func_002487e0(s32 arg0, s32 arg1);
 extern s32 cmmNameRecord(s32 arg0);
 extern s64 func_00248760(s32 arg0);
@@ -331,7 +331,7 @@ s32 cmmPersonaDetailShow(void)
     }
     key = func_002487e0(id & 0xFFFF, 0);
     if (key != 0) {
-        itfMesWindowSetString(mesMgr, 0, func_0010d620((s16)key));
+        itfMesWindowSetString(mesMgr, 0, datPersonaDisplayName((s16)key));
     }
     frFontExCopyString(cmmNameRecord(id & 0xFFFF), buf, 0x80);
     itfMesWindowSetString(mesMgr, 1, buf);
