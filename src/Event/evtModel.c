@@ -578,11 +578,14 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
     return 0;
 }
 
+// Per-frame step for one queued node's resource. Frame 0 sets the motion, frame 5
+// begins the rotation (with a sound range when flag 0x2 is set), frame 25 ends
+// it. Returns 1 once the resource is gone or the motion has ended, else 0.
 // FUN_00292EF0
 #pragma push
 #pragma opt_rebuildconditionals off
 #pragma opt_propagation off
-s32 func_00292ef0(s32 arg0, u8 *arg1) {
+s32 evtModelStepMotion(s32 arg0, u8 *arg1) {
     EvtModelRec *rec = (EvtModelRec *)arg1;
     SVec3 sp;
     u32 id;
@@ -782,8 +785,11 @@ void evtModelQueueMotion(u16 arg0, s32 arg1, f32 fparg0) {
     *(s32 *)(temp_16 + 0x2C) = D_0063C930[*(s32 *)(sp + 4)];
 }
 
+// Queues motion like evtModelQueueMotion, but first removes this resource's
+// motion-3 nodes and stores `duration` with the node. Creates the manager task
+// on first use.
 // FUN_00293550
-void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
+void evtModelQueueTimedMotion(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
     u8 sp[0x2C];
     u32 var_2;
     u8 **temp_10;

@@ -1405,7 +1405,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     {
                         u16 duration = *(u16 *)(command + 0x18);
                         f32 speed = factor / fGpffff8218;
-                        func_00293550(*(u16 *)(resource + 0xC), duration, 3, speed);
+                        evtModelQueueTimedMotion(*(u16 *)(resource + 0xC), duration, 3, speed);
                     }
                 }
                 break;

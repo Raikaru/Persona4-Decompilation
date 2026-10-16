@@ -28,7 +28,7 @@ void MT_Scene_BuildResMatrix(u32 *matrix, const void *position, u32 *angles);
 u32 MT_Scene_BeginResPathAnimById(u32 resourceId, u32 pathAddress, f32 speed, u32 loop);
 s32 MT_Scene_SetResSoundRange(u32 resourceId, s32 motion, u8 sound, s16 start, s16 end, s16 flags);
 void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed);
-void func_00293550(u16 resourceId, u16 duration, s32 motion, f32 speed);
+void evtModelQueueTimedMotion(u16 resourceId, u16 duration, s32 motion, f32 speed);
 void evtModelQueueMotionAt(u16 resourceId, s32 motion, f32 positionX, f32 positionY,
                   f32 positionZ, f32 angle, s32 flags, u8 *settings);
 
