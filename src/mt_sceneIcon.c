@@ -47,7 +47,7 @@ void func_0026d840(void)
 s32 func_0026d890(u8 *arg0)
 {
     u8 sp3C[4];
-    s32 handle;
+    u8 *handle;
     u8 *w;
     u8 *icon;
     s32 icon_raw;
@@ -71,7 +71,7 @@ s32 func_0026d890(u8 *arg0)
         *(u32 *)w = 1;
         break;
     case 1:
-        handle = (s32)func_004b1130(*(s32 *)(w + 0xC));
+        handle = func_004b1130(*(s32 *)(w + 0xC));
         if ((icon_raw = (s32)MT_Scene_GetRes(*(u16 *)(w + 4))) != 0) {
             icon = (u8 *)icon_raw;
             kind = (*(u16 *)icon & 0xFFC00) >> 0xA;
@@ -80,13 +80,13 @@ s32 func_0026d890(u8 *arg0)
                 if (prev != 0) {
                     MT_Scene_SpawnIconTask(prev);
                 }
-                *(s32 *)(icon + 0x140) = handle;
+                *(u8 **)(icon + 0x140) = handle;
             } else if (kind == 3) {
                 prev = *(s32 *)(icon + 0x140);
                 if (prev != 0) {
                     MT_Scene_SpawnIconTask(prev);
                 }
-                *(s32 *)(icon + 0x140) = handle;
+                *(u8 **)(icon + 0x140) = handle;
             }
         }
         return -1;
