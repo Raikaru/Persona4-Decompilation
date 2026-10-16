@@ -16,10 +16,17 @@ typedef struct FldFrame {
     u8 unk24[0x08];
     u8 *noiseTask;         /* 0x2C: FldNoiseTaskCreate result */
     u8 *panelTask;         /* 0x30: FldPanel2dSetState target */
-    u8 unk34[0x1820];
+    u8 unk34[0x10];
+    u8 cellPick[4];        /* 0x44: four bytes set by the board scan in k_fldResource.c */
+    u8 unk48[0x04];
+    s32 boardParam;        /* 0x4C: argument to FldBoardGenerate */
+    u8 unk50[0x04];
+    u8 cellGrid[0x1800];   /* 0x54: 24 rows of 16 cells, 0x10 bytes each; copied from the HBN table */
     u8 *auxBuffer;         /* 0x1854: buffer passed to scrStartProcedureChecked, released by FldAuxBufferRelease */
     u32 auxSize;           /* 0x1858: byte size of auxBuffer */
-    u8 unk185C[0x7C];
+    u8 unk185C[0x08];
+    u8 *hbnHandle;         /* 0x1864: HBN load handle; its +0x110 word is the loaded table */
+    u8 unk1868[0x70];
     u32 eventCount;        /* 0x18D8: entry count of eventTable; checked against the event index */
     u8 *eventTable;        /* 0x18DC: FLD_EVT_TABLE, 0x2C-byte FldEvtEntry array */
     u16 *secondaryTable;   /* 0x18E0: NpcTable_InstallSecondaryTable copy */
