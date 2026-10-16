@@ -21,7 +21,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern void func_004a5fc0(u8 *arg0);
+extern void EffSpriteUpdate(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
 extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
