@@ -34,7 +34,7 @@ void func_0029e980(s32);
 void func_00106390(s32, s32);
 s32 calReadDayFlagMask(void);
 void calWriteDayFlagMask(s32);
-void func_001113b0(void);
+void datInitDefaultGameState(void);
 void func_004534f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern s32 iGpffffb1bc;
@@ -107,8 +107,9 @@ static inline s64 p4_0011_load_s8(s8 *ptr)
 }
 
 
+// Intent: Return the saved word at the cleared-state global; g_data stores it as the cleared flag [inferred]
 // FUN_00110460
-u32 func_00110460(void) {
+u32 datGetClearedWord(void) {
     return *(u32 *)D_0079BEF4;
 }
 // Intent: Return the day count of the calendar month at 1-based index arg0 from the twelve-entry month-length table, in the April-based year [inferred]
@@ -282,8 +283,9 @@ loop_9:
 fail:
     return 0;
 }
+// Intent: Set one byte of the 1536-entry state table; the new-game reset clears the table [inferred]
 // FUN_00110810
-void func_00110810(s32 arg0, u8 arg1)
+void datSetStateTableEntry(s32 arg0, u8 arg1)
 {
     D_0079B6D8[arg0] = arg1;
 }
@@ -519,8 +521,9 @@ block_10:
 }
 /* measured: restore opt_rebuildconditionals on after calGetDayWindowFlags. */
 #pragma opt_rebuildconditionals on
+// Intent: Set the state-image pending flag that calRestoreStateImage reads [inferred]
 // FUN_00110E70
-void func_00110e70(s32 arg0)
+void calSetStateImagePending(s32 arg0)
 {
     iGpffffb1b4 = arg0;
 }
@@ -559,7 +562,7 @@ s32 calRestoreStateImage(void)
         sdlSchedulerDestroy();
         func_00122520(1, 1);
         temp_17 = calReadDayFlagMask();
-        func_001113b0();
+        datInitDefaultGameState();
         iGpffffb1f0 = 1;
         buffer = (s32)&D_007BBF00;
         temp_18 = iGpffffb1b8;
@@ -575,15 +578,17 @@ s32 calRestoreStateImage(void)
 }
 /* measured: restore opt_propagation after calRestoreStateImage. */
 #pragma opt_propagation on
+// Intent: Destroy the scheduler, then run the two cleanup calls with arguments (1, 1) and (0x1B, 0, 0, 8) [inferred]
 // FUN_00110FC0
-void func_00110fc0(void) {
+void sdlSchedulerTeardown(void) {
     sdlSchedulerDestroy();
     func_00122520(1, 1);
     func_001029a0(0x1B, 0, 0, 8);
 }
 
+// Intent: Release the active script-process handle if one exists; kwln registers it as a callback [inferred]
 // FUN_00111010
-void func_00111010(void)
+void scrReleaseActiveHandle(void)
 {
     s32 temp_2;
 
@@ -684,8 +689,9 @@ void calRestoreDayFlagMask(void)
 /* Measured: 1032 bytes, 58 resolved relocations, eight zero alignment bytes.
  * Default names are separate eight-byte objects. Keep each table's base
  * with the trailing halfword offsets and reload maxima after Persona setup. */
+// Intent: Reset unit, roster, party, time and community state to the new-game defaults [inferred]
 // FUN_001113B0
-void func_001113b0(void)
+void datInitDefaultGameState(void)
 {
     s32 j;
     s32 i;
@@ -726,7 +732,7 @@ void func_001113b0(void)
     extern u16 D_005E4630[];
     extern s16 D_005E4650[];
 
-    func_00110e70(0);
+    calSetStateImagePending(0);
     datSetPendingFlag(0);
     func_0010d490(iGpffff9bb8, iGpffff9bc0);
     datSetMoney(0);
@@ -811,7 +817,7 @@ loop_4_check:
     i = 0;
     goto loop_5_check;
 loop_5:
-    func_00110810(i, 0);
+    datSetStateTableEntry(i, 0);
     i++;
 loop_5_check:
     if (i < 1536) {
@@ -826,9 +832,10 @@ loop_5_check:
     func_00106390(0x3D, 1);
     func_00106390(0x3E, 0);
 }
+// Intent: Carry persistent state across a reset: save the flags, category values and money, reset to the defaults, then restore them with the new end date [inferred]
 // FUN_00111BC0
 #pragma opt_propagation off
-void func_00111bc0(void)
+void datCarryOverPersistentState(void)
 {
     s32 saved;
     s32 value;
@@ -847,7 +854,7 @@ void func_00111bc0(void)
     u32 datGetMoney(void);
     void datSetMoney(u32);
     void datSetCategoryValueById(s16, s16, s16);
-    u32 func_00110460(void);
+    u32 datGetClearedWord(void);
     void func_00110470(u32);
     void fclCombineSaveSnapshot(void);
     void fclCombineRestoreSnapshot(void);
@@ -858,7 +865,7 @@ void func_00111bc0(void)
     flag = 0;
     *(Vec4 *)buf = *(Vec4 *)D_005E4700;
     value = func_001064f0(0x7C);
-    end_date = (s32)func_00110460() + 1;
+    end_date = (s32)datGetClearedWord() + 1;
     if ((func_00106600(0x4A0) & 0xFF) > 0) {
         buf[4] = 0x4A0;
         count = (count + 1) & 0xFF;
@@ -986,7 +993,7 @@ loop3_check:
         goto loop3;
     }
     result = (s32)datGetMoney();
-    func_001113b0();
+    datInitDefaultGameState();
     i = 0;
     goto loop4_check;
 loop4:

@@ -80,7 +80,7 @@ extern u8 D_00794E70[];
 
 extern s32 scrGetCmdTimer(void);
 extern s32 calRestoreStateImage(void);
-extern s32 func_00110fc0(void);
+extern s32 sdlSchedulerTeardown(void);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
 extern s32 func_00159f70(s32 arg0);
@@ -262,7 +262,7 @@ s32 K_Cmd_CALL_TITLE(void)
     if (func_0015f660() == 0) {
         return 0;
     }
-    func_00110fc0();
+    sdlSchedulerTeardown();
     return 1;
 }
 

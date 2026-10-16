@@ -17,7 +17,7 @@ extern void func_002aaaa0(void);
 extern s32 kwlnTaskGetState(s32);
 extern s32 hsndSlotIsStarting();
 extern void func_001029a0(s32, s32, s32, s32);
-extern void func_001113b0(void);
+extern void datInitDefaultGameState(void);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_00762CB8;
@@ -152,7 +152,7 @@ s32 initBootChainStep(u8 *arg0)
 void initBootChainDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
-    func_001113b0();
+    datInitDefaultGameState();
     func_001029a0(0x1B, 0, 0, 5);
 }
 
