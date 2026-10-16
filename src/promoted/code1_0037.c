@@ -1440,7 +1440,7 @@ s32 btlShuffleSeq3Run(u8 *arg0) {
 }
 #pragma pop
 // FUN_0037ED90
-s32 func_0037ed90(u8 *arg0, s32 arg1) {
+s32 btlShuffleSeqFindNearestCard(u8 *arg0, s32 arg1) {
     f32 work[4];
     f32 screen[2];
     f32 delta[2];
