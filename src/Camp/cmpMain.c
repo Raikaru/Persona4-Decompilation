@@ -27,7 +27,7 @@ s32 func_0046a750(s32 param);
 
 /* Camp-family helpers declared locally; the retail TUs are separate objects. */
 void titleSlotTableInit(u8 *arg0);
-s32 func_0012e250(u8 *arg0);
+s32 titleSlotsSettled(u8 *arg0);
 void titleSlotSetMode(u8 *arg0, s32 arg1);
 s32 func_0012e1d0(u8 *arg0);
 void titleFreeSpriteNodes(u8 *arg0);
@@ -119,7 +119,7 @@ s32 func_0012c510(u8 *unusedTask) {
         break;
     case 2:
         *(s32 *)(p + 0x10) = 1;
-        if ((func_0012e250(p + 0x18) != 0) && (*(s32 *)(p + 0x10) == 1)) {
+        if ((titleSlotsSettled(p + 0x18) != 0) && (*(s32 *)(p + 0x10) == 1)) {
             if (D_008C024E[0] & 0x40) {
                 *(s32 *)(p + 4) = 0;
                 *(s32 *)p = 3;
