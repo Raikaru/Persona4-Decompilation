@@ -31,7 +31,7 @@ extern u8 D_005EB560[];
 extern u8 D_005EB570[];
 extern u8 D_005EB578[];
 extern s16 D_005EB590[];
-extern void func_0011cee0(u8* arg0);
+extern void shdPersonaLevelUpRoute(u8* arg0);
 extern u8 D_005E9FD0[];
 extern u8 D_005EA2E0[];
 extern u8 D_005EA5F0[];
@@ -313,8 +313,8 @@ void func_00135dc0(u8* work)
     extern s32 shdPersonaGetChildTask(u8 *work);
     extern void shdPersonaDrawSineQuad(u8 *work);
     extern void shdPersonaDrawSmoothBar(u8 *work);
-    extern void func_0011de40(u8 *work, u8 arg1);
-    extern void func_0011e400(u8 *work, u8 *arg1);
+    extern void shdPersonaDispCtlSetMode(u8 *work, u8 arg1);
+    extern void shdPersonaDispCtlGetPosition(u8 *work, u8 *arg1);
     extern s32 func_0011e460(u8 *work);
     extern f32 cosf(f32 angle);
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
@@ -484,7 +484,7 @@ void func_00135dc0(u8* work)
         }
         {
             u8 *portraitTask = (u8 *)shdPersonaGetChildTask(menu->portrait);
-            func_0011de40(portraitTask, 0xFF);
+            shdPersonaDispCtlSetMode(portraitTask, 0xFF);
             shdPersonaDrawSmoothBar(portraitTask);
             shdPersonaDrawSineQuad(portraitTask);
             if ((menu->visible & 0x1000) != 0) {
@@ -493,7 +493,7 @@ void func_00135dc0(u8* work)
                     s32 pulseFrame;
                     u8 pulseOpacity;
                     s32 pulseColor;
-                    func_0011e400(portraitTask, (u8 *)&position);
+                    shdPersonaDispCtlGetPosition(portraitTask, (u8 *)&position);
                     /* The position getter runs before the live timer read. */
                     pulseFrame = menu->pulseTimer;
                     if (pulseFrame < 5) {
@@ -625,7 +625,7 @@ void func_001370e0(u8* arg0) {
    opt_loop_invariants on around the table loop reproduce the retail
    register/constant placement (MATCH). Plain `(u16)float` casts use MWCC's
    native overflow-safe conversion sequence (c.le.s 0x4F000000; trunc.w.s;
-   mfc1; andi 0xFFFF with the out-of-line subtract/or path). func_0011cee0
+   mfc1; andi 0xFFFF with the out-of-line subtract/or path). shdPersonaLevelUpRoute
    receives the pointer loaded from 0x1CB4. The switch jump table has case 9
    targeting the default block, so no empty case is needed. */
 #pragma opt_common_subs off
@@ -678,7 +678,7 @@ s32 func_001371a0(u8* arg0, s32 arg1) {
         table = D_005EAF20;
         *(s32*)(arg0 + 0x1C) = 0x48D;
         *(s16*)(arg0 + 0x60) = -1;
-        func_0011cee0(*(u8**)(arg0 + 0x1CB4));
+        shdPersonaLevelUpRoute(*(u8**)(arg0 + 0x1CB4));
         break;
     case 7:
         table = D_005EAF20;
@@ -688,7 +688,7 @@ s32 func_001371a0(u8* arg0, s32 arg1) {
         table = D_005EB230;
         *(s32*)(arg0 + 0x1C) = 0xA13;
         *(s16*)(arg0 + 0x60) = 0xE;
-        func_0011cee0(*(u8**)(arg0 + 0x1CB4));
+        shdPersonaLevelUpRoute(*(u8**)(arg0 + 0x1CB4));
         break;
     case 10:
         *(s32*)(arg0 + 0x1C) = 8;
