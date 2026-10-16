@@ -12,23 +12,48 @@ typedef struct DatSkillEntry
 {
     u8 flags00;         // 0x00. Bit 0x2 (skill is used), bit 0x40 (not applied to a target).
     u8 flags01;         // 0x01. Bit 0x2.
-    u8 field02;         // 0x02. Compared with 1 and 2 [inferred: mode].
+    u8 damageClass;     // 0x02. 1 physical, 2 magic; selects the datScriptRunCalc formula (datCalcSkillAmount, datCalcHitResult).
     u8 kind03;          // 0x03. Switch selector for the skill effect kind.
     u8 unknown04[0x0A]; // 0x04..0x0D
-    u8 field0E;         // 0x0E. Cost or power, tested against 0 and 100 [inferred].
+    u8 accuracy;        // 0x0E. Tested against 0 and 100 [inferred].
     u8 unknown0F[2];    // 0x0F..0x10
-    u8 field11;         // 0x11. Tested against 0x10 and 8 [inferred].
-    u8 unknown12[2];    // 0x12..0x13
-    u8 field14;         // 0x14
-    u8 unknown15[3];    // 0x15..0x17
+    u8 effectKind;      // 0x11. HP effect kind (datCalcSkillAmount). Tested against 0x10 and 8 [inferred].
+    s16 power;          // 0x12. HP power (datCalcSkillAmount).
+    u8 spEffectKind;    // 0x14. SP effect kind (datCalcSkillAmount).
+    u8 unknown15;       // 0x15
+    s16 spPower;        // 0x16. SP power (datCalcSkillAmount).
     u8 mode18;          // 0x18. Mode tested against 1, 2 and 3 [inferred].
     u8 field19;         // 0x19. Compared with 100 (0x64) [inferred].
     u8 unknown1A[0x0A]; // 0x1A..0x23
     u8 kind24;          // 0x24. Switch selector and compared with 3, 6, 0xD, 0xE.
-    u8 field25;         // 0x25
+    u8 critRate;        // 0x25. 0 means never critical, 0x64 means always; datCalcHitResult rolls against it.
     u8 field26;         // 0x26
     u8 unknown27;       // 0x27
 } DatSkillEntry;
+
+/* Affinity word from datCalcGetAffinity: the high bits are affinity kinds (null, repel,
+   drain, weak, resist) and the low 16 bits are the damage percent. When those low bits
+   are zero the percent defaults to 125 for weak, 50 for resist, and 100 for null, repel
+   or drain (datCalcGetAffinity). */
+enum DatAffinity
+{
+    AFF_NULL = 0x01000000,
+    AFF_REPEL = 0x02000000,
+    AFF_DRAIN = 0x04000000,
+    AFF_WEAK = 0x08000000,
+    AFF_RESIST = 0x10000000
+};
+
+/* Outcome codes from datCalcResolveSkillHit. Values other than 0x200 are [inferred]
+   from the callers in btlTarget.c. */
+enum DatResolveOutcome
+{
+    DAT_RESOLVE_HIT = 1,
+    DAT_RESOLVE_MISS = 4,
+    DAT_RESOLVE_NULL = 0x100,
+    DAT_RESOLVE_REPEL = 0x200,
+    DAT_RESOLVE_DRAIN = 0x400
+};
 
 /* Battle unit HP, SP, bad-status, and death accessors defined in datCalc.c.
  * The unit argument is the battle unit's DatUnit record; retail reads its fields. */

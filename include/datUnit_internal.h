@@ -13,6 +13,8 @@
 #define BTL_STATUS_DOWN 0x100000
 /* DatUnit.flags bit 0x8: btlCond_DOWN (btlAICommand.c) returns 0 while it is set. */
 #define DAT_UNIT_FLAG_DOWN 0x8
+/* DatUnit.flags bit 0x4: enemy unit. Enemy stats come from the enemy table (iGpffffb3c4/3c8, id-indexed); clear means a persona record. */
+#define DAT_UNIT_FLAG_ENEMY 0x4
 
 /* One battle unit record (stride 0x30). Shared by datUnit.c and datCalc.c. */
 typedef struct DatUnit
