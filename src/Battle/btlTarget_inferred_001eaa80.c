@@ -89,7 +89,7 @@ extern f32 D_00881410[];
 extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
-extern BtlPacket *func_002306d0(void);
+extern BtlPacket *btlBossCreateStepEndBgmPacket(void);
 extern u8 *btlSoundCreateStreamPacket(s32 arg0, void *arg1);
 extern void sprintf(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
@@ -350,7 +350,7 @@ s32 btlEffectScriptEnqueueEventPacket(void) {
     temp_2 = scrGetParamInt(1);
     switch (temp_2) {
     case 0:
-        temp_2_2 = (u8 *)func_002306d0();
+        temp_2_2 = (u8 *)btlBossCreateStepEndBgmPacket();
         *(s16 *)(temp_2_2 + 0x48) = 2;
         btlPacketEnqueue(temp_2_2, 1);
         break;

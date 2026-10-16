@@ -31,7 +31,7 @@ extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
 extern s32 func_00454a60(void *msg, s32 kind);
 extern void H_Cdvd_ReadSync(s32 handle);
-extern s32 func_002308a0(u32 type, u16 id, char *name);
+extern s32 btlBossResolveModelName(u32 type, u16 id, char *name);
 extern s32 mdlFileIsTypePac(u32 type, u16 id);
 extern s32 func_00230c00(u32 type, u16 id, char *path);
 extern s32 func_00230d30(void *model);
@@ -145,7 +145,7 @@ void func_002311a0(MdlAppObj *obj)
 // FUN_002312E0
 void func_002312e0(void)
 {
-    mdlSetModelCallbacks(func_002308a0, mdlFileIsTypePac, func_00230c00,
+    mdlSetModelCallbacks(btlBossResolveModelName, mdlFileIsTypePac, func_00230c00,
                   func_00230d30, func_00230f20);
 }
 
