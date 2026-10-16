@@ -55,11 +55,11 @@ extern void evtDestroyEventScene(u8 *arg0, s32 arg1);
 extern void evtApplyEventBlock(UnkStruct_002865E0 *arg0);
 extern u8 *kwlnGetCamera(void);
 extern f32 K_View_GetFov(u8 *arg0);
-extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_00293fc0(s32 arg0);
-extern u8 *func_00294040(s32 arg0);
-extern u8 *func_0028fb90(void);
-extern u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary,
+extern s32 evtPMFileReaderCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 evtPMFileReaderIsDone(s32 arg0);
+extern u8 *evtPMFileReaderGetWork(s32 arg0);
+extern u8 *evtPolygonMovieAlloc(void);
+extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
                          u8 *secondary, u8 *overlay);
 extern s32 evtEffectTableCreate(void);
 extern void func_00290ec0(s32 arg0, s32 arg1);
@@ -79,7 +79,7 @@ extern char D_0063C340[];
 extern char D_0063C380[];
 extern char D_0063C350[];
 extern f32 func_0028f960(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
-extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
+extern void evtPolygonMovieLerpPose(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
                           f32 *arg4);
 typedef signed __int128 s128;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
@@ -179,22 +179,22 @@ s32 evtStepEventTask(u8 *sdkTaskBytes) {
             *(u32 *)data |= 1;
             *(f32 *)(data + 0x750) = K_View_GetFov(kwlnGetCamera());
             *(s32 *)(data + 0x77C) =
-                func_00293ed0(*(s32 *)(data + 0x78C),
+                evtPMFileReaderCreate(*(s32 *)(data + 0x78C),
                               *(s32 *)(data + 0x790),
                               *(s32 *)(data + 0x794),
                               *(s32 *)(data + 0x788));
         }
     case 3:
-        if (func_00293fc0(*(s32 *)(data + 0x77C)) != 0) {
+        if (evtPMFileReaderIsDone(*(s32 *)(data + 0x77C)) != 0) {
             flag = (*(u32 *)data & 0x80000000) != 0;
             if (flag != 0) {
                 *(s32 *)(data + 0x76C) = 4;
             } else {
                 *(s32 *)(data + 0x76C) = 8;
             }
-            info = func_00294040(*(s32 *)(data + 0x77C));
-            *(u8 **)(data + 4) = func_0028fb90();
-            func_0028fc40(data + 0x678, *(u8 **)(data + 4),
+            info = evtPMFileReaderGetWork(*(s32 *)(data + 0x77C));
+            *(u8 **)(data + 4) = evtPolygonMovieAlloc();
+            evtPolygonMovieBind(data + 0x678, *(u8 **)(data + 4),
                           *(u8 **)(info + 0x34), *(u8 **)(info + 0x38),
                           *(u8 **)(info + 0x3C));
         }
@@ -274,7 +274,7 @@ func_00285dd0_loop_check:
         result = mtMiscDispatchKeyAction(*(s32 *)(data + 0x78C),
                                *(s32 *)(data + 0x790));
         if ((result != 1) && (result != 2)) {
-            func_00294040(arg0);
+            evtPMFileReaderGetWork(arg0);
             result = cmmTableLookupValue(*(s32 *)(data + 0x78C),
                                    *(s32 *)(data + 0x790),
                                    *(s32 *)(data + 0x794));
@@ -1060,7 +1060,7 @@ have_matrix:
         *arg4 = value0;
         *arg5 = value1;
     } else {
-        func_0028f990(count, ratio, matrix0, matrix1, dst);
+        evtPolygonMovieLerpPose(count, ratio, matrix0, matrix1, dst);
         *arg4 = func_0028f960(count, ratio, value0, end_value0);
         *arg5 = func_0028f960(count, ratio, value1, end_value1);
     }

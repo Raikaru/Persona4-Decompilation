@@ -208,8 +208,9 @@ void evtBlurFilterTaskDestroy(u8 *unusedTask) {
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+// Intent: Event command blur-filter task for types 1 and 2: builds the filter parameters from the record (mode, colours, alpha, timing) and creates the task under arg0 [inferred]
 // FUN_0028D390
-void func_0028d390(s32 arg0, s32 type, u8 *arg2)
+void evtCreateBlurFilterTask(s32 arg0, s32 type, u8 *arg2)
 {
     EvtFilterFrame frame;
     s32 mode1;
@@ -455,10 +456,11 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
  * avoids retaining integer addresses across calls. opt_lifetimes preserves
  * the independent mode/task/filter roles. The 44-byte template copy keeps
  * its two qwords, doubleword tail, and final float on advancing cursors. */
+// Intent: Blur-filter task builder for event command types 1, 2, 3 and 5: fills one filter parameter block per type and creates the task under arg0 [inferred]
 // FUN_0028DC30
 #pragma push
 #pragma opt_lifetimes on
-s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
+s32 evtCreateBlurFilterTaskSet(s32 arg0, s32 type, u8 *arg2)
 {
     extern u8 D_0063C660[];
     typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
