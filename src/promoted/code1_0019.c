@@ -25,7 +25,6 @@ typedef struct P4_95730_Bytes4 {
     u8 w;
 } P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
-extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
 
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
