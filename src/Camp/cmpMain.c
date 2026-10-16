@@ -52,7 +52,7 @@ void cmpSkillFreeSprites(u8 *arg0);
 void radarReleaseSpritesAndEntries(u8 *arg0);
 void cmpPersonaMenuRelease(u8 *arg0);
 void radarDestroy(u8 *arg0);
-void func_00361a30(u8 *arg0);
+void cmpSystemMenuRelease(u8 *arg0);
 void datCommunityMenuRelease(u8 *arg0);
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -342,7 +342,7 @@ void cmpMainTaskDestroy(u8 *arg0) {
         radarDestroy(p + 0x7750);
         break;
     case 10:
-        func_00361a30(p + 0x9000);
+        cmpSystemMenuRelease(p + 0x9000);
         break;
     case 9:
         datCommunityMenuRelease(p + 0x4774);

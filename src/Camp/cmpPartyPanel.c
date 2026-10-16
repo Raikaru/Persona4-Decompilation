@@ -11,7 +11,7 @@ void memset(void* dest, s32 value, s32 size);
 void cmpPartyPanelDraw(u8* arg0, u8* arg1);
 s32 cmpPartyPanelTaskStep(u8* arg0);
 void cmpPartyPanelTaskDestroy(u8* arg0);
-s32 func_00362f00(u8* arg0);
+s32 cmpPartyPanelStepRowMotion(u8* arg0);
 void cmpPartyPanelDrawRow(u8* arg0, s64 arg1);
 void sdkRenderStateSetDefault(void);
 void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
@@ -238,7 +238,7 @@ void cmpPartyPanelDraw(u8* arg0, u8* arg1) {
     for (i = 0; i < *(s16*)(arg1 + 0xA); i++) {
         p = arg1 + (s16)i * 0x28;
         if (*(s32*)(p + 0x30) != 0) {
-            func_00362f00(p + 0x10);
+            cmpPartyPanelStepRowMotion(p + 0x10);
         }
     }
     if (*(u16*)(arg1 + 0) & 1) {
