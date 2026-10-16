@@ -1,3 +1,4 @@
+#include "rw_types_internal.h"
 #include "model_motion_internal.h"
 #include "texture_callback_internal.h"
 #include "include_asm.h"
@@ -16,7 +17,7 @@ typedef struct RwMatrixTolerance {
     f32 Identity;
 } RwMatrixTolerance;
 
-typedef struct RwV3d { f32 x; f32 y; f32 z; } Vec3;
+typedef RwV3d Vec3;
 typedef struct RwFrame RwFrame;
 typedef struct RwCamera RwCamera;
 typedef struct RpWorld RpWorld;
