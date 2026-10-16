@@ -2998,18 +2998,18 @@ void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s3
     limit_low = arg6 & 0xFF;
     depth_low = arg5 & 0xFF;
     if (depth_low < limit_low) {
-        if (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x54] == 1) {
-            SceneDraw_SetResVisible(*(u16 *)(((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
+        if (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].occupied == 1) {
+            SceneDraw_SetResVisible(((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].resourceId, 1);
             *arg7 += 1;
-            exits = (~arg2 & ((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x5E]) & 0xFF;
+            exits = (~arg2 & ((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].exits) & 0xFF;
             if (exits & 1) {
                 north_limit = (arg3 & 1) ? 3 : limit_low;
-                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
                     /* 0015B5DC..0015B5E8: no next_depth assignment. */
                     north_limit += 1;
-                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 1) != 0)) {
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 1) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
@@ -3018,11 +3018,11 @@ void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s3
             }
             if (exits & 2) {
                 west_limit = (arg3 & 2) ? 3 : limit_low;
-                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (limit_low == 4)) {
                     next_depth = (u8)arg5;
-                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 2) != 0)) {
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 2) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
@@ -3031,12 +3031,12 @@ void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s3
             }
             if (exits & 4) {
                 south_limit = (arg3 & 4) ? 3 : limit_low;
-                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
                     /* 0015B8C0..0015B8CC: retain the prior next_depth. */
                     south_limit += 1;
-                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 4) != 0)) {
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 4) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
@@ -3045,11 +3045,11 @@ void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s3
             }
             if (exits & 8) {
                 east_tmp = arg3 & 8;
-                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (limit_low == 4)) {
                     next_depth = (u8)arg5;
-                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 8) != 0)) {
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 8) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
