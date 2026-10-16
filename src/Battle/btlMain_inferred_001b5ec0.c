@@ -51,7 +51,7 @@ extern s32 btlCurrentUnitId(void);
 extern s32 func_002aa3f0(void);
 extern void btlResetEffectSlots(void);
 extern void fieldSceneUnload();
-extern void func_001b69c0(void);
+extern void btlMainUnloadFieldScene(void);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];
@@ -442,7 +442,7 @@ void btlMainSetupCameraAndEffects(void)
 /* measured: opt_propagation off probes the retail ordered second float load group. */
 /* measured: func_001b68d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_001b68d0(void)
+void btlMainSaveFieldSnapshotAndUnload(void)
 {
     f32 d;
     f32 c;
@@ -487,7 +487,7 @@ void btlMainLoadBattleFieldScene(void)
 }
 
 // FUN_001B69C0
-void func_001b69c0(void)
+void btlMainUnloadFieldScene(void)
 {
     u8 *p;
 
@@ -498,7 +498,7 @@ void func_001b69c0(void)
 }
 
 // FUN_001B6A00
-void func_001b6a00(void)
+void btlMainStepFieldSceneLoad(void)
 {
     fieldSceneLoadStep();
 }

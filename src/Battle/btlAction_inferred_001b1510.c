@@ -107,7 +107,7 @@ extern s32 func_001fae10(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
-extern void func_001b69c0(void);
+extern void btlMainUnloadFieldScene(void);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];
@@ -460,7 +460,7 @@ void btlMainSceneSetInit(void)
 // FUN_001B19C0
 s32 btlMainSceneSetUpdate(void)
 {
-    extern s32 func_001b6a00(void);
+    extern s32 btlMainStepFieldSceneLoad(void);
     extern u32 btlCountUnitRecords(void);
     extern void func_0014a2e0(u32 arg0);
     extern void btlMainSetupCameraAndEffects(void);
@@ -480,7 +480,7 @@ s32 btlMainSceneSetUpdate(void)
     u8 *temp_2;
     u8 *temp_2_2;
 
-    if (func_001b6a00() == 0) {
+    if (btlMainStepFieldSceneLoad() == 0) {
         goto done;
     }
     if (btlCountUnitRecords() != 0) {
@@ -1762,10 +1762,14 @@ s32 btlMainEnemyDeadUpdate(void)
     return 0;
 }
 
+/* The phase index at iGpffffb3ac+0x2FC is the first word of the phase work.
+ * Index 11 in D_005F7180 is the WIN phase (btlMainWinInit/btlMainWinUpdate). */
+#define BTLMAIN_PHASE_WIN 0xB
+
 // FUN_001B4860
-s32 func_001b4860(s32 *arg0)
+s32 btlMainIsNotWinPhase(s32 *arg0)
 {
-    return *arg0 != 0xB;
+    return *arg0 != BTLMAIN_PHASE_WIN;
 }
 
 /* Complete packet and color phases preserve the live group dependency, all four
@@ -1881,7 +1885,7 @@ void btlMainWinInit(u8 *arg0) {
     *(s64 *)(pkt + 0x60) = *(s64 *)base;
     btlPacketEnqueue(pkt, 0);
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
-        u8 *const callbackPacket = func_00194c90(func_001b4860, arg0);
+        u8 *const callbackPacket = func_00194c90(btlMainIsNotWinPhase, arg0);
         btlPacketEnqueue(callbackPacket, 1);
         {
             u8 *const transitionPacket = btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xDC0), *(s32 *)(base + 0x30), 0, *(s64 *)(callbackPacket + 0x58), 0x34100);
@@ -2286,7 +2290,7 @@ s32 btlMainEndUpdate(void) {
     if (*(s32 *)(D_0076449C + 0x174) != 0) {
         return 0;
     }
-    func_001b69c0();
+    btlMainUnloadFieldScene();
     p = D_0076449C;
     if ((*(s32 *)(p + 0xC) & 0x400) != 0 &&
         *(u16 *)(p + 0x1C) != 2) {

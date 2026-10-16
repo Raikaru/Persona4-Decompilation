@@ -369,7 +369,7 @@ s32 btlRelease(void)
     s32 *base;
     func_001b0bf0();
     btlUnitFreeRemovedUnits();
-    func_001b68d0();
+    btlMainSaveFieldSnapshotAndUnload();
     func_001b6110();
     btlEffectFreeAllNodes();
     func_001f9c40();

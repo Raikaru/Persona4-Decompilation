@@ -6,7 +6,9 @@
 struct RwV3d;
 struct RtQuat;
 
-/* Controller work fields read by 001b4880 and its 001b5300 update. */
+/* Phase work passed to the WIN phase handlers (btlMainWinInit/Update) at
+ * iGpffffb3ac+0x2FC. The first word is the current phase index, shared with
+ * every phase handler (WIN is 0xB). */
 typedef struct BtlCameraSequenceWork {
     s32 state;
     s32 field04;
