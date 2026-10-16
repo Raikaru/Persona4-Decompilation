@@ -85,7 +85,7 @@ extern s32 func_001f6f60(u8 *arg0);
 extern s32 func_001f7140(u8 *arg0);
 extern void func_001f62b0(void);
 extern s32 func_001f62f0(u8 *arg0);
-extern void func_001f86d0(void);
+extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
 extern void btlEncounterEntryClearMessageFade(s32 arg0);
@@ -869,7 +869,7 @@ void btlActionAnalyzeUpdate(u8 *action)
             btlPacketEnqueue(cameraPacket, 0);
         }
         func_001f62b0();
-        func_001f86d0();
+        btlSoundStopBank3();
         if (func_001eb860() == 1) {
             *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
             btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
@@ -3536,8 +3536,8 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 func_001f68e0(u8 *arg0);
     extern BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
-    extern u8 *func_001f83b0(u32 value);
-    extern u8 *func_001f8430(u32 value);
+    extern u8 *btlSoundCreateMarkReadyPacket(u32 value);
+    extern u8 *btlSoundCreateClearReadyPacket(u32 value);
     extern s32 func_001f99c0();
     extern u8 *btlCutinCreatePacket(u8 *data);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -4132,7 +4132,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             if (hasCutin != 0) {
                 btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagSetPacket((BtlUnit *)act->unit), 0);
             } else if (isSkill16 != 0) {
-                btlPacketEnqueue((u8 *)(func_001f83b0((u32)act->unit)), 0);
+                btlPacketEnqueue((u8 *)(btlSoundCreateMarkReadyPacket((u32)act->unit)), 0);
             }
             if (sp2B0 != 0) {
                 waitPkt2 = (BtlPacketTiming *)(btlPacketCreateImmediate());
@@ -4262,7 +4262,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 pkt28->ownerId = actionId;
                 btlPacketEnqueue((u8 *)pkt28, 0);
             } else if (isSkill16 != 0) {
-                pkt29 = (BtlPacketTiming *)(func_001f8430((u32)act->unit));
+                pkt29 = (BtlPacketTiming *)(btlSoundCreateClearReadyPacket((u32)act->unit));
                 pkt29->queue = 4;
                 pkt29->startTime = animPkt27->endTime;
                 pkt29->ownerId = actionId;

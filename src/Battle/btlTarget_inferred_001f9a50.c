@@ -102,10 +102,10 @@ extern s32 func_001f6770(u8 *arg0);
 extern s32 func_001f6f60(u8 *arg0);
 extern s32 func_001f7140(u8 *arg0);
 extern void func_001f72e0(void);
-extern s32 func_001f8ea0(u8 *arg0, s32 arg1);
-extern s32 func_001f8f40(u8 *arg0, s32 arg1);
-extern s32 func_001f8fe0(u8 *arg0, s32 arg1);
-extern s32 func_001f90e0(u8 *arg0);
+extern s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -135,14 +135,14 @@ extern s32 func_001f90e0(u8 *arg0);
 /* measured: optimization_level 1 required for exact func_001f72e0 codegen. */
 /* measured: opt_loop_invariants off baseline for func_001f72e0. */
 /* measured: restore optimization_level 2 after func_001f72e0. */
-/* measured: opt_propagation off preserves func_001f8ea0's loop constants. */
-/* measured: close opt_propagation after func_001f8ea0 probe. */
-/* measured: opt_propagation off preserves func_001f8f40's loop constants. */
-/* measured: close opt_propagation after func_001f8f40 probe. */
-/* measured: opt_propagation off preserves func_001f8fe0's loop constants. */
-/* measured: close opt_propagation after func_001f8fe0 probe. */
-/* measured: opt_propagation off tested for func_001f90e0; retains loop constants. */
-/* measured: close opt_propagation after func_001f90e0. */
+/* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
+/* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
+/* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
+/* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
+/* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
+/* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
+/* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
+/* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
 // FUN_001F9A50
 void func_001f9a50(s32 arg0, s32 arg1) {
     s32 f = *(u16 *)((u8 *)iGpffffb3ac + 0xB3A);

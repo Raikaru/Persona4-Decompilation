@@ -151,13 +151,13 @@ extern void btlTargetRewindWorkPtr(u8 **arg0);
 extern s32 func_001f39d0(u8 **arg0);
 extern void btlTargetRewindWorkCount(void);
 
-extern s32 func_001f8380(u8 **arg0);
+extern s32 btlSoundMarkSlotReady(u8 **arg0);
 extern s32 func_00106600(s16 arg0);
 extern s32 datCalcAddHp(s32 arg0, s32 arg1);
 extern s32 datCalcAddSp(s32 arg0, s32 arg1);
 extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
 
-extern s32 func_001f8400(u8 **arg0);
+extern s32 btlSoundClearSlotReady(u8 **arg0);
 extern s32 iGpffffb464;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);

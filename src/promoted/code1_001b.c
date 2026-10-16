@@ -193,7 +193,7 @@ extern void btlCameraUpdateEffectList(u8 *arg0);
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlTargetCreateEmptyPacket(void);
-extern void func_001f86d0(void);
+extern void btlSoundStopBank3(void);
 extern void btlDamageStartFlash(s32 arg0);
 extern void btlEncounterSetReady(s32 task);
 extern s32 btlEncounterIsIntroDone(s32 task);
