@@ -131,7 +131,7 @@ extern s32 scrGetParamInt(s32 arg0);
 extern s64 datGetPartyId(s32 arg0);
 extern u8 *scrGetContext(void);
 extern void fclMiscOrStateFlags(s32 arg0);
-extern void func_002bd270(s32 arg0);
+extern void fclMiscSetStatusCode(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 *kwlnGetCamera(void);
 extern void *mdlGetMatrix(void *arg0);
@@ -184,8 +184,8 @@ extern u32 iGpffff9f50;
 extern void kAssertFail(const void *, s32);
 extern s32 D_005F1930[];
 extern s32 D_005F1934[];
-extern void func_002bd410(void);
-extern void func_002bd3c0(void);
+extern void fclMiscStopAndClose(void);
+extern void fclMiscSetDoneFlag(void);
 
 extern u8 *D_007643D0;
 extern FieldRenderStateSetFunction D_00887300[];
@@ -255,8 +255,8 @@ s32 func_001709c0(u8 *arg0)
     switch (state) {
     case 0:
         FldSlotBroadcastState(1);
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
         sdkSndStartStream(0, 0, 0, 3);
@@ -317,8 +317,8 @@ s32 func_00170bc0(u8 *arg0)
     case 0:
         if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
             FldPanel2dSetState(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 1);
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         *(s32 *)(temp_16 + 0x10) = cmpMainTaskCreate((s32)arg0, 1);
         if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
@@ -380,8 +380,8 @@ s32 func_00170e50(u8 *arg0)
     state = *(s32 *)(temp_16 + 4);
     switch (state) {
     case 0:
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
         *(s32 *)(temp_16 + 0x10) = scrStartProcedureIndex(0xF, (u8 *)iGpffffb284, 1);
@@ -518,8 +518,8 @@ s32 func_00171280(u8 *arg0)
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
             func_0015a7c0(FldStepIndex());
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
@@ -579,8 +579,8 @@ s32 func_001714b0(u8 *arg0)
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
             func_0015a7c0(FldStepIndex());
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
