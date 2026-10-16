@@ -2191,7 +2191,7 @@ block_368:
                 func_0045af60(0, 0, 0, 6);
                 if (func_00106850(temp_19_7) == 5) {
                     temp_16_76 = (s16) (temp_19_7);
-                    func_00110810(temp_16_76, func_002b2cb0(clndGetMoonPhase(temp_16_76) & 0xFF, (s32) (*(s16 *)(work + 0x12)), 0xFF, 0, 1) & 0xFF);
+                    datSetStateTableEntry(temp_16_76, func_002b2cb0(clndGetMoonPhase(temp_16_76) & 0xFF, (s32) (*(s16 *)(work + 0x12)), 0xFF, 0, 1) & 0xFF);
                     for (var_16_20 = 0; var_16_20 < 0x2FF; var_16_20++) {
                         if (!(clndGetMoonPhase(var_16_20) & 0xFF)) {
                             if (func_002be160(((s32) (func_00106b20(var_16_20) & 0xFFF00) >> 8), func_00106b20(var_16_20) & 0xFF) == 1) {
@@ -2277,7 +2277,7 @@ block_368:
                 for (var_18_6 = 1; var_18_6 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_6++) {
                     temp_19_8 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
                     yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
-                    func_00110810(temp_19_8, func_002b2cb0((clndGetMoonPhase(temp_19_8) & 0xFF), func_00106600(temp_19_8) & 0xFF, 0xFF, 0, 1) & 0xFF);
+                    datSetStateTableEntry(temp_19_8, func_002b2cb0((clndGetMoonPhase(temp_19_8) & 0xFF), func_00106600(temp_19_8) & 0xFF, 0xFF, 0, 1) & 0xFF);
                     temp_16_85 = (func_00106a90(temp_19_8) / 5U) * (func_00106600(temp_19_8) & 0xFF);
                     temp_2_yen = func_002e7a60();
                     func_002e7a80(temp_2_yen + temp_16_85);
@@ -2372,7 +2372,7 @@ block_368:
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
             temp_3_flag = clndGetMoonPhase((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]));
-            func_00110810((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]), temp_3_flag | 1);
+            datSetStateTableEntry((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]), temp_3_flag | 1);
             func_002bb550((*(s8 *)(work + 0x10)));
             temp_2_98 = (*(s16 *)(work + 0xC18)) + 1;
             (*(s16 *)(work + 0xC18)) = temp_2_98;

@@ -411,7 +411,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
             if ((clndGetMoonPhase(p->rows.paired[markIndex].id) & 0xFF) & 1) {
                 reorder[out_count] = p->rows.paired[markIndex].id;
                 value = clndGetMoonPhase(p->rows.paired[markIndex].id);
-                func_00110810(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
+                datSetStateTableEntry(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
                 p->rows.paired[markIndex].id = -1;
                 p->rows.paired[markIndex].quantity = 1;
                 out_count++;
@@ -441,7 +441,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
             if ((clndGetMoonPhase(p->rows.paired[sortedIndex].id) & 0xFF) & 1) {
                 p->rows.paired[sortedIndex].quantity = 1;
                 value = clndGetMoonPhase(p->rows.paired[sortedIndex].id);
-                func_00110810(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
+                datSetStateTableEntry(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
             }
         }
     }
@@ -579,7 +579,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
             if ((clndGetMoonPhase(p->rows.paired[markIndex].id) & 0xFF) & 1) {
                 reorder[out_count] = p->rows.paired[markIndex].id;
                 value = clndGetMoonPhase(p->rows.paired[markIndex].id);
-                func_00110810(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
+                datSetStateTableEntry(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
                 p->rows.paired[markIndex].id = -1;
                 p->rows.paired[markIndex].quantity = 1;
                 out_count++;
@@ -609,7 +609,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
             if ((clndGetMoonPhase(p->rows.paired[sortedIndex].id) & 0xFF) & 1) {
                 p->rows.paired[sortedIndex].quantity = 1;
                 value = clndGetMoonPhase(p->rows.paired[sortedIndex].id);
-                func_00110810(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
+                datSetStateTableEntry(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
             }
         }
     }

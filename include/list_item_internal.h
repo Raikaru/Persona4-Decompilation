@@ -9,7 +9,7 @@ u32 func_00106850(s16 item);
 s8 func_00106ac0(s16 item);
 s8 func_00106af0(s16 item);
 s64 func_00106b80(s16 item);
-void func_00110810(s32 item, u8 flags);
+void datSetStateTableEntry(s32 item, u8 flags);
 u8 clndGetMoonPhase(s32 index);
 void func_002bc4b0(f32 depth, s16 item, s32 x, s32 y, s32 color, s32 font, s32 mode);
 s32 func_002bdff0(s16 item);

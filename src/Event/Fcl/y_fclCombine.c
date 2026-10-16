@@ -205,7 +205,7 @@ extern char iGpffffa8c8;
 extern void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
 extern void sdkSndFadeOutChannelFrames(s32, s32, s32);
-extern s32 func_00110460(void);
+extern s32 datGetClearedWord(void);
 extern void func_00105690(s32, s32);
 extern void datSetMoney(s32);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
@@ -10264,7 +10264,7 @@ s32 fclCombineTaskCreate(u8 *arg0)
     *(s32 *)(p + 0x20) = 0x41000000;
     *(s32 *)(p + 0x24) = 0x41200000;
     *(s16 *)(p + 0x28) = 0;
-    if (func_00110460() != 0 &&
+    if (datGetClearedWord() != 0 &&
         datGetFlag(0x1DD) != 0 &&
         datGetFlag(0x1301) != 0 &&
         datGetFlag(0x1302) != 0 &&

@@ -1729,7 +1729,7 @@ extern s32 func_0015a6a0(void);
 extern u8 *iGpffff9db0;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0015a160(void);
-extern u32 func_00110460(void);
+extern u32 datGetClearedWord(void);
 extern u32 D_0079B3CC[];
 extern char D_005E45A0[];
 typedef struct DatSaveMetadata {
@@ -1813,7 +1813,7 @@ level_test:
     resultLevel = 99;
 level_done:
     summary.metadata.level = resultLevel;
-    summary.metadata.cleared = func_00110460();
+    summary.metadata.cleared = datGetClearedWord();
     if (D_0079B3CC[0] & 0x10000)
         summary.metadata.difficulty = 0;
     else if (D_0079B3CC[0] & 0x20000)

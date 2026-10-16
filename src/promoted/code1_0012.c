@@ -93,7 +93,7 @@ extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 
 extern s32 mdlPrepareModel(void *arg0);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
-extern void func_00111bc0(void);
+extern void datCarryOverPersistentState(void);
 extern s32 func_0025e800(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0025e8b0(s32 arg0);
 extern s32 func_0025e8f0(s32 arg0);
@@ -1406,7 +1406,7 @@ s32 clndPromptUpdate(u8 *arg0)
     temp_2 = *(u32 *)temp_16;
     switch (temp_2) {
     case 0:
-        func_00111bc0();
+        datCarryOverPersistentState();
         *(u32 *)temp_16 = 1;
         goto block_20;
     case 1:
@@ -1602,7 +1602,7 @@ s32 clndSceneUpdate(u8 *arg0)
         *(u32 *)temp_16 = 2;
         goto state_done;
     state2:
-        func_001113b0();
+        datInitDefaultGameState();
         calRestoreDayFlagMask();
         calendarSyncFromDate();
         calendarSetMode(1);
@@ -3878,7 +3878,7 @@ s32 func_0012aa70(u8 *task)
     extern s32 calReadDayFlagMask(void);
     extern void calWriteDayFlagMask(s32 task);
     extern s32 calCaptureDayFlagMask(void);
-    extern void func_001113b0(void);
+    extern void datInitDefaultGameState(void);
     extern void func_00122520(s32 task, s32 arg1);
     extern void func_00122640(s32 task, s32 arg1);
     extern s32 fadeStatus(void);
@@ -4109,7 +4109,7 @@ s32 func_0012aa70(u8 *task)
         break;
     case 10:
         *(s32 *)(work + 0x8C) = calReadDayFlagMask();
-        func_001113b0();
+        datInitDefaultGameState();
         *(s32 *)work = 0xB;
         *(s32 *)(work + 0x34) = mcIconTaskCreate(task, 0);
     case 11:

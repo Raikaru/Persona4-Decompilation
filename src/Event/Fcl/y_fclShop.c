@@ -59,18 +59,18 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
     for (i = 0; i < 0x2FF; i++) {
         if (((func_00106b20(i) & 0xFFF00) >> 8) == 0 &&
             ((func_00106b50(i) & 0xFFF00) >> 8) == 0) {
-            func_00110810(i, clndGetMoonPhase(i) | 4);
+            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         } else if (!(func_00106b20(i) & 0xFF) && !(func_00106b50(i) & 0xFF)) {
-            func_00110810(i, clndGetMoonPhase(i) | 4);
+            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
         if ((func_002be100((u8)func_00106ac0(i)) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
-            func_00110810(i, clndGetMoonPhase(i) | 4);
+            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         } else if ((func_002be100((u8)func_00106ac0(i)) & 0xFF) ==
                    (func_002be100(4) & 0xFF) && (s8)func_00106af0(i) < 2) {
-            func_00110810(i, clndGetMoonPhase(i) | 4);
+            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         }
     }
     return temp_17;
@@ -86,8 +86,8 @@ void func_002bdea0(void)
 
         t = clndGetMoonPhase(i);
         if (t & 2) {
-            func_00110810(i, 0);
-            func_00110810(i, 4);
+            datSetStateTableEntry(i, 0);
+            datSetStateTableEntry(i, 4);
         }
     }
 }
