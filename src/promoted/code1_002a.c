@@ -78,8 +78,8 @@ extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
-extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_002bdb50(s32 arg0, s8 arg1);
 extern void func_002bdea0(void);
 extern s32 func_002e7510(s32 arg0);
@@ -522,10 +522,10 @@ s32 func_002abf70(u8 *arg0) {
                       -1, 0, 0, temp_17, 0, 0);
         if (D_008C027A[0] & 0x8000) {
             *(s32 *)(temp_16 + 0x6C0) =
-                func_002b2cb0(*(s32 *)(temp_16 + 0x6C0), 1, 3, 0, 1);
+                fclAddClamped(*(s32 *)(temp_16 + 0x6C0), 1, 3, 0, 1);
         } else if (D_008C027A[0] & 0x2000) {
             *(s32 *)(temp_16 + 0x6C0) =
-                func_002b2d00(*(s32 *)(temp_16 + 0x6C0), 1, 0, 3, 1);
+                fclSubClamped(*(s32 *)(temp_16 + 0x6C0), 1, 0, 3, 1);
         } else if (D_008C024E[0] & 0x40) {
             if (*(s32 *)(temp_16 + 0x6C8) != 0) {
                 *(s32 *)(temp_16 + 0x6C8) = 0;

@@ -132,8 +132,8 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     s8 tens;
     s8 flag;
 
-    bounds = func_002b29e0(22.0f, 17.0f);
-    origin = func_002b2970(position.x + 284.0f, position.y + 6.0f);
+    bounds = fclMakeBoundsPacket(22.0f, 17.0f);
+    origin = fclMakeVec2(position.x + 284.0f, position.y + 6.0f);
     value = number;
     if ((value == -1) || fclDigitIsZero(&value)) {
         ones = 10;
@@ -206,7 +206,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
             {
                 f32 shiftX = origin.x - 18.0f;
 
-                shifted = func_002b2970(shiftX, origin.y);
+                shifted = fclMakeVec2(shiftX, origin.y);
             }
             {
                 f32 pointX, pointY;
@@ -232,7 +232,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
             {
                 u8 *draw = *(u8 **)(task + 0x38) + offset + 0x104;
 
-                redrawn = func_002b2970(origin.x - 18.0f, origin.y);
+                redrawn = fclMakeVec2(origin.x - 18.0f, origin.y);
                 fclSpriteStartEntrance(draw, redrawn, *(u32 *)&color, *(u32 *)((u32)&color), 0,
                               ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
             }
@@ -241,7 +241,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
         u8 *draw = *(u8 **)(task + 0x38) + (s32)secondIndex * 0x220 + 0x104;
 
         if ((*(s16 *)draw & 1) == 1) {
-            retrace = func_002b2970(origin.x - 18.0f, *(f32 *)(draw + 0x2C));
+            retrace = fclMakeVec2(origin.x - 18.0f, *(f32 *)(draw + 0x2C));
             fclSpriteStartEntrance(draw, retrace,
                           ((const DigitStoredWord *)(draw + 0x75))->word,
                           ((const DigitStoredWord *)((u32)draw + 0x75))->word, *(u8 *)(draw + 0x5E), 0,
@@ -273,8 +273,8 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
     s8 ones;
     s8 tens;
 
-    bounds = func_002b29e0(22.0f, 17.0f);
-    origin = func_002b2970(position.x + 284.0f, position.y + 6.0f);
+    bounds = fclMakeBoundsPacket(22.0f, 17.0f);
+    origin = fclMakeVec2(position.x + 284.0f, position.y + 6.0f);
     value = (s16)number;
     if ((value == -1) || fclDigitIsZero(&value)) {
         ones = 10;
@@ -333,7 +333,7 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
         *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1F8) = glyphY;
         *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x1FC) = glyphWidth;
         *(f32 *)((u8 *)((u32)offset + (u32)slot) + 0x200) = glyphHeight;
-        shifted = func_002b2970(origin.x - 18.0f, origin.y);
+        shifted = fclMakeVec2(origin.x - 18.0f, origin.y);
         {
             f32 pointX, pointY;
             pointX = shifted.x;

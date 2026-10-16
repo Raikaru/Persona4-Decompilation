@@ -16,8 +16,8 @@ typedef struct {
 
 /* Value constructors. The struct is returned through the hidden result
    pointer in $a0, ahead of the coordinates in $f12/$f13/$f14. */
-FclVec2 func_002b2970(f32 x, f32 y);
-FclVec3 func_002b29a0(f32 x, f32 y, f32 z);
+FclVec2 fclMakeVec2(f32 x, f32 y);
+FclVec3 fclMakeVec3(f32 x, f32 y, f32 z);
 
 /* Constructors also expose the same position as an eight-byte packet. */
 typedef union {
