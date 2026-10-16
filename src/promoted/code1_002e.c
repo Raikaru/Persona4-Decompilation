@@ -104,7 +104,7 @@ void fclObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
 
 
 // FUN_002E0690
-/* Parameter order taken from the caller at func_002d3ee0 in
+/* Parameter order taken from the caller at fclShopSlideInFromRight in
    src/Event/Fcl/y_fclShopDraw.c: b210 emits argument setup in source order, and
    retail emits `mov.s $f13, $f12` between `lw $a0` and `move $a1`, which only
    happens when the two floats are arguments 2 and 3.  The EABI assigns integer

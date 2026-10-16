@@ -240,7 +240,7 @@ s16 func_00106cd0(s16, s16);
    re-extends $a0). A value already typed s16 passes raw; fclShopStateUpdate's int
    ids are extended at every call, and an explicit (s32) widening before an s16
    parameter reproduces the single extension retail emits (func_002df020,
-   fclShopDrawScrollThumb, func_002de5a0, func_002d5040, fclShopListInputStep). */
+   fclShopDrawScrollThumb, fclShopDrawItemCompare, func_002d5040, fclShopListInputStep). */
 u32 datEntryGetFlags(s16);
 u16 func_001068b0(s16);
 u16 func_001068e0(s16);
@@ -362,22 +362,22 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern void fclShopPlayItemCue(void *arg0);
     extern s32 fclShopIsSpecialItem(u16 arg0);
     extern void fclShopItemPanelDestroy(u8 *task);
-    extern void func_002caef0(void *arg0);
+    extern void fclShopSlideInFromLeft(void *arg0);
     extern void func_002cb6c0(void *arg0, s8 arg1);
     extern void func_002cdf80(void *arg0, s8 arg1);
     extern s32 fclShopListInputStep(void *arg0);
-    extern void func_002d3ee0(void *arg0);
-    extern s8 func_002d4760(void *arg0, s8 arg1);
+    extern void fclShopSlideInFromRight(void *arg0);
+    extern s8 fclShopUpdateTabs(void *arg0, s8 arg1);
     extern s32 fclShopStatusFlagToCode(s16 arg0);
     extern void fclShopDrawStats(void *arg0);
     extern void func_002d6190(void *arg0);
     extern void func_002d7300(void *arg0);
-    extern void func_002d7f90(void *arg0);
-    extern void func_002d8600(void *arg0);
-    extern void func_002da0a0(void *arg0);
+    extern void fclShopStartSelectionShake(void *arg0);
+    extern void fclShopHideSelectionSprites(void *arg0);
+    extern void fclShopSlideInFromAbove(void *arg0);
     extern void func_002db400(void *arg0);
     extern void fclShopLayoutPanels(void *arg0);
-    extern void func_002de5a0(void *arg0);
+    extern void fclShopDrawItemCompare(void *arg0);
     extern void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2);
     extern void func_002df4c0(void *arg0);
     extern s32 fclShopItemPanelCreate(s32 arg0, s16 arg1, u32 arg2);
@@ -1017,7 +1017,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xC48))) + 0x79) = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
         fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((temp_16_3[0] + temp_16_3[2]) - 80.0f, temp_16_3[1]), fclMakeVec2(temp_16_3[0] + temp_16_3[2], temp_16_3[1]), 0, 3, (s16) ((s16) (((*(s8 *)(work + 7)) + 1))));
         fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 3, (s16) (((*(s8 *)(work + 7)) + 1)));
-        func_002d7f90(arg0);
+        fclShopStartSelectionShake(arg0);
         for (var_20 = 0; var_20 < 7; var_20++) {
             temp_18_4 = (f32 *)(D_0063F560 + ((var_20 + 0x3A) * 8));
             func_002e09e0((*(void * *)(work + (var_20 * 4) + 0xD20)), 0x56, (f32) (var_20 + 0x64));
@@ -1109,7 +1109,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     case 0x10:                                      /* switch 1 */
         if (D_008C027A[0] & 0x4000) {
             (*(s8 *)(work + 7)) = fclAddClamped((s32) (*(s8 *)(work + 7)), 1, 5, 0, 2);
-            func_002d7f90(arg0);
+            fclShopStartSelectionShake(arg0);
             temp_16_7 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC));
             temp_f20_6 = temp_16_7[0];
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC44)))) + 0x2C)) = temp_f20_6;
@@ -1128,7 +1128,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C027A[0] & 0x1000) {
             (*(s8 *)(work + 7)) = fclSubClamped((s32) (*(s8 *)(work + 7)), 1, 0, 5, 2);
-            func_002d7f90(arg0);
+            fclShopStartSelectionShake(arg0);
             temp_16_12 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC));
             temp_f20_10 = temp_16_12[0];
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC44)))) + 0x2C)) = temp_f20_10;
@@ -1303,7 +1303,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             case 0:                                 /* switch 2 */
             case 1:                                 /* switch 2 */
             case 2:                                 /* switch 2 */
-                func_002da0a0(arg0);
+                fclShopSlideInFromAbove(arg0);
                 break;
             case 3:                                 /* switch 2 */
                 func_002db400(arg0);
@@ -1347,7 +1347,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         /* fallthrough */
     case 0x15:                                      /* switch 1 */
         if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xD60))))) == 0) {
-            func_002de5a0(arg0);
+            fclShopDrawItemCompare(arg0);
         }
         if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC58))))) == 0) {
             if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC4C))))) != 0) {
@@ -1471,7 +1471,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                     for (var_16_19 = 0; var_16_19 < 3; var_16_19++) {
                         fclObjStartAlpha((*(void * *)((u8 *)((work + (var_16_19 * 4))) + 0xC38)), 0U, 0xFFU, 0U, 0xA, 0);
                     }
-                    func_002d7f90(arg0);
+                    fclShopStartSelectionShake(arg0);
                     (*(s8 *)(work + 0)) = 0x11;
                 } else if (D_008C024E[0] & 0x40) {
                     fclObjStartTween((void *) (*(s32 *)(work + 0xED4)), (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xED4)))) + 0xC4)), 0.0f, 0, 2, 0);
@@ -1489,7 +1489,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         }
         break;
     case 0x16:                                      /* switch 1 */
-        func_002de5a0(arg0);
+        fclShopDrawItemCompare(arg0);
         for (var_19 = 0; ((s16) (var_19)) < (*(s8 *)(work + 9)); var_19 = (s16) ((var_19 + 1))) {
             if ((*(s16 *)(work + ((s16) var_19) * 2 + 0xF46)) != 0) {
                 (*(s16 *)(work + ((s16) var_19) * 2 + 0xF46)) = fclSubClamped((*(s16 *)(work + ((s16) var_19) * 2 + 0xF46)), 1, 0, 0, 1);
@@ -1891,7 +1891,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                     yListRebuild(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
                     break;
                 }
-                func_002caef0(arg0);
+                fclShopSlideInFromLeft(arg0);
                 fclShopSlideIndicator(arg0, 0);
                 sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C027A[0] & 4) {
@@ -1910,17 +1910,17 @@ s32 fclShopStateUpdate(u8 *arg0)
                     yListRebuild(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
                     break;
                 }
-                func_002caef0(arg0);
+                fclShopSlideInFromLeft(arg0);
                 fclShopSlideIndicator(arg0, 0);
                 sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C024E[0] & 0x20) {
-                func_002d3ee0(arg0);
+                fclShopSlideInFromRight(arg0);
                 (*(s8 *)(work + 0)) = 0x22;
                 fclObjStartTween((*(void * *)(work + 0xE2C)), (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xE2C)))) + 0xC4)), 0.0f, 0, 2, 0);
                 fclObjStartTween((*(void * *)(work + 0xE30)), (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xE30)))) + 0xC4)), 0.0f, 0, 2, 0);
                 sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x80) {
-                func_002d3ee0(arg0);
+                fclShopSlideInFromRight(arg0);
                 (*(s8 *)(work + 0)) = 0x22;
                 fclObjStartTween((*(void * *)(work + 0xE2C)), (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xE2C)))) + 0xC4)), 0.0f, 0, 2, 0);
                 fclObjStartTween((*(void * *)(work + 0xE30)), (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xE30)))) + 0xC4)), 0.0f, 0, 2, 0);
@@ -1959,7 +1959,7 @@ block_368:
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
             sdkSndStartStream(0, 0, 0, 6);
             nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
-            func_002d3ee0(arg0);
+            fclShopSlideInFromRight(arg0);
             fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 1);
             fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 1);
             fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
@@ -2240,7 +2240,7 @@ block_368:
                     }
                     (*(s16 *)(work + 4)) = fclAddClamped((s32) (*(s16 *)(work + 4)), 0, func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
                 }
-                func_002d4760(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
+                fclShopUpdateTabs(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
             }
             func_002df4c0(arg0);
             nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
@@ -2252,7 +2252,7 @@ block_368:
             (*(s8 *)(work + 0)) = 0x24;
             if ((*(s8 *)(work + 0xC24)) == 1) {
                 if (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) <= D_00748908[(*(s8 *)(work + 0x11))]) {
-                    func_002d8600(arg0);
+                    fclShopHideSelectionSprites(arg0);
                 } else {
                     (*(s8 *)(work + 0)) = 0x31;
                 }
@@ -2304,10 +2304,10 @@ block_368:
                 fclObjChangeFlagBit((*(void * *)(work + 0xE40)), 0, 1);
                 fclObjChangeFlagBit((*(void * *)(work + 0xE44)), 0, 1);
                 fclObjChangeFlagBit((*(void * *)(work + 0xE48)), 0, 1);
-                func_002d4760(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
+                fclShopUpdateTabs(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
                 (*(s8 *)(work + 0)) = 0x24;
                 if ((*(s8 *)(work + 0xC24)) == 1) {
-                    func_002d8600(arg0);
+                    fclShopHideSelectionSprites(arg0);
                 }
                 if ((*(s16 *)(work + 0xC16)) > 0) {
                     (*(s8 *)(work + 0xC1A)) = 0;
@@ -2318,7 +2318,7 @@ block_368:
                 nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
                 (*(s8 *)(work + 0)) = 0x24;
                 if ((*(s8 *)(work + 0xC24)) == 1) {
-                    func_002d8600(arg0);
+                    fclShopHideSelectionSprites(arg0);
                 }
             }
         }
@@ -2510,7 +2510,7 @@ block_368:
         fclShopDrawScrollThumb(arg0);
         if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xE38)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xCC4)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xCC0)), 1))) == 0) && ((D_008C0276[0] & 0x80) || (D_008C0276[0] & 0x20))) {
             sdkSndStartStream(0, 1, 0, 4);
-            func_002d8600(arg0);
+            fclShopHideSelectionSprites(arg0);
             fclObjChangeFlagBit((*(void * *)(work + 0xDE4)), 0, 0);
             fclObjChangeFlagBit((*(void * *)(work + 0xDE0)), 0, 1);
             sp650 = *(Vec2f *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xDCC))) + 0x2C);
@@ -2621,7 +2621,7 @@ block_368:
             *(FclDrawColor *)((u8 *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])) + 0x79) = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7)));
             fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7)));
-            func_002d7f90(arg0);
+            fclShopStartSelectionShake(arg0);
             fclShopLayoutPanels(arg0);
             fclObjChangeFlagBit((*(void * *)(work + 0xDE8)), 0, 0);
             fclObjChangeFlagBit((*(void * *)(work + 0xDEC)), 0, 0);
@@ -2830,7 +2830,7 @@ void fclDrawNumber(Vec2f arg0, f32 fparg0, FclDrawColor arg1, s32 arg2, s16 arg3
     } while (arg4 != 0);
 }
 // FUN_002CAEF0
-void func_002caef0(void *arg0) {
+void fclShopSlideInFromLeft(void *arg0) {
     Vec2f sp110;
     Vec2f sp108;
     Vec2f sp100;
@@ -3709,7 +3709,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
     s8 fclObjHasStatusFlags(u8 *);
     s8 yListKindFor(void *);
     void func_002b3050(s32, s32, s32, s64, s32, s16 *, s16 *);
-    s8 func_002d4760(void *, s8);
+    s8 fclShopUpdateTabs(void *, s8);
     void fclShopDrawSelectRow(void *, s16);
     void fclShopLayoutPanels(void *);
     ShopBuyWork *work;
@@ -4031,7 +4031,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                     work->f1170 = (work->slideWords + work->sel * 0x50)[(yListCountFor(work->list[work->sel])) * 0x10] + yListCountFor(work->list[work->sel]);
                 }
                 work->sel = fclAddClamped(work->sel, 1, 2, 0, 2);
-                func_002d4760(arg0, (s32)work->sel);
+                fclShopUpdateTabs(arg0, (s32)work->sel);
                 fclShopDrawSelectRow(arg0, work->sel);
                 work->cursor = 0;
                 work->scroll = 0;
@@ -4083,7 +4083,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                     work->f1170 = (work->slideWords + work->sel * 0x50)[(yListCountFor(work->list[work->sel])) * 0x10] + yListCountFor(work->list[work->sel]);
                 }
                 work->sel = fclSubClamped(work->sel, 1, 0, 2, 2);
-                func_002d4760(arg0, (s32)work->sel);
+                fclShopUpdateTabs(arg0, (s32)work->sel);
                 fclShopDrawSelectRow(arg0, work->sel);
                 work->cursor = 0;
                 work->scroll = 0;
@@ -4760,7 +4760,7 @@ s32 fclShopListInputStep(void *arg0)
     return 0;
 }
 
-/* measured: func_002d3ee0's full body was reconstructed (all call shapes,
+/* measured: fclShopSlideInFromRight's full body was reconstructed (all call shapes,
    u64 slot pairs, switch, loops) and compiles; nd 462 with inline
    D_0063F5xx[0]/[1] globals. Retail caches each absolute global base in $s0
    across the fclMakeVec2/fclObjStartPosition groups; mwcc b210 rematerialises
@@ -4791,7 +4791,7 @@ s32 fclShopListInputStep(void *arg0)
    Everything else here was already exact: switch dispatch, Vec2f-by-value
    arguments, and the raw u64 stack slots. */
 // FUN_002D3EE0
-void func_002d3ee0(void *arg0) {
+void fclShopSlideInFromRight(void *arg0) {
     Vec2f spC8;
     Vec2f spC0;
     Vec2f spB8;
@@ -4947,7 +4947,7 @@ typedef struct {
    three shop tabs' priority, y and colour; the selected tab is highlighted
    and tabs whose stock is exhausted are greyed out. */
 // FUN_002D4760
-s8 func_002d4760(void *arg0, s8 arg1) {
+s8 fclShopUpdateTabs(void *arg0, s8 arg1) {
     u8 colorA[3][4];
     u8 colorB[3][4];
     s16 primary[3];
@@ -5123,7 +5123,7 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
 
 // Draws the item's stat block: stat numbers with their deltas, labels, and the per-row slots.
 /* measured: MATCH, window 1108 words/4432B (1106 code words + 2 alignment).
-   Built on the func_002df020/func_002de5a0 levers: a switch on work[7]
+   Built on the func_002df020/fclShopDrawItemCompare levers: a switch on work[7]
    written 0, 1, 2; Vec2f-returning fclMakeVec2 and the colour calls used
    directly as arguments; labels through the inlined shopDrawLabel.  The
    stat numbers go through the inlined shopDrawStat, which puts their
@@ -5656,7 +5656,7 @@ void fclShopDrawSelectRow(void *arg0, s16 arg1) {
 }
 
 // FUN_002D7F90
-void func_002d7f90(void *arg0) {
+void fclShopStartSelectionShake(void *arg0) {
     s16 v1;
     u8 *p;
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
@@ -5717,7 +5717,7 @@ void fclShopSlideIndicator(void *arg0, s8 arg1) {
 }
 
 
-/* fclShopDrawSwingCursor's body; func_002da0a0 inlines it (retail re-reads the work
+/* fclShopDrawSwingCursor's body; fclShopSlideInFromAbove inlines it (retail re-reads the work
    pointer from the kept arg0 there). */
 static inline void shopSwingCursor(void *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
@@ -5755,7 +5755,7 @@ void fclShopDrawSwingCursor(void *arg0) {
 }
 
 // FUN_002D8600
-void func_002d8600(void *arg0) {
+void fclShopHideSelectionSprites(void *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
     s16 i;
     u8 *t;
@@ -6135,7 +6135,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
 #pragma pop
 
 // FUN_002DA0A0
-void func_002da0a0(void *arg0) {
+void fclShopSlideInFromAbove(void *arg0) {
     u8 *work;
     Vec2f *base;
     ShopSpinParam *fa;
@@ -6753,14 +6753,14 @@ static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
 }
 
 /* measured: MATCH, window 1148 words/4592B.  Written with the
-   func_002d5040/func_002de5a0 levers (Vec2f constructor and colour calls as
+   func_002d5040/fclShopDrawItemCompare levers (Vec2f constructor and colour calls as
    arguments, inlined label and stat helpers).  The prototype set this needs
    is one consistent contract: the item-table getters (func_001068b0,
    func_001068e0, func_00106940, func_00106970, func_00106600, datItemValue)
    take int, as retail passes the int item id to them unextended, and
    func_00106cd0 returns int; call sites that retail narrows (the
    datItemPrice argument here, the func_00106cd0 results in
-   func_002d5040/func_002de5a0) carry an explicit (s16).  The slot pointer is
+   func_002d5040/fclShopDrawItemCompare) carry an explicit (s16).  The slot pointer is
    indexed as ((void **)(work + 0xF18))[kind], which gives retail's
    `addu idx, idx, work`.  The outer dispatch is a switch written 1, 2, 0
    (retail tests 0, 2, 1); the inner one owns jtbl_007489F0 (cases 20-28). */
@@ -6883,7 +6883,7 @@ void fclShopDrawScrollThumb(void *arg0) {
    a statement before the call it loads $f20 before the colour and name
    calls instead of after them (517). */
 // FUN_002DE5A0
-void func_002de5a0(void *arg0) {
+void fclShopDrawItemCompare(void *arg0) {
     u8 *work;
     f32 size;
     f32 x;
