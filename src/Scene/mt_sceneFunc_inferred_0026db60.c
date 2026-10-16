@@ -104,7 +104,7 @@ extern f32 D_007612C4;
  * struct copies; each loop's i = 0 precedes the invariant scale products,
  * which opt_loop_invariants hoists while the (s16) conversion of the second
  * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. func_0025f430's
+ * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
  * colour parameter is declared u32 here (H011): retail converts arg2 for each
  * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push

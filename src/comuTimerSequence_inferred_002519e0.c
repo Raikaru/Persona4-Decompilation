@@ -26,7 +26,7 @@ extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 sdkSpritePackCreate(u8 *arg0);
-extern s32 func_0025f110(s32 arg0);
+extern s32 shdSpriteEnsureLoaded(s32 arg0);
 extern s32 datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
 extern s32 datPortraitIsLoaded(s32 arg0);
 extern s32 cmmRankUpCreate(s32 arg0, s32 *arg1); /* lint: allow H011 -- caller stores the returned v0 at temp_2[7] (retail keeps it); definition is void */
@@ -78,7 +78,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
     case 1:
         return -1;
     case 2:
-        if (func_0025f110(temp_2[4]) == 0) {
+        if (shdSpriteEnsureLoaded(temp_2[4]) == 0) {
             goto block_15;
         }
         if (datPortraitIsLoaded(temp_2[5]) == 0) {

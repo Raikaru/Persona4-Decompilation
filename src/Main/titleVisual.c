@@ -22,7 +22,7 @@ extern void mdlApplyColorToAtomics(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
 extern void mdlPrepareItemSlots(void *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
-extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 arg0);
@@ -127,7 +127,7 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
     if ((temp_1 & 0x10) != 0) {
         mdlEffectEmitMaskedTagPair();
     }
-    func_0025f3f0(temp_5, temp_4, temp_3, (s32)(temp_2 >> 8), (s32)(temp_2 & 0xFF), *(s32 *)(arg1 + 0x18), 0, (u8 *)(*(s32 *)(arg1 + 0x14)), 0);
+    shdSpriteDrawNow(temp_5, temp_4, temp_3, (s32)(temp_2 >> 8), (s32)(temp_2 & 0xFF), *(s32 *)(arg1 + 0x18), 0, (u8 *)(*(s32 *)(arg1 + 0x14)), 0);
     if ((temp_1 & 0x10) != 0) {
         mdlEffectEmitTagPair();
     }

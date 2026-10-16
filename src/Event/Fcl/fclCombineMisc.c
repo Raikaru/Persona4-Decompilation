@@ -407,7 +407,7 @@ typedef struct {
 extern u32 datPersonaCountSkills(void *arg0);
 extern u8 *yListAllocIndexTable(void);
 extern void fclListAddUnique(u8 *arg0, s16 arg1);
-extern void func_002e7010(u8 *arg0, s16 arg1);
+extern void fclListRemoveId(u8 *arg0, s16 arg1);
 extern void fclFreeWorkBlock(u8 *arg0);
 extern void func_00440b68(const void *arg0);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
@@ -535,7 +535,7 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
                     }
                 }
                 datPersonaAddSkill((u8 *)arg0, ((s16 *)pool)[pick]);
-                func_002e7010(pool, ((s16 *)pool)[pick]);
+                fclListRemoveId(pool, ((s16 *)pool)[pick]);
                 remaining--;
                 break;
             }

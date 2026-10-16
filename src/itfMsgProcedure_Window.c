@@ -11,7 +11,7 @@
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern void kAssertFail(const void *file, u32 line);
-extern s32 func_0025f110(void *arg);
+extern s32 shdSpriteEnsureLoaded(void *arg);
 extern void sdkSpritePackDestroy(u32 arg);
 extern void func_0046a750(void *arg);
 extern s32 H_Cdvd_LookupRequest(char *str, void *out);
@@ -1032,7 +1032,7 @@ s32 msgWinSelectionUpdate(u8 *unusedTask)
         work->sprite = sdkSpritePackCreate(D_0063C120);
         work->state = 1;
     case 1:
-        if (func_0025f110((void *)work->sprite) != 0) {
+        if (shdSpriteEnsureLoaded((void *)work->sprite) != 0) {
             work->state = 2;
         }
         break;
@@ -1053,7 +1053,7 @@ void msgWinSelectionDestroy(u8 *unusedTask)
     MsgProcWindowResource *work = &D_007245D0;
 
     if (D_007245D4 != 0) {
-        if (func_0025f110((void *)work->sprite) == 0) {
+        if (shdSpriteEnsureLoaded((void *)work->sprite) == 0) {
             kAssertFail(D_0063BFC0, 0x3D9);
         }
         sdkSpritePackDestroy(work->sprite);
@@ -1151,7 +1151,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
     extern PrimitiveRectangleColor iGpffffa784;
     extern PrimitiveRectangleWords D_0063C130;
     extern PrimitiveRectangleWords D_0063C140;
-    extern s32 func_0025f500(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2);
+    extern s32 shdSpriteDrawQueued(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2);
     extern s32 frFontCountRuns(s32 arg0);
     PrimitiveRectangleColor color;
     PrimitiveRectangleColor backgroundColor;
@@ -1272,17 +1272,17 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 switch (D_0088202A[0]) {
                 case 1:
                     chainA = 38.0f - ((1.0f - f) * 100.0f);
-                    func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
                     break;
                 case 2:
                     chainA = 38.0f - ((1.0f - f) * 100.0f);
-                    func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
                     break;
                 case 3:
                     prodB = 1.0f - f;
                     prodA = 100.0f * prodB;
-                    func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - prodA, 143.0f, 0.0f);
-                    func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - prodA, 143.0f, 0.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - prodA, 143.0f, 0.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - prodA, 143.0f, 0.0f);
                     break;
                 }
             }
@@ -1465,14 +1465,14 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         } else {
             switch (D_0088202A[0]) {
             case 1:
-                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                shdSpriteDrawQueued(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
                 break;
             case 2:
-                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                shdSpriteDrawQueued(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
                 break;
             case 3:
-                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
-                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
+                shdSpriteDrawQueued(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                shdSpriteDrawQueued(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
                 break;
             }
         }
@@ -2331,7 +2331,7 @@ s32 msgCalResourceUpdate(u8 *unusedTask)
         work->field8 = mtSceneBuildSpriteTable();
         work->field0 = 1;
     case 1:
-        if (func_0025f110((void *)work->field4) != 0 && func_0025f110((void *)work->field8) != 0) {
+        if (shdSpriteEnsureLoaded((void *)work->field4) != 0 && shdSpriteEnsureLoaded((void *)work->field8) != 0) {
             work->field0 = 2;
         }
         break;
@@ -2352,14 +2352,14 @@ void msgCalResourceDestroy(u8 *unusedTask)
     MsgProcWindowWork *work = &D_00882098;
 
     if (D_0088209C[0] != 0) {
-        if (func_0025f110((void *)work->field4) == 0) {
+        if (shdSpriteEnsureLoaded((void *)work->field4) == 0) {
             kAssertFail(D_0063BFC0, 0x7AA);
         }
         sdkSpritePackDestroy(work->field4);
         work->field4 = 0;
     }
     if (work->field8 != 0) {
-        if (func_0025f110((void *)work->field8) == 0) {
+        if (shdSpriteEnsureLoaded((void *)work->field8) == 0) {
             kAssertFail(D_0063BFC0, 0x7B0);
         }
         sdkSpritePackDestroy(work->field8);

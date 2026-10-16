@@ -83,7 +83,7 @@ extern s32 cldTimeChangeUpdate(u8 *arg0);
 extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
 extern s32 sdkSndStopChannel(s32 arg0);
 extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_0025f110(u8 *arg0);
+extern s32 shdSpriteEnsureLoaded(u8 *arg0);
 extern u8 D_00638F90[];
 extern void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1);
 extern char D_00637348[];
@@ -105,7 +105,7 @@ extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitTagPair(void);
-extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
+extern s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2);
 
 /* Source unit: src/promoted/code1_0026.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 00266a40-00267b20 */
@@ -150,7 +150,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
  * struct copies; each loop's i = 0 precedes the invariant scale products,
  * which opt_loop_invariants hoists while the (s16) conversion of the second
  * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. func_0025f430's
+ * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
  * colour parameter is declared u32 here (H011): retail converts arg2 for each
  * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
@@ -241,7 +241,7 @@ s32 cldTimeChangeUpdate(u8 *arg0)
         *(s32 *)(work + 0) = 1;
         break;
     case 1:
-        if (func_0025f110((u8 *)*(s32 *)(work + 4)) != 0) {
+        if (shdSpriteEnsureLoaded((u8 *)*(s32 *)(work + 4)) != 0) {
             *(s32 *)(work + 0) = 2;
             *(s32 *)(work + 0x14) = 0;
         }
@@ -266,7 +266,7 @@ s32 cldTimeChangeUpdate(u8 *arg0)
 // FUN_00266CC0
 void cldTimeChangeDraw(s32 arg0, s32 arg1)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 sinf(f32);
     extern s16 datGetDateIndex(void);
     s32 first;
@@ -292,49 +292,49 @@ void cldTimeChangeDraw(s32 arg0, s32 arg1)
         if (t < 15) {
             f32 s = sinf((fGpffff84a4 * (f32)t) / 15.0f);
 
-            func_0025f430(200.0f * (1.0f - s), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, s, 1.0f);
+            shdSpriteDrawNowEx(200.0f * (1.0f - s), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, s, 1.0f);
             t = *(s32 *)(work + 0x14);
             if (t > 10) {
                 alpha = (u8)(255.0f * ((f32)(t - 10) / 5.0f));
-                func_0025f430(0.0f, 0.0f, 0.0f, 0, alpha, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, alpha, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
         } else if (t < 20) {
-            func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, 0xFF, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         } else if (t < 25) {
             f32 s = sinf((fGpffff84a4 * (f32)(t - 20)) / 5.0f);
-            s32 w = func_0025f2c0(0, 0, *(u8 **)(work + 4));
+            s32 w = shdSpriteEntryWidth(0, 0, *(u8 **)(work + 4));
             f32 r = 1.0f - s;
 
-            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
-            w = func_0025f2c0(first + 1, 0, *(u8 **)(work + 4));
-            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0, 0xFF, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            shdSpriteDrawNowEx(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            w = shdSpriteEntryWidth(first + 1, 0, *(u8 **)(work + 4));
+            shdSpriteDrawNowEx(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0, 0xFF, first + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
         } else if (t < 30) {
             f32 r;
             s32 w;
             f32 s;
 
             s = 1.0f - sinf((fGpffff84a4 * (f32)(t - 25)) / 5.0f);
-            w = func_0025f2c0(0, 0, *(u8 **)(work + 4));
+            w = shdSpriteEntryWidth(0, 0, *(u8 **)(work + 4));
             r = 1.0f - s;
 
-            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
-            w = func_0025f2c0(second + 1, 0, *(u8 **)(work + 4));
-            func_0025f430(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0, 0xFF, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            shdSpriteDrawNowEx(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            w = shdSpriteEntryWidth(second + 1, 0, *(u8 **)(work + 4));
+            shdSpriteDrawNowEx(((f32)w / 2.0f) * s, 0.0f, 0.0f, 0, 0xFF, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
         } else if (t < 40) {
-            func_0025f430(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            func_0025f430(0.0f, 0.0f, 0.0f, 0, 0xFF, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, 0xFF, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         } else if (t < 60) {
             f32 s = sinf((fGpffff84a4 * (f32)(t - 40)) / 20.0f);
             f32 r = 1.0f - s;
 
             alpha = (u8)(255.0f * r);
-            func_0025f430(-200.0f * s, 0.0f, 0.0f, 0xFFFFFF, alpha, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
+            shdSpriteDrawNowEx(-200.0f * s, 0.0f, 0.0f, 0xFFFFFF, alpha, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, r, 1.0f);
             t = *(s32 *)(work + 0x14);
             if (t < 45) {
                 r = (f32)(t - 40) / 5.0f;
                 alpha = (u8)(255.0f * (1.0f - r));
-                func_0025f430(0.0f, 0.0f, 0.0f, 0, alpha, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, alpha, second + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
         }
         break;

@@ -50,7 +50,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 // FUN_00250AD0
 s32 func_00250ad0(s32 *arg0, u8 *arg1)
 {
-    extern s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
+    extern s32 shdSpriteDrawNowEx(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
     extern u32 RpRandom(void);
     extern f32 sinf(f32 arg0);
     f32 ra;
@@ -76,16 +76,16 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         fade = sinf(1.5707964f + (1.5707964f * (f32)arg0[4]) / 30.0f);
         level = sinf((3.1415927f * (f32)arg0[3]) / 120.0f);
         size = 42.0f * scale;
-        func_0025f430(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
+        shdSpriteDrawNowEx(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
                       (u8)(255.0f * (0.1f + 0.2f * level) * fade), 0x1B, 0, *(u8 **)(arg1 + 0x10), 1,
                       (s16)size, (s16)size, 0.0f, scale, scale);
         level = (f32)RpRandom() / 2147483648.0f;
-        func_0025f430(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
+        shdSpriteDrawNowEx(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
                       (u8)(255.0f * (0.1f + 0.4f * level) * fade), 0x1B, 0, *(u8 **)(arg1 + 0x10), 1,
                       (s16)size, (s16)size, 0.0f, scale, scale);
         level = (1.0f + sinf(-1.5707964f + (6.2831855f * (f32)arg0[5]) / (f32)arg0[6])) / 2.0f;
         size = 42.0f * 0.6f;
-        func_0025f430(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
+        shdSpriteDrawNowEx(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
                       (u8)(255.0f * (0.3f * level) * fade), 0x1B, 0, *(u8 **)(arg1 + 0x10), 1,
                       (s16)size, (s16)size, (360.0f * (f32)arg0[3]) / 120.0f, 0.6f, 0.6f);
         level += 0.2f * ((f32)RpRandom() / 2147483648.0f) - 0.1f;
@@ -94,7 +94,7 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
         } else if (!(level <= 1.0f)) {
             level = 1.0f;
         }
-        func_0025f430(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
+        shdSpriteDrawNowEx(*(f32 *)&arg0[1] - size, *(f32 *)&arg0[2] - size, 0.0f, 0xFFFFFF,
                       (u8)(255.0f * (0.3f * level) * fade), 0x1B, 0, *(u8 **)(arg1 + 0x10), 1,
                       (s16)size, (s16)size, (360.0f * (f32)arg0[3]) / 120.0f, 0.6f, 0.6f);
         if (++arg0[5] >= arg0[6]) {
@@ -113,7 +113,7 @@ s32 func_00250ad0(s32 *arg0, u8 *arg1)
     ra = (f32)RpRandom() / 2147483648.0f;
     ry = (f32)RpRandom() / 2147483648.0f;
     rx = (f32)RpRandom() / 2147483648.0f;
-    func_0025f430((*(f32 *)&arg0[1] + (f32)p4_0025_span(1.0f, rx)) - 19.0f * scale,
+    shdSpriteDrawNowEx((*(f32 *)&arg0[1] + (f32)p4_0025_span(1.0f, rx)) - 19.0f * scale,
                   (*(f32 *)&arg0[2] + (f32)p4_0025_span(1.0f, ry)) - 19.0f * scale,
                   0.0f, 0xFFFFFF, (u8)(fade2 * (f32)(p4_0025_span(127.0f, ra) + 128)),
                   0x2F, 0, *(u8 **)(arg1 + 0x10), 1, 0, 0, 0.0f, scale, scale);

@@ -25,7 +25,7 @@ static inline u32 add_retail_ptr(u32 offset, u32 base) {
 }
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 calGetDayWindowFlags(s32 arg0);
-extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
+extern s64 fclBankTryQueueRequest(s64 arg0, s32 arg1, s64 arg2);
 extern void fclBankSetReadyFlag(void);
 
 extern u16 D_008817E8[];
@@ -148,7 +148,7 @@ s32 func_00270100(s32 arg0, u8 *arg1)
         }
         key_b = (s32)(s16)(((var & 0xFF) << 8) |
                            (low & 0xFF));
-        func_002e0da0(
+        fclBankTryQueueRequest(
             key_state |
             (((s64)((((s32)(s16)key_a) & 0xFF) << 0x10)) |
              ((key_b & 0xFF) << 8)),

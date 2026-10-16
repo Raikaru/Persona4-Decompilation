@@ -12,7 +12,7 @@ extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
 extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
 extern void sdkSpritePackDestroy(u32 param_1);
-extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void mcDrawDispatchCallback(void *, void *);
 extern void mcQueueDrawJob(s32);
 extern void mcIconWorkFree(void *arg0);
@@ -23,7 +23,7 @@ extern void RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 sdkSpritePackCreate(const void *);
-extern s32 func_0025f110(s32);
+extern s32 shdSpriteEnsureLoaded(s32);
 extern s32 H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
 extern void H_Memcard_SetRecordTable(void *);
@@ -125,7 +125,7 @@ extern u16 D_008C024E[];
 extern s32 calGetWeekdayOfDay(s32);
 extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
 extern s32 calHasDayEntry(s32 idx);
-extern s32 func_0025f2c0(s32, s32, u8 *);
+extern s32 shdSpriteEntryWidth(s32, s32, u8 *);
 /* Location keys and text pointer occupy three 32-bit retail words. */
 typedef struct McLocationNameEntry {
     s32 area;
@@ -135,7 +135,7 @@ typedef struct McLocationNameEntry {
 extern McLocationNameEntry D_0063EA60[];
 extern void sprintf(void *, void *, s32, ...);
 typedef void (*McGlyphCallback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, McGlyphCallback, u8 *);
+extern void shdSpriteDrawNumberString(f32, f32, f32, s32, u8, void *, s32, void *, McGlyphCallback, u8 *);
 
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
@@ -1119,7 +1119,7 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
         *(u32 *)(w + 4) |= 0x400;
         /* fallthrough */
     case 4:
-        if (func_0025f110(*(u32 *)(w + 0x398)) == 0) {
+        if (shdSpriteEnsureLoaded(*(u32 *)(w + 0x398)) == 0) {
             break;
         }
         if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(w + 0x3A4)) == 0) {
@@ -1297,7 +1297,7 @@ s32 mcRunScreenFrame(s32 arg0)
         }
         idx++;
     }
-    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
+    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
@@ -1360,7 +1360,7 @@ s32 mcRunScreenFrame(s32 arg0)
 s32 mcRunScreenExitFrame(s32 arg0)
 {
     extern f32 iGpffff8084;
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     u8 *p;
     s32 alpha;
     s32 row;
@@ -1463,7 +1463,7 @@ s32 mcRunScreenExitFrame(s32 arg0)
             }
             idx++;
         }
-        func_0025f430(0.0f, 131.0f + 47.0f * wave, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1, 0, 0, 0.0f, 1.0f, 1.0f - wave);
+        shdSpriteDrawNowEx(0.0f, 131.0f + 47.0f * wave, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1, 0, 0, 0.0f, 1.0f, 1.0f - wave);
         idx = 0;
         while (idx < 6) {
             slot = base + idx - 3;
@@ -1570,7 +1570,7 @@ s32 mcDrawScreenSettled(s32 arg0)
         }
         idx++;
     }
-    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
+    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
@@ -1780,9 +1780,9 @@ void mcDrawFadedColor(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
 void mcDrawGlyph(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     if (arg2 != 0) {
         if (*(s32 *)(arg3 + 4) & 2) {
-            func_0025f3f0((f32)(arg0 + 0x1C0), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x3D, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+            shdSpriteDrawNow((f32)(arg0 + 0x1C0), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x3D, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
         } else {
-            func_0025f3f0((f32)(arg0 + 0x19A), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x39, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+            shdSpriteDrawNow((f32)(arg0 + 0x19A), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x39, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
         }
     }
 }
@@ -1806,10 +1806,10 @@ void mcAdvanceMeter(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
         }
         f = ((f32)*(s32 *)(arg3 + 0x3D0) / 5.0f) * (f32)arg2;
         v = (s32)f;
-        func_0025f3f0((f32)(arg0 + 0x1F5), (f32)(arg1 + 0x19B), 0.0f, 0xFFFFFF, v, 0x24, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        func_0025f3f0((f32)(arg0 + 0x207), (f32)(arg1 + 0x19D), 0.0f, 0xFFFFFF, v, 0x27, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        func_0025f3f0((f32)(arg0 + 0x22C), (f32)(arg1 + 0x19B), 0.0f, 0xFFFFFF, v, 0x25, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        func_0025f3f0((f32)(arg0 + 0x23E), (f32)(arg1 + 0x19D), 0.0f, 0xFFFFFF, v, 0x28, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+        shdSpriteDrawNow((f32)(arg0 + 0x1F5), (f32)(arg1 + 0x19B), 0.0f, 0xFFFFFF, v, 0x24, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+        shdSpriteDrawNow((f32)(arg0 + 0x207), (f32)(arg1 + 0x19D), 0.0f, 0xFFFFFF, v, 0x27, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+        shdSpriteDrawNow((f32)(arg0 + 0x22C), (f32)(arg1 + 0x19B), 0.0f, 0xFFFFFF, v, 0x25, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+        shdSpriteDrawNow((f32)(arg0 + 0x23E), (f32)(arg1 + 0x19D), 0.0f, 0xFFFFFF, v, 0x28, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
         *(s32 *)(arg3 + 4) &= 0xFFF7FFFF;
     }
 }
@@ -2144,7 +2144,7 @@ static inline u32 mcUnsignedColorRgb(const u32 *rgba)
 // FUN_002A7920
 void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
     extern f32 D_00761184;
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     struct { u8 r, g, b, a; } color;
     Quad4 spD;
     f32 f23;
@@ -2239,7 +2239,7 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-                func_0025f430(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             } else if (var < 0x14) {
                 u32 digitRgb;
                 a = (var == 0xA) ? 0xA : arg2 - 9;
@@ -2251,12 +2251,12 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
                 tmp = 53.0f * fparg3;
                 f28 = mcCoordinate(&fparg0, 53.0f);
                 f28 -= tmp;
-                func_0025f430(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                shdSpriteDrawNowEx(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
                 tmp = 40.0f * fparg3;
-                func_0025f430(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+                shdSpriteDrawNowEx(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
-            func_0025f430(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
         } else if (var < 0x14) {
             u32 digitRgb;
             a = (var == 0xA) ? 0xA : arg2 - 9;
@@ -2268,16 +2268,16 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
             tmp = 70.0f * fparg3;
             f28 = mcCoordinate(&fparg0, 53.0f);
             f28 -= tmp;
-            func_0025f430(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-                func_0025f430(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             } else if (var < 0x14) {
                 u32 digitRgb;
                 a = (var == 0xA) ? 0xA : arg2 - 9;
@@ -2289,12 +2289,12 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
                 tmp = 53.0f * fparg3;
                 f28 = mcCoordinate(&fparg0, 53.0f);
                 f28 -= tmp;
-                func_0025f430(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+                shdSpriteDrawNowEx(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
                 tmp = 40.0f * fparg3;
-                func_0025f430(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+                shdSpriteDrawNowEx(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
-            func_0025f430(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
         } else if (var < 0x14) {
             u32 digitRgb;
             a = (var == 0xA) ? 0xA : arg2 - 9;
@@ -2306,14 +2306,14 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
             tmp = 70.0f * fparg3;
             f28 = mcCoordinate(&fparg0, 53.0f);
             f28 -= tmp;
-            func_0025f430(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         a = mcUnsignedColorRgb(&col);
-        func_0025f430(0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, a, arg0, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+        shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, a, arg0, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
         if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
             u32 iconRgb;
             f32 iconY;
@@ -2327,10 +2327,10 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
             tmp = 11.0f * fparg3;
             iconX = mcCoordinate(&fparg0, 53.0f);
             iconX -= tmp;
-            func_0025f430(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            func_0025f430(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
         }
     } else {
         (*(void (**)(s32, s32))setState)(7, 2);
@@ -2347,7 +2347,7 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-                func_0025f430(14.0f + fparg0, 33.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(14.0f + fparg0, 33.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (var < 0x14) {
                 u32 digitRgb;
                 a = (var == 0xA) ? 0xA : arg2 - 9;
@@ -2355,26 +2355,26 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
                 f30c = mcPlaneDepth(&fparg2, 9.0f);
                 f22 = 33.0f + fparg1;
                 f21 = 14.0f + fparg0;
-                func_0025f430(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                func_0025f430(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
         } else if (var < 0xA) {
-            func_0025f430(fparg0 - 5.0f, 22.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(fparg0 - 5.0f, 22.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (var < 0x14) {
             u32 digitRgb;
             a = (var == 0xA) ? 0xA : arg2 - 9;
             digitRgb = mcUnsignedColorRgb(&col);
             f30d = mcPlaneDepth(&fparg2, 9.0f);
             f22 = 22.0f + fparg1;
-            func_0025f430(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            func_0025f430(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         var = arg2 + 1;
         if (var < 0xA) {
             if (var < 0xA) {
-                func_0025f430(14.0f + fparg0, 33.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(14.0f + fparg0, 33.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (var < 0x14) {
                 u32 digitRgb;
                 a = (var == 0xA) ? 0xA : arg2 - 9;
@@ -2382,22 +2382,22 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
                 f30c = mcPlaneDepth(&fparg2, 10.0f);
                 f22 = 33.0f + fparg1;
                 f21 = 14.0f + fparg0;
-                func_0025f430(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                func_0025f430(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
         } else if (var < 0xA) {
-            func_0025f430(fparg0 - 5.0f, 22.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(fparg0 - 5.0f, 22.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (var < 0x14) {
             u32 digitRgb;
             a = (var == 0xA) ? 0xA : arg2 - 9;
             digitRgb = mcUnsignedColorRgb(&col);
             f30d = mcPlaneDepth(&fparg2, 10.0f);
             f22 = 22.0f + fparg1;
-            func_0025f430(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            func_0025f430(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
         a = mcUnsignedColorRgb(&col);
-        func_0025f3f0((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, arg0, 0x20, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+        shdSpriteDrawNow((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, arg0, 0x20, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
         if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
             u32 iconRgb;
             f32 iconY;
@@ -2407,10 +2407,10 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
             iconRgb = col >> 8;
             iconY = 2.0f + fparg1;
             iconX = 42.0f + fparg0;
-            func_0025f3f0(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+            shdSpriteDrawNow(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            func_0025f3f0(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+            shdSpriteDrawNow(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
         }
     }
     mdlEffectEmitTagPair();
@@ -2490,7 +2490,7 @@ void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
     temp_30 = (temp_3 / 1800U) % 60U;
     arg0 = (arg0 << 8) | arg1;
     temp_22 = arg0 >> 8;
-    func_0025f3f0(10.0f + fparg0, 31.0f + fparg1, fparg2, temp_22, (u8)arg1, 0x18, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(10.0f + fparg0, 31.0f + fparg1, fparg2, temp_22, (u8)arg1, 0x18, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     sprintf(spC0 + 0x58, &iGpffffa824, *(u8 *)(temp_17 + 8));
     temp_handle = *(u8 **)(arg4 + 0x398);
     var_6 = D_0063EB30;
@@ -2505,7 +2505,7 @@ void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
         var_5[1] = temp_2_2;
         var_5 += 2;
     } while (var_4 > 0);
-    func_0025f6b0(46.0f + fparg0, 26.0f + fparg1, fparg2,
+    shdSpriteDrawNumberString(46.0f + fparg0, 26.0f + fparg1, fparg2,
                   temp_22, (u8)arg1, spC0 + 0x58, 0, spC0 + 0x40,
                   func_002a2e10, temp_handle);
     if ((*(s32 *)(arg2 + (arg3 * 4)) == 1) &&
@@ -2522,7 +2522,7 @@ void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
             temp_f24, fparg2, temp_19, 0, 0, (const char *)(temp_17 + 0xC), 0, -1);
     }
     temp_16_2 = arg0 >> 8;
-    func_0025f3f0(16.0f + fparg0, 53.0f + fparg1, fparg2, temp_16_2, (u8)arg1, 0x19, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(16.0f + fparg0, 53.0f + fparg1, fparg2, temp_16_2, (u8)arg1, 0x19, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     sprintf(spC0 + 0x58, &iGpffffa824, (s32)temp_23);
     temp_handle = *(u8 **)(arg4 + 0x398);
     var_6_2 = D_0063EB30;
@@ -2538,10 +2538,10 @@ void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
         var_5_2 += 2;
     } while (var_4_2 > 0);
     temp_f21 = 48.0f + fparg1;
-    func_0025f6b0(36.0f + (109.0f + fparg0), temp_f21, fparg2,
+    shdSpriteDrawNumberString(36.0f + (109.0f + fparg0), temp_f21, fparg2,
                   temp_16_2, (u8)arg1, spC0 + 0x58, 2, spC0 + 0x20,
                   func_002a2e10, temp_handle);
-    func_0025f3f0(177.0f + fparg0, temp_f21, fparg2, temp_16_2, (u8)arg1, 0xB, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(177.0f + fparg0, temp_f21, fparg2, temp_16_2, (u8)arg1, 0xB, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     sprintf(spC0 + 0x58, &iGpffffa824, (s32)temp_30);
     temp_handle = *(u8 **)(arg4 + 0x398);
     var_6_3 = D_0063EB30;
@@ -2556,10 +2556,10 @@ void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
         var_5_3[1] = temp_2_4;
         var_5_3 += 2;
     } while (var_4_3 > 0);
-    func_0025f6b0(24.5f + (205.0f + fparg0), temp_f21, fparg2,
+    shdSpriteDrawNumberString(24.5f + (205.0f + fparg0), temp_f21, fparg2,
                   temp_16_2, (u8)arg1, spC0 + 0x58, 2, spC0 + 0x00,
                   func_002a2e10, temp_handle);
-    func_0025f3f0(250.0f + fparg0, temp_f21, fparg2, temp_16_2, (u8)arg1, 0xC, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(250.0f + fparg0, temp_f21, fparg2, temp_16_2, (u8)arg1, 0xC, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
 }
 #pragma opt_common_subs on
 
@@ -2676,8 +2676,8 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
         var_5 += 2;
     } while (var_4 > 0);
     temp_17 = colorWord.rgba >> 8;
-    func_0025f6b0((fparg0 + 23.0f) - 2.0f, fparg1 - 1.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmp110, func_002a2e10, handle);
-    func_0025f3f0(fparg0 + 45.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x4B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNumberString((fparg0 + 23.0f) - 2.0f, fparg1 - 1.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmp110, func_002a2e10, handle);
+    shdSpriteDrawNow(fparg0 + 45.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x4B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     sprintf(tmp128, &iGpffffa824, day);
     handle = *(u8 **)(arg4 + 0x398);
     var_6_2 = D_0063EB30;
@@ -2692,19 +2692,19 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
         var_5_2[1] = t2b;
         var_5_2 += 2;
     } while (var_4_2 > 0);
-    func_0025f6b0((fparg0 + 61.0f + 24.0f) - 2.0f, (fparg1 + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
-    func_0025f3f0(fparg0 + 109.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNumberString((fparg0 + 61.0f + 24.0f) - 2.0f, (fparg1 + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
+    shdSpriteDrawNow(fparg0 + 109.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     if ((var_18 == 0) || (calHasDayEntry(*(s16 *)temp_16) != 0)) {
         weekdayHandle = *(u8 **)(arg4 + 0x398);
-        func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
+        shdSpriteDrawNow((fparg0 + 129.0f) - (f32)shdSpriteEntryWidth(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     } else if (var_18 == 6) {
         weekdayHandle = *(u8 **)(arg4 + 0x398);
-        func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, colMid >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
+        shdSpriteDrawNow((fparg0 + 129.0f) - (f32)shdSpriteEntryWidth(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, colMid >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     } else {
         weekdayHandle = *(u8 **)(arg4 + 0x398);
-        func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
+        shdSpriteDrawNow((fparg0 + 129.0f) - (f32)shdSpriteEntryWidth(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     }
-    func_0025f3f0(fparg0 + 136.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(fparg0 + 136.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     str = (u8 *)mcLocationName(temp_16[0x30], temp_16[0x31]);
     frFontExDrawTextWithCharWidth(fparg0 + 151.0f, ((fparg1 - 2.0f) - 6.0f) + 2.0f, fparg2, colorWord.rgba | arg0, 0, 1, (const char *)str, 0, -1);
     temp_18 = mcColorRgb(&colorWord);
@@ -2749,17 +2749,17 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     mdlEffectEmitMaskedTagPair();
     tmpY2 = fparg1 + 48.0f;
     tmpX2 = (f32)0x129 + fparg0;
-    func_0025f3f0(tmpX2, tmpY2, fparg2, temp_18, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(tmpX2, tmpY2, fparg2, temp_18, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
     mode = temp_16[9];
     switch (mode) {
     case 0:
-        func_0025f3f0(tmpX2 + 11.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 11.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
         break;
     case 1:
-        func_0025f3f0(tmpX2 + 17.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1C, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 17.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1C, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
         break;
     default:
-        func_0025f3f0(tmpX2 + 21.0f, tmpY2 + 3.0f, fparg2, temp_17, (u8)arg0, 0x1D, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 21.0f, tmpY2 + 3.0f, fparg2, temp_17, (u8)arg0, 0x1D, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
         break;
     }
     mdlEffectEmitTagPair();
@@ -2768,7 +2768,7 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     (*(void (**)(u32, u32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x30003);
     RpSkyRenderStateSet(2, 0x54);
-    func_0025f3f0(tmpX2, tmpY2, fparg2, temp_17, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+    shdSpriteDrawNow(tmpX2, tmpY2, fparg2, temp_17, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
 }
 
 #pragma pop
@@ -2814,7 +2814,7 @@ void mcScreenStep(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 ar
                 var_2 = (arg0 & 0xFF) | 0xFFAE2000;
             }
             temp_17 = var_2 >> 8;
-            func_0025f3f0(5.0f + (113.0f + fparg0), 10.0f + fparg1, fparg2, temp_17, (u8)arg0, 0x43, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+            shdSpriteDrawNow(5.0f + (113.0f + fparg0), 10.0f + fparg1, fparg2, temp_17, (u8)arg0, 0x43, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
             mcDrawLocationText(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2,
                           temp_17, arg0, (u8 *)arg1, arg2, arg4);
             return;
@@ -2829,8 +2829,8 @@ void mcScreenStep(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 ar
             var_2_2 = (arg0 & 0xFF) | 0xFFAE2000;
         }
         temp_17_2 = var_2_2 >> 8;
-        func_0025f3f0(113.0f + fparg0, 34.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x46, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-        func_0025f3f0(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(113.0f + fparg0, 34.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x46, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
         return;
     }
     if (arg3 != 0) {
@@ -2839,8 +2839,8 @@ void mcScreenStep(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 ar
         var_2_3 = (arg0 & 0xFF) | 0xFFAE2000;
     }
     temp_17_3 = var_2_3 >> 8;
-    func_0025f3f0(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x44, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    func_0025f3f0(184.0f + fparg0, 36.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x44, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    shdSpriteDrawNow(184.0f + fparg0, 36.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
 }
 // FUN_002AA2B0
 void mcIconWorkFree(void *arg0) {

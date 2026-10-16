@@ -20,7 +20,7 @@ extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
+extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
@@ -141,6 +141,6 @@ void func_002a2e10(f32 f0, f32 f1, f32 f2, s32 arg0, u8 arg1, s8 * arg2, s32 arg
     if (value == 0) {
         value = 10;
     }
-    func_0025f3f0(f0, f1, f2, arg0, arg1, value, 0, arg5, 1);
+    shdSpriteDrawNow(f0, f1, f2, arg0, arg1, value, 0, arg5, 1);
 }
 
