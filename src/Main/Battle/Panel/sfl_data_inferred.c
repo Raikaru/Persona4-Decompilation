@@ -59,8 +59,8 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
 }
-extern void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1);
-extern void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1);
+extern void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
@@ -516,15 +516,17 @@ s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
 }
 
 #pragma pop
+// Intent: Clears a persona panel state block: its id and the 0x18 bytes that follow [inferred]
 // FUN_003671D0
-void func_003671d0(s16 *arg0)
+void sflDataResetPersonaState(s16 *arg0)
 {
     memset((u8 *)arg0 + 4, 0, 0x18);
     *arg0 = 0;
 }
 
+// Intent: Draws one panel entry, dispatching on its kind byte (0-6) to the matching sprite or panel helper [inferred]
 // FUN_00367210
-void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
+void sflDataDrawEntry(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
 {
     s16 kind;
 
@@ -532,10 +534,10 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
         kind = *arg2;
         switch (kind) {
         case 0:
-            func_00367420(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawPersonaPanel(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 1:
-            func_003675f0(*(PairBits *)&arg0, arg4, arg1);
+            sflDataDrawSpritePair(*(PairBits *)&arg0, arg4, arg1);
             return;
         case 2:
             func_003676f0(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
@@ -556,9 +558,10 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
     }
 }
 
+// Intent: Fills a persona panel state block from the persona record (id, row, arcana, level, and the rank or next-level experience) [inferred]
 // FUN_003672D0
 // MATCH: 336B/336B. IDA-backed lookup lifetimes and canonical return contracts.
-void func_003672d0(void *work, s16 pcId)
+void sflDataLoadPersonaState(void *work, s16 pcId)
 {
     u8 *state = (u8 *)work + 4;
     u16 personaId = func_00105290(pcId);
@@ -584,8 +587,9 @@ void func_003672d0(void *work, s16 pcId)
     }
 }
 
+// Intent: Draws a persona panel by composing its six sub-draws at fixed offsets from the panel origin [inferred]
 // FUN_00367420
-void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
     f32 y = *((f32 *)&arg0 + 1);
     PairBits pos;
@@ -594,7 +598,7 @@ void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     if (arg1 & 0xFF) {
         pos.f.x = *(f32 *)&arg0 - 10.0f;
         pos.f.y = y + 20.0f;
-        func_003675f0(pos, fparg0, arg1);
+        sflDataDrawSpritePair(pos, fparg0, arg1);
 
         pos.f.x = *(f32 *)&arg0 + 17.0f;
         pos.f.y = y + 76.0f;
@@ -618,8 +622,9 @@ void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     }
 }
 
+// Intent: Draws a two-sprite pair at a panel position with the given alpha [inferred]
 // FUN_003675F0
-void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
+void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1)
 {
     s32 tex;
     s32 alpha;

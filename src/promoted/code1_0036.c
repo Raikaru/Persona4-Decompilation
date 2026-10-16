@@ -80,8 +80,8 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
 }
-extern void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1);
-extern void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1);
+extern void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
