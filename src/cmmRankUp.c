@@ -6,7 +6,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 extern u8 *PrimAllocQueueNode();
-extern void func_00251d80();
+extern void cmmRankUpRunQueue();
 extern u8 D_007963D0[];
 extern void func_00460ac0();
 extern void func_002516f0();
@@ -139,8 +139,8 @@ extern u8 *func_002438b0();
 extern u8 *cmmPersonaRecord();
 extern u8 *datPersonaGetRow(u16 personaId);
 
-/* Old-style: the two callbacks passed here (func_00251e60 takes one s32,
- * func_00251ec0 takes none) do not share a signature, and a typed prototype
+/* Old-style: the two callbacks passed here (cmmRankUpEnqueueTask takes one s32,
+ * cmmRankUpDestroy takes none) do not share a signature, and a typed prototype
  * would force casts at every call site. */
 
 
@@ -162,8 +162,9 @@ extern code DAT_008873ec_abs[];
 
 
 
+// Runs each live entry of the rank-up work queue through its callback, frees entries that report done, then runs the post-step func_002516f0 [inferred].
 // FUN_00251D80
-void func_00251d80(s32 arg0, s32 *arg1) {
+void cmmRankUpRunQueue(s32 arg0, s32 *arg1) {
     extern s32 *kwlnTaskGetWork();
     u8 *base;
     s32 i;
@@ -187,21 +188,23 @@ void func_00251d80(s32 arg0, s32 *arg1) {
 
 
 
+// Queues cmmRankUpRunQueue on the shared queue with the argument as its context; returns 0.
 // FUN_00251E60
-s32 func_00251e60(u8 *sdkTaskBytes) {
+s32 cmmRankUpEnqueueTask(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *p;
 
     kwlnTaskGetWork();
     p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)func_00251d80;
+    *(void **)(p + 0x8) = (void *)cmmRankUpRunQueue;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(D_007963D0, p);
     return 0;
 }
 
+// Releases the rank-up work handle through the free-table slot 0.
 // FUN_00251EC0
-void func_00251ec0(u8 *unusedTask)
+void cmmRankUpDestroy(u8 *unusedTask)
 {
     int iVar1;
 
@@ -211,8 +214,9 @@ void func_00251ec0(u8 *unusedTask)
 
 
 
+// Allocates the rank-up work block, records the caller's argument in it, and creates the child task that runs cmmRankUpEnqueueTask and cmmRankUpDestroy.
 // FUN_00251F00
-void func_00251f00(s32 arg0, u32 *arg1) {
+void cmmRankUpCreate(s32 arg0, u32 *arg1) {
     u8 *temp_2;
 
     chkmemAllocSiteTag(D_00635CF8, 0x277);
@@ -221,7 +225,7 @@ void func_00251f00(s32 arg0, u32 *arg1) {
     if (temp_2 == NULL) {
         kAssertFail(D_00635CF8, 0x2D5);
     }
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, func_00251e60, func_00251ec0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, cmmRankUpEnqueueTask, cmmRankUpDestroy, (u8 *)(temp_2));
 }
 
 
@@ -258,7 +262,7 @@ void func_00251fc0(s32 arg0, s32 arg1) {
    next functions in this file, so it is turned off immediately after. */
 #pragma opt_loop_invariants off
 
-/* Absolute-addressed float data for func_00252050's stack snapshot. */
+/* Absolute-addressed float data for cmmRankUpCopyState's stack snapshot. */
 extern f32 D_00635D28[];
 extern f32 D_00635D2C[];
 extern f32 D_00635D30[];
@@ -290,8 +294,9 @@ extern void MT_Scene_SetResEnabledById(s32 arg0, s32 arg1);
    re-allocates $a1/$a2 instead of keeping loop 1's $a2/$a3. */
 /* measured: opt_propagation-off bracket pins the retail access-order batch. */
 #pragma opt_propagation off
+// Copies the rank-up state snapshot (float data and two blocks) from the work record into the caller's buffers [inferred].
 // FUN_00252050
-void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
+void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2) {
     extern u8 *kwlnTaskGetWork();
     f32 spFloat[3];
     s32 copy2[0x87 * 2];
@@ -3115,8 +3120,9 @@ s32 func_00257900(u8 *task) {
    are taken - &fbuf before the fbuf store, &arr[16] between the two quad
    stores - reproducing retail's hoisted addiu $a0/$a1 (nd24 -> 0). */
 #pragma opt_propagation off
+// Builds the sprite arguments in a local buffer from the work record and draws them [inferred].
 // FUN_0025B0F0
-void func_0025b0f0(s32 arg0, u8 *arg1) {
+void cmmRankUpDrawSprite(s32 arg0, u8 *arg1) {
     extern u32 *kwlnTaskGetWork();
     u8 *sp;
     u8 *p;
@@ -3614,7 +3620,7 @@ tail:
         }
     }
     pb = PrimAllocQueueNode();
-    *(void **)(pb + 8) = (void *)func_0025b0f0;
+    *(void **)(pb + 8) = (void *)cmmRankUpDrawSprite;
     *(u8 **)(pb + 0x10) = argb;
     func_00460ac0(D_007963D0, pb);
     return 0;
