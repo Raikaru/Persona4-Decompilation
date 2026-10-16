@@ -101,7 +101,7 @@ extern void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
 extern s32 FldUnit_InstallResources(void);
 extern s32 mdlPrepareModel(s32);
 extern s32 fadeIsIdle(void);
-extern s32 func_002859e0(s32, s32, s32);
+extern s32 evtCreateEventTask(s32, s32, s32); /* lint: allow H011 -- caller stores the returned handle; the definition takes two arguments and ignores the third */
 extern void FldFrame_BindTypedRes(s32, u16);
 extern void FldFrame_RotateTaskCreate(u8 *, s32, s32);
 extern u16 MT_Scene_FindFreeResId(s32);
@@ -228,7 +228,7 @@ s32 FldRootUpdate(u8 *task)
             if (fadeIsIdle() != 0) {
                 resrcMngSetRenderSuppressed(0);
                 loadingSpinnerRequestHide();
-                work->eventTask = func_002859e0(work->eventId, work->eventMajor, work->eventMinor);
+                work->eventTask = evtCreateEventTask(work->eventId, work->eventMajor, work->eventMinor);
                 work->state = 14;
             }
         } else {

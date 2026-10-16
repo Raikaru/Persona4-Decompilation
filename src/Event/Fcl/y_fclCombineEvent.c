@@ -14,7 +14,7 @@ extern s32 fclCombineEventTaskUpdate(u8 *task);
 extern void fclCombineEventTaskDestroy(u8 *arg0);
 extern s32 fclCombineEventGate(u8 *arg0);
 extern s32 fclCombineEventSceneUpdate(u8 *arg0);
-extern s32 func_00285b30(void);
+extern s32 evtGetEventFrame(void);
 extern void datSetFlag(s32 a, s32 b);
 extern u16 D_008C024E[];
 extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
@@ -24,7 +24,7 @@ extern void fieldSceneLoad(s32 a, s32 b);
 extern void fieldSceneRequestRoom(s32 a);
 extern void fieldSceneRequestSecondaryRoom(s32 a);
 extern s32 fieldSceneLoadStep(void);
-extern s32 func_002859e0(s32 a, s32 b, s32 c);
+extern s32 evtCreateEventTask(s32 a, s32 b, s32 c); /* lint: allow H011 -- caller stores the returned handle; the definition takes two arguments and ignores the third */
 extern s32 kwlnTaskIsLinked(s32 handle);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern void fieldSceneUnload(void);
@@ -50,11 +50,11 @@ s32 fclCombineEventGate(u8 *arg0)
     s32 *temp_16;
 
     temp_16 = *(s32 **)(arg0 + 0x38);
-    if (func_00285b30() >= 4) {
-        if ((func_00285b30() >= 0x11D) && (func_00285b30() < 0x12C)) {
+    if (evtGetEventFrame() >= 4) {
+        if ((evtGetEventFrame() >= 0x11D) && (evtGetEventFrame() < 0x12C)) {
             return 0;
         }
-        if ((func_00285b30() >= 0x1A5) && (func_00285b30() < 0x1BD)) {
+        if ((evtGetEventFrame() >= 0x1A5) && (evtGetEventFrame() < 0x1BD)) {
             return 0;
         }
         if (D_008C024E[0] & 0x800) {
@@ -120,7 +120,7 @@ s32 fclCombineEventSceneUpdate(u8 *arg0)
         goto out;
     case 2:
         if (fieldSceneLoadStep() != 0) {
-            *(s32 *)(temp_16 + 0xC) = func_002859e0(*(s32 *)(temp_16 + 4), *(s32 *)(temp_16 + 8), 0);
+            *(s32 *)(temp_16 + 0xC) = evtCreateEventTask(*(s32 *)(temp_16 + 4), *(s32 *)(temp_16 + 8), 0);
             temp_16[0] = (s8)((s8)temp_16[0] + 1);
         case 3:
             if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0xC)) != 1) {

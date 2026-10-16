@@ -25,20 +25,21 @@ extern s32 func_002863b0(s32);
 extern void evtResetEventScene(s32, s32 *);
 extern void func_0028c3f0(s32 *);
 extern void func_00290bc0(s32 *);
-void func_002854e0(u8 *arg0);
+void evtUpdateNodeWaitFlags(u8 *arg0);
 extern s32 taskRecordIsDone(s32);
 extern s32 fadeStatus(void);
 extern s32 evtScriptLoadIsReady(s32);
 extern void evtRefreshNodeResources(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
-s32 func_002857c0(u8 *task);
+s32 evtNodeTaskUpdate(u8 *task);
 void func_002853c0(void);
 
 
 
+// Returns the work block of the event's task, or 0 when the event has no task yet [inferred].
 // FUN_00285480
-s32 func_00285480(u8 *arg0)
+s32 evtGetEventTaskWork(u8 *arg0)
 {
     s32 handle;
 
@@ -52,8 +53,9 @@ s32 func_00285480(u8 *arg0)
     return (s32)kwlnTaskGetWork((void *)handle);
 }
 
+// Clears the event's wait flags once the thing each one waits on is done, then refreshes its resources when the busy state changes [inferred].
 // FUN_002854E0
-void func_002854e0(u8 *arg0)
+void evtUpdateNodeWaitFlags(u8 *arg0)
 {
     s32 temp_4_4;
     s32 var_4;
@@ -98,8 +100,9 @@ void func_002854e0(u8 *arg0)
     }
 }
 
+// Steps the event's frame counter (unless it is busy); returns 1 once the counter reaches its limit [inferred].
 // FUN_00285760
-s32 func_00285760(u8 *arg0)
+s32 evtStepEventFrame(u8 *arg0)
 {
     s32 var_5;
     s32 var_2;
@@ -121,8 +124,9 @@ s32 func_00285760(u8 *arg0)
     return var_2;
 }
 
+// Event task update: runs the event's wait checks, then steps its frame counter while it is not busy [inferred].
 // FUN_002857C0
-s32 func_002857c0(u8 *task)
+s32 evtNodeTaskUpdate(u8 *task)
 {
     u8 *temp_2;
     u8 *temp_2_2;
@@ -164,11 +168,11 @@ s32 func_002857c0(u8 *task)
         if ((*(s32 *)(temp_2_2 + 4) != 0) && (func_002909a0((u32 *)(temp_2_2 + 0x678)) != 0)) {
             func_00290bc0((s32 *)(temp_2_2 + 0x678));
         }
-        func_002854e0(temp_2_2);
+        evtUpdateNodeWaitFlags(temp_2_2);
         if (*(s32 *)(temp_2_2 + 0x14) >= *(s32 *)(temp_2_2 + 0x10)) {
             var_2 = 1;
         } else {
-            func_00285760(temp_2_2);
+            evtStepEventFrame(temp_2_2);
             var_2 = 0;
         }
         if (var_2 != 0) {
@@ -182,8 +186,9 @@ s32 func_002857c0(u8 *task)
         return 0;
     }
 }
+// Event task destroy: destroys the event's task hierarchy, frees its work block and releases the account [inferred].
 // FUN_00285980
-void func_00285980(u8 *task) {
+void evtNodeTaskDestroy(u8 *task) {
     s32 *temp_2;
 
     temp_2 = (s32 *)kwlnTaskGetWork(task);
@@ -194,8 +199,9 @@ void func_00285980(u8 *task) {
 
 
 
+// Creates the event task (0x60-byte work block) for the given event id and major/minor numbers, and returns the task handle [inferred].
 // FUN_002859E0
-s32 func_002859e0(s32 arg0, s32 arg1)
+s32 evtCreateEventTask(s32 arg0, s32 arg1)
 {
     s32 temp_17;
     u8 *temp_16;
@@ -205,7 +211,7 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     temp_16 = D_008873F4[0](1, 0x60, 0x40000);
     evtMemAccount(0, 0x60);
     memset(temp_16, 0, 0x60);
-    temp_17 = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, func_002857c0, func_00285980, (u8 *)(temp_16));
+    temp_17 = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, evtNodeTaskUpdate, evtNodeTaskDestroy, (u8 *)(temp_16));
     temp_2 = evtStart(0, 0);
     *(s32 *)(temp_16 + 0xC) = temp_2;
     evtSetId(temp_2, arg0, arg1, 0);
@@ -213,15 +219,17 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     *(s32 *)(temp_16 + 0) = 0;
     return temp_17;
 }
+// Makes sure the event task exists, creating it through func_002853c0 when it is missing [inferred].
 // FUN_00285AF0
-void func_00285af0(void) {
+void evtEnsureEventTask(void) {
     if (kwlnTaskGetTaskByName(D_0063C2F8) == 0) {
         func_002853c0();
     }
 }
 
+// Returns the event's frame counter, or -1 when no event task exists.
 // FUN_00285B30
-s32 func_00285b30(void) {
+s32 evtGetEventFrame(void) {
     s32 h = evtFindTask();
 
     if (h == 0) {

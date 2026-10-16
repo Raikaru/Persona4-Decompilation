@@ -44,7 +44,7 @@ struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis,
                            f32 angle, s32 mode);
 void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
 void btlShuffleCardApplyScale(u8 *arg0, f32 *arg1, f32 arg2);
-s32 func_00285b30(void);
+s32 evtGetEventFrame(void);
 f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 s32 fclAddClamped(s32, s32, s32, s32, s8);
 s32 kwlnGetCamera(void);
@@ -268,7 +268,7 @@ s32 cmbCardPathUpdate(u8 *task) {
     if (((CmbLoaderState *)*(u8 **)(work->loaderTask + 0x38))->state != 4) {
         return 0;
     }
-    if (func_00285b30() >= 1000 && func_00285b30() < 1011) {
+    if (evtGetEventFrame() >= 1000 && evtGetEventFrame() < 1011) {
         datSetFlag(0x5C, 0);
     }
     switch (work->phase) {
@@ -320,7 +320,7 @@ s32 cmbCardPathUpdate(u8 *task) {
     case 7:
         return -1;
     }
-    if (work->layout == 9 && func_00285b30() < 490) {
+    if (work->layout == 9 && evtGetEventFrame() < 490) {
         secondaryScale = fclEaseInterpolate(0, work->cards[0].scale, work->cards[0].scale + 0.125f, (f32)work->pulseFrame, 60.0f);
         opacityValue = fclEaseInterpolate(1, 0.0f, 168.0f, (f32)work->pulseFrame, 30.0f);
         secondaryOpacity = (u8)opacityValue;
@@ -370,7 +370,7 @@ s32 cmbCardPathUpdate(u8 *task) {
         if (work->cards[cardIndex].color.c3 > 0 && work->hideSecondary == 0) {
             btlShuffleCardQueueEnqueue(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, D_00794E70);
         }
-        if (work->layout == 9 && func_00285b30() < 490 && work->hideSecondary == 0) {
+        if (work->layout == 9 && evtGetEventFrame() < 490 && work->hideSecondary == 0) {
             cmbCardApplySlotTransform(task, (s8)cardIndex, work->cards[cardIndex].position, secondaryScale);
             *(CmbRGBA *)secondaryColorBytes.bytes = fclMakeDrawColor(0xFF, 0xFF, 0xFF, secondaryOpacity);
             btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, secondaryColorBytes.bytes);
@@ -625,7 +625,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         return 0;
@@ -633,7 +633,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
     state = *(s16 *)(obj + 0x63C);
     switch (state) {
     case 0:
-        if (func_00285b30() >= 0x50) {
+        if (evtGetEventFrame() >= 0x50) {
             cmbSetMove(arg0, 0, fclMakeVec2(10.0f, 212.0f), fclMakeVec2(230.0f, 212.0f), 5);
             cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
             cmbSetMove(arg0, 1, fclMakeVec2(10.0f, 212.0f), fclMakeVec2(230.0f, 212.0f), 5);
@@ -643,7 +643,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_00285b30() >= 0x73) {
+        if (evtGetEventFrame() >= 0x73) {
             i6 = 0;
             while (i6 < 2) {
                 slot = *(u8 **)(arg0 + 0x38);
@@ -688,7 +688,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00285b30() >= 0x1EA) {
+        if (evtGetEventFrame() >= 0x1EA) {
             i9 = 0;
             while (i9 < 2) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
@@ -714,7 +714,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         break;
@@ -758,7 +758,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         return 0;
@@ -766,7 +766,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
     state = *(s16 *)(obj + 0x63C);
     switch (state) {
     case 0:
-        if (func_00285b30() >= 0x50) {
+        if (evtGetEventFrame() >= 0x50) {
             cmbSetMove(arg0, 0, fclMakeVec2(-86.0f, 297.0f), fclMakeVec2(185.0f, 297.0f), 5);
             cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
             cmbSetMove(arg0, 1, fclMakeVec2(-86.0f, 297.0f), fclMakeVec2(185.0f, 297.0f), 5);
@@ -780,7 +780,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_00285b30() >= 0x73) {
+        if (evtGetEventFrame() >= 0x73) {
             i6 = 0;
             while (i6 < 3) {
                 slot = *(u8 **)(arg0 + 0x38);
@@ -824,7 +824,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00285b30() >= 0x1EA) {
+        if (evtGetEventFrame() >= 0x1EA) {
             i9 = 0;
             while (i9 < 3) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
@@ -851,7 +851,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         break;
@@ -896,7 +896,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         return 0;
@@ -904,7 +904,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
     state = *(s16 *)(obj + 0x63C);
     switch (state) {
     case 0:
-        if (func_00285b30() >= 0x50) {
+        if (evtGetEventFrame() >= 0x50) {
             cmbSetMove(arg0, 0, fclMakeVec2(-82.0f, 217.0f), fclMakeVec2(188.0f, 217.0f), 5);
             cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
             cmbSetMove(arg0, 1, fclMakeVec2(-82.0f, 217.0f), fclMakeVec2(188.0f, 217.0f), 5);
@@ -923,7 +923,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_00285b30() >= 0x73) {
+        if (evtGetEventFrame() >= 0x73) {
             i6 = 0;
             while (i6 < 4) {
                 slot = *(u8 **)(arg0 + 0x38);
@@ -967,7 +967,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00285b30() >= 0x1EA) {
+        if (evtGetEventFrame() >= 0x1EA) {
             i9 = 0;
             while (i9 < 4) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
@@ -993,7 +993,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         break;
@@ -1038,7 +1038,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         return 0;
@@ -1046,7 +1046,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
     state = *(s16 *)(obj + 0x63C);
     switch (state) {
     case 0:
-        if (func_00285b30() >= 0x50) {
+        if (evtGetEventFrame() >= 0x50) {
             cmbSetMove(arg0, 0, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
             cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
             cmbSetMove(arg0, 1, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
@@ -1071,7 +1071,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_00285b30() >= 0x73) {
+        if (evtGetEventFrame() >= 0x73) {
             i6 = 0;
             while (i6 < 5) {
                 slot = *(u8 **)(arg0 + 0x38);
@@ -1115,7 +1115,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00285b30() >= 0x1EA) {
+        if (evtGetEventFrame() >= 0x1EA) {
             i9 = 0;
             while (i9 < 5) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
@@ -1141,7 +1141,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         break;
@@ -1185,7 +1185,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         return 0;
@@ -1193,7 +1193,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
     state = *(s16 *)(obj + 0x63C);
     switch (state) {
     case 0:
-        if (func_00285b30() >= 0x50) {
+        if (evtGetEventFrame() >= 0x50) {
             cmbSetMove(arg0, 0, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
             cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
             cmbSetMove(arg0, 1, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
@@ -1225,7 +1225,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_00285b30() >= 0x73) {
+        if (evtGetEventFrame() >= 0x73) {
             i6 = 0;
             while (i6 < 6) {
                 slot = *(u8 **)(arg0 + 0x38);
@@ -1269,7 +1269,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00285b30() >= 0x1EA) {
+        if (evtGetEventFrame() >= 0x1EA) {
             i9 = 0;
             while (i9 < 6) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
@@ -1295,7 +1295,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         break;
@@ -1340,7 +1340,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
             i0++;
         }
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         return 0;
@@ -1348,7 +1348,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
     state = *(s16 *)(obj + 0x63C);
     switch (state) {
     case 0:
-        if (func_00285b30() >= 0x50) {
+        if (evtGetEventFrame() >= 0x50) {
             cmbSetMove(arg0, 0, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 70.0f), 8);
             cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
             cmbSetMove(arg0, 1, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 70.0f), 8);
@@ -1389,7 +1389,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_00285b30() >= 0x73) {
+        if (evtGetEventFrame() >= 0x73) {
             i6 = 0;
             while (i6 < 12) {
                 slot = *(u8 **)(arg0 + 0x38);
@@ -1441,7 +1441,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00285b30() >= 0x1EA) {
+        if (evtGetEventFrame() >= 0x1EA) {
             i9 = 0;
             while (i9 < 12) {
                 cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(0x143, 217.0f), 3);
@@ -1467,7 +1467,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 11;
         break;
     case 11:
-        if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
+        if (evtGetEventFrame() >= 0x208 && evtGetEventFrame() < 0x348) {
             datSetFlag(0x1450, 1);
         }
         break;
@@ -1586,7 +1586,7 @@ s32 func_00347c70(u8 *task)
         *(f32 *)(work + 0x94) = *(f32 *)(work + 0x138) + 64.0f * *(f32 *)(work + 0x1A0);
         *(f32 *)(work + 0xD0) = *(f32 *)(work + 0x134) + 64.0f * *(f32 *)(work + 0x1A0);
         *(f32 *)(work + 0xD4) = *(f32 *)(work + 0x138) + 64.0f * *(f32 *)(work + 0x1A0);
-        if (func_00285b30() < 0x208) {
+        if (evtGetEventFrame() < 0x208) {
             u8 *list;
             s32 primitive;
             void *vertices;
