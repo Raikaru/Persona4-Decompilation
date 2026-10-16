@@ -98,7 +98,7 @@ extern f32 D_008821D0[];
 extern s8 D_00763888[8];
 s32 func_00122520(s32 arg0, s32 arg1);
 s32 func_00122640(s32 arg0, s32 arg1);
-s32 func_001227a0(void);
+s32 fadeState(void);
 void H_Fade_SetCustomColor(u8 arg0, u8 arg1, u8 arg2);
 s32 func_00120e20(s32 arg0, s32 arg1);
 s32 taskRecordIsDone(void *arg0);
@@ -641,7 +641,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 temp_3_2 = *(s16 *)(arg2 + 0x10);
                 switch (temp_3_2) {
                 case 0:
-                    if (func_001227a0() != 0) {
+                    if (fadeState() != 0) {
                         *(s32 *)(arg4 + 0x758) = 1;
                         if (*(s16 *)(arg2 + 0x12) == -1) {
                             *(s16 *)(arg2 + 0x12) = 0;
@@ -656,7 +656,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     } else {
                         temp_18 = *(s8 *)(arg2 + 0x14);
                         *(s32 *)(arg4 + 0x758) = 1;
-                        if ((temp_19 != 0) || (func_001227a0() != 0)) {
+                        if ((temp_19 != 0) || (fadeState() != 0)) {
                             var_6 = D_00763888;
                             var_5 = sp58;
                             var_4_2 = 4;

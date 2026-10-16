@@ -30,7 +30,7 @@ extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern s32 datGetFlag(s32 id);
 extern s32 func_00122720(void);
-extern s32 func_001227a0(void);
+extern s32 fadeState(void);
 extern void func_00122520(s32 a, s32 b);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 kwlnTaskIsLinked(s32 handle);
@@ -85,7 +85,7 @@ void func_0038ee40(void) {
                 sdkSndPlayCue(0x23, 1);
             }
             if ((func_0038df10() == 0) && (kwlnTaskIsLinked(*(s32 *)(p + 0x1250)) == 0)) {
-                func_00122520(func_001227a0(), 0xA);
+                func_00122520(fadeState(), 0xA);
                 *(s32 *)(p + 0x124C) = 3;
                 if (datGetFlag(0x1472) == 0) {
                     sdkSndStopChannel(0x3C);
