@@ -176,7 +176,7 @@ void func_004accc0(u8 *arg0)
     extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
     extern void func_003e4320(void *arg0, void *arg1, void *arg2);
     extern void mdlUpdateModelMatrix(s32 arg0);
-    extern void func_0047a320(s32 arg0);
+    extern void mdlPrepareItemSlots(s32 arg0);
     s32 frame_count;
     u32 frame_index;
     u8 *node;
@@ -246,7 +246,7 @@ void func_004accc0(u8 *arg0)
         object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
         *(f32 *)(object + 0x38) = scale;
         mdlUpdateModelMatrix(*(s32 *)(arg0 + 0xB4));
-        func_0047a320(*(s32 *)(arg0 + 0xB4));
+        mdlPrepareItemSlots(*(s32 *)(arg0 + 0xB4));
     }
 }
 

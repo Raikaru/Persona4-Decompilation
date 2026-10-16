@@ -5563,12 +5563,13 @@ void* mdlGetClump(void* mdl)
    + idx)` avoids the fold but keeps this order, plain `*a + 0x40 + idx`
    folds 0x40 into the load (3 words, nd 84). Chain-vs-load schedule floor
    (same as recorded). */
+// Looks up the owner's current item (list index at +0xF0). When that item is valid, prepares each slot model that has a sub-model, calls func_00397c40 on the owner's hierarchy and on each sub-model's hierarchy, and returns 1. Returns 0 when the item is missing or is the sentinel.
 /* measured: 0047A320 now loads the inner list base into a named local before
    the index chain, reproducing retail's lw-base-then-sll order and all inner
    register colors. Scoped verify: normalized_diff 0, object 372B/window 384B;
    the remaining 12-byte tail is zero padding after the matching jr/nop. */
 // FUN_0047A320
-s32 func_0047a320(void* arg0) {
+s32 mdlPrepareItemSlots(void* arg0) {
     void* list;
     void* item;
     void* wpn;

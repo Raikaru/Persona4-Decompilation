@@ -42,7 +42,7 @@ extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 mdlComputeIndexedAttachMatrix();
 extern void mdlUpdateModelMatrix(u8 *arg0);
-extern void func_0047a320(u8 *arg0);
+extern void mdlPrepareItemSlots(u8 *arg0);
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
 extern s32 TnGetTableBase(void);

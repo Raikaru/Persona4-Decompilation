@@ -79,7 +79,7 @@ extern s32 RwEngineGetMatrixTolerances(f32 *arg0);
 extern u8 *RwMatrixOptimize(void *arg0, f32 *arg1);
 extern u8 *RwMatrixUpdate(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
-extern void func_0047a320(void *arg0);
+extern void mdlPrepareItemSlots(void *arg0);
 extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
 extern u8 D_007EFA00[];
@@ -568,7 +568,7 @@ loop_11_cond:
     RwMatrixUpdate(mdlGetMatrix(*(u8 **)(arg1 + 0x10)));
     *(s32 *)(*(u8 **)(arg1 + 0x10) + 0xD8) |= 0x40;
     mdlUpdateModelMatrix(*(u8 **)(arg1 + 0x10));
-    func_0047a320(*(u8 **)(arg1 + 0x10));
+    mdlPrepareItemSlots(*(u8 **)(arg1 + 0x10));
 }
 
 // FUN_0017AAE0
@@ -602,7 +602,7 @@ void FldShadow_CmdEndFlip(u8 *arg0, u8 *arg1)
     temp_4_3 = *(u8 **)(arg1 + 0x10);
     *(s32 *)(temp_4_3 + 0xD8) &= ~4;
     mdlUpdateModelMatrix(*(u8 **)(arg1 + 0x10));
-    func_0047a320(*(u8 **)(arg1 + 0x10));
+    mdlPrepareItemSlots(*(u8 **)(arg1 + 0x10));
     var_5_2 = 0;
     goto loop_4_cond;
 loop_4_body:
