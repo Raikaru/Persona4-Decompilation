@@ -111,7 +111,7 @@ extern void smapRevealCell(u8, u8);
 extern void func_002b31a0(u8 *, u8 *, u8 *);
 extern s32 kwlnTaskIsLinked(void *);
 extern void smapSetPosition(u8 *, YVec2f);
-extern void func_002b10e0(u8 *, s8);
+extern void smapSetVisible(u8 *, s8);
 extern void smapClearSelection(u8 *);
 extern int smapWorldToColumn(YVec3f);
 extern int smapWorldToRow(YVec3f);
@@ -180,6 +180,7 @@ s32 smapLoadStep(u8 *arg0) {
     return 0;
 }
 
+// Intent: clears the smap visibility mask. Note: smapCreate also passes this function as the task's second callback (the destroy slot), so it runs at teardown and allocates a fresh mask. The retail behaviour is kept; the name follows the body.
 // FUN_002AC600
 void smapResetVisibility(u8 *arg0) {
     s16 i;
@@ -947,7 +948,7 @@ s32 smapUpdateEntities(u8 *arg0)
                     if (kwlnTaskIsLinked(*tile) == 1) {
                         u16 mask = (1 << tx) & 0xFFFF;
                         if (((mask & ((u16 *)D_00764658)[ty]) >> tx) == 1) {
-                            func_002b10e0(*tile, 1);
+                            smapSetVisible(*tile, 1);
                         }
                         smapSetPosition(*tile, scale);
                     }
@@ -1337,7 +1338,7 @@ void smapRefreshCells(u8 *arg0, s8 arg1)
                 u8 **slot = (u8 **)(p + z * 64 + y * 4 + 0x148);
                 if (kwlnTaskIsLinked(*slot) == 1) {
                     if ((((u16)(1 << y) & ((u16 *)D_00764658)[z]) >> y) == 1)
-                        func_002b10e0(*slot, 1);
+                        smapSetVisible(*slot, 1);
                     smapSetPosition(*slot, func_002b2970(18.0f * z, 18.0f * y));
                 }
             }
@@ -1931,8 +1932,9 @@ void smapSetActive(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38) + 0x15A) = arg1;
 }
 
+// Intent: sets the visibility flag (+0x143) of a smap symbol; a tile is shown when its mask bit in D_00764658 is set.
 // FUN_002B10E0
-void func_002b10e0(u8 *arg0, s8 arg1) {
+void smapSetVisible(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38) + 0x143) = arg1;
 }
 
