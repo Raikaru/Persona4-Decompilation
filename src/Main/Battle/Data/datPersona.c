@@ -2,6 +2,8 @@
 #include "include_asm.h"
 #include "type.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
+extern u8 D_00796E50[];
 
 extern void kAssertFail(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
@@ -10,7 +12,6 @@ extern char D_005E4318[];
 extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
 extern s16 D_0079819C[];
-extern u8 D_00796E50[];
 extern u8 D_007973A0[];
 extern u8 D_00797F8E[];
 extern s32 D_0079B40C[];
@@ -589,7 +590,7 @@ u16 *datPersonaGetRecord(u16 arg0)
         if (v >= 0xB) {
             kAssertFail(D_005E4318, 0x3A5);
         }
-        p = (u16 *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54);
+        p = (u16 *)(&((DatPartySlot *)D_00796E50)[v - 2].personaRecord);
     }
     if (p == NULL) {
         kAssertFail(D_005E4318, 0x3A9);
@@ -613,7 +614,7 @@ s32 datPersonaLeadBoosted(s32 arg0)
         if (v >= 0xB) {
             kAssertFail(D_005E4318, 0x3A5);
         }
-        p = (u16 *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54);
+        p = (u16 *)(&((DatPartySlot *)D_00796E50)[v - 2].personaRecord);
     }
     if (p == NULL) {
         kAssertFail(D_005E4318, 0x3A9);
@@ -1173,7 +1174,7 @@ pass47E:
             if (v >= 0xB) {
                 kAssertFail(D_005E4318, 0x3A5);
             }
-            p = (u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54;
+            p = (u8 *)&((DatPartySlot *)D_00796E50)[v - 2].personaRecord;
         }
         if (p == NULL) {
             kAssertFail(D_005E4318, 0x3A9);
@@ -1194,7 +1195,7 @@ void datPersonaResetRosterMode(s16 arg0)
         D_00797F88[0] = -1;
         memset((void *)D_00797F8C, 0, 0x240);
     } else {
-        memset((void *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54), 0, 0x30);
+        memset((void *)&((DatPartySlot *)D_00796E50)[v - 2].personaRecord, 0, sizeof(DatUnit));
     }
 }
 
