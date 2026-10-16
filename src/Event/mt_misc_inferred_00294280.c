@@ -119,19 +119,19 @@ void mtMiscBuildSceneNodes(u8 *arg0)
         if (temp_2_2 != NULL) {
             temp_2_3 = (s32)evtNodeAlloc(1, (s32)arg0);
             evtNodeSetRes(temp_2_3, 0x400, (s32)temp_2_2);
-            *(s32 *)((u8 *)temp_2_3 + 8) = -1;
+            ((MtMiscSceneNode *)temp_2_3)->unk_08 = -1;
             value_2 = *(f32 *)((u8 *)temp_2_2 + 4);
             value_1 = *(f32 *)((u8 *)temp_2_2 + 8);
             value_0 = *(f32 *)((u8 *)temp_2_2 + 0xC);
-            *(f32 *)((u8 *)temp_2_3 + 0x38) = value_2;
-            *(f32 *)((u8 *)temp_2_3 + 0x3C) = value_1;
-            *(f32 *)((u8 *)temp_2_3 + 0x40) = value_0;
+            ((MtMiscSceneNode *)temp_2_3)->unk_38.x = value_2;
+            ((MtMiscSceneNode *)temp_2_3)->unk_38.y = value_1;
+            ((MtMiscSceneNode *)temp_2_3)->unk_38.z = value_0;
             value_2 = *(f32 *)((u8 *)temp_2_2 + 0x10);
             value_1 = *(f32 *)((u8 *)temp_2_2 + 0x14);
             value_0 = *(f32 *)((u8 *)temp_2_2 + 0x18);
-            *(f32 *)((u8 *)temp_2_3 + 0x44) = value_2;
-            *(f32 *)((u8 *)temp_2_3 + 0x48) = value_1;
-            *(f32 *)((u8 *)temp_2_3 + 0x4C) = value_0;
+            ((MtMiscSceneNode *)temp_2_3)->unk_44.x = value_2;
+            ((MtMiscSceneNode *)temp_2_3)->unk_44.y = value_1;
+            ((MtMiscSceneNode *)temp_2_3)->unk_44.z = value_0;
             first_x = func_0044dcd8(*(f32 *)(temp_2_2 + 2));
             first_y = func_0044dcd8(*(f32 *)(temp_2_2 + 4));
             func_00440b68(D_0063CAC0, first_x, first_y,
@@ -141,10 +141,10 @@ void mtMiscBuildSceneNodes(u8 *arg0)
             temp_4 = *(u8 *)(temp_2_4 + 1);
             temp_20 = *(u8 *)(temp_2_4 + 2);
             temp_19 = *(u8 *)(temp_2_4 + 3);
-            *(u8 *)((u8 *)temp_2_3 + 0x50) = (u8)temp_3;
-            *(u8 *)((u8 *)temp_2_3 + 0x51) = (u8)temp_4;
-            *(u8 *)((u8 *)temp_2_3 + 0x52) = (u8)temp_20;
-            *(u8 *)((u8 *)temp_2_3 + 0x53) = (u8)temp_19;
+            ((MtMiscSceneNode *)temp_2_3)->unk_50[0] = (u8)temp_3;
+            ((MtMiscSceneNode *)temp_2_3)->unk_50[1] = (u8)temp_4;
+            ((MtMiscSceneNode *)temp_2_3)->unk_50[2] = (u8)temp_20;
+            ((MtMiscSceneNode *)temp_2_3)->unk_50[3] = (u8)temp_19;
         } else {
             evtNodeSetRes((s32)evtNodeAlloc(1, (s32)arg0), 0x400, 0);
         }
@@ -157,19 +157,19 @@ loop_6_body:
         func_0028f530(temp_2_2b);
         temp_2_3 = (s32)evtNodeAllocWithRes(
             1, arg0, *(u16 *)temp_2_2b, (s32)temp_2_2b);
-        *(s32 *)((u8 *)temp_2_3 + 8) = -1;
+        ((MtMiscSceneNode *)temp_2_3)->unk_08 = -1;
         value_2 = *(f32 *)(temp_2_2b + 4);
         value_1 = *(f32 *)(temp_2_2b + 8);
         value_0 = *(f32 *)(temp_2_2b + 0xC);
-        *(f32 *)((u8 *)temp_2_3 + 0x38) = value_2;
-        *(f32 *)((u8 *)temp_2_3 + 0x3C) = value_1;
-        *(f32 *)((u8 *)temp_2_3 + 0x40) = value_0;
+        ((MtMiscSceneNode *)temp_2_3)->unk_38.x = value_2;
+        ((MtMiscSceneNode *)temp_2_3)->unk_38.y = value_1;
+        ((MtMiscSceneNode *)temp_2_3)->unk_38.z = value_0;
         value_2 = *(f32 *)(temp_2_2b + 0x10);
         value_1 = *(f32 *)(temp_2_2b + 0x14);
         value_0 = *(f32 *)(temp_2_2b + 0x18);
-        *(f32 *)((u8 *)temp_2_3 + 0x44) = value_2;
-        *(f32 *)((u8 *)temp_2_3 + 0x48) = value_1;
-        *(f32 *)((u8 *)temp_2_3 + 0x4C) = value_0;
+        ((MtMiscSceneNode *)temp_2_3)->unk_44.x = value_2;
+        ((MtMiscSceneNode *)temp_2_3)->unk_44.y = value_1;
+        ((MtMiscSceneNode *)temp_2_3)->unk_44.z = value_0;
         diagnostic_x = func_0044dcd8(*(f32 *)(temp_2_2b + 4));
         diagnostic_y = func_0044dcd8(*(f32 *)(temp_2_2b + 8));
         func_00440b68(D_0063CAC0, diagnostic_x, diagnostic_y,
@@ -179,10 +179,10 @@ loop_6_body:
         temp_4 = *(u8 *)(temp_2_6 + 1);
         var_16 = *(u8 *)(temp_2_6 + 2);
         temp_20_2 = *(u8 *)(temp_2_6 + 3);
-        *(u8 *)((u8 *)temp_2_3 + 0x50) = (u8)temp_3;
-        *(u8 *)((u8 *)temp_2_3 + 0x51) = (u8)temp_4;
-        *(u8 *)((u8 *)temp_2_3 + 0x52) = (u8)var_16;
-        *(u8 *)((u8 *)temp_2_3 + 0x53) = (u8)temp_20_2;
+        ((MtMiscSceneNode *)temp_2_3)->unk_50[0] = (u8)temp_3;
+        ((MtMiscSceneNode *)temp_2_3)->unk_50[1] = (u8)temp_4;
+        ((MtMiscSceneNode *)temp_2_3)->unk_50[2] = (u8)var_16;
+        ((MtMiscSceneNode *)temp_2_3)->unk_50[3] = (u8)temp_20_2;
         temp_19++;
         temp_2_2b = *(u8 **)(temp_2_2b + 0x138);
 loop_6_test:
