@@ -4596,17 +4596,17 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     u8 *e2;
     u8 *b2;
     u8 *pc;
-    u8 *work;
+    ShdPersonaLevelUpWork *work;
     u8 *first;
     u8 *base;
     s32 r;
     s32 i;
     s32 j;
-    work = ((SdkTask *)arg0)->work;
-    base = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+    work = (ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work;
+    base = work->parentTask->work;
     first = *(u8 **)base;
-    pc = *(u8 **)(work + 0x20);
-    switch (*(s32 *)(work + 0x14)) {
+    pc = work->learnList;
+    switch (work->state) {
     case 0: {
         s32 v;
         v = *(s32 *)(base + 0x534) | 0x200;
@@ -4622,33 +4622,33 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             i += 1;
         }
         r = shdPersonaCalcExpRemaining(first, 0);
-        e2 = *(u8 **)(work + 0x1C);
+        e2 = (u8 *)work->parentTask;
         b2 = *(u8 **)(e2 + 0x38);
         shdPersonaFillStatusForState(b2, *(u8 **)b2);
         shdPersonaCopyStatBytes(pc + 0x82, b2 + 0xC);
         *(s32 *)(*(u8 **)(e2 + 0x38) + 0x44) = r;
-        *(s32 *)(work + 0x14) = 1;
+        work->state = 1;
     }
         /* fallthrough */
     case 1: {
         u8 *b;
         s32 fl;
         s32 isOld;
-        b = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+        b = work->parentTask->work;
         fl = *(s32 *)(b + 0x534);
         if ((fl & 0x10000) && (*(s16 *)(b + 0x520) < 0x32)) {
             isOld = 0;
         } else {
             isOld = 1;
         }
-        if ((isOld != 0) || (D_008C024E[0] & 0x50) || ((D_008C024C[0] & 0x10) && ((++*(u16 *)(work + 4) > 4)))) {
+        if ((isOld != 0) || (D_008C024E[0] & 0x50) || ((D_008C024C[0] & 0x10) && ((++work->frame > 4)))) {
             u16 id2;
-            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x24)));
+            nmMesWindowOpenCurrent((u8 *)(work->parameter3));
             nmMesWindowSetCurrentString(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
-            id2 = *(s16 *)(*(u8 **)(*(u8 **)(work + 0x1C) + 0x38) + 0xC);
+            id2 = *(s16 *)(work->parentTask->work + 0xC);
             nmMesWindowSetCurrentString(1, (void *)datPersonaNamePart1(id2));
-            nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x30));
-            *(s32 *)(work + 0x14) = 2;
+            nmMesWindowShowCurrentRecord(work->messages[1]);
+            work->state = 2;
         }
         break;
     }
@@ -4656,15 +4656,15 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            shdPersonaAdvanceSkillList(work);
+            shdPersonaAdvanceSkillList((u8 *)work);
         }
         break;
     case 3: {
         u16 c;
-        c = *(u16 *)(work + 2);
+        c = work->cursor;
         if ((s32)c < 0xF) {
             u16 n;
-            n = ++*(u16 *)(work + 2);
+            n = ++work->cursor;
             if ((n & 0xFFFF) == 0xF) {
                 sdkSndStartStream(1, 3, 3, 1);
             }
@@ -4672,14 +4672,14 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            *(s32 *)(work + 0xC) = *(s32 *)(work + 0xC) + 1;
-            shdPersonaAdvanceSkillList(work);
+            work->field0C = work->field0C + 1;
+            shdPersonaAdvanceSkillList((u8 *)work);
         }
         break;
     }
     case 4: {
         u16 c;
-        c = ++*(u16 *)(work + 2);
+        c = ++work->cursor;
         if ((c & 0xFFFF) < 0xA) {
             break;
         } else {
@@ -4687,7 +4687,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             SdkTask *parent;
             u16 vv;
             u32 selected;
-            parent = *(SdkTask **)(work + 0x1C);
+            parent = work->parentTask;
             b = parent->work;
             if (*(s32 *)(b + 0x534) & 0x100000) {
                 vv = *(u16 *)(b + 0x4F4);
@@ -4707,8 +4707,8 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                 }
             }
             sdkSndStartStream(1, 3, 3, 2);
-            *(s32 *)(work + 0x14) = 5;
-            *(u16 *)(work + 4) = 0;
+            work->state = 5;
+            work->frame = 0;
         }
     }
         /* fallthrough */
@@ -4716,25 +4716,25 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         u8 *b;
         s32 fl;
         s32 *flags;
-        b = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+        b = work->parentTask->work;
         flags = (s32 *)(b + 0x534);
         fl = *flags;
         if ((fl & 0x8000) == 0) {
             u16 vv;
             *flags = fl & 0xFFFF7FFF;
-            b = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+            b = work->parentTask->work;
             if (*(s32 *)(b + 0x534) & 0x100000) {
                 vv = *(u16 *)(b + 0x4F4);
             } else {
                 vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
-            if (vv != *personaLevelRow(pc, *(s32 *)(work + 0x10))) {
+            if (vv != *personaLevelRow(pc, work->index)) {
                 kAssertFail(D_005E4868, 0x139A);
             }
-            *(s32 *)(work + 0x14) = 6;
+            work->state = 6;
             nmMesWindowSetCurrentString(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
             nmMesWindowSetCurrentString(1, func_00243840(vv));
-            nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x38));
+            nmMesWindowShowCurrentRecord(work->messages[3]);
         } else {
             break;
         }
@@ -4747,7 +4747,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             u16 vv;
             s32 idx;
             nmMesWindowCloseCurrent(1);
-            b = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+            b = work->parentTask->work;
             if (*(s32 *)(b + 0x534) & 0x100000) {
                 vv = *(u16 *)(b + 0x4F4);
             } else {
@@ -4781,40 +4781,40 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             }
             if (idx >= 0) {
                 nmMesWindowResetCurrent();
-                if (*(s32 *)(work + 0x28) == 0) {
+                if (work->parameter4 == 0) {
                     kAssertFail(D_005E4868, 0x13AD);
                 }
-                nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x28)));
+                nmMesWindowOpenCurrent((u8 *)(work->parameter4));
                 nmMesWindowShowCurrentRecord(idx);
-                *(s32 *)(work + 0x14) = 0xF;
+                work->state = 0xF;
             } else if (datPersonaCountSkills(first) == 8) {
-                *(s32 *)(work + 0x14) = 7;
+                work->state = 7;
                 nmMesWindowResetCurrent();
-                *(u8 **)(work + 0x18) = shdPersonaSkillReplaceCreate(0, *(u8 **)(work + 0x1C), *(s32 *)(work + 0x24), work + 0x2C);
+                work->messageTask = shdPersonaSkillReplaceCreate(0, (u8 *)work->parentTask, work->parameter3, (u8 *)work->messages);
             } else {
                 u16 vv2;
                 u8 *bb;
-                vv2 = *personaLevelRow(pc, *(s32 *)(work + 0x10));
-                bb = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+                vv2 = *personaLevelRow(pc, work->index);
+                bb = work->parentTask->work;
                 if (*(u8 **)bb == NULL) {
                     kAssertFail(D_005E4868, 0xE21);
                 }
                 if (datPersonaAddSkill(*(u8 **)bb, vv2) != 0) {
                     ShdSkill_AddActiveSkill(vv2, bb + 0x8C);
                 }
-                *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
-                shdPersonaAdvanceSkillList(work);
+                work->index = work->index + 1;
+                shdPersonaAdvanceSkillList((u8 *)work);
             }
         }
         break;
     }
     case 7:
-        if (datBlockStageIsEight(*(u8 **)(work + 0x18)) != 0) {
-            kwlnTaskDestroyHierarchyAlt(*(s32 *)(work + 0x18));
-            *(u8 **)(work + 0x18) = NULL;
-            *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
-            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x24)));
-            shdPersonaAdvanceSkillList(work);
+        if (datBlockStageIsEight(work->messageTask) != 0) {
+            kwlnTaskDestroyHierarchyAlt((s32)work->messageTask);
+            work->messageTask = NULL;
+            work->index = work->index + 1;
+            nmMesWindowOpenCurrent((u8 *)(work->parameter3));
+            shdPersonaAdvanceSkillList((u8 *)work);
         }
         break;
     case 8:
@@ -4825,28 +4825,28 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             t = nmMesWindowCurrentAnimFlag();
             switch (t) {
             case 0:
-                *(u16 *)(work + 2) = 0;
-                *(s32 *)(work + 0x14) = 9;
+                work->cursor = 0;
+                work->state = 9;
                 break;
             case 1:
                 nmMesWindowSetCurrentString(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
-                nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x50));
-                *(s32 *)(work + 0x14) = 0xB;
+                nmMesWindowShowCurrentRecord(work->messages[9]);
+                work->state = 0xB;
                 break;
             }
         }
         break;
     case 9: {
         u16 c;
-        c = ++*(u16 *)(work + 2);
+        c = ++work->cursor;
         if ((c & 0xFFFF) < 0xA) {
             break;
         } else {
             u32 highlightSkill;
             u8 *bb;
-            personaReplaceLevelSkill(*(SdkTask **)(work + 0x1C), *(u16 *)(work + 6), *(u16 *)(work + 8));
-            highlightSkill = *(u16 *)(work + 8);
-            bb = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+            personaReplaceLevelSkill(work->parentTask, work->previousSkill, work->replacement);
+            highlightSkill = work->replacement;
+            bb = work->parentTask->work;
             if ((*(s32 *)(bb + 0x534) & 0x8000) == 0) {
                 s16 sv;
                 *(s32 *)(bb + 0x534) = *(s32 *)(bb + 0x534) | 0x8000;
@@ -4858,8 +4858,8 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                 }
             }
             sdkSndStartStream(1, 3, 3, 3);
-            *(s32 *)(work + 0x14) = 0xA;
-            *(u16 *)(work + 4) = 0;
+            work->state = 0xA;
+            work->frame = 0;
         }
     }
         /* fallthrough */
@@ -4867,15 +4867,15 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         u8 *b;
         s32 fl;
         s32 *flags;
-        b = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+        b = work->parentTask->work;
         flags = (s32 *)(b + 0x534);
         fl = *flags;
         if ((fl & 0x8000) == 0) {
             *flags = fl & 0xFFFF7FFF;
-            nmMesWindowSetCurrentString(0, func_00243840(*(u16 *)(work + 6)));
-            nmMesWindowSetCurrentString(1, func_00243840(*(u16 *)(work + 8)));
-            nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x54));
-            *(s32 *)(work + 0x14) = 0xB;
+            nmMesWindowSetCurrentString(0, func_00243840(work->previousSkill));
+            nmMesWindowSetCurrentString(1, func_00243840(work->replacement));
+            nmMesWindowShowCurrentRecord(work->messages[10]);
+            work->state = 0xB;
         } else {
             break;
         }
@@ -4885,7 +4885,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            *(s32 *)(work + 0x14) = 0xC;
+            work->state = 0xC;
         }
         break;
     case 12:
@@ -4898,14 +4898,14 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         shdPersonaFillStatusForState(base, *(u8 **)base);
         datPersonaFillSkillRows(*(s32 *)base, base + 0x8C);
         nmMesWindowResetCurrent();
-        *(u16 *)(work + 2) = 0;
-        *(s32 *)(work + 0x14) = 0xD;
+        work->cursor = 0;
+        work->state = 0xD;
         /* fallthrough */
     case 13: {
         u16 c;
-        c = ++*(u16 *)(work + 2);
-        if (((s32)(c & 0xFFFF) >= 0) || (D_008C024E[0] & 0x40) || ((D_008C024C[0] & 0x10) && ((s32)*(u16 *)(work + 2) >= 4))) {
-            *(s32 *)(work + 0x14) = 0xE;
+        c = ++work->cursor;
+        if (((s32)(c & 0xFFFF) >= 0) || (D_008C024E[0] & 0x40) || ((D_008C024C[0] & 0x10) && ((s32)work->cursor >= 4))) {
+            work->state = 0xE;
         }
         break;
     }
@@ -4916,19 +4916,19 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         if (nmMesWindowCurrentOpenState() == 0) {
             u16 vv;
             u8 *bb;
-            vv = *personaLevelRow(pc, *(s32 *)(work + 0x10));
-            bb = *(u8 **)(*(u8 **)(work + 0x1C) + 0x38);
+            vv = *personaLevelRow(pc, work->index);
+            bb = work->parentTask->work;
             if (*(u8 **)bb == NULL) {
                 kAssertFail(D_005E4868, 0xE21);
             }
             if (datPersonaAddSkill(*(u8 **)bb, vv) != 0) {
                 ShdSkill_AddActiveSkill(vv, bb + 0x8C);
             }
-            *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
+            work->index = work->index + 1;
             nmMesWindowCloseCurrent(1);
             nmMesWindowResetCurrent();
-            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x24)));
-            shdPersonaAdvanceSkillList(work);
+            nmMesWindowOpenCurrent((u8 *)(work->parameter3));
+            shdPersonaAdvanceSkillList((u8 *)work);
         }
         break;
     default:
@@ -4942,10 +4942,10 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
 // FUN_0011F3C0
 void shdPersonaLevelUpDestroy(u8 *arg0)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if (*(s32 *)(b + 0x18) != 0) {
-        kwlnTaskDestroyHierarchyAlt(*(s32 *)(b + 0x18));
-        *(s32 *)(b + 0x18) = 0;
+    ShdPersonaLevelUpWork *b = (ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work;
+    if (b->messageTask != NULL) {
+        kwlnTaskDestroyHierarchyAlt((s32)b->messageTask);
+        b->messageTask = NULL;
     }
     jtbl_008873EC[0](b);
 }
@@ -4959,12 +4959,12 @@ void shdPersonaLevelUpDestroy(u8 *);
 // FUN_0011F410
 u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
 {
-    u8 *w;
+    ShdPersonaLevelUpWork *w;
     u8 *r;
     s32 i;
 
     chkmemAllocSiteTag(D_005E4868, 0x1464);
-    w = D_008873F4[0](1, 0x58, 0x40000);
+    w = (ShdPersonaLevelUpWork *)D_008873F4[0](1, 0x58, 0x40000);
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x1465);
     }
@@ -4972,12 +4972,12 @@ u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s3
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x146F);
     }
-    *(s32 *)(w + 0x1C) = arg1;
-    *(u8 **)(w + 0x20) = arg2;
-    *(s32 *)(w + 0x24) = arg3;
-    *(s32 *)(w + 0x28) = arg4;
+    w->parentTask = (struct SdkTask *)arg1;
+    w->learnList = arg2;
+    w->parameter3 = arg3;
+    w->parameter4 = arg4;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)(w + 0x2C + i * 4) = arg5[i];
+        *(s32 *)((u8 *)w + 0x2C + i * 4) = arg5[i];
     }
     return r;
 }
@@ -4988,7 +4988,7 @@ u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s3
 // FUN_0011F560
 u32 shdPersonaLevelUpIsDone(u8 *arg0)
 {
-    return *(s32 *)(((SdkTask *)arg0)->work + 0x14) == 0xE;
+    return ((ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work)->state == 0xE;
 }
 
 
@@ -5027,10 +5027,10 @@ void shdPersonaBeginSelection(u8 *arg0);
 s32 shdPersonaSkillReplaceStep(u8 *arg0)
 {
     u16 pendingSkill;
-    u8 *work = ((SdkTask *)arg0)->work;
-    u8 *base = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+    ShdPersonaSkillReplaceWork *work = (ShdPersonaSkillReplaceWork *)((SdkTask *)arg0)->work;
+    u8 *base = *(u8 **)(work->parent + 0x38);
     u8 *first = *(u8 **)(base + 0);
-    u32 st = *(u32 *)(work + 8);
+    u32 st = work->state;
     switch (st) {
     case 0: {
         u16 a;
@@ -5039,18 +5039,18 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
         } else {
             a = ShdSkill_GetPendingSkill(base + 0x8C);
         }
-        *(u16 *)(work + 4) = a;
-        nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x14)));
-        nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x28));
-        *(s32 *)(work + 8) = 1;
+        work->original = a;
+        nmMesWindowOpenCurrent((u8 *)(work->messageHandle));
+        nmMesWindowShowCurrentRecord(work->messages[4]);
+        work->state = 1;
     }
         /* fallthrough */
     case 1:
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            *(s32 *)(work + 8) = 2;
-            shdPersonaBeginSelection(*(u8 **)(work + 0xC));
+            work->state = 2;
+            shdPersonaBeginSelection(work->parent);
         }
         break;
     case 2: {
@@ -5064,7 +5064,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             }
         }
         if (D_008C024E[0] & 0x40) {
-            u8 *q = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+            u8 *q = *(u8 **)(work->parent + 0x38);
             s32 fq = *(s32 *)(q + 0x534);
             u16 vv;
             if (fq & 0x2000) {
@@ -5074,11 +5074,11 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             } else {
                 vv = ShdSkill_GetSlotSkillId(q + 0x84) & 0xFFFF;
             }
-            *(u16 *)(work + 6) = vv;
-            *(s32 *)(work + 8) = 3;
-            nmMesWindowSetCurrentString(0, func_00243840(*(u16 *)(work + 6)));
-            nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x2C));
-            nmMesWindowSetCurrentParam(*(s32 *)(work + 0x18));
+            work->replacement = vv;
+            work->state = 3;
+            nmMesWindowSetCurrentString(0, func_00243840(work->replacement));
+            nmMesWindowShowCurrentRecord(work->messages[5]);
+            nmMesWindowSetCurrentParam(work->messages[0]);
             nmMesWindowSetCurrentFlag(1);
             nmMesWindowRequestRefresh();
             sdkSndStartStream(0, 1, 0, 1);
@@ -5093,7 +5093,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             choice = nmMesWindowCurrentAnimFlag();
             switch (choice) {
                 case 0: {
-                    u8 *pp = *(u8 **)(work + 0xC);
+                    u8 *pp = work->parent;
                     u8 *bb = *(u8 **)(pp + 0x38);
                     u8 *current;
                     u16 queuedSkill;
@@ -5125,19 +5125,19 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
                         ok2 = 0;
                     }
                     if (ok2 != 0) {
-                        *(u16 *)(work + 0) = 0;
-                        *(s32 *)(work + 8) = 4;
+                        work->counter = 0;
+                        work->state = 4;
                     } else {
                         u8 *qb2;
-                        *(s32 *)(work + 8) = 6;
+                        work->state = 6;
                         qb2 = first;
                         qb2 = datPersonaGetRow(datPersonaRecordId((u32)qb2));
                         nmMesWindowSetCurrentString(0, qb2);
-                        nmMesWindowSetCurrentString(1, func_00243840(*(u16 *)(work + 4)));
-                        nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x30));
+                        nmMesWindowSetCurrentString(1, func_00243840(work->original));
+                        nmMesWindowShowCurrentRecord(work->messages[6]);
                     }
                     {
-                    u8 *qb = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+                    u8 *qb = *(u8 **)(work->parent + 0x38);
                     s32 fq2 = *(s32 *)(qb + 0x534);
                     if (fq2 & 0x20) {
                         if (fq2 & 0x800) {
@@ -5157,7 +5157,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
                     break;
                 }
                 case 1:
-                    *(s32 *)(work + 8) = 2;
+                    work->state = 2;
                     break;
                 default:
                     break;
@@ -5165,15 +5165,15 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
         }
         break;
     case 4: {
-        if (++*(u16 *)work < 0xA) {
+        if (++work->counter < 0xA) {
             break;
         } else {
             s32 selected;
             u8 *q;
             s32 fq;
-            pendingSkill = *(u16 *)(work + 4);
+            pendingSkill = work->original;
             selected = pendingSkill;
-            q = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+            q = *(u8 **)(work->parent + 0x38);
             fq = *(s32 *)(q + 0x534);
             if ((fq & 0x8000) == 0) {
                 s16 sv;
@@ -5186,34 +5186,34 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
                 }
             }
             sdkSndStartStream(1, 3, 3, 2);
-            *(s32 *)(work + 8) = 5;
-            *(u16 *)(work + 2) = 0;
+            work->state = 5;
+            work->field02 = 0;
         }
     }
         /* fallthrough */
     case 5: {
-        u8 *q = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+        u8 *q = *(u8 **)(work->parent + 0x38);
         s32 *flags = (s32 *)(q + 0x534);
         s32 fq = *flags;
         if ((fq & 0x8000) == 0) {
             *flags = fq & ~0x8000;
-            *(s32 *)(work + 8) = 6;
-            nmMesWindowSetCurrentString(0, func_00243840(*(u16 *)(work + 6)));
-            nmMesWindowSetCurrentString(1, func_00243840(*(u16 *)(work + 4)));
-            nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x34));
+            work->state = 6;
+            nmMesWindowSetCurrentString(0, func_00243840(work->replacement));
+            nmMesWindowSetCurrentString(1, func_00243840(work->original));
+            nmMesWindowShowCurrentRecord(work->messages[7]);
         /* fallthrough */
     case 6:
             nmMesWindowStepCurrent(1);
             if (nmMesWindowCurrentOpenState() == 0) {
                 nmMesWindowCloseCurrent(1);
-                *(s32 *)(work + 8) = 7;
+                work->state = 7;
             }
         }
         break;
     }
     case 7:
         nmMesWindowResetCurrent();
-        *(s32 *)(work + 8) = 8;
+        work->state = 8;
         break;
     case 8:
         break;
@@ -5235,12 +5235,12 @@ void shdPersonaSkillReplaceDestroy(u8 *arg0)
 // FUN_0011FBC0
 u8 *shdPersonaSkillReplaceCreate(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
 {
-    u8 *w;
+    ShdPersonaSkillReplaceWork *w;
     u8 *r;
     s32 i;
 
     chkmemAllocSiteTag(D_005E4868, 0x1551);
-    w = D_008873F4[0](1, 0x44, 0x40000);
+    w = (ShdPersonaSkillReplaceWork *)D_008873F4[0](1, 0x44, 0x40000);
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x1552);
     }
@@ -5248,10 +5248,10 @@ u8 *shdPersonaSkillReplaceCreate(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x155C);
     }
-    *(u8 **)(w + 0xC) = arg1;
-    *(s32 *)(w + 0x14) = arg2;
+    w->parent = arg1;
+    w->messageHandle = arg2;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)(w + 0x18 + i * 4) = *(s32 *)(arg3 + i * 4);
+        *(s32 *)((u8 *)w + 0x18 + i * 4) = *(s32 *)(arg3 + i * 4);
     }
     return r;
 }
