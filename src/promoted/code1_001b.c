@@ -123,7 +123,7 @@ extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_002aa3f0(void);
 extern void btlResetEffectSlots(void);
 extern void fieldSceneUnload();
-extern s32 func_001ba0e0(struct ColorBlendWork *work);
+extern s32 btlColorBlendPacketUpdate(struct ColorBlendWork *work);
 extern u8 *btlPacketAlloc(s32 size, s32 align);
 extern void func_001ec5e0(u8 *arg0, f32 fp);
 extern void btlMainUnloadFieldScene(void);

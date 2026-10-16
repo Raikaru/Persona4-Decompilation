@@ -1924,7 +1924,7 @@ void btlMainWinInit(u8 *arg0) {
         palette = (u8 *)func_00457160();
         ambientAlpha = (1.0f / 255.0f) * (f32)palette[3];
         color = btlCameraBlendAmbient(ambientRed, ambientGreen, ambientBlue, ambientAlpha);
-        pkt = func_001ba530(color, 0);
+        pkt = btlColorBlendPacketCreate(color, 0);
         *(u16 *)(pkt + 0x48) = work->delay;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);

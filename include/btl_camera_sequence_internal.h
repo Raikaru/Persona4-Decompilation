@@ -27,7 +27,7 @@ typedef struct BtlCameraSequenceRotation {
 
 /* Camera color and quaternion packet factories return the allocation that
  * their caller subsequently schedules and associates with an action UID. */
-u8 *func_001ba530(s32 color, s32 frames);
+u8 *btlColorBlendPacketCreate(s32 color, s32 frames);
 u8 *func_001ba710(f32 *rotation, s32 frames);
 u8 *btlFormationCreateActionPacket(u8 *action);
 
