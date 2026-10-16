@@ -44,13 +44,13 @@ s32 radarStepSlotAnimA(u8 *arg0);
 s32 func_00138b20(u8 *arg0);
 s32 datCommunityPanelUpdate(u8 *arg0);
 s32 func_00131910(u8 *arg0);
-s32 func_00135cf0(u8 *arg0);
+s32 cmpPersonaMenuUpdate(u8 *arg0);
 s32 func_0013ffd0(u8 *arg0);
 s32 datCommunityMenuUpdate(u8 *arg0);
 void radarFreeSpriteNodes(u8 *arg0);
 void func_0013ab30(u8 *arg0);
 void radarReleaseSpritesAndEntries(u8 *arg0);
-void func_001377e0(u8 *arg0);
+void cmpPersonaMenuRelease(u8 *arg0);
 void radarDestroy(u8 *arg0);
 void func_00361a30(u8 *arg0);
 void datCommunityMenuRelease(u8 *arg0);
@@ -336,7 +336,7 @@ void func_0012cc50(u8 *arg0) {
         radarReleaseSpritesAndEntries(p + 0x31DC);
         break;
     case 7:
-        func_001377e0(p + 0x5A8C);
+        cmpPersonaMenuRelease(p + 0x5A8C);
         break;
     case 8:
         radarDestroy(p + 0x7750);
@@ -415,7 +415,7 @@ void func_0012cd90(void) {
             }
         }
         if (*(s32 *)(p + 0x10) & 0x20) {
-            result = func_00135cf0(p + 0x5A8C);
+            result = cmpPersonaMenuUpdate(p + 0x5A8C);
             if (result != 0) {
                 *(s32 *)(p + 0x10) &= ~0x20;
             }
