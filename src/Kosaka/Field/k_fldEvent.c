@@ -1749,7 +1749,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     f32 KDraw_RoundYawDeg(f32);
     s32 FldFrame_GetStatus(u8 *);
     u32 datGetFlag(s32);
-    void func_0016e8e0(u8 *, f32);
+    void FldCameraSetDistance(u8 *, f32);
     u8 *func_0016f3b0(u8 *, s32, s32);
     u8 *FldFrame_RotateTaskCreate(u8 *, s32, s32);
     f32 FldEvent_GetStickHeading(s32, s32);
@@ -1901,7 +1901,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
         }
     }
     if (f20 != 0.0f) {
-        func_0016e8e0(*(u8 **)((s32)MT_Scene_GetFrameState() + 4), f20);
+        FldCameraSetDistance(*(u8 **)((s32)MT_Scene_GetFrameState() + 4), f20);
     } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7)) {
         *(u8 **)(h + 0x138) = FldFrame_RotateTaskCreate(arg0, 5, -1);
     }

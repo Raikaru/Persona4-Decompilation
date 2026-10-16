@@ -464,7 +464,7 @@ extern void KDraw_SetCylinderCenter(unsigned char *, unsigned char *);
 extern void KDraw_SetCylinderRadius(unsigned char *, float);
 extern void KDraw_SetCylinderHeight(unsigned char *, float);
 extern s32 FldFrame_CollideSphereSelected(const RwV3d *, f32, RwV3d *, RwV3d *);
-extern void func_0016e8e0(u8 *, f32);
+extern void FldCameraSetDistance(u8 *, f32);
 extern float FldEvent_GetMoveStep(void);
 extern float RwV3dLength(float *);
 extern void kAssertFail(void *, int);
@@ -1151,7 +1151,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
               }
             }
             temp_v8_c = (int)MT_Scene_GetFrameState();
-            func_0016e8e0(*(unsigned char **)(temp_v8_c + 4),temp_v9);
+            FldCameraSetDistance(*(unsigned char **)(temp_v8_c + 4),temp_v9);
             *(float *)((u8 *)(u32)piVar1 + 0x2ac) = (*(float *)((u8 *)(u32)piVar1 + 0x2ac) - temp_v9);
             {
               float completionZero = 0.0f;
@@ -1943,11 +1943,11 @@ u8 *FldCameraGetRecord(u8 *arg0)
 }
 
 /* measured: opt_propagation off preserves the retail early a1 pointer
-   materialization in func_0016e8e0. */
-/* measured: func_0016e8e0 MATCH -> MISMATCH without this pragma. */
+   materialization in FldCameraSetDistance. */
+/* measured: FldCameraSetDistance MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0016E8E0
-void func_0016e8e0(u8 *arg0, f32 fparg0)
+void FldCameraSetDistance(u8 *arg0, f32 fparg0)
 {
     E8E0Frame sp;
     void *temp_2;
@@ -1994,7 +1994,7 @@ done:
     ;
 }
 
-/* measured: closes opt_propagation off for func_0016e8e0. */
+/* measured: closes opt_propagation off for FldCameraSetDistance. */
 // FUN_0016E9F0
 void FldFrame_SetViewOffset(u8 *arg0, u8 *arg1)
 {
@@ -2114,7 +2114,7 @@ void func_0016eb00(u8 *arg0)
 
 /* measured: restore opt_propagation after func_0016eb00. */
 // FUN_0016EC90
-void func_0016ec90(u8 *arg0)
+void FldCameraUpdateOrbit(u8 *arg0)
 {
     f32 sp50[3];
     f32 sp40[3];
@@ -2514,7 +2514,7 @@ void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
     case 0:
     case 5:
     case 6:
-        func_0016e8e0(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4), 0.0f);
+        FldCameraSetDistance(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4), 0.0f);
         return;
     case 2:
     {

@@ -69,7 +69,7 @@ extern s32 FldFrameTask_SetHeight(s32 arg0, f32 arg1);
 extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void FldFrameTask_UpdateTile(s32 arg0);
 extern void func_0015bae0(void);
-extern void func_0016ec90(s32 arg0);
+extern void FldCameraUpdateOrbit(s32 arg0);
 extern void FldAI_ChaserDisable(s32 arg0);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern u8* MT_Scene_GetFrameState(void);
@@ -472,7 +472,7 @@ s32 Cmd_PlaceFieldResource(void)
                 }
                 fieldState = MT_Scene_GetFrameState();
                 if (*(s32 *)(fieldState + 4) != 0) {
-                    func_0016ec90(*(s32 *)(MT_Scene_GetFrameState() + 4));
+                    FldCameraUpdateOrbit(*(s32 *)(MT_Scene_GetFrameState() + 4));
                 }
             }
             break;
