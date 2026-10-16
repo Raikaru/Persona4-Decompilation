@@ -597,28 +597,31 @@ void btlMainDrawSkyOverlay(void) {
     ((void (*)(u32, u8 *, u32))D_00887300[4])(4, (u8 *)&buf, 4);
 }
 
-/* V4 work slots 0-3 of the battle state. Consecutive 0x30-byte blocks at
- * iGpffffb3ac+0x1BC, +0x1EC, +0x21C, +0x24C; btlEPL.c uses them as scratch vectors. */
+/* Scene blocks of the battle state, 0x30 bytes each, written by
+ * btlMainSetupCameraAndEffects: +0x1BC colour value and +0x1CC colour target with
+ * the transform at +0x1DC; +0x1EC list-4 first colour, +0x1FC second colour and
+ * +0x20C matrix; +0x21C a copy of the list-4 block; +0x24C RGBA byte colour
+ * (iGpffffa4d8..4db) scaled to floats. */
 // FUN_001B7020
-s32 btlMainGetV4Slot0(void)
+s32 btlMainGetSceneColorBlock(void)
 {
     return iGpffffb3ac + 0x1BC;
 }
 
 // FUN_001B7030
-s32 btlMainGetV4Slot1(void)
+s32 btlMainGetSceneList4Block(void)
 {
     return iGpffffb3ac + 0x1EC;
 }
 
 // FUN_001B7040
-s32 btlMainGetV4Slot2(void)
+s32 btlMainGetSceneList4SavedBlock(void)
 {
     return iGpffffb3ac + 0x21C;
 }
 
 // FUN_001B7050
-s32 btlMainGetV4Slot3(void)
+s32 btlMainGetSceneRgbaBlock(void)
 {
     return iGpffffb3ac + 0x24C;
 }
