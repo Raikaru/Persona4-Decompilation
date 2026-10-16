@@ -60,7 +60,7 @@ extern s32 kwlnTaskIsLinked(void *);
 extern void shdPersonaSetOrigin(u8 *arg0, f32 *arg1);
 extern void shdPersonaSetDisplayState(u8 *, s32, u32, s8);
 extern void shdPersonaBeginClose(u8 *arg0);
-extern void func_0011c180(u8 *, s32, s32, s8);
+extern void shdPersonaBeginDisplayAndEndSelection(u8 *, s32, s32, s8);
 extern void shdPersonaBeginDisplay(u8 *, s32, s32, s8);
 extern void shdPersonaStartSlideOut(u8 *arg0);
 extern void shdPersonaEnterCloseState(u8 *arg0);
@@ -234,7 +234,7 @@ void fclDrawSetSlot(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
     if (arg3 == 0) {
         *(s32 *)(t + 8) = arg1;
         *(s8 *)(t + 0xC) = arg2;
-        func_0011c180(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
+        shdPersonaBeginDisplayAndEndSelection(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
         return;
     }
     *(s32 *)(t + 8) = arg1;

@@ -58,7 +58,7 @@ extern s32 func_002bb140(void);
 extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
-extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
+extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern void shdPersonaBeginSelection(u8 *arg0);
 extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
@@ -249,7 +249,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                         u8 **selected = (u8 **)(state + 0x4C) + idx;
                         u8 *display = *(u8 **)(state + 0x18);
                         s32 displayMode = 1;
-                        func_0011c180(display, displayMode, (s32)*selected, 0);
+                        shdPersonaBeginDisplayAndEndSelection(display, displayMode, (s32)*selected, 0);
                     }
                 } else if (res == 1) {
                     {
@@ -293,7 +293,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                         u8 **selected = (u8 **)(state + 0x4C) + idx;
                         u8 *display = *(u8 **)(state + 0x18);
                         s32 displayMode = 1;
-                        func_0011c180(display, displayMode, (s32)*selected, 0);
+                        shdPersonaBeginDisplayAndEndSelection(display, displayMode, (s32)*selected, 0);
                     }
                 } else if (res == 1) {
                     {
