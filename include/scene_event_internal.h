@@ -27,7 +27,10 @@ struct EvtNode {
     u16 flags;                /* +0x0C: resource id in the low 10 bits */
     u8 unk0E[0x26];
     void *res;                /* +0x34: scene resource (evtNodeSetRes) */
-    u8 unk38[0x14];
+    u8 unk38[0x08];
+    u32 ownedBlock40;         /* +0x40: heap block freed with the node */
+    u8 unk44[0x04];
+    u32 ownedBlock48;         /* +0x48: heap block, freed unless the owner kind is 0x12 */
     EvtNode *childNext;       /* +0x4C: next sibling in the parent's child list */
     union {
         EvtColor color;       /* +0x50: top-level nodes (evtNpcModelTaskUpdate) */
