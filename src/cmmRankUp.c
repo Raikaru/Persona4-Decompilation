@@ -78,7 +78,7 @@ typedef struct {
 } Sp120;
 extern u_long128 D_00636730;
 extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
-static void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
+static void cmmRankUpLerpState(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
 
 extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
         const struct RwV3d *axis, f32 angle, s32 combine);
@@ -238,8 +238,9 @@ void cmmRankUpCreate(s32 arg0, u32 *arg1) {
  * with the pragma the object is byte-identical (nd 3 = window padding). */
 #pragma opt_loop_invariants on
 
+// Sets (arg1 != 0) or clears flag bit 2 on each active entry of the rank-up table; used to hold and release the entries [inferred].
 // FUN_00251FC0
-void func_00251fc0(s32 arg0, s32 arg1) {
+void cmmRankUpSetEntryHold(s32 arg0, s32 arg1) {
     extern u32 *kwlnTaskGetWork();
     u32 *p;
     u32 temp;
@@ -382,10 +383,11 @@ void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2) {
 /* 1244/1248 bytes; no relocations; four zero alignment bytes.
  * Named float snapshots preserve interpolation order. Packed channels use
  * unsigned word shifts and byte truncation, including the high channel. */
+// Linear interpolation of two sprite states by t into out: position, scale and axis fields.
 // FUN_00252230
 /* All retail references are from this source unit. Internal linkage lets
  * MWCC retain the caller values in registers this leaf does not write. */
-static void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
+static void cmmRankUpLerpState(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 {
     f32 fa;
     f32 fb;
@@ -442,8 +444,9 @@ static void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
  * bytes. The two interpolation phases share the real private leaf; the
  * sprite provider takes depth before the width/height integer stream.
  * See docs/probe_archive/Rankup_callback_00252710_20260922.md. */
+// Per-frame rank-up sprite step: advances the frame counter, interpolates the sprite state after frame 30, and emits the sprite through the provider until frame 0x3C [inferred].
 // FUN_00252710
-s32 func_00252710(s32 unused, u8 *work, u8 *context)
+s32 cmmRankUpStepSprite(s32 unused, u8 *work, u8 *context)
 {
     Sp120 state;
     RankUpMatrix matrix;
@@ -470,10 +473,10 @@ s32 func_00252710(s32 unused, u8 *work, u8 *context)
         complete = 1;
     }
     if (frame > 30) {
-        func_00252230(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+        cmmRankUpLerpState(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
                       (f32)(frame - 0x1E) / 30.0f);
     } else {
-        func_00252230(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+        cmmRankUpLerpState(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
                       (f32)frame / 30.0f);
     }
     if (special != 0) {
@@ -534,8 +537,9 @@ typedef struct {
     s32 timer;
 } RankUpParticlePrefix;
 
+// Per-frame rank-up effect step: textured particle/overlay draw with pulse and angle, using the matrix and UV blocks [inferred].
 // FUN_00252A60
-s32 func_00252a60(s32 root, u8 *work, u8 *context)
+s32 cmmRankUpStepEffect(s32 root, u8 *work, u8 *context)
 {
     RankUpVectorCopy axis;
     PrimPoint displacement;
@@ -570,10 +574,10 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
         done = 1;
     }
     if (*(s32 *)(work + 4) > 30) {
-        func_00252230(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+        cmmRankUpLerpState(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
             (f32)(*(s32 *)(work + 4) - 30) / 30.0f);
     } else {
-        func_00252230(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+        cmmRankUpLerpState(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
             sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 30.0f));
     }
     {
@@ -1422,8 +1426,9 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
 }
 
 #pragma pop
+// Timed rank-up step: counts the frame up to 0x78, runs phase A below 0x3D and phase B after, and returns 1 when the timer finishes.
 // FUN_00255B00
-s32 func_00255b00(u8 *arg0, s32 *arg1, u8 *context) {
+s32 cmmRankUpStepTimed(u8 *arg0, s32 *arg1, u8 *context) {
     s32 v;
     s32 rv;
 
@@ -1924,7 +1929,7 @@ void func_002566d0(f32 unusedX, f32 unusedY, f32 unusedZ,
 
     opacity = (f32)alpha / 255.0f;
     growth = 0.25f * effect;
-    func_00252230(&state, &keys.states[0], &keys.states[1], interpolation);
+    cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], interpolation);
     RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
                   state.f20, state.f22, (u32)state.f18 >> 8,
@@ -2017,7 +2022,7 @@ void func_00256be0(f32 unusedX, f32 unusedY, f32 unusedZ,
 
     opacity = (f32)alpha / 255.0f;
     growth = 0.25f * effect;
-    func_00252230(&state, &keys.states[0], &keys.states[1], interpolation);
+    cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], interpolation);
     RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
                   state.f20, state.f22, (u32)state.f18 >> 8,
@@ -2137,7 +2142,7 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
         }
     }
     opacity = (f32)alpha / 255.0f;
-    func_00252230(&state, &keys.states[0], &keys.states[1], 0.0f);
+    cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], 0.0f);
     RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     deltaX = 80.0f * progress;
     deltaY = -80.0f * progress;
@@ -2921,7 +2926,7 @@ s32 func_00257900(u8 *task) {
             enteringKeys.states[0].f18 = 0xFF0000FF;
             enteringKeys.states[1].f18 = 0xFF0000FF;
             enteringUv = *(const RankUpRenderUV *)D_006365D0;
-            func_00252230(&enteringSprite, &enteringKeys.states[0], &enteringKeys.states[1], spritePhase);
+            cmmRankUpLerpState(&enteringSprite, &enteringKeys.states[0], &enteringKeys.states[1], spritePhase);
             RwMatrixRotate(&enteringMatrix, &enteringSprite.axis, enteringSprite.f1C, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
@@ -2938,7 +2943,7 @@ s32 func_00257900(u8 *task) {
             steadyKeys.states[0].f18 = 0xFF0000FF;
             steadyKeys.states[1].f18 = 0xFF0000FF;
             steadyUv = *(const RankUpRenderUV *)D_006365D0;
-            func_00252230(&steadySprite, &steadyKeys.states[0], &steadyKeys.states[1], 1.0f);
+            cmmRankUpLerpState(&steadySprite, &steadyKeys.states[0], &steadyKeys.states[1], 1.0f);
             RwMatrixRotate(&steadyMatrix, &steadySprite.axis, steadySprite.f1C, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
@@ -2953,7 +2958,7 @@ s32 func_00257900(u8 *task) {
             leavingKeys.states[0].f18 = 0xFF0000FF;
             leavingKeys.states[1].f18 = 0xFF0000FF;
             leavingUv = *(const RankUpRenderUV *)D_006365D0;
-            func_00252230(&leavingSprite, &leavingKeys.states[0], &leavingKeys.states[1], 1.0f);
+            cmmRankUpLerpState(&leavingSprite, &leavingKeys.states[0], &leavingKeys.states[1], 1.0f);
             RwMatrixRotate(&leavingMatrix, &leavingSprite.axis, leavingSprite.f1C, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
