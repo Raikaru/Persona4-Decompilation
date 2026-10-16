@@ -13,9 +13,9 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
 
-extern void func_004813f0(void);
+extern void TnInvokeCallback(void);
 extern void func_004abe60(void);
-extern s32 func_00481460(s32 arg0);
+extern s32 TnGetOffset1C(s32 arg0);
 extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void kAssertFail(const char *arg0, s32 arg1);
 extern void mdlInitIdentityMatrix(void *arg0);
@@ -60,7 +60,7 @@ void *func_004abd80(void *arg0)
 
 // FUN_004ABE60
 void func_004abe60(void) {
-    func_004813f0();
+    TnInvokeCallback();
 }
 
 /* Measured: propagation-off and a staged type preserve constant-first lookup
@@ -193,7 +193,7 @@ extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
-extern s32 func_00481450(void);
+extern s32 TnGetTableBase(void);
 extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
 extern f32 D_00761134;
 
@@ -286,7 +286,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
             *(s32 *)(temp_4 + 0xD8) = *(s32 *)(temp_4 + 0xD8) & ~0x18;
         }
         mdlSetLayerWeight(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
-        mdlSetAttachedOwner(*(u8 **)(arg1 + 0x94), func_00481450());
+        mdlSetAttachedOwner(*(u8 **)(arg1 + 0x94), TnGetTableBase());
         mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0x94));
         *(s32 *)(arg1 + 0x24) = 0;
     }
@@ -294,7 +294,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
 // FUN_004AC550
 void func_004ac550(void *arg0)
 {
-    func_004ac300(func_00481460(*(u16 *)((u8 *)arg0 + 0x54)), arg0);
+    func_004ac300(TnGetOffset1C(*(u16 *)((u8 *)arg0 + 0x54)), arg0);
 }
 
 // FUN_004AC590
@@ -304,7 +304,7 @@ void func_004ac590(u32 *param_1)
         *(f32 *)(param_1 + 9) = 1.0f;
         param_1[0x26] = param_1[0x26] + 1;
     }
-    func_004ac300(func_00481460(*(u16 *)&param_1[0x15]), (u8 *)param_1);
+    func_004ac300(TnGetOffset1C(*(u16 *)&param_1[0x15]), (u8 *)param_1);
 }
 
 // FUN_004AC600

@@ -6318,7 +6318,7 @@ loop-invariant pragma are in `DmaHardwareRecovery_00463ea0_body.c`.
 
 The renderer audit also fixes two real C ABI omissions:
 `func_004b11d0` and `func_004b1210` now pass their context explicitly to
-`func_00481440(void *)`. Retail's callee stores that incoming pointer.
+`TnSetTableBase(void *)` (was `func_00481440(void *)`). Retail's callee stores that incoming pointer.
 Both bridges remain exact; their containing unit verifies **68 MATCH /
 ten ASM**, including **67 first-party MATCH / two ASM**.
 The pre-fix native excerpt fails at both `-O0` and `-O2`; the integrated

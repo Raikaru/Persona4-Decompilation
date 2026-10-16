@@ -1306,8 +1306,8 @@ void mdlEffectRenderFlares(u8 *arg0)
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
-    extern s32 func_00481300(u16 b);
-    extern s32 func_004814d0(u16 b);
+    extern s32 TnSlotObject(u16 b);
+    extern s32 TnGetOffset38(u16 b);
     extern void func_00460ac0(u8 *a, u8 *b);
     extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *matrix, RwOpCombineType combine);
     extern s32 func_00457120(void);
@@ -1452,7 +1452,7 @@ void mdlEffectRenderFlares(u8 *arg0)
                 }
             } else {
                 s32 idx;
-                s32 dev = func_00481300(*(u8 *)(entry + 8));
+                s32 dev = TnSlotObject(*(u8 *)(entry + 8));
                 idx = (outer & 0xFFFF) * 4;
                 RpMaterialSetTexture(*(RpMaterial **)(*(u8 **)(listBase + 0x54) + idx), (RwTexture *)(u32)dev);
                 fx = dx * *(f32 *)(entry + 0x0);
@@ -1649,7 +1649,7 @@ void mdlEffectRenderFlares(u8 *arg0)
         }
         {
             u16 id = *(u16 *)(arg0 + 0x40);
-            u8 *wd = (u8 *)(u32)func_004814d0(id);
+            u8 *wd = (u8 *)(u32)TnGetOffset38(id);
             *(s32 *)(listBase + 0x18) = 0;
             *(s32 *)(listBase + 0x1C) = 0;
             func_00460ac0(wd, listBase + 0x18);

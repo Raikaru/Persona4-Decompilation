@@ -20,7 +20,7 @@ extern void btlFormationSetPlacement(s32 arg0);
 extern u32 iGpffffb3b8;
 
 extern void func_00485870(s32 arg0);
-extern void func_00481440(s32 arg0);
+extern void TnSetTableBase(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
 extern void func_004865c0(u8 *arg0, s32 arg1);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
@@ -229,7 +229,7 @@ void btlEffectUpdateFadeNodes(void)
     u32 step;
     u32 arg;
 
-    func_00481440((s32)D_005DC7D0);
+    TnSetTableBase((s32)D_005DC7D0);
     node = *(struct BtlPacket **)(iGpffffb3ac + 0x1B8);
     while (node != NULL) {
         color = node->color;

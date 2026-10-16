@@ -28,7 +28,7 @@ extern u8 D_0071413C[];
 extern u_long128 func_00492dd0(s32 emitter, u32 *position);
 extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
-extern s32 func_004814d0(u16 arg0);
+extern s32 TnGetOffset38(u16 arg0);
 extern void func_004ad030();
 extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
@@ -100,7 +100,7 @@ extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 a
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern void func_004a5ef0(u8 *arg0, u8 *arg1);
 extern u8 *GeometryCloneBlock(s32 arg0);
-extern s32 func_00481300(u16 arg0);
+extern s32 TnSlotObject(u16 arg0);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 func_00482800(u16 *arg0);
 extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
@@ -477,7 +477,7 @@ void *func_004a5bb0(void *source)
         case 4:
             func_003c42b0(
                 *(u8 **)(*(u8 **)(temp_2 + 0xC8) + 0x14),
-                func_00481300(*temp_2_4));
+                TnSlotObject(*temp_2_4));
             break;
         case 7:
             *(s32 *)(temp_2 + 0xCC) = func_00482800(temp_2_4);
@@ -1753,7 +1753,7 @@ void func_004ad030(s32 arg0, u8 *arg1)
     extern void mdlSetColor(void *arg0, s32 *arg1);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
     extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-    extern s32 func_00481450(void);
+    extern s32 TnGetTableBase(void);
     extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
     extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
     extern f32 D_00761134;
@@ -1819,14 +1819,14 @@ void func_004ad030(s32 arg0, u8 *arg1)
             *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x18;
         }
         mdlSetLayerWeight(*(u8 **)(arg1 + 0xB4), 0, *(f32 *)(arg1 + 8));
-        mdlSetAttachedOwner(*(u8 **)(arg1 + 0xB4), func_00481450());
+        mdlSetAttachedOwner(*(u8 **)(arg1 + 0xB4), TnGetTableBase());
         mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0xB4));
         *(s32 *)(arg1 + 8) = 0;
     }
 }
 // FUN_004AD240
 void func_004ad240(u8 *arg0) {
-    func_004ad030(func_004814d0(*(u16 *)(arg0 + 0x38)), arg0);
+    func_004ad030(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
 }
 // FUN_004AD280
 void func_004ad280(u8 *arg0)
@@ -1856,7 +1856,7 @@ void func_004ad280(u8 *arg0)
         }
         *(f32 *)(arg0 + 8) = 1.0f;
     }
-    func_004ad030(func_004814d0(*(u16 *)(arg0 + 0x38)), arg0);
+    func_004ad030(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
 }
 // FUN_004AD3E0
 void func_004ad3e0(u8 *arg0, f32 *arg1) {
@@ -2313,7 +2313,7 @@ void func_004af520(u8 *arg0) {
         inner = *(u8 **)(temp + 0x20);
         *(s32 *)(arg0 + 0x64) = 0;
         *(s32 *)(arg0 + 0x68) = 0;
-        func_00460ac0(func_00481460(*(u16 *)(inner + 0x54)), arg0 + 0x64);
+        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
     }
 }
 // FUN_004AF580
@@ -2326,7 +2326,7 @@ void func_004af580(u8 *arg0) {
         inner = *(u8 **)(temp + 0x20);
         *(s32 *)(arg0 + 0x64) = 0;
         *(s32 *)(arg0 + 0x68) = 0;
-        func_00460ac0(func_00481460(*(u16 *)(inner + 0x54)), arg0 + 0x64);
+        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
     }
 }
 // FUN_004AF5E0

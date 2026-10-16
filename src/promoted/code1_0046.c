@@ -305,12 +305,12 @@ void sdkOtFlushBuckets(u8 *arg0)
     extern void func_004106a0(s32);
     extern s32 func_00410800(s32, s32, s32);
     extern s32 func_00410930(s32, s32);
-    extern void func_004815b0(void *);
-    extern void func_00481660(void *);
-    extern void func_004816d0(void *);
-    extern void func_00481740(void *);
-    extern void func_004818a0(void *);
-    extern void func_004818c0(void *);
+    extern void TnDispatchObjectCallback(void *);
+    extern void TnDispatchBlurCopied(void *);
+    extern void TnDispatchBlurDirect(void *);
+    extern void TnDispatchSkyDraw(void *);
+    extern void TnDispatchBillboards(void *);
+    extern void TnDispatchPairedDraw(void *);
     extern void func_00475cd0(void *);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern void (*D_00887314[])(s32, void *, s32, void *, s32);
@@ -401,22 +401,22 @@ void sdkOtFlushBuckets(u8 *arg0)
             func_00410520(*(u32 *)(p + 0x1C), *(void **)(p + 0x20), *(u32 *)(p + 0x24));
             break;
         case 21:
-            func_004815b0(*(void **)(p + 0x1C));
+            TnDispatchObjectCallback(*(void **)(p + 0x1C));
             break;
         case 22:
-            func_00481660(*(void **)(p + 0x1C));
+            TnDispatchBlurCopied(*(void **)(p + 0x1C));
             break;
         case 23:
-            func_004816d0(*(void **)(p + 0x1C));
+            TnDispatchBlurDirect(*(void **)(p + 0x1C));
             break;
         case 24:
-            func_00481740(*(void **)(p + 0x1C));
+            TnDispatchSkyDraw(*(void **)(p + 0x1C));
             break;
         case 25:
-            func_004818a0(*(void **)(p + 0x1C));
+            TnDispatchBillboards(*(void **)(p + 0x1C));
             break;
         case 26:
-            func_004818c0(*(void **)(p + 0x1C));
+            TnDispatchPairedDraw(*(void **)(p + 0x1C));
             break;
         case 27:
             func_00462230(p);

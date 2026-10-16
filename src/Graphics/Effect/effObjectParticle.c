@@ -351,7 +351,7 @@ void func_004aed70(u8 *arg0)
     extern void RwMatrixScale(EffObjectMatrix *m, f32 *scale, s32 op);
     extern void RwMatrixTranslate(EffObjectMatrix *m, f32 *pos, s32 op);
     extern void func_003e9cb0(void *a, EffObjectMatrix *b, s32 c);
-    extern void func_004813f0(void);
+    extern void TnInvokeCallback(void);
     extern f32 fGpffff81f4;
     extern f32 fGpffff8048;
     extern f32 D_00713D20[];
@@ -601,6 +601,6 @@ void func_004aed70(u8 *arg0)
         kAssertFail(D_00714520, 0x2A2);
         break;
     }
-    func_004813f0();
+    TnInvokeCallback();
     }
 }

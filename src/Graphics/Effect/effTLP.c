@@ -5,7 +5,7 @@
 void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
-s32 func_00481390(u8 *ptr);
+s32 TnUploadStreamTagged(u8 *ptr);
 void func_003ef3a0(void *ptr);
 
 extern u8 D_00713300[];
@@ -83,7 +83,7 @@ TLP *func_00482800(TlpDesc *desc)
     p = src + count * 0x10;
     for (i = 0; i < count; i++) {
         memcpy((u8 *)work->entries + i * 0x10, src, 0x10);
-        work->texIds[i] = (u32)func_00481390(p);
+        work->texIds[i] = (u32)TnUploadStreamTagged(p);
         p += ((TlpEntry *)src)->stride;
         src += 0x10;
     }

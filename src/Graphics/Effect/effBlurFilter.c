@@ -38,7 +38,7 @@ extern void func_004a8250(u8 *arg0, void *arg1);
 extern void func_004a8440(u8 *arg0, void *arg1);
 extern void func_004a86c0(u8 *arg0, void *arg1);
 extern void func_00460ac0(s32 param, void *work);
-extern s32 func_004814d0(u16 param);
+extern s32 TnGetOffset38(u16 param);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
@@ -46,8 +46,8 @@ extern f32 fGpffff80f8;
 extern void func_004a8a50(u8 *arg0, u8 *arg1);
 extern void effBlurFilterSpawnSlot(u8 *arg0, u8 *arg1);
 extern void func_004a8890(u8 *arg0, s32 *arg1);
-extern s32 func_00481390(void *ptr);
-extern s32 func_00481300(u16 param);
+extern s32 TnUploadStreamTagged(void *ptr);
+extern s32 TnSlotObject(u16 param);
 extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
@@ -1525,7 +1525,7 @@ void effBlurFilterCopiedSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 /* Runs the update handler, increments the step counter, and syncs once it is positive. */
@@ -1540,7 +1540,7 @@ void effBlurFilterCopiedAdvanceAndSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 typedef signed __int128 s128;
@@ -1659,7 +1659,7 @@ void effBlurFilterDirectSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 /* Runs the update handler, increments the step counter, and syncs once it is positive. */
@@ -1674,7 +1674,7 @@ void effBlurFilterDirectAdvanceAndSync(u8 *param_1) {
         p = *(u8 **)(param_1 + 0x24);
         *(s32 *)(param_1 + 0x2C) = 0;
         *(s32 *)(param_1 + 0x30) = 0;
-        func_00460ac0(func_004814d0(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        func_00460ac0(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
     }
 }
 /* Copies a 128-bit value into the node's first field and returns it. */
@@ -1714,10 +1714,10 @@ u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1) {
     *(s32 *)(tmp + 4) = 1;
     switch (t) {
     case 1:
-        *(s32 *)(tmp + 8) = func_00481390(arg0);
+        *(s32 *)(tmp + 8) = TnUploadStreamTagged(arg0);
         break;
     case 4:
-        *(s32 *)(tmp + 8) = func_00481300(*arg0);
+        *(s32 *)(tmp + 8) = TnSlotObject(*arg0);
         break;
     default:
         kAssertFail(D_00714380, 0x7BC);
