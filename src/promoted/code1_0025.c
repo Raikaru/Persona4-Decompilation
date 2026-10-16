@@ -65,8 +65,8 @@ s32 kwlnTaskIsLinked(s32 arg0);
 void func_00120f20(s32 arg0);
 s32 mcIconTaskCreate(u8 *parent, s32 mode);
 s32 func_002aa3f0(void);
-extern s32 func_00481450(void);
-extern void func_00481440(s32 arg0);
+extern s32 TnGetTableBase(void);
+extern void TnSetTableBase(s32 arg0);
 extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
@@ -271,8 +271,8 @@ s32 effBlurFilterTaskUpdate(u8 *task) {
 
     p = (s32 *)kwlnTaskGetWork(task);
     if (p[4] != 0) {
-        var_17 = func_00481450();
-        func_00481440(p[4]);
+        var_17 = TnGetTableBase();
+        TnSetTableBase(p[4]);
     }
     temp_3 = p[0];
     switch (temp_3) {
@@ -286,7 +286,7 @@ s32 effBlurFilterTaskUpdate(u8 *task) {
         break;
     }
     if (p[4] != 0) {
-        func_00481440(var_17);
+        TnSetTableBase(var_17);
     }
     return 0;
 }

@@ -207,8 +207,8 @@ s32 func_001fa7a0(s32 *arg0)
 {
     extern void func_00120f00(s32 arg0);
     extern s32 func_004b1520(s32 arg0);
-    extern s32 func_00481450(void);
-    extern void func_00481440(void *arg0);
+    extern s32 TnGetTableBase(void);
+    extern void TnSetTableBase(void *arg0);
     extern void func_00485630(s32 arg0);
     extern void func_00485870(s32 arg0);
     extern void func_00485b20(s32 arg0);
@@ -237,11 +237,11 @@ s32 func_001fa7a0(s32 *arg0)
         if (*arg0 == 0) {
             func_0045af60(1, 0xE, 2, 0x10);
         }
-        temp_17 = (void *)func_00481450();
-        func_00481440(&D_005DC8CC);
+        temp_17 = (void *)TnGetTableBase();
+        TnSetTableBase(&D_005DC8CC);
         func_00485630(*(s32 *)(iGpffffb3ac + 0xB80));
         func_00485870(*(s32 *)(iGpffffb3ac + 0xB80));
-        func_00481440(temp_17);
+        TnSetTableBase(temp_17);
         *arg0 += 1;
         goto block_12;
     }

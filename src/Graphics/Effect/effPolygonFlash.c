@@ -28,7 +28,7 @@ extern void GeometryBlockDestroy();
 extern void (*jtbl_008873EC[])(void *);
 extern void (*D_008873ec[])(void *);
 extern void func_003c22f0(void *);
-extern s32 func_00481300(s32);
+extern s32 TnSlotObject(s32);
 extern void func_003c42b0(void *, void *);
 extern void GeometryBlockSetTextureFromHandle(void *, void *);
 extern char D_00713408[];
@@ -1661,7 +1661,7 @@ void *FlashEvolvingRadialAllocBlock(u8 *arg0, void *arg1)
     }
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
-        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x12));
+        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)TnSlotObject(0x12));
     } else {
         GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
@@ -2153,7 +2153,7 @@ void *FlashTexturedAllocBlock(u8 *arg0, void *arg1)
     *(u32 *)(mem + 8) = (u32)mem;
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
-        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x13));
+        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)TnSlotObject(0x13));
     } else {
         GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
@@ -2638,7 +2638,7 @@ void *FlashCenteredStripAllocBlock(u8 *arg0, void *arg1)
     *(u32 *)(mem + 8) = (u32)mem;
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
-        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x12));
+        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)TnSlotObject(0x12));
     } else {
         GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
@@ -3590,7 +3590,7 @@ void *FlashAgedBoxAllocBlock(u8 *arg0, void *arg1)
     *(u32 *)(mem + 8) = (u32)mem;
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
-        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x13));
+        func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)TnSlotObject(0x13));
     } else {
         GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }

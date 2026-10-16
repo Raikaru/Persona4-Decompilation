@@ -17,7 +17,7 @@ extern void func_003ef3a0(void *ptr);
 extern void func_00492cd0(void *ptr);
 extern u8 *func_00492b20(u32 arg0, s32 arg1, u8 *arg2);
 extern void func_00492d10(void *ptr);
-extern s32 func_00481300(u16 param);
+extern s32 TnSlotObject(u16 param);
 extern void func_00492df0(void *arg0, void *arg1);
 extern void func_00492db0(void *arg0, void *arg1);
 extern void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
@@ -31,7 +31,7 @@ void func_004afc80(u8 *arg0, u8 *arg1);
 void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2);
 void func_004afa60(u8 *arg0, s32 arg1);
 void func_004afaa0(u8 *arg0, u8 *arg1);
-extern s32 func_00481390();
+extern s32 TnUploadStreamTagged();
 
 // FUN_004AF680
 u8 *func_004af680(u32 arg0) {
@@ -156,7 +156,7 @@ void *func_004af920(void *opaqueSource) {
 
 // FUN_004AFA60
 void func_004afa60(u8 *arg0, s32 arg1) {
-    *(s32 *)(arg0 + 0x60) = func_00481390(arg1);
+    *(s32 *)(arg0 + 0x60) = TnUploadStreamTagged(arg1);
 }
 
 // FUN_004AFAA0
@@ -469,7 +469,7 @@ void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void 
     switch (mode) {
     case 0: {
         u32 uv;
-        u32 *texture = (u32 *)func_00481300(0x15);
+        u32 *texture = (u32 *)TnSlotObject(0x15);
         u32 setStateTable = (u32)D_00887300;
         u32 primitiveTable;
 
@@ -576,7 +576,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
         }
         var_18 = *(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x18);
         var_17 = *(u8 **)(arg0 + 0x64);
-        temp_21 = *(u8 **)(s32)func_00481300(0x15);
+        temp_21 = *(u8 **)(s32)TnSlotObject(0x15);
         if ((arg1 & 0xFF) == 1) {
             D_00887300[0](1, (u32)temp_21);
         }

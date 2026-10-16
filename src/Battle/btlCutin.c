@@ -14,8 +14,8 @@ extern void H_Cdvd_Destroy();
 extern s32 func_004b1520();
 extern void func_00485630();
 extern void func_00485870();
-extern void *func_00481450();
-extern void func_00481440();
+extern void *TnGetTableBase();
+extern void TnSetTableBase();
 extern u8 D_005DC8CC[];
 extern char D_00625190[];
 extern char D_00625090[];
@@ -149,8 +149,8 @@ s32 btlCutinUpdate(s32 *arg0) {
     s32 var_20;
 
     var_20 = 1;
-    temp_17 = func_00481450();
-    func_00481440(&D_005DC8CC);
+    temp_17 = TnGetTableBase();
+    TnSetTableBase(&D_005DC8CC);
     for (var_16 = 0; var_16 < 4; var_16++) {
         temp_4 = *(s32 *)((u32)var_16 * 4 + (u32)iGpffffb3ac + 0xB5C);
         if (temp_4 != 0) {
@@ -177,7 +177,7 @@ s32 btlCutinUpdate(s32 *arg0) {
             *(s32 *)(iGpffffb3ac + 0xB54) = 0;
         }
     }
-    func_00481440(temp_17);
+    TnSetTableBase(temp_17);
     *arg0 += 1;
     return var_20;
 }

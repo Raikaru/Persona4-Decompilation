@@ -47,13 +47,13 @@ extern void func_004847e0(u8 *arg0);
 extern u8 *func_00482230(s32 *arg0);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-s32 func_00481460(s32 arg0);
+s32 TnGetOffset1C(s32 arg0);
 extern void func_00460ac0(s32 arg0, void *arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 *func_003c22f0(u8 *arg0);
 extern u8 *GeometryCreateMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_00481390(s32 arg0);
+extern s32 TnUploadStreamTagged(s32 arg0);
 extern void func_003ef3a0(void *arg0);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -289,7 +289,7 @@ u8 *func_00482230(s32 *arg0)
     var_17 = 0;
     while (var_17 < temp_16) {
         s32 temp_3;
-        temp_3 = func_00481390((s32)((u8 *)arg0 + *var_18));
+        temp_3 = TnUploadStreamTagged((s32)((u8 *)arg0 + *var_18));
         *(s32 *)(*(u8 **)(temp_2 + 0x14) + (var_17 * 4)) = temp_3;
         var_18 += 1;
         var_17 += 1;
@@ -543,7 +543,7 @@ void func_00484280(u8 *arg0, s32 arg1)
 {
     s32 temp_2;
 
-    temp_2 = func_00481460(arg1);
+    temp_2 = TnGetOffset1C(arg1);
     *(s32 *)(arg0 + 0x18) = 0;
     *(s32 *)(arg0 + 0x1C) = 0;
     func_00460ac0(temp_2, arg0 + 0x18);
@@ -587,7 +587,7 @@ void func_004843f0(u8 *arg0, s32 arg1) {
     s32 temp_16;
     u16 index;
 
-    temp_16 = func_00481390(arg1);
+    temp_16 = TnUploadStreamTagged(arg1);
     var_17 = 0;
     goto loop_004843f0_check;
 loop_004843f0_body:

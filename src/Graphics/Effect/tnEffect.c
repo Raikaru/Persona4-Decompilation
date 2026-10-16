@@ -94,8 +94,9 @@ static void *sCb_764C4C;
 static void *sPtr_764C48;
 
 
+// Returns the tn texture object for slot arg0 from the 22-entry table D_00922D10; asserts at 0x16 or above.
 // FUN_00481300
-s32 func_00481300(u16 arg0) {
+s32 TnSlotObject(u16 arg0) {
     if (!((u16)arg0 < 0x16)) {
         kAssertFail(D_00713270, 0x27);
     }
@@ -104,16 +105,18 @@ s32 func_00481300(u16 arg0) {
 
 
 
+// Uploads the stream at arg0 through tmxUploadStream with flag 1.
 // FUN_00481360
-void func_00481360(u8 *arg0)
+void TnUploadStream(u8 *arg0)
 {
     tmxUploadStream(arg0, 1);
 }
 
 
 
+// Uploads the stream at arg0, then sets the object's low flag byte to 2 and its second flag byte to 0x11.
 // FUN_00481390
-void func_00481390(u8 *arg0)
+void TnUploadStreamTagged(u8 *arg0)
 {
     u8 *obj = func_003ef2e0((u8 *)tmxUploadStream(arg0, 1));
     s32 flags = (*(s32 *)(obj + 0x50) & ~0xFF) | 2;
@@ -122,30 +125,35 @@ void func_00481390(u8 *arg0)
     *(s32 *)(obj + 0x50) = (flags & 0xFFFF00FF) | 0x1100;
 }
 
+// Calls the registered callback with (0, 0) when one is set.
 // FUN_004813F0
-void func_004813f0(void) {
+void TnInvokeCallback(void) {
     if (sCb_764C4C != NULL) {
         ((void (*)(s32, s32))sCb_764C4C)(0, 0);
     }
 }
 
+// Stores the callback pointer invoked by TnInvokeCallback.
 // FUN_00481430
-void func_00481430(void *arg0) {
+void TnSetCallback(void *arg0) {
     sCb_764C4C = arg0;
 }
 
+// Stores the table base pointer read by the TnGet accessors.
 // FUN_00481440
-void func_00481440(void *arg0) {
+void TnSetTableBase(void *arg0) {
     sPtr_764C48 = arg0;
 }
 
+// Returns the table base pointer set by TnSetTableBase.
 // FUN_00481450
-s32 func_00481450(void) {
+s32 TnGetTableBase(void) {
     return (s32)sPtr_764C48;
 }
 
+// Returns the word at +0x1C of the table entry for slot arg0; asserts below 7.
 // FUN_00481460
-s32 func_00481460(u16 arg0) {
+s32 TnGetOffset1C(u16 arg0) {
     s32 idx;
     if (!((u16)arg0 < 0x7)) {
         kAssertFail(D_00713270, 0xCD);
@@ -154,8 +162,9 @@ s32 func_00481460(u16 arg0) {
     return *(s32 *)(idx + (u32)sPtr_764C48 + 0x1C);
 }
 
+// Returns the word at +0x38 of the table entry for slot arg0; asserts below 7.
 // FUN_004814D0
-s32 func_004814d0(u16 arg0) {
+s32 TnGetOffset38(u16 arg0) {
     s32 idx;
     if (!((u16)arg0 < 0x7)) {
         kAssertFail(D_00713270, 0xD2);
@@ -164,16 +173,18 @@ s32 func_004814d0(u16 arg0) {
     return *(s32 *)(idx + (u32)sPtr_764C48 + 0x38);
 }
 
+// Returns the table-base word indexed by sTbl_7641F0[arg0]; asserts below 7.
 // FUN_00481540
-s32 func_00481540(u16 arg0) {
+s32 TnGetIndexedWord(u16 arg0) {
     if (!((u16)arg0 < 0x7)) {
         kAssertFail(D_00713270, 0xD7);
     }
     return ((u32 *)sPtr_764C48)[sTbl_7641F0[(u16)arg0]];
 }
 
+// Runs the object's callback at +0x48 with render-state table entry 6 toggled by flag bit 0.
 // FUN_004815B0
-void func_004815b0(void *arg0) {
+void TnDispatchObjectCallback(void *arg0) {
     u8 *obj;
     TNFunc *tbl;
     if (*(u16 *)arg0 & 1) {
@@ -189,24 +200,27 @@ void func_004815b0(void *arg0) {
         (*tbl)(6, 1);
     }
 }
+// Brackets effBlurFilterCopiedDispatch with render-state table entry 6 off and on.
 // FUN_00481660
-void func_00481660(void *arg0) {
+void TnDispatchBlurCopied(void *arg0) {
     TNFunc *tbl = (TNFunc *)D_00887300_abs;
     (*tbl)(6, 0);
     effBlurFilterCopiedDispatch(arg0);
     (*tbl)(6, 1);
 }
 
+// Brackets effBlurFilterDirectDispatch with render-state table entry 6 off and on.
 // FUN_004816D0
-void func_004816d0(void *arg0) {
+void TnDispatchBlurDirect(void *arg0) {
     TNFunc *tbl = (TNFunc *)D_00887300_abs;
     (*tbl)(6, 0);
     effBlurFilterDirectDispatch(arg0);
     (*tbl)(6, 1);
 }
 
+// Draws the sky-state object through func_004aed70 with table entry 0x14 set to 2 then 1; state 8 and the sky render state toggle when the object's word +0x54 is zero.
 // FUN_00481740
-void func_00481740(void *arg0) {
+void TnDispatchSkyDraw(void *arg0) {
     u8 *obj = *(u8 **)(*(u8 **)((u8 *)arg0 + 0x58) + 0x20);
     TNFunc *tbl;
     TNFunc *tbl2;
@@ -234,13 +248,15 @@ void func_00481740(void *arg0) {
     }
 }
 
+// Forwards to ParticleDrawBillboards.
 // FUN_004818A0
-void func_004818a0(void *arg0) {
+void TnDispatchBillboards(void *arg0) {
     ParticleDrawBillboards((u8 *)arg0);
 }
 
+// Draws both halves of the paired effect under render-state table entry 6, toggled by flag bit 30.
 // FUN_004818C0
-void func_004818c0(void *arg0) {
+void TnDispatchPairedDraw(void *arg0) {
     TNFunc *tbl;
     if (((TnFlags *)arg0)->flag30 & 1) {
         tbl = (TNFunc *)D_00887300_abs;
@@ -256,8 +272,9 @@ void func_004818c0(void *arg0) {
     }
 }
 
+// Task callback passed to kwlnTaskCreate: when the dirty flag is set, re-applies the tint colours and the matrix, then clears the flag.
 // FUN_00481980
-s32 func_00481980(u8 *unusedTask) {
+s32 TnTaskUpdate(u8 *unusedTask) {
     func_004b1600();
     func_004a7830();
     if (D_00922CC0[0] != 0) {
@@ -269,8 +286,9 @@ s32 func_00481980(u8 *unusedTask) {
     return 0;
 }
 
+// Loads the 22 tn texture objects from the cdvd resource, sets the tint colours and a rotation matrix from the second colour, and creates the TnTaskUpdate task.
 // FUN_00481A20
-void func_00481a20(s32 arg0)
+void TnInitModule(s32 arg0)
 {
     TnMatrix matrix;
     u_long128 color0;
@@ -397,5 +415,5 @@ void func_00481a20(s32 arg0)
     func_004abb60();
     func_004a77b0();
     func_004b3180(arg0);
-    (s32)kwlnTaskCreate((const void *)(D_007132B8), arg0, 0, 0, func_00481980, 0, (u8 *)(0));
+    (s32)kwlnTaskCreate((const void *)(D_007132B8), arg0, 0, 0, TnTaskUpdate, 0, (u8 *)(0));
 }
