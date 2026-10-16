@@ -7,6 +7,7 @@
 #include "fr_font_internal.h"
 #include "shd_misc_internal.h"
 #include "shdPersona_internal.h"
+#include "datUnit_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 
@@ -142,15 +143,15 @@ s32 shdPersonaCalcExpRemaining(u8 *arg0, s32 arg1)
 
 
 
-s8 datPersonaGetLevel(u8 *arg0);
-s8 datPersonaGetStat(u8 *arg0, s32 arg1);
-s8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1);
-s8 datPersonaGetTotalStat(u8 *arg0, s32 arg1);
+s8 datPersonaGetLevel(DatPersonaRecord *arg0);
+s8 datPersonaGetStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetBuffedStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetTotalStat(DatPersonaRecord *arg0, s32 arg1);
 s32 datPersonaRunSkillSlot(u8 *arg0, u16 arg1);
 extern u16 D_007465D0[];
 // Intent: Fill a persona status block with level, EXP to next level, five stats (base, buffed or total by mode) and seven skill slots [inferred]
 // FUN_00115940
-void shdPersonaFillStatusBlock(u8 *arg0, u8 *arg1, s32 arg2)
+void shdPersonaFillStatusBlock(DatPersonaRecord *arg0, u8 *arg1, s32 arg2)
 {
     s32 v2;
     u8 b4;
@@ -159,9 +160,9 @@ void shdPersonaFillStatusBlock(u8 *arg0, u8 *arg1, s32 arg2)
     if (arg0 == NULL) {
         kAssertFail(D_005E4868, 0x76);
     }
-    *(u16 *)(arg1 + 2) = *(u16 *)(arg0 + 2);
+    *(u16 *)(arg1 + 2) = arg0->id;
     *(s8 *)(arg1 + 4) = datPersonaGetLevel(arg0);
-    b4 = *(u8 *)(arg0 + 4);
+    b4 = arg0->level;
     if (b4 == 0x63) {
         v2 = 0;
     } else {
@@ -201,7 +202,7 @@ void shdPersonaFillStatusBlock(u8 *arg0, u8 *arg1, s32 arg2)
         break;
     }
     for (i = 0; i < 7; i++) {
-        *(s32 *)(arg1 + 0x14 + i * 4) = datPersonaRunSkillSlot(arg0, D_007465D0[i]);
+        *(s32 *)(arg1 + 0x14 + i * 4) = datPersonaRunSkillSlot((u8 *)arg0, D_007465D0[i]);
     }
 }
 
@@ -2567,11 +2568,11 @@ void shdPersonaFillStatusForState(u8 *arg0, u8 *arg1)
     case 0:
     case 1:
     case 2:
-        shdPersonaFillStatusBlock(arg1, arg0 + 0xC, 2);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)arg1, arg0 + 0xC, 2);
         break;
     case 3:
     case 4:
-        shdPersonaFillStatusBlock(arg1, arg0 + 0xC, 1);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)arg1, arg0 + 0xC, 1);
         break;
     default:
         kAssertFail(D_005E4868, 0xB91);
@@ -2609,11 +2610,11 @@ void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
     case 0:
     case 1:
     case 2:
-        shdPersonaFillStatusBlock((u8 *)(u16 *)arg2, work + 0xC, 2);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)arg2, work + 0xC, 2);
         break;
     case 3:
     case 4:
-        shdPersonaFillStatusBlock((u8 *)(u16 *)arg2, work + 0xC, 1);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)arg2, work + 0xC, 1);
         break;
     default:
         kAssertFail(D_005E4868, 0xB91);
@@ -2770,11 +2771,11 @@ void shdPersonaFillStateBlock(u8 *arg0, u8 *arg1)
     case 0:
     case 1:
     case 2:
-        shdPersonaFillStatusBlock((u8 *)ptr, work + 0xC, 2);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)ptr, work + 0xC, 2);
         break;
     case 3:
     case 4:
-        shdPersonaFillStatusBlock((u8 *)ptr, work + 0xC, 1);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)ptr, work + 0xC, 1);
         break;
     default:
         kAssertFail(D_005E4868, 0xB91);
