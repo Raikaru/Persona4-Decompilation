@@ -887,7 +887,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void datEntryDrawGatedByFlag39(s32, s32, s32, s32);
     void hFadeTaskStart(s16);
     s32 func_001fc270(void);
-    s32 func_0018df60(s32);
+    s32 FldSupporterTaskCreate(s32);
     void datSetUnitHp(s16, s16);
     void datCalcClearBadStatusById(s16, u32);
     s32 FldUnit_AllSlotsReady(void);
@@ -1480,7 +1480,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             goto running;
         case 100:
             if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) == 0) {
-                s32 v = func_0018df60(*(s32 *)(u8 *)MT_Scene_GetFrameState());
+                s32 v = FldSupporterTaskCreate(*(s32 *)(u8 *)MT_Scene_GetFrameState());
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = v;
             }
             return 0;

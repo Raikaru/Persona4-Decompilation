@@ -92,7 +92,7 @@ extern s32 datCalcGetLevelById(s32 arg0);
 extern s32 *MT_Scene_GetFrameState(void);
 extern void SceneDraw_SetResVisible(u16 arg0, s32 arg1);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern s32 func_0018bb20(s32 arg0, s32 arg1);
+extern s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1);
 
 extern void *memset(void *destination, s32 value, u32 size);
 extern u8 D_007E8020[];
@@ -1937,7 +1937,7 @@ s32 FldUnit_InstallResources(void)
             mdlAdvanceModelFromFlags(*(u8**)(instance + 0x22C));
             mdlRotateMatrix(*(void**)(instance + 0x164), D_00756510, *(f32*)(node + 0x14C), 2);
             mdlTranslateMatrix(*(void**)(instance + 0x164), (void*)(node + 0x140), 2);
-            *(s32*)(instance + 0x294) = func_0018bb20(*(s32*)(instance + 0x228), (s32)(instance));
+            *(s32*)(instance + 0x294) = FldNpcControlTaskCreate(*(s32*)(instance + 0x228), (s32)(instance));
             node = *(u8**)(node + 0x138);
             *(s32*)modelSlot = 0;
         }
