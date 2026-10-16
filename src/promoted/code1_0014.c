@@ -274,8 +274,8 @@ extern void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 extern void MT_Scene_ScaleResColors(u32 *resource, const f32 *color);
-extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
-extern s8 *func_00457160(void);
+extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
+extern s8 *kwlnGetColorBytes(void);
 extern void FldFilterSetPrimary(s32 arg0, s32 arg1);
 
 extern void FldFilterSetSecondary(s32 arg0, s32 arg1);

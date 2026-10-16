@@ -133,7 +133,7 @@ struct RwV3d;
 s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 {
     extern u8 *kwlnGetColorRgb(void);
-    extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+    extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     f32 t;
     f32 inv;
     u8 r;
@@ -151,9 +151,9 @@ s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
         g = blendChannel(work->start.g, work->target.g, t, inv);
         b = blendChannel(work->start.b, work->target.b, t, inv);
         a = blendChannel(work->start.a, work->target.a, t, inv);
-        func_00457140(r, g, b, a);
+        kwlnSetColorRgba(r, g, b, a);
     } else {
-        func_00457140(work->target.r, work->target.g, work->target.b, work->target.a);
+        kwlnSetColorRgba(work->target.r, work->target.g, work->target.b, work->target.a);
         return 1;
     }
     work->frame++;
