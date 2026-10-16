@@ -35,7 +35,7 @@ extern char D_00714148[];
 extern u_long128 D_00713CE0;
 
 extern void kAssertFail(void *, s32);
-extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
+extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
 /* lint-allow: declared with no parameters and called with four. The definition in mdlEffect.c takes one; the one-argument form moved the codegen of all three call sites (verify MISMATCH 3). */
 extern void mdlEffectApplyCombinedGeometryMatrix();
 extern void func_00484280();
@@ -408,7 +408,7 @@ void FunnelWindPackColors(u8 *arg0)
         s32 *pt;
 
         var_19 = *(u32 **)temp_3;
-        temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
+        temp_3_2 = mdlEffectSamplePackedColor(temp_18, temp_18 + 0x24, temp_6, temp_7);
         spA8 = *(s32 *)(arg0 + 0x30);
         pt = &spA8;
         scale = fGpffff8044;
@@ -456,7 +456,7 @@ void FunnelWindPackColors(u8 *arg0)
         while (var_17 < temp_23) {
             temp_6_2 = *var_19;
             if (temp_6_2 < temp_21) {
-                sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                sp9C = mdlEffectSamplePackedColor(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
                 scale = fGpffff8044;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -1033,7 +1033,7 @@ void FallingFunnelWindPackColors(u8 *arg0)
         s32 *pt;
 
         var_19 = *(u32 **)temp_3;
-        temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
+        temp_3_2 = mdlEffectSamplePackedColor(temp_18, temp_18 + 0x24, temp_6, temp_7);
         spA8 = *(s32 *)(arg0 + 0x30);
         pt = &spA8;
         scale = fGpffff8044;
@@ -1081,7 +1081,7 @@ void FallingFunnelWindPackColors(u8 *arg0)
         while (var_17 < temp_23) {
             temp_6_2 = *var_19;
             if (temp_6_2 < temp_21) {
-                sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                sp9C = mdlEffectSamplePackedColor(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
                 scale = fGpffff8044;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -1645,7 +1645,7 @@ void SpiralWindPackColors(u8 *arg0)
         s32 *pt;
 
         var_19 = *(u32 **)temp_3;
-        temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
+        temp_3_2 = mdlEffectSamplePackedColor(temp_18, temp_18 + 0x24, temp_6, temp_7);
         spA8 = *(s32 *)(arg0 + 0x30);
         pt = &spA8;
         scale = fGpffff8044;
@@ -1693,7 +1693,7 @@ void SpiralWindPackColors(u8 *arg0)
         while (var_17 < temp_23) {
             temp_6_2 = *var_19;
             if (temp_6_2 < temp_21) {
-                sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                sp9C = mdlEffectSamplePackedColor(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
                 scale = fGpffff8044;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"

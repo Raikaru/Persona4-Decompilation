@@ -185,9 +185,9 @@ void EffModelRollCycle(u32 *param_1)
 extern void EffModelDrawCallback(u8 *arg0);
 extern char D_007144B8[];
 extern void mdlSetAlphaBlend(void *arg0);
-extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void mdlSetColor(void *arg0, s32 *arg1);
-extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
+extern f32 mdlEffectSampleScalarKeys(void *arg0, u32 arg1, u32 arg2);
 extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
 extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
@@ -223,7 +223,7 @@ void EffModelUpdate(s32 arg0, u8 *arg1)
         if (temp_16 == 0x4C9) {
             mdlSetAlphaBlend(*(u8 **)(arg1 + 0x94));
         }
-        temp_3 = func_0048abd0(arg1 + 0x2C, arg1 + 0x50, temp_17, temp_16);
+        temp_3 = mdlEffectSamplePackedColor(arg1 + 0x2C, arg1 + 0x50, temp_17, temp_16);
         spB8 = *(s32 *)(arg1 + 0x28);
         pt = &spB8;
         scale = D_00761134;
@@ -266,7 +266,7 @@ void EffModelUpdate(s32 arg0, u8 *arg1)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         spBC = *(s32 *)&spB0;
         mdlSetColor(*(u8 **)(arg1 + 0x94), &spBC);
-        temp_f20 = func_0048aff0(arg1 + 0x60, temp_17, temp_16) / 10.0f;
+        temp_f20 = mdlEffectSampleScalarKeys(arg1 + 0x60, temp_17, temp_16) / 10.0f;
         mdlEffectBuildBasisRows(sp60, arg1 + 0x10);
         mdlApplyModelMatrix(*(u8 **)(arg1 + 0x94), sp60, 0);
         temp_f0 = *(f32 *)(arg1 + 0x20) * temp_f20;

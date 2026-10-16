@@ -30,7 +30,7 @@ typedef struct
 {
     u8 c[4];
 } Color4;
-extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+extern s32 mdlEffectSamplePackedColor(u8 *a, u8 *b, s32 c, s32 d);
 extern void GeometryMatrixBuild(void *dst, void *obj, void *src, f32 arg3);
 extern void func_003e9cb0(void *a, void *b, s32 c);
 extern void GeometryBlockBindResource(void *a, u16 b);
@@ -498,7 +498,7 @@ void ThunderBoltWriteRows(u8 *arg0)
         s32 *pt;
 
         count = *(s32 *)(ctrl + 0x38);
-        tmp = (s32)func_0048abd0(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
+        tmp = (s32)mdlEffectSamplePackedColor(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
         spD8 = *(s32 *)(arg0 + 0x24);
         pt = &spD8;
         scale = iGpffff8044;
@@ -1210,7 +1210,7 @@ void ThunderOrbitBoltWriteRows(u8 *arg0)
         s32 *pt;
 
         count = *(s32 *)(ctrl + 0x38);
-        tmp = (s32)func_0048abd0(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
+        tmp = (s32)mdlEffectSamplePackedColor(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
         spD8 = *(s32 *)(arg0 + 0x24);
         pt = &spD8;
         scale = iGpffff8044;
@@ -1940,7 +1940,7 @@ void ThunderPairedWriteRows(u8 *arg0)
         s32 *pt;
 
         count = *(s32 *)(ctrl + 0x38);
-        tmp = (s32)func_0048abd0(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
+        tmp = (s32)mdlEffectSamplePackedColor(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
         spD8 = *(s32 *)(arg0 + 0x24);
         pt = &spD8;
         scale = iGpffff8044;

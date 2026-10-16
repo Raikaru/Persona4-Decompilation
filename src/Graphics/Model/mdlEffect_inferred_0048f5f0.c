@@ -56,8 +56,8 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* Source unit: src/promoted/code1_0048.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 0048f5f0-0048f5f0 */
 
-extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
+extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
 extern void func_0048b340(u8 *arg0, u8 *arg1);
 extern void EffMotionEmitterUpdate(u8 *arg0);
 extern void func_0048d8c0(u8 *arg0);
@@ -158,7 +158,7 @@ void EffBezierEmitterUpdate(u8 *arg0)
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern void effMiscAxisAngleVU(void *arg0, f32 arg1);
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
@@ -533,7 +533,7 @@ skip_clear:
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(nodes) : "$vf10", "memory");
         *(s32 *)(nodes + 16) = (s32)ftmp1;
     }
-    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out->opacity;
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out->scale;
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out->spin;
@@ -630,7 +630,7 @@ else_branch:
         __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmulax.xyzw $ACC, $vf28, $vf10x \n vmadday.xyzw $ACC, $vf29, $vf10y \n vmaddz.xyzw $vf10, $vf30, $vf10z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(nodes) : "$vf10", "memory");
-    func_0048b220(nodes, config, node10, &b220buf);
+    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out->opacity;
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out->scale;
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out->spin;

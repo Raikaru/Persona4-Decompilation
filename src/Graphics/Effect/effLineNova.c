@@ -182,7 +182,7 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
 void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
 {
 
-    extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
+    extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
     extern u8 *func_003c22f0(u8 *);
     extern u8 *func_003e9700(u8 *);
@@ -214,7 +214,7 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     config = *(u8 **)(instance + 0x24);
     owner = *(u8 **)(state + 4);
 
-    sampleResult = (u32)func_0048abd0(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
+    sampleResult = (u32)mdlEffectSamplePackedColor(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
     effectColor = *(u32 *)(instance + 0x10);
     colorInput = &effectColor;
     normalization = fGpffff8044;
@@ -632,7 +632,7 @@ void LineNovaReseedVertices(u8 *arg0) {
 void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 {
 
-    extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
+    extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
     extern u8 *func_003c22f0(u8 *);
     extern u8 *func_003e9700(u8 *);
@@ -680,7 +680,7 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 
     progress = *(u32 *)(instance + 0x14);
 
-    sampleResult = (u32)func_0048abd0(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
+    sampleResult = (u32)mdlEffectSamplePackedColor(config, config + 0x24, (s32)*(u32 *)(instance + 0x14), (s32)*(u32 *)(config + 0x34));
     effectColor = *(u32 *)(instance + 0x10);
     colorInput = &effectColor;
     normalization = fGpffff8044;

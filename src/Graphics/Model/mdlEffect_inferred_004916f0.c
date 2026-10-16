@@ -65,7 +65,7 @@ void func_004916f0(u8 *arg0)
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern f32 fabsf(f32 arg0);
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void *memcpy(void *dst, const void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
@@ -296,7 +296,7 @@ skip_clear:
         effectVuStore10((EffectVuVector *)nodes);
         *(s32 *)(nodes + 16) = (s32)angle;
     }
-    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[8];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[7];
@@ -338,7 +338,7 @@ else_branch:
         spawnVuAdd10();
     }
     effectVuStore10((EffectVuVector *)nodes);
-    func_0048b220(nodes, config, node10, &b220buf);
+    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[8];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[7];

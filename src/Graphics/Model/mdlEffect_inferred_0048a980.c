@@ -112,7 +112,7 @@ static inline f32 effect_color_opacity(s32 frame, s32 duration, s32 fadeIn, s32 
 /* measured: func_0048a980 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0048A980
-void func_0048a980(f32 *arg0)
+void effMiscMatrixToQuatVU(f32 *arg0)
 {
     extern f32 sqrtf(f32);
     f32 q[4] __attribute__((aligned(16)));
@@ -193,7 +193,7 @@ void func_0048a980(f32 *arg0)
  * envelope. Packed RGBA returns as a sign-extended 32-bit word.
  * measured: native b210 -O2, 1044/1056 bytes, one exact resolved relocation. */
 // FUN_0048ABD0
-s32 func_0048abd0(u8 *colorData, u8 *opacityData, s32 frame, s32 duration) {
+s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration) {
     const EffectPackedColorKeys *colors = (const EffectPackedColorKeys *)colorData;
     const EffectPackedOpacityKeys *opacityKeys = (const EffectPackedOpacityKeys *)opacityData;
     s32 secondColor;
@@ -339,7 +339,7 @@ s32 func_0048abd0(u8 *colorData, u8 *opacityData, s32 frame, s32 duration) {
 /* measured: func_0048aff0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0048AFF0
-f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2)
+f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 mode;
     f32 from;
@@ -411,24 +411,24 @@ f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2)
 
 /* measured: restore opt_propagation after func_0048aff0. */
 // FUN_0048B220
-void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
+void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 {
-    s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
     f32 mdlEffectProjectAnchorDepth(void);
     u_long128 sp50;
     s32 size;
 
     size = *(s32 *)(arg1 + 0xB8);
     *(s32 *)(arg0 + 0x14) =
-        func_0048abd0(arg1 + 0x2C, arg1 + 0x50, arg2, size);
+        mdlEffectSamplePackedColor(arg1 + 0x2C, arg1 + 0x50, arg2, size);
     size = *(s32 *)(arg1 + 0xB8);
     *(f32 *)(arg0 + 0x18) =
-        func_0048aff0(arg1 + 0x60, arg2, size);
+        mdlEffectSampleScalarKeys(arg1 + 0x60, arg2, size);
     if (*(u8 *)(arg1 + 0x9C) != 2) {
         size = *(s32 *)(arg1 + 0xB8);
         *(f32 *)(arg0 + 0x1C) =
-            func_0048aff0(arg1 + 0x8C, arg2, size);
+            mdlEffectSampleScalarKeys(arg1 + 0x8C, arg2, size);
         return;
     }
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
@@ -777,7 +777,7 @@ loop1_check:
 void EffWaveUpdate(u8 *arg0)
 {
     extern f32 sinf(f32 arg0);
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void *memcpy(void *dst, const void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
@@ -1027,7 +1027,7 @@ skip_clear:
         state->previousSine = a;
         particle->age = (s32)prerollElapsed;
     }
-    func_0048b220((u8 *)particle, (u8 *)parameters, particle->age, &b220buf);
+    mdlEffectSampleKeyState((u8 *)particle, (u8 *)parameters, particle->age, &b220buf);
     particle->size = particle->size * state->sizeScale;
     particle->angle = particle->angle * state->angleScale;
     particle->angle = particle->angle + state->angleOffset;
@@ -1060,7 +1060,7 @@ else_branch:
     state->phase = state->phase + state->phaseStep;
     state->amplitude = state->amplitude + state->amplitudeStep;
     state->previousSine = ftmp1;
-    func_0048b220((u8 *)particle, (u8 *)parameters, age, &b220buf);
+    mdlEffectSampleKeyState((u8 *)particle, (u8 *)parameters, age, &b220buf);
     particle->size = particle->size * state->sizeScale;
     particle->angle = particle->angle * state->angleScale;
     particle->angle = particle->angle + state->angleOffset;
