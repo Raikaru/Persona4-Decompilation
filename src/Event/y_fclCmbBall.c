@@ -22,7 +22,7 @@ extern s32 fclSubClamped(s32, s32, s32, s32, s8);
 extern u8 D_00793E80[];
 extern void (*D_00887300[])(u32, u32);
 extern s32 kwlnGetCamera(void);
-extern s32 func_003315e0(void);
+extern s32 fclCombineGetTexture(void);
 extern void RpSkyRenderStateSet(s32, s32);
 
 
@@ -81,7 +81,7 @@ void fclCmbBallDraw(u8 *arg0, u8 *arg1) {
     s16 slot;
 
     scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
-    texture = func_003315e0();
+    texture = fclCombineGetTexture();
     setState = D_00887300;
     setState[0](6, 1);
     setState[0](7, 2);

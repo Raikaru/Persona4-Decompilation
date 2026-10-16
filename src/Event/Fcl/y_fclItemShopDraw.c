@@ -53,7 +53,7 @@ extern u8 D_0064A3D8[];
 extern u8 D_0064A3F0[];
 
 s32 fclItemShopUpdate(u8 *arg0);
-extern void func_00332a80(void);
+extern void fclCombineInitRenderStates(void);
 extern s32 fclItemShopPanelUpdate(u8 *task);
 void chkmemAllocSiteTag(const void *, u32);
 
@@ -94,7 +94,7 @@ extern u8 D_00795FE0[];
 extern u8 D_0064A360[];
 extern u8 D_0064A3A0[];
 extern u8 D_00763A18[];
-extern void func_00332b60(u8 *, u8 *);
+extern void fclCombineDrawMoney(u8 *, u8 *);
 extern s32 sdkSpriteRequestLoad(void *);
 extern void func_00440b68(void *, void *, s32);
 extern void *H_Cdvd_AcquireDirectory(void *, s32);
@@ -123,7 +123,7 @@ extern void sdkSndStartStream(s32, s32, s32, s32);
 extern s32 func_002bb1c0(s8 arg0);
 extern void fclAddMoney(s32 arg0);
 void fclItemShopDrawList(u8 *arg0);
-extern void func_0033d550(void *arg0);
+extern void fclBustupStartSlide(void *arg0);
 extern u16 D_008C024E[];
 extern f32 D_0064A290[];
 extern f32 D_0064A298[];
@@ -195,7 +195,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
     s32 cardIndex;
 
     task = PrimAllocQueueNode();
-    *(void **)((u8 *)task + 8) = (void *)func_00332b60;
+    *(void **)((u8 *)task + 8) = (void *)fclCombineDrawMoney;
     *(void **)((u8 *)task + 0x10) = work;
     PrimAppendNode(D_00795FE0, task);
     switch (*(s8 *)(work + 0)) {
@@ -1531,29 +1531,29 @@ s32 fclItemShopUpdate(u8 *arg0) {
                           fclMakeVec2(0x28A, *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0x30)), 0, 0xA, 0);
             fclBustupObjStartTween(*(u8 **)(work + 0x10), *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0xC4),
                           *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0xBC), 0, 0xA, 0);
-            func_0033d550(*(void **)(work + 0xB4));
-            func_0033d550(*(void **)(work + 0xB8));
-            func_0033d550(*(void **)(work + 0xBC));
-            func_0033d550(*(void **)(work + 0x178));
-            func_0033d550(*(void **)(work + 0x3C));
-            func_0033d550(*(void **)(work + 0x110));
-            func_0033d550(*(void **)(work + 0x114));
+            fclBustupStartSlide(*(void **)(work + 0xB4));
+            fclBustupStartSlide(*(void **)(work + 0xB8));
+            fclBustupStartSlide(*(void **)(work + 0xBC));
+            fclBustupStartSlide(*(void **)(work + 0x178));
+            fclBustupStartSlide(*(void **)(work + 0x3C));
+            fclBustupStartSlide(*(void **)(work + 0x110));
+            fclBustupStartSlide(*(void **)(work + 0x114));
             for (j = 0; j < 4; j++) {
-                func_0033d550(*(void **)(work + j * 4 + 0x1C));
+                fclBustupStartSlide(*(void **)(work + j * 4 + 0x1C));
             }
-            func_0033d550(*(void **)(work + 0x14));
-            func_0033d550(*(void **)(work + 0xB0));
+            fclBustupStartSlide(*(void **)(work + 0x14));
+            fclBustupStartSlide(*(void **)(work + 0xB0));
             for (j = 0; j < 3; j++) {
-                func_0033d550(*(void **)(work + j * 4 + 0x17C));
+                fclBustupStartSlide(*(void **)(work + j * 4 + 0x17C));
             }
-            func_0033d550(*(void **)(work + 0x58));
-            func_0033d550(*(void **)(work + 0x5C));
-            func_0033d550(*(void **)(work + 0x118));
-            func_0033d550(*(void **)(work + 0x11C));
+            fclBustupStartSlide(*(void **)(work + 0x58));
+            fclBustupStartSlide(*(void **)(work + 0x5C));
+            fclBustupStartSlide(*(void **)(work + 0x118));
+            fclBustupStartSlide(*(void **)(work + 0x11C));
             for (j = 0; j < 6; j++) {
-                func_0033d550(*(void **)(work + j * 4 + 0x40));
+                fclBustupStartSlide(*(void **)(work + j * 4 + 0x40));
             }
-            func_0033d550(*(void **)(work + 0x60));
+            fclBustupStartSlide(*(void **)(work + 0x60));
             func_00122520(1, 0xA);
             *(s8 *)(work + 0) = 0xF;
         }
@@ -1995,7 +1995,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
     if (fclBustupObjTestFlagBit((u8 *)arg0, 0) == 1) {
         if (fclBustupObjTestFlagBit((u8 *)arg0, 0xD) == 1) {
             temp_2 = (u8 *)PrimAllocQueueNode();
-            *(void **)(temp_2 + 8) = (void *)func_00332a80;
+            *(void **)(temp_2 + 8) = (void *)fclCombineInitRenderStates;
             *(s32 *)(temp_2 + 0x10) = 0;
             PrimAppendNode(
                 (void *)((u8 *)D_00793E80 +

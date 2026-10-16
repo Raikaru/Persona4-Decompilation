@@ -210,7 +210,7 @@ void fclCombineSetReady(u8 *arg0)
 #pragma opt_loop_invariants on
 void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
 {
-    extern s32 func_003315c0(void);
+    extern s32 fclCombineGetRaster(void);
     f32 reciprocal;
     s32 *raster;
     s32 (**state)(RwRenderState, void *);
@@ -218,7 +218,7 @@ void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
     u8 *v;
 
     reciprocal = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
-    raster = (s32 *)func_003315c0();
+    raster = (s32 *)fclCombineGetRaster();
     state = D_00887300;
     state[0](6, (void *)1);
     state[0](7, (void *)2);
