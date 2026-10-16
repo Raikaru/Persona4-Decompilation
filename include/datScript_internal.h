@@ -4,7 +4,7 @@
 #include "type.h"
 
 /* Formula kinds for datScriptRunCalc: the index into D_00635950 (arg0 < 0xB).
-   Kind 0 (func_00244100) is unnamed and omitted. */
+   Kind 0 (func_00244100) is unnamed and omitted. Kind 1 is named for its handler (physical damage) but datCalc.c also uses it for healing. */
 typedef enum DatScriptCalcKind {
     DAT_SCRIPT_CALC_PHYSICAL_DAMAGE = 1,         /* datScriptCalcPhysicalDamage */
     DAT_SCRIPT_CALC_MAGIC_DAMAGE = 2,            /* datScriptCalcMagicDamage */

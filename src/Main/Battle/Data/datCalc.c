@@ -1743,10 +1743,11 @@ u8 arg7;
     case 2:
         switch (DCDamageSkillKind(arg0)) {
         case 1:
-            healing = datScriptRunCalc(1, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            /* Kind 1 is the PHYSICAL_DAMAGE handler, reused here for healing (dual use, see DatScriptCalcKind). */
+            healing = datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         case 2:
-            healing = datScriptRunCalc(3, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            healing = datScriptRunCalc(DAT_SCRIPT_CALC_TERMS_13_AND_1A, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         default:
             kAssertFail(D_00635938, 0x75E);
