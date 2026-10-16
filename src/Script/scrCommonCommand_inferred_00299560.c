@@ -70,8 +70,10 @@ extern void mtMiscCollectType2Records(u8 *arg0);
  * function window ends in eight zero alignment bytes. */
 #pragma push
 #pragma pop
+// Script command: destroys the task (with its children) whose id is parameter 0,
+// if it is still linked. Returns 1 either way.
 // FUN_00299560
-s32 func_00299560(void) {
+s32 scrDestroyTaskById(void) {
     s32 v;
 
     v = scrGetParamInt(0);
