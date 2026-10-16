@@ -825,7 +825,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_00160440(void);
     void FldUnit_SetPartySlotModel(s32);
     void FldUnit_SetFieldSlotModel(s32);
-    void func_0015a520(s32);
+    void FldStepSetPresentFlag(s32);
     void calendarSetMode(s32);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *);
     void func_0018a000(u8 *, s32);
@@ -1226,7 +1226,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C)));
                         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = 0;
                     }
-                    func_0015a520(0);
+                    FldStepSetPresentFlag(0);
                     calendarSetMode(0);
                     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) != 0) {
                         func_0016f630(&snapshot, (u8 *)*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4));
@@ -1393,7 +1393,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 t12;
                 s32 t13;
                 u8 *res;
-                func_0015a520(1);
+                FldStepSetPresentFlag(1);
                 t10 = func_00186640(*(u8 **)(u8 *)MT_Scene_GetFrameState());
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = t10;
                 if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
