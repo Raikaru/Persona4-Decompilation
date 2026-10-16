@@ -928,24 +928,24 @@ void evtSelectRangeChoice(s32 arg0, u8 *arg1) {
 // Returns the type-2 choice node with the largest start not above arg2 that matches kind arg3 and passes its condition, or NULL.
 // FUN_00287CC0
 u8 *evtFindBestChoice(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
-    u8 *node;
+    EvtNode *node;
     u8 *found;
     s32 best;
 
     found = NULL;
     best = -1;
-    node = *(u8 **)(arg1 + 0x68);
+    node = ((EvtNode *)arg1)->childHead;
     while (node != NULL) {
         if ((s32)*(u16 *)node <= arg2) {
-            if (*(s8 *)(node + 0x22) == 0) {
-                s32 t = *(s8 *)(node + 0x14);
-                if ((best < (s32)*(u16 *)node) && (*(s8 *)(node + 0x10) == 2) && (t == arg3) && (evtCheckCondition(node) == 1)) {
+            if (*(s8 *)((u8 *)node + 0x22) == 0) {
+                s32 t = *(s8 *)((u8 *)node + 0x14);
+                if ((best < (s32)*(u16 *)node) && (*(s8 *)((u8 *)node + 0x10) == 2) && (t == arg3) && (evtCheckCondition((u8 *)node) == 1)) {
                     best = (s32)*(u16 *)node;
-                    found = node;
+                    found = (u8 *)node;
                 }
             }
         }
-        node = *(u8 **)(node + 0x4C);
+        node = node->childNext;
     }
     return found;
 }
