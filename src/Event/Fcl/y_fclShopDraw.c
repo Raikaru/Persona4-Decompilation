@@ -313,7 +313,7 @@ extern f32 fGpffff852c;
 s32 fclShopStateUpdate(u8 *arg0)
 {
     typedef struct { s32 v0; s32 v1; } ShopArgPair;
-    extern void func_002d8a60(void *, s8, f32, f32);
+    extern void fclShopDrawItemRows(void *, s8, f32, f32);
     extern void fclShopDrawScrollThumb(void *);
     extern s8 fclObjHasStatusFlags(void *);
     extern s32 sdkSndStartStream(s16, s16, s16, s16);
@@ -363,23 +363,23 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern s32 fclShopIsSpecialItem(u16 arg0);
     extern void fclShopItemPanelDestroy(u8 *task);
     extern void fclShopSlideInFromLeft(void *arg0);
-    extern void func_002cb6c0(void *arg0, s8 arg1);
-    extern void func_002cdf80(void *arg0, s8 arg1);
+    extern void fclShopDrawItemList(void *arg0, s8 arg1);
+    extern void fclShopDrawBuyList(void *arg0, s8 arg1);
     extern s32 fclShopListInputStep(void *arg0);
     extern void fclShopSlideInFromRight(void *arg0);
     extern s8 fclShopUpdateTabs(void *arg0, s8 arg1);
     extern s32 fclShopStatusFlagToCode(s16 arg0);
     extern void fclShopDrawStats(void *arg0);
-    extern void func_002d6190(void *arg0);
-    extern void func_002d7300(void *arg0);
+    extern void fclShopStartHeaderBars(void *arg0);
+    extern void fclShopStartRowPositions(void *arg0);
     extern void fclShopStartSelectionShake(void *arg0);
     extern void fclShopHideSelectionSprites(void *arg0);
     extern void fclShopSlideInFromAbove(void *arg0);
-    extern void func_002db400(void *arg0);
+    extern void fclShopStartRevealSprites(void *arg0);
     extern void fclShopLayoutPanels(void *arg0);
     extern void fclShopDrawItemCompare(void *arg0);
     extern void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2);
-    extern void func_002df4c0(void *arg0);
+    extern void fclShopStartRevealByMode(void *arg0);
     extern s32 fclShopItemPanelCreate(s32 arg0, s16 arg1, u32 arg2);
     ShopArgPair sp6A0;
     ShopArgPair sp698;
@@ -1306,7 +1306,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 fclShopSlideInFromAbove(arg0);
                 break;
             case 3:                                 /* switch 2 */
-                func_002db400(arg0);
+                fclShopStartRevealSprites(arg0);
                 (*(s32 *)(work + 0xC20)) = 0;
                 for (var_16_17 = 1; var_16_17 < yListCountFor((*(void * *)(work + 0xF18))); var_16_17++) {
                     temp_18_32 = yListValueAtFor((*(void * *)(work + 0xF18)), (s32) var_16_17);
@@ -1639,11 +1639,11 @@ s32 fclShopStateUpdate(u8 *arg0)
         }
         break;
     case 0x1B:                                      /* switch 1 */
-        func_002cb6c0(arg0, 0);
+        fclShopDrawItemList(arg0, 0);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         break;
     case 0x1C:                                      /* switch 1 */
-        func_002cb6c0(arg0, 1);
+        fclShopDrawItemList(arg0, 1);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         for (var_21_3 = 0; var_21_3 < 2; var_21_3++) {
             temp_19_6 = fclObjectGetWork((*(void * *)(work + 0xDC8)));
@@ -1677,7 +1677,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             sp6A0.v1 = 0;
             (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 1, &sp6A0, 1);
             (*(s8 *)(work + 0)) = 0x1D;
-            func_002d6190(arg0);
+            fclShopStartHeaderBars(arg0);
             fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 1);
             fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 1);
             fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
@@ -1699,7 +1699,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 4, &sp698, 1);
             (*(s8 *)(work + 0)) = 0x1E;
         } else {
-            func_002d7300(arg0);
+            fclShopStartRowPositions(arg0);
             nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             (*(s8 *)(work + 0)) = 0x1B;
             fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 0);
@@ -1731,12 +1731,12 @@ s32 fclShopStateUpdate(u8 *arg0)
                 fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 0);
                 fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 0);
             }
-            func_002d7300(arg0);
+            fclShopStartRowPositions(arg0);
         }
         break;
     case 0x1F:                                      /* switch 1 */
         fclShopDrawStats(arg0);
-        func_002cb6c0(arg0, 1);
+        fclShopDrawItemList(arg0, 1);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
             nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
@@ -1753,7 +1753,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         }
         break;
     case 0x20:                                      /* switch 1 */
-        func_002cb6c0(arg0, 1);
+        fclShopDrawItemList(arg0, 1);
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDC8)), 9))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDD0)), 9))) == 0)) {
             fclObjStartTween((*(void * *)(work + 0xD6C)), -14.0f, 110.0f, 0, 4, 0);
@@ -1947,7 +1947,7 @@ block_368:
         break;
     case 0x22:                                      /* switch 1 */
         fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        func_002cb6c0(arg0, 0);
+        fclShopDrawItemList(arg0, 0);
         if ((((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xD70))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xD7C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC8C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC90))))) == 0)) {
             (*(s8 *)(work + 0)) = 0x1B;
         }
@@ -1967,7 +1967,7 @@ block_368:
             sp680.v0 = yListValueAt((*(s16 *)(work + 2)));
             sp680.v1 = 0;
             (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 4, &sp680, 1);
-            func_002d6190(arg0);
+            fclShopStartHeaderBars(arg0);
             fclAddMoney(fclGetMoney() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             (*(s8 *)(work + 0)) = 0x1E;
         } else {
@@ -1978,11 +1978,11 @@ block_368:
     case 0x24:                                      /* switch 1 */
         (*(s16 *)(work + 0x12)) = 1;
         if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC64))))) == 0) {
-            func_002cdf80(arg0, 0);
+            fclShopDrawBuyList(arg0, 0);
         }
         break;
     case 0x25:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawScrollThumb(arg0);
         for (var_19 = 0; ((s16) (var_19)) < 2; var_19 = (s16) ((var_19 + 1))) {
             temp_18_50 = fclObjectGetWork((*(void * *)(work + 0xDCC)));
@@ -2116,7 +2116,7 @@ block_368:
     case 0x27:                                      /* switch 1 */
         temp_16_74 = yListValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2)));
         temp_18_51 = yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2))) & 0xFF;
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawItemDetail(arg0, temp_16_74, temp_18_51);
         fclShopDrawScrollThumb(arg0);
         if (D_008C027A[0] & 0x1000) {
@@ -2162,7 +2162,7 @@ block_368:
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
             sdkSndStartStream(0, 0, 0, 2);
-            func_002df4c0(arg0);
+            fclShopStartRevealByMode(arg0);
             fclObjStartAlpha((*(void * *)(work + 0xCCC)), 0xFFU, 0U, 0U, 5, 0);
             fclObjStartAlpha((*(void * *)(work + 0xCD0)), 0xFFU, 0U, 0U, 5, 0);
             fclObjChangeFlagBit((*(void * *)(work + 0xCC8)), 0, 1);
@@ -2175,7 +2175,7 @@ block_368:
         }
         break;
     case 0x28:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         temp_19_7 = yListValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2)));
         temp_16_75 = (s16) (yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2))));
         temp_18_54 = yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]));
@@ -2242,7 +2242,7 @@ block_368:
                 }
                 fclShopUpdateTabs(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
             }
-            func_002df4c0(arg0);
+            fclShopStartRevealByMode(arg0);
             nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
             fclObjStartAlpha((*(void * *)(work + 0xCCC)), 0xFFU, 0U, 0U, 5, 0);
             fclObjStartAlpha((*(void * *)(work + 0xCD0)), 0xFFU, 0U, 0U, 5, 0);
@@ -2265,7 +2265,7 @@ block_368:
         }
         break;
     case 0x2E:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
             nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
         } else {
@@ -2324,7 +2324,7 @@ block_368:
         }
         break;
     case 0x29:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawScrollThumb(arg0);
         if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
             nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
@@ -2335,7 +2335,7 @@ block_368:
         }
         break;
     case 0x2A:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawScrollThumb(arg0);
         (*(s8 *)(work + 0xC1A)) = fclAddClamped((s32) (*(s8 *)(work + 0xC1A)), 1, 0x3C, 0, 1);
         if ((*(s8 *)(work + 0xC1A)) >= 0x3C) {
@@ -2345,7 +2345,7 @@ block_368:
         }
         break;
     case 0x2B:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawScrollThumb(arg0);
         if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
             nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
@@ -2358,7 +2358,7 @@ block_368:
         }
         break;
     case 0x2C:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawScrollThumb(arg0);
         sp668.v0 = (s32) (((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]);
         sp668.v1 = 0;
@@ -2366,7 +2366,7 @@ block_368:
         (*(s8 *)(work + 0)) = 0x2D;
         break;
     case 0x2D:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         fclShopDrawScrollThumb(arg0);
         if (nmMesWindowSlotStatus((*(s8 *)(work + 0x10))) != 0) {
             nmMesWindowStepSlotRelease((*(s8 *)(work + 0x10)));
@@ -2388,7 +2388,7 @@ block_368:
         }
         break;
     case 0x26:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         for (var_20_2 = 0; var_20_2 < 2; var_20_2++) {
             temp_19_9 = fclObjectGetWork((*(void * *)(work + 0xDCC)));
             temp_18_58 = fclObjectGetWork((*(void * *)(work + 0xDD0)));
@@ -2425,7 +2425,7 @@ block_368:
         }
         break;
     case 0x2F:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         for (var_20_3 = 0; var_20_3 < 2; var_20_3++) {
             temp_19_10 = fclObjectGetWork((*(void * *)(work + 0xDCC)));
             temp_18_59 = fclObjectGetWork((*(void * *)(work + 0xDD0)));
@@ -2473,7 +2473,7 @@ block_368:
         }
         break;
     case 0x30:                                      /* switch 1 */
-        func_002cdf80(arg0, 2);
+        fclShopDrawBuyList(arg0, 2);
         if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDCC)), 9))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDD0)), 9))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE50))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE54))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE58))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE5C))))) == 0)) {
             for (var_16_22 = 0; var_16_22 < 3; var_16_22++) {
                 func_002e09e0((*(void * *)(work + ((var_16_22) * 4) + 0xDBC)), 0x41, 95.0f);
@@ -2506,7 +2506,7 @@ block_368:
         fclObjChangeFlagBit((*(void * *)(work + 0xCA4)), 0, 1);
         fclObjChangeFlagBit((*(void * *)(work + 0xCB8)), 0, 1);
         fclObjChangeFlagBit((void *) (*(s32 *)(work + 0xEAC)), 0, 1);
-        func_002cdf80(arg0, 1);
+        fclShopDrawBuyList(arg0, 1);
         fclShopDrawScrollThumb(arg0);
         if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xE38)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xCC4)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xCC0)), 1))) == 0) && ((D_008C0276[0] & 0x80) || (D_008C0276[0] & 0x20))) {
             sdkSndStartStream(0, 1, 0, 4);
@@ -2539,8 +2539,8 @@ block_368:
             fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
             fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 1);
         }
-        func_002d8a60(arg0, (*(s8 *)(work + 0x116E)), 80.0f, (f32) 0x352);
-        func_002d8a60(arg0, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) -0x352, 80.0f);
+        fclShopDrawItemRows(arg0, (*(s8 *)(work + 0x116E)), 80.0f, (f32) 0x352);
+        fclShopDrawItemRows(arg0, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) -0x352, 80.0f);
         temp_2_129 = fclSubClamped((s32) (*(s16 *)(work + 0x1170)), 1, 0, 0, 1);
         (*(s16 *)(work + 0x1170)) = temp_2_129;
         if (((s16) ((s64) temp_2_129)) == 0) {
@@ -2561,8 +2561,8 @@ block_368:
             fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
             fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 1);
         }
-        func_002d8a60(arg0, (*(s8 *)(work + 0x116E)), 80.0f, (f32) -0x352);
-        func_002d8a60(arg0, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) 0x352, 80.0f);
+        fclShopDrawItemRows(arg0, (*(s8 *)(work + 0x116E)), 80.0f, (f32) -0x352);
+        fclShopDrawItemRows(arg0, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) 0x352, 80.0f);
         temp_2_130 = fclSubClamped((s32) (*(s16 *)(work + 0x1170)), 1, 0, 0, 1);
         (*(s16 *)(work + 0x1170)) = temp_2_130;
         if (((s16) ((s64) temp_2_130)) == 0) {
@@ -3081,7 +3081,7 @@ typedef struct {
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_002CB6C0
-void func_002cb6c0(void *arg0, s8 arg1) {
+void fclShopDrawItemList(void *arg0, s8 arg1) {
     s32 sdkSndStartStream(s16, s16, s16, s16);
     FclDrawColor rowColor;
     FclDrawColor glow0a;
@@ -3701,7 +3701,7 @@ typedef char ShopBuySlidePrefixSize[sizeof(ShopBuySlidePrefix) == 6 ? 1 : -1];
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 // FUN_002CDF80
-void func_002cdf80(void *arg0, s8 arg1) {
+void fclShopDrawBuyList(void *arg0, s8 arg1) {
     extern u8 D_0063FAA0[];
     extern f32 fGpffff8520;
     extern f32 fGpffff8524;
@@ -5214,7 +5214,7 @@ void fclShopDrawStats(void *arg0) {
    lb 7($s1) per site; mwcc hoists addiu $s0,$s1,7. Global-address-hoist +
    scheduling floor. */
 // FUN_002D6190
-void func_002d6190(void *arg0) {
+void fclShopStartHeaderBars(void *arg0) {
     FclDrawColor sp1FC;
     FclDrawColor sp1F8;
     FclDrawColor sp1F4;
@@ -5481,7 +5481,7 @@ void func_002d6190(void *arg0) {
    s16) and fclObjectGetWork(void*) match m2c. No extern-width defect. */
 /* MATCHED: Vec2f *base over f32[] D_0063F658/D_0063F650 reproduces the $s1 base hoist; (f32)int casts + float literals reproduce every 2970 chain. */
 // FUN_002D7300
-void func_002d7300(void *arg0) {
+void fclShopStartRowPositions(void *arg0) {
     Vec2f sp198;
     Vec2f sp190;
     Vec2f sp188;
@@ -5859,7 +5859,7 @@ typedef struct {
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_002D8A60
-void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
+void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
     FclDrawColor c20C;
     FclDrawColor c208;
     FclDrawColor c204;
@@ -6336,7 +6336,7 @@ void fclShopSlideInFromAbove(void *arg0) {
    first, and each func_0046d200 handle scoped to its own block so the handle
    takes $s2 and the table base $s1 as in retail. */
 // FUN_002DB400
-void func_002db400(void *arg0) {
+void fclShopStartRevealSprites(void *arg0) {
     extern u8 D_0063FA70[];
     extern u8 D_0063FA78[];
     extern u8 D_0063FA80[];
@@ -6976,7 +6976,7 @@ void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2) {
 }
 
 // FUN_002DF4C0
-void func_002df4c0(void *arg0) {
+void fclShopStartRevealByMode(void *arg0) {
     Vec2f spA8;
     Vec2f spA0;
     Vec2f sp98;

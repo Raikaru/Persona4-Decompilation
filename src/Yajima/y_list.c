@@ -940,7 +940,7 @@ void yListBuildAvailability(s32 arg0, s32 arg1) {
 }
 #pragma pop
 
-extern s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 fclFuseSpecialPartner(u8 *arg0, s32 arg1, s32 arg2);
 
 /* Fill the availability matrix and each row's corresponding pair-result list.
  * Complete the destination lookup before reading the two source record IDs. */
@@ -963,7 +963,7 @@ void yListBuildPairFlags(void) {
             flag = row + j + 0x14;
             *flag = 0;
             destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
-            if (func_003129b0(destination,
+            if (fclFuseSpecialPartner(destination,
                     *(u16 *)(yListEntryInWork(yListWork(0), i) + 2),
                     *(u16 *)(yListEntryInWork(yListWork(0), j) + 2)) == 1) {
                 *flag = 1;
