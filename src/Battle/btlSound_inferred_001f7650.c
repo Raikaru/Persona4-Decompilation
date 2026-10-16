@@ -132,7 +132,7 @@ extern void btlSoundAdvanceSlotQueue(void);
 /* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
 /* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
 // FUN_001F7650
-u8 *func_001f7650(u8 *arg0)
+u8 *btlSoundGetCharacterBank(u8 *arg0)
 {
     u8 *var_2;
     u32 temp_3;
@@ -200,7 +200,7 @@ return_null:
 }
 
 // FUN_001F7830
-void func_001f7830(u8 *arg0, s32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
+void btlSoundGetPrimaryVoiceSlots(u8 *arg0, s32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
 {
     s32 temp_5;
 
@@ -228,7 +228,7 @@ done:
 }
 
 // FUN_001F7910
-void func_001f7910(u8 *arg0, u32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
+void btlSoundGetSecondaryVoiceSlots(u8 *arg0, u32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
 {
     s32 temp_5;
     u16 temp_4;
@@ -276,7 +276,7 @@ void func_001f7910(u8 *arg0, u32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
 }
 
 // FUN_001F7AD0
-void func_001f7ad0(u8 *arg0)
+void btlSoundRefreshSlotChannel(u8 *arg0)
 {
     u16 temp_7;
     u8 *temp_6;
@@ -292,7 +292,7 @@ void func_001f7ad0(u8 *arg0)
 }
 
 // FUN_001F7B40
-s32 func_001f7b40(u8 *arg0)
+s32 btlSoundSetSlotChannel(u8 *arg0)
 {
     u16 temp_4;
     u16 temp_6;
