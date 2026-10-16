@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
 typedef char *va_list;
