@@ -14,11 +14,7 @@ extern u8 func_003ca740[];
 extern u8 func_003ca780[];
 extern u8 func_003ca7a0[];
 
-/* measured: schedule on fills ca830's call and return delay slots. */
-#pragma schedule on
 
-/* measured: closes the schedule bracket. */
-#pragma schedule off
 
 extern u8 D_008872E0[];
 extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
@@ -26,7 +22,7 @@ extern s32 func_003ce560(s32 arg0, u8 *arg1);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
 extern u8 *func_003c9c20(u8 *arg0);
-extern s32 func_003cebb0(s32 arg0, u8 *arg1);
+extern u8 *func_003cebb0(u8 *arg0, u8 *arg1);
 
 /* `movz $s0,$zero,$v0` is the b119 lowering of `call() ? arg0 : 0`. */
 // FUN_003CB790
@@ -37,9 +33,7 @@ s32 func_003cb790(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-#pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
+
 
 /* The b210 residual (base addu before the allocator load) is not there
    under b119: the archived body is exact. */
@@ -354,4 +348,115 @@ s32 func_003cc370(void) {
     return 1;
 }
 /* measured: closes the schedule bracket. */
+#pragma schedule off
+
+typedef struct RwErrorLocal {
+    s32 pluginID;
+    s32 errorCode;
+} RwErrorLocal;
+
+extern s32 iGpffffb728;
+extern s32 func_003df050(u8 *arg0, s32 arg1, void *arg2, void *arg3);
+extern s32 func_003df590(s32 arg0);
+extern void *func_003df4d0(void *arg0);
+extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
+extern u32 **func_003ce050(u32 **arg0, u32 arg1);
+extern void func_003cc6e0(u8 *arg0);
+extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void func_003ce230(u8 *arg0);
+extern void func_004220d8(u8 *arg0, u8 *arg1);
+
+typedef struct RpMeshHeaderLocal {
+    u32 field_0;
+    u32 field_4;
+    u32 field_8;
+    u8 *geometry;
+    struct RpMeshHeaderLocal **parent;
+    void (*destroyNotify)(u8 *);
+} RpMeshHeaderLocal;
+
+// FUN_003CEBB0
+#pragma schedule on
+u8 *func_003cebb0(u8 *arg0, u8 *arg1) {
+    u32 spBC;
+    s32 spB8;
+    s32 spB4;
+    s32 spB0;
+    void *(**alloc)(u32, u32);
+    s32 var_21;
+    RpMeshHeaderLocal **mesh;
+    u32 *temp_19;
+    u32 *var_18;
+    s32 temp_23;
+
+    func_003c9c20(arg1);
+    if (!func_003df050(arg0, 1, NULL, &spBC)) {
+        return NULL;
+    }
+    if ((spBC < 0x35000U) || (spBC > 0x37002U)) {
+        do {
+            RwErrorLocal _rwErrorCode;
+            _rwErrorCode.pluginID = 2;
+            _rwErrorCode.errorCode = func_003df590(0x80000004);
+            func_003df4d0(&_rwErrorCode);
+        } while (0);
+        return NULL;
+    }
+    if (func_003e2910(arg0, &spB8, 4) != 4) {
+        return NULL;
+    }
+    if (spB8 != 4) {
+        return NULL;
+    }
+
+    {
+        u32 **meshCacheRef = (u32 **)(arg1 + iGpffffb728);
+        var_18 = *(((*meshCacheRef != NULL) && (*(u16 *)(*(u8 **)(arg1 + 0x78) + 4) == **meshCacheRef))
+                       ? meshCacheRef
+                       : func_003ce050(meshCacheRef, *(u16 *)(*(u8 **)(arg1 + 0x78) + 4)));
+    }
+
+    temp_23 = *var_18;
+    var_21 = 0;
+    if (0 < temp_23) {
+        alloc = (void *(**)(u32, u32))jtbl_008873E8;
+        do {
+            if (func_003e2910(arg0, &spB4, 4) != 4) {
+                return NULL;
+            }
+            mesh = (RpMeshHeaderLocal **)&var_18[1];
+            *mesh = (RpMeshHeaderLocal *)alloc[0](spB4 + 0x247, 0x3050D);
+            if (*mesh == NULL) {
+                return NULL;
+            }
+            (*mesh)->field_0 = 0;
+            (*mesh)->field_4 = 0;
+            (*mesh)->geometry = arg1;
+            (*mesh)->field_8 = spB4 + 0x22F;
+            (*mesh)->parent = mesh;
+            (*mesh)->destroyNotify = func_003cc6e0;
+            temp_19 = (u32 *)((u8 *)*mesh + 0x18);
+            if (func_003e2910(arg0, &spB0, 4) != 4) {
+                return NULL;
+            }
+            temp_19[0] = 0;
+            temp_19[1] = 0;
+            func_0043f9c8(temp_19, 0, 0x1B0);
+            temp_19[2] = ((s32)((u8 *)temp_19 + 0x1B0) + 0x3F) & ~0x3F;
+            if (spB0 != 0) {
+                temp_19[2] = (temp_19[2] + 0x7F) & ~0x7F;
+            }
+            if (func_003e2910(arg0, (void *)temp_19[2], spB4) != spB4) {
+                return NULL;
+            }
+            func_003ce230((u8 *)temp_19);
+            func_004220d8((u8 *)*mesh, (u8 *)*mesh + *(s32 *)((u8 *)*mesh + 8) + 0x18);
+
+            var_21++;
+            var_18++;
+        } while (var_21 < temp_23);
+    }
+
+    return arg1;
+}
 #pragma schedule off

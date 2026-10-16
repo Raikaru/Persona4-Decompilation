@@ -7,11 +7,9 @@
 
 extern s32 (*DAT_0088737c_abs[])(void);
 extern s32 func_003ec480(s32 arg0);
+extern s32 (*D_0088737C)(void);
+extern void func_003e9680(void *arg0);
 
-/* `movz $s0,$zero,$v0` is the b119 lowering of `call() ? arg0 : 0`. */
-#pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 /* The alignment nop after the filled back-edge slot is the unit's -O2,p; the
    b210 residual (nd 16) is gone under b119. */
@@ -136,7 +134,7 @@ typedef struct {
     void *tail_next;
     void *tail_prev;
 } Ctx2430003e;
-/* Archived b210 near-miss (Y3EA_003e3370); exact under b119 with schedule on. */
+
 
 extern void *D_00887408[];
 extern void *D_00764864;
@@ -171,10 +169,7 @@ extern void strncmp();
 extern void strlen();
 extern void func_00443f18();
 extern void sscanf();
-/* Archived b210 near-miss (P3E3_003e3c20); exact under b119 with schedule on. */
-#pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
+
 
 /* The archived b210 near miss carried 0x330404; retail loads 0x30404. Exact under b119 with schedule on. */
 #pragma schedule on
@@ -194,6 +189,85 @@ extern s32 func_003e47c0(s8 *arg0, s8 *arg1); /* P4: ported verbatim into src/re
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+extern f32 sqrtf(f32 x);
+
+/* measured: schedule on is required for COP1 FMA accumulator pipelining in func_003e4030. */
 #pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
+// FUN_003E4030
+f32 func_003e4030(f32 *arg0, const f32 *arg1) {
+    f32 x = arg1[0];
+    f32 recip;
+
+    recip = arg1[1] * arg1[1];
+    recip += x * x;
+    recip += arg1[2] * arg1[2];
+    recip = sqrtf(recip);
+    recip = (recip > 0.0f) ? (1.0f / recip) : recip;
+    arg0[0] = x * recip;
+    arg0[1] = arg1[1] * recip;
+    arg0[2] = arg1[2] * recip;
+    return recip;
+}
+/* measured: closes schedule bracket around func_003e4030; unit default is off. */
 #pragma schedule off
+
+struct RwError003e {
+    s32 pluginID;
+    s32 errorCode;
+};
+
+/* measured: schedule on is required for COP1 FMA accumulator pipelining in func_003e40b0. */
+#pragma schedule on
+// FUN_003E40B0
+f32 func_003e40b0(f32 *arg0, const f32 *arg1) {
+    f32 x = arg1[0];
+    f32 length;
+    f32 recip;
+
+    length = arg1[1] * arg1[1];
+    length += x * x;
+    length += arg1[2] * arg1[2];
+    length = sqrtf(length);
+    recip = (length > 0.0f) ? (1.0f / length) : length;
+    arg0[0] = x * recip;
+    arg0[1] = arg1[1] * recip;
+    arg0[2] = arg1[2] * recip;
+    if (length <= 0.0f) {
+        struct RwError003e err;
+        err.pluginID = 1;
+        err.errorCode = func_003df590(0x19);
+        func_003df4d0(&err);
+    }
+    return length;
+}
+/* measured: closes schedule bracket around func_003e40b0; unit default is off. */
+#pragma schedule off
+
+/* measured: schedule on is required for COP1 FMA accumulator pipelining in func_003e41e0. */
+#pragma schedule on
+// FUN_003E41E0
+f32 func_003e41e0(f32 *arg0, const f32 *arg1) {
+    f32 x = arg1[0];
+    f32 length;
+    f32 recip;
+
+    length = arg1[1] * arg1[1];
+    length += x * x;
+    length = sqrtf(length);
+    recip = (length > 0.0f) ? (1.0f / length) : length;
+    arg0[0] = x * recip;
+    arg0[1] = arg1[1] * recip;
+    if (length <= 0.0f) {
+        struct RwError003e err;
+        err.pluginID = 1;
+        err.errorCode = func_003df590(0x19);
+        func_003df4d0(&err);
+    }
+    return length;
+}
+/* measured: closes schedule bracket around func_003e41e0; unit default is off. */
+#pragma schedule off
+
+
+
+

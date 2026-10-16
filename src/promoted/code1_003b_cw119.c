@@ -168,10 +168,6 @@ increment:
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-/* Archived b210 near-miss (F3B1_003bf360); exact under b119 with schedule on. */
-#pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 // FUN_003BFFC0
 /* measured: no_branch_likely on selects retail's plain beqz/bne branches. */
