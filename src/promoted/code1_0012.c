@@ -203,7 +203,7 @@ extern u8 D_005E5810[];
 extern s32 D_005E5B60[];
 extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
-extern void func_0012e7c0(u8 *arg0);
+extern void titleCollectFlaggedIds(u8 *arg0);
 extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 typedef struct {
     u8 b[4];
@@ -5026,7 +5026,7 @@ s32 func_0012e1d0(u8 *arg0)
     return var_16 & func_0034c210();
 }
 // FUN_0012E250
-s32 func_0012e250(u8 *arg0)
+s32 titleSlotsSettled(u8 *arg0)
 {
     s32 temp_3 = *(s32 *)(arg0 + 0x18);
     s32 var_16 = 1;
@@ -5056,7 +5056,7 @@ block_loop:
 #pragma opt_loop_invariants on
 #pragma opt_rebuildconditionals off
 // FUN_0012E2F0
-s32 func_0012e2f0(u8 *arg0)
+s32 titleStateInit(u8 *arg0)
 {
     s16 i;
     s16 j;
@@ -5166,7 +5166,7 @@ s32 func_0012e2f0(u8 *arg0)
         }
         ii++;
     }
-    func_0012e7c0(arg0);
+    titleCollectFlaggedIds(arg0);
     return titleSetMenuLayout(arg0, 0);
 }
 #pragma opt_rebuildconditionals on
@@ -5175,7 +5175,7 @@ s32 func_0012e2f0(u8 *arg0)
 /* measured: opt_propagation off probe for temp16 width in func_0012e7c0 */
 #pragma opt_propagation off
 // FUN_0012E7C0
-void func_0012e7c0(u8 *arg0)
+void titleCollectFlaggedIds(u8 *arg0)
 {
     s32 temp_16;
     s32 temp_4;

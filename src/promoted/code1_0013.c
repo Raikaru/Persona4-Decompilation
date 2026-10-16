@@ -74,7 +74,7 @@ extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void datEntryDrawByKind(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
 extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_0012e2f0(u8 *arg0);
+extern void titleStateInit(u8 *arg0);
 extern s32 titleAdvanceWait(u8 *arg0);
 extern s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00353fb0(void);
@@ -1361,7 +1361,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     switch (*arg0) {
     case 0:
         *arg1 = 0;
-        func_0012e2f0(arg2);
+        titleStateInit(arg2);
         *arg0 = 1;
         break;
     case 1:
@@ -1789,7 +1789,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
 // FUN_0013C700
 s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
 {
-    extern void func_0012e7c0(u8 *arg0);
+    extern void titleCollectFlaggedIds(u8 *arg0);
     extern u8 D_005ED9D0[];
     s32 state;
     s16 item;
@@ -1836,7 +1836,7 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
             remaining = --*(s16 *)(entry + 0x40);
             if (remaining == 0) {
                 s32 selection;
-                func_0012e7c0(arg2);
+                titleCollectFlaggedIds(arg2);
                 selection = *(s16 *)(arg2 + 0xc3e);
                 if (selection < 6) {
                     radarPushHistoryValue((s32)arg2, 1, 0);
