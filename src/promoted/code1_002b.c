@@ -94,7 +94,7 @@ extern s32 func_00122720(void);
 extern s32 func_002cb6a0(s32 arg0);
 extern void func_002caa00(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 *func_00457120(void);
 extern s32 MT_Scene_GetCameraResFirst(void);

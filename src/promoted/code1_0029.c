@@ -19,8 +19,8 @@ s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
 
 extern void func_00106390();
 s32 scrGetParamInt(s32 arg0);
-extern void func_0018c7e0(void);
-extern s32 func_0018ced0();
+extern void sndPlayAreaCue(void);
+extern s32 sndRequestAreaTrack();
 extern void strncpy(void *arg0, void *arg1, s32 arg2);
 extern void func_0029ebf0(u8 *arg0, s32 arg1);
 extern s32 iGpffffb538;
@@ -36,9 +36,9 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 void func_004b1590(s32 arg0, s16 arg1);
-s32 func_0045a3e0(s16 arg0, s32 arg1);
+s32 sdkSndPlayCue(s16 arg0, s32 arg1);
 s32 func_00459880(void);
 s32 sdkSndStopChannel(s16 arg0);
 

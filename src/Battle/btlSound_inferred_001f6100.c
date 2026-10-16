@@ -59,7 +59,7 @@ extern void memset(void *destination, s32 value, u32 size);
 
 extern u32 datCalcRandomBelow();
 extern u8 D_0060AB08[];
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
 extern u8 D_0061F000[];
@@ -898,34 +898,34 @@ void btlSoundPlayRetailSelectTrack(void)
         temp_2 = *(u16 *)(iGpffffb414 + (temp_2 * 0x18) + 0x16);
         switch (temp_2) {
         case 2:
-            func_0045a3e0(2, 1);
+            sdkSndPlayCue(2, 1);
             break;
         case 3:
-            func_0045a3e0(3, 1);
+            sdkSndPlayCue(3, 1);
             break;
         case 6:
-            func_0045a3e0(4, 1);
+            sdkSndPlayCue(4, 1);
             break;
         case 4:
-            func_0045a3e0(5, 1);
+            sdkSndPlayCue(5, 1);
             break;
         case 5:
-            func_0045a3e0(6, 1);
+            sdkSndPlayCue(6, 1);
             break;
         case 7:
-            func_0045a3e0(0x29, 1);
+            sdkSndPlayCue(0x29, 1);
             break;
         case 8:
-            func_0045a3e0(0x30, 1);
+            sdkSndPlayCue(0x30, 1);
             break;
         case 9:
-            func_0045a3e0(0x2F, 1);
+            sdkSndPlayCue(0x2F, 1);
             break;
         case 10:
-            func_0045a3e0(0x2D, 1);
+            sdkSndPlayCue(0x2D, 1);
             break;
         default:
-            func_0045a3e0(1, 1);
+            sdkSndPlayCue(1, 1);
             break;
         }
     }

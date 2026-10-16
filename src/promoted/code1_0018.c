@@ -193,7 +193,7 @@ extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0015a160(void);
 extern void sdkSndStopChannel(s32 arg0);
-extern void func_0045a3e0(s16 arg0, s32 arg1);
+extern void sdkSndPlayCue(s16 arg0, s32 arg1);
 extern s32 iGpffffb264;
 extern u8 *iGpffff9db0;
 extern s32 iGpffffb884;
@@ -3075,8 +3075,11 @@ done:
    32-bit id and its second an unsigned flag word, not the s64/s32 pair m2c
    printed, and the s64 form costs a dsll32/dsra32 pair at every call site in
    this unit. */
+// Picks a cue id for the current area and date (dungeon, date-range, and story-flag
+// checks) and plays it with sdkSndPlayCue. Returns 1 when a cue was played;
+// otherwise stops channel 0 with a fade and returns 0.
 // FUN_0018C7E0
-s32 func_0018c7e0(void) {
+s32 sndPlayAreaCue(void) {
     s32 dungeon;
     s32 date;
     s32 w1;
@@ -3092,7 +3095,7 @@ s32 func_0018c7e0(void) {
         return 0;
     }
     if (datGetFlag(0x3E0) == 1) {
-        func_0045a3e0(0x2C, 1);
+        sdkSndPlayCue(0x2C, 1);
         return 1;
     }
     if (dungeon == 0) {
@@ -3173,7 +3176,7 @@ s32 func_0018c7e0(void) {
         res = 0;
     }
     if (res > 0) {
-        func_0045a3e0((s16)res, 1);
+        sdkSndPlayCue((s16)res, 1);
         return 1;
     }
     sdkSndStopChannel(0x1E);
@@ -3184,10 +3187,13 @@ s32 func_0018c7e0(void) {
    long (major, minor) chains are written out rather than staged in a
    local.  The story flag is `s8`, which re-extends on each read the way
    retail does, and the sub-state is `u8`, whose reads carry the andi. */
+// Picks the track for the current area, date, and story state and requests it with
+// sdkSndRequestTrack. Returns 1 when a track was requested; otherwise fades channel
+// 3 out over 30 frames and returns 0.
 // FUN_0018CED0
-s32 func_0018ced0(void)
+s32 sndRequestAreaTrack(void)
 {
-    extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+    extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
     extern void sdkSndRequestTrack(s32 arg0);
     u8 *ctx;
     s32 major;
@@ -3201,7 +3207,7 @@ s32 func_0018ced0(void)
     kind = (s8)func_00110960((s16)datGetDateIndex(), datGetTimeSlot() & 0xFF);
     sub = (u8)datGetTimeSlot();
     if (datGetFlag(0x3E0) == 1) {
-        func_0045aac0(3, 0, 0x1E);
+        sdkSndFadeOutChannelFrames(3, 0, 0x1E);
         return 0;
     }
     if (mode == 0) {
@@ -3327,7 +3333,7 @@ s32 func_0018ced0(void)
         sdkSndRequestTrack(result);
         return 1;
     }
-    func_0045aac0(3, 0, 0x1E);
+    sdkSndFadeOutChannelFrames(3, 0, 0x1E);
     return 0;
 }
 /* MATCH: stage the s32 byte count without a conflicting callee prototype.

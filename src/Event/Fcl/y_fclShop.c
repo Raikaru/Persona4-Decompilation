@@ -17,7 +17,7 @@ s32 func_00106b20(s16);
 s32 func_00106b50(s16);
 
 void chkmemAllocSiteTag(const void *, u32);
-void func_0045aac0(s16, s32, s32);
+void sdkSndFadeOutChannelFrames(s16, s32, s32);
 void func_00440b68();
 s32 func_00454a60();
 void H_Cdvd_ReadSync();
@@ -55,7 +55,7 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
     *(s32 *)(temp_2 + 0x1C) = 0x41000000;
     *(s32 *)(temp_2 + 0x20) = 0x41200000;
     *(s16 *)(temp_2 + 0x24) = 0;
-    func_0045aac0(3, 0, 0x1E);
+    sdkSndFadeOutChannelFrames(3, 0, 0x1E);
     for (i = 0; i < 0x2FF; i++) {
         if (((func_00106b20(i) & 0xFFF00) >> 8) == 0 &&
             ((func_00106b50(i) & 0xFFF00) >> 8) == 0) {

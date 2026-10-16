@@ -61,7 +61,7 @@ extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
 
@@ -151,7 +151,7 @@ void func_001f9a50(s32 arg0, s32 arg1) {
 
 // FUN_001F9A90
 void func_001f9a90(void) {
-    func_0045aac0(1, 0, 8);
+    sdkSndFadeOutChannelFrames(1, 0, 8);
 }
 
 /* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */

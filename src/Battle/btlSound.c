@@ -15,7 +15,7 @@ extern Battle* iGpffffb3ac;
 extern void func_00459880(void);
 extern void sdkSndStopChannel(s32 fadeDuration);
 
-extern void func_0045aac0(s16 channel, s32 unused, s32 fadeFrames);
+extern void sdkSndFadeOutChannelFrames(s16 channel, s32 unused, s32 fadeFrames);
 
 typedef u32 (*BtlPacketFunc)(void* work);
 
@@ -106,7 +106,7 @@ void btlSoundFadeOutBgm(s16 fadeDuration)
 // FUN_001F7620
 void btlSoundFadeChannel(s16 channel, s32 fadeFrames)
 {
-    func_0045aac0(channel, 0, (u16)fadeFrames);
+    sdkSndFadeOutChannelFrames(channel, 0, (u16)fadeFrames);
 }
 
 
