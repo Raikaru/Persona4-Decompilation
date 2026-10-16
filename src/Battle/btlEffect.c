@@ -179,9 +179,9 @@ u32 btlEffectFreeEntry(int param_1, u16 *entry)
 
 
 
-void func_001d6ee0(void** units);
+void btlUnitResourceClearFlag(void** units);
 void btlPacketSetValue(u8* packet, s16 value);
-void func_001d72c0(void* packet, u32 value);
+void btlPacketSetTag(void* packet, u32 value);
 u32 btlFormationCurrentEntry(void* formation);
 s16 btlPacketGetValue(s32 param_1);
 void btlFormationEntrySetSelected(s32 param_1, u64* param_2);
@@ -189,7 +189,7 @@ void btlFormationEntryCopySelected(s32 param_1, s32 param_2);
 u32 btlCond_MORE(s32 param_1);
 extern void (*jtbl_008873EC[])(void* ptr);
 // FUN_001D6EE0
-void func_001d6ee0(void** units)
+void btlUnitResourceClearFlag(void** units)
 {
     u32 index;
 
@@ -219,7 +219,7 @@ s16 btlPacketGetValue(s32 param_1)
 
 
 // FUN_001D72C0
-void func_001d72c0(void* packet, u32 value)
+void btlPacketSetTag(void* packet, u32 value)
 {
     *(u32*)((u8*)packet + 0x14) = (value & 0xFF000000) | 0xFFFFFF;
 }

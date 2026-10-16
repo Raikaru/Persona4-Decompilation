@@ -6,9 +6,9 @@
 /* Canonical grouped function declarations. */
 u32 btlFormationGetCount(void* formation);
 u32 btlFormationGetEntry(void* formation, u32 index);
-void func_001d6ee0(void** units);
+void btlUnitResourceClearFlag(void** units);
 void btlPacketSetValue(u8* packet, s16 value);
-void func_001d72c0(void* packet, u32 value);
+void btlPacketSetTag(void* packet, u32 value);
 u32 btlFormationCurrentEntry(void* formation);
 u32 func_001dc680(void* object);
 u32 func_001deeb0(void* object);

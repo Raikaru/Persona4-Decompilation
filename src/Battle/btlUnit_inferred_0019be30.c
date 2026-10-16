@@ -159,7 +159,7 @@ extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void mdlRunDataCallback(void *model);
 extern s32 mdlSeUpdateRecord(void **owner);
-extern void func_001d6ee0(s32 arg0);
+extern void btlUnitResourceClearFlag(s32 arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -199,7 +199,7 @@ s32 btlUnitResourceFreePacketUpdate(u8 *arg0) {
 
     temp = *(s32 *)(*(u8 **)arg0 + 0xA08);
     if (temp != 0) {
-        func_001d6ee0(temp);
+        btlUnitResourceClearFlag(temp);
     }
     return 1;
 }
