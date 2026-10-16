@@ -1117,7 +1117,7 @@ void btlCameraSetRandomSkillPose(u8 *arg0)
     u16 *raw;
     u8 *temp_17;
     extern void btlMainApplyUnitBaseColors(u8 *arg0);
-    extern void func_001bf5e0(u8 *camera);
+    extern void btlCameraFrameActionPair(u8 *camera);
 
     if (func_00243ce0(
             (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64)) != 0) {
@@ -1147,14 +1147,14 @@ void btlCameraSetRandomSkillPose(u8 *arg0)
         btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 1);
         return;
     }
-    func_001bf5e0(arg0);
+    btlCameraFrameActionPair(arg0);
 }
 
 // Intent: Tick the skill pose while the unit is free. [inferred]
 // FUN_00228480
 void btlCameraTickUnitPose(u8 *arg0) {
     if (func_00243ce0((u8 *)*(s32 *)((u8 *)(*(u8 **)((u8 *)(*(u8 **)((u8 *)(arg0) + 0xE0)) + 0x30)) + 0xA64)) == 0) {
-        func_001bfb70(arg0);
+        btlCameraFrameUnitTight(arg0);
     }
 }
 

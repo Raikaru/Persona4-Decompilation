@@ -50,7 +50,7 @@ extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
-extern s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 btlCameraFrameActionGeneral(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -137,7 +137,7 @@ extern void btlMainCurveSetPoses(u16 *, f32 *, f32 *, u16);
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
 /* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
 // FUN_001BE900
-void func_001be900(u8 *arg0)
+void btlCameraFrameUnitWide(u8 *arg0)
 {
     struct {
         f32 value;
@@ -160,7 +160,7 @@ void func_001be900(u8 *arg0)
    2564/2576 bytes; all 73 relocations and the duration literal resolved.
    See docs/probe_archive/Action_camera_frame_action_20260920.md. */
 // FUN_001BE990
-s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
+s32 btlCameraFrameActionGeneral(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
 {
 
     typedef struct RwMatrixTag { RwV3d right; u32 flags; RwV3d up; u32 pad1; RwV3d at; u32 pad2; RwV3d pos; u32 pad3; } RwMatrix;
@@ -438,7 +438,7 @@ action_done:
 }
 
 // FUN_001BF3A0
-void func_001bf3a0(u8 *arg0)
+void btlCameraChooseActionStyle(u8 *arg0)
 {
     u8 *var_3;
     u16 temp_16;
@@ -453,7 +453,7 @@ void func_001bf3a0(u8 *arg0)
     }
 first_random:
     if (datCalcRandomBelow(0x64) <= 0x19) goto first_random_zero;
-    var_3 = (u8 *)func_001be990(arg0, 0, 0x23, 0x3C);
+    var_3 = (u8 *)btlCameraFrameActionGeneral(arg0, 0, 0x23, 0x3C);
     goto first_done;
 first_random_zero:
     var_3 = 0;
@@ -473,7 +473,7 @@ first_done:
     *(s32 *)(arg0 + 0x144) = 1;
     goto finish;
 second_random:
-    func_001be990(arg0, 1, 0x23, 0x3C);
+    btlCameraFrameActionGeneral(arg0, 1, 0x23, 0x3C);
     *(s32 *)(arg0 + 0x144) = 0;
     goto finish;
 done:
@@ -483,7 +483,7 @@ finish:
 }
 
 // FUN_001BF530
-void func_001bf530(u8 *arg0)
+void btlCameraUpdateActionFrame(u8 *arg0)
 {
     struct {
         f32 value;
@@ -511,7 +511,7 @@ done:
    P4 unit fields, lens constants and radius choices are verified against retail.
    See docs/probe_archive/Action_camera_pair_duel_20260920.md. */
 // FUN_001BF5E0
-void func_001bf5e0(u8 *camera)
+void btlCameraFrameActionPair(u8 *camera)
 {
 
     typedef RwV3d PairVec3;
@@ -668,7 +668,7 @@ void func_001bf5e0(u8 *camera)
 }
 
 // FUN_001BFB70
-void func_001bfb70(u8 *arg0)
+void btlCameraFrameUnitTight(u8 *arg0)
 {
     struct {
         f32 value;
