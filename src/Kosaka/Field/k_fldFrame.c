@@ -3,6 +3,7 @@
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
+#include "field_frame_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct RwFrame RwFrame;
@@ -993,8 +994,7 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
         }
         {
             u32 key;
-            key = *(u16*)((u8*)MT_Scene_GetFrameState() + (fieldY << 8) +
-                          (fieldX << 4) + 0x56);
+            key = ((FldFrame *)MT_Scene_GetFrameState())->cells[fieldY][fieldX].resourceId;
             while (entry != NULL)
             {
                 if (*(u16*)entry == key)
@@ -1245,8 +1245,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
             map = ((u8*)func_003e9700((RwFrame*)(*(u8**)(((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
             fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
-            key = *(u16*)((u8*)MT_Scene_GetFrameState() + (fieldZ * 256) +
-                         (fieldX * 16) + 0x56);
+            key = ((FldFrame *)MT_Scene_GetFrameState())->cells[fieldZ][fieldX].resourceId;
             for (node = (FldSelectionNode*)MT_Scene_GetResListHead(12); node != NULL;
                  node = node->next)
             {
@@ -1466,9 +1465,7 @@ u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
             u8* entry;
             u32 key;
             entry = MT_Scene_GetResListHead(0xc);
-            key = *(u16*)((u8*)MT_Scene_GetFrameState() +
-                         (s32)((600.0f + lineCopy.point[0].z) / 1200.0f) * 0x100 +
-                         (s32)((600.0f + lineCopy.point[0].x) / 1200.0f) * 0x10 + 0x56);
+            key = ((FldFrame *)MT_Scene_GetFrameState())->cells[(s32)((600.0f + lineCopy.point[0].z) / 1200.0f)][(s32)((600.0f + lineCopy.point[0].x) / 1200.0f)].resourceId;
             while (entry != NULL)
             {
                 if (*(u16*)entry == key)
