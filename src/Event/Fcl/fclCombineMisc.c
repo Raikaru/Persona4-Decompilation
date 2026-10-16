@@ -2,7 +2,7 @@
 
 #include "include_asm.h"
 #include "type.h"
-extern s32 func_00311b90(u16 *, u16 *, s32, s16 *);
+extern s32 fclCombineRecipeMatchMask(u16 *, u16 *, s32, s16 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 fclFusePair(u16 *output, u16 first, u16 second);
@@ -169,7 +169,7 @@ s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
     threshold = (s16)(arg1 + 2);
     while (row < count) {
         matched = 0;
-        result = func_00311b90(entry, arg2, arg3, &matched);
+        result = fclCombineRecipeMatchMask(entry, arg2, arg3, &matched);
         result = matched >= threshold ? result : 0;
         if (result != 0) {
             key = *entry;
