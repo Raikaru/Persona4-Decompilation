@@ -8,6 +8,7 @@
 #include "include_asm.h"
 #include "Kosaka/k_model_internal.h"
 #include "rw/std/stddef.h"
+#include "field_frame_internal.h"
 
 typedef struct HCdvd HCdvd;
 typedef struct Model Model;
@@ -2017,7 +2018,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         mdlAdvanceModelFromFlags(temp_4_2);
         temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
-        *(u8 **)(temp_2 + 0x140) = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)MT_Scene_GetFrameState() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
+        *(u8 **)(temp_2 + 0x140) = (u8 *)MT_Scene_GetRes(((FldFrame *)MT_Scene_GetFrameState())->cells[temp_18][temp_17_2].resourceId);
         SceneDraw_SetResVisible(*(u16 *)(arg0 + 0xC), 1);
         iGpffffb2e4 += 1;
     }
@@ -2667,8 +2668,7 @@ void FldUnit_UpdateFieldState(void)
                     (u8 *)mdlGetMatrix(*modelSlot) + 0x30)) / 1200.0f);
                 unitCellZ = (s32)((600.0f + *(f32 *)(
                     (u8 *)mdlGetMatrix(*modelSlot) + 0x38)) / 1200.0f);
-                selected = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)MT_Scene_GetFrameState() +
-                    (unitCellZ << 8) + (unitCellX << 4) + 0x56));
+                selected = (u8 *)MT_Scene_GetRes(((FldFrame *)MT_Scene_GetFrameState())->cells[unitCellZ][unitCellX].resourceId);
                 if (!(unitCellX < playerCellX - 3 || unitCellX > playerCellX + 3 ||
                       unitCellZ < playerCellZ - 3 || unitCellZ > playerCellZ + 3 ||
                       selected == NULL || !(*(s32 *)(selected + 0x28) & 2))) {
@@ -2702,8 +2702,7 @@ void FldUnit_UpdateFieldState(void)
                 gridSize = 1200.0f;
                 objectCellX = (s32)(shiftedX / gridSize);
                 objectCellZ = (s32)((center + *(f32 *)(object + 0x158)) / gridSize);
-                objectResource = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)MT_Scene_GetFrameState() +
-                    (objectCellZ << 8) + (objectCellX << 4) + 0x56));
+                objectResource = (u8 *)MT_Scene_GetRes(((FldFrame *)MT_Scene_GetFrameState())->cells[objectCellZ][objectCellX].resourceId);
                 if (!(objectCellX < playerCellX - 2 || objectCellX > playerCellX + 2 ||
                       objectCellZ < playerCellZ - 2 || objectCellZ > playerCellZ + 2 ||
                       objectResource == NULL || !(*(s32 *)(objectResource + 0x28) & 2))) {
