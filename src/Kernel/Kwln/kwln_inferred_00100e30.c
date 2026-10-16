@@ -87,7 +87,7 @@ extern void mdlAppPreloadResource(void);
 extern void cmmLoadTables(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
-extern void func_0026d840(void);
+extern void mtSceneIconLoadDirectory(void);
 extern void frFontStartup(void);
 extern void itfMesLoadData(void);
 extern void itfMesInitManager(void);
@@ -294,7 +294,7 @@ void kwlnInitSubsystems(void)
     AfPackInit((s32)&D_00794510, 0xC7);
     btlUnitLoadSyncedAssets();
     cmmLoadTables();
-    func_0026d840();
+    mtSceneIconLoadDirectory();
     mdlAppPreloadResource();
     frFontStartup();
     itfMesInitManager();

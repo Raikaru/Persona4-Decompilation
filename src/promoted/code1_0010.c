@@ -100,7 +100,7 @@ extern void mdlAppPreloadResource(void);
 extern void cmmLoadTables(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
-extern void func_0026d840(void);
+extern void mtSceneIconLoadDirectory(void);
 extern void frFontStartup(void);
 extern void itfMesLoadData(void);
 extern void itfMesInitManager(void);
