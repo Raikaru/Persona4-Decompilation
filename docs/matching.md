@@ -3619,7 +3619,7 @@ closed them, all measured against b210 `-O2,p`:
   swaps. The 364B body matches the 368B window with four bytes of zero tail
   padding. Retail callers supply list lengths two and three.
 - **Recover a reproducible candidate before declaring an unconditional floor.**
-  The old `func_004a30e0` note claimed b210 always coalesced two unsigned
+  The old `FallingFunnelWindInitEntries` (was `func_004a30e0`) note claimed b210 always coalesced two unsigned
   conversion ORs into the wrong operand. Reconstructing the surviving XWND
   archive with native casts, its existing four-byte color aggregate, and
   loop-local invariant products makes both OR/mtc1 pairs exact. The retained
@@ -3627,7 +3627,7 @@ closed them, all measured against b210 `-O2,p`:
   replication-loop register differences plus one tail-padding word. Its copy
   helper uses the real `(void *, const void *, u32)` argument types. The
   historical nd5 body was unavailable; this corrects the coalescing claim, not
-  that recorded score. (`func_004a30e0` later matched; it is in the MATCH set
+  that recorded score. (`FallingFunnelWindInitEntries` (was `func_004a30e0`) later matched; it is in the MATCH set
   of `progress/metrics.json` as of 2026-09-28.)
 - **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
   their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
@@ -4868,7 +4868,7 @@ reports and the README were regenerated and validated.
   four words**. A count/suffix record remains at eight words. Runtime
   aggregate initialization adds stack clearing/storage and grows to
   **736B/688B, 160 words**; it is rejected.
-- `func_004a30e0`: separate byte-count locals and inline byte-count
+- `FallingFunnelWindInitEntries` (was `func_004a30e0`): separate byte-count locals and inline byte-count
   expressions produce the identical **764B/768B, ten-word** diff.
   The archive's alpha temporary is now unsigned: the original solid-row
   `255 << 24` reproduces a UBSan signed-shift failure, while the unsigned

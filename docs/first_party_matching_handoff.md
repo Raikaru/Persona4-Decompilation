@@ -2121,7 +2121,7 @@ cast - and its own version colours the temporaries the way retail does, where
 the expanded copy colours them the other way round.  Replacing the expansion
 with `(u8)f` / `(u16)f` / `(u32)f` MATCHed `func_00348330`
 (`src/promoted/y_CmbCardEff.c`, 15 -> 0) and moved `func_0013fb50` 95 -> 34,
-`func_004a4450` 74 -> 66, `func_00263730` 285 -> 274, `func_00130ce0`
+`SpiralWindInitEntries` (was `func_004a4450`) 74 -> 66, `func_00263730` 285 -> 274, `func_00130ce0`
 307 -> 299 and `func_00347c70` 56 -> 51.  Two more (`func_00266cc0`,
 `func_003212e0`) tie on words with materially fewer edit groups, and only
 `func_00130680` got worse (300 -> 306).  Measured 2026-09-18.
@@ -2440,14 +2440,14 @@ Two agents editing one file clobber each other even when each owns a
 different function in it, and a function ADDRESS does not tell you its
 filename.  On 2026-09-20 that produced three wrong dispatches: five agents
 onto `y_fclCombine.c`, two onto `code1_0035.c`, two onto
-`effPolygonWind.c` (where `func_004a3640` and `func_004a2310` turned out to be
+`effPolygonWind.c` (where `FallingFunnelWindUpdateStrip` (was `func_004a3640`) and `FunnelWindUpdateStrip` (was `func_004a2310`) turned out to be
 siblings).
 
 `tools/owner_of.py` turns that into one command and exits non-zero on a
 collision or an unknown name:
 
-    python3 -E -s tools/owner_of.py func_004a3640 func_004a2310
-    src/Graphics/Effect/effPolygonWind.c  func_004a2310 func_004a3640
+    python3 -E -s tools/owner_of.py FallingFunnelWindUpdateStrip FunnelWindUpdateStrip
+    src/Graphics/Effect/effPolygonWind.c  FunnelWindUpdateStrip FallingFunnelWindUpdateStrip
     COLLISION: 1 file(s) carry more than one requested function
 
 Run it on the literal list of function names going into a batch, every time,
@@ -2742,7 +2742,7 @@ two, so most of that function's remaining distance is more of the same:
 `$f28`/`$f29` are the 0xE0/0xE4 fields, `$f31` the 0xD4 field.
 
 On 2026-09-19, **18 first-party floors** in the worst 120 showed missing
-float saves, led by `func_0048ec50` (8 missing), `func_004a2310` (4),
+float saves, led by `func_0048ec50` (8 missing), `FunnelWindUpdateStrip` (was `func_004a2310`) (4),
 `func_004916f0` (4), `func_0048b9e0` (3), `func_0049d360` (3) and
 `func_0048d8c0` (3).
 
@@ -2959,7 +2959,7 @@ pragma goes whatever the count does.**  Applied on 2026-09-19 it removed four
 `#pragma schedule on` (7au), two `optimization_level 3`, one
 `opt_dead_assignments off` whose "recovered" instructions turned out to be
 prologue spill inflation, and this O1.  The one that survived -
-`opt_propagation off` on `func_004a3640` - reached an **exact** 623/623 *and*
+`opt_propagation off` on `FallingFunnelWindUpdateStrip` (was `func_004a3640`) - reached an **exact** 623/623 *and*
 dropped 47 edits.
 
 ### 7ax. What the three MATCHes of 2026-09-19 have in common
