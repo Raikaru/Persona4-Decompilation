@@ -40,7 +40,7 @@ extern f32 D_0064A340[];
 extern f32 D_0064A348[];
 extern f32 D_0064A350[];
 extern f32 D_0064A358[];
-extern void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2, u32 arg3, s8 arg4, u32 arg5, s16 arg6);
+extern void fclBustupObjStartPositionMode(u8 *arg0, F2_0033 p1, F2_0033 p2, u32 arg3, s8 arg4, u32 arg5, s16 arg6);
 extern void itemShopTalkCreate(u8 *arg0);
 void func_0033bf90(u8 *arg0);
 
@@ -112,7 +112,7 @@ extern s32 fclCalendarDay(void);
 extern s32 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0064A3C0[];
-extern f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight);
+extern f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern f32 iGpffff8424;
 extern f32 iGpffff851c;
@@ -373,7 +373,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 *(u8 *)(work + i7 + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
                 if (*(s8 *)(work + i7 + 0x2D8) == 1) {
                     *(f32 *)(work + i7 * 4 + 0x2FC) =
-                        func_0033d630(fclMakeVec2(23.0f, 225.0f), (s16)(i7 * 10), *(f32 *)(work + 0x2A8), *(u8 *)(work + i7 + 0x2B4), 1);
+                        fclBustupDrawRotatingBand(fclMakeVec2(23.0f, 225.0f), (s16)(i7 * 10), *(f32 *)(work + 0x2A8), *(u8 *)(work + i7 + 0x2B4), 1);
                 }
             }
             *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 720.0f);
@@ -543,7 +543,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     *(u8 *)(work + i16 + 0x2B4) = fclEaseInterpolate(0, 255.0f, 0.0f, *(s16 *)(work + i16 * 2 + 0x3D6), 15.0f);
                     *(s16 *)(work + i16 * 2 + 0x3D6) = fclAddClamped(*(s16 *)(work + i16 * 2 + 0x3D6), 1, 0xF, 1, 1);
                 }
-                *(f32 *)(work + i16 * 4 + 0x2FC) = func_0033d630(fclMakeVec2(23.0f, 225.0f), (s16)(i16 * 10),
+                *(f32 *)(work + i16 * 4 + 0x2FC) = fclBustupDrawRotatingBand(fclMakeVec2(23.0f, 225.0f), (s16)(i16 * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + i16 + 0x2B4), 1);
             }
         }
@@ -914,7 +914,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             sdkSpriteFreeNode(labelFont);
             tbl = (F2_0033 *)D_0064A358;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x174), 0, 0);
-            func_0033d420(*(u8 **)(work + 0x174), fclMakeVec2(0x113 + tbl->x, tbl->y),
+            fclBustupObjStartPositionMode(*(u8 **)(work + 0x174), fclMakeVec2(0x113 + tbl->x, tbl->y),
                           fclMakeVec2(tbl->x, tbl->y - 120.0f), 1, 0, 0xE, 0x20);
             *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0xC4) = 0.0f;
             func_0033d3c0(*(void **)(work + 0x174), 9.0f);
@@ -958,7 +958,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         for (j = 0; j < 0x24; j++) {
             *(u8 *)(work + j + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
             if (*(s8 *)(work + j + 0x2D8) == 1) {
-                *(f32 *)(work + j * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(j * 10),
+                *(f32 *)(work + j * 4 + 0x2FC) = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(j * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + j + 0x2B4), 0);
             }
         }
@@ -1211,7 +1211,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x100) = 0x231 - tbl->x;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x102) = 470.0f - tbl->y;
                         fclBustupObjStartTween(*(u8 **)(work + 0x174), 0.0f, -30.0f, 0, 2, 0);
-                        func_0033d420(*(u8 **)(work + 0x174), *(F2_0033 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x2C),
+                        fclBustupObjStartPositionMode(*(u8 **)(work + 0x174), *(F2_0033 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x2C),
                                       fclMakeVec2(-300.0f + tbl->x, 250.0f + tbl->y), 0, 2, 0x14, 1);
                     }
                     *(s32 *)(work + 0x2B0) = 0;
@@ -1322,7 +1322,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         for (j = 0; j < 0x24; j++) {
             *(u8 *)(work + j + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
             if (*(s8 *)(work + j + 0x2D8) == 1) {
-                *(f32 *)(work + j * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(j * 10),
+                *(f32 *)(work + j * 4 + 0x2FC) = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(j * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + j + 0x2B4), 0);
             }
         }
@@ -1440,7 +1440,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         for (i34 = 0; i34 < 0x24; i34++) {
             *(u8 *)(work + i34 + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
             if (*(s8 *)(work + i34 + 0x2D8) == 1) {
-                *(f32 *)(work + i34 * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(i34 * 10),
+                *(f32 *)(work + i34 * 4 + 0x2FC) = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(i34 * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + i34 + 0x2B4), 0);
             }
         }
@@ -1497,7 +1497,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         for (i35 = 0; i35 < 0x24; i35++) {
             *(u8 *)(work + i35 + 0x2B4) = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)*(s32 *)(work + 0x2B0), 5.0f);
             if (*(s8 *)(work + i35 + 0x2D8) == 1) {
-                *(f32 *)(work + i35 * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(i35 * 10),
+                *(f32 *)(work + i35 * 4 + 0x2FC) = fclBustupDrawRotatingBand(fclMakeVec2(400.0f, 220.0f), (s16)(i35 * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + i35 + 0x2B4), 0);
             }
         }

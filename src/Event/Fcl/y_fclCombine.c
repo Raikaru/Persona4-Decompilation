@@ -5923,7 +5923,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         p[1] = 0x70;
         sp250 = fclMakeVec2(640.0f, 98.0f);
         sp248 = fclMakeVec2((f32)413, 99.0f);
-        func_0033e540(*(u8 **)(p + 0x250), sp250, sp248, 6, 0);
+        fclCombineStartMove(*(u8 **)(p + 0x250), sp250, sp248, 6, 0);
         fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
     case 0x70:
         cmmDateSelectionRefresh(arg0);
@@ -6044,7 +6044,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
                 sp160 = fclMakeVec2((f32)413, 99.0f);
                 sp158 = fclMakeVec2(640.0f, 98.0f);
-                func_0033e540(*(u8 **)(p + 0x250), sp160, sp158, 6, 0);
+                fclCombineStartMove(*(u8 **)(p + 0x250), sp160, sp158, 6, 0);
                 fclCombineLayoutDetailSprites(arg0, 0);
                 fclCombineCreateSlotIcons(arg0, 0);
             }
@@ -6086,7 +6086,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
             p[1] = 0x70;
             sp130 = fclMakeVec2(640.0f, 98.0f);
             sp128 = fclMakeVec2((f32)413, 99.0f);
-            func_0033e540(*(u8 **)(p + 0x250), sp130, sp128, 6, 0);
+            fclCombineStartMove(*(u8 **)(p + 0x250), sp130, sp128, 6, 0);
             fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         break;
