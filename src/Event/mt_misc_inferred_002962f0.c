@@ -52,7 +52,7 @@ extern s32 D_0063E830[];
 
 extern void mtMiscCollectType1Records(u8 *arg0);
 extern void mtMiscCollectType2Records(u8 *arg0);
-extern void func_00294280(u8 *arg0);
+extern void mtMiscBuildSceneNodes(u8 *arg0);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -68,8 +68,11 @@ extern void func_00294280(u8 *arg0);
 /* 776/784 bytes; four resolved relocations and eight zero alignment bytes.
  * Preserve the signed readiness gate, callback-visible record reloads, and
  * the complete four-halfword position aggregate. */
+// Collects type-4 records of the current scene into event nodes. Returns early
+// unless the readiness check at +0x678 passes and func_00290e10 reports a
+// positive count.
 // FUN_002962F0
-void func_002962f0(u8 *arg0, u8 *arg1)
+void mtMiscCollectType4Records(u8 *arg0, u8 *arg1)
 {
   extern s32 func_00290e10(s32 *arg0);
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
@@ -194,8 +197,10 @@ loop_test:
   return;
 }
 
+// Collects type-5 records (0x3C-byte entries from the list at +0xA4). The count
+// comes from +0xAC when the list kind is below 6, else from +0xA8.
 // FUN_00296600
-void func_00296600(u8 *arg0, u8 *arg1)
+void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
 {
   extern u8 *func_00286780();
   extern u8 *evtNodeAlloc(s32 arg0);
@@ -261,8 +266,10 @@ void func_00296600(u8 *arg0, u8 *arg1)
   return;
 }
 
+// Type-19 counterpart of mtMiscCollectType5Records: same loop and count choice,
+// matching record type 0x13 and copying the settings halfwords at +0x14 to +0x18.
 // FUN_00296720
-void func_00296720(u8 *arg0, u8 *arg1)
+void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
 {
   extern u8 *func_00286780();
   extern u8 *evtNodeAlloc(s32 arg0);
@@ -345,7 +352,7 @@ void func_00296720(u8 *arg0, u8 *arg1)
 // FUN_00296850
 s32 func_00296850(u8 *arg0, u8 *arg1)
 {
-  extern void func_00294280(u8 *arg0);
+  extern void mtMiscBuildSceneNodes(u8 *arg0);
   extern void mtMiscCollectType1Records(u8 *arg0);
   extern void mtMiscCollectType2Records(u8 *arg0);
   extern void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3);
@@ -355,9 +362,9 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   extern void func_00295910(u8 *arg0, u8 *arg1);
   extern void func_00295b80(u8 *arg0, u8 *arg1);
   extern void func_00295db0(u8 *arg0, u8 *arg1);
-  extern void func_002962f0(u8 *arg0, u8 *arg1);
-  extern void func_00296600(u8 *arg0, u8 *arg1);
-  extern void func_00296720(u8 *arg0, u8 *arg1);
+  extern void mtMiscCollectType4Records(u8 *arg0, u8 *arg1);
+  extern void mtMiscCollectType5Records(u8 *arg0, u8 *arg1);
+  extern void mtMiscCollectType19Records(u8 *arg0, u8 *arg1);
   extern void func_00287310(u8 *arg0);
   extern void evtResultSet(s32 arg0, s32 arg1);
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
@@ -382,7 +389,7 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
   u16 var_4h;
 
   func_00440b68(D_0063CB00);
-  func_00294280(arg1);
+  mtMiscBuildSceneNodes(arg1);
   mtMiscCollectType1Records(arg1);
   mtMiscCollectType2Records(arg1);
   var_18 = 0;
@@ -1022,8 +1029,8 @@ loop22_test:
     }
   }
   func_00295db0(arg0, arg1);
-  func_002962f0(arg0, arg1);
-  func_00296600(arg0, arg1);
+  mtMiscCollectType4Records(arg0, arg1);
+  mtMiscCollectType5Records(arg0, arg1);
   {
     u8 *resource_36;
     s32 index_36;
@@ -1078,7 +1085,7 @@ loop22_test:
       goto loop36_body;
     }
   }
-  func_00296720(arg0, arg1);
+  mtMiscCollectType19Records(arg0, arg1);
   {
     u8 *resource_06;
     s32 index_06;

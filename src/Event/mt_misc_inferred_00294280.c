@@ -67,8 +67,11 @@ extern void mtMiscCollectType2Records(u8 *arg0);
 /* 908/912 bytes; thirty resolved relocations and four zero alignment bytes.
  * Keep separate binary64 diagnostic lifetimes and reload resource links after
  * allocation. Keep binary64 arguments despite the retail format's %d fields. */
+// Builds the scene's fixed event nodes: resource 0x400, one node per kind-3
+// resource, and three icon nodes. Copies the kind-5 resource's transform and
+// eight words into the record at +0x6F0 and +0x710.
 // FUN_00294280
-void func_00294280(u8 *arg0)
+void mtMiscBuildSceneNodes(u8 *arg0)
 {
     typedef struct Resrc Resrc;
     typedef struct ResrcManager ResrcManager;
