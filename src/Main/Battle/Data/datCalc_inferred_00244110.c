@@ -12,6 +12,7 @@ extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 
 extern f32 D_00761260;
+/* fGpffff811c: scale on the attacker-side term when the target is an enemy [inferred]. */
 extern f32 fGpffff811c;
 static inline f32 mul_f32_ordered(f32 left, f32 right)
 {
@@ -21,8 +22,9 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 {
     return left + right;
 }
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+/* Two scripted damage formulas, datScriptCalcPhysicalDamage and datScriptCalcMagicDamage,
+   driven by datScriptCalcFloat selectors and the fGpffff* float constants (documented beside
+   their externs). Each is a separate retail function with its own C body. */
 
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00244110-00244540 */
@@ -33,7 +35,9 @@ void datScriptCalcPhysicalDamage(void)
 {
     extern s32 datScriptCmdFlag2Set(void);
     extern f32 sqrtf(f32 arg0);
+    /* fGpffff82c0: multiplier on the flag-2 branch of the enemy-target physical formula [inferred]. */
     extern f32 fGpffff82c0;
+    /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcPhysicalDamage) [inferred]. */
     extern f32 fGpffff824c;
     f32 temp_f20;
     f32 temp_f0;
@@ -121,6 +125,7 @@ void datScriptCalcPhysicalDamage(void)
 void datScriptCalcMagicDamage(void)
 {
     extern f32 sqrtf(f32 arg0);
+    /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcMagicDamage) [inferred]. */
     extern f32 fGpffff824c;
     f32 temp_f20;
     f32 temp_f21;
