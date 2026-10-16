@@ -1897,7 +1897,7 @@ u8 btlAICommandPickTableAction(u8 *p) {
    lifetimes; random-first comparison selects retail's $at branch.
    The random helper takes the summed weights, not the record pointer. */
 // FUN_001DEA90
-u8 *func_001dea90(u8 *p, u32 index)
+u8 *btlAISelectWeightedEntry(u8 *p, u32 index)
 {
     u8 *node;
     u8 *entry;
@@ -1983,7 +1983,7 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
    $v0/$v1-coloring floor. */
 /* Ported from P3FES btlEffect.c func_002c70d0 (action dispatch, switch type 0/1).
    func_002d15a0->func_001eb3b0, func_002c6f50->func_001debb0, func_002c6ba0->func_001de800,
-   func_002c6e30->func_001dea90, func_002c6a00->func_001de640, PTR_FUN_006975e0->D_00609CE0;
+   func_002c6e30->btlAISelectWeightedEntry, func_002c6a00->func_001de640, PTR_FUN_006975e0->D_00609CE0;
    DAT_007ce41c->iGpffffb3d0 (integer-domain address forces the early base load),
    DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb42c. func_001de800 declared
    locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
@@ -2027,7 +2027,7 @@ void btlAICommandSetUnitAction(int param_1, int param_2)
     else {
         extern u32 btlAICommandPickTableAction(u8 *);
         actionId = btlAICommandPickTableAction((u8 *)param_1) & 0xFFFF;
-        entry = (int)func_001dea90((u8 *)param_1, actionId);
+        entry = (int)btlAISelectWeightedEntry((u8 *)param_1, actionId);
         btlAICommandSetActionCode((u8 *)param_1, (u8 *)param_2, *(u16 *)(entry + 2));
         actionWord = *(u32 *)(entry + 4);
         result = ((s32 (*)(u8 *, u32))D_00609CE0[((actionWord & 0xff000000) >> 0x18) * 2])((u8 *)param_1, actionWord & 0xffffff);

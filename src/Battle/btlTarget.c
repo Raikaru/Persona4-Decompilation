@@ -36,7 +36,7 @@ extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 *scrGetAiState(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
 extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
 extern s32 btlAICommandPickTableAction(u8 *arg0); /* lint: allow H011 -- s32 view of the u8 definition, as in code1_001e; the u8 view changes the caller's extension */
-extern u8 *func_001dea90(u8 *arg0, u32 arg1);
+extern u8 *btlAISelectWeightedEntry(u8 *arg0, u32 arg1);
 extern void *D_00609CE0[];
 typedef struct P4Vec4_001EC2B0 {
     f32 x;
@@ -102,7 +102,7 @@ s32 btlTargetAIPickAction(void) {
     s32 (*callback)(u8 *, s64);
 
     temp_2 = scrGetAiState();
-    temp_2_2 = func_001dea90(temp_2, (u32)btlAICommandPickTableAction(temp_2) & 0xFFFF);
+    temp_2_2 = btlAISelectWeightedEntry(temp_2, (u32)btlAICommandPickTableAction(temp_2) & 0xFFFF);
     btlAICommandSetActionCode(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
     temp_3 = *(s32 *)(temp_2_2 + 4);
     index = ((u32)temp_3 & 0xFF000000) >> 24;
