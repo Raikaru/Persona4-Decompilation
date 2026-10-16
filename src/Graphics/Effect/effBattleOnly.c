@@ -94,11 +94,11 @@ void *EffBattleCreate(void *arg0)
     u8 *work;
     u8 *base;
 
-    tex = func_00484490(arg0);
+    tex = mdlEffectResolveRelPtrA(arg0);
     if (tex == NULL) {
         kAssertFail(D_007146A0, 0x58);
     }
-    value = (s32)func_004844d0(arg0);
+    value = (s32)mdlEffectResolveRelPtrB(arg0);
     id16 = *(u16 *)((u8 *)arg0 + 0x1C);
     param = *(s32 *)((u8 *)arg0 + 0x24);
     id = *(u16 *)((u8 *)arg0 + 0xC);

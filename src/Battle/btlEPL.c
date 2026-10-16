@@ -22,7 +22,7 @@ static u8 *D_0072449C;
 extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
 extern void btlUnitSetRot(void *arg0, void *arg1);
-extern void func_0048a150(void *arg0, void *arg1);
+extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
 extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
@@ -329,7 +329,7 @@ void btlEplStepUnitFadeInOut(u8 *arg0)
     }
     hasPos = 0;
     if (*model != NULL) {
-        func_0048a150(matrix, arg0 + 0x10);
+        mdlEffectBuildBasisRows(matrix, arg0 + 0x10);
         mdlApplyModelMatrix(*model, matrix, 0);
         vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
         mdlScale(*model, vec, 2);
@@ -1119,7 +1119,7 @@ void btlEplStepLightFadeInOut(u8 *arg0)
     }
     hasMatrix = 0;
     if (target->model != NULL) {
-        func_0048a150(&matrix, arg0 + 0x10);
+        mdlEffectBuildBasisRows(&matrix, arg0 + 0x10);
         mdlApplyModelMatrix(target->model, &matrix, 0);
         vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
         mdlScale(target->model, vec, 2);
@@ -1376,7 +1376,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
             return;
         }
         if (*target != NULL) {
-            func_0048a150(spE0, arg0 + 0x10);
+            mdlEffectBuildBasisRows(spE0, arg0 + 0x10);
             mdlApplyModelMatrix(*target, spE0, 0);
             scale = *(f32 *)(arg0 + 0x20) * param->scale;
             sp130[2] = scale;

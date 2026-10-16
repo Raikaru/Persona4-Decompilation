@@ -13,7 +13,7 @@ extern void func_003c0700(void *arg0);
 extern u8 *func_003c0520(void *ptr);
 extern void kAssertFail(const char *file, s32 line);
 extern char D_00714520[];
-extern void *func_004ae080(void *object, void *data);
+extern void *mdlEffectSetFlag40(void *object, void *data);
 extern void func_00492d10(void *arg0);
 extern void func_004ae0a0(void *arg0, void *arg1);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -47,7 +47,7 @@ void *ObjectParticleCreateFromSource(void *opaqueSource)
     u8 *temp_2_2;
     u8 *temp_2;
 
-    temp_2_2 = func_00484490(arg0);
+    temp_2_2 = mdlEffectResolveRelPtrA(arg0);
     if (temp_2_2 == 0) {
         kAssertFail(D_00714520, 0xFD);
     }
@@ -79,7 +79,7 @@ void *ObjectParticleCreateFromSource(void *opaqueSource)
     if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
         return temp_2;
     }
-    temp_2_3 = (s32)func_004844d0(arg0);
+    temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
     if (temp_2_3 != 0) {
         switch (*(u16 *)(arg0 + 0x1C)) {
         case 3:
@@ -177,7 +177,7 @@ void ObjectParticleShareClump(u8 *arg0, u8 *arg1)
         }
         temp_2 = func_003c0520((void *)*(u32 *)(arg1 + 0x54));
         *(u8 **)(arg0 + 0x54) = temp_2;
-        RpClumpForAllAtomics(temp_2, func_004ae080, 0);
+        RpClumpForAllAtomics(temp_2, mdlEffectSetFlag40, 0);
         break;
     default:
         kAssertFail(D_00714520, 0x172);
@@ -260,7 +260,7 @@ void ObjectParticleLoadClump(u8 *arg0, s32 arg1, s32 arg2) {
       }
     }
   done:
-    func_003e2e40(temp18, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (var17 == NULL) kAssertFail(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, func_004ae080, NULL);
+    func_003e2e40(temp18, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (var17 == NULL) kAssertFail(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, mdlEffectSetFlag40, NULL);
 }
 
 
@@ -349,8 +349,8 @@ typedef struct EffObjectMatrix {
 // FUN_004AED70
 void ObjectParticleDraw(u8 *arg0)
 {
-    extern u_long128 func_00492df0(int param_1, u32 *param_2);
-    extern u_long128 func_00492db0(int param_1, u32 *param_2);
+    extern u_long128 mdlEffectLoadQuadB(int param_1, u32 *param_2);
+    extern u_long128 mdlEffectLoadQuadA(int param_1, u32 *param_2);
     extern void effMiscBuildRotationVU(void);
     extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
     extern void *mdlEffectSetAllColors(void *object, void *data);
@@ -431,7 +431,7 @@ void ObjectParticleDraw(u8 *arg0)
     switch (*(u16 *)(self + 0xC)) {
     case 3:
         if ((*(s32 *)(list + 0xC) & 1) == 0) {
-            func_00492df0((int)list, (u32 *)&snapA);
+            mdlEffectLoadQuadB((int)list, (u32 *)&snapA);
             effectVuLoad10(&snapA);
             effMiscBuildRotationVU();
             __asm__ volatile(
@@ -517,8 +517,8 @@ void ObjectParticleDraw(u8 *arg0)
         } else {
             u32 mask;
 
-            func_00492df0((int)list, (u32 *)&snapA);
-            func_00492db0(*(int *)(self + 0x58), (u32 *)&snapB);
+            mdlEffectLoadQuadB((int)list, (u32 *)&snapA);
+            mdlEffectLoadQuadA(*(int *)(self + 0x58), (u32 *)&snapB);
             effectVuLoad10(&snapA);
             effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(&snapB), "m"(snapB) : "$vf31");

@@ -36,7 +36,7 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
 extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1210(void *a, void *b);
-extern u32 func_004b1580(s32 a);
+extern u32 mdlEffectGetWord84(s32 a);
 extern void func_004b1150(u8 *a);
 extern u8 *func_004b1130(s32 a);
 extern void kAssertFail(void *file, s32 line);
@@ -158,7 +158,7 @@ s32 func_0025fd80(u8 *task)
 
     t = (void *)kwlnTaskGetWork(task);
     func_004b1210((void *)(u32)t->unk4, (void *)(u32)t->unk0);
-    if (t->unk8 != 0 && (s32)func_004b1580(t->unk0) >= t->unk8)
+    if (t->unk8 != 0 && (s32)mdlEffectGetWord84(t->unk0) >= t->unk8)
     {
         return -1;
     }

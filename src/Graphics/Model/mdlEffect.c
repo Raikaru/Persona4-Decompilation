@@ -214,8 +214,9 @@ u32 *mdlEffectListAppendNode(u32 *list, u32 *arg1, u16 arg2)
    node+8 loads, out as f32[16], and three copy-loop spellings; the retained
    shapes are the best. mula/madda term-order floor, cf. btlShuffleDraw
    func_00377930 note. */
+// Rebuilds each node's transform. Walks the node list at *arg0 (next pointer +0x10, key +0x08, matrix index +0x04); a matrix copied from arg1 by mdlCopyIndexedMatrix feeds a quaternion-derived 3x3 rotation, with the identity basis for indices of 1000 or more. The 4-row result goes to func_004b12e0 under the key, then func_004b1190 runs on the same key.
 // FUN_0047D540
-void func_0047d540(u8 **arg0, u8 *arg1)
+void mdlEffectListBuildTransforms(u8 **arg0, u8 *arg1)
 {
     extern f32 sqrtf(f32 x);
     f32 in[16];
@@ -515,8 +516,9 @@ u32 *mdlEffectListWrapShared(u32 **arg0)
     obj[1] = obj[1] + 1;
     return temp;
 }
+// Calls func_004824a0 for the sub-object at +0x10 of the first argument and writes the result to the float array in the second.
 // FUN_00482700
-void func_00482700(int param_1, float *param_2)
+void mdlEffectEvalSubPose(int param_1, float *param_2)
 {
   func_004824a0((int *)(u32)param_1, (u8 *)(u32)*(u32 *)(param_1 + 0x10), param_2);
 }
@@ -524,10 +526,11 @@ void func_00482700(int param_1, float *param_2)
 
 /* Removing this loses 0x00482730 (MATCH nd0 -> MISMATCH nd45) - measured W161. */
 
+// Sets each entry's frame to param_2 modulo the entry's frame count (+0x0C of the entry's block) and marks it active (+0x08 = 1). The loop is built with opt_loop_invariants on, as measured.
 // FUN_00482730
-/* measured: opt_loop_invariants on is required for func_00482730 (MATCH nd0). */
+/* measured: opt_loop_invariants on is required for mdlEffectWrapTrackFrames (MATCH nd0). */
 #pragma opt_loop_invariants on
-void func_00482730(int param_1, u32 param_2)
+void mdlEffectWrapTrackFrames(int param_1, u32 param_2)
 {
   int iVar1;
   int iVar2;
@@ -543,11 +546,12 @@ void func_00482730(int param_1, u32 param_2)
 }
 
 
-/* measured: opt_loop_invariants off closes the func_00482730 bracket. */
+/* measured: opt_loop_invariants off closes the mdlEffectWrapTrackFrames bracket. */
 #pragma opt_loop_invariants off
 
+// Resolves the self-relative pointer at +0x10 of the source: returns it as-is when the flag at +0x18 is set; otherwise treats it as an offset and returns source+offset, or NULL for a zero offset.
 // FUN_00484490
-void *func_00484490(void *source)
+void *mdlEffectResolveRelPtrA(void *source)
 {
   u8 *param_1 = source;
   u8 *value;
@@ -574,8 +578,9 @@ done:
 
 
 
+// Resolves the self-relative pointer at +0x20 of the source: returns it as-is when the flag at +0x28 is set; otherwise treats it as an offset and returns source+offset, or NULL for a zero offset.
 // FUN_004844D0
-void *func_004844d0(void *source)
+void *mdlEffectResolveRelPtrB(void *source)
 {
   u8 *param_1 = source;
   u8 *value;
@@ -630,16 +635,18 @@ u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 
 
 
+// Calls func_00487fb0_evt with 1.0f; the callee is not yet named.
 // FUN_00489E50
-void func_00489e50(void)
+void mdlEffectSetUnitWeight(void)
 {
   func_00487fb0_evt(1.0f);
 }
 
 
 
+// Stores param_1 at +0x08 of the record param_2, then calls func_00492e30 with the record emitter at +0x4C and the same scale.
 // FUN_00489F50
-void func_00489f50(f32 param_1, int param_2)
+void mdlEffectSetScaleAndNotify(f32 param_1, int param_2)
 {
   *(f32 *)(param_2 + 8) = param_1;
   func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c), param_1);
@@ -657,8 +664,9 @@ void func_00489f50(f32 param_1, int param_2)
 /* measured: optimization_level 1 is required with the VU0 pragmas above;
    at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
 #pragma optimization_level 1
+// Appends a 0x20-byte packet pair to iGpffffb884: a tag quad with reg 0x8001, then a 0x4C register quad with iGpffffb8c8 OR'd with a 0x00FFFFFF high mask (layout measured against retail).
 // FUN_00489F80
-void func_00489f80(void)
+void mdlEffectEmitMaskedTagPair(void)
 {
     u8 *packet;
     u_long128 packed;
@@ -676,8 +684,9 @@ void func_00489f80(void)
     *(u_long128 *)(packet + 0x10) = packed;
     iGpffffb884 = iGpffffb884 + 0x20;
 }
+// Appends the same packet pair as mdlEffectEmitMaskedTagPair, with iGpffffb8c8 used unmasked in the register quad.
 // FUN_0048A000
-void func_0048a000(void)
+void mdlEffectEmitTagPair(void)
 {
     u8 *packet;
     u_long128 packed;
@@ -695,8 +704,9 @@ void func_0048a000(void)
     *(u_long128 *)(packet + 0x10) = packed;
     iGpffffb884 = iGpffffb884 + 0x20;
 }
+// Appends a 0x20-byte packet pair to iGpffffb884: a tag quad, then a register quad with the data taken from the argument (tag 8).
 // FUN_0048A070
-void func_0048a070(u64 arg0)
+void mdlEffectEmitValuePacket(u64 arg0)
 {
     u8 *packet;
     u_long128 packed;
@@ -713,8 +723,9 @@ void func_0048a070(u64 arg0)
     *(u_long128 *)(packet + 0x10) = packed;
     iGpffffb884 = iGpffffb884 + 0x20;
 }
+// Appends a 0x20-byte packet pair to iGpffffb884: a tag quad, then a register quad with the data taken from iGpffffb8e8 (tag 8).
 // FUN_0048A0E0
-void func_0048a0e0(void)
+void mdlEffectEmitSlotPacket(void)
 {
     u8 *packet;
     u_long128 packed;
@@ -735,8 +746,9 @@ void func_0048a0e0(void)
 #pragma optimization_level 2
 #pragma vu0_mmi_reg_binding off
 #pragma enable_vu0_registers off
+// Loads arg1 into VU0, normalises it, builds the rotation basis, writes its three rows to arg0 at +0x00, +0x10 and +0x20, and zeroes the words at +0x30 to +0x38.
 // FUN_0048A150
-void func_0048a150(u8 *arg0, u8 *arg1)
+void mdlEffectBuildBasisRows(u8 *arg0, u8 *arg1)
 {
     f32 work[4];
     u8 *base;
@@ -777,8 +789,9 @@ void func_0048a150(u8 *arg0, u8 *arg1)
     *(s32 *)(arg0 + 0x34) = 0;
     *(s32 *)(arg0 + 0x38) = 0;
 }
+// Copies the three floats at +0x20 of the current camera object into the output and zeroes the word at +0x0C.
 // FUN_0048A1F0
-void func_0048a1f0(u8 *arg0)
+void mdlEffectCopyCameraOrigin(u8 *arg0)
 {
     u8 *obj;
 
@@ -788,8 +801,9 @@ void func_0048a1f0(u8 *arg0)
     *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x28);
     *(s32 *)(arg0 + 0xC) = 0;
 }
+// Copies the three floats at +0x30 of the current camera object into the output and zeroes the word at +0x0C.
 // FUN_0048A250
-void func_0048a250(u8 *arg0)
+void mdlEffectCopyCameraAim(u8 *arg0)
 {
     u8 *obj;
 
@@ -799,8 +813,9 @@ void func_0048a250(u8 *arg0)
     *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x38);
     *(s32 *)(arg0 + 0xC) = 0;
 }
+// Writes the normalised vector from arg0 to the camera point at +0x30 of the current camera object into arg1, using VU0.
 // FUN_0048A2B0
-void func_0048a2b0(u8 *arg0, u8 *arg1)
+void mdlEffectAimDirection(u8 *arg0, u8 *arg1)
 {
     u8 *obj;
     f32 temp[4];
@@ -830,8 +845,9 @@ void func_0048a2b0(u8 *arg0, u8 *arg1)
         : "r"(temp), "r"(arg1)
         : "$vf10", "$vf11", "$vf2", "ACC", "Q", "memory");
 }
+// Builds an axis-angle rotation matrix from the angle and the axis in VU0 (vf10), loading its three rows into vf28 to vf30 through a 0x40-byte scratch block.
 // FUN_0048A340
-void func_0048a340(f32 param_1)
+void mdlEffectAxisAngleBasisVU(f32 param_1)
 {
     f32 temp_f20;
     f32 temp_f21;
@@ -912,8 +928,9 @@ void func_0048a340(f32 param_1)
         : "$vf28", "$vf29", "$vf30", "memory");
 }
 /* Projects VF10 into screen coordinates and returns camera-space depth. */
+// Anchor depth: projects the anchor and returns its camera-space depth.
 // FUN_0048A460
-f32 func_0048a460(void)
+f32 mdlEffectProjectAnchorDepth(void)
 {
     RwV3d transformed, input;
     f32 depth;
@@ -940,8 +957,9 @@ f32 func_0048a460(void)
         : "$vf10", "memory");
     return depth;
 }
+// Projects the anchor through the camera matrix and returns 1 when it lies inside the 640x448 screen rectangle and between the camera near and far distances (+0x80, +0x84); otherwise 0.
 // FUN_0048A510
-s32 func_0048a510(void)
+s32 mdlEffectAnchorOnScreen(void)
 {
     u8 raw[0x40];
     f32 temp_f0;
@@ -987,8 +1005,9 @@ s32 func_0048a510(void)
     }
     return 0;
 }
+// Projects the anchor and returns its on-screen scale: 650 times the input over the projected depth, clamped to 1500; 0 when the depth is outside the camera near and far range.
 // FUN_0048A650
-f32 func_0048a650(f32 fparg0)
+f32 mdlEffectAnchorScreenScale(f32 fparg0)
 {
     u8 raw[0x50];
     f32 temp_f22;
@@ -1075,8 +1094,9 @@ f32 func_0048a650(f32 fparg0)
     }
     return temp_f0;
 }
+// Catmull-Rom point builder: forms two tangent vectors from four consecutive points in VU0, then blends them at t into the output at param_2.
 // FUN_0048A810
-void func_0048a810(float param_1, u8 (*param_2)[16])
+void mdlEffectCatmullRomVU(float param_1, u8 (*param_2)[16])
 {
   float work[7][4];
   float square;
@@ -1176,8 +1196,9 @@ void func_0048a810(float param_1, u8 (*param_2)[16])
 
 
 
+// Loads the 128-bit quad at +0x20 of the object at param_1 into *param_2 and returns it.
 // FUN_00492DB0
-u_long128 func_00492db0(int param_1, u32 *param_2)
+u_long128 mdlEffectLoadQuadA(int param_1, u32 *param_2)
 {
   u_long128 value = *(u_long128 *)(*(int *)(param_1 + 0x20));
   *(u_long128 *)param_2 = value;
@@ -1185,11 +1206,12 @@ u_long128 func_00492db0(int param_1, u32 *param_2)
 }
 
 
-/* measured: opt_propagation off preserves func_00492dd0's 128-bit load/store ordering (MATCH nd0). */
+/* measured: opt_propagation off preserves mdlEffectStoreQuadA's 128-bit load/store ordering (MATCH nd0). */
 #pragma opt_propagation off
 
+// Stores the 128-bit quad at *param_2 into +0x20 of the object at param_1 and returns it.
 // FUN_00492DD0
-u_long128 func_00492dd0(int param_1, u32 *param_2)
+u_long128 mdlEffectStoreQuadA(int param_1, u32 *param_2)
 {
   u_long128 *dst;
   u_long128 value;
@@ -1200,23 +1222,25 @@ u_long128 func_00492dd0(int param_1, u32 *param_2)
   return value;
 }
 
-/* measured: opt_propagation on closes the func_00492dd0 bracket. */
+/* measured: opt_propagation on closes the mdlEffectStoreQuadA bracket. */
 #pragma opt_propagation on
 
 
+// Loads the 128-bit quad at +0x30 of the object at param_1 into *param_2 and returns it.
 // FUN_00492DF0
-u_long128 func_00492df0(int param_1, u32 *param_2)
+u_long128 mdlEffectLoadQuadB(int param_1, u32 *param_2)
 {
   return *(u_long128 *)param_2 =
       *(u_long128 *)(*(int *)(param_1 + 0x20) + 0x10);
 }
 
 
-/* measured: opt_propagation off preserves func_00492e10's 128-bit load/store ordering (MATCH nd0). */
+/* measured: opt_propagation off preserves mdlEffectStoreQuadB's 128-bit load/store ordering (MATCH nd0). */
 #pragma opt_propagation off
 
+// Stores the 128-bit quad at *param_2 into +0x30 of the object at param_1 and returns it.
 // FUN_00492E10
-u_long128 func_00492e10(int param_1, u32 *param_2)
+u_long128 mdlEffectStoreQuadB(int param_1, u32 *param_2)
 {
   u_long128 *dst;
   u_long128 value;
@@ -1226,7 +1250,7 @@ u_long128 func_00492e10(int param_1, u32 *param_2)
   *dst = value;
   return value;
 }
-/* measured: opt_propagation on closes the func_00492e10 bracket. */
+/* measured: opt_propagation on closes the mdlEffectStoreQuadB bracket. */
 #pragma opt_propagation on
 
 
@@ -1358,7 +1382,7 @@ void mdlEffectRenderFlares(u8 *arg0)
 
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0),
         "m"(*(f32 (*)[4])arg0) : "$vf10", "memory");
-    if (func_0048a510() == 0) {
+    if (mdlEffectAnchorOnScreen() == 0) {
         return;
     }
     __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(proj) : "r"(proj)
@@ -1669,8 +1693,9 @@ u_long128 mdlEffectStoreQuad(u_long128 *arg0, u_long128 *arg1)
 {
     return *arg0 = *arg1;
 }
+// Stores param_2 at word 5 (+0x14) of the record at param_1.
 // FUN_004A77A0
-void func_004a77a0(u32 *param_1, u32 param_2)
+void mdlEffectSetWord5(u32 *param_1, u32 param_2)
 {
   param_1[5] = param_2;
 }
@@ -1717,8 +1742,9 @@ check:
 
 
 
+// Sets bit 0x40 in the word at +0x08 of the record at +0x18 of param_1 and returns param_1.
 // FUN_004AE080
-void *func_004ae080(void *param_1, void *data)
+void *mdlEffectSetFlag40(void *param_1, void *data)
 {
   u32 *p;
 
@@ -1729,16 +1755,18 @@ void *func_004ae080(void *param_1, void *data)
 
 
 
+// Returns the word at +0x84 of the object at param_1.
 // FUN_004B1580
-u32 func_004b1580(int param_1)
+u32 mdlEffectGetWord84(int param_1)
 {
   return *(u32 *)(param_1 + 0x84);
 }
 
 
 
+// Stores param_2 into the word at *param_1.
 // FUN_004B2770
-void func_004b2770(u32 *param_1, u32 param_2)
+void mdlEffectStoreWord(u32 *param_1, u32 param_2)
 {
   *param_1 = param_2;
 }

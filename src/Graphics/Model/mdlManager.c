@@ -184,7 +184,7 @@ extern void* memset(void* destination, int value, size_t count);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
 extern void mdlDestroyModelObject(u8* a0);
-extern void func_0048a000(void);
+extern void mdlEffectEmitTagPair(void);
 extern s32 mdlPrepareModel(u8* a);
 extern void* func_003bfae0(void);
 extern int RwCameraFrustumTestSphere(void* a, void* b);
@@ -3168,7 +3168,7 @@ extern void mdlDrawVisibleAtomics(void* a);
 extern void* mdlGetMatrix(void* a);
 extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
 extern s32 mdlPrepareSlotModel(u8* model, u16 index);
-extern void func_0047d540(u8** a, u8* b);
+extern void mdlEffectListBuildTransforms(u8** a, u8* b);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
@@ -3453,7 +3453,7 @@ void func_00475cd0(MdlDrawState* owner)
     effect = owner->effect2CC;
     if (effect != 0) {
         mdlEffectListSetUniformScale((s32*)effect, (f32*)(&owner->scale));
-        func_0047d540((u8**)owner->effect2CC, (u8*)owner);
+        mdlEffectListBuildTransforms((u8**)owner->effect2CC, (u8*)owner);
     }
     }
     {
@@ -3466,7 +3466,7 @@ void func_00475cd0(MdlDrawState* owner)
             effect = *(u8**)(model + 0x18);
             if (effect != 0 && *(u16*)(model + 0x30) == 0) {
                 mdlEffectListSetUniformScale((s32*)effect, (f32*)(model + 8));
-                func_0047d540(*(u8***)(model + 0x18), (u8*)owner);
+                mdlEffectListBuildTransforms(*(u8***)(model + 0x18), (u8*)owner);
             }
             effect = *(u8**)(model + 0x24);
             if (effect != 0 && *(u16*)(model + 0x30) == 0) {
@@ -3556,7 +3556,7 @@ void func_00475cd0(MdlDrawState* owner)
                 effect = attached.model->effect2CC;
                 if (effect != 0) {
                     mdlEffectListSetUniformScale((s32*)effect, (f32*)&attached.model->scale);
-                    func_0047d540((u8**)attached.model->effect2CC, (u8*)attached.model);
+                    mdlEffectListBuildTransforms((u8**)attached.model->effect2CC, (u8*)attached.model);
                 }
                 {
                 struct { u16 index; u8* table; } layerCursor;
@@ -3567,7 +3567,7 @@ void func_00475cd0(MdlDrawState* owner)
                         source = *(u8**)(layerCursor.table + 0x18);
                         if (source != 0 && *(u16*)(layerCursor.table + 0x30) == 0) {
                             mdlEffectListSetUniformScale((s32*)source, (f32*)(layerCursor.table + 8));
-                            func_0047d540(*(u8***)(layerCursor.table + 0x18), (u8*)attached.model);
+                            mdlEffectListBuildTransforms(*(u8***)(layerCursor.table + 0x18), (u8*)attached.model);
                         }
                         source = *(u8**)(layerCursor.table + 0x24);
                         if (source != 0 && *(u16*)(layerCursor.table + 0x30) == 0) {
@@ -4692,7 +4692,7 @@ extern void mdlClearWrapperHandle(u32 a);
 extern void mdlSetWrapperValue(u32 a, void* b);
 extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
-extern void func_0047d540(u8** a, u8* b);
+extern void mdlEffectListBuildTransforms(u8** a, u8* b);
 extern void mdlTickMotionState(void* a);
 extern void mdlSetLayerWeight(u8* a, s32 b, f32 c);
 extern void mdlCopyScale(void* a, RwV3d* b);
@@ -4768,7 +4768,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
             draw = *(void**)(mdl + 0x2CC);
             if (draw != 0) {
                 mdlEffectListSetUniformScale((s32*)draw, (f32*)&((Model*)mdl)->scale);
-                func_0047d540(*(u8***)(mdl + 0x2CC), mdl);
+                mdlEffectListBuildTransforms(*(u8***)(mdl + 0x2CC), mdl);
             }
             for (updateLayer = 0; updateLayer < 2; updateLayer++) {
                 attachments = ((MdlCloneLayerView*)(mdl + updateLayer * 0xA4 + 0xEC))->attachments;
@@ -4776,7 +4776,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
                     draw = attachments->primaryDraw;
                     if (draw != 0 && attachments->delay == 0) {
                         mdlEffectListSetUniformScale((s32*)draw, (f32*)&attachments->scale);
-                        func_0047d540((u8**)attachments->primaryDraw, mdl);
+                        mdlEffectListBuildTransforms((u8**)attachments->primaryDraw, mdl);
                     }
                     draw = attachments->secondaryDraw;
                     if (draw != 0 && attachments->delay == 0) {
@@ -4842,7 +4842,7 @@ void mdlSetResetCallback(void* param_1, int param_2, int param_3)
 }
 
 extern void mdlUpdateBlendTrack(u8* a, u8* b);
-extern void func_00489f80(u32 a);
+extern void mdlEffectEmitMaskedTagPair(u32 a);
 extern s64 iGpffffabe8;
 
 /* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
@@ -4886,7 +4886,7 @@ void mdlApplyDrawState(void* param_1, MdlFlags78ec0* o)
         iGpffffabe8 |= 0x80;
     }
     if (o->d8 & 0x100000) {
-        func_00489f80(o->d8);
+        mdlEffectEmitMaskedTagPair(o->d8);
     }
     if (o->p310 != NULL) {
         ((void (*)(void*))o->p310)((void*)o->p314);
@@ -4912,7 +4912,7 @@ void mdlResetDrawState(void* param_1, void* param_2)
         DAT_00723cd8 &= ~0x80;
     }
     if ((p[0xD8 / 4] & 0x100000) != 0) {
-        func_0048a000();
+        mdlEffectEmitTagPair();
     }
     if (*(void**)((u8*)p + 0x318) != 0) {
         ((FnVoidPtr)*(void**)((u8*)p + 0x318))(*(void**)((u8*)p + 0x31C));

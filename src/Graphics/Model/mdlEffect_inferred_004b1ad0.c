@@ -80,8 +80,8 @@ void func_004b1ad0(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-    extern void func_00482730(s32 arg0, u32 arg1);
-    extern void func_00482700(s32 arg0, f32 *arg1);
+    extern void mdlEffectWrapTrackFrames(s32 arg0, u32 arg1);
+    extern void mdlEffectEvalSubPose(s32 arg0, f32 *arg1);
     extern void TlpSelectFrame(void *arg0, u32 arg1, f32 *arg2);
     extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
     extern void func_003c22f0(void *arg0);
@@ -165,8 +165,8 @@ void func_004b1ad0(u8 *arg0)
         f32 x0;
         f32 x1;
 
-        func_00482730(*(s32 *)(arg0 + 0xAC), count);
-        func_00482700(*(s32 *)(arg0 + 0xAC), animation);
+        mdlEffectWrapTrackFrames(*(s32 *)(arg0 + 0xAC), count);
+        mdlEffectEvalSubPose(*(s32 *)(arg0 + 0xAC), animation);
         cellW = 16.0f * animation[12];
         cellH = 16.0f * animation[13];
         x0 = animation[6] * cellW;

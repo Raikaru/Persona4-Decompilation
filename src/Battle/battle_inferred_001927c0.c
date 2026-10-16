@@ -31,9 +31,9 @@ typedef struct DatUnit DatUnit;
 extern void func_00106390(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void func_00489f80(void);
+extern void mdlEffectEmitMaskedTagPair(void);
 extern void func_0045c870(void *arg0, s32 arg1);
-extern void func_0048a000(void);
+extern void mdlEffectEmitTagPair(void);
 extern f32 fGpffff8474;
 extern void func_003c22f0(void *arg0);
 extern u8 D_005F6CA0[];
@@ -233,13 +233,13 @@ void btlRenderStateSetup(void)
     base[0](9, 2);
     base[0](0xC, 1);
     base[0](1, 0);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     color[0] = 0;
     color[1] = 0;
     color[2] = 0;
     color[3] = 0xFF;
     func_0045c870(color, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
 }
 
 /* measured: closes opt_propagation around btlRenderStateSetup. */

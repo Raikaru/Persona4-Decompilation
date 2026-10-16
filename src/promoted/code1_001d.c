@@ -77,7 +77,7 @@ extern f32 D_006094B0[];
 extern f32 D_006094D0[];
 extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
-extern void func_0048a250(u8 *arg0);
+extern void mdlEffectCopyCameraAim(u8 *arg0);
 extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
 
 

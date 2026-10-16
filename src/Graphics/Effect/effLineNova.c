@@ -892,7 +892,7 @@ u8 *LineNovaCreateKindInstance(s32 arg0, u8 *arg1) {
 void *LineNovaCreateKindInstanceFromObject(void *arg0) {
     u8 *p;
 
-    p = func_00484490(arg0);
+    p = mdlEffectResolveRelPtrA(arg0);
     if (p == NULL) {
         kAssertFail(D_00714628, 0x2B3);
     }
