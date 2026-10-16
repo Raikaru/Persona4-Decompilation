@@ -147,9 +147,9 @@ void *ParticleCreateFromSource(void *opaqueSource)
                 chkmemAllocSiteTag(D_00713CC0, 0x171);
                 link = (*(void *(**)(u32, u32))allocatorAddress)(0x30, 0x40000);
                 memset(link, 0, 0x30);
-                *(u8 **)(particle + 0x5C) = link;
-                *(u16 *)(link + 0x18) = 0x19;
-                *(u8 **)(*(u8 **)(particle + 0x5C) + 0x1C) = particle;
+                ((EffParticleInstance *)particle)->link = (ParticleLinkNode *)link;
+                ((ParticleLinkNode *)link)->tag = 0x19;
+                ((EffParticleInstance *)particle)->link->owner = particle;
                 break;
             default:
                 kAssertFail(D_00713CD0, 0x7E);
@@ -202,8 +202,8 @@ void ParticleFree(u8 *arg0)
     if (*(s32 *)(arg0 + 0x50) != 0) {
         GeometryBlockDestroy(*(s32 *)(arg0 + 0x50));
     }
-    if (*(s32 *)(arg0 + 0x5C) != 0) {
-        jtbl_008873EC[0](*(void **)(arg0 + 0x5C));
+    if (((EffParticleInstance *)arg0)->link != NULL) {
+        jtbl_008873EC[0](((EffParticleInstance *)arg0)->link);
     }
     jtbl_008873EC[0](arg0);
 }
@@ -366,15 +366,15 @@ void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
             TlpRelease(*(s32 *)(arg0 + 0x48));
         }
         *(s32 *)(arg0 + 0x48) = TlpAddRef(*(s32 *)(arg1 + 0x48));
-        if (*(s32 *)(arg0 + 0x5C) != 0) {
+        if (((EffParticleInstance *)arg0)->link != NULL) {
             kAssertFail(D_00713CD0, 0x15F);
         }
         chkmemAllocSiteTag(D_00713CC0, 0x171);
         p = (u8 *)(*jtbl_008873E8)(0x30, 0x40000);
         memset(p, 0, 0x30);
-        *(u8 **)(arg0 + 0x5C) = p;
-        *(u16 *)(p + 0x18) = 0x19;
-        *(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x1C) = arg0;
+        ((EffParticleInstance *)arg0)->link = (ParticleLinkNode *)p;
+        ((ParticleLinkNode *)p)->tag = 0x19;
+        ((EffParticleInstance *)arg0)->link->owner = arg0;
         break;
     }
     default:
@@ -429,8 +429,8 @@ void ParticleSetTextureById(u8 *arg0, s32 arg1)
     f32 f_10 = (f32)*(s32 *)(temp_2_2 + 0x10);
     f32 f_0c = (f32)*(s32 *)(temp_2_2 + 0xC);
 
-    *(f32 *)(arg0 + 0x54) = f_0c / 2.0f / 16.0f;
-    *(f32 *)(arg0 + 0x58) = f_10 / 2.0f / 16.0f;
+    ((EffParticleInstance *)arg0)->texScaleX = f_0c / 2.0f / 16.0f;
+    ((EffParticleInstance *)arg0)->texScaleY = f_10 / 2.0f / 16.0f;
     func_003c42b0((RpMaterial *)*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0x50) + 0x10) + 0x18) + 0x20)), (RwTexture *)temp_2);
 }
 // Sets the texture scale from a texture handle, applies the texture to the material, then releases the handle.
@@ -442,8 +442,8 @@ void ParticleSetTextureFromHandle(u8 *arg0, s32 arg1)
     f32 f_10 = (f32)*(s32 *)(temp_2_2 + 0x10);
     f32 f_0c = (f32)*(s32 *)(temp_2_2 + 0xC);
 
-    *(f32 *)(arg0 + 0x54) = f_0c / 2.0f / 16.0f;
-    *(f32 *)(arg0 + 0x58) = f_10 / 2.0f / 16.0f;
+    ((EffParticleInstance *)arg0)->texScaleX = f_0c / 2.0f / 16.0f;
+    ((EffParticleInstance *)arg0)->texScaleY = f_10 / 2.0f / 16.0f;
     func_003c42b0((RpMaterial *)*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0x50) + 0x10) + 0x18) + 0x20)), (RwTexture *)temp_2);
     func_003ef3a0(temp_2);
 }
@@ -959,8 +959,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         f32 angleStep;
         f32 lowerAngle;
         activeCount = 0;
-        scaleX = *(f32*)(particle + 0x54) * scale;
-        scaleY = *(f32*)(particle + 0x58) * scale;
+        scaleX = ((EffParticleInstance *)particle)->texScaleX * scale;
+        scaleY = ((EffParticleInstance *)particle)->texScaleY * scale;
         atomicAddress = *(u8**)(*(u8**)(particle + 0x50) + 0x10);
         settings = *(u8**)(emitterOrObjects + 0x20);
         func_003a5180((RpAtomic*)atomicAddress);
@@ -1478,8 +1478,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     case 7:
     {
         u8* t = *(u8**)(emitterOrObjects + 0x20);
-        *(s32*)(*(u8**)(particle + 0x5C) + 0) = 0;
-        *(s32*)(*(u8**)(particle + 0x5C) + 4) = 0;
+        ((EffParticleInstance *)particle)->link->field_0x00 = 0;
+        ((EffParticleInstance *)particle)->link->field_0x04 = 0;
         {
             u8* pb = (u8*)TnGetOffset1C(*(u16*)(t + 0x54));
             PrimAppendNode(pb, *(u8**)(particle + 0x5C));

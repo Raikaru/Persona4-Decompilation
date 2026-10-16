@@ -52,6 +52,26 @@ typedef struct EffSourceDescriptor {
     u32 clumpInput;          /* +0x24: passed through as the second input of the resource walk */
 } EffSourceDescriptor;
 
+/* Effect particle link node (effParticle.c). Each particle with a link owns one 0x30-byte node
+ * that carries the 0x19 tag and points back at the owning particle. */
+typedef struct ParticleLinkNode {
+    s32 field_0x00;          /* zeroed by the drawing path before the node is appended */
+    s32 field_0x04;
+    u8 field_0x08[0x18 - 0x08];
+    u16 tag;                 /* +0x18: 0x19 at creation */
+    u8 field_0x1A[0x1C - 0x1A];
+    u8 *owner;               /* +0x1C: the particle that owns this node */
+} ParticleLinkNode;
+
+/* Effect particle (effParticle.c). Only the texture scale and link are named; the other
+ * fields are not yet typed. */
+typedef struct EffParticleInstance {
+    u8 field_0x00[0x54];
+    f32 texScaleX;           /* +0x54: texture scale, the texture's +0xC word divided by 32 */
+    f32 texScaleY;           /* +0x58: texture scale, the texture's +0x10 word divided by 32 */
+    ParticleLinkNode *link;  /* +0x5C */
+} EffParticleInstance;
+
 /* Distortion particle instance (effDistortParticle.c). Its layout differs from
  * ObjectParticleInstance: +0x5C is the record list, +0x60 the texture object and +0x68 the
  * record table. Fields before +0x5C are not yet named. */
