@@ -88,7 +88,7 @@ extern u32 datGetFlag(s32 arg0);
 extern s32 datSetFlag(s32 arg0, s32 arg1);
 extern s32 FldStepTaskUpdate(u8 *arg0);
 extern void FldStepTaskDestroy(u8 *task);
-extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
+extern void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
 extern void func_003642a0(s32 arg0);
@@ -146,15 +146,15 @@ extern u32 D_00764314;
 extern u32 D_00764324;
 extern u32 D_00764328;
 extern u32 RpRandom(void);
-extern void func_00156800(void *arg0, u32 arg1);
+extern void FldTileRotateAttributes(void *arg0, u32 arg1);
 extern s32 func_00156cf0(void *arg0, u32 *arg1, u32 *arg2);
-extern void func_00157310(u8 *arg0, u16 arg1, u16 arg2, s16 arg3);
-extern void func_00157700(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern void FldCellPlaceShape(u8 *arg0, u16 arg1, u16 arg2, s16 arg3);
+extern void FldCellFloodFill(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 *arg5, s32 *arg6);
 static inline void wg0015_place_special(u8 special_direction, s32 x, s32 y,
                                         u8 *tile)
 {
-    func_00157310(tile, (u16)x, (u16)y, special_direction);
+    FldCellPlaceShape(tile, (u16)x, (u16)y, special_direction);
 }
 
 /* measured: opt_loop_invariants hoists the 0x10000000 mask before the loop
@@ -635,8 +635,9 @@ static inline u32 fldTileRotateNibble(u32 bits, s32 turns)
 
 /* Measured with configured b210 -O2: all 1264 bytes match retail.
  * Each saved pair is the actual record displaced by its rotation cycle. */
+// Intent: Rotate the field tile's attribute pairs by the direction mask, displacing each saved pair along its rotation cycle [inferred]
 // FUN_00156800
-void func_00156800(void *templateData, u32 directionMask)
+void FldTileRotateAttributes(void *templateData, u32 directionMask)
 {
     extern u8 D_005F0000[];
     FldTileAttributePair savedSmall;
@@ -940,8 +941,9 @@ fits:
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
+// Intent: Place a shape on the field grid at the given cell with its kind, marking the cells it occupies [inferred]
 // FUN_00157310
-void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
+void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
 {
     extern s32 iGpffffb230;
     extern s32 iGpffffb22c;
@@ -1026,8 +1028,9 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
 #pragma pop
 /* Measured: 684/688 bytes, 12 resolved call relocations and four zero tail bytes.
  * Capture exits before output writes; reload categories after earlier recursion. */
+// Intent: Flood-fill outward from a field cell through its neighbours within the depth limit, recording the cells reached [inferred]
 // FUN_00157700
-void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
+void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
                   s32 limit, s32 *found_two, s32 *found_high)
 {
     s32 exits;
@@ -1044,7 +1047,7 @@ void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
                 *found_high = 1;
             }
             if (exits & 1) {
-                func_00157700(x, y - 1, 4, depth + 1, limit, found_two, found_high);
+                FldCellFloodFill(x, y - 1, 4, depth + 1, limit, found_two, found_high);
             }
             if (exits & 2) {
                 if ((((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 7 ||
@@ -1054,10 +1057,10 @@ void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
                 } else {
                     next_depth = depth + 1;
                 }
-                func_00157700(x - 1, y, 8, next_depth, limit, found_two, found_high);
+                FldCellFloodFill(x - 1, y, 8, next_depth, limit, found_two, found_high);
             }
             if (exits & 4) {
-                func_00157700(x, y + 1, 1, depth + 1, limit, found_two, found_high);
+                FldCellFloodFill(x, y + 1, 1, depth + 1, limit, found_two, found_high);
             }
             if (exits & 8) {
                 if ((((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 7 ||
@@ -1067,7 +1070,7 @@ void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
                 } else {
                     right_depth = depth + 1;
                 }
-                func_00157700(x + 1, y, 2, right_depth, limit, found_two, found_high);
+                FldCellFloodFill(x + 1, y, 2, right_depth, limit, found_two, found_high);
             }
         }
     }
@@ -1138,7 +1141,7 @@ copy_special:
                 goto copy_special;
             }
             work = (u8 *)MT_Scene_GetFrameState();
-            func_00156800(tile, 1U << work[0x49]);
+            FldTileRotateAttributes(tile, 1U << work[0x49]);
             work = (u8 *)MT_Scene_GetFrameState();
             wg0015_place_special(work[0x49], arg0, arg1, tile);
             goto propagate;
@@ -1157,16 +1160,16 @@ main_loop:
     }
 
     if ((arg2 == arg0) && (arg3 < arg1)) {
-        func_00157700(arg0, arg1 - 1, 4, 0, 5, &flag_a, &flag_b);
+        FldCellFloodFill(arg0, arg1 - 1, 4, 0, 5, &flag_a, &flag_b);
     }
     if ((arg2 < arg0) && (arg3 == arg1)) {
-        func_00157700(arg0 - 1, arg1, 8, 0, 5, &flag_a, &flag_b);
+        FldCellFloodFill(arg0 - 1, arg1, 8, 0, 5, &flag_a, &flag_b);
     }
     if ((arg2 == arg0) && (arg1 < arg3)) {
-        func_00157700(arg0, arg1 + 1, 1, 0, 5, &flag_a, &flag_b);
+        FldCellFloodFill(arg0, arg1 + 1, 1, 0, 5, &flag_a, &flag_b);
     }
     if ((arg0 < arg2) && (arg3 == arg1)) {
-        func_00157700(arg0 + 1, arg1, 2, 0, 5, &flag_a, &flag_b);
+        FldCellFloodFill(arg0 + 1, arg1, 2, 0, 5, &flag_a, &flag_b);
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
@@ -1284,11 +1287,11 @@ copy_candidate:
     if (copy_count > 0) {
         goto copy_candidate;
     }
-    func_00156800(tile, 1U << direction);
+    FldTileRotateAttributes(tile, 1U << direction);
     temp_x = arg0;
     temp_y = arg1;
     if (func_00156cf0(tile, &temp_x, &temp_y) == 1) {
-        func_00157310(tile, (u16)temp_x, (u16)temp_y, (s16)direction);
+        FldCellPlaceShape(tile, (u16)temp_x, (u16)temp_y, (s16)direction);
         found = 1;
         arg0 = temp_x;
         arg1 = temp_y;
@@ -1497,7 +1500,7 @@ border_rows_test:
                 dst = dst + 1;
             } while (n > 0);
             t = (u8 *)MT_Scene_GetFrameState();
-            func_00156800(buf, 1U << *(t + 0x49));
+            FldTileRotateAttributes(buf, 1U << *(t + 0x49));
         } while (func_00156cf0(buf, &u4, &u8v) == 0);
         b0 = (u8)u4;
         t = (u8 *)MT_Scene_GetFrameState();
@@ -1614,8 +1617,9 @@ typedef struct Resrc Resrc;
 #pragma opt_loop_invariants off
 #pragma opt_common_subs off
 #pragma opt_propagation off
+// Intent: Create the resources for one field cell from its kind: model, point and field resources in the active band [inferred]
 // FUN_001587D0
-void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
+void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
 {
     extern u8 D_005F0590[];
     extern u8 D_005F0591[];
@@ -2057,12 +2061,13 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
 #pragma opt_common_subs on
 
 #pragma pop
-/* measured: opt_propagation off probe for func_001599d0. */
+/* measured: opt_propagation off probe for FldCellCreateGrid. */
 #pragma opt_propagation off
-/* measured: loop-invariant callback masks remain at call site in func_001599d0. */
+/* measured: loop-invariant callback masks remain at call site in FldCellCreateGrid. */
 #pragma opt_loop_invariants off
+// Intent: Create the resources for every cell of the 16 by 16 field grid [inferred]
 // FUN_001599D0
-void func_001599d0(void)
+void FldCellCreateGrid(void)
 {
     s32 var_18;
     s32 var_17;
@@ -2075,7 +2080,7 @@ loop_5_body:
     var_16 = var_18 * 0x10;
     goto loop_3_test;
 loop_3_body:
-    func_001587d0((u16)(var_17 + var_16),
+    FldCellCreateResources((u16)(var_17 + var_16),
                   (u16)var_17, (u16)var_18);
     var_17 += 1;
 loop_3_test:
@@ -2088,9 +2093,9 @@ loop_5_test:
         goto loop_5_body;
     }
 }
-/* measured: restores loop-invariant hoisting after func_001599d0. */
+/* measured: restores loop-invariant hoisting after FldCellCreateGrid. */
 #pragma opt_loop_invariants on
-/* measured: closes opt_propagation off probe for func_001599d0. */
+/* measured: closes opt_propagation off probe for FldCellCreateGrid. */
 #pragma opt_propagation on
 // Intent: Per-frame update for the step task: dispatches on the task's state and sets up its model objects and records [inferred]
 // FUN_00159A60
@@ -2922,8 +2927,9 @@ slots_test:
 fail:
     return 0;
 }
+// Intent: Refresh the visibility of the band's resource list from each entry's grid cell and the frame state flags [inferred]
 // FUN_0015B240
-void func_0015b240(void)
+void FldStepRefreshBandResVisibility(void)
 {
     u8 *entry;
     s32 flag;
@@ -3638,6 +3644,7 @@ s32 MT_Scene_AllResFlagSet(void)
 
 
 
+// Intent: Prepare each model in scene resource list 3 that is not yet prepared and mark it prepared; returns 1 only when every model is ready [inferred]
 // FUN_0015F660
 s32 mtSceneResListPrepareAll(void)
 {
