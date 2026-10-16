@@ -89,8 +89,8 @@ typedef struct
 extern s32 FldStepIndex(void);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 FldSceneLoadReady(void);
-extern void func_002bd410(void);
-extern void func_002bd3c0(void);
+extern void fclMiscStopAndClose(void);
+extern void fclMiscSetDoneFlag(void);
 /* Script command 0x1002 (group 1 table 0x63D440 + 0x010, FLD_FUNCTION_0002). */
 // FUN_00176880
 s32 K_Cmd_FLD_STEP_INDEX(void)
@@ -920,7 +920,7 @@ u32 Cmd_TestResourceValue()
     resourceId = scrGetParamInt(0);
     value = scrGetParamInt(1);
 
-    return func_002bd360(resourceId, value) == 0;
+    return fclMiscHasEntry(resourceId, value) == 0;
 }
 
 
@@ -929,8 +929,8 @@ u32 Cmd_TestResourceValue()
 // FUN_001789D0
 s32 K_Cmd_FLD_RESET_FCL_CHANNEL(void)
 {
-    func_002bd410();
-    func_002bd3c0();
+    fclMiscStopAndClose();
+    fclMiscSetDoneFlag();
     return 1;
 }
 

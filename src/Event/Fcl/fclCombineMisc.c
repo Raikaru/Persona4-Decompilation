@@ -18,13 +18,13 @@ extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
 extern s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
 extern u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2);
-extern s32 func_003130e0(u32 arg0, s32 arg1, u16 *arg2);
+extern s32 fclFuseLowestCandidateAtLeast(u32 arg0, s32 arg1, u16 *arg2);
 extern s32 datGetFlag(s32 id);
 extern u8 D_006420A0[];
 extern u8 D_00642F00[];
 extern u8 D_00642F04[];
 extern s8 func_002ac350(void);
-extern s32 func_003133b0(u32 arg0, s32 arg1, u16 *arg2);
+extern s32 fclFuseLowestCandidateAtMost(u32 arg0, s32 arg1, u16 *arg2);
 extern u8 D_00642147[];
 extern u8 D_00642387[];
 
@@ -273,10 +273,10 @@ s32 fclFusePair(u16 *output, u16 first, u16 second)
     level = ((levels[first * 14] + levels[secondIndex]) / 2 + 1) & 0xFF;
     arcana = base + 2;
     if ((u8)result == arcana[first * 14] && (u8)result == arcana[secondIndex]) {
-        persona = func_003133b0(result, level, excluded);
+        persona = fclFuseLowestCandidateAtMost(result, level, excluded);
         if (persona == 0) return 0;
     } else {
-        persona = func_003130e0(result, level, excluded);
+        persona = fclFuseLowestCandidateAtLeast(result, level, excluded);
         if (persona == 0) return 0;
     }
     datPersonaInitRecord((u8 *)output, persona);
@@ -310,7 +310,7 @@ s32 fclFuseTriple(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     *(u16 *)&sp60[2] = *(u16 *)(arg2 + 2);
     *(u16 *)&sp60[4] = *(u16 *)(arg3 + 2);
     p = iGpffffb3d4 + 3;
-    ret = func_003130e0(t, (((s32)p[*(u16 *)(arg1 + 2) * 0xE] + (s32)p[*(u16 *)(arg2 + 2) * 0xE] + (s32)p[*(u16 *)(arg3 + 2) * 0xE]) / 3 + 5) & 0xFF, (u16 *)sp60) & 0xFFFF;
+    ret = fclFuseLowestCandidateAtLeast(t, (((s32)p[*(u16 *)(arg1 + 2) * 0xE] + (s32)p[*(u16 *)(arg2 + 2) * 0xE] + (s32)p[*(u16 *)(arg3 + 2) * 0xE]) / 3 + 5) & 0xFF, (u16 *)sp60) & 0xFFFF;
     if (ret == 0) {
         return 0;
     }
@@ -565,7 +565,7 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
    control-flow shape, the same category as any other near-miss. Worth
    another attempt with fresh eyes on the bottom-loop layout specifically. */
 // FUN_003130E0
-s32 func_003130e0(u32 arg0, s32 arg1, u16 *arg2) {
+s32 fclFuseLowestCandidateAtLeast(u32 arg0, s32 arg1, u16 *arg2) {
     typedef signed __int128 s128;
     extern u8 *DAT_007644c4;
     u16 *input;
@@ -692,7 +692,7 @@ loop_28_done:
     return var_19;
 }
 
-/* measured: identical 128-bit-slot pattern to func_003130e0 (retail sq's
+/* measured: identical 128-bit-slot pattern to fclFuseLowestCandidateAtLeast (retail sq's
    arg0&0xFF into spA0 at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
    compare; 736B retail window). The corrected technique from docs/matching.md's
    "128-bit lq/sq aggregate copy" entry closes this target: local
@@ -700,7 +700,7 @@ loop_28_done:
    source-shaped continue/masked-u16 updates produce an exact MATCH
    (724B object, relocation-normalized diff 0). */
 // FUN_003133B0
-s32 func_003133b0(u32 arg0, s32 arg1, u16 *arg2) {
+s32 fclFuseLowestCandidateAtMost(u32 arg0, s32 arg1, u16 *arg2) {
     typedef signed __int128 s128;
     extern u8 *DAT_007644c4;
     u16 *input;

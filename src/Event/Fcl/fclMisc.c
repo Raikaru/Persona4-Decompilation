@@ -76,7 +76,7 @@ void fclMesWindowSetUserData(s32 handle, void *userdata)
 
 
 // FUN_002BCC60
-u64 func_002bcc60(int *param_1)
+u64 fclMiscPruneLists(int *param_1)
 {
     int *item;
     int *node;
@@ -104,7 +104,7 @@ u64 func_002bcc60(int *param_1)
     return 0;
 }
 // FUN_002BCD20
-void func_002bcd20(void)
+void fclMiscCreateAssistTask(void)
 {
     u8 *work;
     u8 *state;
@@ -147,7 +147,7 @@ s32 msgAssistUpdate(u8 *unusedTask)
     {
         if ((flags & 2) != 0)
         {
-            func_002bcc60((int *)manager);
+            fclMiscPruneLists((int *)manager);
             if (fclMiscPendingIsEmpty() != 0)
             {
                 *(s32 *)(manager + 4) &= ~2;
@@ -298,7 +298,7 @@ void fclMiscSetWord14(u32 value)
 
 /* Source unit: src/Event/Fcl/fcl_misc_002bd270.c */
 // FUN_002BD270
-void func_002bd270(u32 value)
+void fclMiscSetStatusCode(u32 value)
 {
     *(u32 *)(D_0076466C + 0xc) = value;
 }
@@ -306,7 +306,7 @@ void func_002bd270(u32 value)
 
 
 // FUN_002BD340
-u16 func_002bd340(void)
+u16 fclMiscGetRecordCount(void)
 {
     return *(u16 *)(*piGpffffb57c + 0x10);
 }
@@ -314,7 +314,7 @@ u16 func_002bd340(void)
 
 
 // FUN_002BD360
-u32 func_002bd360(int param_1, int param_2)
+u32 fclMiscHasEntry(int param_1, int param_2)
 {
     int iVar1;
 
@@ -332,7 +332,7 @@ u32 func_002bd360(int param_1, int param_2)
 
 
 // FUN_002BD3C0
-void func_002bd3c0(void)
+void fclMiscSetDoneFlag(void)
 {
     *(u32 *)(iGpffffb57c + 4) = *(u32 *)(iGpffffb57c + 4) | 2;
 }

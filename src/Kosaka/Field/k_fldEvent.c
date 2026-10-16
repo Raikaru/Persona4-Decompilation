@@ -51,8 +51,8 @@ extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 void FldFrameTask_SetOrientation(u8 *, u8 *);
 s32 *MT_Scene_GetFrameState(void);
 void func_0018e030(s32, s32);
-void func_002bd410(void);
-void func_002bd3c0(void);
+void fclMiscStopAndClose(void);
+void fclMiscSetDoneFlag(void);
 s32 func_0015a100(void);
 s32 func_0015a130(void);
 s32 scrStartProcedureChecked(s32, s32, s32, s32);
@@ -244,8 +244,8 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
     h = *(s32 **)(arg0 + 0x38);
     switch (h[1]) {
     case 0:
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
         h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 3);
@@ -305,8 +305,8 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
     h = *(s32 **)(arg0 + 0x38);
     switch (h[1]) {
     case 0:
-        func_002bd410();
-        func_002bd3c0();
+        fclMiscStopAndClose();
+        fclMiscSetDoneFlag();
         r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
         h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 2);
@@ -463,8 +463,8 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 }
             } else if (*(s32 *)(s2 + 0x234) == 3) {
                 if (*(s32 *)(s2 + 0x288) != 0) {
-                    func_002bd410();
-                    func_002bd3c0();
+                    fclMiscStopAndClose();
+                    fclMiscSetDoneFlag();
                     func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 1);
                     t2 = *(s32 *)(*(u8 **)(h + 0x20) + 0x28C);
                     *(s32 *)(h + 0x10) = scrStartProcedureChecked(
@@ -668,8 +668,8 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
             }
             *(s32 *)(h + 4) = 1;
         } else {
-            func_002bd410();
-            func_002bd3c0();
+            fclMiscStopAndClose();
+            fclMiscSetDoneFlag();
             func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 1);
             *(s32 *)(h + 0x10) = scrStartProcedureChecked(0xF, *(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1854),
                                                *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
@@ -829,8 +829,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void calendarSetMode(s32);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *);
     void FldPanel2dSetState(u8 *, s32);
-    void func_002bd410(void);
-    void func_002bd3c0(void);
+    void fclMiscStopAndClose(void);
+    void fclMiscSetDoneFlag(void);
     void func_0016f630(FldEventSnapshot *, u8 *);
     void FldCameraApplyRecord(u8 *, u8 *);
     void FldFrame_BindTypedRes(u8 *, u16);
@@ -1220,8 +1220,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
                         FldPanel2dSetState((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 1);
                     }
-                    func_002bd410();
-                    func_002bd3c0();
+                    fclMiscStopAndClose();
+                    fclMiscSetDoneFlag();
                     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) != 0) {
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C)));
                         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = 0;

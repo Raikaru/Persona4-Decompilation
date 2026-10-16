@@ -76,10 +76,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 extern void H_Cdvd_Destroy(u8 *arg0);
-extern void func_002bd3c0(void);
+extern void fclMiscSetDoneFlag(void);
 
-extern void func_002bd3e0(void);
-extern void func_002bd410(void);
+extern void fclMiscPruneGlobal(void);
+extern void fclMiscStopAndClose(void);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 
 extern u8 iGpffffb468;
@@ -166,7 +166,7 @@ void btlSoundStopAndReleaseHandle(void)
     }
     temp_3 = iGpffffb3ac;
     *(u16 *)(temp_3 + 0xA4E) = *(u16 *)(temp_3 + 0xA4E) & 0xFFFE;
-    func_002bd3c0();
+    fclMiscSetDoneFlag();
 }
 
 // FUN_001F6220
@@ -198,8 +198,8 @@ s32 btlSoundIsPlaybackActive(void) {
 void btlSoundCancelPlayback(void) {
     u8 *temp_4;
 
-    func_002bd3e0();
-    func_002bd410();
+    fclMiscPruneGlobal();
+    fclMiscStopAndClose();
     *(s16 *)(iGpffffb3ac + 0xA50) = 0;
     temp_4 = iGpffffb3ac;
     *(u16 *)(temp_4 + 0xA4E) &= 0xFFFE;

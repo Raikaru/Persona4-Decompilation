@@ -103,11 +103,11 @@ extern s32 sdkSndStopMainChannel(void);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void datCalcClearFlaggedBuffs(s32 arg0);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
-extern void func_002bd3c0(void);
+extern void fclMiscSetDoneFlag(void);
 
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
-extern void func_002bd3e0(void);
-extern void func_002bd410(void);
+extern void fclMiscPruneGlobal(void);
+extern void fclMiscStopAndClose(void);
 extern s32 btlUnitStatusWindowShow(u8 *arg0, s16 arg1);
 extern s32 btlTaskSlotIsLinked(s32 arg0);
 extern s32 btlSoundLoadPoll(s32 *arg0);
