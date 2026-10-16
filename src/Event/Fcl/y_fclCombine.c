@@ -8768,11 +8768,11 @@ static inline u16 fclItemHalf(const s32 *value)
 #pragma opt_propagation off
 void fclCombineMenuResultGrowth(u8 *arg0) {
     extern s32 datGetFlag(s32);
-    extern u32 func_0011f560(u8 *);
+    extern u32 shdPersonaLevelUpIsDone(u8 *);
     extern void fclDrawSetHandleValue(u8 *, u32);
     extern s32 func_0045aa90(s16, s16);
-    extern u8 *func_0011f410(s32, s32, u8 *, s32, s32, s32 *);
-    extern u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
+    extern u8 *shdPersonaLevelUpCreate(s32, s32, u8 *, s32, s32, s32 *);
+    extern u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
     extern s32 func_0011fcf0(u8 *);
     extern void frFontExCopyString(void *, void *, s32);
     extern void shdPersonaSetPendingSkill(u8 *, s32);
@@ -8978,7 +8978,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xA3:
-        if (func_0011f560(*(u8 **)(p + 0x2A4)) != 0) {
+        if (shdPersonaLevelUpIsDone(*(u8 **)(p + 0x2A4)) != 0) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)*(u8 **)(p + 0x2A4));
             *(u8 **)(p + 0x2A4) = 0;
             p[1] = 0xA2;
@@ -9000,7 +9000,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             if (*(s8 *)(p + 0xB1) == 0) {
                 *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
             }
-            *(u8 **)(p + 0x2A4) = func_0011f410((s32)arg0, (s32)fclDrawGetResource(*(u8 **)(p + 0x148)), p + 0x28,
+            *(u8 **)(p + 0x2A4) = shdPersonaLevelUpCreate((s32)arg0, (s32)fclDrawGetResource(*(u8 **)(p + 0x148)), p + 0x28,
                                                 func_00331660(), 0, (s32 *)D_00641AD0);
             p[1] = 0xA3;
         }
@@ -9287,7 +9287,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                     p[1] = 0xB4;
                 } else if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xB5;
-                    *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+                    *(u8 **)(p + 0x2A8) = shdPersonaSkillReplaceCreate((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
             }
         }
@@ -9452,7 +9452,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 *(s16 *)(p + 0x2D8) = 0;
                 if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xAF;
-                    *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+                    *(u8 **)(p + 0x2A8) = shdPersonaSkillReplaceCreate((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
             }
         }

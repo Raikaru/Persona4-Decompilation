@@ -89,9 +89,9 @@ extern void shdPersonaSetPersonaId(u8 *window, s32 value);
 extern void shdPersonaSetOrigin(u8 *window, f32 *position);
 extern void shdPersonaStartSlideIn(u8 *window);
 extern void func_0011b480(u8 *window, s32 mode, u32 persona, s8 option);
-extern u8 *func_0011f410(s32 parent, s32 window, u8 *record, s32 payload, s32 option, s32 *messages);
-extern u32 func_0011f560(u8 *child);
-extern s32 func_0011f580(u8 *child);
+extern u8 *shdPersonaLevelUpCreate(s32 parent, s32 window, u8 *record, s32 payload, s32 option, s32 *messages);
+extern u32 shdPersonaLevelUpIsDone(u8 *child);
+extern s32 shdPersonaDestroyTask(u8 *child);
 extern s32 func_00353f50(s32 mode);
 extern s32 btlShuffleOverlayIdle(void);
 extern void kAssertFail(const void *file, u32 line);
@@ -700,7 +700,7 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
             payload = func_00455ea0(
                 *(u8 **)(*(u8 **)(work + 0x40) + 0x934), 0, 0);
             recordIndex = *(s32 *)(work + 0x3C);
-            *(u8 **)(work + 0x50) = func_0011f410(
+            *(u8 **)(work + 0x50) = shdPersonaLevelUpCreate(
                 (s32)task, *(s32 *)(work + 0x4C),
                 results + recordIndex * 0x88 + 0x38,
                 (s32)payload, 0, messages);
@@ -719,10 +719,10 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
         *(s32 *)(work + 4) = 3;
         /* fall through */
     case 3:
-        if (func_0011f560(*(u8 **)(work + 0x50)) == 0) {
+        if (shdPersonaLevelUpIsDone(*(u8 **)(work + 0x50)) == 0) {
             break;
         }
-        func_0011f580(*(u8 **)(work + 0x50));
+        shdPersonaDestroyTask(*(u8 **)(work + 0x50));
         *(s32 *)(work + 4) = 4;
         *(u16 *)(work + 0x48) = 0;
         /* fall through */
