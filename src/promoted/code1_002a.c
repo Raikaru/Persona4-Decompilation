@@ -371,8 +371,9 @@ void loadingSpinnerRequestHide(void) {
 /* measured: opt_propagation off keeps the D_00887300 base in $s0 and
    reloads the dispatch target before each call, as in retail. */
 #pragma opt_propagation off
+// Intent: Apply the shared title sky base render preset; callers set the pass-specific sky state after it [inferred]
 // FUN_002AAAC0
-void func_002aaac0(void) {
+void titleSkyApplyBasePreset(void) {
     void (**base)(s32 arg0, s32 arg1);
 
     base = D_00887300;
@@ -390,12 +391,13 @@ void func_002aaac0(void) {
     RpSkyRenderStateSet(2, 0x44);
     base[0](1, 0);
 }
-/* measured: closes the opt_propagation bracket for func_002aaac0. */
+/* measured: closes the opt_propagation bracket for titleSkyApplyBasePreset. */
 #pragma opt_propagation on
 /* measured: opt_propagation off preserves the cached dispatch base and retail call-site order. */
 #pragma opt_propagation off
+// Intent: Title visual draw callback: read a 0x1C packet (rect, depth, colour, flags) and draw a flat rectangle [inferred]
 // FUN_002AABF0
-void func_002aabf0(void *arg0, u8 *arg1) {
+void titleVisualDraw(void *arg0, u8 *arg1) {
     P4_002aabf0_Work work;
     u8 *ptr;
     void (**base)(s32 arg0, s32 arg1);
@@ -496,7 +498,7 @@ void func_002aabf0(void *arg0, u8 *arg1) {
     }
     jtbl_008873EC[0](ptr);
 }
-/* measured: closes opt_propagation around func_002aabf0. */
+/* measured: closes opt_propagation around titleVisualDraw. */
 #pragma opt_propagation on
 // Intent: Seq task update: advance the sequence work each step [inferred]
 // FUN_002ABF70

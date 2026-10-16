@@ -2064,7 +2064,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
     extern s32 func_0025f3f0(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha,
         s32 spriteIndex, s32 frame, u8 *sprites, s32 flags);
-    extern void func_002aaac0(void);
+    extern void titleSkyApplyBasePreset(void);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void func_00124bb0(s32 modelIndex, f32 x, f32 y, f32 z,
         f32 pitch, f32 yaw, f32 roll, u32 baseColor, u32 highlightColor,
@@ -2183,7 +2183,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     color.bytes[0] = (u8)brightness;
     color.bytes[1] = (u8)brightness;
     color.bytes[2] = (u8)brightness;
-    func_002aaac0();
+    titleSkyApplyBasePreset();
     RpSkyRenderStateSet(3, (void *)0x53001);
     RpSkyRenderStateSet(2, (void *)0x52);
     {
@@ -2205,7 +2205,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         color.bytes[1] = (u8)((f32)color.bytes[1] * base);
         color.bytes[2] = (u8)((f32)color.bytes[2] * base);
     }
-    func_002aaac0();
+    titleSkyApplyBasePreset();
     RpSkyRenderStateSet(3, (void *)0x53001);
     RpSkyRenderStateSet(2, (void *)0x58);
     func_002aaf20(0.0f, 0.0f, 0.0f, (u8 *)color.bytes, 640.0f, 448.0f, 0x300, NULL);
@@ -2229,12 +2229,12 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         u32 w3 = titleCopySelect((u8 *)&opacityAlpha, (const u8 *)&opacityPalette, paletteOffset);
         color.bytes[3] = (u8)((u32)brightness | (w3 & 0xFFFFFF00));
     }
-    func_002aaac0();
+    titleSkyApplyBasePreset();
     func_002aaf20(0.0f, 0.0f, 1.0f, (u8 *)color.bytes, 640.0f, 448.0f, 1, NULL);
 }
 #pragma pop
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
-extern void func_002aaac0(void);
+extern void titleSkyApplyBasePreset(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
@@ -2318,7 +2318,7 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
         i++;
     }
 
-    func_002aaac0();
+    titleSkyApplyBasePreset();
     D_00887300[0](6, 1);
     RpSkyRenderStateSet(3, 0x5000D);
     RpSkyRenderStateSet(2, 0x58);
@@ -2329,7 +2329,7 @@ extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32
 extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
                          s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
 
-extern void func_002aaac0(void);
+extern void titleSkyApplyBasePreset(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
@@ -2412,7 +2412,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
         *(s32 *)(arg1 + 0x80) = 0;
     }
     phase = (f32)*(s32 *)(arg1 + 0x80) / 200.0f;
-    func_002aaac0();
+    titleSkyApplyBasePreset();
     RpSkyRenderStateSet(3, 0x53001);
     RpSkyRenderStateSet(2, 0x58);
     angle = 360.0f * phase;
@@ -2523,7 +2523,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    extern void func_002aaac0(void);
+    extern void titleSkyApplyBasePreset(void);
     extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
     extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
     extern s32 RpSkyRenderStateSet();
@@ -2961,7 +2961,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 }
                 titleCopyValue((u8 *)&firstOverlayColor, (const u8 *)&firstOverlaySource);
                 titleRectangle((u8 *)&firstOverlayColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
                 var_3_3 = sp624.bytes;
@@ -3184,7 +3184,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 }
                 titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
                 titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -3204,7 +3204,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 sp380 = D_005E55A0;
                 PrimDrawFlatRectangle((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
@@ -3239,7 +3239,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 titleCopyValue((u8 *)&sp670, (const u8 *)&sp66C);
                 titleRectangle((u8 *)&sp670, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
                 var_3_13 = sp614.bytes;
@@ -3274,7 +3274,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
                 titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -3294,7 +3294,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp320 = D_005E55A0;
                 PrimDrawFlatRectangle((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
@@ -3311,7 +3311,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
                 titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
@@ -3332,7 +3332,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 PrimDrawFlatRectangle((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 temp_f22 = sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 60.0f))));
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
@@ -3350,7 +3350,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 titleCopyValue((u8 *)&sp658, (const u8 *)&sp654);
                 titleRectangle((u8 *)&sp658, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
                 var_3_19 = sp5FC.bytes;
@@ -3382,7 +3382,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 titleCopyValue((u8 *)&sp650, (const u8 *)&sp64C);
                 titleRectangle((u8 *)&sp650, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
                 var_3_21 = sp5F4.bytes;
@@ -3415,7 +3415,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 }
                 titleCopyValue((u8 *)&sp648, (const u8 *)&sp644);
                 titleRectangle((u8 *)&sp648, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-                func_002aaac0();
+                titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
                 var_3_23 = sp5EC.bytes;
@@ -3468,7 +3468,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             }
             titleCopyValue((u8 *)&sp640, (const u8 *)&sp63C);
             titleRectangle((u8 *)&sp640, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-            func_002aaac0();
+            titleSkyApplyBasePreset();
             D_00887300[0](8, 1);
             mdlEffectEmitMaskedTagPair();
             var_3_25 = sp5E4.bytes;
@@ -3506,7 +3506,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             }
             titleCopyValue((u8 *)&sp638, (const u8 *)&sp634);
             titleRectangle((u8 *)&sp638, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-            func_002aaac0();
+            titleSkyApplyBasePreset();
             D_00887300[0](8, 1);
             mdlEffectEmitMaskedTagPair();
             var_3_28 = sp5DC.bytes;
@@ -3566,7 +3566,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         titleCopyValue((u8 *)&sp630, (const u8 *)&sp62C);
         titleRectangle((u8 *)&sp630, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-        func_002aaac0();
+        titleSkyApplyBasePreset();
         D_00887300[0](8, 1);
         mdlEffectEmitMaskedTagPair();
         var_3_32 = sp5D4.bytes;
