@@ -165,6 +165,17 @@ enum
 #define SCR_STACK_RET 47
 #define SCR_CODEFUNC_MAX 35
 
+/* Script return codes, one set for the whole interpreter (used by scrRunCodeLoop and scrOpCallCommand).
+ * CODEFUNC_*: returned by a codefunc (an entry of D_0063E2B0) to scrRunCodeLoop.
+ *   CODEFUNC_STOP (0): end of script, from scrOpReturn with an empty stack. Has a return site.
+ *   CODEFUNC_NEXTINSTR (1): advance to the next instruction. Most codefuncs return it.
+ *   CODEFUNC_YIELD (2): the command has not finished, from scrOpCallCommand when the command returns 0.
+ *   Any other value re-dispatches the same instruction.
+ * SCRTRACE_*: returned by scrRunCodeLoop to scrScriptProcess.
+ *   SCRTRACE_YIELD (1): from CODEFUNC_YIELD.
+ *   SCRTRACE_STOP (2): from CODEFUNC_STOP.
+ *   Value 0 is never returned by scrRunCodeLoop, so scrScriptProcess's case 0 and default are unreachable (case 0 is kept for the matched assert).
+ * All three CODEFUNC_* codes have a return site. */
 #define CODEFUNC_STOP 0
 #define CODEFUNC_NEXTINSTR 1
 #define CODEFUNC_YIELD 2
@@ -510,7 +521,7 @@ u32 scrOpCallCommand(u8 *arg0)
     sCurrScript = ctx;
     result = entry->func();
     if (result == 0) {
-        return 2;
+        return CODEFUNC_YIELD;
     }
     /* integer-domain sum: keeps the second command-pointer computation of the retail object */
     entry = (ScrCmdEntry *)((u8 *)((u32)cmdOffset + (u32)cmds));
@@ -520,7 +531,7 @@ u32 scrOpCallCommand(u8 *arg0)
         currPc++;
         ctx->pc = currPc;
     }
-    return 1;
+    return CODEFUNC_NEXTINSTR;
 }
 /* measured: restores the default optimization level after the exact object. */
 #pragma optimization_level 2
