@@ -129,9 +129,9 @@ void func_0048d8c0(u8 *arg0)
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
-    extern void func_004bd1a0(f32 arg0);
-    extern void func_004bd3c0(f32 arg0);
-    extern void func_004bd450(void);
+    extern void effMiscRotateXVU(f32 arg0);
+    extern void effMiscRotateYVU(f32 arg0);
+    extern void effMiscCombineRotationVU(void);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     extern f32 fGpffff8084;
@@ -299,9 +299,9 @@ skip_clear:
     out[3] = tiltScale * (two * (b - half));
     b = effMiscRandFloat(0);
     out[4] = tiltScale * (two * (b - half));
-    func_004bd1a0(out[3]);
-    func_004bd3c0(out[4]);
-    func_004bd450();
+    effMiscRotateXVU(out[3]);
+    effMiscRotateYVU(out[4]);
+    effMiscCombineRotationVU();
     sp150[0] = c * cosf(out[8]);
     sp150[1] = zero;
     sp150[2] = c * sinf(out[8]);
@@ -386,9 +386,9 @@ else_branch:
     ftmp2 = ftmp2 + out[8];
     out[9] = out[9] - e4val * ftmp1;
     out[5] = out[5] + out[6];
-    func_004bd1a0(out[3]);
-    func_004bd3c0(out[4]);
-    func_004bd450();
+    effMiscRotateXVU(out[3]);
+    effMiscRotateYVU(out[4]);
+    effMiscCombineRotationVU();
     c = out[5];
     sp150[0] = c * cosf(ftmp2);
     sp150[1] = zero;
