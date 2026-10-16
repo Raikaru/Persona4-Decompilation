@@ -767,6 +767,32 @@ Many entries are still generic (`FUNCTION_NNNN`, `FLD_FUNCTION_NNNN`,
 `AI_FUNCTION_NNNN`, `EVT_FUNCTION_NNNN`). Named entries carry the name the
 library gives them. For example, `Event.json` names `CMM_EXIST` (`0x3002`).
 
+### Dispatch tables
+
+The decoded tables are listed in `docs/dispatch_tables.md`, which
+`tools/dump_dispatch_tables.py` generates from `image.bin` (VA minus `0x100000`).
+Each table's index has a named enum:
+
+- `ScrOpcode` (`src/Script/scrTraceCode.c`): the 35 entries of `D_0063E2B0`
+  that `scrRunCodeLoop` dispatches. `ScrOperation` in the same file names the
+  operators of the `CodeFunc_*` arithmetic and comparison family.
+- `EvtNodeKind` (`include/scene_event_internal.h`): the kind of an `EvtNode`.
+  `D_0063C420` holds one handler per kind; `evtDispatchNode` in
+  `src/Event/evtMain.c` indexes it by `owner->kind`. `D_0063C1D0` gives the
+  dispatch order, and `evtKeyIndex` inverts it.
+- `DatScriptCalcKind` and `DatScriptTermKind` (`include/datScript_internal.h`):
+  the indices of `D_00635950` (`datScriptRunCalc`) and the term selectors of
+  `datScriptCalcFloat`. The two spaces are separate: selector 1 is unit 1's
+  level, not physical damage.
+
+Three handlers are unnamed: `EvtNodeKind` 6, 10 and 36. Kind 48 shares its
+handler with kind 1 **[inferred]**. Kinds 34 and 38 have no handler but are
+looked up by kind in `evtUpdateWaitState` and `evtSelectRangeChoice`.
+
+The battle state, action and camera tables (`0x5F7180`, `0x5F6E20`, `0x5F74E4`)
+are still declared locally in each `btl*` file. They have no shared typed extern
+yet, and their entries are listed in `docs/dispatch_tables.md`.
+
 ### Events
 
 `src/Event/evtEvent.c` `evtCreateEventTask` (`func_002859e0`) creates the
