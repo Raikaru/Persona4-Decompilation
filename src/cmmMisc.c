@@ -2,6 +2,7 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "cmm_internal.h"
 
 extern u32 RpRandom(void);
 
@@ -1163,7 +1164,7 @@ s64 cmmCommunityArcana(s32 arg0) {
         kAssertFail(D_006359D0, 0x4C);
     }
     off = (u16)arg0 * 100;
-    return *(s8 *)(off + (u32)temp_16 + 0x10);
+    return ((CmmKindRecord *)(off + (u32)temp_16 + 8))->arcana;
 }
 
 // Community event value: returns the s8 value for slot arg1 (0 to 7) of community arg0's record array (stride 8, value at +0x28) when the slot's gate at +0x24 is zero or its datGetFlag is set. Returns 0 otherwise.
@@ -1214,7 +1215,7 @@ s32 cmmCommunityHasTierBit(s32 arg0, s32 arg1) {
     off = (u16)arg0 * 100;
     temp_2 = (u8 *)(off + (u32)temp_16 + 8);
     if (temp_2 != NULL) {
-        var_4 = *(u16 *)(temp_2 + 0xC);
+        var_4 = ((CmmKindRecord *)temp_2)->tierBits;
     } else {
         var_4 = 0;
     }
@@ -1237,7 +1238,7 @@ u16 cmmCommunityCategory(s32 arg0) {
     off = (u16)arg0 * 100;
     temp_2 = (u8 *)(off + (u32)temp_16 + 8);
     if (temp_2 != NULL) {
-        return *(u16 *)(temp_2 + 0xE);
+        return ((CmmKindRecord *)temp_2)->category;
     }
     return 0;
 }

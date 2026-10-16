@@ -4,6 +4,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "evt_internal.h"
+#include "cmm_internal.h"
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
@@ -835,24 +836,24 @@ s32 cmmRecordInfoShow(void)
         frFontExCopyString(q, buf, 0x80);
         itfMesWindowSetString(mesMgr, 0, buf);
     }
-    itfMesWindowFormatValue(mesMgr, 1, *(s32*)(cmmItemInfoRecord(id & 0xFFFF) + 4), 0);
+    itfMesWindowFormatValue(mesMgr, 1, ((CmmItemInfoRecord *)cmmItemInfoRecord(id & 0xFFFF))->value, 0);
     q = (u8*)cmmItemInfoRecord(id & 0xFFFF) + 0x22;
     if (q != 0) {
         frFontExCopyString(q, buf, 0x80);
         itfMesWindowSetString(mesMgr, 2, buf);
     }
-    tblIdx = *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 8);
+    tblIdx = ((CmmItemInfoRecord *)cmmItemInfoRecord(id & 0xFFFF))->tableIndexA;
     if (tblIdx != -1) {
         frFontExCopyString(tbl[tblIdx], buf, 0x80);
         itfMesWindowSetString(mesMgr, 3, buf);
     }
-    itfMesWindowFormatValue(mesMgr, 4, *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 9), 0);
-    tblIdx = *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 0xA);
+    itfMesWindowFormatValue(mesMgr, 4, ((CmmItemInfoRecord *)cmmItemInfoRecord(id & 0xFFFF))->valueB, 0);
+    tblIdx = ((CmmItemInfoRecord *)cmmItemInfoRecord(id & 0xFFFF))->tableIndexB;
     if (tblIdx != -1) {
         frFontExCopyString(tbl[tblIdx], buf, 0x80);
         itfMesWindowSetString(mesMgr, 5, buf);
     }
-    itfMesWindowFormatValue(mesMgr, 6, *(s8*)(cmmItemInfoRecord(id & 0xFFFF) + 0xB), 0);
+    itfMesWindowFormatValue(mesMgr, 6, ((CmmItemInfoRecord *)cmmItemInfoRecord(id & 0xFFFF))->valueC, 0);
     return 1;
 }
 #pragma optimization_level 2
@@ -889,7 +890,7 @@ s32 cmmRecordGetField(void)
     }
     switch (field) {
     case 0:
-        scrSetReturnInt(*(s32*)(rec + 4));
+        scrSetReturnInt(((CmmItemInfoRecord *)rec)->value);
         break;
     case 1:
         scrSetReturnInt(*(s8*)(rec + 8));
