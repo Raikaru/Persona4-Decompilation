@@ -198,7 +198,7 @@ extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
 extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
-    func_00198920(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
@@ -323,7 +323,7 @@ extern u8 D_00794150[];
 extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
 extern s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0);
 extern void btlPacketStepSide(s32 arg0);
-extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
+extern void btlUnitSetMotion(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 // FUN_001900A0
 void func_001900a0(u8 *arg0)
 {

@@ -1937,7 +1937,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             target = btlActionFindByUnit((s32)other);
             *(u16 *)(target + 0x1A) &= ~0x400;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
-            func_00198920(other, 0, 0, 1.0f, 1);
+            btlUnitSetMotion(other, 0, 0, 1.0f, 1);
             btlUnitShowModel(other);
             break;
         case 0x16F:
@@ -1952,7 +1952,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             target = btlActionFindByUnit((s32)other);
             *(u16 *)(target + 0x1A) &= ~0x400;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
-            func_00198920(other, 0, 0, 1.0f, 1);
+            btlUnitSetMotion(other, 0, 0, 1.0f, 1);
             btlUnitShowModel(other);
             break;
         case 0x170:
@@ -1968,7 +1968,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             **(u16 **)(unit + 0xA64) |= 0x20;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             btlUnitUpdateStatusMotion(other, 0);
-            func_00198920(other, 0, 0, 1.0f, 1);
+            btlUnitSetMotion(other, 0, 0, 1.0f, 1);
             *(u8 **)(DAT_0076449c + 0xB98) = D_0062E070;
             target = btlActionFindByUnit((s32)other);
             *(u16 *)(packet + 0x1A) &= ~8;

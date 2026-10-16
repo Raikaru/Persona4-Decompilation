@@ -133,7 +133,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
-    func_00198920(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 {
@@ -175,7 +175,7 @@ extern u8 D_00794150[];
 /* measured: closes opt_loop_invariants around func_001928c0. */
 /* measured: closes opt_propagation around func_001928c0. */
 // FUN_00193630
-s32 func_00193630(void) {
+s32 btlScriptSetUnitClass(void) {
     s64 temp_17;
     s64 temp_16;
 
@@ -186,7 +186,7 @@ s32 func_00193630(void) {
 }
 
 // FUN_001936A0
-s32 func_001936a0(void) {
+s32 btlScriptGetUnitClass(void) {
     scrSetReturnInt((s16)datCalcUnitClass(datUnitGetRecord((s16)scrGetParamInt(0))));
     return 1;
 }

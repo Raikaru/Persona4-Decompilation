@@ -131,7 +131,7 @@ extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
 extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
-    func_00198920(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 {
@@ -659,7 +659,7 @@ u32 btlUnitPlayMotionPacketUpdate(void *workData)
         frame = *(u16 *)(packet + 6);
         rate = *(f32 *)(packet + 8);
         option = *(u16 *)(packet + 0xC);
-        func_00198920((u8 *)workData, motion, frame, rate, option);
+        btlUnitSetMotion((u8 *)workData, motion, frame, rate, option);
     }
     return 1;
 }
