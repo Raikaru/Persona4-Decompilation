@@ -188,7 +188,7 @@ extern s32 func_0012aa70(u8 *arg0);
 extern void func_0012b660(u8 *task);
 extern void func_0025f230(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
-extern void func_004598e0(s32 arg0);
+extern void sdkSndStopChannel(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s16 func_00353b50(void *arg0);
@@ -1500,7 +1500,7 @@ s32 clndSceneUpdate(u8 *arg0)
     extern s32 func_00122520(s32 arg0, s32 arg1);
     extern void func_00111050(s32 arg0);
     extern void func_00459880(void);
-    extern void func_0045a8d0(s32 arg0, s32 arg1);
+    extern void sdkSndFadeOutChannel(s32 arg0, s32 arg1);
     extern s32 logoTaskStart(void);
     extern s32 func_0012c1a0(s32 arg0);
     extern s32 func_0046a110(void *arg0, s32 arg1, void *arg2);
@@ -1557,7 +1557,7 @@ s32 clndSceneUpdate(u8 *arg0)
     case 2:
         func_00111050(1);
         func_00459880();
-        func_0045a8d0(3, 0);
+        sdkSndFadeOutChannel(3, 0);
         *(s32 *)(temp_16 + 0xC) = logoTaskStart();
         *(u32 *)temp_16 = 3;
         break;
@@ -4185,7 +4185,7 @@ void func_0012b660(u8 *unusedTask)
         goto error;
     default:
 error:
-        func_004598e0(0x1E);
+        sdkSndStopChannel(0x1E);
         break;
     }
     var_17 = 0;

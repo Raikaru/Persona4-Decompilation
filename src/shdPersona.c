@@ -106,7 +106,7 @@ s32 func_004669d0();
 s32 func_00440b68();
 extern char D_005E4ED0[];
 extern char D_005E4EF0[];
-void func_0045aeb0(s16 channelIndex, const char *name);
+void sdkSndStartChannel(s16 channelIndex, const char *name);
 extern char D_005E4868[];
 extern char D_005E4E20[];
 extern char D_005E4E40[];
@@ -3637,7 +3637,7 @@ void shdPersonaUpdateReveal(u8 *arg0)
     s32 v = *(s32 *)(arg0 + 0x534);
     if ((v & 0x10000) != 0) {
         if (*(s16 *)(arg0 + 0x520) == 10) {
-            func_0045aeb0(2, D_005E4E20);
+            sdkSndStartChannel(2, D_005E4E20);
         }
     } else if ((v & 0x20000) != 0) {
         if (*(s16 *)(arg0 + 0x520) >= 50) {

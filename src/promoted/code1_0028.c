@@ -16,7 +16,7 @@ void func_00285260(void);
 extern void MT_Scene_SetExclusiveRes(s32 arg0);
 extern s32 func_00285af0(void);
 extern u8 *func_00285480(u8 *arg0);
-extern void func_004598e0(s16 arg0);
+extern void sdkSndStopChannel(s16 arg0);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 D_0063C1D0[];
 extern u8 D_0063C2B8[];
@@ -1310,7 +1310,7 @@ void evtReleaseRes(u8 *arg0) {
 
     i = 0;
     while (i < *(s32 *)(arg0 + 0xD4)) {
-        func_004598e0(*(s16 *)(arg0 + i * 4 + 0xD8));
+        sdkSndStopChannel(*(s16 *)(arg0 + i * 4 + 0xD8));
         i++;
     }
     *(s32 *)(arg0 + 0xD4) = 0;

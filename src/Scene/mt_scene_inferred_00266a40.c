@@ -80,8 +80,8 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 func_00266ba0(u8 *arg0);
-extern s32 func_0045a8d0(s32 arg0, s32 arg1);
-extern s32 func_004598e0(s32 arg0);
+extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
+extern s32 sdkSndStopChannel(s32 arg0);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_0025f110(u8 *arg0);
 extern u8 D_00638F90[];
@@ -381,8 +381,8 @@ s32 cldTimeChangeCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x10) = arg2;
     result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, func_00267510, (u8 *)((s32)work));
-    func_0045a8d0(3, 0);
-    func_004598e0(0xA);
+    sdkSndFadeOutChannel(3, 0);
+    sdkSndStopChannel(0xA);
     return result;
 }
 

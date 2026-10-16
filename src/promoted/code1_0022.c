@@ -521,7 +521,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                               s32 shadow, s32 mode);
     extern void sflDataDrawEntry(DescriptorPair origin, f32 depth, s32 alpha, s16 *descriptor);
     extern s32 RpSkyRenderStateSet(s32 state, s32 value);
-    extern s32 func_0045aeb0(s16 channel, const char *name);
+    extern s32 sdkSndStartChannel(s16 channel, const char *name);
     extern u8 D_00629680[];
     extern f32 fGpffff838c;
     u8 *work;
@@ -540,7 +540,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
             }
             alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 5.0f, 1));
             if (*(u16 *)(work + 0x46) == 14) {
-                func_0045aeb0(2, (const char *)D_00629680);
+                sdkSndStartChannel(2, (const char *)D_00629680);
             }
         } else {
             u8 opaque = 255;
