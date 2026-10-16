@@ -33,8 +33,8 @@ struct BtlPacket
 };
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-extern void func_001f7ad0(void* work);
-extern u32 func_001f7b40(void* work);
+extern void btlSoundRefreshSlotChannel(void* work);
+extern u32 btlSoundSetSlotChannel(void* work);
 
 
 extern void btlSoundStopChannel(u16* work);
@@ -118,8 +118,8 @@ BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant)
     u16* work;
 
     packet = btlPacketAlloc(0x902, 6);
-    packet->initFunc = (BtlPacketFunc)func_001f7ad0;
-    packet->updateFunc = func_001f7b40;
+    packet->initFunc = (BtlPacketFunc)btlSoundRefreshSlotChannel;
+    packet->updateFunc = btlSoundSetSlotChannel;
     work = (u16*)packet->workData;
     work[0] = channel;
     work[1] = cue;

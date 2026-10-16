@@ -475,7 +475,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
     extern s32 btlActionQueuePush(u8 *arg0);
     extern s32 btlActionGetQueueFront(void);
     extern void btlBossCollectTargets(u8 *arg0);
-    extern u8 *func_001f7650(u8 *arg0);
+    extern u8 *btlSoundGetCharacterBank(u8 *arg0);
     extern u8 D_00630C50[];
     u32 index;
     s32 value;
@@ -508,7 +508,7 @@ loop_test:
         if (index < 0x1E) {
             goto loop_body;
         }
-        value = (s32)func_001f7650(*(u8 **)(arg0 + 0x30));
+        value = (s32)btlSoundGetCharacterBank(*(u8 **)(arg0 + 0x30));
         *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA00) + 0x2DC) = value;
         btlUnitUpdateStatusMotion(*(u8 **)(arg0 + 0x30), 6);
         func_00106390(0x15C0, 0);
