@@ -512,7 +512,7 @@ s32 func_00379f90(u8 *arg0) {
     extern s32 btlShuffleSeqPick(u8 *arg0, s32 arg1);
     extern s32 btlShuffleSeqLoadRecord(u8 *arg0);
     extern s32 btlShuffleSeqStep(u8 *arg0);
-    extern void func_0038d060(u8 *arg0);
+    extern void btlShuffleDrawCardActivate(u8 *arg0);
     extern void func_0038d0d0(u8 *arg0, s32 arg1);
     extern void func_0038d0a0(u8 *arg0);
     extern s32 btlShuffleDrawStateB(u8 *arg0);
@@ -616,7 +616,7 @@ s32 func_00379f90(u8 *arg0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 3;
         break;
@@ -697,7 +697,7 @@ s32 func_00379f90(u8 *arg0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 2);
         *(u32 *)(arg0 + 0x1F2F8) = 9;
     case 9:
@@ -835,7 +835,7 @@ void func_0037ab50(u8 *arg0, s32 arg1, f32 *arg2) {
 extern s32 btlShuffleSeqPick(u8 *arg0, s32 arg1);
 extern s32 btlShuffleSeqLoadRecord(u8 *arg0);
 extern s32 btlShuffleSeqStep(u8 *arg0);
-extern void func_0038d060(u8 *arg0);
+extern void btlShuffleDrawCardActivate(u8 *arg0);
 extern void func_0038d0d0(u8 *arg0, s32 arg1);
 extern void func_0038d0a0(u8 *arg0);
 extern s32 btlShuffleDrawStateB(u8 *arg0);
@@ -945,7 +945,7 @@ s32 func_0037ad10(u8 *arg0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 3;
         break;
@@ -1030,7 +1030,7 @@ s32 func_0037ad10(u8 *arg0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 2);
         *(u32 *)(arg0 + 0x1F2F8) = 9;
     case 9:
@@ -1287,7 +1287,7 @@ s32 func_0037bc80(u8 *arg0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 3;
         break;
@@ -1357,7 +1357,7 @@ s32 func_0037bc80(u8 *arg0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 2);
         *(u32 *)(arg0 + 0x1F2F8) = 9;
     case 9:

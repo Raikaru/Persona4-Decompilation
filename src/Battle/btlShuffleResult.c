@@ -69,7 +69,7 @@ extern void func_004538e0(u8 *buf, s32 a, s32 b, s32 c, s32 d);
 extern void func_00453860(u8 *buf, s32 a, s32 b, s32 c, s32 d);
 extern void func_00453760(u8 *buf, s32 a);
 extern s32 func_00453960(u8 *buf);
-extern void func_0038d060(u8 *arg0);
+extern void btlShuffleDrawCardActivate(u8 *arg0);
 extern void func_0038d0d0(u8 *arg0, s32 arg1);
 extern void func_0038d0a0(u8 *arg0);
 extern void func_00388d20(u8 *arg0);
@@ -174,7 +174,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 s32 v;
                 v = *(s32 *)(*(u8 **)arg0 + 0x1F298);
                 {
-                    func_0038d060((u8 *)(v));
+                    btlShuffleDrawCardActivate((u8 *)(v));
                     func_0038d0d0((u8 *)(v), 4);
                 }
                 func_00388d20((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
