@@ -53,7 +53,7 @@ void radarReleaseSpritesAndEntries(u8 *arg0);
 void func_001377e0(u8 *arg0);
 void radarDestroy(u8 *arg0);
 void func_00361a30(u8 *arg0);
-void func_00359720(u8 *arg0);
+void datCommunityMenuRelease(u8 *arg0);
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -345,7 +345,7 @@ void func_0012cc50(u8 *arg0) {
         func_00361a30(p + 0x9000);
         break;
     case 9:
-        func_00359720(p + 0x4774);
+        datCommunityMenuRelease(p + 0x4774);
         break;
     case 13:
         /* Retail's jump-table entry 13 targets the post-switch tail directly, so
