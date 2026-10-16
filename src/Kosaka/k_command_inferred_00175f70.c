@@ -41,7 +41,7 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern void FldStepResetTables();
-extern s32 func_0015f660();
+extern s32 mtSceneResListPrepareAll();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
 extern void fieldSceneUnload(void);
@@ -224,14 +224,14 @@ s32 FldEvent_IsHeadingTurning(u8 *arg0)
 }
 
 // FUN_001761F0
-s32 func_001761f0(void)
+s32 K_Cmd_CAL_CAPTURE_STATE(void)
 {
     calCaptureStateImage();
     return 1;
 }
 
 // FUN_00176220
-s32 func_00176220(void)
+s32 K_Cmd_CAL_RESTORE_STATE(void)
 {
     if (scrGetCmdTimer() > 3) {
         scrSetReturnInt(calRestoreStateImage());
@@ -242,13 +242,13 @@ s32 func_00176220(void)
 }
 
 // FUN_00176280
-void func_00176280(void)
+void K_Cmd_RES_LIST_PREPARE(void)
 {
-    func_0015f660();
+    mtSceneResListPrepareAll();
 }
 
 // FUN_001762A0
-s32 func_001762a0(void)
+s32 K_Cmd_AREA_TRACK_PLAY(void)
 {
     if (sndRequestAreaTrack() == 0) {
         sndPlayAreaCue();
@@ -259,7 +259,7 @@ s32 func_001762a0(void)
 // FUN_001762E0
 s32 K_Cmd_CALL_TITLE(void)
 {
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerTeardown();
@@ -268,7 +268,7 @@ s32 K_Cmd_CALL_TITLE(void)
 
 // FUN_00176320
 s32 K_Cmd_CALL_TV(void) {
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     func_001029a0(0x19, NULL, 0, 0);
@@ -279,7 +279,7 @@ s32 K_Cmd_CALL_TV(void) {
 s32 K_Cmd_CALL_LMAP(void) {
     s32 sp1C;
 
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
@@ -291,7 +291,7 @@ s32 K_Cmd_CALL_LMAP(void) {
 
 // FUN_001763F0
 s32 K_Cmd_CALL_FOOD_COURT(void) {
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
@@ -304,7 +304,7 @@ s32 K_Cmd_CALL_FIELD(void)
 {
     s16 sp10[14];
 
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
@@ -322,7 +322,7 @@ s32 func_00176500(void)
 {
     s16 sp10[14];
 
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
@@ -347,7 +347,7 @@ s32 K_Cmd_CALL_EVENT(void)
 
     var_16 = 0;
     temp_17 = scrGetCmdTimer();
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         iGpffffb304 = scrGetCmdTimer();
         return 0;
     }
@@ -376,7 +376,7 @@ s32 func_001766e0(void)
 {
     s32 sp18[2];
 
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
@@ -394,7 +394,7 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
 {
     s32 sp18[2];
 
-    if (func_0015f660() == 0) {
+    if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     if (func_00102980() != 0xB) {
@@ -408,14 +408,14 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
 }
 
 // FUN_00176810
-s32 func_00176810(void)
+s32 K_Cmd_FLD_MAP_STEP(void)
 {
     FldStepAdvance(scrGetParamInt(0));
     return 1;
 }
 
 // FUN_00176850
-s32 func_00176850(void)
+s32 K_Cmd_FLD_MAP_RESET(void)
 {
     FldStepResetTables();
     return 1;

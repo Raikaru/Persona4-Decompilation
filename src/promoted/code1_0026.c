@@ -79,7 +79,7 @@ static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
 extern u8 *kwlnTaskGetWork();
 extern s32 kwlnTaskIsLinked();
 
-extern s32 func_0025ef20(u8 *arg0);
+extern s32 sdkSpritePackCreate(u8 *arg0);
 extern u8 D_00637420[];
 
 extern s32 datEntryGetFlags(s16 arg0);
@@ -90,7 +90,7 @@ extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00266cc0(s32 arg0, s32 arg1);
 
-extern void func_0025f230(void *arg0);
+extern void sdkSpritePackDestroy(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
@@ -1110,7 +1110,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
     calSplitDayOfYear(*(s32 *)(temp_2 + 0xC), &sp3C, &sp38);
     switch (*(u32 *)temp_2) {
     case 0:
-        *(s32 *)(temp_2 + 4) = func_0025ef20(D_00637420);
+        *(s32 *)(temp_2 + 4) = sdkSpritePackCreate(D_00637420);
         *(u32 *)temp_2 = 1;
         goto block_25;
     case 1:
@@ -1644,7 +1644,7 @@ void cldDayChangeStopTask(u8 *unusedTask)
     }
     temp_4 = *(s32 *)(temp_2 + 4);
     if (temp_4 != 0) {
-        func_0025f230((void *)temp_4);
+        sdkSpritePackDestroy((void *)temp_4);
     }
     (*jtbl_008873EC)(temp_2);
 }

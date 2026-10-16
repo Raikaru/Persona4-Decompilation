@@ -37,7 +37,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00637280[];
 
 // FUN_0025EF20
-u8 *func_0025ef20(u8 *arg0)
+u8 *sdkSpritePackCreate(u8 *arg0)
 {
     s32 size;
     s32 i;
@@ -152,7 +152,7 @@ fail:
     return 0;
 }
 // FUN_0025F230
-void func_0025f230(u32 param_1)
+void sdkSpritePackDestroy(u32 param_1)
 {
     int i;
 

@@ -24,7 +24,7 @@ extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144ed0(s64 arg0);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 fieldSceneLoadStep(void);
-extern s32 func_0015f660(void);
+extern s32 mtSceneResListPrepareAll(void);
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern s64 calGetDayEntryByPhase(s64 arg0, s32 arg1);
@@ -82,7 +82,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 8)) == 0) {
                 return 0;
             }
-            if (func_0015f660() == 0) {
+            if (mtSceneResListPrepareAll() == 0) {
                 return 0;
             }
             temp_17 = (s16)datGetDateIndex();

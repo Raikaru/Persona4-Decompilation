@@ -3637,7 +3637,7 @@ s32 MT_Scene_AllResFlagSet(void)
 
 
 // FUN_0015F660
-s32 func_0015f660(void)
+s32 mtSceneResListPrepareAll(void)
 {
     u8 *work;
     s32 result;

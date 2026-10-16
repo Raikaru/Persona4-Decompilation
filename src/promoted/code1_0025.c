@@ -10,7 +10,7 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
 }
 s32 kwlnTaskGetTaskByName(void *arg0);
 extern u32 kwlnTaskGetWork(void *task);
-extern void func_0025f230(s32 arg0);
+extern void sdkSpritePackDestroy(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 D_006367C0[];
 extern void sdkSndStartChannel(s32 arg0, const char *arg1);
@@ -77,7 +77,7 @@ extern void sdkSpriteDrawAndFreeFlag0(s32 arg0, u8 *arg1);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern s64 cmmCommunityArcana(s32 arg0);
-extern s32 func_0025ef20(u8 *arg0);
+extern s32 sdkSpritePackCreate(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
 extern s32 func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
 extern s32 func_0035af60(s32 arg0);

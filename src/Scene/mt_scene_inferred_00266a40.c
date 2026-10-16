@@ -63,7 +63,7 @@ static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
 extern u8 *kwlnTaskGetWork();
 extern s32 kwlnTaskIsLinked();
 
-extern s32 func_0025ef20(u8 *arg0);
+extern s32 sdkSpritePackCreate(u8 *arg0);
 extern u8 D_00637420[];
 
 
@@ -73,7 +73,7 @@ extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00266cc0(s32 arg0, s32 arg1);
 
-extern void func_0025f230(void *arg0);
+extern void sdkSpritePackDestroy(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
@@ -219,8 +219,8 @@ s32 cldDayChangeIsDone(s32 arg0)
 }
 
 // FUN_00266B70
-void func_00266b70(void) {
-    func_0025ef20(D_00637420);
+void mtSceneBuildSpriteTable(void) {
+    sdkSpritePackCreate(D_00637420);
 }
 
 // FUN_00266BA0
@@ -237,7 +237,7 @@ s32 func_00266ba0(u8 *arg0)
     state = *(s32 *)(work + 0);
     switch (state) {
     case 0:
-        *(s32 *)(work + 4) = func_0025ef20(D_00638F90);
+        *(s32 *)(work + 4) = sdkSpritePackCreate(D_00638F90);
         *(s32 *)(work + 0) = 1;
         break;
     case 1:
@@ -352,14 +352,14 @@ void func_002674b0(s32 arg0, u8 *arg1) {
 }
 
 // FUN_00267510
-void func_00267510(u8 *arg0) {
+void mtSceneSpriteTableTaskDestroy(u8 *arg0) {
     u8 *p;
     s32 v;
 
     p = kwlnTaskGetWork();
     v = *(s32 *)(p + 4);
     if (v != 0) {
-        func_0025f230((void *)v);
+        sdkSpritePackDestroy((void *)v);
     }
     jtbl_008873EC[0](p);
 }
@@ -380,7 +380,7 @@ s32 cldTimeChangeCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(work + 8) = arg3;
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x10) = arg2;
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, func_00267510, (u8 *)((s32)work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, mtSceneSpriteTableTaskDestroy, (u8 *)((s32)work));
     sdkSndFadeOutChannel(3, 0);
     sdkSndStopChannel(0xA);
     return result;
