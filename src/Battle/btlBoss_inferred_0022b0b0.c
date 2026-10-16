@@ -8,6 +8,7 @@
 #include "btl_cond_internal.h"
 #include "effect_instance_internal.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
 typedef struct BtlTarget BtlTarget;
 typedef struct BtlCamera BtlCamera;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -453,7 +454,6 @@ void btlActionRunFormationSequence(u8 *action)
 s32 btlEncounterFinishSetup(u8 *arg0)
 {
     extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
-    extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
     extern s32 btlActionQueuePush(u8 *arg0);
     extern s32 btlActionGetQueueFront(void);
     extern void btlBossCollectTargets(u8 *arg0);

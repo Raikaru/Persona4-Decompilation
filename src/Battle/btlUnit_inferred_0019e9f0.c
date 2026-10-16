@@ -10,6 +10,7 @@
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -24,7 +25,6 @@ typedef struct P4_95730_Bytes4 {
     u8 w;
 } P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
-extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
 
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern f32 fGpffff8474;
