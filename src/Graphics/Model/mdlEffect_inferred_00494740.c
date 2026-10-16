@@ -1,0 +1,428 @@
+#include "btl_action_internal.h"
+#include "include_asm.h"
+#include "rw_geometry_internal.h"
+#include "type.h"
+#include "effect_instance_internal.h"
+#include "particle_spawn_internal.h"
+#include "effect_vu0_internal.h"
+#include "sway_particle_internal.h"
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef struct EffRandState EffRandState;
+extern s32 D_00713D58[];
+extern s32 D_00713D5C[];
+extern u8 D_00713E10[];
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+typedef struct {
+    u8 c0;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+} Code1_0049Color;
+extern Code1_0049Color iGpffffbb64;
+
+static inline f32 code1_0049_mul(f32 left, f32 right) {
+    return left * right;
+}
+
+/* Source unit: src/promoted/code1_0049.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0049.c; members 00494740-00494740 */
+
+extern void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2);
+extern void func_004941f0(u8 *track, u32 *colors);
+static inline u32 track_index(u16 value)
+{
+    return value;
+}
+typedef struct TrackVertex
+{
+    f32 x, y, z;
+} TrackVertex;
+#pragma push
+#pragma pop
+#pragma push
+#pragma pop
+#pragma push
+#pragma pop
+/* measured: b210 -O2 needs independent value propagation and loop-invariant
+ * constant materialization for the retail register and instruction schedule. */
+#pragma push
+#pragma pop
+/* measured: probing opt_loop_invariants for the preheader -1 and loop branch. */
+/* measured: closes opt_loop_invariants at its prior file baseline. */
+/* measured: probing opt_propagation off for func_004940d0 load and branch order. */
+/* measured: probing opt_common_subs off for color byte reloads. */
+/* measured: closing opt_common_subs after func_004940d0 probe. */
+/* measured: closing opt_propagation after func_004940d0 probe. */
+/* func_004941f0, MATCH 2026-10-07. Counts are unsigned after the signed-short
+   loads; complete vector and packed-colour objects keep the VU transfers, and
+   the colour unpacks use effectVuUnpackColor10V0. `opt_loop_invariants on`
+   hoists the loop's vector addresses and 255.0f as retail does (measured:
+   without it the body differs by 65 words). `opt_pulloutconstants off`
+   stops IRO_CommonSubs from sharing the entry's 1.0f with the loop, so the
+   loop preheader rematerialises it as retail does. The first unpack reads its
+   word through a `const u32 *` local, which schedules the scale load after
+   the address. */
+#pragma push
+#pragma pop
+#pragma push
+/* measured: func_00494740 MATCH -> MISMATCH without this pragma. */
+#pragma opt_loop_invariants on
+/* Advance one track's center history, build the tapered ribbon, and mirror
+ * the cap vertices from the retained head tangent and side vector.
+ * measured: b210 -O2, 2120/2128 bytes with eight zero tail bytes; all 104
+ * relocations resolve to retail. Loop invariants retain the narrowed tail
+ * bound. The scalar width expression preserves the cap width and VU input
+ * as distinct lifetimes; all vector transfers declare their memory operands. */
+// FUN_00494740
+void func_00494740(u8 *track, u16 trackIndex, u8 *point, f32 width) {
+    extern void func_0048a340(f32 angle);
+    extern u_long128 D_00713D00;
+    extern f32 D_00713D10[4];
+    extern f32 D_00713D14[];
+    extern f32 D_00713D18[];
+    extern f32 fGpffff8094;
+    extern f32 fGpffff80bc;
+    extern f32 fGpffff80c0;
+    extern f32 fGpffff80c8;
+    extern f32 fGpffff80cc;
+    u_long128 headTangent;
+    u_long128 headSide;
+    u8 *followingCenter;
+    u8 *previousCenter;
+    s32 vertexCount;
+    u16 shiftedVertex;
+    s32 rowCount;
+    u32 lastRow;
+    u8 *countSlot;
+    u32 activeRows;
+    u8 *row;
+    u8 *firstRow;
+    f32 fraction;
+    f32 fractionStep;
+    f32 headWidth;
+    f32 rotation;
+    u16 rowIndex;
+    u16 lastActiveRow;
+    u8 *cap;
+    f32 capLength;
+    f32 capWidth;
+
+    {
+        u8 *t10 = *(u8 **)(track + 0x10);
+        vertexCount = *(u16 *)(t10 + 8);
+        {
+            u8 *t1 = *(u8 **)(t10 + 0x10);
+            u8 *t2 = *(u8 **)(t1 + 0x18);
+            u8 *t3 = *(u8 **)(t2 + 0x5C);
+            u8 *tab = *(u8 **)(t3 + 0x14);
+            row = tab + (u32)vertexCount * track_index(trackIndex) * 12;
+        }
+        previousCenter = row + (vertexCount - 5) * 12;
+        followingCenter = row + (vertexCount - 2) * 12;
+    }
+    shiftedVertex = 3;
+    goto shift_check;
+shift_center:
+    *(TrackVertex *)(followingCenter) = *(const TrackVertex *)(previousCenter);
+    previousCenter -= 0x24;
+    followingCenter -= 0x24;
+    shiftedVertex += 3;
+shift_check:
+    if (shiftedVertex < vertexCount) {
+        goto shift_center;
+    }
+    *(TrackVertex *)(row + 0xc) = *(const TrackVertex *)(point);
+    rowCount = (s32)vertexCount / 3 - 1;
+    lastRow = (u16)rowCount;
+    countSlot = *(u8 **)(track + 0x18) + (track_index(trackIndex) * 2);
+    activeRows = *(u16 *)countSlot;
+    if ((s32)activeRows <= (s32)lastRow) {
+        u32 nv = activeRows + 1;
+        activeRows = (u16)nv;
+        *(u16 *)countSlot = (u16)nv;
+    }
+    firstRow = row;
+    headWidth = 0.0f;
+    __asm__ volatile("sqc2 $vf0, 0(%1)" : "=m"(headTangent) : "r"(&headTangent) : "memory");
+    __asm__ volatile("sqc2 $vf0, 0(%1)" : "=m"(headSide) : "r"(&headSide) : "memory");
+    rowIndex = 0;
+    if ((s32)(u16)activeRows <= 1) {
+        goto collapse_tail;
+    }
+    {
+        fraction = (f32)(u32)activeRows / (f32)(u32)lastRow;
+        fractionStep = fraction / (f32)(u32)activeRows;
+        headWidth = width * fraction;
+    }
+    lastActiveRow = activeRows - 1;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D00), "m"(D_00713D00) : "$vf10", "memory");
+    __asm__ volatile(
+        "vmove.xyzw $vf24, $vf10 \n"
+        : : : "$vf24", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(track), "m"(*(u_long128 *)track) : "$vf11", "memory");
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf11 \n"
+        "vaddy.x $vf2, $vf2, $vf2y \n"
+        "vaddz.x $vf2, $vf2, $vf2z \n"
+        : : : "$vf2", "memory");
+    {
+        f32 dot;
+        __asm__ volatile(
+            "qmfc2 %0, $vf2 \n"
+            : "=r"(dot) : : "memory");
+        rotation = fGpffff8094 * dot;
+    }
+    D_00713D10[0] = *(f32 *)(row + 12);
+    D_00713D14[0] = *(f32 *)(row + 16);
+    D_00713D18[0] = *(f32 *)(row + 20);
+    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
+    D_00713D10[0] = *(f32 *)(row + 48);
+    D_00713D14[0] = *(f32 *)(row + 52);
+    D_00713D18[0] = *(f32 *)(row + 56);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf10", "memory");
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf12 \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(headTangent) : "r"(&headTangent) : "memory");
+    func_0048a340(rotation);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf24 \n"
+        "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+        "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+        "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+        : : : "$vf10", "ACC", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(headSide) : "r"(&headSide) : "memory");
+    {
+            /* The unmodified inputs describe this row's width independently of
+         * the retained cap width. Both are the same product at the head. */
+        f32 rowWidth = width * fraction;
+        __asm__ volatile("qmtc2 %0, $vf2" : : "r"(rowWidth) : "$vf2", "memory");
+        __asm__ volatile(
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vadd.xyzw $vf12, $vf12, $vf10 \n"
+            : : : "$vf10", "$vf12", "memory");
+    }
+    __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+    *(f32 *)row = D_00713D10[0];
+    *(f32 *)(row + 4) = D_00713D14[0];
+    *(f32 *)(row + 8) = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        : : : "$vf12", "memory");
+    __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+    *(f32 *)(row + 24) = D_00713D10[0];
+    *(f32 *)(row + 28) = D_00713D14[0];
+    *(f32 *)(row + 32) = D_00713D18[0];
+    fraction = fraction - fractionStep;
+    row += 0x24;
+    rowIndex++;
+    goto ribbon_check;
+ribbon_row:
+    D_00713D10[0] = *(f32 *)(row + 12);
+    D_00713D14[0] = *(f32 *)(row + 16);
+    D_00713D18[0] = *(f32 *)(row + 20);
+    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
+    D_00713D10[0] = *(f32 *)(row + 48);
+    D_00713D14[0] = *(f32 *)(row + 52);
+    D_00713D18[0] = *(f32 *)(row + 56);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf10", "memory");
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf12 \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
+    func_0048a340(rotation);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf24 \n"
+        "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+        "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+        "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+        : : : "$vf10", "ACC", "memory");
+    {
+        f32 t = width * fraction;
+        __asm__ volatile("qmtc2 %0, $vf2" : : "r"(t) : "$vf2", "memory");
+        __asm__ volatile(
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vadd.xyzw $vf12, $vf12, $vf10 \n"
+            : : : "$vf10", "$vf12", "memory");
+    }
+    __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+    {
+        u8 *dst = row;
+        *(f32 *)dst = D_00713D10[0];
+        *(f32 *)(dst + 4) = D_00713D14[0];
+        *(f32 *)(dst + 8) = D_00713D18[0];
+    }
+    __asm__ volatile(
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        : : : "$vf12", "memory");
+    __asm__ volatile("sqc2 $vf12, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+    *(f32 *)(row + 24) = D_00713D10[0];
+    *(f32 *)(row + 28) = D_00713D14[0];
+    *(f32 *)(row + 32) = D_00713D18[0];
+    fraction = fraction - fractionStep;
+    row += 0x24;
+    rowIndex++;
+ribbon_check:
+    if (rowIndex < lastActiveRow) {
+        goto ribbon_row;
+    }
+collapse_tail:
+    *(TrackVertex *)(row) = *(const TrackVertex *)(row + 0xc);
+    *(TrackVertex *)(row + 0x18) = *(const TrackVertex *)(row + 0xc);
+    {
+        u8 *nxt = row + 0x24;
+        goto tail_check;
+tail_row:
+        *(TrackVertex *)(nxt) = *(const TrackVertex *)(row);
+        *(TrackVertex *)(nxt + 0xc) = *(const TrackVertex *)(row + 0xc);
+        *(TrackVertex *)(nxt + 0x18) = *(const TrackVertex *)(row + 0x18);
+        nxt += 0x24;
+        rowIndex++;
+tail_check:
+        if (rowIndex < (s32)(u16)lastRow) {
+            goto tail_row;
+        }
+        {
+            u8 *t = *(u8 **)(track + 0x14);
+            u32 c2 = *(u16 *)(t + 8);
+            u8 *t1 = *(u8 **)(t + 0x10);
+            u8 *t2 = *(u8 **)(t1 + 0x18);
+            u8 *t3 = *(u8 **)(t2 + 0x5C);
+            u8 *tab2 = *(u8 **)(t3 + 0x14);
+            cap = tab2 + (u32)c2 * track_index(trackIndex) * 12;
+            *(TrackVertex *)cap = *(const TrackVertex *)(firstRow + 12);
+            *(TrackVertex *)(cap + 0xc) = *(const TrackVertex *)(firstRow);
+            *(TrackVertex *)(cap + 0x54) = *(const TrackVertex *)(firstRow + 0x18);
+        }
+        {
+            f32 wide;
+            f32 inner;
+            f32 blendWide;
+            f32 blendInner;
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&headTangent), "m"(headTangent) : "$vf11", "memory");
+            __asm__ volatile("vsub.xyz $vf11, $vf0, $vf11" : : : "$vf11", "memory");
+            capLength = 2.0f * headWidth;
+            {
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(capLength) : "$vf2", "memory");
+                __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "memory");
+            }
+            D_00713D10[0] = *(f32 *)(firstRow + 12);
+            D_00713D14[0] = *(f32 *)(firstRow + 16);
+            D_00713D18[0] = *(f32 *)(firstRow + 20);
+            __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
+            wide = fGpffff80bc * headWidth;
+            capWidth = wide;
+            {
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(capWidth) : "$vf2", "memory");
+                __asm__ volatile("vmulx.xyzw $vf10, $vf10, $vf2x" : : : "$vf10", "memory");
+            }
+            {
+                blendWide = fGpffff80c0;
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(blendWide) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+            *(f32 *)(cap + 24) = D_00713D10[0];
+            *(f32 *)(cap + 28) = D_00713D14[0];
+            *(f32 *)(cap + 32) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
+            inner = 1.7f * headWidth;
+            capWidth = inner;
+            {
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(capWidth) : "$vf2", "memory");
+                __asm__ volatile("vmulx.xyzw $vf10, $vf10, $vf2x" : : : "$vf10", "memory");
+            }
+            {
+                blendInner = fGpffff80c8;
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(blendInner) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+            *(f32 *)(cap + 36) = D_00713D10[0];
+            *(f32 *)(cap + 40) = D_00713D14[0];
+            *(f32 *)(cap + 44) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
+            {
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(wide) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vsub.xyz $vf10, $vf0, $vf10 \n"
+                    : : : "$vf10", "memory");
+            }
+            {
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(blendWide) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+            *(f32 *)(cap + 72) = D_00713D10[0];
+            *(f32 *)(cap + 76) = D_00713D14[0];
+            *(f32 *)(cap + 80) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&headSide), "m"(headSide) : "$vf10", "memory");
+            {
+                f32 t2 = inner;
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(t2) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vsub.xyz $vf10, $vf0, $vf10 \n"
+                    : : : "$vf10", "memory");
+            }
+            {
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(blendInner) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+            *(f32 *)(cap + 60) = D_00713D10[0];
+            *(f32 *)(cap + 64) = D_00713D14[0];
+            *(f32 *)(cap + 68) = D_00713D18[0];
+            {
+                f32 endpoint = fGpffff80cc;
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(endpoint) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                    "vadd.xyzw $vf11, $vf11, $vf12 \n"
+                    : : : "$vf11", "memory");
+            }
+            __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(D_00713D10) : "r"(&D_00713D10) : "memory");
+            *(f32 *)(cap + 48) = D_00713D10[0];
+            *(f32 *)(cap + 52) = D_00713D14[0];
+            *(f32 *)(cap + 56) = D_00713D18[0];
+        }
+    }
+}
+
