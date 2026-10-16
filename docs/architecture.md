@@ -430,7 +430,7 @@ field's state machine:
 | 4–5 | For fields `0x2C`..`0x44`, loads an extra field model (`mdlCreateModelObjectFromData`, was `func_00477e80`) and in state 5 positions it (`func_0015a350`, `mdlTranslateMatrix`, was `func_0047a180`). Calls `FldFrame_BindTypedRes` and `FldFrame_RotateTaskCreate`. In event mode, starts the event instead (`func_002859e0`) and goes to state 14. |
 | 6–8 | Waits on `func_001227f0`, starts the room's script as a task (`func_0029da90`), and loads room data (`func_0015c590`). |
 | 9–10 | Creates field units (`func_001664a0`/`func_001662d0`, `func_00166b40` in `k_fldUnit.c`), the minimap (`smapCreateSymbols`, `func_002ae630` before the rename, in `src/Yajima/y_smap.c`) and other field tasks, then fades in (`func_00122640`). |
-| 11–12 | Runs the room's entry script procedure (`func_0029db50`) and waits for it. Then starts `func_00174ad0` (`k_fldEvent.c`) and `func_0018df60`. |
+| 11–12 | Runs the room's entry script procedure (`func_0029db50`) and waits for it. Then starts `func_00174ad0` (`k_fldEvent.c`) and `FldSupporterTaskCreate`. |
 | 13 | **[inferred]** Normal play. Waits for `exitRequested`. |
 | 14 | Event mode. Waits for the event task to finish. |
 | 17 | Field-to-field transition. After the fade, requests sequence 9 again with `work->transition`. |

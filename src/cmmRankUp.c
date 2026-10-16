@@ -42,7 +42,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 void chkmemAllocSiteTag(void *msg, s32 id);
 void kAssertFail(const void *file, s32 line);
 extern void mdlComputeIndexedAttachMatrix(s32 arg0, s32 arg1, void *arg2);
-extern void func_00189ec0();
+extern void FldPanel2dTaskCreate();
 extern void MT_Scene_SetResEnabled(s32 arg0, s32 arg1);
 extern void func_003ef3a0(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
@@ -3661,7 +3661,7 @@ void cmmCdvdLoadDestroy(u8 *unusedTask) {
 
     p = (u8 *)kwlnTaskGetWork();
     if (*(s32 *)p & 1) {
-        func_00189ec0();
+        FldPanel2dTaskCreate();
     }
     list = *(u8 **)(p + 0x40);
     i = 0;

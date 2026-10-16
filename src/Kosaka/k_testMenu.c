@@ -21,7 +21,7 @@ extern s32 kwlnTaskGetTaskByName(void *buf);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
 
 
-extern s32 func_0018ef50(u8 *arg0);
+extern s32 FldMapTestTaskCreate(u8 *arg0);
 extern s32 K_Test_CreateLauncher(u8 *arg0);
 extern void K_ReadTexTaskCreate(void);
 extern s32 FldRainTaskCreate(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
@@ -58,7 +58,7 @@ s32 K_TestMenu_Update(u8 *arg0)
         if (D_008C024E[0] & 0x40) {
             switch (sdkLboxGetSelectedId(*(u8 **)(p + 4))) {
             case 0:
-                *(s32 *)(p + 8) = func_0018ef50(arg0);
+                *(s32 *)(p + 8) = FldMapTestTaskCreate(arg0);
                 break;
             case 1:
                 *(s32 *)(p + 8) = K_Test_CreateLauncher(arg0);

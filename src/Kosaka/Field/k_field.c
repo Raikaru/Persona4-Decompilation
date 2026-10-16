@@ -124,14 +124,14 @@ extern s32 smapCreateSymbols(u8 *);
 extern void func_002b2950(s32);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
-extern void func_00189ec0(void);
+extern void FldPanel2dTaskCreate(void);
 extern s32 FldUnit_IsSettled(s32);
 extern void func_00122640(s32, s32);
 extern s32 fadeStatus(void);
 extern s32 scrStartProcedureChecked(s32, u8 *, s32, s32);
 extern void H_Cdvd_Destroy(u8 *);
 extern void MT_Scene_SetFadeForState(u16, u16);
-extern s32 func_0018df60(u8 *);
+extern s32 FldSupporterTaskCreate(u8 *);
 extern s32 FldEvent_SpawnTrigger(u8 *);
 extern void FldSlotBroadcastState(s32);
 extern s32 func_0028b260(void);
@@ -287,7 +287,7 @@ s32 FldRootUpdate(u8 *task)
         if (sndRequestAreaTrack() == 0) {
             sndPlayAreaCue();
         }
-        func_00189ec0();
+        FldPanel2dTaskCreate();
         work->state++;
         /* fallthrough */
     case 10:
@@ -317,7 +317,7 @@ s32 FldRootUpdate(u8 *task)
             }
         }
         MT_Scene_SetFadeForState(work->field, work->room);
-        D_007D252C[0] = func_0018df60(task);
+        D_007D252C[0] = FldSupporterTaskCreate(task);
         D_007D2518[0] = FldEvent_SpawnTrigger(task);
         FldSlotBroadcastState(0);
         work->state++;
