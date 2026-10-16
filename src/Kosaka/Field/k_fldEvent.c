@@ -1765,7 +1765,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     void FldFrameTask_StartMove(u8 *, f32);
     u32 datCalcGetBadStatusNoDownById(s16);
     s32 FldDayEventActive(void);
-    s32 func_00170120(s32);
+    s32 FldPlayerRandomIdleAnimId(s32);
     u8 *h;
     FldEventVec3 move;
     FldEventVec3 camera;
@@ -2047,7 +2047,7 @@ smallmove:
         }
         if (FldStepIndex() != 0) {
             s16 cur = mdlGetLayerAnimation(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0);
-            if (cur == func_00170120(1) && *(u8 *)(*(s32 *)(*(s32 *)(h + 0x18) + 0x164) + 0xEE) == 1) {
+            if (cur == FldPlayerRandomIdleAnimId(1) && *(u8 *)(*(s32 *)(*(s32 *)(h + 0x18) + 0x164) + 0xEE) == 1) {
                 *(s32 *)(h + 0x134) = 1;
             }
         } else if (mdlGetLayerAnimation(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0) < 6) {
@@ -2060,7 +2060,7 @@ smallmove:
             *(s32 *)(h + 0x134) = 0;
         }
         if (ret16 == 1) {
-            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_00170120(1), 8, 0);
+            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)FldPlayerRandomIdleAnimId(1), 8, 0);
         }
     }
 moving:
