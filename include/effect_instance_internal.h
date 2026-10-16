@@ -43,7 +43,7 @@ void *func_0049a5e0(void *source);
 void *FlashQuadCopyAllocFromParent(void *source);
 void *func_004a1950(void *source);
 void *WindCreateKindEntry(void *source);
-void *func_004a5910(void *source);
+void *WindCreateKindEntryAlt(void *source);
 void *func_004a5bb0(void *source);
 void *func_004a5e50(void *source);
 void *func_004a6d90(void *source);
