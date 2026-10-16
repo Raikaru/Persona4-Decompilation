@@ -43,7 +43,7 @@ extern s32 calHasDayEntry(s32 idx);
 extern s32 cmmDateTableFindIndex();
 extern u16 cmmCommunityCategory(s32 arg0);
 extern s32 cmmReversedAtRank(s32 arg0);
-extern void func_00113480(s32 a, s32 b, s32 c, s32 d);
+extern void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
 extern void chkmemAllocSiteTag(void *, s32);
 
 extern char D_006359D0[];
@@ -1857,7 +1857,7 @@ s32 cmmDateTableRollValue(s32 index)
    puts the slti result in $at (see docs/matching.md); re-masking in both
    halves of the || is what makes bltz test the masked value. Same shape as
    FUN_00246E90. */
-// Date table run effect: runs the effect recorded in roll entry arg0 (D_008814EC) through func_00113480.
+// Date table run effect: runs the effect recorded in roll entry arg0 (D_008814EC) through datEntryDrawGatedByFlag39.
 // FUN_00249A60
 void cmmDateTableRunEffect(s32 arg0) {
     u8 *temp_16 = (u8 *)D_008814EC[0];
@@ -1871,5 +1871,5 @@ void cmmDateTableRunEffect(s32 arg0) {
     off = (u16)arg0 * 14;
     v = *(s16 *)(off + (u32)temp_16 + 0xE);
     a = (s16)(v >> 8);
-    func_00113480(a, (s16)((((v >> 1) & 0xFF) << 1) | (v & 1)), a, 0);
+    datEntryDrawGatedByFlag39(a, (s16)((((v >> 1) & 0xFF) << 1) | (v & 1)), a, 0);
 }

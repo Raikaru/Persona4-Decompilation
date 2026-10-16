@@ -151,7 +151,7 @@ void btlTargetPacketReleasePending(void* arg);
 s32 btlTargetApplyHpSpChange(u8* arg);
 extern u8* iGpffffb3ac;
 extern void datAddMoney(s32 arg);
-extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void datEntryDrawGatedByFlag39(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void btlSoundClearStatusCounters(void* action, s32 flags);
 extern void btlActionRunTargetCallback(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
 extern void btlPanelStartRingEffect(void* unit);
@@ -846,7 +846,7 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
         }
         if (datCalcIsDead(*(u8**)(temp_18 + 0xa64), 0) != 0) {
             if (*(u8**)(iGpffffb3ac + 0x170) == temp_19) {
-                func_00113480(0x19, 0x96, 0x19, 0);
+                datEntryDrawGatedByFlag39(0x19, 0x96, 0x19, 0);
                 btlActionRunTargetCallback(temp_19, 0x10, (*(s32*)(arg0 + 0x10) & 0x80000) != 0, 0, 2);
             } else {
                 btlActionRunTargetCallback(temp_19, 0x1c, 0, 0, 0);

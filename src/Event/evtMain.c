@@ -84,8 +84,8 @@ extern u8 DAT_00764B44;
 extern f32 D_00764B5C;
 s32 fadeStatus(void);
 extern u32 DAT_00713890;
-extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
-void func_00113500(void);
+extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
+void datStopPadRumble(void);
 extern void MT_Scene_SetResActiveById(u16, int);
 extern f32 fGpffff815c;
 extern void func_0028d110(s32 *arg0);
@@ -2358,12 +2358,12 @@ s32 func_0028a6a0(int param_1, int param_2, int param_3, int param_4, u16 *param
         if (t == 0) {
             v18 = *(s16 *)((u8 *)param_5 + 0x18);
             if (v18 == 0) {
-                func_00113480(*(s16 *)((u8 *)param_5 + 0x14), *(s16 *)((u8 *)param_5 + 0x16), *(s16 *)((u8 *)param_5 + 0x14), *(s16 *)((u8 *)param_5 + 0x1A));
+                datEntryDrawGatedByFlag39(*(s16 *)((u8 *)param_5 + 0x14), *(s16 *)((u8 *)param_5 + 0x16), *(s16 *)((u8 *)param_5 + 0x14), *(s16 *)((u8 *)param_5 + 0x1A));
             } else {
-                func_00113480(*(s16 *)((u8 *)param_5 + 0x14), *(s16 *)((u8 *)param_5 + 0x16), v18, *(s16 *)((u8 *)param_5 + 0x1A));
+                datEntryDrawGatedByFlag39(*(s16 *)((u8 *)param_5 + 0x14), *(s16 *)((u8 *)param_5 + 0x16), v18, *(s16 *)((u8 *)param_5 + 0x1A));
             }
         } else if (t == 1) {
-            func_00113500();
+            datStopPadRumble();
         }
         return 1;
     default:
@@ -2584,7 +2584,7 @@ loop_6_test:
         goto loop_6_body;
     }
     func_002e0dd0();
-    func_00113500();
+    datStopPadRumble();
     MT_Scene_StopShake();
     sceneLightSlotsReset();
     if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
