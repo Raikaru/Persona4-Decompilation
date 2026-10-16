@@ -82,10 +82,10 @@ extern void FldEvent_BeginGridScan(void);
 extern s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1);
 extern s32 datGetFlag(s32 arg0);
 extern s32 MT_Scene_CreateModelFldRes(s32 arg0, s32 arg1);
-extern u8 *func_00162330(void);
+extern u8 *FldSlotFindFree(void);
 typedef struct DatUnitPc DatUnitPc;
 extern DatUnitPc *datUnitCreatePc(u16 arg0);
-extern u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2);
+extern u8 *FldPartyModelGet(u16 arg0, u16 arg1, s32 arg2);
 extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
@@ -169,7 +169,7 @@ void MT_Scene_DestroyRes(u16 arg0);
 void mdlClearAlphaBlend(s32 arg0);
 void mdlDestroyModelObject(u8 *arg0);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
-s32 func_00162510(u16 arg0, u16 arg1);
+s32 FldRoomIsListed(u16 arg0, u16 arg1);
 s32 FldStepIndex(void);
 s32 FldUnit_UpdatePartyState(u8 *arg0);
 u8 *MT_Scene_GetResListHead(s32 arg0);
@@ -471,7 +471,7 @@ s32 FldUnit_UpdateTable(void)
  *
  * measured: 1 -> 0 fnalign edits, 736 instructions. The remaining operand was a
  * real inline-result lifetime, not a compiler floor. The calendar search below
- * follows matched sibling func_001623f0: its initial found = 0 and early return 0
+ * follows matched sibling FldDayEventActive: its initial found = 0 and early return 0
  * both survive allocation, giving found four counted references and retail's $s5.
  * Post-color CSE removes the early-return zero; the success store is then the
  * required addiu $s5, $zero, 1. A capture confirms that exact deletion.
@@ -532,7 +532,7 @@ void FldUnit_UpdateFacing(void)
             continue;
         }
         if (FldStepIndex() != 0 &&
-            func_00162510(((u16 *)iGpffff9db0)[0],
+            FldRoomIsListed(((u16 *)iGpffff9db0)[0],
                           ((u16 *)iGpffff9db0)[2]) == 0) {
             resourceVariant = 3;
         }
@@ -1040,10 +1040,10 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
     {
         u8 *unit;
 
-        unit = func_00162330();
+        unit = FldSlotFindFree();
         if (unit != NULL) {
             *(DatUnitPc **)(unit + 0x48) = datUnitCreatePc(1);
-            *(u8 **)(unit + 0x50) = func_00162680(fieldId, roomId, 1);
+            *(u8 **)(unit + 0x50) = FldPartyModelGet(fieldId, roomId, 1);
             *(u16 *)(unit + 0x728) = 1;
             *(s32 *)(unit + 0x44) = 0;
             *(s32 *)(unit + 0x1C0) = datPersonaGetLevelByPcId(1) & 0xFF;
@@ -1052,7 +1052,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
             *(u16 *)(unit + 0x58) = entryId;
         }
     }
-    if (func_00162510(fieldId, roomId) == 1) {
+    if (FldRoomIsListed(fieldId, roomId) == 1) {
         s32 i;
         u8 *cache;
         u8 *record;
@@ -1091,12 +1091,12 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
         while (i < 3) {
             selectedId = (s16)datGetPartyId(i);
             if (selectedId > 0) {
-                unit = func_00162330();
+                unit = FldSlotFindFree();
                 if (unit != NULL) {
                     pcId = (u16)selectedId;
                     *(DatUnitPc **)(unit + 0x48) = datUnitCreatePc(pcId);
                     modelId = pcId;
-                    *(u8 **)(unit + 0x50) = func_00162680(fieldId, roomId, modelId);
+                    *(u8 **)(unit + 0x50) = FldPartyModelGet(fieldId, roomId, modelId);
                     *(u16 *)(unit + 0x728) = pcId;
                     *(s32 *)(unit + 0x44) = 0;
                     *(s32 *)(unit + 0x1C0) = datPersonaGetLevelByPcId(pcId) & 0xFF;
@@ -2797,7 +2797,7 @@ s32 FldUnit_UpdatePartyState(u8 *task)
                         fieldId = *(u16 *)field;
                         fieldSubId = *(u16 *)(field + 4);
                         replacementKind = *(u16 *)retainedField;
-                        *(u8 **)(unit + 0x50) = func_00162680(fieldId, fieldSubId, replacementKind);
+                        *(u8 **)(unit + 0x50) = FldPartyModelGet(fieldId, fieldSubId, replacementKind);
                     } else {
                         s32 layer;
 
@@ -2882,7 +2882,7 @@ s32 FldUnit_SpawnPartyTask(u8 *arg0)
     if (acc == 0) {
         return 0;
     }
-    if (func_00162510(*(u16 *)D_00762EA0, *(u16 *)(D_00762EA0 + 4)) == 1 || FldStepIndex() == 0) {
+    if (FldRoomIsListed(*(u16 *)D_00762EA0, *(u16 *)(D_00762EA0 + 4)) == 1 || FldStepIndex() == 0) {
         return 0;
     }
     chkmemAllocSiteTag(D_005F1500, 0xED8);

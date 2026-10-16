@@ -57,7 +57,7 @@ s32 func_0015a100(void);
 s32 func_0015a130(void);
 s32 func_0029db50(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
-s32 *func_00162390(void);
+s32 *FldObjFindFree(void);
 s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
 u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
@@ -1505,7 +1505,7 @@ s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2)
         h[0x45] = h[1];
         h[0x44] = h[4];
         h[1] = 3;
-        s16 = func_00162390();
+        s16 = FldObjFindFree();
         s16[0x12] = datUnitCreateEncounterGroup(arg1);
         s16[0x13] = D_00724504 + ((arg1 & 0xFFFF) * 24);
         *(u16 *)((u8 *)s16 + 0x728) = 0;
@@ -1764,7 +1764,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     s32 FldEvent_BeginHeadingTurn(const u8 *, f32, const MovementMatrix *, f32);
     void FldFrameTask_StartMove(u8 *, f32);
     u32 datCalcGetBadStatusNoDownById(s16);
-    s32 func_001623f0(void);
+    s32 FldDayEventActive(void);
     s32 func_00170120(s32);
     u8 *h;
     FldEventVec3 move;
@@ -2040,7 +2040,7 @@ smallmove:
         if (c148 == 0x3C) {
             *(s32 *)(h + 0x134) = 1;
         } else if (c148 > 360) {
-            if (!(datCalcGetBadStatusNoDownById(1) & 0x20) && func_001623f0() == 0) {
+            if (!(datCalcGetBadStatusNoDownById(1) & 0x20) && FldDayEventActive() == 0) {
                 ret16 = 1;
             }
             *(s32 *)(h + 0x148) = 0x3D;

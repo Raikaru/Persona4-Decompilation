@@ -824,7 +824,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
 {
     extern u8 *MT_Scene_GetResListHead(s32);
     extern s32 FldMap_IsCurrentInEitherBand(void);
-    extern s32 func_001623f0(void);
+    extern s32 FldDayEventActive(void);
     extern u8 *PrimAllocQueueNode(void);
     extern void PrimClearNodes(void *, s32);
     extern void func_00460ac0(void *, void *);
@@ -866,7 +866,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                 *(u8 **)(work + 0x10) = list1;
                 func_00460ac0(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38)) > 0) {
-                    if (FldMap_IsCurrentInEitherBand() == 1 || func_001623f0() == 1) {
+                    if (FldMap_IsCurrentInEitherBand() == 1 || FldDayEventActive() == 1) {
                         i = 0;
                         while (i < 5) {
                             p = *(u8 **)(list1 + 0x164) + i * 0xC;
@@ -877,7 +877,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                     *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) | 4;
                     mdlQueueModelForDraw(state + 4, *(u8 **)(list1 + 0x164));
                     *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) & ~4;
-                    if (FldMap_IsCurrentInEitherBand() == 1 || func_001623f0() == 1) {
+                    if (FldMap_IsCurrentInEitherBand() == 1 || FldDayEventActive() == 1) {
                         i = 0;
                         while (i < 5) {
                             p = *(u8 **)(list1 + 0x164) + i * 0xC;

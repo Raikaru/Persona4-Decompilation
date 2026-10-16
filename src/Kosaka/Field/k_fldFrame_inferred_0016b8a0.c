@@ -103,8 +103,8 @@ extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 datGetFlag();
 extern s32 FldStepIndex();
-extern s32 func_001623f0();
-extern s32 func_00162510(u16 arg0, u16 arg1);
+extern s32 FldDayEventActive();
+extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
 extern s32 D_005F1350[];
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void mdlAttachSlotModelFromResource(void *arg0, u16 arg1, u32 arg2, u16 arg3,
@@ -187,10 +187,10 @@ static inline f32 code1_0016_cvt(s32 value) {
 /* Source unit: src/promoted/code1_0016.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0016.c; members 0016b8a0-0016ffd0 */
 
-extern s32 func_001615a0(u8 *arg0);
-extern void func_00162200(s32 arg0);
-extern s32 func_001623f0(void);
-extern s32 func_00162510(u16 arg0, u16 arg1);
+extern s32 FldEnemyLoadTable(u8 *arg0);
+extern void FldPartyModelRelease(s32 arg0);
+extern s32 FldDayEventActive(void);
+extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
 typedef struct FldRaySelectionResource
 {
     u32 flags;
@@ -229,10 +229,10 @@ extern f32 sqrtf(f32 x);
  * read before the row-offset calculations across the branch join. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for retail field-load order in func_001615a0 */
-/* measured: opt_propagation on closes the func_001615a0 load-order probe */
-/* measured: opt_propagation off preserves the retail recomputed index and live register set in func_00162200. */
-/* measured: closes the opt_propagation bracket for func_00162200. */
+/* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
+/* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
+/* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
+/* measured: closes the opt_propagation bracket for FldPartyModelRelease. */
 /* measured: direct global address expressions preserve retail bases while
    opt_loop_invariants hoists the stride (nd 14 -> 0). */
 /* measured: direct global address expression preserves retail base/stride
@@ -241,8 +241,8 @@ extern f32 sqrtf(f32 x);
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 /* measured: closes the loop-invariant scope at the file baseline. */
-/* measured: optimization_level 1 reproduces func_001623f0's register coloring. */
-/* measured: restore baseline optimization level after func_001623f0. */
+/* measured: optimization_level 1 reproduces FldDayEventActive's register coloring. */
+/* measured: restore baseline optimization level after FldDayEventActive. */
 /* Four real ray/intersection pairs keep each enumeration's callback state.
  * The resource selector shares the existing field selector's output contract.
  * Measured: 1324 retail instruction bytes and four zero alignment bytes. */
@@ -2625,8 +2625,8 @@ s32 func_0016fd00(s32 arg0)
     switch (arg0) {
     case 1:
         temp_2 = iGpffff9db0;
-        if (func_00162510(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1) {
-            if (func_001623f0() == 1) {
+        if (FldRoomIsListed(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1) {
+            if (FldDayEventActive() == 1) {
                 return 9;
             }
             if (datGetFlag(0xC01) != 0) {
@@ -2653,7 +2653,7 @@ ret1_b:
         if (FldStepIndex() != 0) {
             return 0;
         }
-        if (func_001623f0() == 1) {
+        if (FldDayEventActive() == 1) {
             return 9;
         }
         if (datGetFlag(0xC01) != 0) {
@@ -2681,9 +2681,9 @@ s32 func_0016fe80(s32 arg0)
     switch (arg0) {
     case 1:
         temp = iGpffff9db0;
-        if (func_00162510(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
+        if (FldRoomIsListed(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
             result = 3;
-            if (func_001623f0() == 1) {
+            if (FldDayEventActive() == 1) {
                 result = 0xA;
             } else if (datGetFlag(0xC01) != 0) {
                 result--;
@@ -2700,7 +2700,7 @@ s32 func_0016fe80(s32 arg0)
                 result = 2;
             } else {
                 result = 3;
-                if (func_001623f0() == 1) {
+                if (FldDayEventActive() == 1) {
                     result = 0xA;
                 } else if (datGetFlag(0xC01) != 0) {
                     result--;
@@ -2724,9 +2724,9 @@ s32 func_0016ffd0(s32 arg0)
     switch (arg0) {
     case 1:
         temp = iGpffff9db0;
-        if (func_00162510(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
+        if (FldRoomIsListed(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
             result = 5;
-            if (func_001623f0() == 1) {
+            if (FldDayEventActive() == 1) {
                 result = 0xB;
             } else if (datGetFlag(0xC01) != 0) {
                 result--;
@@ -2743,7 +2743,7 @@ s32 func_0016ffd0(s32 arg0)
                 result = 2;
             } else {
                 result = 5;
-                if (func_001623f0() == 1) {
+                if (FldDayEventActive() == 1) {
                     result = 0xB;
                 } else if (datGetFlag(0xC01) != 0) {
                     result--;
