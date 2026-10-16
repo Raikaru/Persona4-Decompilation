@@ -201,7 +201,7 @@ extern u8 iGpffffba5c;
 extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern u8 * iGpffff9db0;
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,

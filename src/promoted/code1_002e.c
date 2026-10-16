@@ -404,8 +404,8 @@ s32 func_002e72c0(u8 *arg0)
     s32 func_00122520(s32 arg0, s32 arg1);
     s32 func_00122640(s32 arg0, s32 arg1);
     s32 func_00122720(void);
-    s32 func_00144f60(void);
-    void func_00145080(void);
+    s32 fieldSceneLoadStep(void);
+    void fieldSceneUnload(void);
     s32 MT_Scene_GetCameraResFirst(void);
     f32 MT_Scene_GetCameraFov(void);
     s32 func_0015f660(void);
@@ -428,7 +428,7 @@ s32 func_002e72c0(u8 *arg0)
         *(s8 *)work = 2;
         /* fallthrough */
     case 2:
-        if ((func_00144f60() != 0) && (func_0015f660() != 0)) {
+        if ((fieldSceneLoadStep() != 0) && (func_0015f660() != 0)) {
             view = func_00457120();
             K_View_SetFov(view, MT_Scene_GetCameraFov());
             view = func_00457120();
@@ -456,13 +456,13 @@ s32 func_002e72c0(u8 *arg0)
         /* fallthrough */
     case 6:
         if (func_00122720() != 0) {
-            func_00145080();
+            fieldSceneUnload();
             *(s8 *)work = 0x23;
         }
         goto block_24;
     case 34:
         if (kwlnTaskGetTaskByName(D_0063FC68) == 0) {
-            func_00145080();
+            fieldSceneUnload();
             *(s8 *)work = 0x23;
         }
         goto block_24;

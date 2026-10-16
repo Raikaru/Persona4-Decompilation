@@ -34,7 +34,7 @@ extern void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 btlMainSkillColorDefault(s32 arg0);
 extern s32 btlMainSkillTintDefault(s32 arg0);
 extern void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern void func_004833f0(void *arg0);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
@@ -50,7 +50,7 @@ extern u8 *D_0076449C;
 extern s32 btlCurrentUnitId(void);
 extern s32 func_002aa3f0(void);
 extern void btlResetEffectSlots(void);
-extern void func_00145080();
+extern void fieldSceneUnload();
 extern void func_001b69c0(void);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
@@ -473,7 +473,7 @@ void func_001b68d0(void)
         func_004833f0((void *)(u32)value);
         *(s32 *)(D_0076449C + 0xE7C) = 0;
     }
-    func_00145080();
+    fieldSceneUnload();
 }
 
 /* measured: closes opt_propagation probe for func_001b68d0. */
@@ -494,13 +494,13 @@ void func_001b69c0(void)
     *(s32 *)(D_0076449C + 0xE78) = 0;
     p = D_0076449C;
     *(s32 *)(p + 0xC) &= ~2;
-    func_00145080(p);
+    fieldSceneUnload(p);
 }
 
 // FUN_001B6A00
 void func_001b6a00(void)
 {
-    func_00144f60();
+    fieldSceneLoadStep();
 }
 
 // FUN_001B6A20
