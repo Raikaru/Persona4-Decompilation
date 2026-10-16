@@ -13,7 +13,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0033d9d0(u8 *task);
 extern void func_0033dc60(u8 *arg0);
 extern s32 fclCombineEventGate(u8 *arg0);
-extern s32 func_0033df40(u8 *arg0);
+extern s32 fclCombineEventSceneUpdate(u8 *arg0);
 extern s32 func_00285b30(void);
 extern void datSetFlag(s32 a, s32 b);
 extern u16 D_008C024E[];
@@ -91,7 +91,7 @@ void func_0033de90(u8 *arg0, s32 arg1)
 
 
 // FUN_0033DF40
-s32 func_0033df40(u8 *arg0)
+s32 fclCombineEventSceneUpdate(u8 *arg0)
 {
     s32 sp2C;
     s32 sp28;
@@ -149,7 +149,7 @@ s32 func_0033df40(u8 *arg0)
 
 
 // FUN_0033E0F0
-void func_0033e0f0(u8 *arg0) {
+void fclCombineEventSceneDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -161,7 +161,7 @@ void func_0033e120(u8 *arg0, s32 arg1, s32 arg2)
 
     chkmemAllocSiteTag(D_0064A400, 0x192);
     work = D_008873F4[0](1, 0x14, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033df40, func_0033e0f0, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, fclCombineEventSceneUpdate, fclCombineEventSceneDestroy, (u8 *)(work));
     *(s32 *)(work + 4) = arg1;
     *(s32 *)(work + 8) = arg2;
     work[0] = 0;
