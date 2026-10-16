@@ -62,9 +62,9 @@ extern s32 func_0010f420(s32 arg0, s32 arg1);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
-extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_001f62b0();
-extern void func_001f58d0();
+extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 func_0045af90(s32 arg0);

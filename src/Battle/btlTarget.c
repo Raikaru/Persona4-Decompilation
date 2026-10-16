@@ -55,7 +55,7 @@ extern u8 D_0060A0E0[];
 extern s32 func_001f3900(u8 **arg0);
 extern s32 func_001f39d0(u8 **arg0);
 extern void func_001f6220(u16 command, u32 param); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
-extern u32 func_001f5ed0(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
+extern u32 btlActionCachedDispatch(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern u32 func_001f6090(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern f32 RwV3dLength(const RwV3d* vector);
 extern f32 func_003e41e0(f32* out, f32* in);
@@ -153,7 +153,7 @@ extern u8* iGpffffb3ac;
 extern void datAddMoney(s32 arg);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_001f6c40(void* action, s32 flags);
-extern void func_001f56d0(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
+extern void btlActionRunTargetCallback(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00213b10(void* unit);
 extern void func_00213b30(void* unit);
 extern s32 datCalcGetLevel(void* data);
@@ -847,22 +847,22 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
         if (datCalcIsDead(*(u8**)(temp_18 + 0xa64), 0) != 0) {
             if (*(u8**)(iGpffffb3ac + 0x170) == temp_19) {
                 func_00113480(0x19, 0x96, 0x19, 0);
-                func_001f56d0(temp_19, 0x10, (*(s32*)(arg0 + 0x10) & 0x80000) != 0, 0, 2);
+                btlActionRunTargetCallback(temp_19, 0x10, (*(s32*)(arg0 + 0x10) & 0x80000) != 0, 0, 2);
             } else {
-                func_001f56d0(temp_19, 0x1c, 0, 0, 0);
+                btlActionRunTargetCallback(temp_19, 0x1c, 0, 0, 0);
             }
         }
     } else if ((datCalcIsLowHp(*(u8**)(temp_18 + 0xa64)) != 0) && (temp_21 == 0)) {
-        func_001f56d0(temp_19, 0x1b, 0, 0, 0);
+        btlActionRunTargetCallback(temp_19, 0x1b, 0, 0, 0);
     } else {
         temp_3_6 = *(u8*)(*(u8**)(temp_19 + 0x30) + 0xa2);
         if ((temp_3_6 == 0) && (temp_3_6 != *(u8*)(*(u8**)(*(u8**)(arg0 + 0) + 0x30) + 0xa2))) {
             if ((datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 1) != 0) && (temp_22 == 0)) {
-                func_001f56d0(temp_19, 0x16, 0, 0, 0);
+                btlActionRunTargetCallback(temp_19, 0x16, 0, 0, 0);
             } else if ((datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 0x100000) != 0) && (temp_16 == 0)) {
-                func_001f56d0(temp_19, 0x17, 0, 0, 0);
+                btlActionRunTargetCallback(temp_19, 0x17, 0, 0, 0);
             } else if (*(u16*)(arg0 + 0x28) & 6) {
-                func_001f56d0(temp_19, 0x1a, 0, 0, 0);
+                btlActionRunTargetCallback(temp_19, 0x1a, 0, 0, 0);
             }
         } else if ((datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 0x100000) == 0) || (temp_16 == 1)) {
             temp_4_2 = *(u8**)(arg0 + 0);
@@ -875,9 +875,9 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
                  *(s32*)(arg0 + 0x18) != 0)) {
                 temp_3_8 = *(u16*)(arg0 + 0x2a);
                 if (temp_3_8 & 2) {
-                    func_001f56d0(temp_4_2, 0x14, 0, 0, 0);
+                    btlActionRunTargetCallback(temp_4_2, 0x14, 0, 0, 0);
                 } else if (temp_3_8 & 4) {
-                    func_001f56d0(temp_4_2, 0x15, 0, 0, 0);
+                    btlActionRunTargetCallback(temp_4_2, 0x15, 0, 0, 0);
                 }
             }
         }
@@ -1107,7 +1107,7 @@ BtlPacket* btlTargetCreateTargetPacket(u32 param_1, u16 param_2, u32 param_3,
     BtlTargetWork* work;
 
     packet = btlPacketAlloc(0x800, 0x18);
-    packet->updateFunc = func_001f5ed0;
+    packet->updateFunc = btlActionCachedDispatch;
     work = (BtlTargetWork*)packet->workData;
     work->param_00 = param_1;
     work->param_04 = param_2;

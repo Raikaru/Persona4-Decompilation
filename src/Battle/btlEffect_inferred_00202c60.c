@@ -2168,7 +2168,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern u32 kwlnTaskGetWork(void *task);
     extern u16 *datPersonaGetRecord(u16 character);
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
-    extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 datCalcDefaultSkillId(u8 *unit);
     extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u16 datPersonaCountValidMembers(void);
@@ -2327,7 +2327,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         return 3;
     case 7:
         if (func_001f0620(*(u8 **)(work + 0x178), 6) == 0) {
-            func_001f56d0((s32)(u32)*(u8 **)(work + 0x178), 5, 0, 0, 2);
+            btlActionRunTargetCallback((s32)(u32)*(u8 **)(work + 0x178), 5, 0, 0, 2);
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
