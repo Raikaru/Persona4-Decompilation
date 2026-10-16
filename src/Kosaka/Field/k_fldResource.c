@@ -502,8 +502,8 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern s32 FldStepIndex(void);
     extern s32 func_0015ac60(s32 arg0);
     extern s32 func_0015a7c0(s32 arg0);
-    extern void func_001599d0(void);
-    extern void func_0015b240(void);
+    extern void FldCellCreateGrid(void);
+    extern void FldStepRefreshBandResVisibility(void);
     extern void func_001582f0(s32 arg0, s32 arg1, s32 arg2);
     extern void *mdlGetClump(void *arg0);
     extern s32 func_0018c6c0(u8 *arg0, s32 arg1);
@@ -888,8 +888,8 @@ block_123:
                     func_001582f0(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x4C), 1);
                     func_0015a7c0(FldStepIndex());
                 }
-                func_001599d0();
-                func_0015b240();
+                FldCellCreateGrid();
+                FldStepRefreshBandResVisibility();
             } else if (FldMap_IsCurrentInBandB() != 0) {
                 var_9_2 = 0;
                 temp_8_2 = (u8 *)(iGpffff9db0);
@@ -906,8 +906,8 @@ block_123:
                 if (func_0015ac60(FldStepIndex()) == 0) {
                     func_0015a7c0(FldStepIndex());
                 }
-                func_001599d0();
-                func_0015b240();
+                FldCellCreateGrid();
+                FldStepRefreshBandResVisibility();
             } else {
                 MT_Scene_CreateFldRes(0, *( u8 ** )(iGpffff9db0 + 0x28));
                 var_17_3 = 0;

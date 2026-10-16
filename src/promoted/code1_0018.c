@@ -3795,7 +3795,7 @@ extern s32 FldStepLoadHandleIsDone(u8 *arg0);
 extern void FldStepLoadHandleDestroy(u8 *arg0);
 extern s32 func_0015c630(u8 *arg0);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void func_00156800(void *arg0, u32 mask);
+extern void FldTileRotateAttributes(void *arg0, u32 mask);
 typedef struct {
     s16 data[0x2B];
 } FieldPanelShape;
@@ -3899,7 +3899,7 @@ s32 func_0018f950(u8 *arg0)
         }
         if (D_008C0240[0].trigger & 0x40) {
             shape = D_005F5AC0[*(s32 *)(work + 0x1D00)];
-            func_00156800(&shape, 1 << *(s32 *)(work + 0x1AB8));
+            FldTileRotateAttributes(&shape, 1 << *(s32 *)(work + 0x1AB8));
             func_0018f7b0(work, shape.data, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4),
                           *(s32 *)(work + 0x1AB8));
         } else if (D_008C0240[0].trigger & 0x20) {
