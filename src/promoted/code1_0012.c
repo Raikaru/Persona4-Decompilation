@@ -5301,8 +5301,8 @@ void func_0012e9d0(u8 *state)
     extern void func_0034f320(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
         u16 scaleY, s16 mode, f32 angle, s16 flags);
     extern void func_00130c30(u8 *state, s64 position, s32 color);
-    extern void func_001125d0(u8 *entry);
-    extern void func_00112300(Vec2f position, f32 depth, u8 alpha, u8 *entry);
+    extern void datEntryReset(u8 *entry);
+    extern void datEntryDrawRow(Vec2f position, f32 depth, u8 alpha, u8 *entry);
     extern void func_00130680(u8 *state, s32 index);
     extern u32 datEntryGetFlags(s16 item);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
@@ -5441,7 +5441,7 @@ void func_0012e9d0(u8 *state)
         color.channels.bytes[2] = theme[2];
         color.channels.bytes[3] = headingAlpha;
         func_00130c30(state, position.packed, color.word);
-        func_001125d0((u8 *)&label);
+        datEntryReset((u8 *)&label);
         label.itemId = ((s16 *)(state + 0x3E))[selectedItem * 2];
         label.quantity = ((s16 *)(state + 0x40))[selectedItem * 2];
         label.priceMode = -1;
@@ -5452,7 +5452,7 @@ void func_0012e9d0(u8 *state)
         label.palette = 4;
         position.xy.x = position.xy.x + 1.0f;
 
-        func_00112300(position.xy, 0.0f, headingAlpha, (u8 *)&label);
+        datEntryDrawRow(position.xy, 0.0f, headingAlpha, (u8 *)&label);
     }
     if ((*(s32 *)(state + 0x14) & 4) != 0) {
         for (labelIndex = 0; labelIndex < *(s16 *)(state + 0x3C); labelIndex++) {
@@ -5559,7 +5559,7 @@ void func_0012e9d0(u8 *state)
                     position.xy.x = 266.0f + (originX + *(f32 *)(textRow + 0x1348));
                     position.xy.y = 21.0f + (*(f32 *)(textRow + 0x134C) + (originY + rowY));
 
-                    func_001125d0((u8 *)&label);
+                    datEntryReset((u8 *)&label);
                     label.itemId = itemId;
                     label.quantity = quantity;
                     label.priceMode = -1;
@@ -5574,7 +5574,7 @@ void func_0012e9d0(u8 *state)
                         label.palette = 2;
                     }
                     scaledAlpha = (f32)(u32)*(u8 *)(row + 0x1352) * opacityScale;
-                    func_00112300(position.xy, 0.0f, (u8)scaledAlpha, (u8 *)&label);
+                    datEntryDrawRow(position.xy, 0.0f, (u8)scaledAlpha, (u8 *)&label);
                 }
             }
         }

@@ -106,7 +106,7 @@ extern s32 func_0025ff60(s32 arg0);
 extern u8* cmmFishingEntryRecord(s32 arg0);
 extern s32 cmmDateTableRollValue(s32 arg0);
 extern void cmmDateTableRunEffect(s32 arg0);
-extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void datEntryDrawGatedByFlag39(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern f32 sinf(f32 arg0);
 extern void func_004b14f0(s32 arg0, void* arg1);
 extern void func_004b1420(s32 arg0, void* arg1);
@@ -1830,7 +1830,7 @@ s32 cmmScriptStepFishingRound(u8 *arg0)
         *(s16 *)(arg0 + 0x12) += 1;
         state = *(s16 *)(arg0 + 0x12);
         if (state == 1) {
-            func_00113480(5, 61, 10, 0);
+            datEntryDrawGatedByFlag39(5, 61, 10, 0);
             sdkSndStartChannel((s16)(2), (const char *)(D_00635B50));
         }
 
@@ -1898,11 +1898,11 @@ s32 cmmScriptStepFishingRound(u8 *arg0)
     case 0:
         break;
     case 1:
-        func_00113480(10, 101, 10, 0);
+        datEntryDrawGatedByFlag39(10, 101, 10, 0);
         *(s32 *)arg0 |= 0x10;
         break;
     case 2:
-        func_00113480(3, 120, 1, 0);
+        datEntryDrawGatedByFlag39(3, 120, 1, 0);
         break;
     case 3:
         *(s32 *)arg0 |= 0x20;
@@ -1975,7 +1975,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
     }
     *(s16 *)(work + 0xC) += 1;
     if ((*(s16 *)(work + 0xC) % 20) == 0) {
-        func_00113480(1, 0x50, 1, 0);
+        datEntryDrawGatedByFlag39(1, 0x50, 1, 0);
     }
     if (*(s16 *)(work + 0x1C) == 0) {
         random = RpRandom();
@@ -2085,7 +2085,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
     }
     func_004b1250((void *)(u32)model, result.value);
     if ((D_008C024E[0] & 0x20) != 0) {
-        func_00113480(3, 0x79, 3, 0);
+        datEntryDrawGatedByFlag39(3, 0x79, 3, 0);
         *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
     }
     if ((*(s16 *)(work + 0xC) % *(s16 *)(fishEntry + 0xA)) == 0) {
@@ -2093,7 +2093,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
     }
     frameCount = *(s16 *)(work + 0xC);
     if (frameCount >= 0x1E && *(s32 *)(work + 0x14) >= *(s16 *)(fishEntry + 8)) {
-        func_00113480(5, 0xC9, 5, 0);
+        datEntryDrawGatedByFlag39(5, 0xC9, 5, 0);
         *(s32 *)(work + 4) = 2;
         flags = *(s32 *)work | 8;
         *(s32 *)work = flags;

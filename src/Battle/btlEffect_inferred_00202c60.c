@@ -1517,7 +1517,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 show_detail)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1,
+    extern void datEntryDrawFlagIcon(Vec2f arg0, f32 fparg0, s32 arg1,
                               s16 arg2, s32 arg3, s32 arg4);
     u8 *glyphs;
     u8 tone;
@@ -1551,7 +1551,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
     color.bytes.c1 = tone;
     color.bytes.c2 = tone;
     color.bytes.c3 = opacity;
-    func_00113280(pos, 50.0f, color.word, id,
+    datEntryDrawFlagIcon(pos, 50.0f, color.word, id,
                   *(s32 *)(glyphs + 0x5C), *(s32 *)(glyphs + 0x60));
     frFontSetFlagBits(0x40);
     masked = opacity & 0xFF;

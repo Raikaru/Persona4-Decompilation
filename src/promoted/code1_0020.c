@@ -25,8 +25,8 @@ extern void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *dra
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
 extern void btlSelectionUpdateWindow();
-extern void func_00113500(void);
-extern void func_00113480(s32 a0, s32 a1, s32 a2, s32 a3);
+extern void datStopPadRumble(void);
+extern void datEntryDrawGatedByFlag39(s32 a0, s32 a1, s32 a2, s32 a3);
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern s32 btlPacketFinishEffect(void);
@@ -260,7 +260,7 @@ void btlUiSetWindowRect(u8 *arg0)
 
     temp_7 = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(arg0 + 0x28) == 0) {
-        func_00113480(*(s16 *)(temp_7 + 0),
+        datEntryDrawGatedByFlag39(*(s16 *)(temp_7 + 0),
                       *(s16 *)(temp_7 + 4),
                       *(s16 *)(temp_7 + 8),
                       *(s16 *)(temp_7 + 0xC));

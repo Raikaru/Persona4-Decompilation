@@ -20,7 +20,7 @@ void func_0034c260(s32 arg0);
 void* resourceFindByName(char* arg0);
 s32 sdkSpriteNewNode();
 s32 datGetFlag(s32 arg0);
-void func_00113480(s32 a, s32 b, s32 c, s32 d);
+void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
@@ -223,7 +223,7 @@ apply:
     if ((idx == 0) && (*state_ptr == 1)) {
         temp = datGetFlag(D_0064D3A0[0]);
         func_00106390(D_0064D3A0[0], 1);
-        func_00113480(0xA, 0x96, 0xA, 0);
+        datEntryDrawGatedByFlag39(0xA, 0x96, 0xA, 0);
         func_00106390(D_0064D3A0[0], temp);
     }
     return 1;
@@ -269,7 +269,7 @@ block_9:
     if ((arg1 == 0) && (*(s32 *)temp_2 == 1)) {
         temp_16 = datGetFlag(D_0064D3A0[0]);
         func_00106390(D_0064D3A0[0], 1);
-        func_00113480(0xA, 0x96, 0xA, 0);
+        datEntryDrawGatedByFlag39(0xA, 0x96, 0xA, 0);
         func_00106390(D_0064D3A0[0], temp_16);
     }
     return 1;

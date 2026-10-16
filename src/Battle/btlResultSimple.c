@@ -689,8 +689,8 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
     s32 datCalcGetLevelById(s32);
     u32 func_0010d6d0(s16);
     s32 btlXpBaseAward(u8 *);
-    void func_001125d0(u8 *);
-    void func_00112300(Vec2f, f32, u8, u8 *);
+    void datEntryReset(u8 *);
+    void datEntryDrawRow(Vec2f, f32, u8, u8 *);
     int frFontExDrawText(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
 
     (void)arg0;
@@ -880,13 +880,13 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             b22 = (u8)((*(u8 *)(w + 0x14A)));
             s21 = 0;
             while (s21 < (*(s32 *)((u8 *)(p16) + 0x38))) {
-                func_001125d0((u8 *)&aA0);
+                datEntryReset((u8 *)&aA0);
                 t3 = (u8 *)((u8 *)p16 + (s21 * 4));
                 aA0.a0 = (u16)((*(u16 *)((u8 *)(t3) + 0x2C)));
                 aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
                 aA0.b6 = 6;
                 aA0.b8 = 5;
-                func_00112300(position.xy, 0.0f, b22, (u8 *)&aA0);
+                datEntryDrawRow(position.xy, 0.0f, b22, (u8 *)&aA0);
                 position.v[1] += 34.0f;
                 s21 += 1;
             }

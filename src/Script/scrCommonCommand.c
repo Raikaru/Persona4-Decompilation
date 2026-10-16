@@ -29,8 +29,8 @@ extern s32 fadeStatus(void);
 extern s32 func_00102980(void);
 extern s32 scrGetLabelAddr(s32 index);
 extern void scrSetCurrentLabel(s32 addr);
-extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
-extern void func_00113500(void);
+extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
+extern void datStopPadRumble(void);
 extern s32 func_001064f0(s32 index);
 extern void* scrGetContext(void);
 extern void* func_0029d9b0(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
@@ -257,11 +257,11 @@ u32 func_00299310(void)
     p3 = scrGetParamInt(3);
     if (p0 == 0)
     {
-        func_00113500();
+        datStopPadRumble();
     }
     else
     {
-        func_00113480((s16)p0, (s16)p1, (s16)p2, (s16)p3);
+        datEntryDrawGatedByFlag39((s16)p0, (s16)p1, (s16)p2, (s16)p3);
     }
     return 1;
 }

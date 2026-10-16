@@ -241,8 +241,8 @@ void func_00131a00(u8 *arg0)
     extern void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-    extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
-    extern void func_001125d0(u8 *arg0);
+    extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
+    extern void datEntryReset(u8 *arg0);
     extern u32 datEntryGetFlags(s16 arg0);
     extern s16 func_00106cd0(s16 arg0, s16 arg1);
     extern u32 func_0010d6d0(s16 arg0);
@@ -496,7 +496,7 @@ void func_00131a00(u8 *arg0)
       temp_v9 = (f32)work[rowCounter * 0x30 + 0xe7a];
     temp_v9 *= opacityScale;
       descriptorAlpha = (u8)temp_v9;
-      func_001125d0((u8 *)&descriptor);
+      datEntryReset((u8 *)&descriptor);
       if ((*(u32 *)(work + 0x1c) & 0x20) != 0) {
         if (rowSelected) {
           descriptor._1a = 3;
@@ -513,7 +513,7 @@ void func_00131a00(u8 *arg0)
       descriptor._20 = 0;
       descriptor._1c = 0;
       descriptor._18 = 3;
-      func_00112300(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
+      datEntryDrawRow(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
     }
   }
   if ((*(u32 *)(work + 0x1c) & 8) != 0) {
@@ -642,7 +642,7 @@ void func_00131a00(u8 *arg0)
     temp_v9 = (f32)work[0x102a];
     temp_v9 *= opacityScale;
     descriptorAlpha = (u8)temp_v9;
-    func_001125d0((u8 *)&descriptor);
+    datEntryReset((u8 *)&descriptor);
     selectedItemId = func_00106cd0(actor.id,*(s16 *)(work + 0x2a));
     descriptor.itemId = selectedItemId;
     descriptor.quantity = 0xffff;
@@ -652,14 +652,14 @@ void func_00131a00(u8 *arg0)
     descriptor._1c = 1;
     descriptor._1a = 4;
     descriptor._18 = 3;
-    func_00112300(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
+    datEntryDrawRow(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1380) + 122.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x1384) + 94.0f;
     temp_v9 = (f32)work[0x138a];
     temp_v9 *= opacityScale;
     descriptorAlpha = (u8)temp_v9;
     descriptor.itemId = *(s16 *)(work + 0xc7a);
-    func_00112300(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
+    datEntryDrawRow(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
   }
   if ((*(u32 *)(work + 0x1c) & 0x2000) != 0) {
     u8 scrollbarAlpha;
@@ -714,7 +714,7 @@ void func_00131a00(u8 *arg0)
         lookupIndex = (s32)((s16 *)work)[0x16] + (s32)rowIndex;
         temp_v8 = *(s16 *)(work + lookupIndex * 4 + 0x4a);
         temp_v1 = *(s16 *)(work + lookupIndex * 4 + 0x4c);
-        func_001125d0((u8 *)&descriptor);
+        datEntryReset((u8 *)&descriptor);
         if (*(s16 *)(work + 0x2e) == rowIndex) {
           descriptor._1a = 3;
           func_00134f40(work, drawPosition.packed, 1, rowAlpha);
@@ -731,14 +731,14 @@ void func_00131a00(u8 *arg0)
         descriptor._1c = 1;
         descriptor._2a = selectedItemId;
         descriptor._18 = 3;
-        func_00112300(drawPosition.xy, 0.0f, rowAlpha, (u8 *)&descriptor);
+        datEntryDrawRow(drawPosition.xy, 0.0f, rowAlpha, (u8 *)&descriptor);
       }
     }
     }
   }
   if (((*(u32 *)(work + 0x1c) & 0x40) != 0) && (0 < *(s16 *)(work + 0xc46))) {
     borderMode = 0;
-    func_001125d0((u8 *)&descriptor);
+    datEntryReset((u8 *)&descriptor);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x14a0) + 124.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x14a4) + 147.0f;
     descriptor._28 = 0xffffffff;
