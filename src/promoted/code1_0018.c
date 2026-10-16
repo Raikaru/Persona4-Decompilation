@@ -3397,7 +3397,7 @@ void func_0018e030(u8 *arg0, s32 arg1)
 
 
 // FUN_0018E450
-s32 func_0018e450(u8 *arg0)
+s32 K_Test_LauncherUpdate(u8 *arg0)
 {
     s32 *p;
     s32 state;
@@ -3421,7 +3421,7 @@ s32 func_0018e450(u8 *arg0)
 }
 
 // FUN_0018E4D0
-void func_0018e4d0(u8 *arg0)
+void K_Test_LauncherDestroy(u8 *arg0)
 {
     s32 value;
     value = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
@@ -3601,7 +3601,7 @@ void FldMapTestTaskCreate(s32 arg0)
 }
 #pragma opt_propagation off
 // FUN_0018EFE0
-s32 func_0018efe0(u8 *arg0)
+s32 FldViewerUpdate(u8 *arg0)
 {
     u8 packet[0x20];
     u8 *temp_16;
@@ -3679,7 +3679,7 @@ s32 func_0018efe0(u8 *arg0)
 }
 #pragma opt_propagation on
 // FUN_0018F390
-void func_0018f390(u8 *arg0)
+void FldViewerDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
