@@ -521,7 +521,7 @@ s32 btlShuffleSeq1Run(u8 *arg0) {
     extern void btlShuffleDrawPoll(u8 *arg0, s32 arg1, s32 arg2);
     extern void btlShuffleDrawSetFrames(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
-    extern void func_00388f40(u8 *arg0);
+    extern void btlShuffleDrawViewClearHold(u8 *arg0);
     extern void func_00389110(u8 *arg0);
     extern s32 func_00389160(u8 *arg0);
     extern s32 sdkSndStartStream(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
@@ -705,7 +705,7 @@ s32 btlShuffleSeq1Run(u8 *arg0) {
             break;
         }
         *(s32 *)(sbase + 0xC) = btlShuffleDrawCheck(arg0, (u8 *)0);
-        func_00388f40(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewClearHold(*(u8 **)(arg0 + 0x1F294));
         func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
         sdkSndStartStream(1, 2, 2, 0xD);
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
@@ -844,7 +844,7 @@ extern void btlShuffleDrawSetPose(u8 *arg0, s32 arg1, u16 arg2, u16 arg3);
 extern void btlShuffleDrawPoll(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlShuffleDrawSetFrames(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
-extern void func_00388f40(u8 *arg0);
+extern void btlShuffleDrawViewClearHold(u8 *arg0);
 extern void func_00389110(u8 *arg0);
 extern s32 func_00389160(u8 *arg0);
 extern s32 sdkSndStartStream(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
@@ -1038,7 +1038,7 @@ s32 btlShuffleSeq2Run(u8 *arg0) {
             break;
         }
         *(s32 *)(sbase + 0xC) = btlShuffleDrawCheck(arg0, (u8 *)0);
-        func_00388f40(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewClearHold(*(u8 **)(arg0 + 0x1F294));
         func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
         sdkSndStartStream(1, 2, 2, 0xD);
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
@@ -1365,7 +1365,7 @@ s32 btlShuffleSeq3Run(u8 *arg0) {
             break;
         }
         *(s32 *)(sbase + 0xC) = btlShuffleDrawCheck(arg0, (u8 *)0);
-        func_00388f40(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewClearHold(*(u8 **)(arg0 + 0x1F294));
         func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
         sdkSndStartStream(1, 2, 2, 0xD);
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
