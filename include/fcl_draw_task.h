@@ -5,13 +5,13 @@
 #include "fcl_color.h"
 
 /* Creators return the SDK task handle; the handle is stored in EE word fields. */
-s32 func_002b5c90(s32 parent, FclVec2 position);
+s32 fclSpriteSpawnChild(s32 parent, FclVec2 position);
 s32 fclCmbBallTaskCreateSlots(s32 parent, u8 count, s16 order);
 s32 fclCmbBallTaskCreate(s32 parent);
 s32 func_002b8150(s32 parent);
 s32 func_002b9f90(s32 parent, s16 count, s32 resource);
 
-void func_002b5e30(u8 *task, FclDrawColor color);
+void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
 u8 *func_002b5da0(u8 *task);
 
 /* Integer and floating arguments keep their separate EE register order. */
