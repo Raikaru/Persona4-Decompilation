@@ -126,7 +126,7 @@ extern void fieldSceneUnload();
 extern s32 func_001ba0e0(struct ColorBlendWork *work);
 extern u8 *btlPacketAlloc(s32 size, s32 align);
 extern void func_001ec5e0(u8 *arg0, f32 fp);
-extern void func_001b69c0(void);
+extern void btlMainUnloadFieldScene(void);
 extern s32 func_001ba590(u8 *arg0);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
