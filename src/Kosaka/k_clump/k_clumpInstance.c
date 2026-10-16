@@ -35,7 +35,7 @@ extern void func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_003e2ab0(void *arg0, void *arg1, s32 arg2);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern void func_003e2e40(void *arg0, s32 arg1);
-extern void *func_00191e20(void *object, void *data);
+extern void *K_Clump_RenderAtomicCallBack(void *object, void *data);
 extern void K_Clump_ReadChunks(u8 *arg0, s32 *arg1, u8 *arg2);
 extern s32 K_Clump_LoadDirUpdate(u8 *arg0);
 extern void K_Clump_LoadDestroy(u8 *arg0);
@@ -111,7 +111,7 @@ void K_Clump_ReadChunks(u8 *arg0, s32 *arg1, u8 *arg2)
                     if (*(s32 *)(arg2 + 0x14C) != 0)
                     {
                         RpClumpForAllAtomics(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
-                                             func_00191e20, NULL);
+                                             K_Clump_RenderAtomicCallBack, NULL);
                     }
                 }
                 func_003c0960(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150), s0);
