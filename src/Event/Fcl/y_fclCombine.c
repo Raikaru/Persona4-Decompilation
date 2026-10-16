@@ -66,7 +66,7 @@ extern s32 fclCombineRowsBusy(u8 *);
 extern u8 *yListSlotWork(s8);
 extern u8 *yListSlotEntry(s8, s16);
 extern void datPersonaPreviewLevelUp(u8 *, u8 *, s32);
-extern s32 func_00313fb0(u8 *);
+extern s32 datPersonaExpToNextLevel(u8 *);
 extern s32 datPersonaRosterCapacity(void);
 extern void fclCombineLayoutFrame(u8 *, s64, s8);
 extern void fclCombineFadeLabelSprites(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
@@ -124,7 +124,7 @@ extern s32 func_00122520(s32, s32);
 extern s16 cmmTopCommunityOfArcana(s32);
 extern s32 fclRollRareChance(s8);
 extern void fclDrawSetPlacementEx(u8 *, s32, s8, s32, s32);
-extern s32 func_00311930(s32,  u8 *,  s8);
+extern s32 cmmCommunityExpRemaining(s32,  u8 *,  s8);
 extern s32 fclAddClamped(s32, s32, s32, s32, s8);
 extern s32 fclSubClamped(s32, s32, s32, s32, s8);
 extern f32 D_00640C10[];
@@ -1962,7 +1962,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             temp_17_9 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_16_19));
             temp_16_20 = (FclPartySlot *)(yListSlotWork(temp_18->f2F9) + (s8)temp_16_19);
             temp_19_5 = (s16)cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
-            slotMode = func_00311930(temp_19_5, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
+            slotMode = cmmCommunityExpRemaining(temp_19_5, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
             fclDrawSetPlacementEx(temp_18->f148, (s32)(temp_17_9), temp_16_20->f2E4, slotMode, 1);
             temp_16_21 = (s32)fclDrawGetResource(temp_18->f148);
             shdPersonaSetChildDispCtlHandle((u8 *)temp_16_21, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
@@ -2044,7 +2044,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     temp_17_10 = (u16 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_16_29)));
                     temp_16_30 = (FclPartySlot *)(yListSlotWork(temp_18->f2F9) + (s8)temp_16_29);
                     temp_19_6 = (s16)cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
-                    slotMode = func_00311930(temp_19_6, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
+                    slotMode = cmmCommunityExpRemaining(temp_19_6, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
                     fclDrawSetPlacementEx(temp_18->f148, (s32)(temp_17_10), temp_16_30->f2E4, slotMode, 1);
                     return;
                 }
@@ -2083,7 +2083,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     temp_17_11 = (u16 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_16_36)));
                     temp_16_37 = (FclPartySlot *)(yListSlotWork(temp_18->f2F9) + (s8)temp_16_36);
                     temp_19_7 = (s16)cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
-                    slotMode = func_00311930(temp_19_7, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
+                    slotMode = cmmCommunityExpRemaining(temp_19_7, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
                     fclDrawSetPlacementEx(temp_18->f148, (s32)(temp_17_11), temp_16_37->f2E4, slotMode, 1);
                     return;
                 }
@@ -3264,7 +3264,7 @@ block_215:
             temp_18_31 = (u16 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_16_46)));
             temp_16_47 = (u8 *)(yListSlotWork(temp_17->f2F9) + ((s8)(temp_16_46)));
             temp_19_11 = (s64)((s64)((s16)cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
-            fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_31), (*(s8 *)((u8 *)(temp_16_47)+(0x2E4))), func_00311930(temp_19_11, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
+            fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_31), (*(s8 *)((u8 *)(temp_16_47)+(0x2E4))), cmmCommunityExpRemaining(temp_19_11, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
             temp_16_48 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             shdPersonaSetChildDispCtlHandle((u8 *)temp_16_48,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
             temp_16_49 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
@@ -3363,7 +3363,7 @@ block_215:
                     temp_18_34 = (u16 *)(((u16 *)yListSlotEntry(temp_17->f2F9, (s64) temp_16_61)));
                     temp_16_62 = (u8 *)(yListSlotWork(temp_17->f2F9) + ((s8)(temp_16_61)));
                     temp_19_12 = (s64)((s64)((s16)cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
-                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_34), (*(s8 *)((u8 *)(temp_16_62)+(0x2E4))), func_00311930(temp_19_12, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
+                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_34), (*(s8 *)((u8 *)(temp_16_62)+(0x2E4))), cmmCommunityExpRemaining(temp_19_12, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
                     return;
                 }
             } else if (D_008C024E[0] & 4) {
@@ -3406,7 +3406,7 @@ block_215:
                     temp_18_35 = (u16 *)(((u16 *)yListSlotEntry(temp_17->f2F9, (s64) temp_16_69)));
                     temp_16_70 = (u8 *)(yListSlotWork(temp_17->f2F9) + ((s8)(temp_16_69)));
                     temp_19_13 = (s64)((s64)((s16)cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
-                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_35), (*(s8 *)((u8 *)(temp_16_70)+(0x2E4))), func_00311930(temp_19_13, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
+                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_35), (*(s8 *)((u8 *)(temp_16_70)+(0x2E4))), cmmCommunityExpRemaining(temp_19_13, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
                     return;
                 }
             }
@@ -4000,7 +4000,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                                         (u8 *)yListSlotEntry(p[0x2FA] + 1, 3), (u8 *)yListSlotEntry(p[0x2FA] + 1, 4),
                                         (u8 *)yListSlotEntry(slot + 1, 5), p[0x1A], 0, slot);
         }
-        fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+        fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                       (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
         shdPersonaSetChildDispCtlHandle(fclDrawGetResource(*(u8 **)(p + 0x148)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
         if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
@@ -4075,7 +4075,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(*(u8 **)(p + 0x148)), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         } else if (buttons & 4) {
@@ -4112,7 +4112,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(*(u8 **)(p + 0x148)), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         }
@@ -4417,7 +4417,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     sdkSndStartStream(0, 0, 0, 1);
                     p[0x2F9] = 1;
                     p[0x2FA] = 0;
-                    fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                    fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                                   (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(*(u8 **)(p + 0x148)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
                     if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
@@ -4599,7 +4599,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(*(u8 **)(p + 0x148)), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         } else if (D_008C024E[2] & 4) {
@@ -4623,7 +4623,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(*(u8 **)(p + 0x148)), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         }
@@ -8260,7 +8260,7 @@ void fclCombineMenuResult(u8 *arg0) {
         nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         if (fclCombineHasEntry(arg0, 8) == 1) {
             v = cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]);
-            *(s32 *)(p + 0x10) = func_00311930(v, yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
+            *(s32 *)(p + 0x10) = cmmCommunityExpRemaining(v, yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
             if (fclCombineCheckIds(arg0) == 1) {
                 *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
                 sprintf(spA0, (const char *)&iGpffffa8a4, func_00311900(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2])));
@@ -8278,7 +8278,7 @@ void fclCombineMenuResult(u8 *arg0) {
             fclCombineStartFade(arg0);
             p[1] = 0xD1;
         } else {
-            *(s32 *)(p + 0x10) = func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]), yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0);
+            *(s32 *)(p + 0x10) = cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]), yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0);
             fclCombineClearState(*(s32 *)(p + 0x254));
             datSetFlag(0x59, 1);
             fclCombineStartFade(arg0);
@@ -8909,7 +8909,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         break;
     case 0xA2:
         if (*(s8 *)(p + 0xB1) != 0) {
-            *(s32 *)(p + 0x14) = func_00313fb0(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
+            *(s32 *)(p + 0x14) = datPersonaExpToNextLevel(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             {
                 u8 *persona;
                 s32 experience;
@@ -8996,7 +8996,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             }
         } else {
             sdkSndStopStream(0, 0);
-            *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += func_00313fb0(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
+            *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += datPersonaExpToNextLevel(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             if (*(s8 *)(p + 0xB1) == 0) {
                 *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
             }

@@ -45,9 +45,9 @@ extern u16 *datPersonaGetRecord(u16 arg0);
 extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
 extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
-extern s64 func_00311d00(s32 id);
-extern s32 func_00311d60(s32 id);
-extern s32 func_00311e40(s32 id);
+extern s64 cmmCommunityIsListable(s32 id);
+extern s32 cmmCommunityPassesFlagGate(s32 id);
+extern s32 cmmCommunityHasFlagGate(s32 id);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern s32 func_00106600(s16 arg0);
 extern u32 datEntryGetFlags(s16 arg0);
@@ -1320,10 +1320,10 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
             continue;
         }
         id = (u16)i;
-        if (func_00311d00(id) == 0) {
+        if (cmmCommunityIsListable(id) == 0) {
             continue;
         }
-        if (func_00311d60(id) == 0) {
+        if (cmmCommunityPassesFlagGate(id) == 0) {
             continue;
         }
         if (func_002e6230(id, arg1) != 0) {
@@ -1342,7 +1342,7 @@ initialSearchDone:
         if (found != 0) {
             continue;
         }
-        if (func_00311e40(id) != 0) {
+        if (cmmCommunityHasFlagGate(id) != 0) {
             continue;
         }
         metadata = iGpffffb3d4;
@@ -1422,10 +1422,10 @@ initialSearchDone:
                 continue;
             }
             id = (u16)i;
-            if (func_00311d00(id) == 0) {
+            if (cmmCommunityIsListable(id) == 0) {
                 continue;
             }
-            if (func_00311d60(id) == 0) {
+            if (cmmCommunityPassesFlagGate(id) == 0) {
                 continue;
             }
             if (func_002e6230(id, arg1) != 0) {
@@ -1444,7 +1444,7 @@ expandedSearchDone:
             if (found != 0) {
                 continue;
             }
-            if (func_00311e40(id) != 0) {
+            if (cmmCommunityHasFlagGate(id) != 0) {
                 continue;
             }
             metadata = iGpffffb3d4;
@@ -1578,8 +1578,8 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
     limit = (s16)fclAddClamped(level, 3, 99, 1, 1);
     for (i = 0; i < 0xC0; i++) {
         if (iGpffffb3d4[i * 0xE + 2] == 1 && (*(u16 *)&iGpffffb3d4[i * 0xE] & 8) == 0) {
-            if (func_00311d00((u16)i) != 0 && func_00311d60((u16)i) != 0 && yListExcluded(i, exclude) == 0 &&
-                yListContains(list, i) == 0 && func_00311e40((u16)i) == 0 &&
+            if (cmmCommunityIsListable((u16)i) != 0 && cmmCommunityPassesFlagGate((u16)i) != 0 && yListExcluded(i, exclude) == 0 &&
+                yListContains(list, i) == 0 && cmmCommunityHasFlagGate((u16)i) == 0 &&
                 limit >= iGpffffb3d4[i * 0xE + 3]) {
                 memset(yListEntry(list, *(s32 *)(data + 8)), 0, 0x30);
                 datPersonaInitRecord(yListEntry(list, *(s32 *)(data + 8)), i);
