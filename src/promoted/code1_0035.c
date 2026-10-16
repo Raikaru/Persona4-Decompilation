@@ -3866,12 +3866,12 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
         *(s32 *)(arg2 + 8) = 0;
         *(s32 *)(arg2 + 0xC) = 0;
         *(u8 *)arg2 = 0xFF;
-        func_0035c830(arg2);
+        cmpConfigInitState(arg2);
         *arg0 = 1;
         *arg1 = 0;
         break;
     case 1:
-        if (func_0035cfb0(arg2) & func_0034c210()) {
+        if (cmpConfigAdvancePhase(arg2) & func_0034c210()) {
             *arg0 = 3;
             func_0034bb20(0x21);
         } else {
@@ -3879,13 +3879,13 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         break;
     case 2:
-        if (func_0035dcc0(arg2) != 0) {
-            func_0035e6a0(arg2);
+        if (cmpConfigAllRowsMet(arg2) != 0) {
+            cmpConfigFreeSprites(arg2);
             return 1;
         }
         break;
     case 3:
-        if (func_0035dcc0(arg2) != 0) {
+        if (cmpConfigAllRowsMet(arg2) != 0) {
             switch (*(s32 *)(arg2 + 0x1C)) {
             case 0:
                 resrcMngSuppressRender();
@@ -3893,7 +3893,7 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
             case 1:
                 break;
             }
-            func_0035ce10(arg2, 2);
+            cmpConfigSetMode(arg2, 2);
             *arg0 = 4;
             goto do_state4;
         }
@@ -3903,8 +3903,8 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x40) {
             kind = *(s32 *)(arg2 + 0x30);
             if (kind == 6) {
-                func_0035dd40(arg2);
-                func_0035ce10(arg2, 1);
+                cmpConfigSyncFlags(arg2);
+                cmpConfigSetMode(arg2, 1);
                 *arg0 = 2;
                 func_0034bb20(0x22);
                 switch (*(s32 *)(arg2 + 0x1C)) {
@@ -3915,11 +3915,11 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
                     break;
                 }
                 sdkSndStartStream(0, 0, 0, 1);
-            } else if (func_0035cb00(arg2, kind) != 0) {
+            } else if (cmpConfigToggleOption(arg2, kind) != 0) {
                 sdkSndStartStream(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x20) {
-            func_0035ce10(arg2, 1);
+            cmpConfigSetMode(arg2, 1);
             *arg0 = 2;
             func_0034bb20(0x22);
             switch (*(s32 *)(arg2 + 0x1C)) {
@@ -3939,16 +3939,16 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
             func_00453670(query, 7, 7, *(s32 *)(arg2 + 0x30), 0);
             func_004538e0(query, 0x4000, 0x1000, 0, 0);
             if (func_00453960(query) != 0) {
-                func_0035cab0(arg2, 0, *(s32 *)(query + 0x24));
+                cmpConfigSetValue(arg2, 0, *(s32 *)(query + 0x24));
                 sdkSndStartStream(0, 1, 0, 0);
             } else {
                 kind = *(s32 *)(arg2 + 0x30);
                 if (kind != 6) {
                     hit = 0;
                     if (D_008C0276[0] & 0x8000) {
-                        hit = func_0035cc80(arg2, kind, 1);
+                        hit = cmpConfigSetOption(arg2, kind, 1);
                     } else if (D_008C0276[0] & 0x2000) {
-                        hit = func_0035cc80(arg2, kind, 0);
+                        hit = cmpConfigSetOption(arg2, kind, 0);
                     }
                     if (hit != 0) {
                         sdkSndStartStream(0, 0, 0, 1);

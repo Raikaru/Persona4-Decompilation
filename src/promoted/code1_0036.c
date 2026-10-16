@@ -100,9 +100,9 @@ extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
 extern void datCommunityCursorFeedback(s32 arg0);
-extern s32 func_0035c690(void *arg0, s32 arg1);
-extern s32 func_0035c7d0(u8 *arg0);
-extern s32 func_0035c7f0(u8 *arg0);
+extern s32 cmpConfigCreate(void *arg0, s32 arg1);
+extern s32 cmpConfigIsStepDone(u8 *arg0);
+extern s32 cmpConfigIsStepCancelled(u8 *arg0);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern void nmMesWindowSetSlotParam(s8 arg0, s32 arg1);
 extern void nmMesWindowSetSlotFlag(s8 arg0, s32 arg1);
@@ -595,13 +595,13 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         goto block_64;
     case 8:
         if (func_0034c210() != 0) {
-            *(s32 *)(arg2 + 0x704) = func_0035c690(0, 0);
+            *(s32 *)(arg2 + 0x704) = cmpConfigCreate(0, 0);
             *arg0 = 9;
         }
         goto block_64;
     case 9:
-        if (func_0035c7d0(*(u8 **)(arg2 + 0x704)) != 0) {
-            if (func_0035c7f0(*(u8 **)(arg2 + 0x704)) != 0) {
+        if (cmpConfigIsStepDone(*(u8 **)(arg2 + 0x704)) != 0) {
+            if (cmpConfigIsStepCancelled(*(u8 **)(arg2 + 0x704)) != 0) {
                 return 2;
             }
             kwlnTaskDestroyWithHierarchy(*(s32 *)(arg2 + 0x704));
