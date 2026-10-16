@@ -4,6 +4,7 @@
 #include "type.h"
 #include "field_light_internal.h"
 #include "field_transition_internal.h"
+#include "field_frame_internal.h"
 
 extern u8 *MT_Scene_GetFrameState(void);
 extern void FldHbnFreeEntryTable(void);
@@ -247,11 +248,11 @@ s32 FldHbnLoadEntryTable(u8 *arg0)
     if (data != NULL)
     {
         FldHbnFreeEntryTable();
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18D8) = sp8C / 44;
+        ((FldFrame *)MT_Scene_GetFrameState())->eventCount = sp8C / 44;
         chkmemAllocSiteTag(D_005F1108, 0x2AD);
         temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
-        *(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x18DC) = temp_2;
-        memcpy(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18DC), data, sp8C);
+        ((FldFrame *)MT_Scene_GetFrameState())->eventTable = temp_2;
+        memcpy(((FldFrame *)MT_Scene_GetFrameState())->eventTable, data, sp8C);
     }
     if (FldRc_GetLoadSource() == 0)
     {
@@ -263,10 +264,10 @@ s32 FldHbnLoadEntryTable(u8 *arg0)
 // FUN_00160180
 void FldHbnFreeEntryTable(void)
 {
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18DC) != 0) {
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18D8) = 0;
-        (*DAT_008873EC)(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18DC));
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18DC) = 0;
+    if (((FldFrame *)MT_Scene_GetFrameState())->eventTable != 0) {
+        ((FldFrame *)MT_Scene_GetFrameState())->eventCount = 0;
+        (*DAT_008873EC)(((FldFrame *)MT_Scene_GetFrameState())->eventTable);
+        ((FldFrame *)MT_Scene_GetFrameState())->eventTable = 0;
     }
 }
 
@@ -308,9 +309,9 @@ s32 FldHbnLoadScriptBuffer(u8 *arg0, s32 arg1)
         {
             chkmemAllocSiteTag(D_005F1108, 0x2F9);
             buf = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-            *(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x1854) = buf;
-            *(u32 *)((u8 *)MT_Scene_GetFrameState() + 0x1858) = *(u32 *)(arg0 + 0x118);
-            memcpy(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x1854), *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
+            ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = buf;
+            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = *(u32 *)(arg0 + 0x118);
+            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
             H_Cdvd_Destroy(arg0);
             return 1;
         }
@@ -323,9 +324,9 @@ s32 FldHbnLoadScriptBuffer(u8 *arg0, s32 arg1)
         {
             chkmemAllocSiteTag(D_005F1108, 0x30C);
             buf = D_008873F4[0](1, (s32)(sp7C), 0x40000);
-            *(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x1854) = buf;
-            *(u32 *)((u8 *)MT_Scene_GetFrameState() + 0x1858) = sp7C;
-            memcpy(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x1854), data, sp7C);
+            ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = buf;
+            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = sp7C;
+            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, data, sp7C);
         }
         return 1;
     }
