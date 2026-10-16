@@ -402,8 +402,9 @@ static inline s32 previousStateValue_00160880(const s32 *state)
  * read before the row-offset calculations across the branch join. */
 #pragma push
 #pragma opt_lifetimes on
+// Intent: Advance the colour cross-fade from the previous state table to the current one by one step, writing blended vertex colours for seven rows of eight [inferred]
 // FUN_00160880
-void func_00160880(void)
+void FldColorCrossfadeStep(void)
 {
     s32 cur;
     s32 prev;
