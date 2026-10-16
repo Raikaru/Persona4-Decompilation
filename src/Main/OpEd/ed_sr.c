@@ -37,8 +37,8 @@ extern s32 kwlnTaskIsLinked(s32 handle);
 extern void kwlnTaskAddChild(void *a, void *b);
 extern s32 sdkSndPlayCue(s32 a, s32 b);
 extern void sdkSndStopChannel(s32 fadeDuration);
-extern s32 func_0046a1f0(s32 a, s64 b, void *c);
-extern s32 func_0046a2c0(void);
+extern s32 mwPlayerCreateReset(s32 a, s64 b, void *c);
+extern s32 mwPlayerGetCurrent(void);
 extern s32 scrGetCmdTimer(void);
 
 /* Data / jumptable globals. */
@@ -77,7 +77,7 @@ void func_0038ee40(void) {
         case 2:
             *(s32 *)(p + 0x1254) += 1;
             if (datGetFlag(0x1472) != 0) {
-                if (func_0046a2c0() == 0xCC6) {
+                if (mwPlayerGetCurrent() == 0xCC6) {
                     func_0038de90();
                 }
             } else if (*(s32 *)(p + 0x1254) == 1) {
@@ -118,7 +118,7 @@ void func_0038f010(void) {
         v = 0;
     }
     if (v != 0) {
-        *(s32 *)((u8 *)p + 0x1250) = func_0046a1f0(*(s32 *)((u8 *)p + 4), v, &D_00796340);
+        *(s32 *)((u8 *)p + 0x1250) = mwPlayerCreateReset(*(s32 *)((u8 *)p + 4), v, &D_00796340);
     }
     *(s32 *)((u8 *)p + 0x1254) = 0;
     *(s32 *)((u8 *)p + 0x124C) = 2;
