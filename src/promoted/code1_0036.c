@@ -181,7 +181,7 @@ s32 func_003619b0(u8 *arg0) {
 }
 
 // FUN_00361A30
-void func_00361a30(u8 *arg0)
+void cmpSystemMenuRelease(u8 *arg0)
 {
     s32 handle;
     s32 handle704;
@@ -501,7 +501,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         goto block_64;
     case 2:
         if (func_003619b0(arg2) != 0) {
-            func_00361a30(arg2);
+            cmpSystemMenuRelease(arg2);
             return 1;
         }
         goto block_64;
@@ -651,7 +651,7 @@ block_64:
     return 0;
 }
 // FUN_00362F00
-s32 func_00362f00(u8 *arg0)
+s32 cmpPartyPanelStepRowMotion(u8 *arg0)
 {
     f32 startY;
     f32 y;
