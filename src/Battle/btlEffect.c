@@ -746,8 +746,9 @@ u8 *btlPacketCreateHpRatio(u8 *unit)
 s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0063E918[];
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
+// Intent: Destroy the time limit task and its hierarchy if it exists [inferred]
 // FUN_002A2740
-void func_002a2740(void) {
+void timeLimitTaskDestroy(void) {
     s32 temp_2;
 
     if ((temp_2 = kwlnTaskGetTaskByName(D_0063E918)) != 0) {

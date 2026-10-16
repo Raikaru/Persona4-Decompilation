@@ -16,8 +16,8 @@ typedef struct NmlistNode NmlistNode;
 typedef struct NmlistList NmlistList;
 extern NmlistNode *func_002e2240(NmlistList *, NmlistList *, int *);
 extern s32 func_00440b68(const char *, ...);
-extern void func_00104510(s16, s16, s16, s16);
-extern void func_001047b0(s64, s32);
+extern void fclBankSlotConfigure(s16, s16, s16, s16);
+extern void fclBankSetActive(s64, s32);
 extern char D_0063FBB0[];
 extern char D_0063FBC8[];
 
@@ -165,9 +165,9 @@ s64 fclBankAcquire(int *node)
     slot->descriptor = *(u32 *)(payload + 4);
     slot->flags = *(s16 *)payload;
     slot->index = (u16)selected;
-    func_00104510(selected, (s16)((slot->descriptor & 0xFFFF0000U) >> 16),
+    fclBankSlotConfigure(selected, (s16)((slot->descriptor & 0xFFFF0000U) >> 16),
                  (s16)((slot->descriptor & 0xFF00) >> 8), (s16)(slot->descriptor & 0xFF));
-    func_001047b0(slot->index, 1);
+    fclBankSetActive(slot->index, 1);
     slot->flags |= 1;
     slot->flags |= 2;
     func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
@@ -250,9 +250,9 @@ s32 fclBankScanOthers(s16 *arg0)
 // FUN_002E13B0
 void fclBankUpdateFades(void)
 {
-    extern u8 *func_00104880(s64 bank);
-    extern void func_00104770(s64 bank, u8 alpha);
-    extern void func_00104830(s64 bank);
+    extern u8 *fclBankGetPositionPtr(s64 bank);
+    extern void fclBankSetAlpha(s64 bank, u8 alpha);
+    extern void fclBankResume(s64 bank);
     s16 *slot;
     s32 i;
     s32 fadeTicks;
@@ -287,10 +287,10 @@ void fclBankUpdateFades(void)
                     x = (s32)((1.0f - (f32)ticks / 5.0f) * 32.0f + 280.0f);
                 }
                 ratio = (f32)ticks / 5.0f;
-                *(f32 *)func_00104880(slot[4]) = (f32)x;
-                *(f32 *)(func_00104880(slot[4]) + 4) = 91.0f;
-                func_00104770(slot[4], (u8)(ratio * 255.0f));
-                func_00104830(slot[4]);
+                *(f32 *)fclBankGetPositionPtr(slot[4]) = (f32)x;
+                *(f32 *)(fclBankGetPositionPtr(slot[4]) + 4) = 91.0f;
+                fclBankSetAlpha(slot[4], (u8)(ratio * 255.0f));
+                fclBankResume(slot[4]);
                 if (slot[8] >= 5) {
                     slot[8] = 0;
                     slot[0] |= 4;
@@ -299,7 +299,7 @@ void fclBankUpdateFades(void)
                 }
                 break;
             case 3:
-                func_00104830(slot[4]);
+                fclBankResume(slot[4]);
                 break;
             case 4:
                 slot[1] = 5;
@@ -313,8 +313,8 @@ void fclBankUpdateFades(void)
                     fadeTicks = slot[8] - 4;
                     if (fadeTicks < 0) fadeTicks = 0;
                 } else fadeTicks = slot[8];
-                func_00104770(slot[4], (u8)(255.0f - ((f32)(s32)fadeTicks * 255.0f) / 5.0f));
-                func_00104830(slot[4]);
+                fclBankSetAlpha(slot[4], (u8)(255.0f - ((f32)(s32)fadeTicks * 255.0f) / 5.0f));
+                fclBankResume(slot[4]);
                 if (fadeTicks >= 5) {
                     slot[8] = 0;
                     slot[0] &= ~0x40;
@@ -362,8 +362,8 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
 {
     struct KwlnTask *task = (struct KwlnTask *)sdkTaskBytes;
     extern void kAssertFail(void *, s32);
-    extern s32 func_001048c0(s64);
-    extern void func_001044d0(s64);
+    extern s32 fclBankIsWaiting(s64);
+    extern void fclBankMarkDone(s64);
     extern u8 D_0063FBD8[], D_0063FBE8[], D_0063FBF8[];
     extern u8 D_0063FC08[], D_0063FC18[], D_0063FC28[];
     u8 *banks;
@@ -392,7 +392,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
         s32 flags = *slot;
         if (flags & 1) {
             if (flags & 2) {
-                if (func_001048c0((s16)i)) {
+                if (fclBankIsWaiting((s16)i)) {
                     *slot &= ~2;
                     *slot |= 4;
                     if (*slot & 0x400) {
@@ -434,7 +434,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
                         *slot &= ~0x800;
                         *slot &= ~4;
                         *slot &= ~1;
-                        func_001044d0(slot[4]);
+                        fclBankMarkDone(slot[4]);
                     }
                 } else if (flags & 0x1000) {
                     func_00440b68(iGpffffa890, D_0063FBB0, 763);
@@ -442,7 +442,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
                     *slot &= ~0x1000;
                     *slot &= ~4;
                     *slot &= ~1;
-                    func_001044d0(slot[4]);
+                    fclBankMarkDone(slot[4]);
                 }
             }
         }

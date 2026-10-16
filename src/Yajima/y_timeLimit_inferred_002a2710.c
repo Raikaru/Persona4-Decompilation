@@ -133,8 +133,9 @@ extern s32 func_002a1fa0(u8 *arg0);
 /* measured: opt_loop_invariants on hoists the case-zero store constant into the
    preheader, matching retail's li $v1 before the loop-entry branch. */
 /* measured: closes opt_loop_invariants around func_002a1fa0. */
+// Intent: Report whether the time limit task exists [inferred]
 // FUN_002A2710
-s32 func_002a2710(void) {
+s32 timeLimitTaskExists(void) {
     return (s32)(kwlnTaskGetTaskByName(D_0063E918) != 0);
 }
 
