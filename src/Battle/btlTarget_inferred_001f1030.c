@@ -340,10 +340,10 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     s32 flags;
     f32 scale;
     u8 *unit;
-    u8 *ctx;
+    u8 *attacker;
     s32 isTen;
     s32 id;
-    s8 kind;
+    s8 element;
     u8 party;
     u8 *actor;
     u8 *uctx;
@@ -388,12 +388,12 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     }
     off = (u32)(u16)id * 0x28;
     isTen = *(u8 *)((u8 *)addOffsetFirst(off, (u32)iGpffffb3b8) + 0x11) == 0x10;
-    ctx = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
-    *(u16 *)(ctx + 0x2C) = 0;
+    attacker = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+    *(u16 *)(attacker + 0x2C) = 0;
     if (*(u16 *)(arg0 + 0x6C) == 3 && *(u16 *)(arg0 + 0x70) > 0) {
         flags |= 1;
     }
-    kind = (s8)datCalcSkillElement(ctx, id);
+    element = (s8)datCalcSkillElement(attacker, id);
     arg0[0xD9] = 0;
     *(u16 *)(arg0 + 0xDC) = 0;
     *(s32 *)(arg0 + 0xE0) = 0;
@@ -404,7 +404,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     *(u16 *)(arg0 + 0xEC) = 0;
     *(s16 *)(arg0 + 0xEE) = -1;
     if (!(flags & 1) && func_0023df70(id) == 0) {
-        switch (datCalcThresholdTrigger(ctx, id)) {
+        switch (datCalcThresholdTrigger(attacker, id)) {
         case 1:
             *(s32 *)(arg0 + 0xE8) = 1;
             *(u16 *)(arg0 + 0xEC) = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0 ? 0x36 : 0x37;
@@ -443,6 +443,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
             }
         }
     }
+    // Persona-owned unit (state 1) using a skill type it cannot use: scale = scale * r, where r = res[+0x2C] / (persona table[+0x14] / 100) clamped to [fGpffff80d4, fGpffff812c]; [inferred].
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1 && datCalcSkillTypeAllowed(id, 1) == 0) {
         u8 *res = *(u8 **)(arg0 + 0x30);
         s32 personaOffset = *(u16 *)(res + 0xA4) * 0xE8;
@@ -464,7 +465,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     ui = 0;
     flags2 = flags | 2;
     idw = (u16)id;
-    kindU = (s32)kind;
+    kindU = (s32)element;
     for (; (s32)ui < *(u16 *)(arg0 + 0x6A); ui++) {
         s32 res;
         s32 selectedSub;
@@ -494,13 +495,13 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
         *(s32 *)(unit + 0xE8) = 0;
         *(u16 *)(unit + 0xEC) = 0;
         *(s16 *)(unit + 0xEE) = -1;
-        res = datCalcResolveSkillHit(ctx, uctx, id, flags) & 0xFFFF;
+        res = datCalcResolveSkillHit(attacker, uctx, id, flags) & 0xFFFF;
         if (res == 0x200) {
             u16 reflectedResult;
 
             actor = arg0;
-            target = ctx;
-            reflectedResult = datCalcResolveSkillHit(ctx, ctx, id, flags2) & 0xFFFF;
+            target = attacker;
+            reflectedResult = datCalcResolveSkillHit(attacker, attacker, id, flags2) & 0xFFFF;
             switch (reflectedResult) {
             case 0x200:
                 reflectedResult = 0x100;
@@ -522,15 +523,15 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
         if (*(s32 *)(unit + 0xE4) != 0) {
             selectedSub = 1;
         } else {
-            selectedSub = datCalcHitResult(ctx, target, id, res, flags);
+            selectedSub = datCalcHitResult(attacker, target, id, res, flags);
         }
         sub = selectedSub & 0xFFFF;
         if (func_0023df70(id) != 0) {
             cntA = 1;
             func_0023e1f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
-            cntB = datCalcSkillValueBase(ctx, sub);
+            cntB = datCalcSkillValueBase(attacker, sub);
         } else {
-            cntA = datCalcRollSkillValue(ctx, id, sub);
+            cntA = datCalcRollSkillValue(attacker, id, sub);
             cntB = 1;
         }
         e4 = *(s32 *)(unit + 0xE4);
@@ -550,17 +551,17 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
             }
         }
         if (e4 == 0) {
-            r1 = datCalcSkillAllowedForMode(ctx, target, id, res, sub, flags);
-            r2 = datCalcRollSupportSkillHit(ctx, uctx, id, res, sub, flags);
+            r1 = datCalcSkillAllowedForMode(attacker, target, id, res, sub, flags);
+            r2 = datCalcRollSupportSkillHit(attacker, uctx, id, res, sub, flags);
             if (r1 != 0 || func_00232710(uctx, 0x100000) != 0) {
-                counter = datCalcRollSkillChance(ctx, uctx, id, res, sub, flags);
+                counter = datCalcRollSkillChance(attacker, uctx, id, res, sub, flags);
             }
         } else {
             r1 = 0;
             r2 = 0;
         }
-        mask = datCalcStatusEffectResult(id, ctx, target, res, sub, flags);
-        mask2 = datCalcSureHitResult(id, ctx, target, res, sub, flags);
+        mask = datCalcStatusEffectResult(id, attacker, target, res, sub, flags);
+        mask2 = datCalcSureHitResult(id, attacker, target, res, sub, flags);
         ent = (u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8);
         if (ent[0x18] == 1 && (*(u32 *)(ent + 0x1C) & 0x80000) && ent[0x24] != 9 && !(mask & 0x80000)) {
             r1 = 0;
@@ -595,8 +596,8 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
             *pa = 0;
             pb = (u16 *)(unit + (j << 5) + 0x10A);
             *pb = 0;
-            va = datCalcSkillAmount(id, ctx, target, 1, res, sub, flags, 1);
-            vb = datCalcSkillAmount(id, ctx, target, 1, res, sub, flags, 2);
+            va = datCalcSkillAmount(id, attacker, target, 1, res, sub, flags, 1);
+            vb = datCalcSkillAmount(id, attacker, target, 1, res, sub, flags, 2);
             if ((s32)((f32)va * scale) != 0) {
                 va = (f32)va * scale;
             }
@@ -611,7 +612,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
             pm = (s32 *)(unit + (j << 5) + 0xF8);
             *pm = mask;
             *(s32 *)(unit + (j << 5) + 0xFC) = mask2;
-            x = datCalcSkillRoll(id, ctx, target, flags);
+            x = datCalcSkillRoll(id, attacker, target, flags);
             t = *(u8 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x11);
             switch (t) {
             case 0xC:
@@ -733,12 +734,12 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
                 func_001f9cd0(arg0, unit, id);
             }
             res30 = *(u8 **)(unit + 0x30);
-            if (res30[0xA2] == 1 && (s32)kind < 8 && !(recordResult & 6)) {
+            if (res30[0xA2] == 1 && (s32)element < 8 && !(recordResult & 6)) {
                 datSetBitmapBit(*(u16 *)(res30 + 0xA4), kindU);
             }
         }
-        if (*(u16 *)(ctx + 0x2C) != 0) {
-            lastMsg = *(u16 *)(ctx + 0x2C);
+        if (*(u16 *)(attacker + 0x2C) != 0) {
+            lastMsg = *(u16 *)(attacker + 0x2C);
         } else if (*(u16 *)(uctx + 0x2C) != 0) {
             lastMsg = *(u16 *)(uctx + 0x2C);
         }
