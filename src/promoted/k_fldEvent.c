@@ -49,7 +49,7 @@ s32 FldRc_RequestPositionSlot(u8 *, f32 *);
 void func_00182310(s32);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 void FldFrameTask_SetOrientation(u8 *, u8 *);
-s32 *func_00155280(void);
+s32 *MT_Scene_GetFrameState(void);
 void func_0018e030(s32, s32);
 void func_002bd410(void);
 void func_002bd3c0(void);
@@ -83,7 +83,7 @@ void func_0018bc20(s32);
 void func_0018bed0(s32, s32);
 void func_0018bdd0(s32);
 void mdlSetLayerWeight(u8 *, s32, f32);
-void func_001560a0(u8 *, u16, u16, u16);
+void MT_Scene_BeginValueStep(u8 *, u16, u16, u16);
 
 extern u32 D_005F17D0[];
 extern u32 D_005F17D4[];
@@ -158,11 +158,11 @@ s32 FldEvent_ScanNearbyEntries(u8 *arg0)
             flag = 0;
             t21 = cy << 8;
             t22 = cx * 0x10;
-            if (*(u8 *)((u8 *)(s32)func_00155280() + t21 + t22 + 0x5F) & 0xF) {
+            if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + t21 + t22 + 0x5F) & 0xF) {
                 flag = 1;
             }
             if (flag == 1 &&
-                !(*(u8 *)((u8 *)(s32)func_00155280() + t21 + t22 + 0x5F) & 0xF0)) {
+                !(*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + t21 + t22 + 0x5F) & 0xF0)) {
                 o2 = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o2), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x144))) + 0x30), 120.0f) !=
                         0 &&
@@ -197,11 +197,11 @@ found:
             flag2 = 0;
             t20 = cy2 << 8;
             t19 = cx2 * 0x10;
-            if (*(u8 *)((u8 *)(s32)func_00155280() + t20 + t19 + 0x5F) & 0xF) {
+            if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + t20 + t19 + 0x5F) & 0xF) {
                 flag2 = 1;
             }
             if (flag2 == 1 &&
-                !(*(u8 *)((u8 *)(s32)func_00155280() + t20 + t19 + 0x5F) & 0xF0)) {
+                !(*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + t20 + t19 + 0x5F) & 0xF0)) {
                 o = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(o), (const struct RwV3d *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(q + 0x144))) + 0x30), 120.0f) !=
                         0 &&
@@ -229,7 +229,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
     case 0:
         func_002bd410();
         func_002bd3c0();
-        r = (s32)func_00155280();
+        r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
         h[4] = func_0029db50(0xF, func_0015a100(), func_0015a130(), 3);
         func_00182310(1);
@@ -237,7 +237,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
         break;
     case 1:
         if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
-            r = (s32)func_00155280();
+            r = (s32)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(r + 0x1C), 0);
             func_00182310(0);
             D_007243EC = 0;
@@ -288,20 +288,20 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
     case 0:
         func_002bd410();
         func_002bd3c0();
-        r = (s32)func_00155280();
+        r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
         h[4] = func_0029db50(0xF, func_0015a100(), func_0015a130(), 2);
         func_00182310(1);
         h[1]++;
         break;
     case 1:
-        r = (s32)func_00155280();
+        r = (s32)MT_Scene_GetFrameState();
         if (*(s32 *)(r + 0x1C) != 0) {
-            r = (s32)func_00155280();
+            r = (s32)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(r + 0x1C), 1);
         }
         if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
-            r = (s32)func_00155280();
+            r = (s32)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(r + 0x1C), 0);
             func_00182310(0);
             h[1]++;
@@ -423,8 +423,8 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
             if (*(s32 *)(s2 + 0x234) == 1) {
                 t = *(s32 *)(*(u8 **)(s2 + 0x280) + 0xC);
                 if (t != -1) {
-                    tmp = (u8 *)(s32)func_00155280();
-                    t2 = *(s32 *)((s32)func_00155280() + 0x18E4);
+                    tmp = (u8 *)(s32)MT_Scene_GetFrameState();
+                    t2 = *(s32 *)((s32)MT_Scene_GetFrameState() + 0x18E4);
                     *(s32 *)(h + 0x10) = func_0029db50(
                         0xF, *(s32 *)(tmp + 0x18E0), t2, t);
                 } else {
@@ -443,7 +443,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 if (*(s32 *)(s2 + 0x288) != 0) {
                     func_002bd410();
                     func_002bd3c0();
-                    func_0018e030(*(s32 *)((s32)func_00155280() + 0x1C), 1);
+                    func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 1);
                     t2 = *(s32 *)(*(u8 **)(h + 0x20) + 0x28C);
                     *(s32 *)(h + 0x10) = func_0029db50(
                         0xF, *(s32 *)(*(u8 **)(h + 0x20) + 0x288), t2, 1);
@@ -461,7 +461,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 func_0018bdd0(v);
             }
             func_0018bed0(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 0);
-            func_0018e030(*(s32 *)((s32)func_00155280() + 0x1C), 0);
+            func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 0);
             func_00182310(0);
             (*(s32 *)(h + 4))++;
         }
@@ -503,12 +503,12 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
             return 0;
         }
         if ((u32)index >=
-            *(u32 *)((u8 *)(s32)func_00155280() + 0x18D8)) {
+            *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18D8)) {
             kAssertFail(D_005F1798, 0x454);
         }
 
         id = *(u16 *)(h + 0x2C);
-        entry = *(u8 **)((u8 *)(s32)func_00155280() + 0x18DC) +
+        entry = *(u8 **)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18DC) +
                 (id & 0x3FF) * 0x2C;
         if ((entry[0xD] == 1 || entry[0xD] == 3) &&
             *(u16 *)(h + 0x2E) == id) {
@@ -607,7 +607,7 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
 }
 /* measured: restore loop-invariant optimization after FldEvent_SelectEntryAtPosition. */
 #pragma opt_loop_invariants off
-/* Field event record (0x2C bytes) in the table at (s32)func_00155280() + 0x18DC. */
+/* Field event record (0x2C bytes) in the table at (s32)MT_Scene_GetFrameState() + 0x18DC. */
 typedef struct
 {
     u8 pad0[0x10];
@@ -619,9 +619,9 @@ typedef struct
     u16 unk1A;
     u8 pad1C[0x10];
 } FldEvtEntry;
-#define FLD_EVT_TABLE() (*(FldEvtEntry **)((u8 *)(s32)func_00155280() + 0x18DC))
+#define FLD_EVT_TABLE() (*(FldEvtEntry **)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18DC))
 #define FLD_EVT_ENTRY(h) (&FLD_EVT_TABLE()[*(u16 *)((h) + 0x2C) & 0x3FF])
-/* measured: retail reloads the event index after every (s32)func_00155280() call. */
+/* measured: retail reloads the event index after every (s32)MT_Scene_GetFrameState() call. */
 #pragma push
 #pragma opt_common_subs off
 // FUN_001727F0
@@ -657,15 +657,15 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
         } else {
             func_002bd410();
             func_002bd3c0();
-            func_0018e030(*(s32 *)((u8 *)(s32)func_00155280() + 0x1C), 1);
-            *(s32 *)(h + 0x10) = func_0029db50(0xF, *(s32 *)((u8 *)(s32)func_00155280() + 0x1854),
-                                               *(u32 *)((u8 *)(s32)func_00155280() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
+            func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 1);
+            *(s32 *)(h + 0x10) = func_0029db50(0xF, *(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1854),
+                                               *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
             *(s32 *)(h + 4) = 3;
         }
         func_00182310(1);
         break;
     case 1:
-        func_001560a0(*(u8 **)(s32)func_00155280(), FLD_EVT_ENTRY(h)->unk12, FLD_EVT_ENTRY(h)->unk14,
+        MT_Scene_BeginValueStep(*(u8 **)(s32)MT_Scene_GetFrameState(), FLD_EVT_ENTRY(h)->unk12, FLD_EVT_ENTRY(h)->unk14,
                       FLD_EVT_ENTRY(h)->unk16);
         *(s32 *)(h + 0x10) = 0;
         *(s32 *)(h + 4) = 2;
@@ -676,7 +676,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
         if (kwlnTaskIsLinked((void *)(*(s32 *)(h + 0x10))) == 1) {
             break;
         }
-        func_0018e030(*(s32 *)((u8 *)(s32)func_00155280() + 0x1C), 0);
+        func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 0);
         func_00182310(0);
         *(s32 *)(h + 0x10) = 0;
         *(s32 *)(h + 4) = 4;
@@ -794,7 +794,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldRc_RequestPositionSlot(u8 *, f32 *);
     void func_00182310(s32);
     u8 *func_001823c0(void);
-    s32 *func_00155280(void);
+    s32 *MT_Scene_GetFrameState(void);
     void FldUnit_SetMode(u8 *, s32);
     s32 FldRc_GetPositionSlotCount(u8 *, s32);
     s32 func_0016fd00(s32);
@@ -1005,7 +1005,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                                 cameraTarget.y += 100.0f;
                                 FldRc_RequestPositionSlot((u8 *)(func_0015c1e0(0)), (f32 *)(&cameraTarget));
                                 func_00182310(1);
-                                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
+                                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
                                 work->state = 4;
                             }
                         }
@@ -1131,7 +1131,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                             work->battle.roomId = 1;
                         }
                     }
-                    FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
+                    FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
                     hFadeTaskStart(0);
                     func_0045af60(0, 0xA, 3, 0);
                     datEntryDrawGatedByFlag39(3, 0xFF, 3, 0);
@@ -1176,7 +1176,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         work->battle.roomId = 1;
                     }
                 }
-                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
+                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
                 hFadeTaskStart(0);
                 func_0045af60(0, 0xA, 3, 0);
                 work->state = 5;
@@ -1199,30 +1199,30 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->environmentFog = iGpffffba6c;
                 if (FldUnit_AllSlotsReady() != 0) {
                     func_0015a7c0(func_0015a160());
-                    if (*(s32 *)((u8 *)func_00155280() + 0x2C) != 0) {
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x2C)));
-                        *(s32 *)((u8 *)func_00155280() + 0x2C) = 0;
+                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) != 0) {
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C)));
+                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = 0;
                     }
-                    if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0) {
-                        func_0018a000((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x30)), 1);
+                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
+                        func_0018a000((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 1);
                     }
                     func_002bd410();
                     func_002bd3c0();
-                    if (*(s32 *)((u8 *)func_00155280() + 0x1C) != 0) {
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x1C)));
-                        *(s32 *)((u8 *)func_00155280() + 0x1C) = 0;
+                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) != 0) {
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C)));
+                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = 0;
                     }
                     func_0015a520(0);
                     calendarSetMode(0);
-                    if (*(s32 *)((u8 *)func_00155280() + 0x4) != 0) {
-                        func_0016f630(&snapshot, (u8 *)*(s32 *)((u8 *)func_00155280() + 0x4));
+                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) != 0) {
+                        func_0016f630(&snapshot, (u8 *)*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4));
                         work->snapshot = snapshot;
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x4)));
-                        *(s32 *)((u8 *)func_00155280() + 0x4) = 0;
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)));
+                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = 0;
                     }
-                    if (*(s32 *)((u8 *)func_00155280() + 0x18) != 0) {
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x18)));
-                        *(s32 *)((u8 *)func_00155280() + 0x18) = 0;
+                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0) {
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18)));
+                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) = 0;
                     }
                     if (work->fieldEffect != 0) {
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(work->fieldEffect));
@@ -1306,14 +1306,14 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     }
                 }
                 {
-                    s32 v6 = func_00156170(*(u8 **)(u8 *)func_00155280());
-                    FldResource_OpenPrimaryFile(v6, func_00156180(*(u8 **)(u8 *)func_00155280()));
+                    s32 v6 = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState());
+                    FldResource_OpenPrimaryFile(v6, func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
                 }
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     work->unitState = FldUnit_GetActiveCount();
                     FldUnit_ReleaseAllSlots();
-                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)func_00155280() + 0x20)));
-                    *(s32 *)((u8 *)func_00155280() + 0x20) = 0;
+                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)));
+                    *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20) = 0;
                 } else {
                     FldUnit_StartSlotAnims();
                 }
@@ -1325,18 +1325,18 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 v6;
                 s32 a;
                 s32 b;
-                a = func_00156170(*(u8 **)(u8 *)func_00155280());
-                work->fieldTask = (s32)func_0015ff20(a, func_00156180(*(u8 **)(u8 *)func_00155280()));
-                work->environmentTask = (s32)func_001601e0(func_00156170(*(u8 **)(u8 *)func_00155280()));
+                a = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState());
+                work->fieldTask = (s32)func_0015ff20(a, func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                work->environmentTask = (s32)func_001601e0(func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
                 {
                     u32 _p88 = D_00762EA0;
                     *(s32 *)(_p88 + 0x88) = *(s32 *)(_p88 + 0x88) | 0x80000000;
                 }
-                b = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
-                fieldSceneLoad(b, func_00156180(*(u8 **)(u8 *)func_00155280()) & 0xFFFF);
-                func_00144e10((s16)func_00156190(*(u8 **)(u8 *)func_00155280()));
-                func_00144ed0((s64)(s16)func_001546a0(func_00156170(*(u8 **)(u8 *)func_00155280()), func_00156180(*(u8 **)(u8 *)func_00155280())));
-                v6 = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
+                b = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+                fieldSceneLoad(b, func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF);
+                func_00144e10((s16)func_00156190(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                func_00144ed0((s64)(s16)func_001546a0(func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()), func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
+                v6 = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
                 if (v6 == 0x2C) goto loadFieldModel;
                 if (v6 == 0x2E) goto loadFieldModel;
                 if (v6 == 0x2F) goto loadFieldModel;
@@ -1360,7 +1360,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 14:
             if (func_00160000((u8 *)(work->fieldTask)) != 0) {
                 work->fieldTask = 0;
-                if (func_001602a0((u8 *)(work->environmentTask), func_00156170(*(u8 **)(u8 *)func_00155280())) != 0) {
+                if (func_001602a0((u8 *)(work->environmentTask), func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState())) != 0) {
                     work->environmentTask = 0;
                     if (FldUnit_AllSlotAnimsDone() != 0 && fieldSceneLoadStep() != 0) {
                         s32 t = work->modelFile;
@@ -1380,34 +1380,34 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 t13;
                 u8 *res;
                 func_0015a520(1);
-                t10 = func_00186640(*(u8 **)(u8 *)func_00155280());
-                *(s32 *)((u8 *)func_00155280() + 0x2C) = t10;
-                if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0) {
-                    func_0018a000((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x30)), 0);
+                t10 = func_00186640(*(u8 **)(u8 *)MT_Scene_GetFrameState());
+                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = t10;
+                if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
+                    func_0018a000((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 0);
                 }
                 calendarSetMode(1);
                 FldUnit_UpdateSlots(1);
                 FldUnit_UpdateSlotModels();
                 FldUnit_UpdateAllEnemySlots();
-                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 0);
-                t11 = func_0016e2e0(*(s32 *)(u8 *)func_00155280());
-                *(s32 *)((u8 *)func_00155280() + 0x4) = t11;
-                func_0016f750((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x4)), (u8 *)(&work->snapshot));
+                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 0);
+                t11 = func_0016e2e0(*(s32 *)(u8 *)MT_Scene_GetFrameState());
+                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = t11;
+                func_0016f750((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)), (u8 *)(&work->snapshot));
                 {
-                    s32 *field = func_00155280();
+                    s32 *field = MT_Scene_GetFrameState();
                     u32 _pA04 = D_007EFA04[0];
                     FldFrame_BindTypedRes((u8 *)field[1], *(u16 *)(_pA04));
                 }
                 work->resource = (u8 *)MT_Scene_GetRes(0x400);
                 res = work->resource;
-                work->fieldEffect = FldEvent_SpawnMover(*(s32 *)((u8 *)func_00155280() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
-                t12 = (s32)smapCreateSymbols((u8 *)(*(s32 *)(u8 *)func_00155280()));
-                *(s32 *)((u8 *)func_00155280() + 0x18) = t12;
+                work->fieldEffect = FldEvent_SpawnMover(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
+                t12 = (s32)smapCreateSymbols((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()));
+                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) = t12;
                 func_002b2950(1);
                 sndPlayAreaCue();
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
-                    t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)func_00155280()), work->unitState);
-                    *(s32 *)((u8 *)func_00155280() + 0x20) = t13;
+                    t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()), work->unitState);
+                    *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20) = t13;
                 }
                 func_00457140(work->viewColor.r, work->viewColor.g, work->viewColor.b, 0);
                 iGpffffba4c = work->environmentColor.r;
@@ -1437,7 +1437,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 16:
-            if (FldUnit_IsSettled((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20))) != 0) {
+            if (FldUnit_IsSettled((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20))) != 0) {
                 func_00122640(1, 0);
                 work->state = work->state + 1;
             }
@@ -1465,9 +1465,9 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 99:
             goto running;
         case 100:
-            if (*(s32 *)((u8 *)func_00155280() + 0x1C) == 0) {
-                s32 v = func_0018df60(*(s32 *)(u8 *)func_00155280());
-                *(s32 *)((u8 *)func_00155280() + 0x1C) = v;
+            if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) == 0) {
+                s32 v = func_0018df60(*(s32 *)(u8 *)MT_Scene_GetFrameState());
+                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = v;
             }
             return 0;
         }
@@ -1552,8 +1552,8 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
             if (v == func_0016fe80(1) || v == func_0016ffd0(1)) {
                 mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
             }
-            if (*(s32 *)((s32)func_00155280() + 4) != 0) {
-                FldFrame_SetStateFlags(*(s32 *)((s32)func_00155280() + 4), 2);
+            if (*(s32 *)((s32)MT_Scene_GetFrameState() + 4) != 0) {
+                FldFrame_SetStateFlags(*(s32 *)((s32)MT_Scene_GetFrameState() + 4), 2);
             }
             *(s32 *)(h + 0x134) = 0;
             *(s32 *)(h + 0x14) = 0;
@@ -1564,8 +1564,8 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
         }
     case 1:
         if (((s32 (*)(u8 *))D_005F17D4[*(s32 *)(h + 0xC) * 2])(arg0) != 1) {
-            if (*(s32 *)((s32)func_00155280() + 4) != 0) {
-                FldFrame_ClearStateFlags(*(s32 *)((s32)func_00155280() + 4), 2);
+            if (*(s32 *)((s32)MT_Scene_GetFrameState() + 4) != 0) {
+                FldFrame_ClearStateFlags(*(s32 *)((s32)MT_Scene_GetFrameState() + 4), 2);
             }
             *(s32 *)(h + 0xC) = -1;
             *(s32 *)h = 0;
@@ -1646,31 +1646,31 @@ void FldEvent_StepGridCell(void)
     var_17 = D_007243E4;
     var_16 = D_007243E0;
     temp_18 =
-        (u8)((*(u8 *)((u8 *)(s32)func_00155280() + (var_16 << 8) + (var_17 * 0x10) +
+        (u8)((*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
                       0x5F) <<
               4) &
              0xF0);
-    temp_3 = (u8 *)(s32)func_00155280() + (var_16 << 8) + (var_17 * 0x10);
+    temp_3 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10);
     temp_3[0x5F] = temp_3[0x5F] | temp_18;
     func_0015ab20(func_0015a160(), var_17, var_16);
-    if (*(u8 *)((u8 *)(s32)func_00155280() + (var_16 << 8) + (var_17 * 0x10) +
+    if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
                 0x5F) &
         1) {
         var_16 -= 1;
-    } else if (*(u8 *)((u8 *)(s32)func_00155280() + (var_16 << 8) +
+    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) +
                        (var_17 * 0x10) + 0x5F) &
                2) {
         var_17 -= 1;
-    } else if (*(u8 *)((u8 *)(s32)func_00155280() + (var_16 << 8) +
+    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) +
                        (var_17 * 0x10) + 0x5F) &
                4) {
         var_16 += 1;
-    } else if (*(u8 *)((u8 *)(s32)func_00155280() + (var_16 << 8) +
+    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) +
                        (var_17 * 0x10) + 0x5F) &
                8) {
         var_17 += 1;
     }
-    if (*(u8 *)((u8 *)(s32)func_00155280() + (var_16 << 8) + (var_17 * 0x10) +
+    if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
                 0x5F) &
         0xF) {
         ;
@@ -1678,11 +1678,11 @@ void FldEvent_StepGridCell(void)
         kAssertFail(D_005F1798, 0x9DD);
     }
     temp_18_2 =
-        (u8)((*(u8 *)((u8 *)(s32)func_00155280() + (var_16 * 0x100) +
+        (u8)((*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 * 0x100) +
                       (var_17 << 4) + 0x5F) <<
               4) &
              0xF0);
-    temp_3_2 = (u8 *)(s32)func_00155280() + (var_16 * 0x100) + (var_17 << 4);
+    temp_3_2 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 * 0x100) + (var_17 << 4);
     temp_3_2[0x5F] = temp_3_2[0x5F] | temp_18_2;
     func_0015ab20(func_0015a160(), var_17, var_16);
 }
@@ -1803,20 +1803,20 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     camera.z = (f32)D_008C025F[0] - 128.0f;
     camera.x = (f32)D_008C025E[0] - 128.0f;
     if (D_008C024C[0] & 8) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
             f20 = -iGpffffb288;
             if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
             }
         }
-    } else if ((D_008C024C[0] & 4) && (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7)) {
+    } else if ((D_008C024C[0] & 4) && (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7)) {
         f20 = iGpffffb288;
         if (datGetFlag(0x3E) == 1) {
             f20 *= -1.0f;
         }
     }
     if (D_008C024E[0] & 2) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
             f32 a;
             f32 b;
             f32 rounded;
@@ -1843,7 +1843,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             }
         }
     } else if (D_008C024E[0] & 1) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
             f32 add;
             f21 = 45.0f;
             if (datGetFlag(0x3E) == 1) {
@@ -1860,7 +1860,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
             f32 scale = DAT_00761640 * -iGpffffb288;
             f20 = scale * (camera.x / -128.0f);
             if (datGetFlag(0x3E) == 1) {
@@ -1868,7 +1868,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             }
         }
     } else if (!(camera.x <= 48.0f)) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7) {
+        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
             f32 scale = DAT_00761640;
 
             scale *= iGpffffb288;
@@ -1879,8 +1879,8 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
         }
     }
     if (f20 != 0.0f) {
-        func_0016e8e0(*(u8 **)((s32)func_00155280() + 4), f20);
-    } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)func_00155280() + 4)) == 7)) {
+        func_0016e8e0(*(u8 **)((s32)MT_Scene_GetFrameState() + 4), f20);
+    } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7)) {
         *(u8 **)(h + 0x138) = func_0016f130(arg0, 5, -1);
     }
     if (move.z < -48.0f) {

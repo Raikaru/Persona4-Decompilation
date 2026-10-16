@@ -5,7 +5,7 @@
 #include "field_light_internal.h"
 #include "field_transition_internal.h"
 
-extern u8 *func_00155280(void);
+extern u8 *MT_Scene_GetFrameState(void);
 extern void func_00160180(void);
 extern void (*DAT_008873EC[])(void *);
 extern s32 FldRc_GetLoadSource(void);
@@ -241,11 +241,11 @@ s32 func_00160000(u8 *arg0)
     if (data != NULL)
     {
         func_00160180();
-        *(s32 *)((u8 *)func_00155280() + 0x18D8) = sp8C / 44;
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18D8) = sp8C / 44;
         chkmemAllocSiteTag(D_005F1108, 0x2AD);
         temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
-        *(u8 **)((u8 *)func_00155280() + 0x18DC) = temp_2;
-        memcpy(*(void **)((u8 *)func_00155280() + 0x18DC), data, sp8C);
+        *(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x18DC) = temp_2;
+        memcpy(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18DC), data, sp8C);
     }
     if (FldRc_GetLoadSource() == 0)
     {
@@ -260,10 +260,10 @@ s32 func_00160000(u8 *arg0)
 // FUN_00160180
 void func_00160180(void)
 {
-    if (*(s32 *)((u8 *)func_00155280() + 0x18DC) != 0) {
-        *(s32 *)((u8 *)func_00155280() + 0x18D8) = 0;
-        (*DAT_008873EC)(*(void **)((u8 *)func_00155280() + 0x18DC));
-        *(s32 *)((u8 *)func_00155280() + 0x18DC) = 0;
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18DC) != 0) {
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18D8) = 0;
+        (*DAT_008873EC)(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18DC));
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18DC) = 0;
     }
 }
 
@@ -305,9 +305,9 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
         {
             chkmemAllocSiteTag(D_005F1108, 0x2F9);
             buf = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-            *(u8 **)((u8 *)func_00155280() + 0x1854) = buf;
-            *(u32 *)((u8 *)func_00155280() + 0x1858) = *(u32 *)(arg0 + 0x118);
-            memcpy(*(void **)((u8 *)func_00155280() + 0x1854), *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
+            *(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x1854) = buf;
+            *(u32 *)((u8 *)MT_Scene_GetFrameState() + 0x1858) = *(u32 *)(arg0 + 0x118);
+            memcpy(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x1854), *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
             H_Cdvd_Destroy(arg0);
             return 1;
         }
@@ -320,9 +320,9 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
         {
             chkmemAllocSiteTag(D_005F1108, 0x30C);
             buf = D_008873F4[0](1, (s32)(sp7C), 0x40000);
-            *(u8 **)((u8 *)func_00155280() + 0x1854) = buf;
-            *(u32 *)((u8 *)func_00155280() + 0x1858) = sp7C;
-            memcpy(*(void **)((u8 *)func_00155280() + 0x1854), data, sp7C);
+            *(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x1854) = buf;
+            *(u32 *)((u8 *)MT_Scene_GetFrameState() + 0x1858) = sp7C;
+            memcpy(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x1854), data, sp7C);
         }
         return 1;
     }

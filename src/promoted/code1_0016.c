@@ -16,7 +16,7 @@ extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_0016e590();
 extern s32 iGpffff9f08;
 
-extern s32* func_00155280(void);
+extern s32* MT_Scene_GetFrameState(void);
 extern void (*DAT_008873EC[])(void *);
 extern u8 D_007EF9B0[];
 extern u8 D_007F16F0[];
@@ -216,9 +216,9 @@ extern void func_0016f630(FldEventSnapshot *arg0, u8 *arg1);
 // FUN_00160440
 void func_00160440(void)
 {
-    if (*(s32 *)((u8 *)((u8*)func_00155280()) + 0x1854) != 0) {
-        (*DAT_008873EC)(*(void **)((u8 *)((u8*)func_00155280()) + 0x1854));
-        *(s32 *)((u8 *)((u8*)func_00155280()) + 0x1854) = 0;
+    if (*(s32 *)((u8 *)((u8*)MT_Scene_GetFrameState()) + 0x1854) != 0) {
+        (*DAT_008873EC)(*(void **)((u8 *)((u8*)MT_Scene_GetFrameState()) + 0x1854));
+        *(s32 *)((u8 *)((u8*)MT_Scene_GetFrameState()) + 0x1854) = 0;
     }
 }
 

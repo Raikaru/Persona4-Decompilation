@@ -72,7 +72,7 @@ extern void func_0015bae0(void);
 extern void func_0016ec90(s32 arg0);
 extern void FldAI_ChaserDisable(s32 arg0);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
-extern u8* func_00155280(void);
+extern u8* MT_Scene_GetFrameState(void);
 
 typedef struct
 {
@@ -449,9 +449,9 @@ s32 Cmd_PlaceFieldResource(void)
                         FldAI_ChaserDisable(*(s32 *)(entry + 0x900));
                     }
                 }
-                fieldState = func_00155280();
+                fieldState = MT_Scene_GetFrameState();
                 if (*(s32 *)(fieldState + 4) != 0) {
-                    func_0016ec90(*(s32 *)(func_00155280() + 4));
+                    func_0016ec90(*(s32 *)(MT_Scene_GetFrameState() + 4));
                 }
             }
             break;

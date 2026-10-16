@@ -108,7 +108,7 @@ extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void FldRc_SetClumpVector(s32 arg0, s32 arg1);
 extern void FldRc_SetObjectVector(s32 arg0, s32 arg1);
 extern s32 mdlGetClump(s32 arg0);
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e0670(void *arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
@@ -169,8 +169,9 @@ extern s32 mdlPrepareModel(s32 arg0);
 
 extern void (*jtbl_008873EC[])(void *);
 
+// Intent: Set the vector on the scene's object, its clumps and the resource list 0xA entries [inferred]
 // FUN_001537C0
-void func_001537c0(u8 *arg0, s32 arg1)
+void MT_Scene_SetResVector(u8 *arg0, s32 arg1)
 {
     s32 index;
     u8 *work;
@@ -189,8 +190,9 @@ void func_001537c0(u8 *arg0, s32 arg1)
         work = *(u8 **)(work + 0x138);
     }
 }
+// Intent: Scale the colours of the scene's object and clumps by the given colour, then set the resource list's model colours [inferred]
 // FUN_001538A0
-void func_001538a0(u32 *resource, const f32 *color)
+void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
 {
     u32 i;
     s32 node;
@@ -223,16 +225,18 @@ s32 func_00153a00(u8 *unusedTask)
     func_00160880();
     return 0;
 }
+// Intent: Call the task's hook from the hook table with the work block at +0x38 [inferred]
 // FUN_00153A30
-void func_00153a30(u8 *arg0)
+void MT_Scene_CallTaskHook(u8 *arg0)
 {
     (*DAT_008873EC)(*(u8 **)(arg0 + 0x38));
 }
 
 
 
+// Intent: Apply the camera parameters from resource 0x14: field of view, view offset, distance, the slot vectors and the frame slot buffer [inferred]
 // FUN_00155070
-void func_00155070(void)
+void MT_Scene_ApplyCameraParams(void)
 {
     u8 sp30[0x40];
     u8 *temp_2;
@@ -248,19 +252,19 @@ void func_00155070(void)
         K_View_SetFov((void *)func_00457120(), *(f32 *)(temp_2 + 0x144));
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
         func_003e9cb0(*(s32 *)(func_00457120() + 4), sp30, 0);
-        func_0016e590(func_00155280()[1], *(s32 *)(temp_2 + 0x140));
-        FldFrame_SetViewOffset(func_00155280()[1], temp_2 + 0x150);
+        func_0016e590(MT_Scene_GetFrameState()[1], *(s32 *)(temp_2 + 0x140));
+        FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], temp_2 + 0x150);
         if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
             (FldMap_IsCurrentInEitherBand() == 1)) {
             *(f32 *)(temp_2 + 0x15C) = 20.0f;
         }
-        FldFrame_SetViewDistance(func_00155280()[1], *(f32 *)(temp_2 + 0x15C));
-        func_0016ea30(func_00155280()[1], *(f32 *)(temp_2 + 0x160));
+        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(temp_2 + 0x15C));
+        func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(temp_2 + 0x160));
         var_17 = 0;
         goto loop_test;
 loop_body:
         if (*(s8 *)(temp_2 + var_17 + 0x164) != 0) {
-            FldFrame_SetSlotVector(func_00155280()[1],
+            FldFrame_SetSlotVector(MT_Scene_GetFrameState()[1],
                           (s8)var_17,
                           temp_2 + var_17 * 0xC + 0x184);
         }
@@ -270,7 +274,7 @@ loop_test:
             goto loop_body;
         }
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x14C));
-        var_2 = FldFrame_GetSlotBuffer(func_00155280()[1]);
+        var_2 = FldFrame_GetSlotBuffer(MT_Scene_GetFrameState()[1]);
         var_6 = sp30;
         var_5 = 8;
         do {
@@ -282,16 +286,18 @@ loop_test:
             *(s32 *)(var_2 + 4) = temp_3;
             var_2 += 8;
         } while (var_5 > 0);
-        func_0016eb00(func_00155280()[1]);
+        func_0016eb00(MT_Scene_GetFrameState()[1]);
     }
 }
+// Intent: Clear the scene frame state block [inferred]
 // FUN_00155250
-void func_00155250(void)
+void MT_Scene_ResetFrameState(void)
 {
     memset(D_007D2510, 0, 0x18F8);
 }
+// Intent: Return the scene frame state block [inferred]
 // FUN_00155280
-s32 *func_00155280(void)
+s32 *MT_Scene_GetFrameState(void)
 {
     return D_007D2510;
 }
@@ -301,8 +307,9 @@ s32 func_00155290(void)
     return iGpffffb210;
 }
 
+// Intent: Set the three fade globals from the state pair: a scale value for state 7 (and state 6 with 6, state 21 with 1), or the defaults otherwise [inferred]
 // FUN_001552A0
-void func_001552a0(u16 arg0, u16 arg1) {
+void MT_Scene_SetFadeForState(u16 arg0, u16 arg1) {
     f32 value;
 
     value = 0.0f;
@@ -325,8 +332,9 @@ void func_001552a0(u16 arg0, u16 arg1) {
     iGpffffb28c = iGpffff830c;
     iGpffffb288 = 0x40400000;
 }
+// Intent: Store three values into the task's work block, clear two halfwords, start the step and set the state to 0x11 [inferred]
 // FUN_001560A0
-void func_001560a0(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
+void MT_Scene_BeginValueStep(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
     u8 *temp_16;
 
     temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
@@ -339,8 +347,9 @@ void func_001560a0(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
     *(s32 *)(temp_16 + 0) = 0x11;
 }
 
+// Intent: Set the work block's value at +0x8 after the subsystem reset call [inferred]
 // FUN_001560F0
-void func_001560f0(u8 *arg0, s32 arg1) {
+void MT_Scene_SetWorkValue(u8 *arg0, s32 arg1) {
     u8 *p;
 
     if (arg0 != NULL) {
@@ -544,7 +553,7 @@ s32 func_001561a0(u8 *task)
         }
         /* The camera task is parented to the active field task. */
         D_007D2514[0] = func_0016e2e0(D_007D2510[0]);
-        func_00155070();
+        MT_Scene_ApplyCameraParams();
         work->state = 8;
     case 8:
         return -1;
@@ -822,29 +831,29 @@ s32 func_00156cf0(void *arg0, u32 *arg1, u32 *arg2)
                     bx = *(s8 *)(shape + 0x16) + (x + c);
                     by = *(s8 *)(shape + 0x17) + ry;
                     if (cell == 1) {
-                        board = (u8 *)func_00155280() + (by << 8) + (bx * 0x10);
+                        board = (u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10);
                         if (board[0x54] != 0) {
                             goto next_x;
                         }
                     }
                     if (row[c + 0x18] == 2) {
-                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x54) == 1) {
+                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x54) == 1) {
                             goto next_x;
                         }
-                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x64) == 1 &&
-                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x6E) & 0x20)) {
+                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x64) == 1 &&
+                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x6E) & 0x20)) {
                             goto next_x;
                         }
-                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x44) == 1 &&
-                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x4E) & 0x80)) {
+                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x44) == 1 &&
+                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x4E) & 0x80)) {
                             goto next_x;
                         }
-                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x154) == 1 &&
-                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x15E) & 0x10)) {
+                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x154) == 1 &&
+                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x15E) & 0x10)) {
                             goto next_x;
                         }
-                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) - 0xAC) == 1 &&
-                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) - 0xA2) & 0x40)) {
+                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) - 0xAC) == 1 &&
+                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) - 0xA2) & 0x40)) {
                             goto next_x;
                         }
                     }
@@ -873,8 +882,8 @@ fits:
                 return 0;
             }
             colofs = bx * 0x10;
-            if (*((u8 *)func_00155280() + rowbase + colofs - 0xAC) != 0) {
-                if (*((u8 *)func_00155280() + rowbase + colofs - 0xA2) & 0x40) {
+            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs - 0xAC) != 0) {
+                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs - 0xA2) & 0x40) {
                     if (!(rule[r * 4 + 0x32] & 0x10)) {
                         return 0;
                     }
@@ -882,8 +891,8 @@ fits:
                     return 0;
                 }
             }
-            if (*((u8 *)func_00155280() + rowbase + colofs + 0x44) != 0) {
-                if (*((u8 *)func_00155280() + rowbase + colofs + 0x4E) & 0x80) {
+            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x44) != 0) {
+                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x4E) & 0x80) {
                     if (!(rule[r * 4 + 0x32] & 0x20)) {
                         return 0;
                     }
@@ -891,8 +900,8 @@ fits:
                     return 0;
                 }
             }
-            if (*((u8 *)func_00155280() + rowbase + colofs + 0x154) != 0) {
-                if (*((u8 *)func_00155280() + rowbase + colofs + 0x15E) & 0x10) {
+            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x154) != 0) {
+                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x15E) & 0x10) {
                     if (!(rule[r * 4 + 0x32] & 0x40)) {
                         return 0;
                     }
@@ -900,8 +909,8 @@ fits:
                     return 0;
                 }
             }
-            if (*((u8 *)func_00155280() + rowbase + colofs + 0x64) != 0) {
-                if (*((u8 *)func_00155280() + rowbase + colofs + 0x6E) & 0x20) {
+            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x64) != 0) {
+                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x6E) & 0x20) {
                     if (!(rule[r * 4 + 0x32] & 0x80)) {
                         return 0;
                     }
@@ -957,25 +966,25 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     if (py + shape[2] - 1 >= 0x18) {
         kAssertFail(D_005F05E8, 0x20C);
     }
-    *((u8 *)func_00155280() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
+    *((u8 *)MT_Scene_GetFrameState() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
     for (y = 0; y < shape[2]; y++) {
         for (x = 0, rowbase = (py + y) << 8, rowSpan = y * 3, flags = shape + rowSpan, rule = shape + rowSpan * 4; x < shape[1]; x++) {
             colofs = (px + x) * 0x10;
-            if (*((u8 *)func_00155280() + rowbase + colofs + 0x54) == 0) {
+            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x54) == 0) {
                 row = shape + (y - *(s8 *)(shape + 0x17)) * 5;
                 maskValue = row[(x - *(s8 *)(shape + 0x16)) + 0x18];
                 occupied = 1;
                 if (maskValue == occupied) {
                     colofs = (px + x) * 0x10;
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x54) = occupied;
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x55) |= flags[x + 0xD];
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x54) = occupied;
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x55) |= flags[x + 0xD];
                     entry = rule + x * 4;
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x5E) = entry[0x32];
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x5A) = shape[1];
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x5B) = shape[2];
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x58) = *(s8 *)(shape + 0);
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x59) = (u8)kind;
-                    *((u8 *)func_00155280() + rowbase + colofs + 0x5F) = entry[0x33];
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5E) = entry[0x32];
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5A) = shape[1];
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5B) = shape[2];
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x58) = *(s8 *)(shape + 0);
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x59) = (u8)kind;
+                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5F) = entry[0x33];
                     placed = 1;
                 }
             }
@@ -987,9 +996,9 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
                 if (*(s8 *)(shape + 0x17) + by < 0x18) {
                     bx = px + c;
                     if (*(s8 *)(shape + 0x16) + bx < 0x10) {
-                        if (*((u8 *)func_00155280() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) == 0 &&
+                        if (*((u8 *)MT_Scene_GetFrameState() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) == 0 &&
                             row[c + 0x18] != 0) {
-                            *((u8 *)func_00155280() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) = 2;
+                            *((u8 *)MT_Scene_GetFrameState() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) = 2;
                         }
                     }
                 }
@@ -1017,20 +1026,20 @@ void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
     s32 right_depth;
 
     if (depth < limit) {
-        if (((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x54] == 1) {
-            exits = ~incoming & ((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x5E];
-            if (((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 2) {
+        if (((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x54] == 1) {
+            exits = ~incoming & ((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x5E];
+            if (((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 2) {
                 *found_two = 1;
             }
-            if (((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] >= 9) {
+            if (((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] >= 9) {
                 *found_high = 1;
             }
             if (exits & 1) {
                 func_00157700(x, y - 1, 4, depth + 1, limit, found_two, found_high);
             }
             if (exits & 2) {
-                if ((((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 7 ||
-                     ((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 8) &&
+                if ((((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 7 ||
+                     ((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 8) &&
                     limit == 4) {
                     next_depth = depth;
                 } else {
@@ -1042,8 +1051,8 @@ void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
                 func_00157700(x, y + 1, 1, depth + 1, limit, found_two, found_high);
             }
             if (exits & 8) {
-                if ((((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 7 ||
-                     ((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 8) &&
+                if ((((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 7 ||
+                     ((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 8) &&
                     limit == 4) {
                     right_depth = depth;
                 } else {
@@ -1090,7 +1099,7 @@ void func_001579b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 next_x;
     u32 row_offset;
 
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     work = wg0015_add_ptr(work, arg1 << 8);
     work = wg0015_add_ptr(work, arg0 << 4);
     if (work[0x54] != 0) {
@@ -1100,9 +1109,9 @@ void func_001579b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         return;
     }
 
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if (arg0 == work[0x46]) {
-        work = (u8 *)func_00155280();
+        work = (u8 *)MT_Scene_GetFrameState();
         if (arg1 == work[0x47]) {
             mode = D_0076432C;
             template_id = *(s8 *)(D_005F0591 + mode * 0xC +
@@ -1119,9 +1128,9 @@ copy_special:
             if (copy_count > 0) {
                 goto copy_special;
             }
-            work = (u8 *)func_00155280();
+            work = (u8 *)MT_Scene_GetFrameState();
             func_00156800(tile, 1U << work[0x49]);
-            work = (u8 *)func_00155280();
+            work = (u8 *)MT_Scene_GetFrameState();
             wg0015_place_special(work[0x49], arg0, arg1, tile);
             goto propagate;
         }
@@ -1151,7 +1160,7 @@ main_loop:
         func_00157700(arg0 + 1, arg1, 2, 0, 5, &flag_a, &flag_b);
     }
 
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if (work[main_cell_offset + 0x58] == 3) {
         mode = *(s32 *)iGpffff9db0;
         if ((mode == 0x2E) || (mode == 0x42) ||
@@ -1167,7 +1176,7 @@ main_loop:
         goto try_choice;
     }
 
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if (work[main_cell_offset + 0x58] == 2) {
         mode = *(s32 *)iGpffff9db0;
         if ((mode == 0x2E) || (mode == 0x42) ||
@@ -1179,7 +1188,7 @@ main_loop:
     }
 
     if (D_0076432C == 0) {
-        work = (u8 *)func_00155280();
+        work = (u8 *)MT_Scene_GetFrameState();
         if (work[main_cell_offset + 0x58] == 2) {
             choice = 0;
             direction = RpRandom() & 3;
@@ -1187,7 +1196,7 @@ main_loop:
         }
     }
 
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if (work[main_cell_offset + 0x58] < 9) {
         goto choose_limited;
     }
@@ -1210,7 +1219,7 @@ choose_limited:
     choice = random_value % (u32)(D_005F0590[mode * 0xC] - 2);
     if (mode == 0) {
         random_value = D_00764314;
-        work = (u8 *)func_00155280();
+        work = (u8 *)MT_Scene_GetFrameState();
         if (random_value < ((u32)work[0x4A] >> 1)) {
             if ((choice == 3) || (choice == 6)) {
                 goto main_loop;
@@ -1230,17 +1239,17 @@ choose_limited:
         goto main_loop;
     }
 
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if ((work[main_cell_offset + 0x58] == 3) &&
         (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 3)) {
         goto main_loop;
     }
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if ((work[main_cell_offset + 0x58] == 7) &&
         (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 7)) {
         goto main_loop;
     }
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if ((work[main_cell_offset + 0x58] == 8) &&
         (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 8)) {
         goto main_loop;
@@ -1316,7 +1325,7 @@ x_body:
     next_x = x + 1;
     goto edge_test;
 edge_body:
-    work = (u8 *)func_00155280();
+    work = (u8 *)MT_Scene_GetFrameState();
     if ((work[prop_cell_offset + 0x5E] &
          (1U << (edge + 4))) != 0) {
         switch (edge) {
@@ -1420,21 +1429,21 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
         iGpffffb22c = 0;
         iGpffffb228 = 0;
         iGpffffb224 = 0;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + 0x44) = 0;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + 0x45) = 0;
         iGpffffb23c = D_005F05B8[arg0];
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         memset(t + 0x54, 0, 6144);
         borderIndex = 0;
         goto border_columns_test;
 border_columns_body:
         offset = borderIndex * 0x10;
         border = 2;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + offset + 0x54) = border;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + offset + 0x1754) = border;
         borderIndex += 1;
 border_columns_test:
@@ -1446,9 +1455,9 @@ border_columns_test:
 border_rows_body:
         offset = borderIndex * 0x100;
         border = 2;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + offset + 0x54) = border;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + offset + 0x144) = border;
         borderIndex += 1;
 border_rows_test:
@@ -1457,15 +1466,15 @@ border_rows_test:
         }
         do {
             r = (RpRandom() % 0xB) + 2;
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             *(t + 0x46) = (u8)r;
             u4 = r & 0xFF;
             r = (RpRandom() % 0x13) + 2;
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             *(t + 0x47) = (u8)r;
             u8v = r & 0xFF;
             b0 = (u8)(RpRandom() & 3);
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             *(t + 0x49) = b0;
             roomSet = D_005F0590 + iGpffffb23c * 12;
             tab = (s16 *)(D_005F0080 + *(s8 *)(roomSet + roomSet[0] + 1) * 0x56);
@@ -1478,30 +1487,30 @@ border_rows_test:
                 *dst = copyValue;
                 dst = dst + 1;
             } while (n > 0);
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             func_00156800(buf, 1U << *(t + 0x49));
         } while (func_00156cf0(buf, &u4, &u8v) == 0);
         b0 = (u8)u4;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + 0x46) = b0;
         b0 = (u8)u8v;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         *(t + 0x47) = b0;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         startX = *(t + 0x46);
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         func_001579b0(startX, *(t + 0x47), 0, 0);
         maxv = 0;
         for (j = 0; j < 0x18; j = j + 1) {
             for (i = 0; i < 0x10; i = i + 1) {
                 offset = i * 0x10;
-                t = (u8 *)func_00155280();
+                t = (u8 *)MT_Scene_GetFrameState();
                 if (*(t + j * 0x100 + offset + 0x54) == 1) {
-                    t = (u8 *)func_00155280();
+                    t = (u8 *)MT_Scene_GetFrameState();
                     if (*(t + j * 0x100 + offset + 0x58) == 5) {
-                        t = (u8 *)func_00155280();
+                        t = (u8 *)MT_Scene_GetFrameState();
                         r1 = func_0043c6a0(*(t + 0x46) - i);
-                        t = (u8 *)func_00155280();
+                        t = (u8 *)MT_Scene_GetFrameState();
                         r2 = func_0043c6a0(*(t + 0x47) - j);
                         if (maxv < (u32)(r1 + r2)) {
                             bestx = i;
@@ -1514,13 +1523,13 @@ border_rows_test:
         }
         if (maxv != 0) {
             b0 = (u8)bestx;
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             *(t + 0x44) = b0;
             b0 = (u8)besty;
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             *(t + 0x45) = b0;
             border = 6;
-            t = (u8 *)func_00155280();
+            t = (u8 *)MT_Scene_GetFrameState();
             *(t + besty * 0x100 + bestx * 0x10 + 0x58) = border;
         } else {
             iGpffffb238 = 1;
@@ -1529,9 +1538,9 @@ border_rows_test:
             iGpffffb238 = 1;
         }
         areaCount = iGpffffb224;
-        t = (u8 *)func_00155280();
+        t = (u8 *)MT_Scene_GetFrameState();
         if ((areaCount > *(t + 0x4B)) ||
-            (areaCount = iGpffffb224, t = (u8 *)func_00155280(),
+            (areaCount = iGpffffb224, t = (u8 *)MT_Scene_GetFrameState(),
              areaCount < (u32)*(t + 0x4A))) {
             iGpffffb238 = 1;
         }
@@ -1605,7 +1614,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern u8 D_00756510[];
     extern s32 D_0076432C;
     extern u8 *iGpffff9db0;
-    extern s32 *func_00155280(void);
+    extern s32 *MT_Scene_GetFrameState(void);
     extern k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2);
     extern s32 MT_Scene_CreateModelFldRes(u16 arg0, s32 arg1);
     extern s32 MT_Scene_CreateRes11(u16 arg0, s32 arg1);
@@ -1680,17 +1689,17 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
   templateIndex = 0xffffffff;
   rowOffset = (placementY & 0xffff) * 0x100;
   gridOffset = (placementX & 0xffff) * 0x10;
-  grid = (u8 *)func_00155280();
+  grid = (u8 *)MT_Scene_GetFrameState();
   if ((*(u8 *)(grid + rowOffset + gridOffset + 0x54) == '\x01') &&
-     (grid = (u8 *)func_00155280(), (*(u8 *)(grid + rowOffset + gridOffset + 0x55) & 0xf) != 0)) {
+     (grid = (u8 *)MT_Scene_GetFrameState(), (*(u8 *)(grid + rowOffset + gridOffset + 0x55) & 0xf) != 0)) {
     checkedX = (s32)(placementX & 0xffff);
-    grid = (u8 *)func_00155280();
+    grid = (u8 *)MT_Scene_GetFrameState();
     validExtent = (s32)(checkedX + *(u8 *)(grid + rowOffset + gridOffset + 0x5a) - 1) < 0x10;
     if (!validExtent) {
       kAssertFail(D_005F05E8,0x40d);
     }
     checkedY = (s32)(placementY & 0xffff);
-    grid = (u8 *)func_00155280();
+    grid = (u8 *)MT_Scene_GetFrameState();
     validExtent = (s32)(checkedY + *(u8 *)(grid + rowOffset + gridOffset + 0x5b) - 1) < 0x18;
     if (!validExtent) {
       kAssertFail(D_005F05E8,0x40e);
@@ -1699,14 +1708,14 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     worldColumnOffset = (placementX & 0xffff) * 0x10;
     worldScale = 1200.0f;
     worldCoordinate = (f32)(u32)placementX;
-    grid = (u8 *)func_00155280();
+    grid = (u8 *)MT_Scene_GetFrameState();
     worldPosition.x = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5a) - 1) * 600.0f
     ;
-    grid = (u8 *)func_00155280();
+    grid = (u8 *)MT_Scene_GetFrameState();
     worldPosition.y = (f32)(s32)*(s8 *)(grid + templateScan + worldColumnOffset + 0x5d) * 300.0f;
     worldScale = 1200.0f;
     worldCoordinate = (f32)(u32)placementY;
-    grid = (u8 *)func_00155280();
+    grid = (u8 *)MT_Scene_GetFrameState();
     worldPosition.z = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5b) - 1) * 600.0f;
     templateCount = D_005F0590[D_0076432C * 0xc];
     if (FldMap_IsCurrentInBandB() != 0) {
@@ -1716,7 +1725,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     gridOffset = wg0035_add_offset((u32)rowOffset, (u32)gridOffset);
     while (templateScan < templateCount) {
       templateKind = *(s8 *)(D_005F0590 + D_0076432C * 0xc + templateScan + 2);
-      grid = (u8 *)func_00155280();
+      grid = (u8 *)MT_Scene_GetFrameState();
       if (templateKind == *(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58)) {
         templateIndex = templateScan;
         break;
@@ -1730,23 +1739,23 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     cloneRow = (u16)placementY * 0x100;
     cloneColumn = (u16)placementX * 0x10;
     templateOffset = templateIndex * 4;
-    grid = (u8 *)func_00155280();
+    grid = (u8 *)MT_Scene_GetFrameState();
     rotation = (u16)((*(u8 *)(grid + cloneRow + cloneColumn + 0x59) + 4) % 4);
     clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
     resourceId = (u16)MT_Scene_CreateFldRes(arg0,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
     SceneDraw_SetResVisible((u16)resourceId,1);
     resrcMngResetRenderSlots();
-    for (rowIndex = 0; grid = (u8 *)func_00155280(), rowIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5b);
+    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5b);
         rowIndex = rowIndex + 1) {
       columnIndex = 0;
       occupiedRowOffset = (checkedY + rowIndex) * 0x100;
-      for (; grid = (u8 *)func_00155280(), columnIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5a);
+      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5a);
           columnIndex = columnIndex + 1) {
         occupiedColumnOffset = (checkedX + columnIndex) * 0x10;
-        grid = (u8 *)func_00155280();
+        grid = (u8 *)MT_Scene_GetFrameState();
         *(u16 *)((u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x56) = (u16)resourceId;
-        grid = (u8 *)func_00155280();
+        grid = (u8 *)MT_Scene_GetFrameState();
         {
           u8 *cell = (u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset;
           cell[0x5c] = 1;
@@ -1800,7 +1809,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           volumeIndex = volumeIndex + 1, record = record + 0x20) {
         u8 *volumeUnit;
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
-          grid = (u8 *)func_00155280();
+          grid = (u8 *)MT_Scene_GetFrameState();
           if (*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58) == '\x06') {
             volumeId = 0x3fe;
           }
@@ -1814,7 +1823,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
           for (cornerIndex = 0; cornerIndex < 4; cornerIndex = cornerIndex + 1) {
             f32 cornerAngle;
             u8 *cornerBase;
-            grid = (u8 *)func_00155280();
+            grid = (u8 *)MT_Scene_GetFrameState();
             cornerAngle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
@@ -1842,7 +1851,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x10); recordIndex = recordIndex + 1, record = record + 0x14) {
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           point_20 = *(SVec3 *)(record + 4);
-          grid = (u8 *)func_00155280();
+          grid = (u8 *)MT_Scene_GetFrameState();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
@@ -1872,7 +1881,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x18); recordIndex = recordIndex + 1, record = record + 0x14) {
         if (FldMap_IsCurrentInBandA() == 1) {
           point_30 = *(SVec3 *)(record + 4);
-          grid = (u8 *)func_00155280();
+          grid = (u8 *)MT_Scene_GetFrameState();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
@@ -1902,7 +1911,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x20); recordIndex = recordIndex + 1, record = record + 0x14) {
         if (FldMap_IsCurrentInBandA() == 1) {
           point_40 = *(SVec3 *)(record + 4);
-          grid = (u8 *)func_00155280();
+          grid = (u8 *)MT_Scene_GetFrameState();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
@@ -1933,7 +1942,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x28); recordIndex = recordIndex + 1, record = record + 0x14) {
           if (FldMap_IsCurrentInBandA() == 1) {
             point_50 = *(SVec3 *)(record + 4);
-            grid = (u8 *)func_00155280();
+            grid = (u8 *)MT_Scene_GetFrameState();
             angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
@@ -1965,7 +1974,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x30); recordIndex = recordIndex + 1, record = record + 0x20) {
           u8 *lightUnit;
           point_60 = ((FieldSerializedLightRecord *)record)->position;
-          grid = (u8 *)func_00155280();
+          grid = (u8 *)MT_Scene_GetFrameState();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
@@ -2000,7 +2009,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         }
         for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x38); recordIndex = recordIndex + 1, record = record + 0x14) {
           point_78 = *(SVec3 *)(record + 4);
-          grid = (u8 *)func_00155280();
+          grid = (u8 *)MT_Scene_GetFrameState();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
@@ -2200,8 +2209,8 @@ void func_00159d50(u8 *arg0)
     if (temp_4_2 != NULL) {
         jtbl_008873EC[0](temp_4_2);
     }
-    if (*(func_00155280() + 1) != 0) {
-        FldFrame_SetStateFlags(*(func_00155280() + 1), 1);
+    if (*(MT_Scene_GetFrameState() + 1) != 0) {
+        FldFrame_SetStateFlags(*(MT_Scene_GetFrameState() + 1), 1);
     }
     temp_4_3 = *(s32 *)(temp_16 + 0x38);
     if (temp_4_3 != 0) {
@@ -2283,7 +2292,7 @@ void func_00159f70(s32 arg0)
             }
         }
         *(s32 *)(state + 4) += arg0;
-        func_001560f0(*(u8 **)(state + 0x18), 1);
+        MT_Scene_SetWorkValue(*(u8 **)(state + 0x18), 1);
         *(s32 *)state = 5;
     }
 }
@@ -2420,7 +2429,7 @@ void func_0015a350(P4_0015_Vec3 *arg0)
         row = y << 8;
         while (x < 0x10) {
             if (*(u8 *)(wg0015_add_ptr(
-                            (u8 *)(row + (s32)(u8 *)func_00155280()),
+                            (u8 *)(row + (s32)(u8 *)MT_Scene_GetFrameState()),
                             x << 4) + 0x54) == 1) {
                 if (x <= min_x) {
                     min_x = x;
@@ -2602,14 +2611,14 @@ copy_outer_body:
 copy_inner_body:
         source_col = copy_inner * 0x10;
         dest_cell = (u8 *)D_007D3E10 + map_index * 0xC00 + (copy_outer * 0x80) + (copy_inner * 8);
-        dest_cell[0x14] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x54);
-        dest_cell[0x15] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x55);
-        dest_cell[0x16] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x58);
-        dest_cell[0x17] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x59);
-        dest_cell[0x18] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5A);
-        dest_cell[0x19] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5B);
-        dest_cell[0x1A] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5E);
-        dest_cell[0x1B] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5F);
+        dest_cell[0x14] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x54);
+        dest_cell[0x15] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x55);
+        dest_cell[0x16] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x58);
+        dest_cell[0x17] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x59);
+        dest_cell[0x18] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5A);
+        dest_cell[0x19] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5B);
+        dest_cell[0x1A] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5E);
+        dest_cell[0x1B] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5F);
         copy_inner++;
 copy_inner_test:
         if (copy_inner < 0x10) {
@@ -2684,7 +2693,7 @@ done:
         kAssertFail(D_005F05E8, 0x8E3, var_6);
     }
     if (*(u8 *)(D_007D3E10 + temp_16) == 1) {
-        work = (u8 *)func_00155280();
+        work = (u8 *)MT_Scene_GetFrameState();
         work += arg2 << 8;
         work += arg1 << 4;
         *(u8 *)(D_007D3E2B + temp_16 * 0xC00 +
@@ -2772,21 +2781,21 @@ copy_inner_body:
     dest_column = copy_inner * 0x10;
 
     value = source_cell[0x14];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x54) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x54) = value;
     value = source_cell[0x15];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x55) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x55) = value;
     value = source_cell[0x16];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x58) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x58) = value;
     value = source_cell[0x17];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x59) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x59) = value;
     value = source_cell[0x18];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x5A) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5A) = value;
     value = source_cell[0x19];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x5B) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5B) = value;
     value = source_cell[0x1A];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x5E) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5E) = value;
     value = source_cell[0x1B];
-    *((u8 *)func_00155280() + dest_row + dest_column + 0x5F) = value;
+    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5F) = value;
 
     copy_inner++;
 copy_inner_test:
@@ -2810,19 +2819,19 @@ scan_outer_body:
     goto scan_inner_test;
 scan_inner_body:
     dest_column = scan_inner * 0x10;
-    if ((((u8 *)func_00155280())[dest_row + dest_column + 0x54] == 1) &&
-        ((((u8 *)func_00155280())[dest_row + dest_column + 0x55] & 0xF) != 0)) {
-        if (((u8 *)func_00155280())[dest_row + dest_column + 0x58] == 6) {
-            *(u8 *)((u8 *)func_00155280() + 0x44) = (u8)scan_inner;
-            *(u8 *)((u8 *)func_00155280() + 0x45) = (u8)scan_outer;
+    if ((((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x54] == 1) &&
+        ((((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x55] & 0xF) != 0)) {
+        if (((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 6) {
+            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x44) = (u8)scan_inner;
+            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x45) = (u8)scan_outer;
         }
-        if ((((u8 *)func_00155280())[dest_row + dest_column + 0x58] == 0xA) ||
-            (((u8 *)func_00155280())[dest_row + dest_column + 0x58] == 0xC) ||
-            (((u8 *)func_00155280())[dest_row + dest_column + 0x58] == 0xE)) {
-            *(u8 *)((u8 *)func_00155280() + 0x46) = (u8)scan_inner;
-            *(u8 *)((u8 *)func_00155280() + 0x47) = (u8)scan_outer;
-            value = ((u8 *)func_00155280())[dest_row + dest_column + 0x59];
-            *(u8 *)((u8 *)func_00155280() + 0x49) = value;
+        if ((((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 0xA) ||
+            (((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 0xC) ||
+            (((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 0xE)) {
+            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x46) = (u8)scan_inner;
+            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x47) = (u8)scan_outer;
+            value = ((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x59];
+            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x49) = value;
         }
     }
     scan_inner++;
@@ -2912,7 +2921,7 @@ body:
                              600.0f) /
                             1200.0f);
             flag = 0;
-            if ((*(u8 *)((u8 *)func_00155280() + (field_y << 8) +
+            if ((*(u8 *)((u8 *)MT_Scene_GetFrameState() + (field_y << 8) +
                          (field_x << 4) + 0x5F) &
                  0xF0) != 0) {
                 flag = 1;
@@ -2957,18 +2966,18 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
     limit_low = arg6 & 0xFF;
     depth_low = arg5 & 0xFF;
     if (depth_low < limit_low) {
-        if (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x54] == 1) {
-            SceneDraw_SetResVisible(*(u16 *)(((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
+        if (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x54] == 1) {
+            SceneDraw_SetResVisible(*(u16 *)(((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
             *arg7 += 1;
-            exits = (~arg2 & ((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x5E]) & 0xFF;
+            exits = (~arg2 & ((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x5E]) & 0xFF;
             if (exits & 1) {
                 north_limit = (arg3 & 1) ? 3 : limit_low;
-                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
                     /* 0015B5DC..0015B5E8: no next_depth assignment. */
                     north_limit += 1;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 1) != 0)) {
+                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 1) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
@@ -2977,11 +2986,11 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
             }
             if (exits & 2) {
                 west_limit = (arg3 & 2) ? 3 : limit_low;
-                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
+                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
                     next_depth = (u8)arg5;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 2) != 0)) {
+                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 2) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
@@ -2990,12 +2999,12 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
             }
             if (exits & 4) {
                 south_limit = (arg3 & 4) ? 3 : limit_low;
-                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
                     /* 0015B8C0..0015B8CC: retain the prior next_depth. */
                     south_limit += 1;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 4) != 0)) {
+                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 4) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
@@ -3004,11 +3013,11 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
             }
             if (exits & 8) {
                 east_tmp = arg3 & 8;
-                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
                     next_depth = (u8)arg5;
-                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
+                } else if (((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
                     next_depth = (u8)arg5;
-                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 8) != 0)) {
+                } else if ((((u8 *)MT_Scene_GetFrameState() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((u8)arg4 & 8) != 0)) {
                     next_depth = (u8)arg5;
                 } else {
                     next_depth = (u8)(depth_low + 1);
