@@ -102,7 +102,7 @@ extern s32 func_001ef9a0(void);
 #pragma pop
 /* AI script command 0x2106 (p4flow AI.json AI_FUNCTION_0106). */
 // FUN_001EA360
-s32 func_001ea360(void) {
+s32 btlEffectScriptSetActionMode5(void) {
     u8 *temp;
 
     temp = func_0029d050();
@@ -112,7 +112,7 @@ s32 func_001ea360(void) {
 
 /* AI script command 0x2107 (p4flow AI.json AI_FUNCTION_0107). */
 // FUN_001EA390
-s32 func_001ea390(void)
+s32 btlEffectScriptSetActionModeWithSlot(void)
 {
     u8 *work;
     s32 index;
@@ -129,7 +129,7 @@ s32 func_001ea390(void)
 
 /* AI script command 0x2103 (p4flow AI.json AI_FUNCTION_0103). */
 // FUN_001EA420
-s32 func_001ea420(void)
+s32 btlEffectScriptCheckUnitKindFlag20(void)
 {
     scrSetReturnInt(((*(u32 *)(D_00724504 + (*(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8) * 0x18))) & 0x20) != 0);
     return 1;
@@ -137,14 +137,14 @@ s32 func_001ea420(void)
 
 /* AI script command 0x2108 (p4flow AI.json AI_FUNCTION_0108). */
 // FUN_001EA470
-s32 func_001ea470(void) {
+s32 btlEffectScriptGetStoredValueC34(void) {
     scrSetReturnInt(*(s16 *)(iGpffffb3ac + 0xC34));
     return 1;
 }
 
 /* AI script command 0x210a (p4flow AI.json AI_FUNCTION_010A). */
 // FUN_001EA4A0
-s32 func_001ea4a0(void) {
+s32 btlEffectScriptQueueFormationSequence(void) {
     s32 temp_2;
     s32 temp_2_2;
 
@@ -173,7 +173,7 @@ done:
 
 /* AI script command 0x20bb (p4flow AI.json AI_FUNCTION_00BB). */
 // FUN_001EA580
-s32 func_001ea580(void)
+s32 btlEffectScriptFinishWithCameraState21(void)
 {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
     btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
@@ -183,7 +183,7 @@ s32 func_001ea580(void)
 
 /* AI script command 0x20bc (p4flow AI.json AI_FUNCTION_00BC). */
 // FUN_001EA5F0
-s32 func_001ea5f0(void)
+s32 btlEffectScriptFinishWithCameraState2C(void)
 {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
     btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
@@ -193,7 +193,7 @@ s32 func_001ea5f0(void)
 
 /* AI script command 0x20bd (p4flow AI.json AI_FUNCTION_00BD). */
 // FUN_001EA660
-s32 func_001ea660(void)
+s32 btlEffectScriptFinishWithCameraMove(void)
 {
     struct Vec3 {
         f32 x;
@@ -230,7 +230,7 @@ s32 func_001ea660(void)
 
 /* AI script command 0x20be (p4flow AI.json AI_FUNCTION_00BE). */
 // FUN_001EA780
-s32 func_001ea780(void) {
+s32 btlEffectScriptStoreCameraVectorsA(void) {
     D_00881420[0] = scrGetParamFloat(0);
     D_00881424[0] = scrGetParamFloat(1);
     D_00881428[0] = scrGetParamFloat(2);
@@ -243,7 +243,7 @@ s32 func_001ea780(void) {
 
 /* AI script command 0x20bf (p4flow AI.json AI_FUNCTION_00BF). */
 // FUN_001EA830
-s32 func_001ea830(void) {
+s32 btlEffectScriptStoreCameraVectorsB(void) {
     D_00881410[0] = scrGetParamFloat(0);
     D_00881414[0] = scrGetParamFloat(1);
     D_00881418[0] = scrGetParamFloat(2);
@@ -256,7 +256,7 @@ s32 func_001ea830(void) {
 
 /* AI script command 0x20c0 (p4flow AI.json AI_FUNCTION_00C0). */
 // FUN_001EA8E0
-s32 func_001ea8e0(void) {
+s32 btlEffectScriptFinishWithStoredCameraMove(void) {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
     btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
     btlPacketEnqueue(func_001bcb50(
