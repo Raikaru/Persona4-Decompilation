@@ -29,7 +29,7 @@ extern void kAssertFail(u8 *, s32);
 extern void evtNodeSetRes(u8 *, u16, u16 *);
 extern u8 *mdlGetColor(s32);
 extern u8 *evtNodeAlloc(s32, u8 *);
-extern void func_0028d110(u8 *);
+extern void evtBlurFilterEnsureBlock(u8 *);
 extern void memcpy(u8 *, u8 *, s32);
 extern u8 D_005DC7D0[];
 extern u8 D_005DC878[];
@@ -152,7 +152,7 @@ void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
         switch (*(s8 *)(arg1 + 0x14)) {
         case 1:
             v16 = *(s16 *)(temp_3 + (s32)*(s32 *)(arg0 + 0x98) + 0xA);
-            func_0028d110(arg1);
+            evtBlurFilterEnsureBlock(arg1);
             if (*(s32 *)(arg1 + 0x40) == 0) {
                 kAssertFail(D_0063CAB0, 0x726);
             }
