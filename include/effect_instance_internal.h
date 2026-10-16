@@ -25,7 +25,7 @@ void mdlEffectSlotSetZero(u8 *param_1, u16 param_2);
 void mdlEffectSlotRelease(u8 *param_1, u16 param_2);
 s32 mdlEffectSlotIsFree(u8 *param_1, u16 param_2);
 
-u8 *func_004988c0(u16 kind, u8 *parameters);
+u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
 u8 *func_0049a370(u16 kind, u8 *parameters);
 u8 *func_004b4cb0(s32 kind, u8 *parameters);
 
@@ -36,7 +36,7 @@ void *func_00492f20(void *source);
 void *func_004933a0(void *source);
 void *func_00493200(void *source);
 void *func_00493530(void *source);
-void *func_00498a30(void *source);
+void *ThunderTextureForObject(void *source);
 void *func_00498b20(void *source);
 void *func_0049a4e0(void *source);
 void *func_0049a5e0(void *source);
