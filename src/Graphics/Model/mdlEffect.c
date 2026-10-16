@@ -2770,8 +2770,9 @@ void *mdlEffectCreateGridForObject(void *source) {
 
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
+// Releases the grid geometry at +0x58 through func_004841c0 and frees the object: the destroy counterpart of mdlEffectCreateGridForRecord, which allocates the object with that geometry at +0x58.
 // FUN_004A6DC0
-void func_004a6dc0(u8 *arg0)
+void mdlEffectDestroyGridObject(u8 *arg0)
 {
     func_004841c0((u8 *)*(s32 *)(arg0 + 0x58));
     jtbl_008873EC[0](arg0);
