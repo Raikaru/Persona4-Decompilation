@@ -57,7 +57,7 @@ extern f32 fGpffff84a4;
 extern f32 iGpffff8220;
 
 s32 nLineRefreshTask(u8 *task);
-void func_0034b950(void);
+void nLineDrawOriginCallback(void);
 void nLineSetDefaultDuration(void);
 void nLineInitRecords(void);
 void nLineDrawRecords(u8 *arg0, Vec2f arg1, s32 arg2);
@@ -103,7 +103,7 @@ s32 nLineInit(void) {
         kAssertFail(&iGpffffa950, 0x168);
     }
     memset(D_00882FC0, 0, 0x30);
-    D_00882FC8[0] = func_0034b950;
+    D_00882FC8[0] = nLineDrawOriginCallback;
     D_00882FD0[0] = 0;
     nLineSetDefaultDuration();
     nLineInitRecords();

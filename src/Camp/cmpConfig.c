@@ -22,7 +22,7 @@ s32 sdkSpriteNewNode();
 s32 datGetFlag(s32 arg0);
 void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
-void func_0034f8f0(void* arg0);
+void datSmoothTargetStep(void* arg0);
 void sdkRenderStateSetDefault(void);
 void nLineDrawSet(Vec2f position, s32 alpha, s32 mode, f32 depth);
 void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
@@ -685,7 +685,7 @@ void cmpConfigAnimateGraph(u8 *arg0)
         if (score < tmp2) score = tmp2;
         p = arg0 + i * 0xA;
         *(s16 *)(p + 0x3D8) = (s16)score;
-        func_0034f8f0(p + 0x3D8);
+        datSmoothTargetStep(p + 0x3D8);
         i++;
     }
 }
