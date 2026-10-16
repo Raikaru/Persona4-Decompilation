@@ -281,7 +281,7 @@ extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
 extern f32 fGpffff80e4;
 extern f32 btlTargetQuatAngle(void *first, void *second);
-extern s32 func_004b3110(s16 frames);
+extern s32 CrossfadeRequest(s16 frames);
 extern s32 datCalcGetLevelById(s32 arg0);
 
 // Intent: Report whether a shuffle child task has its cancel-request bit (0x4) set in its flag word [inferred]

@@ -39,9 +39,9 @@ extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
 extern void func_004843a0();
 extern void func_00484280();
 extern void memset(void *, s32, s32);
-extern void func_004bd1a0(f32);
-extern void func_004bd3c0(f32);
-extern void func_004bd450(void);
+extern void effMiscRotateXVU(f32);
+extern void effMiscRotateYVU(f32);
+extern void effMiscCombineRotationVU(void);
 extern f32 cosf(f32);
 extern f32 sinf(f32);
 extern RpGeometry *func_003c22f0(RpGeometry *);
@@ -1365,7 +1365,7 @@ void SpiralWindFreeBlock(u8 *arg0) {
 
 /* Spiral wind strip update. Each live particle samples sampleCount points on a
  * circle (cosf/sinf), transforms them by the VU0 matrix set up by
- * func_004bd1a0/3c0/450, and widens the strip along the normalised cross
+ * effMiscRotateXVU, effMiscRotateYVU and effMiscCombineRotationVU, and widens the strip along the normalised cross
  * product; the results pass through D_00713D10 as in effLineNova. The FPU
  * constants are named locals assigned in retail's preheader order, and the
  * FPR locals are declared in the order regalloc_whatif.py derived from the
@@ -1521,9 +1521,9 @@ void SpiralWindUpdateStrip(u8 *arg0)
             step = -*(f32 *)(particle + 0x24) / sampleScale;
         }
         v0 = *(f32 *)(particle + 0x28);
-        func_004bd1a0(*(f32 *)(particle + 0x8));
-        func_004bd3c0(*(f32 *)(particle + 0xC));
-        func_004bd450();
+        effMiscRotateXVU(*(f32 *)(particle + 0x8));
+        effMiscRotateYVU(*(f32 *)(particle + 0xC));
+        effMiscCombineRotationVU();
         point.lane[0] = cosf(angle);
         point.lane[1] = zero;
         point.lane[2] = sinf(angle);

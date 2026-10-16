@@ -50,7 +50,7 @@ typedef struct WaveSpawnEmitter {
     u32 unknown2c;
 } WaveSpawnEmitter;
 
-/* VF28..30 contain the basis established by func_004bceb0. The W lane is
+/* VF28..30 contain the basis established by effMiscBuildRotationVU. The W lane is
  * transformed too; normalization below intentionally changes XYZ only. */
 static inline void spawnVuTransform10(void)
 {

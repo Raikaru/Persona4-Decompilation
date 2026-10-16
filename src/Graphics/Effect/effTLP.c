@@ -52,8 +52,9 @@ typedef struct TlpSel
     void *tex; // 0x10
 } TlpSel;      // 0x14
 
+// Creates a TLP object from a 0x10-byte descriptor: checks the 'TLP0' magic, allocates the entries and texture-id table, uploads each texture stream, and sets the reference count to one.
 // FUN_00482800
-TLP *func_00482800(TlpDesc *desc)
+TLP *TlpCreate(TlpDesc *desc)
 {
     u32 j;
     u32 cnt;
@@ -99,8 +100,9 @@ TLP *func_00482800(TlpDesc *desc)
     return work;
 }
 
+// Drops a reference; at zero releases every texture id and the object.
 // FUN_004829C0
-void func_004829c0(TLP *work)
+void TlpRelease(TLP *work)
 {
     s32 n;
     u32 i;
@@ -118,8 +120,9 @@ void func_004829c0(TLP *work)
     }
 }
 
+// Adds a reference and returns the object; asserts that it is live.
 // FUN_00482A70
-TLP *func_00482a70(TLP *work)
+TLP *TlpAddRef(TLP *work)
 {
     if (work->refCount == 0) {
         kAssertFail(D_00713300, 0x68);
@@ -128,8 +131,9 @@ TLP *func_00482a70(TLP *work)
     return work;
 }
 
+// Chooses the entry for index (wrapping when flags bit 0 is set, otherwise clamping to the last entry) and fills out with its texture and size; flags bit 2 doubles the scale.
 // FUN_00482AD0
-void func_00482ad0(TLP *work, u32 index, TlpSel *out)
+void TlpSelectFrame(TLP *work, u32 index, TlpSel *out)
 {
     TlpEntry *e;
     u32 j;
