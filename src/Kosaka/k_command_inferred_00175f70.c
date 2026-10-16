@@ -47,7 +47,7 @@ extern s32 func_00102980(void);
 extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
-extern s32 func_00110e80(void);
+extern s32 calCaptureStateImage(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
@@ -79,7 +79,7 @@ extern u8 D_00794E70[];
 
 
 extern s32 scrGetCmdTimer(void);
-extern s32 func_00110f00(void);
+extern s32 calRestoreStateImage(void);
 extern s32 func_00110fc0(void);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
@@ -226,7 +226,7 @@ s32 FldEvent_IsHeadingTurning(u8 *arg0)
 // FUN_001761F0
 s32 func_001761f0(void)
 {
-    func_00110e80();
+    calCaptureStateImage();
     return 1;
 }
 
@@ -234,7 +234,7 @@ s32 func_001761f0(void)
 s32 func_00176220(void)
 {
     if (scrGetCmdTimer() > 3) {
-        scrSetReturnInt(func_00110f00());
+        scrSetReturnInt(calRestoreStateImage());
         return 1;
     }
     scrSetReturnInt(0);

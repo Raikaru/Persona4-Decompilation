@@ -46,7 +46,7 @@ extern s32 func_00102980(void);
 extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
-extern s32 func_00110e80(void);
+extern s32 calCaptureStateImage(void);
 extern s32 *func_00155280(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_0016fd00(void);
@@ -112,7 +112,7 @@ extern u8 D_00794E70[];
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 scrGetCmdTimer(void);
-extern s32 func_00110f00(void);
+extern s32 calRestoreStateImage(void);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
 extern void scrSetReturnInt(s32 arg0);

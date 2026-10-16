@@ -21,7 +21,7 @@ void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
 void shdPersonaSetupChannels();
 void shdPersonaBeginOpen();
 void shdPersonaDispCtlSetColor(s32, s32);
-void func_0011fd10(s32);
+void kwlnTaskDestroyHierarchyAlt(s32);
 s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 void shdPersonaBeginClose();
 s32 ShdSkill_MoveCursor(u8 *state, s32 force);
@@ -4793,7 +4793,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     }
     case 7:
         if (func_0011fcf0(*(u8 **)(work + 0x18)) != 0) {
-            func_0011fd10(*(s32 *)(work + 0x18));
+            kwlnTaskDestroyHierarchyAlt(*(s32 *)(work + 0x18));
             *(u8 **)(work + 0x18) = NULL;
             *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
             func_002baac0((u8 *)(*(s32 *)(work + 0x24)));
@@ -4927,7 +4927,7 @@ void shdPersonaLevelUpDestroy(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)(b + 0x18) != 0) {
-        func_0011fd10(*(s32 *)(b + 0x18));
+        kwlnTaskDestroyHierarchyAlt(*(s32 *)(b + 0x18));
         *(s32 *)(b + 0x18) = 0;
     }
     jtbl_008873EC[0](b);

@@ -26,7 +26,7 @@ extern s32 cmmCommunityCanRankUp(s32 idx);
 extern s32 cmmCommunityFindRecord(s32 idx);
 extern s32 calGetWeekdayOfDay(s32 a);
 extern s32 calIsCurrentMonthDay(s32 a, s32 b, s32 c);
-extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
+extern s32 calIsDayInRange(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
 extern s32 func_00107ac0(s32 idx);
 extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 arg1);
@@ -369,28 +369,28 @@ s32 cmmConditionMet(s32 arg0) {
     }
     return 0;
 }
-// Has pending unlock: returns 1 when unlock flag 0x11 is still unset and the event check func_001106f0 passes for the current community; else 0.
+// Has pending unlock: returns 1 when unlock flag 0x11 is still unset and the event check calIsDayInRange passes for the current community; else 0.
 // FUN_00247020
 s32 cmmHasPendingUnlock(void) {
-    if ((datGetFlag(0x11) == 0) && (func_001106f0((s16)datGetDateIndex(), 4, 0x12, 4, 0x1D) != 0)) {
+    if ((datGetFlag(0x11) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 4, 0x12, 4, 0x1D) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x12) == 0) && (func_001106f0((s16)datGetDateIndex(), 5, 0x12, 6, 4) != 0)) {
+    if ((datGetFlag(0x12) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 5, 0x12, 6, 4) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x13) == 0) && (func_001106f0((s16)datGetDateIndex(), 6, 0x18, 7, 9) != 0)) {
+    if ((datGetFlag(0x13) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 6, 0x18, 7, 9) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x14) == 0) && (func_001106f0((s16)datGetDateIndex(), 7, 0x1B, 8, 0xC) != 0)) {
+    if ((datGetFlag(0x14) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 7, 0x1B, 8, 0xC) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x15) == 0) && (func_001106f0((s16)datGetDateIndex(), 9, 0x10, 0xA, 5) != 0)) {
+    if ((datGetFlag(0x15) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 9, 0x10, 0xA, 5) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x16) == 0) && (func_001106f0((s16)datGetDateIndex(), 0xB, 6, 0xB, 0x14) != 0)) {
+    if ((datGetFlag(0x16) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 0xB, 6, 0xB, 0x14) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x17) == 0) && (func_001106f0((s16)datGetDateIndex(), 0xC, 8, 0xC, 0x18) != 0)) {
+    if ((datGetFlag(0x17) == 0) && (calIsDayInRange((s16)datGetDateIndex(), 0xC, 8, 0xC, 0x18) != 0)) {
         return 1;
     }
     return 0;
