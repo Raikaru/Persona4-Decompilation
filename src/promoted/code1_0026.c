@@ -143,7 +143,7 @@ extern u8 iGpffffa734;
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
 extern u8 *kwlnGetCamera(void);
-extern void func_004b1470(s32 arg0, f32 *arg1);
+extern void mdlEffectBuildObjectMatrix(s32 arg0, f32 *arg1);
 
 extern s32 calGetWeekdayOfDay(s32 arg0);
 extern s32 calHasDayEntry(s32 arg0);

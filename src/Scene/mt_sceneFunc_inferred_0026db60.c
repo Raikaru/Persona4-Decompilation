@@ -94,7 +94,7 @@ extern u8 iGpffffa734;
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
 extern u8 *kwlnGetCamera(void);
-extern void func_004b1470(s32 arg0, f32 *arg1);
+extern void mdlEffectBuildObjectMatrix(s32 arg0, f32 *arg1);
 
 /* Source unit: src/promoted/code1_0026.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 0026db60-0026e010 */
@@ -242,8 +242,8 @@ s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1)
     frame.vC0[2] = temp_f1;
     temp_16 = *arg1;
     temp_2 = *arg0;
-    func_004b1470(*(s32 *)(temp_2 + 0x144), frame.v80);
-    func_004b1470(*(s32 *)(temp_16 + 0x144), frame.v40);
+    mdlEffectBuildObjectMatrix(*(s32 *)(temp_2 + 0x144), frame.v80);
+    mdlEffectBuildObjectMatrix(*(s32 *)(temp_16 + 0x144), frame.v40);
     temp_B0 = frame.vB0;
     temp_70 = frame.v70;
     frame.vE0[0] = temp_B0[0] - frame.vC0[0];
