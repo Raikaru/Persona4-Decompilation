@@ -433,18 +433,18 @@ static void evtNodeUnlink(int param_1, int param_2) {
 // Event node: allocates a 0x98-byte node of 'type' and inserts it into 'parent'.
 // FUN_00286F00
 void *evtNodeAlloc(int param_1, int param_2) {
-    void *r;
+    EvtNode *r;
     chkmemAllocSiteTag(D_00748340, 0x52);
-    r = D_008873F4[0](1, 0x98, 0x40000);
+    r = (EvtNode *)D_008873F4[0](1, 0x98, 0x40000);
     evtMemAccount(7, 0x98);
     if (r == 0) {
         return NULL;
     }
     memset(r, 0, 0x98);
-    *(u32 *)((u8 *)r + 0) = param_1;
+    r->kind = param_1;
     *(u32 *)((u8 *)r + 8) = -1;
-    *(u16 *)((u8 *)r + 0xC) = 0;
-    *(u32 *)((u8 *)r + 0x60) = 0;
+    r->flags = 0;
+    r->timedFlag = 0;
     switch (param_1) {
     case 0x30:
         *(s8 *)((u8 *)r + 0x1E) = -1;
@@ -475,20 +475,20 @@ void evtNodeSetRes(int param_1, int param_2, int param_3) {
 // Event node: evtNodeAlloc followed by an attached scene resource.
 // FUN_00287060
 void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
-    s32 *r;
+    EvtNode *r;
     u8 *t;
 
     chkmemAllocSiteTag(D_00748340, 0x52);
-    r = D_008873F4[0](1, 0x98, 0x40000);
+    r = (EvtNode *)D_008873F4[0](1, 0x98, 0x40000);
     evtMemAccount(7, 0x98);
     if (r == NULL) {
         r = NULL;
     } else {
         memset(r, 0, 0x98);
-        *(s32 *)((u8 *)r + 0) = arg0;
+        r->kind = arg0;
         *(s32 *)((u8 *)r + 8) = -1;
-        *(s16 *)((u8 *)r + 0xC) = 0;
-        *(s32 *)((u8 *)r + 0x60) = 0;
+        r->flags = 0;
+        r->timedFlag = 0;
         switch (arg0) {
         case 0x30:
             *(s8 *)((u8 *)r + 0x1E) = -1;
@@ -497,14 +497,14 @@ void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
         evtListInsertSorted((u32 *)r, (u32 *)arg1);
     }
     if ((r != NULL) && (r != NULL)) {
-        *(u16 *)((u8 *)r + 0xC) = arg2;
-        t = MT_Scene_GetRes(*(u16 *)((u8 *)r + 0xC));
+        r->flags = arg2;
+        t = MT_Scene_GetRes(r->flags);
         if (t != NULL) {
-            *(s32 *)((u8 *)r + 0x54) = *(s32 *)(t + 0x28);
+            r->resData = *(u32 *)(t + 0x28);
         } else {
-            *(s32 *)((u8 *)r + 0x54) = 0;
+            r->resData = 0;
         }
-        *(s32 *)((u8 *)r + 0x34) = arg3;
+        r->res = (void *)arg3;
     }
     return r;
 }
