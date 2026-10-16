@@ -919,7 +919,7 @@ s32 btlUnitRotateTowardUnitPacketUpdate(u8 *arg0)
     return 0;
 }
 BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
-BtlPacket* func_0019a5e0(BtlUnit* unit, s32 param);
+BtlPacket* btlUnitCreateArcOffsetPacket(BtlUnit* unit, s32 param);
 BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
 void btlUnitHoldPendingAnim(BtlUnitPacketCountRef* work);
 void btlUnitReleasePendingAnim(BtlUnitPacketCountRef* work);
@@ -935,7 +935,7 @@ BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, s16 id, u16 blendFrameCount, f
     switch (_id)
     {
         case -2: return btlUnitCreateResNullifiedAnimPacket(unit, 32.0f);
-        case -3: return func_0019a5e0(unit, 6);
+        case -3: return btlUnitCreateArcOffsetPacket(unit, 6);
         case -4: return btlUnitCreateEnmDodgeAnimPacket(unit, 6);
     }
 
@@ -1646,7 +1646,7 @@ struct BtlUnitPacket00284900
     f32 phase;
 };
 
-s16 func_00198810(BtlUnit* unit);
+s16 btlUnitGetMotionState(BtlUnit* unit);
 u16 datCalcRandomBelow(u32 max);
 void btlUnitSetModelAnimFrame(BtlUnit* unit, s32 param_2);
 extern RwV3d D_0060a0d0;
@@ -1762,13 +1762,13 @@ void btlUnitSetRandomAnimFrame(BtlUnit* unit)
     s16 animation;
 
     animation = (s16)btlUnitMotionModelFrames(
-        (u8 *)unit, (u16)(s32)func_00198810(unit), 1.0f);
+        (u8 *)unit, (u16)(s32)btlUnitGetMotionState(unit), 1.0f);
     animation = (s16)datCalcRandomBelow(animation);
     btlUnitSetModelAnimFrame(unit, animation);
 }
 
 // FUN_0019A370
-u32 func_0019a370(void* work)
+u32 btlUnitPacketArcOffsetUpdate(void* work)
 {
     BtlUnitPacket00284900* packet;
     BtlUnit* unit;

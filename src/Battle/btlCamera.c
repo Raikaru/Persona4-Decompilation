@@ -26,7 +26,7 @@ RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
 
 typedef struct BtlCamera BtlCamera;
 
-s16 func_00198810(BtlUnit* unit);
+s16 btlUnitGetMotionState(BtlUnit* unit);
 s16 btlUnitModelAnimFrame(BtlUnit* unit);
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -258,7 +258,7 @@ s32 btlCameraUnitAnimFinished(BtlCamera* camera, u32 unit)
   }
   else {
     frameCount = btlUnitMotionFrames(
-      (u8 *)unitPtr, (u16)(s32)func_00198810(unitPtr), 1.0f);
+      (u8 *)unitPtr, (u16)(s32)btlUnitGetMotionState(unitPtr), 1.0f);
     animFrame = btlUnitModelAnimFrame(unitPtr);
     result = animFrame < frameCount;
     result = result ^ 1;
