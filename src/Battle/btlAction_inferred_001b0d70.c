@@ -73,7 +73,7 @@ store:
 
 /* measured: opt_rebuildconditionals off probe for 0e90 guard polarity. */
 // FUN_001B0E90
-s32 func_001b0e90(u8 *arg0)
+s32 btlActionCanRunNow(u8 *arg0)
 {
     s32 temp;
     u8 *p;
