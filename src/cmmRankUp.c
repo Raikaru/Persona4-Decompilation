@@ -5,6 +5,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "cmm_internal.h"
 extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
 extern u8 D_007963D0[];
@@ -168,22 +169,22 @@ void cmmRankUpRunQueue(s32 arg0, s32 *arg1) {
     extern s32 *kwlnTaskGetWork();
     u8 *base;
     s32 i;
-    u8 *entry;
+    CmmRankUpEntry *entry;
 
     base = (u8 *)kwlnTaskGetWork(arg1);
-    entry = base;
+    entry = (CmmRankUpEntry *)base;
     for (i = 0; i < 0x10; i++) {
-        if (*(u32 *)entry & 1) {
-            if (*(void **)(entry + 8) == NULL) {
+        if (entry->flags & 1) {
+            if (entry->step == NULL) {
                 kAssertFail(D_00635CF8, 0x289);
             }
-            if ((*(s32 (**)(u8 *, u8 *, u8 *))(entry + 8))(base, entry, *(u8 **)(base + 0x9E0)) != 0) {
-                *(u32 *)entry &= ~1;
+            if (entry->step(base, (u8 *)entry, ((CmmRankUpWork *)base)->callerArg) != 0) {
+                entry->flags &= ~1;
             }
         }
-        entry += 0x78;
+        entry++;
     }
-    func_002516f0(base, *(u8 **)(base + 0x9E0));
+    func_002516f0(base, ((CmmRankUpWork *)base)->callerArg);
 }
 
 
@@ -221,7 +222,7 @@ void cmmRankUpCreate(s32 arg0, u32 *arg1) {
 
     chkmemAllocSiteTag(D_00635CF8, 0x277);
     temp_2 = (u8 *)D_008873F4[0](1, 0x9E4, 0x40000);
-    *(u8 **)(temp_2 + 0x9E0) = (u8 *)arg1;
+    ((CmmRankUpWork *)temp_2)->callerArg = (u8 *)arg1;
     if (temp_2 == NULL) {
         kAssertFail(D_00635CF8, 0x2D5);
     }
@@ -242,21 +243,21 @@ void cmmRankUpCreate(s32 arg0, u32 *arg1) {
 // FUN_00251FC0
 void cmmRankUpSetEntryHold(s32 arg0, s32 arg1) {
     extern u32 *kwlnTaskGetWork();
-    u32 *p;
+    CmmRankUpEntry *p;
     u32 temp;
     s32 i;
 
-    p = kwlnTaskGetWork();
+    p = (CmmRankUpEntry *)kwlnTaskGetWork();
     for (i = 0; i < 0x10; i++) {
-        temp = *p;
+        temp = p->flags;
         if (temp & 1) {
             if (arg1 != 0) {
-                *p = temp | 2;
+                p->flags = temp | 2;
             } else {
-                *p = temp & ~2;
+                p->flags = temp & ~2;
             }
         }
-        p = (u32 *)((u8 *)p + 0x78);
+        p++;
     }
 }
 /* measured: scope closer for the hoist above - leaving it on changes the

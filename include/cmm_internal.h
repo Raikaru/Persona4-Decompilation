@@ -58,4 +58,31 @@ struct CmmItemInfoRecord
     u8 unk_0c[0x3C];         /* 0x0C */
 };
 
+/* Rank-up work block (cmmRankUp.c): sixteen entries of 0x78 bytes, then the
+   caller's argument. The entries are walked by cmmRankUpRunQueue and
+   cmmRankUpSetEntryHold. */
+enum CmmRankUpEntryFlag {
+    CMM_RANKUP_ENTRY_ACTIVE = 0x1,
+    CMM_RANKUP_ENTRY_HOLD = 0x2
+};
+
+typedef s32 (*CmmRankUpEntryStep)(u8 *work, u8 *entry, u8 *arg);
+
+typedef struct CmmRankUpEntry CmmRankUpEntry;
+struct CmmRankUpEntry
+{
+    u32 flags;               /* 0x00. CmmRankUpEntryFlag bits */
+    u8 unk_04[0x04];         /* 0x04 */
+    CmmRankUpEntryStep step; /* 0x08. Run each frame; a nonzero return clears ACTIVE */
+    u8 unk_0c[0x6C];         /* 0x0C */
+};
+
+typedef struct CmmRankUpWork CmmRankUpWork;
+struct CmmRankUpWork
+{
+    CmmRankUpEntry entries[0x10]; /* 0x000 */
+    u8 unk_780[0x260];       /* 0x780 */
+    u8 *callerArg;           /* 0x9E0. Argument passed to every entry step */
+};
+
 #endif
