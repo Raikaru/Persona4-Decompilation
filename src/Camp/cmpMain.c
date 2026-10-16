@@ -32,10 +32,10 @@ void func_0012dea0(u8 *arg0, s32 arg1);
 s32 func_0012e1d0(u8 *arg0);
 void func_0012e150(u8 *arg0);
 void func_0012db80(u8 *arg0, s32 arg1);
-s32 func_0013bcf0(u8 *arg0, s32 *arg1, u8 *arg2);
-s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2);
-s32 func_0013caa0(u8 *arg0, s32 *arg1, u8 *arg2);
-s32 func_0013d8b0(u8 *arg0, s32 *arg1, u8 *arg2);
+s32 radarItemMenuUpdate(u8 *arg0, s32 *arg1, u8 *arg2);
+s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2);
+s32 radarTransferMenuUpdate(u8 *arg0, s32 *arg1, u8 *arg2);
+s32 radarPersonaMenuUpdate(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0035e8b0(u8 *arg0, s32 *arg1, u8 *arg2);
@@ -189,7 +189,7 @@ s32 func_0012c510(u8 *unusedTask) {
         }
         break;
     case 4:
-        r = func_0013bcf0(p + 4, &sp6C, p + 0x2BC);
+        r = radarItemMenuUpdate(p + 4, &sp6C, p + 0x2BC);
         switch (r) {
         case 0:
             if (sp6C != 0) {
@@ -206,7 +206,7 @@ s32 func_0012c510(u8 *unusedTask) {
         }
         break;
     case 5:
-        r = func_0013ea20((u32 *)(p + 4), &sp68, p + 0x1EA4);
+        r = radarRecipientMenuUpdate((u32 *)(p + 4), &sp68, p + 0x1EA4);
         switch (r) {
         case 0:
             if (sp68 != 0) {
@@ -223,7 +223,7 @@ s32 func_0012c510(u8 *unusedTask) {
         }
         break;
     case 6:
-        r = func_0013caa0(p + 4, &sp64, p + 0x31DC);
+        r = radarTransferMenuUpdate(p + 4, &sp64, p + 0x31DC);
         switch (r) {
         case 0:
             if (sp64 != 0) {
@@ -240,7 +240,7 @@ s32 func_0012c510(u8 *unusedTask) {
         }
         break;
     case 7:
-        r = func_0013d8b0(p + 4, &sp60, p + 0x5A8C);
+        r = radarPersonaMenuUpdate(p + 4, &sp60, p + 0x5A8C);
         switch (r) {
         case 0:
             if (sp60 != 0) {

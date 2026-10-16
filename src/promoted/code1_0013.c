@@ -1333,7 +1333,7 @@ process:
     return 1;
 }
 #pragma opt_propagation on
-/* Matched.  Same menu-state-machine family as func_0013caa0, func_0013d8b0
+/* Matched.  Same menu-state-machine family as radarTransferMenuUpdate, radarPersonaMenuUpdate
    and radarUpdateState: `*arg1 = (var_2 = 1)`, a switch on *arg0 whose arms
    break to a shared `return 0`, the fade arm returning 2, and a 0x30-byte
    query buffer.  Cases are written in retail layout order
@@ -1345,8 +1345,9 @@ process:
    s32 second parameter MWCC schedules the `lh` before the `move`, with
    s16 it emits retail's move-then-load, so the declaration above is
    load-bearing. */
+// Intent: Item-use menu state machine: step the item selection, apply the chosen item to its recipients, and return the menu's result [inferred]
 // FUN_0013BCF0
-s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
+s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2);
     u8 buf[0x30];
     f32 temp_f1;
@@ -1562,15 +1563,16 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
 s32 radarEntryTypeIsActive(s16 arg0) {
     return func_0010f540(*(u16 *)((u8 *)datEntryAt(arg0) + 0x24)) != 0;
 }
-/* MATCHED: the same menu state machine as func_0013d8b0 beside it.  Nine of
+/* MATCHED: the same menu state machine as radarPersonaMenuUpdate beside it.  Nine of
    m2c's call arguments are stale registers - func_001312b0, func_001318c0,
    radarWideEntriesCoverValue, radarCollectPartyChanges, radarTransferSelectedUnit, radarBeginPickList,
    func_00452490 and two func_00134560 sites all take one fewer.  The two
    pick-list tests are `if ((n = func_00453960(buf)) > 0)`: assigning in
    the condition keeps the count in $v0 for the `blez`, where a separate
    statement moves it to a saved register first. */
+// Intent: Transfer menu state machine: step the party-change and unit-transfer states, and return the menu's result [inferred]
 // FUN_0013CAA0
-s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
+s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     u8 buf[0x30];
     f32 temp_f1;
     f32 var_f1;
@@ -1979,8 +1981,9 @@ void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
    written `case 0:` before `case 1:` so their compare chains come out
    1-then-0.  m2c's `&jtbl_00746A80` arguments to func_0010b7f0 and
    func_00354030 are stale registers; both take none. */
+// Intent: Persona menu state machine: step the persona highlight and display states, and return the menu's result [inferred]
 // FUN_0013D8B0
-s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
+s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void radarBeginRecipientPick(u8 *arg0, s32 *arg1);
     extern void func_001356d0(u8 *arg0);
     extern s32 func_00135cb0(u8 *arg0);
@@ -2357,8 +2360,9 @@ s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
 /* The selected recipient has both a signed-halfword skill API value and a
    promoted menu-helper value. Query results are tested before their later
    uses, and controller masks retain C integer promotion. */
+// Intent: Recipient menu state machine: step the recipient selection and entry action states, and return the menu's result [inferred]
 // FUN_0013EA20
-s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
+s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_00137fb0(u8 *arg0);
     extern u32 datCalcIsDeadById(s16 character);
     extern s32 func_00138ad0(u8 *arg0);
