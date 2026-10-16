@@ -65,10 +65,10 @@ f32 RwV3dLength(f32 *);
 s32 MT_Scene_GetResListHead(s32);
 s32 func_0018bbf0(s32);
 u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
-void func_0015ab20(s32, s32, s32);
+void FldStepCopyTableEntry(s32, s32, s32);
 void kAssertFail(const void *, u32);
 void FldUnit_UpdateFieldState(void);
-s32 func_0015f600(void);
+s32 MT_Scene_AllResFlagSet(void);
 s16 mdlGetLayerAnimation(s32, s32);
 s32 func_0016fe80(s32);
 s32 func_0016ffd0(s32);
@@ -1537,7 +1537,7 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
     }
     FldUnit_UpdateFieldState();
     if (*(s32 *)(h + 0x154) == 0) {
-        *(s32 *)(h + 0x154) = func_0015f600();
+        *(s32 *)(h + 0x154) = MT_Scene_AllResFlagSet();
     }
     switch (*(s32 *)h) {
     case 0:
@@ -1652,7 +1652,7 @@ void FldEvent_StepGridCell(void)
              0xF0);
     temp_3 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10);
     temp_3[0x5F] = temp_3[0x5F] | temp_18;
-    func_0015ab20(FldStepIndex(), var_17, var_16);
+    FldStepCopyTableEntry(FldStepIndex(), var_17, var_16);
     if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
                 0x5F) &
         1) {
@@ -1684,7 +1684,7 @@ void FldEvent_StepGridCell(void)
              0xF0);
     temp_3_2 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 * 0x100) + (var_17 << 4);
     temp_3_2[0x5F] = temp_3_2[0x5F] | temp_18_2;
-    func_0015ab20(FldStepIndex(), var_17, var_16);
+    FldStepCopyTableEntry(FldStepIndex(), var_17, var_16);
 }
 /* Field movement controller. Retail keeps the unused heading comparison of
  * the 45-degree step branch (`c.lt.s` with no branch after it): the dead
