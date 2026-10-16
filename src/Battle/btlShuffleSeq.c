@@ -51,7 +51,7 @@ extern void btlShuffleDrawFrame(u8 *a);
 extern void btlShuffleDrawViewClearFlags(s32 a);
 extern void btlShuffleEffRelease(s32 a);
 extern void btlShuffleDrawCardReset(s32 a);
-extern void func_002bd7b0(s32 a);
+extern void fclMiscEnsureMesWindow(s32 a);
 extern void fclMesWindowShowItemRecord(s32 a);
 extern void nmMesWindowStepCurrent(s32 a);
 extern s32 nmMesWindowCurrentOpenState(void);
@@ -645,7 +645,7 @@ done:
 // FUN_003798D0
 void btlShuffleSeqClearA(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x1F23C) = 0;
-    func_002bd7b0(*(s32 *)(arg0 + 0x1F2E0));
+    fclMiscEnsureMesWindow(*(s32 *)(arg0 + 0x1F2E0));
     fclMesWindowShowItemRecord(arg1);
 }
 

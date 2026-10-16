@@ -318,7 +318,7 @@ void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
 }
 
 // FUN_002BC890
-s32 func_002bc890(u8 *arg0, s32 arg1)
+s32 fclMiscAttachSlot(u8 *arg0, s32 arg1)
 {
     s32 temp_3;
     u8 *temp_16;
@@ -370,7 +370,7 @@ loop_done:
 }
 
 // FUN_002BC9E0
-s32 func_002bc9e0(u8 *arg0)
+s32 fclMiscUpdateSlots(u8 *arg0)
 {
     u8 sp40[0x20];
     s32 temp_3;
@@ -437,7 +437,7 @@ loop_19:
 }
 
 // FUN_002BCBC0
-s32 func_002bcbc0(u8 *arg0, s32 arg1)
+s32 fclMiscRequestSlotRelease(u8 *arg0, s32 arg1)
 {
     u8 *temp_3;
 

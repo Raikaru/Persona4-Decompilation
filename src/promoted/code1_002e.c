@@ -22,7 +22,7 @@ extern u8 *iGpffffb588;
 extern u8 *iGpffffb590;
 extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u32 datGetMoney(void);
-extern s32 func_002e1230();
+extern s32 fclBankQueueRequest();
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern s32 resourceFindByName(const void *arg0);
 extern u8 D_0063FB50[];
@@ -278,7 +278,7 @@ s32 func_002e0d60(void)
 // FUN_002E0DA0
 s64 func_002e0da0(void)
 {
-    return (s64)(func_002e1230() != 0) << 0x30 >> 0x30;
+    return (s64)(fclBankQueueRequest() != 0) << 0x30 >> 0x30;
 }
 
 

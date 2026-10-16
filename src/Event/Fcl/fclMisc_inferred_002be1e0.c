@@ -169,7 +169,7 @@ s32 func_002be1e0(s32 arg0)
 }
 
 // FUN_002BE3C0
-void func_002be3c0(void)
+void fclMiscInitRenderStates(void)
 {
     void (**tbl)(s32, s32);
 
