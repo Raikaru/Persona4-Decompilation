@@ -3,32 +3,7 @@
 
 #include "type.h"
 #include "datUnit_internal.h"
-
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-typedef struct RwRGBA RwRGBA;
-struct RwRGBA
-{
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-};
+#include "rw_types_internal.h"
 
 /* One motion-table row: playback rate in percent at +0x2 (btlUnitSetMotion, btlUnit.c). */
 typedef struct BtlMotionRate
