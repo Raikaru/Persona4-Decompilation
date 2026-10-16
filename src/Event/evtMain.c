@@ -900,27 +900,28 @@ void evtUpdateWaitState(int param_1, int param_2) {
 // Selects the type-0x26 choice whose range [start, start + length] contains arg0, stores its value in arg1, and sets the selected flag.
 // FUN_00287BF0
 void evtSelectRangeChoice(s32 arg0, u8 *arg1) {
-    u8 *var_17;
-    u8 *var_16;
+    EvtEventWork *work = (EvtEventWork *)arg1;
+    EvtNode *var_17;
+    EvtNode *var_16;
     u16 temp_4;
 
-    var_17 = *(u8 **)(arg1 + 0x4C);
+    var_17 = work->nodeList;
     while (var_17 != NULL) {
-        if (*(s32 *)var_17 == 0x26) {
-            var_16 = *(u8 **)(var_17 + 0x68);
+        if (var_17->kind == 0x26) {
+            var_16 = var_17->childHead;
             while (var_16 != NULL) {
-                if (evtCheckCondition(var_16) != 0) {
+                if (evtCheckCondition((u8 *)var_16) != 0) {
                     temp_4 = *(u16 *)var_16;
-                    if (((s32)temp_4 <= arg0) && ((temp_4 + *(s16 *)(var_16 + 0x12)) >= arg0)) {
-                        *(s32 *)(arg1 + 0x20) = *(s16 *)(var_16 + 0x10);
-                        *(s32 *)(arg1 + 0x1C) = 1;
+                    if (((s32)temp_4 <= arg0) && ((temp_4 + *(s16 *)((u8 *)var_16 + 0x12)) >= arg0)) {
+                        work->resetFrame = *(s16 *)((u8 *)var_16 + 0x10);
+                        work->resetRequested = 1;
                         return;
                     }
                 }
-                var_16 = *(u8 **)(var_16 + 0x4C);
+                var_16 = var_16->childNext;
             }
         }
-        var_17 = *(u8 **)(var_17 + 0x90);
+        var_17 = var_17->next;
     }
 }
 
