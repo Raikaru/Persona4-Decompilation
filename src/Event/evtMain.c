@@ -28,8 +28,8 @@ void sdkSndPlayCue();
 void hsndQueueSound();
 void sdkSndStopChannel();
 void sdkSndFadeOutChannelFrames();
-s32 func_002981f0();
-s32 func_00298220();
+s32 mtMiscRequestSoundTrack();
+s32 mtMiscFadeOutSoundChannel();
 extern u8 D_0063C5F0[];
 extern u8 D_0063C610[];
 extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
@@ -2205,11 +2205,11 @@ s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             case 0:
                 break;
             case 1:
-                func_002981f0(*(u32 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x10), 3);
+                mtMiscRequestSoundTrack(*(u32 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x10), 3);
                 func_00440b68((char *)D_0063C610, *(s16 *)(arg4 + 0x10));
                 break;
             case 2:
-                func_00298220(3, *(s16 *)(arg4 + 0x10));
+                mtMiscFadeOutSoundChannel(3, *(s16 *)(arg4 + 0x10));
                 break;
             }
             return 1;

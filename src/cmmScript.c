@@ -71,7 +71,7 @@ extern u8 *datPersonaGetRow(u16 arg0);
 extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
 extern s32 func_00102980(void);
-extern s32 func_0029d030(void);
+extern s32 scrGetMessageManager(void);
 extern s32 datPersonaDisplayName(s16 arg0);
 extern s8 cmmCommunityEventValue(s32 arg0, s32 arg1);
 extern s32 cmmNameRecord(s32 arg0);
@@ -325,7 +325,7 @@ s32 cmmPersonaDetailShow(void)
     if (id == 0) {
         id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    mesMgr = func_0029d030();
+    mesMgr = scrGetMessageManager();
     if (mesMgr < 0) {
         kAssertFail(D_006359F0, 0x140);
     }
@@ -384,7 +384,7 @@ s32 cmmPersonaInfoLookupShow(void)
 
     entry = scrGetParamInt(0);
     param1 = scrGetParamInt(1);
-    mesMgr = func_0029d030();
+    mesMgr = scrGetMessageManager();
     if (mesMgr < 0) {
         kAssertFail(&D_006359F0, 0x16D);
     }
@@ -430,7 +430,7 @@ s32 cmmPersonaInfoShow(void)
     s32 j;
 
     entry = scrGetParamInt(0);
-    mesMgr = func_0029d030();
+    mesMgr = scrGetMessageManager();
     if (mesMgr < 0) {
         kAssertFail(&D_006359F0, 0x190);
     }
@@ -723,7 +723,7 @@ s32 cmmItemInfoShow(void)
     if (rec == 0) {
         kAssertFail(D_006359F0, 0x27A);
     }
-    mesMgr = func_0029d030();
+    mesMgr = scrGetMessageManager();
     if (mesMgr < 0) {
         kAssertFail(D_006359F0, 0x27D);
     }
@@ -825,7 +825,7 @@ s32 cmmRecordInfoShow(void)
         i--;
         *dst++ = tmp;
     } while (i > 0);
-    mesMgr = func_0029d030();
+    mesMgr = scrGetMessageManager();
     if (mesMgr < 0) {
         kAssertFail(D_006359F0, 0x2DC);
     }

@@ -6,7 +6,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
-s32 func_0029d030(void);
+s32 scrGetMessageManager(void);
 s32 scrGetParamInt(s32 index);
 void itfMesWindowSetHandle(s32 mesHandleIdx, u32 param_2);
 void func_00440b68();
@@ -157,7 +157,7 @@ s32 itfMesCmdWindowOpen(void)
     u8 *base;
     s8 flag;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -189,7 +189,7 @@ s32 itfMesCmdWindowClose(void)
     u8 *base;
     s8 flag;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -239,7 +239,7 @@ s32 itfMesCmdWindowOpenStyled(void)
     u8 *base;
     s8 flag;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -292,7 +292,7 @@ s32 itfMesCmdWindowOpenAt(void)
     u8 *base;
     s16 f;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -334,7 +334,7 @@ s32 itfMesCmdWindowOpenHold(void)
     u8 *base;
     s8 flag;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -404,7 +404,7 @@ s32 itfMesCmdWindowResult(void)
     u8 *base;
     s16 f;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -464,7 +464,7 @@ u32 itfMesCmdWindowSetHandle(void)
   int value;
   u32 other;
 
-  value = func_0029d030();
+  value = scrGetMessageManager();
   if (value < 0)
     return 1;
 
@@ -480,7 +480,7 @@ s32 itfMesCmdWindowReset(void)
 {
     s32 index;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
     itfMesWindowApplyStyle(index, 0, 0);
@@ -495,7 +495,7 @@ s32 itfMesCmdWindowIsIdle(void)
     u8 *object;
     s32 flags;
 
-    index = func_0029d030();
+    index = scrGetMessageManager();
     if (index < 0)
         return 1;
 
@@ -558,7 +558,7 @@ u32 itfMesCmdWindowSetValue(void)
   u32 uVar3;
   u32 uVar4;
 
-  lVar1 = func_0029d030();
+  lVar1 = scrGetMessageManager();
   if (lVar1 < 0) {
     return 1;
   }
@@ -582,7 +582,7 @@ u32 itfMesCmdWindowSetParam(void)
   u32 uVar2;
   u32 uVar3;
 
-  lVar1 = func_0029d030();
+  lVar1 = scrGetMessageManager();
   if (lVar1 < 0) {
     return 1;
   }
