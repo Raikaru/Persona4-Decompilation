@@ -91,7 +91,7 @@ extern void FldStepTaskDestroy(u8 *task);
 extern void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
-extern void func_003642a0(s32 arg0);
+extern void MT_Scene_ReleaseWork(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 /* Forces b210's offset-first addu operand order. */
 static inline u32 wg0035_add_offset(u32 offset, u32 base)
@@ -2222,7 +2222,7 @@ void FldStepTaskDestroy(u8 *arg0)
     }
     temp_4 = *(s32 *)(temp_16 + 0x1C);
     if (temp_4 != 0) {
-        func_003642a0(temp_4);
+        MT_Scene_ReleaseWork(temp_4);
     }
     temp_4_2 = *(u8 **)(temp_16 + 0x2C);
     if (temp_4_2 != NULL) {
