@@ -772,9 +772,9 @@ loop1_check:
 /* Measured: these scoped settings preserve the recovered wave update
  * evaluation order and the complete retail 2652-byte executable body. */
 #pragma push
-/* measured: func_0048b9e0 MATCH -> MISMATCH without this pragma. */
+/* measured: EffWaveUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_0048b9e0(u8 *arg0)
+void EffWaveUpdate(u8 *arg0)
 {
     extern f32 sinf(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
