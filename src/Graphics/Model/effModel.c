@@ -182,7 +182,7 @@ void EffModelRollCycle(u32 *param_1)
 
 
 
-extern void func_004accc0(u8 *arg0);
+extern void EffModelDrawCallback(u8 *arg0);
 extern char D_007144B8[];
 extern void mdlSetAlphaBlend(void *arg0);
 extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
@@ -376,7 +376,7 @@ void *EffModelCreateDrawable(void *arg0) {
             mdlSetResetCallback(temp_2_4, EffModelResetCallback, temp_2_4);
             iGpffffbb90 += 1;
             *(u8 **)(temp_2 + 0xB4) = temp_2_4;
-            mdlSetDrawCallback(temp_2_4, func_004accc0, temp_2);
+            mdlSetDrawCallback(temp_2_4, EffModelDrawCallback, temp_2);
             if (*(u8 *)(temp_2 + 0xA0) == 0) {
                 mdlClearAtomicFlags(*(u8 **)(temp_2 + 0xB4), 0x20);
             }
@@ -438,7 +438,7 @@ void EffModelRebindDrawable(u8 *dst, u8 *src)
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
     mdlSetResetCallback(work, EffModelResetCallback, work);
     *(void **)(dst + 0xB4) = work;
-    mdlSetDrawCallback(work, func_004accc0, dst);
+    mdlSetDrawCallback(work, EffModelDrawCallback, dst);
     if (*(u8 *)(dst + 0xA0) == 0) {
         mdlClearAtomicFlags(*(void **)(dst + 0xB4), 0x20);
     }

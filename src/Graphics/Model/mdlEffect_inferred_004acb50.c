@@ -25,7 +25,7 @@ extern PolygonWindColor iGpffffbb64;
 extern u8 *func_004a6c00(u8 *arg0);
 extern u8 D_0071413C[];
 extern s32 TnGetOffset38(u16 arg0);
-extern void func_004ad030();
+extern void EffModelDrawableUpdate();
 extern f32 iGpffff8080;
 
 
@@ -104,13 +104,15 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
 #pragma push
 #pragma pop
+/* Sets layer 0 time of the model object at +0xB4 to 0. */
 // FUN_004ACB50
-void func_004acb50(u8 *arg0) {
+void EffModelDrawableResetLayerTime(u8 *arg0) {
     mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0, 0.0f);
 }
 
+/* Moves the layer time to the cycle window edge when the frame index passes it, and sets the progress at +0x08 to 1.0. */
 // FUN_004ACB80
-void func_004acb80(u8 *arg0)
+void EffModelDrawableRollCycle(u8 *arg0)
 {
     extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     f32 temp_f0;
@@ -141,8 +143,9 @@ void func_004acb80(u8 *arg0)
 
 /* measured: an s64-aligned union gives retail's ld/lwc1 Vec3 copies; the
    three-argument helper signature keeps frame_index/frame_count in a1/a2. */
+/* Per-frame draw callback on the model object: derives a screen-space scale and offset from the camera, rotates by +0x90/+0x94/+0x98, writes the translated origin into the model matrix, then updates the model matrix and item slots. */
 // FUN_004ACCC0
-void func_004accc0(u8 *arg0)
+void EffModelDrawCallback(u8 *arg0)
 {
     struct Vec3 {
         f32 x;
@@ -256,8 +259,9 @@ void func_004accc0(u8 *arg0)
 /* measured: memory so the `lw $2,0x50; sw $2,0x5C` copy survives and the saved ranking stays */
 /* measured: arg0 $s3, arg1 $s2, frame_index $s1, frame_count $s0 with frame 0x60. */
 /* measured: probe c: 0 differing words, object 528B/window 528B. */
+/* Samples a packed colour with func_0048abd0, applies it to the model object at +0xB4, sets alpha-blend flags from +0xA0/+0xA4, sets the layer weight from +0x08, attaches the owner and queues the model for draw. */
 // FUN_004AD030
-void func_004ad030(s32 arg0, u8 *arg1)
+void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
 {
     extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
@@ -336,13 +340,15 @@ void func_004ad030(s32 arg0, u8 *arg1)
     }
 }
 
+/* Runs EffModelDrawableUpdate with the offset from TnGetOffset38(+0x38). */
 // FUN_004AD240
-void func_004ad240(u8 *arg0) {
-    func_004ad030(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
+void EffModelDrawableUpdateByOffset(u8 *arg0) {
+    EffModelDrawableUpdate(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
 }
 
+/* Rolls the cycle as EffModelDrawableRollCycle does, then runs EffModelDrawableUpdate with the offset from TnGetOffset38(+0x38). */
 // FUN_004AD280
-void func_004ad280(u8 *arg0)
+void EffModelDrawableRollAndUpdate(u8 *arg0)
 {
     extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     f32 temp_f0;
@@ -369,22 +375,25 @@ void func_004ad280(u8 *arg0)
         }
         *(f32 *)(arg0 + 8) = 1.0f;
     }
-    func_004ad030(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
+    EffModelDrawableUpdate(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
 }
 
+/* Copies the first two floats of arg1 into +0x00 and +0x04 of the drawable. */
 // FUN_004AD3E0
-void func_004ad3e0(u8 *arg0, f32 *arg1) {
+void EffModelDrawableSetPosition(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x0) = arg1[0];
     *(f32 *)(arg0 + 0x4) = arg1[1];
 }
 
+/* Stores the lookup index at +0x0C of the drawable. */
 // FUN_004AD400
-void func_004ad400(u8 *arg0, s32 arg1) {
+void EffModelDrawableSetLookupIndex(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0xC) = arg1;
 }
 
+/* Returns 1 when no model object is attached or the model byte at +0xEE equals 1, otherwise 0. */
 // FUN_004AD410
-s32 func_004ad410(u8 *arg0) {
+s32 EffModelDrawableIsFinished(u8 *arg0) {
     u8 *p;
     s32 result;
     p = *(u8 **)(arg0 + 0xB4);
@@ -396,13 +405,15 @@ s32 func_004ad410(u8 *arg0) {
     return result;
 }
 
+/* Returns nonzero when the cycle flag at +0xB8 of the drawable is set. */
 // FUN_004AD440
-s32 func_004ad440(u8 *arg0) {
+s32 EffModelDrawableHasCycle(u8 *arg0) {
     return *(u8 *)(arg0 + 0xB8) != 0;
 }
 
+/* Clears the cycle flag at +0xB8 of the drawable. */
 // FUN_004AD450
-void func_004ad450(u8 *arg0) {
+void EffModelDrawableClearCycle(u8 *arg0) {
     *(u8 *)(arg0 + 0xB8) = 0;
 }
 
