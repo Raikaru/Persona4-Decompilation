@@ -340,6 +340,17 @@ The game renders through RenderWare Graphics 3.7. `src/renderware/` is the
 ported source; `src/rw/` holds other attributed RenderWare functions and the
 PS2 "sky" driver. `wiki/RenderWare.md` explains the split.
 
+`src/rw/` names follow three rules. A copy whose address `src/renderware/`
+already binds through a `#define` alias keeps its address name, because
+renaming it would break that alias and `src/renderware/` is outside the
+graphics lane. A copy at an address that `src/renderware/` also defines by
+name keeps its address name too: the two trees describe one function, and a
+second RenderWare name would make the duplicate look like a separate API.
+Any other `src/rw` function takes a RenderWare or driver name only with
+retail evidence (an assert string, a plugin ID, or a known API shape) and a
+body that agrees with it. Names from other games' symbol tables stay hints
+in `docs/sky2/` until the body is confirmed.
+
 ### The ordering table
 
 Each frame is bracketed by two tasks created in `src/Main/mainDraw.c`:
