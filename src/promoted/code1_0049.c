@@ -2157,7 +2157,7 @@ void func_00498ac0(u8 *arg0) {
 void *func_00498b20(void *source) {
     u8 *arg0 = source;
 
-    return func_004988c0(*(u16 *)(arg0 + 0x2C), *(u8 **)(arg0 + 0x34));
+    return ThunderTextureForIndex(*(u16 *)(arg0 + 0x2C), *(u8 **)(arg0 + 0x34));
 }
 // FUN_00498B50
 void func_00498b50(u8 *arg0) {
