@@ -86,7 +86,6 @@ extern u8 D_006290E0[];
 
 extern void btlShuffleDrawSweep(s32 arg0, s32 *arg1);
 extern void func_0021dd60(u8 *task);
-extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern u16 datPersonaCountValidMembers(void);
 extern s32 datPersonaCanLevelUp(PersonaWork *arg0);
 extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);

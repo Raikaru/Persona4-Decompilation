@@ -45,7 +45,6 @@ extern s32 btlShuffleResultRun(u8 *arg0);
 extern s32 btlShuffleResultInit(u8 *arg0);
 extern s32 btlShuffleResultLayout(u8 *arg0);
 extern s32 btlShuffleResultMenu(u8 *arg0);
-extern struct DatPersonaRecord *datPersonaRosterSlot(s16 a);
 extern void datPersonaInitRecord(u8 *dst, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern u16 datPersonaLeadPersonaId(void);

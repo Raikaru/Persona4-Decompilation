@@ -31,7 +31,6 @@ typedef struct {
 } SkillDecoration;
 
 u16 datPersonaCountValidMembers(void);
-struct DatPersonaRecord *datPersonaRosterSlot(s16);
 void datPersonaSetLeadSlot(s16);
 s32 datPersonaFillSkillCostRow(s32, struct DatPersonaRecord *, s32, void *);
 u16 *datPersonaGetSkills(struct DatPersonaRecord *);
