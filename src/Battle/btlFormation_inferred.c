@@ -253,7 +253,7 @@ end:
 }
 
 // FUN_001D5130
-void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+void btlFormationAttachRotation(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 {
     struct Frame {
         f32 input[16];
@@ -507,7 +507,7 @@ void func_001d53e0(s32 arg0)
             trans[3] = 0.0f;
         }
         func_004861f0(*handles, trans);
-        func_001d5130((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
+        btlFormationAttachRotation((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
         func_00486330(*handles, (u8 *)rot);
         mdlEffectApplyPackedColor(*handles, (s32)color);
         func_00485630(*handles);
@@ -519,7 +519,7 @@ void func_001d53e0(s32 arg0)
 /* measured: func_001d5990 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_001D5990
-void func_001d5990(void)
+void btlFormationCameraFrame(void)
 {
     struct Frame {
         f32 sp10;
@@ -646,7 +646,7 @@ void btlFormationCameraTaskStart(u8 *arg0)
     task = PrimAllocQueueNode();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;
-    *(void (**)(void))(task + 8) = func_001d5990;
+    *(void (**)(void))(task + 8) = btlFormationCameraFrame;
     *(u8 **)(task + 0x10) = iGpffffb3ac;
     PrimAppendNode(D_00794AE0, task);
     index = 0;
