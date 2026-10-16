@@ -28,7 +28,7 @@ typedef struct RwMatrix
 
 extern f32 func_0044b950(f32 arg0, f32 arg1);
 extern f32 fabsf(f32 value);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
@@ -831,7 +831,7 @@ void func_0048b9e0(u8 *arg0)
     /* VU multiplication consumes W as well as the three spatial lanes. */
     spreadVector.lane[3] = 0.0f;
     effectVuLoad10(&parameters->rotation);
-    func_004bceb0();
+    effMiscBuildRotationVU();
     if ((emissionDuration != 0) && (emitter->ticks >= emissionDuration)) {
         preroll = 0;
         spawnBudget = 0;

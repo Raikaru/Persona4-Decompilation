@@ -47,7 +47,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 #pragma opt_loop_invariants on
 void func_00492100(u8 *arg0)
 {
-    extern void func_004bceb0(void);
+    extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 value);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
@@ -108,7 +108,7 @@ void func_00492100(u8 *arg0)
     floorHeight = parameters->floorHeight;
     spread.lane[3] = 0.0f;
     effectVuLoad10((const EffectVuVector *)&parameters->rotation);
-    func_004bceb0();
+    effMiscBuildRotationVU();
     if ((emissionDuration != 0) && (emitter->ticks >= emissionDuration)) {
         preroll = 0;
         spawnBudget = 0;

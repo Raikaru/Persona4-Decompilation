@@ -61,7 +61,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_004916F0
 void func_004916f0(u8 *arg0)
 {
-    extern void func_004bceb0(void);
+    extern void effMiscBuildRotationVU(void);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern f32 fabsf(f32 arg0);
@@ -133,7 +133,7 @@ void func_004916f0(u8 *arg0)
         *capture = *(u_long128 *)(config + 0);
     }
     effectVuLoad10((const EffectVuVector *)(config + 16));
-    func_004bceb0();
+    effMiscBuildRotationVU();
     if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;

@@ -27,7 +27,7 @@ typedef struct RwMatrix
 
 extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void effMiscQuatMultiplyVU(void);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 extern void func_00486400(u8 *arg0, f32 arg1);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -343,7 +343,7 @@ void func_004861f0(u8 *arg0, f32 *arg1)
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
     __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(arg0) : "$vf10", "memory");
-    func_004bceb0();
+    effMiscBuildRotationVU();
     __asm__ volatile(
         "sqc2 $vf28, 0(%0)     \n"
         "sqc2 $vf29, 16(%0)    \n"
@@ -420,7 +420,7 @@ void func_00486330(u8 *arg0, u8 *arg1)
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg1) : "$vf10", "memory");
     __asm__ volatile("sqc2 $vf10, 0x50(%0)" : : "r"(arg0) : "$vf10", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch + 1) : "$vf10", "memory");
-    func_004bceb0();
+    effMiscBuildRotationVU();
     __asm__ volatile(
         "lqc2 $vf10, 0x10(%0)       \n"
         "vmulax.xyzw $ACC, $vf28, $vf10x \n"

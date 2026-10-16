@@ -66,7 +66,7 @@ extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 a
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 TnSlotObject(u16 arg0);
 extern s32 func_00481d80(u16 *arg0);
-extern s32 func_00482800(u16 *arg0);
+extern s32 TlpCreate(u16 *arg0);
 extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
@@ -146,7 +146,7 @@ void *func_004a5bb0(void *source)
                 TnSlotObject(*temp_2_4));
             break;
         case 7:
-            *(s32 *)(temp_2 + 0xCC) = func_00482800(temp_2_4);
+            *(s32 *)(temp_2 + 0xCC) = TlpCreate(temp_2_4);
             break;
         default:
             kAssertFail(D_007141A0, 0x5D);
