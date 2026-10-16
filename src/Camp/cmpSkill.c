@@ -67,12 +67,12 @@ s32 sdkSpriteNewNode(void *, u8);
 s16 datBuildPartyIdList(void *);
 void kAssertFail(char *, s32);
 void memset(void *, s32, s32);
-s32 func_0013a040(s16 *, s32, s32);
-void func_0013a060(void *);
-void func_0013a4a0(void *);
-void func_00138bf0(u8 *);
-s32 func_0013a530(u8 *, s32);
-void func_00138490(void *);
+s32 cmpSkillSetSelection(s16 *, s32, s32);
+void cmpSkillStepDecorations(void *);
+void cmpSkillStepScrollRows(void *);
+void cmpSkillMenuDraw(u8 *);
+s32 cmpSkillSetMode(u8 *, s32);
+void cmpSkillBuildAbilityList(void *);
 extern char D_005ED9C0[];
 extern char D_005E57F0[];
 extern char D_005E5830[];
@@ -98,7 +98,7 @@ extern f32 DAT_00761640;
 #pragma opt_propagation off
 /* measured: opt_loop_invariants on hoists the table and conversion constants like retail. */
 #pragma opt_loop_invariants on
-void func_00137fb0(u8 *arg0)
+void cmpSkillMenuInit(u8 *arg0)
 {
     s16 i;
     s16 j;
@@ -231,8 +231,8 @@ resolve_test:
         goto resolve_body;
     }
 
-    func_0013a530(arg0, 0);
-    func_00138490(arg0);
+    cmpSkillSetMode(arg0, 0);
+    cmpSkillBuildAbilityList(arg0);
 }
 /* measured: restore propagation after matching func_00137fb0. */
 #pragma opt_propagation on
@@ -272,7 +272,7 @@ static inline s32 campSkillListHas(u16 *skills, u16 skill)
 // FUN_00138490
 #pragma push
 #pragma opt_loop_invariants on
-void func_00138490(void *arg0)
+void cmpSkillBuildAbilityList(void *arg0)
 {
     s16 sel;
     s32 m;
@@ -406,8 +406,8 @@ void func_00138490(void *arg0)
     if (*(s16 *)(b + 0x580) > 0x60) {
         kAssertFail(D_005ED9C0, 0x336);
     }
-    func_0013a040((s16 *)arg0, 1, 0);
-    func_0013a040((s16 *)arg0, 2, 0);
+    cmpSkillSetSelection((s16 *)arg0, 1, 0);
+    cmpSkillSetSelection((s16 *)arg0, 2, 0);
 }
 #pragma pop
 
@@ -428,7 +428,7 @@ s32 func_00138ad0(u8 *arg0) {
 }
 
 // FUN_00138B20
-s32 func_00138b20(u8 *arg0)
+s32 cmpSkillMenuUpdate(u8 *arg0)
 {
     s32 i;
     s32 result = 1;
@@ -447,9 +447,9 @@ s32 func_00138b20(u8 *arg0)
             result = 0;
         }
     }
-    func_0013a060(arg0);
-    func_0013a4a0(arg0);
-    func_00138bf0(arg0);
+    cmpSkillStepDecorations(arg0);
+    cmpSkillStepScrollRows(arg0);
+    cmpSkillMenuDraw(arg0);
     return result;
 }
 /* One 0x30-byte entry in the menu's animation arrays. The initializer,
@@ -503,9 +503,9 @@ static inline f32 skillPositionAdd(f32 left, f32 right)
 #pragma opt_lifetimes on
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
-void func_00138bf0(u8 *work)
+void cmpSkillMenuDraw(u8 *work)
 {
-    extern s32 func_0013ac30(u16 skill);
+    extern s32 cmpSkillElementLabelId(u16 skill);
     SkillMenuView *menu;
     s32 rowIndex;
     f32 opacity;
@@ -714,7 +714,7 @@ void func_00138bf0(u8 *work)
                                   paletteColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A),
                                   0, 0.0f, 0);
                 }
-                payloadIndex = func_0013ac30(*(u16 *)(work + (menu->scrollRow + rowIndex) * 0xC + 0x102));
+                payloadIndex = cmpSkillElementLabelId(*(u16 *)(work + (menu->scrollRow + rowIndex) * 0xC + 0x102));
                 if (payloadIndex > 0) {
                     u8 *skillIconSprite;
                     skillIconSprite = *(u8 **)(work + payloadIndex * 4 + 0x1244);
@@ -783,7 +783,7 @@ void func_00138bf0(u8 *work)
 #pragma pop
 
 // FUN_0013A040
-s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2)
+s32 cmpSkillSetSelection(s16 *arg0, s32 arg1, s32 arg2)
 {
     arg0[arg1 + 0x54] = arg0[arg1 + 0x2E];
     arg0[arg1 + 0x2E] = arg2;
@@ -798,7 +798,7 @@ s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2)
 #pragma opt_common_subs off
 /* measured: opt_propagation off preserves the retail scalar and FP operand order. */
 #pragma opt_propagation off
-void func_0013a060(void *arg0)
+void cmpSkillStepDecorations(void *arg0)
 {
     s32 i;
     s32 idx;
@@ -920,7 +920,7 @@ void func_0013a060(void *arg0)
    Same call-site trick as the cmpPersona sibling func_00135cf0. */
 // FUN_0013A4A0
 #pragma opt_common_subs off
-void func_0013a4a0(void *arg0)
+void cmpSkillStepScrollRows(void *arg0)
 {
     s32 i;
     u8 *p;
@@ -945,7 +945,7 @@ void func_0013a4a0(void *arg0)
 #pragma opt_common_subs off
 #pragma opt_loop_invariants on
 // FUN_0013A530
-s32 func_0013a530(u8 *arg0, s32 arg1)
+s32 cmpSkillSetMode(u8 *arg0, s32 arg1)
 {
     s32 i;
     s32 j;
@@ -1057,7 +1057,7 @@ s32 func_0013a530(u8 *arg0, s32 arg1)
    ternary, chained-assign, while-loop spellings — all nd 30 without the pragma. */
 // FUN_0013A8A0
 #pragma opt_loop_invariants on
-void func_0013a8a0(u8 *arg0)
+void cmpSkillSetPartyCursorMotion(u8 *arg0)
 {
     s32 i;
 
@@ -1082,7 +1082,7 @@ void func_0013a8a0(u8 *arg0)
 /* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
 #pragma opt_loop_invariants off
 // FUN_0013A930
-void func_0013a930(void *arg0)
+void cmpSkillLayoutScrollRows(void *arg0)
 {
     f32 f0;
     f32 f1;
@@ -1115,7 +1115,7 @@ void func_0013a930(void *arg0)
    into the branch — identical nd 30 on every spelling tried. */
 // FUN_0013AA00
 #pragma opt_loop_invariants on
-void func_0013aa00(u8 *arg0)
+void cmpSkillSetScrollCursorMotion(u8 *arg0)
 {
     s32 i;
 
@@ -1141,7 +1141,7 @@ void func_0013aa00(u8 *arg0)
 #pragma opt_loop_invariants off
 
 // FUN_0013AA90
-void func_0013aa90(void *arg0)
+void cmpSkillRandomizeCellMotions(void *arg0)
 {
     s32 i;
     for (i = 0; i < 6; i++) {
@@ -1160,7 +1160,7 @@ void func_0013aa90(void *arg0)
 }
 
 // FUN_0013AB30
-void func_0013ab30(u8 *arg0)
+void cmpSkillFreeSprites(u8 *arg0)
 {
     s32 i;
     s32 *slot;
@@ -1176,7 +1176,7 @@ void func_0013ab30(u8 *arg0)
 }
 
 // FUN_0013ABB0
-s32 func_0013abb0(u8 *arg0)
+s32 cmpSkillRowsSettled(u8 *arg0)
 {
     s32 result;
     s32 i;
@@ -1203,7 +1203,7 @@ s32 func_0013abb0(u8 *arg0)
    The unsigned-halfword ID is forwarded unchanged. The signed-halfword
    result projection before adding one matches the retail switch index. */
 // FUN_0013AC30
-s32 func_0013ac30(u16 arg0) {
+s32 cmpSkillElementLabelId(u16 arg0) {
     s32 v;
 
     if ((arg0 & 0xFFFF) >= 0x1B8) {
