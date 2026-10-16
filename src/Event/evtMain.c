@@ -2499,41 +2499,42 @@ s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
 // Resets the event scene: clears the scene light slots, syncs the event nodes with their resource manager entries, and resets the per-node state [inferred].
 // FUN_0028AAF0
 void evtResetEventScene(s32 arg0, u8 *arg1) {
+    EvtEventWork *work = (EvtEventWork *)arg1;
     s32 temp_18;
     s32 temp_3;
     s32 temp_3_2;
     s32 temp_4;
     s32 var_2;
-    u8 *var_18;
-    u8 *var_18_2;
-    u8 *var_18_3;
-    u8 *var_20;
-    u8 *var_19;
+    EvtNode *var_18;
+    EvtNode *var_18_2;
+    EvtNode *var_18_3;
+    EvtNode *var_20;
+    EvtNode *var_19;
 
-    temp_3 = *(s32 *)arg1 & ~2;
-    *(s32 *)arg1 = temp_3;
-    *(s32 *)arg1 = temp_3 & ~4;
+    temp_3 = work->waitFlags & ~2;
+    work->waitFlags = temp_3;
+    work->waitFlags = temp_3 & ~4;
     sceneLightSlotsReset();
     evtSyncResManagerNodes(arg0, arg1);
-    var_18 = *(u8 **)(arg1 + 0x4C);
+    var_18 = work->nodeList;
     while (var_18 != NULL) {
         memset(D_008821E0, 0, 0x28);
         *(u32 *)D_00882204 = (u32)D_0063C420;
         D_008821E0[0] = 1;
-        evtDispatchNode(arg0, (s32)arg1, var_18);
-        var_18 = *(u8 **)(var_18 + 0x90);
+        evtDispatchNode(arg0, (s32)arg1, (u8 *)var_18);
+        var_18 = var_18->next;
     }
-    var_18_2 = *(u8 **)(arg1 + 0x4C);
+    var_18_2 = work->nodeList;
     while (var_18_2 != NULL) {
         memset(D_008821E0, 0, 0x28);
         *(u32 *)D_00882204 = (u32)D_0063C420;
         D_008821E0[0] = 2;
-        evtDispatchNode(arg0, (s32)arg1, var_18_2);
-        var_18_2 = *(u8 **)(var_18_2 + 0x90);
+        evtDispatchNode(arg0, (s32)arg1, (u8 *)var_18_2);
+        var_18_2 = var_18_2->next;
     }
-    var_20 = *(u8 **)(arg1 + 0x4C);
+    var_20 = work->nodeList;
     while (var_20 != NULL) {
-        temp_3_2 = *(s32 *)var_20;
+        temp_3_2 = (s32)var_20->kind;
         switch (temp_3_2) {
         case 6:
         case 0xA:
@@ -2547,34 +2548,34 @@ void evtResetEventScene(s32 arg0, u8 *arg1) {
             break;
         }
         if (var_2 != 0) {
-            temp_18 = *(s16 *)(var_20 + 0x1C);
-            var_19 = *(u8 **)(var_20 + 0x68);
+            temp_18 = *(s16 *)((u8 *)var_20 + 0x1C);
+            var_19 = var_20->childHead;
             while (var_19 != NULL) {
-                if (evtCheckCondition(var_19) != 0) {
+                if (evtCheckCondition((u8 *)var_19) != 0) {
                     if (((s32)*(u16 *)var_19 + temp_18) > arg0) {
                         break;
                     }
                 }
-                var_19 = *(u8 **)(var_19 + 0x4C);
+                var_19 = var_19->childNext;
             }
             if (var_19 != NULL) {
-                var_18_3 = *(u8 **)(var_19 + 0x50);
+                var_18_3 = var_19->childPrev;
             } else {
-                var_18_3 = *(u8 **)(var_20 + 0x6C);
+                var_18_3 = var_20->childTail;
             }
             while (var_18_3 != NULL) {
-                if (evtCheckCondition(var_18_3) == 1) {
+                if (evtCheckCondition((u8 *)var_18_3) == 1) {
                     break;
                 }
-                var_18_3 = *(u8 **)(var_18_3 + 0x50);
+                var_18_3 = var_18_3->childPrev;
             }
-            evtUpdateCutin(var_20, var_19, var_18_3, arg0, arg1);
+            evtUpdateCutin((u8 *)var_20, (u8 *)var_19, (u8 *)var_18_3, arg0, arg1);
         }
-        var_20 = *(u8 **)(var_20 + 0x90);
+        var_20 = var_20->next;
     }
     evtUpdateWaitState(arg0, (s32)arg1);
     evtSelectRangeChoice(arg0, arg1);
-    temp_4 = *(s32 *)arg1;
+    temp_4 = work->waitFlags;
     if ((temp_4 & 1) && !(temp_4 & 2)) {
         MT_Scene_StopShake();
     }
