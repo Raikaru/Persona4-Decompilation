@@ -43,8 +43,8 @@ extern void resrcMngSetRenderSuppressed(s32);
 extern s32 mcStepState(u8 *);
 extern s32 mcAnimateTransition(s32);
 extern s32 mcTableRandomize(s32, u8 *, u8 *, s32);
-extern s32 func_002a5630(s32);
-extern s32 func_002a5f00(s32);
+extern s32 mcRunScreenExitFrame(s32);
+extern s32 mcDrawScreenSettled(s32);
 extern void func_00453670(void *, s32, s32, s32, s32);
 extern void func_004538e0(void *, s32, s32, s32, s32);
 extern void func_00453ff0(void *, s32);
@@ -1355,7 +1355,7 @@ s32 mcRunScreenFrame(s32 arg0)
    f32, u8 *): that parameter order reproduces retail's argument emission order. */
 #pragma opt_lifetimes on
 // FUN_002A5630
-s32 func_002a5630(s32 arg0)
+s32 mcRunScreenExitFrame(s32 arg0)
 {
     extern f32 iGpffff8084;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -1514,7 +1514,7 @@ static inline s32 mcRowDisplacement(s32 base, s32 position)
  * separate from scale so multiplication rounds before the addition. */
 #pragma opt_loop_invariants on
 // FUN_002A5F00
-s32 func_002a5f00(s32 arg0)
+s32 mcDrawScreenSettled(s32 arg0)
 {
     extern f32 iGpffff8084;
     u8 *p;
@@ -1622,12 +1622,12 @@ s32 mcDrawDispatch(s32 arg0) {
         return 0;
     }
     if (flags & 0x40000) {
-        if (func_002a5630(arg0) != 0) {
+        if (mcRunScreenExitFrame(arg0) != 0) {
             *(u32 *)(work + 4) &= ~0x40000;
         }
         return 0;
     }
-    func_002a5f00(arg0);
+    mcDrawScreenSettled(arg0);
     return 0;
 }
 
