@@ -111,10 +111,10 @@ extern void func_0015a350(f32 *);
 extern void mdlTranslateMatrix(s32, f32 *, s32);
 extern s32 func_0029da90(s32, u8 *, s32);
 extern s32 FldMap_IsCurrentInBandA(void);
-extern u8 *func_0015a0c0(void);
+extern u8 *FldStepEntry(void);
 extern u8 *func_0015c590(u8);
 extern s32 func_0015c5f0(u8 *);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 extern s32 func_0015a6b0(s32);
 extern void FldUnit_UpdateAllEnemySlots(void);
 extern void FldUnit_UpdateEnemySlot(void);
@@ -255,7 +255,7 @@ s32 func_00155360(u8 *task)
                     work->scriptTask = func_0029da90(15, D_007D3D64[0], work->room - 1);
                 }
                 if (FldMap_IsCurrentInBandA() == 1) {
-                    work->roomData = func_0015c590(*(u8 *)(func_0015a0c0() + 0xC));
+                    work->roomData = func_0015c590(*(u8 *)(FldStepEntry() + 0xC));
                 }
             }
             work->state++;
@@ -270,7 +270,7 @@ s32 func_00155360(u8 *task)
         work->state++;
         /* fallthrough */
     case 9:
-        if (func_0015a6b0(func_0015a160()) != 0) {
+        if (func_0015a6b0(FldStepIndex()) != 0) {
             FldUnit_UpdateAllEnemySlots();
         } else {
             FldUnit_UpdateEnemySlot();
@@ -281,7 +281,7 @@ s32 func_00155360(u8 *task)
             D_007D2528[0] = smapCreateSymbols(task);
             func_002b2950(1);
         }
-        if (func_0015a160() != 0) {
+        if (FldStepIndex() != 0) {
             D_007D253C[0] = func_00186640(task);
         }
         if (sndRequestAreaTrack() == 0) {

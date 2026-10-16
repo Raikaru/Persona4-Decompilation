@@ -83,7 +83,7 @@ extern s32 calRestoreStateImage(void);
 extern s32 sdlSchedulerTeardown(void);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
-extern s32 func_00159f70(s32 arg0);
+extern s32 FldStepAdvance(s32 arg0);
 
 extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
                          f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
@@ -410,7 +410,7 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
 // FUN_00176810
 s32 func_00176810(void)
 {
-    func_00159f70(scrGetParamInt(0));
+    FldStepAdvance(scrGetParamInt(0));
     return 1;
 }
 

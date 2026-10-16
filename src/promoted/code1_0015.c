@@ -86,8 +86,8 @@ extern u8 D_005F0650[];
 extern u32 datGetFlag(s32 arg0);
 
 extern s32 datSetFlag(s32 arg0, s32 arg1);
-extern s32 func_00159a60(u8 *arg0);
-extern void func_00159d50(u8 *task);
+extern s32 FldStepTaskUpdate(u8 *arg0);
+extern void FldStepTaskDestroy(u8 *task);
 extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
@@ -2090,6 +2090,7 @@ loop_5_test:
 #pragma opt_loop_invariants on
 /* measured: closes opt_propagation off probe for func_001599d0. */
 #pragma opt_propagation on
+// Intent: Per-frame update for the step task: dispatches on the task's state and sets up its model objects and records [inferred]
 // FUN_00159A60
 /* measured: object 748B/window 752B, nd 0. Shape: the case-1 conditions are nested
    ifs that fall out to `break` (every early exit shares the single `return 0` after
@@ -2099,7 +2100,7 @@ loop_5_test:
    is the same cast form inline (idx loaded first). func_00155e10's 4th parameter
    is s32 at block scope so the u16 load is a conversion materialised before $a0.
    Zeroing loop: u32 counter for bnez. */
-s32 func_00159a60(u8 *arg0)
+s32 FldStepTaskUpdate(u8 *arg0)
 {
     extern s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
     extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
@@ -2192,8 +2193,9 @@ s32 func_00159a60(u8 *arg0)
     }
     return 0;
 }
+// Intent: Destroy the step task: clear the step records and run the state destroy hook from the hook table [inferred]
 // FUN_00159D50
-void func_00159d50(u8 *arg0)
+void FldStepTaskDestroy(u8 *arg0)
 {
     s32 *temp_19;
     s32 temp_16_2;
@@ -2242,8 +2244,9 @@ loop_14_test:
     *(s32 *)iGpffff9db0 = 0;
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+// Intent: Create the step task under the given parent with its update and destroy callbacks, store its two parameters and clear flag 0xC25 [inferred]
 // FUN_00159E90
-s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
+s32 FldStepTaskCreate(s32 arg0, s32 arg1, s32 arg2) {
     s32 temp_17;
     u8 *temp_2;
 
@@ -2252,14 +2255,15 @@ s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, func_00159a60, func_00159d50, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, FldStepTaskUpdate, FldStepTaskDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(s32 *)(temp_2 + 8) = arg2;
     datSetFlag(0xC25, 0);
     return temp_17;
 }
+// Intent: Advance the step counter by the argument and reset the step state; when the step lands on a different entry, the grid entries are freed [inferred]
 // FUN_00159F70
-void func_00159f70(s32 arg0)
+void FldStepAdvance(s32 arg0)
 {
     u8 *root;
     u8 *state;
@@ -2303,8 +2307,9 @@ void func_00159f70(s32 arg0)
         *(s32 *)state = 5;
     }
 }
+// Intent: Return the current step entry address, or 0 when there is no step task [inferred]
 // FUN_0015A0C0
-s32 func_0015a0c0(void)
+s32 FldStepEntry(void)
 {
     u8 *work;
     u8 *p;
@@ -2343,8 +2348,9 @@ s32 func_0015a130(void)
 }
 
 
+// Intent: Return the step counter, or 0 when there is no step task [inferred]
 // FUN_0015A160
-s32 func_0015a160(void)
+s32 FldStepIndex(void)
 {
     u8 *work;
 
@@ -2354,8 +2360,9 @@ s32 func_0015a160(void)
     }
     return *(s32 *)(*(u8 **)(work + 0x38) + 4);
 }
+// Intent: Report whether the flag for the current step band (0x11 to 0x17) is set [inferred]
 // FUN_0015A190
-s32 func_0015a190(void)
+s32 FldStepBandFlagSet(void)
 {
     s32 result;
     u32 value;
