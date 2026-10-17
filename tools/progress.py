@@ -438,7 +438,7 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
             f"| First-party matched, scored for recovery | {scored:,} |",
             f"| \u2014 NAMED (not a `func_<address>` placeholder) | {recovery['named']:,} "
             f"({recovery['named_percent']}%) |",
-            f"| \u2014 TYPED (no raw-offset or `M2C_` access) | {recovery['typed']:,} "
+            f"| \u2014 TYPED (no raw-offset access) | {recovery['typed']:,} "
             f"({recovery['typed_percent']}%) |",
             f"| \u2014 DOCUMENTED (prose, or trivially self-evident) | {recovery['documented']:,} "
             f"({recovery['documented_percent']}%) |",

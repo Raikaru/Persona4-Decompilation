@@ -102,7 +102,7 @@ def main() -> None:
     inside, outside, unmeasured, split, cancelled = 0, [], [], [], []
     with tempfile.TemporaryDirectory() as scratch:
         for path in sorted((REPO / "src").rglob("*.c")):
-            if path.parent.name == "generated" or path.name.startswith("."):
+            if path.name.startswith("."):
                 continue
             # Third-party code is out of scope: the floors under src/middleware
             # and friends are ee-gcc output that b210 provably cannot reproduce,

@@ -2,7 +2,7 @@ PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
 OBJDIFF_CLI ?= objdiff-cli
 
-.PHONY: all setup split regenerate-asm reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects objdiff-report progress recovery progress-validate m2c-setup m2c clean distclean
+.PHONY: all setup split regenerate-asm reconcile shared-p3 build verify check test lint lint-errors lint-full objdiff objdiff-objects objdiff-report progress recovery progress-validate clean distclean
 
 all: build verify
 
@@ -17,22 +17,6 @@ split:
 # Only manifest-generated outputs are removed; retained manual ASM stays in place.
 regenerate-asm:
 	$(PYTHON) tools/regenerate_asm.py --fresh
-
-m2c-setup:
-	$(PYTHON) tools/setup_m2c.py
-
-# Decompile one retail function with P4 declarations:
-#   make m2c FILE=src/Battle/btlUnit.c FUNC=func_00195850
-m2c:
-	@test -n "$(FILE)" -a -n "$(FUNC)" || (echo "usage: make m2c FILE=src/path.c FUNC=function_name" && exit 2)
-	$(PYTHON) tools/m2c_decompile.py "$(FILE)" "$(FUNC)" $(if $(STACK),--stack-structs,)
-
-m2c-bulk:
-	$(PYTHON) tools/m2c_bulk.py
-
-m2c-promote:
-	@test -f build/m2c_verify_report.json || (echo "run candidate verifier first: build/m2c_verify_report.json is missing" && exit 2)
-	$(PYTHON) tools/m2c_bulk.py --promote-report build/m2c_verify_report.json
 
 reconcile:
 	$(PYTHON) tools/reconcile_function_boundaries.py
@@ -96,12 +80,6 @@ lint-errors:
 
 lint-full:
 	$(PYTHON) tools/decomp_lint.py --include-third-party
-
-# Flattened context for a decomp.me scratch or decomp-permuter run:
-#   make ctx CTX_SRC=src/Battle/btlTarget.c
-ctx:
-	@test -n "$(CTX_SRC)" || (echo "usage: make ctx CTX_SRC=src/path.c" && exit 2)
-	$(PYTHON) tools/m2ctx.py "$(CTX_SRC)" --decompme
 
 VERIFY_REPORT ?= build/verify_report.json
 LINKED_REPORT ?= build/linked_report.json

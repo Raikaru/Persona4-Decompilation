@@ -41,7 +41,7 @@ def _guards(text: str):
 def targets(only: set[Path]) -> list[tuple[str, str]]:
     out = []
     for path in sorted((REPO / "src").rglob("*.c")):
-        if path.parent.name == "generated" or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         if only and path.resolve() not in only:
             continue

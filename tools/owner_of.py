@@ -30,7 +30,7 @@ def owner_files() -> dict[str, str]:
     """Return {function: owning source file} for every first-party marker."""
     owners: dict[str, str] = {}
     for path in sorted((REPO / "src").rglob("*.c")):
-        if path.parent.name == "generated" or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         try:
             text = path.read_text(errors="replace")

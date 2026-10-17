@@ -30,11 +30,7 @@ thrash.
 
     python3 -E -s tools/solve_signedness.py src/foo.c func_00123456
     python3 -E -s tools/solve_signedness.py src/foo.c func_00123456 --apply
-    python3 -E -s tools/solve_signedness.py src/foo.c func_00123456 --json facts.json
 
-`--json` writes the accepted claims in the shape `tools/romwright_feedback.py`
-pushes, so a solved field becomes an asserted fact for every later
-reconstruction instead of being re-solved by hand.
 """
 
 from __future__ import annotations
@@ -42,7 +38,6 @@ from __future__ import annotations
 import argparse
 import collections
 import io
-import json
 import re
 import sys
 import tempfile
@@ -208,8 +203,6 @@ def main() -> None:
     parser.add_argument("function")
     parser.add_argument("--apply", action="store_true",
                         help="write the accepted flips back into the owner file")
-    parser.add_argument("--json", metavar="PATH",
-                        help="write accepted claims for tools/romwright_feedback.py")
     args = parser.parse_args()
 
     solver = Solver(Path(args.source), args.function)
@@ -306,9 +299,6 @@ def main() -> None:
     for row in rejected:
         print(f"  reject  {row}")
 
-    if args.json:
-        Path(args.json).write_text(json.dumps(asserted, indent=2))
-        print(f"\nwrote {len(asserted)} claims to {args.json}")
     if args.apply and body != solver.body:
         text = solver.source.read_text(errors="replace")
         solver.source.write_text(text.replace(solver.body, body, 1))

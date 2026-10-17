@@ -44,7 +44,7 @@ def definitions() -> dict[str, str]:
     """Every first-party definition in the tree, as a printable signature."""
     found: dict[str, str] = {}
     for path in sorted((REPO / "src").rglob("*.c")):
-        if path.parent.name == "generated" or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         try:
             text = path.read_text(errors="replace")
@@ -65,7 +65,7 @@ def main() -> None:
     rows: list[tuple[int, str, str, list[str]]] = []
 
     for path in sorted((REPO / "src").rglob("*.c")):
-        if path.parent.name == "generated" or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         if only and path.resolve() not in only:
             continue

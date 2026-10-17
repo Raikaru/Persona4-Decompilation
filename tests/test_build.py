@@ -665,13 +665,11 @@ class SourceAliasTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             (root / "config").mkdir()
-            (root / "src/generated").mkdir(parents=True)
+            (root / "src").mkdir()
             (root / "config/symbol_addrs.txt").write_text(
                 "func_00100000 = 0x00100000; // type:func\n")
             (root / "src/provider.c").write_text(
                 "// FUN_00100000\nvoid NamedProvider(void) {}\n")
-            (root / "src/generated/stale.c").write_text(
-                "// FUN_00200000\nvoid NamedProvider(void) {}\n")
             with mock.patch.object(build, "REPO", root):
                 addresses = build.load_symbol_addr_map()
                 self.assertEqual(build.source_marker_names(), {"NamedProvider"})

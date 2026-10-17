@@ -41,7 +41,7 @@ COUNTS = re.compile(r"retail (\d+) instrs  object (\d+) instrs")
 def collect():
     out = []
     for path in sorted((REPO / "src").rglob("*.c")):
-        if "generated" in path.parts or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         text = path.read_text(errors="replace")
         for m in GUARD.finditer(text):

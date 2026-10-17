@@ -24,7 +24,7 @@ def targets() -> list[tuple[str, str]]:
 
     out = []
     for path in sorted((REPO / "src").rglob("*.c")):
-        if path.parent.name == "generated" or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         rel = path.relative_to(REPO / "src").as_posix()
         if rel.startswith(verify.THIRD_PARTY_PREFIXES):

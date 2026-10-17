@@ -68,8 +68,6 @@ def _floors() -> list[tuple[Path, str]]:
     """Every guarded NON_MATCHING body in the tree, as (file, symbol)."""
     found: list[tuple[Path, str]] = []
     for path in sorted((REPO / "src").rglob("*.c")):
-        if path.parent.name == "generated":
-            continue
         try:
             text = path.read_text(errors="replace")
         except OSError:

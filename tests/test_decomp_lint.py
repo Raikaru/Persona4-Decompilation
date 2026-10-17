@@ -406,28 +406,6 @@ void Vpad_RefreshSelection(void)
         self.assertIn("H009", codes(findings))
 
 
-class ExclusionTests(unittest.TestCase):
-    def test_generated_directory_is_always_excluded(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            old_root = lint.ROOT
-            lint.ROOT = Path(directory)
-            try:
-                generated = Path(directory) / "src" / "generated"
-                generated.mkdir(parents=True)
-                (generated / "candidate.c").write_text(
-                    'void f(void) { asm ("addu $v0, $a0, $a1"); }\n', encoding="utf-8")
-                (Path(directory) / "src" / "real.c").write_text(
-                    "void f(void) { }\n", encoding="utf-8")
-                for path in (Path(directory) / "src", generated / "candidate.c"):
-                    out = io.StringIO()
-                    with contextlib.redirect_stdout(out):
-                        self.assertEqual(lint.main([str(path), "--include-third-party"]), 0)
-                    self.assertNotIn("candidate.c", out.getvalue())
-                    self.assertNotIn("[H009]", out.getvalue())
-            finally:
-                lint.ROOT = old_root
-
-
 class ThirdPartyScopeTests(unittest.TestCase):
     """Default runs are first-party-only; third-party middleware (rw/, cri/,
     sce/, C runtime) is linted only with --include-third-party and never
@@ -554,7 +532,7 @@ class WholeFunctionAsmTests(unittest.TestCase):
 
     A body of `.word` literals copied from the retail bytes matches
     byte-for-byte by construction, so nothing else in the campaign can tell it
-    from a real result. m2c emits exactly that shape for functions it cannot
+    from a real result. Decompilers emit exactly that shape for functions they cannot
     lift.
     """
 

@@ -40,7 +40,7 @@ TOOLS = REPO / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 # Reuse verify's scanning semantics so the rename never touches anything the
-# verifier would not compile: src/generated and other tool-generated units are
+# verifier would not compile: tool-generated scratch copies are
 # excluded, and sanitize_c_lines blanks comments/strings so we can locate code
 # contexts exactly.
 from verify import is_generated, sanitize_c_lines  # noqa: E402

@@ -1282,15 +1282,10 @@ def _gcc_unit_has_c(path):
 
 
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
-                       include_generated=False, symbol_addresses=None):
+                       symbol_addresses=None):
     """Select matching C source units that can be placed byte-exact."""
     retail = V.RetailElf(c["retail_elf"], TARGET, RETAIL_SHA1)
     out = []
-    # src/generated/ holds ~12,000 raw m2c CANDIDATE units that are not part of
-    # the authoritative tree; verify.py excludes them the same way. Compiling
-    # them here made a cold build ~13,000 units instead of ~1,300 and dominated
-    # the runtime. The candidate-promotion flow drives them separately through
-    # build/m2c_verify_report.json, so they are opt-in here.
     # config/gcc_units.txt lists units retail built with ee-gcc rather than
     # MWCCPS2. Those used to be excluded and linked from their extracted
     # retail assembly instead, so the build needed only one compiler. The CRI
@@ -1299,7 +1294,7 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     # source away. ee-gcc is a build requirement now; _compile_unit routes
     # these through tools/eegcc_shim.py.
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
-                     if (include_generated or not V.is_generated(p))
+                     if not V.is_generated(p)
                      and (not V.is_gcc_unit(p) or _gcc_unit_has_c(p)))
     def placeable(markers):
         real = [m for m in markers if m["name"]]
@@ -2087,9 +2082,6 @@ def main():
     parser.add_argument("--setup-only", action="store_true")
     parser.add_argument("--linker-backend", choices=("mwld", "gnu"),
                         help="override the configured GNU ld or MWLD backend; compilation is unchanged")
-    parser.add_argument("--include-generated", action="store_true",
-                        help="also evaluate src/generated candidate units for placement "
-                             "(off by default: ~12,000 extra units, dominates build time)")
     args, _unknown = parser.parse_known_args()
     c = cfg()
     if args.linker_backend:
@@ -2144,7 +2136,6 @@ def main():
     window_sizes = load_window_sizes()
     cobjs = (
         eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes,
-                           include_generated=args.include_generated,
                            symbol_addresses=symbol_addresses)
         if c.get("retail_elf") else []
     )

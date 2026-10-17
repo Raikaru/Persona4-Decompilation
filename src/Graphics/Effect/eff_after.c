@@ -839,12 +839,12 @@ void effAfterFreeVectorBuffers(void *arg0) {
 /* measured: 7728B mesh-builder. Retail asm has 63 mula/madda/madd/msub FPU
    sequences (the same multiply-accumulate family as effAfterFrameNormal/effAfterSideAxis,
    which floor on the v5 index register and fp-save set) plus 21 lq/sq quadword
-   ops and 3 large switch statements. M2C_ERROR in the m2c draft at every FPU
+   ops and 3 large switch statements. Error-marked in the m2c draft at every FPU
    sequence; the mula/madda/madd dot-product folds cannot be reproduced in plain
    C by b210. FPU-accumulate + quadword-slot floor. */
 /* Cold 004b8f40 (1932 instrs, frame -0x1A0 s19-s23/s30): no probe_archive */
 /* entry; m2c (u8*,void**) + romwright (u8*,int*) agree on signature (pointer */
-/* + pointer-to-pointer), m2c has 63 M2C_ERROR (mula/madd/msub) vs rw 0 errors */
+/* + pointer-to-pointer), m2c has 63 error-marked (mula/madd/msub) vs rw 0 errors */
 /* with counted fors (correct, not do/while). Stripped rw skeleton (fn refs->D_, */
 /* true->1, ._4_4_->u32>>32, void*+int->(u8*)*+int, externs stripped): retail */
 /* 1932/object 2721 (+40%, +789) edits 4101+6 gate outside (needs 1874-1990). */
