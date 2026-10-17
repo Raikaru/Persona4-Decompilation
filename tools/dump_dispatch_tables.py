@@ -76,8 +76,6 @@ def scan_markers(src_root):
     """Map function VA -> (name, repo-relative file, definition line)."""
     marks = {}
     for path in sorted(src_root.rglob("*.c")):
-        if "generated" in path.parts:
-            continue
         lines = path.read_text(encoding="utf-8", errors="replace").split("\n")
         rel = path.relative_to(REPO).as_posix()
         for i, line in enumerate(lines):

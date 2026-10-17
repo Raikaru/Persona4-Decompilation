@@ -45,7 +45,7 @@ Usage:
 Exit status is 1 if any first-party `error` finding survives filtering or
 any requested input cannot be scanned, else 0. Scan errors are always printed
 and included in JSON `scan_errors`, regardless of rule/severity filtering.
-Third-party findings never fail the run. `src/generated/` is never linted.
+Third-party findings never fail the run.
 """
 
 import argparse
@@ -59,9 +59,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Directories that are generated or otherwise not ours to police.
-# `src/generated/` is raw m2c candidate output and is ALWAYS excluded.
-DEFAULT_EXCLUDES = ("src/generated/",)
 
 # Third-party classification is owned by verify.py: the `rw/`, `cri/`, `sce/`
 # prefixes plus the C runtime files.  We reuse that exact classification so
@@ -1044,7 +1041,7 @@ def _definition_index():
     index = defaultdict(list)
     for path in sorted((ROOT / "src").rglob("*.c")):
         rel = path.relative_to(ROOT).as_posix()
-        if rel.startswith("src/generated/") or _is_tool_scratch(path.name):
+        if _is_tool_scratch(path.name):
             continue
         try:
             src = Source(path, path.read_bytes())
@@ -1242,7 +1239,7 @@ def main(argv=None):
         return 0
 
     paths = args.paths or [ROOT / "src", ROOT / "include"]
-    excludes = list(args.exclude) + list(DEFAULT_EXCLUDES)
+    excludes = list(args.exclude)
 
     def keep(code):
         if args.select:

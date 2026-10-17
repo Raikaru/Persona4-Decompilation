@@ -1,11 +1,11 @@
 """The recovery score must not flatter decompiler output.
 
 A byte-identical function can still be unreadable: an address for a name, raw
-field offsets, `M2C_FIELD`, `temp_3`/`uVar1` locals. Reporting only MATCH hides
+field offsets, `temp_3`/`uVar1` locals. Reporting only MATCH hides
 that, so `tools/recovery_quality.py` scores matched functions on NAMED, TYPED and
 DOCUMENTED independently of matching. These tests pin the classification, because
 a scorer that is generous by accident is worse than no scorer at all: it would
-report the tree as recovered while it still reads like m2c output.
+report the tree as recovered while it still reads like decompiler output.
 """
 
 import json
@@ -66,14 +66,6 @@ class TypedTests(unittest.TestCase):
         """
         self.assertFalse(score(body)["typed"])
 
-    def test_m2c_macro_is_not_typed(self) -> None:
-        body = """
-        s32 f(u8 *p) {
-            return M2C_FIELD(p, s32 *, 0x18);
-        }
-        """
-        self.assertFalse(score(body)["typed"])
-
     def test_named_field_access_is_typed(self) -> None:
         body = """
         s32 ScrStackDepth(ScrData *scr) {
@@ -94,12 +86,12 @@ class TypedTests(unittest.TestCase):
 
 
 class ResidueTests(unittest.TestCase):
-    def test_m2c_temp_names_are_residue(self) -> None:
+    def test_temp_names_are_residue(self) -> None:
         flags = score("s32 f(void) { s32 temp_3 = 1; return temp_3; }")
         self.assertTrue(flags["residue"])
         self.assertFalse(flags["typed"])
 
-    def test_ghidra_names_are_residue(self) -> None:
+    def test_decompiler_local_names_are_residue(self) -> None:
         for local in ("uVar1", "iVar1", "bVar1", "param_1", "spA0"):
             with self.subTest(local=local):
                 body = "s32 f(void) { s32 %s = 1; return %s; }" % (local, local)

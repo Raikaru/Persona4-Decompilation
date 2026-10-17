@@ -1354,10 +1354,10 @@ void fclCombineBuildRows(u8 *arg0) {
 /* measured 002ed430 2026-09-19: object 3816 against retail's 3764 instructions, +1.38% inside the 3651-3877 band with
    61 instructions of headroom; 2865 fnalign edits (+10 reloc-only), 3139 differing words.
    No pragmas: retail here is unscheduled like the rest of this unit.
-   Built from the m2c oracle from src/generated/code1_002e.c de-noised to this file's idiom - M2C_FIELD expanded to direct
-   casts, the gp temporaries resolved to ((s32)iGpffffb440) and ((s32)iGpffffb3d4), the six M2C_ERROR
+   Built from an m2c oracle (since removed), de-noised to this file's idiom - field macros expanded to direct
+   casts, the gp temporaries resolved to ((s32)iGpffffb440) and ((s32)iGpffffb3d4), the six error-marked
    ldr/ldl sites written as struct-by-value `*(FclVec2f *)(ps + 0x38)` with `ps = fclSpriteEntry(0x151/0x2E0)`,
-   the 11 colour bases with their M2C_UNK companions folded to u8 colXXX[4] (`&sp` -> col, `sp` -> col[0],
+   the 11 colour bases with their unknown-type companions folded to u8 colXXX[4] (`&sp` -> col, `sp` -> col[0],
    `(s32)sp` -> (*(s32 *)col)), the (s32)(sp)+0x110/0xF0 stores rewritten as sp110[]/spF0[] (u16[16]),
    37 s64 temporaries narrowed to s32 (3963 -> 3659) with four - var_16, var_16_2, var_16_3, var_17_2 - kept s64
    to land 3659 inside the band, the switch-3 labels restored as case 0-2 (retail jtbl, +157 to 3816, still inside),

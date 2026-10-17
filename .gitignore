@@ -49,8 +49,6 @@ build/
 # Local tool configuration and caches.
 /tools/verify_config.local.json
 /tools/build_config.local.json
-/tools/vendor/m2c/
-*.m2c
 /tools/__pycache__/
 __pycache__/
 /.vscode/
@@ -72,9 +70,6 @@ p4-matching-agent-kit-v2.zip
 # Scratch the matching tools drop beside an owner; never part of the build.
 src/**/.*.c
 src/**/.*.h
-
-# romwright program database when the CLI is run without --project
-.romwright/
 
 # A mis-quoted `--json --help` once wrote a JSON dump to a file literally named
 # `--help`; it was committed and kept being re-modified by later tool runs.

@@ -419,10 +419,6 @@ typedef struct {
     s32 f88;
 } TitleTaskView;
 #include "btl_shuffle_draw_internal.h"
-#define M2C_GUARD
-typedef s32 M2C_UNK;
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
-#define M2C_BITWISE(type, expr) ((type)(expr))
 void func_00124bb0(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 arg1, u32 arg2, f32 fparg6, s32 arg3, u32 *arg4);
 
 void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1);
@@ -928,7 +924,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                             kAssertFail(D_005E5548, 0xD1);
                         }
                         temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)var_19];
-                        temp_2 = (s32)((s32)(u32)(temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
+                        temp_2 = (s32)((s32)(u32)(temp_16 - 0x3D) - (*(s32 *)((u8 *)(temp_21) + (0x20))));
                         if (temp_2 > 0) {
                             var_2_5 = temp_2 - 0x32;
                             if (var_2_5 < 0) {
@@ -942,13 +938,13 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                             }
                             temp_f21 = sinf(((((1.5707964f * (f32) temp_2) / 50.0f))));
                             if (temp_2 == 1) {
-                                temp_3_2 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
+                                temp_3_2 = (s32)((*(s32 *)((u8 *)(temp_21) + (0))));
                                 if (temp_3_2 >= 0xF) {
                                     var_4 = NULL;
                                 } else {
                                     temp_2_3 = (u32 *)(&temp_20[temp_3_2]);
-                                    if (mdlPrepareModel(M2C_FIELD(temp_2_3, u8 **, 0x44)) != 0) {
-                                        var_4 = (u8 *)(M2C_FIELD(temp_2_3, u8 **, 0x44));
+                                    if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_3) + (0x44)))) != 0) {
+                                        var_4 = (u8 *)((*(u8 **)((u8 *)(temp_2_3) + (0x44))));
                                     } else {
                                         var_4 = NULL;
                                     }
@@ -957,13 +953,13 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                                     mdlDispatchAnimIfPresent(var_4, 0, 1, 0, 1);
                                 }
                             } else if (temp_2 == 0x1E) {
-                                temp_3_3 = (s32)(M2C_FIELD(temp_21, s32 *, 0));
+                                temp_3_3 = (s32)((*(s32 *)((u8 *)(temp_21) + (0))));
                                 if (temp_3_3 >= 0xF) {
                                     var_4_2 = NULL;
                                 } else {
                                     temp_2_4 = (u32 *)(&temp_20[temp_3_3]);
-                                    if (mdlPrepareModel(M2C_FIELD(temp_2_4, u8 **, 0x44)) != 0) {
-                                        var_4_2 = (u8 *)(M2C_FIELD(temp_2_4, u8 **, 0x44));
+                                    if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_4) + (0x44)))) != 0) {
+                                        var_4_2 = (u8 *)((*(u8 **)((u8 *)(temp_2_4) + (0x44))));
                                     } else {
                                         var_4_2 = NULL;
                                     }
@@ -1000,10 +996,10 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                                 red = (packedColor >> 0x18) & 0xFF;
                                 blue = (packedColor >> 8) & 0xFF;
                                 {
-                                    s32 a0 = (s32)((f32) M2C_FIELD(temp_7, s32 *, 0));
+                                    s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7) + (0))));
                                     u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                                     u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, temp_q1) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, temp_q1) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, temp_q1) << 8) | 0xFF;
-                                    func_00124bb0(a0, M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7, f32 *, 0x18), 0x42, temp_20);
+                                    func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7) + (8))), (*(f32 *)((u8 *)(temp_7) + (0xC))), (*(f32 *)((u8 *)(temp_7) + (0x10))), (*(f32 *)((u8 *)(temp_7) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7) + (0x18))), 0x42, temp_20);
                                 }
                             }
                         }
@@ -1020,10 +1016,10 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                         red = (packedColor >> 0x18) & 0xFF;
                         blue = (packedColor >> 8) & 0xFF;
                         {
-                            s32 a0 = (s32)((f32) M2C_FIELD(temp_7_2, s32 *, 0));
+                            s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7_2) + (0))));
                             u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                             u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-                            func_00124bb0(a0, M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7_2, f32 *, 0x18), 0x42, temp_20);
+                            func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7_2) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_2) + (8))), (*(f32 *)((u8 *)(temp_7_2) + (0xC))), (*(f32 *)((u8 *)(temp_7_2) + (0x10))), (*(f32 *)((u8 *)(temp_7_2) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_2) + (0x18))), 0x42, temp_20);
                         }
                     }
                 }
@@ -1037,8 +1033,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                             var_4_7 = NULL;
                         } else {
                             temp_2_11 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
-                            if (mdlPrepareModel(M2C_FIELD(temp_2_11, u8 **, 0x44)) != 0) {
-                                var_4_7 = (u8 *)(M2C_FIELD(temp_2_11, u8 **, 0x44));
+                            if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_11) + (0x44)))) != 0) {
+                                var_4_7 = (u8 *)((*(u8 **)((u8 *)(temp_2_11) + (0x44))));
                             } else {
                                 var_4_7 = NULL;
                             }
@@ -1057,8 +1053,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                             var_4_9 = NULL;
                         } else {
                             temp_2_12 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
-                            if (mdlPrepareModel(M2C_FIELD(temp_2_12, u8 **, 0x44)) != 0) {
-                                var_4_9 = (u8 *)(M2C_FIELD(temp_2_12, u8 **, 0x44));
+                            if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_12) + (0x44)))) != 0) {
+                                var_4_9 = (u8 *)((*(u8 **)((u8 *)(temp_2_12) + (0x44))));
                             } else {
                                 var_4_9 = NULL;
                             }
@@ -1535,10 +1531,10 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             red = (packedColor >> 0x18) & 0xFF;
             blue = (packedColor >> 8) & 0xFF;
             {
-                s32 a0 = (s32)((f32) M2C_FIELD(temp_7_5, s32 *, 0));
+                s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7_5) + (0))));
                 u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                 u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-                func_00124bb0(a0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
+                func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7_5) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_5) + (8))), (*(f32 *)((u8 *)(temp_7_5) + (0xC))), (*(f32 *)((u8 *)(temp_7_5) + (0x10))), (*(f32 *)((u8 *)(temp_7_5) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_5) + (0x18))), 0x42, temp_20);
             }
         }
         titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
@@ -1550,12 +1546,12 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
     case 9:
         if (taskView->timer == 0) {
             temp_f0_7 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
-            if (M2C_BITWISE(s32, temp_f0_7) >= 0xF) {
+            if (((s32)(temp_f0_7)) >= 0xF) {
                 var_4_16 = NULL;
             } else {
-                temp_2_23 = (u32 *)titleOffsetPtr_001265a0((M2C_BITWISE(s32, temp_f0_7)) * 4, (u8 *)temp_20);
-                if (mdlPrepareModel(M2C_FIELD(temp_2_23, u8 **, 0x44)) != 0) {
-                    var_4_16 = (u8 *)(M2C_FIELD(temp_2_23, u8 **, 0x44));
+                temp_2_23 = (u32 *)titleOffsetPtr_001265a0((((s32)(temp_f0_7))) * 4, (u8 *)temp_20);
+                if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_23) + (0x44)))) != 0) {
+                    var_4_16 = (u8 *)((*(u8 **)((u8 *)(temp_2_23) + (0x44))));
                 } else {
                     var_4_16 = NULL;
                 }
@@ -1572,12 +1568,12 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp6BC = sp68C;
         func_0045c870((u8 *)&sp6BC, 1);
         temp_f0_9 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
-        if (M2C_BITWISE(s32, temp_f0_9) >= 0xF) {
+        if (((s32)(temp_f0_9)) >= 0xF) {
             var_16_2 = NULL;
         } else {
-            temp_2_25 = (u32 *)titleOffsetPtr_001265a0((M2C_BITWISE(s32, temp_f0_9)) * 4, (u8 *)temp_20);
-            if (mdlPrepareModel(M2C_FIELD(temp_2_25, u8 **, 0x44)) != 0) {
-                var_16_2 = (u8 *)(M2C_FIELD(temp_2_25, u8 **, 0x44));
+            temp_2_25 = (u32 *)titleOffsetPtr_001265a0((((s32)(temp_f0_9))) * 4, (u8 *)temp_20);
+            if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_25) + (0x44)))) != 0) {
+                var_16_2 = (u8 *)((*(u8 **)((u8 *)(temp_2_25) + (0x44))));
             } else {
                 var_16_2 = NULL;
             }
@@ -1595,13 +1591,13 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_f24 = *(f32 *)(D_005E523C + temp_3_19);
             temp_f23 = *(f32 *)(D_005E5240 + temp_3_19);
             temp_f21_3 = *(f32 *)(D_005E5248 + temp_3_19);
-            temp_2_26 = (s32)(M2C_FIELD(var_16_2, s32 *, 0xD8) & ~8);
-            M2C_FIELD(var_16_2, s32 *, 0xD8) = temp_2_26;
+            temp_2_26 = (s32)((*(s32 *)((u8 *)(var_16_2) + (0xD8))) & ~8);
+            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = temp_2_26;
             temp_3_20 = temp_2_26 | 0x10;
-            M2C_FIELD(var_16_2, s32 *, 0xD8) = temp_3_20;
+            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = temp_3_20;
             temp_3_21 = temp_3_20 | 0x100000;
-            M2C_FIELD(var_16_2, s32 *, 0xD8) = temp_3_21;
-            M2C_FIELD(var_16_2, s32 *, 0xD8) = (s32) (temp_3_21 | 0x40000);
+            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = temp_3_21;
+            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = (s32) (temp_3_21 | 0x40000);
             temp_17_2 = (u32)(taskView->f84);
             if (temp_17_2 >= 0x13U) {
                 kAssertFail(D_005E5548, 0xEB);

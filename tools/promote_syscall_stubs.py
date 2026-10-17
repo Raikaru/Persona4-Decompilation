@@ -141,8 +141,6 @@ def main() -> None:
     paths = [REPO / args.file] if args.file else sorted(SRC.rglob("*.c"))
     total = 0
     for path in paths:
-        if "generated" in path.parts:
-            continue
         converted = convert(path, image, windows, args.apply)
         if converted:
             total += len(converted)

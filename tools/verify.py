@@ -73,7 +73,6 @@ def is_generated(path: Path) -> bool:
         # paths that do not exist in the tree.  A tracked source file never
         # starts with a dot, so the broad rule costs nothing.
         or path.name.startswith(".")
-        or any(part.startswith("generated") for part in relative.parts)
     )
 
 
@@ -993,8 +992,6 @@ def main() -> None:
     parser.add_argument("files", nargs="*", help="specific .c files (default: all of src/)")
     parser.add_argument("--json", metavar="PATH", help="write full JSON report")
     parser.add_argument("--show-mismatches", action="store_true", help="print non-MATCH/non-STUB detail")
-    parser.add_argument("--include-generated", action="store_true",
-                        help="include src/generated candidate files in the scan")
     parser.add_argument("--skip-gcc-units", action="store_true",
                         help="omit config/gcc_units.txt units, for an "
                              "environment with no ee-gcc toolchain")
@@ -1020,7 +1017,7 @@ def main() -> None:
     # environment that truly cannot supply one.
     source_files = sorted(
         path for path in (REPO / "src").rglob("*.c")
-        if (args.include_generated or not is_generated(path))
+        if not is_generated(path)
         and not (args.skip_gcc_units and is_gcc_unit(path))
     )
     requested = [Path(file).resolve() for file in args.files] if args.files else source_files

@@ -96,8 +96,6 @@ extern u8 D_008873E0[];
 extern u8 D_008873E4[];
 extern u8 D_008873F4[];
 extern s32 iGpffffb780;
-typedef s32 M2C_UNK;
-typedef s32 M2C_UNK32;
 typedef u8 *(*Fn3f80A)(u8 *, u8 *, u8 *);
 typedef u8 *(*Fn3f80B)(u8 *, s32, u8 *);
 typedef u8 *(*Callback66c0)(u8 *, u8 *);

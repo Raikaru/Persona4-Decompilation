@@ -42,8 +42,8 @@ direction; never sort on principle.
 So measure, never assume.  This probes one function, or sweeps every
 first-party floor that carries a chain of at least `--min-arms` arms.
 
-**Scope**: the rewrite handles the single-line arm form m2c emits for a
-dispatch table, `if (v == 3) { call(); }`.  Chains whose arms are braced
+**Scope**: the rewrite handles the single-line arm form a dispatch table of
+single calls produces, `if (v == 3) { call(); }`.  Chains whose arms are braced
 blocks spanning several lines have to be converted by hand - there are 22
 such floors and `chain_variables()` will name the tested variable for you.
 The sweep reporting no wins means the single-line form is exhausted, not
@@ -67,8 +67,8 @@ sys.path.insert(0, str(REPO / "tools"))
 import verify  # noqa: E402
 from measure_guarded import extract_guarded_body  # noqa: E402
 
-# `if (v == 3) { one_statement; }` all on one line, the shape m2c emits for a
-# dispatch table of single calls.
+# `if (v == 3) { one_statement; }` all on one line, the shape a dispatch
+# table of single calls produces.
 ONE_LINER = re.compile(
     r"^(\s*)(\}\s*)?(else\s+)?if \((\w+) == (0x[0-9A-Fa-f]+|-?\d+)\) \{ (.*) \}$")
 # `} else if (v == 3) {` opening a braced arm.
@@ -160,7 +160,7 @@ def main() -> int:
     elif args.sweep:
         targets = []
         for path in sorted((REPO / "src").rglob("*.c")):
-            if path.parent.name == "generated" or path.name.startswith("."):
+            if path.name.startswith("."):
                 continue
             text = path.read_text(errors="replace")
             rel = str(path.relative_to(REPO))

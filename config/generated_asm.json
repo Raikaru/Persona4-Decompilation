@@ -32,6 +32,8 @@
     "inputs-requirements-python.txt": "Audited 2026-09-22: 8e0d2cd27bc3 -> a710c34702b6 adds the exact PyYAML 6.0.3 pin required by CI's direct yaml import. regenerate_asm.py --check reproduced all 11152 generated files and left both retained files unchanged.",
     "inputs-asm_symbol_baseline.txt": "Verbatim pre-migration symbol map (13,099 boundaries, 287 curated names) used only by the pinned fallback generator. The live symbol_addrs.txt now has 13,102 boundaries and 570 curated names; feeding it to splat would change audited assembly text. The pinned fallback bytes and filenames remain unchanged.",
     "inputs-verify.py-named-asm": "Audited 2026-09-23: verifier now passes the canonical symbol map to MWCCGap so compiled curated C definitions supersede address-form INCLUDE_ASM fallbacks. This changes the compiler wrapper command, not retail input filtering or generated assembly extraction; regenerate_asm.py --check verifies pinned outputs.",
+    "inputs-slus21782_functions.json": "Audited 2026-10-12: 43d17bf206f4 -> bb6362c8ff98. Metadata only: generated_from names the checked-in shared-SDK list instead of a Ghidra export, and evidence drops ghidra_total and renames code2_ghidra_shared_sdk to code2_shared_sdk. No window size or address changed.",
+    "inputs-verify.py-include-generated": "Audited 2026-10-12: 63a76dc2201d -> 265fdfe28c1c. Removes the src/generated clause from is_generated, the --include-generated flag and its scan branch. src/generated no longer exists, so no path the predicate used to exclude remains in the tree; regenerate_asm.py output is unaffected.",
     "inputs-verify.py-rebase": "The merged verifier also preserves relocation target bindings and scans K&R parameter declarations. regenerate_asm.py --check reproduced all 11152 pinned fallbacks and confirmed both retained files unchanged.",
     "primitive-fallbacks-20260928": "Two slice-canonical listings, func_0045f790 and func_00480940, preserve retail while their defined C matrix initializations are matched. Both were independently regenerated from the pinned split and verified with every code relocation resolved. The historical baseline audit remains unchanged."
   },
@@ -40,10 +42,10 @@
     "config/target.json": "cb4fffeb0f711f8d97efb9d08776659e9a32b013043f3b59a9ea5bc582c5a85d",
     "config/slus21782.yaml": "99fc10b794b6ae5edfc9b6da828a5a5c29036050101c0f1ebd78326e4e08bc9b",
     "config/asm_symbol_baseline.txt": "0c3524c648feaebe852f2b0221acae604de53f77f02e997ea425e368692bab52",
-    "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
+    "tools/slus21782_functions.json": "bb6362c8ff98699997fec2224714c41b39efcc85625979acbccdc71b063d3cbe",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
     "tools/asm.py": "258766a7b2394bbc522190abc0ade16abe657c2a1d65498f4f0b1f96a7e2d43d",
-    "tools/verify.py": "63a76dc2201d2f075dfde5d649a2d672b1c8a7756a8e9240be814cdf644461fd"
+    "tools/verify.py": "265fdfe28c1c8fa0c3b0a0b366c119348d34d3988d7d90c8e2976173ab79aa76"
   },
   "generated": [
     {

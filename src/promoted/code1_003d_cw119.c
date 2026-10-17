@@ -4,7 +4,6 @@
 /* RenderWare-derived functions verified with MWCCPS2 3.0.1 b119 (see
    config/compiler_units.txt and docs/matching.md). Fallbacks stay under
    asm/nonmatchings/code1_003d. */
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
 #define va_start(ap, last) (ap = (va_list)(s32)(__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8))
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -309,7 +308,7 @@ s32 func_003d3460(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 
     var_2 = (u8 **)(func_004125d0());
-    if ((var_2 != NULL) && (M2C_FIELD(var_2, s32 *, 0x3C) & 0x1C)) {
+    if ((var_2 != NULL) && ((*(s32 *)((s8 *)(var_2) + (0x3C))) & 0x1C)) {
         return 0;
     }
     if (var_2 == NULL) {
@@ -318,19 +317,19 @@ s32 func_003d3460(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
             var_5 = 0;
             var_4 = temp_2;
             do {
-                M2C_FIELD(var_4, s32 *, 0) = 0;
+                (*(s32 *)((s8 *)(var_4) + (0))) = 0;
                 var_5 += 5;
-                M2C_FIELD(var_4, s32 *, 4) = 0;
-                M2C_FIELD(var_4, s32 *, 8) = 0;
-                M2C_FIELD(var_4, s32 *, 0xC) = 0;
-                M2C_FIELD(var_4, s32 *, 0x10) = 0;
+                (*(s32 *)((s8 *)(var_4) + (4))) = 0;
+                (*(s32 *)((s8 *)(var_4) + (8))) = 0;
+                (*(s32 *)((s8 *)(var_4) + (0xC))) = 0;
+                (*(s32 *)((s8 *)(var_4) + (0x10))) = 0;
                 var_4 += 0x14;
             } while (var_5 < 0xA);
 
-            M2C_FIELD(temp_2, s32 *, 0x3C) = 0;
-            M2C_FIELD(temp_2, s32 *, 0x38) = 4;
-            M2C_FIELD(temp_2, s32 *, 0x34) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
-            M2C_FIELD(temp_2, s32 *, 0x30) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
+            (*(s32 *)((s8 *)(temp_2) + (0x3C))) = 0;
+            (*(s32 *)((s8 *)(temp_2) + (0x38))) = 4;
+            (*(s32 *)((s8 *)(temp_2) + (0x34))) = (s32) ((*(s32 *)((s8 *)(temp_2) + (0x38))) * 0x45);
+            (*(s32 *)((s8 *)(temp_2) + (0x30))) = (s32) ((*(s32 *)((s8 *)(temp_2) + (0x38))) * 0x45);
             var_5_2 = 1;
         } else {
             var_5_2 = 0;
@@ -341,10 +340,10 @@ s32 func_003d3460(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         var_2 = (u8 **)(func_004125d0(arg0, var_5_2));
     }
 
-    M2C_FIELD(var_2, s32 *, 0x34) = (s32) (arg1 * (arg3 * 3));
-    M2C_FIELD(var_2, s32 *, 0x30) = (s32) (arg2 * arg1);
-    M2C_FIELD(var_2, s32 *, 0x38) = arg1;
-    M2C_FIELD(var_2, s32 *, 0x3C) = 3;
+    (*(s32 *)((s8 *)(var_2) + (0x34))) = (s32) (arg1 * (arg3 * 3));
+    (*(s32 *)((s8 *)(var_2) + (0x30))) = (s32) (arg2 * arg1);
+    (*(s32 *)((s8 *)(var_2) + (0x38))) = arg1;
+    (*(s32 *)((s8 *)(var_2) + (0x3C))) = 3;
     return arg0;
 }
 #pragma schedule off
@@ -371,7 +370,7 @@ s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 
     var_2 = (u8 **)(func_004125d0());
-    if ((var_2 != NULL) && (M2C_FIELD(var_2, s32 *, 0x3C) & 0x13)) {
+    if ((var_2 != NULL) && ((*(s32 *)((s8 *)(var_2) + (0x3C))) & 0x13)) {
         return 0;
     }
     if (var_2 == NULL) {
@@ -380,19 +379,19 @@ s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
             var_5 = 0;
             var_4 = temp_2;
             do {
-                M2C_FIELD(var_4, s32 *, 0) = 0;
+                (*(s32 *)((s8 *)(var_4) + (0))) = 0;
                 var_5 += 5;
-                M2C_FIELD(var_4, s32 *, 4) = 0;
-                M2C_FIELD(var_4, s32 *, 8) = 0;
-                M2C_FIELD(var_4, s32 *, 0xC) = 0;
-                M2C_FIELD(var_4, s32 *, 0x10) = 0;
+                (*(s32 *)((s8 *)(var_4) + (4))) = 0;
+                (*(s32 *)((s8 *)(var_4) + (8))) = 0;
+                (*(s32 *)((s8 *)(var_4) + (0xC))) = 0;
+                (*(s32 *)((s8 *)(var_4) + (0x10))) = 0;
                 var_4 += 0x14;
             } while (var_5 < 0xA);
 
-            M2C_FIELD(temp_2, s32 *, 0x3C) = 0;
-            M2C_FIELD(temp_2, s32 *, 0x38) = 4;
-            M2C_FIELD(temp_2, s32 *, 0x34) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
-            M2C_FIELD(temp_2, s32 *, 0x30) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
+            (*(s32 *)((s8 *)(temp_2) + (0x3C))) = 0;
+            (*(s32 *)((s8 *)(temp_2) + (0x38))) = 4;
+            (*(s32 *)((s8 *)(temp_2) + (0x34))) = (s32) ((*(s32 *)((s8 *)(temp_2) + (0x38))) * 0x45);
+            (*(s32 *)((s8 *)(temp_2) + (0x30))) = (s32) ((*(s32 *)((s8 *)(temp_2) + (0x38))) * 0x45);
             var_5_2 = 1;
         } else {
             var_5_2 = 0;
@@ -403,10 +402,10 @@ s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         var_2 = (u8 **)(func_004125d0(arg0, var_5_2));
     }
 
-    M2C_FIELD(var_2, s32 *, 0x34) = (s32) (arg1 * (arg3 * 2));
-    M2C_FIELD(var_2, s32 *, 0x30) = (s32) (arg2 * arg1);
-    M2C_FIELD(var_2, s32 *, 0x38) = arg1;
-    M2C_FIELD(var_2, s32 *, 0x3C) = 0xC;
+    (*(s32 *)((s8 *)(var_2) + (0x34))) = (s32) (arg1 * (arg3 * 2));
+    (*(s32 *)((s8 *)(var_2) + (0x30))) = (s32) (arg2 * arg1);
+    (*(s32 *)((s8 *)(var_2) + (0x38))) = arg1;
+    (*(s32 *)((s8 *)(var_2) + (0x3C))) = 0xC;
     return arg0;
 }
 /* measured: closes the schedule bracket. */
