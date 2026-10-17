@@ -150,7 +150,7 @@ Vendor source footprint (definitions by address marker, from `vendor_defs.txt`):
 librw (MIT, re-implementation of RenderWare, `github.com/aap/librw`):
 - Verified from README: DFF and TXD support for PS2, D3D8, D3D9, and Xbox. BSP is not supported. Rendering backends: D3D9 and OpenGL (>= 2.1, ES >= 2.0). An SDL skeleton exists (`skeleton/sdl2.cpp`, `skeleton/sdl3.cpp`).
 - Not verified: per-plugin coverage for `RpSkin`, `RpHAnim`, `RpMatFX`, `RpUVAnim`, `Rt2d`, `Im2D`, `Im3D`, `RpPDS`, `RpMorph`, `RpSplines`, `RpPatch`, and sky2 pipes. The README file listing was elided at `src/`, so each plugin must be checked against `src/` directly.
-- Recommendation: use librw for DFF/TXD loading and clump/hanim if coverage holds. Re-implement the sky2 render-state layer (`RpSkyRenderStateSet`, 681 calls) on OpenGL as first-party code, because sky2 state is PS2-specific. Do not copy sky2hook (no license).
+- Recommendation: use librw for DFF/TXD loading and clump/hanim if coverage holds. Re-implement the sky2 render-state layer (`RpSkyRenderStateSet`, 681 calls) on OpenGL, because sky2 state is PS2-specific. sky2hook may be reused in part with attribution: its author granted permission in [issue #2](https://github.com/Raikaru/Persona4-Decompilation/issues/2#issuecomment-6234440298).
 
 ## 6. libc / libm
 
@@ -272,7 +272,7 @@ Not needed for the title: Sofdec movies (`P4CT*.SFD`), memory-card UI, Event and
 1. Replace SCE at the wrapper layer (`H_Cdvd_*`, `sdk*`, `h_memcard`, pad), not at the 213 raw SDK functions. Wrappers account for 942 calls and map to a few host operations.
 2. Replace libc/libm with host libraries. Near-zero risk, removes about 2,700 calls.
 3. Rewrite the VU0 / `effectVu*` / `spawnVu*` macros as portable C. 888 calls of pure math with no hardware dependency.
-4. For RenderWare, use librw for asset formats and hanim after checking plugin coverage, and write the sky2 render-state layer as first-party code on OpenGL. Do not fork sky2hook (no license).
+4. For RenderWare, use librw for asset formats and hanim after checking plugin coverage, and write the sky2 render-state layer on OpenGL, reusing parts of sky2hook with attribution where they fit (permission: issue #2).
 5. ADX and Sofdec: decode in-process. Start with pl_mpeg for Sofdec (smaller); keep ffmpeg as an option.
 6. Identify `func_00440b68` (478 calls) before the libc swap, because it may be a runtime helper that needs a real replacement, not a libc alias.
 7. Re-run the call join after `ThirdPartyNames` renames land, then update the counts in sections 2 to 6, including the blank caller columns in section 5.
