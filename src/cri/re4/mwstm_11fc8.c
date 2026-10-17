@@ -8,7 +8,7 @@ extern Sint32 func_004d2128(ADXSTM stm);
 
 // FUN_00511FC8 (MWSTM_SeekSct): origin 0 is absolute, 1 is current,
 // and 2 is the file size in bytes rounded up to a sector, then offset.
-Sint32 func_00511fc8(ADXSTM stm, Sint32 nsct, Sint32 origin)
+Sint32 MWSTM_SeekSct(ADXSTM stm, Sint32 nsct, Sint32 origin)
 {
 	if (origin == 0) {
 		func_004d2038(stm, nsct);

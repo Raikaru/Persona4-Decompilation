@@ -6,7 +6,7 @@ typedef struct SFD_TAG *SFD;
 extern Sint32 func_005159a0(SFD sfd, Sint32 buf);
 
 // FUN_0051BBE8
-Sint32 func_0051bbe8(SFD sfd)
+Sint32 sfmpv_GetTermSrc(SFD sfd)
 {
 	return func_005159a0(sfd, *(Sint32 *)((Uint8 *)sfd + 0x1FC8));
 }

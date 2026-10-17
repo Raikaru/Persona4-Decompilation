@@ -199,7 +199,7 @@ void func_004f1820(s32 arg0) {
     func_004f26e8(arg0, 0, 0);
 }
 // FUN_004F1850
-void func_004f1850(u8 *arg0) {
+void RFHN_CloseG(u8 *arg0) {
     if ((arg0 != NULL) && (*(s16 *)(arg0 + 0x34) != 0)) {
         if (*(s16 *)(arg0 + 0x38) == 2) {
             func_004f1e10();
@@ -382,7 +382,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9040);
 // FUN_004F9130
 s32 func_004f9130(void)
 {
-    func_004f8f60();
+    rsu_ScrambleVariKey();
     return 0;
 }
 /* measured: restore schedule off after func_004f9130. */
@@ -426,7 +426,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9410);
 // FUN_004F94B8
 /* measured: schedule on tested for the retail constant-before-save order. */
 #pragma schedule on
-s32 func_004f94b8(s32 unused, s32 arg1)
+s32 RSU_GenerateVariKey(s32 unused, s32 arg1)
 {
     s32 value;
 

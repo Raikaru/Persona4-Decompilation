@@ -2,12 +2,12 @@
 #include "cri_xpt.h"
 
 extern void func_005277a0(Sint32 object, Sint32 row, Sint32 slot, Sint32 value);
-extern void func_005277e0(Sint32 object, Sint32 row, Sint32 value);
+extern void sftrn_ConnBufTrn(Sint32 object, Sint32 row, Sint32 value);
 
 // FUN_00527700
-void func_00527700(Sint32 object)
+void sftrn_BuildUsr(Sint32 object)
 {
-	func_005277e0(object, 7, 8);
+	sftrn_ConnBufTrn(object, 7, 8);
 }
 
 // FUN_00527720
@@ -23,13 +23,13 @@ void func_00527740(Sint32 object, Sint32 row, Sint32 value)
 }
 
 // FUN_00527760
-void func_00527760(Sint32 object, Sint32 row, Sint32 value)
+void sftrn_ConnTrnBufA(Sint32 object, Sint32 row, Sint32 value)
 {
 	func_005277a0(object, row, 1, value);
 }
 
 // FUN_00527780
-void func_00527780(Sint32 object, Sint32 row, Sint32 value)
+void sftrn_ConnTrnBufU(Sint32 object, Sint32 row, Sint32 value)
 {
 	func_005277a0(object, row, 2, value);
 }

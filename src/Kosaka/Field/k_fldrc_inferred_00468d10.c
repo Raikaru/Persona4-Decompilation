@@ -300,9 +300,9 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     extern s32 func_003df860(const struct RwSList *arg0);
     extern RwBool RwRasterDestroy(RwRaster *raster);
     extern RwRaster *RwRasterCreate(s32 width, s32 height, s32 depth, s32 flags);
-    extern RwBool func_0040fcd0(RwRaster *raster, RwBool locked);
+    extern RwBool RpSkyTexCacheRasterLock(RwRaster *raster, RwBool locked);
     extern u32 *func_00418f50(s32 channel);
-    extern s32 func_00419520(u32 *channel, s32 mode, s32 timeout);
+    extern s32 sceDmaSync(u32 *channel, s32 mode, s32 timeout);
     extern void *memcpy(void *dst, const void *src, size_t size);
     extern void *memset(void *dst, s32 val, size_t size);
     extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
@@ -593,7 +593,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
             work->height = frame.height;
             iGpffffbaf4 = frame.macroblockWidth;
             iGpffffbaf0 = frame.macroblockHeight;
-            func_00419520(func_00418f50(2), 0, 0);
+            sceDmaSync(func_00418f50(2), 0, 0);
             memcpy(work->imageBuffer, frame.buffer, (size_t)(work->width * work->height * 4));
             iGpffffbae8 = (u32)((u32) (u32)work->imageBuffer);
             work->frame = frame;
@@ -662,7 +662,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
         }
         ((MovieEnginePrefix *)ourGlobals)->device.getState((RwRenderState)(0xE), (void *)(&spFC));
         ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(0));
-        func_0040fcd0(work->raster, 1);
+        RpSkyTexCacheRasterLock(work->raster, 1);
         imageAddr = iGpffffbae8;
         if (imageAddr != 0) {
             gsUploadRasterTiles(work->raster, imageAddr, iGpffffbaf4, iGpffffbaf0);
@@ -679,7 +679,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(1), work->raster);
             D_00887310[0](4, (void *)work->vertices, 4);
         }
-        func_0040fcd0(work->raster, 0);
+        RpSkyTexCacheRasterLock(work->raster, 0);
         ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(spFC));
         goto movieComplete;
     case 6:                                          /* switch 1 */

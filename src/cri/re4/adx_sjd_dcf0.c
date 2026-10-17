@@ -2,7 +2,7 @@
 #include "cri_xpt.h"
 
 extern void func_004c1c80(void *adxb, Sint32 nsmpl);
-extern void func_004c1a98(void *adxb, Sint32 nsmpl);
+extern void ADXB_SetAc3DecSmpl(void *adxb, Sint32 nsmpl);
 extern void func_004c1d10(void *adxb);
 extern void func_004c1ab8(void *adxb);
 
@@ -11,7 +11,7 @@ void ADXSJD_SetMaxDecSmpl(Uint32 sjd, Sint32 nsmpl)
 {
 	*(Sint32 *)((Uint8 *)sjd + 0x38) = nsmpl;
 	func_004c1c80(*(void **)((Uint8 *)sjd + 0x04), nsmpl);
-	func_004c1a98(*(void **)((Uint8 *)sjd + 0x04), nsmpl);
+	ADXB_SetAc3DecSmpl(*(void **)((Uint8 *)sjd + 0x04), nsmpl);
 }
 
 // FUN_004CDD30

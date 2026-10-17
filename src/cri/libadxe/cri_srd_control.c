@@ -74,7 +74,7 @@ void func_004e43b0(s32 enabled) {
 void func_004e43e8(void) { D_00731C02 = 9; }
 /* SRD_GetReadStatusDvd. */
 // FUN_004E43F8
-s32 func_004e43f8(void) {
+s32 SRD_GetReadStatusDvd(void) {
     s32 status;
     func_004e4618(0x2300);
     status = func_0042e7c8(1);
@@ -108,7 +108,7 @@ s32 func_004e4438(void) {
 // FUN_004E44D8
 s32 func_004e44d8(void) {
     s8 devtype = D_00731C01;
-    if (devtype == 1) return func_004e43f8() * 2;
+    if (devtype == 1) return SRD_GetReadStatusDvd() * 2;
     if (devtype == 2) return func_004e4438();
     return 0;
 }

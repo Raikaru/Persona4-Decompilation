@@ -360,8 +360,8 @@ extern s32 func_003df050(u8 *arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003df590(s32 arg0);
 extern void *func_003df4d0(void *arg0);
 extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
-extern u32 **func_003ce050(u32 **arg0, u32 arg1);
-extern void func_003cc6e0(u8 *arg0);
+extern u32 **_rpObjectGetMeshCacheResize(u32 **arg0, u32 arg1);
+extern void reDestroyCallBack(u8 *arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern void func_003ce230(u8 *arg0);
 extern void func_004220d8(u8 *arg0, u8 *arg1);
@@ -413,7 +413,7 @@ u8 *func_003cebb0(u8 *arg0, u8 *arg1) {
         u32 **meshCacheRef = (u32 **)(arg1 + iGpffffb728);
         var_18 = *(((*meshCacheRef != NULL) && (*(u16 *)(*(u8 **)(arg1 + 0x78) + 4) == **meshCacheRef))
                        ? meshCacheRef
-                       : func_003ce050(meshCacheRef, *(u16 *)(*(u8 **)(arg1 + 0x78) + 4)));
+                       : _rpObjectGetMeshCacheResize(meshCacheRef, *(u16 *)(*(u8 **)(arg1 + 0x78) + 4)));
     }
 
     temp_23 = *var_18;
@@ -434,7 +434,7 @@ u8 *func_003cebb0(u8 *arg0, u8 *arg1) {
             (*mesh)->geometry = arg1;
             (*mesh)->field_8 = spB4 + 0x22F;
             (*mesh)->parent = mesh;
-            (*mesh)->destroyNotify = func_003cc6e0;
+            (*mesh)->destroyNotify = reDestroyCallBack;
             temp_19 = (u32 *)((u8 *)*mesh + 0x18);
             if (func_003e2910(arg0, &spB0, 4) != 4) {
                 return NULL;

@@ -7,8 +7,8 @@ extern Uint32 D_00725294;
 extern Sint32 ACSSVR_Init();
 extern void ACSSVR_Finish();
 extern Uint32 ACSSVR_CreatSnd();
-extern void func_004c0a40();
-extern Sint32 func_004c0ab8();
+extern void ACSSVR_DestroySnd();
+extern Sint32 ACSSVR_CalcWorkCprm();
 
 // FUN_004D8C78
 Sint32 func_004d8c78(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
@@ -34,11 +34,11 @@ Uint32 func_004d8cc0(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 // FUN_004D8CF0
 void func_004d8cf0(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	func_004c0a40(D_00725294, a0, a2, a3);
+	ACSSVR_DestroySnd(D_00725294, a0, a2, a3);
 }
 
 // FUN_004D8D10
 Sint32 func_004d8d10(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
-	return func_004c0ab8(D_00725294, a0, a2, a3);
+	return ACSSVR_CalcWorkCprm(D_00725294, a0, a2, a3);
 }

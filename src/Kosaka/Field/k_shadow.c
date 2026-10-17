@@ -37,7 +37,7 @@ s32 FldShadow_PollIntcBit13(void)
 extern s32 FldShadow_PollIntcBit13();
 extern s32 func_004214c0(s32 cause, s32 (*handler)(s32), s32 mode);
 extern s32 func_00422328(s32 cause);
-extern s32 func_004214e0(s32 cause, s32 handle);
+extern s32 RemoveIntcHandler(s32 cause, s32 handle);
 extern s32 D_007616AC;
 extern s32 D_00764294;
 
@@ -57,7 +57,7 @@ s32 FldShadow_InstallIntcHandler(void)
     D_00764294 = handle;
     if (handle == -1)
     {
-        func_004214e0(2, D_007616AC);
+        RemoveIntcHandler(2, D_007616AC);
         D_007616AC = -1;
         return 0;
     }

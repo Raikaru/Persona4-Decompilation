@@ -28,9 +28,9 @@ extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void btlUnitShowModel(u8 *arg0);
 extern void btlUnitHideModel(u8 *arg0);
 extern f32 RwV2dLength(f32 *value);
-extern s32 func_0044dcd8(f32 value);
+extern s32 fptodp(f32 value);
 extern s32 func_0044b310(s32 value);
-extern f32 func_0044e7d8(s32 value);
+extern f32 dptofp(s32 value);
 extern f32 D_007614c0;
 #include "include_asm.h"
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
@@ -560,7 +560,7 @@ u32 btlUnitUpdateFollowPath(u8 *arg0)
                     func_0044b950(targetPos.x, targetPos.z);
             nextZ = turn - angle;
             lastDistance =
-                func_0044e7d8(func_0044b310(func_0044dcd8(nextZ)));
+                dptofp(func_0044b310(fptodp(nextZ)));
             if ((lastDistance > D_007614c0) &&
                 !(*(u32 *)(arg0 + 0xC4) & 2))
             {

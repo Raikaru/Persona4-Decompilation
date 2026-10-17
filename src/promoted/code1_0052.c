@@ -29,8 +29,8 @@ typedef struct {
     s32 arg1;
     s32 count;
 } Code1B9Work;
-extern void func_00524318();
-extern void func_00524b78(u8 *arg0);
+extern void sfsee_ExecHeadAnaly();
+extern void sfsee_ExecFinAnaly(u8 *arg0);
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
 
@@ -61,7 +61,7 @@ void func_005207f8(s32 arg0)
 /* measured: ee-gcc 2.96 -O2 -G0, object 36B/window 40B, normalized_diff 7; sd $ra placement and t0 coloring. Direct-constant, u64, and s64-zero variants all stayed at nd 7. No loop entry-guard or slti $at pattern, so parent (s64)0 and <= levers do not apply. This unit is ee-gcc, MWCC pragmas do not apply. Body at docs/probe_archive/GA52_00522fd0_body.c. */
 // FUN_00522FD0 NONMATCHING
 #ifdef NON_MATCHING
-void func_00522fd0(s32 arg0)
+void sfply_TrStart(s32 arg0)
 {
     s32 value1 = 7;
     s32 value2 = 6;
@@ -105,8 +105,8 @@ void func_005242d0(u8 *arg0)
     if (*(s32 *)(arg0 + 0x36B0) == 0) {
         return;
     }
-    func_00524318();
-    func_00524b78(arg0);
+    sfsee_ExecHeadAnaly();
+    sfsee_ExecFinAnaly(arg0);
 }
 // FUN_00524318
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524318);
@@ -202,14 +202,14 @@ void func_0052ba00(s32 arg0)
 #pragma schedule on
 
 // FUN_0052BA20
-s32 *func_0052ba20(u8 *arg0, s32 arg1)
+s32 *SFX_SetCbFnMakeZTbl(u8 *arg0, s32 arg1)
 {
     s32 *work = *(s32 **)(arg0 + 0x24);
     work[0x11] = arg1;
     return work;
 }
 // FUN_0052BA30
-s32 *func_0052ba30(u8 *arg0, s32 arg1)
+s32 *SFX_SetCbFnMakeZTexPallet(u8 *arg0, s32 arg1)
 {
     s32 *work = *(s32 **)(arg0 + 0x24);
     work[0x12] = arg1;
@@ -218,7 +218,7 @@ s32 *func_0052ba30(u8 *arg0, s32 arg1)
 /* measured: ee-gcc 2.96 -O2 -G0, object 44B/window 48B, normalized_diff 7; $f1/$f2 zero coloring and $f0/$f1 load coloring. Reversed-compare and f64-zero variants stayed at nd 7 (f64 at nd 24). No loop or integer range pattern, so parent levers do not apply. This unit is ee-gcc, MWCC pragmas do not apply. Body at docs/probe_archive/GA52_0052c840_body.c. */
 // FUN_0052C840 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_0052c840(u8 *arg0)
+s32 SFXZ_IsSetZclip(u8 *arg0)
 {
     f32 zero = 0.0f;
     f32 value0 = *(f32 *)(arg0 + 0x3C);

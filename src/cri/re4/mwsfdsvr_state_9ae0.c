@@ -6,7 +6,7 @@ extern Uint32 D_00743C6C;
 extern Uint32 D_00743C70;
 
 Uint32 func_004f9b50(void);
-void func_004f9b60(Uint32 value);
+void CFT_SetMaxAlpha(Uint32 value);
 
 // FUN_004F9AE0
 void func_004f9ae0(void)
@@ -38,10 +38,10 @@ Uint32 func_004f9b18(void)
 }
 
 // FUN_004F9B28
-void func_004f9b28(void)
+void CFTPS2_InitMaxAlpha(void)
 {
 	*(Uint32 *)func_004f9b50() = 0;
-	func_004f9b60(0x80);
+	CFT_SetMaxAlpha(0x80);
 }
 
 // FUN_004F9B50
@@ -51,7 +51,7 @@ Uint32 func_004f9b50(void)
 }
 
 // FUN_004F9B60
-void func_004f9b60(Uint32 value)
+void CFT_SetMaxAlpha(Uint32 value)
 {
 	*(Uint32 *)func_004f9b50() = value;
 }

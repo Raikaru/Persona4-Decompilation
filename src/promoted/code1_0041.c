@@ -4,7 +4,7 @@
 
 s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
 void func_0041dff8(void);
-void func_0041be30(void);
+void _sceMpegFlushBuf(void);
 void func_0041e030();
 u8 **func_004117b0(s32);
 s32 func_00413700(s32);
@@ -15,10 +15,10 @@ void func_004143f0(s32, s32);
 
 void func_00415ad0(u8 *, u8 *);
 void func_004165a0(u8 *, u8 *, u8 *, f32, f32, f32);
-void func_00415bc0(u8 *, u8 *, u8 *, u8 *, f32);
+void RpHAnimCompressedKeyFrameInterpolate(u8 *, u8 *, u8 *, u8 *, f32);
 void func_00417310(u8 *, u8 *, u8 *);
 void func_00416e10(u8 *, u8 *);
-u8 *func_00416bc0(s32, u8 *);
+u8 *RpHAnimCompressedKeyFrameStreamRead(s32, u8 *);
 s32 func_00416cf0(u8 *, s32);
 s32 func_00416df0(u8 *);
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
@@ -46,10 +46,10 @@ s32 func_00416df0(u8 *);
    this TU, so there is no array-versus-scalar global correction to test.
    Declaration-environment audit left every parked nd unchanged. */
 
-void func_00420e50(u8 *);
+void sceIpuStopDMA(u8 *);
 
-void func_00420f38(u8 *);
-void func_00420cc8(u8 *, u8 *);
+void sceIpuRestartDMA(u8 *);
+void _sceMpegError(u8 *, u8 *);
 extern u8 D_00753AF0[];
 extern u8 D_00753B20[];
 extern u8 D_0070C3C0[];
@@ -57,8 +57,8 @@ extern u8 D_00753B38[];
 extern u8 D_00753B70[];
 void func_00418df8(s32 *);
 
-void func_0041ed48(u8 *);
-void func_0041eeb8(u8 *);
+void _decodeOrSkipFrame(u8 *);
+void _decodeOrSkipField(u8 *);
 void func_00418e68(u8 *, u32, s32 *);
 
 // FUN_004125E0
@@ -580,7 +580,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004176b0);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417718);
 
 // FUN_004177B8
-asm void func_004177b8(void)
+asm void _GetGsDxDyOffset(void)
 {
     .set noreorder
     .word 0x24030080 /* addiu $v1, $zero, 128 */
@@ -669,7 +669,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004194a0);
 /* measured: schedule-on probe for the conditional helper wrapper. */
 #pragma schedule on
 // FUN_00419520
-s32 func_00419520(u32 *arg0, s32 arg1, s32 timeout)
+s32 sceDmaSync(u32 *arg0, s32 arg1, s32 timeout)
 {
     /* sceDmaSync's SDK timeout argument is part of the call contract.
      * This retail implementation uses a fixed poll limit and ignores it. */
@@ -691,7 +691,7 @@ s32 func_00419520(u32 *arg0, s32 arg1, s32 timeout)
 #pragma opt_propagation off
 /* measured: schedule-on probe for the conditional helper wrapper. */
 #pragma schedule on
-s32 func_00419558(u8 *arg0, u32 arg1, s32 arg2, s32 *arg3)
+s32 sceDmaWatch(u8 *arg0, u32 arg1, s32 arg2, s32 *arg3)
 {
     if (arg2 == 1) {
         return *(u32 *)(arg0 + 0x10) < arg1;
@@ -776,7 +776,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bec8);
 // FUN_0041BF00
 void func_0041bf00(void)
 {
-    func_0041be30();
+    _sceMpegFlushBuf();
 }
 /* measured: closes tailcall-on probe for func_0041bf00. */
 #pragma tailcall off
@@ -874,7 +874,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041db18);
 #pragma tailcall on
 // FUN_0041DC00
 void func_0041dc00(u8 *arg0) {
-    func_00420cc8(arg0, D_00753AF0);
+    _sceMpegError(arg0, D_00753AF0);
 }
 /* measured: closes tailcall-on bracket for func_0041dc00. */
 #pragma tailcall off
@@ -887,7 +887,7 @@ void func_0041dc00(u8 *arg0) {
 #pragma tailcall on
 // FUN_0041DC10
 void func_0041dc10(u8 *arg0) {
-    func_00420cc8(arg0, D_00753B20);
+    _sceMpegError(arg0, D_00753B20);
 }
 /* measured: closes tailcall-on bracket for func_0041dc10. */
 #pragma tailcall off
@@ -903,7 +903,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc20);
 #pragma tailcall on
 // FUN_0041DE08
 void func_0041de08(u8 *arg0) {
-    func_00420cc8(arg0, D_00753B38);
+    _sceMpegError(arg0, D_00753B38);
 }
 /* measured: closes tailcall-on bracket for func_0041de08. */
 #pragma tailcall off
@@ -916,7 +916,7 @@ void func_0041de08(u8 *arg0) {
 #pragma tailcall on
 // FUN_0041DE18
 void func_0041de18(u8 *arg0) {
-    func_00420cc8(arg0, D_00753B70);
+    _sceMpegError(arg0, D_00753B70);
 }
 /* measured: closes tailcall-on bracket for func_0041de18. */
 #pragma tailcall off
@@ -934,7 +934,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dff8);
 // FUN_0041E030
 void func_0041e030()
 {
-    func_0041be30();
+    _sceMpegFlushBuf();
 }
 /* measured: closes tailcall-on probe for func_0041e030. */
 #pragma tailcall off
@@ -1119,7 +1119,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f550);
 /* measured: schedule-on bracket for func_0041f568. */
 // FUN_0041F568
 #pragma schedule on
-s32 func_0041f568(u8 *arg0)
+s32 sceMpegResetDefaultPtsGap(u8 *arg0)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
 
@@ -1133,7 +1133,7 @@ s32 func_0041f568(u8 *arg0)
 /* measured: schedule-on bracket for func_0041f580. */
 // FUN_0041F580
 #pragma schedule on
-s32 func_0041f580(u8 *arg0, s32 arg1)
+s32 sceMpegSetImageBuff(u8 *arg0, s32 arg1)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
 
@@ -1170,7 +1170,7 @@ u8 *func_0041f5c0(u8 *arg0)
 /* measured: schedule-on bracket for func_0041f5d0. */
 // FUN_0041F5D0
 #pragma schedule on
-s32 func_0041f5d0(u8 *arg0, s32 arg1)
+s32 _sceMpegSetBrokenLink(u8 *arg0, s32 arg1)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
     s32 value = *(s32 *)(p + 0xFC);
@@ -1191,7 +1191,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5f8);
 // FUN_0041F6C8
 /* measured: schedule-on retains func_0041f6c8 store order. */
 #pragma schedule on
-void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
+void _sceMpegAlalcInit(u8 *arg0, s32 arg1, s32 arg2)
 {
     *(s32 *)(arg0 + 0xC) = arg1;
     *(s32 *)(arg0 + 4) = arg2;

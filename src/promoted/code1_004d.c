@@ -17,7 +17,7 @@ extern s32 D_00759A10[];
 #pragma schedule on
 
 // FUN_004D12A0
-void func_004d12a0(u8 *arg0, s32 arg1)
+void ADXSJE_SetTotalNumSmpl(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x60) = arg1;
     *(s32 *)(arg0 + 0x3C) = arg1;

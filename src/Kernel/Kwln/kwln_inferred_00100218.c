@@ -208,7 +208,7 @@ void kwlnInitIop(void)
     extern void sceCdMmode(s32 arg0);
     extern void sprintf(u8 *dst, const u8 *fmt, ...);
     extern s32 func_0042b098(u8 *arg0);
-    extern s32 func_0042b048(void);
+    extern s32 sceSifSyncIop(void);
     extern void func_004214c0(s32 arg0, s32 (*cb)(s32), s32 arg2);
     extern void func_00422328(s32 arg0);
     extern s32 func_0042ab68(const u8 *path, s32 arg1, const u8 *arg2);
@@ -248,7 +248,7 @@ void kwlnInitIop(void)
         retry = !func_0042b098(resetPath);
     } while (retry);
     do {
-        retry = !func_0042b048();
+        retry = !sceSifSyncIop();
     } while (retry);
     func_00424f28(0);
     func_00429c18();
@@ -320,7 +320,7 @@ void kwlnInitEngine(void)
     extern s32 func_003b7110(void);
     extern s32 func_003bd160(void);
     extern s32 func_003e8b10(s32 arg0);
-    extern s32 func_003f6780(s32 arg0);
+    extern s32 RpSkySelectDeepZBuffer(s32 arg0);
     extern s32 func_003e8a10(s32 arg0);
     extern s32 func_003e22c0(s32 arg0);
     extern u32 PrimInterpRegister(void);
@@ -585,7 +585,7 @@ void kwlnInitEngine(void)
 
     v33 = 0;
     func_003e8b10((s32)&v33);
-    func_003f6780(0);
+    RpSkySelectDeepZBuffer(0);
     func_003e8a10(0x52);
     func_003e22c0(0x380000);
     PrimInterpRegister();

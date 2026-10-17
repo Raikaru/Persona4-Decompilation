@@ -21,7 +21,7 @@ Uint32 func_004be038(Uint32 object)
 }
 
 // FUN_004BE050
-void func_004be050(Uint32 object, Uint32 flag, Sint32 value)
+void ACSSBADX_SetTrackVol(Uint32 object, Uint32 flag, Sint32 value)
 {
 	if (flag == 0) {
 		func_004d5110(*(Uint32 *)((Uint8 *)object + 4), value);
@@ -29,7 +29,7 @@ void func_004be050(Uint32 object, Uint32 flag, Sint32 value)
 }
 
 // FUN_004BE080
-Uint32 func_004be080(Uint32 object, Uint32 flag)
+Uint32 ACSSBADX_GetTrackVol(Uint32 object, Uint32 flag)
 {
 	if (flag == 0) {
 		return func_004d51c0(*(Uint32 *)((Uint8 *)object + 4));

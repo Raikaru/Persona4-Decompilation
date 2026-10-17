@@ -2,7 +2,7 @@
 #include "adx_t.h"
 
 extern void *func_004cefb8(void *sjd);
-extern void *func_004d5370(ADXT adxt);
+extern void *adxt_GetDataIdFromMem(ADXT adxt);
 extern void func_004c54d8(void);
 extern void func_004c54e0(void);
 void *func_004d5320(ADXT adxt);
@@ -30,7 +30,7 @@ void *func_004d5338(ADXT adxt)
 	void *result;
 
 	func_004c54d8();
-	result = func_004d5370(adxt);
+	result = adxt_GetDataIdFromMem(adxt);
 	func_004c54e0();
 	return result;
 }
