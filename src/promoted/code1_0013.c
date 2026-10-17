@@ -152,6 +152,7 @@ typedef struct {
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: Collect the stat changes of party members, record each changed stat, and spawn the party task when any changed [inferred]
+// Kept in bucket: diff 262 when moved; cause not diagnosed.
 // FUN_00134BE0
 s32 radarCollectPartyChanges(u8 *arg0) {
     struct ChangeRecord {
