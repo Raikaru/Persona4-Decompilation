@@ -51,7 +51,7 @@ def discover_targets():
     found = []
     for path in sorted(REPO.glob("src/**/*.c")):
         rel = path.relative_to(REPO).as_posix()
-        if verify.is_third_party(rel) or "/generated/" in rel:
+        if verify.is_third_party(rel):
             continue
         lines = path.read_text(errors="replace").splitlines()
         for i, line in enumerate(lines):

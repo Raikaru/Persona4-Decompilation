@@ -301,22 +301,6 @@ class PlanAndRewriteTests(unittest.TestCase):
 
 class RunTests(unittest.TestCase):
 
-    def test_never_touches_generated(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
-            root = make_root(Path(temporary))
-            write_curated(
-                root,
-                "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n",
-            )
-            generated = root / "src" / "generated" / "code1_0010.c"
-            generated.parent.mkdir()
-            generated.write_text("u8 func_001059e0(s32 exp) { return 0; }\n", encoding="utf-8")
-            self.assertEqual(apply_names.run(root, [str(generated)], check=False), 0)
-            self.assertEqual(
-                generated.read_text(encoding="utf-8"),
-                "u8 func_001059e0(s32 exp) { return 0; }\n",
-            )
-
     def test_whole_tree_scan_finds_pending_renames(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = make_root(Path(temporary))

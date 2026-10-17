@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build the canonical Persona 4 function map from Splat and Ghidra evidence.
+"""Build the canonical Persona 4 function map from Splat evidence.
 
 Code1 boundaries come from spimdisasm's control-flow scan after the executable
-section split is known. Ghidra-only entries inside a Splat function are treated
-as internal labels. Code2 is a shared PS2 SDK/kernel blob whose nine function
-boundaries and layout match Persona 3 FES; Ghidra independently identifies the
-same nine entries in Persona 4.
+section split is known. Other candidate entries inside a Splat function are
+treated as internal labels. Code2 is a shared PS2 SDK/kernel blob whose nine
+function boundaries and layout match Persona 3 FES; they are listed in
+SHARED_SDK_ENTRIES below.
 
 The reconciliation scans source ``// FUN_...`` markers and writes
 ``build/function_map.txt``. Every canonical boundary receives an owner: a
@@ -32,7 +32,6 @@ from verify import is_generated, scan_markers
 
 
 TARGET = REPO / "config" / "target.json"
-GHIDRA_MAP = REPO / "tools" / "slus21782_functions.ghidra.json"
 OUTPUT_MAP = REPO / "tools" / "slus21782_functions.json"
 SYMBOLS = REPO / "config" / "symbol_addrs.txt"
 CODE1_ASM = REPO / "asm" / "code1.s"
@@ -382,6 +381,20 @@ BRANCH_LANDING_ENTRIES = {
     0x0027A350: {"parent": 0x0027A340},
 }
 
+# Code2 is a shared PS2 SDK/kernel blob. Its nine function boundaries are the
+# same nine entries the Persona 3 FES map uses, so they are checked in here.
+SHARED_SDK_ENTRIES = {
+    0x0070C850,
+    0x0070CF00,
+    0x0070D0E0,
+    0x0070D1B0,
+    0x0070D538,
+    0x0070D640,
+    0x0070D780,
+    0x0070D920,
+    0x0070D968,
+}
+
 
 
 CURATED_NAMES = REPO / "config" / "symbol_names.txt"
@@ -443,8 +456,6 @@ def main() -> int:
     args = parser.parse_args()
 
     target = json.loads(TARGET.read_text(encoding="utf-8"))
-    ghidra = json.loads(GHIDRA_MAP.read_text(encoding="utf-8"))
-    ghidra_addresses = {int(address, 16) for address in ghidra["windows"]}
     code1_start, code1_end = segment_bounds(target, "code1")
     code2_start, code2_end = segment_bounds(target, "code2")
     entry = parse_int(target["elf"]["entry"])
@@ -474,10 +485,10 @@ def main() -> int:
                 "not an entry; withdrawing it would leave the bytes unowned"
             )
         code1.discard(address)
-    code2 = {address for address in ghidra_addresses if code2_start <= address < code2_end}
+    code2 = {address for address in SHARED_SDK_ENTRIES if code2_start <= address < code2_end}
 
-    # The shared blob has nine functions in both Persona 4 Ghidra analysis and
-    # the established Persona 3 FES map. Treat a count change as a hard failure.
+    # The shared blob has nine functions in both Persona 4 and the established
+    # Persona 3 FES map. Treat a count change as a hard failure.
     if len(code2) != 9:
         raise RuntimeError(f"expected 9 shared code2 functions, found {len(code2)}")
 
@@ -523,12 +534,11 @@ def main() -> int:
     metadata = {
         "program": target["serial"],
         "sha1": target["elf"]["sha1"],
-        "generated_from": "Splat code1 control-flow scan plus Ghidra/shared-SDK code2 boundaries",
+        "generated_from": "Splat code1 control-flow scan plus shared-SDK code2 boundaries",
         "function_count": len(windows),
         "evidence": {
             "code1_splat": len(code1),
-            "code2_ghidra_shared_sdk": len(code2),
-            "ghidra_total": ghidra["function_count"],
+            "code2_shared_sdk": len(code2),
         },
         "windows": {f"{address:08x}": size for address, size in windows.items()},
     }

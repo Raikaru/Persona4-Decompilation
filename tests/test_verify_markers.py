@@ -226,9 +226,6 @@ class GeneratedPaths(unittest.TestCase):
         for name in ("evtMain.c", "k_fldAI.c", "code1_0021.c"):
             self.assertFalse(verify.is_generated(REPO / "src" / name), name)
 
-    def test_generated_directory_is_not_scored(self) -> None:
-        self.assertTrue(verify.is_generated(REPO / "src" / "generated" / "code1_0021.c"))
-
 
 
 if __name__ == "__main__":

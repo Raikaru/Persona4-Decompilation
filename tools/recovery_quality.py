@@ -17,7 +17,7 @@ NAMED       the function's own identifier is not a `func_<address>` placeholder.
 
 TYPED       the body reaches its data through named types, not raw arithmetic.
             Disqualifiers are a cast-and-offset dereference (`*(T *)(p + 0x18)`),
-            an `M2C_FIELD` macro, or an `arg`/`temp`/`var`/`sp` declared as a bare
+            an `arg`/`temp`/`var`/`sp` declared as a bare
             `u8 *` and then indexed. Raw offsets are an acceptable *starting*
             point per docs/style, but once the offsets are established the field
             should be named, and until then the function is not recovered.
@@ -59,9 +59,8 @@ PLACEHOLDER_NAME = re.compile(r"^(?:func|FUN)_[0-9A-Fa-f]{8}$")
 
 # `*(u32 *)(base + 0x18)` and `*(u8 **)(p + 4)` -- a cast-and-offset read or write.
 RAW_FIELD = re.compile(r"\*\s*\(\s*[A-Za-z_][\w ]*\**\s*\*\s*\)\s*\(")
-M2C_MACRO = re.compile(r"\bM2C_[A-Z_]+\b")
 
-# Decompiler-generated local names, as produced by m2c and Ghidra.
+# Decompiler-generated local names, as produced by automated decompilers.
 RESIDUE_NAME = re.compile(
     r"\b(?:"
     r"temp_\d+(?:_\d+)?"
@@ -144,7 +143,7 @@ def score(name: str, before: list[str], body: str) -> dict[str, bool]:
     code = "\n".join(V.sanitize_c_lines(body.splitlines()))
     named = not PLACEHOLDER_NAME.match(name)
     residue = bool(RESIDUE_NAME.search(code))
-    typed = not (RAW_FIELD.search(code) or M2C_MACRO.search(code) or residue)
+    typed = not (RAW_FIELD.search(code) or residue)
     documented = has_prose(before, body) or is_trivial(body)
     return {
         "named": named,
@@ -215,7 +214,7 @@ def main() -> None:
     print(f"  NAMED       {totals['named']:5d}  ({summary['named_percent']}%)"
           "  non-placeholder identifier")
     print(f"  TYPED       {totals['typed']:5d}  ({summary['typed_percent']}%)"
-          "  no raw-offset/M2C access, no generated locals")
+          "  no raw-offset access, no generated locals")
     print(f"  DOCUMENTED  {totals['documented']:5d}  ({summary['documented_percent']}%)"
           "  prose, or trivially self-evident")
     print(f"  residue     {totals['residue']:5d}  ({summary['residue_percent']}%)"

@@ -95,7 +95,7 @@ def main() -> None:
     only = {Path(a).resolve() for a in sys.argv[1:]}
     rows = []
     for path in sorted(Path("src").rglob("*.c")):
-        if "generated" in path.parts or path.name.startswith("."):
+        if path.name.startswith("."):
             continue
         if only and path.resolve() not in only:
             continue

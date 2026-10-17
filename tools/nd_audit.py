@@ -25,22 +25,16 @@ Usage:
   python tools/nd_audit.py            # every preserved body with a claim
   python tools/nd_audit.py --all      # print measured values for all of them
 """
-import importlib.util
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-_SPEC = importlib.util.spec_from_file_location(
-    'p4_draft_probe', Path(__file__).resolve().parent / 'draft_probe.py')
-dp = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(dp)
-
 sys.path.insert(0, 'tools')
 import verify
 
-MARK = dp.MARK
+MARK = re.compile(r'^\s*//\s*FUN_([0-9A-Fa-f]{8})\b')
 # The claim: `nd N` in the closing sentence, optionally `nd N as committed`.
 CLAIM = re.compile(r'\bnd\s+(\d+)(?:\s+as\s+committed)?\s*\.?\s*(?:\*/)?\s*$')
 
