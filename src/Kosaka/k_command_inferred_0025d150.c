@@ -63,8 +63,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
     return (u32)(range * unit);
 }
 
-/* Source unit: src/promoted/code1_0025.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025d150-0025d850 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025d150-0025d850 */
 
 // FUN_0025D150
 s32 scrCommonSetItemCount(void) {

@@ -1,14 +1,14 @@
+/* Inferred unit: no __FILE__ evidence; boundaries from shared TU with static helper; members 001b0d00-001b1450 */
+
 /* Grouped verified Persona 4 source units. */
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
 typedef struct BtlAction BtlAction;
-extern s32 iGpffffb3ac;
-extern u8 *D_0076449C;
 
+extern s32 iGpffffb3ac;
 /* Canonical grouped function declarations. */
 static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action);
-
 /* Source unit: src/Battle/btlOrder_001b0d00.c */
 
 extern s32 btlActionQueueMoveToBack(u8 *arg0);
@@ -47,8 +47,6 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* act
     return 1;
 }
 
-/* Same-TU helper knowledge preserves a2/a3/t0 across removal calls.
-   Measured: object 84B/window 96B, no instruction differences; 12B zero tail. */
 // FUN_001B0DD0
 s32 btlOrderRemoveActionAll(u8 *arg0)
 {
@@ -62,19 +60,9 @@ s32 btlOrderRemoveActionAll(u8 *arg0)
     }
     return result;
 }
-#pragma opt_rebuildconditionals off
+
+#pragma push
 #pragma opt_rebuildconditionals on
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_dead_assignments off
-#pragma pop
-#pragma push
-#pragma opt_lifetimes on
-#pragma opt_loop_invariants on
-#pragma pop
-/* Auto-inlining preserves the externally called 13c0 body as well as its
-   expansion in 1450. Plain inline drops that required standalone symbol.
-   Measured: 13c0 132B/144B, 1450 188B/192B; only retail zero tails remain. */
 #pragma auto_inline on
 // FUN_001B13C0
 void btlOrderQueueAction(u8 *arg0)
@@ -97,6 +85,11 @@ done:
     global = (u8 *)iGpffffb3ac;
     *(u16 *)(global + 0x290) |= 8;
 }
+#pragma pop
+
+#pragma push
+#pragma opt_rebuildconditionals on
+#pragma auto_inline on
 // FUN_001B1450
 void btlOrderSetCurrentAction(u8 *arg0)
 {
@@ -112,4 +105,4 @@ void btlOrderSetCurrentAction(u8 *arg0)
         *(u16 *)(global + 0x290) |= 8;
     }
 }
-#pragma auto_inline off
+#pragma pop

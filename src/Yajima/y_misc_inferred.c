@@ -89,8 +89,7 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-/* Source unit: src/promoted/code1_002b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002b.c; members 002b2940-002b3960 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002b2940-002b3960 */
 
 // Intent: Return the work block pointer stored at offset 0x38 of an object [inferred]
 // FUN_002B2940

@@ -56,8 +56,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
     fn(value);
 }
 
-/* Source unit: src/promoted/code1_0048.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 00484bb0-00485870 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484bb0-00485870 */
 
 extern u_long128 func_00484b30(u8 *arg0);
 extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);

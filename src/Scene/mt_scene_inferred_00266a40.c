@@ -107,8 +107,7 @@ extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitTagPair(void);
 extern s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2);
 
-/* Source unit: src/promoted/code1_0026.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 00266a40-00267b20 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 00266a40-00267b20 */
 
 extern f32 D_007612C4;
 static inline f32 func_0026_div_140(f32 value)

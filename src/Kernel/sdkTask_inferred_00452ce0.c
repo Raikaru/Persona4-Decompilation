@@ -228,8 +228,7 @@ static inline s32 fontAtlasColumn(s32 value)
     return value % 16;
 }
 
-/* Source unit: src/promoted/code1_0045.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00452ce0-00452ce0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452ce0-00452ce0 */
 
 extern void sdkPadUpdateRecord(void *arg0);
 extern void sdkPadCookInput(s32 slot);

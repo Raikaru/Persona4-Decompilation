@@ -113,8 +113,7 @@ extern s32 func_001f0950(s32 arg0, s32 arg1);
 
 
 
-/* Source unit: src/promoted/code1_001f.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f6100-001f73d0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f6100-001f73d0 */
 
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 struct EffRandState;

@@ -1,4 +1,3 @@
-/* Source unit: src/promoted/code1_0029.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -59,8 +58,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 
 #pragma pop
 
-/* Source unit: src/promoted/code1_0029.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 0029a020-0029a020 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029a020-0029a020 */
 
 // FUN_0029A020
 s32 K_Cmd_CALENDAR_REFRESH(void) {

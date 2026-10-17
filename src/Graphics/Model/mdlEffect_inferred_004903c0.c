@@ -23,8 +23,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
     return left * right;
 }
 
-/* Source unit: src/promoted/code1_0049.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0049.c; members 004903c0-004903c0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004903c0-004903c0 */
 
 /* Ported from the Cone emitter (EffConeEmitterUpdate): the same
  * owner identity, loop constants, clear-loop and snapshot shapes. The scale

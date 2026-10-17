@@ -24,8 +24,7 @@ extern u8 *D_008817EC[];
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
-/* Source unit: src/promoted/code1_0027.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0027.c; members 0027a5e0-0027a690 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027a5e0-0027a690 */
 
 extern s32 itfMesWindowProcedureForKind(s32 arg0);
 /* measured: opt_propagation off probe for 002703d0 register setup. */

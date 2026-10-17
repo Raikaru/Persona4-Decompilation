@@ -89,8 +89,7 @@ extern f32 fGpffff8108;
 #pragma push
 #pragma pop
 
-/* Source unit: src/promoted/code1_001b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001ba0e0-001ba710 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001ba0e0-001ba710 */
 
 typedef struct { u8 r; u8 g; u8 b; u8 a; } BlendColor;
 typedef struct ColorBlendWork {

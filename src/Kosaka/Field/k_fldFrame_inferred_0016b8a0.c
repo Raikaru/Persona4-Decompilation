@@ -185,8 +185,7 @@ static inline f32 code1_0016_cvt(s32 value) {
     return (f32)value;
 }
 
-/* Source unit: src/promoted/code1_0016.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0016.c; members 0016b8a0-0016ffd0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 0016b8a0-0016ffd0 */
 
 extern s32 FldEnemyLoadTable(u8 *arg0);
 extern void FldPartyModelRelease(s32 arg0);

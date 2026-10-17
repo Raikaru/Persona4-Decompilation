@@ -41,8 +41,7 @@ extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 cmmCommunityGetCurrentId(void);
 
-/* Source unit: src/promoted/code1_0027.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0027.c; members 00270100-00270f50 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 00270100-00270f50 */
 
 // FUN_00270100
 s32 func_00270100(s32 arg0, u8 *arg1)

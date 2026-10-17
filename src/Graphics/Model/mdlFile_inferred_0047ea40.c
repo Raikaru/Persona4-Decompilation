@@ -52,8 +52,7 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
     return 0.0f + addend + right * left;
 }
 
-/* Source unit: src/promoted/code1_0047.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0047.c; members 0047ea40-0047ed60 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ea40-0047ed60 */
 
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);
 static inline void code1_0047_abd0(s16 arg0, s32 arg1, s16 arg2)

@@ -75,8 +75,7 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Source unit: src/promoted/code1_004a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004a1950-004a1950 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a1950-004a1950 */
 
 // Allocates a flash quad copy from a record: kind at +0x38 and parameters at +0x40, with the kind's table hooks applied to the result. Unlike FlashQuadCopyAllocFromParent, no relative pointer is resolved.
 // FUN_004A1950

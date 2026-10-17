@@ -100,8 +100,7 @@ extern void frFontUpdateTextWork(u8 *arg0);
 extern void frFontLayoutSlotText(s32 arg0, u8 *arg1);
 extern u8 iGpffffa734;
 
-/* Source unit: src/promoted/code1_0026.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 0026e350-0026f860 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026e350-0026f860 */
 
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1);

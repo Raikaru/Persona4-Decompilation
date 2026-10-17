@@ -77,8 +77,7 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 
-/* Source unit: src/promoted/code1_0036.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0036.c; members 00368d30-00368e80 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0036; members 00368d30-00368e80 */
 
 extern void pscModelBuildTileVertices(u8 *arg0, u8 *arg1);
 /* 780/784 bytes; nine resolved relocations; four zero alignment bytes.

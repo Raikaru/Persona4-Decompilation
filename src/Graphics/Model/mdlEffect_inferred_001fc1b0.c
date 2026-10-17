@@ -96,8 +96,7 @@ extern u8 D_00624FA0[];
 
 extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
 
-/* Source unit: src/promoted/code1_001f.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001fc1b0-001fc1b0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fc1b0-001fc1b0 */
 
 extern s32 func_001f0ff0(u32 arg0);
 extern s32 hFadeTaskUpdate(u8 *work);

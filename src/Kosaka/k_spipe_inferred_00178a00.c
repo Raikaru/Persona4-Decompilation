@@ -124,8 +124,7 @@ extern s32 iGpffffba48;
    and sat under #ifdef NON_MATCHING. The permuter found the shape from the
    preserved body. */
 
-/* Source unit: src/promoted/code1_0017.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00178a00-00178c00 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00178a00-00178c00 */
 
 // FUN_00178A00
 s32 K_Spipe_GetStateIndex(void)

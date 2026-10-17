@@ -1,6 +1,5 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Yajima/y_symbol.c); members 002ac360-002ac3c0 */
 
-/* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"

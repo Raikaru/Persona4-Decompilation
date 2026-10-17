@@ -30,8 +30,7 @@ extern s32 func_0027be00(s32 arg0);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
-/* Source unit: src/promoted/code1_0027.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0027.c; members 0027b1c0-0027b500 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b1c0-0027b500 */
 
 extern void itfMesWindowStepState(u8 *arg0);
 extern void itfMesWindowAdvanceRow(u8 *arg0);

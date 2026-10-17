@@ -158,8 +158,7 @@ extern u8 D_00794150[];
 
 
 
-/* Source unit: src/promoted/code1_0019.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00196b70-001973d0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00196b70-001973d0 */
 
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);

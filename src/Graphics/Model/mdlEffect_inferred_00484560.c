@@ -49,8 +49,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
     fn(value);
 }
 
-/* Source unit: src/promoted/code1_0048.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 00484560-00484560 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484560-00484560 */
 
 // FUN_00484560
 s32 func_00484560(void)
