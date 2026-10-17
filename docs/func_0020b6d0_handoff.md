@@ -26,9 +26,6 @@ The four-byte size difference is the retail zero alignment word after the candid
 ## Evidence read before source work
 
 - Retail assembly: `asm/nonmatchings/code1_0020/func_0020b6d0.s`, complete function, lines 1-225.
-- Ghidra: `docs/ghidra_headstart/src/promoted/code1_0020.c`, `FUN_0020b6d0`, lines 2472-2579.
-- IDA: `docs/ida_headstart/src/promoted/code1_0020.c`, `sub_20B6D0`, lines 2886-2988.
-- Generated candidate: `src/generated/code1_0020.c`, target beginning near line 5377.
 - Historical archive: `docs/probe_archive/E20B_0020b6d0_body.c`.
 - Current target owner: `src/promoted/code1_0020.c` around the `FUN_0020B6D0` marker.
 - Caller and declaration: `src/promoted/code1_001a.c`, declaration near line 53 and call near lines 611-615.
