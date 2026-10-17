@@ -36,14 +36,7 @@ is evidence, not proof that P4 kept the same types or implementation.
 
 ## Match in the owning file
 
-1. Get a draft, if needed:
-
-   ```sh
-   make m2c-setup  # once, before using m2c
-   make m2c FILE=src/Battle/btlTarget.c FUNC=func_001ec630
-   ```
-
-   Replace inferred declarations and raw offsets with types supported by the
+1. Replace inferred declarations and raw offsets with types supported by the
    surrounding code. Preserve the function's `// FUN_XXXXXXXX` marker.
 
 2. Compile and compare the whole translation unit:
@@ -119,7 +112,7 @@ a candidate C body instead of its assembly fallback.
 Each function belongs to one source file and retains its
 `// FUN_XXXXXXXX` address marker. Do not delete a marker to remove a failure
 from the denominator, or split a real translation unit to obtain an isolated
-match. `src/generated/` contains non-authoritative `M2C_CANDIDATE` drafts.
+match.
 
 For evidence-backed name changes, edit `config/symbol_names*.txt`, then run:
 
