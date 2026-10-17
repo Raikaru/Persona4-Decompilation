@@ -434,6 +434,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1);
 /* The draw queue supplies node+0x1C, then the task stored at node+0x10.
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
+// Kept in bucket: diff 395 when moved; cause not diagnosed (uses static inline titleCopyRect and titleCopySelect).
 // FUN_001265A0
 void titleDrawTaskView(void *unusedDrawData, void *task) {
     f32 temp_f21;
@@ -1783,6 +1784,7 @@ s32 titleMusicStreamStep(u8 *arg0);
  * matrix objects retain the original stack transfers; reset-phase
  * models and the queued draw task have separate value lifetimes.
  * See docs/probe_archive/Menu_callback_0012aa70_20260923.md. */
+// Kept in bucket: diff 1978 when moved; cause not diagnosed (uses static inline code12QuaternionMatrix).
 // FUN_0012AA70
 s32 func_0012aa70(u8 *task)
 {
@@ -2092,6 +2094,7 @@ s32 func_0012aa70(u8 *task)
 
 #pragma pop
 
+// Kept in bucket: diff 72 when moved; cause not diagnosed.
 // FUN_0012B9A0
 void func_0012b9a0(s32 unused, s32 arg1)
 {
@@ -2176,6 +2179,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
    destination address materialised; 92 differing words -> 0 (532/544). */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+// Kept in bucket: diff 207 when moved; cause not diagnosed.
 // FUN_0012D410
 void titleSlotTableInit(u8 *arg0)
 {
@@ -2302,6 +2306,7 @@ typedef char CampMenuWorkSize[(sizeof(CampMenuWork) == 0x2A4) ? 1 : -1];
 
 #pragma push
 #pragma opt_propagation off
+// Kept in bucket: diff 43 when moved; cause not diagnosed.
 // FUN_0012D630
 s32 func_0012d630(u8 *menu)
 {
@@ -2500,6 +2505,7 @@ typedef struct {
 /* Draw the animated item list, selection, scrollbar, and background grid.
  * Native b210 -O2: 5148 executable bytes and four zero alignment bytes.
  * Preserve the independent position/opacity views across renderer calls. */
+// Kept in bucket: diff 1481 when moved; cause not diagnosed.
 // FUN_0012E9D0
 void radarDrawPanel(u8 *state)
 {

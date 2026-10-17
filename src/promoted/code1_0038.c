@@ -197,6 +197,7 @@ typedef struct {
     u32 tail[4];
 } Vertex_0038CAB0;
 
+// Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
 // FUN_0038D660
 s32 btlShuffleEffStep(u8 *arg0) {
     s32 *work;

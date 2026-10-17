@@ -1076,6 +1076,7 @@ Three kinds of file header tell you how much is known about a unit:
    out of a bucket gives it an inferred unit. A bucket whose function would
    change codegen when moved stays as it is, and a bucket whose third-party
    functions would lose link eligibility keeps one first-party function.
+   The 14 first-party functions still in buckets: 11 movers that do not match after the move (`0x134BE0`, `0x18A200`, `0x18BEA0`, `0x18DDE0`, `0x18F7B0` in `code1_0013.c` and `code1_0018.c`; `0x1265A0`, `0x12AA70`, `0x12B9A0`, `0x12D410`, `0x12D630`, `0x12E9D0` in `code1_0012.c`; causes not diagnosed), and 3 bridges (`0x38D660` in `code1_0038.c`, `0x44F4D0` in `code1_0044.c`, `0x4B2780` in `code1_004b.c`) kept so their multi-run buckets stay link-eligible.
 
 Ownership is per function. Each `// FUN_XXXXXXXX` marker places one function
 at its retail address, so a named unit can own functions that sit between a
