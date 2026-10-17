@@ -1,4 +1,3 @@
-/* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -135,8 +134,7 @@ extern s32 func_002a1a10(u8 *arg0);
 #pragma pop
 extern s32 func_002a1c80(u8 *arg0);
 
-/* Source unit: src/promoted/code1_002a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002a.c; members 002a1f20-002a2310 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a1f20-002a2310 */
 
 /* measured: closes opt_propagation around func_002a1c80. */
 /* measured: closes opt_common_subs around func_002a1c80. */

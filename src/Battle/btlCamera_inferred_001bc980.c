@@ -98,8 +98,7 @@ void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
 #pragma push
 #pragma pop
 
-/* Source unit: src/promoted/code1_001b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001bc980-001bd530 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bc980-001bd530 */
 
 extern s32 btlActionGetQueueSecond(void);
 extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 fparg0);

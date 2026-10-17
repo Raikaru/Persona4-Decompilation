@@ -133,8 +133,7 @@ extern s32 iGpffffba48;
    and sat under #ifdef NON_MATCHING. The permuter found the shape from the
    preserved body. */
 
-/* Source unit: src/promoted/code1_0017.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00179fc0-0017abd0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00179fc0-0017abd0 */
 
 #include "rw_types_internal.h"
 struct RwMatrixTag;

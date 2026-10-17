@@ -215,8 +215,7 @@ typedef struct FilerDirent {
     u32 unknown;
 } FilerDirent;
 
-/* Source unit: src/promoted/code1_0046.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0046.c; members 0046d6b0-0046f2b0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 0046d6b0-0046f2b0 */
 
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */

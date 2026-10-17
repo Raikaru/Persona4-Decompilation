@@ -156,8 +156,7 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Source unit: src/promoted/code1_0019.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 0019a010-0019a0a0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019a010-0019a0a0 */
 
 /* measured: optimization_level 1 with the index and value locals declared
    before the loop reproduces func_00194470 exactly, object 284 bytes against

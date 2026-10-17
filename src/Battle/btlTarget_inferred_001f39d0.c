@@ -86,8 +86,7 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Source unit: src/promoted/code1_001f.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f39d0-001f39d0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f39d0-001f39d0 */
 
 extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);

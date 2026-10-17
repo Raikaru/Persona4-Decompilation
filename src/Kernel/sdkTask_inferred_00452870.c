@@ -225,8 +225,7 @@ static inline s32 fontAtlasColumn(s32 value)
     return value % 16;
 }
 
-/* Source unit: src/promoted/code1_0045.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00452870-00452870 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452870-00452870 */
 
 #pragma pop
 /* measured: restore O2 after func_00450e80. */

@@ -96,8 +96,7 @@ extern u8 *func_003e9700(s32 arg0);
 extern u8 *kwlnGetCamera(void);
 extern void mdlEffectBuildObjectMatrix(s32 arg0, f32 *arg1);
 
-/* Source unit: src/promoted/code1_0026.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 0026db60-0026e010 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026db60-0026e010 */
 
 extern f32 D_007612C4;
 /* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are

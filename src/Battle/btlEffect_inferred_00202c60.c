@@ -168,8 +168,7 @@ extern void btlSelectionInitTransition(u8 *arg0, s32 arg1);
 extern void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1);
 extern u8 D_006253B0[];
 
-/* Source unit: src/promoted/code1_0020.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0020.c; members 00202c60-0020bfd0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202c60-0020bfd0 */
 
 extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void btlUiSetRenderStates(void);

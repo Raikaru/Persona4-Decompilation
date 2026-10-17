@@ -96,8 +96,7 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
-/* Source unit: src/promoted/code1_001b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001b0020-001b07c0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b0020-001b07c0 */
 
 /* 564/576 bytes; sixteen resolved relocations; twelve zero alignment bytes.
  * Named unsigned address terms retain table ordering without signed overflow. */

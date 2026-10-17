@@ -83,8 +83,7 @@ extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Source unit: src/promoted/code1_004a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004abbb0-004abd60 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004abbb0-004abd60 */
 
 extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
 extern void func_004a8250(u8 *arg0, u8 *arg1);

@@ -113,8 +113,7 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Source unit: src/promoted/code1_0020.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0020.c; members 00200770-00200c50 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00200770-00200c50 */
 
 // Intent: advance the battle model curve and update the model matrix from the curve state. [inferred]
 // FUN_00200770

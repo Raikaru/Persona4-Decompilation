@@ -93,8 +93,7 @@ extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Source unit: src/promoted/code1_001e.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001e7400-001e8a80 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e7400-001e8a80 */
 
 static inline u16 p4_formation_get_opposing_genus(u32 unit)
 {

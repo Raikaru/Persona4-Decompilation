@@ -91,8 +91,7 @@ extern s32 datCalcIsGuarding(u16 *arg0);
 extern u16 cmmCommunityForArcana(s64 arg0);
 extern u8 *iGpffffb42c;
 
-/* Source unit: src/promoted/code1_001e.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001eec60-001eff50 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001eec60-001eff50 */
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);

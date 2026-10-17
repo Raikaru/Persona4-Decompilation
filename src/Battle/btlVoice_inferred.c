@@ -169,8 +169,7 @@ extern f32 fGpffff80e4;
 extern f32 btlTargetQuatAngle(void *first, void *second);
 extern s32 CrossfadeRequest(s16 frames);
 
-/* Source unit: src/promoted/code1_0022.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0022.c; members 00225e50-0022ae00 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 00225e50-0022ae00 */
 
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);

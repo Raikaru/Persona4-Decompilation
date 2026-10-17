@@ -1,391 +1,35 @@
+/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0034edc0-0034f9d0 */
+
 #include "nline_vertex_internal.h"
 #include "include_asm.h"
 #include "fcl_combine_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
-extern void nLineDrawCurrent();
 extern s32 (*D_00887300[])(RwRenderState, void *);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
 extern void kAssertFail(const void *file, s32 line);
 extern char D_0064B310[];
 extern u32 RpRandom();
-
-extern void (*jtbl_008873EC[])(void *);
-
-void nLineUpdate();
-void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern u8 D_00793E80[];
-extern s32 D_00882FC0[];
-extern s32 D_00882FC4[];
-extern s32 D_00884670[];
-extern s32 D_00884684[];
-extern u16 iGpffffb5a4;
 extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
-extern s32 fclSpriteUpdateTweens(void *arg0);
-extern void memcpy(void *arg0, s32 arg1, s32 arg2);
 extern s32 kwlnGetCamera(void);
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
-extern u8 D_00793E80[];
-extern void fclCombineDrawPacket(u8 *packet, s32 data, void *callback);
-extern f32 fGpffff8504;
 extern f32 fGpffff8224;
 extern void sdkSpriteFreeNode(void *node);
 extern f32 D_0088467C[];
 extern f32 D_008872F8[];
-extern u8 D_0064A6E0[];
-extern u8 D_0064A6E8[];
-extern u8 D_0064A6F0[];
-extern u8 D_0064A6F8[];
-
 // struct passed by value to fclCombineSetSprite (64-bit: two floats in $a1-$a2)
 typedef struct {
     f32 x;
     f32 y;
 } Svec2f_0034b820;
 
-// struct passed by value to fclCombineSetSprite (32-bit: four bytes in $a3)
-typedef struct {
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
-} S4b_0034b820;
-
 void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                    u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-
 void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-
-// FUN_00349340
-s32 func_00349340(u8 *unusedTask)
-{
-    s8 buf[0xC];
-    s8 *p;
-    s32 count;
-
-    p = buf;
-    count = 0xC;
-    if (p != NULL)
-    {
-        do
-        {
-            *p = 0;
-            p += 1;
-            count -= 1;
-        } while (count != 0);
-    }
-    return 0;
-}
-// FUN_00349380
-void debugModelDrawDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
-}
-
-// Intent: Return the combine object's work block pointer [inferred]
-// FUN_0034A630
-s32 fclCombineGetWork(u8 *arg0)
-{
-    return *(s32 *)(arg0 + 0x38);
-}
-
-#define COPY_SCALAR_PAIR_0034(dst, src) \
-do { \
-    s64 copy_s64; \
-    f32 copy_f32; \
-    copy_s64 = (src).whole; \
-    copy_f32 = (src).tail; \
-    (dst).whole = copy_s64; \
-    (dst).tail = copy_f32; \
-} while (0)
-// Intent: Set the combine object's model: when its id or kind changes and no fade runs, free the old model, clone the new entry and reset its matrices [inferred]
-// FUN_0034A640
-/* measured: opt_propagation off preserves scalar Pair-copy source order. */
-#pragma push
-#pragma opt_propagation off
-void fclCombineSetModel(u8 *arg0, u16 arg1, s64 arg2)
-{
-    extern void mdlDestroyModelObject(void *arg0);
-    extern void datFreeBlock(void *arg0);
-    extern u8 *datCloneEntryBlock(s8 arg0);
-    extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
-    extern void kwlnTaskDestroyWithHierarchy(void *arg0);
-    extern u8 *cmbCardEffCreateSprite(void *arg0, void *arg1, s32 arg2);
-    extern u8 D_0064A700[];
-    extern u8 D_0064A720[];
-    extern s32 iGpffffb5a0;
-    typedef struct {
-        s64 whole;
-        f32 tail;
-    } Pair;
-    u8 *obj;
-    Pair sp50;
-    Pair sp60;
-    obj = *(u8 **)(arg0 + 0x38);
-    COPY_SCALAR_PAIR_0034(sp50, *(Pair *)D_0064A6E0);
-    COPY_SCALAR_PAIR_0034(sp60, *(Pair *)D_0064A6F0);
-
-    if (((*(u16 *)(obj + 8) != (u16)arg1) ||
-         (*(s8 *)(obj + 0x28) != (s8)arg2) ||
-         (*(s8 *)(obj + 0) == 0)) &&
-        ((u16)arg1 != 0) &&
-        ((s8)arg2 < 2))
-    {
-        if ((*(s8 *)(obj + 0) > 0) && (*(s8 *)(obj + 0) <= 2))
-            return;
-        if (*(u8 **)(obj + 0xC) != NULL) {
-            mdlDestroyModelObject(*(u8 **)(obj + 0xC));
-            *(u8 **)(obj + 0xC) = NULL;
-        }
-        if (*(u8 **)(obj + 0x14) != NULL) {
-            datFreeBlock(*(u8 **)(obj + 0x14));
-            *(u8 **)(obj + 0x14) = NULL;
-        }
-        *(u16 *)(obj + 8) = arg1;
-        *(s8 *)(obj + 0) = 1;
-        *(s8 *)(obj + 0x28) = arg2;
-        *(s8 *)(obj + 6) = 0;
-        *(u8 **)(obj + 0x14) = datCloneEntryBlock(*(s8 *)(obj + 0x28));
-        *(s32 *)(obj + 0x10) = *(s32 *)(*(u8 **)(obj + 0x14) + 8);
-        RwMatrixRotate(obj + 0x30, &sp60, 0, 180.0f);
-        RwMatrixTranslate(obj + 0x30, &sp50, 2);
-        iGpffffb5a0 = 0;
-        if (*(s8 *)(obj + 0x28) == 0) {
-            if (*(u8 **)(obj + 0xEC) != NULL) {
-                kwlnTaskDestroyWithHierarchy(*(u8 **)(obj + 0xEC));
-                *(u8 **)(obj + 0xEC) = NULL;
-            }
-            *(u8 **)(obj + 0xEC) = cmbCardEffCreateSprite(arg0, D_0064A700, 0);
-            if (*(u8 **)(obj + 0xF0) != NULL) {
-                kwlnTaskDestroyWithHierarchy(*(u8 **)(obj + 0xF0));
-                *(u8 **)(obj + 0xF0) = NULL;
-            }
-            *(u8 **)(obj + 0xF0) = cmbCardEffCreateSprite(arg0, D_0064A720, 7);
-        }
-    }
-}
-#undef COPY_SCALAR_PAIR_0034
-/* measured: restore pragma state after fclCombineSetModel probe. */
-#pragma pop
-// Intent: Clear the combine object's first state byte and set its second to 1 [inferred]
-// FUN_0034A820
-void fclCombineClearState(u8 *arg0)
-{
-    u8 *p;
-
-    p = *(u8 **)(arg0 + 0x38);
-    *(u8 *)(p + 4) = 0;
-    *(u8 *)(p + 5) = 1;
-}
-// Intent: Zero the combine object's view counters and initialise its view state [inferred]
-// FUN_0034A840
-void fclCombineInitView(u8 *arg0) {
-    u8 *work;
-
-    work = (u8 *)(*(u8 **)(arg0 + 0x38));
-    *(s32 *)(work + 0xE4) = 0;
-    *(s32 *)(work + 0xE0) = 0;
-    func_003e8130((u8 *)kwlnGetCamera(), work + 0xE0);
-}
-
-// Intent: Mark the combine object ready by setting its sixth state byte [inferred]
-// FUN_0034A890
-void fclCombineSetReady(u8 *arg0)
-{
-    u8 *p;
-
-    p = *(u8 **)(arg0 + 0x38);
-    *(u8 *)(p + 6) = 1;
-}
-// Intent: Draw one combine packet: set the sky render states and the far-plane and tint values, then run the state dispatcher [inferred]
-// FUN_0034A8B0
-/* Preserve the dispatcher contract and the four retail far-plane observations. */
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
-{
-    extern s32 fclCombineGetRaster(void);
-    f32 reciprocal;
-    s32 *raster;
-    s32 (**state)(RwRenderState, void *);
-    s32 i;
-    u8 *v;
-
-    reciprocal = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
-    raster = (s32 *)fclCombineGetRaster();
-    state = D_00887300;
-    state[0](6, (void *)1);
-    state[0](7, (void *)2);
-    state[0](8, (void *)1);
-    state[0](9, (void *)2);
-    state[0](0xC, (void *)1);
-    state[0](2, (void *)3);
-    state[0](0xB, (void *)6);
-    state[0](0xA, (void *)5);
-    RpSkyRenderStateSet(2, (void *)0x44);
-    RpSkyRenderStateSet(3, (void *)0x717FB);
-    *(s32 *)((u8 *)data + 0x10) = 0;
-    *(s32 *)((u8 *)data + 0x14) = 0;
-    *(s32 *)((u8 *)data + 0x50) = 0x3F800000;
-    *(s32 *)((u8 *)data + 0x54) = 0;
-    *(s32 *)((u8 *)data + 0x90) = 0;
-    *(s32 *)((u8 *)data + 0x94) = 0x3F800000;
-    *(s32 *)((u8 *)data + 0xD0) = 0x3F800000;
-    *(s32 *)((u8 *)data + 0xD4) = 0x3F800000;
-    i = 0;
-    while ((s64)(s16)i < 4) {
-        f32 farZ;
-        f32 depth;
-        v = (u8 *)data + ((s32)(s64)(s16)(s64)i << 6);
-        farZ = *(f32 *)D_008872F8;
-        depth = *(f32 *)((u8 *)data + 0x108);
-        *(f32 *)(v + 8) = farZ - depth;
-        *(f32 *)(v + 0x18) = reciprocal;
-        *(f32 *)(v + 0x20) = (f32)(u32)*(u8 *)((u8 *)data + 0x179);
-        *(f32 *)(v + 0x24) = (f32)(u32)*(u8 *)((u8 *)data + 0x17A);
-        *(f32 *)(v + 0x28) = (f32)(u32)*(u8 *)((u8 *)data + 0x17B);
-        *(f32 *)(v + 0x2C) = (f32)(u32)*(u8 *)((u8 *)data + 0x162);
-        i = (s64)(s16)(i + 1);
-    }
-    *(f32 *)((u8 *)data + 0) = *(f32 *)((u8 *)data + 0x12C);
-    *(f32 *)((u8 *)data + 4) = *(f32 *)((u8 *)data + 0x130);
-    {
-        f32 width;
-        width = *(f32 *)((u8 *)data + 0x194);
-        *(f32 *)((u8 *)data + 0x40) = width * 32.0f + *(f32 *)((u8 *)data + 0x12C);
-    }
-    *(f32 *)((u8 *)data + 0x44) = *(f32 *)((u8 *)data + 0x130);
-    *(f32 *)((u8 *)data + 0x80) = *(f32 *)((u8 *)data + 0x12C);
-    *(f32 *)((u8 *)data + 0x84) = *(f32 *)((u8 *)data + 0x1A0) * 32.0f + *(f32 *)((u8 *)data + 0x130);
-    *(f32 *)((u8 *)data + 0xC0) = *(f32 *)((u8 *)data + 0x194) * 32.0f + *(f32 *)((u8 *)data + 0x12C);
-    *(f32 *)((u8 *)data + 0xC4) = *(f32 *)((u8 *)data + 0x1A0) * 32.0f + *(f32 *)((u8 *)data + 0x130);
-    state[0](1, (void *)*raster);
-}
-#pragma pop
-// Ball slot task update: for each slot up to the count at +0x1800 whose flag bit 0 is set, inside its time window, with a nonzero +0x162, queues the slot's draw packet.
-// FUN_0034AC00
-/* measured: opt_propagation off plus a named local forces the GP global read to its written position, producing retail's field-first/global-second order. */
-#pragma push
-#pragma opt_propagation off
-s32 fclCmbBallSlotsUpdate(u8 *arg0)
-{
-    s32 counter;
-    s16 bumped;
-    u8 *entry;
-    u8 *base;
-    u8 *sub;
-    u8 *entry2;
-    s16 index;
-    s32 offset;
-    u8 *packet;
-
-    base = *(u8 **)(arg0 + 0x38);
-    kwlnGetCamera();
-    counter = 0;
-    while ((s64)(s16)counter < *(u8 *)(base + 0x1800)) {
-        entry = base + ((s32)(s64)(s16)(s64)counter << 9);
-        sub = entry + 0x104;
-        memcpy(sub, fclSpriteUpdateTweens(sub), 0xF0);
-        if ((*(s16 *)(entry + 0x104) & 1) == 1) {
-            f32 field;
-            f32 global;
-            field = *(f32 *)(entry + 0x194);
-            global = fGpffff8504;
-            if ((!(field <= global)) &&
-                (*(f32 *)(entry + 0x1A0) > global) &&
-                (*(u8 *)(entry + 0x162) > 0)) {
-                entry2 = base + ((s32)(s16)counter << 9);
-                index = *(s16 *)(entry2 + 0x100);
-                offset = index << 1;
-                offset += index;
-                offset <<= 4;
-                packet = PrimQueueDrawPrimitive(D_00793E80 + offset, 4, entry2, 4);
-                *(void **)(packet + 8) = (void *)fclCombineDrawPacket;
-                *(u8 **)(packet + 0x10) = entry2;
-            }
-        }
-        bumped = counter + 1;
-        counter = (s64)(s16)bumped;
-    }
-    return 0;
-}
-/* measured: restore pragma state after func_0034ac00. */
-#pragma pop
-// Ball slot task destroy: forwards the state block to jump-table slot 0.
-// FUN_0034AD40
-void fclCmbBallSlotsDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
-}
-
-// Intent: Return the combine object's work block pointer, the same body as fclCombineGetWork [inferred]
-// FUN_0034B810
-s32 fclCombineGetWorkAlt(u8 *arg0)
-{
-    return *(s32 *)(arg0 + 0x38);
-}
-
-// Intent: Set the combine sprite's position, sprite id, colour and scale, and flag the sprite as changed [inferred]
-// FUN_0034B820
-void fclCombineSetSprite(u8 *arg0, Svec2f_0034b820 v, s16 s, S4b_0034b820 b, f32 fparg0)
-{
-    u8 *obj = *(u8 **)(arg0 + 0x38);
-    *(Svec2f_0034b820 *)(obj + 0xE38) = v;
-    *(f32 *)(obj + 0xE14) = fparg0;
-    *(s16 *)(obj + 0x0) = s;
-    *(u8 *)(obj + 0xE6E) = b.b3;
-    *(u8 *)(obj + 0xE85) = b.b0;
-    *(u8 *)(obj + 0xE86) = b.b1;
-    *(u8 *)(obj + 0xE87) = b.b2;
-    *(s16 *)(obj + 0xE10) |= 1;
-}
-
-// Intent: Set the combine's tint bytes and timing and flag the tint as changed [inferred]
-// FUN_0034B880
-void fclCombineSetTint(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s16 arg4, s16 arg5)
-{
-    u8 *p;
-
-    p = *(u8 **)(arg0 + 0x38);
-    *(u8 *)(p + 0xE6C) = arg1;
-    *(u8 *)(p + 0xE6D) = arg2;
-    *(u8 *)(p + 0xE6E) = arg1;
-    *(s16 *)(p + 0xE6A) = 0;
-    *(s16 *)(p + 0xE68) = arg4;
-    *(s16 *)(p + 0xE70) = arg5;
-    *(u8 *)(p + 0xE72) = arg3;
-    *(s16 *)(p + 0xE10) |= 4;
-}
-// FUN_0034B8C0
-void func_0034b8c0(void)
-{
-}
-
-// Intent: Refresh the nLine task: when both state flags are set, run the nLine setup and reset its counters [inferred]
-// FUN_0034B8D0
-s32 nLineRefreshTask(u8 *unusedTask)
-{
-    if ((D_00884684[0] != 0) && (D_00884670[0] != 0)) {
-        nLineUpdate();
-        D_00882FC0[0] = 0;
-        D_00882FC4[0] = 0;
-        PrimAppendNode(D_00793E80 + iGpffffb5a4 * 0x30, (u8 *)D_00882FC0);
-    }
-    return 0;
-}
-
-// Intent: Registered nLine callback that draws the layer at the origin [inferred]
-// FUN_0034B950
-void nLineDrawOriginCallback(void)
-{
-    nLineDrawCurrent();
-}
-
 /* measured: opt_propagation off caches the D_00887300 base in $s0. */
 // Intent: Set the base render states for nLine drawing [inferred]
 // FUN_0034EDC0
@@ -404,7 +48,8 @@ void nLineSetRenderStateBase(void)
     base[0](0xB, (void *)7);
     base[0](0xC, (void *)1);
 }
-/* measured: close opt_propagation bracket for nLineSetRenderStateBase. */
+
+#pragma push
 #pragma opt_propagation on
 // Intent: Draw the three nLine layers, with the middle and right layers faded by the amount [inferred]
 // FUN_0034EE90
@@ -443,6 +88,10 @@ void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     }
     *(s32 *)(unit + 0x990) = 0;
 }
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
 // Intent: Store one nLine layer's position, scale and colour bytes [inferred]
 // FUN_0034F0D0
 void nLineSetLayer(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -456,6 +105,10 @@ void nLineSetLayer(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
     *(f32 *)(arg0 + 0x28) = (f32)arg3;
     *(f32 *)(arg0 + 0x2C) = (f32)arg4;
 }
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
 // Intent: Set the default render states and the sky state values for sprite draws [inferred]
 // FUN_0034F1E0
 /* measured: opt_propagation off keeps the cached D_00887300 base in $s0. */
@@ -477,10 +130,10 @@ void sdkRenderStateSetDefault(void)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-/* measured: closing opt_propagation bracket for sdkRenderStateSetDefault. */
+#pragma pop
+
+#pragma push
 #pragma opt_propagation on
-/* Coordinates precede byte color and opacity arguments. The core skips
-   transparent sprites and stores inverse opacity in the packet. */
 // Intent: Draw a sprite at a position with the given colour and opacity at unit size, skipping transparent sprites [inferred]
 // FUN_0034F2E0
 void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
@@ -488,7 +141,10 @@ void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
     sdkSpriteDrawSized(arg0, fparg0, fparg1, 0.0f, arg1, arg2, arg3, arg4,
                   0x1000, 0x1000, 0, 0.0f, 0);
 }
+#pragma pop
 
+#pragma push
+#pragma opt_propagation on
 // Intent: Set the sprite's position, colour, opacity, size and extra fields, then draw it; a zero opacity or zero size skips the draw [inferred]
 // FUN_0034F320
 void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -518,6 +174,10 @@ void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
     *(f32 *)(arg0 + 0x18) = fparg3;
     sdkSpriteDraw(arg0, 0);
 }
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
 // Intent: Draw one sprite through a temporary node at the given position, with the given colour and opacity [inferred]
 // FUN_0034F460
 void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
@@ -525,7 +185,10 @@ void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
     sdkSpriteDrawOnceScaled(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
                   0x1000, 0x1000, 0.0f, 0, 0);
 }
+#pragma pop
 
+#pragma push
+#pragma opt_propagation on
 // Intent: Draw one sprite through a temporary node: allocate it, draw with the transform arguments, then free it [inferred]
 // FUN_0034F4A0
 void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -541,10 +204,9 @@ void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fpa
                   arg5, arg6, arg7, arg_sp0, fparg3, arg_sp8);
     sdkSpriteFreeNode(handle);
 }
-/* On countdown expiry, choose a state or -1, then reset the countdown to 2..6.
-   Snapshot extent before RNG, but read the other fields after it as retail does.
-   measured: direct short decrement, staged remainder and distance <= half with
-   propagation disabled match all 336B, including signed-halving branches. */
+#pragma pop
+
+#pragma push
 #pragma opt_propagation off
 // Intent: Countdown step for a 0x14-byte entry: when the countdown expires, choose a random state of -1 or 0 to 2 by distance and reset the countdown to 2 to 6 [inferred]
 // FUN_0034F5D0
@@ -583,7 +245,9 @@ void datCommunityEntryStep(u8 *arg0)
         *(s16 *)(arg0 + 2) = (s16)(RpRandom() % 5U + 2);
     }
 }
-/* measured: restore propagation after the exact countdown update. */
+#pragma pop
+
+#pragma push
 #pragma opt_propagation on
 // Intent: Fade of a grid cell from its fractions: the product of the two linear interpolations scaled by the third fraction, with range assertions [inferred]
 // FUN_0034F720
@@ -611,6 +275,10 @@ f32 cmpGridCellFade(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
             ((1.0f - fparg1) / (f32)(*(s32 *)(arg0 + 0x10) - 1)) +
             fparg1);
 }
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
 // Intent: Step a 16-bit value one unit toward its target on a timer, re-roll on expiry, and snap when it passes the target [inferred]
 // FUN_0034F8F0
 void datSmoothTargetStep(u8 *arg0)
@@ -645,6 +313,10 @@ void datSmoothTargetStep(u8 *arg0)
     *((s16 *) (arg0 + 4)) = var_2;
   }
 }
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
 // Intent: Draw the footer sprite group at the position with the given alpha, style and resource [inferred]
 // FUN_0034F9D0
 void sdkSpriteDrawFooter(Svec2f_0034b820 unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3) {
@@ -1555,3 +1227,4 @@ void sdkSpriteDrawFooter(Svec2f_0034b820 unused, f32 fparg0, u8 arg1, s32 arg2, 
         }
     }
 }
+#pragma pop

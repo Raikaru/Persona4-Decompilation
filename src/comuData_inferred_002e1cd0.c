@@ -36,8 +36,7 @@ extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
 
 extern u8 D_0063F560[];
 
-/* Source unit: src/promoted/code1_002e.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002e.c; members 002e1cd0-002e1cd0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002e; members 002e1cd0-002e1cd0 */
 
 /* measured: retain pair loads before stores and retail's written load order. */
 #pragma push

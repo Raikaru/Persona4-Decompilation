@@ -77,8 +77,7 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Source unit: src/promoted/code1_004a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004a5fc0-004a5fc0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a5fc0-004a5fc0 */
 
 typedef struct EffSpriteFrame {
     f32 rect[4];

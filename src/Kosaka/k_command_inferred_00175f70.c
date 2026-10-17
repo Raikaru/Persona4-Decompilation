@@ -138,8 +138,7 @@ extern s32 iGpffffba48;
    and sat under #ifdef NON_MATCHING. The permuter found the shape from the
    preserved body. */
 
-/* Source unit: src/promoted/code1_0017.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00175f70-00176850 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00175f70-00176850 */
 
 typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec3_00178590 at; u32 pad2; Vec3_00178590 position; u32 pad3; } FieldMatrix_0017;
 extern f32 fabsf(f32 x);

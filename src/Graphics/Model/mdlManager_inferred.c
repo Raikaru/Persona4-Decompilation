@@ -55,8 +55,7 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
     return 0.0f + addend + right * left;
 }
 
-/* Source unit: src/promoted/code1_0047.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0047.c; members 00470c10-00470e20 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 00470c10-00470e20 */
 
 // FUN_00470C10
 void sdkLboxSetRefValue(u8 *arg0, s32 arg1, s32 arg2)

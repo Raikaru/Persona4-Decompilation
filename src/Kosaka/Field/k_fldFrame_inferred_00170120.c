@@ -125,8 +125,7 @@ extern s32 iGpffffba48;
    and sat under #ifdef NON_MATCHING. The permuter found the shape from the
    preserved body. */
 
-/* Source unit: src/promoted/code1_0017.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00170120-00170120 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00170120-00170120 */
 
 // FUN_00170120
 s32 FldPlayerRandomIdleAnimId(s32 arg0)

@@ -55,8 +55,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
     fn(value);
 }
 
-/* Source unit: src/promoted/code1_0048.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 00486780-00486970 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00486780-00486970 */
 
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
  * eight zero alignment bytes. IDA retains the result that Ghidra drops:

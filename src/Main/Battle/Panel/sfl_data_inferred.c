@@ -95,8 +95,7 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 
-/* Source unit: src/promoted/code1_0036.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0036.c; members 00366380-00367d00 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0036; members 00366380-00367d00 */
 
 /* 752/752 bytes, ten resolved relocations, no alignment tail.
  * Capture both offset widths together: queued renderers consume a signed

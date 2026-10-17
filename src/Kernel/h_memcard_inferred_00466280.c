@@ -153,8 +153,7 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Source unit: src/promoted/code1_0046.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0046.c; members 00466280-00466280 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00466280-00466280 */
 
 extern s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2);
 typedef struct MovieNativeFrame {

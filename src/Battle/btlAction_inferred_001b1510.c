@@ -212,8 +212,7 @@ extern u8 *btlActionFindByUnit(s32 arg0);
 #pragma push
 #pragma pop
 
-/* Source unit: src/promoted/code1_001b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001b1510-001b5e40 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b1510-001b5e40 */
 
 typedef struct BtlCameraColorReal {
     f32 red, green, blue, alpha;

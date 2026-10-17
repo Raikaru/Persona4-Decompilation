@@ -80,8 +80,7 @@ extern char D_0063BA80[];
 extern s32 D_008815B0[];
 extern u8 iGpffffa734;
 
-/* Source unit: src/promoted/code1_0026.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 00268a70-00268ad0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 00268a70-00268ad0 */
 
 extern f32 D_007612C4;
 /* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are

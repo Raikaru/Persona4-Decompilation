@@ -44,8 +44,7 @@ extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slot, u32 type, u16 
 extern char D_006357E0[];
 extern char D_00635800[];
 
-/* Source unit: src/promoted/code1_0023.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0023.c; members 002305c0-002308a0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0023; members 002305c0-002308a0 */
 
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 // FUN_002305C0
