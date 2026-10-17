@@ -320,6 +320,7 @@ f32 __ieee754_sqrtf(f32 arg0);
 #pragma tailcall on
 #pragma pop
 
+// Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
 // FUN_0044F4D0
 s32 func_0044f4d0(void) {
     s32 temp;

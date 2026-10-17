@@ -417,6 +417,7 @@ typedef struct {
 s32 FldRcAtomicFrustumTest(s32 arg0, s32 *arg1);
 
 /* Update field-actor visibility, animation, spline travel, and facing. */
+// Kept in bucket: diff 35 when moved; cause not diagnosed (uses static inline fldBothReady_0018a200).
 // FUN_0018A200
 s32 FldNpcControlUpdate(u8 *param_1)
 {
@@ -1082,6 +1083,7 @@ s32 FldNpcControlUpdate(u8 *param_1)
 /* measured: opt_propagation off probe preserves retail's handle-load/result
    initialization order for the state predicate. */
 #pragma opt_propagation off
+// Kept in bucket: diff 8 when moved; cause not diagnosed (pragma replay checked, no explanation found).
 // FUN_0018BEA0
 s32 func_0018bea0(u8 *arg0)
 {
@@ -1144,6 +1146,7 @@ typedef struct MaterialTextureContext {
    normalized_diff 0; only four zero-tail bytes are absent. */
 #pragma push
 #pragma opt_propagation off
+// Kept in bucket: diff 7 when moved; cause not diagnosed.
 // FUN_0018DDE0
 s32 FldSupporterUpdate(u8 *arg0)
 {
@@ -1220,6 +1223,7 @@ typedef struct {
 #pragma opt_propagation on
 // measured: probe propagation-off code shape with typed 16-bit operands
 #pragma opt_propagation off
+// Kept in bucket: diff 142 when moved; cause not diagnosed.
 // FUN_0018F7B0
 void FldMapTestCellsFill(u8 *arg0, s16 *arg1, u16 arg2, u16 arg3, s16 arg4)
 {

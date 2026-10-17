@@ -134,6 +134,7 @@ typedef struct EffScreenSpriteRGBA {
 #pragma opt_loop_invariants on
 #pragma pop
 /* measured: opt_propagation off retains the cached D_00887300 base and retail frame. */
+// Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
 // FUN_004B2780
 #pragma opt_propagation off
 s32 func_004b2780(u8 *arg0) {
