@@ -130,7 +130,7 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern void FldRc_SetPositionSlotLock(s32 a, s32 b, s32 c);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
-extern void func_003f6800(s32 a, f32 fp);
+extern void RpSkyTextureSetMipmapK(s32 a, f32 fp);
 extern u8 D_005F5360[];
 extern u8 iGpffffb310;
 extern void memset(void *dst, s32 value, s32 size);

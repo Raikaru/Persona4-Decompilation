@@ -3,12 +3,12 @@
 
 extern void func_004c54d8(void);
 extern void func_004c54e0(void);
-extern void func_004d65f8(ADXT adxt, Sint32 sw);
+extern void adxt_SetLnkSw(ADXT adxt, Sint32 sw);
 
 // FUN_004D65B8
 void func_004d65b8(ADXT adxt, Sint32 sw)
 {
 	func_004c54d8();
-	func_004d65f8(adxt, sw);
+	adxt_SetLnkSw(adxt, sw);
 	func_004c54e0();
 }

@@ -186,13 +186,13 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     BattleRenderStateFunction *base;
     u8 *cam;
     u8 *disp;
-    extern u8 *func_00401b80(void);
+    extern u8 *RpSkyGetDisplayBufferRaster(void);
     extern void (*D_00887310[])(u32 arg0, void *arg1, u32 arg2);
     extern f32 fGpffff82e8;
     extern f32 fGpffff82ec;
 
     cam = (u8 *)kwlnGetCamera();
-    disp = func_00401b80();
+    disp = RpSkyGetDisplayBufferRaster();
     f = (f32)*(s32 *)(disp + 0xC);
     sx = 640.0f / f;
     g = (f32)*(s32 *)(disp + 0x10);

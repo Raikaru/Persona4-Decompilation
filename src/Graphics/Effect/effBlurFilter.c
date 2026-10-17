@@ -23,7 +23,7 @@ extern u8 D_00714470[];
 
 extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
-extern void func_003f6690(s32 param, void *out);
+extern void RpSkyRenderStateGet(s32 param, void *out);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
@@ -62,11 +62,11 @@ extern void *effBlurFilterRetainRefObj(BlurRefObj *param_1);
 extern void effBlurFilterReleaseRefObj(void *param_1);
 
 extern f32 sinf(f32 fparg0);
-extern s32 func_0044dcd8(f32 a);
+extern s32 fptodp(f32 a);
 extern s32 func_0044b310(s32 a);
-extern s32 func_0044e100(s64 a, s32 b);
+extern s32 dpsub(s64 a, s32 b);
 extern s32 func_0044e168(s64 a, s32 b);
-extern f32 func_0044e7d8(s32 a);
+extern f32 dptofp(s32 a);
 extern f32 fGpffff8084;
 extern s64 fGpffff8018;
 extern s64 fGpffff8010;
@@ -127,7 +127,7 @@ void effBlurFilterTickSlotsA(u8 *a, u8 *b) {
             }
             fVar6 = sinf(param_2[1]);
             param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
-            temp_f1 = alphaF * func_0044e7d8(func_0044e168(fGpffff8018, func_0044e100(fGpffff8020, func_0044b310(func_0044dcd8(param_2[1])))));
+            temp_f1 = alphaF * dptofp(func_0044e168(fGpffff8018, dpsub(fGpffff8020, func_0044b310(fptodp(param_2[1])))));
             threshold = 2.1474836e9f;
             if (threshold <= temp_f1) {
                 goto alpha_big;
@@ -247,7 +247,7 @@ void effBlurFilterTickSlotsB(u8 *a, u8 *b) {
             }
             fVar6 = sinf(param_2[1]);
             param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
-            temp_f1 = alphaF * func_0044e7d8(func_0044e168(fGpffff8018, func_0044e100(fGpffff8010, func_0044b310(func_0044dcd8(param_2[1])))));
+            temp_f1 = alphaF * dptofp(func_0044e168(fGpffff8018, dpsub(fGpffff8010, func_0044b310(fptodp(param_2[1])))));
             threshold = 2.1474836e9f;
             if (threshold <= temp_f1) {
                 goto alpha_big;
@@ -423,7 +423,7 @@ void effBlurFilterDrawSlotPass(u8 *arg0) {
 
     base = *(u8 **)(arg0 + 0x24) + 0xC0;
     if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
-        func_003f6690(3, &sp12C);
+        RpSkyRenderStateGet(3, &sp12C);
         if (mdlEffectProjectBillboardQuad(base, sp20) != 0) {
             D_00887300[0](1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
@@ -563,8 +563,8 @@ void effBlurFilterDrawRefPass(u8 *arg0) {
     temp_18 = temp_3 + 0xC0;
     if (*(u8 *)(temp_3 + 0xC7) > 0) {
         temp_16 = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
-        func_003f6690(2, &sp24C);
-        func_003f6690(3, &sp248);
+        RpSkyRenderStateGet(2, &sp24C);
+        RpSkyRenderStateGet(3, &sp248);
         setState = (void (**)(u32, u32))D_00887300;
         (*setState)((u32)1, *(u32 *)temp_16);
         mdlEffectEmitMaskedTagPair();
@@ -981,7 +981,7 @@ void effBlurFilterDrawOverlay(u8 *arg0) {
 
     base = *(u8 **)(arg0 + 0x24) + 0xC0;
     if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
-        func_003f6690(3, &sp12C);
+        RpSkyRenderStateGet(3, &sp12C);
         func_004a8440(base, sp20);
         setState = (void *)D_00887300;
         (*(void (**)(u32, u32))setState)(1, D_00922D90[0]);
@@ -1230,7 +1230,7 @@ void effBlurFilterDrawAux(u8 *arg0) {
 
     base = *(u8 **)(arg0 + 0x24) + 0xC0;
     if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
-        func_003f6690(3, &sp12C);
+        RpSkyRenderStateGet(3, &sp12C);
         func_004a86c0(base, sp20);
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(3, 0x31001);
@@ -1351,8 +1351,8 @@ void effBlurFilterDrawPassB(u8 *arg0) {
     temp_18 = temp_3 + 0xC0;
     if (*(u8 *)(temp_3 + 0xCF) > 0) {
         temp_16 = *(u8 **)(*(u8 **)(arg0 + 0x28) + 8);
-        func_003f6690(2, &sp24C);
-        func_003f6690(3, &sp248);
+        RpSkyRenderStateGet(2, &sp24C);
+        RpSkyRenderStateGet(3, &sp248);
         setState = (void *)D_00887300;
         (*(void (**)(u32, u32))setState)((u32)1, *(u32 *)temp_16);
         mdlEffectEmitMaskedTagPair();

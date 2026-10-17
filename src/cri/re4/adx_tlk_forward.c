@@ -1,7 +1,7 @@
 /* ADX talk-controller close-all and adjacent library delegates. */
 #include "cri_xpt.h"
 
-extern void func_004e7258(void);
+extern void dvCiIsExistFcache(void);
 extern Uint32 func_004e6460();
 extern Uint32 func_004e6480();
 extern Uint32 func_004e7378();
@@ -9,7 +9,7 @@ extern Uint32 func_004e7378();
 // FUN_004D3528
 void ADXT_CloseAllHandles(void)
 {
-	func_004e7258();
+	dvCiIsExistFcache();
 }
 
 // FUN_004D3540

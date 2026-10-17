@@ -4,7 +4,7 @@
 extern Uint32 func_0050b3d0();
 
 // FUN_00511A38
-void func_00511a38(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
+void mwsfsvr_ExecCbFnDecSvrTop(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
 	Uint32 *context = (Uint32 *)func_0050b3d0(a0, a1, a2, a3);
 	void (*callback)(Uint32) = (void (*)(Uint32))context[16];
@@ -14,7 +14,7 @@ void func_00511a38(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 }
 
 // FUN_00511A68
-void func_00511a68(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
+void mwsfsvr_ExecCbFnDecSvrEnd(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 {
 	Uint32 *context = (Uint32 *)func_0050b3d0(a0, a1, a2, a3);
 	void (*callback)(Uint32) = (void (*)(Uint32))context[18];

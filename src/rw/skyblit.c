@@ -90,12 +90,12 @@ extern void (*D_00887308[])(void);
 extern void (*D_0088730C[])(void);
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern void (*D_00887314[])(void);
-extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
-extern s32 func_0040d0a0(s32 arg0, s32 arg1);
+extern s32 SkyIm2DRenderLine(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 SkyIm2DRenderTriangle(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
+extern s32 SkyIm2DRenderPrimitive(s32 arg0, void *arg1, s32 arg2);
+extern s32 SkyIm2DRenderIndexedPrimitive(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
-extern s32 func_00402d50(void *arg0, s32 *arg1);
+extern s32 _rwSkyRasterClearRect(void *arg0, s32 *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
@@ -110,9 +110,9 @@ u32 func_003e8120(u32 camera);
 u8 func_003e9240(RwObjectOwnerLink *param_1);
 u32 func_003e9750(int param_1);
 u32 func_004125d0(int param_1);
-s32 func_0041f208(int param_1);
-u32 func_0041f6e0(u32 *param_1);
-u32 func_0041f6f0(u32 *param_1);
+s32 sceMpegGetPictureAbort(int param_1);
+u32 _sceMpegAlalcSetDynamic(u32 *param_1);
+u32 _sceMpegAlalcFree(u32 *param_1);
 
 /* Source unit: src/rw/rwcore_003e8110.c (1 function markers) */
 
@@ -268,7 +268,7 @@ extern void func_003efda0(u8 *arg0); /* P4: ported verbatim into src/renderware 
 /* measured: closes no_branch_likely around func_004015e0. */
 #pragma no_branch_likely off
 // FUN_00402600
-s32 func_00402600(void)
+s32 _rwSkyRasterFinaliseStart(void)
 {
     extern u8 *func_003ec590(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_003ec330(u8 *arg0);
@@ -353,7 +353,7 @@ s32 _rwSkyRasterClear(void)
         sp10[0] = 0;
         sp10[2] = *(s32 *)(temp_3 + 0xc);
         sp10[3] = *(s32 *)(temp_3 + 0x10);
-        var_2 = func_00402d50(NULL, sp10);
+        var_2 = _rwSkyRasterClearRect(NULL, sp10);
     }
     return var_2;
 }

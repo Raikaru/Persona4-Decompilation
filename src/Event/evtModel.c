@@ -63,8 +63,8 @@ extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 func_0044b310(s32 a);
 extern f32 func_0044b920(f32 a);
-extern s32 func_0044dcd8(f32 a);
-extern f32 func_0044e7d8(s32 a);
+extern s32 fptodp(f32 a);
+extern f32 dptofp(s32 a);
 
 extern u8 **kwlnTaskGetWork();
 extern void kAssertFail(void *file, s32 line);
@@ -124,7 +124,7 @@ state_ready:
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f20)))) < fGpffff8478) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f20)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
             if (rec->counterA >= 2) {
                 rec->counterA = 0;
@@ -155,7 +155,7 @@ state1_counter:
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f20)))) < fGpffff8514) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f20)))) < fGpffff8514) {
             rec->counterB = rec->counterB + 1;
             if (rec->counterB >= 2) {
                 rec->counterA = 0;
@@ -263,7 +263,7 @@ state_ready:
         if ((temp_f21 < -1.0f) || !(temp_f21 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f21)))) < fGpffff8478) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f21)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
             if (rec->counterA >= 2) {
                 rec->counterA = 0;
@@ -306,7 +306,7 @@ block_21:
         if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_3)))) < fGpffff8478) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_3)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
             if (rec->counterA >= 2) {
                 rec->counterA = 0;
@@ -349,7 +349,7 @@ block_42:
         if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_5)))) < fGpffff8478) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_5)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
             if (rec->counterA >= 2) {
                 rec->counterA = 0;
@@ -391,7 +391,7 @@ block_63:
         if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_6)))) < fGpffff8478) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_6)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
             if (rec->counterA >= 2) {
                 rec->counterA = 0;
@@ -434,7 +434,7 @@ block_84:
         if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_8)))) < fGpffff8478) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_8)))) < fGpffff8478) {
             rec->counterA = rec->counterA + 1;
             if (rec->counterA >= 2) {
                 rec->counterA = 0;
@@ -465,7 +465,7 @@ block_105:
         if ((temp_f0_9 < -1.0f) || !(temp_f0_9 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f0_9)))) < fGpffff8514) {
+        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_9)))) < fGpffff8514) {
             rec->counterB = rec->counterB + 1;
             if (rec->counterB >= 2) {
                 rec->counterA = 0;

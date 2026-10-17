@@ -14,7 +14,7 @@ extern Uint32 ACSSND_CancelFading();
 extern Uint32 func_004bf930();
 extern Uint32 D_00725294;
 extern Uint32 func_004c0e00();
-extern Uint32 func_004c0fc0();
+extern Uint32 ACSVHL_EnableVoiceHighlight();
 extern Uint32 func_004c0fd0();
 extern Uint32 func_004c1000();
 extern Uint32 func_004c1008();
@@ -23,7 +23,7 @@ extern Uint32 func_004c1018();
 extern Uint32 func_004c1020();
 extern Uint32 func_004c1028();
 extern Uint32 func_004c0ce0();
-extern Uint32 func_004c0d60();
+extern Uint32 ACSSVR_ExecHndl();
 extern Uint32 D_007282A0;
 extern Uint8 D_00728330[];
 
@@ -90,7 +90,7 @@ Uint32 func_004d90e0(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
 // FUN_004D90F8
 Uint32 func_004d90f8(void)
 {
-	return func_004c0fc0(func_004c0e00(D_00725294));
+	return ACSVHL_EnableVoiceHighlight(func_004c0e00(D_00725294));
 }
 
 // FUN_004D9120
@@ -144,7 +144,7 @@ Uint32 func_004d9268(void)
 // FUN_004D9288
 Uint32 func_004d9288(Uint32 value)
 {
-	return func_004c0d60(D_00725294, value);
+	return ACSSVR_ExecHndl(D_00725294, value);
 }
 
 // FUN_004D92A8

@@ -21,18 +21,18 @@ extern s32 iGpffffb94c;
 extern s32 iGpffffb730;
 extern s32 iGpffffb934;
 extern u8 iGpffffb984;
-extern s32 func_0040f570();
-extern void func_00410390();
+extern s32 RpSkyTexCacheAccessRaster();
+extern void RpSkyTexCalcTex1();
 extern void func_003a3d50(u8 *arg0);
 extern void func_003a3de0(u8 *arg0);
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern s32 func_003c1ab0(s32 a, s32 b, void *c, void *d, s32 e);
-extern void func_003a4d50();
+extern void _rptankscrMemCopy();
 extern void func_003e1ea0(s32 arg0);
 extern s32 func_003a2ce0(s32 arg0);
 extern s32 func_003a2d90(s32 arg0);
 extern s32 func_003a15e0(s32 arg0);
-extern u8 *func_003a1600(u8 *arg0);
+extern u8 *PTankAtomicDestruct(u8 *arg0);
 
 extern void func_003c02e0(void);
 extern void func_003c42b0(void *arg0, s32 arg1);
@@ -54,35 +54,35 @@ extern s32 func_003a7160(u8 *arg0);
 extern s32 func_003a6ba0(void);
 extern s32 func_003a7f80(void);
 extern u8 *func_003bfae0();
-extern s32 **func_003ce050();
+extern s32 **_rpObjectGetMeshCacheResize();
 extern u8 *func_003cfa30();
 extern s32 func_003a8ca0(void);
 extern s32 func_003a92d0(void);
-extern void func_003a72a0(void);
-extern void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3,
+extern void rpPTankSkyInsSetup_Spr3dGen(void);
+extern void rpPTankSkyInsSetup_Spr2dGenNoSwapping(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3,
                           u32 arg4);
-extern void func_003a5280();
-extern void func_003b0b80(void);
-extern void func_003b12a0(void);
-extern void func_003b1a10(void);
-extern void func_003b31a0(void);
-extern void func_003b3240(void);
-extern void func_003b3570(void);
-extern void func_003b3880(void);
-extern void func_003b3f50(void);
-extern void func_003b4020(void);
+extern void rpPTankSkyInsSetup_Spr2dGen();
+extern void rpPTankSkyInsPosNCPM(void);
+extern void rpPTankSkyInsPosCCPM(void);
+extern void rpPTankSkyInsColorPP(void);
+extern void rpPTankSkyInsColorPV(void);
+extern void rpPTankSkyInsColorPVC(void);
+extern void rpPTankSkyInsColorPPC(void);
+extern void rpPTankSkyInsUV2(void);
+extern void rpPTankSkyInsUV4(void);
+extern void rpPTankSkyInsUV2C(void);
 extern void func_003b4120(void);
 extern void func_003b4230(void);
 extern void func_003b6680(void);
 extern void func_003b6cb0(void);
-extern void func_003aa9f0(void);
-extern void func_003ab100(void);
-extern void func_003abf60(void);
-extern void func_003aa370(void);
-extern void func_003adc40(void);
-extern void func_003acb10(void);
-extern void func_003aed60(void);
-extern void func_003af990(void);
+extern void rpPTankSkyInsPosCCCSNR(void);
+extern void rpPTankSkyInsPosNCCSPR(void);
+extern void rpPTankSkyInsPosNCPSNR(void);
+extern void rpPTankSkyInsPosNCCSNR(void);
+extern void rpPTankSkyInsPosCCCSPR(void);
+extern void rpPTankSkyInsPosNCPSPR(void);
+extern void rpPTankSkyInsPosCCPSNR(void);
+extern void rpPTankSkyInsPosCCPSPR(void);
 
 
 
@@ -234,7 +234,7 @@ s32 func_003a15e0(s32 arg0)
 // measured: schedule on preserves retail's callback setup order for func_003a1600.
 #pragma schedule on
 // FUN_003A1600
-u8 *func_003a1600(u8 *arg0)
+u8 *PTankAtomicDestruct(u8 *arg0)
 {
     if (*(u8 **)(arg0 + iGpffffb610) != NULL) {
         func_003c42b0(*(void **)(*(void **)(*(u8 **)(arg0 + 0x18) + 0x20)), 0);
@@ -261,7 +261,7 @@ s32 func_003a16c0(void) {
     if (iGpffffb614 < 0) {
         return 0;
     }
-    iGpffffb610 = func_003c1ab0(4, 0x12F, (void *)func_003a15e0, (void *)func_003a1600, 0);
+    iGpffffb610 = func_003c1ab0(4, 0x12F, (void *)func_003a15e0, (void *)PTankAtomicDestruct, 0);
     return iGpffffb610 >= 0;
 }
 // measured: closing bracket for the schedule-on above; satisfies decomp_lint
@@ -335,7 +335,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a29f0);
 // measured: no-branch-likely keeps 2ad0 dispatches as plain beq tests.
 #pragma no_branch_likely on
 // FUN_003A2AD0
-s32 func_003a2ad0(u8 *arg0, u8 *arg1)
+s32 _rpPTankSkySetupRenderStateAddress(u8 *arg0, u8 *arg1)
 {
     u8 *record;
     u32 flags;
@@ -548,10 +548,10 @@ static inline u32 slot_003a55a0(u32 offset, u32 base)
     return offset + base;
 }
 // FUN_003A55A0
-void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3, u32 arg4)
+void rpPTankSkyInsSetup_Spr2dGenNoSwapping(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3, u32 arg4)
 {
     extern void func_003a2bb0(s32 *arg0);
-    extern void func_003f4370(void);
+    extern void _rwDMAOpenVIFPktInline(void);
     u8 *base;
     s32 idx;
 
@@ -560,7 +560,7 @@ void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3, u32 arg4)
     if (arg4 & 0x10000000) {
         func_003a2bb0(arg2);
     }
-    func_003f4370();
+    _rwDMAOpenVIFPktInline();
     *(s32 *)(arg0 + 8) = ((arg4 & 2) == 2) || ((arg4 & 0x2000) == 0x2000);
     *(s32 *)(arg0 + 4) = ((arg4 & 0x80) == 0x80) || ((arg4 & 0x80000) == 0x80000);
     *(s32 *)(arg0 + 0) = 1;
@@ -629,7 +629,7 @@ s32 func_003a6570(u8 *arg0, u8 *arg1)
     s32 off150;
     s32 off14C;
     s32 mask = 0xEFFFFFFF;
-    void (*callback)(u8 *, u8 *, s32 *, u8 *, u32) = func_003a55a0;
+    void (*callback)(u8 *, u8 *, s32 *, u8 *, u32) = rpPTankSkyInsSetup_Spr2dGenNoSwapping;
     u8 *src;
     u8 *record;
     u8 *state;
@@ -651,9 +651,9 @@ s32 func_003a6570(u8 *arg0, u8 *arg1)
     off15C = index * 0x24;
     *(s32 *)((s32)off15C + (s32)state + 0x15C) = value;
     *(void (**)(u8 *, u8 *, s32 *, u8 *, u32))(record + 0x24) = callback;
-    func_003b42e0(id, record + 0x50,
+    _rpPTankGENInstance(id, record + 0x50,
                   *(s32 *)(src + 4), mask);
-    *(void (**)(void))(record + 0x24) = func_003a5280;
+    *(void (**)(void))(record + 0x24) = rpPTankSkyInsSetup_Spr2dGen;
     return 1;
 }
 // measured: closes schedule-on probe for 003a6570.
@@ -710,10 +710,10 @@ s32 func_003a7970(u8 *arg0, u8 *arg1)
         *(s32 *)((s32)offset + (s32)state + 0x160) = value;
     }
     *(void (**)(u8 *, s32 *, s32))(record + 0x24) = callback;
-    func_003b42e0(id, record + 0x50,
+    _rpPTankGENInstance(id, record + 0x50,
                   (u32)*(u32 *)(arg0_2c + 4) >> 2, mask);
     *(void (**)(u8 *, s32 *, s32))(record + 0x24) =
-        (void (*)(u8 *, s32 *, s32))func_003a72a0;
+        (void (*)(u8 *, s32 *, s32))rpPTankSkyInsSetup_Spr3dGen;
     return 1;
 }
 // FUN_003A7A30
@@ -740,7 +740,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8500);
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
 #pragma opt_propagation off
-s32 func_003a8640(s32 arg0, u8 *arg1, s32 arg2, s32 arg3)
+s32 _rpPTankSkyFastInstance(s32 arg0, u8 *arg1, s32 arg2, s32 arg3)
 {
     s32 *work;
     s32 index;
@@ -911,7 +911,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9c70);
    a forward goto over both returns reproduces that layout (nested if/else and
    fall-through forms merge the NULL return into the epilogue, nd61). */
 // FUN_003A9E50
-s32 func_003a9e50(u8 *arg0)
+s32 _rpPTankSkyClonePipeCreateCallBack(u8 *arg0)
 {
     extern u8 *func_003c2630(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_003c22f0(u8 *arg0);
@@ -964,7 +964,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9f40);
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003AA0B0
-void func_003aa0b0(s32 arg0)
+void _rpPTankSkyInstanceSelectCB(s32 arg0)
 {
     u8 *obj;
     u8 *obj2;
@@ -978,38 +978,38 @@ void func_003aa0b0(s32 arg0)
     obj2 = obj + 0x50;
     if ((flags & 8) == 8) {
         if ((flags & 0x01000000) == 0x01000000) {
-            *(void (**)(void))(obj + 0x28) = func_003b12a0;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosCCPM;
         } else {
-            *(void (**)(void))(obj + 0x28) = func_003b0b80;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosNCPM;
         }
     } else if ((flags & 0x8000) == 0x8000) {
         if ((flags & 0x01000000) == 0x01000000) {
-            *(void (**)(void))(obj + 0x28) = func_003aa9f0;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosCCCSNR;
         } else {
-            *(void (**)(void))(obj + 0x28) = func_003aa370;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosNCCSNR;
         }
     } else if ((flags & 0x20) == 0x20) {
         if ((flags & 4) == 4) {
             if ((flags & 0x01000000) == 0x01000000) {
-                *(void (**)(void))(obj + 0x28) = func_003af990;
+                *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosCCPSPR;
             } else {
-                *(void (**)(void))(obj + 0x28) = func_003acb10;
+                *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosNCPSPR;
             }
         } else if ((flags & 0x01000000) == 0x01000000) {
-            *(void (**)(void))(obj + 0x28) = func_003adc40;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosCCCSPR;
         } else {
-            *(void (**)(void))(obj + 0x28) = func_003ab100;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosNCCSPR;
         }
     } else if ((flags & 4) == 4) {
         if ((flags & 0x01000000) == 0x01000000) {
-            *(void (**)(void))(obj + 0x28) = func_003aed60;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosCCPSNR;
         } else {
-            *(void (**)(void))(obj + 0x28) = func_003abf60;
+            *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosNCPSNR;
         }
     } else if ((flags & 0x01000000) == 0x01000000) {
-        *(void (**)(void))(obj + 0x28) = func_003aa9f0;
+        *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosCCCSNR;
     } else {
-        *(void (**)(void))(obj + 0x28) = func_003aa370;
+        *(void (**)(void))(obj + 0x28) = rpPTankSkyInsPosNCCSNR;
     }
 
     flags = *(s32 *)(obj2 + 0x58);
@@ -1037,10 +1037,10 @@ stage3:
         goto stage3_344;
     }
     if ((flags & 0x40000) == 0x40000) {
-        *(void (**)(void))(obj + 0x30) = func_003b3240;
+        *(void (**)(void))(obj + 0x30) = rpPTankSkyInsColorPVC;
         goto stage4;
     }
-    *(void (**)(void))(obj + 0x30) = func_003b3570;
+    *(void (**)(void))(obj + 0x30) = rpPTankSkyInsColorPPC;
 
 stage4:
     flags = *(s32 *)(obj2 + 0x58);
@@ -1054,19 +1054,19 @@ finish:
     return;
 
 stage2_304:
-    *(void (**)(void))(obj + 0x2C) = func_003b3880;
+    *(void (**)(void))(obj + 0x2C) = rpPTankSkyInsUV2;
     goto stage3;
 stage2_314:
-    *(void (**)(void))(obj + 0x2C) = func_003b3f50;
+    *(void (**)(void))(obj + 0x2C) = rpPTankSkyInsUV4;
     goto stage3;
 stage2_324:
-    *(void (**)(void))(obj + 0x2C) = func_003b4020;
+    *(void (**)(void))(obj + 0x2C) = rpPTankSkyInsUV2C;
     goto stage3;
 stage3_334:
-    *(void (**)(void))(obj + 0x30) = func_003b1a10;
+    *(void (**)(void))(obj + 0x30) = rpPTankSkyInsColorPP;
     goto stage4;
 stage3_344:
-    *(void (**)(void))(obj + 0x30) = func_003b31a0;
+    *(void (**)(void))(obj + 0x30) = rpPTankSkyInsColorPV;
     goto stage4;
 stage4_354:
     *(void (**)(void))(obj + 0x34) = func_003b4230;

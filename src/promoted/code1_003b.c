@@ -50,7 +50,7 @@ extern s32 iGpffffb654;
 extern s32 iGpffffb61c;
 extern u8 D_008864E8[];
 extern s32 func_003e8960(s32 arg0);
-extern u8 *func_003b8d40(u8 *arg0, s32 arg1);
+extern u8 *_rpSkinPipelinesAttach(u8 *arg0, s32 arg1);
 extern s32 func_003e8410(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern s32 func_003c3920(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern u64 func_003bf1c0(u64 value);
@@ -66,7 +66,7 @@ extern void func_003b4ab0(void);
 extern void func_003b4c10(void);
 extern void func_003b4db0(void);
 extern void func_003b4ff0(void);
-extern void func_003b5160(void);
+extern void rpPTankGENInsPosNCPSPR(void);
 extern void func_003b53b0(void);
 extern void func_003b5650(void);
 extern void func_003b5820(void);
@@ -94,10 +94,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b12a0);
 // FUN_003B1A10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b1a10);
 /* measured: docs/probe_archive/Lane119c3b_003b31a0_body.c object 164B/window 160B, normalized_diff 34 live this session (installed guard below; object exceeds window by 4B). Retail computes loop pointers t0/t5/t6 before the slt $at,$zero,$a1 + beqz entry guard and fills every delay slot; ours colors a-regs differently, leaves three nops, and the $at guard never reproduces from C - the documented entry-guard floor. K3B6/P3B nd34 archives agree; knob sweeps and sequential-pointer chains probed 140-148B/nd94-103 without moving it. Retried the func_003bcd50 (s64)0 < arg1 cure: nd38, regresses with the same register-arg sign-extension as func_003b4230. Banked as floor. */
-extern void func_003a4d50(u8 *arg0, u8 *arg1, s32 arg2);
+extern void _rptankscrMemCopy(u8 *arg0, u8 *arg1, s32 arg2);
 // FUN_003B31A0 NONMATCHING
 #ifdef NON_MATCHING
-void func_003b31a0(u8 *arg0, s32 arg1, u8 *arg2) {
+void rpPTankSkyInsColorPV(u8 *arg0, s32 arg1, u8 *arg2) {
     u8 *src;
     u8 *dst;
     u8 *src_i;
@@ -134,7 +134,7 @@ void func_003b31a0(u8 *arg0, s32 arg1, u8 *arg2) {
             } while (count < arg1);
         }
     } else {
-        func_003a4d50(dst, src, arg1 * stride * 4);
+        _rptankscrMemCopy(dst, src, arg1 * stride * 4);
     }
 }
 #else
@@ -256,7 +256,7 @@ void func_003b47f0(s32 arg0) {
             if ((flags & 0x01000000) == 0x01000000) {
                 *(void (**)(void))(obj + 0x28) = func_003b5820;
             } else {
-                *(void (**)(void))(obj + 0x28) = func_003b5160;
+                *(void (**)(void))(obj + 0x28) = rpPTankGENInsPosNCPSPR;
             }
         } else if ((flags & 0x01000000) == 0x01000000) {
             *(void (**)(void))(obj + 0x28) = func_003b53b0;
@@ -621,7 +621,7 @@ void func_003b7480(u8 *arg0, s32 arg1) {
 set_one:
     mode = 1;
 final:
-    func_003b8d40(arg0, mode);
+    _rpSkinPipelinesAttach(arg0, mode);
     return;
 second:
     if (func_003e8960(0x12E) != -1) {
@@ -643,7 +643,7 @@ typedef struct {
     u8 pad_0[0x10];
     u32 field_10;
 } Func7510Rec;
-void func_003b7510(Func7510Rec *arg0, s32 *arg1, u32 arg2) {
+void SkinFindMaxWeights(Func7510Rec *arg0, s32 *arg1, u32 arg2) {
     u32 four;
     s32 *var_8;
     s32 *var_5;
@@ -758,7 +758,7 @@ s32 func_003b7a10(s32 arg0) {
 /* measured: opt_propagation off probe for func_003b88d0. */
 #pragma opt_propagation off
 // FUN_003B88D0
-s32 func_003b88d0(s32 arg0) {
+s32 _rpSkinGeometryNativeSize(s32 arg0) {
     s32 *var_10;
     s32 base;
     s32 sum;

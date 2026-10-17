@@ -50,9 +50,9 @@ extern f32 D_0063B148[];
 extern SceneVecBits D_0063B150[];
 extern f32 D_0063B158[];
 extern float RwV3dNormalize(float *dst, const float *src);
-extern u32 func_0044dcd8(float param_1);
+extern u32 fptodp(float param_1);
 extern u32 func_0044b8d8(u32 value);
-extern float func_0044e7d8(u32 value);
+extern float dptofp(u32 value);
 extern float fGpffff8428;
 
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbc90 (verified MATCH there). */
@@ -247,11 +247,11 @@ u32 MT_Scene_GetSegmentHeading(float *first, float *second, float *output, float
         return 0;
     }
     afStack_20[1] = 0.0f;
-    uVar1 = func_0044dcd8(afStack_20[0] * ((float *)&source.xy)[0] +
+    uVar1 = fptodp(afStack_20[0] * ((float *)&source.xy)[0] +
                           afStack_20[1] * ((float *)&source.xy)[1] +
                           afStack_20[2] * source.z);
     uVar1 = func_0044b8d8(uVar1);
-    fVar2 = fGpffff8428 * func_0044e7d8(uVar1);
+    fVar2 = fGpffff8428 * dptofp(uVar1);
     if (afStack_20[0] < 0.0f) {
         fVar2 = fVar2 * -1.0f;
     }
@@ -415,7 +415,7 @@ u32 MT_Scene_BeginResPathAnim(Resrc *param_1, u32 param_2, float param_3, u32 pa
         float fVar6;
         fVar6 = MT_Scene_GetCurveLength((char *)*(u32 *)(iVar3 + 0x58));
         *(float *)(iVar3 + 0x64) = fVar6;
-        func_00440b68(D_0063B0D0, func_0044dcd8(fVar6));
+        func_00440b68(D_0063B0D0, fptodp(fVar6));
     }
     return 1;
 }
@@ -2138,11 +2138,11 @@ void MT_Scene_GetDirectionYaw(const float *param_1, float *param_2)
     }
     else {
         afStack_20[1] = 0.0f;
-        uVar1 = func_0044dcd8(afStack_20[0] * ((float *)&source.xy)[0] +
+        uVar1 = fptodp(afStack_20[0] * ((float *)&source.xy)[0] +
                               afStack_20[1] * ((float *)&source.xy)[1] +
                               afStack_20[2] * source.z);
         uVar1 = func_0044b8d8(uVar1);
-        fVar2 = fGpffff8428 * func_0044e7d8(uVar1);
+        fVar2 = fGpffff8428 * dptofp(uVar1);
         if (afStack_20[0] < 0.0f) {
             fVar2 = fVar2 * -1.0f;
         }
