@@ -22,7 +22,7 @@ extern s32 sdkLboxUpdate(u8 *task);
 extern void sdkLboxDestroy(u8 *arg0);
 extern void sprintf(void *buf, const void *fmt, ...);
 extern s32 strlen(const void *str);
-extern s32 func_0044dcd8(f32 value);
+extern s32 fptodp(f32 value);
 extern u8 iGpffffb06c;
 extern u8 iGpffffb070;
 extern u8 iGpffffb0c0;
@@ -156,7 +156,7 @@ loop_29_body:
             }
             break;
         case 4:
-            temp16 = func_0044dcd8(*(f32 *)(var20 + 0x20C));
+            temp16 = fptodp(*(f32 *)(var20 + 0x20C));
             sprintf(sp60, &iGpffffb0c8, temp16);
             var18 += *(s32 *)(temp17 + 0x28) +
                      (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);

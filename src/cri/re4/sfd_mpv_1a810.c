@@ -47,7 +47,7 @@ void sfmpv_DecUsrHdr(SFD sfd)
 }
 
 // FUN_0051A8B0
-Uint32 func_0051a8b0(SFD sfd)
+Uint32 sfmpv_GetTermDst(SFD sfd)
 {
 	return func_005159a0(sfd, *(Sint32 *)((Uint8 *)sfd + 0x1FCC));
 }

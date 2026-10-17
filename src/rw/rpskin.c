@@ -32,7 +32,7 @@ extern s32 func_003c1ab0(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4)
 extern s32 func_003c1b10(s32 arg0, void *arg1, void *arg2, void *arg3);
 extern s32 func_003c1b40(s32 arg0, void *arg1);
 extern s32 _rpSkinSplitDataStreamGetSize(s32 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_003b88d0(s32 arg0);
+extern s32 _rpSkinGeometryNativeSize(s32 arg0);
 extern s32 func_003c1b60(s32 arg0, void *arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
 extern s32 func_003c2ba0(s32 arg0, void *arg1, void *arg2, void *arg3);
@@ -44,8 +44,8 @@ extern s32 func_003b7a90(s32 arg0);
 extern s32 func_003b7ad0(s32 arg0);
 extern s32 func_003b7b00(s32 arg0, s32 arg1);
 extern s32 func_003c1b80(s32 arg0);
-extern s32 func_003b7b20(s32 arg0);
-extern s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 SkinAtomicAlways(s32 arg0);
+extern s32 SkinAtomicRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_003b7c10(u8 *arg0);
 extern s32 *func_003b7ca0(s32 *arg0, s32 arg1, u8 *arg2);
 extern u8 *func_003b7e00(u8 *arg0, s32 arg1, u8 *arg2);
@@ -72,11 +72,11 @@ extern s32 func_003e5250(void);
 extern void func_003cbcf0(s32 arg0, s32 arg1);
 extern s32 func_003e8960(s32 arg0);
 extern u8 *func_003b85e0(u8 *arg0);
-extern void func_003b8d40(u8 *arg0, s32 arg1);
+extern void _rpSkinPipelinesAttach(u8 *arg0, s32 arg1);
 extern u8 *(*D_008873F8[])(s32 arg0, s32 arg1);
 extern u8 *func_003b7290(u8 *arg0, void *arg1);
-extern void func_003b7510(u8 *arg0, s32 arg1, u32 arg2);
-extern void func_003b7590(u8 *arg0, void *arg1, void *arg2, void *arg3,
+extern void SkinFindMaxWeights(u8 *arg0, s32 arg1, u32 arg2);
+extern void SkinFindNumUsedBones(u8 *arg0, void *arg1, void *arg2, void *arg3,
                           u32 *arg4, u32 arg5);
 extern s32 func_003b7680(u8 *arg0, s32 arg1, u32 arg2, u32 arg3,
                           void *arg4, void *arg5, void *arg6, s32 arg7);
@@ -131,7 +131,7 @@ s32 func_003b7b00(s32 arg0, s32 arg1)
 /* measured: no_branch_likely on selects retail's plain branches and prologue ordering. */
 // FUN_003B7B20
 #pragma no_branch_likely on
-s32 func_003b7b20(s32 arg0)
+s32 SkinAtomicAlways(s32 arg0)
 {
     s32 var_17;
     u8 *object;
@@ -163,7 +163,7 @@ check_status:
 // FUN_003B7BB0
 /* measured: no_branch_likely on selects retail's plain beqz tests. */
 #pragma no_branch_likely on
-s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 SkinAtomicRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 *temp_4 = *(u8 **)(arg0 + 0x18);
     if ((temp_4 != NULL) && (func_003b83f0((int)temp_4) != 0)) {
@@ -205,7 +205,7 @@ s32 func_003b7c10(u8 *arg0)
     var_2 = temp_16 + _rpSkinSplitDataStreamGetSize((s32 *)temp_5, temp_5_2, temp_6, temp_7);
     goto done;
 special:
-    var_2 = func_003b88d0((s32)arg0);
+    var_2 = _rpSkinGeometryNativeSize((s32)arg0);
 done:
     return var_2;
 }
@@ -259,7 +259,7 @@ parse_body:
     }
 check_count:
     if (sp188 == 0) {
-        func_003b7590(var_17, NULL, NULL, temp_80, &sp188, temp_16);
+        SkinFindNumUsedBones(var_17, NULL, NULL, temp_80, &sp188, temp_16);
     }
     if (func_003b7680(var_17, temp_20, sp188, temp_16,
                       temp_80, NULL, NULL, 0) == 0) {
@@ -278,7 +278,7 @@ fail_compare:
 fail_read:
     return NULL;
 fill_count:
-    func_003b7510(var_17, 0, temp_16);
+    SkinFindMaxWeights(var_17, 0, temp_16);
     goto check_count;
 release_buffer:
     jtbl_008873FC[0](D_008864A8[0], var_17);
@@ -337,8 +337,8 @@ s32 func_003b82d0(void)
     D_00886490[0] = func_003e8930(0, 0x116, (void *)func_003b7860, (void *)func_003b7970);
     D_00886494[0] = func_003c1ab0(4, 0x116, (void *)func_003b7a90, (void *)func_003b7ad0, (void *)func_003b7b00);
     func_003c1b10(0x116, (void *)func_003b8050, (void *)func_003b82b0, (void *)func_003b82c0);
-    func_003c1b40(0x116, (void *)func_003b7b20);
-    func_003c1b60(0x116, (void *)func_003b7bb0);
+    func_003c1b40(0x116, (void *)SkinAtomicAlways);
+    func_003c1b60(0x116, (void *)SkinAtomicRights);
     D_00886498[0] = func_003c2b70(4, 0x116, (void *)func_003b79f0, (void *)func_003b7a10, (void *)func_003b7a80);
     func_003c2ba0(0x116, (void *)func_003b7e00, (void *)func_003b7ca0, (void *)func_003b7c10);
     return 1;
@@ -423,7 +423,7 @@ void func_003b8520(u8 *arg0, s32 arg1)
     }
     var_16 = 1;
 call:
-    func_003b8d40(arg0, var_16);
+    _rpSkinPipelinesAttach(arg0, var_16);
     return;
 check_second:
     if (func_003e8960(0x12e) == -1) {

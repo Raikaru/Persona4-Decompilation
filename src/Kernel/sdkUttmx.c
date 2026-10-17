@@ -489,7 +489,7 @@ RwImage *tmxImageWriteCallback(RwImage *image, const char *name)
 void tmxDmaCopy(u32 destination, u32 source, u32 byte_count)
 {
     extern void func_00421a60(s32 arg0);
-    extern void func_003f4370(void);
+    extern void _rwDMAOpenVIFPktInline(void);
     u32 dst;
     u32 src;
     u32 qwc;
@@ -498,7 +498,7 @@ void tmxDmaCopy(u32 destination, u32 source, u32 byte_count)
     src = source;
     qwc = byte_count >> 4;
     func_00421a60(0);
-    func_003f4370();
+    _rwDMAOpenVIFPktInline();
 
     while (qwc >= 0x401U) {
         *(volatile u32 *)0x1000E020 = 0xFFFFFC00U;

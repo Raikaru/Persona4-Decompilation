@@ -270,7 +270,7 @@ void FldShadow_ReleaseCaster(u8 *arg0)
                 *(s32 *)(temp_19 + 0x60) = 0;
             func_003e8440(temp_19);
         }
-        func_0040fcd0((u8 *)*(s32 *)(temp_16 + 0x40), 0);
+        RpSkyTexCacheRasterLock((u8 *)*(s32 *)(temp_16 + 0x40), 0);
         func_003ec330(*(s32 *)(temp_16 + 0x40));
         func_003ef080(*(u8 **)(temp_16 + 0x3C), 0);
         func_003ef3a0(*(u8 **)(temp_16 + 0x3C));
@@ -376,7 +376,7 @@ void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
 
         raster = func_003ec590(128, 128, 32, 0x505);
         if (raster != NULL) {
-            func_0040fcd0(raster, 1);
+            RpSkyTexCacheRasterLock(raster, 1);
         }
         raster_slot = (u8 **)(data + 0x40);
         *(u8 **)(data + 0x40) = raster;

@@ -53,7 +53,7 @@ extern u8 D_00714144[];
 
 
 
-extern void func_003f6690(s32 param, void *out);
+extern void RpSkyRenderStateGet(s32 param, void *out);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
@@ -428,8 +428,8 @@ void func_004a8890(u8 *arg0, s32 *arg1) {
     void (**sendPacket)(s32, void *, s32, void *, s32);
 
     temp_16 = arg1;
-    func_003f6690(2, &sp24C);
-    func_003f6690(3, &sp248);
+    RpSkyRenderStateGet(2, &sp24C);
+    RpSkyRenderStateGet(3, &sp248);
     setState = (void (**)(u32, u32))D_00887300;
     (*setState)((u32)1, *(u32 *)temp_16);
     mdlEffectEmitMaskedTagPair();

@@ -7,9 +7,9 @@ extern void func_004cc9e8();
 extern void func_004ea9c8();
 extern void func_004ea838();
 extern void func_004eaa18();
-extern void func_004eaa88();
+extern void PL2ENC_Encode();
 // FUN_004EB228
-void func_004eb228(Uint8 *arg0)
+void PL2LINK_DetachDolbyProLogicII(Uint8 *arg0)
 {
     Uint8 *p = *(Uint8 **)(arg0 + 4);
     Uint8 *q = *(Uint8 **)(p + 4);
@@ -33,9 +33,9 @@ void func_004eb298(Uint8 *arg0)
 }
 
 // FUN_004EB2B0
-void func_004eb2b0(Uint8 *arg0, Sint16 arg1)
+void PL2LINK_Encode(Uint8 *arg0, Sint16 arg1)
 {
-    func_004eaa88(*(Uint32 *)(arg0 + 0xe8), arg1);
+    PL2ENC_Encode(*(Uint32 *)(arg0 + 0xe8), arg1);
 }
 
 

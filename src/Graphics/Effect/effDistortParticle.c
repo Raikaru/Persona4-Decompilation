@@ -281,7 +281,7 @@ typedef struct DistortVec3 {
 // FUN_004AFE20
 void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
 {
-    extern void func_003f6690(s32 param, void *out);
+    extern void RpSkyRenderStateGet(s32 param, void *out);
     extern void RpSkyRenderStateSet(s32 param, s32 value);
     extern f32 cosf(f32 param);
     extern f32 sinf(f32 param);
@@ -367,8 +367,8 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
     if (packed.bytes.alpha == 0) {
         return;
     }
-    func_003f6690(2, &st2);
-    func_003f6690(3, &st3);
+    RpSkyRenderStateGet(2, &st2);
+    RpSkyRenderStateGet(3, &st3);
     base = *(f32 *)((u8 *)arg2 + 0x18);
     t0 = base + *(f32 *)(arg1 + 0x8) * cosf(*(f32 *)(arg1 + 0x0));
     t1 = base + *(f32 *)(arg1 + 0x14) * cosf(*(f32 *)(arg1 + 0xC));

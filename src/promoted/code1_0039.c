@@ -81,8 +81,8 @@ extern s32 iGpffffaa08;
 /* gp - 0x55F4 = 0x00763AFC */
 extern s32 iGpffffaa0c;
 extern u8 D_00884A90[];
-extern s32 func_0039b7c0(s32 arg0, s32 arg1);
-extern void func_0039ba80(s32 arg0);
+extern s32 PDSRegistrySetup(s32 arg0, s32 arg1);
+extern void PDSRegistryCreatePipes(s32 arg0);
 extern s32 func_003e8920(void);
 extern u8 *func_0039ac80(u8 *arg0, u8 *arg1);
 extern s32 func_0039ae90(s32 arg0, s32 arg1);
@@ -94,7 +94,7 @@ extern s32 func_003e9eb0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (
 extern s32 func_00396750();
 extern s32 func_00396a40();
 extern s32 func_00396c00();
-extern s32 func_00396890();
+extern s32 HAnimDestructor();
 extern s32 func_00396940();
 extern s32 func_00396e80();
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
@@ -117,7 +117,7 @@ extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *func_003cfa30(u8 *arg0, s32 arg1);
 extern void func_00411670(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *func_0039bb70(u8 **arg0, s32 arg1);
+extern u8 *PDSRegistryGetPipe(u8 **arg0, s32 arg1);
 extern void (*D_0064F2B4[])(u8 *arg0, s32 arg1, s32 arg2);
 // measured: schedule on hoists the return-value move to the top,
 // sinks the counter store, and fills the jr delay slot.
@@ -390,7 +390,7 @@ s32 HAnimConstructor(s32 arg0)
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
 #pragma opt_propagation off
-s32 func_00396890(s32 arg0)
+s32 HAnimDestructor(s32 arg0)
 {
     s32 var_3;
     s32 var_5;
@@ -487,7 +487,7 @@ s32 func_00396f00(void)
     if (func_003e8930(0, 0x11E, func_00396750, HAnimClose) < 0) {
         return 0;
     }
-    iGpffffb5d8 = func_003e9eb0(8, 0x11E, HAnimConstructor, func_00396890, func_00396940);
+    iGpffffb5d8 = func_003e9eb0(8, 0x11E, HAnimConstructor, HAnimDestructor, func_00396940);
     ok = func_003e5520(0x11E, func_00396c00, func_00396a40, func_00396e80) >= 0;
     if (ok != 0) {
         ok = iGpffffb5d8 >= 0;
@@ -870,7 +870,7 @@ docall:
 /* measured: ruled out -- archive (signed-byte loads, int pointer materialisation, O1, schedule-on, nbl, labels, pointer-local order, split locals, arg2 reuse) plus strict-bound transfer (>0x1D for >=0x1E, <=1 for <2, both 40wd neutral) and 98350/96890/b830 scheduler/s64 cures checked. Banked. */
 // FUN_00399470 NONMATCHING
 #ifdef NON_MATCHING
-void func_00399470(s8 *arg0, u8 *arg1, u8 *arg2)
+void GenBumpedTextureName(s8 *arg0, u8 *arg1, u8 *arg2)
 {
     s8 *streams[2];
     s32 var_10;
@@ -2235,7 +2235,7 @@ increment:
     D_00884AC8[0] += 1;
     return arg0;
 init:
-    func_0039ba80((s32)&D_00884ACC);
+    PDSRegistryCreatePipes((s32)&D_00884ACC);
     goto increment;
 }
 /* measured: closes the no_branch_likely-on b450 probe. */
@@ -2273,7 +2273,7 @@ init:
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 // FUN_0039B510
-s32 func_0039b510(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 PDSMaterialRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     *(s32 *)(arg0 + 8) = func_0039b6e0(arg3);
     return 1;
@@ -2311,7 +2311,7 @@ s32 _rpTeamDictionaryAtomicRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 // FUN_0039B570
-s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 PDSSectorRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     *(s32 *)(arg0 + 0x7C) = func_0039b6e0(arg3);
     return 1;
@@ -2335,15 +2335,15 @@ s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 // FUN_0039B5A0
 extern s32 D_00884AC0[];
 s32 func_0039b5a0(s32 arg0) {
-    func_0039b7c0((s32)&D_00884ACC, arg0);
+    PDSRegistrySetup((s32)&D_00884ACC, arg0);
     D_00884ADC[0] = arg0;
     D_00884AC0[0] = func_003e8930(0, 0x131, func_0039b450, func_0039b4b0);
     func_003c4310(0, 0x131, 0, 0, 0);
     func_003c1ab0(0, 0x131, 0, 0, 0);
     func_003c8d00(0, 0x131, 0, 0, 0);
-    func_003c4370(0x131, (s32)func_0039b510);
+    func_003c4370(0x131, (s32)PDSMaterialRights);
     func_003c1b60(0x131, (s32)_rpTeamDictionaryAtomicRights);
-    func_003c8d80(0x131, (s32)func_0039b570);
+    func_003c8d80(0x131, (s32)PDSSectorRights);
     return 1;
 }
 // FUN_0039B680
@@ -2359,7 +2359,7 @@ call:
     func_0039b8d0(base, arg0);
     goto done;
 zero:
-    base = func_0039b7c0(base, D_00884ADC[0]);
+    base = PDSRegistrySetup(base, D_00884ADC[0]);
     goto call;
 done:
     return arg0;
@@ -2381,7 +2381,7 @@ s32 func_0039b6e0(s32 arg0)
 {
     u8 *entry;
 
-    entry = (u8 *)func_0039bb70((void *)D_00884ACC, arg0);
+    entry = (u8 *)PDSRegistryGetPipe((void *)D_00884ACC, arg0);
     if (entry == NULL) {
         goto ret0;
     }
@@ -2453,7 +2453,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
 // FUN_0039B7C0
 /* measured: schedule on probes b7c0's retail branch delay-slot materialization. */
 #pragma schedule on
-s32 func_0039b7c0(s32 arg0, s32 arg1)
+s32 PDSRegistrySetup(s32 arg0, s32 arg1)
 {
     s32 i;
 
@@ -2524,7 +2524,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ba80);
 /* measured: ruled out -- s64 entry guard (s64)0<count with 4-pragma set 21wd, 0<count 14wd neutral, s32+(s64)0 20wd, 0<count+4-pragmas 17wd; transfer from b830/96890 s64 cure (unsigned counts regress, signed improve) -- unsigned sltu wall stands. Banked. */
 // FUN_0039BB70 NONMATCHING
 #ifdef NON_MATCHING
-u8 *func_0039bb70(u8 **arg0, s32 arg1)
+u8 *PDSRegistryGetPipe(u8 **arg0, s32 arg1)
 {
     u8 *base;
     u8 *entry;
@@ -2598,7 +2598,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039e740);
 s32 func_0039f0e0(u8 *arg0, s32 *arg1)
 {
     extern void func_003d0fa0(void);
-    extern void func_0039c000(u8 *arg0, s32 arg1, s32 arg2);
+    extern void _rpSkinWeightsInstancing(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 D_00886498[];
     u8 *p;
     s32 value;
@@ -2607,7 +2607,7 @@ s32 func_0039f0e0(u8 *arg0, s32 *arg1)
     if ((*(s32 *)(p + 8) & 0x01000000) == 0) {
         value = *(s32 *)(p + D_00886498[0]);
         func_003d0fa0();
-        func_0039c000(*(u8 **)(arg0 + 0x2C), value, *arg1);
+        _rpSkinWeightsInstancing(*(u8 **)(arg0 + 0x2C), value, *arg1);
     } else if ((*(s32 *)(p + 8) & 0x01000000) < 0x01000001) {
         value = 0;
     }

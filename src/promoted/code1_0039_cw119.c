@@ -52,8 +52,8 @@ extern s32 func_0039aa30(void);
 extern s32 iGpffffaa08;
 extern s32 iGpffffaa0c;
 extern u8 D_00884A90[];
-extern s32 func_0039b7c0(s32 arg0, s32 arg1);
-extern void func_0039ba80(s32 arg0);
+extern s32 PDSRegistrySetup(s32 arg0, s32 arg1);
+extern void PDSRegistryCreatePipes(s32 arg0);
 extern s32 func_003e8920(void);
 extern u8 *func_0039ac80(u8 *arg0, u8 *arg1);
 extern s32 func_0039ae90(s32 arg0, s32 arg1);
@@ -65,7 +65,7 @@ extern s32 func_003e9eb0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (
 extern s32 func_00396750();
 extern s32 func_00396a40();
 extern s32 func_00396c00();
-extern s32 func_00396890();
+extern s32 HAnimDestructor();
 extern s32 func_00396940();
 extern s32 func_00396e80();
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
@@ -87,7 +87,7 @@ extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *func_003cfa30(u8 *arg0, s32 arg1);
 extern void func_00411670(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *func_0039bb70(u8 **arg0, s32 arg1);
+extern u8 *PDSRegistryGetPipe(u8 **arg0, s32 arg1);
 extern void (*D_0064F2B4[])(u8 *arg0, s32 arg1, s32 arg2);
 static inline s32 p4_mul_003963b0(s32 left, s32 right)
 {

@@ -2404,7 +2404,7 @@ extern void (*D_008873ec[])(void *);
 extern s32 D_00724C70;
 extern s8 D_00724C58;
 extern f32 D_00922D80[];
-extern u8 *func_00401b80(void);
+extern u8 *RpSkyGetDisplayBufferRaster(void);
 extern u32 D_00922D90[];
 extern f32 D_00922D94[];
 extern f32 D_00922D98[];
@@ -3275,7 +3275,7 @@ void func_004abb60(void)
 {
     u8 *temp_2;
 
-    temp_2 = func_00401b80();
+    temp_2 = RpSkyGetDisplayBufferRaster();
     *(u8 **)&D_00922D90[0] = temp_2;
     D_00922D94[0] = (f32)*(s32 *)(temp_2 + 0xC);
     D_00922D98[0] = (f32)*(s32 *)(temp_2 + 0x10);
@@ -3588,7 +3588,7 @@ extern void func_004b1ad0(u8 *arg0);
 extern void func_003efd20(u8 *arg0, s32 arg1);
 extern void func_003e9390(s32 arg0);
 extern void func_003ec330(s32 arg0);
-extern void func_0040fcd0(s32 arg0, s32 arg1);
+extern void RpSkyTexCacheRasterLock(s32 arg0, s32 arg1);
 extern void func_003e8440(u8 *arg0);
 extern void func_004b1a00(u8 *arg0, u8 *arg1);
 extern u8 D_0071465C[];
@@ -3848,7 +3848,7 @@ void func_004b2e00(u8 *object) {
     }
     temp_4_3 = *(s32 *)(base + 8);
     if (temp_4_3 != 0) {
-        func_0040fcd0(temp_4_3, 0);
+        RpSkyTexCacheRasterLock(temp_4_3, 0);
         func_003ec330(*(s32 *)(base + 8));
         *(s32 *)(base + 8) = 0;
     }

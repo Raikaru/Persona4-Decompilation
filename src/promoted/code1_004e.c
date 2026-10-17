@@ -90,7 +90,7 @@ s8 func_004e0590(u8 *arg0)
    not in the source. */
 // FUN_004E0598 NONMATCHING
 #ifdef NON_MATCHING
-void func_004e0598(u8 *arg0) {
+void AIXSJD_Start(u8 *arg0) {
     func_004e0380();
     *(s32 *)(arg0 + 0x10) = 0;
     *(s8 *)(arg0 + 1) = 1;

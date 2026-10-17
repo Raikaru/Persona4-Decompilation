@@ -16,7 +16,7 @@ extern s32 loadingSpinnerTaskUpdate(u8 *arg0);
 extern void loadingSpinnerDraw(void);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_003f6690(s32 arg0, s32 *arg1);
+extern void RpSkyRenderStateGet(s32 arg0, s32 *arg1);
 extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
 extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
@@ -354,14 +354,14 @@ void titleVisualDraw(void *arg0, u8 *arg1) {
     temp_19 = *(s32 *)(ptr + 0x18);
     temp_18 = temp_19 & 0x100;
     if (temp_18 != 0) {
-        func_003f6690(3, &work.sp88);
+        RpSkyRenderStateGet(3, &work.sp88);
     }
     temp_17 = temp_19 & 0x200;
     if (temp_17 != 0) {
-        func_003f6690(2, &work.sp84);
+        RpSkyRenderStateGet(2, &work.sp84);
     }
     if (temp_18 != 0) {
-        func_003f6690(3, &work.sp88);
+        RpSkyRenderStateGet(3, &work.sp88);
     }
     base = D_00887300;
     base[0](0xA, 5);

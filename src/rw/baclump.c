@@ -32,7 +32,7 @@ extern s32 func_003c1ab0(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4)
 extern s32 func_003c1b10(s32 arg0, void *arg1, void *arg2, void *arg3);
 extern s32 func_003c1b40(s32 arg0, void *arg1);
 extern s32 _rpSkinSplitDataStreamGetSize(s32 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_003b88d0(s32 arg0);
+extern s32 _rpSkinGeometryNativeSize(s32 arg0);
 extern s32 func_003c1b60(s32 arg0, void *arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
 extern s32 func_003c2ba0(s32 arg0, void *arg1, void *arg2, void *arg3);
@@ -44,8 +44,8 @@ extern s32 func_003b7a90(s32 arg0);
 extern s32 func_003b7ad0(s32 arg0);
 extern s32 func_003b7b00(s32 arg0, s32 arg1);
 extern s32 func_003c1b80(s32 arg0);
-extern s32 func_003b7b20(s32 arg0);
-extern s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 SkinAtomicAlways(s32 arg0);
+extern s32 SkinAtomicRights(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_003b7c10(u8 *arg0);
 extern s32 *func_003b7ca0(s32 *arg0, s32 arg1, u8 *arg2);
 extern u8 *func_003b7e00(u8 *arg0, s32 arg1, u8 *arg2);
@@ -72,11 +72,11 @@ extern s32 func_003e5250(void);
 extern void func_003cbcf0(s32 arg0, s32 arg1);
 extern s32 func_003e8960(s32 arg0);
 extern u8 *func_003b85e0(u8 *arg0);
-extern void func_003b8d40(u8 *arg0, s32 arg1);
+extern void _rpSkinPipelinesAttach(u8 *arg0, s32 arg1);
 extern u8 *(*D_008873F8[])(s32 arg0, s32 arg1);
 extern u8 *func_003b7290(u8 *arg0, void *arg1);
-extern void func_003b7510(u8 *arg0, s32 arg1, u32 arg2);
-extern void func_003b7590(u8 *arg0, void *arg1, void *arg2, void *arg3,
+extern void SkinFindMaxWeights(u8 *arg0, s32 arg1, u32 arg2);
+extern void SkinFindNumUsedBones(u8 *arg0, void *arg1, void *arg2, void *arg3,
                           u32 *arg4, u32 arg5);
 extern s32 func_003b7680(u8 *arg0, s32 arg1, u32 arg2, u32 arg3,
                           void *arg4, void *arg5, void *arg6, s32 arg7);

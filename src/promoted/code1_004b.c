@@ -50,7 +50,7 @@ extern void LineNovaUpdateCameraQuads(void);
 extern void func_003efd20(u8 *arg0, s32 arg1);
 extern void func_003e9390(s32 arg0);
 extern void func_003ec330(s32 arg0);
-extern void func_0040fcd0(s32 arg0, s32 arg1);
+extern void RpSkyTexCacheRasterLock(s32 arg0, s32 arg1);
 extern void func_003e8440(u8 *arg0);
 extern u8 *GeometryCloneBlock(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
@@ -73,7 +73,7 @@ extern void mdlEffectGetPositionVec(u8 *arg0, u32 *arg1);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
 extern void func_004bd6a0(u8 *arg0, s32 arg1);
-extern void func_004bd9f8(u8 *arg0);
+extern void initVariables(u8 *arg0);
 extern void func_00486330(u8 *arg0, void *arg1);
 extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
@@ -94,7 +94,7 @@ extern s32 TlpCreate(u16 *arg0);
 extern void func_003e8110(u8 *arg0);
 extern s32 func_003e8120(u8 *arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
-extern u8 *func_00401b80(void);
+extern u8 *RpSkyGetDisplayBufferRaster(void);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -153,7 +153,7 @@ s32 func_004b2780(u8 *arg0) {
     if (func_003e8120(*(u8 **)(arg0 + 0xC)) == 0) {
         return 0;
     }
-    temp_2 = func_00401b80();
+    temp_2 = RpSkyGetDisplayBufferRaster();
     temp_17 = temp_2;
     temp_f21 = 640.0f / (f32)*(s32 *)(temp_2 + 0xC);
     temp_f20 = 448.0f / (f32)*(s32 *)(temp_2 + 0x10);

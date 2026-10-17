@@ -82,7 +82,7 @@ void mtMiscBuildSceneNodes(u8 *arg0)
     extern void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3);
     extern void func_0028f530(u8 *arg0);
     extern void func_00440b68(char *fmt, ...);
-    extern f64 func_0044dcd8(f32 arg0);
+    extern f64 fptodp(f32 arg0);
     extern void *mdlGetColor(void *arg0);
     extern char D_0063CAC0[];
     extern char D_0063CAD0[];
@@ -130,10 +130,10 @@ void mtMiscBuildSceneNodes(u8 *arg0)
             ((MtMiscSceneNode *)temp_2_3)->unk_44.x = value_2;
             ((MtMiscSceneNode *)temp_2_3)->unk_44.y = value_1;
             ((MtMiscSceneNode *)temp_2_3)->unk_44.z = value_0;
-            first_x = func_0044dcd8(*(f32 *)(temp_2_2 + 2));
-            first_y = func_0044dcd8(*(f32 *)(temp_2_2 + 4));
+            first_x = fptodp(*(f32 *)(temp_2_2 + 2));
+            first_y = fptodp(*(f32 *)(temp_2_2 + 4));
             func_00440b68(D_0063CAC0, first_x, first_y,
-                          func_0044dcd8(*(f32 *)(temp_2_2 + 6)));
+                          fptodp(*(f32 *)(temp_2_2 + 6)));
             temp_2_4 = mdlGetColor(*(void **)((u8 *)temp_2_2 + 0x164));
             temp_3 = *(u8 *)(temp_2_4 + 0);
             temp_4 = *(u8 *)(temp_2_4 + 1);
@@ -168,10 +168,10 @@ loop_6_body:
         ((MtMiscSceneNode *)temp_2_3)->unk_44.x = value_2;
         ((MtMiscSceneNode *)temp_2_3)->unk_44.y = value_1;
         ((MtMiscSceneNode *)temp_2_3)->unk_44.z = value_0;
-        diagnostic_x = func_0044dcd8(*(f32 *)(temp_2_2b + 4));
-        diagnostic_y = func_0044dcd8(*(f32 *)(temp_2_2b + 8));
+        diagnostic_x = fptodp(*(f32 *)(temp_2_2b + 4));
+        diagnostic_y = fptodp(*(f32 *)(temp_2_2b + 8));
         func_00440b68(D_0063CAC0, diagnostic_x, diagnostic_y,
-                      func_0044dcd8(*(f32 *)(temp_2_2b + 0xC)));
+                      fptodp(*(f32 *)(temp_2_2b + 0xC)));
         temp_2_6 = mdlGetColor(*(void **)(temp_2_2b + 0x164));
         temp_3 = *(u8 *)(temp_2_6 + 0);
         temp_4 = *(u8 *)(temp_2_6 + 1);

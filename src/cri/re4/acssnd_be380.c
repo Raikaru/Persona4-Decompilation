@@ -12,7 +12,7 @@ Uint32 func_004be380(Uint32 *object)
 }
 
 // FUN_004BE3A8
-Uint32 func_004be3a8(Uint32 *object, Sint32 channel, Sint32 gain)
+Uint32 ACSSBAIX_SetTrackVol(Uint32 *object, Sint32 channel, Sint32 gain)
 {
 	if (gain < -960) {
 		gain = -960;

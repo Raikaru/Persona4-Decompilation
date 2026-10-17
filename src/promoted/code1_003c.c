@@ -2391,7 +2391,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 #pragma schedule on
 /* measured: no_branch_likely on for func_003cc6e0. */
 #pragma no_branch_likely on
-void func_003cc6e0(u8 *arg0) {
+void reDestroyCallBack(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x18) != 0)
         goto block_body;
 block_null:
@@ -2437,7 +2437,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce230);
 // FUN_003CE2E0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003ce2e0(u8 *arg0) {
-    extern u32 **func_003ce050(u32 **arg0, u32 arg1, u8 *arg2);
+    extern u32 **_rpObjectGetMeshCacheResize(u32 **arg0, u32 arg1, u8 *arg2);
     extern void func_003e1ea0(u8 *arg0);
     extern s32 iGpffffb730;
     u32 **var_2;
@@ -2458,7 +2458,7 @@ s32 func_003ce2e0(u8 *arg0) {
     }
     if (var_6 != NULL) {
     } else {
-        var_2 = func_003ce050(var_2, *(u16 *)(*(u8 **)(arg0 + 0x54) + 4), var_6);
+        var_2 = _rpObjectGetMeshCacheResize(var_2, *(u16 *)(*(u8 **)(arg0 + 0x54) + 4), var_6);
     }
     var_17 = *var_2;
     temp_16 = *var_17;

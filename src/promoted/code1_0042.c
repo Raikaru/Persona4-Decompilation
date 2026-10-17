@@ -13,7 +13,7 @@
 extern u8 D_00753E10[];
 extern void func_004244c8();
 extern s32 D_0088DCD8[];
-extern void func_0042b480();
+extern void InitTLB();
 extern void func_00421800();
 extern s32 D_0070C684[];
 extern void func_00429d90();
@@ -22,14 +22,14 @@ extern void func_0042a940();
 extern void func_0042aba8();
 extern void func_0042e2b8();
 extern void func_00427dd8(u8 *arg0, u8 *arg1);
-extern void func_00422030();
-extern void func_00422170();
+extern void _sceSDC();
+extern void _sceIDC();
 extern s32 func_0042ba20();
 extern s32 func_0042cd10();
 extern s32 func_0042ced0();
 extern s32 func_0042cfd0();
-extern s32 func_0042d1d0();
-extern s32 func_0042d268();
+extern s32 iGetTimerBaseTime();
+extern s32 iGetTimerCount();
 // FUN_00420148
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00420148);
 // FUN_00420208
@@ -258,7 +258,7 @@ asm void func_004214d0(void)
 }
 
 // FUN_004214E0
-asm void func_004214e0(void)
+asm void RemoveIntcHandler(void)
 {
     .set noreorder
     .word 0x24030011 /* addiu $v1, $zero, 17 */
@@ -288,7 +288,7 @@ asm void func_00421500(void)
 }
 
 // FUN_00421510
-asm void func_00421510(void)
+asm void RemoveDmacHandler(void)
 {
     .set noreorder
     .word 0x24030013 /* addiu $v1, $zero, 19 */
@@ -298,7 +298,7 @@ asm void func_00421510(void)
 }
 
 // FUN_00421520
-asm void func_00421520(void)
+asm void _EnableIntc(void)
 {
     .set noreorder
     .word 0x24030014 /* addiu $v1, $zero, 20 */
@@ -308,7 +308,7 @@ asm void func_00421520(void)
 }
 
 // FUN_00421530
-asm void func_00421530(void)
+asm void _DisableIntc(void)
 {
     .set noreorder
     .word 0x24030015 /* addiu $v1, $zero, 21 */
@@ -318,7 +318,7 @@ asm void func_00421530(void)
 }
 
 // FUN_00421540
-asm void func_00421540(void)
+asm void _EnableDmac(void)
 {
     .set noreorder
     .word 0x24030016 /* addiu $v1, $zero, 22 */
@@ -358,7 +358,7 @@ asm void func_00421570(void)
 }
 
 // FUN_00421580
-asm void func_00421580(void)
+asm void _iEnableIntc(void)
 {
     .set noreorder
     .word 0x2403FFE6 /* addiu $v1, $zero, 65510 */
@@ -368,7 +368,7 @@ asm void func_00421580(void)
 }
 
 // FUN_00421590
-asm void func_00421590(void)
+asm void _iDisableIntc(void)
 {
     .set noreorder
     .word 0x2403FFE5 /* addiu $v1, $zero, 65509 */
@@ -378,7 +378,7 @@ asm void func_00421590(void)
 }
 
 // FUN_004215A0
-asm void func_004215a0(void)
+asm void _iEnableDmac(void)
 {
     .set noreorder
     .word 0x2403FFE4 /* addiu $v1, $zero, 65508 */
@@ -458,7 +458,7 @@ asm void func_00421610(void)
 }
 
 // FUN_00421620
-asm void func_00421620(void)
+asm void ExitDeleteThread(void)
 {
     .set noreorder
     .word 0x24030024 /* addiu $v1, $zero, 36 */
@@ -518,7 +518,7 @@ asm void func_00421670(void)
 }
 
 // FUN_00421680
-asm void func_00421680(void)
+asm void iChangeThreadPriority(void)
 {
     .set noreorder
     .word 0x2403FFD6 /* addiu $v1, $zero, 65494 */
@@ -588,7 +588,7 @@ asm void func_004216e0(void)
 }
 
 // FUN_004216F0
-asm void func_004216f0(void)
+asm void iReferThreadStatus(void)
 {
     .set noreorder
     .word 0x2403FFCF /* addiu $v1, $zero, 65487 */
@@ -608,7 +608,7 @@ asm void func_00421700(void)
 }
 
 // FUN_00421710
-asm void func_00421710(void)
+asm void WakeupThread(void)
 {
     .set noreorder
     .word 0x24030033 /* addiu $v1, $zero, 51 */
@@ -658,7 +658,7 @@ asm void func_00421750(void)
 }
 
 // FUN_00421760
-asm void func_00421760(void)
+asm void _iSuspendThread(void)
 {
     .set noreorder
     .word 0x2403FFC8 /* addiu $v1, $zero, 65480 */
@@ -838,7 +838,7 @@ asm void func_00421870(void)
 }
 
 // FUN_00421880
-asm void func_00421880(void)
+asm void SetOsdConfigParam(void)
 {
     .set noreorder
     .word 0x2403004A /* addiu $v1, $zero, 74 */
@@ -1348,7 +1348,7 @@ asm void func_00421ba0(void)
 }
 
 // FUN_00421BB0
-asm void func_00421bb0(void)
+asm void isceSifSetDma(void)
 {
     .set noreorder
     .word 0x2403FF89 /* addiu $v1, $zero, 65417 */
@@ -1358,7 +1358,7 @@ asm void func_00421bb0(void)
 }
 
 // FUN_00421BC0
-asm void func_00421bc0(void)
+asm void sceSifSetDChain(void)
 {
     .set noreorder
     .word 0x24030078 /* addiu $v1, $zero, 120 */
@@ -1368,7 +1368,7 @@ asm void func_00421bc0(void)
 }
 
 // FUN_00421BD0
-asm void func_00421bd0(void)
+asm void isceSifSetDChain(void)
 {
     .set noreorder
     .word 0x2403FF88 /* addiu $v1, $zero, 65416 */
@@ -1378,7 +1378,7 @@ asm void func_00421bd0(void)
 }
 
 // FUN_00421BE0
-asm void func_00421be0(void)
+asm void sceSifSetReg(void)
 {
     .set noreorder
     .word 0x24030079 /* addiu $v1, $zero, 121 */
@@ -1388,7 +1388,7 @@ asm void func_00421be0(void)
 }
 
 // FUN_00421BF0
-asm void func_00421bf0(void)
+asm void sceSifGetReg(void)
 {
     .set noreorder
     .word 0x2403007A /* addiu $v1, $zero, 122 */
@@ -1398,7 +1398,7 @@ asm void func_00421bf0(void)
 }
 
 // FUN_00421C00
-asm void func_00421c00(void)
+asm void _ExecOSD(void)
 {
     .set noreorder
     .word 0x2403007B /* addiu $v1, $zero, 123 */
@@ -1438,7 +1438,7 @@ asm void func_00421c30(void)
 }
 
 // FUN_00421C40
-asm void func_00421c40(void)
+asm void GetMemorySize(void)
 {
     .set noreorder
     .word 0x2403007F /* addiu $v1, $zero, 127 */
@@ -1448,7 +1448,7 @@ asm void func_00421c40(void)
 }
 
 // FUN_00421C50
-asm void func_00421c50(void)
+asm void _InitTLB(void)
 {
     .set noreorder
     .word 0x24030082 /* addiu $v1, $zero, 130 */
@@ -1549,7 +1549,7 @@ u32 func_00421c60(void)
    measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00421C70 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_00421c70(void) {
+s32 VSync(void) {
     extern s32 func_0042ba70(s32);
     s32 t1;
     s32 t2;
@@ -1576,7 +1576,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c70);
 
 // FUN_00421D00 NONMATCHING
 #ifdef NON_MATCHING
-s64 func_00421d00(void) {
+s64 VSync2(void) {
     extern s32 func_0042ba70(s32);
     extern void func_00421b50(void *arg0, void *arg1);
     s32 sp0;
@@ -1725,7 +1725,7 @@ s32 func_00421fb0(void)
 /* measured: schedule on preserves the retail store/epilogue ordering. */
 #pragma schedule on
 // FUN_00421FB8
-s32 func_00421fb8(s32 arg0, u8 *arg1)
+s32 kill(s32 arg0, u8 *arg1)
 {
     extern void func_0042c0d8(u8 *value);
     if (arg0 == 1) {
@@ -1754,7 +1754,7 @@ void func_00422158(u8 *arg0, u8 *arg1)
 {
     arg1 = (u8 *)((u32)arg1 & 0xFFFFFFC0);
     arg0 = (u8 *)((u32)arg0 & 0xFFFFFFC0);
-    func_00422030(arg0, arg1);
+    _sceSDC(arg0, arg1);
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
@@ -1778,7 +1778,7 @@ void func_00422298(u8 *arg0, u8 *arg1)
 {
     arg1 = (u8 *)((u32)arg1 & 0xFFFFFFC0);
     arg0 = (u8 *)((u32)arg0 & 0xFFFFFFC0);
-    func_00422170(arg0, arg1);
+    _sceIDC(arg0, arg1);
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
@@ -1801,7 +1801,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004223f8);
 // FUN_00422460
 void func_00422460(void)
 {
-    func_00421580();
+    _iEnableIntc();
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_00422460. */
@@ -1812,7 +1812,7 @@ void func_00422460(void)
 // FUN_00422480
 void func_00422480(void)
 {
-    func_00421590();
+    _iDisableIntc();
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_00422480. */
@@ -1823,7 +1823,7 @@ void func_00422480(void)
 // FUN_004224A0
 void func_004224a0(void)
 {
-    func_004215a0();
+    _iEnableDmac();
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_004224a0. */
@@ -1884,7 +1884,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422cf8);
 /* measured: live object 60B/window 64B, normalized_diff 13 (installed guard below). Polarity correction: retail's delay-slot store proves the guard is p[3] = b unconditionally with the fixup conditional on == (bne-over with p[3] = b in the delay slot), so the banked != is inverted from retail behavior; == reproduces retail's bne shape. Loads follow retail order t1/t3/t0 with addr computed after the p[1] store. Remainder is load-order coloring plus the delay fill (retail pulls the p[3] = b store into the bne delay slot; b210 keeps it early with a nop). Ruled out: != with/without reorder, == without +0x10 (nd14), late-b, u32 addr, late-b+u32. Banked as floor. */
 // FUN_00422D20 NONMATCHING
 #ifdef NON_MATCHING
-void func_00422d20(u8 *arg0) {
+void QueuePeekWriteDone(u8 *arg0) {
     u8 *base = arg0;
     u32 *p = (u32 *)base;
     u32 t1 = p[1];
@@ -1981,7 +1981,7 @@ extern s32 D_0088DCD8[];
 /* measured: schedule on places the final store in the jr delay slot. */
 #pragma schedule on
 // FUN_00424A80
-s32 func_00424a80(s32 arg0, s32 arg1)
+s32 sceSifSetCmdBuffer(s32 arg0, s32 arg1)
 {
     u8 *base = (u8 *)D_0088DCD8;
     s32 result = *(s32 *)(base + 0x14);
@@ -1994,7 +1994,7 @@ s32 func_00424a80(s32 arg0, s32 arg1)
 /* measured: schedule on places the final store in the jr delay slot. */
 #pragma schedule on
 // FUN_00424A98
-s32 func_00424a98(s32 arg0, s32 arg1)
+s32 sceSifSetSysCmdBuffer(s32 arg0, s32 arg1)
 {
     u8 *base = (u8 *)D_0088DCD8;
     s32 result = *(s32 *)(base + 0xC);
@@ -2152,7 +2152,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00427fa8);
 /* measured: schedule on places the constant argument and epilogue delay slots. */
 #pragma schedule on
 // FUN_00428160
-void func_00428160(u8 *arg0)
+void sceRmdir(u8 *arg0)
 {
     func_00427dd8(arg0, (u8 *)8);
 }
@@ -2165,7 +2165,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00428400);
 // FUN_00428530
 /* measured: schedule on places the constant argument and epilogue delay slots. */
 #pragma schedule on
-void func_00428530(u8 *arg0)
+void sceDelDrv(u8 *arg0)
 {
     func_00427dd8(arg0, (u8 *)0x10);
 }
@@ -2186,7 +2186,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00428ce0);
 // FUN_00428EE8
 /* measured: schedule on places the constant argument and epilogue delay slots. */
 #pragma schedule on
-void func_00428ee8(u8 *arg0)
+void sceChdir(u8 *arg0)
 {
     func_00427dd8(arg0, (u8 *)0x12);
 }
@@ -2199,7 +2199,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004290b8);
 // FUN_00429338
 /* measured: schedule on places the constant argument and epilogue delay slots. */
 #pragma schedule on
-void func_00429338(u8 *arg0)
+void sceUmount(u8 *arg0)
 {
     func_00427dd8(arg0, (u8 *)0x15);
 }
@@ -2272,7 +2272,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a940);
 /* measured: schedule on moves the zero fifth argument into the jal delay slot. */
 #pragma schedule on
 // FUN_0042AB88
-void func_0042ab88(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+void sceSifLoadStartModule(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 {
     func_0042a940(arg0, arg1, arg2, arg3, 0);
 }
@@ -2283,7 +2283,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042aba8);
 /* measured: schedule on moves the constant fourth argument into the jal delay slot. */
 #pragma schedule on
 // FUN_0042ACB0
-void func_0042acb0(u8 *arg0, u8 *arg1, u8 *arg2)
+void sceSifLoadElfPart(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     func_0042aba8(arg0, arg1, arg2, (u8 *)1);
 }
@@ -2482,7 +2482,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bb08);
 // FUN_0042BB40
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bb40);
 // FUN_0042BB80
-asm void func_0042bb80(void)
+asm void FindAddress(void)
 {
     .set noreorder
     .word 0x24030083 /* addiu $v1, $zero, 131 */
@@ -2572,7 +2572,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bf00);
 // FUN_0042C018
 void func_0042c018(void)
 {
-    func_0042b480();
+    InitTLB();
 }
 /* measured: end of the function-local tailcall override. */
 #pragma tailcall off

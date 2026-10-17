@@ -108,7 +108,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512ef8);
 /* measured: xori/sltiu scheduling floor (retail xori before ld ra, b210 delays both until after epilogue); slti-at N/A (sltiu $v0, no $at range), no short chain (10/10 instrs), arg-setup reorder (inner s32-star-star and local variants) stays at 2, opt_loop_invariants N/A (no loop). Committed at 2. */
 // FUN_00512FA0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_00512fa0(u8 *arg0) {
+s32 sfadxt_IsPrepEnd(u8 *arg0) {
     return func_004d43f8(*(s32 *)(*(u8 **)(arg0 + 0x2004))) == 3;
 }
 #else
@@ -125,7 +125,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512fc8);
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513168);
 
 // FUN_005131B0
-void func_005131b0(u8 *arg0, u8 *arg1)
+void sfadxt_RingAddRead(u8 *arg0, u8 *arg1)
 {
     func_00514d80(arg0, *(u8 **)(arg0 + 0x200C), arg1);
 }
@@ -146,7 +146,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132a8);
 /* measured: remaining is ld-ra scheduling (same 2-word floor as func_00512fa0); no short chain (9/9 instrs), arg N/A, loop N/A. Updated from 3 to 2. */
 // FUN_00513380 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_00513380(void) {
+s32 sfadxt_IsEndDecinfo(void) {
     return (func_004d43f8() < 2U) < 1U;
 }
 #else

@@ -50,7 +50,7 @@ s32 func_0043DFA0(s32 *);
 s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
 s32 *func_0043eae8(s32 *);
 extern s32 D_00754EF0[];
-void func_0043c6d8(u8 *, s32, s32);
+void bzero(u8 *, s32, s32);
 s64 func_00444210(s32, s32, s32);
 
 
@@ -144,7 +144,7 @@ s32 func_00431ae8(s32 arg0) { extern s32 D_008968E0[]; extern void func_00421670
 #pragma opt_propagation off
 /* measured: schedule on is required for the adjacent matched 56-byte helper. */
 #pragma schedule on
-s32 func_00431b20(s32 arg0) { extern s32 D_008968E0[]; extern void func_00421680(s32,s32); s32 g; if(arg0<=0)return 0x81010016; { s32 x; g=D_008968E0[0]; x=arg0; func_00421680(g,x); } return 0; }
+s32 func_00431b20(s32 arg0) { extern s32 D_008968E0[]; extern void iChangeThreadPriority(s32,s32); s32 g; if(arg0<=0)return 0x81010016; { s32 x; g=D_008968E0[0]; x=arg0; iChangeThreadPriority(g,x); } return 0; }
 /* measured: closes the opt_propagation scope at the file baseline. */
 #pragma opt_propagation on
 /* measured: closes the schedule-on scope at the file baseline. */
@@ -642,7 +642,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6b0);
 #ifdef NON_MATCHING
 /* measured: optimization level 3 body */
 #pragma optimization_level 3
-void func_0043c6d8(u8 *arg0, s32 arg1, s32 arg2) {
+void bzero(u8 *arg0, s32 arg1, s32 arg2) {
     s32 sentinel;
     arg1 -= 1;
     sentinel = -1;

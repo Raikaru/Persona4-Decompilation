@@ -30,7 +30,7 @@ typedef char *va_list;
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_004217e0(u8 *arg0);
-extern s32 **func_003ce050();
+extern s32 **_rpObjectGetMeshCacheResize();
 extern s32 iGpffffb728;
 extern s32 iGpffffb730;
 extern s32 iGpffffb72c;
@@ -347,7 +347,7 @@ s32 *func_003d3a80(void) {
 #pragma schedule off
 // FUN_003D3A90
 #pragma schedule on
-u8 *func_003d3a90(u8 *arg0)
+u8 *rpWorldSectorPS2AllDoApplyLight(u8 *arg0)
 {
     if (*(u8 *)(arg0 + 2) & 2) {
         goto call;
@@ -381,7 +381,7 @@ s32 func_003d48c0(s32 arg0, s32 arg1) {
    and stack restore in the jr delay slot. */
 #pragma no_branch_likely on
 #pragma schedule on
-u8 *func_003d48d0(u8 *arg0, s32 arg1) {
+u8 *pluginObjectDestroy(u8 *arg0, s32 arg1) {
     u8 *p;
     p = *(u8 **)(arg0 + arg1);
     if (p == NULL) {
@@ -398,7 +398,7 @@ done:
 #pragma no_branch_likely on
 #pragma schedule on
 // FUN_003D4910
-u8 *func_003d4910(u8 *arg0) {
+u8 *pluginGeometryCopy(u8 *arg0) {
     u8 *saved_arg0;
     u8 *temp5;
     s32 **var4;
@@ -417,7 +417,7 @@ flag_done:
     if (flag != NULL) {
         result = var4;
     } else {
-        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+        result = _rpObjectGetMeshCacheResize(var4, *(u16 *)(temp5 + 4), flag);
     }
     if (*result != NULL) goto ret_arg0;
     return NULL;
@@ -434,7 +434,7 @@ clear_temp:
 #pragma no_branch_likely on
 #pragma schedule on
 // FUN_003D49B0
-u8 *func_003d49b0(u8 *arg0) {
+u8 *pluginAtomicCopy(u8 *arg0) {
     u8 *saved_arg0;
     u8 *object;
     u8 *temp5;
@@ -457,7 +457,7 @@ flag_done:
     if (flag != NULL) {
         result = var4;
     } else {
-        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+        result = _rpObjectGetMeshCacheResize(var4, *(u16 *)(temp5 + 4), flag);
     }
     if (*result != NULL) goto ret_arg0;
     return NULL;
@@ -474,7 +474,7 @@ clear_temp:
 #pragma no_branch_likely on
 #pragma schedule on
 // FUN_003D4A60
-u8 *func_003d4a60(u8 *arg0) {
+u8 *pluginSectorCopy(u8 *arg0) {
     u8 *saved_arg0;
     u8 *temp5;
     s32 **var4;
@@ -493,7 +493,7 @@ flag_done:
     if (flag != NULL) {
         result = var4;
     } else {
-        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+        result = _rpObjectGetMeshCacheResize(var4, *(u16 *)(temp5 + 4), flag);
     }
     if (*result != NULL) goto ret_arg0;
     return NULL;
@@ -510,7 +510,7 @@ clear_temp:
 #pragma no_branch_likely on
 #pragma schedule on
 // FUN_003D4B00
-s32 func_003d4b00(u8 *arg0) {
+s32 initAtomicMeshCache(u8 *arg0) {
     u8 *object;
     u8 *temp6;
     s32 count;
@@ -534,7 +534,7 @@ first_flag_done:
     if (flag != NULL) {
         result = var4;
     } else {
-        result = func_003ce050(var4, *(u16 *)(temp6 + 4), temp6, flag);
+        result = _rpObjectGetMeshCacheResize(var4, *(u16 *)(temp6 + 4), temp6, flag);
     }
     if (*result != NULL) goto ret_one;
     return 0;
@@ -550,7 +550,7 @@ second_flag_done:
     if (flag != NULL) {
         result = var4;
     } else {
-        result = func_003ce050(var4, *(u16 *)(temp6 + 4), temp6, flag);
+        result = _rpObjectGetMeshCacheResize(var4, *(u16 *)(temp6 + 4), temp6, flag);
     }
     if (*result != NULL) goto ret_one;
     return 0;
@@ -565,7 +565,7 @@ second_flag_done:
 #pragma no_branch_likely on
 /* measured: schedule knob retains the func_003d4bf0 bracket. */
 #pragma schedule on
-s32 func_003d4bf0(u8 *arg0) {
+s32 initSectorMeshCache(u8 *arg0) {
     u8 *temp5;
     s32 **var4;
     s32 **result;
@@ -582,7 +582,7 @@ flag_done:
     if (flag != NULL) {
         result = var4;
     } else {
-        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+        result = _rpObjectGetMeshCacheResize(var4, *(u16 *)(temp5 + 4), flag);
     }
     if (*result != NULL) goto ret_one;
     return 0;
@@ -605,11 +605,11 @@ s32 func_003d4c70(void) {
 
     ok = 0;
     flags = 0;
-    iGpffffb730 = func_003c2b70(4, 0x50F, func_003d48c0, func_003d48d0, func_003d4910);
-    iGpffffb72c = func_003c1ab0(4, 0x50F, func_003d48c0, func_003d48d0, func_003d49b0);
-    iGpffffb728 = func_003c8d00(4, 0x50F, func_003d48c0, func_003d48d0, func_003d4a60);
-    flags |= func_003c1b40(0x50F, func_003d4b00);
-    aggregate = flags | func_003c8d60(0x50F, func_003d4bf0);
+    iGpffffb730 = func_003c2b70(4, 0x50F, func_003d48c0, pluginObjectDestroy, pluginGeometryCopy);
+    iGpffffb72c = func_003c1ab0(4, 0x50F, func_003d48c0, pluginObjectDestroy, pluginAtomicCopy);
+    iGpffffb728 = func_003c8d00(4, 0x50F, func_003d48c0, pluginObjectDestroy, pluginSectorCopy);
+    flags |= func_003c1b40(0x50F, initAtomicMeshCache);
+    aggregate = flags | func_003c8d60(0x50F, initSectorMeshCache);
     if ((aggregate | (iGpffffb728 | (iGpffffb730 | iGpffffb72c))) >= 0) {
         ok = 1;
     }
@@ -1220,7 +1220,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc490);
 // FUN_003DC510 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
-u8 *func_003dc510(u8 *arg0, u8 *arg1) {
+u8 *QuatFromYDiagDomMatrix(u8 *arg0, u8 *arg1) {
     f32 diff;
     f32 root;
     f32 scale;
@@ -1246,7 +1246,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc510);
 // FUN_003DC590 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
-u8 *func_003dc590(u8 *arg0, u8 *arg1) {
+u8 *QuatFromZDiagDomMatrix(u8 *arg0, u8 *arg1) {
     f32 diff;
     f32 root;
     f32 scale;

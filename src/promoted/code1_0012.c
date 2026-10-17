@@ -449,7 +449,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
     extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
     extern s32 RpSkyRenderStateSet();
-    extern s32 func_00401b80(void);
+    extern s32 RpSkyGetDisplayBufferRaster(void);
     extern s32 func_0043c6a0(s32);
     extern f32 sinf(f32);
     extern u32 kwlnTaskGetWork(void *task);
@@ -1713,7 +1713,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         taskView->f2C = temp_3_23;
         fadeAlpha = (s32)((f32)(temp_3_23 * 0xFF) / (f32)var_4_18);
         func_00366c70(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
-                      1, 0, 0, NULL, func_00401b80(), fadeUv.pairs);
+                      1, 0, 0, NULL, RpSkyGetDisplayBufferRaster(), fadeUv.pairs);
     }
 }
 #pragma pop

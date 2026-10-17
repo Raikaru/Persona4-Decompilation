@@ -22,7 +22,7 @@ extern u8 *func_003e84a0(void);
 extern s32 func_003e9320(void);
 extern void func_003efd20(void *a, void *b);
 extern s32 func_003ec590(s32 a, s32 b, s32 c, s32 d);
-extern void func_0040fcd0(s32 a, s32 b);
+extern void RpSkyTexCacheRasterLock(s32 a, s32 b);
 extern void RwCameraSetProjectionType(void *a, s32 b);
 extern void PrimAppendNode(void *a, void *b);
 
@@ -56,7 +56,7 @@ s32 CrossfadeUpdate(u8 *arg0) {
         if (t == 0) {
             return 0;
         }
-        func_0040fcd0(t, 1);
+        RpSkyTexCacheRasterLock(t, 1);
         RwCameraSetProjectionType(*(u8 **)(st + 0xC), 2);
         *(s32 *)(*(u8 **)(st + 0xC) + 0x60) = *(s32 *)(st + 8);
         *(s16 *)(st + 4) = 0;

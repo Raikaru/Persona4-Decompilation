@@ -9,7 +9,7 @@
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_004217e0(u8 *arg0);
-extern s32 **func_003ce050();
+extern s32 **_rpObjectGetMeshCacheResize();
 extern s32 iGpffffb728;
 extern s32 iGpffffb730;
 extern s32 iGpffffb72c;
@@ -246,7 +246,7 @@ s32 func_003db490(s32 arg0, u8 *arg1) {
     extern u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2);
     extern s32 func_003db440(s32 arg0, u8 *arg1);
     extern f32 func_0044b968(f32 arg0);
-    extern s32 *func_003f6800(s32 *arg0, f32 fparg0);
+    extern s32 *RpSkyTextureSetMipmapK(s32 *arg0, f32 fparg0);
 
     *(s32 *)(arg1 + 8) = arg0;
     *(s32 *)(arg1 + 0xC) = 0;
@@ -256,7 +256,7 @@ s32 func_003db490(s32 arg0, u8 *arg1) {
     count = *(s32 *)(arg1 + 0x10);
     if (count > 0) {
         value = func_0044b968(*(f32 *)(arg1 + 0xC) / (f32)count);
-        func_003f6800((s32 *)arg0, -(value / func_0044b968(2.0f)));
+        RpSkyTextureSetMipmapK((s32 *)arg0, -(value / func_0044b968(2.0f)));
     }
     return arg0;
 }

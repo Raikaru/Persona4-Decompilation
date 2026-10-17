@@ -852,7 +852,7 @@ void sdkWindowSetRect(u8 *arg0, u8 *arg1)
 void sdkLboxDrawEntries(u8 *arg0) {
     extern char *strcpy(char *dst, const char *src);
     extern s32 strlen(const void *str);
-    extern s32 func_0044dcd8(f32 value);
+    extern s32 fptodp(f32 value);
     extern void func_004501f0(s64 arg0, s32 arg1, const void *arg2, ...);
     extern s32 iGpffffb064;
     extern char iGpffffb068;
@@ -926,7 +926,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
             }
             case 4: {
                 s32 v;
-                v = func_0044dcd8(*(f32 *)(node + 0x20C));
+                v = fptodp(*(f32 *)(node + 0x20C));
                 sprintf(buf, &iGpffffb098, v);
                 w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
                 pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
@@ -976,7 +976,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
                 s32 r;
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 8);
                 pos[0] = (f32)v;
-                r = func_0044dcd8(*(f32 *)(node + 0x20C));
+                r = fptodp(*(f32 *)(node + 0x20C));
                 func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb098, r);
                 break;
             }

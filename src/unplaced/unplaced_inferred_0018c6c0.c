@@ -22,7 +22,7 @@ typedef struct RwTexDictionary RwTexDictionary;
 #include "scene_event_internal.h"
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
-extern void func_003f6800(s32 a, f32 fp);
+extern void RpSkyTextureSetMipmapK(s32 a, f32 fp);
 extern u8 D_005F5360[];
 extern void func_003f68a0(s32 arg0, s32 arg1);
 extern s64 datGetDateIndex(void);
@@ -70,7 +70,7 @@ void FldMipmapSetFloatParam(f32 fp0) {
 
     a = (s32)func_003ef6d0();
     b = (s32)func_003ef650((RwTexDictionary *)a, (const char *)D_005F5360);
-    func_003f6800(b, fp0);
+    RpSkyTextureSetMipmapK(b, fp0);
 }
 #pragma pop
 

@@ -90,12 +90,12 @@ extern void (*D_00887308[])(void);
 extern void (*D_0088730C[])(void);
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern void (*D_00887314[])(void);
-extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
-extern s32 func_0040d0a0(s32 arg0, s32 arg1);
+extern s32 SkyIm2DRenderLine(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 SkyIm2DRenderTriangle(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
+extern s32 SkyIm2DRenderPrimitive(s32 arg0, void *arg1, s32 arg2);
+extern s32 SkyIm2DRenderIndexedPrimitive(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
-extern s32 func_00402d50(void *arg0, s32 *arg1);
+extern s32 _rwSkyRasterClearRect(void *arg0, s32 *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
@@ -110,9 +110,9 @@ u32 func_003e8120(u32 camera);
 u8 func_003e9240(RwObjectOwnerLink *param_1);
 u32 func_003e9750(int param_1);
 u32 func_004125d0(int param_1);
-s32 func_0041f208(int param_1);
-u32 func_0041f6e0(u32 *param_1);
-u32 func_0041f6f0(u32 *param_1);
+s32 sceMpegGetPictureAbort(int param_1);
+u32 _sceMpegAlalcSetDynamic(u32 *param_1);
+u32 _sceMpegAlalcFree(u32 *param_1);
 
 /* Source unit: src/rw/rwcore_003e8110.c (1 function markers) */
 
@@ -278,7 +278,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6690);
 /* measured: retail emits plain bnez/beqz branches with the zero-return block last. */
 #pragma no_branch_likely on
 // FUN_003F6780
-s32 func_003f6780(s32 arg0)
+s32 RpSkySelectDeepZBuffer(s32 arg0)
 {
     if (iGpffffb958 != 0) {
         goto done_zero;
@@ -301,13 +301,13 @@ done_zero:
 /* measured: closes no_branch_likely around func_003f6780. */
 #pragma no_branch_likely off
 // FUN_003F67E0
-s32 func_003f67e0(s32 arg0)
+s32 RpSkySelectTrueTSClipper(s32 arg0)
 {
     iGpffffb994 = arg0;
     return 1;
 }
 // FUN_003F67F0
-s32 func_003f67f0(s32 arg0)
+s32 RpSkySelectTrueTLClipper(s32 arg0)
 {
     iGpffffac10 = arg0;
     return 1;
@@ -450,7 +450,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401460);
 /* measured: retail cleanup tests are plain beqz. */
 #pragma no_branch_likely on
 // FUN_004015E0
-s32 func_004015e0(void)
+s32 _rpSkyDestroyFrameBufferRasters(void)
 {
     s32 temp_16;
     u8 *temp_4;
@@ -484,7 +484,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401870);
 // FUN_00401AA0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401aa0);
 // FUN_00401B80
-s32 func_00401b80(void)
+s32 RpSkyGetDisplayBufferRaster(void)
 {
     return iGpffffb900;
 }

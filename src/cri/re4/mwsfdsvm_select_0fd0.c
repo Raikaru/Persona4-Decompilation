@@ -54,7 +54,7 @@ Uint32 func_005110a0(void)
 }
 
 // FUN_005110D0
-Uint32 func_005110d0(void)
+Uint32 MWSFSVM_DeleteWaitVsyncFunc(void)
 {
 	func_004f1320(0, 0);
 	return func_004f1338(0, 0);

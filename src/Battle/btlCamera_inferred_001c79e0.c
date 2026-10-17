@@ -88,9 +88,9 @@ extern RwV3d D_0060A0F0;
 extern u8 D_0060A100[];
 extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
 extern f32 btlTargetVectorDistance(f32 *arg0, u8 *arg1);
-extern s32 func_0044dcd8(f32 arg0);
+extern s32 fptodp(f32 arg0);
 extern s32 func_0044b310(s32 arg0);
-extern f32 func_0044e7d8(s32 arg0);
+extern f32 dptofp(s32 arg0);
 extern f32 fGpffff819c;
 extern u8 D_00607DD0[];
 extern u8 D_00607DD8[];
@@ -556,10 +556,10 @@ s32 btlCameraFindOccluder(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
         (btlTargetFindInRange(&frame.value90, &frame.value60) != 0) &&
         (btlTargetFindInRange(&frame.value80, &frame.value58) != 0)) {
         *arg2 = btlTargetVectorDistance(&frame.valueA0, arg3 + 0x30);
-        distance1 = func_0044e7d8(
-            func_0044b310(func_0044dcd8(frame.value64 - frame.value6C)));
-        distance2 = func_0044e7d8(
-            func_0044b310(func_0044dcd8(frame.value58 - frame.value68)));
+        distance1 = dptofp(
+            func_0044b310(fptodp(frame.value64 - frame.value6C)));
+        distance2 = dptofp(
+            func_0044b310(fptodp(frame.value58 - frame.value68)));
         arg1[0] = (s32)(frame.value68 - distance2);
         arg1[1] = (s32)(frame.value6C - distance1);
         arg1[3] = (s32)(2.0f * distance1);

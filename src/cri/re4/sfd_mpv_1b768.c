@@ -9,7 +9,7 @@ typedef struct {
 
 extern Sint32 func_00514ca8(SFD sfd, Sint32 n, void *inf);
 // FUN_0051B768
-void func_0051b768(SFD sfd, SJCK *out)
+void sfmpv_PeekChnk(SFD sfd, SJCK *out)
 {
 	Uint8 inf[0x20];
 

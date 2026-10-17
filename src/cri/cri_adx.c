@@ -5,7 +5,7 @@ int htCiGetFileSize(void);
 
 u64 func_004e8058(void);
 
-void func_004f9a88(void);
+void RFTGT_Wait100MicroSec(void);
 
 void func_004f54a0(void);
 
@@ -25,7 +25,7 @@ long func_004e7798(void)
 #pragma optimization_level 3
 
 // FUN_004E80C0
-long func_004e80c0(void)
+long htci_filesize_upper(void)
 {
     long result;
 
@@ -38,10 +38,10 @@ long func_004e80c0(void)
 #pragma optimization_level 3
 
 // FUN_004F1F58
-void func_004f1f58(void)
+void waitRetrial(void)
 {
-    func_004f9a88();
-    func_004f9a88();
+    RFTGT_Wait100MicroSec();
+    RFTGT_Wait100MicroSec();
 }
 #pragma optimization_level 2
 
@@ -60,7 +60,7 @@ u32 func_004f2648(void)
 #pragma optimization_level 3
 
 // FUN_00524580
-u8 func_00524580(int param_1)
+u8 sfsee_IsMpsStream(int param_1)
 {
     return func_00527960(param_1,1) != 0;
 }

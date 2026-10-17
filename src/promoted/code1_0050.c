@@ -15,7 +15,7 @@ extern s32 D_0074587C;
 extern s32 D_00744164;
 extern s32 D_00744168;
 
-extern void func_0050cd00(s32 arg0);
+extern void MWDMA_WaitEnd(s32 arg0);
 extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 D_0074586C[];
@@ -359,15 +359,15 @@ void func_0050cae0(void)
     D_00745884 = 0;
 }
 // FUN_0050CB08
-void func_0050cb08(void)
+void mwrsc_WaitSprDmaEnd(void)
 {
-    func_0050cd00(8);
-    func_0050cd00(9);
+    MWDMA_WaitEnd(8);
+    MWDMA_WaitEnd(9);
 }
 // FUN_0050CB28
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cb28);
 // FUN_0050CB68
-s32 func_0050cb68(s32 arg0, s32 arg1, s32 arg2)
+s32 MWSPR_SaveSprByCpu(s32 arg0, s32 arg1, s32 arg2)
 {
     memcpy(arg2, arg0 + 0x70000000, arg1);
     return 0;
@@ -377,7 +377,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cba0);
 // FUN_0050CC08
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc08);
 // FUN_0050CC48
-s32 func_0050cc48(s32 arg0, s32 arg1, s32 arg2)
+s32 MWSPR_RestoreSprByCpu(s32 arg0, s32 arg1, s32 arg2)
 {
     memcpy(arg2 + 0x70000000, arg0, arg1);
     return 0;

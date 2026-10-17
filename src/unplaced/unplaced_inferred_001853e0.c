@@ -225,7 +225,7 @@ s32 FldNoiseUpdate(u8 *task)
     extern u32 RpRandom(void);
     extern RwTexDictionary *func_003ef6d0(void);
     extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
-    extern s32 func_00401b80(void);
+    extern s32 RpSkyGetDisplayBufferRaster(void);
     extern f32 cosf(f32 angle);
     extern f32 sinf(f32 angle);
     extern u8 *PrimAllocQueueNode(void);
@@ -258,7 +258,7 @@ s32 FldNoiseUpdate(u8 *task)
     case 0:
         work->textures[0] = func_003ef650(func_003ef6d0(), (const char *)D_005F1DC0);
         work->textures[1] = func_003ef650(func_003ef6d0(), (const char *)D_005F1DE0);
-        node = (u8 *)func_00401b80();
+        node = (u8 *)RpSkyGetDisplayBufferRaster();
         work->raster = node;
         for (index = 0; index < 7; index = index + 1) {
             column = 0;

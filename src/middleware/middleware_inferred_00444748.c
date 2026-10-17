@@ -3,7 +3,7 @@
 /* Toolchain-blocked: retail saves callee-saved registers with sd; MWCCPS2 3.0.1 emits sq. See build/ORCH_sd_toolchain_blocked.txt. */
 
 
-s32 func_004447f8();
+s32 vfprintf();
 s32 func_00444870();
 extern s32 D_009389E0[];
 

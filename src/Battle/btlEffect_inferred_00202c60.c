@@ -2365,7 +2365,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
     extern u32 kwlnTaskGetWork(void *task);
     extern s32 func_001f0620(u8 *selection, s64 work);
     extern s32 func_001eb860(void);
-    extern f64 func_0044dcd8(f32 value);
+    extern f64 fptodp(f32 value);
     extern f64 func_0044b310(f64 value);
     extern s16 D_00626BD0[];
     u8 *work;
@@ -2500,7 +2500,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
                 } else {
                     tone = 0x96;
                 }
-                func_0044b310(func_0044dcd8((f32)*(s16 *)(work + 0x14) / 3.0f));
+                func_0044b310(fptodp((f32)*(s16 *)(work + 0x14) / 3.0f));
                 btlUiDrawSpriteFaded(glyphs, 9, command + 8, 52.0f, rowY - completeProgress, tone, tone, tone, drawOpacity);
                 rowY += 15.0f;
             }

@@ -23,7 +23,7 @@ extern u8 D_008E4B50[];
 extern s32 func_0042ba20(void);
 extern s32 func_0042ba70(void);
 extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
-extern void func_00421710(s32 threadId);
+extern void WakeupThread(s32 threadId);
 extern u8 D_00712990[];
 extern s32 D_00724BC8;
 extern char iGpffffb010[6];
@@ -71,7 +71,7 @@ void func_00466c60(void)
                         *(s16 *)(iGpffffbae0 + i * 8) = 1;
                         *(u8 **)(iGpffffbae0 + i * 8 + 4) = work;
                         *(s32 *)(work + 0x1A4) = 2;
-                        func_00421710(*((s32 *)&D_00724BC8 + i));
+                        WakeupThread(*((s32 *)&D_00724BC8 + i));
                     }
                     if (lock != 0) {
                         func_0042ba70();

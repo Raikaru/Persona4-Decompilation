@@ -90,12 +90,12 @@ extern void (*D_00887308[])(void);
 extern void (*D_0088730C[])(void);
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern void (*D_00887314[])(void);
-extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
-extern s32 func_0040d0a0(s32 arg0, s32 arg1);
+extern s32 SkyIm2DRenderLine(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 SkyIm2DRenderTriangle(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
+extern s32 SkyIm2DRenderPrimitive(s32 arg0, void *arg1, s32 arg2);
+extern s32 SkyIm2DRenderIndexedPrimitive(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
-extern s32 func_00402d50(void *arg0, s32 *arg1);
+extern s32 _rwSkyRasterClearRect(void *arg0, s32 *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
@@ -110,9 +110,9 @@ u32 func_003e8120(u32 camera);
 u8 func_003e9240(RwObjectOwnerLink *param_1);
 u32 func_003e9750(int param_1);
 u32 func_004125d0(int param_1);
-s32 func_0041f208(int param_1);
-u32 func_0041f6e0(u32 *param_1);
-u32 func_0041f6f0(u32 *param_1);
+s32 sceMpegGetPictureAbort(int param_1);
+u32 _sceMpegAlalcSetDynamic(u32 *param_1);
+u32 _sceMpegAlalcFree(u32 *param_1);
 
 /* Source unit: src/rw/rwcore_003e8110.c (1 function markers) */
 
@@ -284,7 +284,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040adf0);
 /* measured: retail selector branch is plain beqz, not beql. */
 #pragma no_branch_likely on
 // FUN_0040AFB0
-s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 SkyIm2DRenderLine(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 *base;
 
@@ -303,7 +303,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040b010);
 /* measured: retail selector branch in func_0040b230 is plain beqz, not beql. */
 #pragma no_branch_likely on
 // FUN_0040B230
-s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4)
+s32 SkyIm2DRenderTriangle(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4)
 {
     extern s32 func_0040b010(void *arg0, s32 arg1, u8 *arg2, u8 *arg3,
                              u8 *arg4, void *arg5);
@@ -338,7 +338,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040bde0);
 /* measured: retail 0040c0f0 uses plain blez/beqz branches. */
 #pragma no_branch_likely on
 // FUN_0040C0F0
-s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2)
+s32 SkyIm2DRenderPrimitive(s32 arg0, void *arg1, s32 arg2)
 {
     extern u8 iGpffffb984;
     extern u8 D_00753330[];
@@ -371,7 +371,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040cd60);
 /* measured: retail func_0040d0a0 uses plain blez/beqz branches. */
 #pragma no_branch_likely on
 // FUN_0040D0A0
-s32 func_0040d0a0(s32 arg0, s32 arg1)
+s32 SkyIm2DRenderIndexedPrimitive(s32 arg0, s32 arg1)
 {
     u8 *base;
 
@@ -390,11 +390,11 @@ s32 func_0040d0a0(s32 arg0, s32 arg1)
 // FUN_0040D110
 void func_0040d110(void)
 {
-    D_00887308[0] = (void (*)(void))func_0040afb0;
-    D_0088730C[0] = (void (*)(void))func_0040b230;
-    D_00887310[0] = func_0040c0f0;
-    D_00887314[0] = (void (*)(void))func_0040d0a0;
-    func_0040aa60((void (*)(void))func_0040c0f0);
+    D_00887308[0] = (void (*)(void))SkyIm2DRenderLine;
+    D_0088730C[0] = (void (*)(void))SkyIm2DRenderTriangle;
+    D_00887310[0] = SkyIm2DRenderPrimitive;
+    D_00887314[0] = (void (*)(void))SkyIm2DRenderIndexedPrimitive;
+    func_0040aa60((void (*)(void))SkyIm2DRenderPrimitive);
 }
 // FUN_0040D160
 void func_0040d160(void)
