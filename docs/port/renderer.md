@@ -116,7 +116,7 @@ Blockers for P4:
 
 ## 6. sky2hook as reference
 
-Source: `https://github.com/tge-was-taken/sky2hook`. C++; no LICENSE in the fetched README, so read for design only.
+Source: `https://github.com/tge-was-taken/sky2hook`. C++, with no LICENSE file. The author has since given permission to reuse parts of it ("feel free to reuse parts of it", [issue #2](https://github.com/Raikaru/Persona4-Decompilation/issues/2#issuecomment-6234440298), 2026-10-17). The port records the grant and its attribution rules in `third_party/README.md`.
 
 - Status: abandoned experiment. OpenGL renderer that hooks RW 3.x sky2 entry points: Im2D/Im3D, Rt2d, PTank, rasters, lights, cameras, atomics, world sectors. Does not run a game alone; host is PCSX2 (headless) with a hook DLL.
 - Tested on P3 FES, P4, Sonic Heroes PAL, Shadow; 50 scenes; **33/50 under MAD 10**, worst ~42.
