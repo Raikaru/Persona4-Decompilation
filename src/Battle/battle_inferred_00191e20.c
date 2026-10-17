@@ -161,8 +161,7 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Source unit: src/promoted/code1_0019.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00191e20-00191e20 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00191e20-00191e20 */
 
 /* RpClumpForAllAtomics callback (registered by K_Clump_ReadChunks). func_003E8120 and
  * func_003E8110 are RwCameraBeginUpdate and RwCameraEndUpdate, called through the

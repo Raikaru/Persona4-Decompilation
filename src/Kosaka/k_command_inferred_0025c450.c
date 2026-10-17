@@ -50,8 +50,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
     return (u32)(range * unit);
 }
 
-/* Source unit: src/promoted/code1_0025.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025c450-0025c600 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025c450-0025c600 */
 
 // FUN_0025C450
 s32 K_Cmd_DAY_ENTRY_BY_PHASE(void) {

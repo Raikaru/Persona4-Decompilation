@@ -96,8 +96,7 @@ extern void func_003dcc70(f32 *arg0, f32 *arg1, f32 *arg2);
 #pragma push
 #pragma pop
 
-/* Source unit: src/promoted/code1_001b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001be900-001c04d0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001be900-001c04d0 */
 
 extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern void btlCameraUpdateUnitInRangeFlags(void);

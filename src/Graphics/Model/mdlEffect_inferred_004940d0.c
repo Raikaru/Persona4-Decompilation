@@ -25,8 +25,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
     return left * right;
 }
 
-/* Source unit: src/promoted/code1_0049.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0049.c; members 004940d0-004941f0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004940d0-004941f0 */
 
 #pragma push
 #pragma pop

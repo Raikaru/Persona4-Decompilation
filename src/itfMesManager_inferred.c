@@ -30,8 +30,7 @@ extern void itfMesWindowFree(s32 arg0);
 
 
 
-/* Source unit: src/promoted/code1_0027.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0027.c; members 0027b690-0027b690 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b690-0027b690 */
 
 /* measured: opt_loop_invariants off */
 // Intent: Frees every window in the window list (task destroy callback) [inferred]

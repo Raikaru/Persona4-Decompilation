@@ -162,8 +162,7 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Source unit: src/promoted/code1_0019.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00193630-00193730 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00193630-00193730 */
 
 /* measured: opt_propagation off is scoped to func_001927c0. */
 /* measured: closes opt_propagation around func_001927c0. */

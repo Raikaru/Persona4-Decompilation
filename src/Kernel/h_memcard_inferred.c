@@ -221,8 +221,7 @@ typedef struct FilerDirent {
 extern void sdkFilerScanDirectory(u8 *work);
 extern void func_00467880(u8 *arg0);
 
-/* Source unit: src/promoted/code1_0046.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0046.c; members 00467bd0-00467bd0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00467bd0-00467bd0 */
 
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */

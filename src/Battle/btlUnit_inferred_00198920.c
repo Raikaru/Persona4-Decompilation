@@ -164,8 +164,7 @@ extern u8 D_00794150[];
 
 extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
 
-/* Source unit: src/promoted/code1_0019.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00198920-00198920 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198920-00198920 */
 
 typedef struct MotionTableEntry {
     s16 followMotion;

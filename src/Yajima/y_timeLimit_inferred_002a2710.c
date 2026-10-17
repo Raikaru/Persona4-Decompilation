@@ -1,4 +1,3 @@
-/* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -123,8 +122,7 @@ typedef char NameEntryWorkSize[(sizeof(NameEntryRenderWork) == 0x1c6c) ? 1 : -1]
 #pragma pop
 extern s32 func_002a1c80(u8 *arg0);
 
-/* Source unit: src/promoted/code1_002a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002a.c; members 002a2710-002a2710 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a2710-002a2710 */
 
 extern s32 yTimeLimitDraw(u8 *arg0);
 /* measured: closes opt_propagation around func_002a1c80. */

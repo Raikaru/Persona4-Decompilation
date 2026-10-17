@@ -1,4 +1,3 @@
-/* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -89,8 +88,7 @@ extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 
-/* Source unit: src/promoted/code1_002a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002a.c; members 002a03b0-002a03b0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a03b0-002a03b0 */
 
 extern void func_002a02f0(u8 *arg0, s32 arg1);
 /* 3888/3888 bytes. Keep the remaining-alpha accumulator separate from

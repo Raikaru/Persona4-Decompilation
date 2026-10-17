@@ -88,8 +88,7 @@ extern FclVec2 fclMakeVec2(f32 x, f32 y);
 extern s32 fclDecimalDigitCount(s32 arg0);
 
 
-/* Source unit: src/promoted/code1_002b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002b.c; members 002be1e0-002be4a0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002be1e0-002be4a0 */
 
 extern void func_002b5120(s32 arg0, u8 *arg1);
 /* measured: a typed vtable base local with propagation disabled reproduces the

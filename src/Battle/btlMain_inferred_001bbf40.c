@@ -89,8 +89,7 @@ s32 btlTargetIsSlotAlive(u8 *arg0);
 #pragma push
 #pragma pop
 
-/* Source unit: src/promoted/code1_001b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001bbf40-001bc330 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bbf40-001bc330 */
 
 /* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
 /* measured: close opt_rebuildconditionals off for func_001b19c0. */

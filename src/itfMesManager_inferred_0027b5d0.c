@@ -26,8 +26,7 @@ extern s8 D_0063BAB0[];
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 
-/* Source unit: src/promoted/code1_0027.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0027.c; members 0027b5d0-0027b5d0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b5d0-0027b5d0 */
 
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */

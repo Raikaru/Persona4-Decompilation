@@ -24,8 +24,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
     return left * right;
 }
 
-/* Source unit: src/promoted/code1_0049.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0049.c; members 00494740-00494740 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00494740-00494740 */
 
 extern void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2);
 extern void func_004941f0(u8 *track, u32 *colors);

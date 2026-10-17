@@ -92,8 +92,7 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Source unit: src/promoted/code1_001f.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f1030-001f2f90 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f1030-001f2f90 */
 
 extern s64 func_001f0260(s32 arg0);
 extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);

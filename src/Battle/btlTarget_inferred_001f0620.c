@@ -84,8 +84,7 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Source unit: src/promoted/code1_001f.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f0620-001f0a10 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f0620-001f0a10 */
 
 extern s32 btlActionIsPendingBit(s32 arg0);
 #pragma push

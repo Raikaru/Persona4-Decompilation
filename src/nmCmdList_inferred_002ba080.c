@@ -75,8 +75,7 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-/* Source unit: src/promoted/code1_002b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002b.c; members 002ba080-002baa50 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
 
 extern void func_002b5120(s32 arg0, u8 *arg1);
 static inline s32 fclDigitIsZero(const s16 *value)

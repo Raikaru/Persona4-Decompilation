@@ -59,8 +59,7 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
     return 0.0f + addend + right * left;
 }
 
-/* Source unit: src/promoted/code1_0047.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0047.c; members 0047ce00-0047d170 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ce00-0047d170 */
 
 /* Advances the load state byte at +0x3C of the aux block at +0x30C: waits for the file, reads its tables, runs the material and texture steps, then frees the file. Returns 1 when done, 0 while a step is pending. */
 // FUN_0047CE00

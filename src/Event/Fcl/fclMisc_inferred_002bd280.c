@@ -84,8 +84,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 
 
-/* Source unit: src/promoted/code1_002b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002b.c; members 002bd280-002bd280 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bd280-002bd280 */
 
 extern void func_002b5120(s32 arg0, u8 *arg1);
 /* measured: a typed vtable base local with propagation disabled reproduces the

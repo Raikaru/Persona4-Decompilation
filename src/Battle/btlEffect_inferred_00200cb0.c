@@ -162,8 +162,7 @@ extern void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callba
 extern s32 itfMesWindowInstall(void *arg0);
 extern u8 D_006253B0[];
 
-/* Source unit: src/promoted/code1_0020.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0020.c; members 00200cb0-00201b00 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00200cb0-00201b00 */
 
 extern void btlPanelInitWork(u8 *arg0, s32 arg1);
 extern void btlPanelUpdate(void *arg0);

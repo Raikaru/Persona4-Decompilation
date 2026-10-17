@@ -161,8 +161,7 @@ static inline f32 code1_0016_cvt(s32 value) {
     return (f32)value;
 }
 
-/* Source unit: src/promoted/code1_0016.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0016.c; members 00167f00-00168ec0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 00167f00-00168ec0 */
 
 /* Build a 7-by-8 grid of 80-by-64 quads, snapshotting depth before any stores.
    measured: natural vertex assignment order, invariant hoisting and disabled

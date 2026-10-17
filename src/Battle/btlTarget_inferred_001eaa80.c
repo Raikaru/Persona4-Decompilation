@@ -97,8 +97,7 @@ extern u8 *btlFormationGetRecord(s32 arg0);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Source unit: src/promoted/code1_001e.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001eaa80-001eb110 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001eaa80-001eb110 */
 
 extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);

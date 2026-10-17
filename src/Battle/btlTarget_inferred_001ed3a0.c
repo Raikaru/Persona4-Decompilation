@@ -78,8 +78,7 @@ extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Source unit: src/promoted/code1_001e.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001ed3a0-001ee610 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001ed3a0-001ee610 */
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);

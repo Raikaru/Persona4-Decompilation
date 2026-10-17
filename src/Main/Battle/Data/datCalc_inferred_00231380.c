@@ -38,8 +38,7 @@ extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slot, u32 type, u16 
 extern char D_006357E0[];
 extern char D_00635800[];
 
-/* Source unit: src/promoted/code1_0023.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0023.c; members 00231380-00231550 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0023; members 00231380-00231550 */
 
 // Intent: Writes the NPC model file name for a battle model id: the "npc/" or "npc2/" directory, the id and a variant from its table entry and the current flags [inferred]
 // FUN_00231380

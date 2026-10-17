@@ -183,8 +183,7 @@ extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern f32 fGpffff80e4;
 
-/* Source unit: src/promoted/code1_0022.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0022.c; members 0022b0b0-0022fb10 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 0022b0b0-0022fb10 */
 
 extern void btlCameraApplyPartyPose(u8 *camera);
 extern void btlEncounterStartSequence(u8 *arg0);

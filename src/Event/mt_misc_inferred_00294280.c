@@ -1,6 +1,5 @@
 #include "mt_scene_internal.h"
 #include "h_cdvd_internal.h"
-/* Source unit: src/promoted/code1_0029.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -47,8 +46,7 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Source unit: src/promoted/code1_0029.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 00294280-00294280 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 00294280-00294280 */
 
 extern void mtMiscCollectType1Records(u8 *arg0);
 extern void mtMiscCollectType2Records(u8 *arg0);

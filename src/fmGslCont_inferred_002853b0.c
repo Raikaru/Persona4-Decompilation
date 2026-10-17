@@ -59,8 +59,7 @@ extern s32 D_008825F0[10];
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
 
-/* Source unit: src/promoted/code1_0028.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0028.c; members 002853b0-002853f0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0028; members 002853b0-002853f0 */
 
 // FUN_002853B0
 s32 func_002853b0(void) {

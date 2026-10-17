@@ -76,8 +76,7 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Source unit: src/promoted/code1_004a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004a1ca0-004a1d70 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a1ca0-004a1d70 */
 
 /* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
 /* measured: func_004a1ca0 MATCH -> MISMATCH without this pragma. */

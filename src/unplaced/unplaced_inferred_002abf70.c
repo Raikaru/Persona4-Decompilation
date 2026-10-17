@@ -1,6 +1,5 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002abf70-002ac2a0 */
 
-/* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"

@@ -108,8 +108,7 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Source unit: src/promoted/code1_0020.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0020.c; members 00202820-00202850 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202820-00202850 */
 
 /* measured: caching D_00887300 in s0 reproduces retail's one-time
    lui/addiu vtable materialization across these callback calls. */

@@ -164,8 +164,7 @@ extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
 extern s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0);
 extern void btlUnitSetMotion(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 
-/* Source unit: src/promoted/code1_0019.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00198380-00198380 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198380-00198380 */
 
 extern s32 btlUnitGetMotionState(u8 *arg0);
 extern u32 btlUnitIsAtRestMotion(u8 *arg0);

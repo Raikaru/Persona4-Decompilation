@@ -89,8 +89,7 @@ extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Source unit: src/promoted/code1_001e.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001e6d20-001e6ea0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e6d20-001e6ea0 */
 
 /* AI script command 0x207b (p4flow AI.json AI_FUNCTION_007B). */
 // FUN_001E6D20

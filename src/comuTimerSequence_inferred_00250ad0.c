@@ -44,8 +44,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
     return (u32)(range * unit);
 }
 
-/* Source unit: src/promoted/code1_0025.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 00250ad0-002518d0 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 00250ad0-002518d0 */
 
 // FUN_00250AD0
 s32 func_00250ad0(s32 *arg0, u8 *arg1)

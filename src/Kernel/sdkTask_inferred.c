@@ -232,8 +232,7 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma pop
 
-/* Source unit: src/promoted/code1_0045.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00453250-00453250 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00453250-00453250 */
 
 #pragma push
 #pragma pop

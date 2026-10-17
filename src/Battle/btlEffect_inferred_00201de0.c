@@ -114,8 +114,7 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Source unit: src/promoted/code1_0020.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0020.c; members 00201de0-00201f60 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00201de0-00201f60 */
 
 extern void btlPacketHitStatusCheck(u8 *arg0);
 extern s32 btlPacketBuildHitFlags(u8 *work);

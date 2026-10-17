@@ -165,8 +165,7 @@ extern u8 D_008D1C90[];
 extern u8 D_008D1C98[];
 extern u8 D_008D1CD4[];
 
-/* Source unit: src/promoted/code1_0045.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00450630-00450e80 */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00450630-00450e80 */
 
 typedef struct {
     f32 x;
