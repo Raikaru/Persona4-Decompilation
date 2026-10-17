@@ -1054,7 +1054,6 @@ maps the game systems to their directories.
 | `src/cri/` | CRI ADX/Sofdec middleware (`docs/cri/`) |
 | `src/sce/` | Sony SDK units |
 | `src/middleware/` | ee-gcc runtime and other vendor units |
-| `src/generated/` | m2c drafts. Not authoritative and not linked. |
 
 ### How file names were recovered
 

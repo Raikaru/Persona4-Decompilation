@@ -3925,7 +3925,6 @@ gives a cheap, sign-sensitive objective, so there is no reason to guess:
 
 ```
 python3 -E -s tools/solve_signedness.py src/foo.c func_00123456
-python3 -E -s tools/solve_signedness.py src/foo.c func_00123456 --apply --json facts.json
 ```
 
 Design points, each of which matters:

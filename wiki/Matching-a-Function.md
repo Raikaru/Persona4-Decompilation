@@ -10,7 +10,7 @@ Start from a fresh verifier report:
 ```sh
 python tools/verify.py --json build/verify_report.json
 python tools/floor_census.py --report build/verify_report.json --top 30
-make recovery                     # matched files that still read like m2c output
+make recovery                     # matched files that still carry placeholder names
 ```
 
 `floor_census.py` separates functions nobody has attempted from those with a
@@ -36,16 +36,8 @@ someone has already given up on.
 ## The loop
 
 ```sh
-make m2c-setup                                          # once: installs the pinned m2c
-make m2c FILE=src/Battle/btlTarget.c FUNC=func_001ec630
 python tools/fndiff.py src/Battle/btlTarget.c func_001ec630
 ```
-
-`make m2c` writes a draft to `build/m2c/<function>.c`, using the owning
-file's declarations as context. Replace the `INCLUDE_ASM` line with it and
-fix the types before anything else. `tools/ida_headstart.py` and
-`tools/ghidra_headstart.py` produce second-opinion drafts;
-`docs/ida_headstart/` and `docs/ghidra_headstart/` hold earlier output.
 
 `fndiff.py` compiles the file and prints object and retail words side by
 side, with relocations. Rows marked `!` differ. The closing
@@ -72,10 +64,9 @@ rows before guessing. `tools/pragma_sweep.py`, `tools/probe_variants.py` and
 the `tools/permute*.py` scripts automate parts of the search once the source
 is close.
 
-For disassembly with the EE-specific instructions decoded, use
-`tools/recon_dis.py <addr>`. It prefers a Ghidra server with the Emotion
-Engine extension and falls back to rabbitizer, which prints COP1
-multiply-accumulate and VU ops as `.word`.
+For disassembly with the EE-specific instructions decoded, use `tools/eedis.py`
+for a single instruction. `tools/recon_dis.py <addr>` prints retail disassembly
+through rabbitizer and shows COP1 multiply-accumulate and VU ops as `.word`.
 
 ## Finishing
 

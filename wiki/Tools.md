@@ -28,9 +28,7 @@ for ee-gcc units.
 | --- | --- |
 | `tools/fndiff.py <file> <function> [--addr]` | object against retail, word by word, with relocations |
 | `tools/fnalign.py <file> <function> [--candidate body.c]` | aligns object and retail instructions, so a missing or extra instruction shows as one edit instead of shifting every later row |
-| `make m2c-setup`, `make m2c FILE= FUNC=` | install pinned m2c; draft one function into `build/m2c/` |
-| `make ctx CTX_SRC=<file>` (`tools/m2ctx.py`) | flattened context for decomp.me or the permuter |
-| `tools/recon_dis.py <addr>` | retail disassembly; decodes EE COP1/VU instructions when a Ghidra server is running |
+| `tools/recon_dis.py <addr>` | retail disassembly through rabbitizer; COP1 multiply-accumulate and VU ops print as `.word` (`tools/eedis.py` decodes them) |
 | `tools/eedis.py`, `tools/jtbl.py` | decode one EE instruction; decode a switch jump table |
 | `tools/micro_codegen.py` | compile a standalone snippet with the project's MWCC and print the code |
 | `tools/pragma_sweep.py`, `tools/probe_variants.py`, `tools/probe_search.py` | try pragmas or source spellings in isolated copies of the unit |
@@ -47,7 +45,6 @@ for ee-gcc units.
 | `tools/nd_audit.py`, `tools/probe_archive.py` | re-measure parked and archived attempts |
 | `make recovery` (`tools/recovery_quality.py`) | matched files that still need names, types or comments |
 | `make shared-p3 P3_ROOT=...` (`tools/map_shared_p3.py`) | map Persona 3 FES functions to their P4 counterparts |
-| `tools/ida_headstart.py`, `tools/ghidra_headstart.py` | batch decompiler drafts for unmatched first-party functions |
 
 ## Symbols, names and boundaries
 

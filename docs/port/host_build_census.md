@@ -23,7 +23,7 @@ Shim results therefore show what remains once the three syntax-level blockers ar
 
 ## 2. Compile census (1540 `.c` files in `src/`)
 
-Compile-only (`-fsyntax-only`-equivalent) per file, grouped by origin. `GENERATED` = `src/generated/*.c` (125 m2c drafts, includes `include/type.h` and a vendor header that is not in the tree, so they cannot build under repo flags; excluded from link and error gating).
+Compile-only (`-fsyntax-only`-equivalent) per file, grouped by origin. `GENERATED` was `src/generated/*.c` (125 m2c drafts). Those drafts were removed; they included `include/type.h` and a vendor header not in the tree, so they could not build under repo flags, and they were excluded from link and error gating.
 
 Raw:
 

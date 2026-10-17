@@ -1,8 +1,6 @@
 # Source style and honesty rules
 
-These rules apply to authoritative source under `src/` and `include/`. They
-do **not** apply to `src/generated/`, which holds raw m2c drafts
-(`M2C_CANDIDATE` markers) outside the authoritative build.
+These rules apply to authoritative source under `src/` and `include/`.
 
 A function is matched when its owning file, compiled with that file's
 configured compiler and flags, reproduces the retail instructions and the
@@ -45,7 +43,7 @@ equivalence.
   `u32`/`s32`, `u64`/`s64`, `f32`, `f64`. `bool` is not used in this
   codebase; predicates return `u8`/`u32`/`s32` as the ABI requires.
 - **Type floats from the disassembly.** The EE ABI passes integers in `$a0`...
-  and floats in `$f12`... from separate counters. Ghidra often shows float
+  and floats in `$f12`... from separate counters. Decompilers often show float
   arguments and returns as `int`/`undefined4`; `mov.s`, `lwc1`, `swc1` and
   `cvt.*` decide the type.
 - **One function, one signature.** Narrow or signed parameters must match

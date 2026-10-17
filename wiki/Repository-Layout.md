@@ -10,7 +10,6 @@ src/                        C units and INCLUDE_ASM fallbacks, one file per tran
   cri/                      CRI ADX/Sofdec; libadxe/ and re4/ hold two upstream reconstructions
   sce/                      Sony SDK units
   middleware/               GCC runtime and other ee-gcc vendor units
-  generated/                m2c candidates (M2C_CANDIDATE); not verified, linted or linked
 include/                    type.h, include_asm.h, project headers
   rw/                       RenderWare headers (see RenderWare)
   cri/                      CRI headers
@@ -40,8 +39,6 @@ docs/
   gnu_linker.md             the GNU ld backend
   probe_archive/            earlier attempts at unmatched functions, with measurements
   cri/ sky2/                naming and attribution evidence for CRI and the RenderWare driver
-  ida_headstart/ ghidra_headstart/
-                            decompiler drafts for unmatched functions
 progress/                   committed progress endpoints (make progress)
 .github/workflows/          CI; the full build job needs a private dependency repository
 Dockerfile                  build environment without the proprietary files
@@ -58,7 +55,7 @@ record what was known when they were written.
 ## Ownership
 
 Each function window in `tools/slus21782_functions.json` belongs to one
-`// FUN_XXXXXXXX` marker in one file under `src/` (outside `src/generated/`).
+`// FUN_XXXXXXXX` marker in one file under `src/`.
 The marker is followed by matching C, an `INCLUDE_ASM` line, or a
 `#ifdef NON_MATCHING` attempt with its fallback. See
 [How Matching Works](How-Matching-Works).
