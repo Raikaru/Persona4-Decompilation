@@ -5,7 +5,7 @@
 
 /* Item IDs are signed halfwords; flag-table indices are signed words. */
 void datItemSetCount(s16 item, s32 quantity);
-u32 func_00106850(s16 item);
+u32 datEntryGetKind(s16 item);
 s8 datItemAvailableMonth(s16 item);
 s8 datItemAvailableDay(s16 item);
 s64 datItemBankOffset(s16 item);

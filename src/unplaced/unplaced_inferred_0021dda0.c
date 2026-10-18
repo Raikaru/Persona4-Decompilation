@@ -150,7 +150,7 @@ extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetExp(int persona);
 extern u16 datItemValue(s16 arg0);
-extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: prepare the XP award blocks for the leader and the party without applying them. [inferred]
@@ -194,10 +194,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
     c = datCalcGetLevelById(1) & 0xFF;
     level = btlXpComputeAward(c, arg1);
     base = level;
-    if (datItemValue(func_00106cd0(1, 0)) == 0x86) {
+    if (datItemValue(datGetEquippedItemByUnit(1, 0)) == 0x86) {
         level += (s32)(0.5f * (f32)level);
     }
-    if (datItemValue(func_00106cd0(1, 1)) == 0x86) {
+    if (datItemValue(datGetEquippedItemByUnit(1, 1)) == 0x86) {
         level += (s32)(0.5f * (f32)base);
     }
     if (c != (func_001059e0(level + datPersonaGetExpById(1)) & 0xFF)) {
@@ -218,10 +218,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             if (datPersonaLeadBoosted(1) != 0) {
                 level += (s32)(0.5f * (f32)lv);
             }
-            if (datItemValue(func_00106cd0(1, 0)) == 0x86) {
+            if (datItemValue(datGetEquippedItemByUnit(1, 0)) == 0x86) {
                 level += (s32)(0.5f * (f32)lv);
             }
-            if (datItemValue(func_00106cd0(1, 1)) == 0x86) {
+            if (datItemValue(datGetEquippedItemByUnit(1, 1)) == 0x86) {
                 level += (s32)(0.5f * (f32)lv);
             }
         } else {
@@ -247,10 +247,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             if (entry2[0] & 4) {
                 level += (s32)(0.5f * (f32)level);
             }
-            if (datItemValue(func_00106cd0(1, 0)) == 0x86) {
+            if (datItemValue(datGetEquippedItemByUnit(1, 0)) == 0x86) {
                 level += (s32)(0.5f * (f32)sum);
             }
-            if (datItemValue(func_00106cd0(1, 1)) == 0x86) {
+            if (datItemValue(datGetEquippedItemByUnit(1, 1)) == 0x86) {
                 level += (s32)(0.5f * (f32)sum);
             }
         }
@@ -274,10 +274,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
             lv2 = btlXpComputeAward(v5, arg1);
             level2 = lv2;
-            if (datItemValue(func_00106cd0((s16)id2, 0)) == 0x86) {
+            if (datItemValue(datGetEquippedItemByUnit((s16)id2, 0)) == 0x86) {
                 level2 += (s32)(0.5f * (f32)lv2);
             }
-            if (datItemValue(func_00106cd0((s16)id2, 1)) == 0x86) {
+            if (datItemValue(datGetEquippedItemByUnit((s16)id2, 1)) == 0x86) {
                 level2 += (s32)(0.5f * (f32)lv2);
             }
             if (v5 < 99) {
@@ -298,10 +298,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
         v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
         lv3 = btlXpComputeAward(v5, arg1);
         level2 = lv3;
-        if (datItemValue(func_00106cd0(5, 0)) == 0x86) {
+        if (datItemValue(datGetEquippedItemByUnit(5, 0)) == 0x86) {
             level2 += (s32)(0.5f * (f32)lv3);
         }
-        if (datItemValue(func_00106cd0(5, 1)) == 0x86) {
+        if (datItemValue(datGetEquippedItemByUnit(5, 1)) == 0x86) {
             level2 += (s32)(0.5f * (f32)lv3);
         }
         if (v5 < 99) {

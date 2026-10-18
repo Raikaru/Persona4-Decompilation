@@ -251,17 +251,17 @@ s32 yListCountFor(void *);
 void fclDrawEquipSprite(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 datGetItemNameId(s16);
 
-s16 func_00106cd0(s16, s16);
+s16 datGetEquippedItemByUnit(s16, s16);
 /* measured: the item getters take s16, as defined in g_data.c (each callee
    re-extends $a0). A value already typed s16 passes raw; fclShopStateUpdate's int
    ids are extended at every call, and an explicit (s32) widening before an s16
    parameter reproduces the single extension retail emits (func_002df020,
    fclShopDrawScrollThumb, fclShopDrawItemCompare, func_002d5040, fclShopListInputStep). */
 u32 datEntryGetFlags(s16);
-u16 func_001068b0(s16);
-u16 func_001068e0(s16);
-u16 func_00106940(s16);
-u16 func_00106970(s16);
+u16 datEntryGetPrimaryValue(s16);
+u16 datEntryGetSecondaryValue(s16);
+u16 datEntryGetMiddleBandValue(s16);
+u16 datEntryGetLastBandValue(s16);
 s32 fclDecimalDigitCount(s32);
 void fclDrawNumber(Vec2f, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
 u8 *resourceFindByName(char *);
@@ -358,7 +358,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern s32 datGetFlag(s32);
     extern void datSetFlag(s32, s32);
     extern s32 datItemMoonGateSecond(s16);
-    extern void func_00106d40(s16, s16, s16);
+    extern void datAssignEquippedItem(s16, s16, s16);
     extern s64 calGetDayEntryForMonthDay(s32, s32);
     extern s32 fclSelectBoundedFallback(s32, s32, s32, s32);
     extern s32 nmMesWindowShowSlotRecordStyle1(s64, s32);
@@ -938,36 +938,36 @@ s32 fclShopStateUpdate(u8 *arg0)
             (*(f32 *)(work + 0xF34)) = (f32) (temp_f1 + ((temp_f21 - temp_f1) / 2.0f));
             (*(f32 *)(work + 0xF38)) = (f32) (65.0f + ((temp_f20 - 65.0f) / 2.0f));
             (*(s8 *)(work + 0xF73)) = 1;
-            (*(s8 *)(work + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0(1, 0)))));
+            (*(s8 *)(work + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit(1, 0)))));
             (*(s8 *)(work + 9)) = 1;
             if (datGetFlag(0x30) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 2;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x31) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 3;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x32) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 4;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x33) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 6;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x35) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 8;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x36) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 7;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             for (var_5 = 0; var_5 < 9; var_5++) {
@@ -1732,7 +1732,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
                 sdkSndStartStream(0, 0, 0, 7);
                 nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-                sp690.v0 = (s32) ((s16) (func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
+                sp690.v0 = (s32) ((s16) (datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
                 sp690.v1 = 0;
                 (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 5, &sp690, 1);
                 (*(s8 *)(work + 0)) = 0x1F;
@@ -1758,12 +1758,12 @@ s32 fclShopStateUpdate(u8 *arg0)
             nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
         } else {
             if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
-                fclAddMoney(fclGetMoney() + (datItemPrice(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
+                fclAddMoney(fclGetMoney() + (datItemPrice(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
                 sdkSndStartStream(0, 0, 0, 6);
             } else {
-                datItemSetCount(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((datItemCount(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((datItemCount(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
             }
-            func_00106d40((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)), (s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))));
+            datAssignEquippedItem((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)), (s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))));
             nmMesWindowDestroySlot((*fclShopMesSlot(work)));
             (*(s8 *)(work + 0)) = 0x1B;
         }
@@ -2205,7 +2205,7 @@ block_368:
             (*(s16 *)(work + 0xC18)) = 0;
             if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
                 sdkSndStartStream(0, 0, 0, 6);
-                if (func_00106850(temp_19_7) == 5) {
+                if (datEntryGetKind(temp_19_7) == 5) {
                     temp_16_76 = (s16) (temp_19_7);
                     datSetStateTableEntry(temp_16_76, fclAddClamped(clndGetMoonPhase(temp_16_76) & 0xFF, (s32) (*(s16 *)(work + 0x12)), 0xFF, 0, 1) & 0xFF);
                     for (var_16_20 = 0; var_16_20 < 0x2FF; var_16_20++) {
@@ -4498,9 +4498,9 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c29C;
             sp210 = fclMakeVec2((f32)0x206, 324.0f);
             sp128 = *(Vec2f *)&sp210;
-            uA = func_001068b0((s16)yListValueAt(work->f2));
-            uB = func_001068b0(func_00106cd0(work->kind[work->sel], 0));
-            d = func_001068b0((s16)yListValueAt(work->f2)) - uB;
+            uA = datEntryGetPrimaryValue((s16)yListValueAt(work->f2));
+            uB = datEntryGetPrimaryValue(datGetEquippedItemByUnit(work->kind[work->sel], 0));
+            d = datEntryGetPrimaryValue((s16)yListValueAt(work->f2)) - uB;
             if (d < 0) {
                 sp120 = fclMakeVec2(12.0f + sp128.x, sp128.y - 18.0f);
                 fclDrawEquipSprite(0x29, sp120, 23.0f, fclPackRgba(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
@@ -4513,9 +4513,9 @@ s32 fclShopListInputStep(void *arg0)
             fclDrawNumber(spB0, 22.0f, c260, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
             sp208 = fclMakeVec2((f32)0x206, 374.0f);
             sp110 = *(Vec2f *)&sp208;
-            uA = func_001068e0((s16)yListValueAt(work->f2));
-            uB = func_001068e0(func_00106cd0(work->kind[work->sel], 0));
-            d = func_001068e0((s16)yListValueAt(work->f2)) - uB;
+            uA = datEntryGetSecondaryValue((s16)yListValueAt(work->f2));
+            uB = datEntryGetSecondaryValue(datGetEquippedItemByUnit(work->kind[work->sel], 0));
+            d = datEntryGetSecondaryValue((s16)yListValueAt(work->f2)) - uB;
             if (d < 0) {
                 sp108 = fclMakeVec2(12.0f + sp110.x, sp110.y - 18.0f);
                 fclDrawEquipSprite(0x29, sp108, 23.0f, fclPackRgba(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
@@ -4541,9 +4541,9 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c294;
             sp1F8 = fclMakeVec2((f32)0x206, 324.0f);
             spF8 = *(Vec2f *)&sp1F8;
-            uA = func_00106940((s16)yListValueAt(work->f2));
-            uB = func_00106940(func_00106cd0(work->kind[work->sel], 1));
-            d = func_00106940((s16)yListValueAt(work->f2)) - uB;
+            uA = datEntryGetMiddleBandValue((s16)yListValueAt(work->f2));
+            uB = datEntryGetMiddleBandValue(datGetEquippedItemByUnit(work->kind[work->sel], 1));
+            d = datEntryGetMiddleBandValue((s16)yListValueAt(work->f2)) - uB;
             if (d < 0) {
                 spF0 = fclMakeVec2(12.0f + spF8.x, spF8.y - 18.0f);
                 fclDrawEquipSprite(0x29, spF0, 23.0f, fclPackRgba(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
@@ -4556,9 +4556,9 @@ s32 fclShopListInputStep(void *arg0)
             fclDrawNumber(spA0, 22.0f, c258, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
             sp1F0 = fclMakeVec2((f32)0x206, 374.0f);
             spE0 = *(Vec2f *)&sp1F0;
-            uA = func_00106970((s16)yListValueAt(work->f2));
-            uB = func_00106970(func_00106cd0(work->kind[work->sel], 1));
-            d = func_00106970((s16)yListValueAt(work->f2)) - uB;
+            uA = datEntryGetLastBandValue((s16)yListValueAt(work->f2));
+            uB = datEntryGetLastBandValue(datGetEquippedItemByUnit(work->kind[work->sel], 1));
+            d = datEntryGetLastBandValue((s16)yListValueAt(work->f2)) - uB;
             if (d < 0) {
                 spD8 = fclMakeVec2(12.0f + spE0.x, spE0.y - 18.0f);
                 fclDrawEquipSprite(0x29, spD8, 23.0f, fclPackRgba(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
@@ -4632,23 +4632,23 @@ s32 fclShopListInputStep(void *arg0)
         sp1B0 = fclMakeVec2((f32)0x219, 266.0f);
         fclDrawNumber(sp1B0, 70.0f, c2AC, 0x10, 5, datItemPrice((s16)yListValueAt(work->f2)), 9, 0x7B,
                       (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->fF28, 0xA9);
-        if (datItemValue(func_00106cd0(work->kind[work->sel], work->f7)) == 0) {
+        if (datItemValue(datGetEquippedItemByUnit(work->kind[work->sel], work->f7)) == 0) {
             for (dash2 = 0; dash2 < 0xF; dash2++) {
                 sp1A8 = fclMakeVec2((f32)(dash2 * 0x16 + 0x6F), 134.0f);
                 fclDrawEquipSprite(0x3C, sp1A8, 86.0f, fclPackRgba(0xFF, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00794ED0);
             }
         } else {
-            fclMesWindowDraw(datItemValue(func_00106cd0(work->kind[work->sel], work->f7)), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0xAA, 109.0f, 124.0f, 70.0f);
+            fclMesWindowDraw(datItemValue(datGetEquippedItemByUnit(work->kind[work->sel], work->f7)), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0xAA, 109.0f, 124.0f, 70.0f);
         }
         switch (work->f7) {
         case 0:
             white = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);
             sp1A0 = fclMakeVec2(129.0f, 89.0f);
             spC8 = *(Vec2f *)&sp1A0;
-            frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
             sp198 = fclMakeVec2(86.0f, 90.0f);
             fclDrawEquipSprite(work->icon[work->sel], sp198, 69.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            fclMesWindowDraw((s16)datItemBankOffset(func_00106cd0(work->kind[work->sel], 0)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(datGetEquippedItemByUnit(work->kind[work->sel], 0)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F630;
             fclObjSetAnchorPosition(work->fE98, 0x57, 83.0f);
             c27C = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4665,11 +4665,11 @@ s32 fclShopListInputStep(void *arg0)
             sp188 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fEA0);
             ((FclObject *)t)->anchorPosition = sp188;
-            uA = func_001068b0((s32)func_00106cd0(work->kind[work->sel], 0));
+            uA = datEntryGetPrimaryValue((s32)datGetEquippedItemByUnit(work->kind[work->sel], 0));
             sp90 = fclMakeVec2(518.0f + (f32)((s16)(fclDecimalDigitCount(uA) - 1) * 8), 158.0f);
             c250 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             fclDrawNumber(sp90, 22.0f, c250, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
-            uA = func_001068e0((s32)func_00106cd0(work->kind[work->sel], 0));
+            uA = datEntryGetSecondaryValue((s32)datGetEquippedItemByUnit(work->kind[work->sel], 0));
             sp88 = fclMakeVec2(518.0f + (f32)((s16)(fclDecimalDigitCount(uA) - 1) * 8), 208.0f);
             c24C = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             fclDrawNumber(sp88, 22.0f, c24C, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
@@ -4678,10 +4678,10 @@ s32 fclShopListInputStep(void *arg0)
             white = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);
             sp180 = fclMakeVec2(129.0f, 89.0f);
             spC0 = *(Vec2f *)&sp180;
-            frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
             sp178 = fclMakeVec2(86.0f, 90.0f);
             fclDrawEquipSprite(0x1B, sp178, 69.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            fclMesWindowDraw((s16)datItemBankOffset(func_00106cd0(work->kind[work->sel], 1)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(datGetEquippedItemByUnit(work->kind[work->sel], 1)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F628;
             fclObjSetAnchorPosition(work->fE94, 0x57, 81.0f);
             c274 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4698,11 +4698,11 @@ s32 fclShopListInputStep(void *arg0)
             sp168 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE9C);
             ((FclObject *)t)->anchorPosition = sp168;
-            uA = func_00106940((s32)func_00106cd0(work->kind[work->sel], 1));
+            uA = datEntryGetMiddleBandValue((s32)datGetEquippedItemByUnit(work->kind[work->sel], 1));
             sp80 = fclMakeVec2(518.0f + (f32)((s16)(fclDecimalDigitCount(uA) - 1) * 8), 158.0f);
             c248 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             fclDrawNumber(sp80, 22.0f, c248, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
-            uA = func_00106970((s32)func_00106cd0(work->kind[work->sel], 1));
+            uA = datEntryGetLastBandValue((s32)datGetEquippedItemByUnit(work->kind[work->sel], 1));
             sp78 = fclMakeVec2(518.0f + (f32)((s16)(fclDecimalDigitCount(uA) - 1) * 8), 208.0f);
             c244 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             fclDrawNumber(sp78, 22.0f, c244, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
@@ -4711,10 +4711,10 @@ s32 fclShopListInputStep(void *arg0)
             white = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);
             sp160 = fclMakeVec2(129.0f, 89.0f);
             spB8 = *(Vec2f *)&sp160;
-            frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
+            frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
             sp158 = fclMakeVec2(86.0f, 90.0f);
             fclDrawEquipSprite(0x1C, sp158, 69.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            fclMesWindowDraw((s16)datItemBankOffset(func_00106cd0(work->kind[work->sel], 2)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(datGetEquippedItemByUnit(work->kind[work->sel], 2)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F668;
             fclObjSetAnchorPosition(work->fCBC, 0x57, 85.0f);
             fclObjSetAnchorPosition(work->fEB0, 0x57, 85.0f);
@@ -5164,41 +5164,41 @@ void fclShopDrawStats(void *arg0) {
     work = *(u8 **)((u8 *)arg0 + 0x38);
     fclDrawEquipSprite(fclShopStatusFlagToCode((s16)datEntryGetFlags((s32)yListValueAt(*(s16 *)(work + 2)))) & 0xFFFF, fclMakeVec2(37.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
     shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)yListValueAt(*(s16 *)(work + 2)))), fclMakeVec2(79.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x30)), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
-    shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7)))), fclMakeVec2(79.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x30)), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
+    shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7)))), fclMakeVec2(79.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x30)), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     switch (*(s8 *)(work + 7)) {
     case 0:
         x = 51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x2C));
-        value = func_001068b0((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
+        value = datEntryGetPrimaryValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
         shopDrawStat(value, x, (f32)0x107);
         x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x2C)));
-        value = func_001068e0((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
+        value = datEntryGetSecondaryValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
         shopDrawStat(value, x, (f32)0x107);
         fclDrawEquipSprite(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), fclMakeVec2(37.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         x = 51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C));
-        value = func_001068b0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
+        value = datEntryGetPrimaryValue((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
         x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C)));
-        value = func_001068e0((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
+        value = datEntryGetSecondaryValue((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
-        dB = shopStatDelta((func_001068b0((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), func_001068b0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
-        dA = shopStatDelta((func_001068e0((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), func_001068e0(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
+        dB = shopStatDelta((datEntryGetPrimaryValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), datEntryGetPrimaryValue(datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
+        dA = shopStatDelta((datEntryGetSecondaryValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), datEntryGetSecondaryValue(datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0)) & 0xFFFF);
         break;
     case 1:
         x = 51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x2C));
-        value = func_00106940((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
+        value = datEntryGetMiddleBandValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
         shopDrawStat(value, x, (f32)0x107);
         x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCE4)) + 0x2C)));
-        value = func_00106970((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
+        value = datEntryGetLastBandValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF;
         shopDrawStat(value, x, (f32)0x107);
         fclDrawEquipSprite(0x1B, fclMakeVec2(37.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         x = 51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C));
-        value = func_00106940((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
+        value = datEntryGetMiddleBandValue((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
         x = 87.0f + (51.0f + (296.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C)));
-        value = func_00106970((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
+        value = datEntryGetLastBandValue((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF;
         shopDrawStat(value, x, 149.0f);
-        dB = shopStatDelta((func_00106940((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), func_00106940(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
-        dA = shopStatDelta((func_00106970((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), func_00106970(func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
+        dB = shopStatDelta((datEntryGetMiddleBandValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), datEntryGetMiddleBandValue(datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
+        dA = shopStatDelta((datEntryGetLastBandValue((s32)yListValueAt(*(s16 *)(work + 2))) & 0xFFFF), datEntryGetLastBandValue(datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1)) & 0xFFFF);
         break;
     case 2:
         fclDrawEquipSprite(0x1C, fclMakeVec2(37.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEDC)) + 0x30)), 31.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
@@ -6842,8 +6842,8 @@ void fclShopDrawScrollThumb(void *arg0) {
             fclObjSetAnchorPosition(*(void **)(work + 0xCA8), 0x57, 82.0f);
             *(FclDrawColor *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCA8)) + 0x79) = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             *(Vec2f *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCA8)) + 0x2C) = fclMakeVec2((f32)0x1E1, 224.0f);
-            shopDrawStatAt(func_001068b0(id), func_001068b0(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 202.0f));
-            shopDrawStatAt(func_001068e0(id), func_001068e0(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
+            shopDrawStatAt(datEntryGetPrimaryValue(id), datEntryGetPrimaryValue(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 202.0f));
+            shopDrawStatAt(datEntryGetSecondaryValue(id), datEntryGetSecondaryValue(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
             break;
         case 27:
             fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
@@ -6853,8 +6853,8 @@ void fclShopDrawScrollThumb(void *arg0) {
             fclObjSetAnchorPosition(*(void **)(work + 0xCA4), 0x57, 80.0f);
             *(FclDrawColor *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCA4)) + 0x79) = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             *(Vec2f *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCA4)) + 0x2C) = fclMakeVec2((f32)0x1E1, 224.0f);
-            shopDrawStatAt(func_00106940(id), func_00106940(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 202.0f));
-            shopDrawStatAt(func_00106970(id), func_00106970(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
+            shopDrawStatAt(datEntryGetMiddleBandValue(id), datEntryGetMiddleBandValue(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 202.0f));
+            shopDrawStatAt(datEntryGetLastBandValue(id), datEntryGetLastBandValue(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
             break;
         case 28:
             fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
@@ -6912,33 +6912,33 @@ void fclShopDrawItemCompare(void *arg0) {
         x = (f32)0x177;
         fclDrawEquipSprite(2, fclMakeVec2(x, 243.0f), 70.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         fclDrawEquipSprite(5, fclMakeVec2(420.0f, 246.0f), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), fclMakeVec2(420.0f, (f32)0x10F), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), fclMakeVec2(420.0f, (f32)0x10F), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         size = 70.0f;
         x = (f32)0x177;
         fclDrawEquipSprite(2, fclMakeVec2(x, 243.0f), 70.0f, fclPackRgba(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         fclDrawEquipSprite(5, fclMakeVec2(420.0f, 246.0f), 69.0f, fclPackRgba(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), fclMakeVec2(420.0f, (f32)0x10F), fclPackRgba(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize = 70.0f, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0))), fclMakeVec2(420.0f, (f32)0x10F), fclPackRgba(0xFF, 0xEF, 0x81, 0xFF));
     }
     fclDrawEquipSprite(0x1B, fclMakeVec2(378.0f, (f32)0x12F), 69.0f, fclPackRgba(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
     if (*(s8 *)(work + 7) == 1) {
         fclDrawEquipSprite(3, fclMakeVec2(x, (f32)0x12D), size, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         fclDrawEquipSprite(6, fclMakeVec2(420.0f, (f32)0x131), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), fclMakeVec2(420.0f, 330.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), fclMakeVec2(420.0f, 330.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         fclDrawEquipSprite(3, fclMakeVec2(x, (f32)0x12D), size, fclPackRgba(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         fclDrawEquipSprite(6, fclMakeVec2(420.0f, (f32)0x131), 69.0f, fclPackRgba(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), fclMakeVec2(420.0f, 330.0f), fclPackRgba(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1))), fclMakeVec2(420.0f, 330.0f), fclPackRgba(0xFF, 0xEF, 0x81, 0xFF));
     }
     fclDrawEquipSprite(0x1C, fclMakeVec2(378.0f, 368.0f), 69.0f, fclPackRgba(0, 0xFF, 0x96, 0), 0xFF, 0, D_00795E60);
     if (*(s8 *)(work + 7) == 2) {
         fclDrawEquipSprite(3, fclMakeVec2(x, 366.0f), size, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         fclDrawEquipSprite(7, fclMakeVec2(420.0f, (f32)0x171), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), fclMakeVec2(420.0f, 394.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), fclMakeVec2(420.0f, 394.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     } else {
         fclDrawEquipSprite(3, fclMakeVec2(x, 366.0f), size, fclPackRgba(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
         fclDrawEquipSprite(7, fclMakeVec2(420.0f, (f32)0x171), 69.0f, fclPackRgba(0, 0xFF, 0xEF, 0x80), 0xFF, 0, D_00795E30);
-        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), fclMakeVec2(420.0f, 394.0f), fclPackRgba(0xFF, 0xEF, 0x81, 0xFF));
+        shopDrawLabel(labelSize, (const char *)((void *)datGetItemNameId((s32)datGetEquippedItemByUnit(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 2))), fclMakeVec2(420.0f, 394.0f), fclPackRgba(0xFF, 0xEF, 0x81, 0xFF));
     }
 }
 

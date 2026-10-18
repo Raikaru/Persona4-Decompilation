@@ -38,7 +38,7 @@ void FldEvent_SetTriggerParam(s32, s32);
 s32 FldEvent_FindNearbyEntry(void);
 s32 FldEvent_MoverUpdate(u8 *);
 s16 datGetPartyId(s32);
-s16 func_00106cd0(s16, s32);
+s16 datGetEquippedItemByUnit(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
 s32 FldStepIndex(void);

@@ -22,7 +22,7 @@ static inline f32 code13Add(f32 left, f32 right) {
 extern void radarDrawFrame(u8 *work);
 extern void radarResetEntries(u8 *work);
 extern void radarAnimateValue(void *work, s32 arg1, s32 arg2);
-extern s32 func_0010f540(s32 work);
+extern s32 datIsSkillAvailable(s32 work);
 extern void func_0010b3b0(s16 work);
 extern s32 datCalcThresholdTriggerById(s16 work, u32 arg1);
 extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1,
@@ -198,7 +198,7 @@ s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu) 
             thresholdPreviousPersona = -1;
             thresholdSkillId = *(u16 *)skillIdField;
             thresholdPersonaId = *(s16 *)personaIdField;
-            if (func_0010f540(thresholdSkillId) == 0) {
+            if (datIsSkillAvailable(thresholdSkillId) == 0) {
                 thresholdPassed = 0;
             } else {
                 if (thresholdPersonaId != -1) {

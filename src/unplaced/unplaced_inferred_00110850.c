@@ -4,7 +4,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
-extern void func_0010e710(s32, u8 *, s32);
+extern void datSaveRestoreImage(s32, u8 *, s32);
 extern s32 iGpffffb1b4;
 extern u8 iGpffff9bb8[8]; /* Default surname at gp - 0x6448. */
 extern u8 iGpffff9bc0[8]; /* Default given name at gp - 0x6440. */
@@ -373,7 +373,7 @@ s32 calRestoreStateImage(void)
         imageSize = iGpffffb1b8;
         zero = 0;
         buffer += 4;
-        func_0010e710(zero, (u8 *)buffer, imageSize);
+        datSaveRestoreImage(zero, (u8 *)buffer, imageSize);
         calWriteDayFlagMask(dayFlags);
         iGpffffb19c = savedState;
         func_001029a0(0x1A, 0, 0, 0);
@@ -557,13 +557,13 @@ void datInitDefaultGameState(void)
     u16 datCalcMaxSpById(s16);
     void datSetCategoryValueById(s16, s16, s16);
     void datCalcInitUnitById(s16);
-    void func_00105690(s16, u8);
+    void datSetHeroLevel(s16, u8);
     void datSetUnitHp(s16, s16);
     void datSetUnitSp(s16, s16);
     void datSetHeroExp(s16, u32);
-    void func_00105c90(s16, s16);
+    void datSetUnitRecordTailValue(s16, s16);
     void datCalcSetBadStatusById(s16, s16);
-    void func_00105dc0(s16, s16, s16);
+    void datSetEquippedItemByUnit(s16, s16, s16);
     void datSetMoney(u32);
     void datSetPartyId(s32, s16);
     void datSetDateIndex(s16);
@@ -571,17 +571,17 @@ void datInitDefaultGameState(void)
     void datSetPendingDateIndex(s16);
     void datSetPendingTimeSlot(u8);
     void datSetPendingFlag(u32);
-    void func_00106480(void);
+    void datClearFlags(void);
     void datPersonaClearRosterMode(void);
-    void func_001065c0(void);
-    void func_00106d40(s16, s16, s16);
+    void datClearScriptValues(void);
+    void datAssignEquippedItem(s16, s16, s16);
     void cmmCommunityClearTable(void);
     s32 datPersonaPlaceRosterMember(s32, u16);
     void datPersonaResetRosterMode(s16);
-    void func_0010d490(u8 *, u8 *);
-    void func_0010f390(void);
-    void func_0010f4c0(void);
-    void func_0010fc80(void);
+    void datSetHeroNameParts(u8 *, u8 *);
+    void datClearCollectionBitmap(void);
+    void datResetBattleUnitSaveTable(void);
+    void datClearPersonaRecordCache(void);
     void MT_Scene_ResetFrameState(void);
     void FldStepResetTables(void);
     void FldStateTablesClear(void);
@@ -590,16 +590,16 @@ void datInitDefaultGameState(void)
 
     calSetStateImagePending(0);
     datSetPendingFlag(0);
-    func_0010d490(iGpffff9bb8, iGpffff9bc0);
+    datSetHeroNameParts(iGpffff9bb8, iGpffff9bc0);
     datSetMoney(0);
-    func_0010fc80();
+    datClearPersonaRecordCache();
 
     i = 1;
     goto loop_1_check;
 loop_1:
     datCalcInitUnitById((s16)i);
     if (i == 1) {
-        func_00105690((s16)i, 1);
+        datSetHeroLevel((s16)i, 1);
         datSetHeroExp((s16)i, 0);
     }
     datSetUnitHp((s16)i, 1);
@@ -613,11 +613,11 @@ loop_2_check:
     if (j < 5) {
         goto loop_2;
     }
-    func_00105c90((s16)i, 0);
+    datSetUnitRecordTailValue((s16)i, 0);
     datCalcSetBadStatusById((s16)i, 0);
-    func_00105dc0((s16)i, 0, -1);
-    func_00105dc0((s16)i, 1, -1);
-    func_00105dc0((s16)i, 2, -1);
+    datSetEquippedItemByUnit((s16)i, 0, -1);
+    datSetEquippedItemByUnit((s16)i, 1, -1);
+    datSetEquippedItemByUnit((s16)i, 2, -1);
     datPersonaResetRosterMode((s16)i);
     /* Keep the one-past row cursor: retail loads the preceding halfword. */
     q = (u8 *)D_005E4630 + i * 2;
@@ -630,8 +630,8 @@ loop_1_check:
         goto loop_1;
     }
 
-    func_00106480();
-    func_001065c0();
+    datClearFlags();
+    datClearScriptValues();
     datPersonaClearRosterMode();
     datSetTimeSlot(5);
     datSetDateIndex(9);
@@ -652,9 +652,9 @@ loop_3_check:
 loop_4:
     /* Three halfwords per unit; retain the measured trailing offsets. */
     p = (u8 *)D_005E4650 + i * 6;
-    func_00106d40((s16)i, 0, ((s16 *)p)[-3]);
-    func_00106d40((s16)i, 1, ((s16 *)p)[-2]);
-    func_00106d40((s16)i, 2, ((s16 *)p)[-1]);
+    datAssignEquippedItem((s16)i, 0, ((s16 *)p)[-3]);
+    datAssignEquippedItem((s16)i, 1, ((s16 *)p)[-2]);
+    datAssignEquippedItem((s16)i, 2, ((s16 *)p)[-1]);
     i++;
 loop_4_check:
     if (i < 11) {
@@ -668,8 +668,8 @@ loop_4_check:
     MT_Scene_ResetFrameState();
     FldStateTablesClear();
     FldStepResetTables();
-    func_0010f390();
-    func_0010f4c0();
+    datClearCollectionBitmap();
+    datResetBattleUnitSaveTable();
     cmmCommunityClearTable();
 
     i = 0;

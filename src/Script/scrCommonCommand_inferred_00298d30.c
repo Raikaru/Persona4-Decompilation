@@ -72,11 +72,11 @@ extern void mtMiscCollectType2Records(u8 *arg0);
 // Destroys the task (with its children) whose name is D_0063CFA0. Returns 1.
 // FUN_00298D30
 s32 scrDestroyTaskByName(void) {
-    s32 temp_2;
+    s32 task;
 
-    temp_2 = kwlnTaskGetTaskByName(D_0063CFA0);
-    if (temp_2 != 0) {
-        kwlnTaskDestroyWithHierarchy(temp_2);
+    task = kwlnTaskGetTaskByName(D_0063CFA0);
+    if (task != 0) {
+        kwlnTaskDestroyWithHierarchy(task);
     }
     return 1;
 }

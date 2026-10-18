@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "h_cdvd_slot_internal.h"
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -265,45 +266,45 @@ u8 *H_Cdvd_FileContextPath(void)
 #pragma opt_propagation off
 // Intent: creates a file device with `arg0` entries of `arg2` bytes each, starting at `arg1`, and registers its callbacks. Returns the device record.
 // FUN_00456C60
-u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
+u8 *H_Cdvd_CreateFileDevice(s32 slotCount, u8 *buffer, s32 bufferSize, s32 deviceFlags, s32 deviceId) {
     s32 index;
-    void *(*(*alloc_table))(size_t, size_t, u32);
+    void *(*(*allocators))(size_t, size_t, u32);
     u8 *record;
     u8 *entries;
     u8 *entry;
 
-    if (func_003dd900(arg4) != 0) {
+    if (func_003dd900(deviceId) != 0) {
         return NULL;
     }
     chkmemAllocSiteTag(D_007117C8, 0x106);
-    alloc_table = D_008873F4;
-    record = (*alloc_table)(1, 0x5C, 0x40000);
-    *(void **)(record + 0x14) = (void *)H_Cdvd_FileContextSlot;
-    *(void **)(record + 0x18) = (void *)H_Cdvd_FileContextFree;
-    *(void **)(record + 0x28) = (void *)H_Cdvd_FileOpen;
-    *(void **)(record + 0x2C) = (void *)H_Cdvd_FileClose;
-    *(void **)(record + 0x30) = (void *)H_Cdvd_SlotRead;
-    *(void **)(record + 0x34) = (void *)H_Cdvd_SlotWrite;
-    *(void **)(record + 0x44) = (void *)adminiSeqExitTest;
-    *(void **)(record + 0x38) = (void *)H_Cdvd_SlotSeek;
-    *(void **)(record + 0x4C) = (void *)H_Cdvd_ProbeFile;
-    *(void **)(record + 0x1C) = (void *)H_Cdvd_FileContextPath;
+    allocators = D_008873F4;
+    record = (*allocators)(1, 0x5C, 0x40000);
+    ((HCdvdFileDevice*)record)->slot = (void *)H_Cdvd_FileContextSlot;
+    ((HCdvdFileDevice*)record)->release = (void *)H_Cdvd_FileContextFree;
+    ((HCdvdFileDevice*)record)->open = (void *)H_Cdvd_FileOpen;
+    ((HCdvdFileDevice*)record)->close = (void *)H_Cdvd_FileClose;
+    ((HCdvdFileDevice*)record)->read = (void *)H_Cdvd_SlotRead;
+    ((HCdvdFileDevice*)record)->write = (void *)H_Cdvd_SlotWrite;
+    ((HCdvdFileDevice*)record)->exitTest = (void *)adminiSeqExitTest;
+    ((HCdvdFileDevice*)record)->seek = (void *)H_Cdvd_SlotSeek;
+    ((HCdvdFileDevice*)record)->probe = (void *)H_Cdvd_ProbeFile;
+    ((HCdvdFileDevice*)record)->path = (void *)H_Cdvd_FileContextPath;
     chkmemAllocSiteTag(D_007117C8, 0x116);
-    entries = (*alloc_table)(arg0, 0x90, 0x40000);
-    *(u8 **)(record + 0x58) = entries;
+    entries = (*allocators)(slotCount, 0x90, 0x40000);
+    ((HCdvdFileDevice*)record)->slots = entries;
     index = 0;
     goto loop_00456c60_check;
 loop_00456c60_body:
     entry = entries + (index * 0x90);
-    *(u8 **)(entry + 0x50) = record;
-    *(s32 *)(entry + 0x68) = (s32)(arg1 + (index * arg2));
-    *(s32 *)(entry + 0x6C) = arg2;
+    ((HCdvdFileSlot*)entry)->context = record;
+    ((HCdvdFileSlot*)entry)->buffer = buffer + (index * bufferSize);
+    ((HCdvdFileSlot*)entry)->bufferSize = bufferSize;
     index += 1;
 loop_00456c60_check:
-    if (index < arg0) {
+    if (index < slotCount) {
         goto loop_00456c60_body;
     }
-    if (func_003dd290(record, arg0, arg4, arg3) != 1) {
+    if (func_003dd290(record, slotCount, deviceId, deviceFlags) != 1) {
         func_00440b68(D_007117E0, index);
     }
     return record;

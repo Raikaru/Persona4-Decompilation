@@ -86,7 +86,7 @@ extern s32 datCalcGetBattleStat(s32 arg0, s32 arg1);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 *iGpffffb428;
 extern u16 cmmCommunityRecordValue(s32 arg0);
-extern void func_00106550(s32 arg0, s32 arg1);
+extern void datSetScriptValue(s32 arg0, s32 arg1);
 extern s32 datCalcIsGuarding(u16 *arg0);
 extern u16 cmmCommunityForArcana(s64 arg0);
 extern u8 *iGpffffb42c;
@@ -826,10 +826,10 @@ s32 btlActionPickCounterTarget(u8 *arg0)
         return 0;
     }
     if (*(u8 *)(arg0 + 0x28) < 2) {
-        temp_5 = func_001064f0(0x79) -
+        temp_5 = datGetScriptValue(0x79) -
                  (*(u8 *)(arg0 + 0x28) + 1);
         if (temp_5 > 0) {
-            func_00106550(0x79, temp_5);
+            datSetScriptValue(0x79, temp_5);
             return 0;
         }
     }
@@ -868,7 +868,7 @@ s32 btlActionPickCounterTarget(u8 *arg0)
     if (var_17 == 0) {
         return 0;
     }
-    func_00106550(0x79, datCalcRandomBelow(3) + 3);
+    datSetScriptValue(0x79, datCalcRandomBelow(3) + 3);
     return candidates[datCalcRandomBelow(var_17)];
 }
 

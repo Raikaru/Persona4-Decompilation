@@ -60,6 +60,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e980-0029e980 */
 
 // FUN_0029E980
+/* Retail contains an empty script-process hook; no side effects are established. */
 void func_0029e980(void)
 {
 }

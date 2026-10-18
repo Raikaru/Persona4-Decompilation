@@ -18,11 +18,11 @@ static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern u16 func_0010f8c0(s32 arg0);
+extern u16 datGetSkillPropertyByte(s32 arg0);
 extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 extern s32 nLineSelectSet(s32 arg0);
 extern s32 radarEntryTypeIsActive(s16 arg0);
-extern s32 func_0010f540(s32 arg0);
+extern s32 datIsSkillAvailable(s32 arg0);
 extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaRefreshDispCtlPosition(u8 *arg0, void *arg1);
@@ -45,9 +45,9 @@ extern void cmpEquipBuildItemList(u8 *arg0);
 extern void cmpEquipSetMode(u8 *arg0, s32 arg1);
 extern void radarBeginSlideOut(u8 *arg0);
 extern void radarBeginSlideIn(u8 *arg0);
-extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
 extern s32 datItemCount(s16 arg0);
-extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
+extern void datAssignEquippedItem(s16 arg0, s16 arg1, s16 arg2);
 extern void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2);
 extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
@@ -694,7 +694,7 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
         sdkSndStartStream(0, 0, 0, 8);
         return;
     }
-    type = (s16)func_0010f8c0(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
+    type = (s16)datGetSkillPropertyByte(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
     if (type == 0) {
         titleSetMenuLayout(arg1, 4);
         radarPushSlotState(arg1);
@@ -717,7 +717,7 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
 // Intent: Return whether the type of the entry's item is active [inferred]
 // FUN_0013C6D0
 s32 radarEntryTypeIsActive(s16 arg0) {
-    return func_0010f540(*(u16 *)((u8 *)datEntryAt(arg0) + 0x24)) != 0;
+    return datIsSkillAvailable(*(u16 *)((u8 *)datEntryAt(arg0) + 0x24)) != 0;
 }
 #pragma pop
 
@@ -1103,7 +1103,7 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
     temp_19 = *(s16 *)(code13AddOff((*(s16 *)(arg0 + 0x2C) +
                                      *(s16 *)(arg0 + 0x2E)) * 4, arg0) + 0x4A);
     temp_16.value = *(s16 *)(arg0 + 0x2A);
-    temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
+    temp_17 = (s16)datGetEquippedItemByUnit(temp_18, temp_16.value);
     if (temp_19 == temp_17) {
         sdkSndStartStream(0, 0, 0, 8);
         return 0;
@@ -1113,7 +1113,7 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
     if ((datItemCount(temp_17) & 0xFF) != 0x63) {
         datItemSetCount(temp_17, ((datItemCount(temp_17) & 0xFF) + 1) & 0xFF);
     }
-    func_00106d40(temp_18, temp_16.value, temp_19);
+    datAssignEquippedItem(temp_18, temp_16.value, temp_19);
     datItemSetCount(temp_19, ((datItemCount(temp_19) & 0xFF) - 1) & 0xFF);
     cmpEquipBuildItemList(arg0);
     temp_2 = *(s16 *)(arg0 + 0xC46);
@@ -1304,7 +1304,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             nLineSelectSet(0x10);
         } else if (D_008C024E[0] & 0x10) {
             temp_17 = (s16)(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
-            if (temp_17 == func_00105330(1)) {
+            if (temp_17 == datGetActiveRosterIndex(1)) {
                 nmMesWindowShowCurrentRecord(2);
                 cmpPersonaSetMode(arg2, 0xC);
                 *arg0 = 0xF;
@@ -1847,7 +1847,7 @@ void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
         sdkSndStartStream(0, 0, 0, 8);
         return;
     }
-    temp_3 = func_0010f8c0(*(u16 *)(code13AddOff(temp_18 * 0xC, arg3) + 0x102)) & 0xFFFF;
+    temp_3 = datGetSkillPropertyByte(*(u16 *)(code13AddOff(temp_18 * 0xC, arg3) + 0x102)) & 0xFFFF;
     if (temp_3 == 0) {
         cmpSkillSetSelection((s16 *)arg3, 3, 0);
         cmpSkillSetMode(arg3, 5);
@@ -1886,7 +1886,7 @@ s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2) {
     temp_2 = code13AddOff(arg1 * 0xC, arg2);
     temp_16 = *(u16 *)(temp_2 + 0x102);
     temp_17 = *(s16 *)(temp_2 + 0x100);
-    if (func_0010f540(temp_16) == 0) {
+    if (datIsSkillAvailable(temp_16) == 0) {
         return 0;
     }
     if (temp_17 != -1) {

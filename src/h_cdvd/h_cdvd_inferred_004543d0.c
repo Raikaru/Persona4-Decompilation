@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "h_cdvd_internal.h"
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -239,39 +240,51 @@ static inline s32 fontAtlasColumn(s32 value)
 
 #pragma push
 #pragma pop
+/* The visible range, step, limit, selection and scroll offset share one list state. */
+typedef struct HCdvdListState {
+    u8 pad00[0x14];
+    s32 visibleCount;
+    u8 pad18[4];
+    s32 step;
+    s32 count;
+    s32 selected;
+    s32 offset;
+} HCdvdListState;
+
 // Intent: held-input repeat step forward. Advances the record's counter at +0x28 by the step at +0x1C, clamped to the limit at +0x20. Returns 0 at the end of the list.
 // FUN_004543D0
-s32 sdkListStateRepeatForward(u8 *arg0) {
-    s32 f14;
-    s32 next28;
-    s32 f28;
-    s32 reload20;
-    s32 f20;
-    s32 reload14;
-    s32 clamped;
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+s32 sdkListStateRepeatForward(u8 *state) {
+    s32 visibleCount;
+    s32 nextOffset;
+    s32 offset;
+    s32 reloadedCount;
+    s32 count;
+    s32 reloadedVisibleCount;
+    s32 clampedCount;
 
-    f14 = *(s32 *)(arg0 + 0x14);
-    f20 = *(s32 *)(arg0 + 0x20);
-    clamped = f14;
-    if (f20 < f14) {
-        clamped = f20;
+    visibleCount = *(s32 *)(state + 0x14);
+    count = *(s32 *)(state + 0x20);
+    clampedCount = visibleCount;
+    if (count < visibleCount) {
+        clampedCount = count;
     }
-    f28 = *(s32 *)(arg0 + 0x28);
-    if ((f28 + f14) >= f20) {
+    offset = *(s32 *)(state + 0x28);
+    if ((offset + visibleCount) >= count) {
         goto zero;
     }
-    next28 = f28 + *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(arg0 + 0x28) = next28;
-    reload14 = *(s32 *)(arg0 + 0x14);
-    reload20 = *(s32 *)(arg0 + 0x20);
-    if (reload20 >= (next28 + reload14)) {
+    nextOffset = offset + *(s32 *)(state + 0x1C);
+    *(s32 *)(state + 0x28) = nextOffset;
+    reloadedVisibleCount = *(s32 *)(state + 0x14);
+    reloadedCount = *(s32 *)(state + 0x20);
+    if (reloadedCount >= (nextOffset + reloadedVisibleCount)) {
         goto one;
     }
-    *(s32 *)(arg0 + 0x28) = reload20 - reload14;
+    *(s32 *)(state + 0x28) = reloadedCount - reloadedVisibleCount;
     goto one;
 zero:
-    *(s32 *)(arg0 + 0x28) = f20 - clamped;
-    *(s32 *)(arg0 + 0x24) = clamped - 1;
+    *(s32 *)(state + 0x28) = count - clampedCount;
+    *(s32 *)(state + 0x24) = clampedCount - 1;
     return 0;
 one:
     return 1;
@@ -283,24 +296,25 @@ one:
    `return 0` block and the `return 1` block out of line, in that order, after
    the main body. The natural nested-if / result-variable spellings all merge
    them into one epilogue and come out two words short (nd 24). */
-s32 sdkListStateRepeatBack(u8 *arg0) {
-    s32 v;
-    s32 t;
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+s32 sdkListStateRepeatBack(u8 *state) {
+    s32 offset;
+    s32 nextOffset;
 
-    v = *(s32 *)(arg0 + 0x28);
-    if (v <= 0) {
+    offset = *(s32 *)(state + 0x28);
+    if (offset <= 0) {
         goto zero;
     }
-    t = v - *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(arg0 + 0x28) = t;
-    if (t >= 0) {
+    nextOffset = offset - *(s32 *)(state + 0x1C);
+    *(s32 *)(state + 0x28) = nextOffset;
+    if (nextOffset >= 0) {
         goto one;
     }
-    *(s32 *)(arg0 + 0x28) = 0;
+    *(s32 *)(state + 0x28) = 0;
     goto one;
 zero:
-    *(s32 *)(arg0 + 0x28) = 0;
-    *(s32 *)(arg0 + 0x24) = 0;
+    *(s32 *)(state + 0x28) = 0;
+    *(s32 *)(state + 0x24) = 0;
     return 0;
 one:
     return 1;
@@ -324,7 +338,7 @@ void H_Cdvd_ResetStreamState(void)
     index = 0;
     table = D_008C8780;
     while (index < 0x100) {
-        *(s32 *)(table + (index * 0x94)) = 0;
+        ((HCdvdCache*)table)[index].isValid = 0;
         index += 1;
     }
     *(s32 *)D_008D1CD4 = 0;

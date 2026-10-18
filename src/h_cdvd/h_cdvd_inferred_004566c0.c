@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "h_cdvd_slot_internal.h"
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -246,57 +247,58 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma pop
 // Intent: file-record open callback. Builds the path from the base and the name, opens the file, and seeks to its end. Returns 1 on success, 2 for a null name, 3 when the open fails.
 // FUN_004566C0
-s32 H_Cdvd_FileOpen(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
-    u8 sp50[0x100];
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode) {
+    u8 path[0x100];
     s32 bit0;
     s32 handle;
     s32 flags;
     s32 bit1;
 
     flags = 0;
-    func_004244c8(D_00711720, arg2);
-    strcpy((char *)sp50, (const char *)&iGpffffad88);
-    strcat(&sp50, arg2 + strlen(&sp50));
-    if (arg2 == 0) {
+    func_004244c8(D_00711720, name);
+    strcpy((char *)path, (const char *)&iGpffffad88);
+    strcat(&path, name + strlen(&path));
+    if (name == 0) {
         return 2;
     }
-    bit0 = arg3 & 1;
-    if ((bit0 != 0) && (bit1 = arg3 & 2, (bit1 != 0))) {
+    bit0 = openMode & 1;
+    if ((bit0 != 0) && (bit1 = openMode & 2, (bit1 != 0))) {
         flags |= 3;
     } else {
         if (bit0 != 0) {
             flags |= 1;
         }
-        bit1 = arg3 & 2;
+        bit1 = openMode & 2;
         if (bit1 != 0) {
             flags |= 2;
         }
     }
-    if (arg3 & 4) {
+    if (openMode & 4) {
         flags |= 0x200;
     }
-    if ((bit1 != 0) && !(arg3 & 8)) {
+    if ((bit1 != 0) && !(openMode & 8)) {
         flags |= 0x400;
     }
-    *(s32 *)(arg1 + 0x30) = 0;
-    *(s64 *)(arg1 + 0x10) = 0;
-    handle = func_00426cf0(&sp50, flags, 0x1FF);
-    *(s32 *)(arg1 + 0x74) = handle;
+    *(s32 *)(slot + 0x30) = 0;
+    *(s64 *)(slot + 0x10) = 0;
+    handle = func_00426cf0(&path, flags, 0x1FF);
+    *(s32 *)(slot + 0x74) = handle;
     if (handle < 0) {
         return 3;
     }
-    *(s64 *)(arg1 + 0) = (s64)func_004270f8(handle, 0, 2);
-    func_004270f8(*(s32 *)(arg1 + 0x74), 0, 0);
-    *(s32 *)(arg1 + 0x3C) = 1;
+    *(s64 *)(slot + 0) = (s64)func_004270f8(handle, 0, 2);
+    func_004270f8(*(s32 *)(slot + 0x74), 0, 0);
+    *(s32 *)(slot + 0x3C) = 1;
     return 1;
 }
 
 // Intent: file-record close callback. Closes the handle and clears the shared path buffer.
 // FUN_00456840
-void H_Cdvd_FileClose(u8 *arg0) {
+void H_Cdvd_FileClose(u8 *slot) {
     func_004244c8(D_00711738);
-    *(s32 *)(arg0 + 0x38) = 1;
-    func_00426f80(*(s32 *)(arg0 + 0x74));
+    ((HCdvdFileSlot*)slot)->operation = 1;
+    func_00426f80(((HCdvdFileSlot*)slot)->descriptor);
     func_00428f08(&iGpffffad88, 0);
 }
 

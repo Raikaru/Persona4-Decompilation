@@ -97,7 +97,7 @@ extern u16 D_0064E7B6[];
 
 extern s32 D_0064E7B8[];
 
-extern void func_00106550(s32 arg0, u32 arg1);
+extern void datSetScriptValue(s32 arg0, u32 arg1);
 
 extern s32 datGetFlag(s32 id);
 
@@ -863,7 +863,7 @@ s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1)
                 datSetFlag(*(s32 *)p, 0);
                 datSetFlag(0x1403, 0);
             }
-            func_00106550(0x10, 0);
+            datSetScriptValue(0x10, 0);
             break;
         }
         if (idx2 == 0x2C) {

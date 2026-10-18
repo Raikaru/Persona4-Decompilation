@@ -259,7 +259,7 @@ void fclMesWindowDrawItemCategory(f32 inputDepth, s16 item, s32 x, s32 y,
     color = inputColor;
     font = inputFont;
     mode = inputMode;
-    category = func_00106850(item);
+    category = datEntryGetKind(item);
     switch (category) {
     case 0:
         itfMesWindowDrawEntry((f32)x, (f32)y, depth,
