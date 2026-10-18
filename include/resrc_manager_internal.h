@@ -47,12 +47,16 @@ struct ResrcRecord
     f32 unk1C;
     f32 unk20;
     f32 unk24;
-    u8 unk28[0x30];
+    u32 unk28;              /* +0x28: copied to EvtNode.resData */
+    u8 pad2C[0x2C];
     void *ownedData;        /* 0x58 */
     u8 unk5C[0xdc];
     ResrcRecord *next;      /* 0x138 */
     ResrcRecord *prev;      /* 0x13c */
-    void *slotHandle[2];    /* 0x140. [1] is 0x144 in the per-type cases */
+    union {
+        void *slotHandle[2]; /* 0x140. [1] is 0x144 in the per-type cases */
+        f32 fieldOfView;     /* 0x140. Camera-resource interpretation */
+    };
     s32 cameraRes[2];       /* 0x148. Camera resources (RESRC_TYPE_20) */
     u8 unk150[0x8];
     void *modelHandle158;   /* 0x158. Model data (RESRC_TYPE_MODELUNK) */

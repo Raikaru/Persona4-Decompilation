@@ -134,7 +134,7 @@ extern void MT_Scene_SetFadeForState(u16, u16);
 extern s32 FldSupporterTaskCreate(u8 *);
 extern s32 FldEvent_SpawnTrigger(u8 *);
 extern void FldSlotBroadcastState(s32);
-extern s32 func_0028b260(void);
+extern s32 evtMainIsFlagSet(void);
 extern void func_001029a0(s32, void *, s32, s32);
 
 #pragma opt_propagation off
@@ -328,7 +328,7 @@ s32 FldRootUpdate(u8 *task)
         }
         break;
     case 14:
-        if (kwlnTaskIsLinked(work->eventTask) != 1 && func_0028b260() == 0) {
+        if (kwlnTaskIsLinked(work->eventTask) != 1 && evtMainIsFlagSet() == 0) {
             work->state = 18;
         }
         break;

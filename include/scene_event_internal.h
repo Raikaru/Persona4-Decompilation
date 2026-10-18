@@ -79,6 +79,104 @@ typedef struct EvtPayloadKind34 { u8 pad00[2]; u8 unk02; } EvtPayloadKind34;
 /* Kind 0x35: the environment slot (evtEnvSlotSave stores the light and camera state). */
 typedef struct EvtEnvSlotPayload { u8 unk00; u8 pad01[3]; u8 unk04; u8 unk05; u8 unk06; u8 pad07; u8 unk08; u8 unk09; u8 unk0A; u8 pad0B; f32 unk0C; f32 unk10; } EvtEnvSlotPayload;
 
+/* Per-kind payloads recovered by evtMain; all begin at child offset +0x10. */
+typedef struct EvtMovieDefaultPayload {
+    u8 unk00, unk01;
+    u8 pad02[2];
+    u16 unk04, unk06;
+    u8 unk08, unk09, unk0A, unk0B;
+    f32 unk0C, unk10;
+    u8 unk14;
+} EvtMovieDefaultPayload;
+typedef struct EvtHalfwordPayload {
+    union { u16 halfword; u8 byte; } value;
+    s16 unk02;
+} EvtHalfwordPayload;
+typedef struct EvtDisplayPayload {
+    s8 operation;
+    u8 pad01;
+    u16 resourceId;
+    s8 motionGroup;
+    s8 restartMode;
+    s16 motionIndex;
+    s16 startTime;
+    s16 speedPercent;
+} EvtDisplayPayload;
+typedef struct EvtPlacementPayload {
+    s8 operation;
+    s8 slot;
+    union { struct { s8 resource; s8 enabled; } spawn; s16 duration; u8 color; } value02;
+    union { SVec3 position; s16 colorDuration; } value04;
+    SVec3 angles;
+} EvtPlacementPayload;
+typedef struct EvtMessagePayload {
+    u8 pad00[4];
+    s8 waitMode;
+    u8 pad05;
+    s8 style;
+} EvtMessagePayload;
+typedef struct EvtLabelPayload {
+    u8 pad00[4];
+    s16 letter;
+    s16 value;
+} EvtLabelPayload;
+typedef struct EvtTintPayload {
+    u8 enabled;
+    u8 pad01[3];
+    u8 lightRed, lightGreen, lightBlue;
+    u8 pad07;
+    u8 ambientRed, ambientGreen, ambientBlue;
+    u8 pad0B;
+    f32 cameraValue;
+    f32 value;
+} EvtTintPayload;
+typedef struct EvtScreenColorPayload {
+    u8 red, green, filter, blue;
+} EvtScreenColorPayload;
+typedef struct EvtTogglePayload {
+    u8 enabled;
+} EvtTogglePayload;
+typedef struct EvtCameraPositionPayload {
+    f32 x, y;
+} EvtCameraPositionPayload;
+typedef struct EvtStreamPayload {
+    s8 operation;
+    s8 value01, value02, value03;
+} EvtStreamPayload;
+typedef struct EvtSoundCuePayload {
+    s16 operation;
+    s16 cue;
+} EvtSoundCuePayload;
+typedef struct EvtDrawPayload {
+    s8 operation;
+    u8 pad01[3];
+    s16 firstValue, secondValue, thirdValue, fourthValue;
+} EvtDrawPayload;
+typedef struct EvtRangeChoicePayload {
+    s16 destinationFrame;
+    s16 length;
+} EvtRangeChoicePayload;
+typedef struct EvtLayerChoicePayload {
+    s8 operation;
+    u8 pad01[3];
+    s8 layer;
+    s8 motionGroup;
+    s8 restartMode;
+    s8 motionIndex;
+    u8 pad08[8];
+    s16 startTime;
+    s8 recordMode;
+    s8 enableRecord;
+    s8 recordGroup;
+    s8 recordDisabled;
+    s16 recordIndex;
+    s16 speedPercent;
+    s16 recordSpeedPercent;
+} EvtLayerChoicePayload;
+typedef struct EvtWaitPayload {
+    s8 operation;
+} EvtWaitPayload;
+
 typedef union EvtChildPayload {
     EvtPayloadKind01 kind01;
     EvtPayloadKind02 kind02;
@@ -98,6 +196,22 @@ typedef union EvtChildPayload {
     EvtPayloadByte kind30;
     EvtPayloadKind34 kind34;
     EvtEnvSlotPayload envSlot;
+    EvtMovieDefaultPayload movieDefaults;
+    EvtHalfwordPayload halfword;
+    EvtDisplayPayload display;
+    EvtPlacementPayload placement;
+    EvtMessagePayload message;
+    EvtLabelPayload label;
+    EvtTintPayload tint;
+    EvtScreenColorPayload screenColor;
+    EvtTogglePayload toggle;
+    EvtCameraPositionPayload cameraPosition;
+    EvtStreamPayload stream;
+    EvtSoundCuePayload soundCue;
+    EvtDrawPayload draw;
+    EvtRangeChoicePayload rangeChoice;
+    EvtLayerChoicePayload layerChoice;
+    EvtWaitPayload wait;
 } EvtChildPayload;
 
 struct EvtChildNode {
@@ -107,7 +221,9 @@ struct EvtChildNode {
     u8 unk08[0x08];
     EvtChildPayload payload;  /* +0x10..+0x2F: payload typed by the parent kind */
     u8 unk30;                 /* +0x30: kind 0x30 stores the parent's param04 here */
-    u8 unk31[0x07];
+    u8 unk31[3];
+    s16 scalePercent;         /* +0x34: resource-placement uniform scale */
+    u8 pad36[2];
     u32 kind;                 /* +0x38: the parent's kind */
     u8 unk3C[0x04];
     u32 ownedBlock40;         /* +0x40: heap block freed with the child */
@@ -122,9 +238,14 @@ struct EvtChildNode {
 struct EvtNode {
     u32 kind;                 /* +0x00: switched on by evtResetEventScene */
     s32 param04;              /* +0x04: per-kind argument read by evtNodeCreate */
-    u8 unk08[0x04];
+    s32 unk08;                /* +0x08: initialized to -1 */
     u16 flags;                /* +0x0C: resource id in the low 10 bits */
-    u8 unk0E[0x26];
+    u8 pad0E[0x0E];
+    s16 frameOffset;          /* +0x1C: key-selection frame offset */
+    s8 lightMode;             /* +0x1E: light-pose binding mode */
+    u8 pad1F;
+    u16 lightResource;        /* +0x20: mode-3 light resource id */
+    u8 pad22[0x12];
     void *res;                /* +0x34: scene resource (evtNodeSetRes) */
     u8 unk38[0x18];
     EvtColor color;           /* +0x50: colour copied in by evtNpcModelTaskUpdate */
@@ -134,7 +255,8 @@ struct EvtNode {
     s32 childCount;           /* +0x64 */
     EvtChildNode *childHead;  /* +0x68 */
     EvtChildNode *childTail;  /* +0x6C */
-    u8 unk70[0x20];
+    u8 *layerChoice[4];       /* +0x70: cached layer-choice keys */
+    u8 pad80[0x10];
     EvtNode *next;            /* +0x90: next node in the event's list */
     EvtNode *prev;            /* +0x94: previous node in the event's list */
 };
@@ -147,35 +269,58 @@ struct EvtEventTask {
     u8 unk10[0x50];
 };
 
+/* Saved light/camera state, 0x14 bytes per event environment slot. */
+typedef struct EvtEnvironmentSlot {
+    u32 flags;
+    u32 lightColor;
+    u32 ambientColor;
+    f32 cameraValue;
+    f32 value;
+} EvtEnvironmentSlot;
+
 /* Event work block (0x7B0 bytes): kwlnTaskGetWork of EvtEventTask.eventTask. */
 struct EvtEventWork {
     s32 waitFlags;            /* +0x00: wait bits cleared by evtUpdateNodeWaitFlags */
     u8 *sceneSource;          /* +0x04: scene source block (evtPolygonMovieAlloc); nonzero while a message is attached */
-    u8 unk08[0x08];
+    u32 frameCount;           /* +0x08 */
+    s32 startFrame;           /* +0x0C */
     s32 frameLimit;           /* +0x10 */
     s32 frame;                /* +0x14 */
     s32 lastFrame;            /* +0x18 */
     s32 resetRequested;       /* +0x1C */
     s32 resetFrame;           /* +0x20 */
-    u8 unk24[0x24];
+    u8 unk24[0x20];
+    s8 flags44;               /* +0x44: bit 2 set by fade mode 7 */
+    u8 pad45[3];
     s32 nodeCount;            /* +0x48 */
     EvtNode *nodeList;        /* +0x4C */
     EvtNode *nodeTail;        /* +0x50 */
-    u8 unk54[0x57C];
+    u32 initialized;          /* +0x54 */
+    u8 pad58[0x10];
+    EvtEnvironmentSlot environment[2]; /* +0x68 */
+    u8 pad90[8];
+    f32 savedCamera[2];       /* +0x98: camera x/y */
+    u8 padA0[0x1A];
+    s16 resultSlot;           /* +0xBA: message selection result slot */
+    u8 padBC[0x514];
     s32 effectTable;          /* +0x5D0: effect table handle */
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
     u8 messageWindow[0x4C];   /* +0x678: message window, runs to at least +0x6C4 */
     s32 waitTask[3];          /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
-    u8 unk6D0[0x80];
+    s32 taskSlots[3];         /* +0x6D0: filter child tasks */
+    u8 pad6DC[0x74];
     f32 fov;                  /* +0x750: field of view (K_View_GetFov) */
-    u8 unk754[0x08];
+    u8 unk754[4];
+    s32 fadeActive;           /* +0x758 */
     s32 linkedTask;           /* +0x75C: task watched by the 0x4000 wait */
     s32 scriptLoad;           /* +0x760: script load handle for the 0x80000 wait */
-    u8 unk764[0x08];
+    u8 unk764[4];
+    u32 noiseTask;            /* +0x768 */
     s32 loadState;            /* +0x76C: script loader state (0..14); state 14 resets to 0 */
     s32 loadFlags;            /* +0x770: 0x1 load requested (evtRequestLoad), 0x2 loader idle */
-    u8 unk774[0x08];
+    u32 pending;             /* +0x774 */
+    u8 unk778[4];
     s32 readerHandle;         /* +0x77C: PM file reader handle (evtPMFileReaderCreate) */
     s32 streamTask;           /* +0x780: sound stream task (sdkSndCreateStreamTask) */
     u8 unk784[0x04];

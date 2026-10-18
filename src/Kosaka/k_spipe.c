@@ -44,8 +44,8 @@ struct RwSky2DVertexFields
     f32 pad2;            // 0x3c
 };
 
-typedef union RwSky2DVertexAlignementOverlay RwSky2DVertexAlignementOverlay;
-union RwSky2DVertexAlignementOverlay
+typedef union RwSky2DVertexStorage RwSky2DVertexStorage;
+union RwSky2DVertexStorage
 {
     RwSky2DVertexFields els;
     u64 qWords[8];
@@ -54,7 +54,7 @@ union RwSky2DVertexAlignementOverlay
 typedef struct RwSky2DVertex RwSky2DVertex;
 struct RwSky2DVertex
 {
-    RwSky2DVertexAlignementOverlay u; // 0x00
+    RwSky2DVertexStorage u; // 0x00
 };
 
 typedef RwSky2DVertex RwIm2DVertex;
@@ -135,7 +135,7 @@ typedef struct FldShadowBoundsAccum
 
 extern RwSphere* func_003bfae0(void* atomic);
 
-typedef struct FldShadowProjectionWork FldShadowProjectionWork;
+#include "Kosaka/k_shadow_projection_internal.h"
 
 typedef struct FldShadowAtomicContext
 {
@@ -159,7 +159,7 @@ enum RwPrimitiveType {
     rwPRIMTYPEPOINTLIST = 6,
     rwPRIMITIVETYPEFORCEENUMSIZEINT = 0x7fffffff
 };
-extern RwV3d *func_003e42e0(RwV3d *dst, const RwV3d *src,
+extern RwV3d *func_003e42e0(RwV3d *projected, const RwV3d *positions,
                            s32 count, const struct RwMatrixTag *matrix);
 extern struct RwMatrixTag *func_003e9700(RwFrame *frame);
 extern void *func_00410420(struct _RxObjSpace3DVertex *vertices, u32 count,
@@ -167,6 +167,7 @@ extern void *func_00410420(struct _RxObjSpace3DVertex *vertices, u32 count,
 extern s32 func_004106a0(enum RwPrimitiveType primitive);
 extern s32 func_004104d0(void);
 
+/* Draw a four-vertex screen strip with independent top and bottom colors. */
 // FUN_00178C20
 u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
                   f32 xRight, f32 yBot,
@@ -218,6 +219,7 @@ u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
 
 
 
+/* Detach and destroy the camera frame and Z raster, leaving the color raster owned by its caller. */
 // FUN_001790A0
 void FldShadow_DestroyCamera(RwCamera* camera)
 {
@@ -252,6 +254,7 @@ void FldShadow_DestroyCamera(RwCamera* camera)
 
 
 
+/* Sum atomic radii and retain the center/atomic selected by the running-radius comparison. */
 // FUN_00179130
 void* FldShadow_AccumulateAtomicBounds(void* atomic, void* data)
 {
@@ -274,149 +277,151 @@ void* FldShadow_AccumulateAtomicBounds(void* atomic, void* data)
 
 
 /* measured: MATCH nd0 obj1668/win1680 (12B 3-word zero tail only); V12 u32 c0/c1/c2; MAC dot mula/madda/madd + 1.5f mul+add unfused + adda/msub color exact. */
+/* Cull backfaces/outside triangles, project UVs, and emit three alpha-modulated vertices.
+ * Flush at 600 vertices; the 1.5-unit normal offset displaces output from collision surfaces. */
 // FUN_001791D0
 struct RpCollisionTriangle* FldShadow_ProjectTriangle(
     struct RpIntersection* intersection, struct RpWorldSector* sector,
     struct RpCollisionTriangle* tri, f32 distance, void* data)
 {
-    u8* triSaved = (u8*)tri;
-    u8* workSaved = data;
-    u8* base = workSaved + 0x5470;
-    RwV3d src[3];
-    RwV3d dst[3];
-    RwV3d tmp0;
-    RwV3d tmp1;
-    RwV3d tmp2;
-    f32 t;
-    RwV3d* triNormal = (RwV3d*)triSaved;
-    RwV3d* workVec = (RwV3d*)base;
+    u8* savedTriangle = (u8*)tri;
+    FldShadowProjectionWork* work = data;
+    KosakaShadowProjectionTail* base = &work->tail;
+    RwV3d positions[3];
+    RwV3d projected[3];
+    RwV3d firstPosition;
+    RwV3d secondPosition;
+    RwV3d thirdPosition;
+    f32 component;
+    RwV3d* normal = (RwV3d*)savedTriangle;
+    RwV3d* direction = &base->direction;
     f32 dot;
-    f32 f15x;
-    f32 f15y;
-    f32 f15z;
-    u32 cnt;
-    u8* out;
-    dot = triNormal->x * workVec->x + triNormal->y * workVec->y + triNormal->z * workVec->z;
+    f32 normalOffsetX;
+    f32 normalOffsetY;
+    f32 normalOffsetZ;
+    u32 vertexCount;
+    KosakaShadowVertex* output;
+    dot = normal->x * direction->x + normal->y * direction->y + normal->z * direction->z;
     if (dot > 0.0f) {
-        return (struct RpCollisionTriangle*)triSaved;
+        return (struct RpCollisionTriangle*)savedTriangle;
     }
-    src[0] = *(RwV3d*)(*(u8**)(triSaved + 0x1C));
-    src[1] = *(RwV3d*)(*(u8**)(triSaved + 0x20));
-    src[2] = *(RwV3d*)(*(u8**)(triSaved + 0x24));
-    func_003e42e0(dst, src, 3, (const struct RwMatrixTag *)(base + 0x10));
-    f15x = 1.5f * triNormal->x;
-    f15y = 1.5f * triNormal->y;
-    f15z = 1.5f * triNormal->z;
-    src[0].x += f15x;
-    src[0].y += f15y;
-    src[0].z += f15z;
-    src[1].x += f15x;
-    src[1].y += f15y;
-    src[1].z += f15z;
-    src[2].x += f15x;
-    src[2].y += f15y;
-    src[2].z += f15z;
-    if (!((dst[0].z >= 0.0f || dst[1].z >= 0.0f || dst[2].z >= 0.0f) &&
-        (dst[0].x >= 0.0f || dst[1].x >= 0.0f || dst[2].x >= 0.0f) &&
-        (dst[0].x <= 1.0f || dst[1].x <= 1.0f || dst[2].x <= 1.0f) &&
-        (dst[0].y >= 0.0f || dst[1].y >= 0.0f || dst[2].y >= 0.0f) &&
-        (dst[0].y <= 1.0f || dst[1].y <= 1.0f || dst[2].y <= 1.0f))) {
-        return (struct RpCollisionTriangle*)triSaved;
+    positions[0] = *((struct RpCollisionTriangle*)savedTriangle)->vertices[0];
+    positions[1] = *((struct RpCollisionTriangle*)savedTriangle)->vertices[1];
+    positions[2] = *((struct RpCollisionTriangle*)savedTriangle)->vertices[2];
+    func_003e42e0(projected, positions, 3, (const struct RwMatrixTag *)base->projectionMatrix);
+    normalOffsetX = 1.5f * normal->x;
+    normalOffsetY = 1.5f * normal->y;
+    normalOffsetZ = 1.5f * normal->z;
+    positions[0].x += normalOffsetX;
+    positions[0].y += normalOffsetY;
+    positions[0].z += normalOffsetZ;
+    positions[1].x += normalOffsetX;
+    positions[1].y += normalOffsetY;
+    positions[1].z += normalOffsetZ;
+    positions[2].x += normalOffsetX;
+    positions[2].y += normalOffsetY;
+    positions[2].z += normalOffsetZ;
+    if (!((projected[0].z >= 0.0f || projected[1].z >= 0.0f || projected[2].z >= 0.0f) &&
+        (projected[0].x >= 0.0f || projected[1].x >= 0.0f || projected[2].x >= 0.0f) &&
+        (projected[0].x <= 1.0f || projected[1].x <= 1.0f || projected[2].x <= 1.0f) &&
+        (projected[0].y >= 0.0f || projected[1].y >= 0.0f || projected[2].y >= 0.0f) &&
+        (projected[0].y <= 1.0f || projected[1].y <= 1.0f || projected[2].y <= 1.0f))) {
+        return (struct RpCollisionTriangle*)savedTriangle;
     }
-    cnt = *(u32*)(workSaved + 0x5460);
-    if (cnt > 0x255U) {
-        if (func_00410420((struct _RxObjSpace3DVertex *)workSaved, cnt, 0, 0x19) != 0) {
+    vertexCount = work->vertexCount;
+    if (vertexCount > 0x255U) {
+        if (func_00410420((struct _RxObjSpace3DVertex *)work, vertexCount, 0, 0x19) != 0) {
             func_004106a0(3);
             func_004104d0();
         }
-        (*(s32*)(base + 0x58))++;
-        *(u32*)(workSaved + 0x5460) = 0;
+        (base->flushCount)++;
+        work->vertexCount = 0;
     }
-    out = workSaved + (*(u32*)(workSaved + 0x5460)) * 0x24;
-    t = src[0].x; tmp0.x = t;
-    t = src[0].y; tmp0.y = t;
-    t = src[0].z; tmp0.z = t;
-    *(RwV3d*)out = tmp0;
-    t = src[1].x; tmp1.x = t;
-    t = src[1].y; tmp1.y = t;
-    t = src[1].z; tmp1.z = t;
-    *(RwV3d*)(out + 0x24) = tmp1;
-    t = src[2].x; tmp2.x = t;
-    t = src[2].y; tmp2.y = t;
-    t = src[2].z; tmp2.z = t;
-    *(RwV3d*)(out + 0x48) = tmp2;
-    *(f32*)(out + 0x1C) = dst[0].x;
-    *(f32*)(out + 0x40) = dst[1].x;
-    *(f32*)(out + 0x64) = dst[2].x;
-    *(f32*)(out + 0x20) = dst[0].y;
-    *(f32*)(out + 0x44) = dst[1].y;
-    *(f32*)(out + 0x68) = dst[2].y;
-    if (*(s32*)(base + 0x54) != 0) {
+    output = &work->vertices[work->vertexCount];
+    component = positions[0].x; firstPosition.x = component;
+    component = positions[0].y; firstPosition.y = component;
+    component = positions[0].z; firstPosition.z = component;
+    output[0].position = firstPosition;
+    component = positions[1].x; secondPosition.x = component;
+    component = positions[1].y; secondPosition.y = component;
+    component = positions[1].z; secondPosition.z = component;
+    output[1].position = secondPosition;
+    component = positions[2].x; thirdPosition.x = component;
+    component = positions[2].y; thirdPosition.y = component;
+    component = positions[2].z; thirdPosition.z = component;
+    output[2].position = thirdPosition;
+    output[0].u = projected[0].x;
+    output[1].u = projected[1].x;
+    output[2].u = projected[2].x;
+    output[0].v = projected[0].y;
+    output[1].v = projected[1].y;
+    output[2].v = projected[2].y;
+    if (base->fadeWithDepth != 0) {
         {
-            f32 z0 = dst[0].z;
-            f32 t0 = 1.0f - z0 * z0;
-            u32 c0;
-            if (t0 < 0.0f) {
-                c0 = 0;
+            f32 z0 = projected[0].z;
+            f32 firstFade = 1.0f - z0 * z0;
+            u32 firstAlpha;
+            if (firstFade < 0.0f) {
+                firstAlpha = 0;
             } else {
-                u8 b0 = *(u8*)(base + 0x50);
-                f32 bf0 = (f32)(u32)b0;
-                c0 = (u8)(t0 * bf0);
+                u8 firstBaseAlpha = base->alpha;
+                f32 firstAlphaScale = (f32)(u32)firstBaseAlpha;
+                firstAlpha = (u8)(firstFade * firstAlphaScale);
             }
-            *(u8*)(out + 0x0C) = c0;
-            *(u8*)(out + 0x0D) = c0;
-            *(u8*)(out + 0x0E) = c0;
-            *(u8*)(out + 0x0F) = c0;
+            output[0].color[0] = firstAlpha;
+            output[0].color[1] = firstAlpha;
+            output[0].color[2] = firstAlpha;
+            output[0].color[3] = firstAlpha;
         }
         {
-            f32 z1 = dst[1].z;
-            f32 t1 = 1.0f - z1 * z1;
-            u32 c1;
-            if (t1 < 0.0f) {
-                c1 = 0;
+            f32 z1 = projected[1].z;
+            f32 secondFade = 1.0f - z1 * z1;
+            u32 secondAlpha;
+            if (secondFade < 0.0f) {
+                secondAlpha = 0;
             } else {
-                u8 b1 = *(u8*)(base + 0x50);
-                f32 bf1 = (f32)(u32)b1;
-                c1 = (u8)(t1 * bf1);
+                u8 secondBaseAlpha = base->alpha;
+                f32 secondAlphaScale = (f32)(u32)secondBaseAlpha;
+                secondAlpha = (u8)(secondFade * secondAlphaScale);
             }
-            *(u8*)(out + 0x30) = c1;
-            *(u8*)(out + 0x31) = c1;
-            *(u8*)(out + 0x32) = c1;
-            *(u8*)(out + 0x33) = c1;
+            output[1].color[0] = secondAlpha;
+            output[1].color[1] = secondAlpha;
+            output[1].color[2] = secondAlpha;
+            output[1].color[3] = secondAlpha;
         }
         {
-            f32 z2 = dst[2].z;
-            f32 t2 = 1.0f - z2 * z2;
-            u32 c2;
-            if (t2 < 0.0f) {
-                c2 = 0;
+            f32 z2 = projected[2].z;
+            f32 thirdFade = 1.0f - z2 * z2;
+            u32 thirdAlpha;
+            if (thirdFade < 0.0f) {
+                thirdAlpha = 0;
             } else {
-                u8 b2 = *(u8*)(base + 0x50);
-                f32 bf2 = (f32)(u32)b2;
-                c2 = (u8)(t2 * bf2);
+                u8 thirdBaseAlpha = base->alpha;
+                f32 thirdAlphaScale = (f32)(u32)thirdBaseAlpha;
+                thirdAlpha = (u8)(thirdFade * thirdAlphaScale);
             }
-            *(u8*)(out + 0x54) = c2;
-            *(u8*)(out + 0x55) = c2;
-            *(u8*)(out + 0x56) = c2;
-            *(u8*)(out + 0x57) = c2;
+            output[2].color[0] = thirdAlpha;
+            output[2].color[1] = thirdAlpha;
+            output[2].color[2] = thirdAlpha;
+            output[2].color[3] = thirdAlpha;
         }
     } else {
-        u8 b = *(u8*)(base + 0x50);
-        *(u8*)(out + 0x0C) = b;
-        *(u8*)(out + 0x0D) = b;
-        *(u8*)(out + 0x0E) = b;
-        *(u8*)(out + 0x0F) = b;
-        *(u8*)(out + 0x30) = b;
-        *(u8*)(out + 0x31) = b;
-        *(u8*)(out + 0x32) = b;
-        *(u8*)(out + 0x33) = b;
-        *(u8*)(out + 0x54) = b;
-        *(u8*)(out + 0x55) = b;
-        *(u8*)(out + 0x56) = b;
-        *(u8*)(out + 0x57) = b;
+        u8 b = base->alpha;
+        output[0].color[0] = b;
+        output[0].color[1] = b;
+        output[0].color[2] = b;
+        output[0].color[3] = b;
+        output[1].color[0] = b;
+        output[1].color[1] = b;
+        output[1].color[2] = b;
+        output[1].color[3] = b;
+        output[2].color[0] = b;
+        output[2].color[1] = b;
+        output[2].color[2] = b;
+        output[2].color[3] = b;
     }
-    (*(u32*)(workSaved + 0x5460)) += 3;
-    return (struct RpCollisionTriangle*)triSaved;
+    (work->vertexCount) += 3;
+    return (struct RpCollisionTriangle*)savedTriangle;
 }
 /* Skinned twin of FldShadow_ProjectTriangle: each vertex is first transformed by its
    atomic's frame matrix, then projected and emitted the same way. */
@@ -426,151 +431,152 @@ struct RpCollisionTriangle* FldShadow_ProjectSkinnedTriangle(
     f32 distance, void* data)
 {
     FldShadowAtomicContext* context = data;
-    u8* base = (u8*)context->work + 0x5470;
+    KosakaShadowProjectionTail* base = &context->work->tail;
     RwV3d normal;
-    RwV3d src[3];
-    RwV3d dst[3];
+    RwV3d positions[3];
+    RwV3d projected[3];
     RwV3d skinned[3];
-    RwV3d tmp0;
-    RwV3d tmp1;
-    RwV3d tmp2;
-    f32 t;
-    RwV3d* workVec = (RwV3d*)base;
+    RwV3d firstPosition;
+    RwV3d secondPosition;
+    RwV3d thirdPosition;
+    f32 component;
+    RwV3d* direction = &base->direction;
     f32 dot;
-    f32 f15x;
-    f32 f15y;
-    f32 f15z;
-    u32 cnt;
-    u8* out;
+    f32 normalOffsetX;
+    f32 normalOffsetY;
+    f32 normalOffsetZ;
+    u32 vertexCount;
+    KosakaShadowVertex* output;
     s32 i;
 
     normal = *(const RwV3d*)triangle;
     for (i = 0; i < 3; i++) {
-        func_003e42e0(&skinned[i], *(const RwV3d **)((const u8*)triangle + 0x1C + i * 4), 1,
-                      func_003e9700(*(RwFrame **)((u8*)context->atomic + 4)));
+        func_003e42e0(&skinned[i], ((const struct RpCollisionTriangle*)triangle)->vertices[i], 1,
+                      func_003e9700((RwFrame*)((struct RpAtomic*)context->atomic)->frame));
     }
-    dot = normal.x * workVec->x + normal.y * workVec->y + normal.z * workVec->z;
+    dot = normal.x * direction->x + normal.y * direction->y + normal.z * direction->z;
     if (dot > 0.0f) {
         return triangle;
     }
-    src[0] = skinned[0];
-    src[1] = skinned[1];
-    src[2] = skinned[2];
-    func_003e42e0(dst, src, 3, (const struct RwMatrixTag *)(base + 0x10));
-    f15x = 1.5f * normal.x;
-    f15y = 1.5f * normal.y;
-    f15z = 1.5f * normal.z;
-    src[0].x += f15x;
-    src[0].y += f15y;
-    src[0].z += f15z;
-    src[1].x += f15x;
-    src[1].y += f15y;
-    src[1].z += f15z;
-    src[2].x += f15x;
-    src[2].y += f15y;
-    src[2].z += f15z;
-    if (!((dst[0].z >= 0.0f || dst[1].z >= 0.0f || dst[2].z >= 0.0f) &&
-        (dst[0].x >= 0.0f || dst[1].x >= 0.0f || dst[2].x >= 0.0f) &&
-        (dst[0].x <= 1.0f || dst[1].x <= 1.0f || dst[2].x <= 1.0f) &&
-        (dst[0].y >= 0.0f || dst[1].y >= 0.0f || dst[2].y >= 0.0f) &&
-        (dst[0].y <= 1.0f || dst[1].y <= 1.0f || dst[2].y <= 1.0f))) {
+    positions[0] = skinned[0];
+    positions[1] = skinned[1];
+    positions[2] = skinned[2];
+    func_003e42e0(projected, positions, 3, (const struct RwMatrixTag *)base->projectionMatrix);
+    normalOffsetX = 1.5f * normal.x;
+    normalOffsetY = 1.5f * normal.y;
+    normalOffsetZ = 1.5f * normal.z;
+    positions[0].x += normalOffsetX;
+    positions[0].y += normalOffsetY;
+    positions[0].z += normalOffsetZ;
+    positions[1].x += normalOffsetX;
+    positions[1].y += normalOffsetY;
+    positions[1].z += normalOffsetZ;
+    positions[2].x += normalOffsetX;
+    positions[2].y += normalOffsetY;
+    positions[2].z += normalOffsetZ;
+    if (!((projected[0].z >= 0.0f || projected[1].z >= 0.0f || projected[2].z >= 0.0f) &&
+        (projected[0].x >= 0.0f || projected[1].x >= 0.0f || projected[2].x >= 0.0f) &&
+        (projected[0].x <= 1.0f || projected[1].x <= 1.0f || projected[2].x <= 1.0f) &&
+        (projected[0].y >= 0.0f || projected[1].y >= 0.0f || projected[2].y >= 0.0f) &&
+        (projected[0].y <= 1.0f || projected[1].y <= 1.0f || projected[2].y <= 1.0f))) {
         return triangle;
     }
-    cnt = *(u32*)((u8*)context->work + 0x5460);
-    if (cnt > 0x255U) {
-        if (func_00410420((struct _RxObjSpace3DVertex *)context->work, cnt, 0, 0x19) != 0) {
+    vertexCount = context->work->vertexCount;
+    if (vertexCount > 0x255U) {
+        if (func_00410420((struct _RxObjSpace3DVertex *)context->work, vertexCount, 0, 0x19) != 0) {
             func_004106a0(3);
             func_004104d0();
         }
-        (*(s32*)(base + 0x58))++;
-        *(u32*)((u8*)context->work + 0x5460) = 0;
+        (base->flushCount)++;
+        context->work->vertexCount = 0;
     }
-    out = (u8*)context->work + (*(u32*)((u8*)context->work + 0x5460)) * 0x24;
-    t = src[0].x; tmp0.x = t;
-    t = src[0].y; tmp0.y = t;
-    t = src[0].z; tmp0.z = t;
-    *(RwV3d*)out = tmp0;
-    t = src[1].x; tmp1.x = t;
-    t = src[1].y; tmp1.y = t;
-    t = src[1].z; tmp1.z = t;
-    *(RwV3d*)(out + 0x24) = tmp1;
-    t = src[2].x; tmp2.x = t;
-    t = src[2].y; tmp2.y = t;
-    t = src[2].z; tmp2.z = t;
-    *(RwV3d*)(out + 0x48) = tmp2;
-    *(f32*)(out + 0x1C) = dst[0].x;
-    *(f32*)(out + 0x40) = dst[1].x;
-    *(f32*)(out + 0x64) = dst[2].x;
-    *(f32*)(out + 0x20) = dst[0].y;
-    *(f32*)(out + 0x44) = dst[1].y;
-    *(f32*)(out + 0x68) = dst[2].y;
-    if (*(s32*)(base + 0x54) != 0) {
+    output = &context->work->vertices[context->work->vertexCount];
+    component = positions[0].x; firstPosition.x = component;
+    component = positions[0].y; firstPosition.y = component;
+    component = positions[0].z; firstPosition.z = component;
+    output[0].position = firstPosition;
+    component = positions[1].x; secondPosition.x = component;
+    component = positions[1].y; secondPosition.y = component;
+    component = positions[1].z; secondPosition.z = component;
+    output[1].position = secondPosition;
+    component = positions[2].x; thirdPosition.x = component;
+    component = positions[2].y; thirdPosition.y = component;
+    component = positions[2].z; thirdPosition.z = component;
+    output[2].position = thirdPosition;
+    output[0].u = projected[0].x;
+    output[1].u = projected[1].x;
+    output[2].u = projected[2].x;
+    output[0].v = projected[0].y;
+    output[1].v = projected[1].y;
+    output[2].v = projected[2].y;
+    if (base->fadeWithDepth != 0) {
         {
-            f32 z0 = dst[0].z;
-            f32 t0 = 1.0f - z0 * z0;
-            u32 c0;
-            if (t0 < 0.0f) {
-                c0 = 0;
+            f32 z0 = projected[0].z;
+            f32 firstFade = 1.0f - z0 * z0;
+            u32 firstAlpha;
+            if (firstFade < 0.0f) {
+                firstAlpha = 0;
             } else {
-                u8 b0 = *(u8*)(base + 0x50);
-                f32 bf0 = (f32)(u32)b0;
-                c0 = (u8)(t0 * bf0);
+                u8 firstBaseAlpha = base->alpha;
+                f32 firstAlphaScale = (f32)(u32)firstBaseAlpha;
+                firstAlpha = (u8)(firstFade * firstAlphaScale);
             }
-            *(u8*)(out + 0x0C) = c0;
-            *(u8*)(out + 0x0D) = c0;
-            *(u8*)(out + 0x0E) = c0;
-            *(u8*)(out + 0x0F) = c0;
+            output[0].color[0] = firstAlpha;
+            output[0].color[1] = firstAlpha;
+            output[0].color[2] = firstAlpha;
+            output[0].color[3] = firstAlpha;
         }
         {
-            f32 z1 = dst[1].z;
-            f32 t1 = 1.0f - z1 * z1;
-            u32 c1;
-            if (t1 < 0.0f) {
-                c1 = 0;
+            f32 z1 = projected[1].z;
+            f32 secondFade = 1.0f - z1 * z1;
+            u32 secondAlpha;
+            if (secondFade < 0.0f) {
+                secondAlpha = 0;
             } else {
-                u8 b1 = *(u8*)(base + 0x50);
-                f32 bf1 = (f32)(u32)b1;
-                c1 = (u8)(t1 * bf1);
+                u8 secondBaseAlpha = base->alpha;
+                f32 secondAlphaScale = (f32)(u32)secondBaseAlpha;
+                secondAlpha = (u8)(secondFade * secondAlphaScale);
             }
-            *(u8*)(out + 0x30) = c1;
-            *(u8*)(out + 0x31) = c1;
-            *(u8*)(out + 0x32) = c1;
-            *(u8*)(out + 0x33) = c1;
+            output[1].color[0] = secondAlpha;
+            output[1].color[1] = secondAlpha;
+            output[1].color[2] = secondAlpha;
+            output[1].color[3] = secondAlpha;
         }
         {
-            f32 z2 = dst[2].z;
-            f32 t2 = 1.0f - z2 * z2;
-            u32 c2;
-            if (t2 < 0.0f) {
-                c2 = 0;
+            f32 z2 = projected[2].z;
+            f32 thirdFade = 1.0f - z2 * z2;
+            u32 thirdAlpha;
+            if (thirdFade < 0.0f) {
+                thirdAlpha = 0;
             } else {
-                u8 b2 = *(u8*)(base + 0x50);
-                f32 bf2 = (f32)(u32)b2;
-                c2 = (u8)(t2 * bf2);
+                u8 thirdBaseAlpha = base->alpha;
+                f32 thirdAlphaScale = (f32)(u32)thirdBaseAlpha;
+                thirdAlpha = (u8)(thirdFade * thirdAlphaScale);
             }
-            *(u8*)(out + 0x54) = c2;
-            *(u8*)(out + 0x55) = c2;
-            *(u8*)(out + 0x56) = c2;
-            *(u8*)(out + 0x57) = c2;
+            output[2].color[0] = thirdAlpha;
+            output[2].color[1] = thirdAlpha;
+            output[2].color[2] = thirdAlpha;
+            output[2].color[3] = thirdAlpha;
         }
     } else {
-        u8 b = *(u8*)(base + 0x50);
-        *(u8*)(out + 0x0C) = b;
-        *(u8*)(out + 0x0D) = b;
-        *(u8*)(out + 0x0E) = b;
-        *(u8*)(out + 0x0F) = b;
-        *(u8*)(out + 0x30) = b;
-        *(u8*)(out + 0x31) = b;
-        *(u8*)(out + 0x32) = b;
-        *(u8*)(out + 0x33) = b;
-        *(u8*)(out + 0x54) = b;
-        *(u8*)(out + 0x55) = b;
-        *(u8*)(out + 0x56) = b;
-        *(u8*)(out + 0x57) = b;
+        u8 b = base->alpha;
+        output[0].color[0] = b;
+        output[0].color[1] = b;
+        output[0].color[2] = b;
+        output[0].color[3] = b;
+        output[1].color[0] = b;
+        output[1].color[1] = b;
+        output[1].color[2] = b;
+        output[1].color[3] = b;
+        output[2].color[0] = b;
+        output[2].color[1] = b;
+        output[2].color[2] = b;
+        output[2].color[3] = b;
     }
-    (*(u32*)((u8*)context->work + 0x5460)) += 3;
+    (context->work->vertexCount) += 3;
     return triangle;
 }
+/* Project every collision triangle of this atomic using its frame transform. */
 // FUN_00179F70
 void* FldShadow_ProjectAtomic(void* atomic, void* data)
 {
