@@ -12,7 +12,7 @@ extern void func_00492d00(int arg0);
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
-extern void func_00489f40(void *arg0, u32 color);
+extern void mdlSetObjectHeaderValue(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
@@ -551,7 +551,7 @@ draw_entry:
     if (*(u32 *)(*(u8 **)(arg0 + 0x30) + 0x10) < *(u32 *)(arg0 + 0x10)) {
         return;
     }
-    func_00489f40(*(void **)(arg0 + 0x2C), *(u32 *)(arg0 + 4));
+    mdlSetObjectHeaderValue(*(void **)(arg0 + 0x2C), *(u32 *)(arg0 + 4));
     ParticleUpdateScaled(*(void **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
 }
 // Applies the track width to its ribbon geometry when the track has more than one sample.
@@ -634,7 +634,7 @@ void TrackSetColor(u8 *arg0, u32 arg1)
     *(u32 *)(arg0 + 4) = arg1;
     temp_4 = *(u32 *)(arg0 + 0x2C);
     if (temp_4 != 0) {
-        func_00489f40((void *)temp_4, arg1);
+        mdlSetObjectHeaderValue((void *)temp_4, arg1);
     }
 }
 

@@ -30,7 +30,7 @@ extern u32 RpRandom(void);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 
 
-extern u32 func_001053b0(s16 arg0);
+extern u32 datGetLevelTableFirstValue(s16 arg0);
 extern s32 datCalcHasSkill(DatUnit *arg0, s32 arg1);
 
 extern s32 datScriptTargetIsNotEnemy(void);
@@ -73,7 +73,7 @@ extern u8 *datUnitGetRecord(s32 arg0);
 extern u8 datCalcGetBattleStat(DatUnit *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 datCalcEnemyMoney(u8 *arg0);
-extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
 extern u16 datItemValue(s16 arg0);
 extern u16 datItemElement(s16 arg0);
 extern u32 datItemGrantedSkill(s16 arg0);
@@ -109,15 +109,15 @@ extern void datCalcSetSecondaryBuffLevel(DatUnit *arg0, u8 arg1, s8 arg2);
 
 extern u8 datCalcGetUnitStat(DatUnit *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
-extern s32 func_00106940(s16 arg0);
-extern s32 func_00106970(s16 arg0);
+extern s32 datEntryGetMiddleBandValue(s16 arg0);
+extern s32 datEntryGetLastBandValue(s16 arg0);
 extern u32 datCalcSkillCost(DatUnit *arg0, s32 arg1);
 extern s32 datCalcSkillElement(DatUnit *arg0, u16 arg1);
 extern s8 datCalcGetBuffLevel(DatUnit *arg0, s32 arg1);
-extern u16 func_001068b0(s16 arg0);
-extern u16 func_001068e0(s16 arg0);
-extern u8 func_00106910(s16 arg0);
-extern u16 func_00105460(s16 arg0);
+extern u16 datEntryGetPrimaryValue(s16 arg0);
+extern u16 datEntryGetSecondaryValue(s16 arg0);
+extern u8 datEntryGetPropertyByte(s16 arg0);
+extern u16 datGetLevelTableSecondValue(s16 arg0);
 
 static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base) { return offset + base; }
 
@@ -246,7 +246,7 @@ u16 datCalcMaxHp(DatUnit *unit)
         if ((baseHp & 0xFFFF) >= 0xB) {
             kAssertFail(D_00635938, 0xC2);
         }
-        tableHp = (u16)func_001053b0((s16)baseHp);
+        tableHp = (u16)datGetLevelTableFirstValue((s16)baseHp);
     }
     baseHp = tableHp & 0xFFFF;
     if (datCalcHasSkill(unit, 0x1F0) != 0) {
@@ -315,7 +315,7 @@ u16 datCalcMaxSp(DatUnit *unit)
         if ((baseSp & 0xFFFF) >= 0xB) {
             kAssertFail(D_00635938, 0xDC);
         }
-        tableSp = (u16)func_00105460((s16)baseSp);
+        tableSp = (u16)datGetLevelTableSecondValue((s16)baseSp);
     }
     baseSp = tableSp & 0xFFFF;
     if (datCalcHasSkill(unit, 0x1F3) != 0) {
@@ -420,7 +420,7 @@ static inline s32 PTDatCalcHasSkill(DatUnit *unit, s32 requestedSkill)
         index = (index + 1) & 0xFFFF;
     }
     if (!(*(u16 *)unit & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)((u8 *)unit + 2), 2) & 0xFFFF);
+        result = (s32)((u32)(u16)datGetEquippedItemByUnit(*(s16 *)((u8 *)unit + 2), 2) & 0xFFFF);
         if (result >= 0) {
             if (skill == datItemGrantedSkill((s16)result)) {
                 return 1;
@@ -501,10 +501,10 @@ u16 datCalcCountIdSlotsWithValue(u16 characterId, u16 property)
     count = 0;
     id = (s16)characterId;
     val = (u16)property;
-    if ((datItemValue(func_00106cd0(id, 0)) & 0xFFFF) == val) {
+    if ((datItemValue(datGetEquippedItemByUnit(id, 0)) & 0xFFFF) == val) {
         count++;
     }
-    if ((datItemValue(func_00106cd0(id, 1)) & 0xFFFF) == val) {
+    if ((datItemValue(datGetEquippedItemByUnit(id, 1)) & 0xFFFF) == val) {
         count++;
     }
     return count;
@@ -534,10 +534,10 @@ s32 datCalcCountSlotsWithValue(u8 *unit, s32 property)
     count = 0;
     id = (s16)id16;
     val = (u16)property;
-    if (datItemValue(func_00106cd0(id, 0)) == val) {
+    if (datItemValue(datGetEquippedItemByUnit(id, 0)) == val) {
         count = (u16)(count + 1);
     }
-    if (datItemValue(func_00106cd0(id, 1)) == val) {
+    if (datItemValue(datGetEquippedItemByUnit(id, 1)) == val) {
         count = (u16)(count + 1);
     }
     return count;
@@ -1611,10 +1611,10 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
     if ((s32)character >= 0xB) {
         kAssertFail(D_00635938, 0x23B);
     }
-    if ((datItemValue(func_00106cd0((s16)character, 0)) & 0xFFFF) == property) {
+    if ((datItemValue(datGetEquippedItemByUnit((s16)character, 0)) & 0xFFFF) == property) {
         return 1;
     }
-    if ((datItemValue(func_00106cd0((s16)character, 1)) & 0xFFFF) == property) {
+    if ((datItemValue(datGetEquippedItemByUnit((s16)character, 1)) & 0xFFFF) == property) {
         return 1;
     }
     return 0;
@@ -1633,7 +1633,7 @@ static inline u16 DCDamageAccessoryProperty(DatUnit *unit)
     if (character >= 11) {
         kAssertFail(D_00635938, 0x291);
     }
-    return datItemValue(func_00106cd0(character, 2)) & 0xFFFF;
+    return datItemValue(datGetEquippedItemByUnit(character, 2)) & 0xFFFF;
 }
 
 static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
@@ -1649,7 +1649,7 @@ static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
     if (character >= 11) {
         kAssertFail(D_00635938, 0x2A7);
     }
-    percent = (s16)datItemAccessoryPercent(func_00106cd0(character, 2));
+    percent = (s16)datItemAccessoryPercent(datGetEquippedItemByUnit(character, 2));
     if (percent < 0 || percent > 100) {
         kAssertFail(D_00635938, 0x2AB);
     }
@@ -2532,7 +2532,7 @@ u32 datCalcStatusEffectResult(s32 skillId, DatUnit *source, DatUnit *target, s32
                 if (characterId >= 0xB) {
                     kAssertFail(D_00635938, 0x291);
                 }
-                equipmentProperty = datItemValue(func_00106cd0(characterId, 0)) & 0xFFFF;
+                equipmentProperty = datItemValue(datGetEquippedItemByUnit(characterId, 0)) & 0xFFFF;
             }
             property = equipmentProperty & 0xFFFF;
             switch (property) {
@@ -3307,7 +3307,7 @@ s32 datCalcSkillElement(DatUnit *unit, u16 skillId)
         if (((DatUnit *)unit)->flags & 4) {
             v = iGpffffb3c4[((DatUnit *)unit)->id * 0x3C + 0x38];
         } else {
-            v = (s16)datItemElement((s16)((u16)func_00106cd0((s16)((DatUnit *)unit)->id, 0) & 0xFFFF));
+            v = (s16)datItemElement((s16)((u16)datGetEquippedItemByUnit((s16)((DatUnit *)unit)->id, 0) & 0xFFFF));
         }
     } else {
         v = (s8)iGpffffb3b4[(skillId & 0xFFFF) * 2];
@@ -3374,7 +3374,7 @@ u32 datCalcSkillCost(DatUnit *unit, s32 skillId)
             index++;
         }
         if ((unit->flags & 4) == 0) {
-            equipment = (u16)func_00106cd0((s16)unit->id, 2);
+            equipment = (u16)datGetEquippedItemByUnit((s16)unit->id, 2);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x20B) {
                     hit = 1;
@@ -3423,7 +3423,7 @@ u32 datCalcSkillCost(DatUnit *unit, s32 skillId)
             index++;
         }
         if ((unit->flags & 4) == 0) {
-            equipment = (u16)func_00106cd0((s16)unit->id, 2);
+            equipment = (u16)datGetEquippedItemByUnit((s16)unit->id, 2);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x20A) {
                     hit = 1;
@@ -3641,7 +3641,7 @@ u16 datCalcPrimaryPersonaId(DatUnit *unit)
     if (unit->id >= 0xB) {
         kAssertFail(D_00635938, 0xFCE);
     }
-    return (u16)func_00106cd0((s16)unit->id, 0) & 0xFFFF;
+    return (u16)datGetEquippedItemByUnit((s16)unit->id, 0) & 0xFFFF;
 }
 
 // Intent: base skill value for unit arg0 at slot arg1 (flag-4 units from the monster row +0x1A; others from the persona row +0x18 when arg1 has bits 6, else 1); the roll in datCalcRollSkillValue adds to it; [inferred].
@@ -3711,14 +3711,14 @@ u16 datCalcGetWeaponProperty(u16 *unitWords, s32 propertyKind)
         if (field1 >= 0xB) {
             kAssertFail(D_00635938, 0x1011);
         }
-        r = (u16)func_00106cd0((s16)field1, 0) & 0xFFFF;
+        r = (u16)datGetEquippedItemByUnit((s16)field1, 0) & 0xFFFF;
         switch (propertyKind & 0xFF) {
         case 0:
-            return func_001068b0((s16)r);
+            return datEntryGetPrimaryValue((s16)r);
         case 1:
-            return func_001068e0((s16)r);
+            return datEntryGetSecondaryValue((s16)r);
         case 2:
-            return func_00106910((s16)r) & 0xFF;
+            return datEntryGetPropertyByte((s16)r) & 0xFF;
         default:
             kAssertFail(D_00635938, 0x101C);
             goto zero;
@@ -3753,13 +3753,13 @@ s32 datCalcGetArmorProperty(DatUnit *unit, s32 propertyKindArg)
         if ((s32)id >= 0xB) {
             kAssertFail(D_00635938, 0x103D);
         }
-        v = (u16)func_00106cd0((s16)id, 1) & 0xFFFF;
+        v = (u16)datGetEquippedItemByUnit((s16)id, 1) & 0xFFFF;
         propertyKind = propertyKindArg & 0xFF;
         switch (propertyKind) {
         case 0:
-            return func_00106970((s16)v);
+            return datEntryGetLastBandValue((s16)v);
         case 1:
-            return func_00106940((s16)v);
+            return datEntryGetMiddleBandValue((s16)v);
         default:
             kAssertFail(D_00635938, 0x1046);
             goto ret0;
@@ -3805,7 +3805,7 @@ static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
         index = (index + 1) & 0xFFFF;
     }
     if (!(*(u16 *)unit & 4)) {
-        equipment = (u32)(u16)func_00106cd0(*(s16 *)(unit + 2), 2);
+        equipment = (u32)(u16)datGetEquippedItemByUnit(*(s16 *)(unit + 2), 2);
         if (equipment >= 0) {
             if (skill == datItemGrantedSkill((s16)equipment)) {
                 return 1;
@@ -3902,7 +3902,7 @@ s32 options;
             rawElement = (s16)enemyElement;
         } else {
             rawElement = (s16)datItemElement(
-                (s16)(u16)func_00106cd0(*(s16 *)(source + 2), 0));
+                (s16)(u16)datGetEquippedItemByUnit(*(s16 *)(source + 2), 0));
         }
     } else {
         rawElement = *(s8 *)(iGpffffb3b4 + skill * 2);
@@ -4199,7 +4199,7 @@ s32 unusedMode;
             enemyElement = iGpffffb3c4[id16 * 0x3C + 0x38];
             lvl = (s16)enemyElement;
         } else {
-            element = func_00106cd0((s16)((DatUnit *)source)->id, 0);
+            element = datGetEquippedItemByUnit((s16)((DatUnit *)source)->id, 0);
             lvl = (s16)datItemElement((s16)element);
         }
     } else {
@@ -4374,7 +4374,7 @@ s32 unusedMode;
             partyPtr = (u8 *)(partyOffset + (s32)iGpffffb3c4);
             value = (s16)partyPtr[0x38];
         } else {
-            value = (s16)datItemElement((s16)((u16)func_00106cd0((s16)((DatUnit *)source)->id, 0) & 0xFFFF));
+            value = (s16)datItemElement((s16)((u16)datGetEquippedItemByUnit((s16)((DatUnit *)source)->id, 0) & 0xFFFF));
         }
     } else {
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)skillId * 2);
@@ -4481,9 +4481,9 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
         if ((s32)characterId >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
-        if ((datItemValue(func_00106cd0((s16)characterId, 0)) & 0xFFFF) == 0x71) {
+        if ((datItemValue(datGetEquippedItemByUnit((s16)characterId, 0)) & 0xFFFF) == 0x71) {
             hasHighChance = 1;
-        } else if ((datItemValue(func_00106cd0((s16)characterId, 1)) & 0xFFFF) == 0x71) {
+        } else if ((datItemValue(datGetEquippedItemByUnit((s16)characterId, 1)) & 0xFFFF) == 0x71) {
             hasHighChance = 1;
         } else {
             hasHighChance = 0;
@@ -4499,9 +4499,9 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
         if ((s32)characterId >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
-        if ((datItemValue(func_00106cd0((s16)characterId, 0)) & 0xFFFF) == 0x72) {
+        if ((datItemValue(datGetEquippedItemByUnit((s16)characterId, 0)) & 0xFFFF) == 0x72) {
             hasMediumChance = 1;
-        } else if ((datItemValue(func_00106cd0((s16)characterId, 1)) & 0xFFFF) == 0x72) {
+        } else if ((datItemValue(datGetEquippedItemByUnit((s16)characterId, 1)) & 0xFFFF) == 0x72) {
             hasMediumChance = 1;
         } else {
             hasMediumChance = 0;
@@ -4517,9 +4517,9 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
         if ((s32)characterId >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
-        if ((datItemValue(func_00106cd0((s16)characterId, 0)) & 0xFFFF) == 0x73) {
+        if ((datItemValue(datGetEquippedItemByUnit((s16)characterId, 0)) & 0xFFFF) == 0x73) {
             hasNoChance = 1;
-        } else if ((datItemValue(func_00106cd0((s16)characterId, 1)) & 0xFFFF) == 0x73) {
+        } else if ((datItemValue(datGetEquippedItemByUnit((s16)characterId, 1)) & 0xFFFF) == 0x73) {
             hasNoChance = 1;
         } else {
             hasNoChance = 0;
@@ -4620,7 +4620,7 @@ s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, 
                 }
                 skillIndex = (skillIndex + 1) & 0xFFFF;
             }
-            if (!(*(u16 *)source & 4) && (queryValue = (u16)func_00106cd0((s16)*(u16 *)(source + 2), 2) & 0xFFFF, (s32)queryValue >= 0) &&
+            if (!(*(u16 *)source & 4) && (queryValue = (u16)datGetEquippedItemByUnit((s16)*(u16 *)(source + 2), 2) & 0xFFFF, (s32)queryValue >= 0) &&
                 (datItemGrantedSkill((s16)queryValue) == 0x21C)) {
                 hasChanceBoost = 1;
             } else {
@@ -4748,7 +4748,7 @@ s32 datCalcResolveSkillId(DatUnit *unit, s32 baseSkill)
         priorityIndex = (priorityIndex + 1) & 0xFFFF;
     }
     if (!(unit->flags & 4)) {
-        equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+        equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
         if (equipment >= 0) {
             if (datItemGrantedSkill((s16)equipment) == 0x231) {
                 found = 1;
@@ -4781,7 +4781,7 @@ done1:
         secondaryPriorityIndex = (secondaryPriorityIndex + 1) & 0xFFFF;
     }
     if (!(unit->flags & 4)) {
-        equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+        equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
         if (equipment >= 0) {
             if (datItemGrantedSkill((s16)equipment) == 0x232) {
                 found = 1;
@@ -4801,7 +4801,7 @@ done2:
         if (unit->flags & 4) {
             value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(unit->id * 0x3C, (u32)iGpffffb3c4) + 0x38);
         } else {
-            value = (s16)datItemElement((s16)((u16)func_00106cd0((s16)unit->id, 0) & 0xFFFF));
+            value = (s16)datItemElement((s16)((u16)datGetEquippedItemByUnit((s16)unit->id, 0) & 0xFFFF));
         }
     } else {
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)baseSkill * 2);
@@ -4835,7 +4835,7 @@ done2:
             lightChanceIndex = (lightChanceIndex + 1) & 0xFFFF;
         }
         if (!(unit->flags & 4)) {
-            equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+            equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x211) {
                     found = 1;
@@ -4868,7 +4868,7 @@ done3:
             lightIndex = (lightIndex + 1) & 0xFFFF;
         }
         if (!(unit->flags & 4)) {
-            equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+            equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x221) {
                     found = 1;
@@ -4910,7 +4910,7 @@ done4:
             darkChanceIndex = (darkChanceIndex + 1) & 0xFFFF;
         }
         if (!(unit->flags & 4)) {
-            equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+            equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x212) {
                     found = 1;
@@ -4943,7 +4943,7 @@ done5:
             darkIndex = (darkIndex + 1) & 0xFFFF;
         }
         if (!(unit->flags & 4)) {
-            equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+            equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x222) {
                     found = 1;
@@ -4981,7 +4981,7 @@ done6:
             firstFallbackIndex = (firstFallbackIndex + 1) & 0xFFFF;
         }
         if (!(unit->flags & 4)) {
-            equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+            equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x210) {
                     found = 1;
@@ -5019,7 +5019,7 @@ done7:
         lastFallbackIndex = (lastFallbackIndex + 1) & 0xFFFF;
     }
     if (!(unit->flags & 4)) {
-        equipment = (s32)((u32)(u16)func_00106cd0((s16)unit->id, 2) & 0xFFFF);
+        equipment = (s32)((u32)(u16)datGetEquippedItemByUnit((s16)unit->id, 2) & 0xFFFF);
         if (equipment >= 0) {
             if (datItemGrantedSkill((s16)equipment) == 0x20F) {
                 found = 1;

@@ -119,7 +119,7 @@ extern void H_Memcard_SetSeqMode9(void);
 extern void H_Memcard_SetSeqMode4(void);
 extern void H_Memcard_BeginSave(s32, s32, s32);
 extern s32 H_Memcard_SaveStep(void);
-extern void func_0010e710(s32, u8 *, s32);
+extern void datSaveRestoreImage(s32, u8 *, s32);
 extern s32 datSaveVerifyChecksum(s32, u8 *, s32);
 extern u16 D_008C024E[];
 extern s32 calGetWeekdayOfDay(s32);
@@ -704,7 +704,7 @@ s32 mcSaveState(s32 address) {
             if (datSaveVerifyChecksum(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4) == 0) {
                 ok = 0;
             } else {
-                func_0010e710(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4);
+                datSaveRestoreImage(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4);
                 ok = 1;
             }
             (*(void (**)(void *))ec)(*(void **)(arg0 + 0x39C));

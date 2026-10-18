@@ -23,7 +23,7 @@ extern void mdlUpdateModelMatrix(void *arg0);
 extern void mdlPrepareItemSlots(void *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
+extern void datScreenPointToWorldPosition(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void RwV3dNormalize(void *a, void *b);
@@ -268,7 +268,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
     temp_ret = mdlGetMatrix((u32)(s32)arg3);
     v17 = (s32)fparg1;
     v16 = (s32)fparg0;
-    func_001102f0(sp120, v16, v17, fparg2);
+    datScreenPointToWorldPosition(sp120, v16, v17, fparg2);
     var_2 = func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4));
     var_6 = (u8 *)spE0;
     var_5 = 8;
@@ -305,7 +305,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
         var_4 += 1;
     } while (var_3 > 0);
     if (arg2 != 0) {
-        func_001102f0(sp140, v16, v17, fparg2);
+        datScreenPointToWorldPosition(sp140, v16, v17, fparg2);
     } else {
         sp140[0] = fparg0;
         sp140[1] = fparg1;

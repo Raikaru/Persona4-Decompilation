@@ -40,7 +40,7 @@ s32 FldEvent_MoverUpdate(u8 *);
 struct DatPersonaRecord *datPersonaGetRecord(u16);
 s32 datPersonaFindSkillSlot(u8 *, u16);
 s16 datGetPartyId(s32);
-s16 func_00106cd0(s16, s32);
+s16 datGetEquippedItemByUnit(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
 s32 FldStepIndex(void);
@@ -736,7 +736,7 @@ s32 FldEvent_PartyHasSkill(void)
         vals[i + 1] = datGetPartyId(i);
     }
     for (i = 0; i < 4; i++) {
-        if (vals[i] != 0 && func_00106cd0(vals[i], 2) == 0x270) {
+        if (vals[i] != 0 && datGetEquippedItemByUnit(vals[i], 2) == 0x270) {
             return 1;
         }
     }

@@ -10,7 +10,7 @@ extern void btlShuffleCardUpdateCards(u8 *arg0);
 extern void func_003dc740(void *dest, void *src, s32 mode, f32 fparg0);
 extern void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
 
-extern void func_0036b5e0(u8 *arg0, f32 *out);
+extern void sflResGetSecondaryVector(u8 *arg0, f32 *out);
 
 extern void sflDataSetupLayoutPanel(void);
 extern void func_0036a820(u8 *arg0, s32 arg1);
@@ -20,9 +20,9 @@ extern void func_0036a880(u8 *arg0, u16 arg1, s32 arg2);
 extern void pscResAcquireArcanaCard(s32 arg0, s32 arg1);
 extern void pscModelInitPanel(void);
 extern void pscResAcquireMiscCardW01(void);
-extern void func_0036b5a0(u8 *arg0, void *arg1);
-extern void func_0036b5c0(u8 *arg0, void *arg1);
-extern void func_0036b600(u8 *arg0, void *arg1);
+extern void sflResSetSecondaryVector(u8 *arg0, void *arg1);
+extern void sflResSetPrimaryVector(u8 *arg0, void *arg1);
+extern void sflResSetVector(u8 *arg0, void *arg1);
 extern void pscPanelSetColor(u8 *arg0, void *arg1);
 extern void pscModelScreenPos(void *arg0, const f32 *arg1, f32 fparg2, void *arg3);
 extern f32 pscModelPanelScale(const f32 *value, f32 scale);
@@ -176,13 +176,13 @@ void btlShuffleCardApplyScale(u8 *unit, f32 *src, f32 scale)
 // FUN_0036DDA0
 void btlShuffleCardAttachSprite(u8 *arg0, void *arg1)
 {
-    func_0036b5c0(arg0, arg1);
+    sflResSetPrimaryVector(arg0, arg1);
 }
 
 // FUN_0036DDC0
 void btlShuffleCardDetachSprite(u8 *arg0, void *arg1)
 {
-    func_0036b5a0(arg0, arg1);
+    sflResSetSecondaryVector(arg0, arg1);
 }
 
 
@@ -200,7 +200,7 @@ void btlShuffleCardSetTint(u8 *arg0, void *arg1, s32 arg2, f32 fparg0)
 // FUN_0036DE20
 void btlShuffleCardBindPacket(u8 *arg0, void *arg1)
 {
-    func_0036b600(arg0, arg1);
+    sflResSetVector(arg0, arg1);
 }
 
 // FUN_0036DE40
@@ -217,7 +217,7 @@ f32 btlShuffleCardWidth(u8 *arg0)
 {
     f32 sp10[3];
 
-    func_0036b5e0(arg0, sp10);
+    sflResGetSecondaryVector(arg0, sp10);
     return 6.0f * sp10[0];
 }
 
@@ -226,7 +226,7 @@ f32 btlShuffleCardHeight(u8 *arg0)
 {
     f32 sp10[3];
 
-    func_0036b5e0(arg0, sp10);
+    sflResGetSecondaryVector(arg0, sp10);
     return fGpffff83bc * sp10[1];
 }
 

@@ -61,7 +61,8 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e9a0-0029e9a0 */
 
 // FUN_0029E9A0
-void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4)
+/* Retail no-op receiving five wide values forwarded by a separate script command; meanings remain unestablished. */
+void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth)
 {
 }
 

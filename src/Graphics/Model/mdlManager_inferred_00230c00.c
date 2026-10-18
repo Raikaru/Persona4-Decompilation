@@ -4,7 +4,7 @@
 #include "type.h"
 #include "model_callbacks_internal.h"
 extern u8 *iGpffffa5f0;
-extern s32 func_00106cd0(s32 arg0, s32 arg1);
+extern s32 datGetEquippedItemByUnit(s32 arg0, s32 arg1);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern char D_007636e0;
 extern char D_00635678[];
@@ -57,14 +57,14 @@ s32 mdlResolvePacPath(u32 arg0, u16 arg1, char *arg2)
 // FUN_00230D30
 s32 mdlAttachWeaponModelSlots(void *arg0)
 {
-    extern s32 func_00106cd0(s16 arg0, s16 arg1);
+    extern s32 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
     extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
     u16 id;
     u8 sp40[0x100];
     s32 temp_18;
 
     if (*(u16 *)((s8 *)arg0 + 0xD4) != 1) return 0;
-    id = func_00106cd0(*(s16 *)((u8 *)arg0 + 0xD6), 0);
+    id = datGetEquippedItemByUnit(*(s16 *)((u8 *)arg0 + 0xD6), 0);
     switch (*(u16 *)((s8 *)arg0 + 0xD6)) {
     case 2:
         if (mdlFindModelObject(7, id, 0) == 0) {

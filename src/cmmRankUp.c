@@ -122,7 +122,7 @@ extern void func_004b12e0(s32 value, s32 option1);
 extern void func_004b1250(void *object, f32 *position);
 extern void mdlEffectGetPackedColor(void *object, s32 *color);
 extern void mdlEffectSetPackedColor(void *object, s32 *color);
-extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
+extern u8 *datScreenPointToWorldPosition(u8 *position, s32 screenX, s32 screenY, f32 distance);
 extern u8 *kwlnGetCamera(void);
 extern s32 func_003e9700(s32 value);
 extern void itfMesWindowSetString(s32 value, s32 option1, void *option2);
@@ -2523,28 +2523,28 @@ s32 cmmRankUpRender(u8 *task) {
         expansion = (f32)context->frame45 / 45.0f;
         if (context->mode == 0) {
             startTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             startEffect = func_0025ff60(startTask);
             func_004b12e0(startEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(startEffect), position);
         }
         if (context->mode == 0) {
             secondaryTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xB4, 300.0f);
             secondaryEffect = func_0025ff60(secondaryTask);
             func_004b12e0(secondaryEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(secondaryEffect), position);
         }
         if (context->mode == 0x78) {
             midpointTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xB4, 300.0f);
             midpointEffect = func_0025ff60(midpointTask);
             func_004b12e0(midpointEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(midpointEffect), position);
         }
         if (context->mode == 0x23A) {
             leavingTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             leavingEffect = func_0025ff60(leavingTask);
             func_004b12e0(leavingEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(leavingEffect), position);
@@ -2731,7 +2731,7 @@ s32 cmmRankUpRender(u8 *task) {
         maxExpansion = (f32)context->frame45 / 45.0f;
         if (context->mode == 0) {
             maxStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             maxStartEffect = func_0025ff60(maxStartTask);
             func_004b12e0(maxStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(maxStartEffect), position);
@@ -2742,7 +2742,7 @@ s32 cmmRankUpRender(u8 *task) {
         effectFrame = (s32)(context->mode);
         if (((effectFrame % 10) == 0) && (effectFrame < 0x1CD)) {
             maxParticleTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             maxParticleEffect = func_0025ff60(maxParticleTask);
             func_004b12e0(maxParticleEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(maxParticleEffect), position);
@@ -2752,7 +2752,7 @@ s32 cmmRankUpRender(u8 *task) {
         }
         if (context->mode == 0x21C) {
             maxLeavingTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             maxLeavingEffect = func_0025ff60(maxLeavingTask);
             func_004b12e0(maxLeavingEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(maxLeavingEffect), position);
@@ -2933,14 +2933,14 @@ s32 cmmRankUpRender(u8 *task) {
         spriteTexture = (s32)(*context->unk_54);
         if (context->mode == 0) {
             spriteStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             spriteStartEffect = func_0025ff60(spriteStartTask);
             func_004b12e0(spriteStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(spriteStartEffect), position);
         }
         if (context->mode == 0xBE) {
             spriteExitTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             spriteExitEffect = func_0025ff60(spriteExitTask);
             func_004b12e0(spriteExitEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(spriteExitEffect), position);
@@ -3010,14 +3010,14 @@ s32 cmmRankUpRender(u8 *task) {
     case 12:
         if (context->mode == 0) {
             wipeStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xA5, 300.0f);
             wipeStartEffect = func_0025ff60(wipeStartTask);
             func_004b12e0(wipeStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(wipeStartEffect), position);
         }
         if (context->mode == 0x9B) {
             wipeEndTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
-            func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
+            datScreenPointToWorldPosition((u8 *)position, 0x140, 0xB4, 300.0f);
             wipeEndEffect = func_0025ff60(wipeEndTask);
             func_004b12e0(wipeEndEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(wipeEndEffect), position);

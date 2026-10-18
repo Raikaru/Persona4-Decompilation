@@ -28,7 +28,7 @@ typedef struct BtlTargetSimpleWork
     u32 param;
 } BtlTargetSimpleWork;
 struct BtlPacket* btlTargetCreateEmptyPacket(void);
-extern u8 *func_001f6030(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 argument is passed unconverted, as in code1_001e */
+extern u8 *btlTargetCreateSimplePacket(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 argument is passed unconverted, as in code1_001e */
 
 extern s64 scrGetParamInt(); /* lint: allow H011 -- raw s64 call result feeds s64 temporaries, as in code1_001e */
 extern s32 scrGetParamIntS32(s32 index);
@@ -74,7 +74,7 @@ s32 btlTargetScriptEnqueue(void) {
     temp_2 = (u8 *)btlTargetCreateEmptyPacket();
     *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
     btlPacketEnqueue(temp_2, 1);
-    temp_2_2 = func_001f6030(0x20, temp_17);
+    temp_2_2 = btlTargetCreateSimplePacket(0x20, temp_17);
     *(s16 *)(temp_2_2 + 0x48) = (s16)temp_16;
     btlPacketEnqueue(temp_2_2, 1);
     return 1;

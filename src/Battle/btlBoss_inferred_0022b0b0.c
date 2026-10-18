@@ -23,8 +23,8 @@ extern u8 D_006355C0[], D_006355E0[], D_00635600[];
 extern u8 *resrcMngFindResById(u8 *lists, u16 id);
 extern u16 datCalcMaxHp(DatUnit *unit);
 extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
-extern u32 func_001064f0(s32 counter);
-extern void func_00106550(s32 counter, u32 value);
+extern u32 datGetScriptValue(s32 counter);
+extern void datSetScriptValue(s32 counter, u32 value);
 extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
@@ -170,7 +170,7 @@ extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
 extern void btlUnitInitChild(u8 *unit, u16 action);
-extern void func_00106d40(s16 character, s16 slot, s16 value);
+extern void datAssignEquippedItem(s16 character, s16 slot, s16 value);
 extern u16 datCalcMaxHpById(s16 character);
 extern u16 datCalcMaxSpById(s16 character);
 extern void datSetUnitHp(s16 character, s16 value);
@@ -996,7 +996,7 @@ void btlFormationClearSlots(void)
         datPersonaClearRoster();
         datPersonaAddRosterMember(1);
         datPersonaSelectRosterMemberById(1);
-        func_00106d40(1, 0, 1);
+        datAssignEquippedItem(1, 0, 1);
         break;
     }
     i = 0;
@@ -1328,13 +1328,13 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
             else
                 *(s8 *)(iGpffffb3ac + 0xC12) = -1;
         } else {
-            remaining = func_001064f0(0x7A);
+            remaining = datGetScriptValue(0x7A);
             remaining += (u32)*hpDelta;
             if ((s32)remaining <= 0) {
                 btlEncounterSetSequence((s32)btlEncounterResetSlots, (s32)btlEncounterWaitIdle, (s32)packet);
                 remaining = 0;
             }
-            func_00106550(0x7A, remaining);
+            datSetScriptValue(0x7A, remaining);
         }
         break;
     case 0x106:
@@ -1732,7 +1732,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
             datPersonaAddRosterMember(0xE0);
             datPersonaSelectRosterMemberById(0xE0);
             btlUnitInitChild(unit, 0xE0);
-            func_00106d40(1, 0, 4);
+            datAssignEquippedItem(1, 0, 4);
             *(u16 *)(arg0 + 0x18) |= 0x40;
             break;
         case 0x215:

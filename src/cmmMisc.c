@@ -40,8 +40,8 @@ extern void kAssertFailMsg(const char *file, s32 line, char *fmt, s32 value);
 extern s32 datGetDateIndex(void);
 extern u32 datGetFlag(s32 flag);
 extern void datSetFlag(s32 id, s32 flag);
-extern u32 func_001064f0(s32 idx);
-extern s32 func_00106550(s32 id, s32 value);
+extern u32 datGetScriptValue(s32 idx);
+extern s32 datSetScriptValue(s32 id, s32 value);
 extern s32 datItemCount(s16 idx);
 extern s32 cmmCommunityTestMarked(s32 idx);
 extern s32 cmmCommunityTestReversed(s32 idx);
@@ -1554,7 +1554,7 @@ u8 *cmmDateTableFindSpecialRecord(u32 date) {
 
     calSplitDayOfYear(date, &month, &day);
     if (datGetFlag(0xA61) != 0) {
-        record += func_001064f0(0x6D) * 0x24;
+        record += datGetScriptValue(0x6D) * 0x24;
         if (date >= calDayOfYearFromMonthDay(((CmmDateRecord *)record)->specialMonth, ((CmmDateRecord *)record)->specialDay)) {
             return record;
         }
@@ -1596,7 +1596,7 @@ s32 cmmDateTableHasSpecialRecord(u32 date) {
     if (datGetFlag(0xA61) == 0) {
         goto null_p;
     }
-    p += func_001064f0(0x6D) * 0x24;
+    p += datGetScriptValue(0x6D) * 0x24;
     if (date < calDayOfYearFromMonthDay(((CmmDateRecord *)p)->specialMonth, ((CmmDateRecord *)p)->specialDay)) {
         goto null_p;
     }
@@ -1638,7 +1638,7 @@ s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column)
         record = D_008814D0[0] + 8;
         calSplitDayOfYear(date, &month, &day);
         if (datGetFlag(0xA61) == 0) goto null_record;
-        record += func_001064f0(0x6D) * 36;
+        record += datGetScriptValue(0x6D) * 36;
         if ((u32)date < calDayOfYearFromMonthDay(((CmmDateRecord *)record)->specialMonth, ((CmmDateRecord *)record)->specialDay)) goto null_record;
         selected = record;
         goto selected_record;
@@ -1677,7 +1677,7 @@ s32 cmmDateTableApplyColumnDelta(s32 date, s32 column)
     base = D_008814D0[0] + 8;
     calSplitDayOfYear(date, &month, &day);
     if (datGetFlag(0xA61) == 0) goto null_record;
-    record = base + func_001064f0(0x6D) * 36;
+    record = base + datGetScriptValue(0x6D) * 36;
     if ((u32)date < (u32)calDayOfYearFromMonthDay(((CmmDateRecord *)record)->specialMonth, ((CmmDateRecord *)record)->specialDay)) goto null_record;
     selected = record;
     goto selected_record;
@@ -1750,22 +1750,22 @@ s32 cmmDateTableAddCount(s32 value, s32 option)
     s32 n;
 
     if (value == 0) {
-        value = func_001064f0(0x58);
+        value = datGetScriptValue(0x58);
         if (value == 0) {
             kAssertFail(D_006359D0, 0x4C8);
         }
     }
-    func_00106550(0x58, value);
+    datSetScriptValue(0x58, value);
     if (!(datItemCount((s16)(value + 0x4EA)) & 0xFF)) {
         kAssertFail(D_006359D0, 0x4CC);
     }
-    n = cmmAddCountFirst(func_001064f0(0x57), option);
+    n = cmmAddCountFirst(datGetScriptValue(0x57), option);
     if (n >= 4) {
         n = 0;
         datSetFlag(value + 0x9AF, 1);
-        func_00106550(0x58, 0);
+        datSetScriptValue(0x58, 0);
     }
-    func_00106550(0x57, n);
+    datSetScriptValue(0x57, n);
     return n;
 }
 /* measured: opt_propagation scope closes at the file baseline. */

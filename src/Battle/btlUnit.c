@@ -1104,7 +1104,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             } break;
             case 2: {
                 *(u32 *)(unit->layerHandle + 0xD8) &= ~0x100;
-                t16_sts = func_0010fbd0(unit->charId) & 0xFFFF;
+                t16_sts = datGetPersonaFlagClass(unit->charId) & 0xFFFF;
                 if (t16_sts & 2) {
                     *(u32 *)(unit->layerHandle + 0xD8) |= 0x200;
                 } else if (t16_sts & 4) {

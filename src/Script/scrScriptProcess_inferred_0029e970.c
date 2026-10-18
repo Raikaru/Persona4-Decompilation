@@ -60,6 +60,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e970-0029e970 */
 
 // FUN_0029E970
+/* Initialization guard queried by scrInitPools; retail always reports zero. */
 s32 func_0029e970(void)
 {
     return 0;

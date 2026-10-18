@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "dat_panel_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -79,8 +80,8 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     if (helpSprites == 0) {
         kAssertFail(D_005E4F88, 0xB2);
     }
-    unit = *(s16 *)entry;
-    entryStyle = *(s16 *)(entry + 6);
+    unit = ((DatPanelEntry*)entry)->unit;
+    entryStyle = ((DatPanelEntry*)entry)->style;
     switch (entryStyle) {
     case 0:
         fontStyle = 6;
@@ -107,7 +108,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     numberColor.b[3] = (u8)opacity;
     point.x = origin.x;
     point.y = origin.y;
-    if (*(s32 *)(entry + 8) == 3) {
+    if (((DatPanelEntry*)entry)->kind == 3) {
         point.y = origin.y - 5.0f;
     }
     alpha = opacity & 0xFF;
@@ -204,6 +205,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
 #pragma pop
 
 // FUN_00120AE0
+/* Draw decimal digits right-to-left with inverted sprite alpha and sixteen-pixel spacing. */
 void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites)
 {
     s32 alpha;
