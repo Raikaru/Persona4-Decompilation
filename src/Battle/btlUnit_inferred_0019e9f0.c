@@ -165,7 +165,7 @@ extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
 extern u8 *btlActionCreate(void);
 extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
-extern s32 func_00243d80(u8 *arg0);
+extern s32 datCalcEnemyHasExtendedFlag(u8 *arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void btlUnitApplyBodySizeScale(u8 *arg0);
 
@@ -696,7 +696,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
         *(s32 *)(var_17 + 0x9C) = temp_2_4 | 0x4000;
         break;
     case 1:
-        if (arg2 != NULL && func_00243d80((u8 *)arg2) != 0) {
+        if (arg2 != NULL && datCalcEnemyHasExtendedFlag((u8 *)arg2) != 0) {
             temp_2_5 = *(s32 *)(var_17 + 0x9C) | 0x20;
             *(s32 *)(var_17 + 0x9C) = temp_2_5;
             temp_2_6 = temp_2_5 | 0x100;
@@ -928,7 +928,7 @@ s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2)
     kind = *(u8 *)(temp_2 + 0xA2);
     switch (kind) {
     case 0:
-        status = func_0023e1f0(temp_4);
+        status = datCalcGetCharacterTableKind(temp_4);
         if (status == 5) {
             return 1;
         }

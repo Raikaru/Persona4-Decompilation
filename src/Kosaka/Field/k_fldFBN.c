@@ -64,43 +64,43 @@ typedef struct AnimEntry2
 extern s32 FldRc_GetLoadSource(void);
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
-extern u32 datGetFlag(s32 arg0);
-extern s32 MT_Scene_CreateRes08(u16 arg0);
-extern void SceneDraw_ResetResource(u16 arg0);
-extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
-extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
-extern f32 KDraw_MatrixYawDeg(u8 *arg0);
-extern f32 KDraw_MatrixRollDeg(u8 *arg0);
+extern s64 calGetDayEntryByPhase(s32 , u32 );
+extern u32 datGetFlag(s32 );
+extern s32 MT_Scene_CreateRes08(u16 );
+extern void SceneDraw_ResetResource(u16 );
+extern void SceneDraw_SetResVisibleChecked(u16 , u32 );
+extern f32 KDraw_MatrixPitchDeg(u8 *);
+extern f32 KDraw_MatrixYawDeg(u8 *);
+extern f32 KDraw_MatrixRollDeg(u8 *);
 extern void *NpcTable_FindActiveEntry(void);
-extern u16 *NpcTable_GetMarkedEntry(s32 arg0);
-extern void NpcTable_RequestBlockTable(u8 *arg0, s32 arg1);
-extern s32 NpcTable_InstallBlockTable(u8 *arg0, s32 arg1);
-extern void FldStepReleaseHandle(u8 *arg0);
-extern u16 *FldStepFindEmptySlot(u32 arg0);
-extern u8 *func_0015d310(u16 *arg0);
-extern void FldFrameTask_SetHeight(u8 *arg0, f32 arg1);
-extern void FldShadow_SetRingParticles(u8 *arg0, f32 arg1);
-extern s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1);
-extern void *RwMatrixUpdate(void *arg0);
-extern void memcpy(void *arg0, void *arg1, u32 arg2);
+extern u16 *NpcTable_GetMarkedEntry(s32 );
+extern void NpcTable_RequestBlockTable(u8 *, s32 );
+extern s32 NpcTable_InstallBlockTable(u8 *, s32 );
+extern void FldStepReleaseHandle(u8 *);
+extern u16 *FldStepFindEmptySlot(u32 );
+extern u8 *func_0015d310(u16 *);
+extern void FldFrameTask_SetHeight(u8 *, f32 );
+extern void FldShadow_SetRingParticles(u8 *, f32 );
+extern s32 FldNpcControlTaskCreate(s32 , s32 );
+extern void *RwMatrixUpdate(void *);
+extern void memcpy(void *, void *, u32 );
 extern s32 sprintf(char *destination, const char *format, ...);
 extern char *strcpy(char *destination, const char *source);
 extern s32 func_00440b68(const char *format, ...);
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *, s32 );
 extern u32 H_Cdvd_FileExists(const char *path);
-extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
-extern u32 H_Cdvd_Destroy(void *arg0);
+extern u8 *H_Cdvd_AcquireDirectory(void *, s32 );
+extern u32 H_Cdvd_Destroy(void *);
 typedef struct HCdvd HCdvd;
-extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
-extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
+extern u32 H_Cdvd_IsFileLoaded(HCdvd *);
+extern u8 *H_Cdvd_LookupRequest(void *, u32 *);
 extern void kAssertFailMsg(const char *file, s32 line, const char *message, ...);
-extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-extern s32 mdlPrepareModel(u8 *arg0);
-extern u32 *mdlCloneModelObject(u8 *arg0);
-extern void mdlAdvanceModelFromFlags(u8 *arg0);
-extern void mdlScale(void *arg0, void *arg1, s32 arg2);
-extern void *mdlGetMatrix(void *arg0);
+extern void *mdlCreateModelObjectFromData(u32 , u16 , void *, u32 );
+extern s32 mdlPrepareModel(u8 *);
+extern u32 *mdlCloneModelObject(u8 *);
+extern void mdlAdvanceModelFromFlags(u8 *);
+extern void mdlScale(void *, void *, s32 );
+extern void *mdlGetMatrix(void *);
 extern void *mdlTranslateMatrix(void *matrix, const void *translation, s32 combineOp);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
@@ -120,25 +120,26 @@ extern char D_005F1090[];
 extern char D_005F10B0[];
 extern char D_005F10D0[];
 
+/* Reset the FBN work tables and request the selected field/room variant. */
 // FUN_0015E870
-u8 *FldFbnOpenData(s32 arg0, s32 arg1, s16 arg2)
+u8 *FldFbnOpenData(s32 field, s32 room, s16 variant)
 {
-    char spC0[0x80];
-    char sp40[0x80];
+    char directory[0x80];
+    char path[0x80];
 
     iGpffffb2a8 = 0;
     iGpffffb2a4 = 0;
     iGpffffb2a0 = 0;
     if (FldRc_GetLoadSource() == 0)
     {
-        strcpy(spC0, D_005F1078);
-        sprintf(sp40, D_005F1090, arg0 & 0xFFFF, arg1 & 0xFFFF, arg2);
-        if (H_Cdvd_FileExists(sp40) == 0)
+        strcpy(directory, D_005F1078);
+        sprintf(path, D_005F1090, field & 0xFFFF, room & 0xFFFF, variant);
+        if (H_Cdvd_FileExists(path) == 0)
         {
             return NULL;
         }
         func_00440b68(&D_00762FD0, D_005F1068, 0xD4);
-        return H_Cdvd_AcquireDirectory(&sp40, 0);
+        return H_Cdvd_AcquireDirectory(&path, 0);
     }
     return (u8 *)1;
 }
@@ -149,11 +150,13 @@ u8 *FldFbnOpenData(s32 arg0, s32 arg1, s16 arg2)
 /* measured: loop invariants retain cached search bounds; the lifetime pass
  * separates the loading count from the later transform index. Together
  * with source-ordered index updates this matches all 424 retail words. */
+/* Resolve FBN model references and eligible NPC substitutions, then create placed transform resources. */
+/* The FBN header carries runtime part strides at +0x0C; remaining packed/NPC records lack a single complete fixed-size layout. */
 // FUN_0015E960
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 variant)
 {
     u32 size;
     SVec3 angles;
@@ -166,17 +169,17 @@ s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
     u32 k;
 
     D_0076439C = 0;
-    if (arg0 == NULL) {
+    if (file == NULL) {
         return 1;
     }
-    *arg1 = NULL;
-    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded((HCdvd *)arg0) == 0)) {
+    *cachedDataOut = NULL;
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded((HCdvd *)file) == 0)) {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0) {
-        fbn = *(u8 **)(arg0 + 0x110);
+        fbn = *(u8 **)(file + 0x110);
     } else {
-        sprintf(path, D_005F10B0, arg2 & 0xFFFF, arg3 & 0xFFFF, (s16)arg4);
+        sprintf(path, D_005F10B0, field & 0xFFFF, room & 0xFFFF, (s16)variant);
         fbn = H_Cdvd_LookupRequest(path, &size);
         if (fbn == NULL) {
             return 1;
@@ -184,7 +187,7 @@ s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         if (fbn == NULL) {
             kAssertFailMsg(D_005F1068, 0x10D, &D_00762FD8, path);
         }
-        *arg1 = fbn;
+        *cachedDataOut = fbn;
     }
     iGpffffb2a8 = *(u32 *)(fbn + 8);
     if (iGpffffb2a8 != 0) {
@@ -200,15 +203,15 @@ s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
     i = 0;
     out = 0;
     for (; i < *(u32 *)(fbn + 8); ) {
-        u32 type = *(u16 *)(p + 4);
-        if ((type == 4) && (*(u16 *)(p + 6) == 0xFFFF)) {
+        u32 type = ((FldPart *)p)->type;
+        if ((type == 4) && (((FldPart *)p)->flags == 0xFFFF)) {
             if (D_00764340 == 1) {
                 iGpffffb2a4[out] = mdlCreateModelObjectFromData(4, 0xFFFF, D_005F10D0, 0);
                 FBN_ENTRY(out)->field_8 = i;
                 out++;
             }
         } else {
-            iGpffffb2a4[out] = mdlFindOrCreateModelObject(type, *(u16 *)(p + 6), 0);
+            iGpffffb2a4[out] = mdlFindOrCreateModelObject(type, ((FldPart *)p)->flags, 0);
             FBN_ENTRY(out)->field_8 = i;
             out++;
         }
@@ -243,8 +246,8 @@ s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
                 k = 0;
                 num = *(u32 *)(fbn + 8);
                 for (; k < num; k++, q += *(s32 *)(fbn + 0xC)) {
-                    if ((*(u16 *)(q + 4) == 4) && (*(u16 *)(q + 6) == 0xFFFF)
-                        && (*(u16 *)(q + 8) == (u16)((ae->field_0 & 0x3FF) | 0xC00))) {
+                    if ((((FldPart *)q)->type == 4) && (((FldPart *)q)->flags == 0xFFFF)
+                        && (((FldPart *)q)->field_8 == (u16)((ae->field_0 & 0x3FF) | 0xC00))) {
                         if ((ae->field_2 != 0) || (ae->field_4 != 0)) {
                             D_0076439C = 1;
                             iGpffffb2a4[out] = mdlFindOrCreateModelObject(ae->field_2, ae->field_4, 0);
@@ -268,8 +271,8 @@ s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
                 j = 0;
                 num = *(u32 *)(fbn + 8);
                 for (; j < num; j++, q += *(s32 *)(fbn + 0xC)) {
-                    if ((*(u16 *)(q + 4) == 4) && (*(u16 *)(q + 6) == 0xFFFF)
-                        && (*(u16 *)(q + 8) == (u16)((e2->field_0 & 0x3FF) | 0xC00))) {
+                    if ((((FldPart *)q)->type == 4) && (((FldPart *)q)->flags == 0xFFFF)
+                        && (((FldPart *)q)->field_8 == (u16)((e2->field_0 & 0x3FF) | 0xC00))) {
                         if ((e2->field_68 != 0) || (e2->field_6A != 0)) {
                             D_0076439C = 1;
                             iGpffffb2a4[out] = mdlFindOrCreateModelObject(e2->field_68, e2->field_6A, 0);
@@ -312,15 +315,17 @@ typedef struct FbnMatrix
  * iteration passes an uninitialised angle. The C keeps that read of
  * angles.y exactly as retail does; later iterations see the previous
  * kind-0 store. */
+/* Wait for models and NPC blocks, instantiate their resources, and release the temporary FBN tables. */
+/* FBN versions select different part tails, and NPC resource tails extend beyond FldPart; remaining casts preserve those versioned partial layouts. */
 // FUN_0015F000
-s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
+s32 FldFbnApplyTable(u8 *file, u8 *cachedData)
 {
     s32 n;
     s32 i;
     u8 *fbn;
     u8 *base;
 
-    if (arg0 == NULL) {
+    if (file == NULL) {
         return 1;
     }
     for (n = 0; n < iGpffffb2a8; n++) {
@@ -332,9 +337,9 @@ s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
         }
     }
     if (FldRc_GetLoadSource() == 0) {
-        fbn = *(u8 **)(arg0 + 0x110);
-    } else if (arg1 != NULL) {
-        fbn = arg1;
+        fbn = *(u8 **)(file + 0x110);
+    } else if (cachedData != NULL) {
+        fbn = cachedData;
     } else {
         return 1;
     }
@@ -354,7 +359,7 @@ s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
         if (*(u32 *)(fbn + 4) > 0x10000) {
             mode = rec[0x60];
         }
-        rid = MT_Scene_CreateModelNpcShadowRes(*(u16 *)(rec + 8) & 0x3FF, mode, (s32)iGpffffb2a4[i]);
+        rid = MT_Scene_CreateModelNpcShadowRes(((FldPart *)rec)->field_8 & 0x3FF, mode, (s32)iGpffffb2a4[i]);
         SceneDraw_ResetResource(rid);
         SceneDraw_SetResVisibleChecked(rid, 1);
         res = MT_Scene_GetRes(rid);
@@ -372,11 +377,11 @@ s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
             *(u32 *)(res + 0x28) &= 0x7FFFFFFF;
         }
         *(s16 *)(res + 0x220) = rec[0xA];
-        *(s32 *)(res + 0x224) = *(s32 *)(rec + 0x10);
+        *(s32 *)(res + 0x224) = ((FldPart *)rec)->field_10;
         res[0x222] = rec[0x61];
-        *(u16 *)(res + 0x298) = *(u16 *)(rec + 0x62);
+        *(u16 *)(res + 0x298) = ((FldPart *)rec)->field_62;
         memcpy(res + 0x29C, rec + 0x74, 0xC0);
-        *(f32 *)(res + 0x35C) = *(f32 *)(rec + 0x70);
+        *(f32 *)(res + 0x35C) = ((FldPart *)rec)->field_70;
         kind = FBN_ENTRY(i)->kind;
         *(s32 *)(res + 0x234) = kind;
         if (kind == 0) {
@@ -422,7 +427,7 @@ s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
     iGpffffb2a4 = NULL;
     iGpffffb2a0 = NULL;
     if (FldRc_GetLoadSource() == 0) {
-        H_Cdvd_Destroy(arg0);
+        H_Cdvd_Destroy(file);
     }
     return 1;
 }

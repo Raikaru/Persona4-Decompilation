@@ -416,7 +416,7 @@ outer_check:
 void btlCameraUpdateUnitInRangeFlags(void)
 {
     extern void btlUnitSetFlags();
-    extern s32 func_00243d80(u8 *arg0);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *arg0);
     extern f32 RwV3dLength(f32 *arg0);
     u8 *current;
     s32 counter;
@@ -435,7 +435,7 @@ outer_body:
     goto inner_check;
 inner_body:
     ability = *(s32 *)(current + 0xA64);
-    if ((ability != 0 && func_00243d80((u8 *)ability) != 0) ||
+    if ((ability != 0 && datCalcEnemyHasExtendedFlag((u8 *)ability) != 0) ||
         (*(s32 *)(current + 0x9C) & 8) != 0) {
         btlUnitGetSphereWorldCenter(current, values);
         delta[0] = *(f32 *)(base + 0x30) - values[0];

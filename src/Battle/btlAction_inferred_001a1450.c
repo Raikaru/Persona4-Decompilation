@@ -122,7 +122,7 @@ void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1);
 void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void btlDamageSetActive(s32 task);
 void btlUnitRequestLookAtOthers(u8 *arg0);
-u8 func_0023e1f0(u8 *unitData);
+u8 datCalcGetCharacterTableKind(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
@@ -244,7 +244,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
     switch (*(u8 *)(unit + 0xA2)) {
     case 0:
         {
-            s32 state = func_0023e1f0(ctx) & 0xFF;
+            s32 state = datCalcGetCharacterTableKind(ctx) & 0xFF;
 
             if (state == 5) {
                 result = 1;
@@ -2056,7 +2056,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
     extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
     extern f32 RwV3dLength(const RwV3d *vector);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *vector);
-    extern s32 func_00243d80(u8 *unitData);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *unitData);
     extern s32 btlActionAnyTargetHitRowFlagged(u8 *actionBytes);
     extern s32 btlActionAnyTargetFlagged(u8 *actionBytes);
     extern s32 btlActionHasNoTargetClass(u32 action);
@@ -2151,7 +2151,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
                 case 0:
                     {
                         s32 classification;
-                        classification = func_0023e1f0(data) & 0xFF;
+                        classification = datCalcGetCharacterTableKind(data) & 0xFF;
                         if (classification == 5) {
                             ranged = 1;
                         } else if (classification == 3 && ((*(u16 *)((u32)skillOffset + (u32)iGpffffb3bc + 2) & 0x8000) != 0 || pairedTargets == 0)) {
@@ -2340,7 +2340,7 @@ range_done:
                 speed = speed * 1.25f;
             }
         }
-        if (func_00243d80(action->target->unit->data) == 0) {
+        if (datCalcEnemyHasExtendedFlag(action->target->unit->data) == 0) {
             proceed = proceed | 0x40;
         }
         packet = (u8 *)btlUnitCreateMoveToUnitPacket((BtlUnit *)action->unit, (BtlUnit *)action->target->unit, distance, speed, proceed);
@@ -3555,7 +3555,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 btlBossActionBlocked();
     extern s32 btlBossSkillAllowed(u8 *arg0);
     extern u16 datCalcGetHp(s32 unit);
-    extern s32 func_0023df70(s32 skill);
+    extern s32 datCalcUsesWeaponProperties(s32 skill);
     /* lint: allow H011 -- the definition is an asm function returning int. */
     extern int func_0043c6a0(int param_1);
     extern u8 *iGpffffb3ac;
@@ -4945,7 +4945,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 }
                 animPacket->ownerId = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
-                if ((hitIndexS32 == (s32)rowHitCount - 1) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && (sameSideTarget == 1) && (*(s32 *)(targetAction + 0xE0) == 0) && (*hitMotion == 9) && ((s32)(func_0023df70(skillKeyCopy)) == (s32)(0))) {
+                if ((hitIndexS32 == (s32)rowHitCount - 1) && (hitRow->result.addedStatus & 0x100000) && (actionFlag4000 == 0) && (sameSideTarget == 1) && (*(s32 *)(targetAction + 0xE0) == 0) && (*hitMotion == 9) && ((s32)(datCalcUsesWeaponProperties(skillKeyCopy)) == (s32)(0))) {
                     motionFramesS32 = (s32) motionFrames;
                     if (motionFramesS32 >= 0x19) {
                         motionDelay = 0;

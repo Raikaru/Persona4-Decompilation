@@ -3,7 +3,7 @@
 /* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
+extern void fldFilterBeginTransition(s32 arg0, s32 arg1, s32 arg2);
 extern void FldFilterSetIndex(s32 arg0);
 
 extern s16 datGetDateIndex(void);
