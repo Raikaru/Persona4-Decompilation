@@ -9,34 +9,73 @@ extern s32 kwlnTaskGetTaskByName();
 extern void kwlnTaskDestroyWithHierarchy();
 extern u8 D_0063C958[];
 
-/* Model event update state machine shared by the func_0029xxxx family:
-   arg0 is an unused leading parameter; arg1 is the event record. */
+/* Model event update state machines share the 0x4C-byte queue record below;
+   each callback receives an unused context followed by the record. */
 typedef struct {
     f32 v[4];
 } F32x4;
 
 typedef struct {
     u16 id;      /* 0x00 */
-    u16 id2;     /* 0x02 */
-    u8 pad4[4];  /* 0x04 */
+    u16 targetId;     /* 0x02 */
+    s32 motion;  /* 0x04: indexes D_0063C930 when queued */
     f32 speed;   /* 0x08 */
     u8 padC[4];  /* 0x0C */
-    f32 posX;    /* 0x10 */
+    f32 yaw;    /* 0x10 */
     u8 pad14[4]; /* 0x14 */
-    s32 target;  /* 0x18 */
-    s32 timer;   /* 0x1C */
-    s16 angX;    /* 0x20 */
+    s32 duration;  /* 0x18 */
+    s32 sound;   /* 0x1C */
+    s16 soundStart;    /* 0x20 */
     u8 pad22[2];
-    s16 angY;    /* 0x24 */
+    s16 soundEnd;    /* 0x24 */
     u8 pad26[2];
-    s16 angZ;    /* 0x28 */
-    u8 pad2A[6]; /* 0x2A */
-    f32 timer2;  /* 0x30 */
-    f32 dst[4];  /* 0x34 */
-    s32 flags;   /* 0x44 */
-    s16 counterA; /* 0x48 */
-    s16 counterB; /* 0x4A */
+    s16 soundFlags;    /* 0x28 */
+    u8 pad2A[2]; /* 0x2A */
+    s32 (*step)(u8 **, u8 *); /* 0x2C */
+    f32 phase;  /* 0x30 */
+    f32 lookAtSnapshot[4];  /* 0x34 */
+    s32 flags;   /* 0x44: bit 0 requests look-at on finish; bit 1 enables sound */
+    s16 angleStableFrames; /* 0x48 */
+    s16 finalStableFrames; /* 0x4A */
 } EvtModelRec;
+
+/* nmlist.c allocates a 0x18-byte node prefix and stores its payload at +0x14.
+   Its 0x28-byte manager prefix embeds the list at +4 and work pointer at +0x24. */
+typedef struct EvtModelQueueNode {
+    u32 key;
+    u32 unk04;
+    u32 size;
+    struct EvtModelQueueNode *prev;
+    struct EvtModelQueueNode *next;
+    EvtModelRec *entry;
+} EvtModelQueueNode;
+typedef struct EvtModelQueue {
+    u32 unk00;
+    EvtModelQueueNode *head;
+    EvtModelQueueNode *tail;
+    EvtModelQueueNode *cursor;
+    u16 count;
+    u8 pad12[0x12];
+    u8 **work;
+} EvtModelQueue;
+
+/* Prefix copied by the queue constructors (0x2C bytes); the callback/state
+   suffix is initialized separately in the 0x4C-byte EvtModelRec. */
+typedef struct EvtModelParameters {
+    s16 resourceId;
+    u16 duration;
+    s32 motion;
+    f32 speed;
+    u8 pad0C[0x20];
+} EvtModelParameters;
+/* Partial model view: the alternating look-at step samples this float to
+   scale its blend; no interpretation beyond that use is established. */
+typedef struct Model {
+    u8 pad00[0x144];
+    f32 unk144;
+} Model;
+
+
 
 extern u8 D_0063C948[];
 extern s32 D_0063C930[];
@@ -81,104 +120,105 @@ extern f32 effMiscQuatAngle(void *a, f32 *b);
 // FUN_00291B60
 #pragma push
 #pragma opt_rebuildconditionals off
-s32 evtModelStepLookAt(s32 arg0, u8 *arg1) {
-    EvtModelRec *rec = (EvtModelRec *)arg1;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 var_f12;
+s32 evtModelStepLookAt(s32 unusedContext, u8 *recordBytes) {
+    EvtModelRec *rec = (EvtModelRec *)recordBytes;
+    f32 speed;
+    f32 angleCosine;
+    f32 blendWeight;
     s32 model;
     s32 state;
-    s32 var_2;
-    s32 temp_3;
+    s32 settled;
+    s32 flags;
 
-    temp_f21 = rec->speed;
+    speed = rec->speed;
     model = mtMiscResourceValue(rec->id);
     if (model == 0) {
         return 1;
     }
-    if (2.1474836e9f <= rec->timer2) {
+    /* Preserve the unsigned float-to-word conversion around 2^31. */
+    if (2.1474836e9f <= rec->phase) {
         goto state_large;
     }
-    state = (s32)rec->timer2;
+    state = (s32)rec->phase;
     goto state_ready;
 state_large:
-    state = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
+    state = (s32)(rec->phase - 2.1474836e9f) | 0x80000000;
 state_ready:
     if (state == 0) {
         if (mdlHasActiveMode(model) == 0) {
             rec->flags |= 1;
         }
         mdlSetTrackScaleRange(model, 30.0f, 0.0f);
-        var_f12 = fGpffff8218 * temp_f21;
-        if (!(var_f12 <= 1.0f)) {
-            var_f12 = 1.0f;
-        } else if (var_f12 < 0.0f) {
-            var_f12 = 0.0f;
+        blendWeight = fGpffff8218 * speed;
+        if (!(blendWeight <= 1.0f)) {
+            blendWeight = 1.0f;
+        } else if (blendWeight < 0.0f) {
+            blendWeight = 0.0f;
         }
-        mdlSetBlendWeight(model, var_f12);
-        rec->timer2 += 1.0f;
+        mdlSetBlendWeight(model, blendWeight);
+        rec->phase += 1.0f;
         goto common;
     }
     if (state == 1) {
-        temp_f20 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
+        angleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((angleCosine < -1.0f) || !(angleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f20)))) < fGpffff8478) {
-            rec->counterA = rec->counterA + 1;
-            if (rec->counterA >= 2) {
-                rec->counterA = 0;
-                var_2 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(angleCosine)))) < fGpffff8478) {
+            rec->angleStableFrames = rec->angleStableFrames + 1;
+            if (rec->angleStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                settled = 1;
             } else {
                 goto state1_counter;
             }
         } else {
-            rec->counterA = 0;
+            rec->angleStableFrames = 0;
 state1_counter:
-            var_2 = 0;
+            settled = 0;
         }
-        if (var_2 != 0) {
+        if (settled != 0) {
             mdlSetTrackScaleRange(model, 0.0f, 0.0f);
-            var_f12 = fGpffff8218 * temp_f21;
-            if (!(var_f12 <= 1.0f)) {
-                var_f12 = 1.0f;
-            } else if (var_f12 < 0.0f) {
-                var_f12 = 0.0f;
+            blendWeight = fGpffff8218 * speed;
+            if (!(blendWeight <= 1.0f)) {
+                blendWeight = 1.0f;
+            } else if (blendWeight < 0.0f) {
+                blendWeight = 0.0f;
             }
-            mdlSetBlendWeight(model, var_f12);
-            rec->timer2 += 1.0f;
+            mdlSetBlendWeight(model, blendWeight);
+            rec->phase += 1.0f;
         }
         goto common;
     }
     if (state == 2) {
-        temp_f20 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
+        angleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((angleCosine < -1.0f) || !(angleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f20)))) < fGpffff8514) {
-            rec->counterB = rec->counterB + 1;
-            if (rec->counterB >= 2) {
-                rec->counterA = 0;
-                var_2 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(angleCosine)))) < fGpffff8514) {
+            rec->finalStableFrames = rec->finalStableFrames + 1;
+            if (rec->finalStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                settled = 1;
             } else {
                 goto state2_counter;
             }
         } else {
-            rec->counterB = 0;
+            rec->finalStableFrames = 0;
 state2_counter:
-            var_2 = 0;
+            settled = 0;
         }
-        if (var_2 != 0) {
-            temp_3 = rec->flags;
-            if (temp_3 & 1) {
-                rec->flags = temp_3 & ~1;
+        if (settled != 0) {
+            flags = rec->flags;
+            if (flags & 1) {
+                rec->flags = flags & ~1;
                 mdlSetLookAtRequested(model);
             }
             return 1;
         }
     }
 common:
-    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)mdlGetLookAtSubobject(model);
+    *(F32x4 *)rec->lookAtSnapshot = *(F32x4 *)mdlGetLookAtSubobject(model);
     return 0;
 }
 #pragma pop
@@ -187,301 +227,302 @@ common:
 // FUN_00291FA0
 #pragma push
 #pragma opt_rebuildconditionals off
-s32 evtModelStepLookAtAlt(s32 arg0, u8 *arg1) {
-    EvtModelRec *rec = (EvtModelRec *)arg1;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    f32 temp_f0_6;
-    f32 temp_f0_7;
-    f32 temp_f0_8;
-    f32 temp_f0_9;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 var_f12;
-    f32 var_f12_2;
-    f32 var_f12_3;
-    f32 var_f12_4;
-    f32 var_f12_5;
-    f32 var_f12_6;
-    f32 var_f12_7;
-    f32 var_f12_8;
-    f32 var_f12_9;
-    f32 var_f12_10;
-    f32 var_f1;
-    f32 var_f1_2;
-    f32 var_f1_3;
-    f32 var_f1_4;
-    s16 temp_2_3;
-    s16 temp_2_4;
-    s16 temp_2_5;
-    s16 temp_2_6;
-    s16 temp_2_7;
-    s16 temp_2_8;
+s32 evtModelStepLookAtAlt(s32 unusedContext, u8 *recordBytes) {
+    EvtModelRec *rec = (EvtModelRec *)recordBytes;
+    f32 unusedBlendValue;
+    f32 firstBlendLimit;
+    f32 firstAngleCosine;
+    f32 secondBlendLimit;
+    f32 secondAngleCosine;
+    f32 thirdAngleCosine;
+    f32 fourthBlendLimit;
+    f32 fourthAngleCosine;
+    f32 finalAngleCosine;
+    f32 speed;
+    f32 initialAngleCosine;
+    f32 initialBlendWeight;
+    f32 firstTurnBlend;
+    f32 firstTrackBlend;
+    f32 secondTurnBlend;
+    f32 secondTrackBlend;
+    f32 thirdTurnBlend;
+    f32 thirdTrackBlend;
+    f32 fourthTurnBlend;
+    f32 fourthTrackBlend;
+    f32 finalBlendWeight;
+    f32 firstTrackScale;
+    f32 secondTrackScale;
+    f32 thirdTrackScale;
+    f32 fourthTrackScale;
+    s16 unusedCounterFirst;
+    s16 unusedCounterSecond;
+    s16 unusedCounterThird;
+    s16 unusedCounterFourth;
+    s16 unusedCounterFifth;
+    s16 unusedCounterFinal;
     s32 model;
-    s32 temp_3;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 var_2_5;
-    s32 var_2_6;
+    s32 flags;
+    s32 firstSettled;
+    s32 secondSettled;
+    s32 thirdSettled;
+    s32 fourthSettled;
+    s32 fifthSettled;
+    s32 finalSettled;
     s32 state;
 
-    temp_f20 = rec->speed;
+    speed = rec->speed;
     model = mtMiscResourceValue(rec->id);
     if (model == 0) {
         return 1;
     }
-    if (2.1474836e9f <= rec->timer2) {
+    /* Preserve the unsigned float-to-word conversion around 2^31. */
+    if (2.1474836e9f <= rec->phase) {
         goto state_large;
     }
-    state = (s32)rec->timer2;
+    state = (s32)rec->phase;
     goto state_ready;
 state_large:
-    state = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
+    state = (s32)(rec->phase - 2.1474836e9f) | 0x80000000;
 state_ready:
     if (state == 0) {
         if (mdlHasActiveMode(model) == 0) {
             rec->flags |= 1;
         }
         mdlSetTrackScaleRange(model, 0.0f, 15.0f);
-        var_f12 = fGpffff82cc * temp_f20;
-        if (!(var_f12 <= 1.0f)) {
-            var_f12 = 1.0f;
-        } else if (var_f12 < 0.0f) {
-            var_f12 = 0.0f;
+        initialBlendWeight = fGpffff82cc * speed;
+        if (!(initialBlendWeight <= 1.0f)) {
+            initialBlendWeight = 1.0f;
+        } else if (initialBlendWeight < 0.0f) {
+            initialBlendWeight = 0.0f;
         }
-        mdlSetBlendWeight(model, var_f12);
-        rec->timer2 += 1.0f;
+        mdlSetBlendWeight(model, initialBlendWeight);
+        rec->phase += 1.0f;
         goto common;
     }
     if (state == 1) {
-        temp_f21 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f21 < -1.0f) || !(temp_f21 <= 1.0f)) {
+        initialAngleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((initialAngleCosine < -1.0f) || !(initialAngleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f21)))) < fGpffff8478) {
-            rec->counterA = rec->counterA + 1;
-            if (rec->counterA >= 2) {
-                rec->counterA = 0;
-                var_2 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(initialAngleCosine)))) < fGpffff8478) {
+            rec->angleStableFrames = rec->angleStableFrames + 1;
+            if (rec->angleStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                firstSettled = 1;
             } else {
                 goto block_21;
             }
         } else {
-            rec->counterA = 0;
+            rec->angleStableFrames = 0;
 block_21:
-            var_2 = 0;
+            firstSettled = 0;
         }
-        if (var_2 != 0) {
+        if (firstSettled != 0) {
             mdlSetTrackScaleRange(model, 0.0f, -17.5f);
-            var_f12_2 = fGpffff8504 * temp_f20;
-            if (!(var_f12_2 <= 1.0f)) {
-                var_f12_2 = 1.0f;
-            } else if (var_f12_2 < 0.0f) {
-                var_f12_2 = 0.0f;
+            firstTurnBlend = fGpffff8504 * speed;
+            if (!(firstTurnBlend <= 1.0f)) {
+                firstTurnBlend = 1.0f;
+            } else if (firstTurnBlend < 0.0f) {
+                firstTurnBlend = 0.0f;
             }
-            mdlSetBlendWeight(model, var_f12_2);
-            rec->timer2 += 1.0f;
+            mdlSetBlendWeight(model, firstTurnBlend);
+            rec->phase += 1.0f;
         }
         goto common;
     }
     if (state == 2) {
-        var_f1 = 2.0f * *(f32 *)((u8 *)(s32)model + 0x144);
-        temp_f0_2 = D_00761260;
-        if (!(var_f1 < temp_f0_2)) {
-            var_f1 = temp_f0_2;
+        firstTrackScale = 2.0f * ((Model *)model)->unk144;
+        firstBlendLimit = D_00761260;
+        if (!(firstTrackScale < firstBlendLimit)) {
+            firstTrackScale = firstBlendLimit;
         }
-        var_f12_3 = var_f1 * temp_f20;
-        if (!(var_f12_3 <= 1.0f)) {
-            var_f12_3 = 1.0f;
-        } else if (var_f12_3 < 0.0f) {
-            var_f12_3 = 0.0f;
+        firstTrackBlend = firstTrackScale * speed;
+        if (!(firstTrackBlend <= 1.0f)) {
+            firstTrackBlend = 1.0f;
+        } else if (firstTrackBlend < 0.0f) {
+            firstTrackBlend = 0.0f;
         }
-        mdlSetBlendWeight(model, var_f12_3);
-        temp_f0_3 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
+        mdlSetBlendWeight(model, firstTrackBlend);
+        firstAngleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((firstAngleCosine < -1.0f) || !(firstAngleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_3)))) < fGpffff8478) {
-            rec->counterA = rec->counterA + 1;
-            if (rec->counterA >= 2) {
-                rec->counterA = 0;
-                var_2_2 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(firstAngleCosine)))) < fGpffff8478) {
+            rec->angleStableFrames = rec->angleStableFrames + 1;
+            if (rec->angleStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                secondSettled = 1;
             } else {
                 goto block_42;
             }
         } else {
-            rec->counterA = 0;
+            rec->angleStableFrames = 0;
 block_42:
-            var_2_2 = 0;
+            secondSettled = 0;
         }
-        if (var_2_2 != 0) {
+        if (secondSettled != 0) {
             mdlSetTrackScaleRange(model, 0.0f, 17.5f);
-            var_f12_4 = fGpffff8504 * temp_f20;
-            if (!(var_f12_4 <= 1.0f)) {
-                var_f12_4 = 1.0f;
-            } else if (var_f12_4 < 0.0f) {
-                var_f12_4 = 0.0f;
+            secondTurnBlend = fGpffff8504 * speed;
+            if (!(secondTurnBlend <= 1.0f)) {
+                secondTurnBlend = 1.0f;
+            } else if (secondTurnBlend < 0.0f) {
+                secondTurnBlend = 0.0f;
             }
-            mdlSetBlendWeight(model, var_f12_4);
-            rec->timer2 += 1.0f;
+            mdlSetBlendWeight(model, secondTurnBlend);
+            rec->phase += 1.0f;
         }
         goto common;
     }
     if (state == 3) {
-        var_f1_2 = 2.0f * *(f32 *)((u8 *)(s32)model + 0x144);
-        temp_f0_4 = D_00761260;
-        if (!(var_f1_2 < temp_f0_4)) {
-            var_f1_2 = temp_f0_4;
+        secondTrackScale = 2.0f * ((Model *)model)->unk144;
+        secondBlendLimit = D_00761260;
+        if (!(secondTrackScale < secondBlendLimit)) {
+            secondTrackScale = secondBlendLimit;
         }
-        var_f12_5 = var_f1_2 * temp_f20;
-        if (!(var_f12_5 <= 1.0f)) {
-            var_f12_5 = 1.0f;
-        } else if (var_f12_5 < 0.0f) {
-            var_f12_5 = 0.0f;
+        secondTrackBlend = secondTrackScale * speed;
+        if (!(secondTrackBlend <= 1.0f)) {
+            secondTrackBlend = 1.0f;
+        } else if (secondTrackBlend < 0.0f) {
+            secondTrackBlend = 0.0f;
         }
-        mdlSetBlendWeight(model, var_f12_5);
-        temp_f0_5 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
+        mdlSetBlendWeight(model, secondTrackBlend);
+        secondAngleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((secondAngleCosine < -1.0f) || !(secondAngleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_5)))) < fGpffff8478) {
-            rec->counterA = rec->counterA + 1;
-            if (rec->counterA >= 2) {
-                rec->counterA = 0;
-                var_2_3 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(secondAngleCosine)))) < fGpffff8478) {
+            rec->angleStableFrames = rec->angleStableFrames + 1;
+            if (rec->angleStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                thirdSettled = 1;
             } else {
                 goto block_63;
             }
         } else {
-            rec->counterA = 0;
+            rec->angleStableFrames = 0;
 block_63:
-            var_2_3 = 0;
+            thirdSettled = 0;
         }
-        if (var_2_3 != 0) {
+        if (thirdSettled != 0) {
             mdlSetTrackScaleRange(model, 0.0f, -15.0f);
-            var_f12_6 = fGpffff8504 * temp_f20;
-            if (!(var_f12_6 <= 1.0f)) {
-                var_f12_6 = 1.0f;
-            } else if (var_f12_6 < 0.0f) {
-                var_f12_6 = 0.0f;
+            thirdTurnBlend = fGpffff8504 * speed;
+            if (!(thirdTurnBlend <= 1.0f)) {
+                thirdTurnBlend = 1.0f;
+            } else if (thirdTurnBlend < 0.0f) {
+                thirdTurnBlend = 0.0f;
             }
-            mdlSetBlendWeight(model, var_f12_6);
-            rec->timer2 += 1.0f;
+            mdlSetBlendWeight(model, thirdTurnBlend);
+            rec->phase += 1.0f;
         }
         goto common;
     }
     if (state == 4) {
-        var_f1_3 = 2.0f * *(f32 *)((u8 *)(s32)model + 0x144);
-        if (!(var_f1_3 < 0.5f)) {
-            var_f1_3 = 0.5f;
+        thirdTrackScale = 2.0f * ((Model *)model)->unk144;
+        if (!(thirdTrackScale < 0.5f)) {
+            thirdTrackScale = 0.5f;
         }
-        var_f12_7 = var_f1_3 * temp_f20;
-        if (!(var_f12_7 <= 1.0f)) {
-            var_f12_7 = 1.0f;
-        } else if (var_f12_7 < 0.0f) {
-            var_f12_7 = 0.0f;
+        thirdTrackBlend = thirdTrackScale * speed;
+        if (!(thirdTrackBlend <= 1.0f)) {
+            thirdTrackBlend = 1.0f;
+        } else if (thirdTrackBlend < 0.0f) {
+            thirdTrackBlend = 0.0f;
         }
-        mdlSetBlendWeight(model, var_f12_7);
-        temp_f0_6 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
+        mdlSetBlendWeight(model, thirdTrackBlend);
+        thirdAngleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((thirdAngleCosine < -1.0f) || !(thirdAngleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_6)))) < fGpffff8478) {
-            rec->counterA = rec->counterA + 1;
-            if (rec->counterA >= 2) {
-                rec->counterA = 0;
-                var_2_4 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(thirdAngleCosine)))) < fGpffff8478) {
+            rec->angleStableFrames = rec->angleStableFrames + 1;
+            if (rec->angleStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                fourthSettled = 1;
             } else {
                 goto block_84;
             }
         } else {
-            rec->counterA = 0;
+            rec->angleStableFrames = 0;
 block_84:
-            var_2_4 = 0;
+            fourthSettled = 0;
         }
-        if (var_2_4 != 0) {
+        if (fourthSettled != 0) {
             mdlSetTrackScaleRange(model, 0.0f, 10.0f);
-            var_f12_8 = fGpffff8504 * temp_f20;
-            if (!(var_f12_8 <= 1.0f)) {
-                var_f12_8 = 1.0f;
-            } else if (var_f12_8 < 0.0f) {
-                var_f12_8 = 0.0f;
+            fourthTurnBlend = fGpffff8504 * speed;
+            if (!(fourthTurnBlend <= 1.0f)) {
+                fourthTurnBlend = 1.0f;
+            } else if (fourthTurnBlend < 0.0f) {
+                fourthTurnBlend = 0.0f;
             }
-            mdlSetBlendWeight(model, var_f12_8);
-            rec->timer2 += 1.0f;
+            mdlSetBlendWeight(model, fourthTurnBlend);
+            rec->phase += 1.0f;
         }
         goto common;
     }
     if (state == 5) {
-        var_f1_4 = 2.0f * *(f32 *)((u8 *)(s32)model + 0x144);
-        temp_f0_7 = fGpffff8510;
-        if (!(var_f1_4 < temp_f0_7)) {
-            var_f1_4 = temp_f0_7;
+        fourthTrackScale = 2.0f * ((Model *)model)->unk144;
+        fourthBlendLimit = fGpffff8510;
+        if (!(fourthTrackScale < fourthBlendLimit)) {
+            fourthTrackScale = fourthBlendLimit;
         }
-        var_f12_9 = var_f1_4 * temp_f20;
-        if (!(var_f12_9 <= 1.0f)) {
-            var_f12_9 = 1.0f;
-        } else if (var_f12_9 < 0.0f) {
-            var_f12_9 = 0.0f;
+        fourthTrackBlend = fourthTrackScale * speed;
+        if (!(fourthTrackBlend <= 1.0f)) {
+            fourthTrackBlend = 1.0f;
+        } else if (fourthTrackBlend < 0.0f) {
+            fourthTrackBlend = 0.0f;
         }
-        mdlSetBlendWeight(model, var_f12_9);
-        temp_f0_8 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
+        mdlSetBlendWeight(model, fourthTrackBlend);
+        fourthAngleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((fourthAngleCosine < -1.0f) || !(fourthAngleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_8)))) < fGpffff8478) {
-            rec->counterA = rec->counterA + 1;
-            if (rec->counterA >= 2) {
-                rec->counterA = 0;
-                var_2_5 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(fourthAngleCosine)))) < fGpffff8478) {
+            rec->angleStableFrames = rec->angleStableFrames + 1;
+            if (rec->angleStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                fifthSettled = 1;
             } else {
                 goto block_105;
             }
         } else {
-            rec->counterA = 0;
+            rec->angleStableFrames = 0;
 block_105:
-            var_2_5 = 0;
+            fifthSettled = 0;
         }
-        if (var_2_5 != 0) {
+        if (fifthSettled != 0) {
             mdlSetTrackScaleRange(model, 0.0f, 0.0f);
-            var_f12_10 = fGpffff8218 * temp_f20;
-            if (!(var_f12_10 <= 1.0f)) {
-                var_f12_10 = 1.0f;
-            } else if (var_f12_10 < 0.0f) {
-                var_f12_10 = 0.0f;
+            finalBlendWeight = fGpffff8218 * speed;
+            if (!(finalBlendWeight <= 1.0f)) {
+                finalBlendWeight = 1.0f;
+            } else if (finalBlendWeight < 0.0f) {
+                finalBlendWeight = 0.0f;
             }
-            mdlSetBlendWeight(model, var_f12_10);
-            rec->timer2 += 1.0f;
+            mdlSetBlendWeight(model, finalBlendWeight);
+            rec->phase += 1.0f;
         }
         goto common;
     }
     if (state == 6) {
-        temp_f0_9 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
-        if ((temp_f0_9 < -1.0f) || !(temp_f0_9 <= 1.0f)) {
+        finalAngleCosine = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->lookAtSnapshot);
+        if ((finalAngleCosine < -1.0f) || !(finalAngleCosine <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
-        if (func_0044b920(dptofp(func_0044b310(fptodp(temp_f0_9)))) < fGpffff8514) {
-            rec->counterB = rec->counterB + 1;
-            if (rec->counterB >= 2) {
-                rec->counterA = 0;
-                var_2_6 = 1;
+        if (func_0044b920(dptofp(func_0044b310(fptodp(finalAngleCosine)))) < fGpffff8514) {
+            rec->finalStableFrames = rec->finalStableFrames + 1;
+            if (rec->finalStableFrames >= 2) {
+                rec->angleStableFrames = 0;
+                finalSettled = 1;
             } else {
                 goto block_120;
             }
         } else {
-            rec->counterB = 0;
+            rec->finalStableFrames = 0;
 block_120:
-            var_2_6 = 0;
+            finalSettled = 0;
         }
-        if (var_2_6 != 0) {
-            temp_3 = rec->flags;
-            if (temp_3 & 1) {
-                rec->flags = temp_3 & ~1;
+        if (finalSettled != 0) {
+            flags = rec->flags;
+            if (flags & 1) {
+                rec->flags = flags & ~1;
                 mdlSetLookAtRequested(model);
             }
             return 1;
@@ -489,95 +530,106 @@ block_120:
         goto common;
     }
 common:
-        *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)mdlGetLookAtSubobject(model);
+        *(F32x4 *)rec->lookAtSnapshot = *(F32x4 *)mdlGetLookAtSubobject(model);
         return 0;
 }
 #pragma pop
 
 // Intent: Two-model aim: points model id's look-at direction at model id2 while blending, then waits for model id's motion to finish [inferred]
 // FUN_00292BB0
-s32 evtModelStepAimAtModel(s32 arg0, u8 *arg1) {
-    EvtModelRec *rec = (EvtModelRec *)arg1;
+s32 evtModelStepAimAtModel(s32 unusedContext, u8 *recordBytes) {
+    EvtModelRec *rec = (EvtModelRec *)recordBytes;
     typedef struct {
         f32 x;
         f32 y;
         f32 z;
     } F32x3;
-    u8 sp[0x30];
-    f32 temp_f20;
-    f32 temp_f2;
-    f32 var_f12;
-    f32 var_f12_2;
+    typedef struct {
+        u8 pad00[0x30];
+        F32x3 position;
+    } EvtAimMatrix;
+    struct {
+        F32x3 target;
+        u32 pad0C;
+        F32x3 initialTarget;
+        u32 pad1C;
+        F32x3 direction;
+        u32 pad2C;
+    } aimScratch;
+    f32 speed;
+    f32 deltaX;
+    f32 initialBlendWeight;
+    f32 blendWeight;
     s32 handle1;
     s32 handle2;
-    s32 var_2;
-    u32 var_3;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
+    s32 equalComponents;
+    u32 state;
+    EvtAimMatrix *initialSourceMatrix;
+    EvtAimMatrix *initialTargetMatrix;
+    EvtAimMatrix *sourceMatrix;
+    EvtAimMatrix *targetMatrix;
+    u8 *lookAt;
 
-    temp_f20 = rec->speed;
+    speed = rec->speed;
     handle1 = mtMiscResourceValue(rec->id);
-    handle2 = mtMiscResourceValue(rec->id2);
+    handle2 = mtMiscResourceValue(rec->targetId);
     if (handle1 == 0) {
         return 1;
     }
     if (handle2 == 0) {
         return 1;
     }
-    var_3 = (u32)rec->timer2;
-    if (var_3 == 0) {
-        temp_2 = (u8 *)mdlGetMatrix(handle1);
-        *(F32x3 *)(sp + 0x20) = *(F32x3 *)(temp_2 + 0x30);
-        temp_2_2 = (u8 *)mdlGetMatrix(handle2);
-        *(F32x3 *)(sp + 0x10) = *(F32x3 *)(temp_2_2 + 0x30);
-        temp_f2 = *(f32 *)(sp + 0x10) - *(f32 *)(sp + 0x20);
-        *(f32 *)(sp + 0x20) = temp_f2;
-        *(f32 *)(sp + 0x28) = *(f32 *)(sp + 0x18) - *(f32 *)(sp + 0x28);
-        *(u32 *)(sp + 0x24) = 0;
-        if (temp_f2 == *(f32 *)(sp + 0x28)) {
-            var_2 = 1;
+    state = (u32)rec->phase;
+    if (state == 0) {
+        initialSourceMatrix = (EvtAimMatrix *)mdlGetMatrix(handle1);
+        aimScratch.direction = initialSourceMatrix->position;
+        initialTargetMatrix = (EvtAimMatrix *)mdlGetMatrix(handle2);
+        aimScratch.initialTarget = initialTargetMatrix->position;
+        deltaX = aimScratch.initialTarget.x - aimScratch.direction.x;
+        aimScratch.direction.x = deltaX;
+        aimScratch.direction.z = aimScratch.initialTarget.z - aimScratch.direction.z;
+        *(u32 *)&aimScratch.direction.y = 0;
+        if (deltaX == aimScratch.direction.z) {
+            equalComponents = 1;
         } else {
-            var_2 = 0;
+            equalComponents = 0;
         }
-        if ((f32)var_2 == 0.0f) {
-            *(f32 *)(sp + 0x28) = 1.0f;
+        if ((f32)equalComponents == 0.0f) {
+            aimScratch.direction.z = 1.0f;
         }
-        RwV3dNormalize(sp + 0x20, sp + 0x20);
-        mdlSetLookAtDirection(handle1, sp + 0x20);
-        var_f12 = fGpffff8218 * temp_f20;
-        if (!(var_f12 <= 1.0f)) {
-            var_f12 = 1.0f;
-        } else if (var_f12 < 0.0f) {
-            var_f12 = 0.0f;
+        RwV3dNormalize(&aimScratch.direction, &aimScratch.direction);
+        mdlSetLookAtDirection(handle1, &aimScratch.direction);
+        initialBlendWeight = fGpffff8218 * speed;
+        if (!(initialBlendWeight <= 1.0f)) {
+            initialBlendWeight = 1.0f;
+        } else if (initialBlendWeight < 0.0f) {
+            initialBlendWeight = 0.0f;
         }
-        mdlSetBlendWeight(handle1, var_f12);
-        rec->timer2 += 1.0f;
+        mdlSetBlendWeight(handle1, initialBlendWeight);
+        rec->phase += 1.0f;
     } else {
         if (mdlHasActiveMode(handle1) == 0) {
             return 1;
         }
-        temp_2_3 = (u8 *)mdlGetMatrix(handle1);
-        *(F32x3 *)(sp + 0x20) = *(F32x3 *)(temp_2_3 + 0x30);
-        temp_2_4 = (u8 *)mdlGetMatrix(handle2);
-        *(F32x3 *)(sp + 0x00) = *(F32x3 *)(temp_2_4 + 0x30);
-        *(f32 *)(sp + 0x20) = *(f32 *)(sp + 0x00) - *(f32 *)(sp + 0x20);
-        *(f32 *)(sp + 0x28) = *(f32 *)(sp + 0x08) - *(f32 *)(sp + 0x28);
-        *(u32 *)(sp + 0x24) = 0;
-        RwV3dNormalize(sp + 0x20, sp + 0x20);
-        mdlSetLookAtDirection(handle1, sp + 0x20);
-        var_f12_2 = fGpffff8218 * temp_f20;
-        if (!(var_f12_2 <= 1.0f)) {
-            var_f12_2 = 1.0f;
-        } else if (var_f12_2 < 0.0f) {
-            var_f12_2 = 0.0f;
+        sourceMatrix = (EvtAimMatrix *)mdlGetMatrix(handle1);
+        aimScratch.direction = sourceMatrix->position;
+        targetMatrix = (EvtAimMatrix *)mdlGetMatrix(handle2);
+        aimScratch.target = targetMatrix->position;
+        aimScratch.direction.x = aimScratch.target.x - aimScratch.direction.x;
+        aimScratch.direction.z = aimScratch.target.z - aimScratch.direction.z;
+        *(u32 *)&aimScratch.direction.y = 0;
+        RwV3dNormalize(&aimScratch.direction, &aimScratch.direction);
+        mdlSetLookAtDirection(handle1, &aimScratch.direction);
+        blendWeight = fGpffff8218 * speed;
+        if (!(blendWeight <= 1.0f)) {
+            blendWeight = 1.0f;
+        } else if (blendWeight < 0.0f) {
+            blendWeight = 0.0f;
         }
-        mdlSetBlendWeight(handle1, var_f12_2);
+        mdlSetBlendWeight(handle1, blendWeight);
     }
-    temp_2_5 = (u8 *)mdlGetLookAtSubobject(handle1);
-    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)temp_2_5;
+    lookAt = (u8 *)mdlGetLookAtSubobject(handle1);
+    *(F32x4 *)rec->lookAtSnapshot = *(F32x4 *)lookAt;
     return 0;
 }
 
@@ -588,46 +640,47 @@ s32 evtModelStepAimAtModel(s32 arg0, u8 *arg1) {
 #pragma push
 #pragma opt_rebuildconditionals off
 #pragma opt_propagation off
-s32 evtModelStepMotion(s32 arg0, u8 *arg1) {
-    EvtModelRec *rec = (EvtModelRec *)arg1;
-    SVec3 sp;
+s32 evtModelStepMotion(s32 unusedContext, u8 *recordBytes) {
+    EvtModelRec *rec = (EvtModelRec *)recordBytes;
+    SVec3 angles;
     u32 id;
     s32 handle;
-    s32 var_3;
+    s32 frame;
 
     id = rec->id;
     handle = mtMiscResourceValue(id);
     if (handle == 0) {
         return 1;
     }
-    if (2.1474836e9f <= rec->timer2) {
+    /* Preserve the unsigned float-to-word conversion around 2^31. */
+    if (2.1474836e9f <= rec->phase) {
         goto big;
     }
-    var_3 = (s32)rec->timer2;
+    frame = (s32)rec->phase;
     goto done;
 big:
-    var_3 = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
+    frame = (s32)(rec->phase - 2.1474836e9f) | 0x80000000;
 done:
-    if (var_3 == 0) {
+    if (frame == 0) {
         MT_Scene_SetResMotion(MT_Scene_GetRes(id), 0, 1, 5, 0, 0, 1.0f);
-    } else if (var_3 == 5) {
-        sp.x = 0.0f;
-        sp.y = rec->posX;
-        sp.z = 0.0f;
-        MT_Scene_BeginResRotation(id, &sp, *(u32 *)&rec->target, 0);
+    } else if (frame == 5) {
+        angles.x = 0.0f;
+        angles.y = rec->yaw;
+        angles.z = 0.0f;
+        MT_Scene_BeginResRotation(id, &angles, *(u32 *)&rec->duration, 0);
         if (rec->flags & 2) {
-            u8 sound = (rec->timer + 1) & 0xFF;
-            s16 start = rec->angX;
-            s16 end = rec->angY;
-            s16 flags = rec->angZ;
+            u8 sound = (rec->sound + 1) & 0xFF;
+            s16 start = rec->soundStart;
+            s16 end = rec->soundEnd;
+            s16 flags = rec->soundFlags;
             MT_Scene_SetResSoundRange(id, 2, sound, start, end, flags);
         }
-    } else if (var_3 == 25) {
+    } else if (frame == 25) {
         MT_Scene_SetResMotion(MT_Scene_GetRes(id), 0, 0, 5, 1, 0, 1.0f);
         return 1;
     }
-    rec->timer2 += 1.0f;
-    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)mdlGetLookAtSubobject(handle);
+    rec->phase += 1.0f;
+    *(F32x4 *)rec->lookAtSnapshot = *(F32x4 *)mdlGetLookAtSubobject(handle);
     return 0;
 }
 #pragma pop
@@ -646,17 +699,17 @@ s32 evtModelUpdateTask(u8 *unusedTask) {
 
     list = (u8 **)kwlnTaskGetWork();
     head = (u8 *)*list;
-    node = (u8 *)((u8 **)head)[1];
+    node = (u8 *)((EvtModelQueue *)head)->head;
     while (node != NULL) {
-        next = (u8 *)((u8 **)node)[4];
-        entry = (u8 *)((u8 **)node)[5];
-        cb = (s32 (*)(u8 **, u8 *))*(s32 **)(entry + 0x2C);
+        next = (u8 *)((EvtModelQueueNode *)node)->next;
+        entry = (u8 *)((EvtModelQueueNode *)node)->entry;
+        cb = ((EvtModelRec *)entry)->step;
         if ((cb != NULL) && (cb(list, entry) != 0)) {
             func_002e2240(head, head + 4, node);
         }
         node = next;
     }
-    if (*(u16 *)(head + 0x10) != 0) {
+    if (((EvtModelQueue *)head)->count != 0) {
         goto ret0;
     }
     return -1;
@@ -677,10 +730,10 @@ void evtModelTaskDestroy(u8 *unusedTask) {
     list = (u8 **)kwlnTaskGetWork();
     head = (u8 *)*list;
     if (head != NULL) {
-        node = (u8 *)((u8 **)head)[1];
+        node = (u8 *)((EvtModelQueue *)head)->head;
         while (node != NULL) {
-            next = (u8 *)((u8 **)node)[4];
-            handle = mtMiscResourceValue(*(u16 *)((u8 **)node)[5]);
+            next = (u8 *)((EvtModelQueueNode *)node)->next;
+            handle = mtMiscResourceValue(((EvtModelQueueNode *)node)->entry->id);
             if (handle != 0) {
                 mdlSetBlendWeight(handle, fGpffff8218);
                 mdlSetLookAtRequested(handle);
@@ -702,10 +755,10 @@ void evtModelDestroy(void) {
     }
 }
 
-// Resets the blend weight and look-at request on resource arg0 and removes its
+// Resets the blend weight and look-at request on resourceId and removes its
 // nodes from the queue.
 // FUN_002932B0
-void evtModelFlushResource(s32 arg0) {
+void evtModelFlushResource(s32 resourceId) {
     u8 **list;
     u8 *head;
     u8 *node;
@@ -719,12 +772,12 @@ void evtModelFlushResource(s32 arg0) {
         list = (u8 **)kwlnTaskGetWork(outer);
         head = (u8 *)*list;
         if (head != NULL) {
-            node = (u8 *)((u8 **)head)[1];
-            masked = (u16)arg0;
+            node = (u8 *)((EvtModelQueue *)head)->head;
+            masked = (u16)resourceId;
             while (node != NULL) {
-                next = (u8 *)((u8 **)node)[4];
-                if (*(u16 *)((u8 **)node)[5] == masked) {
-                    handle = mtMiscResourceValue(*(u16 *)((u8 **)node)[5]);
+                next = (u8 *)((EvtModelQueueNode *)node)->next;
+                if (((EvtModelQueueNode *)node)->entry->id == masked) {
+                    handle = mtMiscResourceValue(((EvtModelQueueNode *)node)->entry->id);
                     if (handle != 0) {
                         mdlSetBlendWeight(handle, fGpffff8218);
                         mdlSetLookAtRequested(handle);
@@ -737,106 +790,106 @@ void evtModelFlushResource(s32 arg0) {
     }
 }
 
-// Queues motion `motion` at `speed` for resource arg0. Creates the manager task
+// Queues motion `motion` at `speed` for resource resourceId. Creates the manager task
 // on first use.
 // FUN_002933A0
-void evtModelQueueMotion(u16 arg0, s32 arg1, f32 fparg0) {
-    u8 sp[0x2C];
-    u32 var_2;
-    u8 **temp_10;
-    u8 **temp_17;
-    u8 *temp_2;
-    u8 *temp_19;
-    u8 *temp_18;
-    u8 *temp_3;
-    u8 *temp_4;
-    u8 *temp_16;
-    u8 *var_6;
+void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed) {
+    EvtModelParameters parameters;
+    u32 task;
+    u8 **newWork;
+    u8 **work;
+    u8 *newQueue;
+    u8 *existingQueue;
+    u8 *nextNode;
+    u8 *entry;
+    u8 *queue;
+    u8 *queuedEntry;
+    u8 *node;
     u32 masked;
 
-    var_2 = kwlnTaskGetTaskByName(D_0063C958);
-    if (var_2 == 0) {
-        temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
-        temp_10 = *(u8 ***)(temp_2 + 0x24);
-        *temp_10 = temp_2;
-        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(temp_10));
+    task = kwlnTaskGetTaskByName(D_0063C958);
+    if (task == 0) {
+        newQueue = (u8 *)func_002e1db0(4, 0, 0, 0);
+        newWork = ((EvtModelQueue *)newQueue)->work;
+        *newWork = newQueue;
+        task = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(newWork));
     }
-    temp_17 = (u8 **)kwlnTaskGetWork(var_2);
-    memset(sp, 0, 0x2C);
-    *(s16 *)(sp + 0) = arg0;
-    *(s32 *)(sp + 4) = arg1;
-    *(f32 *)(sp + 8) = fparg0;
-    if (temp_17 == NULL) {
+    work = (u8 **)kwlnTaskGetWork(task);
+    memset(&parameters, 0, 0x2C);
+    parameters.resourceId = resourceId;
+    parameters.motion = motion;
+    parameters.speed = speed;
+    if (work == NULL) {
         kAssertFail(D_0063C948, 0x32C);
     }
-    temp_19 = (u8 *)*temp_17;
-    if (temp_19 != NULL) {
-        var_6 = (u8 *)((u8 **)temp_19)[1];
-        masked = (u16)arg0;
-        while (var_6 != NULL) {
-            temp_18 = (u8 *)((u8 **)var_6)[4];
-            temp_3 = (u8 *)((u8 **)var_6)[5];
-            if ((*(u16 *)temp_3 == masked) && (*(s32 *)(temp_3 + 4) == 3)) {
-                func_002e2240(temp_19, temp_19 + 4, var_6);
+    existingQueue = (u8 *)*work;
+    if (existingQueue != NULL) {
+        node = (u8 *)((EvtModelQueue *)existingQueue)->head;
+        masked = (u16)resourceId;
+        while (node != NULL) {
+            nextNode = (u8 *)((EvtModelQueueNode *)node)->next;
+            entry = (u8 *)((EvtModelQueueNode *)node)->entry;
+            if ((((EvtModelRec *)entry)->id == masked) && (((EvtModelRec *)entry)->motion == 3)) {
+                func_002e2240(existingQueue, existingQueue + 4, node);
             }
-            var_6 = temp_18;
+            node = nextNode;
         }
     }
-    temp_4 = (u8 *)*temp_17;
-    temp_16 = (u8 *)((u8 **)func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0x4C))[5];
-    memcpy(temp_16, sp, 0x2C);
-    *(s32 *)(temp_16 + 0x2C) = D_0063C930[*(s32 *)(sp + 4)];
+    queue = (u8 *)*work;
+    queuedEntry = (u8 *)((EvtModelQueueNode *)func_002e2170(queue, ((EvtModelQueue *)queue)->count + 1, 0x4C))->entry;
+    memcpy(queuedEntry, &parameters, 0x2C);
+    ((EvtModelRec *)queuedEntry)->step = (s32 (*)(u8 **, u8 *))D_0063C930[parameters.motion];
 }
 
 // Queues motion like evtModelQueueMotion, but first removes this resource's
 // motion-3 nodes and stores `duration` with the node. Creates the manager task
 // on first use.
 // FUN_00293550
-void evtModelQueueTimedMotion(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
-    u8 sp[0x2C];
-    u32 var_2;
-    u8 **temp_10;
-    u8 **temp_17;
-    u8 *temp_2;
-    u8 *temp_19;
-    u8 *temp_18;
-    u8 *temp_3;
-    u8 *temp_4;
-    u8 *temp_16;
-    u8 *var_6;
+void evtModelQueueTimedMotion(u16 resourceId, u16 duration, s32 motion, f32 speed) {
+    EvtModelParameters parameters;
+    u32 task;
+    u8 **newWork;
+    u8 **work;
+    u8 *newQueue;
+    u8 *existingQueue;
+    u8 *nextNode;
+    u8 *entry;
+    u8 *queue;
+    u8 *queuedEntry;
+    u8 *node;
     u32 masked;
 
-    var_2 = kwlnTaskGetTaskByName(D_0063C958);
-    if (var_2 == 0) {
-        temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
-        temp_10 = *(u8 ***)(temp_2 + 0x24);
-        *temp_10 = temp_2;
-        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(temp_10));
+    task = kwlnTaskGetTaskByName(D_0063C958);
+    if (task == 0) {
+        newQueue = (u8 *)func_002e1db0(4, 0, 0, 0);
+        newWork = ((EvtModelQueue *)newQueue)->work;
+        *newWork = newQueue;
+        task = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(newWork));
     }
-    temp_17 = (u8 **)kwlnTaskGetWork(var_2);
-    memset(sp, 0, 0x2C);
-    *(s16 *)(sp + 0) = arg0;
-    *(s16 *)(sp + 2) = arg1;
-    *(s32 *)(sp + 4) = arg2;
-    *(f32 *)(sp + 8) = fparg0;
-    if (temp_17 == NULL) {
+    work = (u8 **)kwlnTaskGetWork(task);
+    memset(&parameters, 0, 0x2C);
+    parameters.resourceId = resourceId;
+    parameters.duration = duration;
+    parameters.motion = motion;
+    parameters.speed = speed;
+    if (work == NULL) {
         kAssertFail(D_0063C948, 0x32C);
     }
-    temp_19 = (u8 *)*temp_17;
-    if (temp_19 != NULL) {
-        var_6 = (u8 *)((u8 **)temp_19)[1];
-        masked = (u16)arg0;
-        while (var_6 != NULL) {
-            temp_18 = (u8 *)((u8 **)var_6)[4];
-            temp_3 = (u8 *)((u8 **)var_6)[5];
-            if ((*(u16 *)temp_3 == masked) && (*(s32 *)(temp_3 + 4) == 3)) {
-                func_002e2240(temp_19, temp_19 + 4, var_6);
+    existingQueue = (u8 *)*work;
+    if (existingQueue != NULL) {
+        node = (u8 *)((EvtModelQueue *)existingQueue)->head;
+        masked = (u16)resourceId;
+        while (node != NULL) {
+            nextNode = (u8 *)((EvtModelQueueNode *)node)->next;
+            entry = (u8 *)((EvtModelQueueNode *)node)->entry;
+            if ((((EvtModelRec *)entry)->id == masked) && (((EvtModelRec *)entry)->motion == 3)) {
+                func_002e2240(existingQueue, existingQueue + 4, node);
             }
-            var_6 = temp_18;
+            node = nextNode;
         }
     }
-    temp_4 = (u8 *)*temp_17;
-    temp_16 = (u8 *)((u8 **)func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0x4C))[5];
-    memcpy(temp_16, sp, 0x2C);
-    *(s32 *)(temp_16 + 0x2C) = D_0063C930[*(s32 *)(sp + 4)];
+    queue = (u8 *)*work;
+    queuedEntry = (u8 *)((EvtModelQueueNode *)func_002e2170(queue, ((EvtModelQueue *)queue)->count + 1, 0x4C))->entry;
+    memcpy(queuedEntry, &parameters, 0x2C);
+    ((EvtModelRec *)queuedEntry)->step = (s32 (*)(u8 **, u8 *))D_0063C930[parameters.motion];
 }

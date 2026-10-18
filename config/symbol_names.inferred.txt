@@ -1,0 +1,81 @@
+// Persona 4 function names inferred from behaviour during the readability pass.
+//
+// These are descriptive names chosen by contributors, following the Atlus
+// convention (lowercase module prefix + CamelCase), not original symbols. Each
+// `evidence: inferred:` note states the behaviour that supports the name; a
+// name the binary itself carries uses `string:` evidence instead. Treat
+// `inferred` names as descriptions and replace them when stronger evidence
+// (a debug string, a P3 counterpart) turns up.
+
+evtNodeFadeDispatchReady = 0x0028A7C0; // type:func  evidence: inferred: Kind-6 fade handler accepts initialization only during dispatch pass 3; later actions report ready.
+evtNodeLightDispatchReady = 0x0028A850; // type:func  evidence: inferred: Kind-10 light-pose handler accepts initialization only during dispatch pass 3; later actions report ready.
+evtNodeCutinDispatchReady = 0x0028A8E0; // type:func  evidence: inferred: Kind-36 cut-in handler accepts initialization only during dispatch pass 3; later actions report ready.
+evtMainIsFlagSet = 0x0028B260; // type:func  evidence: inferred: Returns whether the DAT_007645D8 flag written by evtMainSetFlag is nonzero.
+fldShadowStepCasterSetup = 0x0017ACC0; // type:func  evidence: inferred: advance model/camera setup and queue mode-specific shadow commands
+fldShadowReleaseCaster = 0x0017B350; // type:func  evidence: inferred: destroy caster camera, rasters, projection work, and optional ring
+fldShadowCreateCaster = 0x0017B510; // type:func  evidence: inferred: allocate 0xe0-byte caster work and initialize its mode-specific resources
+fldShadowSetCasterFlag = 0x0017B990; // type:func  evidence: inferred: store the supplied disabled flag in caster work offset four
+fldShadowSetRingRadius = 0x0017B9A0; // type:func  evidence: inferred: set the ring radius and rebuild its circular geometry vertices
+fldShadowSaveLightFlags = 0x0017BB50; // type:func  evidence: inferred: save and clear the three clump-light enable bytes
+fldShadowRestoreLightFlags = 0x0017BBE0; // type:func  evidence: inferred: restore the saved three clump-light enable bytes
+fldShadowUpdateSceneShadow = 0x0017BC60; // type:func  evidence: inferred: position the scene resource shadow camera and save its model color
+fldShadowFinishSceneCamera = 0x0017C010; // type:func  evidence: inferred: restore scene model color, draw three gradient strips, and end camera update
+fldShadowUpdateModelShadow = 0x0017C270; // type:func  evidence: inferred: position the model resource shadow camera and disable five item slots
+fldShadowFinishModelCamera = 0x0017C670; // type:func  evidence: inferred: restore model color/flags and five slots, draw gradient strips, end camera update
+fldShadowUpdateDrawQueue = 0x0017C930; // type:func  evidence: inferred: queue shadow passes for scene/model lists and flush the draw buckets
+fldShadowDestroyDrawQueue = 0x0017CC90; // type:func  evidence: inferred: free the shadow draw-queue task work
+fldShadowCreateDrawQueue = 0x0017CCC0; // type:func  evidence: inferred: allocate 0x40-byte draw-queue work and create its task
+fldShadowDestroyCamera = 0x001790A0; // type:func  evidence: inferred: detach and destroy the frame and Z raster before destroying the camera
+fldShadowAccumulateAtomicBounds = 0x00179130; // type:func  evidence: inferred: sum atomic radii and retain the selected atomic center
+fldShadowProjectTriangle = 0x001791D0; // type:func  evidence: inferred: project world collision triangle UVs and emit alpha-modulated shadow vertices
+fldShadowProjectAtomicTriangle = 0x00179860; // type:func  evidence: inferred: transform atomic collision vertices by the frame before projection and emission
+fldShadowProjectAtomic = 0x00179F70; // type:func  evidence: inferred: run the atomic collision iterator with the shadow triangle callback
+kSpipeGetStateIndex = 0x00178A00; // type:func  evidence: inferred: return the script context halfword at offset 0x0c through the VM result slot
+kSpipeGetRecordBand = 0x00178A30; // type:func  evidence: inferred: map record ID thresholds to bands zero through three, or four for nonzero state
+kSpipeIsRecordEnabled = 0x00178AF0; // type:func  evidence: inferred: return whether the current record flags contain mask 1
+kSpipeGetRecordState = 0x00178B30; // type:func  evidence: inferred: return the current record state word through the VM result slot
+kSpipeGetRecordId = 0x00178B70; // type:func  evidence: inferred: return the current record ID halfword through the VM result slot
+kSpipeGetRecordKind = 0x00178BA0; // type:func  evidence: inferred: return the current record kind byte through the VM result slot
+kSpipeGetRecordLevel = 0x00178BD0; // type:func  evidence: inferred: return the current record level byte through the VM result slot
+kSpipeFinish = 0x00178C00; // type:func  evidence: inferred: set the context completion word and clear the active context pointer
+fldShadowDrawProjection = 0x00179FC0; // type:func  evidence: inferred: initialize projection coordinates, traverse collision, and flush shadow triangle vertices
+fldShadowCmdProjectBounds = 0x0017A700; // type:func  evidence: inferred: build a model-centered box or sphere intersection and submit shadow projection
+fldShadowCmdBeginFlip = 0x0017A8D0; // type:func  evidence: inferred: save the matrix, reflect its axis/translation, and disable five model slots
+fldShadowCmdEndFlip = 0x0017AAE0; // type:func  evidence: inferred: restore the saved matrix and re-enable the five model slots
+fldShadowCmdRender = 0x0017ABD0; // type:func  evidence: inferred: configure shadow render states and call the ring atomic render callback
+kTestCreateLauncher = 0x0018E520; // type:func  evidence: inferred: allocate 0x1c-byte work and create the test launcher child task
+kTestUpdate = 0x0018E5B0; // type:func  evidence: inferred: alternate two sequence requests after asynchronous field loading completes
+kTestDestroy = 0x0018E730; // type:func  evidence: inferred: destroy the optional model handle and free the test task work
+kTestCreate = 0x0018E780; // type:func  evidence: inferred: allocate 0x1c-byte work and create the scene-cycling test task
+kTestMenuUpdate = 0x0018E050; // type:func  evidence: inferred: dispatch the selected debug test and wait for its child task to exit
+kTestMenuDestroy = 0x0018E310; // type:func  evidence: inferred: free the debug menu task work
+kTestMenuCreate = 0x0018E340; // type:func  evidence: inferred: allocate the three-word debug menu work and create its task
+kTestMenuIsActive = 0x0018E3C0; // type:func  evidence: inferred: test whether the named debug menu task exists
+kTestMenuClose = 0x0018E3F0; // type:func  evidence: inferred: find and destroy the named debug menu task hierarchy
+kTexStripStripTextureStream = 0x00190680; // type:func  evidence: inferred: copy stream chunks while retaining a texture dictionary and stripping QTEX prefixes
+kTexStripNameInsert = 0x00190920; // type:func  evidence: inferred: look up a texture name and move the texture into the dictionary when absent
+kTexStripApplyNames = 0x001909F0; // type:func  evidence: inferred: merge loaded dictionary texture names while copying the resource chunk stream
+kTexStripBuildUpdate = 0x00190C10; // type:func  evidence: inferred: enumerate resources, collect IDs, and write stripped assets and their manifest
+kTexStripBuildTaskDestroy = 0x001915C0; // type:func  evidence: inferred: close the directory iterator and free build work
+kTexStripBuildTaskCreate = 0x00191610; // type:func  evidence: inferred: allocate 0xe74-byte texture-strip build work and create its task
+kTexStripCopyDictionaryStream = 0x001916A0; // type:func  evidence: inferred: copy chunk data while returning the texture dictionary handle
+kTexStripLoadUpdate = 0x00191850; // type:func  evidence: inferred: load field texture dictionaries, merge resource names, and release handles
+kTexStripLoadDestroy = 0x00191B70; // type:func  evidence: inferred: close the directory handle and free load work
+kTexStripLoadTaskCreate = 0x00191BC0; // type:func  evidence: inferred: create the texture loader with field ID 0x28 and texture ID one
+kTexStripCodeLogUpdate = 0x00191C70; // type:func  evidence: inferred: request filenames and log clump code counts until the filename is empty
+kTexStripCodeLogDestroy = 0x00191D60; // type:func  evidence: inferred: free the code-count filename requester task work
+kTexStripCodeLogTaskCreate = 0x00191D90; // type:func  evidence: inferred: allocate two-word code-log state and create its task
+fldViewerCreate = 0x0018F3C0; // type:func  evidence: inferred: create the field viewer child task and reset shared field-step selection state
+fldViewerUpdateMenu = 0x0018F470; // type:func  evidence: inferred: edit viewer globals, submit the selected resource request, and wait for completion
+fldViewerDestroyMenu = 0x0018F6D0; // type:func  evidence: inferred: free viewer-menu task work
+fldViewerCreateMenu = 0x0018F700; // type:func  evidence: inferred: create the viewer menu child task and reset shared field-step selection state
+vpadBuildRotatedQuad = 0x0015F720; // type:func  evidence: inferred: build four quad corners, rotate them, and add the supplied translation
+vpadRefreshEndpoints = 0x004B5800; // type:func  evidence: inferred: copy indexed matrix translations into paired endpoint vectors
+vpadUpdateRenderEntries = 0x004B5950; // type:func  evidence: inferred: advance commands, transform samples, update trail colors, and rebuild entry meshes
+vpadMarkDirty = 0x004B5C20; // type:func  evidence: inferred: set processing flag four on an active node
+vpadDrawEntries = 0x004B5C60; // type:func  evidence: inferred: transform and draw trail atomics while saving/restoring six render states
+vpadReleaseOwner = 0x004B5F20; // type:func  evidence: inferred: set flag eight on an active node and release its configured owner
+vpadNoop = 0x004B5F70; // type:func  evidence: inferred: empty callback with no observable side effects
+vpadSetColor = 0x004B5F80; // type:func  evidence: inferred: update the stored RGBA color and set dirty flag 0x10 when it changes
+vpadGetSegmentLength = 0x004B7300; // type:func  evidence: inferred: sum both history-edge lengths and multiply by the configured scale
+vpadHasEntries = 0x004BCE30; // type:func  evidence: inferred: test whether the configuration entry-count halfword is nonzero

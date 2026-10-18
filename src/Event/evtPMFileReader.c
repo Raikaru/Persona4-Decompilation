@@ -3,20 +3,77 @@
 /* Persona 4 USA decompilation - evtPMFileReader.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+
+/* 0x40-byte task work, allocated by evtPMFileReaderCreate and released by
+   evtPMFileReaderTaskDestroy. Section handles remain words because CD lookup
+   and table allocation both write them through their existing APIs. */
+typedef struct EvtPMReader {
+    s32 state;
+    s32 useAllocatedTables;
+    s32 loadDirectory;
+    s32 eventId;
+    s32 variantId;
+    s32 unk14;
+    u16 completionFlag;
+    u8 pad1A[2];
+    s32 directoryA;
+    s32 directoryB;
+    s32 directoryC;
+    s32 ownedTableA;
+    s32 ownedTableB;
+    s32 ownedTableC;
+    s32 tableA;
+    s32 tableB;
+    s32 tableC;
+} EvtPMReader;
+
+/* Section directory: header count at +0x10, 16-byte entries starting at +0x20.
+   Kind zero points at the record inspected by evtPMFileReaderGetFirstEntry. */
+typedef struct EvtPMSectionHeader {
+    u8 pad00[0x10];
+    u32 count;
+    u8 pad14[0xC];
+} EvtPMSectionHeader;
+typedef struct EvtPMSectionEntry {
+    u32 kind;
+    u8 pad04[8];
+    u32 offset;
+} EvtPMSectionEntry;
+typedef struct EvtPMFirstRecord {
+    u8 pad00[0x10];
+    u32 firstValue;
+    u32 secondValue;
+    u8 pad18[2];
+    u8 byteValue;
+    u8 pad1B;
+    s16 halfwordValue;
+} EvtPMFirstRecord;
+/* The same 0x114-byte movie context allocated by evtPolygonMovieAlloc; only
+   its secondary-section fields are needed by this scan. */
+typedef struct EvtPMScanContext {
+    u8 pad00[0x80];
+    EvtPMSectionHeader *section;
+    EvtPMSectionEntry *entries;
+    u8 pad88[8];
+    EvtPMFirstRecord *record;
+    u8 pad94[0x80];
+} EvtPMScanContext;
+
+
 extern s32 kwlnTaskIsLinked();
 extern u32 kwlnTaskGetWork(void *task);
 extern u8 D_0063C970[];
 extern u8 D_0063C990[];
 extern char iGpffffa7c0;
-extern void evtPolygonMovieFormatNames(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
-extern u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
-extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern s32 H_Cdvd_LookupRequest(u8 *arg0, s32 *arg1);
-extern s32 *evtPolygonMovieAllocTableA(s32 **arg0);
-extern s32 *evtPolygonMovieAllocTableB(s32 **arg0);
-extern s32 *evtPolygonMovieAllocTableC(s32 **arg0);
+extern void evtPolygonMovieFormatNames(s32 eventId, s32 variantId, u8 *tableNameA, u8 *tableNameB, u8 *tableNameC, u8 *directoryName);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
+extern s32 H_Cdvd_IsFileLoaded(u8 *request);
+extern s32 H_Cdvd_LookupRequest(u8 *path, s32 *fileSize);
+extern s32 *evtPolygonMovieAllocTableA(s32 **table);
+extern s32 *evtPolygonMovieAllocTableB(s32 **table);
+extern s32 *evtPolygonMovieAllocTableC(s32 **table);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void evtMemAccount(s32 arg0, s32 arg1);
+extern void evtMemAccount(s32 category, s32 size);
 extern void memset(void *dest, s32 value, s32 size);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -53,128 +110,128 @@ extern u8 D_0063CA70[];
 // Intent: Reader task update: loads the movie's CD files (sections 0x0C..0x38) in stages and advances the reader state machine to done (state 7) [inferred]
 // FUN_002938C0
 s32 evtPMFileReaderTaskUpdate(u8 *task) {
-    s32 sp12C;
-    u8 spE0[64];
-    u8 spA0[64];
-    u8 sp60[64];
-    u8 sp20[64];
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    u16 temp_4;
-    u8 *temp_2;
-    u8 *temp_3;
+    s32 fileSize;
+    u8 tableNameA[64];
+    u8 tableNameB[64];
+    u8 tableNameC[64];
+    u8 directoryName[64];
+    s32 requestA;
+    s32 requestB;
+    s32 requestC;
+    u16 completionFlag;
+    EvtPMReader *reader;
+    s32 state;
     s32 ready;
 
-    temp_2 = (u8 *)kwlnTaskGetWork(task);
-    evtPolygonMovieFormatNames(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), spE0, spA0, sp60, sp20);
-    if (*(s32 *)(temp_2 + 8) != 0) {
-        temp_3 = *(u8 **)temp_2;
-        switch ((s32)temp_3) {
+    reader = (EvtPMReader *)kwlnTaskGetWork(task);
+    evtPolygonMovieFormatNames(reader->eventId, reader->variantId, tableNameA, tableNameB, tableNameC, directoryName);
+    if (reader->loadDirectory != 0) {
+        state = reader->state;
+        switch ((s32)state) {
         case 0:
-            *(s32 *)(temp_2 + 0x28) = 0;
-            *(s32 *)(temp_2 + 0x2C) = 0;
-            *(s32 *)(temp_2 + 0x30) = 0;
-            *(s32 *)(temp_2 + 0x34) = 0;
-            *(s32 *)(temp_2 + 0x38) = 0;
-            *(s32 *)(temp_2 + 0x3C) = 0;
+            reader->ownedTableA = 0;
+            reader->ownedTableB = 0;
+            reader->ownedTableC = 0;
+            reader->tableA = 0;
+            reader->tableB = 0;
+            reader->tableC = 0;
             func_00440b68(&iGpffffa7c0, D_0063C970, 0x3F);
-            *(s32 *)(temp_2 + 0x1C) = (s32)H_Cdvd_AcquireDirectory(sp20, 1);
-            *(u8 **)temp_2 = (u8 *)1;
+            reader->directoryA = (s32)H_Cdvd_AcquireDirectory(directoryName, 1);
+            reader->state = 1;
             break;
         case 1:
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
-                temp_2_2 = H_Cdvd_LookupRequest(spE0, &sp12C);
-                *(s32 *)(temp_2 + 0x34) = temp_2_2;
-                if (temp_2_2 == 0) {
-                    *(s32 *)(temp_2 + 0x28) = (s32)evtPolygonMovieAllocTableA((s32 **)(temp_2 + 0x34));
+            if (H_Cdvd_IsFileLoaded((u8 *)reader->directoryA) == 1) {
+                requestA = H_Cdvd_LookupRequest(tableNameA, &fileSize);
+                reader->tableA = requestA;
+                if (requestA == 0) {
+                    reader->ownedTableA = (s32)evtPolygonMovieAllocTableA((s32 **)&reader->tableA);
                 }
-                evtMemAccount(4, sp12C);
-                temp_2_3 = H_Cdvd_LookupRequest(spA0, &sp12C);
-                *(s32 *)(temp_2 + 0x38) = temp_2_3;
-                if (temp_2_3 == 0) {
-                    *(s32 *)(temp_2 + 0x2C) = (s32)evtPolygonMovieAllocTableB((s32 **)(temp_2 + 0x38));
+                evtMemAccount(4, fileSize);
+                requestB = H_Cdvd_LookupRequest(tableNameB, &fileSize);
+                reader->tableB = requestB;
+                if (requestB == 0) {
+                    reader->ownedTableB = (s32)evtPolygonMovieAllocTableB((s32 **)&reader->tableB);
                 }
-                evtMemAccount(5, sp12C);
-                temp_2_4 = H_Cdvd_LookupRequest(sp60, &sp12C);
-                *(s32 *)(temp_2 + 0x3C) = temp_2_4;
-                if (temp_2_4 == 0) {
-                    *(s32 *)(temp_2 + 0x30) = (s32)evtPolygonMovieAllocTableC((s32 **)(temp_2 + 0x3C));
+                evtMemAccount(5, fileSize);
+                requestC = H_Cdvd_LookupRequest(tableNameC, &fileSize);
+                reader->tableC = requestC;
+                if (requestC == 0) {
+                    reader->ownedTableC = (s32)evtPolygonMovieAllocTableC((s32 **)&reader->tableC);
                 }
-                evtMemAccount(6, sp12C);
-                *(u8 **)temp_2 = (u8 *)7;
+                evtMemAccount(6, fileSize);
+                reader->state = 7;
             }
             break;
         case 7:
             break;
         }
     } else {
-        temp_3 = *(u8 **)temp_2;
-        switch ((s32)temp_3) {
+        state = reader->state;
+        switch ((s32)state) {
         case 0:
             func_00440b68(&iGpffffa7c0, D_0063C970, 0x6C);
-            *(s32 *)(temp_2 + 0x1C) = (s32)H_Cdvd_AcquireDirectory(spE0, 0);
-            *(u8 **)temp_2 = (u8 *)1;
+            reader->directoryA = (s32)H_Cdvd_AcquireDirectory(tableNameA, 0);
+            reader->state = 1;
             break;
         case 1:
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
-                *(s32 *)(temp_2 + 0x28) = 0;
-                *(s32 *)(temp_2 + 0x34) = H_Cdvd_LookupRequest(spE0, &sp12C);
-                evtMemAccount(4, sp12C);
-                *(u8 **)temp_2 = (u8 *)2;
+            if (H_Cdvd_IsFileLoaded((u8 *)reader->directoryA) == 1) {
+                reader->ownedTableA = 0;
+                reader->tableA = H_Cdvd_LookupRequest(tableNameA, &fileSize);
+                evtMemAccount(4, fileSize);
+                reader->state = 2;
             }
             break;
         case 2:
-            ready = (*(s32 *)(temp_2 + 4) == 1);
+            ready = (reader->useAllocatedTables == 1);
             if (ready != 0) {
-                *(s32 *)(temp_2 + 0x2C) = (s32)evtPolygonMovieAllocTableB((s32 **)(temp_2 + 0x38));
-                if (*(s32 *)(temp_2 + 0x38) == 0) {
+                reader->ownedTableB = (s32)evtPolygonMovieAllocTableB((s32 **)&reader->tableB);
+                if (reader->tableB == 0) {
                     kAssertFail(D_0063C970, 0x88);
                 }
-                *(u8 **)temp_2 = (u8 *)4;
+                reader->state = 4;
             } else {
                 func_00440b68(&iGpffffa7c0, D_0063C970, 0x8C);
-                *(s32 *)(temp_2 + 0x20) = (s32)H_Cdvd_AcquireDirectory(spA0, 0);
-                *(u8 **)temp_2 = (u8 *)3;
+                reader->directoryB = (s32)H_Cdvd_AcquireDirectory(tableNameB, 0);
+                reader->state = 3;
             }
             break;
         case 3:
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x20)) == 1) {
-                *(u8 **)temp_2 = (u8 *)4;
-                *(s32 *)(temp_2 + 0x2C) = 0;
-                *(s32 *)(temp_2 + 0x38) = H_Cdvd_LookupRequest(spA0, &sp12C);
-                evtMemAccount(5, sp12C);
+            if (H_Cdvd_IsFileLoaded((u8 *)reader->directoryB) == 1) {
+                reader->state = 4;
+                reader->ownedTableB = 0;
+                reader->tableB = H_Cdvd_LookupRequest(tableNameB, &fileSize);
+                evtMemAccount(5, fileSize);
             }
             break;
         case 4:
-            ready = (*(s32 *)(temp_2 + 4) == 1);
+            ready = (reader->useAllocatedTables == 1);
             if (ready != 0) {
-                *(s32 *)(temp_2 + 0x30) = (s32)evtPolygonMovieAllocTableC((s32 **)(temp_2 + 0x3C));
-                if (*(s32 *)(temp_2 + 0x3C) == 0) {
+                reader->ownedTableC = (s32)evtPolygonMovieAllocTableC((s32 **)&reader->tableC);
+                if (reader->tableC == 0) {
                     kAssertFail(D_0063C970, 0xA4);
                 }
-                *(u8 **)temp_2 = (u8 *)6;
+                reader->state = 6;
             } else {
                 func_00440b68(&iGpffffa7c0, D_0063C970, 0xA8);
-                *(s32 *)(temp_2 + 0x24) = (s32)H_Cdvd_AcquireDirectory(sp60, 0);
-                *(u8 **)temp_2 = (u8 *)5;
+                reader->directoryC = (s32)H_Cdvd_AcquireDirectory(tableNameC, 0);
+                reader->state = 5;
             }
             break;
         case 5:
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x24)) == 1) {
-                *(u8 **)temp_2 = (u8 *)6;
-                *(s32 *)(temp_2 + 0x30) = 0;
-                *(s32 *)(temp_2 + 0x3C) = H_Cdvd_LookupRequest(sp60, &sp12C);
-                evtMemAccount(6, sp12C);
+            if (H_Cdvd_IsFileLoaded((u8 *)reader->directoryC) == 1) {
+                reader->state = 6;
+                reader->ownedTableC = 0;
+                reader->tableC = H_Cdvd_LookupRequest(tableNameC, &fileSize);
+                evtMemAccount(6, fileSize);
             }
             break;
         case 6:
-            *(u16 *)(temp_2 + 0x18) = 0;
-            temp_4 = *(u16 *)(temp_2 + 0x18);
-            if ((s32)temp_4 > 0) {
-                datSetFlag(temp_4, 1);
+            reader->completionFlag = 0;
+            completionFlag = reader->completionFlag;
+            if ((s32)completionFlag > 0) {
+                datSetFlag(completionFlag, 1);
             }
-            *(u8 **)temp_2 = (u8 *)7;
+            reader->state = 7;
             func_00440b68((char *)D_0063C990);
             break;
         case 7:
@@ -187,75 +244,75 @@ s32 evtPMFileReaderTaskUpdate(u8 *task) {
 // Intent: Reader task destroy: destroys the CD requests and flags, frees the reader's sections and releases the work block [inferred]
 // FUN_00293D30
 void evtPMFileReaderTaskDestroy(u8 *task) {
-    s32 *p;
-    u16 h18;
+    EvtPMReader *reader;
+    u16 completionFlag;
 
-    p = (s32 *)kwlnTaskGetWork(task);
-    h18 = *(u16 *)(p + 0x18 / 4);
-    if ((s32)h18 > 0) {
-        datSetFlag(h18, 0);
+    reader = (EvtPMReader *)kwlnTaskGetWork(task);
+    completionFlag = reader->completionFlag;
+    if ((s32)completionFlag > 0) {
+        datSetFlag(completionFlag, 0);
     }
-    if (p[0x1C / 4] != 0) {
-        H_Cdvd_Destroy(p[0x1C / 4]);
-        p[0x1C / 4] = 0;
+    if (reader->directoryA != 0) {
+        H_Cdvd_Destroy(reader->directoryA);
+        reader->directoryA = 0;
         func_00440b68((char *)D_0063C9B0);
     }
-    if (p[0x28 / 4] != 0) {
-        jtbl_008873EC[0]((void *)p[0x28 / 4]);
+    if (reader->ownedTableA != 0) {
+        jtbl_008873EC[0]((void *)reader->ownedTableA);
         evtMemAccount(4, 0);
-        p[0x28 / 4] = 0;
+        reader->ownedTableA = 0;
         func_00440b68((char *)D_0063C9D0);
     }
-    if (p[0x20 / 4] != 0) {
-        H_Cdvd_Destroy(p[0x20 / 4]);
-        p[0x20 / 4] = 0;
+    if (reader->directoryB != 0) {
+        H_Cdvd_Destroy(reader->directoryB);
+        reader->directoryB = 0;
         func_00440b68((char *)D_0063CA00);
     }
-    if (p[0x2C / 4] != 0) {
-        jtbl_008873EC[0]((void *)p[0x2C / 4]);
+    if (reader->ownedTableB != 0) {
+        jtbl_008873EC[0]((void *)reader->ownedTableB);
         evtMemAccount(5, 0);
-        p[0x2C / 4] = 0;
+        reader->ownedTableB = 0;
         func_00440b68((char *)D_0063CA20);
     }
-    if (p[0x24 / 4] != 0) {
-        H_Cdvd_Destroy(p[0x24 / 4]);
-        p[0x24 / 4] = 0;
+    if (reader->directoryC != 0) {
+        H_Cdvd_Destroy(reader->directoryC);
+        reader->directoryC = 0;
         func_00440b68((char *)D_0063CA50);
     }
-    if (p[0x30 / 4] != 0) {
-        jtbl_008873EC[0]((void *)p[0x30 / 4]);
+    if (reader->ownedTableC != 0) {
+        jtbl_008873EC[0]((void *)reader->ownedTableC);
         evtMemAccount(6, 0);
-        p[0x30 / 4] = 0;
+        reader->ownedTableC = 0;
         func_00440b68((char *)D_0063CA70);
     }
-    jtbl_008873EC[0](p);
+    jtbl_008873EC[0](reader);
     evtMemAccount(1, -0x40);
 }
 
-// Intent: Creates the reader task for the four given arguments and returns its handle [inferred]
+// Creates a 0x40-byte reader with filename ids and table-allocation mode; returns its task handle.
 // FUN_00293ED0
-s32 evtPMFileReaderCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    s32 *temp_20;
+s32 evtPMFileReaderCreate(s32 eventId, s32 variantId, s32 value, s32 useAllocatedTables) {
+    EvtPMReader *reader;
 
     chkmemAllocSiteTag(D_00748340, 0x52);
-    temp_20 = (s32 *)D_008873F4[0](1, 0x40, 0x40000);
+    reader = (EvtPMReader *)D_008873F4[0](1, 0x40, 0x40000);
     evtMemAccount(1, 0x40);
-    memset(temp_20, 0, 0x40);
-    temp_20[0xC / 4] = arg0;
-    temp_20[0x10 / 4] = arg1;
-    temp_20[0x14 / 4] = arg2;
-    temp_20[0x4 / 4] = arg3;
-    temp_20[0x8 / 4] = 0;
-    return (s32)kwlnTaskCreate((const void *)(D_0063CAA0), 0xF, 1, 1, evtPMFileReaderTaskUpdate, evtPMFileReaderTaskDestroy, (u8 *)(temp_20));
+    memset(reader, 0, 0x40);
+    reader->eventId = eventId;
+    reader->variantId = variantId;
+    reader->unk14 = value;
+    reader->useAllocatedTables = useAllocatedTables;
+    reader->loadDirectory = 0;
+    return (s32)kwlnTaskCreate((const void *)(D_0063CAA0), 0xF, 1, 1, evtPMFileReaderTaskUpdate, evtPMFileReaderTaskDestroy, (u8 *)(reader));
 }
 
 // Intent: Returns 1 when the reader task has finished loading (state 7) [inferred]
 // FUN_00293FC0
-s32 evtPMFileReaderIsDone(s32 arg0) {
-    if (kwlnTaskIsLinked(arg0) == 0) {
+s32 evtPMFileReaderIsDone(s32 task) {
+    if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail(D_0063C970, 0x123);
     }
-    if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] == 7) {
+    if (((EvtPMReader *)kwlnTaskGetWork((void *)task))->state == 7) {
         return 1;
     }
     return 0;
@@ -263,57 +320,57 @@ s32 evtPMFileReaderIsDone(s32 arg0) {
 
 // Intent: Returns the reader task's work block; asserts the task is linked [inferred]
 // FUN_00294040
-u8 *evtPMFileReaderGetWork(s32 arg0) {
-    if (kwlnTaskIsLinked(arg0) == 0) {
+u8 *evtPMFileReaderGetWork(s32 task) {
+    if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail(D_0063C970, 0x131);
     }
-    return (u8 *)kwlnTaskGetWork((void *)arg0);
+    return (u8 *)kwlnTaskGetWork((void *)task);
 }
 
 // Intent: Returns the first kind-0 record of the reader's table through the output pointers, or 0 when none is found or the reader is not done [inferred]
 // FUN_002940A0
-s32 evtPMFileReaderGetFirstEntry(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
-    u8 sp70[0x114];
-    u8 *base = sp70;
-    s32 *temp_2;
-    s32 i;
+s32 evtPMFileReaderGetFirstEntry(s32 task, s32 *firstValue, s32 *secondValue, s32 *byteValue, s32 *halfwordValue) {
+    EvtPMScanContext tableContext;
+    EvtPMScanContext *context = &tableContext;
+    EvtPMReader *reader;
+    s32 entryIndex;
     s32 count;
-    u8 *elem;
-    u8 *p;
+    EvtPMSectionEntry *entry;
+    EvtPMFirstRecord *record;
 
-    memset(base, 0, 0x114);
-    if (kwlnTaskIsLinked(arg0) == 0) {
+    memset(context, 0, 0x114);
+    if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail((char *)D_0063C970, 0x123);
     }
-    if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] != 7) {
-        if (kwlnTaskIsLinked(arg0) == 0) {
+    if (((EvtPMReader *)kwlnTaskGetWork((void *)task))->state != 7) {
+        if (kwlnTaskIsLinked(task) == 0) {
             kAssertFail((char *)D_0063C970, 0x123);
         }
-        if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] != 7) {
+        if (((EvtPMReader *)kwlnTaskGetWork((void *)task))->state != 7) {
             kAssertFail((char *)D_0063C970, 0x143);
         }
         return 0;
     }
-    temp_2 = (s32 *)kwlnTaskGetWork((void *)arg0);
-    *(u32 *)(base + 0x80) = (u32)temp_2[0x38 / 4];
-    if (temp_2[0x38 / 4] != 0) {
-        *(u32 *)(base + 0x84) = (u32)(temp_2[0x38 / 4] + 0x20);
+    reader = (EvtPMReader *)kwlnTaskGetWork((void *)task);
+    context->section = (EvtPMSectionHeader *)reader->tableB;
+    if (reader->tableB != 0) {
+        context->entries = (EvtPMSectionEntry *)(reader->tableB + 0x20);
     } else {
-        *(u32 *)(base + 0x84) = 0;
+        context->entries = NULL;
     }
-    i = 0;
-    count = *(u32 *)(*(u32 *)(base + 0x80) + 0x10);
-    for (; i < count; i++) {
-        elem = *(u8 **)(base + 0x84);
-        elem = (u8 *)((u32)elem + i * 16);
-        switch (*(u32 *)elem) {
+    entryIndex = 0;
+    count = context->section->count;
+    for (; entryIndex < count; entryIndex++) {
+        entry = context->entries;
+        entry = (EvtPMSectionEntry *)((u32)entry + entryIndex * 16);
+        switch (entry->kind) {
         case 0:
-            p = (u8 *)(temp_2[0x38 / 4] + *(u32 *)(elem + 0xC));
-            *(u32 *)(base + 0x90) = (u32)p;
-            *arg1 = *(u32 *)(p + 0x10);
-            *arg2 = *(u32 *)(*(u32 *)(base + 0x90) + 0x14);
-            *arg3 = *(u8 *)(*(u32 *)(base + 0x90) + 0x1A);
-            *arg4 = *(s16 *)(*(u32 *)(base + 0x90) + 0x1C);
+            record = (EvtPMFirstRecord *)(reader->tableB + entry->offset);
+            context->record = record;
+            *firstValue = record->firstValue;
+            *secondValue = context->record->secondValue;
+            *byteValue = context->record->byteValue;
+            *halfwordValue = context->record->halfwordValue;
             return 1;
         default:
             break;

@@ -9,11 +9,12 @@
 extern u8 D_005F18C0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 value);
 #include "field_shadow_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "rw_types_internal.h"
+#include "Kosaka/k_shadow_layout_internal.h"
 typedef struct RwSphere
 {
     RwV3d center;
@@ -21,14 +22,14 @@ typedef struct RwSphere
 } RwSphere;
 typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
 extern u8 D_005F1910[];
-extern f32 sinf(f32 arg0);
-extern f32 cosf(f32 arg0);
+extern f32 sinf(f32 value);
+extern f32 cosf(f32 value);
 extern f32 iGpffff8304;
 extern FieldRenderStateSetFunction D_00887300[];
-void FldShadow_CmdProjectBounds(u8 *arg0, u8 *arg1);
-void FldShadow_CmdBeginFlip(u8 *arg0, u8 *arg1);
-void FldShadow_CmdEndFlip(u8 *arg0, u8 *arg1);
-void FldShadow_CmdRender(u8 *arg0, u8 *arg1);
+void FldShadow_CmdProjectBounds(u8 *value, u8 *other);
+void FldShadow_CmdBeginFlip(u8 *value, u8 *other);
+void FldShadow_CmdEndFlip(u8 *value, u8 *other);
+void FldShadow_CmdRender(u8 *value, u8 *other);
 extern void *SceneDraw_GetList4Matrix(void);
 extern f32 iGpffff8214;
 extern f32 iGpffff826c;
@@ -50,8 +51,22 @@ typedef struct FldShadowBoundsAccum {
     s32 count;
     void *largestAtomic;
 } FldShadowBoundsAccum;
+/* SpawnCasterTask allocates 0x40 bytes; saved light flags occupy its final words. */
+typedef struct FldShadowDrawQueue
+{
+    s32 state;
+    u8 queue[0x30];
+    s32 savedLightA;
+    s32 savedLightC;
+    s32 savedLightB;
+} FldShadowDrawQueue;
+
+/* Advance caster setup, then queue the projection or mirrored-model commands. */
 // FUN_0017ACC0
-s32 FldShadow_StepCasterSetup(u8 *arg0)
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
+s32 FldShadow_StepCasterSetup(u8 *task)
 {
     extern s32 mdlPrepareModel(u8 *model);
     extern void *mdlGetClump(void *model);
@@ -74,51 +89,52 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
     extern RwRGBA iGpffff9f48;
     extern f32 fGpffff82bc;
     extern u8 D_00794330[];
-    u8 *ctx;
-    u8 *inner;
+    u8 *caster;
+    u8 *resource;
     s32 flags;
     s32 state;
 
-    ctx = *(u8 **)(arg0 + 0x38);
-    inner = *(u8 **)(ctx + 0xC);
-    flags = *(s32 *)(inner + 0x28);
+    caster = *(u8 **)(task + 0x38);
+    resource = *(u8 **)(caster + 0xC);
+    /* Resource flag 2 gates shadow work; 0x10000000 additionally gates kind three. */
+    flags = *(s32 *)(resource + 0x28);
     if ((flags & 2) == 0)
         return 0;
-    if (((*(u16 *)inner & 0xFFC00) >> 10) == 3 && (flags & 0x10000000) == 0)
+    if (((*(u16 *)resource & 0xFFC00) >> 10) == 3 && (flags & 0x10000000) == 0)
         return 0;
-    if (*(s32 *)(ctx + 4) == 1)
+    if (*(s32 *)(caster + 4) == 1)
         return 0;
-    state = *(s32 *)ctx;
+    state = *(s32 *)caster;
     switch (state) {
     case 0:
-        switch (*(u16 *)(ctx + 0xA)) {
+        switch (*(u16 *)(caster + 0xA)) {
         case 0:
-            *(s32 *)ctx = state + 1;
+            *(s32 *)caster = state + 1;
             break;
         case 1:
-            if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
+            if (mdlPrepareModel(*(u8 **)(caster + 0x10)) != 0) {
                 FldShadowBoundsAccum bounds;
 
                 memset(&bounds, 0, sizeof(bounds));
-                RpClumpForAllAtomics(mdlGetClump(*(u8 **)(ctx + 0x10)), FldShadow_AccumulateAtomicBounds, &bounds);
-                *(void **)(ctx + 0x14) = bounds.largestAtomic;
-                *(f32 *)(ctx + 0x18) = 90.0f;
-                *(RwV3d *)(ctx + 0x2C) = bounds.center;
-                *(f32 *)(ctx + 0x2C) = 0.0f;
-                *(f32 *)(ctx + 0x34) = 0.0f;
-                *(f32 *)(ctx + 0x38) = bounds.radius;
-                *(s32 *)ctx += 1;
+                RpClumpForAllAtomics(mdlGetClump(*(u8 **)(caster + 0x10)), FldShadow_AccumulateAtomicBounds, &bounds);
+                *(void **)(caster + 0x14) = bounds.largestAtomic;
+                *(f32 *)(caster + 0x18) = 90.0f;
+                *(RwV3d *)(caster + 0x2C) = bounds.center;
+                *(f32 *)(caster + 0x2C) = 0.0f;
+                *(f32 *)(caster + 0x34) = 0.0f;
+                *(f32 *)(caster + 0x38) = bounds.radius;
+                *(s32 *)caster += 1;
             }
             break;
         case 2:
-            if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
-                mdlSetBattleStateFlag(*(u8 **)(ctx + 0x10));
-                *(s32 *)ctx += 1;
+            if (mdlPrepareModel(*(u8 **)(caster + 0x10)) != 0) {
+                mdlSetBattleStateFlag(*(u8 **)(caster + 0x10));
+                *(s32 *)caster += 1;
             }
             break;
         case 4:
         case 3:
-            if (mdlPrepareModel(*(u8 **)(ctx + 0x10)) != 0) {
+            if (mdlPrepareModel(*(u8 **)(caster + 0x10)) != 0) {
                 u8 *geometry;
                 u8 *triangle;
                 s32 triangleIndex;
@@ -127,22 +143,22 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 f32 height;
                 s32 vertexIndex;
                 f32 *vertex;
-                u8 *colours;
+                u8 *colors;
                 u8 *morph;
                 RwSphere sphere;
 
-                *(u8 **)(*(u8 **)(ctx + 0x50) + 8) = func_003c4140();
-                *(RwRGBA *)(*(u8 **)(*(u8 **)(ctx + 0x50) + 8) + 4) = iGpffff9f48;
+                *(u8 **)(*(u8 **)(caster + 0x50) + 8) = func_003c4140();
+                *(RwRGBA *)(*(u8 **)(*(u8 **)(caster + 0x50) + 8) + 4) = iGpffff9f48;
                 geometry = (u8 *)func_003c2630(0x22, 0x20, 0x4A);
                 triangle = *(u8 **)(geometry + 0x2C);
                 for (triangleIndex = 0; triangleIndex < 32; triangleIndex++) {
                     func_003c2130((struct RpGeometry *)geometry, (struct RpTriangle *)triangle,
                                  0, (u16)(triangleIndex + 2), (u16)(triangleIndex + 1));
                     func_003c2150((struct RpGeometry *)geometry, (struct RpTriangle *)triangle,
-                                 *(struct RpMaterial **)(*(u8 **)(ctx + 0x50) + 8));
+                                 *(struct RpMaterial **)(*(u8 **)(caster + 0x50) + 8));
                     triangle += 8;
                 }
-                if (((*(u16 *)(ctx + 8) & 0xFFC00) >> 10) == 1)
+                if (((*(u16 *)(caster + 8) & 0xFFC00) >> 10) == 1)
                     height = 5.0f;
                 else
                     height = 2.0f;
@@ -153,55 +169,55 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
                 vertices[2] = 0.0f;
                 for (vertexIndex = 0; vertexIndex < 32; vertexIndex++) {
                     vertex = (f32 *)((u8 *)vertices + vertexIndex * 12);
-                    vertex[3] = **(f32 **)(ctx + 0x50) * cosf(angle);
+                    vertex[3] = **(f32 **)(caster + 0x50) * cosf(angle);
                     vertex[4] = height;
-                    vertex[5] = **(f32 **)(ctx + 0x50) * sinf(angle);
+                    vertex[5] = **(f32 **)(caster + 0x50) * sinf(angle);
                     angle += fGpffff82bc;
                 }
-                vertices[vertexIndex * 3 + 3] = **(f32 **)(ctx + 0x50) * cosf(0.0f);
+                vertices[vertexIndex * 3 + 3] = **(f32 **)(caster + 0x50) * cosf(0.0f);
                 vertices[vertexIndex * 3 + 4] = height;
-                vertices[vertexIndex * 3 + 5] = **(f32 **)(ctx + 0x50) * sinf(0.0f);
-                colours = *(u8 **)(geometry + 0x30);
-                colours[0] = 0;
-                colours[1] = 0;
-                colours[2] = 0;
-                if (((*(u16 *)(ctx + 8) & 0xFFC00) >> 10) == 1 && (*(u16 *)(ctx + 8) & 0x3FF) >= 0x64)
-                    colours[3] = 255;
+                vertices[vertexIndex * 3 + 5] = **(f32 **)(caster + 0x50) * sinf(0.0f);
+                colors = *(u8 **)(geometry + 0x30);
+                colors[0] = 0;
+                colors[1] = 0;
+                colors[2] = 0;
+                if (((*(u16 *)(caster + 8) & 0xFFC00) >> 10) == 1 && (*(u16 *)(caster + 8) & 0x3FF) >= 0x64)
+                    colors[3] = 255;
                 else
-                    colours[3] = 150;
+                    colors[3] = 150;
                 {
                     s32 i;
                     for (i = 0; i < 33; i++) {
-                        u8 *colour = colours + i * 4;
-                        colour[4] = 0;
-                        colour[5] = 0;
-                        colour[6] = 0;
-                        colour[7] = 0;
+                        u8 *color = colors + i * 4;
+                        color[4] = 0;
+                        color[5] = 0;
+                        color[6] = 0;
+                        color[7] = 0;
                     }
                 }
                 func_003c22f0((struct RpGeometry *)geometry);
                 morph = *(u8 **)(geometry + 0x5C);
                 func_003c1d40((struct RpMorphTarget *)morph, &sphere);
                 *(RwSphere *)(morph + 4) = sphere;
-                *(u8 **)(*(u8 **)(ctx + 0x50) + 4) = func_003c00e0();
-                func_003c0210(*(struct RpAtomic **)(*(u8 **)(ctx + 0x50) + 4), (struct RpGeometry *)geometry, 0);
+                *(u8 **)(*(u8 **)(caster + 0x50) + 4) = func_003c00e0();
+                func_003c0210(*(struct RpAtomic **)(*(u8 **)(caster + 0x50) + 4), (struct RpGeometry *)geometry, 0);
                 func_003c2a80((struct RpGeometry *)geometry);
-                RpAtomicSetFrame(*(struct RpAtomic **)(*(u8 **)(ctx + 0x50) + 4), func_003e9320());
-                func_003e9df0(*(struct RwFrame **)(*(u8 **)(*(u8 **)(ctx + 0x50) + 4) + 4));
-                *(s32 *)ctx += 1;
+                RpAtomicSetFrame(*(struct RpAtomic **)(*(u8 **)(caster + 0x50) + 4), func_003e9320());
+                func_003e9df0(*(struct RwFrame **)(*(u8 **)(*(u8 **)(caster + 0x50) + 4) + 4));
+                *(s32 *)caster += 1;
             }
             break;
         }
         break;
     case 1:
-        switch (*(u16 *)(ctx + 0xA)) {
+        switch (*(u16 *)(caster + 0xA)) {
         case 0:
             break;
         case 1:
             {
                 u8 *command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdProjectBounds;
-                *(u8 **)(command + 0x10) = ctx;
+                *(u8 **)(command + 0x10) = caster;
                 PrimAppendNode(D_00794330, command);
             }
             break;
@@ -211,12 +227,12 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
             {
                 u8 *command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdBeginFlip;
-                *(u8 **)(command + 0x10) = ctx;
+                *(u8 **)(command + 0x10) = caster;
                 PrimAppendNode(D_00794330, command);
-                mdlQueueModelForDraw(D_00794330, *(u8 **)(ctx + 0x10));
+                mdlQueueModelForDraw(D_00794330, *(u8 **)(caster + 0x10));
                 command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdEndFlip;
-                *(u8 **)(command + 0x10) = ctx;
+                *(u8 **)(command + 0x10) = caster;
                 PrimAppendNode(D_00794330, command);
             }
             break;
@@ -224,11 +240,11 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
             {
                 RwV3d position;
                 u8 *command;
-                position = *(RwV3d *)((u8 *)mdlGetMatrix(*(u8 **)(ctx + 0x10)) + 0x30);
-                func_003e9c10(*(u8 **)(*(u8 **)(*(u8 **)(ctx + 0x50) + 4) + 4), &position.x, 0);
+                position = *(RwV3d *)((u8 *)mdlGetMatrix(*(u8 **)(caster + 0x10)) + 0x30);
+                func_003e9c10(*(u8 **)(*(u8 **)(*(u8 **)(caster + 0x50) + 4) + 4), &position.x, 0);
                 command = PrimAllocQueueNode();
                 *(void (**)(u8 *, u8 *))(command + 8) = FldShadow_CmdRender;
-                *(u8 **)(command + 0x10) = ctx;
+                *(u8 **)(command + 0x10) = caster;
                 PrimAppendNode(D_00794330, command);
             }
             break;
@@ -239,58 +255,62 @@ s32 FldShadow_StepCasterSetup(u8 *arg0)
     }
     return 0;
 }
+/* Release each mode-specific camera, raster, projection buffer, and ring allocation. */
 // FUN_0017B350
-void FldShadow_ReleaseCaster(u8 *arg0)
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
+void FldShadow_ReleaseCaster(u8 *task)
 {
-    u8 *temp_19;
-    s32 temp_18;
-    s32 temp_4;
-    u16 temp_3;
-    u8 *temp_16;
-    u8 *temp_4_2;
+    u8 *camera;
+    s32 frame;
+    s32 zRaster;
+    u16 mode;
+    u8 *caster;
+    u8 *projection;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(u16 *)(temp_16 + 0xA);
-    switch (temp_3) {
+    caster = *(u8 **)(task + 0x38);
+    mode = *(u16 *)(caster + 0xA);
+    switch (mode) {
     case 1:
-        func_003cbc60(K_Clump_GetWorld(), *(u8 **)(temp_16 + 0x44));
-        temp_19 = *(u8 **)(temp_16 + 0x44);
-        if (temp_19 != NULL) {
-            temp_18 = *(s32 *)(temp_19 + 4);
-            if (temp_18 != 0) {
-                func_003efd20(temp_19, 0);
-                func_003e9390(temp_18);
+        func_003cbc60(K_Clump_GetWorld(), *(u8 **)(caster + 0x44));
+        camera = *(u8 **)(caster + 0x44);
+        if (camera != NULL) {
+            frame = *(s32 *)(camera + 4);
+            if (frame != 0) {
+                func_003efd20(camera, 0);
+                func_003e9390(frame);
             }
-            temp_4 = *(s32 *)(temp_19 + 0x64);
-            if (temp_4 != 0) {
-                *(s32 *)(temp_19 + 0x64) = 0;
-                func_003ec330(temp_4);
+            zRaster = *(s32 *)(camera + 0x64);
+            if (zRaster != 0) {
+                *(s32 *)(camera + 0x64) = 0;
+                func_003ec330(zRaster);
             }
-            if (*(s32 *)(temp_19 + 0x60) != 0)
-                *(s32 *)(temp_19 + 0x60) = 0;
-            func_003e8440(temp_19);
+            if (*(s32 *)(camera + 0x60) != 0)
+                *(s32 *)(camera + 0x60) = 0;
+            func_003e8440(camera);
         }
-        RpSkyTexCacheRasterLock((u8 *)*(s32 *)(temp_16 + 0x40), 0);
-        func_003ec330(*(s32 *)(temp_16 + 0x40));
-        func_003ef080(*(u8 **)(temp_16 + 0x3C), 0);
-        func_003ef3a0(*(u8 **)(temp_16 + 0x3C));
-        temp_4_2 = *(u8 **)(temp_16 + 0x4C);
-        if (temp_4_2 != NULL)
-            jtbl_008873EC[0](temp_4_2);
+        RpSkyTexCacheRasterLock((u8 *)*(s32 *)(caster + 0x40), 0);
+        func_003ec330(*(s32 *)(caster + 0x40));
+        func_003ef080(*(u8 **)(caster + 0x3C), 0);
+        func_003ef3a0(*(u8 **)(caster + 0x3C));
+        projection = *(u8 **)(caster + 0x4C);
+        if (projection != NULL)
+            jtbl_008873EC[0](projection);
     case 4:
     case 3:
         break;
     }
-    if (*(u8 **)(temp_16 + 0x50) != NULL) {
-        if (*(s32 *)(*(u8 **)(temp_16 + 0x50) + 8) != 0)
-            func_003c4220(*(s32 *)(*(u8 **)(temp_16 + 0x50) + 8));
-        if (*(u8 **)(*(u8 **)(temp_16 + 0x50) + 4) != NULL) {
-            func_003e9390(*(s32 *)(*(u8 **)(*(u8 **)(temp_16 + 0x50) + 4) + 4));
-            func_003c02e0(*(u8 **)(*(u8 **)(temp_16 + 0x50) + 4));
+    if (*(u8 **)(caster + 0x50) != NULL) {
+        if (*(s32 *)(*(u8 **)(caster + 0x50) + 8) != 0)
+            func_003c4220(*(s32 *)(*(u8 **)(caster + 0x50) + 8));
+        if (*(u8 **)(*(u8 **)(caster + 0x50) + 4) != NULL) {
+            func_003e9390(*(s32 *)(*(u8 **)(*(u8 **)(caster + 0x50) + 4) + 4));
+            func_003c02e0(*(u8 **)(*(u8 **)(caster + 0x50) + 4));
         }
-        jtbl_008873EC[0](*(u8 **)(temp_16 + 0x50));
+        jtbl_008873EC[0](*(u8 **)(caster + 0x50));
     }
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(u8 **)(task + 0x38));
 }
 extern u8 D_005F18D0[];
 extern const u64 D_005F18B0;
@@ -304,95 +324,99 @@ extern s32 FldShadow_StepCasterSetup(u8 *task);
 /* measured: b510 matches only with loop-invariant hoisting on and propagation off (14/14). */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+/* Allocate a caster and initialize render-to-texture or ring resources for its mode. */
 // FUN_0017B510
 /* Measured: 1148 executable bytes, 48 resolved relocations, four zero
    alignment bytes. Slot pointers retain the retail callback reloads. */
-void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
+void *FldShadow_CreateCaster(u8 *parentTask, u16 resourceId, u16 requestedMode)
 {
-    u8 *data;
+    u8 *caster;
     void *task;
     u8 *node;
-    s32 i;
+    s32 resourceIndex;
     u8 **texture;
     u8 *raster;
     u8 *camera;
     u8 *zRaster;
-    u8 *obj;
+    u8 *resource;
     RwV3d pos;
     void *(**table)(size_t, size_t, u32);
     u16 *mode;
 
-    i = 0;
+    resourceIndex = 0;
     chkmemAllocSiteTag(D_005F18C0, 0x5E6);
     table = D_008873F4;
-    data = table[0](1, 0xE0, 0x40000);
-    if (data == NULL) {
+    caster = table[0](1, 0xE0, 0x40000);
+    if (caster == NULL) {
         return NULL;
     }
 
-    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F18D0), 0x10, 0, 0, FldShadow_StepCasterSetup, FldShadow_ReleaseCaster, (u8 *)(data));
-    *(u16 *)(data + 0x8) = arg1;
-    mode = (u16 *)(data + 0xA);
-    *mode = arg2;
+    task = kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005F18D0), 0x10, 0, 0, FldShadow_StepCasterSetup, FldShadow_ReleaseCaster, (u8 *)(caster));
+    *(u16 *)(caster + 0x8) = resourceId;
+    mode = (u16 *)(caster + 0xA);
+    *mode = requestedMode;
 
     for (node = MT_Scene_GetResListHead(0x13); node != NULL; node = *(u8 **)(node + 0x138)) {
-        if (i == 0) {
+        if (resourceIndex == 0) {
             f32 x = *(f32 *)(node + 0x140);
             f32 y = *(f32 *)(node + 0x144);
             f32 z = *(f32 *)(node + 0x148);
-            *(f32 *)(data + 0xC0) = x;
-            *(f32 *)(data + 0xC4) = y;
-            *(f32 *)(data + 0xC8) = z;
+            *(f32 *)(caster + 0xC0) = x;
+            *(f32 *)(caster + 0xC4) = y;
+            *(f32 *)(caster + 0xC8) = z;
         }
-        if (i == 1) {
-            if (fabsf(*(f32 *)(data + 0xC0) - *(f32 *)(node + 0x140)) >
-                fabsf(*(f32 *)(data + 0xC8) - *(f32 *)(node + 0x148))) {
-                *(u32 *)(data + 0xCC) = 0x3F800000;
-                *(u32 *)(data + 0xD0) = 0;
-                *(u32 *)(data + 0xD4) = 0;
+        if (resourceIndex == 1) {
+            if (fabsf(*(f32 *)(caster + 0xC0) - *(f32 *)(node + 0x140)) >
+                fabsf(*(f32 *)(caster + 0xC8) - *(f32 *)(node + 0x148))) {
+                *(u32 *)(caster + 0xCC) = 0x3F800000;
+                *(u32 *)(caster + 0xD0) = 0;
+                *(u32 *)(caster + 0xD4) = 0;
             } else {
-                *(u32 *)(data + 0xCC) = 0;
-                *(u32 *)(data + 0xD0) = 0;
-                *(u32 *)(data + 0xD4) = 0x3F800000;
+                *(u32 *)(caster + 0xCC) = 0;
+                *(u32 *)(caster + 0xD0) = 0;
+                *(u32 *)(caster + 0xD4) = 0x3F800000;
             }
             *mode = 4;
         }
-        i++;
+        resourceIndex++;
     }
 
     switch (*mode) {
     case 1: {
-        u8 **raster_slot;
-        u8 **frame_slot;
-        u8 **camera_slot;
+        u8 **rasterSlot;
+        u8 **frameSlot;
+        u8 **cameraSlot;
 
-        texture = (u8 **)(data + 0x3C);
+        texture = (u8 **)(caster + 0x3C);
         *texture = func_003ef2e0(NULL);
         if (*texture == NULL) {
             kAssertFail(D_005F18C0, 0x622);
         }
-        *(u32 *)(*(u8 **)(data + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(data + 0x3C) + 0x50) & ~0xFF) | 2;
-        *(u32 *)(*(u8 **)(data + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(data + 0x3C) + 0x50) & 0xFFFF00FF) | 0x3300;
+        *(u32 *)(*(u8 **)(caster + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(caster + 0x3C) + 0x50) & ~0xFF) | 2;
+        *(u32 *)(*(u8 **)(caster + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(caster + 0x3C) + 0x50) & 0xFFFF00FF) | 0x3300;
 
         raster = func_003ec590(128, 128, 32, 0x505);
         if (raster != NULL) {
             RpSkyTexCacheRasterLock(raster, 1);
         }
-        raster_slot = (u8 **)(data + 0x40);
-        *(u8 **)(data + 0x40) = raster;
+        rasterSlot = (u8 **)(caster + 0x40);
+        *(u8 **)(caster + 0x40) = raster;
         func_003ef080(*texture, raster);
 
         camera = func_003e84a0();
         if (camera != NULL) {
-            u64 c_lo = D_005F18B0;
-            f32 c_hi = D_005F18B8;
-            *(u64 *)&pos = c_lo;
-            pos.z = c_hi;
+            u64 positionXY = D_005F18B0;
+            f32 positionZ = D_005F18B8;
+            *(u64 *)&pos = positionXY;
+            pos.z = positionZ;
             func_003efd20(camera, (u8 *)func_003e9320());
-            frame_slot = (u8 **)(camera + 0x4);
+            frameSlot = (u8 **)(camera + 0x4);
             func_003e9df0(*(struct RwFrame **)(camera + 0x4));
-            func_003e9c10(*frame_slot, (const f32 *)&pos, 0);
-            if (*frame_slot != NULL) {
+            func_003e9c10(*frameSlot, (const f32 *)&pos, 0);
+            if (*frameSlot != NULL) {
                 zRaster = func_003ec590(128, 128, 0, 1);
                 if (zRaster != NULL) {
                     *(u8 **)(camera + 0x64) = zRaster;
@@ -406,41 +430,42 @@ void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
         camera = NULL;
 
 camera_registered:
-        camera_slot = (u8 **)(data + 0x44);
-        *(u8 **)(data + 0x44) = camera;
+        cameraSlot = (u8 **)(caster + 0x44);
+        *(u8 **)(caster + 0x44) = camera;
         {
             s32 world = K_Clump_GetWorld();
-            func_003cbc10(world, *camera_slot);
+            func_003cbc10(world, *cameraSlot);
         }
-        *(u8 **)(*camera_slot + 0x60) = *raster_slot;
+        *(u8 **)(*cameraSlot + 0x60) = *rasterSlot;
 
         chkmemAllocSiteTag(D_005F18C0, 0x62F);
-        *(u8 **)(data + 0x4C) = table[0](1, 0x54D0, 0x40000);
+        *(u8 **)(caster + 0x4C) = table[0](1, 0x54D0, 0x40000);
         break;
     }
 
+    /* Modes three/four use a 32-segment fan; mode four also mirrors the model. */
     case 4:
     case 3:
         chkmemAllocSiteTag(D_005F18C0, 0x634);
-        *(f32 **)(data + 0x50) = (f32 *)table[0](1, 0xC, 0x40000);
-        **(f32 **)(data + 0x50) = 30.0f;
+        *(f32 **)(caster + 0x50) = (f32 *)table[0](1, 0xC, 0x40000);
+        **(f32 **)(caster + 0x50) = 30.0f;
         break;
     }
 
-    if ((((u16)arg1 & 0xFFC00) >> 10) == 1) {
-        obj = (u8 *)MT_Scene_GetRes(arg1);
-        *(u8 **)(data + 0xC) = obj;
-        if (obj == NULL) {
+    if ((((u16)resourceId & 0xFFC00) >> 10) == 1) {
+        resource = (u8 *)MT_Scene_GetRes(resourceId);
+        *(u8 **)(caster + 0xC) = resource;
+        if (resource == NULL) {
             kAssertFail(D_005F18C0, 0x63F);
         }
-        *(void **)(data + 0x10) = *(void **)(obj + 0x164);
-    } else if ((((u16)arg1 & 0xFFC00) >> 10) == 3) {
-        obj = (u8 *)MT_Scene_GetRes(arg1);
-        *(u8 **)(data + 0xC) = obj;
-        if (obj == NULL) {
+        *(void **)(caster + 0x10) = *(void **)(resource + 0x164);
+    } else if ((((u16)resourceId & 0xFFC00) >> 10) == 3) {
+        resource = (u8 *)MT_Scene_GetRes(resourceId);
+        *(u8 **)(caster + 0xC) = resource;
+        if (resource == NULL) {
             kAssertFail(D_005F18C0, 0x648);
         }
-        *(void **)(data + 0x10) = *(void **)(obj + 0x164);
+        *(void **)(caster + 0x10) = *(void **)(resource + 0x164);
     }
 
     return task;
@@ -451,12 +476,16 @@ camera_registered:
 #pragma opt_loop_invariants off
 
 // FUN_0017B990
-void FldShadow_SetCasterFlag(u8 *arg0, s32 arg1)
+void FldShadow_SetCasterFlag(u8 *task, s32 disabled)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
+    ((FldShadowCaster *)((KwlnTask *)task)->work)->disabled = disabled;
 }
+/* Resize the ring geometry, retaining its closing vertex and mode-dependent height. */
 // FUN_0017B9A0
-void FldShadow_SetRingParticles(u8 *arg0, f32 fparg0)
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
+void FldShadow_SetRingParticles(u8 *task, f32 radius)
 {
     u8 *state;
     s32 object;
@@ -466,9 +495,9 @@ void FldShadow_SetRingParticles(u8 *arg0, f32 fparg0)
     f32 angle;
     f32 speed;
 
-    state = *(u8 **)(arg0 + 0x38);
+    state = *(u8 **)(task + 0x38);
     if (*(u8 **)(state + 0x50) != NULL) {
-        **(f32 **)(state + 0x50) = fparg0;
+        **(f32 **)(state + 0x50) = radius;
         object = *(s32 *)(*(s32 *)(state + 0x50) + 4);
         if (object != 0) {
             object = *(s32 *)(object + 0x18);
@@ -501,35 +530,37 @@ void FldShadow_SetRingParticles(u8 *arg0, f32 fparg0)
     }
 }
 
+/* Disable three light flags while preserving their previous values in task work. */
 // FUN_0017BB50
-void FldShadow_SaveFrameSlots(u8 *arg0, u8 *arg1)
+void FldShadow_SaveFrameSlots(u8 *unused, u8 *state)
 {
-    *(s32 *)(arg1 + 0x3C) = K_Clump_GetLightB()[2];
+    ((FldShadowDrawQueue *)state)->savedLightB = K_Clump_GetLightB()[2];
     K_Clump_GetLightB()[2] = 0;
     K_Clump_GetLightB();
-    *(s32 *)(arg1 + 0x38) = K_Clump_GetLightC()[2];
+    ((FldShadowDrawQueue *)state)->savedLightC = K_Clump_GetLightC()[2];
     K_Clump_GetLightC()[2] = 0;
     K_Clump_GetLightC();
-    *(s32 *)(arg1 + 0x34) = K_Clump_GetLightA()[2];
+    ((FldShadowDrawQueue *)state)->savedLightA = K_Clump_GetLightA()[2];
     K_Clump_GetLightA()[2] = 0;
     K_Clump_GetLightA();
 }
 
 
 
+/* Restore the saved low-byte light flags after the shadow draw queue. */
 // FUN_0017BBE0
-void FldShadow_RestoreFrameSlots(u8 *arg0, u8 *arg1)
+void FldShadow_RestoreFrameSlots(u8 *unused, u8 *state)
 {
-    u8 temp_16;
+    u8 lightFlags;
 
-    temp_16 = arg1[0x3C];
-    K_Clump_GetLightB()[2] = temp_16;
+    lightFlags = (u8)((FldShadowDrawQueue *)state)->savedLightB;
+    K_Clump_GetLightB()[2] = lightFlags;
     K_Clump_GetLightB();
-    temp_16 = arg1[0x38];
-    K_Clump_GetLightC()[2] = temp_16;
+    lightFlags = (u8)((FldShadowDrawQueue *)state)->savedLightC;
+    K_Clump_GetLightC()[2] = lightFlags;
     K_Clump_GetLightC();
-    temp_16 = arg1[0x34];
-    K_Clump_GetLightA()[2] = temp_16;
+    lightFlags = (u8)((FldShadowDrawQueue *)state)->savedLightA;
+    K_Clump_GetLightA()[2] = lightFlags;
     K_Clump_GetLightA();
 }
 
@@ -538,7 +569,11 @@ void FldShadow_RestoreFrameSlots(u8 *arg0, u8 *arg1)
  * Keep the frame-slot reload after camera callbacks, separate matrix-result
  * lifetime, and component-wise scaled increment's operand order.
  */
+/* Place the scene-resource shadow camera and save the model color before rendering. */
 // FUN_0017BC60
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
 void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
 {
     RwV3d position;
@@ -615,9 +650,13 @@ void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
         }
     }
 }
+/* Restore scene-model color and finish the camera pass with three gradient strips. */
 // FUN_0017C010
 /* measured: 608/608 bytes and 29 resolved relocations. The shared draw
    signature preserves both packet-end callbacks and the real provider. */
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
 void FldShadow_DrawBlobPacket(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
     extern u32 K_FldShadow_Draw(f32, f32, f32, f32,
@@ -627,17 +666,17 @@ void FldShadow_DrawBlobPacket(u8 *packet, s32 stateAddress, void *callbackSelf)
     extern u32 func_003e8110(u32 camera);
     extern u8 D_005F18F0[], D_005F18F4[], D_005F18F8[], D_005F18FC[];
     extern f32 D_008872F8[];
-    u8 *arg1 = (u8 *)stateAddress;
+    u8 *state = (u8 *)stateAddress;
     void *base;
     u8 *camera;
     void *constant;
 
-    camera = *(u8 **)(*(u8 **)(arg1 + 0x224) + 0x38);
+    camera = *(u8 **)(*(u8 **)(state + 0x224) + 0x38);
     camera = *(u8 **)(camera + 0x44);
-    mdlGetMatrix(*(void **)(arg1 + 0x164));
-    if (*(s32 *)*(u8 **)(*(u8 **)(arg1 + 0x224) + 0x38) > 0) {
-        mdlSetColor(*(struct Model **)(arg1 + 0x164),
-                    (const RwRGBA *)(s32)(*(u8 **)(*(u8 **)(arg1 + 0x224) + 0x38) + 0x48));
+    mdlGetMatrix(*(void **)(state + 0x164));
+    if (*(s32 *)*(u8 **)(*(u8 **)(state + 0x224) + 0x38) > 0) {
+        mdlSetColor(*(struct Model **)(state + 0x164),
+                    (const RwRGBA *)(s32)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38) + 0x48));
         base = (void *)D_00887300;
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)0);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZTESTENABLE, (void *)0);
@@ -668,10 +707,14 @@ void FldShadow_DrawBlobPacket(u8 *packet, s32 stateAddress, void *callbackSelf)
 }
 
 
+/* Place the model-resource shadow camera and temporarily disable its five item slots. */
 // FUN_0017C270
 /* measured: 1016/1024 bytes; 29 independently resolved relocations and eight
    zero alignment bytes. Preserve the early camera/height/position snapshots
    and the later frame, model and resource-chain reloads across callbacks. */
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
 void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
 {
     RwV3d position;
@@ -754,10 +797,14 @@ void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
     }
 }
 
+/* Restore model flags, item slots, and color, then finish the shadow camera pass. */
 // FUN_0017C670
+/* Layout: task work is at 0x38; caster fields follow FldShadowCaster.
+ * Measured typed rewrite changed this function's instructions; retain byte accesses
+ * and callback reloads to preserve the whole-file match. */
 void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
-    u8 *arg1 = (u8 *)stateAddress;
+    u8 *state = (u8 *)stateAddress;
     extern void *mdlGetMatrix(void *);
     extern void mdlSetColor(struct Model *, const RwRGBA *);
     extern u32 func_003e8110(u32 camera);
@@ -769,19 +816,19 @@ void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
     extern u8 D_005F190C[];
     extern f32 D_008872F8[];
     void *base;
-    u8 *matrix;
+    u8 *camera;
     void *constant;
     s32 i;
 
-    matrix = *(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38);
-    matrix = *(u8 **)(matrix + 0x44);
-    mdlGetMatrix(*(void **)(arg1 + 0x164));
-    if (*(s32 *)*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) > 0) {
-        *(s32 *)(*(u8 **)(arg1 + 0x164) + 0xD8) &= ~4;
+    camera = *(u8 **)(*(u8 **)(state + 0x230) + 0x38);
+    camera = *(u8 **)(camera + 0x44);
+    mdlGetMatrix(*(void **)(state + 0x164));
+    if (*(s32 *)*(u8 **)(*(u8 **)(state + 0x230) + 0x38) > 0) {
+        *(s32 *)(*(u8 **)(state + 0x164) + 0xD8) &= ~4;
         for (i = 0; i < 5; i++)
-            *(u8 *)(*(u8 **)(arg1 + 0x164) + i * 0xC + 0x28C) |= 1;
-        mdlSetColor(*(struct Model **)(arg1 + 0x164),
-                      (const RwRGBA *)(s32)(*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) + 0x48));
+            *(u8 *)(*(u8 **)(state + 0x164) + i * 0xC + 0x28C) |= 1;
+        mdlSetColor(*(struct Model **)(state + 0x164),
+                      (const RwRGBA *)(s32)(*(u8 **)(*(u8 **)(state + 0x230) + 0x38) + 0x48));
         base = (void *)D_00887300;
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)0);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZTESTENABLE, (void *)0);
@@ -793,28 +840,32 @@ void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
         constant = (void *)D_008872F8;
         K_FldShadow_Draw(0.0f, 0.0f, 128.0f, 48.0f,
                          (const RwRGBA *)D_005F1900, (const RwRGBA *)D_005F1904,
-                         *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
+                         *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
         RpSkyRenderStateSet(2, (void *)0x44);
         RpSkyRenderStateSet(3, (void *)0x3C803);
         K_FldShadow_Draw(0.0f, 48.0f, 128.0f, 76.0f,
                          (const RwRGBA *)D_005F1904, (const RwRGBA *)D_005F1908,
-                         *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
+                         *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
         K_FldShadow_Draw(0.0f, 76.0f, 128.0f, 128.0f,
                          (const RwRGBA *)D_005F1908, (const RwRGBA *)D_005F190C,
-                         *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
+                         *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
         RpSkyRenderStateSet(2, (void *)0x44);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATECULLMODE, (void *)2);
         if (iGpffffba48 == 1)
             (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)1);
-        func_003e8110((u32)matrix);
+        func_003e8110((u32)camera);
     }
 }
 
 
 
+/* Build and flush the shadow command queue for scene and model resource lists. */
 // FUN_0017C930
-s32 FldShadow_CasterStep(u8 *arg0)
+/* Layout: the 0x40-byte queue work stores light flags at 0x34/0x38/0x3c;
+ * resource links are at 0x138, model at 0x164, caster tasks at 0x224/0x230.
+ * Measured typed rewrite changed instructions, so retain these byte accesses. */
+s32 FldShadow_CasterStep(u8 *task)
 {
     extern u8 *MT_Scene_GetResListHead(s32);
     extern s32 FldMap_IsCurrentInEitherBand(void);
@@ -830,84 +881,84 @@ s32 FldShadow_CasterStep(u8 *arg0)
 
     extern void FldShadow_UpdateModelShadow(u8 *, u8 *);
     extern void FldShadow_DrawBlobModel(u8 *, s32, void *);
-    u8 *list1;
-    u8 *list3;
+    u8 *sceneResources;
+    u8 *modelResources;
     u8 *state;
-    s32 state_value;
+    s32 phase;
     s32 i;
-    u8 *work;
-    u8 *p;
+    u8 *command;
+    u8 *modelSlot;
 
-    state = *(u8 **)(arg0 + 0x38);
-    list1 = MT_Scene_GetResListHead(1);
-    list3 = MT_Scene_GetResListHead(3);
-    state_value = *(s32 *)state;
-    switch (state_value) {
+    state = *(u8 **)(task + 0x38);
+    sceneResources = MT_Scene_GetResListHead(1);
+    modelResources = MT_Scene_GetResListHead(3);
+    phase = *(s32 *)state;
+    switch (phase) {
     case 0:
-        *(s32 *)state = state_value + 1;
+        *(s32 *)state = phase + 1;
         break;
     case 1: {
         PrimClearNodes(state + 4, 1);
-        work = PrimAllocQueueNode();
-        *(void **)(work + 8) = (void *)FldShadow_SaveFrameSlots;
-        *(u8 **)(work + 0x10) = state;
-        PrimAppendNode(state + 4, work);
-        while (list1 != NULL) {
-            if ((*(s32 *)(list1 + 0x28) & 2) != 0 &&
-                *(u16 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38) + 0xA) == 1) {
-                work = PrimAllocQueueNode();
-                *(void **)(work + 8) = (void *)FldShadow_UpdateSceneShadow;
-                *(u8 **)(work + 0x10) = list1;
-                PrimAppendNode(state + 4, work);
-                if (*(s32 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38)) > 0) {
+        command = PrimAllocQueueNode();
+        *(void **)(command + 8) = (void *)FldShadow_SaveFrameSlots;
+        *(u8 **)(command + 0x10) = state;
+        PrimAppendNode(state + 4, command);
+        while (sceneResources != NULL) {
+            if ((*(s32 *)(sceneResources + 0x28) & 2) != 0 &&
+                *(u16 *)(*(u8 **)(*(u8 **)(sceneResources + 0x224) + 0x38) + 0xA) == 1) {
+                command = PrimAllocQueueNode();
+                *(void **)(command + 8) = (void *)FldShadow_UpdateSceneShadow;
+                *(u8 **)(command + 0x10) = sceneResources;
+                PrimAppendNode(state + 4, command);
+                if (*(s32 *)(*(u8 **)(*(u8 **)(sceneResources + 0x224) + 0x38)) > 0) {
                     if (FldMap_IsCurrentInEitherBand() == 1 || FldDayEventActive() == 1) {
                         i = 0;
                         while (i < 5) {
-                            p = *(u8 **)(list1 + 0x164) + i * 0xC;
-                            *(u8 *)(p + 0x28C) = *(u8 *)(p + 0x28C) & 0xFE;
+                            modelSlot = *(u8 **)(sceneResources + 0x164) + i * 0xC;
+                            *(u8 *)(modelSlot + 0x28C) = *(u8 *)(modelSlot + 0x28C) & 0xFE;
                             i += 1;
                         }
                     }
-                    *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) | 4;
-                    mdlQueueModelForDraw(state + 4, *(u8 **)(list1 + 0x164));
-                    *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) & ~4;
+                    *(s32 *)(*(u8 **)(sceneResources + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(sceneResources + 0x164) + 0xD8) | 4;
+                    mdlQueueModelForDraw(state + 4, *(u8 **)(sceneResources + 0x164));
+                    *(s32 *)(*(u8 **)(sceneResources + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(sceneResources + 0x164) + 0xD8) & ~4;
                     if (FldMap_IsCurrentInEitherBand() == 1 || FldDayEventActive() == 1) {
                         i = 0;
                         while (i < 5) {
-                            p = *(u8 **)(list1 + 0x164) + i * 0xC;
-                            *(u8 *)(p + 0x28C) = *(u8 *)(p + 0x28C) | 1;
+                            modelSlot = *(u8 **)(sceneResources + 0x164) + i * 0xC;
+                            *(u8 *)(modelSlot + 0x28C) = *(u8 *)(modelSlot + 0x28C) | 1;
                             i += 1;
                         }
                     }
                 }
-                work = PrimAllocQueueNode();
-                *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobPacket;
-                *(u8 **)(work + 0x14) = list1;
-                PrimAppendNode(state + 4, work);
+                command = PrimAllocQueueNode();
+                *(void **)(command + 0xC) = (void *)FldShadow_DrawBlobPacket;
+                *(u8 **)(command + 0x14) = sceneResources;
+                PrimAppendNode(state + 4, command);
             }
-            list1 = *(u8 **)(list1 + 0x138);
+            sceneResources = *(u8 **)(sceneResources + 0x138);
         }
-        while (list3 != NULL) {
-            if ((*(s32 *)(list3 + 0x28) & 2) != 0 &&
-                *(u16 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38) + 0xA) == 1) {
-                work = PrimAllocQueueNode();
-                *(void **)(work + 8) = (void *)FldShadow_UpdateModelShadow;
-                *(u8 **)(work + 0x10) = list1;
-                PrimAppendNode(state + 4, work);
-                if (*(s32 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38)) > 0) {
-                    mdlQueueModelForDraw(state + 4, *(u8 **)(list3 + 0x164));
+        while (modelResources != NULL) {
+            if ((*(s32 *)(modelResources + 0x28) & 2) != 0 &&
+                *(u16 *)(*(u8 **)(*(u8 **)(modelResources + 0x230) + 0x38) + 0xA) == 1) {
+                command = PrimAllocQueueNode();
+                *(void **)(command + 8) = (void *)FldShadow_UpdateModelShadow;
+                *(u8 **)(command + 0x10) = sceneResources;
+                PrimAppendNode(state + 4, command);
+                if (*(s32 *)(*(u8 **)(*(u8 **)(modelResources + 0x230) + 0x38)) > 0) {
+                    mdlQueueModelForDraw(state + 4, *(u8 **)(modelResources + 0x164));
                 }
-                work = PrimAllocQueueNode();
-                *(void **)(work + 0xC) = (void *)FldShadow_DrawBlobModel;
-                *(u8 **)(work + 0x14) = list1;
-                PrimAppendNode(state + 4, work);
+                command = PrimAllocQueueNode();
+                *(void **)(command + 0xC) = (void *)FldShadow_DrawBlobModel;
+                *(u8 **)(command + 0x14) = sceneResources;
+                PrimAppendNode(state + 4, command);
             }
-            list3 = *(u8 **)(list3 + 0x138);
+            modelResources = *(u8 **)(modelResources + 0x138);
         }
-        work = PrimAllocQueueNode();
-        *(void **)(work + 0xC) = (void *)FldShadow_RestoreFrameSlots;
-        *(u8 **)(work + 0x14) = state;
-        PrimAppendNode(state + 4, work);
+        command = PrimAllocQueueNode();
+        *(void **)(command + 0xC) = (void *)FldShadow_RestoreFrameSlots;
+        *(u8 **)(command + 0x14) = state;
+        PrimAppendNode(state + 4, command);
         sdkOtFlushBuckets(state + 4);
         break;
     }
@@ -920,19 +971,20 @@ s32 FldShadow_CasterStep(u8 *arg0)
 }
 
 // FUN_0017CC90
-void FldShadow_CasterDestroy(u8 *arg0)
+void FldShadow_CasterDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
+/* Allocate the 0x40-byte shadow-queue work and attach its task to the parent. */
 // FUN_0017CCC0
-s32 FldShadow_SpawnCasterTask(u8 *arg0) {
-    u8 *buf;
+s32 FldShadow_SpawnCasterTask(u8 *parentTask) {
+    u8 *work;
 
     chkmemAllocSiteTag(D_005F18C0, 0x8E5);
-    buf = D_008873F4[0](1, 0x40, 0x40000);
-    if (buf == NULL) {
+    work = D_008873F4[0](1, 0x40, 0x40000);
+    if (work == NULL) {
         return 0;
     }
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1910), 8, 0, 0, FldShadow_CasterStep, FldShadow_CasterDestroy, (u8 *)(buf));
+    return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005F1910), 8, 0, 0, FldShadow_CasterStep, FldShadow_CasterDestroy, (u8 *)(work));
 }
 
