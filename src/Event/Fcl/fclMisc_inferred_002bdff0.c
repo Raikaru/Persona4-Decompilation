@@ -43,7 +43,7 @@ extern char D_0063F380[];
 extern f32 iGpffff82fc;
 extern s32 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
-extern s32 func_002be100(s32 arg0);
+extern s32 fclCalendarMonthOrder(s32 month);
 extern u8 D_0063F3B0[];
 
 
@@ -87,7 +87,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bdff0-002be160 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void func_002b5120(s32 item, u8 *arg1);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */
@@ -101,36 +101,38 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 #pragma push
 #pragma pop
+/* Test category-3 item availability against the current month and day. */
 // FUN_002BDFF0
-s32 func_002bdff0(s16 arg0)
+s32 fclItemIsDateAvailable(s16 item)
 {
-    s32 temp_16;
-    s32 temp_16_2;
-    s32 temp_16_3;
+    s32 availableMonth;
+    s32 availableMonthAgain;
+    s32 availableDay;
 
-    if (func_00106850(arg0) != 3) {
+    if (func_00106850(item) != 3) {
         goto false_result;
     }
-    temp_16 = func_002be100((u8)datItemAvailableMonth(arg0)) & 0xFF;
-    if (temp_16 < (func_002be100(fclCalendarMonth()) & 0xFF)) {
+    availableMonth = fclCalendarMonthOrder((u8)datItemAvailableMonth(item)) & 0xFF;
+    if (availableMonth < (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF)) {
         return 1;
     }
-    temp_16_2 = func_002be100((u8)datItemAvailableMonth(arg0)) & 0xFF;
-    if (temp_16_2 != (func_002be100(fclCalendarMonth()) & 0xFF)) {
+    availableMonthAgain = fclCalendarMonthOrder((u8)datItemAvailableMonth(item)) & 0xFF;
+    if (availableMonthAgain != (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF)) {
         goto false_result;
     }
-    temp_16_3 = (s8)datItemAvailableDay(arg0);
-    if (temp_16_3 <= (fclCalendarDay() & 0xFF)) {
+    availableDay = (s8)datItemAvailableDay(item);
+    if (availableDay <= (fclCalendarDay() & 0xFF)) {
         return 1;
     }
 false_result:
     return 0;
 }
 
+/* Map a month to its position in the twelve-entry calendar ordering; unknown months return zero. */
 // FUN_002BE100
-s32 func_002be100(s32 arg0) {
+s32 fclCalendarMonthOrder(s32 month) {
     s32 i = 0;
-    s32 key = arg0 & 0xFF;
+    s32 key = month & 0xFF;
     s8 *t = D_007488F8;
 
     while ((i & 0xFF) < 0xC) {
@@ -142,12 +144,13 @@ s32 func_002be100(s32 arg0) {
     return 0;
 }
 
+/* Compare the moon phase with a halfword threshold; zero imposes no requirement. */
 // FUN_002BE160
-s32 fclMoonPhaseAtLeast(s32 arg0, s32 arg1) {
-    s32 n = arg1 & 0xFFFF;
+s32 fclMoonPhaseAtLeast(s32 dateIndex, s32 requiredPhase) {
+    s32 n = requiredPhase & 0xFFFF;
     if (n == 0) {
         return 1;
     }
-    return (clndGetMoonPhase(arg0) & 0xFF) >= n;
+    return (clndGetMoonPhase(dateIndex) & 0xFF) >= n;
 }
 

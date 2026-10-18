@@ -342,7 +342,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                         p->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
-                    if (func_002bdff0(i) == 1) {
+                    if (fclItemIsDateAvailable(i) == 1) {
                         p->rows.paired[i].quantity = 0;
                         p->rows.paired[p->count].id = i;
                         count = fclAddClamped(p->count, 1, 0, 0, 0);
@@ -510,7 +510,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
                         p->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
-                    if (func_002bdff0(i) == 1) {
+                    if (fclItemIsDateAvailable(i) == 1) {
                         p->rows.paired[i].quantity = 0;
                         p->rows.paired[p->count].id = i;
                         count = fclAddClamped(p->count, 1, 0, 0, 0);

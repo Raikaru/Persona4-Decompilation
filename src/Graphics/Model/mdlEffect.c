@@ -205,7 +205,7 @@ void btlUiSetWindowRect(u8 *arg0)
 
 extern void func_002b5120(s32 arg0, u8 *arg1);
 extern u32 datEntryGetFlags(s16 item);
-extern s32 func_002be1e0(s32 arg0);
+extern s32 fclFirstSetBitIndex(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
@@ -235,7 +235,7 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 // FUN_002BE1B0
 s32 func_002be1b0(s16 item)
 {
-    return func_002be1e0(datEntryGetFlags(item));
+    return fclFirstSetBitIndex(datEntryGetFlags(item));
 }
 
 

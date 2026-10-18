@@ -12,7 +12,7 @@ extern char iGpffffa870;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 s32 fclShopDrawCreate(s32);
-s32 func_002be100(s32);
+s32 fclCalendarMonthOrder(s32);
 s32 datItemMoonGateFirst(s16);
 s32 datItemMoonGateSecond(s16);
 
@@ -65,11 +65,11 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100((u8)datItemAvailableMonth(i)) & 0xFF) <
-            (func_002be100(4) & 0xFF)) {
+        if ((fclCalendarMonthOrder((u8)datItemAvailableMonth(i)) & 0xFF) <
+            (fclCalendarMonthOrder(4) & 0xFF)) {
             datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
-        } else if ((func_002be100((u8)datItemAvailableMonth(i)) & 0xFF) ==
-                   (func_002be100(4) & 0xFF) && (s8)datItemAvailableDay(i) < 2) {
+        } else if ((fclCalendarMonthOrder((u8)datItemAvailableMonth(i)) & 0xFF) ==
+                   (fclCalendarMonthOrder(4) & 0xFF) && (s8)datItemAvailableDay(i) < 2) {
             datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         }
     }

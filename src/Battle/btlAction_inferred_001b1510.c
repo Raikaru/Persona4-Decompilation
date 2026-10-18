@@ -123,7 +123,7 @@ extern s32 datCalcUnitClass(u8 *arg0);
 extern void btlActionQueueSortByRank(s32 arg0);
 extern void btlActionQueueRequeueLeadingEnemies(s32 arg0);
 extern u32 iGpffffa0b8;
-extern void func_0014a2e0(u32 arg0);
+extern void fclMiscSetExternalWord(u32 arg0);
 extern void btlMainSetupCameraAndEffects(void);
 extern u32 datGetFlag(s32 arg0);
 extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
@@ -460,7 +460,7 @@ s32 btlMainSceneSetUpdate(void)
 {
     extern s32 btlMainStepFieldSceneLoad(void);
     extern u32 btlCountUnitRecords(void);
-    extern void func_0014a2e0(u32 arg0);
+    extern void fclMiscSetExternalWord(u32 arg0);
     extern void btlMainSetupCameraAndEffects(void);
     extern u32 datGetFlag(s32 arg0);
     extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
@@ -484,7 +484,7 @@ s32 btlMainSceneSetUpdate(void)
     if (btlCountUnitRecords() != 0) {
         goto done;
     }
-    func_0014a2e0(1);
+    fclMiscSetExternalWord(1);
     btlMainSetupCameraAndEffects();
     if (datGetFlag(0x38) == 0) {
         goto set_zero;

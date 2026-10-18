@@ -20,6 +20,23 @@ extern void fclBankSetActive(s64, s32);
 extern char D_0063FBB0[];
 extern char D_0063FBC8[];
 
+/* Slot flags: 1 occupied, 2 loading, 4 settled, 8 visible, 0x10 fading;
+   0x20 skips the slide, 0x40 delays fade-out, 0x100 selects the slide side.
+   Requests: 0x200 show, 0x400 hide, 0x800 release, 0x1000 retire. */
+/* Pending-list links and request payload, as read by acquire/queue/update.
+   Keep the public integer-pointer list API at its existing call boundary. */
+typedef struct FclBankRequest {
+    s16 flags;
+    u8 pad02[2];
+    u32 descriptor;
+} FclBankRequest;
+
+typedef struct FclBankRequestNode {
+    u8 pad00[0x10];
+    s32 *next;
+    FclBankRequest *request;
+} FclBankRequestNode;
+
 // Variadic wrapper (PS2 SDK pattern, mirrors src/h_dbprt.c); call sites pass
 // whatever tail args they have.
 extern void fclBankLogf(u8 *, ...);
@@ -43,6 +60,7 @@ void fclBankLogf(u8 *fmt, ...)
     func_00446e88(fmt, (s32 *)args);
 }
 
+/* Cancel active non-retiring slots and drain the pending request list. */
 // FUN_002E0DD0
 void fclBankCancelPending(void)
 {
@@ -61,7 +79,7 @@ void fclBankCancelPending(void)
     }
     node = (s32 *)fclBankWork()->pendingTail;
     while (node != NULL) {
-        s32 *next = *(s32 **)((u8 *)node + 0x10);
+        s32 *next = ((FclBankRequestNode *)node)->next;
         func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
         node = next;
     }
@@ -69,6 +87,7 @@ void fclBankCancelPending(void)
     fclBankLogf((u8 *)&iGpffffa898);
 }
 
+/* Mark loaded or visible slots for cancellation. */
 // FUN_002E0F20
 void fclBankMarkSettled(void)
 {
@@ -91,8 +110,9 @@ void fclBankSetReadyFlag(void)
     fclBankWork()->record->readyFlags |= 1;
 }
 
+/* Report pending requests or a slot whose load has not settled. */
 // FUN_002E0FB0
-s32 func_002e0fb0(void)
+s32 fclBankHasPendingLoad(void)
 {
     s32 i;
     FclBankSlot *slot = fclBankWork()->record->slots;
@@ -109,6 +129,7 @@ s32 func_002e0fb0(void)
     return 0;
 }
 
+/* Return the first unoccupied slot, or -1 when both are in use. */
 static inline s16 findUnusedBank(FclBankRecord *banks)
 {
     s32 i;
@@ -121,6 +142,7 @@ static inline s16 findUnusedBank(FclBankRecord *banks)
     return -1;
 }
 
+/* Reuse an occupied slot only when it is neither loading nor visible. */
 static inline s16 findReusableBank(FclBankRecord *banks)
 {
     s32 i;
@@ -144,7 +166,7 @@ s64 fclBankAcquire(int *node)
     FclBankSlot *slot;
     s64 selected;
     FclBankRecord *banks;
-    u8 *payload;
+    FclBankRequest *payload;
 
     banks = fclBankWork()->record;
     selected = findUnusedBank(banks);
@@ -152,10 +174,10 @@ s64 fclBankAcquire(int *node)
         selected = findReusableBank(banks);
     if ((s16)selected == -1)
         return -1;
-    payload = *(u8 **)((u8 *)node + 0x14);
-    slot = (FclBankSlot *)((u8 *)banks + 4 + (s16)selected * 20);
-    slot->descriptor = *(u32 *)(payload + 4);
-    slot->flags = *(s16 *)payload;
+    payload = ((FclBankRequestNode *)node)->request;
+    slot = &banks->slots[(s16)selected];
+    slot->descriptor = payload->descriptor;
+    slot->flags = payload->flags;
     slot->index = (u16)selected;
     fclBankSlotConfigure(selected, (s16)((slot->descriptor & 0xFFFF0000U) >> 16),
                  (s16)((slot->descriptor & 0xFF00) >> 8), (s16)(slot->descriptor & 0xFF));
@@ -168,25 +190,26 @@ s64 fclBankAcquire(int *node)
     return selected;
 }
 
+/* Queue a descriptor and its high-byte request flags for bank acquisition. */
 // FUN_002E1230
-void fclBankQueueRequest(s32 arg0, s64 arg1)
+void fclBankQueueRequest(s32 descriptor, s64 flags)
 {
     s32 i;
     FclBankSlot *slot;
-    u8 *q;
+    FclBankRequest *request;
 
     slot = fclBankWork()->record->slots;
     i = 0;
     while (i < 2) {
-        if ((slot->flags & 1) && ((s32)slot->descriptor == arg0)) {
+        if ((slot->flags & 1) && ((s32)slot->descriptor == descriptor)) {
             break;
         }
         slot++;
         i++;
     }
-    q = *(u8 **)(func_002e2170((void *)iGpffffb588, 0, 0x14) + 0x14);
-    *(s32 *)(q + 4) = arg0;
-    *(s16 *)q = (s16)(((s16)arg1 & 0xFF00) | 3);
+    request = ((FclBankRequestNode *)func_002e2170((void *)iGpffffb588, 0, 0x14))->request;
+    request->descriptor = descriptor;
+    request->flags = (s16)(((s16)flags & 0xFF00) | 3);
 }
 
 /* measured: retail hoists the 0xFFFF0000 mask into the loop preheader
@@ -199,11 +222,11 @@ void fclBankQueueRequest(s32 arg0, s64 arg1)
 /* measured: the best exploratory C scored nd 117 (object 184B / window
    208B); it was size-deficit and discarded. The historical nd 26 note above
    describes a discarded body, not a retained target. */
-/* Marks the other slots whose key matches arg0; returns 0 if any of them lacks flag 4. */
+/* Marks the other slots with matching request flags; returns 0 if any lacks flag 4. */
 // FUN_002E12E0
 /* measured: retail keeps the invariant key mask in the loop preheader. */
 #pragma opt_loop_invariants on
-s32 fclBankScanOthers(FclBankSlot *arg0)
+s32 fclBankScanOthers(FclBankSlot *currentSlot)
 {
     FclBankSlot *p;
     s32 i;
@@ -213,14 +236,14 @@ s32 fclBankScanOthers(FclBankSlot *arg0)
     p = fclBankWork()->record->slots;
     i = 0;
     for (; i < 2; i++) {
-        if (p != arg0) {
+        if (p != currentSlot) {
             s16 flags = p->flags;
             if ((flags & 1) && (flags & 8) &&
-                ((flags & 0x100) == (arg0->flags & 0x100)) &&
+                ((flags & 0x100) == (currentSlot->flags & 0x100)) &&
                 ((flags & 0x1000) == 0)) {
                 p->flags = (s16)(flags | 0x400);
                 if (((p->descriptor & 0xFFFF0000) >> 16) ==
-                    ((arg0->descriptor & 0xFFFF0000) >> 16)) {
+                    ((currentSlot->descriptor & 0xFFFF0000) >> 16)) {
                     p->flags = (s16)(p->flags | 0x40);
                 }
                 if ((p->flags & 4) == 0) {
@@ -279,6 +302,7 @@ void fclBankUpdateFades(void)
                     x = (s32)((1.0f - (f32)ticks / 5.0f) * 32.0f + 280.0f);
                 }
                 ratio = (f32)ticks / 5.0f;
+                /* Position accessor has a byte-pointer ABI; the two f32 components are at +0/+4. */
                 *(f32 *)fclBankGetPositionPtr(slot->index) = (f32)x;
                 *(f32 *)(fclBankGetPositionPtr(slot->index) + 4) = 91.0f;
                 fclBankSetAlpha(slot->index, (u8)(ratio * 255.0f));
@@ -325,6 +349,7 @@ void fclBankUpdateFades(void)
 /* measured: 1236/1248B, 54 resolved relocations, zero executable differences,
    twelve zero tail bytes. Keep the inlined peer mask in its loop preheader. */
 #pragma opt_loop_invariants on
+/* Test for a visible peer on the same side with the same descriptor high half. */
 static inline s32 bankSlotHasMatchingVisiblePeer(FclBankSlot *slot)
 {
     FclBankSlot *peer;
@@ -349,6 +374,7 @@ static inline s32 bankSlotHasMatchingVisiblePeer(FclBankSlot *slot)
 
 struct KwlnTask;
 
+/* Acquire queued requests, advance slot lifecycle flags, then step the fades. */
 // FUN_002E17F0
 s32 fclBankManagerUpdate(u8 *sdkTaskBytes)
 {
@@ -370,7 +396,7 @@ s32 fclBankManagerUpdate(u8 *sdkTaskBytes)
     banks = fclBankWork()->record;
     node = (s32 *)fclBankWork()->pendingTail;
     while (node != NULL) {
-        next = *(s32 **)((u8 *)node + 0x10);
+        next = ((FclBankRequestNode *)node)->next;
         if ((s16)fclBankAcquire(node) == -1) {
             func_00440b68(iGpffffa890, D_0063FBB0, 690);
             fclBankLogf(D_0063FBD8);

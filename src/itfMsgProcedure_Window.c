@@ -540,7 +540,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
     extern s16 D_00882008[];
     extern f32 iGpffff81e8;
     extern f32 iGpffff81ec;
-    extern s32 func_002e0fb0(void);
+    extern s32 fclBankHasPendingLoad(void);
     extern void fclBankSetReadyFlag(void);
     extern s32 frFontGetPendingFlag(void);
     extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
@@ -587,7 +587,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         memset((void *)D_00882000, 0, 0x18);
         break;
     case 4:
-        if (func_002e0fb0() != 0) {
+        if (fclBankHasPendingLoad() != 0) {
             fclBankSetReadyFlag();
         } else if (func_0027bec0((s32)arg0) != 0) {
             if ((D_00882000[0] & 2) == 0) {

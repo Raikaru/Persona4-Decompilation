@@ -106,6 +106,7 @@ void fclMiscPruneGlobal(void) {
     fclMiscPruneLists(D_0072466C);
 }
 
+/* Stop channel 1 before closing the active message handle. */
 // FUN_002BD410
 void fclMiscStopAndClose(void)
 {

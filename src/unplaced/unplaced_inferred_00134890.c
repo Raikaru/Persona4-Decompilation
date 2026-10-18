@@ -431,7 +431,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
                   (f32)(s32)position.xy.y, 0.0f, labelColor, 1, 6, 3);
     position.xy.x = 131.0f + ((f32 *)&inputPosition)[0];
     position.xy.y = 81.0f + originalY;
-    func_002bc4b0(0.0f, *(s16 *)entry, (s32)position.xy.x,
+    fclMesWindowDrawItemCategory(0.0f, *(s16 *)entry, (s32)position.xy.x,
                   (s32)position.xy.y, labelColor, 1, 6);
 }
 #pragma pop

@@ -956,7 +956,7 @@ void func_00387750(u8 *arg0)
     extern f32 sinf(f32 fparg0);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
-    extern void func_0045c870(void *arg0, s32 arg1);
+    extern void effMiscDrawScreenColor(void *arg0, s32 arg1);
     extern f32 fGpffff82cc;
     extern f32 fGpffff82fc;
     extern f32 fGpffff83d8;
@@ -1011,7 +1011,7 @@ void func_00387750(u8 *arg0)
     colors[3] = 0;
     mdlEffectEmitMaskedTagPair();
     RpSkyRenderStateSet(3, (void *)0x31801);
-    func_0045c870(colors, 0);
+    effMiscDrawScreenColor(colors, 0);
     colors[3] = 0xFF;
     btlShuffleDrawCardSprites(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
     mdlEffectEmitTagPair();
@@ -1281,7 +1281,7 @@ void func_003889b0(s32 arg0, u8 *arg1)
     extern void func_00387750(u8 *arg0);
     extern void func_00387e70(u8 *arg0);
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_0045c870(void *arg0, s32 arg1);
+    extern void effMiscDrawScreenColor(void *arg0, s32 arg1);
     u8 colors[4];
     f32 alphaF;
     f32 ramp;
@@ -1304,7 +1304,7 @@ void func_003889b0(s32 arg0, u8 *arg1)
         alphaF = 128.0f *
             (1.0f - btlShuffleCalcWave(ramp, 0.0f, 30.0f, 2));
         colors[3] = (u8)alphaF;
-        func_0045c870(colors, 1);
+        effMiscDrawScreenColor(colors, 1);
         ticks = ++*counter;
         if (ticks >= 0x1E) {
             *(u16 *)(arg1 + 0x4C) =

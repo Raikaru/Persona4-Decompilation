@@ -61,6 +61,12 @@ typedef struct Code45RenderState {
 extern Code45RenderState D_00712490[6];
 extern void (*D_008873FC[])(s32 param, u8* arg);
 extern s32 kwlnGetCamera(void);
+
+/* RwCamera::farPlane; public layout is documented in rw/core/bacamera.h. */
+typedef struct EffMiscCamera {
+    u8 pad00[0x80];
+    f32 farPlane;
+} EffMiscCamera;
 #pragma push
 #pragma opt_propagation off
 #pragma pop
@@ -80,8 +86,9 @@ extern s32 kwlnGetCamera(void);
 #pragma opt_loop_invariants on
 /* measured: closes the hoisting scope after func_0045b430. */
 #pragma opt_loop_invariants off
+/* Draws a 640-by-448 solid-color screen quad, optionally saving and restoring six render states. */
 // FUN_0045C870
-void func_0045c870(u8 *colors, s32 enabled)
+void effMiscDrawScreenColor(u8 *colors, s32 enabled)
 {
     struct {
         s32 saved[6];
@@ -107,7 +114,7 @@ void func_0045c870(u8 *colors, s32 enabled)
     }
     depth = D_008872F8_abs[0];
     state = kwlnGetCamera();
-    inv = 1.0f / *(f32 *)((u8 *)state + 0x80);
+    inv = 1.0f / ((EffMiscCamera *)state)->farPlane;
 
     work.out[0] = 0.0f;
     work.out[1] = 0.0f;
@@ -152,6 +159,7 @@ void func_0045c870(u8 *colors, s32 enabled)
 }
 
 
+/* Multiplies the quaternions in vf10 and vf11, returning the product in vf10. */
 // FUN_004BCE50
 void effMiscQuatMultiplyVU(void)
 {
@@ -175,6 +183,7 @@ void effMiscQuatMultiplyVU(void)
 
 
 
+/* Normalizes the four-component vector in vf10 using the VU reciprocal square root. */
 // FUN_004BCE80
 void effMiscNormalizeVU(void)
 {
@@ -276,6 +285,7 @@ void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ)
 
 
 
+/* Advances the four-word XOR/shift generator; NULL selects the shared generator. */
 // FUN_004BD050
 u32 effMiscRand(EffRandState* state)
 {
@@ -315,6 +325,7 @@ f32 effMiscRandFloat(EffRandState* state)
 
 
 
+/* Expands the seed into four words using XOR constants and byte rotations. */
 // FUN_004BD130
 void effMiscRandInit(EffRandState* state, u32 seed)
 {

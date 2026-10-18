@@ -106,7 +106,7 @@ s32 fclUnlockMoonPhaseItems(void)
     item = 0x300;
     goto loop_test;
 loop_body:
-    if (func_002bdff0(item) == 1)
+    if (fclItemIsDateAvailable(item) == 1)
     {
         if ((clndGetMoonPhase(itemCopy) & 0xFF) == 0)
         {
@@ -247,11 +247,11 @@ s32 shopSystemCreate(s32 arg0)
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100((u8)datItemAvailableMonth((s16)i)) & 0xFF) <
-            (func_002be100(4) & 0xFF)) {
+        if ((fclCalendarMonthOrder((u8)datItemAvailableMonth((s16)i)) & 0xFF) <
+            (fclCalendarMonthOrder(4) & 0xFF)) {
             datSetStateTableEntry(i, (clndGetMoonPhase(i) & 0xFF) | 4);
-        } else if ((func_002be100((u8)datItemAvailableMonth((s16)i)) & 0xFF) ==
-                   (func_002be100(4) & 0xFF) &&
+        } else if ((fclCalendarMonthOrder((u8)datItemAvailableMonth((s16)i)) & 0xFF) ==
+                   (fclCalendarMonthOrder(4) & 0xFF) &&
                    (s8)datItemAvailableDay((s16)i) < 2) {
             datSetStateTableEntry(i, (clndGetMoonPhase(i) & 0xFF) | 4);
         }

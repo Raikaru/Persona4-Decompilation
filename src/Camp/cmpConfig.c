@@ -33,7 +33,7 @@ f32 sinf(f32);
 
 void sdkSpriteDrawFooter(Vec2f unused, f32, u8, s32, s32);
 void mdlEffectEmitMaskedTagPair(void);
-void func_0045c870(void*, s32);
+void effMiscDrawScreenColor(void*, s32);
 void mdlEffectEmitTagPair(void);
 void RpSkyRenderStateSet(s32 a, s32 b);
 void datCommunityOverlayDestroy(u8*);
@@ -776,7 +776,7 @@ void cmpConfigDrawArrows(u8 *work, s32 optionIndex, s32 drawMode)
         color[1] = 0;
         color[2] = 0;
         color[3] = 0;
-        func_0045c870(color, 0);
+        effMiscDrawScreenColor(color, 0);
         counterAddress = optionIndex * 2;
         counterAddress += (u32)work;
         counter = ((CmpConfigWork *)counterAddress)->timers[0];

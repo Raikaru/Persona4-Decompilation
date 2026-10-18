@@ -18,7 +18,7 @@ extern void datSetFlag(s32 arg0, s32 arg1);
 extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
 extern u8 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
-extern s32 func_002be100(u8 arg0);
+extern s32 fclCalendarMonthOrder(u8 arg0);
 extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s8 nmMesWindowAcquire(void *arg0);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
@@ -65,7 +65,7 @@ s32 weaponShopTalkUpdate(u8 *arg0)
     u8 *e;
 
     work = *(s8 **)(arg0 + 0x38);
-    level_value = (s16)(100 * (func_002be100(fclCalendarMonth()) & 0xFF) + (fclCalendarDay() & 0xFF));
+    level_value = (s16)(100 * (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF) + (fclCalendarDay() & 0xFF));
     switch (*work) {
     case 0:
         if (datGetFlag(0x1C0) == 0) {
@@ -90,8 +90,8 @@ s32 weaponShopTalkUpdate(u8 *arg0)
         i = 0;
         do {
             entry = D_00644ED0 + (i * 0x10);
-            min = (s16)(entry[9] + 100 * (func_002be100(entry[8]) & 0xFF));
-            max = (s16)(entry[11] + 100 * (func_002be100(entry[10]) & 0xFF));
+            min = (s16)(entry[9] + 100 * (fclCalendarMonthOrder(entry[8]) & 0xFF));
+            max = (s16)(entry[11] + 100 * (fclCalendarMonthOrder(entry[10]) & 0xFF));
             if (*(s16 *)entry != -1 && datGetFlag(*(s32 *)(entry + 12)) == 0 &&
                 (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) && !(min > level_value) &&
                 !(max < level_value)) {
@@ -111,8 +111,8 @@ s32 weaponShopTalkUpdate(u8 *arg0)
         j = 0;
         do {
             entry = D_00644ED0 + (j * 0x10);
-            min = (s16)(entry[9] + 100 * (func_002be100(entry[8]) & 0xFF));
-            max = (s16)(entry[11] + 100 * (func_002be100(entry[10]) & 0xFF));
+            min = (s16)(entry[9] + 100 * (fclCalendarMonthOrder(entry[8]) & 0xFF));
+            max = (s16)(entry[11] + 100 * (fclCalendarMonthOrder(entry[10]) & 0xFF));
             if (*(s16 *)entry != -1 && (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) &&
                 !(min > level_value) && !(max < level_value)) {
                 work[1] = nmMesWindowAcquire(D_00645240);

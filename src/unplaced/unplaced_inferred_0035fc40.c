@@ -101,7 +101,7 @@ void datCommunityMenuDraw(u8 *work)
                               s32 textColor, s32 font, s32 mode, s32 table);
     extern void radarDrawColumn(s32 idx, u8 *ctx);
     extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
-    extern void func_0045c870(u8 *color, s32 flags);
+    extern void effMiscDrawScreenColor(u8 *color, s32 flags);
     extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 flags);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
@@ -220,7 +220,7 @@ void datCommunityMenuDraw(u8 *work)
         mdlEffectEmitMaskedTagPair();
         D_00887300[0](1, 0);
         colorBytes[3] = 0;
-        func_0045c870(colorBytes, 0);
+        effMiscDrawScreenColor(colorBytes, 0);
         sdkSpriteDrawAt(cursorSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], 0xFF);
         mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, (void *)0x2D801);
