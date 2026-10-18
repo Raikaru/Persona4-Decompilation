@@ -5,15 +5,23 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_ot_state_api.h"
+#include "sdktask.h"
+
+/* Only the two-word prefix is known here; the second word is read below. */
+typedef struct SceneTaskHeader {
+    s32 unk0;
+    s32 unk4;
+} SceneTaskHeader;
 extern u8 *D_00764298;
 #pragma push
 #pragma tailcall off
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
+/* Return the second word of the active scene task's work header. */
 // FUN_00102980
-s32 func_00102980(void)
+s32 kwlnGetCurrentWorkValue(void)
 {
-    return *(s32 *)(*(u8 **)((u8 *)D_00764298 + 0x38) + 4);
+    return ((SceneTaskHeader *)((SdkTask *)D_00764298)->work)->unk4;
 }
 #pragma pop

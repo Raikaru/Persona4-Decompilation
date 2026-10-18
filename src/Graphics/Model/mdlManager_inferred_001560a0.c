@@ -19,7 +19,7 @@ typedef struct P4_0015_Vec3
 
 extern s32 iGpffffb210;
 extern void H_Cdvd_Destroy();
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern void fieldSceneUnload();
 extern void FldAuxBufferRelease(void);
 extern u8 *D_00764334;
@@ -433,7 +433,7 @@ void FldLoadTaskUnloadScene(u8 *arg0)
 
     work = *(u8 **)(arg0 + 0x38);
     FldAuxBufferRelease();
-    if ((func_00102980() != 9) && (func_00102980() != 0xB) && (func_00102980() != 0xA)) {
+    if ((kwlnGetCurrentWorkValue() != 9) && (kwlnGetCurrentWorkValue() != 0xB) && (kwlnGetCurrentWorkValue() != 0xA)) {
         fieldSceneUnload();
     }
     value = *(u16 *)(work + 0x18);
@@ -2698,7 +2698,7 @@ threshold_done:
     if (D_007D3E10[map_index] != 1) {
         goto fail;
     }
-    if (func_00102980() == 0xA) {
+    if (kwlnGetCurrentWorkValue() == 0xA) {
         goto fail;
     }
 

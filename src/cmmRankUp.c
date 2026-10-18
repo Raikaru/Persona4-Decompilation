@@ -7,6 +7,8 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "cmm_internal.h"
+#include "btl_effect_internal.h"
+#include "resrc_manager_internal.h"
 #include "datPersona_internal.h"
 extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
@@ -44,12 +46,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag(void *msg, s32 id);
 void kAssertFail(const void *file, s32 line);
-extern void mdlComputeIndexedAttachMatrix(s32 arg0, s32 arg1, void *arg2);
+extern void mdlComputeIndexedAttachMatrix(s32 value, s32 option1, void *option2);
 extern void FldPanel2dTaskCreate();
-extern void MT_Scene_SetResEnabled(s32 arg0, s32 arg1);
-extern void func_003ef3a0(s32 arg0);
-extern void H_Cdvd_Destroy(s32 arg0);
-extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
+extern void MT_Scene_SetResEnabled(s32 value, s32 option1);
+extern void func_003ef3a0(s32 value);
+extern void H_Cdvd_Destroy(s32 value);
+extern void mdlSetLayerWeight(u8 *value, s32 option1, f32 option2);
 extern void *memset(void *destination, s32 value, size_t count);
 
 /* 128-bit object copies (retail lq/sq). */
@@ -57,6 +59,17 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern u_long128 D_00636560;
 extern u_long128 D_00636570;
 typedef struct { u32 w0; u32 w1; } CopyPair;
+
+/* Snapshot of a scene resource while its rank-up presentation owns visibility. */
+typedef struct RankUpResourceState {
+    f32 weight;
+    u8 *model;
+    u8 *resource;
+    s32 enabled;
+} RankUpResourceState;
+/* Font run links follow the same private layout used by frFont.c. */
+typedef struct FrFontNode { u8 pad00[0x24]; struct FrFontNode *next; } FrFontNode;
+
 extern const CopyPair D_00636310[16];
 extern const CopyPair D_00636390[16];
 
@@ -69,30 +82,30 @@ struct RwMatrixTag {
 typedef struct RwMatrixTag RankUpMatrix __attribute__((aligned(16)));
 
 typedef struct {
-    f32 f0;
-    f32 f4;
-    f32 f8;
+    s32 kind;
+    f32 x;
+    f32 y;
     struct RwV3d axis;
-    s32 f18;
-    f32 f1C;
-    s16 f20;
-    s16 f22;
-} Sp120;
+    s32 color;
+    f32 angle;
+    s16 width;
+    s16 height;
+} RankUpSpriteState;
 extern u_long128 D_00636730;
 extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
-static void cmmRankUpLerpState(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
+static void cmmRankUpLerpState(RankUpSpriteState *value, RankUpSpriteState *option1, RankUpSpriteState *option2, f32 floatValue);
 
 extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
         const struct RwV3d *axis, f32 angle, s32 combine);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern u8 *func_00251570(s32 arg0, s32 arg1);
-extern void func_00251850(u8 *arg0);
-extern s32 shdSpriteSlotHandle(s32 arg0, s32 arg1, u8 *arg2);
-extern s32 datPortraitValue(s32 arg0);
+extern void RpSkyRenderStateSet(s32 value, s32 option1);
+extern u8 *func_00251570(s32 value, s32 option1);
+extern void func_00251850(u8 *value);
+extern s32 shdSpriteSlotHandle(s32 value, s32 option1, u8 *option2);
+extern s32 datPortraitValue(s32 value);
 extern u32 RpRandom(void);
-extern u8 *RwMatrixMultiply(u8 *arg0, u8 *arg1, u8 *arg2);
-extern f32 cosf(f32 fparg0);
-extern f32 sinf(f32 fparg0);
+extern u8 *RwMatrixMultiply(u8 *value, u8 *option1, u8 *option2);
+extern f32 cosf(f32 floatValue);
+extern f32 sinf(f32 floatValue);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern void PrimDrawRectangle(u8 *color, u8 *rectangle, f32 depth,
@@ -103,17 +116,17 @@ extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s16 centerX, s16 centerY,
                           struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 
-extern s32 shdEffectTaskCreate(s32 arg0, s32 arg1, s32 arg2, void *arg3);
-extern s32 func_0025ff60(s32 arg0);
-extern void func_004b12e0(s32 arg0, s32 arg1);
+extern s32 shdEffectTaskCreate(s32 value, s32 option1, s32 option2, void *option3);
+extern s32 func_0025ff60(s32 value);
+extern void func_004b12e0(s32 value, s32 option1);
 extern void func_004b1250(void *object, f32 *position);
 extern void mdlEffectGetPackedColor(void *object, s32 *color);
 extern void mdlEffectSetPackedColor(void *object, s32 *color);
 extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
 extern u8 *kwlnGetCamera(void);
-extern s32 func_003e9700(s32 arg0);
-extern void itfMesWindowSetString(s32 arg0, s32 arg1, void *arg2);
-extern void sdkSndStartChannel(s32 arg0, void *arg1);
+extern s32 func_003e9700(s32 value);
+extern void itfMesWindowSetString(s32 value, s32 option1, void *option2);
+extern void sdkSndStartChannel(s32 value, void *option1);
 extern f32 fGpffffa66c;
 extern f32 fGpffffa670;
 extern f32 fGpffffa674;
@@ -136,7 +149,7 @@ extern u8 D_00636710[];
 extern u8 D_00635C80[];
 extern u8 D_00635CA0[];
 extern u8 D_005DC974[];
-extern s64 cmmCommunityArcana(s32 arg0);
+extern s64 cmmCommunityArcana(s32 value);
 extern u8 *func_002438b0();
 extern u8 *cmmPersonaRecord();
 
@@ -163,15 +176,15 @@ extern code DAT_008873ec_abs[];
 
 
 
-// Runs each live entry of the rank-up work queue through its callback, frees entries that report done, then runs the post-step func_002516f0 [inferred].
+/* Run active entry callbacks, clear ACTIVE on completed entries, then update the shared effect pool. */
 // FUN_00251D80
-void cmmRankUpRunQueue(s32 arg0, s32 *arg1) {
+void cmmRankUpRunQueue(s32 unused, s32 *task) {
     extern s32 *kwlnTaskGetWork();
     u8 *base;
     s32 i;
     CmmRankUpEntry *entry;
 
-    base = (u8 *)kwlnTaskGetWork(arg1);
+    base = (u8 *)kwlnTaskGetWork(task);
     entry = (CmmRankUpEntry *)base;
     for (i = 0; i < 0x10; i++) {
         if (entry->flags & 1) {
@@ -192,14 +205,14 @@ void cmmRankUpRunQueue(s32 arg0, s32 *arg1) {
 // Queues cmmRankUpRunQueue on the shared queue with the argument as its context; returns 0.
 // FUN_00251E60
 s32 cmmRankUpEnqueueTask(u8 *sdkTaskBytes) {
-    s32 arg0 = (s32)sdkTaskBytes;
-    u8 *p;
+    s32 taskHandle = (s32)sdkTaskBytes;
+    u8 *node;
 
     kwlnTaskGetWork();
-    p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)cmmRankUpRunQueue;
-    *(s32 *)(p + 0x10) = arg0;
-    PrimAppendNode(D_007963D0, p);
+    node = PrimAllocQueueNode();
+    ((BtlRenderNode *)node)->callback = (void *)cmmRankUpRunQueue;
+    ((BtlRenderNode *)node)->work = (void *)taskHandle;
+    PrimAppendNode(D_007963D0, node);
     return 0;
 }
 
@@ -207,26 +220,26 @@ s32 cmmRankUpEnqueueTask(u8 *sdkTaskBytes) {
 // FUN_00251EC0
 void cmmRankUpDestroy(u8 *unusedTask)
 {
-    int iVar1;
+    int workHandle;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    workHandle = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](workHandle);
 }
 
 
 
 // Allocates the rank-up work block, records the caller's argument in it, and creates the child task that runs cmmRankUpEnqueueTask and cmmRankUpDestroy.
 // FUN_00251F00
-void cmmRankUpCreate(s32 arg0, u32 *arg1) {
-    u8 *temp_2;
+void cmmRankUpCreate(s32 parentTask, u32 *context) {
+    u8 *work;
 
     chkmemAllocSiteTag(D_00635CF8, 0x277);
-    temp_2 = (u8 *)D_008873F4[0](1, 0x9E4, 0x40000);
-    ((CmmRankUpWork *)temp_2)->callerArg = (u8 *)arg1;
-    if (temp_2 == NULL) {
+    work = (u8 *)D_008873F4[0](1, 0x9E4, 0x40000);
+    ((CmmRankUpWork *)work)->callerArg = (u8 *)context;
+    if (work == NULL) {
         kAssertFail(D_00635CF8, 0x2D5);
     }
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, cmmRankUpEnqueueTask, cmmRankUpDestroy, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_00635D18), 0xF, 0, 0, cmmRankUpEnqueueTask, cmmRankUpDestroy, (u8 *)(work));
 }
 
 
@@ -239,25 +252,25 @@ void cmmRankUpCreate(s32 arg0, u32 *arg1) {
  * with the pragma the object is byte-identical (nd 3 = window padding). */
 #pragma opt_loop_invariants on
 
-// Sets (arg1 != 0) or clears flag bit 2 on each active entry of the rank-up table; used to hold and release the entries [inferred].
+// Sets (option1 != 0) or clears flag bit 2 on each active entry of the rank-up table; used to hold and release the entries [inferred].
 // FUN_00251FC0
-void cmmRankUpSetEntryHold(s32 arg0, s32 arg1) {
+void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
     extern u32 *kwlnTaskGetWork();
-    CmmRankUpEntry *p;
-    u32 temp;
+    CmmRankUpEntry *entry;
+    u32 flags;
     s32 i;
 
-    p = (CmmRankUpEntry *)kwlnTaskGetWork();
+    entry = (CmmRankUpEntry *)kwlnTaskGetWork();
     for (i = 0; i < 0x10; i++) {
-        temp = p->flags;
-        if (temp & 1) {
-            if (arg1 != 0) {
-                p->flags = temp | 2;
+        flags = entry->flags;
+        if (flags & 1) {
+            if (hold != 0) {
+                entry->flags = flags | 2;
             } else {
-                p->flags = temp & ~2;
+                entry->flags = flags & ~2;
             }
         }
-        p++;
+        entry++;
     }
 }
 /* measured: scope closer for the hoist above - leaving it on changes the
@@ -270,23 +283,23 @@ extern f32 D_00635D2C[];
 extern f32 D_00635D30[];
 extern u8 D_00635D40[];
 extern u8 D_00636180[];
-extern u8 *func_00251d30(u8 *arg0);
+extern u8 *func_00251d30(u8 *value);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern u8 *cmmKindRecord(s32 arg0);
+extern u8 *cmmKindRecord(s32 value);
 extern s32 datGetFlag(s32 flag);
-extern s64 cmmResolveCounterpart(s16 arg0);
-extern void itfMesWindowApplySlots(s32 arg0);
-extern u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
-                         s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-extern u8 *frFontSplitRun(u8 **arg0, s32 arg1);
-extern s32 frFontNodeWidth(u8 *arg0);
-extern void frFontMoveListToFloat(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void frFontSetGlyphColor(u8 *arg0, s32 arg1);
-extern void frFontListKeepOrRelease(u8 *arg0);
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern s32 MT_Scene_IsResEnabled(u8 *arg0);
-extern void MT_Scene_SetResEnabledById(s32 arg0, s32 arg1);
+extern s64 cmmResolveCounterpart(s16 value);
+extern void itfMesWindowApplySlots(s32 value);
+extern u8 *itfMesWindowBuildEntry(f32 floatValue, f32 floatOption1, f32 floatOption2, s32 value,
+                         s32 option1, s32 option2, s32 option3, s32 option4, s32 option5);
+extern u8 *frFontSplitRun(u8 **value, s32 option1);
+extern s32 frFontNodeWidth(u8 *value);
+extern void frFontMoveListToFloat(u8 *value, f32 floatValue, f32 floatOption1);
+extern void frFontSetGlyphColor(u8 *value, s32 option1);
+extern void frFontListKeepOrRelease(u8 *value);
+extern u8 *MT_Scene_GetResListHead(s32 value);
+extern s32 MT_Scene_IsResEnabled(u8 *value);
+extern void MT_Scene_SetResEnabledById(s32 value, s32 option1);
 
 /* measured: opt_propagation off around func_00252050 batches the D_00635D28/
    2C/30 lwc1 loads before the spFloat stores; plain float temps under the
@@ -296,24 +309,24 @@ extern void MT_Scene_SetResEnabledById(s32 arg0, s32 arg1);
    re-allocates $a1/$a2 instead of keeping loop 1's $a2/$a3. */
 /* measured: opt_propagation-off bracket pins the retail access-order batch. */
 #pragma opt_propagation off
-// Copies the rank-up state snapshot (float data and two blocks) from the work record into the caller's buffers [inferred].
+/* Claim an entry, select its step callback by kind, and copy three sprite keyframes from the indexed table. */
 // FUN_00252050
-void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2) {
+void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
     extern u8 *kwlnTaskGetWork();
-    f32 spFloat[3];
+    f32 stepAddresses[3];
     s32 copy2[0x87 * 2];
     s32 copy1[0x1B];
     u8 *src;
     u8 *p;
     u8 *srcp;
     u8 *dstp;
-    u8 *srcp2;
-    u8 *dstp2;
+    s32 *srcp2;
+    s32 *dstp2;
     s32 i;
     s32 v;
     s32 w;
     s32 t;
-    s32 temp_18;
+    s32 stepAddress;
     f32 fa;
     f32 fb;
     f32 fc;
@@ -321,59 +334,59 @@ void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2) {
     fa = *(f32 *)D_00635D28;
     fb = *(f32 *)D_00635D2C;
     fc = *(f32 *)D_00635D30;
-    spFloat[0] = fa;
-    spFloat[1] = fb;
-    spFloat[2] = fc;
+    stepAddresses[0] = fa;
+    stepAddresses[1] = fb;
+    stepAddresses[2] = fc;
 
     srcp = D_00635D40;
     dstp = (u8 *)copy2;
     i = 0x87;
     do {
-        v = *(s32 *)(srcp + 0);
-        w = *(s32 *)(srcp + 4);
+        v = (s32)((const CopyPair *)srcp)->w0;
+        w = (s32)((const CopyPair *)srcp)->w1;
         srcp += 8;
         i--;
-        *(s32 *)(dstp + 0) = v;
-        *(s32 *)(dstp + 4) = w;
+        ((CopyPair *)dstp)->w0 = v;
+        ((CopyPair *)dstp)->w1 = w;
         dstp += 8;
     } while (i > 0);
 
-    srcp2 = D_00636180;
-    dstp2 = (u8 *)copy1;
+    srcp2 = (s32 *)D_00636180;
+    dstp2 = copy1;
     v = 0x1B;
     do {
-        t = *(s32 *)(srcp2 + 0);
-        srcp2 += 4;
+        t = *srcp2;
+        srcp2++;
         v--;
-        *(s32 *)(dstp2 + 0) = t;
-        dstp2 += 4;
+        *dstp2 = t;
+        dstp2++;
     } while (v > 0);
 
-    p = kwlnTaskGetWork(arg0);
-    if (arg1 >= 3) {
+    p = kwlnTaskGetWork(taskHandle);
+    if (kind >= 3) {
         kAssertFail(D_00635CF8, 0x329);
     }
-    switch (arg1) {
+    switch (kind) {
     case 0:
-        src = (u8 *)copy2 + arg2 * 0x6C;
+        src = (u8 *)copy2 + stateIndex * 0x6C;
         break;
     case 1:
-        src = (u8 *)copy1 + arg2 * 0x6C;
+        src = (u8 *)copy1 + stateIndex * 0x6C;
         break;
     case 2:
         src = NULL;
         break;
     }
-    temp_18 = *(s32 *)&spFloat[arg1];
+    stepAddress = *(s32 *)&stepAddresses[kind];
     p = func_00251d30(p);
     if (p == NULL) {
         kAssertFail(D_00635CF8, 0x2A5);
     }
     memset(p, 0, 0x78);
-    *(u32 *)p |= 1;
-    *(s32 *)(p + 8) = temp_18;
+    ((CmmRankUpEntry *)p)->flags |= 1;
+    ((CmmRankUpEntry *)p)->step = (CmmRankUpEntryStep)stepAddress;
     if (src != NULL) {
-        memcpy(p + 0xC, src, 0x6C);
+        memcpy(((CmmRankUpEntry *)p)->unk_0c, src, 0x6C);
     }
 }
 /* measured: closes opt_propagation-off bracket for func_00252050. */
@@ -388,18 +401,18 @@ void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2) {
 // FUN_00252230
 /* All retail references are from this source unit. Internal linkage lets
  * MWCC retain the caller values in registers this leaf does not write. */
-static void cmmRankUpLerpState(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
+static void cmmRankUpLerpState(RankUpSpriteState *out, RankUpSpriteState *a, RankUpSpriteState *b, f32 t)
 {
     f32 fa;
     f32 fb;
     f32 r;
 
-    fa = a->f4;
-    fb = b->f4;
-    out->f4 = fa + t * (fb - fa);
-    fa = a->f8;
-    fb = b->f8;
-    out->f8 = fa + t * (fb - fa);
+    fa = a->x;
+    fb = b->x;
+    out->x = fa + t * (fb - fa);
+    fa = a->y;
+    fb = b->y;
+    out->y = fa + t * (fb - fa);
     fa = a->axis.x;
     fb = b->axis.x;
     out->axis.x = fa + t * (fb - fa);
@@ -409,34 +422,34 @@ static void cmmRankUpLerpState(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
     fa = a->axis.z;
     fb = b->axis.z;
     out->axis.z = fa + t * (fb - fa);
-    fa = a->f1C;
-    fb = b->f1C;
-    out->f1C = fa + t * (fb - fa);
-    fa = (f32)a->f20;
-    fb = (f32)b->f20;
-    out->f20 = (s16)(s32)(fa + t * (fb - fa));
-    fa = (f32)a->f22;
-    fb = (f32)b->f22;
-    out->f22 = (s16)(s32)(fa + t * (fb - fa));
+    fa = a->angle;
+    fb = b->angle;
+    out->angle = fa + t * (fb - fa);
+    fa = (f32)a->width;
+    fb = (f32)b->width;
+    out->width = (s16)(s32)(fa + t * (fb - fa));
+    fa = (f32)a->height;
+    fb = (f32)b->height;
+    out->height = (s16)(s32)(fa + t * (fb - fa));
     {
         f32 ba;
         f32 bb;
-        ba = (f32)(u32)(((u32)a->f18 >> 24) & 0xFF);
-        bb = (f32)(u32)(((u32)b->f18 >> 24) & 0xFF);
+        ba = (f32)(u32)(((u32)a->color >> 24) & 0xFF);
+        bb = (f32)(u32)(((u32)b->color >> 24) & 0xFF);
         r = ba + t * (bb - ba);
-        out->f18 = (s32)(((u32)(u8)r) << 24);
-        ba = (f32)(u32)(((u32)a->f18 >> 16) & 0xFF);
-        bb = (f32)(u32)(((u32)b->f18 >> 16) & 0xFF);
+        out->color = (s32)(((u32)(u8)r) << 24);
+        ba = (f32)(u32)(((u32)a->color >> 16) & 0xFF);
+        bb = (f32)(u32)(((u32)b->color >> 16) & 0xFF);
         r = ba + t * (bb - ba);
-        out->f18 |= (s32)(((u32)(u8)r) << 16);
-        ba = (f32)(u32)(((u32)a->f18 >> 8) & 0xFF);
-        bb = (f32)(u32)(((u32)b->f18 >> 8) & 0xFF);
+        out->color |= (s32)(((u32)(u8)r) << 16);
+        ba = (f32)(u32)(((u32)a->color >> 8) & 0xFF);
+        bb = (f32)(u32)(((u32)b->color >> 8) & 0xFF);
         r = ba + t * (bb - ba);
-        out->f18 |= (s32)(((u32)(u8)r) << 8);
-        ba = (f32)(u32)((u32)a->f18 & 0xFF);
-        bb = (f32)(u32)((u32)b->f18 & 0xFF);
+        out->color |= (s32)(((u32)(u8)r) << 8);
+        ba = (f32)(u32)((u32)a->color & 0xFF);
+        bb = (f32)(u32)((u32)b->color & 0xFF);
         r = ba + t * (bb - ba);
-        out->f18 |= (s32)(u32)(u8)r;
+        out->color |= (s32)(u32)(u8)r;
     }
 }
 
@@ -449,7 +462,8 @@ static void cmmRankUpLerpState(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 // FUN_00252710
 s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
 {
-    Sp120 state;
+    /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 552). */
+    RankUpSpriteState state;
     RankUpMatrix matrix;
     union { s32 words[8]; f32 coordinates[4][2]; } uvBlock;
     const u8 *sourceBytes;
@@ -474,34 +488,34 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
         complete = 1;
     }
     if (frame > 30) {
-        cmmRankUpLerpState(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+        cmmRankUpLerpState(&state, (RankUpSpriteState *)(work + 0x30), (RankUpSpriteState *)(work + 0x54),
                       (f32)(frame - 0x1E) / 30.0f);
     } else {
-        cmmRankUpLerpState(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+        cmmRankUpLerpState(&state, (RankUpSpriteState *)(work + 0xC), (RankUpSpriteState *)(work + 0x30),
                       (f32)frame / 30.0f);
     }
     if (special != 0) {
-        if (state.f18 == 0xFFE92CFF) {
+        if (state.color == 0xFFE92CFF) {
             *(s32 *)(work + 0xC) = 0;
-            state.f18 = -1;
+            state.color = -1;
         } else {
-            state.f18 = 0xBFBFBFFF;
+            state.color = 0xBFBFBFFF;
         }
     }
     sourceBytes = (const u8 *)&D_006361F0;
     destinationBytes = (u8 *)&uvBlock.words;
     pairs = 4;
     do {
-        firstWord = *(const s32 *)sourceBytes;
-        secondWord = *(const s32 *)(sourceBytes + 4);
+        firstWord = (s32)((const CopyPair *)sourceBytes)->w0;
+        secondWord = (s32)((const CopyPair *)sourceBytes)->w1;
         sourceBytes += 8;
         pairs--;
-        *(s32 *)destinationBytes = firstWord;
-        *(s32 *)(destinationBytes + 4) = secondWord;
+        ((CopyPair *)destinationBytes)->w0 = firstWord;
+        ((CopyPair *)destinationBytes)->w1 = secondWord;
         destinationBytes += 8;
     } while (pairs > 0);
     texture = shdSpriteSlotHandle(0x18, 0, context->slot10.sprites);
-    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
+    RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
     if (*(s32 *)(work + 0xC) == 1) {
         work = (u8 *)D_00887300;
         (*(void (**)(u32, u32))work)(7, 2);
@@ -513,12 +527,12 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
         (*(void (**)(u32, u32))work)(0xE, 0);
         RpSkyRenderStateSet(3, 0x7000D);
         RpSkyRenderStateSet(2, 0x48);
-        func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22, (u32)state.f18 >> 8,
-                      state.f18 & 0xFF, 0, (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, texture,
+        func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height, (u32)state.color >> 8,
+                      state.color & 0xFF, 0, (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, texture,
                       uvBlock.coordinates);
     } else {
-        func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22, (u32)state.f18 >> 8,
-                      state.f18 & 0xFF, 1, (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, texture,
+        func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height, (u32)state.color >> 8,
+                      state.color & 0xFF, 1, (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, texture,
                       uvBlock.coordinates);
     }
     return complete;
@@ -542,10 +556,11 @@ typedef struct {
 // FUN_00252A60
 s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
 {
+    /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 2523). */
     RankUpVectorCopy axis;
     PrimPoint displacement;
     RankUpVectorCopy axisTemplate;
-    Sp120 state;
+    RankUpSpriteState state;
     RankUpMatrix matrix;
     RankUpMatrix effectMatrix;
     RankUpMatrix product;
@@ -575,10 +590,10 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         done = 1;
     }
     if (*(s32 *)(work + 4) > 30) {
-        cmmRankUpLerpState(&state, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+        cmmRankUpLerpState(&state, (RankUpSpriteState *)(work + 0x30), (RankUpSpriteState *)(work + 0x54),
             (f32)(*(s32 *)(work + 4) - 30) / 30.0f);
     } else {
-        cmmRankUpLerpState(&state, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+        cmmRankUpLerpState(&state, (RankUpSpriteState *)(work + 0xC), (RankUpSpriteState *)(work + 0x30),
             sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 30.0f));
     }
     {
@@ -591,12 +606,12 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         destination = (u8 *)&uv;
         count = 4;
         do {
-            first = *(const s32 *)source;
-            second = *(const s32 *)(source + 4);
+            first = (s32)((const CopyPair *)source)->w0;
+            second = (s32)((const CopyPair *)source)->w1;
             source += 8;
             count--;
-            *(s32 *)destination = first;
-            *(s32 *)(destination + 4) = second;
+            ((CopyPair *)destination)->w0 = first;
+            ((CopyPair *)destination)->w1 = second;
             destination += 8;
         } while (count > 0);
     }
@@ -610,22 +625,22 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         destination = (u8 *)&overlayUv;
         count = 4;
         do {
-            first = *(const s32 *)source;
-            second = *(const s32 *)(source + 4);
+            first = (s32)((const CopyPair *)source)->w0;
+            second = (s32)((const CopyPair *)source)->w1;
             source += 8;
             count--;
-            *(s32 *)destination = first;
-            *(s32 *)(destination + 4) = second;
+            ((CopyPair *)destination)->w0 = first;
+            ((CopyPair *)destination)->w1 = second;
             destination += 8;
         } while (count > 0);
     }
     if (*(s32 *)(work + 4) < 31) {
-        RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
+        RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
     } else {
         frame = *(s32 *)(work + 4) - 30;
         axisTemplate.vector = D_00636250;
         axis = axisTemplate;
-        RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
+        RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
         RwMatrixRotate(&matrix, &axis.vector, -90.0f * (f32)frame / 30.0f, 2);
     }
     textureA = datPortraitValue(context->unk_14);
@@ -661,22 +676,22 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
                 destination++;
             } while (count > 0);
         }
-        func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, 115, 144, 0xFFFFFF,
-            *(u8 *)&state.f18, 1, 57, 72, &effectMatrix, overlay, overlayUv.coordinates);
+        func_00366c70((s32)state.x, (s32)state.y, 0.0f, 115, 144, 0xFFFFFF,
+            *(u8 *)&state.color, 1, 57, 72, &effectMatrix, overlay, overlayUv.coordinates);
         if (is10) {
-            func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, 109, 137, 0x7F7F7F,
+            func_00366c70((s32)state.x, (s32)state.y, 0.0f, 109, 137, 0x7F7F7F,
                 255, 1, 55, 69, &matrix, overlay, overlayUv.coordinates);
         } else {
-            func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, 109, 137, 0xFF9C35,
+            func_00366c70((s32)state.x, (s32)state.y, 0.0f, 109, 137, 0xFF9C35,
                 255, 1, 55, 69, &matrix, overlay, overlayUv.coordinates);
         }
     }
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
-        (u32)state.f18 >> 8, (u32)state.f18 & 255, 3,
-        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
-        (u32)state.f18 >> 8, (u32)state.f18 & 255, 5,
-        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureB, uv.coordinates);
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+        (u32)state.color >> 8, (u32)state.color & 255, 3,
+        (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureA, uv.coordinates);
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+        (u32)state.color >> 8, (u32)state.color & 255, 5,
+        (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureB, uv.coordinates);
     renderState = (u8 *)D_00887300;
     (*(void (**)(u32, u32))renderState)(7, 2);
     (*(void (**)(u32, u32))renderState)(9, 2);
@@ -693,12 +708,12 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
     }
     pulse = sinf(D_007612CC + D_007612D0 * (f32)context->pulse120.ticks / 120.0f);
     pulse = (1.0f + pulse) / 2.0f;
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
-        (u32)state.f18 >> 8, (s32)(0.8f * (f32)((u32)state.f18 & 255) * pulse), 2,
-        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f, state.f20, state.f22,
-        (u32)state.f18 >> 8, (s32)(0.8f * (f32)((u32)state.f18 & 255) * pulse), 4,
-        (s16)(state.f20 >> 1), (s16)(state.f22 >> 1), &matrix, textureB, uv.coordinates);
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+        (u32)state.color >> 8, (s32)(0.8f * (f32)((u32)state.color & 255) * pulse), 2,
+        (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureA, uv.coordinates);
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+        (u32)state.color >> 8, (s32)(0.8f * (f32)((u32)state.color & 255) * pulse), 4,
+        (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureB, uv.coordinates);
 
     angle = D_007612D0 * ((f32)RpRandom() / 2147483648.0f);
     if ((f32)RpRandom() / 2147483648.0f < D_00761288) {
@@ -710,8 +725,8 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
     displacement.v[1] = -radius * sinf(angle);
     if (*(s32 *)(work + 4) < 41) {
         RankUpParticlePrefix *particle;
-        f32 y = state.f8 + displacement.v[1];
-        f32 x = state.f4 + displacement.v[0];
+        f32 y = state.y + displacement.v[1];
+        f32 x = state.x + displacement.v[0];
         particle = (RankUpParticlePrefix *)func_00251570(root, 0);
         if (particle != NULL) {
             particle->x = x;
@@ -727,12 +742,12 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
             destination = (u8 *)&positions;
             count = 5;
             do {
-                first = *(const s32 *)source;
-                second = *(const s32 *)(source + 4);
+                first = (s32)((const CopyPair *)source)->w0;
+                second = (s32)((const CopyPair *)source)->w1;
                 source += 8;
                 count--;
-                *(s32 *)destination = first;
-                *(s32 *)(destination + 4) = second;
+                ((CopyPair *)destination)->w0 = first;
+                ((CopyPair *)destination)->w1 = second;
                 destination += 8;
             } while (count > 0);
         }
@@ -788,6 +803,7 @@ u8 *cmmNameRecord(u32 a0);
 // FUN_00253850
 s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
+    /* CmmRankUpEntry/three sprite-state offsets retained: typed access changes MWCC allocation (nd 142). */
     PrimPoint positions[8];
     PrimPoint movingPoints[4];
     RankUpVertexColor movingColors[4];
@@ -818,12 +834,12 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
             destination = (u8 *)positions;
             count = 8;
             do {
-                first = *(const s32 *)source;
-                second = *(const s32 *)(source + 4);
+                first = (s32)((const CopyPair *)source)->w0;
+                second = (s32)((const CopyPair *)source)->w1;
                 source += 8;
                 count--;
-                *(s32 *)destination = first;
-                *(s32 *)(destination + 4) = second;
+                ((CopyPair *)destination)->w0 = first;
+                ((CopyPair *)destination)->w1 = second;
                 destination += 8;
             } while (count > 0);
             for (i = 0; i < 8; i++) {
@@ -920,12 +936,12 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
             destination = (u8 *)movingPoints;
             count = 4;
             do {
-                first = *(const s32 *)source;
-                second = *(const s32 *)(source + 4);
+                first = (s32)((const CopyPair *)source)->w0;
+                second = (s32)((const CopyPair *)source)->w1;
                 source += 8;
                 count--;
-                *(s32 *)destination = first;
-                *(s32 *)(destination + 4) = second;
+                ((CopyPair *)destination)->w0 = first;
+                ((CopyPair *)destination)->w1 = second;
                 destination += 8;
             } while (count > 0);
             for (vertex = 0; vertex < 4; vertex++) {
@@ -976,12 +992,12 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
             destination = (u8 *)fixedPoints;
             count = 4;
             do {
-                first = *(const s32 *)source;
-                second = *(const s32 *)(source + 4);
+                first = (s32)((const CopyPair *)source)->w0;
+                second = (s32)((const CopyPair *)source)->w1;
                 source += 8;
                 count--;
-                *(s32 *)destination = first;
-                *(s32 *)(destination + 4) = second;
+                ((CopyPair *)destination)->w0 = first;
+                ((CopyPair *)destination)->w1 = second;
                 destination += 8;
             } while (count > 0);
             for (vertex = 0; vertex < 4; vertex++) {
@@ -1144,7 +1160,7 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
     if (context->mode == 10) {
         special = 1;
     }
-    elapsed = *(s32 *)(work + 4) - 60;
+    elapsed = ((CmmRankUpEntry *)work)->frame - 60;
     if (elapsed < 19) {
         s32 i;
         const u8 *source;
@@ -1156,12 +1172,12 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         destination = (u8 *)positions;
         count = 8;
         do {
-            first = *(const s32 *)source;
-            second = *(const s32 *)(source + 4);
+            first = (s32)((const CopyPair *)source)->w0;
+            second = (s32)((const CopyPair *)source)->w1;
             source += 8;
             count--;
-            *(s32 *)destination = first;
-            *(s32 *)(destination + 4) = second;
+            ((CopyPair *)destination)->w0 = first;
+            ((CopyPair *)destination)->w1 = second;
             destination += 8;
         } while (count > 0);
         {
@@ -1318,12 +1334,12 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         destination = (u8 *)fixedPoints;
         count = 4;
         do {
-            first = *(const s32 *)source;
-            second = *(const s32 *)(source + 4);
+            first = (s32)((const CopyPair *)source)->w0;
+            second = (s32)((const CopyPair *)source)->w1;
             source += 8;
             count--;
-            *(s32 *)destination = first;
-            *(s32 *)(destination + 4) = second;
+            ((CopyPair *)destination)->w0 = first;
+            ((CopyPair *)destination)->w1 = second;
             destination += 8;
         } while (count > 0);
         for (vertex = 0; vertex < 4U; vertex++) {
@@ -1382,12 +1398,12 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
         destination = (u8 *)movingPoints;
         count = 4;
         do {
-            first = *(const s32 *)source;
-            second = *(const s32 *)(source + 4);
+            first = (s32)((const CopyPair *)source)->w0;
+            second = (s32)((const CopyPair *)source)->w1;
             source += 8;
             count--;
-            *(s32 *)destination = first;
-            *(s32 *)(destination + 4) = second;
+            ((CopyPair *)destination)->w0 = first;
+            ((CopyPair *)destination)->w1 = second;
             destination += 8;
         } while (count > 0);
         vertex = 0;
@@ -1431,110 +1447,111 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 #pragma pop
 // Timed rank-up step: counts the frame up to 0x78, runs phase A below 0x3D and phase B after, and returns 1 when the timer finishes.
 // FUN_00255B00
-s32 cmmRankUpStepTimed(u8 *arg0, s32 *arg1, CmmRankUpCardTask *context) {
-    s32 v;
-    s32 rv;
+s32 cmmRankUpStepTimed(u8 *root, s32 *entry, CmmRankUpCardTask *context) {
+    s32 frame;
+    s32 complete;
 
-    rv = 0;
-    if (arg1[1] < 0x3C || !(arg1[0] & 2)) {
-        arg1[1]++;
+    complete = 0;
+    if (entry[1] < 0x3C || !(entry[0] & 2)) {
+        entry[1]++;
     }
-    v = arg1[1];
-    if (v >= 0x78) {
-        rv = 1;
+    frame = entry[1];
+    if (frame >= 0x78) {
+        complete = 1;
     }
-    if (v < 0x3D) {
-        cmmRankUpDrawMovingWipe(arg0, (u8 *)arg1, context);
+    if (frame < 0x3D) {
+        cmmRankUpDrawMovingWipe(root, (u8 *)entry, context);
     } else {
-        cmmRankUpDrawExitWipe(arg0, (u8 *)arg1, context);
+        cmmRankUpDrawExitWipe(root, (u8 *)entry, context);
     }
-    return rv;
+    return complete;
 }
 
 
 
-// Walks the rank-up resource lists (1, 2, 3 and 10), counting entries, and returns a pointer to the matching entry [inferred].
+/* Snapshot model weights and visibility for resource types 1, 2, 3 and 10; return a sentinel-terminated array. */
 // FUN_00255B90
 u8 *cmmRankUpFindResEntry(void) {
     u8 *entry;
     s32 count;
-    u8 *cnt;
-    u8 *node1;
-    u8 *node2;
-    u8 *node3;
-    u8 *node4;
+    ResrcRecord *cnt;
+    ResrcRecord *node1;
+    ResrcRecord *node2;
+    ResrcRecord *node3;
+    ResrcRecord *node4;
 
+    /* Model layer weight is private to the model provider at +0xF4; retain its byte-addressed read. */
     count = 0;
-    cnt = MT_Scene_GetResListHead(1);
+    cnt = (ResrcRecord *)MT_Scene_GetResListHead(1);
     while (cnt != NULL) {
         count++;
-        cnt = *(u8 **)(cnt + 0x138);
+        cnt = cnt->next;
     }
-    cnt = MT_Scene_GetResListHead(2);
+    cnt = (ResrcRecord *)MT_Scene_GetResListHead(2);
     while (cnt != NULL) {
         count++;
-        cnt = *(u8 **)(cnt + 0x138);
+        cnt = cnt->next;
     }
-    cnt = MT_Scene_GetResListHead(3);
+    cnt = (ResrcRecord *)MT_Scene_GetResListHead(3);
     while (cnt != NULL) {
         count++;
-        cnt = *(u8 **)(cnt + 0x138);
+        cnt = cnt->next;
     }
-    cnt = MT_Scene_GetResListHead(0xA);
+    cnt = (ResrcRecord *)MT_Scene_GetResListHead(0xA);
     while (cnt != NULL) {
         count++;
-        cnt = *(u8 **)(cnt + 0x138);
+        cnt = cnt->next;
     }
     chkmemAllocSiteTag(D_00635CF8, 0x5FA);
     entry = (u8 *)D_008873F4[0](1, (count + 1) * 0x10, 0x40000);
     count = 0;
-    node1 = MT_Scene_GetResListHead(1);
+    node1 = (ResrcRecord *)MT_Scene_GetResListHead(1);
     while (node1 != NULL) {
-        u8 *e = entry + count * 0x10;
-        *(u8 **)(e + 4) = *(u8 **)(node1 + 0x164);
-        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node1);
-        *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node1 + 0x164) + 0xF4);
-        *(u8 **)(e + 8) = node1;
+        RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
+        snapshot->model = (u8 *)node1->modelHandle164;
+        snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node1);
+        snapshot->weight = *(f32 *)((u8 *)node1->modelHandle164 + 0xF4);
+        snapshot->resource = (u8 *)node1;
         count++;
-        mdlSetLayerWeight(*(u8 **)(node1 + 0x164), 0, 0.0f);
-        MT_Scene_SetResEnabledById(*(u16 *)(node1 + 0), 1);
-        node1 = *(u8 **)(node1 + 0x138);
+        mdlSetLayerWeight((u8 *)node1->modelHandle164, 0, 0.0f);
+        MT_Scene_SetResEnabledById(node1->resTypeId, 1);
+        node1 = node1->next;
     }
-    node2 = MT_Scene_GetResListHead(2);
+    node2 = (ResrcRecord *)MT_Scene_GetResListHead(2);
     while (node2 != NULL) {
-        u8 *e = entry + count * 0x10;
-        *(u8 **)(e + 4) = *(u8 **)(node2 + 0x158);
-        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node2);
-        *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node2 + 0x158) + 0xF4);
-        *(u8 **)(e + 8) = node2;
+        RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
+        snapshot->model = (u8 *)node2->modelHandle158;
+        snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node2);
+        snapshot->weight = *(f32 *)((u8 *)node2->modelHandle158 + 0xF4);
+        snapshot->resource = (u8 *)node2;
         count++;
-        mdlSetLayerWeight(*(u8 **)(node2 + 0x158), 0, 0.0f);
-        MT_Scene_SetResEnabledById(*(u16 *)(node1 + 0), 1);
-        node2 = *(u8 **)(node2 + 0x138);
+        mdlSetLayerWeight((u8 *)node2->modelHandle158, 0, 0.0f);
+        MT_Scene_SetResEnabledById(node1->resTypeId, 1);
+        node2 = node2->next;
     }
-    node3 = MT_Scene_GetResListHead(3);
+    node3 = (ResrcRecord *)MT_Scene_GetResListHead(3);
     while (node3 != NULL) {
-        u8 *e = entry + count * 0x10;
-        *(u8 **)(e + 4) = *(u8 **)(node3 + 0x164);
-        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node3);
-        *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node3 + 0x164) + 0xF4);
-        *(u8 **)(e + 8) = node3;
+        RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
+        snapshot->model = (u8 *)node3->modelHandle164;
+        snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node3);
+        snapshot->weight = *(f32 *)((u8 *)node3->modelHandle164 + 0xF4);
+        snapshot->resource = (u8 *)node3;
         count++;
-        mdlSetLayerWeight(*(u8 **)(node3 + 0x164), 0, 0.0f);
-        MT_Scene_SetResEnabledById(*(u16 *)(node3 + 0), 1);
-        node3 = *(u8 **)(node3 + 0x138);
+        mdlSetLayerWeight((u8 *)node3->modelHandle164, 0, 0.0f);
+        MT_Scene_SetResEnabledById(node3->resTypeId, 1);
+        node3 = node3->next;
     }
-    node4 = MT_Scene_GetResListHead(0xA);
+    node4 = (ResrcRecord *)MT_Scene_GetResListHead(0xA);
     while (node4 != NULL) {
-        u8 *e = entry + count * 0x10;
-        *(u8 **)(e + 4) = *(u8 **)(node4 + 0x144);
-        *(s32 *)(e + 0xC) = MT_Scene_IsResEnabled(node4);
-        *(f32 *)(e + 0) = *(f32 *)(*(u8 **)(node4 + 0x144) + 0xF4);
-        *(u8 **)(e + 8) = node4;
+        RankUpResourceState *snapshot = (RankUpResourceState *)(entry + count * 0x10);
+        snapshot->model = (u8 *)node4->slotHandle[1];
+        snapshot->enabled = MT_Scene_IsResEnabled((u8 *)node4);
+        snapshot->weight = *(f32 *)((u8 *)node4->slotHandle[1] + 0xF4);
+        snapshot->resource = (u8 *)node4;
         count++;
-        mdlSetLayerWeight(*(u8 **)(node4 + 0x144), 0, 0.0f);
-        MT_Scene_SetResEnabledById(*(u16 *)(node4 + 0), 1);
-        node4 = *(u8 **)(node4 + 0x138);
+        mdlSetLayerWeight((u8 *)node4->slotHandle[1], 0, 0.0f);
+        MT_Scene_SetResEnabledById(node4->resTypeId, 1);
+        node4 = node4->next;
     }
     return entry;
 }
@@ -1543,34 +1560,34 @@ u8 *cmmRankUpFindResEntry(void) {
 
 // Maps the counterpart state and the given index to a rank-up display slot (2 to 9), or 0 when the entry does not show [inferred].
 // FUN_00255ED0
-s32 cmmRankUpSelectDisplayIndex(s64 arg0, s32 arg1) {
-    if ((*(s32 *)((u8 *)cmmKindRecord((u16)arg0) + 4) & 0x10) != 0 &&
-        (arg0 != 0x18 || datGetFlag(0x38) != 0)) {
-        if ((s16)cmmResolveCounterpart(arg0) == 3 ||
-            (s16)cmmResolveCounterpart(arg0) == 4) {
-            if (arg1 == 3) {
+s32 cmmRankUpSelectDisplayIndex(s64 communityId, s32 rank) {
+    if (((s32)((CmmKindRecord *)cmmKindRecord((u16)communityId))->flags & 0x10) != 0 &&
+        (communityId != 0x18 || datGetFlag(0x38) != 0)) {
+        if ((s16)cmmResolveCounterpart(communityId) == 3 ||
+            (s16)cmmResolveCounterpart(communityId) == 4) {
+            if (rank == 3) {
                 return 7;
             }
-            if (arg1 == 6) {
+            if (rank == 6) {
                 return 8;
             }
-            if (arg1 == 10) {
+            if (rank == 10) {
                 return 9;
             }
         } else {
-            if (arg1 == 3) {
+            if (rank == 3) {
                 return 2;
             }
-            if (arg1 == 7) {
+            if (rank == 7) {
                 return 3;
             }
-            if (arg1 == 5) {
+            if (rank == 5) {
                 return 4;
             }
-            if (arg1 == 9) {
+            if (rank == 9) {
                 return 5;
             }
-            if (arg1 == 1) {
+            if (rank == 1) {
                 return 6;
             }
         }
@@ -1582,35 +1599,35 @@ s32 cmmRankUpSelectDisplayIndex(s64 arg0, s32 arg1) {
 
 // Draws a message centred on x: splits it into runs, measures them, moves the list and sets the glyph colour from the alpha argument [inferred].
 // FUN_00256040
-void cmmRankUpDrawCenteredText(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
-                   s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6,
-                   s32 arg7) {
-    u8 *spAC;
-    u8 *var_18;
-    u8 *var_17;
-    s32 var_16;
+void cmmRankUpDrawCenteredText(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha,
+                   s32 font, s32 style, s32 flags, s32 messageSlot, s32 stringIndex,
+                   s32 lineIndex) {
+    u8 *remainingRuns;
+    u8 *line;
+    u8 *node;
+    s32 width;
 
-    itfMesWindowApplySlots(arg5);
-    spAC = itfMesWindowBuildEntry(fparg0, fparg1, fparg2, (arg0 << 8) | arg1, arg2,
-                         arg3, arg4, arg5, arg6);
-    if (spAC != NULL) {
-        var_18 = frFontSplitRun(&spAC, arg7);
-        if (var_18 == NULL) {
-            var_18 = spAC;
-            spAC = NULL;
+    itfMesWindowApplySlots(messageSlot);
+    remainingRuns = itfMesWindowBuildEntry(x, y, depth, (rgb << 8) | alpha, font,
+                         style, flags, messageSlot, stringIndex);
+    if (remainingRuns != NULL) {
+        line = frFontSplitRun(&remainingRuns, lineIndex);
+        if (line == NULL) {
+            line = remainingRuns;
+            remainingRuns = NULL;
         }
-        var_17 = var_18;
-        var_16 = 0;
-        while (var_17 != NULL) {
-            var_16 += frFontNodeWidth(var_17);
-            var_17 = *(u8 **)(var_17 + 0x24);
+        node = line;
+        width = 0;
+        while (node != NULL) {
+            width += frFontNodeWidth(node);
+            node = (u8 *)((FrFontNode *)node)->next;
         }
-        frFontMoveListToFloat(var_18, fparg0 - ((f32)var_16 / 2.0f), fparg1);
-        frFontSetGlyphColor(var_18, arg1 | ~0xFF);
-        frFontDrawList(var_18, 1, 0);
-        frFontListKeepOrRelease(var_18);
-        if (spAC != NULL) {
-            frFontListKeepOrRelease(spAC);
+        frFontMoveListToFloat(line, x - ((f32)width / 2.0f), y);
+        frFontSetGlyphColor(line, alpha | ~0xFF);
+        frFontDrawList(line, 1, 0);
+        frFontListKeepOrRelease(line);
+        if (remainingRuns != NULL) {
+            frFontListKeepOrRelease(remainingRuns);
         }
     }
 }
@@ -1895,8 +1912,8 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
                   s32 unusedColor, s32 alpha, f32 interpolation, f32 expansion,
                   s32 textureA, s32 textureB)
 {
-    Sp120 state;
-    union { Sp120 states[2]; s32 words[18]; } keys;
+    RankUpSpriteState state;
+    union { RankUpSpriteState states[2]; s32 words[18]; } keys;
     union { f32 coordinates[4][2]; s32 words[8]; } uv;
     RankUpMatrix matrix;
     const u8 *source;
@@ -1915,40 +1932,40 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
     destination = (u8 *)&keys;
     count = 9;
     do {
-        first = *(const s32 *)source;
-        second = *(const s32 *)(source + 4);
+        first = (s32)((const CopyPair *)source)->w0;
+        second = (s32)((const CopyPair *)source)->w1;
         source += 8;
         count--;
-        *(s32 *)destination = first;
-        *(s32 *)(destination + 4) = second;
+        ((CopyPair *)destination)->w0 = first;
+        ((CopyPair *)destination)->w1 = second;
         destination += 8;
     } while (count > 0);
     source = D_00636460;
     destination = (u8 *)&uv;
     count = 4;
     do {
-        first = *(const s32 *)source;
-        second = *(const s32 *)(source + 4);
+        first = (s32)((const CopyPair *)source)->w0;
+        second = (s32)((const CopyPair *)source)->w1;
         source += 8;
         count--;
-        *(s32 *)destination = first;
-        *(s32 *)(destination + 4) = second;
+        ((CopyPair *)destination)->w0 = first;
+        ((CopyPair *)destination)->w1 = second;
         destination += 8;
     } while (count > 0);
 
     opacity = (f32)alpha / 255.0f;
     growth = 0.25f * effect;
     cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], interpolation);
-    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
-                  state.f20, state.f22, (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 3,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+                  state.width, state.height, (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * opacity), 3,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
-                  state.f20, state.f22, (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 5,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+                  state.width, state.height, (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * opacity), 5,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureB, uv.coordinates);
     renderState = (u8 *)D_00887300;
     (*(void (**)(u32, u32))renderState)(6, 0);
@@ -1959,25 +1976,25 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
     effect = D_0076122C * (1.0f - effect);
     effect = effect * opacity;
     {
-        s16 height = state.f22;
-        s16 width = state.f20;
-        u32 packed = (u32)state.f18;
+        s16 height = state.height;
+        s16 width = state.width;
+        u32 packed = (u32)state.color;
         opacity = 1.0f + growth;
         center = 0.5f * growth;
-        func_00366c70((s32)((0.0f + state.f4) - (f32)width * center),
-                      (s32)((0.0f + state.f8) - (f32)height * center), 0.0f,
+        func_00366c70((s32)((0.0f + state.x) - (f32)width * center),
+                      (s32)((0.0f + state.y) - (f32)height * center), 0.0f,
                       (s32)((f32)width * opacity), (s32)((f32)height * opacity),
                       packed >> 8,
                       (s32)((f32)(packed & 0xFF) * effect), 2,
                       (s16)(width >> 1), (s16)(height >> 1),
                       &matrix, textureA, uv.coordinates);
     }
-    func_00366c70((s32)((0.0f + state.f4) - (f32)state.f20 * center),
-                  (s32)((0.0f + state.f8) - (f32)state.f22 * center), 0.0f,
-                  (s32)((f32)state.f20 * opacity), (s32)((f32)state.f22 * opacity),
-                  (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * effect), 4,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    func_00366c70((s32)((0.0f + state.x) - (f32)state.width * center),
+                  (s32)((0.0f + state.y) - (f32)state.height * center), 0.0f,
+                  (s32)((f32)state.width * opacity), (s32)((f32)state.height * opacity),
+                  (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * effect), 4,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureB, uv.coordinates);
 }
 /* Native b210 O2: 1292/1296 bytes, fifteen resolved relocations, and
@@ -1989,8 +2006,8 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
                   s32 unusedColor, s32 alpha, f32 interpolation, f32 expansion,
                   s32 textureA, s32 textureB)
 {
-    Sp120 state;
-    union { Sp120 states[2]; s32 words[18]; } keys;
+    RankUpSpriteState state;
+    union { RankUpSpriteState states[2]; s32 words[18]; } keys;
     union { f32 coordinates[4][2]; s32 words[8]; } uv;
     RankUpMatrix matrix;
     const u8 *source;
@@ -2009,40 +2026,40 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
     destination = (u8 *)&keys;
     count = 9;
     do {
-        first = *(const s32 *)source;
-        second = *(const s32 *)(source + 4);
+        first = (s32)((const CopyPair *)source)->w0;
+        second = (s32)((const CopyPair *)source)->w1;
         source += 8;
         count--;
-        *(s32 *)destination = first;
-        *(s32 *)(destination + 4) = second;
+        ((CopyPair *)destination)->w0 = first;
+        ((CopyPair *)destination)->w1 = second;
         destination += 8;
     } while (count > 0);
     source = D_006364D0;
     destination = (u8 *)&uv;
     count = 4;
     do {
-        first = *(const s32 *)source;
-        second = *(const s32 *)(source + 4);
+        first = (s32)((const CopyPair *)source)->w0;
+        second = (s32)((const CopyPair *)source)->w1;
         source += 8;
         count--;
-        *(s32 *)destination = first;
-        *(s32 *)(destination + 4) = second;
+        ((CopyPair *)destination)->w0 = first;
+        ((CopyPair *)destination)->w1 = second;
         destination += 8;
     } while (count > 0);
 
     opacity = (f32)alpha / 255.0f;
     growth = 0.25f * effect;
     cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], interpolation);
-    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
-                  state.f20, state.f22, (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 3,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+                  state.width, state.height, (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * opacity), 3,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.f4, (s32)state.f8, 0.0f,
-                  state.f20, state.f22, (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 5,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+                  state.width, state.height, (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * opacity), 5,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureB, uv.coordinates);
     renderState = (u8 *)D_00887300;
     (*(void (**)(u32, u32))renderState)(6, 0);
@@ -2053,25 +2070,25 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
     effect = D_0076122C * (1.0f - effect);
     effect = effect * opacity;
     {
-        s16 height = state.f22;
-        s16 width = state.f20;
-        u32 packed = (u32)state.f18;
+        s16 height = state.height;
+        s16 width = state.width;
+        u32 packed = (u32)state.color;
         opacity = 1.0f + growth;
         center = 0.5f * growth;
-        func_00366c70((s32)((0.0f + state.f4) - (f32)width * center),
-                      (s32)((0.0f + state.f8) - (f32)height * center), 0.0f,
+        func_00366c70((s32)((0.0f + state.x) - (f32)width * center),
+                      (s32)((0.0f + state.y) - (f32)height * center), 0.0f,
                       (s32)((f32)width * opacity), (s32)((f32)height * opacity),
                       packed >> 8,
                       (s32)((f32)(packed & 0xFF) * effect), 2,
                       (s16)(width >> 1), (s16)(height >> 1),
                       &matrix, textureA, uv.coordinates);
     }
-    func_00366c70((s32)((0.0f + state.f4) - (f32)state.f20 * center),
-                  (s32)((0.0f + state.f8) - (f32)state.f22 * center), 0.0f,
-                  (s32)((f32)state.f20 * opacity), (s32)((f32)state.f22 * opacity),
-                  (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * effect), 4,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    func_00366c70((s32)((0.0f + state.x) - (f32)state.width * center),
+                  (s32)((0.0f + state.y) - (f32)state.height * center), 0.0f,
+                  (s32)((f32)state.width * opacity), (s32)((f32)state.height * opacity),
+                  (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * effect), 4,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureB, uv.coordinates);
 }
 /* Native b210 O2: 1828/1840 bytes, thirty resolved relocations, and
@@ -2098,8 +2115,8 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     RankUpPackedColor firstColor;
     RankUpPackedColor secondColorCopy;
     RankUpPackedColor secondColor;
-    Sp120 state;
-    union { Sp120 states[2]; s32 words[18]; } keys;
+    RankUpSpriteState state;
+    union { RankUpSpriteState states[2]; s32 words[18]; } keys;
     union { f32 coordinates[4][2]; s32 words[8]; } uv;
     RankUpMatrix matrix;
     RankUpRectangle rectangle;
@@ -2123,24 +2140,24 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     destination = (u8 *)&keys;
     count = 9;
     do {
-        first = *(const s32 *)source;
-        second = *(const s32 *)(source + 4);
+        first = (s32)((const CopyPair *)source)->w0;
+        second = (s32)((const CopyPair *)source)->w1;
         source += 8;
         count--;
-        *(s32 *)destination = first;
-        *(s32 *)(destination + 4) = second;
+        ((CopyPair *)destination)->w0 = first;
+        ((CopyPair *)destination)->w1 = second;
         destination += 8;
     } while (count > 0);
     source = D_00636540;
     destination = (u8 *)&uv;
     count = 4;
     do {
-        first = *(const s32 *)source;
-        second = *(const s32 *)(source + 4);
+        first = (s32)((const CopyPair *)source)->w0;
+        second = (s32)((const CopyPair *)source)->w1;
         source += 8;
         count--;
-        *(s32 *)destination = first;
-        *(s32 *)(destination + 4) = second;
+        ((CopyPair *)destination)->w0 = first;
+        ((CopyPair *)destination)->w1 = second;
         destination += 8;
     } while (count > 0);
     {
@@ -2154,7 +2171,7 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     }
     opacity = (f32)alpha / 255.0f;
     cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], 0.0f);
-    RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
+    RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
     deltaX = 80.0f * progress;
     deltaY = -80.0f * progress;
     {
@@ -2206,10 +2223,10 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     RpSkyRenderStateSet(2, 0x44);
     PrimDrawRectangle((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 0,
                   45.0f, 1.0f, 1.0f);
-    func_00366c70((s32)(state.f4 + deltaX), (s32)(state.f8 + deltaY), 5.0f,
-                  state.f20, state.f22, (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 1,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    func_00366c70((s32)(state.x + deltaX), (s32)(state.y + deltaY), 5.0f,
+                  state.width, state.height, (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * opacity), 1,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, texture, uv.coordinates);
     {
         u8 *bytes = (u8 *)&secondColor;
@@ -2257,37 +2274,37 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     RpSkyRenderStateSet(2, 0x44);
     PrimDrawRectangle((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 200,
                   45.0f, 1.0f, 1.0f);
-    func_00366c70((s32)(state.f4 - deltaX), (s32)(state.f8 - deltaY), 5.0f,
-                  state.f20, state.f22, (u32)state.f18 >> 8,
-                  (s32)((f32)((u32)state.f18 & 0xFF) * opacity), 1,
-                  (s16)(state.f20 >> 1), (s16)(state.f22 >> 1),
+    func_00366c70((s32)(state.x - deltaX), (s32)(state.y - deltaY), 5.0f,
+                  state.width, state.height, (u32)state.color >> 8,
+                  (s32)((f32)((u32)state.color & 0xFF) * opacity), 1,
+                  (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, texture, uv.coordinates);
 }
 // Attaches the rank-up resource's indexed matrix when the resource exists; returns 1 on success, 0 otherwise [inferred].
 // FUN_00257820
-s32 cmmRankUpAttachResMatrix(s32 arg0, void *arg1) {
-    s32 var_4;
-    u8 *var_2;
-    u16 var_17;
+s32 cmmRankUpAttachResMatrix(s32 resourceIndex, void *matrix) {
+    s32 model;
+    u8 *resource;
+    u16 resourceId;
 
-    var_17 = 0x400;
-    var_2 = MT_Scene_GetRes(0x400);
-    if (var_2 == NULL) {
-        var_17 = ((arg0 & 0x3FF) | 0xC00) & 0xFFFF;
-        var_2 = MT_Scene_GetRes(var_17);
+    resourceId = 0x400;
+    resource = MT_Scene_GetRes(0x400);
+    if (resource == NULL) {
+        resourceId = ((resourceIndex & 0x3FF) | 0xC00) & 0xFFFF;
+        resource = MT_Scene_GetRes(resourceId);
     }
-    if (var_2 != NULL) {
-        var_4 = 0;
-        switch ((s32)((var_17 & 0xFFC00) >> 0xA)) {
+    if (resource != NULL) {
+        model = 0;
+        switch ((s32)((resourceId & 0xFFC00) >> 0xA)) {
         case 1:
-            var_4 = *(s32 *)(var_2 + 0x164);
+            model = (s32)((ResrcRecord *)resource)->modelHandle164;
             break;
         case 3:
-            var_4 = *(s32 *)(var_2 + 0x164);
+            model = (s32)((ResrcRecord *)resource)->modelHandle164;
             break;
         }
-        if (var_4 != 0) {
-            mdlComputeIndexedAttachMatrix(var_4, 2, arg1);
+        if (model != 0) {
+            mdlComputeIndexedAttachMatrix(model, 2, matrix);
             return 1;
         }
     }
@@ -2325,14 +2342,14 @@ static inline void rankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor
 #pragma always_inline on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-static inline void rankUpDrawSpriteState(const Sp120 *state, RankUpMatrix *matrix,
+static inline void rankUpDrawSpriteState(const RankUpSpriteState *state, RankUpMatrix *matrix,
                                          s32 texture, f32 uv[4][2], f32 opacity)
 {
-    s32 height = state->f22;
-    s32 width = state->f20;
-    func_00366c70((s32)state->f4, (s32)state->f8, 0.0f, width, height,
-                  (u32)state->f18 >> 8,
-                  (s32)((f32)((u32)state->f18 & 0xFF) * opacity), 0,
+    s32 height = state->height;
+    s32 width = state->width;
+    func_00366c70((s32)state->x, (s32)state->y, 0.0f, width, height,
+                  (u32)state->color >> 8,
+                  (s32)((f32)((u32)state->color & 0xFF) * opacity), 0,
                   (s16)(width >> 1), (s16)(height >> 1), matrix, texture, uv);
 }
 #pragma pop
@@ -2349,7 +2366,7 @@ static inline void rankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)
 
 #pragma push
 #pragma opt_loop_invariants on
-typedef union { Sp120 states[2]; s32 words[18]; } RankUpRenderKeys;
+typedef union { RankUpSpriteState states[2]; s32 words[18]; } RankUpRenderKeys;
 typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
 /* Native b210 O2: 14308/14320 bytes with twelve zero alignment bytes.
  * Complete keyframe, UV, position, color and rectangle objects preserve the
@@ -2359,6 +2376,7 @@ typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
 // Rank-up renderer: draws the panel each frame from the task's context and render-state table [inferred].
 // FUN_00257900
 s32 cmmRankUpRender(u8 *task) {
+    /* Camera +4 is the provider handle; persona chunk +0x40 is its row id. Both providers expose byte records. */
 
     CmmRankUpSequence *context;
     u8 *renderStateTable;
@@ -2366,100 +2384,100 @@ s32 cmmRankUpRender(u8 *task) {
     s32 secondTexture;
     s32 animationMode;
     s32 mode0Frame;
-    s32 temp_3_3;
-    s32 temp_3_4;
-    s32 temp_3_5;
-    s32 temp_17_2;
-    s32 temp_17_3;
-    s32 temp_17_4;
-    s32 temp_17_5;
-    s32 temp_17_6;
-    s32 temp_17_7;
-    s32 temp_19;
-    s32 temp_19_2;
-    s32 temp_19_3;
-    s32 temp_19_4;
-    s32 temp_19_5;
-    s32 temp_20;
-    s32 temp_20_2;
-    s32 temp_20_3;
-    s32 temp_20_4;
-    s32 temp_20_5;
-    s32 temp_20_6;
-    s32 temp_20_7;
-    s32 temp_20_8;
-    s32 temp_20_9;
-    s32 temp_20_10;
-    s32 temp_20_11;
-    s32 temp_20_12;
-    s32 temp_20_13;
-    s32 temp_20_14;
-    s32 temp_20_15;
-    s32 temp_20_16;
+    s32 exitAnimationMode;
+    s32 effectFrame;
+    s32 maxExitAnimationMode;
+    s32 textElapsed;
+    s32 maxTextElapsed;
+    s32 wipeStartTask;
+    s32 wipeStartEffect;
+    s32 wipeEndTask;
+    s32 wipeEndEffect;
+    s32 exitElapsed;
+    s32 maxAttachEffect;
+    s32 maxExitElapsed;
+    s32 spriteExitTask;
+    s32 spriteExitEffect;
+    s32 startTask;
+    s32 startEffect;
+    s32 secondaryTask;
+    s32 secondaryEffect;
+    s32 midpointTask;
+    s32 midpointEffect;
+    s32 leavingTask;
+    s32 leavingEffect;
+    s32 attachedEffect;
+    s32 maxStartTask;
+    s32 maxStartEffect;
+    s32 maxParticleTask;
+    s32 maxParticleEffect;
+    s32 maxLeavingTask;
+    s32 maxLeavingEffect;
+    s32 maxAttachedEffect;
     s32 spriteTexture;
-    s32 temp_21;
-    s32 temp_21_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    s32 temp_2_5;
-    s32 temp_2_6;
-    s32 temp_2_7;
-    s32 temp_2_8;
-    s32 temp_2_9;
-    s32 temp_2_10;
-    s32 temp_2_11;
-    s32 temp_2_12;
-    s32 temp_2_13;
-    s32 temp_2_14;
-    s32 temp_2_15;
-    s32 temp_2_16;
+    s32 spriteStartTask;
+    s32 spriteStartEffect;
+    s32 nextPulseFrame;
+    s32 firstTextFrame;
+    s32 middleTextFrame;
+    s32 lastTextFrame;
+    s32 firstSkipFrame;
+    s32 middleSkipFrame;
+    s32 lastSkipFrame;
+    s32 firstFadeFrame;
+    s32 middleFadeFrame;
+    s32 lastFadeFrame;
+    s32 firstLineFrame;
+    s32 middleLineFrame;
+    s32 lastLineFrame;
+    s32 nextFrame;
+    s32 maxNextPulseFrame;
     s32 mode10Frame;
-    s32 temp_2_18;
-    s32 temp_2_19;
-    s32 temp_2_20;
-    s32 temp_2_21;
-    s32 temp_2_22;
-    s32 temp_2_23;
-    s32 temp_2_24;
-    s32 temp_2_25;
-    s32 temp_2_26;
-    s32 temp_2_27;
-    s32 temp_2_28;
-    s32 temp_2_29;
-    s32 temp_2_30;
+    s32 maxFirstTextFrame;
+    s32 maxMiddleTextFrame;
+    s32 maxLastTextFrame;
+    s32 maxFirstSkipFrame;
+    s32 maxMiddleSkipFrame;
+    s32 maxLastSkipFrame;
+    s32 maxFirstFadeFrame;
+    s32 maxMiddleFadeFrame;
+    s32 maxLastFadeFrame;
+    s32 maxFirstLineFrame;
+    s32 maxMiddleLineFrame;
+    s32 maxLastLineFrame;
+    s32 maxNextFrame;
     s32 mode11Frame;
-    s32 temp_2_41;
+    s32 spriteNextFrame;
     s32 mode12Frame;
-    s32 temp_2_43;
-    s32 var_3_2;
-    s32 var_3_6;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    f32 temp_f0_6;
-    f32 temp_f0_7;
-    f32 temp_f0_8;
-    f32 temp_f0_9;
-    f32 temp_f0_10;
-    f32 temp_f0_11;
+    s32 wipeNextFrame;
+    s32 enteringAlpha;
+    s32 leavingAlpha;
+    f32 firstTextAlpha;
+    f32 middleTextAlpha;
+    f32 lastTextAlpha;
+    f32 panelExitAlpha;
+    f32 textExitAlpha;
+    f32 maxFirstTextAlpha;
+    f32 maxMiddleTextAlpha;
+    f32 maxLastTextAlpha;
+    f32 maxPanelExitAlpha;
+    f32 maxTextExitAlpha;
+    f32 spriteExitAlpha;
     f32 bannerPhase;
     f32 transitionValue;
-    f32 temp_f1_3;
-    f32 temp_f20;
-    f32 temp_f20_2;
+    f32 leavingShadeAlpha;
+    f32 expansion;
+    f32 maxExpansion;
     f32 spritePhase;
     f32 leavingOpacity;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    f32 var_f1;
-    f32 var_f1_2;
-    f32 var_f1_3;
-    f32 var_f1_5;
-    f32 var_f1_6;
-    f32 var_f1_7;
+    f32 exitOpacity;
+    f32 maxExitOpacity;
+    f32 firstTextOpacity;
+    f32 middleTextOpacity;
+    f32 lastTextOpacity;
+    f32 maxFirstTextOpacity;
+    f32 maxMiddleTextOpacity;
+    f32 maxLastTextOpacity;
     s32 resourceSize;
     f32 *drawColor;
     u_long128 *drawRectangle;
@@ -2475,15 +2493,15 @@ s32 cmmRankUpRender(u8 *task) {
     RankUpRectangle steadyRectangle;
     RankUpRectangle pulseRectangle;
     RankUpRectangle leavingRectangle;
-    Sp120 enteringSprite;
+    RankUpSpriteState enteringSprite;
     RankUpRenderKeys enteringKeys;
     RankUpRenderUV enteringUv;
     RankUpMatrix enteringMatrix;
-    Sp120 steadySprite;
+    RankUpSpriteState steadySprite;
     RankUpRenderKeys steadyKeys;
     RankUpRenderUV steadyUv;
     RankUpMatrix steadyMatrix;
-    Sp120 leavingSprite;
+    RankUpSpriteState leavingSprite;
     RankUpRenderKeys leavingKeys;
     RankUpRenderUV leavingUv;
     RankUpMatrix leavingMatrix;
@@ -2496,45 +2514,45 @@ s32 cmmRankUpRender(u8 *task) {
     switch (animationMode) {
     case 0:
         if (context->mode >= 0x96) {
-            temp_2_2 = (s32)(context->frame45 + 1);
-            context->frame45 = temp_2_2;
-            if (temp_2_2 >= 0x2D) {
+            nextPulseFrame = (s32)(context->frame45 + 1);
+            context->frame45 = nextPulseFrame;
+            if (nextPulseFrame >= 0x2D) {
                 context->frame45 = 0;
             }
         }
-        temp_f20 = (f32)context->frame45 / 45.0f;
+        expansion = (f32)context->frame45 / 45.0f;
         if (context->mode == 0) {
-            temp_20 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            startTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_20_2 = func_0025ff60(temp_20);
-            func_004b12e0(temp_20_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_2), position);
+            startEffect = func_0025ff60(startTask);
+            func_004b12e0(startEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(startEffect), position);
         }
         if (context->mode == 0) {
-            temp_20_3 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
+            secondaryTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
-            temp_20_4 = func_0025ff60(temp_20_3);
-            func_004b12e0(temp_20_4, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_4), position);
+            secondaryEffect = func_0025ff60(secondaryTask);
+            func_004b12e0(secondaryEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(secondaryEffect), position);
         }
         if (context->mode == 0x78) {
-            temp_20_5 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
+            midpointTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
-            temp_20_6 = func_0025ff60(temp_20_5);
-            func_004b12e0(temp_20_6, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_6), position);
+            midpointEffect = func_0025ff60(midpointTask);
+            func_004b12e0(midpointEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(midpointEffect), position);
         }
         if (context->mode == 0x23A) {
-            temp_20_7 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            leavingTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_20_8 = func_0025ff60(temp_20_7);
-            func_004b12e0(temp_20_8, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_8), position);
+            leavingEffect = func_0025ff60(leavingTask);
+            func_004b12e0(leavingEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(leavingEffect), position);
         }
         if ((context->mode == 0x258) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            temp_20_9 = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
-            func_004b12e0(temp_20_9, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_9), position);
+            attachedEffect = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            func_004b12e0(attachedEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(attachedEffect), position);
         }
         if ((context->mode == 0x280) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
             func_004b1250((void *)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
@@ -2552,42 +2570,42 @@ s32 cmmRankUpRender(u8 *task) {
             } else if (mode0Frame < 0x97) {
                 cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, 0.0f, firstTexture, secondTexture);
             } else if (mode0Frame < 0xBF) {
-                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
+                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, expansion, firstTexture, secondTexture);
             } else if (mode0Frame < 0x1EB) {
-                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
-                temp_17_2 = (s32)(context->mode - 0xBE);
+                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, expansion, firstTexture, secondTexture);
+                textElapsed = (s32)(context->mode - 0xBE);
                 itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
-                temp_2_3 = (s32)(context->unk_0c);
-                if (temp_2_3 > 0) {
-                    context->unk_0c = (s32) (temp_2_3 + 1);
+                firstTextFrame = (s32)(context->unk_0c);
+                if (firstTextFrame > 0) {
+                    context->unk_0c = (s32) (firstTextFrame + 1);
                 }
-                temp_2_4 = (s32)(context->slot10.counter);
-                if (temp_2_4 > 0) {
-                    context->slot10.counter = (s32) (temp_2_4 + 1);
+                middleTextFrame = (s32)(context->slot10.counter);
+                if (middleTextFrame > 0) {
+                    context->slot10.counter = (s32) (middleTextFrame + 1);
                 }
-                temp_2_5 = (s32)(context->unk_14);
-                if (temp_2_5 > 0) {
-                    context->unk_14 = (s32) (temp_2_5 + 1);
+                lastTextFrame = (s32)(context->unk_14);
+                if (lastTextFrame > 0) {
+                    context->unk_14 = (s32) (lastTextFrame + 1);
                 }
                 if (context->flags & 0x10) {
-                    temp_2_6 = (s32)(context->unk_0c);
-                    if (temp_2_6 == 0) {
-                        context->unk_0c = (s32) (temp_2_6 + 1);
+                    firstSkipFrame = (s32)(context->unk_0c);
+                    if (firstSkipFrame == 0) {
+                        context->unk_0c = (s32) (firstSkipFrame + 1);
                     }
-                    temp_2_7 = (s32)(context->slot10.counter);
-                    if (temp_2_7 == 0) {
-                        context->slot10.counter = (s32) (temp_2_7 + 1);
+                    middleSkipFrame = (s32)(context->slot10.counter);
+                    if (middleSkipFrame == 0) {
+                        context->slot10.counter = (s32) (middleSkipFrame + 1);
                     }
-                    temp_2_8 = (s32)(context->unk_14);
-                    if (temp_2_8 == 0) {
-                        context->unk_14 = (s32) (temp_2_8 + 1);
+                    lastSkipFrame = (s32)(context->unk_14);
+                    if (lastSkipFrame == 0) {
+                        context->unk_14 = (s32) (lastSkipFrame + 1);
                     }
                 } else {
-                    if (temp_17_2 == 1) {
+                    if (textElapsed == 1) {
                         context->unk_0c += 1;
-                    } else if (temp_17_2 == 0x5A) {
+                    } else if (textElapsed == 0x5A) {
                         context->slot10.counter += 1;
-                    } else if (temp_17_2 == 0xB4) {
+                    } else if (textElapsed == 0xB4) {
                         context->unk_14 += 1;
                     }
                 }
@@ -2598,23 +2616,23 @@ s32 cmmRankUpRender(u8 *task) {
                 firstFade = 0.0f;
                 middleFade = 0.0f;
                 lastFade = 0.0f;
-                temp_2_9 = (s32)(context->unk_0c);
-                if (temp_2_9 > 0) {
-                    firstFade = (f32) temp_2_9 / 30.0f;
+                firstFadeFrame = (s32)(context->unk_0c);
+                if (firstFadeFrame > 0) {
+                    firstFade = (f32) firstFadeFrame / 30.0f;
                     if (!(firstFade < 1.0f)) {
                         firstFade = 1.0f;
                     }
                 }
-                temp_2_10 = (s32)(context->slot10.counter);
-                if (temp_2_10 > 0) {
-                    middleFade = (f32) temp_2_10 / 30.0f;
+                middleFadeFrame = (s32)(context->slot10.counter);
+                if (middleFadeFrame > 0) {
+                    middleFade = (f32) middleFadeFrame / 30.0f;
                     if (!(middleFade < 1.0f)) {
                         middleFade = 1.0f;
                     }
                 }
-                temp_2_11 = (s32)(context->unk_14);
-                if (temp_2_11 > 0) {
-                    lastFade = (f32) temp_2_11 / 30.0f;
+                lastFadeFrame = (s32)(context->unk_14);
+                if (lastFadeFrame > 0) {
+                    lastFade = (f32) lastFadeFrame / 30.0f;
                     if (!(lastFade < 1.0f)) {
                         lastFade = 1.0f;
                     }
@@ -2623,43 +2641,43 @@ s32 cmmRankUpRender(u8 *task) {
                     cmmRankUpDrawGradientStrip(0.0f, 40.0f, 0.0f, 0, (s32)( (153.0f * firstFade)), (s32)( (153.0f * middleFade)), (s32)( (153.0f * lastFade)), 1, 0, 0, 1.0f, 1.0f);
                 }
                 }
-                temp_2_12 = (s32)(context->unk_0c);
-                if (temp_2_12 > 0) {
-                    var_f1 = (f32) temp_2_12 / 30.0f;
-                    if (!(var_f1 < 1.0f)) {
-                        var_f1 = 1.0f;
+                firstLineFrame = (s32)(context->unk_0c);
+                if (firstLineFrame > 0) {
+                    firstTextOpacity = (f32) firstLineFrame / 30.0f;
+                    if (!(firstTextOpacity < 1.0f)) {
+                        firstTextOpacity = 1.0f;
                     }
-                    temp_f0 = 255.0f * var_f1;
-                    cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0), 0, 0, 0, context->pulse120.low, 0, 0);
-                    cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0), 0, 0, 0, context->pulse120.low, 0, 1);
+                    firstTextAlpha = 255.0f * firstTextOpacity;
+                    cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( firstTextAlpha), 0, 0, 0, context->pulse120.low, 0, 0);
+                    cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( firstTextAlpha), 0, 0, 0, context->pulse120.low, 0, 1);
                 }
-                temp_2_13 = (s32)(context->slot10.counter);
-                if (temp_2_13 > 0) {
-                    var_f1_2 = (f32) temp_2_13 / 30.0f;
-                    if (!(var_f1_2 < 1.0f)) {
-                        var_f1_2 = 1.0f;
+                middleLineFrame = (s32)(context->slot10.counter);
+                if (middleLineFrame > 0) {
+                    middleTextOpacity = (f32) middleLineFrame / 30.0f;
+                    if (!(middleTextOpacity < 1.0f)) {
+                        middleTextOpacity = 1.0f;
                     }
-                    temp_f0_2 = 255.0f * var_f1_2;
-                    cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, context->pulse120.low, 0, 2);
-                    cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, context->pulse120.low, 0, 3);
-                    cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_2), 0, 0, 0, context->pulse120.low, 0, 4);
+                    middleTextAlpha = 255.0f * middleTextOpacity;
+                    cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( middleTextAlpha), 0, 0, 0, context->pulse120.low, 0, 2);
+                    cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( middleTextAlpha), 0, 0, 0, context->pulse120.low, 0, 3);
+                    cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( middleTextAlpha), 0, 0, 0, context->pulse120.low, 0, 4);
                 }
-                temp_2_14 = (s32)(context->unk_14);
-                if (temp_2_14 > 0) {
-                    var_f1_3 = (f32) temp_2_14 / 30.0f;
-                    if (!(var_f1_3 < 1.0f)) {
-                        var_f1_3 = 1.0f;
+                lastLineFrame = (s32)(context->unk_14);
+                if (lastLineFrame > 0) {
+                    lastTextOpacity = (f32) lastLineFrame / 30.0f;
+                    if (!(lastTextOpacity < 1.0f)) {
+                        lastTextOpacity = 1.0f;
                     }
-                    temp_f0_3 = 255.0f * var_f1_3;
-                    cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_3), 0, 0, 0, context->pulse120.low, 0, 5);
-                    cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_3), 0, 0, 0, context->pulse120.low, 0, 6);
+                    lastTextAlpha = 255.0f * lastTextOpacity;
+                    cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( lastTextAlpha), 0, 0, 0, context->pulse120.low, 0, 5);
+                    cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( lastTextAlpha), 0, 0, 0, context->pulse120.low, 0, 6);
                 }
                 if ((D_008C024E[0] & 0x40) && (context->mode < 0x1CC)) {
                     context->mode = 0x1CC;
                     context->flags |= 0x10;
                 }
             } else if (mode0Frame < 0x213) {
-                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
+                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, expansion, firstTexture, secondTexture);
                 cmmRankUpDrawGradientStrip(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
                 itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
                 cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 0, 0);
@@ -2670,84 +2688,84 @@ s32 cmmRankUpRender(u8 *task) {
                 cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 0, 5);
                 cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 0, 6);
             } else if (mode0Frame < 0x227) {
-                temp_f21 = 1.0f - ((f32) (mode0Frame - 0x212) / 20.0f);
-                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
-                temp_f0_4 = 153.0f * temp_f21;
-                cmmRankUpDrawGradientStrip(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0, 1.0f, 1.0f);
+                exitOpacity = 1.0f - ((f32) (mode0Frame - 0x212) / 20.0f);
+                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, expansion, firstTexture, secondTexture);
+                panelExitAlpha = 153.0f * exitOpacity;
+                cmmRankUpDrawGradientStrip(0.0f, 40.0f, 0.0f, 0, (s32)( panelExitAlpha), (s32)( panelExitAlpha), (s32)( panelExitAlpha), 1, 0, 0, 1.0f, 1.0f);
                 itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
-                temp_f0_5 = 255.0f * temp_f21;
-                cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 0);
-                cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 1);
-                cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 2);
-                cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 3);
-                cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 4);
-                cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 5);
-                cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, context->pulse120.low, 0, 6);
+                textExitAlpha = 255.0f * exitOpacity;
+                cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 0);
+                cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 1);
+                cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 2);
+                cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 3);
+                cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 4);
+                cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 5);
+                cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( textExitAlpha), 0, 0, 0, context->pulse120.low, 0, 6);
             } else if (mode0Frame < 0x24F) {
-                temp_19 = mode0Frame - 0x226;
-                if (temp_19 == 1) {
-                    temp_3_3 = (s32)(context->animationMode);
-                    if ((temp_3_3 == 0xA) || (temp_3_3 == 0)) {
+                exitElapsed = mode0Frame - 0x226;
+                if (exitElapsed == 1) {
+                    exitAnimationMode = (s32)(context->animationMode);
+                    if ((exitAnimationMode == 0xA) || (exitAnimationMode == 0)) {
                         sdkSndStartChannel(2, &D_00635C80);
                     } else {
                         sdkSndStartChannel(2, &D_00635CA0);
                     }
                 }
-                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19 / 40.0f)))), 0.0f, temp_f20, firstTexture, secondTexture);
+                cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) exitElapsed / 40.0f)))), 0.0f, expansion, firstTexture, secondTexture);
             }
         }
-        temp_2_15 = (s32)(context->mode + 1);
-        context->mode = temp_2_15;
-        if (temp_2_15 >= 0x2BC) {
+        nextFrame = (s32)(context->mode + 1);
+        context->mode = nextFrame;
+        if (nextFrame >= 0x2BC) {
             context->unk_44 = 1;
         }
         break;
     case 10:
         if (context->mode >= 0x6E) {
-            temp_2_16 = (s32)(context->frame45 + 1);
-            context->frame45 = temp_2_16;
-            if (temp_2_16 >= 0x2D) {
+            maxNextPulseFrame = (s32)(context->frame45 + 1);
+            context->frame45 = maxNextPulseFrame;
+            if (maxNextPulseFrame >= 0x2D) {
                 context->frame45 = 0;
             }
         }
-        temp_f20_2 = (f32)context->frame45 / 45.0f;
+        maxExpansion = (f32)context->frame45 / 45.0f;
         if (context->mode == 0) {
-            temp_20_10 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            maxStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_20_11 = func_0025ff60(temp_20_10);
-            func_004b12e0(temp_20_11, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_11), position);
+            maxStartEffect = func_0025ff60(maxStartTask);
+            func_004b12e0(maxStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(maxStartEffect), position);
         }
         if (context->mode == 0xA) {
             sdkSndStartChannel(2, &D_006366D0);
         }
-        temp_3_4 = (s32)(context->mode);
-        if (((temp_3_4 % 10) == 0) && (temp_3_4 < 0x1CD)) {
-            temp_20_12 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
+        effectFrame = (s32)(context->mode);
+        if (((effectFrame % 10) == 0) && (effectFrame < 0x1CD)) {
+            maxParticleTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_20_13 = func_0025ff60(temp_20_12);
-            func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_13), position);
-            mdlEffectGetPackedColor((void *)temp_20_13, &drawColorValue.packed);
+            maxParticleEffect = func_0025ff60(maxParticleTask);
+            func_004b12e0(maxParticleEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(maxParticleEffect), position);
+            mdlEffectGetPackedColor((void *)maxParticleEffect, &drawColorValue.packed);
             rankUpScaleEffectAlpha(&drawColorValue, 0.5f);
-            mdlEffectSetPackedColor((void *)temp_20_13, &drawColorValue.packed);
+            mdlEffectSetPackedColor((void *)maxParticleEffect, &drawColorValue.packed);
         }
         if (context->mode == 0x21C) {
-            temp_20_14 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            maxLeavingTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_20_15 = func_0025ff60(temp_20_14);
-            func_004b12e0(temp_20_15, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_15), position);
+            maxLeavingEffect = func_0025ff60(maxLeavingTask);
+            func_004b12e0(maxLeavingEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(maxLeavingEffect), position);
         }
         if ((context->mode == 0x23A) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            temp_20_16 = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
-            func_004b12e0(temp_20_16, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_20_16), position);
+            maxAttachedEffect = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            func_004b12e0(maxAttachedEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(maxAttachedEffect), position);
         }
         if ((context->mode == 0x262) && (cmmRankUpAttachResMatrix(context->unk_20, (u8 *)position) != 0)) {
-            temp_19_2 = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
-            func_004b12e0(temp_19_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_19_2), position);
+            maxAttachEffect = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
+            func_004b12e0(maxAttachEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(maxAttachEffect), position);
         }
         mode10Frame = (s32)(context->mode);
         if (mode10Frame < 0x50) {
@@ -2755,43 +2773,43 @@ s32 cmmRankUpRender(u8 *task) {
         } else if (mode10Frame < 0x5B) {
             cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, 0.0f, firstTexture, secondTexture);
         } else if (mode10Frame < 0x97) {
-            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
+            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, maxExpansion, firstTexture, secondTexture);
         } else if (mode10Frame < 0x1C3) {
-            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
-            temp_17_3 = (s32)(context->mode - 0x96);
+            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, maxExpansion, firstTexture, secondTexture);
+            maxTextElapsed = (s32)(context->mode - 0x96);
             itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
             itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
-            temp_2_18 = (s32)(context->unk_0c);
-            if (temp_2_18 > 0) {
-                context->unk_0c = (s32) (temp_2_18 + 1);
+            maxFirstTextFrame = (s32)(context->unk_0c);
+            if (maxFirstTextFrame > 0) {
+                context->unk_0c = (s32) (maxFirstTextFrame + 1);
             }
-            temp_2_19 = (s32)(context->slot10.counter);
-            if (temp_2_19 > 0) {
-                context->slot10.counter = (s32) (temp_2_19 + 1);
+            maxMiddleTextFrame = (s32)(context->slot10.counter);
+            if (maxMiddleTextFrame > 0) {
+                context->slot10.counter = (s32) (maxMiddleTextFrame + 1);
             }
-            temp_2_20 = (s32)(context->unk_14);
-            if (temp_2_20 > 0) {
-                context->unk_14 = (s32) (temp_2_20 + 1);
+            maxLastTextFrame = (s32)(context->unk_14);
+            if (maxLastTextFrame > 0) {
+                context->unk_14 = (s32) (maxLastTextFrame + 1);
             }
             if (context->flags & 0x10) {
-                temp_2_21 = (s32)(context->unk_0c);
-                if (temp_2_21 == 0) {
-                    context->unk_0c = (s32) (temp_2_21 + 1);
+                maxFirstSkipFrame = (s32)(context->unk_0c);
+                if (maxFirstSkipFrame == 0) {
+                    context->unk_0c = (s32) (maxFirstSkipFrame + 1);
                 }
-                temp_2_22 = (s32)(context->slot10.counter);
-                if (temp_2_22 == 0) {
-                    context->slot10.counter = (s32) (temp_2_22 + 1);
+                maxMiddleSkipFrame = (s32)(context->slot10.counter);
+                if (maxMiddleSkipFrame == 0) {
+                    context->slot10.counter = (s32) (maxMiddleSkipFrame + 1);
                 }
-                temp_2_23 = (s32)(context->unk_14);
-                if (temp_2_23 == 0) {
-                    context->unk_14 = (s32) (temp_2_23 + 1);
+                maxLastSkipFrame = (s32)(context->unk_14);
+                if (maxLastSkipFrame == 0) {
+                    context->unk_14 = (s32) (maxLastSkipFrame + 1);
                 }
             } else {
-                if (temp_17_3 == 1) {
+                if (maxTextElapsed == 1) {
                     context->unk_0c += 1;
-                } else if (temp_17_3 == 0x5A) {
+                } else if (maxTextElapsed == 0x5A) {
                     context->slot10.counter += 1;
-                } else if (temp_17_3 == 0xB4) {
+                } else if (maxTextElapsed == 0xB4) {
                     context->unk_14 += 1;
                 }
             }
@@ -2800,23 +2818,23 @@ s32 cmmRankUpRender(u8 *task) {
             fade.first = 0.0f;
             fade.middle = 0.0f;
             fade.last = 0.0f;
-            temp_2_24 = (s32)(context->unk_0c);
-            if (temp_2_24 > 0) {
-                fade.first = (f32) temp_2_24 / 30.0f;
+            maxFirstFadeFrame = (s32)(context->unk_0c);
+            if (maxFirstFadeFrame > 0) {
+                fade.first = (f32) maxFirstFadeFrame / 30.0f;
                 if (!(fade.first < 1.0f)) {
                     fade.first = 1.0f;
                 }
             }
-            temp_2_25 = (s32)(context->slot10.counter);
-            if (temp_2_25 > 0) {
-                fade.middle = (f32) temp_2_25 / 30.0f;
+            maxMiddleFadeFrame = (s32)(context->slot10.counter);
+            if (maxMiddleFadeFrame > 0) {
+                fade.middle = (f32) maxMiddleFadeFrame / 30.0f;
                 if (!(fade.middle < 1.0f)) {
                     fade.middle = 1.0f;
                 }
             }
-            temp_2_26 = (s32)(context->unk_14);
-            if (temp_2_26 > 0) {
-                fade.last = (f32) temp_2_26 / 30.0f;
+            maxLastFadeFrame = (s32)(context->unk_14);
+            if (maxLastFadeFrame > 0) {
+                fade.last = (f32) maxLastFadeFrame / 30.0f;
                 if (!(fade.last < 1.0f)) {
                     fade.last = 1.0f;
                 }
@@ -2825,45 +2843,45 @@ s32 cmmRankUpRender(u8 *task) {
                 cmmRankUpDrawGradientStripPass2(0.0f, 40.0f, 0.0f, 0, (s32)( (153.0f * fade.first)), (s32)( (153.0f * fade.middle)), (s32)( (153.0f * fade.last)), 1, 0, 0, 1.0f, 1.0f);
             }
             }
-            temp_2_27 = (s32)(context->unk_0c);
-            if (temp_2_27 > 0) {
-                var_f1_5 = (f32) temp_2_27 / 30.0f;
-                if (!(var_f1_5 < 1.0f)) {
-                    var_f1_5 = 1.0f;
+            maxFirstLineFrame = (s32)(context->unk_0c);
+            if (maxFirstLineFrame > 0) {
+                maxFirstTextOpacity = (f32) maxFirstLineFrame / 30.0f;
+                if (!(maxFirstTextOpacity < 1.0f)) {
+                    maxFirstTextOpacity = 1.0f;
                 }
-                temp_f0_6 = 255.0f * var_f1_5;
-                cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, context->pulse120.low, 1, 0);
-                cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, context->pulse120.low, 1, 1);
-                cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_6), 0, 0, 0, context->pulse120.low, 1, 2);
+                maxFirstTextAlpha = 255.0f * maxFirstTextOpacity;
+                cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( maxFirstTextAlpha), 0, 0, 0, context->pulse120.low, 1, 0);
+                cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( maxFirstTextAlpha), 0, 0, 0, context->pulse120.low, 1, 1);
+                cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( maxFirstTextAlpha), 0, 0, 0, context->pulse120.low, 1, 2);
             }
-            temp_2_28 = (s32)(context->slot10.counter);
-            if (temp_2_28 > 0) {
-                var_f1_6 = (f32) temp_2_28 / 30.0f;
-                if (!(var_f1_6 < 1.0f)) {
-                    var_f1_6 = 1.0f;
+            maxMiddleLineFrame = (s32)(context->slot10.counter);
+            if (maxMiddleLineFrame > 0) {
+                maxMiddleTextOpacity = (f32) maxMiddleLineFrame / 30.0f;
+                if (!(maxMiddleTextOpacity < 1.0f)) {
+                    maxMiddleTextOpacity = 1.0f;
                 }
-                temp_f0_7 = 255.0f * var_f1_6;
-                cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, context->pulse120.low, 1, 3);
-                cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, context->pulse120.low, 1, 4);
-                cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_7), 0, 0, 0, context->pulse120.low, 1, 5);
+                maxMiddleTextAlpha = 255.0f * maxMiddleTextOpacity;
+                cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( maxMiddleTextAlpha), 0, 0, 0, context->pulse120.low, 1, 3);
+                cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( maxMiddleTextAlpha), 0, 0, 0, context->pulse120.low, 1, 4);
+                cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( maxMiddleTextAlpha), 0, 0, 0, context->pulse120.low, 1, 5);
             }
-            temp_2_29 = (s32)(context->unk_14);
-            if (temp_2_29 > 0) {
-                var_f1_7 = (f32) temp_2_29 / 30.0f;
-                if (!(var_f1_7 < 1.0f)) {
-                    var_f1_7 = 1.0f;
+            maxLastLineFrame = (s32)(context->unk_14);
+            if (maxLastLineFrame > 0) {
+                maxLastTextOpacity = (f32) maxLastLineFrame / 30.0f;
+                if (!(maxLastTextOpacity < 1.0f)) {
+                    maxLastTextOpacity = 1.0f;
                 }
-                temp_f0_8 = 255.0f * var_f1_7;
-                cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, context->pulse120.low, 1, 6);
-                cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, context->pulse120.low, 1, 7);
-                cmmRankUpDrawCenteredText(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_8), 0, 0, 0, context->pulse120.low, 1, 8);
+                maxLastTextAlpha = 255.0f * maxLastTextOpacity;
+                cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( maxLastTextAlpha), 0, 0, 0, context->pulse120.low, 1, 6);
+                cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( maxLastTextAlpha), 0, 0, 0, context->pulse120.low, 1, 7);
+                cmmRankUpDrawCenteredText(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( maxLastTextAlpha), 0, 0, 0, context->pulse120.low, 1, 8);
             }
             if ((D_008C024E[0] & 0x40) && (context->mode < 0x1A4)) {
                 context->mode = 0x1A4;
                 context->flags |= 0x10;
             }
         } else if (mode10Frame < 0x1F5) {
-            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
+            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, maxExpansion, firstTexture, secondTexture);
             cmmRankUpDrawGradientStripPass2(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
             itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
             itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
@@ -2877,55 +2895,55 @@ s32 cmmRankUpRender(u8 *task) {
             cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 1, 7);
             cmmRankUpDrawCenteredText(320.0f, 340.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, context->pulse120.low, 1, 8);
         } else if (mode10Frame < 0x209) {
-            temp_f21_2 = 1.0f - ((f32) (mode10Frame - 0x1F4) / 20.0f);
-            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
-            temp_f0_9 = 153.0f * temp_f21_2;
-            cmmRankUpDrawGradientStripPass2(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 1.0f, 1.0f);
+            maxExitOpacity = 1.0f - ((f32) (mode10Frame - 0x1F4) / 20.0f);
+            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, maxExpansion, firstTexture, secondTexture);
+            maxPanelExitAlpha = 153.0f * maxExitOpacity;
+            cmmRankUpDrawGradientStripPass2(0.0f, 40.0f, 0.0f, 0, (s32)( maxPanelExitAlpha), (s32)( maxPanelExitAlpha), (s32)( maxPanelExitAlpha), 1, 0, 0, 1.0f, 1.0f);
             itfMesWindowSetString(context->pulse120.low, 0, func_002438b0(cmmCommunityArcana(context->slot18.communityId) & 0xFF));
             itfMesWindowSetString(context->pulse120.low, 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
-            temp_f0_10 = 255.0f * temp_f21_2;
-            cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 0);
-            cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 1);
-            cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 2);
-            cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 3);
-            cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 4);
-            cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 5);
-            cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 6);
-            cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 7);
-            cmmRankUpDrawCenteredText(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, context->pulse120.low, 1, 8);
+            maxTextExitAlpha = 255.0f * maxExitOpacity;
+            cmmRankUpDrawCenteredText(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 0);
+            cmmRankUpDrawCenteredText(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 1);
+            cmmRankUpDrawCenteredText(320.0f, 140.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 2);
+            cmmRankUpDrawCenteredText(320.0f, 180.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 3);
+            cmmRankUpDrawCenteredText(320.0f, 220.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 4);
+            cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 5);
+            cmmRankUpDrawCenteredText(320.0f, 260.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 6);
+            cmmRankUpDrawCenteredText(320.0f, 300.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 7);
+            cmmRankUpDrawCenteredText(320.0f, 340.0f, 0.0f, 0xFFFFFF, (s32)( maxTextExitAlpha), 0, 0, 0, context->pulse120.low, 1, 8);
         } else if (mode10Frame < 0x231) {
-            temp_19_3 = mode10Frame - 0x208;
-            if (temp_19_3 == 1) {
-                temp_3_5 = (s32)(context->animationMode);
-                if ((temp_3_5 == 0xA) || (temp_3_5 == 0)) {
+            maxExitElapsed = mode10Frame - 0x208;
+            if (maxExitElapsed == 1) {
+                maxExitAnimationMode = (s32)(context->animationMode);
+                if ((maxExitAnimationMode == 0xA) || (maxExitAnimationMode == 0)) {
                     sdkSndStartChannel(2, &D_00635C80);
                 } else {
                     sdkSndStartChannel(2, &D_00635CA0);
                 }
             }
-            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19_3 / 40.0f)))), 0.0f, temp_f20_2, firstTexture, secondTexture);
+            cmmRankUpDrawFadedExpansion(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) maxExitElapsed / 40.0f)))), 0.0f, maxExpansion, firstTexture, secondTexture);
         }
-        temp_2_30 = (s32)(context->mode + 1);
-        context->mode = temp_2_30;
-        if (temp_2_30 >= 0x29E) {
+        maxNextFrame = (s32)(context->mode + 1);
+        context->mode = maxNextFrame;
+        if (maxNextFrame >= 0x29E) {
             context->unk_44 = 1;
         }
         break;
     case 11:
         spriteTexture = (s32)(*context->unk_54);
         if (context->mode == 0) {
-            temp_21 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            spriteStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_21_2 = func_0025ff60(temp_21);
-            func_004b12e0(temp_21_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_21_2), position);
+            spriteStartEffect = func_0025ff60(spriteStartTask);
+            func_004b12e0(spriteStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(spriteStartEffect), position);
         }
         if (context->mode == 0xBE) {
-            temp_19_4 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            spriteExitTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_19_5 = func_0025ff60(temp_19_4);
-            func_004b12e0(temp_19_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_19_5), position);
+            spriteExitEffect = func_0025ff60(spriteExitTask);
+            func_004b12e0(spriteExitEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(spriteExitEffect), position);
         }
         mode11Frame = (s32)(context->mode);
         if (mode11Frame < 0x50) {
@@ -2936,28 +2954,28 @@ s32 cmmRankUpRender(u8 *task) {
             spritePhase = (f32) (mode11Frame - 0x64) / 10.0f;
             cmmRankUpDrawFadedExpansionPass2(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, spritePhase, 0, firstTexture, secondTexture);
             enteringKeys = *(const RankUpRenderKeys *)D_00636580;
-            enteringKeys.states[0].f18 = 0xFF0000FF;
-            enteringKeys.states[1].f18 = 0xFF0000FF;
+            enteringKeys.states[0].color = 0xFF0000FF;
+            enteringKeys.states[1].color = 0xFF0000FF;
             enteringUv = *(const RankUpRenderUV *)D_006365D0;
             cmmRankUpLerpState(&enteringSprite, &enteringKeys.states[0], &enteringKeys.states[1], spritePhase);
-            RwMatrixRotate(&enteringMatrix, &enteringSprite.axis, enteringSprite.f1C, 0);
+            RwMatrixRotate(&enteringMatrix, &enteringSprite.axis, enteringSprite.angle, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
             RpSkyRenderStateSet(3, 0x31003);
             RpSkyRenderStateSet(2, 0x48);
-            func_00366c70((s32)enteringSprite.f4, (s32)enteringSprite.f8, 0, enteringSprite.f20, enteringSprite.f22, (u32)enteringSprite.f18 >> 8,
-                          (s32)( ((f32)((u32)enteringSprite.f18 & 0xFF) * ((f32)(s32)(255.0f * spritePhase) / 255.0f))), 0,
-                          (s16)(enteringSprite.f20 >> 1), (s16)(enteringSprite.f22 >> 1), &enteringMatrix,
+            func_00366c70((s32)enteringSprite.x, (s32)enteringSprite.y, 0, enteringSprite.width, enteringSprite.height, (u32)enteringSprite.color >> 8,
+                          (s32)( ((f32)((u32)enteringSprite.color & 0xFF) * ((f32)(s32)(255.0f * spritePhase) / 255.0f))), 0,
+                          (s16)(enteringSprite.width >> 1), (s16)(enteringSprite.height >> 1), &enteringMatrix,
                           spriteTexture, (f32 (*)[2])((void *)&enteringUv));
         } else if (mode11Frame < 0xAB) {
             cmmRankUpDrawFadedExpansionPass2(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 1.0f, 0, firstTexture, secondTexture);
             steadyKeys = *(const RankUpRenderKeys *)D_00636580;
-            steadyKeys.states[0].f18 = 0xFF0000FF;
-            steadyKeys.states[1].f18 = 0xFF0000FF;
+            steadyKeys.states[0].color = 0xFF0000FF;
+            steadyKeys.states[1].color = 0xFF0000FF;
             steadyUv = *(const RankUpRenderUV *)D_006365D0;
             cmmRankUpLerpState(&steadySprite, &steadyKeys.states[0], &steadyKeys.states[1], 1.0f);
-            RwMatrixRotate(&steadyMatrix, &steadySprite.axis, steadySprite.f1C, 0);
+            RwMatrixRotate(&steadyMatrix, &steadySprite.axis, steadySprite.angle, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
@@ -2965,44 +2983,44 @@ s32 cmmRankUpRender(u8 *task) {
             RpSkyRenderStateSet(2, 0x48);
             rankUpDrawSpriteState(&steadySprite, &steadyMatrix, spriteTexture, steadyUv.coordinates, 1.0f);
         } else if (mode11Frame < 0xD3) {
-            temp_f0_11 = 255.0f * (1.0f - ((f32) (mode11Frame - 0xAA) / 40.0f));
-            cmmRankUpDrawFadedExpansionPass2(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_11), 1.0f, 0, firstTexture, secondTexture);
+            spriteExitAlpha = 255.0f * (1.0f - ((f32) (mode11Frame - 0xAA) / 40.0f));
+            cmmRankUpDrawFadedExpansionPass2(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( spriteExitAlpha), 1.0f, 0, firstTexture, secondTexture);
             leavingKeys = *(const RankUpRenderKeys *)D_00636580;
-            leavingKeys.states[0].f18 = 0xFF0000FF;
-            leavingKeys.states[1].f18 = 0xFF0000FF;
+            leavingKeys.states[0].color = 0xFF0000FF;
+            leavingKeys.states[1].color = 0xFF0000FF;
             leavingUv = *(const RankUpRenderUV *)D_006365D0;
             cmmRankUpLerpState(&leavingSprite, &leavingKeys.states[0], &leavingKeys.states[1], 1.0f);
-            RwMatrixRotate(&leavingMatrix, &leavingSprite.axis, leavingSprite.f1C, 0);
+            RwMatrixRotate(&leavingMatrix, &leavingSprite.axis, leavingSprite.angle, 0);
             renderStateTable = (u8 *)D_00887300;
             (*(void (**)(u32, u32))renderStateTable)(6, 0);
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
             RpSkyRenderStateSet(3, 0x31003);
             RpSkyRenderStateSet(2, 0x48);
-            func_00366c70((s32)leavingSprite.f4, (s32)leavingSprite.f8, 0, leavingSprite.f20, leavingSprite.f22, (u32)leavingSprite.f18 >> 8,
-                          (s32)( ((f32)((u32)leavingSprite.f18 & 0xFF) * ((f32)(s32)temp_f0_11 / 255.0f))), 0, (s16)(leavingSprite.f20 >> 1),
-                          (s16)(leavingSprite.f22 >> 1), &leavingMatrix, spriteTexture,
+            func_00366c70((s32)leavingSprite.x, (s32)leavingSprite.y, 0, leavingSprite.width, leavingSprite.height, (u32)leavingSprite.color >> 8,
+                          (s32)( ((f32)((u32)leavingSprite.color & 0xFF) * ((f32)(s32)spriteExitAlpha / 255.0f))), 0, (s16)(leavingSprite.width >> 1),
+                          (s16)(leavingSprite.height >> 1), &leavingMatrix, spriteTexture,
                           (f32 (*)[2])((void *)&leavingUv));
         }
-        temp_2_41 = (s32)(context->mode + 1);
-        context->mode = temp_2_41;
-        if (temp_2_41 >= 0xD2) {
+        spriteNextFrame = (s32)(context->mode + 1);
+        context->mode = spriteNextFrame;
+        if (spriteNextFrame >= 0xD2) {
             context->unk_44 = 1;
         }
         break;
     case 12:
         if (context->mode == 0) {
-            temp_17_4 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            wipeStartTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
-            temp_17_5 = func_0025ff60(temp_17_4);
-            func_004b12e0(temp_17_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_17_5), position);
+            wipeStartEffect = func_0025ff60(wipeStartTask);
+            func_004b12e0(wipeStartEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(wipeStartEffect), position);
         }
         if (context->mode == 0x9B) {
-            temp_17_6 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
+            wipeEndTask = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
-            temp_17_7 = func_0025ff60(temp_17_6);
-            func_004b12e0(temp_17_7, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
-            func_004b1250((void *)(temp_17_7), position);
+            wipeEndEffect = func_0025ff60(wipeEndTask);
+            func_004b12e0(wipeEndEffect, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
+            func_004b1250((void *)(wipeEndEffect), position);
         }
         mode12Frame = (s32)(context->mode);
         if (mode12Frame < 0x50) {
@@ -3013,8 +3031,8 @@ s32 cmmRankUpRender(u8 *task) {
             f32 shadePhase = (f32)(mode12Frame - 0x64) / 40.0f;
             enteringColor.bits = fGpffffa66c;
             transitionValue = 76.5f * shadePhase;
-            var_3_2 = (u8)transitionValue;
-            enteringColor.channels[3] = var_3_2;
+            enteringAlpha = (u8)transitionValue;
+            enteringColor.channels[3] = enteringAlpha;
             drawColor = &drawColorValue.bits;
             drawColorValue = enteringColor;
             *(u_long128 *)&enteringRectangle = D_006365F0;
@@ -3073,9 +3091,9 @@ s32 cmmRankUpRender(u8 *task) {
             leavingOpacity = (f32)(mode12Frame - 0xA3) / 37.0f;
             leavingColor.bits = fGpffffa678;
             leavingOpacity = 1.0f - leavingOpacity;
-            temp_f1_3 = 76.5f * leavingOpacity;
-            var_3_6 = (u8)temp_f1_3;
-            leavingColor.channels[3] = var_3_6;
+            leavingShadeAlpha = 76.5f * leavingOpacity;
+            leavingAlpha = (u8)leavingShadeAlpha;
+            leavingColor.channels[3] = leavingAlpha;
             drawColor = &drawColorValue.bits;
             drawColorValue = leavingColor;
             *(u_long128 *)&leavingRectangle = D_00636620;
@@ -3084,9 +3102,9 @@ s32 cmmRankUpRender(u8 *task) {
             PrimDrawFlatRectangle((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
             cmmRankUpDrawWipeRect(0, 0, 0, 0xFFFFFF, (s32)( (255.0f * leavingOpacity)), 1.0f, firstTexture);
         }
-        temp_2_43 = (s32)(context->mode + 1);
-        context->mode = temp_2_43;
-        if (temp_2_43 >= 0xF0) {
+        wipeNextFrame = (s32)(context->mode + 1);
+        context->mode = wipeNextFrame;
+        if (wipeNextFrame >= 0xF0) {
             context->mode = 0x64;
             context->unk_44 = 1;
         }
@@ -3140,38 +3158,38 @@ s32 cmmRankUpRender(u8 *task) {
 #pragma opt_propagation off
 // Builds the sprite arguments in a local buffer from the work record and draws them [inferred].
 // FUN_0025B0F0
-void cmmRankUpDrawSprite(s32 arg0, u8 *arg1) {
+void cmmRankUpDrawSprite(s32 unused, u8 *task) {
     extern u32 *kwlnTaskGetWork();
-    u8 *sp;
-    u8 *p;
-    s32 i;
-    f32 fbuf;
-    u8 buf[4];
-    u8 arr[32];
+    CmmRankUpSequence *work;
+    u8 *colorByte;
+    s32 remainingBytes;
+    f32 packedColor;
+    u8 rgba[4];
+    u8 rectangles[32];
     u_long128 quad;
-    u_long128 *arr16;
-    f32 *pfbuf;
-    f32 f;
+    u_long128 *drawRectangle;
+    f32 *drawColor;
+    f32 alpha;
 
-    sp = (u8 *)kwlnTaskGetWork(arg1);
-    p = buf;
-    i = 4;
-    if (p != NULL) {
+    work = (CmmRankUpSequence *)kwlnTaskGetWork(task);
+    colorByte = rgba;
+    remainingBytes = 4;
+    if (colorByte != NULL) {
         do {
-            *p = 0;
-            p++;
-        } while (--i != 0);
+            *colorByte = 0;
+            colorByte++;
+        } while (--remainingBytes != 0);
     }
-    f = (f32)*(s32 *)(sp + 0x4C) * 127.5f / 40.0f;
-    buf[3] = (u8)f;
-    pfbuf = &fbuf;
-    fbuf = *(f32 *)buf;
+    alpha = (f32)work->fadeFrame * 127.5f / 40.0f;
+    rgba[3] = (u8)alpha;
+    drawColor = &packedColor;
+    packedColor = *(f32 *)rgba;
     quad = D_00636730;
-    *(u_long128 *)&arr[0] = quad;
-    arr16 = (u_long128 *)&arr[16];
-    *(u_long128 *)&arr[16] = quad;
-    PrimDrawFlatRectangle((u8 *)(pfbuf), (f32 *)(arr16), 0.0f, 1);
-    switch (*(u32 *)(sp + 4)) {
+    *(u_long128 *)&rectangles[0] = quad;
+    drawRectangle = (u_long128 *)&rectangles[16];
+    *(u_long128 *)&rectangles[16] = quad;
+    PrimDrawFlatRectangle((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+    switch ((u32)work->relation) {
     case 0:
     case 1:
     case 2:
@@ -3184,7 +3202,7 @@ void cmmRankUpDrawSprite(s32 arg0, u8 *arg1) {
         break;
     case 9:
     case 10:
-        cmmRankUpRender(arg1);
+        cmmRankUpRender(task);
         break;
     case 11:
     case 12:
@@ -3231,10 +3249,10 @@ extern s32 func_00459760();
 extern s32 func_0045b400();
 extern s32 sdkSndFadeMainChannel();
 extern void sdkSndFadeOutChannelFrames();
-extern void shdEffectSetRenderParams(u8 *arg0, s32 arg1, u8 arg2);
-extern void shdEffectFillFbufParams(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 farg0, f32 farg1);
-extern void shdEffectSetFargParams(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1);
-extern s32 shdEffectCreateBlurTask(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext);
+extern void shdEffectSetRenderParams(u8 *value, s32 option1, u8 option2);
+extern void shdEffectFillFbufParams(u8 *dst, u8 option1, u32 option2, u32 option3, u32 option4, u32 option5, f32 farg0, f32 farg1);
+extern void shdEffectSetFargParams(u8 *dst, s32 option1, s32 option2, f32 farg0, f32 farg1);
+extern s32 shdEffectCreateBlurTask(s32 value, s32 option1, s32 option2, u8 *option3, void *renderContext);
 extern u8 *cmmRankUpFindResEntry();
 extern void func_002518d0();
 extern s32 FldPanel2dRelease();
@@ -3250,7 +3268,7 @@ extern s8 nmMesWindowAcquire();
 extern s32 nmMesWindowShowSlotRecord(s8 slot, s32 message);
 extern void nmMesWindowShowSlotRecordStyle1();
 extern s32 cmmRankUpSelectDisplayIndex();
-extern s64 cmmCommunityArcana(s32 arg0);
+extern s64 cmmCommunityArcana(s32 value);
 extern u8 *func_002438b0();
 extern u8 *cmmNameRecord(u32);
 extern u8 *cmmTextRecord();
@@ -3289,42 +3307,43 @@ static inline s32 rankUpAnimationComplete(u8 *task)
 
 // Steps the rank-up CDVD load: creates the portrait tasks, acquires the directory, then waits for the load [inferred].
 // FUN_0025B240
-s32 cmmRankUpSequenceUpdate(u8 *arg0) {
-    u8 *ctx;
-    s32 tmp;
-    s32 tmp2;
-    s32 tmp3;
-    s32 tmp4;
-    s32 st18c;
-    s32 st188;
-    char sp160[0x20];
-    u8 sp80[0xD8];
+s32 cmmRankUpSequenceUpdate(u8 *task) {
+    /* Persona chunk records expose the row id at +0x40; the rest is inline text. */
+    CmmRankUpSequence *context;
+    s32 fadeFrame;
+    s32 value;
+    s32 frameOrCommunity;
+    s32 rankOrFlags;
+    s32 fileSize;
+    s32 loadComplete;
+    char text[0x20];
+    u8 blurParams[0xD8];
     RankUpUnlockFlags unlockFlags;
     s32 skill;
-    s8 c;
-    s8 cc;
-    u8 *pb;
-    void *pv;
-    s32 n;
-    u8 *argb = arg0;
-    ctx = (u8 *)kwlnTaskGetWork(argb);
+    s8 displayIndex;
+    s8 completedRankValue;
+    u8 *node;
+    void *cardWork;
+    s32 count;
+    u8 *taskBytes = task;
+    context = (CmmRankUpSequence *)kwlnTaskGetWork(taskBytes);
     skill = 0;
-    switch (*(s32 *)(ctx + 4)) {
+    switch (context->relation) {
     case 0:
-        *(s32 *)(ctx + 4) = 3;
-        *(s32 *)(ctx + 0x2C) = (s32)datPortraitTaskCreate((s32)argb, cmmCommunityArcana(*(u16 *)(ctx + 0x18)), 0);
-        *(s32 *)(ctx + 0x30) = (s32)datPortraitTaskCreate((s32)argb, -1, 0);
+        context->relation = 3;
+        context->portraitIdFirst = (s32)datPortraitTaskCreate((s32)taskBytes, cmmCommunityArcana(context->slot18.communityId), 0);
+        context->portraitIdSecond = (s32)datPortraitTaskCreate((s32)taskBytes, -1, 0);
         func_00440b68(&cGpffffa680, D_00635CF8, 0xADB);
-        *(u8 **)(ctx + 0x34) = H_Cdvd_AcquireDirectory(D_00636760, 1);
+        context->directory = H_Cdvd_AcquireDirectory(D_00636760, 1);
         goto tail;
     case 1:
-        *(s32 *)(ctx + 4) = 2;
-        if (*(s32 *)(ctx + 0x1C) < 1 || *(s32 *)(ctx + 0x1C) > 9) {
+        context->relation = 2;
+        if (context->animationMode < 1 || context->animationMode > 9) {
             sdkSndStopChannel(10);
         }
         /* fallthrough */
     case 2:
-        if ((*(s32 *)ctx & 8) != 0) {
+        if ((context->flags & 8) != 0) {
             goto tail;
         }
         if (iGpffffa664 != -1) {
@@ -3340,107 +3359,107 @@ s32 cmmRankUpSequenceUpdate(u8 *arg0) {
         }
         return -1;
     case 3:
-        if (datPortraitIsLoaded(*(s32 *)(ctx + 0x2C)) == 0) {
+        if (datPortraitIsLoaded(context->portraitIdFirst) == 0) {
             goto tail;
         }
-        if (datPortraitIsLoaded(*(s32 *)(ctx + 0x30)) == 0) {
+        if (datPortraitIsLoaded(context->portraitIdSecond) == 0) {
             goto tail;
         }
-        if (H_Cdvd_IsFileLoaded(*(u8 **)(ctx + 0x34)) == 0) {
+        if (H_Cdvd_IsFileLoaded(context->directory) == 0) {
             goto tail;
         }
-        *(s32 *)(ctx + 4) = 4;
-        *(s32 *)(ctx + 0x38) = H_Cdvd_LookupRequest((s32)D_00636780, &st18c);
-        *(u8 **)(ctx + 0x50) = func_004667d0(0, (const char *)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
+        context->relation = 4;
+        context->messageData = H_Cdvd_LookupRequest((s32)D_00636780, &fileSize);
+        context->loadRequest = func_004667d0(0, (const char *)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
         {
         u8 *palette;
         s32 raster;
         u8 *paletteCopy;
-        raster = datPortraitValue(*(s32 *)(ctx + 0x2C));
+        raster = datPortraitValue(context->portraitIdFirst);
         palette = func_003ec3d0((void *)raster, 1);
         if (palette == 0) {
             kAssertFail(D_00635CF8, 0xAF7);
         }
         chkmemAllocSiteTag(D_00635CF8, 0xAF8);
         paletteCopy = D_008873F4[0](1, 0x400, 0x40000);
-        *(u8 **)(ctx + 0x58) = paletteCopy;
+        context->unk_58 = paletteCopy;
         memcpy(paletteCopy, palette, 0x400);
         func_003ec2e0((void *)raster);
         }
         goto tail;
     case 4:
-        *(u8 **)(ctx + 0x54) = func_004669d0(*(u8 **)(ctx + 0x50), &st188, 0);
-        if (st188 == 0) {
+        context->unk_54 = (s32 *)func_004669d0(context->loadRequest, &loadComplete, 0);
+        if (loadComplete == 0) {
             goto tail;
         }
-        *(s32 *)(ctx + 4) = 5;
-        *(s32 *)(ctx + 0x50) = 0;
+        context->relation = 5;
+        context->loadRequest = NULL;
         goto tail;
     case 5:
         iGpffffa664 = func_00459760();
         iGpffffa668 = func_0045b400();
         sdkSndFadeMainChannel();
         sdkSndFadeOutChannelFrames(3, 0, 10);
-        *(s32 *)(ctx + 4) = 6;
-        *(s32 *)(ctx + 8) = 0;
-        memset(sp80, 0, 0xD8);
-        shdEffectSetRenderParams(sp80, 0x35, 0);
-        shdEffectFillFbufParams(sp80, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0.0f, 0.0f);
-        shdEffectSetFargParams(sp80, 0xFF, 0, fGpffff82a4, 0.25f);
-        *(s32 *)(ctx + 0x28) = shdEffectCreateBlurTask((s32)argb, 1, 0, sp80, D_005DC974);
-        *(s32 *)(ctx + 0x40) = (s32)cmmRankUpFindResEntry();
-        func_002518d0(*(s32 *)(ctx + 0x1C));
+        context->relation = 6;
+        context->mode = 0;
+        memset(blurParams, 0, 0xD8);
+        shdEffectSetRenderParams(blurParams, 0x35, 0);
+        shdEffectFillFbufParams(blurParams, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0.0f, 0.0f);
+        shdEffectSetFargParams(blurParams, 0xFF, 0, fGpffff82a4, 0.25f);
+        context->blurTask = shdEffectCreateBlurTask((s32)taskBytes, 1, 0, blurParams, D_005DC974);
+        context->unk_40 = (s32)cmmRankUpFindResEntry();
+        func_002518d0(context->animationMode);
     case 6:
-        tmp3 = *(s32 *)(ctx + 8) + 1;
-        *(s32 *)(ctx + 8) = tmp3;
-        if (tmp3 == 5 && FldPanel2dRelease() != 0) {
-            *(s32 *)ctx |= 1;
+        frameOrCommunity = context->mode + 1;
+        context->mode = frameOrCommunity;
+        if (frameOrCommunity == 5 && FldPanel2dRelease() != 0) {
+            context->flags |= 1;
         }
-        if (*(s32 *)(ctx + 8) < 0x35) {
+        if (context->mode < 0x35) {
             goto tail;
         }
-        kwlnTaskDestroyWithHierarchy(*(s32 *)(ctx + 0x28));
-        if (*(s32 *)(ctx + 0x1C) >= 1 && *(s32 *)(ctx + 0x1C) <= 10) {
-            *(s32 *)(ctx + 4) = 7;
+        kwlnTaskDestroyWithHierarchy(context->blurTask);
+        if (context->animationMode >= 1 && context->animationMode <= 10) {
+            context->relation = 7;
         } else {
-            *(s32 *)(ctx + 4) = 9;
+            context->relation = 9;
         }
-        *(s32 *)(ctx + 8) = 0;
+        context->mode = 0;
         goto tail;
     case 7:
-        *(s32 *)(ctx + 4) = 8;
-        tmp4 = *(s32 *)(ctx + 0x1C);
-        tmp3 = *(s32 *)(ctx + 0x18);
-        if (tmp3 == 0) {
+        context->relation = 8;
+        rankOrFlags = context->animationMode;
+        frameOrCommunity = context->slot18.word;
+        if (frameOrCommunity == 0) {
             kAssertFail(D_00635CF8, 0x25D);
         }
         chkmemAllocSiteTag(D_00635CF8, 0x25E);
-        pv = D_008873F4[0](1, 0x40, 0x40000);
-        *(s32 *)((u8 *)pv + 4) = tmp3;
-        *(s32 *)((u8 *)pv + 8) = tmp4;
-        *(void **)(ctx + 0x24) = (void *)(s32)kwlnTaskCreateChild((void *)(argb), (const void *)(D_00635D08), 0xF, 0, 0, cmmRankUpCardTaskUpdate, func_00251ce0, (u8 *)(pv));
+        cardWork = D_008873F4[0](1, 0x40, 0x40000);
+        ((CmmRankUpCardTask *)cardWork)->relation = frameOrCommunity;
+        ((CmmRankUpCardTask *)cardWork)->mode = rankOrFlags;
+        context->cardTask = (s32)kwlnTaskCreateChild((void *)(taskBytes), (const void *)(D_00635D08), 0xF, 0, 0, cmmRankUpCardTaskUpdate, func_00251ce0, (u8 *)(cardWork));
     case 8:
         if (kwlnTaskGetTaskByName(D_00635D08) != 0) {
             goto tail;
         }
-        if (*(s32 *)(ctx + 0x1C) == 0 || *(s32 *)(ctx + 0x1C) == 10) {
-            *(s32 *)(ctx + 4) = 9;
+        if (context->animationMode == 0 || context->animationMode == 10) {
+            context->relation = 9;
         } else {
-            *(s32 *)(ctx + 4) = 0xB;
+            context->relation = 0xB;
         }
-        *(s32 *)(ctx + 8) = 0;
+        context->mode = 0;
         goto tail;
     case 9:
-        *(s32 *)(ctx + 4) = 10;
-        *(s8 *)(ctx + 0x3C) = (s8)itfMesWindowInstall(*(s32 *)(ctx + 0x38));
-        *(s32 *)(ctx + 0x44) = 0;
-        *(s32 *)ctx |= 2;
-        tmp4 = *(s32 *)(ctx + 0x1C);
+        context->relation = 10;
+        context->pulse120.low = (s8)itfMesWindowInstall(context->messageData);
+        context->unk_44 = 0;
+        context->flags |= 2;
+        rankOrFlags = context->animationMode;
         sdkSndFadeOutChannelFrames(3, 0, 10);
-        if (tmp4 >= 1 && tmp4 <= 9) {
+        if (rankOrFlags >= 1 && rankOrFlags <= 9) {
             goto case10tail;
         }
-        if (tmp4 == 10) {
+        if (rankOrFlags == 10) {
             hsndQueueSound(0xF, 10);
         } else {
             hsndQueueSound(0xE, 10);
@@ -3448,43 +3467,43 @@ s32 cmmRankUpSequenceUpdate(u8 *arg0) {
         /* fallthrough */
     case 10:
     case10tail:
-        if (rankUpAnimationComplete(argb) == 0) {
+        if (rankUpAnimationComplete(taskBytes) == 0) {
             goto tail;
         }
-        *(s32 *)(ctx + 4) = 0xB;
-        itfMesWindowReleaseIfActive(*(s8 *)(ctx + 0x3C));
-        *(s32 *)(ctx + 8) = 0;
+        context->relation = 0xB;
+        itfMesWindowReleaseIfActive(context->pulse120.low);
+        context->mode = 0;
         goto tail;
     case 11:
-        *(s32 *)(ctx + 4) = 0xC;
+        context->relation = 0xC;
     case 12:
-        *(s32 *)(ctx + 4) = 0xD;
-        *(s32 *)(ctx + 8) = 0;
+        context->relation = 0xD;
+        context->mode = 0;
         goto tail;
     case 13:
-        *(s32 *)(ctx + 4) = 0xE;
-        *(s8 *)(ctx + 0x3C) = nmMesWindowAcquire(*(void **)(ctx + 0x38));
-        tmp4 = *(s32 *)(ctx + 0x1C);
-        if (tmp4 == 0) {
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
-            if (*(s32 *)(ctx + 0x18) == 7) {
-                nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0xC);
+        context->relation = 0xE;
+        context->pulse120.low = nmMesWindowAcquire((void *)context->messageData);
+        rankOrFlags = context->animationMode;
+        if (rankOrFlags == 0) {
+            nmMesWindowSetSlotString(context->pulse120.low, 0, (char *)func_002438b0((u8)cmmCommunityArcana(context->slot18.communityId)));
+            if (context->slot18.word == 7) {
+                nmMesWindowShowSlotRecord(context->pulse120.low, 0xC);
             } else {
-                nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 2);
+                nmMesWindowShowSlotRecord(context->pulse120.low, 2);
             }
-        } else if (tmp4 == 10) {
-            frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, sp160);
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
-            frFontExCopyString((char *)cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 2, sp160);
-            strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))) + 0x40)));
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 3, sp160);
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 4);
-        } else if (tmp4 == 11) {
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 5);
-        } else if (tmp4 == 12) {
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 6);
+        } else if (rankOrFlags == 10) {
+            frFontExCopyString((char *)cmmNameRecord(context->slot18.communityId), (char *)text, 0x20);
+            nmMesWindowSetSlotString(context->pulse120.low, 0, text);
+            nmMesWindowSetSlotString(context->pulse120.low, 1, (char *)func_002438b0((u8)cmmCommunityArcana(context->slot18.communityId)));
+            frFontExCopyString((char *)cmmPersonaRecord((s8)cmmCommunityArcana(context->slot18.communityId)), (char *)text, 0x20);
+            nmMesWindowSetSlotString(context->pulse120.low, 2, text);
+            strcpy((char *)text, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)cmmCommunityArcana(context->slot18.communityId)) + 0x40)));
+            nmMesWindowSetSlotString(context->pulse120.low, 3, text);
+            nmMesWindowShowSlotRecord(context->pulse120.low, 4);
+        } else if (rankOrFlags == 11) {
+            nmMesWindowShowSlotRecord(context->pulse120.low, 5);
+        } else if (rankOrFlags == 12) {
+            nmMesWindowShowSlotRecord(context->pulse120.low, 6);
         } else {
             if (iGpffffa664 != -1) {
                 hsndQueueSound((s16)iGpffffa664, 10);
@@ -3497,98 +3516,98 @@ s32 cmmRankUpSequenceUpdate(u8 *arg0) {
             } else {
                 sdkSndFadeOutChannel(3, 0);
             }
-            frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, sp160);
-            sprintf(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, sp160);
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 3);
+            frFontExCopyString((char *)cmmNameRecord(context->slot18.communityId), (char *)text, 0x20);
+            nmMesWindowSetSlotString(context->pulse120.low, 0, text);
+            sprintf(text, &cGpffffa688, context->animationMode);
+            nmMesWindowSetSlotString(context->pulse120.low, 1, text);
+            nmMesWindowSetSlotString(context->pulse120.low, 2, (char *)func_002438b0((u8)cmmCommunityArcana(context->slot18.communityId)));
+            nmMesWindowShowSlotRecord(context->pulse120.low, 3);
         }
     case 14:
-        if (nmMesWindowSlotStatus(*(s8 *)(ctx + 0x3C)) == 0) {
+        if (nmMesWindowSlotStatus(context->pulse120.low) == 0) {
             s8 completedRank;
-            nmMesWindowRestartSlot(*(s8 *)(ctx + 0x3C));
-            tmp4 = *(s32 *)(ctx + 0x1C);
-            completedRank = (s8)tmp4;
+            nmMesWindowRestartSlot(context->pulse120.low);
+            rankOrFlags = context->animationMode;
+            completedRank = (s8)rankOrFlags;
             if (completedRank == 0) {
                 completedRank = 1;
             }
-            if (tmp4 != 0xB && tmp4 != 0xC && cmmRankUpSelectDisplayIndex(*(s32 *)(ctx + 0x18), completedRank) != 0) {
-                *(s32 *)(ctx + 4) = 0xF;
+            if (rankOrFlags != 0xB && rankOrFlags != 0xC && cmmRankUpSelectDisplayIndex(context->slot18.word, completedRank) != 0) {
+                context->relation = 0xF;
             } else {
-                nmMesWindowDestroySlot(*(s8 *)(ctx + 0x3C));
-                *(s32 *)(ctx + 4) = 1;
-                *(s32 *)ctx |= 4;
+                nmMesWindowDestroySlot(context->pulse120.low);
+                context->relation = 1;
+                context->flags |= 4;
             }
         }
-        nmMesWindowStepSlotRelease(*(s8 *)(ctx + 0x3C));
+        nmMesWindowStepSlotRelease(context->pulse120.low);
         goto tail;
     case 15:
-        *(s32 *)(ctx + 4) = 0x10;
-        cc = *(s8 *)(ctx + 0x1C);
-        if (cc == 0) {
-            cc = 1;
+        context->relation = 0x10;
+        completedRankValue = *(s8 *)&context->animationMode;
+        if (completedRankValue == 0) {
+            completedRankValue = 1;
         }
         unlockFlags = *(const RankUpUnlockFlags *)D_00636740;
-        c = (s8)cmmRankUpSelectDisplayIndex(*(s32 *)(ctx + 0x18), cc);
-        if (c >= 2 && c <= 6 && (*(s32 *)ctx & 0x20) != 0) {
-            datSetFlag(unlockFlags.values[c - 2], 1);
-            switch (c) {
+        displayIndex = (s8)cmmRankUpSelectDisplayIndex(context->slot18.word, completedRankValue);
+        if (displayIndex >= 2 && displayIndex <= 6 && (context->flags & 0x20) != 0) {
+            datSetFlag(unlockFlags.values[displayIndex - 2], 1);
+            switch (displayIndex) {
             case 2:
-                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0xD);
+                nmMesWindowShowSlotRecordStyle1(context->pulse120.low, 0xD);
                 break;
             case 3:
-                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0xE);
+                nmMesWindowShowSlotRecordStyle1(context->pulse120.low, 0xE);
                 break;
             case 4:
-                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0xF);
+                nmMesWindowShowSlotRecordStyle1(context->pulse120.low, 0xF);
                 break;
             case 5:
-                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0x10);
+                nmMesWindowShowSlotRecordStyle1(context->pulse120.low, 0x10);
                 break;
             case 6:
-                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0x11);
+                nmMesWindowShowSlotRecordStyle1(context->pulse120.low, 0x11);
                 break;
             }
-            *(s32 *)ctx &= ~0x20;
+            context->flags &= ~0x20;
             goto case16tail;
         }
-        if (c >= 2 && c < 7 && datGetFlag(unlockFlags.values[c - 2]) == 0) {
-            *(s32 *)ctx |= 0x20;
+        if (displayIndex >= 2 && displayIndex < 7 && datGetFlag(unlockFlags.values[displayIndex - 2]) == 0) {
+            context->flags |= 0x20;
         }
-        frFontExCopyString((char *)cmmTextRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
-        nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 0, sp160);
-        switch (c) {
+        frFontExCopyString((char *)cmmTextRecord(context->slot18.communityId), (char *)text, 0x20);
+        nmMesWindowSetSlotString(context->pulse120.low, 0, text);
+        switch (displayIndex) {
         case 2:
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 7);
+            nmMesWindowShowSlotRecord(context->pulse120.low, 7);
             break;
         case 3:
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 8);
+            nmMesWindowShowSlotRecord(context->pulse120.low, 8);
             break;
         case 4:
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 9);
+            nmMesWindowShowSlotRecord(context->pulse120.low, 9);
             break;
         case 5:
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 10);
+            nmMesWindowShowSlotRecord(context->pulse120.low, 10);
             break;
         case 6:
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 11);
+            nmMesWindowShowSlotRecord(context->pulse120.low, 11);
             break;
         case 7:
             skill = 0x113;
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0x12);
+            nmMesWindowSetSlotString(context->pulse120.low, 1, (void *)(iGpffffb448 + 0x1469));
+            nmMesWindowShowSlotRecord(context->pulse120.low, 0x12);
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x113);
             break;
         case 8:
             skill = 0x112;
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
-            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0x13);
+            nmMesWindowSetSlotString(context->pulse120.low, 1, (void *)(iGpffffb448 + 0x1456));
+            nmMesWindowShowSlotRecord(context->pulse120.low, 0x13);
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x112);
             break;
         case 9:
             skill = 0x10D;
-            nmMesWindowSetSlotString(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x13F7));
+            nmMesWindowSetSlotString(context->pulse120.low, 1, (void *)(iGpffffb448 + 0x13F7));
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x10D);
             break;
         }
@@ -3601,44 +3620,44 @@ s32 cmmRankUpSequenceUpdate(u8 *arg0) {
         /* fallthrough */
     case 16:
     case16tail:
-        if (nmMesWindowSlotStatus(*(s8 *)(ctx + 0x3C)) == 0) {
-            nmMesWindowRestartSlot(*(s8 *)(ctx + 0x3C));
-            if ((*(s32 *)ctx & 0x20) != 0) {
-                *(s32 *)(ctx + 4) = 0xF;
+        if (nmMesWindowSlotStatus(context->pulse120.low) == 0) {
+            nmMesWindowRestartSlot(context->pulse120.low);
+            if ((context->flags & 0x20) != 0) {
+                context->relation = 0xF;
             } else {
-                nmMesWindowDestroySlot(*(s8 *)(ctx + 0x3C));
-                *(s32 *)(ctx + 4) = 1;
-                *(s32 *)ctx |= 4;
+                nmMesWindowDestroySlot(context->pulse120.low);
+                context->relation = 1;
+                context->flags |= 4;
             }
         }
-        nmMesWindowStepSlotRelease(*(s8 *)(ctx + 0x3C));
+        nmMesWindowStepSlotRelease(context->pulse120.low);
         goto tail;
     default:
         goto tail;
     }
 tail:
-    tmp4 = *(s32 *)ctx;
-    if ((tmp4 & 8) != 0) {
-        if ((tmp4 & 4) != 0) {
-            tmp = *(s32 *)(ctx + 0x4C) - 1;
-            *(s32 *)(ctx + 0x4C) = tmp;
-            if (tmp <= 0) {
-                *(s32 *)ctx &= ~4;
-                *(s32 *)ctx &= ~8;
+    rankOrFlags = context->flags;
+    if ((rankOrFlags & 8) != 0) {
+        if ((rankOrFlags & 4) != 0) {
+            fadeFrame = context->fadeFrame - 1;
+            context->fadeFrame = fadeFrame;
+            if (fadeFrame <= 0) {
+                context->flags &= ~4;
+                context->flags &= ~8;
             }
         }
-    } else if ((tmp4 & 2) != 0) {
-        tmp = *(s32 *)(ctx + 0x4C) + 1;
-        *(s32 *)(ctx + 0x4C) = tmp;
-        if (tmp >= 0x28) {
-            *(s32 *)ctx &= ~2;
-            *(s32 *)ctx |= 8;
+    } else if ((rankOrFlags & 2) != 0) {
+        fadeFrame = context->fadeFrame + 1;
+        context->fadeFrame = fadeFrame;
+        if (fadeFrame >= 0x28) {
+            context->flags &= ~2;
+            context->flags |= 8;
         }
     }
-    pb = PrimAllocQueueNode();
-    *(void **)(pb + 8) = (void *)cmmRankUpDrawSprite;
-    *(u8 **)(pb + 0x10) = argb;
-    PrimAppendNode(D_007963D0, pb);
+    node = PrimAllocQueueNode();
+    ((BtlRenderNode *)node)->callback = (void *)cmmRankUpDrawSprite;
+    ((BtlRenderNode *)node)->work = taskBytes;
+    PrimAppendNode(D_007963D0, node);
     return 0;
 }
 
@@ -3652,51 +3671,51 @@ tail:
 // Releases a CDVD load task: disables and clears the scene resources in its list, frees the list and work blocks, and destroys the CDVD handle.
 // FUN_0025C100
 void cmmRankUpSequenceDestroy(u8 *unusedTask) {
-    void (**fp)(void *);
-    u8 *p;
+    void (**freeWork)(void *);
+    CmmRankUpSequence *context;
     u8 *list;
     s32 i;
 
-    p = (u8 *)kwlnTaskGetWork();
-    if (*(s32 *)p & 1) {
+    context = (CmmRankUpSequence *)kwlnTaskGetWork();
+    if (context->flags & 1) {
         FldPanel2dTaskCreate();
     }
-    list = *(u8 **)(p + 0x40);
+    list = (u8 *)context->unk_40;
     i = 0;
-    while (*(s32 *)(list + i * 0x10 + 8) != 0) {
-        if (*(s32 *)(list + i * 0x10 + 0xC) == 0) {
-            MT_Scene_SetResEnabled(*(s32 *)(list + i * 0x10 + 8), 0);
+    while ((s32)((RankUpResourceState *)list)[i].resource != 0) {
+        if (((RankUpResourceState *)list)[i].enabled == 0) {
+            MT_Scene_SetResEnabled((s32)((RankUpResourceState *)list)[i].resource, 0);
         }
-        mdlSetLayerWeight(*(u8 **)(list + i * 0x10 + 4), 0, *(f32 *)(list + i * 0x10));
+        mdlSetLayerWeight(((RankUpResourceState *)list)[i].model, 0, ((RankUpResourceState *)list)[i].weight);
         i++;
     }
-    fp = (void (**)(void *))DAT_008873ec_abs;
-    (*fp)(list);
-    if (*(u32 *)(p + 0x50) != 0) {
+    freeWork = (void (**)(void *))DAT_008873ec_abs;
+    (*freeWork)(list);
+    if ((u32)context->loadRequest != 0) {
         kAssertFail(&D_00635CF8, 0xC2F);
     }
-    if (*(u8 **)(p + 0x58) != NULL) {
-        (*fp)(*(u8 **)(p + 0x58));
+    if (context->unk_58 != NULL) {
+        (*freeWork)(context->unk_58);
     }
-    if (*(u32 *)(p + 0x54) != 0) {
-        func_003ef3a0(*(u32 *)(p + 0x54));
+    if ((u32)context->unk_54 != 0) {
+        func_003ef3a0((u32)context->unk_54);
     }
-    H_Cdvd_Destroy(*(u32 *)(p + 0x34));
-    (*fp)(p);
+    H_Cdvd_Destroy((u32)context->directory);
+    (*freeWork)(context);
 }
-// Spawns the rank-up sequence task under arg0 for resource arg1 (must be nonzero), storing arg2 and arg3 as its load parameters; the task is destroyed by cmmRankUpSequenceDestroy.
+// Spawns the rank-up sequence task under value for resource option1 (must be nonzero), storing option2 and option3 as its load parameters; the task is destroyed by cmmRankUpSequenceDestroy.
 // FUN_0025C230
-void cmmRankUpSequenceStart(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    u8 *p;
+void cmmRankUpSequenceStart(s32 parentTask, s32 communityId, s32 rank, s32 resourceId) {
+    CmmRankUpSequence *work;
 
-    if (arg1 == 0) {
+    if (communityId == 0) {
         kAssertFail(D_00635CF8, 0xC40);
     }
     chkmemAllocSiteTag(D_00635CF8, 0xC41);
-    p = (u8 *)D_008873F4[0](1, 0x5C, 0x40000);
-    *(s32 *)(p + 0x18) = arg1;
-    *(s32 *)(p + 0x1C) = arg2;
-    *(s32 *)(p + 0x20) = arg3;
-    *(s32 *)(p + 0x4) = 0;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, cmmRankUpSequenceUpdate, cmmRankUpSequenceDestroy, (u8 *)(p));
+    work = (CmmRankUpSequence *)D_008873F4[0](1, 0x5C, 0x40000);
+    work->slot18.word = communityId;
+    work->animationMode = rank;
+    work->unk_20 = resourceId;
+    work->relation = 0;
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_006367C0), 0xF, 0, 0, cmmRankUpSequenceUpdate, cmmRankUpSequenceDestroy, (u8 *)(work));
 }
