@@ -69,13 +69,13 @@ extern s32 mdlPrepareModel(u8 *model);
 
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern u32 H_Cdvd_Destroy(HCdvd *file);
-extern s32 NpcTable_InstallFixedTable(u8 *arg0);
+extern s32 NpcTable_InstallFixedTable(u8 *);
 extern s32 FldEnemyLoadTable(u8 *file);
 extern s32 sdkSndCreateStreamTask(void *parent, s32 kind, s32 buffer, void *name);
 extern s32 sdkSndStreamTaskReap(void *request);
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *source);
-extern s32 FldMipmapLoadTaskCreate(u8 *arg0);
+extern s32 FldMipmapLoadTaskCreate(u8 *);
 extern s32 kwlnTaskIsLinked(void *task);
 extern void kAssertFail(const void *msg, s32 id);
 extern s32 D_007E3710[];
@@ -90,7 +90,7 @@ extern s32 iGpffffb278;
 extern s32 iGpffffb27c;
 extern s32 iGpffffb280;
 extern s32 iGpffffb284;
-extern s32 FldStartupDataUpdate(u8 *arg0);
+extern s32 FldStartupDataUpdate(u8 *);
 
 
 
@@ -130,6 +130,7 @@ static inline u8 fldDataModelReady(void)
 /* Source unit: src/promoted/k_fldData.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldData.c; members 0015d730-0015e7d0 */
 
+/* Load startup models, scripts and tables, then finish texture requests and the mipmap task. */
 // FUN_0015D730
 s32 FldStartupDataUpdate(u8 *task)
 {
@@ -415,12 +416,14 @@ television_texture_test:
 }
 
 #pragma pop
+/* Free the startup loader work after its resource handoffs. */
 // FUN_0015E7A0
-void FldStartupDataDestroy(u8 *arg0)
+void FldStartupDataDestroy(u8 *task)
 {
-    (*DAT_008873EC)(*(u8 **)(arg0 + 0x38));
+    (*DAT_008873EC)(((SdkTask *)task)->work);
 }
 
+/* Allocate and register the startup resource loader. */
 // FUN_0015E7D0
 s32 FldStartupDataCreate(void)
 {
@@ -433,7 +436,7 @@ s32 FldStartupDataCreate(void)
         return 0;
     }
     result = (s32)kwlnTaskCreate((const void *)(D_005F1050), 0xF, 0, 0, FldStartupDataUpdate, FldStartupDataDestroy, (u8 *)(mem));
-    *(s32 *)(mem + 4) = 0;
+    ((FldDataLoadWork *)mem)->reserved04 = 0;
     return result;
 }
 

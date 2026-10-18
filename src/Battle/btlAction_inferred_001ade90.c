@@ -127,7 +127,7 @@ void btlTaskSlotLinkedSlot3Callback(void);
 
 extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 extern void btlActionSkillUpdate(u8 *arg0);
-u8 func_0023e1f0(u8 *unitData);
+u8 datCalcGetCharacterTableKind(u8 *unitData);
 static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
 {
     return *(s16 *)((u8 *)firstField + (u16)unitId * 0xE8);
@@ -143,7 +143,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
     switch (*(u8 *)(unit + 0xA2)) {
     case 0:
         {
-            s32 state = func_0023e1f0(ctx) & 0xFF;
+            s32 state = datCalcGetCharacterTableKind(ctx) & 0xFF;
 
             if (state == 5) {
                 result = 1;

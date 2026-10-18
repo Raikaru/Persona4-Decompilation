@@ -29,7 +29,7 @@ extern s32 btlDamageIsIdle(s32);
 extern void btlPanelSetCountdown(s32, s32);
 extern void btlSoundFadeChannel(s16 channel, s32 fadeFrames);
 extern u32 datGetFlag(s32 arg0);
-extern s32 func_00243ce0(u8 *arg0);
+extern s32 datCalcEnemyHasTableFlag(u8 *arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void PrimAppendNode(void *arg0, void *arg1);
@@ -3096,7 +3096,7 @@ void btlMessageSetup(u8 *arg0, u8 *arg1)
     } else {
         *(u16 *)sub &= 0xFFFB;
     }
-    if (func_00243ce0(*(u8 **)(*(u8 **)(arg1 + 0x30) + 0xA64)) != 0) {
+    if (datCalcEnemyHasTableFlag(*(u8 **)(*(u8 **)(arg1 + 0x30) + 0xA64)) != 0) {
         *(u16 *)sub |= 8;
     } else {
         *(u16 *)sub &= 0xFFF7;
