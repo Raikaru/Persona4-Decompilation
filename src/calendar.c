@@ -3,6 +3,15 @@
 /* Original translation unit calendar.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "shd_misc_internal.h"
+#include "kwln_task_internal.h"
+
+/* Both calendar input tasks allocate exactly 0x10 bytes. */
+typedef struct CalendarWork {
+    s32 state;
+    s32 drawEnabled;
+    s32 dateIndex;
+    s32 childTask;
+} CalendarWork;
 extern s32 kwlnTaskGetTaskByName();
 extern u8 D_005E4FE8[];
 extern u8 D_005E4FD8[];
@@ -22,8 +31,8 @@ extern s32 calendarStepTimeSlot(u8 *task);
 extern void taskRecordDestroy(u8 *task);
 extern s32 func_001211a0(u8 *task);
 extern s32 calendarDraw(u8 *task);
-extern s32 calGetMonthLength(s32 arg0);
-extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
+extern s32 calGetMonthLength(s32 month);
+extern void calSplitDayOfYear(s32 month, s32 *output, s32 *option);
 extern u8 datGetTimeSlot(void);
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
@@ -34,10 +43,10 @@ extern void calendarSyncFromDate(void);
 extern s32 calendarTaskCreate(s32 a);
 extern s32 kwlnTaskGetState(s32 a);
 extern void datSetTimeSlot(s32 a);
-extern s32 calGetWeekdayOfDay(s32 arg0);
-extern s32 calGetWeekOfYear(s32 arg0);
-extern s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern s32 calGetWeekdayOfDay(s32 month);
+extern s32 calGetWeekOfYear(s32 month);
+extern s32 calDayOfYearFromMonthDay(s32 month, s32 output);
+extern void PrimDrawFlatRectangle(void *month, void *output, f32 depth, s32 option);
 extern s32 iGpffff9c54;
 extern const char *D_005E5010[];
 extern u8 D_005E5028[];
@@ -48,7 +57,7 @@ extern u8 D_005E5028[];
 // FUN_001211B0
 void calendarOpenFlagClear(void)
 {
-    u8 *work;
+    CalendarWork *work;
     s32 handle;
 
     D_007242B8 = 0;
@@ -82,57 +91,57 @@ void calendarClose(void)
 
 /* Input task update: cancel, confirm, and date/month cursor moves. */
 // FUN_00121310
-s32 calendarInputUpdate(u8 *arg0)
+s32 calendarInputUpdate(u8 *task)
 {
     s32 month;
     s32 day;
-    u8 *work;
+    CalendarWork *work;
     s32 state;
-    s32 v;
+    s32 dateIndex;
 
-    work = *(u8 **)((u8 *)arg0 + 0x38);
-    state = *(s32 *)work;
+    work = (CalendarWork *)((KwlnTask *)task)->work;
+    state = work->state;
     switch (state) {
     case 0:
-        *(s32 *)(work + 8) = 0;
-        *(s32 *)(work + 4) = 1;
-        *(s32 *)(work + 0) = 1;
+        work->dateIndex = 0;
+        work->drawEnabled = 1;
+        work->state = 1;
         break;
     case 1:
         if (D_008C0276[0] & 0x40) {
             func_00122520(1, 1);
-            datSetDateIndex((s16)*(s32 *)(work + 8));
+            datSetDateIndex((s16)work->dateIndex);
             func_001029a0(0x1A, NULL, 0, 0);
             return -1;
         }
         if (D_008C0276[0] & 0x800) {
-            datSetDateIndex((s16)*(s32 *)(work + 8));
+            datSetDateIndex((s16)work->dateIndex);
             calendarSyncFromDate();
-            *(s32 *)(work + 0xC) = calendarTaskCreate((s32)arg0);
-            *(s32 *)(work + 0) = 4;
+            work->childTask = calendarTaskCreate((s32)task);
+            work->state = 4;
         } else if (D_008C027A[0] & 0x1000) {
-            v = *(s32 *)(work + 8);
-            if (v < 7) {
-                *(s32 *)(work + 8) = 0;
+            dateIndex = work->dateIndex;
+            if (dateIndex < 7) {
+                work->dateIndex = 0;
             } else {
-                *(s32 *)(work + 8) = v - 7;
+                work->dateIndex = dateIndex - 7;
             }
         } else if (D_008C027A[0] & 0x4000) {
-            v = *(s32 *)(work + 8);
-            if (v > 0x165) {
-                *(s32 *)(work + 8) = 0x16C;
+            dateIndex = work->dateIndex;
+            if (dateIndex > 0x165) {
+                work->dateIndex = 0x16C;
             } else {
-                *(s32 *)(work + 8) = v + 7;
+                work->dateIndex = dateIndex + 7;
             }
         } else if (D_008C027A[0] & 0x8000) {
-            v = *(s32 *)(work + 8);
-            if (v != 0) {
-                *(s32 *)(work + 8) = v - 1;
+            dateIndex = work->dateIndex;
+            if (dateIndex != 0) {
+                work->dateIndex = dateIndex - 1;
             }
         } else if (D_008C027A[0] & 0x2000) {
-            v = *(s32 *)(work + 8);
-            if (v != 0x16C) {
-                *(s32 *)(work + 8) = v + 1;
+            dateIndex = work->dateIndex;
+            if (dateIndex != 0x16C) {
+                work->dateIndex = dateIndex + 1;
             }
         } else if (D_008C027A[0] & 0x4) {
             if ((datGetTimeSlot() & 0xFF) == 0) {
@@ -147,20 +156,20 @@ s32 calendarInputUpdate(u8 *arg0)
                 datSetTimeSlot(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
             }
         } else if (D_008C027A[0] & 0x1) {
-            calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
+            calSplitDayOfYear(work->dateIndex, &month, &day);
             if (month != 4) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) - (calGetMonthLength(month) - 1);
+                work->dateIndex = work->dateIndex - (calGetMonthLength(month) - 1);
             }
         } else if (D_008C027A[0] & 0x2) {
-            calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
+            calSplitDayOfYear(work->dateIndex, &month, &day);
             if (month != 3) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) + calGetMonthLength(month);
+                work->dateIndex = work->dateIndex + calGetMonthLength(month);
             }
         }
         break;
     case 4:
-        if (kwlnTaskGetState(*(s32 *)(work + 0xC)) == 3) {
-            *(s32 *)(work + 0) = 1;
+        if (kwlnTaskGetState(work->childTask) == 3) {
+            work->state = 1;
         }
         break;
     default:
@@ -170,11 +179,11 @@ s32 calendarInputUpdate(u8 *arg0)
 }
 /* Input task release: clears the shared draw work pointer and frees the work block. */
 // FUN_00121660
-void calendarInputRelease(u8 *arg0)
+void calendarInputRelease(u8 *task)
 {
-    void *p = *(void **)((u8 *)arg0 + 0x38);
+    void *work = ((KwlnTask *)task)->work;
     D_007242B4 = 0;
-    jtbl_008873EC[0](p);
+    jtbl_008873EC[0](work);
 }
 
 /* Draw task update: draws the calendar grid and day numbers for the current date. */
@@ -191,19 +200,19 @@ s32 calendarDraw(u8 *unusedTask)
     s32 current, index;
     s32 offset;
     s32 weekday;
-    u8 *work;
+    CalendarWork *work;
 
-    work = (u8 *)D_007242B4;
+    work = (CalendarWork *)D_007242B4;
     if (work == NULL) return 0;
-    if (*(s32 *)(work + 4) == 0) return 0;
+    if (work->drawEnabled == 0) return 0;
     color[0] = 0x40; color[1] = 0x40; color[2] = 0x40; color[3] = 0xff;
     dim[0] = 100; dim[1] = 100; dim[2] = 250; dim[3] = 100;
     PrimDrawFlatRectangle(color, dim, 0.0f, 1);
-    calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
+    calSplitDayOfYear(work->dateIndex, &month, &day);
     weekday = calGetWeekdayOfDay(calDayOfYearFromMonthDay(month, 1));
-    current = calGetWeekdayOfDay(*(s32 *)(work + 8));
+    current = calGetWeekdayOfDay(work->dateIndex);
     if (current >= weekday) offset = 0; else offset = 12;
-    offset = offset + (calGetWeekOfYear(*(s32 *)(work + 8)) - 1) * 12;
+    offset = offset + (calGetWeekOfYear(work->dateIndex) - 1) * 12;
     color[0] = 0x40; color[1] = 0x80; color[2] = 0x80; color[3] = 0xff;
     dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
     PrimDrawFlatRectangle(color, dim, 0.0f, 1);
@@ -230,7 +239,7 @@ s32 calendarDraw(u8 *unusedTask)
 s32 calendarStart(void)
 {
     s32 handle;
-    u8 *work;
+    CalendarWork *work;
 
     chkmemAllocSiteTag(D_005E4FD8, 0x164);
     work = D_008873F4[0](1, 0x10, 0x40000);
@@ -247,7 +256,7 @@ s32 calendarStart(void)
 // FUN_00121A20
 void calendarOpenFlagSet(void)
 {
-    u8 *work;
+    CalendarWork *work;
     s32 handle;
 
     D_007242B8 = 1;

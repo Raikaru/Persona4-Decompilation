@@ -36,7 +36,8 @@ struct CmmKindRecord
     u8 unk_00[0x04];         /* 0x00 */
     u32 flags;               /* 0x04. Kind flag bits (0x10, 0x20 tested by callers) */
     s8 arcana;               /* 0x08. Arcana byte (cmmCommunityArcana) */
-    u8 unk_09[0x03];         /* 0x09 */
+    u8 reverseRankLimit;     /* 0x09. Compared against the community rank */
+    u16 reverseThreshold;    /* 0x0A. Reverse-progress threshold; zero disables it */
     u16 tierBits;            /* 0x0C. Bit (tier - 1) tested by cmmCommunityHasTierBit */
     u16 category;            /* 0x0E. Category id (cmmCommunityCategory) */
     u16 rankThreshold[0x2A]; /* 0x10. Points needed for each rank level; indexed by level as an element (u16), not a byte offset */
@@ -93,7 +94,7 @@ typedef struct CmmRankUpEntry CmmRankUpEntry;
 struct CmmRankUpEntry
 {
     u32 flags;               /* 0x00. CmmRankUpEntryFlag bits */
-    u8 unk_04[0x04];         /* 0x04 */
+    s32 frame;              /* 0x04. Per-entry animation timer */
     CmmRankUpEntryStep step; /* 0x08. Run each frame; a nonzero return clears ACTIVE */
     u8 unk_0c[0x6C];         /* 0x0C */
 };
@@ -155,10 +156,12 @@ struct CmmRankUpSequence
     } slot18;                /* 0x18 */
     s32 animationMode;       /* 0x1C. Rank; selects the renderer branch */
     s32 unk_20;              /* 0x20. Resource id for cmmRankUpAttachResMatrix */
-    u8 unk_24[0x08];         /* 0x24. Card-task handle and blur task (cmmRankUpSequenceStart) */
+    s32 cardTask;            /* 0x24. Rank-up card child task */
+    s32 blurTask;            /* 0x28. Temporary scene blur task */
     s32 portraitIdFirst;     /* 0x2C. Portrait id for the first texture */
     s32 portraitIdSecond;    /* 0x30. Portrait id for the second texture */
-    u8 unk_34[0x08];         /* 0x34 */
+    u8 *directory;          /* 0x34. CDVD directory request */
+    s32 messageData;        /* 0x38. Message archive entry */
     union {
         s16 ticks;           /* 0x3C. Frame timer that wraps at 120 */
         s8 low;              /* 0x3C. Low byte, passed as a label argument */
@@ -167,7 +170,8 @@ struct CmmRankUpSequence
     s32 unk_40;              /* 0x40 */
     s32 unk_44;              /* 0x44. Complete flag */
     s32 frame45;             /* 0x48. Frame counter that wraps at 45 */
-    u8 unk_4c[0x08];         /* 0x4C */
+    s32 fadeFrame;          /* 0x4C. Fade ramp, from 0 to 40 */
+    u8 *loadRequest;        /* 0x50. Asynchronous resource load request */
     s32 *unk_54;             /* 0x54. Pointer to the portrait value word (renderer reads through it) */
     u8 *unk_58;              /* 0x58. Cast to a palette row (RankUpColor) by the renderer */
 };
