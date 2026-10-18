@@ -5,6 +5,7 @@
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
+#include "scene_resource_internal.h"
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 
@@ -38,10 +39,7 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 mtSceneMulF32(f32 left, f32 right)
-{
-    return left * right;
-}
+
 extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5,
@@ -52,14 +50,8 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *rbRingNextNode(s32 offset, u32 *base)
-{
-    return (u32 *)((u8 *)base + offset + 8);
-}
-static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
-{
-    return base + index;
-}
+
+
 
 
 extern u8 D_00637420[];
@@ -130,122 +122,121 @@ extern f32 D_007612C4;
 #pragma opt_loop_invariants on
 // Intent: Samples a scene path at the elapsed distance, writing position and rotation [inferred]
 // FUN_0026CEF0
-f32 MT_Scene_SamplePath(s8 *arg0, f32 fparg0, f32 fparg1,
-                  f32 *arg1, f32 *arg2)
+f32 MT_Scene_SamplePath(s8 *pathData, f32 elapsedDistance, f32 totalDistance,
+                  f32 *position, f32 *rotation)
 {
-    typedef struct { f32 x, y, z; } CefV3;
-    typedef struct { s8 count; u8 pad[3]; CefV3 pts[1]; } CefPath;
     f32 ax0, ax1, ay0, ay1, az0, az1;
     f32 bx0, bx1, by0, by1, bz0, bz1;
     f32 cx0, cx1, cy0, cy1, cz0, cz1;
-    CefV3 at;
-    CefV3 delta;
-    CefV3 back;
-    CefV3 dir;
-    CefV3 dF;
-    CefV3 dL;
-    CefV3 dB;
+    ScenePathPoint at;
+    ScenePathPoint delta;
+    ScenePathPoint back;
+    ScenePathPoint dir;
+    ScenePathPoint endDelta;
+    ScenePathPoint sampleDelta;
+    ScenePathPoint backDelta;
     f32 x[4];
     f32 y[4];
     f32 z[4];
-    f32 dist;
-    f32 t;
+    f32 accumulatedDistance;
+    f32 sampleTime;
     f32 step;
-    f32 pos;
-    f32 len;
-    f32 frac;
-    f32 adv;
-    f32 u;
+    f32 pathTime;
+    f32 sampleLength;
+    f32 fraction;
+    f32 advance;
+    f32 tangentTime;
     f32 sx, sy, sz;
-    s32 seg;
-    s32 k;
-    s8 n;
-    s32 idx;
-    CefPath *path;
-    CefV3 *pts;
+    s32 segmentIndex;
+    s32 sampleIndex;
+    s8 segmentCount;
+    s32 pointIndex;
+    ScenePath *path;
+    ScenePathPoint *points;
 
-    path = (CefPath *)arg0;
-    dist = 0.0f;
-    n = path->count;
-    step = (1.0f / (f32)n) / 20.0f;
-    pos = dist;
-    if (fparg1 <= fparg0) {
-        s32 j;
+    path = (ScenePath *)pathData;
+    accumulatedDistance = 0.0f;
+    segmentCount = path->count;
+    step = (1.0f / (f32)segmentCount) / 20.0f;
+    pathTime = accumulatedDistance;
+    if (totalDistance <= elapsedDistance) {
+        s32 controlIndex;
 
-        idx = (n - 1) * 3;
-        for (j = 0; j < 4; j++) {
-            x[j] = path->pts[idx + j].x;
-            y[j] = path->pts[idx + j].y;
-            z[j] = path->pts[idx + j].z;
+        pointIndex = (segmentCount - 1) * 3;
+        for (controlIndex = 0; controlIndex < 4; controlIndex++) {
+            x[controlIndex] = path->points[pointIndex + controlIndex].x;
+            y[controlIndex] = path->points[pointIndex + controlIndex].y;
+            z[controlIndex] = path->points[pointIndex + controlIndex].z;
         }
         MT_Scene_EvalCubicBezier(fGpffff82d4, x, y, z, &ax0, &ay0, &az0);
         MT_Scene_EvalCubicBezier(1.0f, x, y, z, &ax1, &ay1, &az1);
-        dF.x = ax1 - ax0;
-        dF.y = ay1 - ay0;
-        dF.z = az1 - az0;
-        RwV3dLength((f32 *)&dF);
+        endDelta.x = ax1 - ax0;
+        endDelta.y = ay1 - ay0;
+        endDelta.z = az1 - az0;
+        RwV3dLength((f32 *)&endDelta);
         at.x = ax1;
         at.y = ay1;
         at.z = az1;
-        *(CefV3 *)arg1 = at;
+        *(ScenePathPoint *)position = at;
         delta.x = at.x - ax0;
         delta.y = at.y - ay0;
         delta.z = at.z - az0;
         RwV3dNormalize((f32 *)&dir, (f32 *)&delta);
-        MT_Scene_GetDirectionYaw((f32 *)&dir, arg2);
+        MT_Scene_GetDirectionYaw((f32 *)&dir, rotation);
         return 1.0f;
     }
-    for (seg = 0; seg < path->count; seg++) {
-        s32 j;
+    for (segmentIndex = 0; segmentIndex < path->count; segmentIndex++) {
+        s32 controlIndex;
 
-        for (j = 0; j < 4; j++) {
-            pts = &path->pts[seg * 3 + j];
-            x[j] = pts->x;
-            y[j] = pts->y;
-            z[j] = pts->z;
+        for (controlIndex = 0; controlIndex < 4; controlIndex++) {
+            points = &path->points[segmentIndex * 3 + controlIndex];
+            x[controlIndex] = points->x;
+            y[controlIndex] = points->y;
+            z[controlIndex] = points->z;
         }
-        for (k = 0; k < 20; k++) {
-            t = (f32)k * fGpffff83d0;
-            MT_Scene_EvalCubicBezier(t, x, y, z, &bx0, &by0, &bz0);
-            MT_Scene_EvalCubicBezier((f32)(k + 1) * fGpffff83d0, x, y, z, &bx1, &by1, &bz1);
-            dL.x = bx1 - bx0;
-            dL.y = by1 - by0;
-            dL.z = bz1 - bz0;
-            len = RwV3dLength((f32 *)&dL);
+        for (sampleIndex = 0; sampleIndex < 20; sampleIndex++) {
+            sampleTime = (f32)sampleIndex * fGpffff83d0;
+            MT_Scene_EvalCubicBezier(sampleTime, x, y, z, &bx0, &by0, &bz0);
+            MT_Scene_EvalCubicBezier((f32)(sampleIndex + 1) * fGpffff83d0, x, y, z, &bx1, &by1, &bz1);
+            sampleDelta.x = bx1 - bx0;
+            sampleDelta.y = by1 - by0;
+            sampleDelta.z = bz1 - bz0;
+            sampleLength = RwV3dLength((f32 *)&sampleDelta);
             sx = bx0;
             sy = by0;
             sz = bz0;
             at.x = bx1;
             at.y = by1;
             at.z = bz1;
-            dist += len;
-            if (!(dist < fparg0)) {
-                frac = 1.0f - (dist - fparg0) / len;
-                adv = step * frac;
-                pos += adv;
+            accumulatedDistance += sampleLength;
+            if (!(accumulatedDistance < elapsedDistance)) {
+                fraction = 1.0f - (accumulatedDistance - elapsedDistance) / sampleLength;
+                advance = step * fraction;
+                pathTime += advance;
                 delta.x = at.x - sx;
                 delta.y = at.y - sy;
                 delta.z = at.z - sz;
-                arg1[0] = sx + delta.x * frac;
-                arg1[1] = sy + delta.y * frac;
-                arg1[2] = sz + delta.z * frac;
-                u = t + adv;
-                MT_Scene_EvalCubicBezier(u, x, y, z, &cx0, &cy0, &cz0);
-                MT_Scene_EvalCubicBezier(u - fGpffff842c, x, y, z, &cx1, &cy1, &cz1);
-                dB.x = cx1 - cx0;
-                dB.y = cy1 - cy0;
-                dB.z = cz1 - cz0;
-                RwV3dLength((f32 *)&dB);
+                position[0] = sx + delta.x * fraction;
+                position[1] = sy + delta.y * fraction;
+                position[2] = sz + delta.z * fraction;
+                tangentTime = sampleTime + advance;
+                MT_Scene_EvalCubicBezier(tangentTime, x, y, z, &cx0, &cy0, &cz0);
+                MT_Scene_EvalCubicBezier(tangentTime - fGpffff842c, x, y, z, &cx1, &cy1, &cz1);
+                backDelta.x = cx1 - cx0;
+                backDelta.y = cy1 - cy0;
+                backDelta.z = cz1 - cz0;
+                RwV3dLength((f32 *)&backDelta);
                 back.x = cx0 - cx1;
                 back.y = cy0 - cy1;
                 back.z = cz0 - cz1;
                 RwV3dNormalize((f32 *)&dir, (f32 *)&back);
-                MT_Scene_GetDirectionYaw((f32 *)&dir, arg2);
-                return pos;
+                MT_Scene_GetDirectionYaw((f32 *)&dir, rotation);
+                return pathTime;
             }
-            pos += step;
+            pathTime += step;
         }
     }
     return 0.0f;
 }
+#pragma pop
 

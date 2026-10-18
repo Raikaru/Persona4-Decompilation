@@ -11,7 +11,8 @@
 #include "resrc_manager_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "rw/plcore/barenderstate.h"
-
+#include "scene_task_internal.h"
+#include "scene_resource_internal.h"
 /* RenderWare sky2/rwcore.h:5683-5747. The compact GS state values are
    carried as pointers; the same entry point also accepts real pointers. */
 typedef s32 RwBool;
@@ -155,13 +156,8 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
+
+
 typedef struct {
     u8 b0;
     u8 b1;
@@ -202,10 +198,7 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
+
 
 
 
@@ -266,177 +259,184 @@ extern f32 D_008872F8[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001453a0-00145780 */
 
 // FUN_001453A0
-s32 MT_Scene_CreateRes08(u16 arg0)
+/* Create the packed resource and initialize its model, camera or shadow handles. */
+s32 MT_Scene_CreateRes08(u16 resourceId)
 {
-    s32 temp_16;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *temp_2;
+    s32 resourceTypeId;
+    s32 packedId;
+    s32 manager;
+    u8 *resource;
 
-    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x2000) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x2000) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(D_005EF820);
         return 0;
     }
-    temp_3 = (u16)temp_16;
-    if (((temp_3 & 0xFFC00) >> 10) != 8) {
+    packedId = (u16)resourceTypeId;
+    if (((packedId & 0xFFC00) >> 10) != 8) {
         func_00440b68(D_005EF840);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_16);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         kAssertFail(D_005EF858, 0x1DE);
     }
-    return temp_16;
+    return resourceTypeId;
 }
 
 // FUN_00145480
-s32 MT_Scene_CreateRes07(u16 arg0) {
-    s32 temp_16;
-    s32 temp_4;
-    u8 *temp_2;
+/* Create the packed resource and initialize its model, camera or shadow handles. */
+s32 MT_Scene_CreateRes07(u16 resourceId) {
+    s32 resourceTypeId;
+    s32 manager;
+    u8 *resource;
 
-    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x1C00) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x1C00) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_16);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x140) = 0x420C0000;
-    return temp_16;
+    *(s32 *)&((ResrcRecord *)resource)->slotHandle[0] = 0x420C0000;
+    return resourceTypeId;
 }
 
 // FUN_00145510
-s32 MT_Scene_CreateModelCharRes(u16 arg0, void *arg1) {
-    return MT_Scene_CreateModelCharShadowRes(arg0, 0, arg1);
+/* Create the packed resource and initialize its model, camera or shadow handles. */
+s32 MT_Scene_CreateModelCharRes(u16 resourceId, void *model) {
+    return MT_Scene_CreateModelCharShadowRes(resourceId, 0, model);
 }
 
 // FUN_00145540
-s32 MT_Scene_CreateModelCharShadowRes(u16 arg0, u16 arg1, void *arg2) {
-    s8 sp50[0xC];
-    s32 temp_16;
+/* Create the packed resource and initialize its model, camera or shadow handles. */
+/* Model/shadow handles use ResrcRecord offsets 164/220/224; typed accesses retain member addresses across calls and grew this body from 336 to 344 bytes. */
+s32 MT_Scene_CreateModelCharShadowRes(u16 resourceId, u16 shadowModelId, void *model) {
+    s8 zeroPosition[0xC];
+    s32 resourceTypeId;
     u16 shadowId;
-    s32 temp_2_2;
-    s32 temp_4;
-    s8 *var_3;
-    s32 var_2;
-    u8 *temp_2;
+    s32 frameTask;
+    s32 manager;
+    s8 *clear;
+    s32 remainingBytes;
+    u8 *resource;
 
-    var_3 = sp50;
-    var_2 = 0xC;
-    if (var_3 != NULL) {
+    clear = zeroPosition;
+    remainingBytes = 0xC;
+    if (clear != NULL) {
         do {
-            *var_3 = 0;
-            var_3++;
-            var_2--;
-        } while (var_2 != 0);
+            *clear = 0;
+            clear++;
+            remainingBytes--;
+        } while (remainingBytes != 0);
     }
-    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x400) & 0xFFFF;
-    shadowId = temp_16;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x400) & 0xFFFF;
+    shadowId = resourceTypeId;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg2 == 0) {
+    if (model == 0) {
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_16);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(void **)(temp_2 + 0x164) = arg2;
-    mdlTranslateMatrix((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
-    RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(temp_2 + 0x164)));
-    temp_2_2 = FldFrameTask_Spawn(0, temp_16 & 0xFFFF, 0, 60.0f);
-    *(s32 *)(temp_2 + 0x220) = temp_2_2;
-    *(void **)(temp_2 + 0x224) = FldShadow_CreateCaster((u8 *)temp_2_2, shadowId, arg1);
-    return temp_16;
+    *(void **)(resource + 0x164) = model;
+    mdlTranslateMatrix((RwMatrix *)model, (const RwV3d *)zeroPosition, 0);
+    RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(resource + 0x164)));
+    frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
+    *(s32 *)(resource + 0x220) = frameTask;
+    *(void **)(resource + 0x224) = FldShadow_CreateCaster((u8 *)frameTask, shadowId, shadowModelId);
+    return resourceTypeId;
 }
 
 // FUN_00145690
-s32 MT_Scene_CreateModelUnkRes(u16 arg0, s32 arg1) {
-    s8 sp30[0xC];
-    s32 temp_17;
-    s32 temp_4;
+/* Create the packed resource and initialize its model, camera or shadow handles. */
+s32 MT_Scene_CreateModelUnkRes(u16 resourceId, s32 model) {
+    s8 zeroPosition[0xC];
+    s32 resourceTypeId;
+    s32 manager;
     s8 *clear;
-    s32 var_2;
-    u8 *temp_2;
+    s32 remainingBytes;
+    u8 *resource;
 
-    clear = sp30;
-    var_2 = 0xC;
+    clear = zeroPosition;
+    remainingBytes = 0xC;
     if (clear != NULL) {
         do {
             *clear = 0;
             clear++;
-            var_2--;
-        } while (var_2 != 0);
+            remainingBytes--;
+        } while (remainingBytes != 0);
     }
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x800) & 0xFFFF;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0x800) & 0xFFFF;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg1 == 0) {
+    if (model == 0) {
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x158) = arg1;
-    mdlTranslateMatrix((RwMatrix *)arg1, (const RwV3d *)sp30, 0);
-    return temp_17;
+    *(s32 *)&((ResrcRecord *)resource)->modelHandle158 = model;
+    mdlTranslateMatrix((RwMatrix *)model, (const RwV3d *)zeroPosition, 0);
+    return resourceTypeId;
 }
 
 // FUN_00145780
-s32 MT_Scene_CreateModelNpcShadowRes(u16 arg0, u16 arg1, s32 arg2) {
-    s8 sp[0xC];
-    s32 temp_17;
+/* Create the packed resource and initialize its model, camera or shadow handles. */
+s32 MT_Scene_CreateModelNpcShadowRes(u16 resourceId, u16 shadowModelId, s32 model) {
+    s8 zeroPosition[0xC];
+    s32 resourceTypeId;
     u16 shadowId;
-    s32 temp_2_2;
-    s32 temp_4;
+    s32 frameTask;
+    s32 manager;
     s8 *clear;
-    s32 var_2;
-    u8 *temp_2;
+    s32 remainingBytes;
+    u8 *resource;
 
-    clear = sp;
-    var_2 = 0xC;
+    clear = zeroPosition;
+    remainingBytes = 0xC;
     if (clear != NULL) {
         do {
             *clear = 0;
             clear++;
-            var_2--;
-        } while (var_2 != 0);
+            remainingBytes--;
+        } while (remainingBytes != 0);
     }
-    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0xC00) & 0xFFFF;
-    shadowId = temp_17;
-    temp_4 = *(s32 *)(iGpffff9db0 + 8);
-    if (temp_4 == 0) {
+    resourceTypeId = ((resourceId & 0xFFFF & 0x3FF) | 0xC00) & 0xFFFF;
+    shadowId = resourceTypeId;
+    manager = ((SceneContext *)iGpffff9db0)->manager.handle;
+    if (manager == 0) {
         func_00440b68(&D_005EF820);
         return 0;
     }
-    if (arg2 == 0) {
+    if (model == 0) {
         return 0;
     }
-    temp_2 = resrcMngCreateRes(temp_4, temp_17);
-    if (temp_2 == NULL) {
+    resource = resrcMngCreateRes(manager, resourceTypeId);
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 0x10000000;
-    *(s32 *)(temp_2 + 0x164) = arg2;
-    temp_2_2 = FldFrameTask_Spawn(0, temp_17 & 0xFFFF, 0, 60.0f);
-    *(s32 *)(temp_2 + 0x228) = temp_2_2;
-    *(void **)(temp_2 + 0x230) = FldShadow_CreateCaster((u8 *)temp_2_2, shadowId, arg1);
-    return temp_17;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 0x10000000;
+    *(s32 *)&((ResrcRecord *)resource)->modelHandle164 = model;
+    frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
+    *(s32 *)&((ResrcRecord *)resource)->handle228 = frameTask;
+    *(void * *)&((ResrcRecord *)resource)->handle230 = FldShadow_CreateCaster((u8 *)frameTask, shadowId, shadowModelId);
+    return resourceTypeId;
 }
 
