@@ -7,6 +7,194 @@
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
 #include "sdk_task_registration.h"
+#include "kwln_task_internal.h"
+
+/* The five transition channels occupy 0xF0 bytes, copied as a unit by
+   fclSpriteUpdateTweens callers. Setters and update paths establish each
+   timer, endpoint and mode. Bit-pattern unions retain constructor stores. */
+typedef struct FclSpriteAnimation {
+    s16 flags;
+    u8 pad02[2];
+    f32 depth;
+    u8 pad08[0x10];
+    FclVec2 positionStart;
+    FclVec2 positionEnd;
+    FclVec2 position;
+    s16 positionDuration;
+    s16 positionElapsed;
+    s16 positionDelay;
+    u8 positionMode;
+    u8 positionReverse;
+    u8 pad38[0x20];
+    s16 alphaDuration;
+    s16 alphaElapsed;
+    u8 alphaStart;
+    u8 alphaEnd;
+    u8 alpha;
+    u8 pad5F;
+    s16 alphaDelay;
+    u8 alphaMode;
+    u8 alphaReverse;
+    u8 pad64[9];
+    FclDrawColor colorStart;
+    FclDrawColor colorEnd;
+    FclDrawColor color;
+    u8 pad79;
+    s16 colorDuration;
+    s16 colorElapsed;
+    s16 colorDelay;
+    u8 colorMode;
+    u8 colorReverse;
+    s16 scaleDuration;
+    s16 scaleElapsed;
+    u8 pad86[2];
+    union { f32 value; s32 bits; } scaleXStart;
+    union { f32 value; s32 bits; } scaleXEnd;
+    union { f32 value; s32 bits; } scaleX;
+    union { f32 value; s32 bits; } scaleYStart;
+    union { f32 value; s32 bits; } scaleYEnd;
+    union { f32 value; s32 bits; } scaleY;
+    s16 scaleDelay;
+    u8 scaleMode;
+    u8 scaleReverse;
+    u8 padA4[0x14];
+    union { f32 value; s32 bits; } valueStart;
+    union { f32 value; s32 bits; } valueEnd;
+    union { f32 value; s32 bits; } value;
+    s16 valueElapsed;
+    s16 valueDuration;
+    s16 valueDelay;
+    u8 valueMode;
+    u8 valueReverse;
+    u8 padCC[0x14];
+    s16 pulseElapsed;
+    u8 padE2[6];
+    f32 bounceHeight;
+    s16 bounceElapsed;
+    s16 bounceDuration;
+} FclSpriteAnimation;
+
+/* Draw tasks allocate one 0x100-byte record. Pools prefix an array of
+   exactly the same records with the shared resource word. */
+typedef struct FclSpriteRecord {
+    union { u32 id; s32 signedId; void *pointer; } resource;
+    s16 id;
+    u8 pad06[2];
+    union { s32 word; u32 unsignedWord; } order;
+    s16 halfWidth;
+    s16 halfHeight;
+    FclSpriteAnimation animation;
+} FclSpriteRecord;
+
+typedef struct FclSpritePool {
+    u32 resource;
+    FclSpriteRecord records[0x30C];
+    s16 count;
+    s16 activeIndices[0x30C];
+    u8 pad3121E[2];
+} FclSpritePool;
+
+/* The child constructor allocates 0x190 bytes; bounds packets are opaque
+   representations rather than guessed width/height fields. */
+typedef struct FclSpriteChild {
+    u8 state;
+    u8 pad01[0x10F];
+    FclDrawColor cornerColors[4];
+    FclBoundsPacket bounds;
+    f32 baseScale;
+    FclVec2 position;
+    FclVec2 positionStart;
+    FclVec2 positionEnd;
+    s16 elapsed;
+    u8 pad14E[2];
+    u32 duration;
+    u8 mode;
+    u8 pad155;
+    s16 transition;
+    FclBoundsPacket boundsStart;
+    FclBoundsPacket boundsEnd;
+    u8 alphaStart;
+    u8 alphaEnd;
+    s16 alphaElapsed;
+    u32 alphaDuration;
+    u8 fadeEnabled;
+    u8 pad181;
+    s16 timer;
+    u8 hidden;
+    u8 pad185[3];
+    u32 order;
+    u8 transitionFlag;
+    u8 pad18D[3];
+} FclSpriteChild;
+
+/* Quad vertices are 0x40-byte render packets. Both panel and list draws
+   write positions, texture coordinates, reciprocal scale and float RGBA. */
+typedef struct FclQuadVertex {
+    f32 x;
+    f32 y;
+    f32 depth;
+    u8 pad0C[4];
+    f32 u;
+    f32 v;
+    f32 reciprocalScale;
+    u8 pad1C[4];
+    union { f32 value; s32 bits; } red;
+    union { f32 value; s32 bits; } green;
+    union { f32 value; s32 bits; } blue;
+    f32 alpha;
+    u8 pad30[0x10];
+} FclQuadVertex;
+
+typedef struct FclSpritePanel {
+    FclVec2 position;
+    u8 pad08[8];
+    s32 width;
+    s32 height;
+    f32 depth;
+    u8 pad1C[4];
+    FclQuadVertex vertices[4];
+    s32 order;
+    u8 hidden;
+    u8 alpha;
+    u8 pad126[0xA];
+} FclSpritePanel;
+
+typedef struct FclSpriteListEntry {
+    FclQuadVertex vertices[4];
+    s16 order;
+    u8 pad102[2];
+    FclSpriteAnimation animation;
+    f32 left;
+    f32 top;
+    f32 right;
+    f32 bottom;
+    u8 pad204[8];
+    s32 width;
+    s32 height;
+    u8 *resource;
+    u8 pad218[8];
+} FclSpriteListEntry;
+
+typedef struct FclSpriteList {
+    FclSpriteListEntry entries[0x30];
+    s16 count;
+    u8 pad6602[0xE];
+} FclSpriteList;
+
+/* Queue users store either a no-argument render-state callback or a
+   primitive callback in the same pointer-sized slot. */
+typedef struct FclDrawQueueNode {
+    u8 pad00[8];
+    union { void (*callback)(void); void *pointer; } draw;
+    u8 pad0C[4];
+    union { s32 word; u8 *work; } data;
+} FclDrawQueueNode;
+
+typedef char FclSpriteAnimationSize[sizeof(FclSpriteAnimation) == 0xF0 ? 1 : -1];
+typedef char FclSpriteRecordSize[sizeof(FclSpriteRecord) == 0x100 ? 1 : -1];
+typedef char FclSpriteChildSize[sizeof(FclSpriteChild) == 0x190 ? 1 : -1];
+typedef char FclSpritePanelSize[sizeof(FclSpritePanel) == 0x130 ? 1 : -1];
+typedef char FclSpriteListEntrySize[sizeof(FclSpriteListEntry) == 0x220 ? 1 : -1];
 extern s32 func_002b52a0(u8 *task);
 extern void func_002b5c60(u8 *task);
 #include "include_asm.h"
@@ -29,10 +217,10 @@ extern void (*jtbl_008873EC[])(void *ptr);
 
 extern u8 *D_0076DB7C;
 
-extern void fclSpriteStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
+extern void fclSpriteStartPosition(u8 *, f2 p1, f2 p2, u32 , s32 , s32 );
 
 
-extern void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5);
+extern void fclSpriteStartColor(u8 *, u4 , u4 , u8 , s16 , s32 );
 
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -42,9 +230,9 @@ extern void (*D_00887300[])(u32 state, u32 value);
 
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern f32 sdkSpriteScaledWidth(u8 *arg0);
-extern f32 sdkSpriteScaledHeight(u8 *arg0);
-extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
+extern f32 sdkSpriteScaledWidth(u8 *);
+extern f32 sdkSpriteScaledHeight(u8 *);
+extern u8 *sdkSpriteNewNode(u32 , u32 );
 extern void sdkSpriteFreeNode(void *node);
 extern void fclSpriteUpdateCulling(u8 *, s16, s16);
 extern f32 fclEaseInterpolate(s32, f32, f32, f32, f32);
@@ -52,16 +240,16 @@ extern s32 fclAddClamped(s32, s32, s32, s32, s8);
 extern s16 fclSubClamped(s32, s32, s32, s32, s8);
 extern void fclSpriteApplySkyPresetA(void);
 extern void fclSpriteApplySkyPresetB(void);
-extern s32 fclSpriteUpdateAndDrawTask(u8 *arg0);
-extern void fclSpriteDestroyTask(u8 *arg0);
-extern s32 fclSpriteStartPanelLayout(u8 *arg0);
-extern s32 fclSpriteUpdateTweens(u8 *arg0);
-extern s8 fclSpriteTestRecordFlag(u8 *arg0, u32 arg1);
-extern s32 fclSpriteListUpdate(u8 *arg0);
-extern void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1);
-extern s32 fclSpritePoolUpdate(u8 *arg0);
-extern void fclSpritePoolDestroy(u8 *arg0);
-extern void fclSpriteDestroyListTask(u8 *arg0);
+extern s32 fclSpriteUpdateAndDrawTask(u8 *);
+extern void fclSpriteDestroyTask(u8 *);
+extern s32 fclSpriteStartPanelLayout(u8 *);
+extern s32 fclSpriteUpdateTweens(u8 *);
+extern s8 fclSpriteTestRecordFlag(u8 *, u32 );
+extern s32 fclSpriteListUpdate(u8 *);
+extern void fclSpriteBuildCornerQuads(u8 *, u8 *);
+extern s32 fclSpritePoolUpdate(u8 *);
+extern void fclSpritePoolDestroy(u8 *);
+extern void fclSpriteDestroyListTask(u8 *);
 
 extern u8 D_0063F178[];
 extern u8 D_0063F188[];
@@ -69,14 +257,14 @@ extern u8 D_0063F1A0[];
 extern u8 D_0063F1B0[];
 extern u8 D_0063F1D0[];
 extern u8 D_0063F1E0[];
-void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
+void fclSpriteStartFade(u8 *task, u8 startAlpha, u8 endAlpha, u32 duration);
 
 extern void mdlEffectEmitMaskedTagPair(void);
 extern u8 *kwlnGetCamera(void);
 extern void memcpy(void *, s32, s32);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
-extern u8 *PrimQueueDrawPrimitive(void *list, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *list, s32 , void *, s32 );
 extern f32 fGpffff8504;
 extern f32 iGpffff84f4;
 extern f32 D_008872F8[];
@@ -98,145 +286,149 @@ extern u8 D_00793E80[];
 // FUN_002B5C90
 /* measured: open opt_loop_invariants scope for fclSpriteSpawnChild. */
 #pragma opt_loop_invariants on
-s32 fclSpriteSpawnChild(s32 arg0, f2 p1) {
+s32 fclSpriteSpawnChild(s32 parent, f2 position) {
     s32 handle;
-    u8 *p;
-    s32 i;
+    u8 *work;
+    s32 cornerIndex;
     chkmemAllocSiteTag(&D_0063F178, 0xD4);
-    p = D_008873F4[0](1, 0x190, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(p));
-    *(f2 *)(p + 0x134) = p1;
-    *(s16 *)(p + 0x14C) = 0;
-    p[0x154] = 0;
-    for (i = 0; i < 4; i++) {
-        u8 *q = p + 0x110 + i * 4;
-        q[0] = 0xFF;
+    work = D_008873F4[0](1, 0x190, 0x40000);
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(work));
+    ((FclSpriteChild *)(work))->position = position;
+    ((FclSpriteChild *)(work))->elapsed = 0;
+    ((FclSpriteChild *)(work))->mode = 0;
+    for (cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+        u8 *q = work + 0x110 + cornerIndex * 4;
+        ((FclSpriteChild *)(q))->state = 0xFF;
         q[1] = 0xFF;
         q[2] = 0xFF;
         q[3] = 0xFF;
     }
-    *(u32 *)(p + 0x188) = 0x49;
-    p[0x184] = 0;
-    *(s16 *)(p + 0x156) = -1;
-    p[0x180] = 0;
-    p[0x18C] = 0;
-    *(s16 *)(p + 0x182) = 0;
+    ((FclSpriteChild *)(work))->order = 0x49;
+    ((FclSpriteChild *)(work))->hidden = 0;
+    ((FclSpriteChild *)(work))->transition = -1;
+    ((FclSpriteChild *)(work))->fadeEnabled = 0;
+    ((FclSpriteChild *)(work))->transitionFlag = 0;
+    ((FclSpriteChild *)(work))->timer = 0;
     return handle;
 }
 /* measured: close opt_loop_invariants scope after fclSpriteSpawnChild. */
 #pragma opt_loop_invariants off
 // Intent: duplicate of fclSpriteWork (same body, kept under the Alt name).
 // FUN_002B5DA0
-u8 *fclSpriteWorkAlt(u8 *arg0) {
-    return *(u8 **)(arg0 + 0x38);
+u8 *fclSpriteWorkAlt(u8 *task) {
+    return ((KwlnTask *)(task))->work;
 }
 
 // FUN_002B5DB0
-void fclSpriteSetPositionBounds(u8 *arg0, f2 p1, FclBoundsPacket p2) {
-    FclBoundsBytes t;
-    u8 *base;
-    t = p2.representation;
-    base = *(u8 **)(arg0 + 0x38);
-    *(f2 *)(base + 0x134) = p1;
-    ((FclBoundsPacket *)(base + 0x120))->representation = t;
+/* Store a child sprite position and copy its opaque bounds representation. */
+void fclSpriteSetPositionBounds(u8 *task, f2 position, FclBoundsPacket bounds) {
+    FclBoundsBytes representation;
+    u8 *work;
+    representation = bounds.representation;
+    work = ((KwlnTask *)(task))->work;
+    ((FclSpriteChild *)(work))->position = position;
+    (&((FclSpriteChild *)work)->bounds)->representation = representation;
 }
 
 // Intent: stores the base scale at +0x130. fclSpriteResetScale copies it into the four layout scales at +0x4, +0x44, +0x84 and +0xC4.
 // FUN_002B5E20
-void fclSpriteSetBaseScale(u8 *arg0, f32 fparg0) {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x130) = fparg0;
+void fclSpriteSetBaseScale(u8 *task, f32 scale) {
+    ((FclSpriteChild *)(((KwlnTask *)(task))->work))->baseScale = scale;
 }
 
 // FUN_002B5E30
-void fclSpriteSetCornerColors(u8 *arg0, u4 arg1) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    s32 i;
-    for (i = 0; i < 4; i++) {
-        *(u4 *)(base + 0x110 + i * 4) = arg1;
+/* Set all four child-sprite corner colors to the same RGBA value. */
+void fclSpriteSetCornerColors(u8 *task, u4 color) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    s32 cornerIndex;
+    for (cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+        ((FclSpriteChild *)work)->cornerColors[cornerIndex] = color;
     }
 }
 // FUN_002B5E90
-void fclSpriteStartMove(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(base + 0x14C) = 0;
-    *(u32 *)(base + 0x150) = arg3;
-    *(f2 *)(base + 0x13C) = p1;
-    *(f2 *)(base + 0x144) = p2;
-    *(s16 *)(base + 0x156) = 2;
-    base[0x154] = 0;
-    base[0x0] = 2;
+/* Initialize a child-sprite position transition and select transition kind two. */
+void fclSpriteStartMove(u8 *task, f2 start, f2 end, u32 duration) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    ((FclSpriteChild *)(work))->elapsed = 0;
+    ((FclSpriteChild *)(work))->duration = duration;
+    ((FclSpriteChild *)(work))->positionStart = start;
+    ((FclSpriteChild *)(work))->positionEnd = end;
+    ((FclSpriteChild *)(work))->transition = 2;
+    ((FclSpriteChild *)(work))->mode = 0;
+    ((FclSpriteChild *)(work))->state = 2;
 }
 
 // FUN_002B5EF0
-void fclSpriteStartBoundsMove(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5) {
-    FclBoundsBytes a = p3.representation;
-    FclBoundsBytes b = p4.representation;
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(base + 0x14C) = 0;
-    *(u32 *)(base + 0x150) = arg5;
-    *(f2 *)(base + 0x13C) = p1;
-    *(f2 *)(base + 0x144) = p2;
-    ((FclBoundsPacket *)(base + 0x158))->representation = a;
-    ((FclBoundsPacket *)(base + 0x168))->representation = b;
-    *(s16 *)(base + 0x156) = 3;
-    base[0x154] = 0;
-    base[0x0] = 2;
+/* Initialize simultaneous position and bounds transitions for a child sprite. */
+void fclSpriteStartBoundsMove(u8 *task, f2 start, f2 end, FclBoundsPacket startBounds, FclBoundsPacket endBounds, u32 duration) {
+    FclBoundsBytes startRepresentation = startBounds.representation;
+    FclBoundsBytes endRepresentation = endBounds.representation;
+    u8 *work = ((KwlnTask *)(task))->work;
+    ((FclSpriteChild *)(work))->elapsed = 0;
+    ((FclSpriteChild *)(work))->duration = duration;
+    ((FclSpriteChild *)(work))->positionStart = start;
+    ((FclSpriteChild *)(work))->positionEnd = end;
+    (&((FclSpriteChild *)work)->boundsStart)->representation = startRepresentation;
+    (&((FclSpriteChild *)work)->boundsEnd)->representation = endRepresentation;
+    ((FclSpriteChild *)(work))->transition = 3;
+    ((FclSpriteChild *)(work))->mode = 0;
+    ((FclSpriteChild *)(work))->state = 2;
 }
 
-// Intent: as fclSpriteStartBoundsMove, plus a fade (fclSpriteStartFade, alpha 0x80) and the timer at +0x182 from arg6.
+// Intent: as fclSpriteStartBoundsMove, plus startRepresentation fade (fclSpriteStartFade, alpha 0x80) and the timer at +0x182 from timer.
 // FUN_002B5FD0
-void fclSpriteStartBoundsMoveFade(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5, s16 arg6) {
-    FclBoundsBytes a = p3.representation;
-    FclBoundsBytes b = p4.representation;
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(base + 0x14C) = 0;
-    *(u32 *)(base + 0x150) = arg5;
-    *(f2 *)(base + 0x13C) = p1;
-    *(f2 *)(base + 0x144) = p2;
-    ((FclBoundsPacket *)(base + 0x158))->representation = a;
-    ((FclBoundsPacket *)(base + 0x168))->representation = b;
-    *(s16 *)(base + 0x156) = 4;
-    fclSpriteStartFade(arg0, 0x80, 0, arg5);
-    base[0x154] = 0;
-    base[0x0] = 2;
-    base[0x184] = 1;
-    base[0x18C] = 1;
-    *(s16 *)(base + 0x182) = arg6;
+void fclSpriteStartBoundsMoveFade(u8 *task, f2 start, f2 end, FclBoundsPacket startBounds, FclBoundsPacket endBounds, u32 duration, s16 timer) {
+    FclBoundsBytes startRepresentation = startBounds.representation;
+    FclBoundsBytes endRepresentation = endBounds.representation;
+    u8 *work = ((KwlnTask *)(task))->work;
+    ((FclSpriteChild *)(work))->elapsed = 0;
+    ((FclSpriteChild *)(work))->duration = duration;
+    ((FclSpriteChild *)(work))->positionStart = start;
+    ((FclSpriteChild *)(work))->positionEnd = end;
+    (&((FclSpriteChild *)work)->boundsStart)->representation = startRepresentation;
+    (&((FclSpriteChild *)work)->boundsEnd)->representation = endRepresentation;
+    ((FclSpriteChild *)(work))->transition = 4;
+    fclSpriteStartFade(task, 0x80, 0, duration);
+    ((FclSpriteChild *)(work))->mode = 0;
+    ((FclSpriteChild *)(work))->state = 2;
+    ((FclSpriteChild *)(work))->hidden = 1;
+    ((FclSpriteChild *)(work))->transitionFlag = 1;
+    ((FclSpriteChild *)(work))->timer = timer;
 }
 
 // Intent: starts a fade. Stores the two alpha bytes at +0x178/+0x179, resets the timer at +0x17A, sets the duration at +0x17C and enables the fade at +0x180.
 // FUN_002B60F0
-void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    base[0x178] = arg1;
-    base[0x179] = arg2;
-    *(s16 *)(base + 0x17A) = 0;
-    *(u32 *)(base + 0x17C) = arg3;
-    base[0x180] = 1;
+void fclSpriteStartFade(u8 *task, u8 startAlpha, u8 endAlpha, u32 duration) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    ((FclSpriteChild *)(work))->alphaStart = startAlpha;
+    ((FclSpriteChild *)(work))->alphaEnd = endAlpha;
+    ((FclSpriteChild *)(work))->alphaElapsed = 0;
+    ((FclSpriteChild *)(work))->alphaDuration = duration;
+    ((FclSpriteChild *)(work))->fadeEnabled = 1;
 }
 
 // Intent: sets the sprite's mode byte at +0x154 (y_fclCombine callers pass the mode).
 // FUN_002B6120
-void fclSpriteSetMode(u8 *arg0, u8 arg1) {
-    *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x154) = arg1;
+void fclSpriteSetMode(u8 *task, u8 mode) {
+    ((FclSpriteChild *)(((KwlnTask *)(task))->work))->mode = mode;
 }
 
 // Intent: sets the sprite's draw order word at +0x188 (y_fclCombine callers pass the order).
 // FUN_002B6130
-void fclSpriteSetOrder(u8 *arg0, u32 arg1) {
-    *(u32 *)(*(u8 **)(arg0 + 0x38) + 0x188) = arg1;
+void fclSpriteSetOrder(u8 *task, u32 order) {
+    ((FclSpriteChild *)(((KwlnTask *)(task))->work))->order = order;
 }
 
 // Intent: sets the sprite's hidden byte at +0x184 (y_fclCombine callers pass 0 or 1).
 // FUN_002B6140
-void fclSpriteSetHidden(u8 *arg0, u8 arg1) {
-    *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x184) = arg1;
+void fclSpriteSetHidden(u8 *task, u8 hidden) {
+    ((FclSpriteChild *)(((KwlnTask *)(task))->work))->hidden = hidden;
 }
 
-// Fcl sprite entry: returns the 0x100-byte record for sprite index arg0 in the draw pool.
+// Fcl sprite entry: returns the 0x100-byte record for sprite index index in the draw pool.
 // FUN_002B6150
-u8 *fclSpriteEntry(s16 arg0) {
-    return (u8 *)((u32)(*(u8 **)(D_0076DB7C + 0x38)) + (u32)((s32)arg0 << 8) + 4);
+u8 *fclSpriteEntry(s16 index) {
+    return (u8 *)((u32)(((KwlnTask *)(D_0076DB7C))->work) + (u32)((s32)index << 8) + 4);
 }
 // Intent: applies sky render-state preset A (texture stage and blend setup, then RpSkyRenderStateSet 3 = 0x71009). Used as a task callback.
 // FUN_002B6180
@@ -276,21 +468,23 @@ void fclSpriteApplySkyPresetB(void) {
 #pragma opt_propagation off
 // Intent: per-frame update of one sprite task: advances its tweens, then, when alpha and scale are above threshold, queues the sprite draw (sdkSpriteDrawQueued) with the layout chosen by flag 13.
 // FUN_002B6340
-s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
+s32 fclSpriteUpdateAndDrawTask(u8 *task) {
+    /* Proven layouts above; field typing changes retail register/load ordering.
+       Retain byte accesses here after a whole-file comparison rejected the rewrite. */
     u8 *p;
     u8 *q;
     s32 color;
     f32 a;
     f32 g;
-    p = *(u8 **)(arg0 + 0x38);
+    p = ((KwlnTask *)(task))->work;
     memcpy(p + 0x10, fclSpriteUpdateTweens(p + 0x10), 0xF0);
     if (p[0x6E] <= 0) return 0;
     a = *(f32 *)(p + 0xA0);
     g = iGpffff84f4;
     if (a <= g) return 0;
     if (*(f32 *)(p + 0xAC) <= g) return 0;
-    if (fclSpriteTestRecordFlag(arg0, 0) == 1) {
-        if (fclSpriteTestRecordFlag(arg0, 13) == 1) {
+    if (fclSpriteTestRecordFlag(task, 0) == 1) {
+        if (fclSpriteTestRecordFlag(task, 13) == 1) {
             q = PrimAllocQueueNode();
             *(void (**)(void))(q + 8) = fclSpriteApplySkyPresetA;
             *(s32 *)(q + 0x10) = 0;
@@ -313,8 +507,8 @@ s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
 #pragma pop
 // Intent: destroy callback for the 0x100-byte task created by fclSpriteCreateDrawTask (frees the work block at +0x38).
 // FUN_002B6560
-void fclSpriteDestroyTask(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void fclSpriteDestroyTask(u8 *task) {
+    u8 *p = ((KwlnTask *)(task))->work;
     jtbl_008873EC[0](p);
 }
 
@@ -332,61 +526,61 @@ void fclSpriteDestroyTask(u8 *arg0) {
 #pragma schedule off
 /* Keep dimension constants local to their queries. */
 #pragma opt_pulloutconstants off
-// Intent: creates the 0x100-byte sprite draw task under parent arg0 (update fclSpriteUpdateAndDrawTask, destroy fclSpriteDestroyTask). arg1 is the slot stored at +4 and arg2 the tint word stored at +0. Three channels start at their default state and the size comes from the sprite node. y_smap.c creates two of these, slots 0xC and 0xD, for map symbols.
+// Intent: creates the 0x100-byte sprite draw task under parent parent (update fclSpriteUpdateAndDrawTask, destroy fclSpriteDestroyTask). spriteId is the slot stored at +4 and resource the tint word stored at +0. Three channels start at their default state and the size comes from the sprite node. y_smap.c creates two of these, slots 0xC and 0xD, for map symbols.
 // FUN_002B6590
-s32 fclSpriteCreateDrawTask(s32 arg0, s16 arg1, s32 arg2) {
+s32 fclSpriteCreateDrawTask(s32 parent, s16 spriteId, s32 resource) {
     s32 result;
-    u8 *p;
-    s16 i;
-    s16 j;
-    s32 off;
-    const u8 ff = 0xFF;
-    f2 pos;
+    u8 *work;
+    s16 spriteIndex;
+    s16 componentIndex;
+    s32 componentOffset;
+    const u8 fullAlpha = 0xFF;
+    f2 position;
     u4 color;
-    u8 *q;
-    s32 one;
+    u8 *component;
+    s32 unitBits;
     u8 c0;
     u8 c1;
     u8 c2;
     u8 c3;
-    f32 zero;
+    f32 zeroValue;
     chkmemAllocSiteTag(&D_0063F178, 0x236);
-    p = D_008873F4[0](1, 0x100, 0x40000);
-    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, fclSpriteUpdateAndDrawTask, fclSpriteDestroyTask, (u8 *)(p));
-    *(s16 *)(p + 4) = arg1;
-    *(s32 *)(p + 0) = arg2;
-    i = 0;
-    j = i;
-    while (i < 3) {
-        j = i;
-        off = j;
-        zero = 0.0f;
-        pos = fclMakeVec2(zero, zero);
-        *(f2 *)((u8 *)((s32)p + off * 8) + 0x28) = pos;
-        *(u8 *)((s32)p + off + 0x6C) = ff;
-        q = (u8 *)((s32)p + off * 4);
-        *(s32 *)(q + 0xC8) = 0;
-        one = 0x3F800000;
-        *(s32 *)(q + 0xA4) = one;
-        *(s32 *)(q + 0x98) = one;
-        color = fclMakeDrawColor(ff, ff, ff, ff);
+    work = D_008873F4[0](1, 0x100, 0x40000);
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F1A0), 0xF, 0, 0, fclSpriteUpdateAndDrawTask, fclSpriteDestroyTask, (u8 *)(work));
+    ((FclSpriteRecord *)(work))->id = spriteId;
+    ((FclSpriteRecord *)(work))->resource.signedId = resource;
+    spriteIndex = 0;
+    componentIndex = spriteIndex;
+    while (spriteIndex < 3) {
+        componentIndex = spriteIndex;
+        componentOffset = componentIndex;
+        zeroValue = 0.0f;
+        position = fclMakeVec2(zeroValue, zeroValue);
+        ((FclSpriteRecord *)((u8 *)((s32)work + componentOffset * 8)))->animation.positionStart = position;
+        ((FclSpriteRecord *)((s32)work + componentOffset))->animation.alphaStart = fullAlpha;
+        component = (u8 *)((s32)work + componentOffset * 4);
+        ((FclSpriteRecord *)(component))->animation.valueStart.bits = 0;
+        unitBits = 0x3F800000;
+        ((FclSpriteRecord *)(component))->animation.scaleYStart.bits = unitBits;
+        ((FclSpriteRecord *)(component))->animation.scaleXStart.bits = unitBits;
+        color = fclMakeDrawColor(fullAlpha, fullAlpha, fullAlpha, fullAlpha);
         c0 = color.c0;
         c1 = color.c1;
         c2 = color.c2;
         c3 = color.c3;
-        q[0x7D] = c0;
-        q[0x7E] = c1;
-        q[0x7F] = c2;
-        q[0x80] = c3;
-        i++;
+        ((FclSpriteRecord *)(component))->animation.colorStart.c0 = c0;
+        ((FclSpriteRecord *)(component))->animation.colorStart.c1 = c1;
+        ((FclSpriteRecord *)(component))->animation.colorStart.c2 = c2;
+        ((FclSpriteRecord *)(component))->animation.colorStart.c3 = c3;
+        spriteIndex++;
     }
-    *(f32 *)(p + 0x14) = 100.0f;
-    *(s32 *)(p + 8) = 0x55;
-    *(s16 *)(p + 0x10) = 0;
-    q = sdkSpriteNewNode(*(u32 *)(p + 0), (s32)arg1);
-    *(s16 *)(p + 0xC) = (s16)(s32)(sdkSpriteScaledWidth(q) / 2.0f);
-    *(s16 *)(p + 0xE) = (s16)(s32)(sdkSpriteScaledHeight(q) / 2.0f);
-    sdkSpriteFreeNode(q);
+    ((FclSpriteRecord *)(work))->animation.depth = 100.0f;
+    ((FclSpriteRecord *)(work))->order.word = 0x55;
+    ((FclSpriteRecord *)(work))->animation.flags = 0;
+    component = sdkSpriteNewNode(((FclSpriteRecord *)(work))->resource.id, (s32)spriteId);
+    ((FclSpriteRecord *)(work))->halfWidth = (s16)(s32)(sdkSpriteScaledWidth(component) / 2.0f);
+    ((FclSpriteRecord *)(work))->halfHeight = (s16)(s32)(sdkSpriteScaledHeight(component) / 2.0f);
+    sdkSpriteFreeNode(component);
     return result;
 }
 /* measured: restore opt_loop_invariants after the target. */
@@ -394,25 +588,25 @@ s32 fclSpriteCreateDrawTask(s32 arg0, s16 arg1, s32 arg2) {
 #pragma pop
 
 
-// Intent: sets (arg2 == 0) or clears (arg2 == 1) bit arg1 in the record's flag word at +0x10. Record-level twin of fclSpriteSetFlag.
+// Intent: sets (mode == 0) or clears (mode == 1) bit bit in the record's flag word at +0x10. Record-level twin of fclSpriteSetFlag.
 // FUN_002B67A0
-void fclSpriteSetRecordFlag(u8 *arg0, u32 arg1, s8 arg2) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    if (arg2 == 0) {
-        *(s16 *)(base + 0x10) |= (s16)((1 << (arg1 & 0xFFFF)) & 0xFFFF);
+void fclSpriteSetRecordFlag(u8 *task, u32 bit, s8 mode) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    if (mode == 0) {
+        ((FclSpriteRecord *)(work))->animation.flags |= (s16)((1 << (bit & 0xFFFF)) & 0xFFFF);
         return;
     }
-    if (arg2 == 1) {
-        *(s16 *)(base + 0x10) &= (s16)((1 << (arg1 & 0xFFFF)) ^ 0xFFFF);
+    if (mode == 1) {
+        ((FclSpriteRecord *)(work))->animation.flags &= (s16)((1 << (bit & 0xFFFF)) ^ 0xFFFF);
         return;
     }
 }
 
-// Intent: returns bit arg1 of the record's flag word at +0x10 (as 0 or 1). Test-side twin of fclSpriteSetRecordFlag.
+// Intent: returns bit bit of the record's flag word at +0x10 (as 0 or 1). Test-side twin of fclSpriteSetRecordFlag.
 // FUN_002B6820
-s8 fclSpriteTestRecordFlag(u8 *arg0, u32 arg1) {
-    u32 n = arg1 & 0xFFFF;
-    return (s8)((s32)(*(s16 *)(*(u8 **)(arg0 + 0x38) + 0x10) & ((1 << n) & 0xFFFF)) >> n);
+s8 fclSpriteTestRecordFlag(u8 *task, u32 bit) {
+    u32 shift = bit & 0xFFFF;
+    return (s8)((s32)(((FclSpriteRecord *)(((KwlnTask *)(task))->work))->animation.flags & ((1 << shift) & 0xFFFF)) >> shift);
 }
 
 
@@ -420,8 +614,8 @@ s8 fclSpriteTestRecordFlag(u8 *arg0, u32 arg1) {
 
 // Intent: returns 1 when any of flag bits 1-4 of the record's +0x10 word is set.
 // FUN_002B6850
-s32 fclSpriteHasDisplayFlags(u8 *arg0) {
-    s16 flags = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x10);
+s32 fclSpriteHasDisplayFlags(u8 *task) {
+    s16 flags = ((FclSpriteRecord *)(((KwlnTask *)(task))->work))->animation.flags;
     if (((s8)((flags & 2) >> 1)) == 0 && ((s8)((flags & 4) >> 2)) == 0 &&
         ((s8)((flags & 8) >> 3)) == 0 && ((s8)((flags & 0x10) >> 4)) == 0) {
         return 0;
@@ -435,34 +629,34 @@ s32 fclSpriteHasDisplayFlags(u8 *arg0) {
    (1 << arg1) ^ 0xFFFF (xori) - spelling ~ on the mask emits 32-bit `not`
    instead of retail's 16-bit xori. s32 v holds the loaded s16; p4 = slot + 4
    is the store pointer. arg0/s16, arg1/s16, arg2/s8 sign-exts match retail. */
-// Fcl sprite set flag: sets (mode 0) or clears (mode 1) bit arg1 of the flags of sprite arg0.
+// Fcl sprite set flag: sets (mode 0) or clears (mode 1) bit bit of the flags of sprite index.
 // FUN_002B68D0
 /* measured: open opt_propagation scope for fclSpriteSetFlag. */
 #pragma opt_propagation off
-void fclSpriteSetFlag(s16 arg0, s16 arg1, s8 arg2) {
-    u8 *p = *(u8 **)(iGpffffb574 + 0x38);
-    u8 *slot = p + ((s32)arg0 << 8);
-    u8 *p4 = slot + 4;
-    s32 v = *(s16 *)(slot + 0x14);
-    if (arg2 == 0) {
-        v = (s16)(v | (s16)((1 << arg1) & 0xFFFF));
-    } else if (arg2 == 1) {
-        v = (s16)(v & (s16)((1 << arg1) ^ 0xFFFF));
+void fclSpriteSetFlag(s16 index, s16 bit, s8 mode) {
+    u8 *pool = ((KwlnTask *)(iGpffffb574))->work;
+    u8 *slot = pool + ((s32)index << 8);
+    u8 *record = slot + 4;
+    s32 flags = ((FclSpriteRecord *)(slot + 4))->animation.flags;
+    if (mode == 0) {
+        flags = (s16)(flags | (s16)((1 << bit) & 0xFFFF));
+    } else if (mode == 1) {
+        flags = (s16)(flags & (s16)((1 << bit) ^ 0xFFFF));
     }
-    *(s16 *)(p4 + 0x10) = (s16)v;
+    ((FclSpriteRecord *)(record + 4))->halfWidth = (s16)flags;
 }
 /* measured: close opt_propagation scope after fclSpriteSetFlag. */
 #pragma opt_propagation on
-// Fcl sprite flag bit: returns bit arg1 of arg0 as 0 or 1.
+// Fcl sprite flag bit: returns bit bit of flags as 0 or 1.
 // FUN_002B6970
-s16 fclSpriteFlagBit(s16 arg0, s16 arg1) {
-    return (s16)((arg0 & ((1 << arg1) & 0xFFFF)) >> arg1);
+s16 fclSpriteFlagBit(s16 flags, s16 bit) {
+    return (s16)((flags & ((1 << bit) & 0xFFFF)) >> bit);
 }
 
 // Fcl sprite start position (task): starts a position transition on the task's sprite block.
 // FUN_002B69B0
-void fclSpriteStartPositionTask(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
-    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 0x10, p1, p2, arg3, arg4, arg5);
+void fclSpriteStartPositionTask(u8 *task, f2 start, f2 end, u32 mode, u32 duration, s16 delay) {
+    fclSpriteStartPosition(((KwlnTask *)(task))->work + 0x10, start, end, mode, duration, delay);
 }
 
 /* measured: argument-forwarding wrapper that must repeat fclSpriteStartPosition's full
@@ -489,22 +683,22 @@ void fclSpriteStartPositionTask(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 
    (retail's order) instead of sinking it below the dsll32/dsra32/sll index
    chain. This lever cracks the load-sinking wall for the whole wrapper family
    fclSpriteSetFlag, fclSpriteStartAlphaAt, fclSpriteStartRevealScaleAt, fclSpriteStartTweenAt, fclSpriteStartColorAt, fclSpriteReset, fclSpriteResetScale). */
-// Fcl sprite start position (index): starts a position transition on sprite arg0.
+// Fcl sprite start position (index): starts a position transition on sprite index.
 // FUN_002B69F0
 /* measured: open opt_propagation scope for fclSpriteStartPositionAt. */
 #pragma opt_propagation off
-void fclSpriteStartPositionAt(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    fclSpriteStartPosition(base + ((s32)arg0 << 8) + 0x14, p1, p2, arg3, arg4, arg5);
+void fclSpriteStartPositionAt(s16 index, f2 start, f2 end, u32 mode, u32 duration, s16 delay) {
+    u8 *work = ((KwlnTask *)(iGpffffb574))->work;
+    fclSpriteStartPosition(work + ((s32)index << 8) + 0x14, start, end, mode, duration, delay);
 }
 /* measured: close opt_propagation scope after fclSpriteStartPositionAt. */
 #pragma opt_propagation on
 // Fcl sprite start alpha (task): starts an alpha transition on the task's sprite block.
 // FUN_002B6A40
-void fclSpriteStartAlphaTask(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    s16 ext = (s16)arg5;
-    fclSpriteStartAlpha(base + 0x10, arg1, arg2, arg3, arg4, ext);
+void fclSpriteStartAlphaTask(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s32 duration, s16 delay) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    s16 narrowedDelay = (s16)delay;
+    fclSpriteStartAlpha(work + 0x10, startAlpha, endAlpha, mode, duration, narrowedDelay);
 }
 
 
@@ -518,22 +712,22 @@ void fclSpriteStartAlphaTask(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 declared
    s32 and passed as (s16)arg5 (the s16 widening emits the retail dsll32/dsra32
    sign-extension; opt_propagation off fixes the load-sinking order). */
-// Fcl sprite start alpha (index): starts an alpha transition on sprite arg0.
+// Fcl sprite start alpha (index): starts an alpha transition on sprite index.
 // FUN_002B6A70
 /* measured: open opt_propagation scope for fclSpriteStartAlphaAt. */
 #pragma opt_propagation off
-void fclSpriteStartAlphaAt(s16 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    fclSpriteStartAlpha(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
+void fclSpriteStartAlphaAt(s16 index, u8 startAlpha, u8 endAlpha, u8 mode, s32 duration, s16 delay) {
+    u8 *work = ((KwlnTask *)(iGpffffb574))->work;
+    fclSpriteStartAlpha(work + ((s32)index << 8) + 0x14, startAlpha, endAlpha, mode, duration, (s16)delay);
 }
 /* measured: close opt_propagation scope after fclSpriteStartAlphaAt. */
 #pragma opt_propagation on
 // Fcl sprite start reveal scale (task): starts a scale reveal on the task's sprite block.
 // FUN_002B6AC0
-void fclSpriteStartRevealScaleTask(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    s16 ext = (s16)arg3;
-    fclSpriteStartRevealScale(base + 0x10, fparg0, fparg1, fparg2, fparg3, arg1, arg2, ext);
+void fclSpriteStartRevealScaleTask(u8 *task, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s32 delay) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    s16 narrowedDelay = (s16)delay;
+    fclSpriteStartRevealScale(work + 0x10, startX, endX, startY, endY, mode, duration, narrowedDelay);
 }
 
 /* measured: retail issues both indirections up front (lw gp, then lw 0x38) before touching
@@ -547,45 +741,45 @@ void fclSpriteStartRevealScaleTask(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
    load. Load-sinking wall, corroborated. */
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 declared
    s32 and passed as (s16)arg3 (s16 widening emits the retail sign-extension). */
-// Fcl sprite start reveal scale (index): starts a scale reveal on sprite arg0.
+// Fcl sprite start reveal scale (index): starts a scale reveal on sprite index.
 // FUN_002B6AF0
 #pragma opt_propagation off
-void fclSpriteStartRevealScaleAt(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s16 arg3) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    fclSpriteStartRevealScale(base + ((s32)arg0 * 256) + 0x14, fparg0, fparg1, fparg2, fparg3, arg1, arg2, (s16)arg3);
+void fclSpriteStartRevealScaleAt(s16 index, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s16 delay) {
+    u8 *work = ((KwlnTask *)(iGpffffb574))->work;
+    fclSpriteStartRevealScale(work + ((s32)index * 256) + 0x14, startX, endX, startY, endY, mode, duration, (s16)delay);
 }
 /* measured: close opt_propagation scope after fclSpriteStartRevealScaleAt. */
 #pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 s32 passed
    as (s16)arg3 (s16 widening = retail's dsll32/dsra32 sign-ext). */
-// Fcl sprite start tween (index): starts a two-float tween on sprite arg0.
+// Fcl sprite start tween (index): starts a two-float tween on sprite index.
 // FUN_002B6B40
 #pragma opt_propagation off
-void fclSpriteStartTweenAt(s16 arg0, u8 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    fclSpriteStartTween(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1);
+void fclSpriteStartTweenAt(s16 index, u8 mode, s32 duration, s32 delay, f32 start, f32 end) {
+    u8 *work = ((KwlnTask *)(iGpffffb574))->work;
+    fclSpriteStartTween(work + ((s32)index << 8) + 0x14, mode, duration, (s16)delay, start, end);
 }
 /* measured: close opt_propagation scope after fclSpriteStartTweenAt. */
 #pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 s32 passed
    as (s16)arg5 (s16 widening = retail's dsll32/dsra32 sign-ext). */
-// Fcl sprite start color (index): starts a colour fade on sprite arg0.
+// Fcl sprite start color (index): starts a colour fade on sprite index.
 // FUN_002B6B90
 #pragma opt_propagation off
-void fclSpriteStartColorAt(s16 arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    fclSpriteStartColor(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
+void fclSpriteStartColorAt(s16 index, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
+    u8 *work = ((KwlnTask *)(iGpffffb574))->work;
+    fclSpriteStartColor(work + ((s32)index << 8) + 0x14, start, end, mode, duration, (s16)delay);
 }
 /* measured: close opt_propagation scope after fclSpriteStartColorAt. */
 #pragma opt_propagation on
 // Fcl sprite activate (task): marks the task's sprite active and sets its id, scale and position.
 // FUN_002B6BE0
-void fclSpriteActivateTask(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
-    u8 *base = *(u8 **)(arg0 + 0x38);
-    *(s16 *)(base + 0x10) |= 1;
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x14) = fparg0;
-    *(u32 *)(*(u8 **)(arg0 + 0x38) + 0x8) = arg2;
-    *(f2 *)(base + 0x38) = p1;
+void fclSpriteActivateTask(u8 *task, f2 position, u32 order, f32 depth) {
+    u8 *work = ((KwlnTask *)(task))->work;
+    ((FclSpriteRecord *)(work))->animation.flags |= 1;
+    ((FclSpriteRecord *)(((KwlnTask *)(task))->work))->animation.depth = depth;
+    ((FclSpriteRecord *)(((KwlnTask *)(task))->work))->order.unsignedWord = order;
+    ((FclSpriteRecord *)(work))->animation.position = position;
 }
 
 /* measured: retail emits the func_0046d200 call's arg1 chain (lw 0x38 base reload,
@@ -610,42 +804,42 @@ void fclSpriteActivateTask(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
    for the CSE makes it live across the whole function ($s1, frame 0x60,
    worse). Remaining levers: deferred g local scoped to the pair+chain only.
    Same argument-materialization family as the old nd 9 note. */
-// Fcl sprite create: creates the sprite node for sprite arg0 and records its half width and height.
+// Fcl sprite create: creates the sprite node for sprite index and records its half width and height.
 // FUN_002B6C30
-void fclSpriteCreate(s16 arg0, f2 p1, f32 fparg0, s32 arg2) {
-    u8 *base;
-    u8 *base2;
-    s32 off;
+void fclSpriteCreate(s16 index, f2 position, f32 depth, s32 order) {
+    u8 *pool;
+    u8 *refreshedPool;
+    s32 recordOffset;
     u8 *entry;
-    u8 *tmp;
-    base = *(u8 **)(iGpffffb574 + 0x38);
-    off = (s32)(s16)arg0 * 256;
-    entry = base + off;
-    *(s16 *)(entry + 0x14) |= 1;
-    *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
-    *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = arg2;
-    entry = *(u8 **)(iGpffffb574 + 0x38) + off;
-    *(f2 *)(entry + 0x3C) = p1;
-    tmp = sdkSpriteNewNode(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
-    base2 = *(u8 **)(iGpffffb574 + 0x38);
-    *(s16 *)(base2 + off + 0x10) = (s16)(sdkSpriteScaledWidth(tmp) / 2.0f);
-    base2 = *(u8 **)(iGpffffb574 + 0x38);
-    *(s16 *)(base2 + off + 0x12) = (s16)(sdkSpriteScaledHeight(tmp) / 2.0f);
-    sdkSpriteFreeNode(tmp);
+    u8 *sprite;
+    pool = ((KwlnTask *)(iGpffffb574))->work;
+    recordOffset = (s32)(s16)index * 256;
+    entry = pool + recordOffset;
+    ((FclSpriteRecord *)(entry + 4))->animation.flags |= 1;
+    ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.depth = depth;
+    ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->order.word = order;
+    entry = ((KwlnTask *)(iGpffffb574))->work + recordOffset;
+    ((FclSpriteRecord *)(entry + 4))->animation.position = position;
+    sprite = sdkSpriteNewNode(*(u32 *)pool, ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->id);
+    refreshedPool = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(refreshedPool + recordOffset + 4))->halfWidth = (s16)(sdkSpriteScaledWidth(sprite) / 2.0f);
+    refreshedPool = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(refreshedPool + recordOffset + 4))->halfHeight = (s16)(sdkSpriteScaledHeight(sprite) / 2.0f);
+    sdkSpriteFreeNode(sprite);
 }
 
-// Fcl sprite reset scale: resets sprite arg0 to unit scale and full opacity.
+// Fcl sprite reset scale: resets sprite index to unit scale and full opacity.
 // FUN_002B6D60
 /* measured: open opt_propagation scope for fclSpriteResetScale. */
 #pragma opt_propagation off
-void fclSpriteResetScale(s16 arg0) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+void fclSpriteResetScale(s16 index) {
+    u8 *base = ((KwlnTask *)(iGpffffb574))->work;
     u8 *last;
-    s32 off = ((s32)arg0) << 8;
-    *(f32 *)(base + off + 0xB0) = 1.0f;
-    *(f32 *)(base + off + 0xA4) = 1.0f;
-    last = *(u8 **)(iGpffffb574 + 0x38);
-    *(u8 *)(last + off + 0x72) = 0xFF;
+    s32 recordOffset = ((s32)index) << 8;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.scaleY.value = 1.0f;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.scaleX.value = 1.0f;
+    last = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(last + recordOffset + 4))->animation.alpha = 0xFF;
 }
 /* measured: opt_propagation off is bracketed around fclSpriteResetScale. */
 #pragma opt_propagation on
@@ -700,7 +894,9 @@ static inline s16 yDrawAnyBit(s32 flags)
 #pragma opt_pulloutconstants off
 // Fcl sprite pool update: per-frame update of every active sprite record in the pool.
 // FUN_002B6EC0
-s32 fclSpritePoolUpdate(u8 *arg0) {
+s32 fclSpritePoolUpdate(u8 *task) {
+    /* Proven layouts above; field typing changes retail register/load ordering.
+       Retain byte accesses here after a whole-file comparison rejected the rewrite. */
     u32 entryOffset;
     s16 *queue;
     s16 i;
@@ -713,7 +909,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
     u8 *b2;
     s16 fl;
 
-    queue = *(s16 **)(arg0 + 0x38);
+    queue = *(s16 **)(task + 0x38);
     *(s16 *)(((u8 *)queue) + 0x30C04) = 0;
     i = 0;
     while (i < 0x30C) {
@@ -724,7 +920,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
         if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
             animation = fclSpriteUpdateTweens(e + 0x14);
             memcpy(YDRAW_BASE + entryOffset + 0x14, animation, 0xF0);
-            fclSpriteUpdateCulling(arg0, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
+            fclSpriteUpdateCulling(task, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
             base = YDRAW_BASE;
             e = base + (s32)entryOffset;
             fl = *(s16 *)(e + 0x14);
@@ -818,8 +1014,8 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
 
 // Fcl sprite pool destroy: frees the pool work block.
 // FUN_002B74C0
-void fclSpritePoolDestroy(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void fclSpritePoolDestroy(u8 *task) {
+    u8 *p = ((KwlnTask *)(task))->work;
     jtbl_008873EC[0](p);
 }
 
@@ -832,7 +1028,7 @@ void fclSpritePoolDestroy(u8 *arg0) {
 #pragma schedule off
 // Fcl sprite pool create: creates the pool task, initialises its 0x30C records, and returns the pool work block.
 // FUN_002B74F0
-u8 *fclSpritePoolCreate(s32 arg0, s32 arg1) {
+u8 *fclSpritePoolCreate(s32 parent, s32 resource) {
     u8 *data;
     u8 *entries;
     u8 *entry;
@@ -849,69 +1045,69 @@ u8 *fclSpritePoolCreate(s32 arg0, s32 arg1) {
 
     chkmemAllocSiteTag(&D_0063F178, 0x3F3);
     data = D_008873F4[0](1, 0x31220, 0x40000);
-    iGpffffb574 = (u8 *)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, fclSpritePoolUpdate, fclSpritePoolDestroy, (u8 *)(data));
-    *(s32 *)(data + 0) = arg1;
-    *(s16 *)(data + 0x30C04) = 0;
+    iGpffffb574 = (u8 *)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F1B0), 0xF, 0, 0, fclSpritePoolUpdate, fclSpritePoolDestroy, (u8 *)(data));
+    ((FclSpritePool *)data)->resource = resource;
+    ((FclSpritePool *)(data))->count = 0;
     record = 0;
     while ((s32)record < 0x30C) {
         component = 0;
         entryOffset = (s32)record * 0x100;
         while ((s32)component < 3) {
-            entries = *(u8 **)(iGpffffb574 + 0x38);
+            entries = ((KwlnTask *)(iGpffffb574))->work;
             index = component;
             componentOffset = index;
             zero = 0.0f;
             position = fclMakeVec2(zero, zero);
-            *(f2 *)((u8 *)(entryOffset + (s32)entries) + componentOffset * 8 + 0x2C) = position;
-            entry = *(u8 **)(iGpffffb574 + 0x38);
-            *(u8 *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 0x70) = alpha;
-            entry = *(u8 **)(iGpffffb574 + 0x38);
+            ((FclSpriteRecord *)((u8 *)(entryOffset + (s32)entries) + componentOffset * 8 + 4))->animation.positionStart = position;
+            entry = ((KwlnTask *)(iGpffffb574))->work;
+            ((FclSpriteRecord *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 4))->animation.alphaStart = alpha;
+            entry = ((KwlnTask *)(iGpffffb574))->work;
             componentOffset = componentOffset * 4;
-            *(s32 *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 0xCC) = 0;
-            entry = *(u8 **)(iGpffffb574 + 0x38);
+            ((FclSpriteRecord *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 4))->animation.valueStart.bits = 0;
+            entry = ((KwlnTask *)(iGpffffb574))->work;
             unitScale = 1.0f;
             entry = (u8 *)(entryOffset + (s32)entry) + componentOffset;
-            *(f32 *)(entry + 0xA8) = unitScale;
-            *(f32 *)(entry + 0x9C) = unitScale;
-            entries = *(u8 **)(iGpffffb574 + 0x38);
+            ((FclSpriteRecord *)(entry + 4))->animation.scaleYStart.value = unitScale;
+            ((FclSpriteRecord *)(entry + 4))->animation.scaleXStart.value = unitScale;
+            entries = ((KwlnTask *)(iGpffffb574))->work;
             color = fclMakeDrawColor(alpha, alpha, alpha, alpha);
-            *(u4 *)((u8 *)(entryOffset + (s32)entries) + componentOffset + 0x81) = color;
+            ((FclSpriteRecord *)((u8 *)(entryOffset + (s32)entries) + componentOffset + 4))->animation.colorStart = color;
             component++;
         }
-        entry = *(u8 **)(iGpffffb574 + 0x38);
+        entry = ((KwlnTask *)(iGpffffb574))->work;
         index = record;
         entryOffset = (s32)index * 0x100;
-        *(f32 *)(entry + entryOffset + 0x18) = 100.0f;
-        entry = *(u8 **)(iGpffffb574 + 0x38);
-        *(s32 *)(entry + entryOffset + 0x0C) = 0x55;
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + entryOffset + 0x14) = 0;
-        entry = (u8 *)(*(u8 **)(iGpffffb574 + 0x38) + entryOffset);
-        *(s16 *)(entry + 0x12) = 0;
-        *(s16 *)(entry + 0x10) = 0;
+        ((FclSpriteRecord *)(entry + entryOffset + 4))->animation.depth = 100.0f;
+        entry = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(entry + entryOffset + 4))->order.word = 0x55;
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + entryOffset + 4))->animation.flags = 0;
+        entry = (u8 *)(((KwlnTask *)(iGpffffb574))->work + entryOffset);
+        ((FclSpriteRecord *)(entry + 4))->halfHeight = 0;
+        ((FclSpriteRecord *)(entry + 4))->halfWidth = 0;
         record++;
     }
     return iGpffffb574;
 }
 #pragma pop
 
-// Fcl sprite reset: sets sprite arg0's id to arg1 and clears its flags and state.
+// Fcl sprite reset: sets sprite index's id to spriteId and clears its flags and state.
 // FUN_002B7750
 /* measured: open opt_propagation scope for fclSpriteReset. */
 #pragma opt_propagation off
-void fclSpriteReset(s16 arg0, s16 arg1) {
-    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
-    s32 off = ((s32)arg0) << 8;
-    *(s16 *)(base + off + 8) = arg1;
-    base = *(u8 **)(iGpffffb574 + 0x38);
-    *(s16 *)(base + off + 0x14) = 0;
-    base = *(u8 **)(iGpffffb574 + 0x38);
-    *(u8 *)(base + off + 0x4B) = 0;
-    base = *(u8 **)(iGpffffb574 + 0x38);
-    *(u8 *)(base + off + 0x77) = 0;
-    base = *(u8 **)(iGpffffb574 + 0x38);
-    *(u8 *)(base + off + 0xB7) = 0;
-    base = *(u8 **)(iGpffffb574 + 0x38);
-    *(u8 *)(base + off + 0xDF) = 0;
+void fclSpriteReset(s16 index, s16 spriteId) {
+    u8 *base = ((KwlnTask *)(iGpffffb574))->work;
+    s32 recordOffset = ((s32)index) << 8;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->id = spriteId;
+    base = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.flags = 0;
+    base = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.positionReverse = 0;
+    base = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.alphaReverse = 0;
+    base = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.scaleReverse = 0;
+    base = ((KwlnTask *)(iGpffffb574))->work;
+    ((FclSpriteRecord *)(base + recordOffset + 4))->animation.valueReverse = 0;
 }
 /* measured: opt_propagation off is required for the byte-exact 7750 reset sequence. */
 #pragma opt_propagation on
@@ -952,84 +1148,84 @@ static inline void fclRevealOpacity(u8 *work, const FclDrawColor *color)
     fclSpriteStartAlpha(work, initialAlpha, targetAlpha, 0, 0, 0);
 }
 
-// Intent: starts a show or hide transition for pool slot arg0 (arg4 == 1 hides, otherwise shows). Sets the slot's flags, sizes it from the scaled sprite width and height, and starts the alpha, reveal-scale and position tweens with the given duration and delay.
+// Intent: starts a show or hide transition for pool slot index (hidden == 1 hides, otherwise shows). Sets the slot's flags, sizes it from the scaled sprite width and height, and starts the alpha, reveal-scale and position tweens with the given duration and delay.
 // FUN_002B77D0
-void fclSpriteStartShowHide(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16 arg3, s8 arg4, s16 arg5, s16 arg6, s16 arg7, u32 arg8) {
-    u8 *first;
-    s32 off;
+void fclSpriteStartShowHide(s16 index, f2 position, s16 spriteId, FclDrawColor color, f32 depth, s16 order, s8 hidden, s16 showDuration, s16 hideDuration, s16 startDelay, u32 resource) {
+    u8 *sprite;
+    s32 recordOffset;
     f2 hideConstructed;
     f2 showConstructed;
     f2 hidePosition;
     f2 showPosition;
-    first = sdkSpriteNewNode(arg8, (s32)arg1);
-    if ((s32)arg4 == 1) {
-        u8 *tmp;
+    sprite = sdkSpriteNewNode(resource, (s32)spriteId);
+    if ((s32)hidden == 1) {
+        u8 *sample;
         u8 *dimensionRows;
         u8 *base;
         u8 *orderRows;
         u8 *animationRows;
         s32 delay;
         s32 duration;
-        base = *(u8 **)(iGpffffb574 + 0x38);
-        off = (s32)arg0 * 256;
-        *(s16 *)(base + off + 0x14) |= 1;
-        *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
-        orderRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s32 *)(orderRows + off + 0x0C) = (s32)arg3;
-        *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
-        tmp = sdkSpriteNewNode(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
-        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x10) = (s16)(sdkSpriteScaledWidth(tmp) / 2.0f);
-        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x12) = (s16)(sdkSpriteScaledHeight(tmp) / 2.0f);
-        sdkSpriteFreeNode(tmp);
-        animationRows = *(u8 **)(iGpffffb574 + 0x38);
-        delay = (s32)arg7;
-        duration = (s32)arg6;
-        fclSpriteStartAlpha(animationRows + off + 0x14, *(animationRows + off + 0x72), 0, 0, 0, (s16)(duration + delay));
-        fclSpriteStartRevealScale(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
-        hideConstructed = fclMakeVec2(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
+        base = ((KwlnTask *)(iGpffffb574))->work;
+        recordOffset = (s32)index * 256;
+        ((FclSpriteRecord *)(base + recordOffset + 4))->animation.flags |= 1;
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.depth = depth;
+        orderRows = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(orderRows + recordOffset + 4))->order.word = (s32)order;
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.position = position;
+        sample = sdkSpriteNewNode(*(u32 *)base, ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->id);
+        dimensionRows = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(dimensionRows + recordOffset + 4))->halfWidth = (s16)(sdkSpriteScaledWidth(sample) / 2.0f);
+        dimensionRows = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(dimensionRows + recordOffset + 4))->halfHeight = (s16)(sdkSpriteScaledHeight(sample) / 2.0f);
+        sdkSpriteFreeNode(sample);
+        animationRows = ((KwlnTask *)(iGpffffb574))->work;
+        delay = (s32)startDelay;
+        duration = (s32)hideDuration;
+        fclSpriteStartAlpha(animationRows + recordOffset + 0x14, *(animationRows + recordOffset + 0x72), 0, 0, 0, (s16)(duration + delay));
+        fclSpriteStartRevealScale(((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
+        hideConstructed = fclMakeVec2(position.x, position.y + sdkSpriteScaledHeight(sprite) / 2.0f);
         fclCopyTransitionPosition(&hidePosition, &hideConstructed);
-        fclSpriteStartPosition(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, hidePosition, 0, duration, delay);
+        fclSpriteStartPosition(((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14, position, hidePosition, 0, duration, delay);
     } else {
-        u8 *tmp;
+        u8 *sample;
         u8 *dimensionRows;
         u8 *base;
         u8 *orderRows;
         u8 *animationRows;
         s32 delay;
         s32 duration;
-        base = *(u8 **)(iGpffffb574 + 0x38);
-        off = (s32)arg0 * 256;
-        *(s16 *)(base + off + 8) = arg1;
-        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) = 0;
-        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->positionFlag = 0;
-        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->alphaFlag = 0;
-        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->scaleFlag = 0;
-        ((YDrawTransitionFlags *)(*(u8 **)(iGpffffb574 + 0x38) + off))->valueFlag = 0;
-        base = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(base + off + 0x14) |= 1;
-        *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
-        orderRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s32 *)(orderRows + off + 0x0C) = (s32)arg3;
-        *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
-        tmp = sdkSpriteNewNode(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
-        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x10) = (s16)(sdkSpriteScaledWidth(tmp) / 2.0f);
-        dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x12) = (s16)(sdkSpriteScaledHeight(tmp) / 2.0f);
-        sdkSpriteFreeNode(tmp);
-        *(FclDrawColor *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x89) = arg2;
-        fclRevealOpacity(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, &arg2);
-        animationRows = *(u8 **)(iGpffffb574 + 0x38);
-        delay = (s32)arg7;
-        duration = (s32)arg5;
-        fclSpriteStartRevealScale(animationRows + off + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
-        showConstructed = fclMakeVec2(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
+        base = ((KwlnTask *)(iGpffffb574))->work;
+        recordOffset = (s32)index * 256;
+        ((FclSpriteRecord *)(base + recordOffset + 4))->id = spriteId;
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.flags = 0;
+        ((YDrawTransitionFlags *)(((KwlnTask *)(iGpffffb574))->work + recordOffset))->positionFlag = 0;
+        ((YDrawTransitionFlags *)(((KwlnTask *)(iGpffffb574))->work + recordOffset))->alphaFlag = 0;
+        ((YDrawTransitionFlags *)(((KwlnTask *)(iGpffffb574))->work + recordOffset))->scaleFlag = 0;
+        ((YDrawTransitionFlags *)(((KwlnTask *)(iGpffffb574))->work + recordOffset))->valueFlag = 0;
+        base = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(base + recordOffset + 4))->animation.flags |= 1;
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.depth = depth;
+        orderRows = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(orderRows + recordOffset + 4))->order.word = (s32)order;
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.position = position;
+        sample = sdkSpriteNewNode(*(u32 *)base, ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->id);
+        dimensionRows = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(dimensionRows + recordOffset + 4))->halfWidth = (s16)(sdkSpriteScaledWidth(sample) / 2.0f);
+        dimensionRows = ((KwlnTask *)(iGpffffb574))->work;
+        ((FclSpriteRecord *)(dimensionRows + recordOffset + 4))->halfHeight = (s16)(sdkSpriteScaledHeight(sample) / 2.0f);
+        sdkSpriteFreeNode(sample);
+        ((FclSpriteRecord *)(((KwlnTask *)(iGpffffb574))->work + recordOffset + 4))->animation.color = color;
+        fclRevealOpacity(((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14, &color);
+        animationRows = ((KwlnTask *)(iGpffffb574))->work;
+        delay = (s32)startDelay;
+        duration = (s32)showDuration;
+        fclSpriteStartRevealScale(animationRows + recordOffset + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
+        showConstructed = fclMakeVec2(position.x, position.y + sdkSpriteScaledHeight(sprite) / 2.0f);
         fclCopyTransitionPosition(&showPosition, &showConstructed);
-        fclSpriteStartPosition(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, showPosition, p1, 0, duration, delay);
+        fclSpriteStartPosition(((KwlnTask *)(iGpffffb574))->work + recordOffset + 0x14, showPosition, position, 0, duration, delay);
     }
-    sdkSpriteFreeNode(first);
+    sdkSpriteFreeNode(sprite);
 }
 
 #pragma pop
@@ -1056,7 +1252,7 @@ typedef struct {
 #pragma schedule off
 // Intent: when the sprite entry has no bit set in flags 1-12, computes its screen margins and sets or clears its cull flag by whether it lies on screen.
 // FUN_002B7CD0
-void fclSpriteUpdateCulling(u8 *arg0, s16 arg1, s16 arg2) {
+void fclSpriteUpdateCulling(u8 *task, s16 index, s16 spriteId) {
     u8 *context;
     s32 entryOffset;
     s32 flags;
@@ -1069,9 +1265,10 @@ void fclSpriteUpdateCulling(u8 *arg0, s16 arg1, s16 arg2) {
     f32 margins[4];
     s16 side;
 
-    context = *(u8 **)(arg0 + 0x38);
-    entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38);
-    entryOffset = (s32)arg1 * 0x100;
+    /* Sprite resource +0x204 selects the frame table; its owning SDK layout is opaque here. */
+    context = ((KwlnTask *)(task))->work;
+    entries = (YDrawCullEntry *)((KwlnTask *)iGpffffb574)->work;
+    entryOffset = (s32)index * 0x100;
     flags = ((YDrawCullEntry *)((u8 *)entries + entryOffset))->flags;
     for (bit = 1; bit < 13; bit++) {
         if (((flags & (u16)(1 << bit)) >> bit) == 1) {
@@ -1082,7 +1279,7 @@ void fclSpriteUpdateCulling(u8 *arg0, s16 arg1, s16 arg2) {
     selected = 0;
 found_check:
     if (selected == 0) {
-        frameIndex = arg2;
+        frameIndex = spriteId;
         sample = sdkSpriteNewNode(*(u32 *)context, frameIndex);
         (void)sdkSpriteScaledWidth(sample);
         (void)sdkSpriteScaledHeight(sample);
@@ -1091,11 +1288,11 @@ found_check:
         for (; side < 4; side++) {
             margins[side] = (f32)frame->margins[side];
         }
-        if (!(((YDrawCullEntry *)((u8 *)(entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38)) + entryOffset))->x - margins[2] < 640.0f) ||
+        if (!(((YDrawCullEntry *)((u8 *)(entries = (YDrawCullEntry *)((KwlnTask *)iGpffffb574)->work) + entryOffset))->x - margins[2] < 640.0f) ||
             (margins[3] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->x + sdkSpriteScaledWidth(sample)) < 0.0f) ||
-            !(((YDrawCullEntry *)((u8 *)(entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38)) + entryOffset))->y - margins[0] < 480.0f) ||
+            !(((YDrawCullEntry *)((u8 *)(entries = (YDrawCullEntry *)((KwlnTask *)iGpffffb574)->work) + entryOffset))->y - margins[0] < 480.0f) ||
             (margins[1] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->y + sdkSpriteScaledHeight(sample)) < 0.0f)) {
-            ((YDrawCullEntry *)((u8 *)*(YDrawCullEntry **)(iGpffffb574 + 0x38) + entryOffset))->flags &= ~1;
+            ((YDrawCullEntry *)((u8 *)(YDrawCullEntry *)((KwlnTask *)iGpffffb574)->work + entryOffset))->flags &= ~1;
         }
         sdkSpriteFreeNode(sample);
     }
@@ -1151,7 +1348,9 @@ found_check:
 #pragma schedule off
 // Intent: one-shot layout of the 0x130-byte panel task: sets its four channel records and two render positions, and queues the render job with fclSpriteApplyMaskedPreset and fclSpriteEmitTagPair. Returns at once while +0x124 is set; fclSpriteCreatePanelChild sets that flag, and nothing traced so far clears it.
 // FUN_002B7F20
-s32 fclSpriteStartPanelLayout(u8 *arg0) {
+s32 fclSpriteStartPanelLayout(u8 *task) {
+    /* Proven layouts above; field typing changes retail register/load ordering.
+       Retain byte accesses here after a whole-file comparison rejected the rewrite. */
     u8 *p;
     f32 scale;
     u8 *q;
@@ -1160,7 +1359,7 @@ s32 fclSpriteStartPanelLayout(u8 *arg0) {
     s16 j;
     f32 d;
 
-    p = *(u8 **)(arg0 + 0x38);
+    p = ((KwlnTask *)(task))->work;
     scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     if (*(s8 *)(p + 0x124) == 1) {
         return 0;
@@ -1201,218 +1400,218 @@ s32 fclSpriteStartPanelLayout(u8 *arg0) {
 
 // Intent: destroy callback for the 0x130-byte panel task created by fclSpriteCreatePanelChild (frees the work block at +0x38).
 // FUN_002B8120
-void fclSpriteDestroyPanel(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void fclSpriteDestroyPanel(u8 *task) {
+    u8 *p = ((KwlnTask *)(task))->work;
     jtbl_008873EC[0](p);
 }
 
 // Intent: creates a child task with a 0x130-byte panel work block (destroy: fclSpriteDestroyPanel), sets the panel flag at +0x124 and clears +0x125.
 // FUN_002B8150
-s32 fclSpriteCreatePanelChild(s32 arg0) {
+s32 fclSpriteCreatePanelChild(s32 parent) {
     s32 handle;
-    u8 *p;
+    u8 *work;
     chkmemAllocSiteTag(&D_0063F178, 0x4A2);
-    p = D_008873F4[0](1, 0x130, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, fclSpriteStartPanelLayout, fclSpriteDestroyPanel, (u8 *)(p));
-    p[0x124] = 1;
-    p[0x125] = 0;
+    work = D_008873F4[0](1, 0x130, 0x40000);
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F1D0), 0xF, 0, 0, fclSpriteStartPanelLayout, fclSpriteDestroyPanel, (u8 *)(work));
+    ((FclSpritePanel *)(work))->hidden = 1;
+    ((FclSpritePanel *)(work))->alpha = 0;
     return handle;
 }
 
 // Fcl sprite work: returns the pool work block of the task.
 // FUN_002B81F0
-u8 *fclSpriteWork(u8 *arg0) {
-    return *(u8 **)(arg0 + 0x38);
+u8 *fclSpriteWork(u8 *task) {
+    return ((KwlnTask *)(task))->work;
 }
 
 // Intent: sets a sprite's appearance: position at +0x28, size at +0x90/+0x9C, colour at +0x5E/+0x75, the scale at +0xC0 and +0x4, and enables the sprite (flag |= 1).
 // FUN_002B8200
-void fclSpriteSetAppearance(u8 *arg0, f2 p1, u4 arg2, f32 fparg0, f32 fparg1, f32 fparg2) {
-    *(f2 *)(arg0 + 0x28) = p1;
-    *(f32 *)(arg0 + 0x9C) = fparg0;
-    *(f32 *)(arg0 + 0x90) = fparg0;
-    arg0[0x5E] = arg2.c3;
-    *(u4 *)(arg0 + 0x75) = arg2;
-    *(f32 *)(arg0 + 0xC0) = fparg1;
-    *(f32 *)(arg0 + 0x4) = fparg2;
-    *(s16 *)(arg0 + 0x0) |= 1;
+void fclSpriteSetAppearance(u8 *animation, f2 position, u4 color, f32 scale, f32 value, f32 depth) {
+    ((FclSpriteAnimation *)(animation))->position = position;
+    ((FclSpriteAnimation *)(animation))->scaleY.value = scale;
+    ((FclSpriteAnimation *)(animation))->scaleX.value = scale;
+    ((FclSpriteAnimation *)(animation))->alpha = color.c3;
+    ((FclSpriteAnimation *)(animation))->color = color;
+    ((FclSpriteAnimation *)(animation))->value.value = value;
+    ((FclSpriteAnimation *)(animation))->depth = depth;
+    ((FclSpriteAnimation *)(animation))->flags |= 1;
 }
 
 // Fcl sprite start position: sets the start and end points, the duration, the delay and the mode of a position transition.
 // FUN_002B8270
-void fclSpriteStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
-    *(f32 *)(arg0 + 0x18) = p1.x;
-    *(f32 *)(arg0 + 0x1C) = p1.y;
-    *(f32 *)(arg0 + 0x20) = p2.x;
-    *(f32 *)(arg0 + 0x24) = p2.y;
-    *(f32 *)(arg0 + 0x28) = p1.x;
-    *(f32 *)(arg0 + 0x2C) = p1.y;
-    *(s16 *)(arg0 + 0x32) = 0;
-    *(s16 *)(arg0 + 0x30) = arg4;
-    *(s16 *)(arg0 + 0x34) = arg5;
-    arg0[0x36] = arg3;
-    *(s16 *)(arg0 + 0x0) |= 2;
+void fclSpriteStartPosition(u8 *animation, f2 start, f2 end, u32 mode, s32 duration, s32 delay) {
+    ((FclSpriteAnimation *)(animation))->positionStart.x = start.x;
+    ((FclSpriteAnimation *)(animation))->positionStart.y = start.y;
+    ((FclSpriteAnimation *)(animation))->positionEnd.x = end.x;
+    ((FclSpriteAnimation *)(animation))->positionEnd.y = end.y;
+    ((FclSpriteAnimation *)(animation))->position.x = start.x;
+    ((FclSpriteAnimation *)(animation))->position.y = start.y;
+    ((FclSpriteAnimation *)(animation))->positionElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->positionDuration = duration;
+    ((FclSpriteAnimation *)(animation))->positionDelay = delay;
+    ((FclSpriteAnimation *)(animation))->positionMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 2;
 }
 
 // Fcl sprite start alpha: sets the alpha levels, the duration and the mode of an alpha transition.
 // FUN_002B82D0
-void fclSpriteStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5) {
-    arg0[0x5C] = arg1;
-    arg0[0x5D] = arg2;
-    arg0[0x5E] = arg1;
-    *(s16 *)(arg0 + 0x5A) = 0;
-    *(s16 *)(arg0 + 0x58) = (s16)arg4;
-    *(s16 *)(arg0 + 0x60) = (s16)arg5;
-    arg0[0x62] = arg3;
-    *(s16 *)(arg0 + 0x0) |= 4;
+void fclSpriteStartAlpha(u8 *animation, u8 startAlpha, u8 endAlpha, u8 mode, s32 duration, s32 delay) {
+    ((FclSpriteAnimation *)(animation))->alphaStart = startAlpha;
+    ((FclSpriteAnimation *)(animation))->alphaEnd = endAlpha;
+    ((FclSpriteAnimation *)(animation))->alpha = startAlpha;
+    ((FclSpriteAnimation *)(animation))->alphaElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->alphaDuration = (s16)duration;
+    ((FclSpriteAnimation *)(animation))->alphaDelay = (s16)delay;
+    ((FclSpriteAnimation *)(animation))->alphaMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 4;
 }
 
 // Fcl sprite start reveal scale: sets the scale endpoints, duration, delay and mode of a reveal.
 // FUN_002B8300
-void fclSpriteStartRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
-    *(f32 *)(arg0 + 0x88) = fparg0;
-    *(f32 *)(arg0 + 0x8C) = fparg1;
-    *(f32 *)(arg0 + 0x90) = fparg0;
-    *(f32 *)(arg0 + 0x94) = fparg2;
-    *(f32 *)(arg0 + 0x98) = fparg3;
-    *(f32 *)(arg0 + 0x9C) = fparg2;
-    *(s16 *)(arg0 + 0x84) = 0;
-    *(s16 *)(arg0 + 0x82) = arg2;
-    *(s16 *)(arg0 + 0xA0) = (s16)arg3;
-    arg0[0xA2] = arg1;
-    *(s16 *)(arg0 + 0x0) |= 0x10;
+void fclSpriteStartRevealScale(u8 *animation, f32 startX, f32 endX, f32 startY, f32 endY, u32 mode, u32 duration, s32 delay) {
+    ((FclSpriteAnimation *)(animation))->scaleXStart.value = startX;
+    ((FclSpriteAnimation *)(animation))->scaleXEnd.value = endX;
+    ((FclSpriteAnimation *)(animation))->scaleX.value = startX;
+    ((FclSpriteAnimation *)(animation))->scaleYStart.value = startY;
+    ((FclSpriteAnimation *)(animation))->scaleYEnd.value = endY;
+    ((FclSpriteAnimation *)(animation))->scaleY.value = startY;
+    ((FclSpriteAnimation *)(animation))->scaleElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->scaleDuration = duration;
+    ((FclSpriteAnimation *)(animation))->scaleDelay = (s16)delay;
+    ((FclSpriteAnimation *)(animation))->scaleMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 0x10;
 }
 
 // Fcl sprite start tween: sets the two tween values, the duration, the delay and the mode.
 // FUN_002B8340
-void fclSpriteStartTween(u8 *arg0, u8 arg1, s32 arg2, s16 arg3, f32 fparg0, f32 fparg1) {
-    *(f32 *)(arg0 + 0xB8) = fparg0;
-    *(f32 *)(arg0 + 0xBC) = fparg1;
-    *(f32 *)(arg0 + 0xC0) = fparg0;
-    *(s16 *)(arg0 + 0xC4) = 0;
-    *(s16 *)(arg0 + 0xC6) = arg2;
-    *(s16 *)(arg0 + 0xC8) = arg3;
-    arg0[0xCA] = arg1;
-    *(s16 *)(arg0 + 0x0) |= 8;
+void fclSpriteStartTween(u8 *animation, u8 mode, s32 duration, s16 delay, f32 start, f32 end) {
+    ((FclSpriteAnimation *)(animation))->valueStart.value = start;
+    ((FclSpriteAnimation *)(animation))->valueEnd.value = end;
+    ((FclSpriteAnimation *)(animation))->value.value = start;
+    ((FclSpriteAnimation *)(animation))->valueElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->valueDuration = duration;
+    ((FclSpriteAnimation *)(animation))->valueDelay = delay;
+    ((FclSpriteAnimation *)(animation))->valueMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 8;
 }
 
 // Fcl sprite start color: sets the start and end colours, the duration and the mode of a colour fade.
 // FUN_002B8370
-void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
-    arg0[0x6D] = arg1.c0;
-    arg0[0x6E] = arg1.c1;
-    arg0[0x6F] = arg1.c2;
-    arg0[0x71] = arg2.c0;
-    arg0[0x72] = arg2.c1;
-    arg0[0x73] = arg2.c2;
-    arg0[0x75] = arg1.c0;
-    arg0[0x76] = arg1.c1;
-    arg0[0x77] = arg1.c2;
-    *(s16 *)(arg0 + 0x7A) = arg4;
-    *(s16 *)(arg0 + 0x7C) = 0;
-    *(s16 *)(arg0 + 0x7E) = arg5;
-    arg0[0x80] = arg3;
-    *(s16 *)(arg0 + 0x0) |= 0x200;
+void fclSpriteStartColor(u8 *animation, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
+    ((FclSpriteAnimation *)(animation))->colorStart.c0 = start.c0;
+    ((FclSpriteAnimation *)(animation))->colorStart.c1 = start.c1;
+    ((FclSpriteAnimation *)(animation))->colorStart.c2 = start.c2;
+    ((FclSpriteAnimation *)(animation))->colorEnd.c0 = end.c0;
+    ((FclSpriteAnimation *)(animation))->colorEnd.c1 = end.c1;
+    ((FclSpriteAnimation *)(animation))->colorEnd.c2 = end.c2;
+    ((FclSpriteAnimation *)(animation))->color.c0 = start.c0;
+    ((FclSpriteAnimation *)(animation))->color.c1 = start.c1;
+    ((FclSpriteAnimation *)(animation))->color.c2 = start.c2;
+    ((FclSpriteAnimation *)(animation))->colorDuration = duration;
+    ((FclSpriteAnimation *)(animation))->colorElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->colorDelay = delay;
+    ((FclSpriteAnimation *)(animation))->colorMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 0x200;
 }
 
 /* Position snapshots are consumed by the inline transition setters.
    Duration stays signed-word sized until each field is stored. */
-static inline void fclStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
-    f32 startX = p1.x;
+static inline void fclStartPosition(u8 *animation, f2 start, f2 end, u32 mode, s32 duration, s32 delay) {
+    f32 startX = start.x;
     f32 startY;
-    *(f32 *)(arg0 + 0x18) = startX;
-    startY = p1.y;
-    *(f32 *)(arg0 + 0x1C) = startY;
-    *(f32 *)(arg0 + 0x20) = p2.x;
-    *(f32 *)(arg0 + 0x24) = p2.y;
-    *(f32 *)(arg0 + 0x28) = startX;
-    *(f32 *)(arg0 + 0x2C) = startY;
-    *(s16 *)(arg0 + 0x32) = 0;
-    *(s16 *)(arg0 + 0x30) = arg4;
-    *(s16 *)(arg0 + 0x34) = arg5;
-    arg0[0x36] = arg3;
-    *(s16 *)(arg0 + 0x0) |= 2;
+    ((FclSpriteAnimation *)(animation))->positionStart.x = startX;
+    startY = start.y;
+    ((FclSpriteAnimation *)(animation))->positionStart.y = startY;
+    ((FclSpriteAnimation *)(animation))->positionEnd.x = end.x;
+    ((FclSpriteAnimation *)(animation))->positionEnd.y = end.y;
+    ((FclSpriteAnimation *)(animation))->position.x = startX;
+    ((FclSpriteAnimation *)(animation))->position.y = startY;
+    ((FclSpriteAnimation *)(animation))->positionElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->positionDuration = duration;
+    ((FclSpriteAnimation *)(animation))->positionDelay = delay;
+    ((FclSpriteAnimation *)(animation))->positionMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 2;
 }
 
-static inline void fclStartAlpha(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5) {
-    arg0[0x5C] = arg1;
-    arg0[0x5D] = arg2;
-    arg0[0x5E] = arg1;
-    *(s16 *)(arg0 + 0x5A) = 0;
-    *(s16 *)(arg0 + 0x58) = arg4;
-    *(s16 *)(arg0 + 0x60) = arg5;
-    arg0[0x62] = arg3;
-    *(s16 *)(arg0 + 0x0) |= 4;
+static inline void fclStartAlpha(u8 *animation, u8 startAlpha, u32 endAlpha, u32 mode, u32 duration, s16 delay) {
+    ((FclSpriteAnimation *)(animation))->alphaStart = startAlpha;
+    ((FclSpriteAnimation *)(animation))->alphaEnd = endAlpha;
+    ((FclSpriteAnimation *)(animation))->alpha = startAlpha;
+    ((FclSpriteAnimation *)(animation))->alphaElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->alphaDuration = duration;
+    ((FclSpriteAnimation *)(animation))->alphaDelay = delay;
+    ((FclSpriteAnimation *)(animation))->alphaMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 4;
 }
 
-static inline void fclStartRevealScale(u8 *arg0, u32 mode, u32 duration, s32 delay, s8 outgoing)
+static inline void fclStartRevealScale(u8 *animation, u32 mode, u32 duration, s32 delay, s8 outgoing)
 {
-    *(f32 *)(arg0 + 0x88) = 1.0f;
-    *(f32 *)(arg0 + 0x8C) = 1.0f;
-    *(f32 *)(arg0 + 0x90) = 1.0f;
+    ((FclSpriteAnimation *)(animation))->scaleXStart.value = 1.0f;
+    ((FclSpriteAnimation *)(animation))->scaleXEnd.value = 1.0f;
+    ((FclSpriteAnimation *)(animation))->scaleX.value = 1.0f;
     if (outgoing == 0) {
         f32 initialScale = fGpffff8504;
-        *(f32 *)(arg0 + 0x94) = initialScale;
-        *(f32 *)(arg0 + 0x98) = 1.0f;
-        *(f32 *)(arg0 + 0x9C) = initialScale;
+        ((FclSpriteAnimation *)(animation))->scaleYStart.value = initialScale;
+        ((FclSpriteAnimation *)(animation))->scaleYEnd.value = 1.0f;
+        ((FclSpriteAnimation *)(animation))->scaleY.value = initialScale;
     } else {
-        *(f32 *)(arg0 + 0x94) = 1.0f;
-        *(f32 *)(arg0 + 0x98) = fGpffff8504;
-        *(f32 *)(arg0 + 0x9C) = 1.0f;
+        ((FclSpriteAnimation *)(animation))->scaleYStart.value = 1.0f;
+        ((FclSpriteAnimation *)(animation))->scaleYEnd.value = fGpffff8504;
+        ((FclSpriteAnimation *)(animation))->scaleY.value = 1.0f;
     }
-    *(s16 *)(arg0 + 0x84) = 0;
-    *(s16 *)(arg0 + 0x82) = duration;
-    *(s16 *)(arg0 + 0xA0) = delay;
-    arg0[0xA2] = mode;
-    *(s16 *)arg0 |= 0x10;
+    ((FclSpriteAnimation *)(animation))->scaleElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->scaleDuration = duration;
+    ((FclSpriteAnimation *)(animation))->scaleDelay = delay;
+    ((FclSpriteAnimation *)(animation))->scaleMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 0x10;
 }
 
-static inline void fclStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
-    arg0[0x6D] = arg1.c0;
-    arg0[0x6E] = arg1.c1;
-    arg0[0x6F] = arg1.c2;
-    arg0[0x71] = arg2.c0;
-    arg0[0x72] = arg2.c1;
-    arg0[0x73] = arg2.c2;
-    arg0[0x75] = arg1.c0;
-    arg0[0x76] = arg1.c1;
-    arg0[0x77] = arg1.c2;
-    *(s16 *)(arg0 + 0x7A) = arg4;
-    *(s16 *)(arg0 + 0x7C) = 0;
-    *(s16 *)(arg0 + 0x7E) = arg5;
-    arg0[0x80] = arg3;
-    *(s16 *)(arg0 + 0x0) |= 0x200;
+static inline void fclStartColor(u8 *animation, u4 start, u4 end, u8 mode, s16 duration, s32 delay) {
+    ((FclSpriteAnimation *)(animation))->colorStart.c0 = start.c0;
+    ((FclSpriteAnimation *)(animation))->colorStart.c1 = start.c1;
+    ((FclSpriteAnimation *)(animation))->colorStart.c2 = start.c2;
+    ((FclSpriteAnimation *)(animation))->colorEnd.c0 = end.c0;
+    ((FclSpriteAnimation *)(animation))->colorEnd.c1 = end.c1;
+    ((FclSpriteAnimation *)(animation))->colorEnd.c2 = end.c2;
+    ((FclSpriteAnimation *)(animation))->color.c0 = start.c0;
+    ((FclSpriteAnimation *)(animation))->color.c1 = start.c1;
+    ((FclSpriteAnimation *)(animation))->color.c2 = start.c2;
+    ((FclSpriteAnimation *)(animation))->colorDuration = duration;
+    ((FclSpriteAnimation *)(animation))->colorElapsed = 0;
+    ((FclSpriteAnimation *)(animation))->colorDelay = delay;
+    ((FclSpriteAnimation *)(animation))->colorMode = mode;
+    ((FclSpriteAnimation *)(animation))->flags |= 0x200;
 }
 
 // Intent: starts an entrance: alpha, reveal scale, position and colour in one call. The first flag selects the variant.
 // FUN_002B83E0
-void fclSpriteStartEntrance(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
-                   f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s8 arg_sp0, s8 arg_sp8)
+void fclSpriteStartEntrance(u8 *animation, FclVec2 position, u4 startColor, u4 endColor, u8 startAlpha, u8 endAlpha,
+                   f32 height, f32 depth, s32 duration, s32 delay, s8 outgoing, s8 reverse)
 {
-    arg0[0x37] = arg_sp8;
-    arg0[0xA3] = arg_sp8;
-    fclStartAlpha(arg0, arg4, arg5, 0, arg6, arg7);
-    if ((s8)arg_sp0 == 0) {
-        if (arg_sp8 == 0) {
-            fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 0);
-            fclStartPosition(arg0, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), p1, 0, arg6, arg7);
-            fclStartColor(arg0, arg2, arg3, 0, 0, 0);
+    ((FclSpriteAnimation *)(animation))->positionReverse = reverse;
+    ((FclSpriteAnimation *)(animation))->scaleReverse = reverse;
+    fclStartAlpha(animation, startAlpha, endAlpha, 0, duration, delay);
+    if ((s8)outgoing == 0) {
+        if (reverse == 0) {
+            fclStartRevealScale(animation, 0, (s16)duration, (s16)delay, 0);
+            fclStartPosition(animation, fclMakeVec2(position.x, position.y + height / 2.0f), position, 0, duration, delay);
+            fclStartColor(animation, startColor, endColor, 0, 0, 0);
         } else {
-            fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 0);
-            fclStartPosition(arg0, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), p1, 1, arg6, arg7);
-            fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
+            fclStartRevealScale(animation, 1, (s16)duration, (s16)delay, 0);
+            fclStartPosition(animation, fclMakeVec2(position.x, position.y + height / 2.0f), position, 1, duration, delay);
+            fclStartColor(animation, startColor, endColor, 0, 0, duration / 2);
         }
-    } else if (arg_sp8 == 0) {
-        fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 1);
-        fclStartPosition(arg0, p1, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), 0, arg6, arg7);
-        fclStartColor(arg0, arg2, arg3, 0, 0, 0);
+    } else if (reverse == 0) {
+        fclStartRevealScale(animation, 0, (s16)duration, (s16)delay, 1);
+        fclStartPosition(animation, position, fclMakeVec2(position.x, position.y + height / 2.0f), 0, duration, delay);
+        fclStartColor(animation, startColor, endColor, 0, 0, 0);
     } else {
-        fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 1);
-        fclStartPosition(arg0, p1, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), 1, arg6, arg7);
-        fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
+        fclStartRevealScale(animation, 1, (s16)duration, (s16)delay, 1);
+        fclStartPosition(animation, position, fclMakeVec2(position.x, position.y + height / 2.0f), 1, duration, delay);
+        fclStartColor(animation, startColor, endColor, 0, 0, duration / 2);
     }
-    *(f32 *)(arg0 + 4) = fparg1;
-    *(s16 *)arg0 |= 1;
+    ((FclSpriteAnimation *)(animation))->depth = depth;
+    ((FclSpriteAnimation *)(animation))->flags |= 1;
 }
 
 /* The byte channels go through the compiler's own unsigned conversions:
@@ -1423,155 +1622,157 @@ void fclSpriteStartEntrance(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 
    edits of register colouring and moves; the plain casts match. */
 // Intent: advances the five tween channels of one sprite record (position, alpha, colour, scale, colour pulse) by a frame. Each channel waits out its delay (+0x34, +0x60, +0x7E, +0xA0, +0xC8), eases with fclEaseInterpolate and steps its timer with fclAddClamped. Returns the record.
 // FUN_002B89A0
-s32 fclSpriteUpdateTweens(u8 *arg0) {
-    if (((*(s16 *)arg0 & 2) >> 1) == 1) {
-        if (*(s16 *)(arg0 + 0x34) == 0) {
-            if (*(s8 *)(arg0 + 0x37) == 0) {
-                *(f32 *)(arg0 + 0x28) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x18), *(f32 *)(arg0 + 0x20), (f32)*(s16 *)(arg0 + 0x32), (f32)*(s16 *)(arg0 + 0x30));
-                *(f32 *)(arg0 + 0x2C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x1C), *(f32 *)(arg0 + 0x24), (f32)*(s16 *)(arg0 + 0x32), (f32)*(s16 *)(arg0 + 0x30));
+s32 fclSpriteUpdateTweens(u8 *animation) {
+    /* FclSpriteAnimation layout above is proven; typed access changed retail codegen
+       (4984B versus 4368B), so retain byte addressing in this update only. */
+    if (((*(s16 *)animation & 2) >> 1) == 1) {
+        if (*(s16 *)(animation + 0x34) == 0) {
+            if (*(s8 *)(animation + 0x37) == 0) {
+                *(f32 *)(animation + 0x28) = fclEaseInterpolate((s32)*(s8 *)(animation + 0x36), *(f32 *)(animation + 0x18), *(f32 *)(animation + 0x20), (f32)*(s16 *)(animation + 0x32), (f32)*(s16 *)(animation + 0x30));
+                *(f32 *)(animation + 0x2C) = fclEaseInterpolate((s32)*(s8 *)(animation + 0x36), *(f32 *)(animation + 0x1C), *(f32 *)(animation + 0x24), (f32)*(s16 *)(animation + 0x32), (f32)*(s16 *)(animation + 0x30));
             } else {
-                *(f32 *)(arg0 + 0x28) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x18), *(f32 *)(arg0 + 0x20), (f32)*(s16 *)(arg0 + 0x32), (f32)(*(s16 *)(arg0 + 0x30) / 2));
-                *(f32 *)(arg0 + 0x2C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x1C), *(f32 *)(arg0 + 0x24), (f32)*(s16 *)(arg0 + 0x32), (f32)(*(s16 *)(arg0 + 0x30) / 2));
+                *(f32 *)(animation + 0x28) = fclEaseInterpolate((s32)*(s8 *)(animation + 0x36), *(f32 *)(animation + 0x18), *(f32 *)(animation + 0x20), (f32)*(s16 *)(animation + 0x32), (f32)(*(s16 *)(animation + 0x30) / 2));
+                *(f32 *)(animation + 0x2C) = fclEaseInterpolate((s32)*(s8 *)(animation + 0x36), *(f32 *)(animation + 0x1C), *(f32 *)(animation + 0x24), (f32)*(s16 *)(animation + 0x32), (f32)(*(s16 *)(animation + 0x30) / 2));
             }
-            if (*(s16 *)(arg0 + 0x32) < *(s16 *)(arg0 + 0x30)) {
-                *(s16 *)(arg0 + 0x32) = fclAddClamped((s32)*(s16 *)(arg0 + 0x32), 1, (s32)*(s16 *)(arg0 + 0x30), 0, 1);
+            if (*(s16 *)(animation + 0x32) < *(s16 *)(animation + 0x30)) {
+                *(s16 *)(animation + 0x32) = fclAddClamped((s32)*(s16 *)(animation + 0x32), 1, (s32)*(s16 *)(animation + 0x30), 0, 1);
             } else {
-                *(f32 *)(arg0 + 0x28) = *(f32 *)(arg0 + 0x20);
-                *(f32 *)(arg0 + 0x2C) = *(f32 *)(arg0 + 0x24);
-                if (*(s8 *)(arg0 + 0x37) == 1) {
-                    *(f32 *)(arg0 + 0x28) = *(f32 *)(arg0 + 0x18);
-                    *(f32 *)(arg0 + 0x2C) = *(f32 *)(arg0 + 0x1C);
+                *(f32 *)(animation + 0x28) = *(f32 *)(animation + 0x20);
+                *(f32 *)(animation + 0x2C) = *(f32 *)(animation + 0x24);
+                if (*(s8 *)(animation + 0x37) == 1) {
+                    *(f32 *)(animation + 0x28) = *(f32 *)(animation + 0x18);
+                    *(f32 *)(animation + 0x2C) = *(f32 *)(animation + 0x1C);
                 }
-                if (((*(s16 *)arg0 & 0x1000) >> 12) == 1) {
-                    *(s16 *)(arg0 + 0x32) = 1;
+                if (((*(s16 *)animation & 0x1000) >> 12) == 1) {
+                    *(s16 *)(animation + 0x32) = 1;
                 } else {
-                    *(s16 *)arg0 &= ~2;
+                    *(s16 *)animation &= ~2;
                 }
             }
         } else {
-            *(s16 *)(arg0 + 0x34) = fclSubClamped((s32)*(s16 *)(arg0 + 0x34), 1, 0, 0, 1);
+            *(s16 *)(animation + 0x34) = fclSubClamped((s32)*(s16 *)(animation + 0x34), 1, 0, 0, 1);
         }
-    } else if (((*(s16 *)arg0 & 0x80) >> 7) == 1) {
-        *(f32 *)(arg0 + 0x2C) = fclEaseInterpolate(1, *(f32 *)(arg0 + 0x24), *(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0xE8), (f32)*(s16 *)(arg0 + 0xEC), (f32)(*(s16 *)(arg0 + 0xEE) / 2));
-        if (*(s16 *)(arg0 + 0xEC) < *(s16 *)(arg0 + 0xEE)) {
-            *(s16 *)(arg0 + 0xEC) = fclAddClamped((s32)*(s16 *)(arg0 + 0xEC), 1, (s32)*(s16 *)(arg0 + 0xEE), 0, 1);
+    } else if (((*(s16 *)animation & 0x80) >> 7) == 1) {
+        *(f32 *)(animation + 0x2C) = fclEaseInterpolate(1, *(f32 *)(animation + 0x24), *(f32 *)(animation + 0x24) - *(f32 *)(animation + 0xE8), (f32)*(s16 *)(animation + 0xEC), (f32)(*(s16 *)(animation + 0xEE) / 2));
+        if (*(s16 *)(animation + 0xEC) < *(s16 *)(animation + 0xEE)) {
+            *(s16 *)(animation + 0xEC) = fclAddClamped((s32)*(s16 *)(animation + 0xEC), 1, (s32)*(s16 *)(animation + 0xEE), 0, 1);
         } else {
-            *(f32 *)(arg0 + 0x28) = *(f32 *)(arg0 + 0x20);
-            *(f32 *)(arg0 + 0x2C) = *(f32 *)(arg0 + 0x24);
-            *(s16 *)arg0 &= ~0x80;
+            *(f32 *)(animation + 0x28) = *(f32 *)(animation + 0x20);
+            *(f32 *)(animation + 0x2C) = *(f32 *)(animation + 0x24);
+            *(s16 *)animation &= ~0x80;
         }
     }
-    if (((*(s16 *)arg0 & 4) >> 2) == 1) {
-        if (*(s16 *)(arg0 + 0x60) == 0) {
-            if (*(s8 *)(arg0 + 0x63) == 0) {
-                arg0[0x5E] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)*(s16 *)(arg0 + 0x58));
+    if (((*(s16 *)animation & 4) >> 2) == 1) {
+        if (*(s16 *)(animation + 0x60) == 0) {
+            if (*(s8 *)(animation + 0x63) == 0) {
+                animation[0x5E] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x62), (f32)(u32)animation[0x5C], (f32)(u32)animation[0x5D], (f32)*(s16 *)(animation + 0x5A), (f32)*(s16 *)(animation + 0x58));
             } else {
-                arg0[0x5E] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)(*(s16 *)(arg0 + 0x58) / 2));
+                animation[0x5E] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x62), (f32)(u32)animation[0x5C], (f32)(u32)animation[0x5D], (f32)*(s16 *)(animation + 0x5A), (f32)(*(s16 *)(animation + 0x58) / 2));
             }
-            if (*(s16 *)(arg0 + 0x5A) < *(s16 *)(arg0 + 0x58)) {
-                *(s16 *)(arg0 + 0x5A) = fclAddClamped((s32)*(s16 *)(arg0 + 0x5A), 1, (s32)*(s16 *)(arg0 + 0x58), 0, 1);
+            if (*(s16 *)(animation + 0x5A) < *(s16 *)(animation + 0x58)) {
+                *(s16 *)(animation + 0x5A) = fclAddClamped((s32)*(s16 *)(animation + 0x5A), 1, (s32)*(s16 *)(animation + 0x58), 0, 1);
             } else {
-                arg0[0x5E] = arg0[0x5D];
-                if (*(s8 *)(arg0 + 0x63) == 1) {
-                    arg0[0x5E] = arg0[0x5C];
+                animation[0x5E] = animation[0x5D];
+                if (*(s8 *)(animation + 0x63) == 1) {
+                    animation[0x5E] = animation[0x5C];
                 }
-                if (((*(s16 *)arg0 & 0x800) >> 11) == 1) {
-                    *(s16 *)(arg0 + 0x5A) = 1;
+                if (((*(s16 *)animation & 0x800) >> 11) == 1) {
+                    *(s16 *)(animation + 0x5A) = 1;
                 } else {
-                    *(s16 *)arg0 &= ~4;
+                    *(s16 *)animation &= ~4;
                 }
             }
         } else {
-            *(s16 *)(arg0 + 0x60) = fclSubClamped((s32)*(s16 *)(arg0 + 0x60), 1, 0, 0, 1);
+            *(s16 *)(animation + 0x60) = fclSubClamped((s32)*(s16 *)(animation + 0x60), 1, 0, 0, 1);
         }
     }
-    if (((*(s16 *)arg0 & 0x200) >> 9) == 1) {
-        if (*(s16 *)(arg0 + 0x7E) == 0) {
-            if (*(s8 *)(arg0 + 0x81) == 0) {
-                arg0[0x75] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                arg0[0x76] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                arg0[0x77] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
+    if (((*(s16 *)animation & 0x200) >> 9) == 1) {
+        if (*(s16 *)(animation + 0x7E) == 0) {
+            if (*(s8 *)(animation + 0x81) == 0) {
+                animation[0x75] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)animation[0x6D], (f32)(u32)animation[0x71], (f32)*(s16 *)(animation + 0x7C), (f32)*(s16 *)(animation + 0x7A));
+                animation[0x76] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)animation[0x6E], (f32)(u32)animation[0x72], (f32)*(s16 *)(animation + 0x7C), (f32)*(s16 *)(animation + 0x7A));
+                animation[0x77] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)animation[0x6F], (f32)(u32)animation[0x73], (f32)*(s16 *)(animation + 0x7C), (f32)*(s16 *)(animation + 0x7A));
             } else {
-                arg0[0x75] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                arg0[0x76] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                arg0[0x77] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
+                animation[0x75] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)animation[0x6D], (f32)(u32)animation[0x71], (f32)*(s16 *)(animation + 0x7C), (f32)(*(s16 *)(animation + 0x7A) / 2));
+                animation[0x76] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)animation[0x6E], (f32)(u32)animation[0x72], (f32)*(s16 *)(animation + 0x7C), (f32)(*(s16 *)(animation + 0x7A) / 2));
+                animation[0x77] = (u8)fclEaseInterpolate((s32)*(s8 *)(animation + 0x80), (f32)(u32)animation[0x6F], (f32)(u32)animation[0x73], (f32)*(s16 *)(animation + 0x7C), (f32)(*(s16 *)(animation + 0x7A) / 2));
             }
-            if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
-                *(s16 *)(arg0 + 0x7C) = fclAddClamped((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 1, 2);
-            } else if (*(s16 *)(arg0 + 0x7C) < *(s16 *)(arg0 + 0x7A)) {
-                *(s16 *)(arg0 + 0x7C) = fclAddClamped((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 0, 1);
+            if (((*(s16 *)animation & 0x40) >> 6) == 1) {
+                *(s16 *)(animation + 0x7C) = fclAddClamped((s32)*(s16 *)(animation + 0x7C), 1, (s32)*(s16 *)(animation + 0x7A), 1, 2);
+            } else if (*(s16 *)(animation + 0x7C) < *(s16 *)(animation + 0x7A)) {
+                *(s16 *)(animation + 0x7C) = fclAddClamped((s32)*(s16 *)(animation + 0x7C), 1, (s32)*(s16 *)(animation + 0x7A), 0, 1);
             } else {
-                arg0[0x75] = arg0[0x71];
-                arg0[0x76] = arg0[0x72];
-                arg0[0x77] = arg0[0x73];
-                if (*(s8 *)(arg0 + 0x81) == 1) {
-                    arg0[0x75] = arg0[0x6D];
-                    arg0[0x76] = arg0[0x6E];
-                    arg0[0x77] = arg0[0x6F];
+                animation[0x75] = animation[0x71];
+                animation[0x76] = animation[0x72];
+                animation[0x77] = animation[0x73];
+                if (*(s8 *)(animation + 0x81) == 1) {
+                    animation[0x75] = animation[0x6D];
+                    animation[0x76] = animation[0x6E];
+                    animation[0x77] = animation[0x6F];
                 }
-                *(s16 *)arg0 &= ~0x200;
+                *(s16 *)animation &= ~0x200;
             }
         } else {
-            *(s16 *)(arg0 + 0x7E) = fclSubClamped((s32)*(s16 *)(arg0 + 0x7E), 1, 0, 0, 1);
+            *(s16 *)(animation + 0x7E) = fclSubClamped((s32)*(s16 *)(animation + 0x7E), 1, 0, 0, 1);
         }
     }
-    if (((*(s16 *)arg0 & 0x10) >> 4) == 1) {
-        if (*(s16 *)(arg0 + 0xA0) == 0) {
-            if (*(s8 *)(arg0 + 0xA3) == 0) {
-                *(f32 *)(arg0 + 0x90) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x88), *(f32 *)(arg0 + 0x8C), (f32)*(s16 *)(arg0 + 0x84), (f32)*(s16 *)(arg0 + 0x82));
-                *(f32 *)(arg0 + 0x9C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x94), *(f32 *)(arg0 + 0x98), (f32)*(s16 *)(arg0 + 0x84), (f32)*(s16 *)(arg0 + 0x82));
+    if (((*(s16 *)animation & 0x10) >> 4) == 1) {
+        if (*(s16 *)(animation + 0xA0) == 0) {
+            if (*(s8 *)(animation + 0xA3) == 0) {
+                *(f32 *)(animation + 0x90) = fclEaseInterpolate((s32)*(s8 *)(animation + 0xA2), *(f32 *)(animation + 0x88), *(f32 *)(animation + 0x8C), (f32)*(s16 *)(animation + 0x84), (f32)*(s16 *)(animation + 0x82));
+                *(f32 *)(animation + 0x9C) = fclEaseInterpolate((s32)*(s8 *)(animation + 0xA2), *(f32 *)(animation + 0x94), *(f32 *)(animation + 0x98), (f32)*(s16 *)(animation + 0x84), (f32)*(s16 *)(animation + 0x82));
             } else {
-                *(f32 *)(arg0 + 0x90) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x88), *(f32 *)(arg0 + 0x8C), (f32)*(s16 *)(arg0 + 0x84), (f32)(*(s16 *)(arg0 + 0x82) / 2));
-                *(f32 *)(arg0 + 0x9C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x94), *(f32 *)(arg0 + 0x98), (f32)*(s16 *)(arg0 + 0x84), (f32)(*(s16 *)(arg0 + 0x82) / 2));
+                *(f32 *)(animation + 0x90) = fclEaseInterpolate((s32)*(s8 *)(animation + 0xA2), *(f32 *)(animation + 0x88), *(f32 *)(animation + 0x8C), (f32)*(s16 *)(animation + 0x84), (f32)(*(s16 *)(animation + 0x82) / 2));
+                *(f32 *)(animation + 0x9C) = fclEaseInterpolate((s32)*(s8 *)(animation + 0xA2), *(f32 *)(animation + 0x94), *(f32 *)(animation + 0x98), (f32)*(s16 *)(animation + 0x84), (f32)(*(s16 *)(animation + 0x82) / 2));
             }
-            if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
-                *(s16 *)(arg0 + 0x84) = fclAddClamped((s32)*(s16 *)(arg0 + 0x84), 1, (s32)*(s16 *)(arg0 + 0x82), 1, 2);
-            } else if (*(s16 *)(arg0 + 0x84) < *(s16 *)(arg0 + 0x82)) {
-                *(s16 *)(arg0 + 0x84) = fclAddClamped((s32)*(s16 *)(arg0 + 0x84), 1, (s32)*(s16 *)(arg0 + 0x82), 0, 1);
+            if (((*(s16 *)animation & 0x40) >> 6) == 1) {
+                *(s16 *)(animation + 0x84) = fclAddClamped((s32)*(s16 *)(animation + 0x84), 1, (s32)*(s16 *)(animation + 0x82), 1, 2);
+            } else if (*(s16 *)(animation + 0x84) < *(s16 *)(animation + 0x82)) {
+                *(s16 *)(animation + 0x84) = fclAddClamped((s32)*(s16 *)(animation + 0x84), 1, (s32)*(s16 *)(animation + 0x82), 0, 1);
             } else {
-                *(f32 *)(arg0 + 0x90) = *(f32 *)(arg0 + 0x8C);
-                *(f32 *)(arg0 + 0x9C) = *(f32 *)(arg0 + 0x98);
-                if (*(s8 *)(arg0 + 0xA3) == 1) {
-                    *(f32 *)(arg0 + 0x90) = *(f32 *)(arg0 + 0x88);
-                    *(f32 *)(arg0 + 0x9C) = *(f32 *)(arg0 + 0x94);
+                *(f32 *)(animation + 0x90) = *(f32 *)(animation + 0x8C);
+                *(f32 *)(animation + 0x9C) = *(f32 *)(animation + 0x98);
+                if (*(s8 *)(animation + 0xA3) == 1) {
+                    *(f32 *)(animation + 0x90) = *(f32 *)(animation + 0x88);
+                    *(f32 *)(animation + 0x9C) = *(f32 *)(animation + 0x94);
                 }
-                *(s16 *)arg0 &= ~0x10;
+                *(s16 *)animation &= ~0x10;
             }
         } else {
-            *(s16 *)(arg0 + 0xA0) = fclSubClamped((s32)*(s16 *)(arg0 + 0xA0), 1, 0, 0, 1);
+            *(s16 *)(animation + 0xA0) = fclSubClamped((s32)*(s16 *)(animation + 0xA0), 1, 0, 0, 1);
         }
     }
-    if (((*(s16 *)arg0 & 8) >> 3) == 1) {
-        if (*(s16 *)(arg0 + 0xC8) == 0) {
-            if (*(s8 *)(arg0 + 0xCB) == 0) {
-                *(f32 *)(arg0 + 0xC0) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xCA), *(f32 *)(arg0 + 0xB8), *(f32 *)(arg0 + 0xBC), (f32)*(s16 *)(arg0 + 0xC4), (f32)*(s16 *)(arg0 + 0xC6));
-                if (((*(s16 *)arg0 & 0x100) >> 8) == 1) {
-                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)*(s16 *)(arg0 + 0xE0), 100.0f) - 25.0f);
-                    *(s16 *)(arg0 + 0xE0) = fclAddClamped((s32)*(s16 *)(arg0 + 0xE0), 1, 0xC8, 1, 2);
+    if (((*(s16 *)animation & 8) >> 3) == 1) {
+        if (*(s16 *)(animation + 0xC8) == 0) {
+            if (*(s8 *)(animation + 0xCB) == 0) {
+                *(f32 *)(animation + 0xC0) = fclEaseInterpolate((s32)*(s8 *)(animation + 0xCA), *(f32 *)(animation + 0xB8), *(f32 *)(animation + 0xBC), (f32)*(s16 *)(animation + 0xC4), (f32)*(s16 *)(animation + 0xC6));
+                if (((*(s16 *)animation & 0x100) >> 8) == 1) {
+                    *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)*(s16 *)(animation + 0xE0), 100.0f) - 25.0f);
+                    *(s16 *)(animation + 0xE0) = fclAddClamped((s32)*(s16 *)(animation + 0xE0), 1, 0xC8, 1, 2);
                 }
             } else {
-                *(f32 *)(arg0 + 0xC0) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xCA), *(f32 *)(arg0 + 0xB8), *(f32 *)(arg0 + 0xBC), (f32)*(s16 *)(arg0 + 0xC4), (f32)(*(s16 *)(arg0 + 0xC6) / 2));
-                if (((*(s16 *)arg0 & 0x100) >> 8) == 1) {
-                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)*(s16 *)(arg0 + 0xE0), 100.0f) - 25.0f);
-                    *(s16 *)(arg0 + 0xE0) = fclAddClamped((s32)*(s16 *)(arg0 + 0xE0), 1, 0xC8, 1, 2);
+                *(f32 *)(animation + 0xC0) = fclEaseInterpolate((s32)*(s8 *)(animation + 0xCA), *(f32 *)(animation + 0xB8), *(f32 *)(animation + 0xBC), (f32)*(s16 *)(animation + 0xC4), (f32)(*(s16 *)(animation + 0xC6) / 2));
+                if (((*(s16 *)animation & 0x100) >> 8) == 1) {
+                    *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)*(s16 *)(animation + 0xE0), 100.0f) - 25.0f);
+                    *(s16 *)(animation + 0xE0) = fclAddClamped((s32)*(s16 *)(animation + 0xE0), 1, 0xC8, 1, 2);
                 }
             }
-            if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
-                *(s16 *)(arg0 + 0xC4) = fclAddClamped((s32)*(s16 *)(arg0 + 0xC4), 1, (s32)*(s16 *)(arg0 + 0xC6), 1, 2);
-            } else if (*(s16 *)(arg0 + 0xC4) < *(s16 *)(arg0 + 0xC6)) {
-                *(s16 *)(arg0 + 0xC4) = fclAddClamped((s32)*(s16 *)(arg0 + 0xC4), 1, (s32)*(s16 *)(arg0 + 0xC6), 0, 1);
+            if (((*(s16 *)animation & 0x40) >> 6) == 1) {
+                *(s16 *)(animation + 0xC4) = fclAddClamped((s32)*(s16 *)(animation + 0xC4), 1, (s32)*(s16 *)(animation + 0xC6), 1, 2);
+            } else if (*(s16 *)(animation + 0xC4) < *(s16 *)(animation + 0xC6)) {
+                *(s16 *)(animation + 0xC4) = fclAddClamped((s32)*(s16 *)(animation + 0xC4), 1, (s32)*(s16 *)(animation + 0xC6), 0, 1);
             } else {
-                *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xBC);
-                if (*(s8 *)(arg0 + 0xCB) == 1) {
-                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xB8);
+                *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xBC);
+                if (*(s8 *)(animation + 0xCB) == 1) {
+                    *(f32 *)(animation + 0xC0) = *(f32 *)(animation + 0xB8);
                 }
-                *(s16 *)arg0 &= ~8;
+                *(s16 *)animation &= ~8;
             }
         } else {
-            *(s16 *)(arg0 + 0xC8) = fclSubClamped((s32)*(s16 *)(arg0 + 0xC8), 1, 0, 0, 1);
+            *(s16 *)(animation + 0xC8) = fclSubClamped((s32)*(s16 *)(animation + 0xC8), 1, 0, 0, 1);
         }
     }
-    return (s32)arg0;
+    return (s32)animation;
 }
 
 /* measured: opt_loop_invariants on is required for the signed-short loop
@@ -1584,7 +1785,7 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
 #pragma opt_propagation off
 // Intent: sets the four corner quads of a sprite from the fixed inputs at +0x1F4-+0x200, sets the sky render states for the quad draw, and writes the four corner positions.
 // FUN_002B9AB0
-void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
+void fclSpriteBuildCornerQuads(u8 *task, u8 *entry) {
     f32 scale;
     s16 i;
     s16 j;
@@ -1597,6 +1798,7 @@ void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
     u8 *r;
     void (*const *tbl)(u32, u32);
 
+    /* Camera +0x80 remains byte-addressed: the camera layout is not established by this unit. */
     scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     tbl = D_00887300;
     tbl[0](6, 1);
@@ -1609,40 +1811,40 @@ void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
     tbl[0](0xA, 5);
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
-    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg1 + 0x1F4);
-    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg1 + 0x1F8);
-    *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x1FC);
-    *(f32 *)(arg1 + 0x54) = *(f32 *)(arg1 + 0x1F8);
-    *(f32 *)(arg1 + 0x90) = *(f32 *)(arg1 + 0x1F4);
-    *(f32 *)(arg1 + 0x94) = *(f32 *)(arg1 + 0x200);
-    *(f32 *)(arg1 + 0xD0) = *(f32 *)(arg1 + 0x1FC);
-    *(f32 *)(arg1 + 0xD4) = *(f32 *)(arg1 + 0x200);
+    ((FclSpriteListEntry *)(entry))->vertices[0].u = ((FclSpriteListEntry *)(entry))->left;
+    ((FclSpriteListEntry *)(entry))->vertices[0].v = ((FclSpriteListEntry *)(entry))->top;
+    ((FclSpriteListEntry *)(entry))->vertices[1].u = ((FclSpriteListEntry *)(entry))->right;
+    ((FclSpriteListEntry *)(entry))->vertices[1].v = ((FclSpriteListEntry *)(entry))->top;
+    ((FclSpriteListEntry *)(entry))->vertices[2].u = ((FclSpriteListEntry *)(entry))->left;
+    ((FclSpriteListEntry *)(entry))->vertices[2].v = ((FclSpriteListEntry *)(entry))->bottom;
+    ((FclSpriteListEntry *)(entry))->vertices[3].u = ((FclSpriteListEntry *)(entry))->right;
+    ((FclSpriteListEntry *)(entry))->vertices[3].v = ((FclSpriteListEntry *)(entry))->bottom;
     for (i = 0; i < 4; i++) {
         j = i;
-        p = arg1;
+        p = entry;
         q = (u8 *)((s32)p + (off = (s32)j << 6));
         d = *(f32 *)D_008872F8;
-        h = *(f32 *)(arg1 + 0x108);
-        *(f32 *)(q + 8) = d - h;
-        *(f32 *)(q + 0x18) = scale;
-        *(f32 *)(q + 0x20) = (f32)(u32)arg1[0x179];
-        *(f32 *)(q + 0x24) = (f32)(u32)arg1[0x17A];
-        *(f32 *)(q + 0x28) = (f32)(u32)arg1[0x17B];
-        *(f32 *)(q + 0x2C) = (f32)(u32)arg1[0x162];
+        h = ((FclSpriteListEntry *)(entry))->animation.depth;
+        ((FclSpriteListEntry *)(q))->vertices[0].depth = d - h;
+        ((FclSpriteListEntry *)(q))->vertices[0].reciprocalScale = scale;
+        ((FclSpriteListEntry *)(q))->vertices[0].red.value = (f32)(u32)((FclSpriteListEntry *)(entry))->animation.color.c0;
+        ((FclSpriteListEntry *)(q))->vertices[0].green.value = (f32)(u32)((FclSpriteListEntry *)(entry))->animation.color.c1;
+        ((FclSpriteListEntry *)(q))->vertices[0].blue.value = (f32)(u32)((FclSpriteListEntry *)(entry))->animation.color.c2;
+        ((FclSpriteListEntry *)(q))->vertices[0].alpha = (f32)(u32)((FclSpriteListEntry *)(entry))->animation.alpha;
     }
-    *(f32 *)(arg1 + 0x0) = *(f32 *)(arg1 + 0x12C);
-    *(f32 *)(arg1 + 0x4) = *(f32 *)(arg1 + 0x130);
-    *(f32 *)(arg1 + 0x40) = *(f32 *)(arg1 + 0x12C) +
-                            (f32)*(s32 *)(arg1 + 0x20C) * *(f32 *)(arg1 + 0x194);
-    *(f32 *)(arg1 + 0x44) = *(f32 *)(arg1 + 0x130);
-    *(f32 *)(arg1 + 0x80) = *(f32 *)(arg1 + 0x12C);
-    *(f32 *)(arg1 + 0x84) = *(f32 *)(arg1 + 0x130) +
-                            (f32)*(s32 *)(arg1 + 0x210) * *(f32 *)(arg1 + 0x1A0);
-    *(f32 *)(arg1 + 0xC0) = *(f32 *)(arg1 + 0x12C) +
-                            (f32)*(s32 *)(arg1 + 0x20C) * *(f32 *)(arg1 + 0x194);
-    *(f32 *)(arg1 + 0xC4) = *(f32 *)(arg1 + 0x130) +
-                            (f32)*(s32 *)(arg1 + 0x210) * *(f32 *)(arg1 + 0x1A0);
-    r = *(u8 **)(arg1 + 0x214);
+    ((FclSpriteListEntry *)(entry))->vertices[0].x = ((FclSpriteListEntry *)(entry))->animation.position.x;
+    ((FclSpriteListEntry *)(entry))->vertices[0].y = ((FclSpriteListEntry *)(entry))->animation.position.y;
+    ((FclSpriteListEntry *)(entry))->vertices[1].x = ((FclSpriteListEntry *)(entry))->animation.position.x +
+                            (f32)((FclSpriteListEntry *)(entry))->width * ((FclSpriteListEntry *)(entry))->animation.scaleX.value;
+    ((FclSpriteListEntry *)(entry))->vertices[1].y = ((FclSpriteListEntry *)(entry))->animation.position.y;
+    ((FclSpriteListEntry *)(entry))->vertices[2].x = ((FclSpriteListEntry *)(entry))->animation.position.x;
+    ((FclSpriteListEntry *)(entry))->vertices[2].y = ((FclSpriteListEntry *)(entry))->animation.position.y +
+                            (f32)((FclSpriteListEntry *)(entry))->height * ((FclSpriteListEntry *)(entry))->animation.scaleY.value;
+    ((FclSpriteListEntry *)(entry))->vertices[3].x = ((FclSpriteListEntry *)(entry))->animation.position.x +
+                            (f32)((FclSpriteListEntry *)(entry))->width * ((FclSpriteListEntry *)(entry))->animation.scaleX.value;
+    ((FclSpriteListEntry *)(entry))->vertices[3].y = ((FclSpriteListEntry *)(entry))->animation.position.y +
+                            (f32)((FclSpriteListEntry *)(entry))->height * ((FclSpriteListEntry *)(entry))->animation.scaleY.value;
+    r = ((FclSpriteListEntry *)(entry))->resource;
     one = 1;
     tbl[0](one, *(s32 *)r);
 }
@@ -1658,7 +1860,7 @@ void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
 #pragma opt_propagation off
 // Intent: updates the list's entries (count at +0x6600). An active entry advances its tweens and queues fclSpriteBuildCornerQuads while visible; an idle one clears its active bit.
 // FUN_002B9E10
-s32 fclSpriteListUpdate(u8 *arg0) {
+s32 fclSpriteListUpdate(u8 *task) {
     u8 *q;
     u8 *p;
     s32 i;
@@ -1666,22 +1868,22 @@ s32 fclSpriteListUpdate(u8 *arg0) {
     f32 a;
     f32 g;
 
-    q = *(u8 **)(arg0 + 0x38);
+    q = ((KwlnTask *)(task))->work;
     p = q;
-    for (i = 0; i < *(s16 *)(p + 0x6600); i++) {
+    for (i = 0; i < ((FclSpriteList *)(p))->count; i++) {
         q = p + i * 0x220;
         r = (s16 *)(q + 0x104);
-        if ((*(s16 *)(q + 0x104) & 1) == 1) {
+        if ((((FclSpriteListEntry *)(q))->animation.flags & 1) == 1) {
             memcpy((void *)r, fclSpriteUpdateTweens((u8 *)r), 0xF0);
-            a = *(f32 *)(q + 0x194);
+            a = ((FclSpriteListEntry *)(q))->animation.scaleX.value;
             g = fGpffff8504;
-            if (!(a <= g) && !(*(f32 *)(q + 0x1A0) <= g) && (q[0x162] > 0)) {
+            if (!(a <= g) && !(((FclSpriteListEntry *)(q))->animation.scaleY.value <= g) && (((FclSpriteListEntry *)(q))->animation.alpha > 0)) {
                 u8 *res;
                 u8 *e;
                 e = p + (u32)i * 0x220;
-                res = PrimQueueDrawPrimitive(D_00793E80 + *(s16 *)(e + 0x100) * 0x30, 4, (void *)e, 4);
-                *(void **)(res + 8) = (void *)fclSpriteBuildCornerQuads;
-                *(u8 **)(res + 0x10) = e;
+                res = PrimQueueDrawPrimitive(D_00793E80 + ((FclSpriteListEntry *)(e))->order * 0x30, 4, (void *)e, 4);
+                ((FclDrawQueueNode *)res)->draw.pointer = (void *)fclSpriteBuildCornerQuads;
+                ((FclDrawQueueNode *)res)->data.work = e;
             } else {
                 if (*r == 1) {
                     *r &= ~1;
@@ -1695,24 +1897,24 @@ s32 fclSpriteListUpdate(u8 *arg0) {
 #pragma opt_propagation on
 // Intent: destroy callback for the 0x6610-byte list task created by fclSpriteListCreateChild (frees the work block at +0x38).
 // FUN_002B9F60
-void fclSpriteDestroyListTask(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void fclSpriteDestroyListTask(u8 *task) {
+    u8 *p = ((KwlnTask *)(task))->work;
     jtbl_008873EC[0](p);
 }
 
 // Intent: creates a child task with a 0x6610-byte list of 48 entries of 0x220 bytes, clears each entry's state and sets the list's count argument at +0x6600.
 // FUN_002B9F90
-s32 fclSpriteListCreateChild(s32 arg0, s16 arg1, s32 arg2) {
+s32 fclSpriteListCreateChild(s32 parent, s16 count, s32 resource) {
     s32 handle;
-    u8 *p;
-    s32 i;
+    u8 *work;
+    s32 entryIndex;
     chkmemAllocSiteTag(&D_0063F178, 0x693);
-    p = D_008873F4[0](1, 0x6610, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, fclSpriteListUpdate, fclSpriteDestroyListTask, (u8 *)(p));
-    for (i = 0; i < 0x30; i++) {
-        *(s16 *)(p + i * 0x220 + 0x104) = 0;
-        *(u32 *)(p + i * 0x220 + 0x214) = arg2;
+    work = D_008873F4[0](1, 0x6610, 0x40000);
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F1E0), 0xF, 0, 0, fclSpriteListUpdate, fclSpriteDestroyListTask, (u8 *)(work));
+    for (entryIndex = 0; entryIndex < 0x30; entryIndex++) {
+        ((FclSpriteListEntry *)(work + entryIndex * 0x220))->animation.flags = 0;
+        ((FclSpriteList *)work)->entries[entryIndex].resource = (u8 *)resource;
     }
-    *(s16 *)(p + 0x6600) = arg1;
+    ((FclSpriteList *)(work))->count = count;
     return handle;
 }

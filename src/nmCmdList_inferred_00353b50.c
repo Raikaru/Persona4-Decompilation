@@ -77,8 +77,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00440b68();
 extern s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(s32 arg0);
-extern s32 func_004667d0();
-extern s32 func_004669d0(s32 arg0, void *arg1, s32 arg2);
+extern s32 filerEnqueueRequest();
+extern s32 filerTakeCompletedRequest(s32 arg0, void *arg1, s32 arg2);
 extern u8 iGpffffa960;
 extern u8 D_0064B360[];
 extern u8 D_0064B380[];
@@ -532,13 +532,13 @@ s32 datTextSlotLoadStep(u8 *arg0) {
     case 1:
         if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 8)) != 0) {
             *(s32 *)(arg0 + 4) =
-                func_004667d0(0, arg0 + 0x10, 0, 0, 0, 0, 0, 0, 0, 0);
+                filerEnqueueRequest(0, arg0 + 0x10, 0, 0, 0, 0, 0, 0, 0, 0);
             *(s32 *)(arg0 + 0) = 2;
         }
         goto block_15;
     case 2:
         *(s32 *)(arg0 + 0xC) =
-            func_004669d0(*(s32 *)(arg0 + 4), &sp3C, 0);
+            filerTakeCompletedRequest(*(s32 *)(arg0 + 4), &sp3C, 0);
         if (sp3C != 0) {
             *(s32 *)(arg0 + 4) = 0;
             H_Cdvd_Destroy(*(u8 **)(arg0 + 8));

@@ -110,7 +110,7 @@ extern void func_003e5510(s32 arg0);
 extern s32 kwlnGetCamera(void);
 extern void func_00466c60(void);
 extern void func_0050cd80(void);
-extern void func_00466600(void);
+extern void memcardWakeBackendThread(void);
 extern char D_007127D0[];
 extern char D_00712950[];
 extern char D_008E4900[];
@@ -162,7 +162,7 @@ extern f32 fGpffff81cc;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004633c0-00463520 */
 
-extern void func_00466600(void);
+extern void memcardWakeBackendThread(void);
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -262,7 +262,7 @@ s32 func_004633f0(u8 *unusedTask)
     iGpffffbb24 = 100.0f * ((*(f32 *)&iGpffffbb20) / 520.0f);
     *(s32 *)0x10000000 = 0;
     func_003e5510(0);
-    func_00466600();
+    memcardWakeBackendThread();
     func_00466c60();
     func_0050cd80();
     return 0;

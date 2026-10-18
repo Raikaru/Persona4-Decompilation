@@ -13,7 +13,7 @@ extern s32 D_00764BB8;
 extern void *D_00764BAC;
 extern s32 D_00764BB4;
 extern s32 D_00764BA4;
-extern s32 func_00464670(s32 *command, s32 *result, s32 *error);
+extern s32 memcardPollCommand(s32 *command, s32 *result, s32 *error);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32 *status);
 extern void sprintf(void *dst, const void *fmt, ...);
 extern s32 func_00431d78(s32 socket, const char *name, void *result);
@@ -68,7 +68,7 @@ extern char D_008E4594[];
  * 0x10($sp) at 0x0046514C even when the lookup did not write it. This body
  * keeps that uninitialised read, as retail does.
  * See docs/probe_archive/Memcard_004647c0_recovery_20260929.md. */
-// Intent: save-file preparation step. Searches for and creates or verifies the save file through sceMc2 async calls; returns 2 while busy, 4 when ready, and negative codes on error. NONMATCHING: see docs/probe_archive/Memcard_004647c0_worker10_20261005.md.
+// Intent: prepare the save file and icon resources through asynchronous card operations; return progress states, 100 on completion, or a negative error.
 // FUN_004647C0
 s32 H_Memcard_PrepareSaveFileStep(void)
 {
@@ -84,14 +84,14 @@ s32 H_Memcard_PrepareSaveFileStep(void)
     case 0:
         cardMode = 0;
         cardCode = 0;
-        if (func_00464670(&cardMode, &cardCode, &cardError) == -1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == -1)
         {
             sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
             D_00764BC0 = 1;
         }
         goto done;
     case 1:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -127,7 +127,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         }
         goto done;
     case 3:
-        switch (func_00464670(&cardMode, &cardCode, &cardError))
+        switch (memcardPollCommand(&cardMode, &cardCode, &cardError))
         {
         case 1:
             if ((cardError == 0) && (cardCode != 0x2F))
@@ -158,7 +158,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         }
         return 2;
     case 4:
-        switch (func_00464670(&cardMode, &cardCode, &cardError))
+        switch (memcardPollCommand(&cardMode, &cardCode, &cardError))
         {
         case 1:
             /* Retail tests the result twice here, not cardError. */
@@ -186,7 +186,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         }
         goto done;
     case 5:
-        switch (func_00464670(&cardMode, &cardCode, &cardError))
+        switch (memcardPollCommand(&cardMode, &cardCode, &cardError))
         {
         case 1:
             if (cardError != 0)
@@ -204,7 +204,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         }
         goto done;
     case 2:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -235,7 +235,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         }
         goto done;
     case 8:
-        switch (func_00464670(&cardMode, &cardCode, &cardError))
+        switch (memcardPollCommand(&cardMode, &cardCode, &cardError))
         {
         case 1:
             if ((cardError == 0))
@@ -266,7 +266,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         }
         return 1;
     case 9:
-        switch (func_00464670(&cardMode, &cardCode, &cardError))
+        switch (memcardPollCommand(&cardMode, &cardCode, &cardError))
         {
         case 1:
             if (cardError != 0)
@@ -305,7 +305,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         D_00764BC0 = 7;
         return 5;
     case 7:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError != 0)
             {
@@ -347,7 +347,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         D_00764BC0 = 11;
         goto done;
     case 11:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError != 0)
             {
@@ -408,7 +408,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
         D_00764BC0 = 13;
         goto done;
     case 13:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError != 0)
             {

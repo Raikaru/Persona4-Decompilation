@@ -226,42 +226,44 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_00464670
-s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2) {
+/* Poll command completion; normalize negative backend results to their low
+ * 16-bit error code and report success through the third output. */
+s32 memcardPollCommand(s32 *command, s32 *result, s32 *succeeded) {
     s32 cmp;
     s32 value;
     s32 valueCopy;
     s32 kind;
 
-    cmp = sceMc2CheckAsync(arg0, arg1);
+    cmp = sceMc2CheckAsync(command, result);
     switch (cmp) {
     case -1:
         return -1;
     case 0:
         return 0;
     case 1:
-        kind = *arg0;
+        kind = *command;
         switch (kind) {
         case 5:
         case 6:
-            if (*arg1 < 0) {
-                *arg2 = 0;
-                valueCopy = *arg1;
+            if (*result < 0) {
+                *succeeded = 0;
+                valueCopy = *result;
                 if (valueCopy < 0) {
-                    *arg1 = valueCopy & 0xFFFF;
+                    *result = valueCopy & 0xFFFF;
                 }
             } else {
-                *arg2 = 1;
+                *succeeded = 1;
             }
             break;
         default:
-            if (*arg1 == 0) {
-                *arg2 = 1;
+            if (*result == 0) {
+                *succeeded = 1;
             } else {
-                *arg2 = 0;
+                *succeeded = 0;
             }
-            value = *arg1;
+            value = *result;
             if (value < 0) {
-                *arg1 = value & 0xFFFF;
+                *result = value & 0xFFFF;
             }
             break;
         }

@@ -73,8 +73,8 @@ extern s32 NpcTable_InstallFixedTable(u8 *);
 extern s32 FldEnemyLoadTable(u8 *file);
 extern s32 sdkSndCreateStreamTask(void *parent, s32 kind, s32 buffer, void *name);
 extern s32 sdkSndStreamTaskReap(void *request);
-extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
-extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *source);
+extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
+extern u8 *filerTakeCompletedRequest(u8 *request, s32 *ready, s32 *source);
 extern s32 FldMipmapLoadTaskCreate(u8 *);
 extern s32 kwlnTaskIsLinked(void *task);
 extern void kAssertFail(const void *msg, s32 id);
@@ -293,40 +293,40 @@ s32 FldStartupDataUpdate(u8 *task)
             if (soundReady == 0) {
                 return 0;
             }
-            work->mapTextures[0] = func_004667d0(0, D_005F0C10, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[1] = func_004667d0(0, D_005F0C30, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[28] = func_004667d0(0, D_005F0C50, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[29] = func_004667d0(0, D_005F0C70, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[2] = func_004667d0(0, D_005F0C90, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[3] = func_004667d0(0, D_005F0CB0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[4] = func_004667d0(0, D_005F0CD0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[5] = func_004667d0(0, D_005F0CF0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[6] = func_004667d0(0, D_005F0D10, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[7] = func_004667d0(0, D_005F0D30, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[8] = func_004667d0(0, D_005F0D50, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[9] = func_004667d0(0, D_005F0D70, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[10] = func_004667d0(0, D_005F0D90, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[11] = func_004667d0(0, D_005F0DB0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[12] = func_004667d0(0, D_005F0DD0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[13] = func_004667d0(0, D_005F0DF0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[14] = func_004667d0(0, D_005F0E10, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[15] = func_004667d0(0, D_005F0E30, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[16] = func_004667d0(0, D_005F0E50, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[17] = func_004667d0(0, D_005F0E70, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[18] = func_004667d0(0, D_005F0E90, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[19] = func_004667d0(0, D_005F0EB0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[20] = func_004667d0(0, D_005F0ED0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[21] = func_004667d0(0, D_005F0EF0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[22] = func_004667d0(0, D_005F0F10, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[23] = func_004667d0(0, D_005F0F30, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[24] = func_004667d0(0, D_005F0F50, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[25] = func_004667d0(0, D_005F0F70, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[26] = func_004667d0(0, D_005F0F90, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->mapTextures[27] = func_004667d0(0, D_005F0FB0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->rainTextures[0] = func_004667d0(0, D_005F0FD0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->rainTextures[1] = func_004667d0(0, D_005F0FF0, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->televisionTextures[0] = func_004667d0(0, D_005F1010, 0, 0, 0, 0, 0, 0, 0, 0);
-            work->televisionTextures[1] = func_004667d0(0, D_005F1030, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[0] = filerEnqueueRequest(0, D_005F0C10, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[1] = filerEnqueueRequest(0, D_005F0C30, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[28] = filerEnqueueRequest(0, D_005F0C50, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[29] = filerEnqueueRequest(0, D_005F0C70, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[2] = filerEnqueueRequest(0, D_005F0C90, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[3] = filerEnqueueRequest(0, D_005F0CB0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[4] = filerEnqueueRequest(0, D_005F0CD0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[5] = filerEnqueueRequest(0, D_005F0CF0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[6] = filerEnqueueRequest(0, D_005F0D10, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[7] = filerEnqueueRequest(0, D_005F0D30, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[8] = filerEnqueueRequest(0, D_005F0D50, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[9] = filerEnqueueRequest(0, D_005F0D70, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[10] = filerEnqueueRequest(0, D_005F0D90, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[11] = filerEnqueueRequest(0, D_005F0DB0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[12] = filerEnqueueRequest(0, D_005F0DD0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[13] = filerEnqueueRequest(0, D_005F0DF0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[14] = filerEnqueueRequest(0, D_005F0E10, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[15] = filerEnqueueRequest(0, D_005F0E30, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[16] = filerEnqueueRequest(0, D_005F0E50, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[17] = filerEnqueueRequest(0, D_005F0E70, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[18] = filerEnqueueRequest(0, D_005F0E90, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[19] = filerEnqueueRequest(0, D_005F0EB0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[20] = filerEnqueueRequest(0, D_005F0ED0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[21] = filerEnqueueRequest(0, D_005F0EF0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[22] = filerEnqueueRequest(0, D_005F0F10, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[23] = filerEnqueueRequest(0, D_005F0F30, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[24] = filerEnqueueRequest(0, D_005F0F50, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[25] = filerEnqueueRequest(0, D_005F0F70, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[26] = filerEnqueueRequest(0, D_005F0F90, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->mapTextures[27] = filerEnqueueRequest(0, D_005F0FB0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->rainTextures[0] = filerEnqueueRequest(0, D_005F0FD0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->rainTextures[1] = filerEnqueueRequest(0, D_005F0FF0, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->televisionTextures[0] = filerEnqueueRequest(0, D_005F1010, 0, 0, 0, 0, 0, 0, 0, 0);
+            work->televisionTextures[1] = filerEnqueueRequest(0, D_005F1030, 0, 0, 0, 0, 0, 0, 0, 0);
             work->state = work->state + 1;
         } else {
             break;
@@ -339,7 +339,7 @@ map_texture_body:
         requestSlot = (u8 *)&work->mapTextures[mapTextureIndex];
         mapRequest = work->mapTextures[mapTextureIndex];
         if (mapRequest != 0) {
-            func_004669d0(mapRequest, &textureReady, 0);
+            filerTakeCompletedRequest(mapRequest, &textureReady, 0);
             if (textureReady != 0) {
                 *(u8 **)requestSlot = NULL;
             } else {
@@ -357,7 +357,7 @@ rain_texture_body:
         requestSlot = (u8 *)&work->rainTextures[rainTextureIndex];
         rainRequest = work->rainTextures[rainTextureIndex];
         if (rainRequest != 0) {
-            func_004669d0(rainRequest, &textureReady, 0);
+            filerTakeCompletedRequest(rainRequest, &textureReady, 0);
             if (textureReady != 0) {
                 *(u8 **)requestSlot = NULL;
             } else {
@@ -375,7 +375,7 @@ television_texture_body:
         requestSlot = (u8 *)&work->televisionTextures[televisionTextureIndex];
         televisionRequest = work->televisionTextures[televisionTextureIndex];
         if (televisionRequest != 0) {
-            func_004669d0(televisionRequest, &textureReady, 0);
+            filerTakeCompletedRequest(televisionRequest, &textureReady, 0);
             if (textureReady != 0) {
                 *(u8 **)requestSlot = NULL;
             } else {

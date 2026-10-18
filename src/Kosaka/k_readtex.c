@@ -26,8 +26,8 @@ extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
 extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
-extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
-extern void func_004669d0(s32 task, s32 *result, s32 flags);
+extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern void filerTakeCompletedRequest(s32 task, s32 *result, s32 flags);
 extern s32 iGpffffa030;
 
 /* Source unit: src/promoted/k_readtex.c */
@@ -91,17 +91,17 @@ s32 K_ReadTexUpdate(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(state->handles[3]) == 0) {
             return 0;
         }
-        state->tasks[0] = func_004667d0(0, D_005F6040, 0, 0, 0, 0, 0, 0, 0, 0);
-        state->tasks[1] = func_004667d0(0, D_005F6060, 0, 0, 0, 0, 0, 0, 0, 0);
-        state->tasks[2] = func_004667d0(0, D_005F6080, 0, 0, 0, 0, 0, 0, 0, 0);
-        state->tasks[3] = func_004667d0(0, D_005F60A0, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[0] = filerEnqueueRequest(0, D_005F6040, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[1] = filerEnqueueRequest(0, D_005F6060, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[2] = filerEnqueueRequest(0, D_005F6080, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[3] = filerEnqueueRequest(0, D_005F60A0, 0, 0, 0, 0, 0, 0, 0, 0);
         state->state += 1;
         /* fall through */
     case 2:
         for (i = 0; i < 4; i++) {
             slot = &state->tasks[i];
             if (*slot != 0) {
-                func_004669d0(*slot, &result, 0);
+                filerTakeCompletedRequest(*slot, &result, 0);
                 if (result != 0) {
                     *slot = 0;
                     continue;

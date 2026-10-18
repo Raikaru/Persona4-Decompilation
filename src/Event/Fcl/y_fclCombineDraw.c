@@ -6154,14 +6154,14 @@ s32 fclCombineCdvdTaskUpdate(u8 *arg0) {
         }
         *(u32 *)(t + 4) = sdkSpriteRequestLoad(D_00644D70);
         *(u32 *)(t + 8) = sdkSpriteRequestLoad(D_00644D90);
-        *(u32 *)(t + 0x34) = func_004667d0(0, D_00644DB0, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(u32 *)(t + 0x38) = func_004667d0(0, D_00644DD0, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(u32 *)(t + 0x3C) = func_004667d0(0, D_00644DF0, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(u32 *)(t + 0x40) = func_004667d0(0, D_00644E10, 0, 0, 0, 0, 0, 0, 0, 0);
+        *(u32 *)(t + 0x34) = filerEnqueueRequest(0, D_00644DB0, 0, 0, 0, 0, 0, 0, 0, 0);
+        *(u32 *)(t + 0x38) = filerEnqueueRequest(0, D_00644DD0, 0, 0, 0, 0, 0, 0, 0, 0);
+        *(u32 *)(t + 0x3C) = filerEnqueueRequest(0, D_00644DF0, 0, 0, 0, 0, 0, 0, 0, 0);
+        *(u32 *)(t + 0x40) = filerEnqueueRequest(0, D_00644E10, 0, 0, 0, 0, 0, 0, 0, 0);
         *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
     case 1:
         if (func_0046a750(*(u32 *)(t + 4)) != 0 && func_0046a750(*(u32 *)(t + 8)) != 0) {
-            *(u32 *)(t + 0x24) = func_004669d0(*(u32 *)(t + 0x34), &sp3C, 0);
+            *(u32 *)(t + 0x24) = filerTakeCompletedRequest(*(u32 *)(t + 0x34), &sp3C, 0);
             if (sp3C != 0) {
                 H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0xC));
                 *(u32 *)(t + 0xC) = 0;
@@ -6171,7 +6171,7 @@ s32 fclCombineCdvdTaskUpdate(u8 *arg0) {
         }
         break;
     case 2:
-        *(u32 *)(t + 0x28) = func_004669d0(*(u32 *)(t + 0x38), &sp38, 0);
+        *(u32 *)(t + 0x28) = filerTakeCompletedRequest(*(u32 *)(t + 0x38), &sp38, 0);
         if (sp38 != 0) {
             H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x10));
             *(u32 *)(t + 0x10) = 0;
@@ -6180,7 +6180,7 @@ s32 fclCombineCdvdTaskUpdate(u8 *arg0) {
         }
         break;
     case 3:
-        *(u32 *)(t + 0x2C) = func_004669d0(*(u32 *)(t + 0x3C), &sp34, 0);
+        *(u32 *)(t + 0x2C) = filerTakeCompletedRequest(*(u32 *)(t + 0x3C), &sp34, 0);
         if (sp34 != 0) {
             H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x14));
             *(u32 *)(t + 0x14) = 0;
@@ -6189,7 +6189,7 @@ s32 fclCombineCdvdTaskUpdate(u8 *arg0) {
         }
         break;
     case 4:
-        *(u32 *)(t + 0x30) = func_004669d0(*(u32 *)(t + 0x40), &sp30, 0);
+        *(u32 *)(t + 0x30) = filerTakeCompletedRequest(*(u32 *)(t + 0x40), &sp30, 0);
         if (sp30 != 0) {
             H_Cdvd_Destroy((u8 *)*(u32 *)(t + 0x18));
             *(u32 *)(t + 0x18) = 0;

@@ -176,7 +176,7 @@ extern u8 D_005E5190[];
 extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
 extern void clndPromptDestroy(u8 *arg0);
-extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
+extern s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 arg2);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern s32 datItemCount(s16 id);
