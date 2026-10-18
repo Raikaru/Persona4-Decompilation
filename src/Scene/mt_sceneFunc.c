@@ -5,18 +5,17 @@
 #include "type.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
+#include "scene_resource_internal.h"
+#include "scene_task_internal.h"
 
-typedef struct Resrc {
-    u8 data[0x28];
-    u32 flags;
-} Resrc;
+
 
 
 // lint: allow H011 -- measured: u16 prototype regresses MT_Scene_BeginResMoveToward (andi on wide id args); retail declared this old-style
 extern void *MT_Scene_GetRes();
 u32 MT_Scene_GetSegmentHeading(float* first, float* second, float* output, float* third);
 
-extern u32 MT_Scene_BeginResPathAnim(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
+extern u32 MT_Scene_BeginResPathAnim(SceneUpdateResource* resource, u32 pathWords, float speed, u32 loop);
 extern u32 MT_Scene_SetResColorParam(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
 
 extern u32 MT_Scene_SetResMotionRecord(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
@@ -140,20 +139,22 @@ extern u8 D_0063B190_abs[];
 extern void MT_Scene_GetResAnchor(float *out, void *resource, f32 scale);
 
 // FUN_00268B20
-void MT_Scene_SpawnIconTask(u32 arg0)
+/* Defer effect destruction by two update frames using an eight-byte owned work block. */
+void MT_Scene_SpawnIconTask(u32 effectHandle)
 {
-    u8 *p;
+    u8 *work;
 
     chkmemAllocSiteTag(D_0063B090, 0x31);
-    p = D_008873F4[0](1, 8, 0x40000);
-    if ((s32)kwlnTaskCreateChild((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, MT_Scene_IconTaskUpdate, MT_Scene_IconTaskDestroy, (u8 *)(p)) != 0) {
-        *(u32 *)(p + 0) = 2;
-        *(u32 *)(p + 4) = arg0;
+    work = D_008873F4[0](1, 8, 0x40000);
+    if ((s32)kwlnTaskCreateChild((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, MT_Scene_IconTaskUpdate, MT_Scene_IconTaskDestroy, (u8 *)(work)) != 0) {
+        *(u32 *)&((SceneIconWork *)work)->remainingFrames = 2;
+        *(u32 *)&((SceneIconWork *)work)->value.handle = effectHandle;
     }
 }
 
 // FUN_00268BD0
-u32 MT_Scene_SetResEnabled(Resrc* resource, s32 enabled)
+/* Set bit 3 only when enabled equals one; clear it for every other value. */
+u32 MT_Scene_SetResEnabled(SceneUpdateResource* resource, s32 enabled)
 {
     if (resource == NULL)
     {
@@ -175,9 +176,10 @@ u32 MT_Scene_SetResEnabled(Resrc* resource, s32 enabled)
 
 
 // FUN_00268C20
+/* Resolve a resource id and update the bit-3 transition-pause flag. */
 u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
 {
-    Resrc* res;
+    SceneUpdateResource* res;
 
     res = MT_Scene_GetRes(resTypeId);
     if (res == NULL)
@@ -206,7 +208,7 @@ u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
 
 
 // FUN_00268CB0
-u8 MT_Scene_IsResEnabled(Resrc* resource)
+u8 MT_Scene_IsResEnabled(SceneUpdateResource* resource)
 {
     if (resource == NULL)
     {
@@ -225,127 +227,130 @@ u8 MT_Scene_IsResEnabled(Resrc* resource)
    emits load-store-load-store. Same pattern as the matched P3FES port
    FUN_0026C860. */
 // FUN_00268CE0
-u32 MT_Scene_GetSegmentHeading(float *first, float *second, float *output, float *third)
+u32 MT_Scene_GetSegmentHeading(f32 *start, f32 *end, f32 *directionOutput, f32 *headingOutput)
 {
-    u32 uVar1;
-    float fVar2;
-    u64 txy;
-    float tz;
-    float dif[3];
-    float afStack_20[4];
+    u32 angleBits;
+    f32 heading;
+    u64 sourceXy;
+    f32 sourceZ;
+    f32 dif[3];
+    f32 direction[4];
     SceneVecBits source;
 
-    txy = ((volatile SceneVecBits *)D_0063B0B8)->xy;
-    tz = *(volatile float *)D_0063B0C0;
-    *(volatile u64 *)&source.xy = txy;
-    *(volatile float *)&source.z = tz;
-    dif[0] = second[0] - first[0];
-    dif[1] = second[1] - first[1];
-    dif[2] = second[2] - first[2];
-    fVar2 = RwV3dNormalize(afStack_20, dif);
-    if (fVar2 == 0.0f) {
+    sourceXy = ((volatile SceneVecBits *)D_0063B0B8)->xy;
+    sourceZ = *(volatile f32 *)D_0063B0C0;
+    *(volatile u64 *)&source.xy = sourceXy;
+    *(volatile f32 *)&source.z = sourceZ;
+    dif[0] = end[0] - start[0];
+    dif[1] = end[1] - start[1];
+    dif[2] = end[2] - start[2];
+    heading = RwV3dNormalize(direction, dif);
+    if (heading == 0.0f) {
         return 0;
     }
-    afStack_20[1] = 0.0f;
-    uVar1 = fptodp(afStack_20[0] * ((float *)&source.xy)[0] +
-                          afStack_20[1] * ((float *)&source.xy)[1] +
-                          afStack_20[2] * source.z);
-    uVar1 = func_0044b8d8(uVar1);
-    fVar2 = fGpffff8428 * dptofp(uVar1);
-    if (afStack_20[0] < 0.0f) {
-        fVar2 = fVar2 * -1.0f;
+    direction[1] = 0.0f;
+    angleBits = fptodp(direction[0] * ((f32 *)&source.xy)[0] +
+                          direction[1] * ((f32 *)&source.xy)[1] +
+                          direction[2] * source.z);
+    angleBits = func_0044b8d8(angleBits);
+    heading = fGpffff8428 * dptofp(angleBits);
+    if (direction[0] < 0.0f) {
+        heading = heading * -1.0f;
     }
-    *third = fVar2;
-    *(RwV3d *)output = *(RwV3d *)dif;
+    *headingOutput = heading;
+    *(RwV3d *)directionOutput = *(RwV3d *)dif;
     return 1;
 }
 
 // FUN_00268E30
-u32 MT_Scene_GetSegmentHeadingAngle(float* first, float* second, float* third)
+u32 MT_Scene_GetSegmentHeadingAngle(f32* start, f32* end, f32* headingOutput)
 {
-    float output[4];
+    f32 direction[4];
 
-    return MT_Scene_GetSegmentHeading(first, second, output, third);
+    return MT_Scene_GetSegmentHeading(start, end, direction, headingOutput);
 }
 
 
 
 // FUN_00268E60
-s32 MT_Scene_BeginResMoveToward(u32 unk, u8 *arg1, f32 fparg0) {
-    s32 temp_4;
-    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
+/* Start constant-speed movement from the current position to the requested endpoint. */
+s32 MT_Scene_BeginResMoveToward(u32 resourceId, u8 *destination, f32 speed) {
+    s32 flags;
+    u8 *resource = (u8*)MT_Scene_GetRes(resourceId);
 
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    temp_4 = *(s32 *)(temp_2 + 0x28) | 1;
-    *(s32 *)(temp_2 + 0x28) = temp_4;
-    *(s32 *)(temp_2 + 0x28) = temp_4 & ~0x40;
-    *(SVec3 *)(temp_2 + 0x30) = *(SVec3 *)(temp_2 + 4);
-    *(SVec3 *)(temp_2 + 0x3C) = *(SVec3 *)arg1;
-    *(f32 *)(temp_2 + 0x5C) = fparg0;
-    *(s8 *)(temp_2 + 0x54) = 0;
+    flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 1;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = flags;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = flags & ~0x40;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->moveStart = *(SVec3 *)&((SceneUpdateResource *)resource)->position;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->moveEnd = *(SVec3 *)destination;
+    ((SceneUpdateResource *)resource)->moveSpeed = speed;
+    *(s8 *)&((SceneUpdateResource *)resource)->moveKind = 0;
     return 1;
 }
 
 
 
 // FUN_00268F20
-s32 MT_Scene_BeginResTimedMove(u32 arg0, SVec3 *arg1, u32 arg2, s8 arg3)
+/* Start timed movement; mode 1 uses the frame counters and the selected easing curve. */
+s32 MT_Scene_BeginResTimedMove(u32 resourceId, SVec3 *destination, u32 duration, s8 easing)
 {
     s32 result;
-    u8 *p = MT_Scene_GetRes(arg0);
+    u8 *resource = MT_Scene_GetRes(resourceId);
 
-    if (p == NULL) return 0;
-    if (p == NULL) {
+    if (resource == NULL) return 0;
+    if (resource == NULL) {
         result = 0;
     } else {
-        *(u32 *)(p + 0x28) |= 1;
-        *(u32 *)(p + 0x28) &= ~0x40;
-        *(u32 *)(p + 0x28) &= ~0x10;
-        *(SVec3 *)(p + 0x30) = *(SVec3 *)(p + 4);
-        *(SVec3 *)(p + 0x3C) = *(SVec3 *)(arg1);
-        *(u32 *)(p + 0x64) = arg2;
+        ((SceneUpdateResource *)resource)->flags |= 1;
+        ((SceneUpdateResource *)resource)->flags &= ~0x40;
+        ((SceneUpdateResource *)resource)->flags &= ~0x10;
+        *(SVec3 *)&((SceneUpdateResource *)resource)->moveStart = *(SVec3 *)&((SceneUpdateResource *)resource)->position;
+        *(SVec3 *)&((SceneUpdateResource *)resource)->moveEnd = *(SVec3 *)destination;
+        ((SceneUpdateResource *)resource)->moveDuration.frame = duration;
         result = 1;
-        *(u8 *)(p + 0x54) = result;
-        *(u8 *)(p + 0x2C) = arg3;
-        *(u32 *)(p + 0x60) = 0;
+        ((SceneUpdateResource *)resource)->moveKind = result;
+        ((SceneUpdateResource *)resource)->moveEase = easing;
+        ((SceneUpdateResource *)resource)->moveElapsed.frame = 0;
     }
     return result;
 }
 
 // FUN_00269000
-s32 MT_Scene_SetResCurveParams(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
-                  f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
-                  s8 arg4) {
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
+/* Replace movement/rotation with an eased orbit between two centers and angle/distance pairs. */
+s32 MT_Scene_SetResCurveParams(u8 *resource, u8 *startCenter, u8 *endCenter, f32 startYaw, f32 endYaw,
+                  f32 startPitch, f32 endPitch, f32 startDistance, f32 endDistance, s32 duration,
+                  s8 easing) {
+    s32 orbitFlags;
+    s32 moveFlags;
+    s32 rotationFlags;
 
-    if (arg0 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    temp_3 = *(s32 *)(arg0 + 0x28) | 0x10;
-    *(s32 *)(arg0 + 0x28) = temp_3;
-    temp_3_2 = temp_3 & ~1;
-    *(s32 *)(arg0 + 0x28) = temp_3_2;
-    temp_3_3 = temp_3_2 & ~4;
-    *(s32 *)(arg0 + 0x28) = temp_3_3;
-    *(s32 *)(arg0 + 0x28) = temp_3_3 & ~0x40;
-    *(SVec3 *)(arg0 + 0x90) = *(SVec3 *)arg1;
-    *(SVec3 *)(arg0 + 0x9C) = *(SVec3 *)arg2;
-    *(f32 *)(arg0 + 0xA8) = fparg0;
-    *(f32 *)(arg0 + 0xAC) = fparg1;
-    *(f32 *)(arg0 + 0xB0) = fparg2;
-    *(f32 *)(arg0 + 0xB4) = fparg3;
-    *(f32 *)(arg0 + 0xB8) = fparg4;
-    *(f32 *)(arg0 + 0xBC) = fparg5;
-    *(s32 *)(arg0 + 0xC0) = arg3;
-    *(s8 *)(arg0 + 0x8C) = arg4;
-    *(s32 *)(arg0 + 0xC4) = 0;
+    orbitFlags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 0x10;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = orbitFlags;
+    moveFlags = orbitFlags & ~1;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = moveFlags;
+    rotationFlags = moveFlags & ~4;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = rotationFlags;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags = rotationFlags & ~0x40;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->orbitStart = *(SVec3 *)startCenter;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->orbitEnd = *(SVec3 *)endCenter;
+    ((SceneUpdateResource *)resource)->yawStart = startYaw;
+    ((SceneUpdateResource *)resource)->yawEnd = endYaw;
+    ((SceneUpdateResource *)resource)->pitchStart = startPitch;
+    ((SceneUpdateResource *)resource)->pitchEnd = endPitch;
+    ((SceneUpdateResource *)resource)->distanceStart = startDistance;
+    ((SceneUpdateResource *)resource)->distanceEnd = endDistance;
+    *(s32 *)&((SceneUpdateResource *)resource)->orbitDuration = duration;
+    *(s8 *)&((SceneUpdateResource *)resource)->orbitEase = easing;
+    *(s32 *)&((SceneUpdateResource *)resource)->orbitElapsed = 0;
     return 1;
 }
 
@@ -355,15 +360,15 @@ s32 MT_Scene_SetResCurveParams(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fpa
 
 
 // FUN_002690B0
-s32 MT_Scene_SetResCurveParamsById(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
-                  f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
-                  s8 arg4)
+s32 MT_Scene_SetResCurveParamsById(u32 resourceId, u8 *startCenter, u8 *endCenter, f32 startYaw, f32 endYaw,
+                  f32 startPitch, f32 endPitch, f32 startDistance, f32 endDistance, s32 duration,
+                  s8 easing)
 {
-    u8 *p = MT_Scene_GetRes(arg0);
+    u8 *resource = MT_Scene_GetRes(resourceId);
     s32 result;
 
-    if (p != NULL) {
-        result = MT_Scene_SetResCurveParams(p, arg1, arg2, fparg0, fparg1, fparg2, fparg3, fparg4, fparg5, arg3, arg4);
+    if (resource != NULL) {
+        result = MT_Scene_SetResCurveParams(resource, startCenter, endCenter, startYaw, endYaw, startPitch, endPitch, startDistance, endDistance, duration, easing);
     } else {
         result = 0;
     }
@@ -371,112 +376,116 @@ s32 MT_Scene_SetResCurveParamsById(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32
 }
 
 // FUN_00269190
-u32 MT_Scene_BeginResPathAnim(Resrc *param_1, u32 param_2, float param_3, u32 param_4)
+/* Copy the 0x130-byte path, cache its sampled length and optionally wrap elapsed distance. */
+/* Copy the 0x130-byte path, cache its sampled length and optionally wrap elapsed distance. Raw member offsets are retained because the typed rewrite changes b210 member-address lifetimes and exceeds the retail size. */
+u32 MT_Scene_BeginResPathAnim(SceneUpdateResource *resource, u32 pathWords, f32 speed, u32 loop)
 {
-    u32 uVar1;
-    u32 uVar2;
-    u32 *puVar4;
-    int iVar3;
-    int iVar5;
+    u32 firstWord;
+    u32 secondWord;
+    u32 *outputWords;
+    s32 resourceAddress;
+    s32 remainingPairs;
 
-    if (param_1 == 0) return 0;
-    iVar3 = (int)param_1;
-    uVar1 = param_1->flags;
-    uVar1 = uVar1 | 1;
-    param_1->flags = uVar1;
-    uVar1 = uVar1 & 0xFFFFFFBF;
-    param_1->flags = uVar1;
-    if (param_4 == 1) {
-        param_1->flags = param_1->flags | 0x40;
+    if (resource == 0) return 0;
+    resourceAddress = (s32)resource;
+    firstWord = resource->flags;
+    firstWord = firstWord | 1;
+    resource->flags = firstWord;
+    firstWord = firstWord & 0xFFFFFFBF;
+    resource->flags = firstWord;
+    if (loop == 1) {
+        resource->flags = resource->flags | 0x40;
     }
-    *(float *)(iVar3 + 0x5C) = param_3;
-    *(u8 *)(iVar3 + 0x54) = 2;
-    *(u32 *)(iVar3 + 0x60) = 0;
-    if (*(u32 *)(iVar3 + 0x58) == 0) {
+    *(f32 *)(resourceAddress + 0x5C) = speed;
+    *(u8 *)(resourceAddress + 0x54) = 2;
+    *(u32 *)(resourceAddress + 0x60) = 0;
+    if (*(u32 *)(resourceAddress + 0x58) == 0) {
         chkmemAllocSiteTag(D_0063B090, 0x269);
-        uVar2 = (u32)((u32(*)(u32, u32))jtbl_008873E8[0])(0x130, 0x40000);
-        *(u32 *)(iVar3 + 0x58) = uVar2;
-        if (uVar2 == 0) {
+        secondWord = (u32)((u32(*)(u32, u32))jtbl_008873E8[0])(0x130, 0x40000);
+        *(u32 *)(resourceAddress + 0x58) = secondWord;
+        if (secondWord == 0) {
             kAssertFail(D_0063B090, 0x26A);
         }
     }
-    puVar4 = *(u32 **)(iVar3 + 0x58);
-    iVar5 = 0x26;
+    outputWords = *(u32 **)(resourceAddress + 0x58);
+    remainingPairs = 0x26;
     do {
-        uVar1 = *(u32 *)param_2;
-        uVar2 = *((u32 *)param_2 + 1);
-        param_2 = (u32)((u32 *)param_2 + 2);
-        iVar5--;
-        *puVar4 = uVar1;
-        puVar4[1] = uVar2;
-        puVar4 += 2;
-    } while (0 < iVar5);
+        firstWord = *(u32 *)pathWords;
+        secondWord = *((u32 *)pathWords + 1);
+        pathWords = (u32)((u32 *)pathWords + 2);
+        remainingPairs--;
+        *outputWords = firstWord;
+        outputWords[1] = secondWord;
+        outputWords += 2;
+    } while (0 < remainingPairs);
     {
-        float fVar6;
-        fVar6 = MT_Scene_GetCurveLength((char *)*(u32 *)(iVar3 + 0x58));
-        *(float *)(iVar3 + 0x64) = fVar6;
-        func_00440b68(D_0063B0D0, fptodp(fVar6));
+        f32 length;
+        length = MT_Scene_GetCurveLength((char *)*(u32 *)(resourceAddress + 0x58));
+        *(f32 *)(resourceAddress + 0x64) = length;
+        func_00440b68(D_0063B0D0, fptodp(length));
     }
     return 1;
 }
 
 
 // FUN_002692D0
-u32 MT_Scene_BeginResPathAnimById(u32 param_1, u32 param_2, float param_3, u32 param_4)
+u32 MT_Scene_BeginResPathAnimById(u32 resourceId, u32 pathWords, f32 speed, u32 loop)
 {
-    u32 lVar1;
-    u32 uVar2;
+    u32 resourceAddress;
+    u32 result;
 
-    lVar1 = (u32)MT_Scene_GetRes(param_1);
-    if (lVar1 != 0)
+    resourceAddress = (u32)MT_Scene_GetRes(resourceId);
+    if (resourceAddress != 0)
     {
-        uVar2 = MT_Scene_BeginResPathAnim((Resrc*)lVar1, param_2, param_3, param_4);
+        result = MT_Scene_BeginResPathAnim((SceneUpdateResource*)resourceAddress, pathWords, speed, loop);
     }
     else
     {
-        uVar2 = 0;
+        result = 0;
     }
-    return uVar2;
+    return result;
 }
 
 
 
 // FUN_00269340
-s32 MT_Scene_BeginResRotation(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
+/* Snapshot the current rotation and normalize both endpoints before starting the timer. */
+s32 MT_Scene_BeginResRotation(u32 resourceId, SVec3 *angles, u32 duration, u8 easing)
 {
     SVec3 values;
-    u8 *p = MT_Scene_GetRes(arg0);
+    u8 *resource = MT_Scene_GetRes(resourceId);
 
-    if (p == NULL) return 0;
-    values = *arg1;
-    if (p == NULL) return 0;
-    MT_Scene_WrapObjectAngles((s32)p);
-    MT_Scene_WrapAngles((float *)&values);
-    *(u32 *)(p + 0x28) |= 4;
-    *(SVec3 *)(p + 0x68) = *(SVec3 *)(p + 0x10);
-    *(SVec3 *)(p + 0x74) = values;
-    *(u8 *)(p + 0x80) = 0;
-    *(u8 *)(p + 0x81) = arg3;
-    *(u32 *)(p + 0x84) = arg2;
-    *(u32 *)(p + 0x88) = 0;
+    if (resource == NULL) return 0;
+    values = *angles;
+    if (resource == NULL) return 0;
+    MT_Scene_WrapObjectAngles((s32)resource);
+    MT_Scene_WrapAngles((f32 *)&values);
+    ((SceneUpdateResource *)resource)->flags |= 4;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->rotationStart = *(SVec3 *)&((SceneUpdateResource *)resource)->rotation;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->rotationEnd = values;
+    ((SceneUpdateResource *)resource)->unknown80 = 0;
+    ((SceneUpdateResource *)resource)->rotationEase = easing;
+    ((SceneUpdateResource *)resource)->rotationDuration = duration;
+    ((SceneUpdateResource *)resource)->rotationElapsed = 0;
     return 1;
 }
 
 // FUN_00269440
-s32 MT_Scene_BeginResScale(u32 unk, u8 *arg1, s32 arg2) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
+/* Snapshot scale endpoints and start a linear scale transition. */
+s32 MT_Scene_BeginResScale(u32 resourceId, u8 *scale, s32 duration) {
+    u8 *resource = (u8*)MT_Scene_GetRes(resourceId);
 
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x28) |= 0x8000;
-    *(SVec3 *)(temp_2 + 0xC8) = *(SVec3 *)(temp_2 + 0x1C);
-    *(SVec3 *)(temp_2 + 0xD4) = *(SVec3 *)arg1;
-    *(s32 *)(temp_2 + 0xE0) = arg2;
-    *(s32 *)(temp_2 + 0xE4) = 0;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 0x8000;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->scaleUpdate.start = *(SVec3 *)&((SceneUpdateResource *)resource)->scale;
+    *(SVec3 *)&((SceneUpdateResource *)resource)->scaleUpdate.end = *(SVec3 *)scale;
+    *(s32 *)&((SceneUpdateResource *)resource)->scaleUpdate.duration = duration;
+    *(s32 *)&((SceneUpdateResource *)resource)->scaleUpdate.elapsed = 0;
     return 1;
 }
 
@@ -486,86 +495,88 @@ s32 MT_Scene_BeginResScale(u32 unk, u8 *arg1, s32 arg2) {
 
 
 // FUN_002694F0
-u32 MT_Scene_SetResColorParam(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
+/* Start an alpha transition on NPC models or effects, preserving the current alpha. */
+u32 MT_Scene_SetResColorParam(u32 resourceAddress, u8 alpha, u32 duration, u32 enableBlend)
 {
-    u8 tmp[8];
-    u8 bVar;
+    u8 colorBytes[8];
+    u8 startAlpha;
 
-    if (param_1 == 0) return 0;
-    switch (((s32)(*(u16 *)param_1 & 0xFFC00)) >> 10) {
+    if (resourceAddress == 0) return 0;
+    switch (((s32)(*(u16 *)resourceAddress & 0xFFC00)) >> 10) {
     case 3:
     {
-        u8 *tp = mdlGetColor(*(u32 *)((u8 *)param_1 + 0x164));
-        u8 b0 = *tp++;
-        u8 b1 = *tp++;
-        u8 b2 = *tp++;
-        u8 b3 = *tp++;
+        u8 *colorCursor = mdlGetColor(*(u32 *)&((ResrcRecord *)resourceAddress)->modelHandle164);
+        u8 b0 = *colorCursor++;
+        u8 b1 = *colorCursor++;
+        u8 b2 = *colorCursor++;
+        u8 b3 = *colorCursor++;
 
-        tmp[4] = b0;
-        tmp[5] = b1;
-        tmp[6] = b2;
-        tmp[7] = b3;
-        bVar = tmp[7];
-        if (param_4 == 1) {
-            *(u8 *)((u8 *)param_1 + 0x100) = 1;
+        colorBytes[4] = b0;
+        colorBytes[5] = b1;
+        colorBytes[6] = b2;
+        colorBytes[7] = b3;
+        startAlpha = colorBytes[7];
+        if (enableBlend == 1) {
+            *(u8 *)&((SceneUpdateResource *)resourceAddress)->alphaBlend = 1;
         } else {
-            *(u8 *)((u8 *)param_1 + 0x100) = 0;
+            *(u8 *)&((SceneUpdateResource *)resourceAddress)->alphaBlend = 0;
         }
         break;
     }
     case 6:
-        mdlEffectGetPackedColor(*(void **)((u8 *)param_1 + 0x144), (s32 *)tmp);
-        bVar = tmp[3];
+        mdlEffectGetPackedColor(((ResrcRecord *)resourceAddress)->slotHandle[1], (s32 *)colorBytes);
+        startAlpha = colorBytes[3];
         break;
     default:
         return 0;
     }
-    *(u32 *)((u8 *)param_1 + 0x28) |= 0x4000;
-    *(u8 *)((u8 *)param_1 + 0xF4) = bVar;
-    *(u8 *)((u8 *)param_1 + 0xF5) = param_2;
-    *(u32 *)((u8 *)param_1 + 0xF8) = param_3;
-    *(u32 *)((u8 *)param_1 + 0xFC) = 0;
+    ((SceneUpdateResource *)resourceAddress)->flags |= 0x4000;
+    ((SceneUpdateResource *)resourceAddress)->alphaStart = startAlpha;
+    ((SceneUpdateResource *)resourceAddress)->alphaEnd = alpha;
+    ((SceneUpdateResource *)resourceAddress)->alphaDuration = duration;
+    ((SceneUpdateResource *)resourceAddress)->alphaElapsed = 0;
     return 1;
 }
 
 // FUN_00269620
-u32 MT_Scene_SetResColorParamById(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
+u32 MT_Scene_SetResColorParamById(u32 resourceId, u8 alpha, u32 duration, u32 enableBlend)
 {
-    u32 lVar1;
-    u32 uVar2;
+    u32 resourceAddress;
+    u32 result;
 
-    lVar1 = (u32)MT_Scene_GetRes(param_1);
-    if (lVar1 != 0)
+    resourceAddress = (u32)MT_Scene_GetRes(resourceId);
+    if (resourceAddress != 0)
     {
-        uVar2 = MT_Scene_SetResColorParam(lVar1, param_2, param_3, param_4);
+        result = MT_Scene_SetResColorParam(resourceAddress, alpha, duration, enableBlend);
     }
     else
     {
-        uVar2 = 0;
+        result = 0;
     }
-    return uVar2;
+    return result;
 }
 
 
 
 // FUN_00269690
-s32 MT_Scene_BeginResFovChange(u32 unk, f32 fparg0, s32 arg1) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
+/* Start a field-of-view transition only for a type-7 camera resource. */
+s32 MT_Scene_BeginResFovChange(u32 resourceId, f32 fieldOfView, s32 duration) {
+    u8 *resource = (u8*)MT_Scene_GetRes(resourceId);
 
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    if (temp_2 == NULL) {
+    if (resource == NULL) {
         return 0;
     }
-    if (((*(u16 *)temp_2 & 0xFFC00) >> 0xA) != 7) {
+    if (((*(u16 *)resource & 0xFFC00) >> 0xA) != 7) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x28) |= 0x400;
-    *(f32 *)(temp_2 + 0x104) = *(f32 *)(temp_2 + 0x140);
-    *(f32 *)(temp_2 + 0x108) = fparg0;
-    *(s32 *)(temp_2 + 0x10C) = arg1;
-    *(s32 *)(temp_2 + 0x110) = 0;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags |= 0x400;
+    ((SceneUpdateResource *)resource)->fovStart = *(f32 *)&((ResrcRecord *)resource)->slotHandle[0];
+    ((SceneUpdateResource *)resource)->fovEnd = fieldOfView;
+    ((SceneUpdateResource *)resource)->fovDuration = duration;
+    ((SceneUpdateResource *)resource)->fovElapsed = 0;
     return 1;
 }
 
@@ -576,124 +587,128 @@ s32 MT_Scene_BeginResFovChange(u32 unk, f32 fparg0, s32 arg1) {
 
 
 // FUN_00269740
+/* Cancel active transform, animation, alpha and orbit transition flags without changing their stored values. */
 s32 MT_Scene_ResetResMotion(u32 resourceId)
 {
-    u8 *p = MT_Scene_GetRes(resourceId);
+    u8 *resource = MT_Scene_GetRes(resourceId);
 
-    if (p == NULL) return 0;
-    if (p == NULL) return 0;
-    *(u32 *)(p + 0x28) &= ~1;
-    *(u32 *)(p + 0x28) &= ~4;
-    *(u32 *)(p + 0x28) &= 0xFFFF7FFF;
-    *(u32 *)(p + 0x28) &= ~0x40;
-    *(u32 *)(p + 0x28) &= ~0x400;
-    *(u32 *)(p + 0x28) &= ~0x800;
-    *(u32 *)(p + 0x28) &= ~0x1000;
-    *(u32 *)(p + 0x28) &= ~0x2000;
-    *(u32 *)(p + 0x28) &= ~0x4000;
-    *(u32 *)(p + 0x28) &= ~0x10;
-    *(u32 *)(p + 0x28) &= 0xF7FFFFFF;
+    if (resource == NULL) return 0;
+    if (resource == NULL) return 0;
+    ((SceneUpdateResource *)resource)->flags &= ~1;
+    ((SceneUpdateResource *)resource)->flags &= ~4;
+    ((SceneUpdateResource *)resource)->flags &= 0xFFFF7FFF;
+    ((SceneUpdateResource *)resource)->flags &= ~0x40;
+    ((SceneUpdateResource *)resource)->flags &= ~0x400;
+    ((SceneUpdateResource *)resource)->flags &= ~0x800;
+    ((SceneUpdateResource *)resource)->flags &= ~0x1000;
+    ((SceneUpdateResource *)resource)->flags &= ~0x2000;
+    ((SceneUpdateResource *)resource)->flags &= ~0x4000;
+    ((SceneUpdateResource *)resource)->flags &= ~0x10;
+    ((SceneUpdateResource *)resource)->flags &= 0xF7FFFFFF;
     return 1;
 }
 
 // FUN_00269820
-u32 MT_Scene_SetResMotion(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
-                  float fparg0)
+/* Select the kind-specific model handle and dispatch a nonempty animation layer. */
+u32 MT_Scene_SetResMotion(u16 *resource, s32 layer, s32 animation, s32 frame, s32 restart, s32 startTime,
+                  f32 weight)
 {
-    s32 var_17;
-    s32 var_16;
+    s32 flags;
+    s32 model;
 
-    if (arg0 == NULL) return 0;
-    switch (((s32)(arg0[0] & 0xFFC00)) >> 10) {
+    if (resource == NULL) return 0;
+    switch (((s32)(resource[0] & 0xFFC00)) >> 10) {
     case 1:
-        var_16 = *(s32 *)((u8 *)arg0 + 0x164);
+        model = *(s32 *)&((ResrcRecord *)resource)->modelHandle164;
         break;
     case 2:
-        var_16 = *(s32 *)((u8 *)arg0 + 0x158);
+        model = *(s32 *)&((ResrcRecord *)resource)->modelHandle158;
         break;
     case 3:
-        var_16 = *(s32 *)((u8 *)arg0 + 0x164);
+        model = *(s32 *)&((ResrcRecord *)resource)->modelHandle164;
         break;
     case 10:
-        var_16 = *(s32 *)((u8 *)arg0 + 0x144);
+        model = *(s32 *)&((ResrcRecord *)resource)->slotHandle[1];
         break;
     default:
         return 0;
     }
-    var_17 = 0;
-    if (arg4 == 1) {
-        var_17 |= 1;
+    flags = 0;
+    if (restart == 1) {
+        flags |= 1;
     }
-    if (mdlIsLayerKeyEmpty(var_16, arg1, (s16)arg2) == 0) {
-        mdlSetLayerWeight(var_16, arg1, fparg0);
-        mdlDispatchAnimIfPresent((u8*)var_16, (u16)arg1, (s16)arg2, (u16)arg3, var_17 & 0xFFFF);
-        if (arg5 > 0) {
-            mdlSetLayerTime(var_16, arg1, (f32)arg5);
+    if (mdlIsLayerKeyEmpty(model, layer, (s16)animation) == 0) {
+        mdlSetLayerWeight(model, layer, weight);
+        mdlDispatchAnimIfPresent((u8*)model, (u16)layer, (s16)animation, (u16)frame, flags & 0xFFFF);
+        if (startTime > 0) {
+            mdlSetLayerTime(model, layer, (f32)startTime);
         }
     }
-    *(s32 *)((u8 *)arg0 + 0x28) &= ~0x2000;
+    *(s32 *)&((SceneUpdateResource *)resource)->flags &= ~0x2000;
     return 1;
 }
 // FUN_002699D0
-u32 MT_Scene_SetResMotionRecord(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0)
+/* Store the six-field queued animation record at the model-kind-specific tail offset. */
+u32 MT_Scene_SetResMotionRecord(u32 *resource, u32 layer, u32 animation, u32 frame, u32 flags, u32 blend, f32 speed)
 {
-    u8 *dst;
+    u8 *animationRecord;
 
-    if (arg0 == NULL) return 0;
-    switch (((s32)(*(u16 *)arg0 & 0xFFC00)) >> 10) {
+    if (resource == NULL) return 0;
+    switch (((s32)(*(u16 *)resource & 0xFFC00)) >> 10) {
     case 1:
-        dst = (u8 *)arg0 + 0x14C;
+        animationRecord = (u8 *)resource + 0x14C;
         break;
     case 2:
-        dst = (u8 *)arg0 + 0x140;
+        animationRecord = (u8 *)resource + 0x140;
         break;
     case 3:
-        dst = (u8 *)arg0 + 0x14C;
+        animationRecord = (u8 *)resource + 0x14C;
         break;
     default:
         return 0;
     }
-    *(u32 *)((u8 *)arg0 + 0x28) |= 0x2000;
-    *(u32 *)(dst + 0) = arg1;
-    *(u32 *)(dst + 4) = arg2;
-    *(u32 *)(dst + 8) = arg3;
-    *(u32 *)(dst + 0xC) = arg4;
-    *(u32 *)(dst + 0x10) = arg5;
-    *(f32 *)(dst + 0x14) = fparg0;
+    ((SceneUpdateResource *)resource)->flags |= 0x2000;
+    *(u32 *)&((SceneQueuedAnimation *)animationRecord)->layer = layer;
+    *(u32 *)&((SceneQueuedAnimation *)animationRecord)->animation = animation;
+    *(u32 *)&((SceneQueuedAnimation *)animationRecord)->frame = frame;
+    *(u32 *)&((SceneQueuedAnimation *)animationRecord)->flags = flags;
+    *(u32 *)&((SceneQueuedAnimation *)animationRecord)->blend = blend;
+    ((SceneQueuedAnimation *)animationRecord)->speed = speed;
     return 1;
 }
 
 // FUN_00269A90
-void MT_Scene_SetResMotionSlot(u32 param_1, short param_2, short param_3, short param_4,
-                   short param_5)
+/* Play an NPC animation immediately and optionally queue the next animation. */
+void MT_Scene_SetResMotionSlot(u32 resourceId, s16 firstAnimation, s16 firstFrame, s16 nextAnimation,
+                   s16 nextFrame)
 {
-    u32 uVar1;
-    u32 uVar3;
-    u32 lVar2;
-    u32 lVar4;
+    u32 npcResourceId;
+    u32 queuedAnimation;
+    u32 resourceAddress;
+    u32 currentResourceAddress;
 
-    uVar1 = (u16)param_1;
-    uVar1 = (u16)(uVar1 & 0x3ff | 0xc00);
+    npcResourceId = (u16)resourceId;
+    npcResourceId = (u16)(npcResourceId & 0x3ff | 0xc00);
 
-    uVar3 = (u32)param_4;
-    if (uVar3 == -1) {
-        lVar2 = (u32)MT_Scene_GetRes(uVar1);
-        if (lVar2 != 0) {
-            MT_Scene_SetResMotion((u16 *)lVar2, 0, param_2, param_3, 1, 0, 1.0f);
+    queuedAnimation = (u32)nextAnimation;
+    if (queuedAnimation == -1) {
+        resourceAddress = (u32)MT_Scene_GetRes(npcResourceId);
+        if (resourceAddress != 0) {
+            MT_Scene_SetResMotion((u16 *)resourceAddress, 0, firstAnimation, firstFrame, 1, 0, 1.0f);
         }
         goto end;
     }
 
-    lVar4 = (u32)MT_Scene_GetRes(uVar1);
-    if (lVar4 == 0) {
+    currentResourceAddress = (u32)MT_Scene_GetRes(npcResourceId);
+    if (currentResourceAddress == 0) {
         goto second_done;
     }
-    MT_Scene_SetResMotion((u16 *)lVar4, 0, param_2, param_3, 0, 0, 1.0f);
+    MT_Scene_SetResMotion((u16 *)currentResourceAddress, 0, firstAnimation, firstFrame, 0, 0, 1.0f);
 
 second_done:
-    lVar2 = (u32)MT_Scene_GetRes(uVar1);
-    if (lVar2 != 0) {
-        MT_Scene_SetResMotionRecord((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
+    resourceAddress = (u32)MT_Scene_GetRes(npcResourceId);
+    if (resourceAddress != 0) {
+        MT_Scene_SetResMotionRecord((u32 *)resourceAddress, 0, queuedAnimation, nextFrame, 1, 0, 1.0f);
     }
 
 end:
@@ -703,6 +718,7 @@ end:
 
 
 // FUN_00269BD0
+/* Set or clear the resource draw-active bit (bit 1). */
 u32 MT_Scene_SetResActive(void* resource, s32 enabled)
 {
     u32 result;
@@ -717,11 +733,11 @@ u32 MT_Scene_SetResActive(void* resource, s32 enabled)
     {
         if (enabled == 1)
         {
-            *(u32*)(address + 0x28) |= 2;
+            ((SceneUpdateResource *)address)->flags |= 2;
         }
         else
         {
-            *(u32*)(address + 0x28) &= 0xfffffffd;
+            ((SceneUpdateResource *)address)->flags &= 0xfffffffd;
         }
         result = 1;
     }
@@ -732,11 +748,11 @@ u32 MT_Scene_SetResActive(void* resource, s32 enabled)
 
 
 // FUN_00269C20
-s32 MT_Scene_SetResActiveById(u32 unk, s32 arg1) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
+s32 MT_Scene_SetResActiveById(u32 resourceId, s32 enabled) {
+    u8 *resource = (u8*)MT_Scene_GetRes(resourceId);
 
-    if (temp_2 != NULL) {
-        return MT_Scene_SetResActive(temp_2, arg1);
+    if (resource != NULL) {
+        return MT_Scene_SetResActive(resource, enabled);
     }
     return 0;
 }
@@ -747,6 +763,7 @@ s32 MT_Scene_SetResActiveById(u32 unk, s32 arg1) {
    absolute-global and early source-pointer load order; direct stores remain exact. */
 #pragma opt_propagation off
 // FUN_00269C70
+/* Rotate a unit offset by two angles, scale it and add it to the supplied center. */
 void MT_Scene_GetAnglePoint(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 scale)
 {
     f32 transformed[4];
@@ -755,20 +772,20 @@ void MT_Scene_GetAnglePoint(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 sca
     u8 matrix[64];
     u64 xy;
     f32 z;
-    f32 *vector0p;
+    f32 *vectorPointer;
 
     xy = *(u64 *)D_0063B0F0;
     z = *(f32 *)D_0063B0F8;
     *(u64 *)vector1 = xy;
     vector1[2] = z;
-    vector0p = vector0;
+    vectorPointer = vector0;
 
     xy = *(u64 *)D_0063B100;
     z = *(f32 *)D_0063B108;
     *(u64 *)vector0 = xy;
     vector0[2] = z;
 
-    RwMatrixRotate(matrix, vector0p, -angle1, 0);
+    RwMatrixRotate(matrix, vectorPointer, -angle1, 0);
     func_003e4320(vector1, vector1, matrix);
     vector0[0] = 0.0f;
     vector0[1] = 1.0f;
@@ -788,7 +805,8 @@ void MT_Scene_GetAnglePoint(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 sca
 /* measured: opt_propagation off closes nd 5 -> 0 for global-load ordering. */
 #pragma opt_propagation off
 // FUN_00269DB0
-void MT_Scene_GetDirectionAngles(float *param_1, float *param_2)
+/* Build an orthonormal basis and recover Euler angles, including the vertical-direction fallback. */
+void MT_Scene_GetDirectionAngles(f32 *angles, f32 *direction)
 {
     typedef struct SceneMatrixAngles {
         RwV3d right;
@@ -804,29 +822,29 @@ void MT_Scene_GetDirectionAngles(float *param_1, float *param_2)
     RwV3d input;
     RwV3d zero = {0.0f, 0.0f, 0.0f};
     RwV3d axis;
-    f32 at_x;
-    f32 axis_x;
+    f32 atX;
+    f32 axisX;
     f32 scale;
     f32 value;
     s32 adjusted;
 
     {
         s64 xy = *(s64 *)D_0063B110_abs;
-        f32 z = *(f32 *)(D_0063B110_abs + 8);
+        f32 z = ((SceneVecBits *)D_0063B110_abs)->z;
         *(s64 *)&axis.x = xy;
         axis.z = z;
     }
     adjusted = 0;
-    RwV3dNormalize(&input, param_2);
+    RwV3dNormalize(&input, direction);
     matrix.pos = zero;
     matrix.at = input;
     RwV3dNormalize(&matrix.at, &matrix.at);
 
     matrix.right.x = matrix.at.y * axis.z - matrix.at.z * axis.y;
-    at_x = matrix.at.x;
-    axis_x = axis.x;
-    matrix.right.y = matrix.at.z * axis_x - at_x * axis.z;
-    matrix.right.z = at_x * axis.y - matrix.at.y * axis_x;
+    atX = matrix.at.x;
+    axisX = axis.x;
+    matrix.right.y = matrix.at.z * axisX - atX * axis.z;
+    matrix.right.z = atX * axis.y - matrix.at.y * axisX;
     RwV3dNormalize(&matrix.right, &matrix.right);
 
     matrix.up.x = matrix.at.y * matrix.right.z - matrix.at.z * matrix.right.y;
@@ -835,142 +853,30 @@ void MT_Scene_GetDirectionAngles(float *param_1, float *param_2)
     RwV3dNormalize(&matrix.up, &matrix.up);
     RwMatrixUpdate(&matrix);
 
-    param_1[1] = func_0044b950(matrix.at.x, matrix.at.z);
-    param_1[0] = -func_0044b938(matrix.at.y);
-    if (cosf(param_1[0]) != 0.0f) {
-        param_1[2] =
-            func_0044b938(matrix.right.y / cosf(param_1[0]));
+    angles[1] = func_0044b950(matrix.at.x, matrix.at.z);
+    angles[0] = -func_0044b938(matrix.at.y);
+    if (cosf(angles[0]) != 0.0f) {
+        angles[2] =
+            func_0044b938(matrix.right.y / cosf(angles[0]));
         adjusted = 1;
     } else {
-        param_1[1] = func_0044b950(-matrix.right.z, matrix.right.x);
-        param_1[0] = -func_0044b938(matrix.at.y);
-        param_1[2] = 0.0f;
+        angles[1] = func_0044b950(-matrix.right.z, matrix.right.x);
+        angles[0] = -func_0044b938(matrix.at.y);
+        angles[2] = 0.0f;
     }
 
-    value = param_1[0];
+    value = angles[0];
     scale = fGpffff8048;
-    param_1[0] = value * scale;
-    param_1[1] = param_1[1] * scale;
-    param_1[2] = param_1[2] * scale;
+    angles[0] = value * scale;
+    angles[1] = angles[1] * scale;
+    angles[2] = angles[2] * scale;
     if (adjusted != 0 && matrix.up.y < 0.0f) {
-        param_1[0] = 180.0f - param_1[0];
+        angles[0] = 180.0f - angles[0];
     }
 }
 #pragma opt_propagation on
 
 /* Resource fields recovered from the P4 setters and update retail. */
-typedef struct SceneScaleUpdate {
-    RwV3d start;
-    RwV3d end;
-    u32 duration;
-    u32 elapsed;
-} SceneScaleUpdate;
-
-typedef struct SceneFootstepUpdate {
-    u8 mode;
-    u8 sequence;
-    u8 surface;
-    u8 sound;
-    u16 elapsed;
-    u16 period;
-    u16 delay;
-    u16 unknown0a;
-} SceneFootstepUpdate;
-
-typedef union SceneMoveTime {
-    u32 frame;
-    f32 distance;
-} SceneMoveTime;
-
-typedef struct SceneQueuedAnimation {
-    s32 layer;
-    s32 animation;
-    s32 frame;
-    s32 flags;
-    s32 blend;
-    f32 speed;
-} SceneQueuedAnimation;
-
-typedef struct SceneUpdateResource {
-    u16 id;
-    u16 unknown02;
-    RwV3d position;
-    RwV3d rotation;
-    RwV3d scale;
-    u32 flags;
-    u8 moveEase;
-    u8 unknown2d[3];
-    RwV3d moveStart;
-    RwV3d moveEnd;
-    u8 unknown48[12];
-    u8 moveKind;
-    u8 unknown55[3];
-    s8 *path;
-    f32 moveSpeed;
-    SceneMoveTime moveElapsed;
-    SceneMoveTime moveDuration;
-    RwV3d rotationStart;
-    RwV3d rotationEnd;
-    u8 unknown80;
-    u8 rotationEase;
-    u16 unknown82;
-    u32 rotationDuration;
-    u32 rotationElapsed;
-    u8 orbitEase;
-    u8 unknown8d[3];
-    RwV3d orbitStart;
-    RwV3d orbitEnd;
-    f32 yawStart;
-    f32 yawEnd;
-    f32 pitchStart;
-    f32 pitchEnd;
-    f32 distanceStart;
-    f32 distanceEnd;
-    u32 orbitDuration;
-    u32 orbitElapsed;
-    SceneScaleUpdate scaleUpdate;
-    SceneFootstepUpdate footsteps;
-    u8 alphaStart;
-    u8 alphaEnd;
-    u16 unknownf6;
-    u32 alphaDuration;
-    u32 alphaElapsed;
-    s8 alphaBlend;
-    u8 unknown101[3];
-    f32 fovStart;
-    f32 fovEnd;
-    s32 fovDuration;
-    s32 fovElapsed;
-    u8 unknown114[0x20];
-    s32 forcedFrames;
-    struct SceneUpdateResource *next;
-    struct SceneUpdateResource *previous;
-} SceneUpdateResource;
-
-typedef struct SceneCharacterUpdate {
-    SceneUpdateResource base;
-    u8 *effects[2];
-    u32 unknown148;
-    SceneQueuedAnimation animation;
-    u8 *model;
-} SceneCharacterUpdate;
-
-typedef struct SceneObjectUpdate {
-    SceneUpdateResource base;
-    SceneQueuedAnimation animation;
-    u8 *model;
-} SceneObjectUpdate;
-
-typedef struct SceneEffectUpdate {
-    SceneUpdateResource base;
-    u32 unknown140;
-    u8 *effect;
-} SceneEffectUpdate;
-
-typedef struct SceneCameraUpdate {
-    SceneUpdateResource base;
-    f32 fov;
-} SceneCameraUpdate;
 
 typedef struct Model Model;
 
@@ -1027,6 +933,8 @@ static inline s32 sceneUpdateResourceType(SceneUpdateResource *resource)
     return (resource->id & 0xFFC00) >> 10;
 }
 
+/* Keep the effect-array byte stride: direct effects[index] access changes
+ * two address instructions in each of the matched character/NPC loops. */
 static inline u8 *sceneUpdateAttachedEffect(SceneCharacterUpdate *character, s32 index)
 {
     u8 *slot = (u8 *)character + index * sizeof(character->effects[0]);
@@ -1093,9 +1001,9 @@ static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
    queued animation snapshots and footstep bank indexing reproduce the retail
    body. Full owner/data proof: build/next-wave-20260921/event/release-closure-v3. */
 // FUN_0026A020
-void MT_Scene_UpdateResource(u8 *arg0)
+void MT_Scene_UpdateResource(u8 *resourceData)
 {
-    SceneUpdateResource *resource = (SceneUpdateResource *)arg0;
+    SceneUpdateResource *resource = (SceneUpdateResource *)resourceData;
     s32 frames = 0;
 
     if (resource == NULL) {
@@ -1216,7 +1124,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                     }
                     remaining--;
                 } while (remaining > 0);
-                MT_Scene_ApplyResTransform(arg0, (u8 *)&resource->position, NULL, NULL);
+                MT_Scene_ApplyResTransform(resourceData, (u8 *)&resource->position, NULL, NULL);
             } else if (resource->moveKind == 1) {
                 sceneUpdateDifference(&delta, &end, &resource->moveStart);
                 if (resource->moveDuration.frame == 0) {
@@ -1250,7 +1158,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                         resource->moveElapsed.frame += frames;
                     }
                 }
-                MT_Scene_ApplyResTransform(arg0, (u8 *)&resource->position, NULL, NULL);
+                MT_Scene_ApplyResTransform(resourceData, (u8 *)&resource->position, NULL, NULL);
             } else if (resource->moveKind == 2) {
                 s32 i;
                 sceneUpdatePath(resource, &position, &rotation);
@@ -1265,10 +1173,10 @@ void MT_Scene_UpdateResource(u8 *arg0)
                 for (i = 0; i < frames; i++) {
                     resource->moveElapsed.distance += resource->moveSpeed;
                 }
-                MT_Scene_ApplyResTransform(arg0, (u8 *)&resource->position, NULL, NULL);
+                MT_Scene_ApplyResTransform(resourceData, (u8 *)&resource->position, NULL, NULL);
                 if (!(resource->flags & 8)) {
                     resource->rotation = rotation;
-                    MT_Scene_ApplyResTransform(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                    MT_Scene_ApplyResTransform(resourceData, NULL, (u8 *)&resource->rotation, NULL);
                 }
             }
         }
@@ -1276,7 +1184,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
             if (resource->rotationDuration == 0) {
                 resource->rotation = resource->rotationEnd;
                 resource->flags &= ~4;
-                MT_Scene_ApplyResTransform(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                MT_Scene_ApplyResTransform(resourceData, NULL, (u8 *)&resource->rotation, NULL);
             } else if (resource->rotationElapsed == 0) {
                 resource->rotationElapsed += frames;
             } else {
@@ -1316,7 +1224,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                     resource->rotationElapsed += frames;
                 }
                 if (frames != 0) {
-                    MT_Scene_ApplyResTransform(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                    MT_Scene_ApplyResTransform(resourceData, NULL, (u8 *)&resource->rotation, NULL);
                 }
             }
         }
@@ -1330,7 +1238,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
         if (scale->duration == 0) {
             resource->scale = scale->end;
             resource->flags &= ~0x8000;
-            MT_Scene_ApplyResTransform(arg0, NULL, NULL, (u8 *)&resource->scale);
+            MT_Scene_ApplyResTransform(resourceData, NULL, NULL, (u8 *)&resource->scale);
         } else {
             f32 duration = (f32)scale->duration;
             u32 elapsed = scale->elapsed;
@@ -1346,7 +1254,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                 scale->elapsed += frames;
             }
             if (frames != 0) {
-                MT_Scene_ApplyResTransform(arg0, NULL, NULL, (u8 *)&resource->scale);
+                MT_Scene_ApplyResTransform(resourceData, NULL, NULL, (u8 *)&resource->scale);
             }
         }
     }
@@ -1523,121 +1431,124 @@ void MT_Scene_UpdateResource(u8 *arg0)
    temporaries closes MT_Scene_GetTerrainAtPoint (normalized_diff 0). */
 #pragma opt_propagation off
 // FUN_0026BA60
-s32 MT_Scene_GetTerrainAtPoint(u16 *arg0)
+/* Search both triangles of each type-21 quad within a 100-unit vertical band; otherwise use the field terrain table. */
+/* The field-terrain byte load retains base+index order: array syntax swaps the addu operands (one differing word). */
+s32 MT_Scene_GetTerrainAtPoint(u16 *position)
 {
     typedef struct {
-        u64 sp40;
-        f32 sp48;
+        u64 referenceXy;
+        f32 referenceZ;
         u32 pad4c;
-        u8 *sp50;
-        u8 *sp54;
-        u8 *sp58;
+        u8 *firstCorner;
+        u8 *secondCorner;
+        u8 *thirdCorner;
     } LocalFrame;
     LocalFrame frame;
     u64 xy;
     f32 z;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f3;
-    f32 temp_f3_2;
-    s32 temp_2;
+    f32 pointHeight;
+    f32 secondPointHeight;
+    f32 cornerHeight;
+    f32 secondCornerHeight;
+    s32 terrainTable;
     s32 index;
     s32 offset;
-    s32 var_17;
-    u8 *temp_3;
-    u8 *var_16;
+    s32 terrain;
+    u8 *scene;
+    u8 *quad;
 
-    var_16 = (u8 *)MT_Scene_GetResListHead(0x15);
-    temp_3 = (u8 *)PTR_DAT_00762ea0;
-    index = *(s32 *)(temp_3 + 0);
-    offset = *(s32 *)(temp_3 + 4);
-    temp_2 = *(s32 *)((u8 *)D_005F08B0 + (index * 4));
-    if (temp_2 == 0) {
+    quad = (u8 *)MT_Scene_GetResListHead(0x15);
+    scene = (u8 *)PTR_DAT_00762ea0;
+    index = ((SceneContext *)scene)->majorId;
+    offset = ((SceneContext *)scene)->minorId;
+    terrainTable = D_005F08B0[index];
+    if (terrainTable == 0) {
         return 0;
     }
-    var_17 = *(u8 *)((u8 *)temp_2 + offset);
-    for (; var_16 != NULL; var_16 = *(u8 **)(var_16 + 0x138)) {
+    terrain = *(u8 *)((u8 *)terrainTable + offset);
+    for (; quad != NULL; quad = *(u8 * *)&((SceneUpdateResource *)quad)->next) {
         {
-            u8 *sp40p = (u8 *)&frame.sp40;
+            u8 *referencePoint = (u8 *)&frame.referenceXy;
             xy = *(u64 *)D_0063B080;
             z = *(f32 *)D_0063B088;
-            frame.sp40 = xy;
-            frame.sp48 = z;
-            frame.sp50 = var_16 + 0x15C;
-            frame.sp54 = var_16 + 0x168;
-            frame.sp58 = var_16 + 0x174;
-            if ((K_FldFrame_IsPointInTriangle(arg0, &frame.sp50, sp40p) == 1) &&
-                (temp_f3 = *(f32 *)(frame.sp50 + 4),
-                 temp_f2 = *(f32 *)((u8 *)arg0 + 4),
-                 (temp_f2 < (100.0f + temp_f3))) &&
-                !(temp_f2 <= (temp_f3 - 100.0f))) {
-                var_17 = *(s32 *)(var_16 + 0x18C);
+            frame.referenceXy = xy;
+            frame.referenceZ = z;
+            frame.firstCorner = quad + 0x15C;
+            frame.secondCorner = quad + 0x168;
+            frame.thirdCorner = quad + 0x174;
+            if ((K_FldFrame_IsPointInTriangle(position, &frame.firstCorner, referencePoint) == 1) &&
+                (cornerHeight = ((RwV3d *)frame.firstCorner)->y,
+                 pointHeight = ((RwV3d *)position)->y,
+                 (pointHeight < (100.0f + cornerHeight))) &&
+                !(pointHeight <= (cornerHeight - 100.0f))) {
+                terrain = ((SceneQuadResource *)quad)->terrain;
                 break;
             }
         }
-        frame.sp50 = var_16 + 0x168;
-        frame.sp54 = var_16 + 0x174;
-        frame.sp58 = var_16 + 0x180;
+        frame.firstCorner = quad + 0x168;
+        frame.secondCorner = quad + 0x174;
+        frame.thirdCorner = quad + 0x180;
         {
-            u8 *sp40p = (u8 *)&frame.sp40;
-            if ((K_FldFrame_IsPointInTriangle(arg0, &frame.sp50, &frame.sp40) == 1) &&
-                (temp_f3_2 = *(f32 *)(frame.sp50 + 4),
-                 temp_f2_2 = *(f32 *)((u8 *)arg0 + 4),
-                 (temp_f2_2 < (100.0f + temp_f3_2))) &&
-                !(temp_f2_2 <= (temp_f3_2 - 100.0f))) {
-                var_17 = *(s32 *)(var_16 + 0x18C);
+            u8 *referencePoint = (u8 *)&frame.referenceXy;
+            if ((K_FldFrame_IsPointInTriangle(position, &frame.firstCorner, &frame.referenceXy) == 1) &&
+                (secondCornerHeight = ((RwV3d *)frame.firstCorner)->y,
+                 secondPointHeight = ((RwV3d *)position)->y,
+                 (secondPointHeight < (100.0f + secondCornerHeight))) &&
+                !(secondPointHeight <= (secondCornerHeight - 100.0f))) {
+                terrain = ((SceneQuadResource *)quad)->terrain;
                 break;
             }
         }
     }
-    return var_17;
+    return terrain;
 }
 #pragma opt_propagation on
 
 // FUN_0026BC10
-s32 MT_Scene_SpawnResIconTask(u32 arg0, u32 arg1)
+s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon)
 {
-    u8 *p = MT_Scene_GetRes(arg0);
+    u8 *resource = MT_Scene_GetRes(resourceId);
 
-    if (p == NULL) return 0;
-    if (p == NULL) return 0;
-    if (mtSceneIconSpawnTask(*(u16 *)p, arg1 & 0xFF) != 0) goto done;
+    if (resource == NULL) return 0;
+    if (resource == NULL) return 0;
+    if (mtSceneIconSpawnTask(*(u16 *)resource, icon & 0xFF) != 0) goto done;
     return 0;
 done:
     return 1;
 }
 
 // FUN_0026BC90
-s32 MT_Scene_SetResShadowCaster(u8 *arg0, s32 arg1)
+/* Toggle the kind-specific shadow caster when a supported model resource has one. */
+s32 MT_Scene_SetResShadowCaster(u8 *resource, s32 enabled)
 {
-    s32 var_6 = 0;
+    s32 caster = 0;
 
-    if (arg0 == NULL) return 0;
-    switch (((s32)(*(u16 *)arg0 & 0xFFC00)) >> 10) {
+    if (resource == NULL) return 0;
+    switch (((s32)(*(u16 *)resource & 0xFFC00)) >> 10) {
     case 1:
-        var_6 = *(s32 *)((u8 *)arg0 + 0x224);
+        caster = ((ResrcRecord *)resource)->handle224;
         break;
     case 3:
-        var_6 = *(s32 *)((u8 *)arg0 + 0x230);
+        caster = ((ResrcRecord *)resource)->handle230;
         break;
     default:
         break;
     }
-    if (var_6 == 0) return 0;
-    if (arg1 == 1) {
-        FldShadow_SetCasterFlag(var_6, 0, var_6);
+    if (caster == 0) return 0;
+    if (enabled == 1) {
+        FldShadow_SetCasterFlag(caster, 0, caster);
     } else {
-        FldShadow_SetCasterFlag(var_6, 1, var_6);
+        FldShadow_SetCasterFlag(caster, 1, caster);
     }
     return 1;
 }
 
 // FUN_0026BD50
-s32 MT_Scene_SetResShadowCasterById(u32 unk, s32 arg1) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
+s32 MT_Scene_SetResShadowCasterById(u32 resourceId, s32 enabled) {
+    u8 *resource = (u8*)MT_Scene_GetRes(resourceId);
 
-    if (temp_2 != NULL) {
-        return MT_Scene_SetResShadowCaster(temp_2, arg1);
+    if (resource != NULL) {
+        return MT_Scene_SetResShadowCaster(resource, enabled);
     }
     return 0;
 }
@@ -1645,64 +1556,68 @@ s32 MT_Scene_SetResShadowCasterById(u32 unk, s32 arg1) {
 
 
 // FUN_0026BDA0
-s32 MT_Scene_SetResSoundRange(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
+/* Reset the footstep state and install mode, sound, period, delay and surface selection. */
+s32 MT_Scene_SetResSoundRange(u32 resourceId, s32 mode, u8 sound, s16 period, s16 delay, s16 surface)
 {
-    u8 *p = MT_Scene_GetRes(arg0);
+    u8 *resource = MT_Scene_GetRes(resourceId);
 
-    if (p == NULL) return 0;
-    if (p == NULL) return 0;
+    if (resource == NULL) return 0;
+    if (resource == NULL) return 0;
     {
-        u8 *q = p + 0xE8;
-        memset(q, 0, 0xA);
-        *(u8 *)(q + 0) = arg1;
-        *(u8 *)(q + 1) = 0;
-        *(u8 *)(q + 3) = arg2;
-        *(u16 *)(q + 6) = arg3;
-        *(u16 *)(q + 8) = arg4;
-        *(u8 *)(q + 2) = arg5;
+        u8 *footsteps = resource + 0xE8;
+        memset(footsteps, 0, 0xA);
+        ((SceneFootstepUpdate *)footsteps)->mode = mode;
+        ((SceneFootstepUpdate *)footsteps)->sequence = 0;
+        ((SceneFootstepUpdate *)footsteps)->sound = sound;
+        ((SceneFootstepUpdate *)footsteps)->period = period;
+        ((SceneFootstepUpdate *)footsteps)->delay = delay;
+        ((SceneFootstepUpdate *)footsteps)->surface = surface;
     }
     return 1;
 }
 
 // FUN_0026BE60
-s32 MT_Scene_SetExclusiveRes(s32 arg0)
+/* Make a type-7 camera the only selected camera in its resource list. */
+s32 MT_Scene_SetExclusiveRes(s32 resourceId)
 {
-    u8 *p = MT_Scene_GetRes(arg0);
+    u8 *resource = MT_Scene_GetRes(resourceId);
 
-    if (p == NULL) return 0;
-    if (p == NULL) return 0;
-    if ((((s32)(*(u16 *)p & 0xFFC00)) >> 10) != 7) return 0;
+    if (resource == NULL) return 0;
+    if (resource == NULL) return 0;
+    if ((((s32)(*(u16 *)resource & 0xFFC00)) >> 10) != 7) return 0;
     {
-        u8 *v = MT_Scene_GetResListHead(7);
+        u8 *camera = MT_Scene_GetResListHead(7);
 
-        while (v != NULL) {
-            *(s32 *)(v + 0x148) = 0;
-            v = *(u8 **)(v + 0x138);
+        while (camera != NULL) {
+            ((ResrcRecord *)camera)->cameraRes[0] = 0;
+            camera = *(u8 * *)&((SceneUpdateResource *)camera)->next;
         }
-        *(s32 *)(p + 0x148) = 1;
+        ((ResrcRecord *)resource)->cameraRes[0] = 1;
     }
     return 1;
 }
 
 // FUN_0026BF20
+/* Clear selection on every type-7 camera resource. */
 void MT_Scene_ClearExclusiveRes(void) {
-    u8 *var_3 = MT_Scene_GetResListHead(7);
+    u8 *camera = MT_Scene_GetResListHead(7);
 
-    while (var_3 != NULL) {
-        *(s32 *)(var_3 + 0x148) = 0;
-        var_3 = *(u8 **)(var_3 + 0x138);
+    while (camera != NULL) {
+        ((ResrcRecord *)camera)->cameraRes[0] = 0;
+        camera = *(u8 * *)&((SceneUpdateResource *)camera)->next;
     }
 }
 
 
 // FUN_0026BF70
-void MT_Scene_ClearResState(u32 arg0)
+/* Clear a type-7 camera anchor id and anchor distance. */
+void MT_Scene_ClearResState(u32 resourceId)
 {
-    if (((s32)((u16)arg0 & 0xFFC00) >> 10) == 7) {
-        u8 *p = MT_Scene_GetRes(arg0);
-        if (p != NULL) {
-            *(u16 *)(p + 0x14C) = 0;
-            *(u32 *)(p + 0x144) = 0;
+    if (((s32)((u16)resourceId & 0xFFC00) >> 10) == 7) {
+        u8 *resource = MT_Scene_GetRes(resourceId);
+        if (resource != NULL) {
+            *(u16 *)&((ResrcRecord *)resource)->cameraRes[1] = 0;
+            *(u32 *)&((ResrcRecord *)resource)->slotHandle[1] = 0;
         }
     }
 }
@@ -1724,7 +1639,7 @@ void MT_Scene_ClearResState(u32 arg0)
 #pragma opt_propagation off
 // FUN_0026BFC0
 
-void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result) {
+void MT_Scene_OffsetPointByRotation(f32 *input, f32 distance, f32 pitch, f32 yaw, f32 roll, f32 *result) {
     typedef struct SceneMatrixLocal {
         RwV3d right;
         u32 flags;
@@ -1759,10 +1674,10 @@ void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fpar
     SceneVectorLocal axis2;
     SceneVectorLocal axis3;
     SceneMatrixLocal matrix;
-    SceneVectorLocal *axis2p;
+    SceneVectorLocal *axisPointer;
     u64 xy;
-    u64 axis2_xy;
-    f32 axis2_z;
+    u64 axisPair;
+    f32 axisZValue;
     f32 z;
 
     xy = *(u64 *)D_0063B120;
@@ -1773,11 +1688,11 @@ void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fpar
     z = *(f32 *)D_0063B138;
     axis1.raw.xy = xy;
     axis1.raw.z = z;
-    axis2p = &axis2;
-    axis2_xy = *(u64 *)D_0063B140;
-    axis2_z = *(f32 *)D_0063B148;
-    axis2.raw.xy = axis2_xy;
-    axis2.raw.z = axis2_z;
+    axisPointer = &axis2;
+    axisPair = *(u64 *)D_0063B140;
+    axisZValue = *(f32 *)D_0063B148;
+    axis2.raw.xy = axisPair;
+    axis2.raw.z = axisZValue;
     xy = *(u64 *)D_0063B150;
     z = *(f32 *)D_0063B158;
     axis3.raw.xy = xy;
@@ -1797,14 +1712,14 @@ void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fpar
     matrix.pos.x = 0.0f;
     matrix.flags |= 0x20003;
 
-    RwMatrixRotate(&matrix, axis2p, fparg2, 1);
-    RwMatrixRotate(&matrix, &axis1.value, fparg1, 1);
-    RwMatrixRotate(&matrix, &axis3.value, fparg3, 1);
+    RwMatrixRotate(&matrix, axisPointer, yaw, 1);
+    RwMatrixRotate(&matrix, &axis1.value, pitch, 1);
+    RwMatrixRotate(&matrix, &axis3.value, roll, 1);
     func_003e4320(&transformed, &axis0, &matrix);
     source.value = *(RwV3d *)input;
-    output.value.x = source.value.x - transformed.value.x * fparg0;
-    output.value.y = source.value.y - transformed.value.y * fparg0;
-    output.value.z = source.value.z - transformed.value.z * fparg0;
+    output.value.x = source.value.x - transformed.value.x * distance;
+    output.value.y = source.value.y - transformed.value.y * distance;
+    output.value.z = source.value.z - transformed.value.z * distance;
     *(RwV3d *)result = output.value;
 }
 #pragma opt_propagation on
@@ -1815,6 +1730,7 @@ void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fpar
    preserving retail ld/lwc1/sd/swc1 ordering; object 376B fits the 384B window. */
 #pragma opt_propagation off
 // FUN_0026C190
+/* Resolve an optional anchor resource, apply the 15-unit backward offset and rotate the requested distance. */
 void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
 {
     typedef struct SceneDirectionLocal {
@@ -1827,30 +1743,30 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
     f32 output[4];
     SceneDirectionLocal direction;
     f32 normalized[4];
-    u8 matrix_copy[64];
+    u8 matrixCopy[64];
     u8 matrix[64];
     u8 *handle;
-    u8 *directionp;
+    u8 *directionPointer;
     s32 *src;
     s32 *dst;
     s32 count;
     u32 first;
     u32 second;
-    f32 direction_z;
-    u64 direction_xy;
+    f32 directionZ;
+    u64 directionXy;
 
-    *(RwV3d *)base = *(RwV3d *)((u8 *)resource + 4);
-    *(RwV3d *)axis = *(RwV3d *)((u8 *)resource + 0x10);
-    if (*(u16 *)((u8 *)resource + 0x14c) != 0) {
-        handle = MT_Scene_GetRes(*(u16 *)((u8 *)resource + 0x14c));
+    *(RwV3d *)base = ((SceneUpdateResource *)resource)->position;
+    *(RwV3d *)axis = ((SceneUpdateResource *)resource)->rotation;
+    if (*(u16 *)&((ResrcRecord *)resource)->cameraRes[1] != 0) {
+        handle = MT_Scene_GetRes(*(u16 *)&((ResrcRecord *)resource)->cameraRes[1]);
         if (handle != NULL) {
-            base[0] = *(f32 *)(handle + 4);
-            base[1] = *(f32 *)(handle + 8);
-            base[2] = *(f32 *)(handle + 0xc);
-            scale = *(f32 *)((u8 *)resource + 0x144);
+            base[0] = *(f32 *)&((SceneUpdateResource *)handle)->position;
+            base[1] = ((SceneUpdateResource *)handle)->position.y;
+            base[2] = ((SceneUpdateResource *)handle)->position.z;
+            scale = *(f32 *)&((ResrcRecord *)resource)->slotHandle[1];
             MT_Scene_BuildResMatrix((u32 *)matrix, base, (u32 *)axis);
             src = (s32 *)matrix;
-            dst = (s32 *)matrix_copy;
+            dst = (s32 *)matrixCopy;
             count = 8;
             do {
                 first = (u32)src[0];
@@ -1861,12 +1777,12 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
                 dst[1] = (s32)second;
                 dst += 2;
             } while (count > 0);
-            directionp = (u8 *)&direction;
-            direction_xy = *(u64 *)matrix_copy;
-            direction_z = *(f32 *)(matrix_copy + 8);
-            direction.xy = direction_xy;
-            direction.z = direction_z;
-            RwV3dNormalize(normalized, directionp);
+            directionPointer = (u8 *)&direction;
+            directionXy = *(u64 *)matrixCopy;
+            directionZ = ((SceneDirectionLocal *)matrixCopy)->z;
+            direction.xy = directionXy;
+            direction.z = directionZ;
+            RwV3dNormalize(normalized, directionPointer);
             base[0] = base[0] - 15.0f * normalized[0];
             base[2] = base[2] - 15.0f * normalized[2];
         }
@@ -1879,9 +1795,11 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
 /* measured: opt_propagation off closes 15 load-order differences; lverify MATCH. */
 #pragma opt_propagation off
 // FUN_0026C310
-void MT_Scene_UpdateCameraResource(u8 *param_1)
+/* Apply resource orientation or look-at basis, screen shake and field of view to the active camera. */
+/* Apply resource orientation or look-at basis, screen shake and field of view to the active camera. Raw member offsets are retained because the typed rewrite changes b210 member-address lifetimes and exceeds the retail size. */
+void MT_Scene_UpdateCameraResource(u8 *resource)
 {
-    typedef struct SceneMatrixC310 {
+    typedef struct SceneCameraMatrix {
         RwV3d right;
         u32 flags;
         RwV3d up;
@@ -1890,9 +1808,9 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
         u32 pad2;
         RwV3d pos;
         u32 pad3;
-    } SceneMatrixC310;
-    typedef struct SceneC310Locals {
-        u64 leading_pad;
+    } SceneCameraMatrix;
+    typedef struct SceneCameraLocals {
+        u64 leadingPad;
         union {
             u64 raw;
             struct {
@@ -1901,26 +1819,26 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
             } value;
         } axis;
         union {
-            f32 axis_z;
-            u64 scratch_pad;
+            f32 axisZ;
+            u64 scratchPad;
         } overlap;
         f32 scratch[6];
         f32 vec2[4];
         f32 vec1[4];
         f32 vec0[4];
         f32 outv[4];
-    } SceneC310Locals;
+    } SceneCameraLocals;
     u8 *scene;
     s32 model;
     s32 result;
-    SceneMatrixC310 *matrix;
-    SceneC310Locals locals;
+    SceneCameraMatrix *matrix;
+    SceneCameraLocals locals;
     f32 fc;
     f32 fb;
     f32 fa;
-    f32 axis_y;
-    f32 axis_z;
-    f32 axis_x;
+    f32 axisY;
+    f32 axisZ;
+    f32 axisX;
 
     scene = kwlnGetCamera();
 
@@ -1944,48 +1862,48 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
     }
 
     model = *(s32 *)(scene + 4);
-    if (((param_1 == NULL) || (scene == NULL)) || (model == 0)) {
+    if (((resource == NULL) || (scene == NULL)) || (model == 0)) {
         return;
     }
 
-    MT_Scene_GetResAnchor(locals.outv, param_1, 0.0f);
+    MT_Scene_GetResAnchor(locals.outv, resource, 0.0f);
     fb = locals.outv[0];
     fc = locals.outv[1];
     fa = locals.outv[2];
-    *(f32 *)(param_1 + 4) = fb;
-    *(f32 *)(param_1 + 8) = fc;
-    *(f32 *)(param_1 + 0xc) = fa;
+    *(f32 *)(resource + 4) = fb;
+    *(f32 *)(resource + 8) = fc;
+    *(f32 *)(resource + 0xc) = fa;
 
-    matrix = (SceneMatrixC310 *)func_003e0f80();
+    matrix = (SceneCameraMatrix *)func_003e0f80();
     {
         u64 xy = *(u64 *)D_0063B190_abs;
         f32 z = *(f32 *)(D_0063B190_abs + 8);
         locals.axis.raw = xy;
-        locals.overlap.axis_z = z;
+        locals.overlap.axisZ = z;
     }
-    if ((*(u32 *)(param_1 + 0x28) & 0x08000000) != 0) {
-        *(u32 *)(param_1 + 0x28) &= ~0x08000000;
-        fb = *(f32 *)(param_1 + 4);
-        fc = *(f32 *)(param_1 + 8);
-        fa = *(f32 *)(param_1 + 0xc);
+    if ((*(u32 *)(resource + 0x28) & 0x08000000) != 0) {
+        *(u32 *)(resource + 0x28) &= ~0x08000000;
+        fb = *(f32 *)(resource + 4);
+        fc = *(f32 *)(resource + 8);
+        fa = *(f32 *)(resource + 0xc);
         matrix->pos.x = fb;
         matrix->pos.y = fc;
         matrix->pos.z = fa;
-        matrix->at.x = *(f32 *)(param_1 + 0x10) - matrix->pos.x;
-        matrix->at.y = *(f32 *)(param_1 + 0x14) - matrix->pos.y;
-        matrix->at.z = *(f32 *)(param_1 + 0x18) - matrix->pos.z;
+        matrix->at.x = *(f32 *)(resource + 0x10) - matrix->pos.x;
+        matrix->at.y = *(f32 *)(resource + 0x14) - matrix->pos.y;
+        matrix->at.z = *(f32 *)(resource + 0x18) - matrix->pos.z;
         RwV3dNormalize(&matrix->at, &matrix->at);
 
-        axis_y = locals.axis.value.y;
-        axis_z = locals.overlap.axis_z;
+        axisY = locals.axis.value.y;
+        axisZ = locals.overlap.axisZ;
         matrix->right.x =
-            matrix->at.y * axis_z - matrix->at.z * axis_y;
+            matrix->at.y * axisZ - matrix->at.z * axisY;
         fc = matrix->at.x;
         fa = matrix->at.z;
-        axis_x = locals.axis.value.x;
-        matrix->right.y = fa * axis_x - fc * axis_z;
+        axisX = locals.axis.value.x;
+        matrix->right.y = fa * axisX - fc * axisZ;
         matrix->right.z =
-            matrix->at.x * axis_y - matrix->at.y * axis_x;
+            matrix->at.x * axisY - matrix->at.y * axisX;
         RwV3dNormalize(&matrix->right, &matrix->right);
 
         matrix->up.x =
@@ -2014,9 +1932,9 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
         matrix->pos.x = 0.0f;
         matrix->flags |= 0x20003;
 
-        RwMatrixRotate(matrix, locals.vec0, *(f32 *)(param_1 + 0x14), 1);
-        RwMatrixRotate(matrix, locals.vec1, *(f32 *)(param_1 + 0x10), 1);
-        RwMatrixRotate(matrix, locals.vec2, *(f32 *)(param_1 + 0x18), 1);
+        RwMatrixRotate(matrix, locals.vec0, *(f32 *)(resource + 0x14), 1);
+        RwMatrixRotate(matrix, locals.vec1, *(f32 *)(resource + 0x10), 1);
+        RwMatrixRotate(matrix, locals.vec2, *(f32 *)(resource + 0x18), 1);
         RwMatrixTranslate(matrix, locals.outv, 2);
     }
 
@@ -2031,7 +1949,7 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
     func_003e9df0((void *)model);
     func_003e9cb0((void *)model, matrix, 0);
     func_003e0f40(matrix);
-    K_View_SetFov(scene, *(f32 *)(param_1 + 0x140));
+    K_View_SetFov(scene, *(f32 *)(resource + 0x140));
 }
 #pragma opt_propagation on
 
@@ -2040,26 +1958,27 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
 #pragma opt_loop_invariants on
 
 // FUN_0026C680
-void MT_Scene_WrapAngles(float *param_1)
+/* Normalize each degree-valued component into the half-open interval [0, 360). */
+void MT_Scene_WrapAngles(f32 *angles)
 {
-    int iVar2;
-    float afStack_10 [4];
+    s32 axisIndex;
+    f32 wrapped [4];
 
-    afStack_10[0] = *param_1;
-    afStack_10[1] = param_1[1];
-    afStack_10[2] = param_1[2];
-    for (iVar2 = 0; iVar2 < 3; iVar2 = iVar2 + 1) {
-        while (afStack_10[iVar2] >= 360.0f) {
-            afStack_10[iVar2] = afStack_10[iVar2] - 360.0f;
+    wrapped[0] = *angles;
+    wrapped[1] = angles[1];
+    wrapped[2] = angles[2];
+    for (axisIndex = 0; axisIndex < 3; axisIndex = axisIndex + 1) {
+        while (wrapped[axisIndex] >= 360.0f) {
+            wrapped[axisIndex] = wrapped[axisIndex] - 360.0f;
         }
-        while (afStack_10[iVar2] < 0.0f) {
-            afStack_10[iVar2] = afStack_10[iVar2] + 360.0f;
+        while (wrapped[axisIndex] < 0.0f) {
+            wrapped[axisIndex] = wrapped[axisIndex] + 360.0f;
         }
     }
 
-    *param_1 = afStack_10[0];
-    param_1[1] = afStack_10[1];
-    param_1[2] = afStack_10[2];
+    *angles = wrapped[0];
+    angles[1] = wrapped[1];
+    angles[2] = wrapped[2];
     return;
 }
 #pragma opt_loop_invariants off
@@ -2069,7 +1988,7 @@ void MT_Scene_WrapAngles(float *param_1)
 // FUN_0026C740
 void MT_Scene_WrapObjectAngles(s32 object)
 {
-    (MT_Scene_WrapAngles)((float*)(object + 0x10));
+    (MT_Scene_WrapAngles)(&((SceneUpdateResource *)object)->rotation.x);
 }
 
 
@@ -2080,30 +1999,31 @@ void MT_Scene_WrapObjectAngles(s32 object)
 #pragma opt_loop_invariants on
 
 // FUN_0026C770
-void MT_Scene_GetAngleDelta(float *param_1, float *param_2, float *param_3)
+/* Return the shortest signed degree difference on each axis, keeping positive 180 unchanged. */
+void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *output)
 {
-    int iVar1;
-    float delta[4];
-    float adjusted[4];
-    const float wrap = 360.0f;
-    const float limit = 180.0f;
+    s32 axisIndex;
+    f32 delta[4];
+    f32 adjusted[4];
+    const f32 wrap = 360.0f;
+    const f32 limit = 180.0f;
 
-    delta[0] = param_2[0] - param_1[0];
-    delta[1] = param_2[1] - param_1[1];
-    delta[2] = param_2[2] - param_1[2];
+    delta[0] = end[0] - start[0];
+    delta[1] = end[1] - start[1];
+    delta[2] = end[2] - start[2];
     MT_Scene_WrapAngles(delta);
     adjusted[0] = delta[0];
     adjusted[1] = delta[1];
     adjusted[2] = delta[2];
-    for (iVar1 = 0; iVar1 < 3; iVar1 = iVar1 + 1) {
-        if (adjusted[iVar1] <= limit) {
+    for (axisIndex = 0; axisIndex < 3; axisIndex = axisIndex + 1) {
+        if (adjusted[axisIndex] <= limit) {
             continue;
         }
-        adjusted[iVar1] = -(wrap - adjusted[iVar1]);
+        adjusted[axisIndex] = -(wrap - adjusted[axisIndex]);
     }
-    param_3[0] = adjusted[0];
-    param_3[1] = adjusted[1];
-    param_3[2] = adjusted[2];
+    output[0] = adjusted[0];
+    output[1] = adjusted[1];
+    output[2] = adjusted[2];
 }
 #pragma opt_loop_invariants off
 
@@ -2116,56 +2036,58 @@ void MT_Scene_GetAngleDelta(float *param_1, float *param_2, float *param_3)
 
 
 // FUN_0026C860
-void MT_Scene_GetDirectionYaw(const float *param_1, float *param_2)
+/* Project a normalized direction onto the horizontal plane and return its signed yaw. */
+void MT_Scene_GetDirectionYaw(const f32 *direction, f32 *angles)
 {
-    u32 uVar1;
-    float fVar2;
-    u64 txy;
-    float tz;
+    u32 angleBits;
+    f32 heading;
+    u64 sourceXy;
+    f32 sourceZ;
     SceneVecBits source;
-    float afStack_20[4];
+    f32 normalized[4];
 
-    txy = ((volatile SceneVecBits *)D_0063b1a0)->xy;
-    tz = *(volatile float *)D_0063b1a8;
-    *(volatile u64 *)&source.xy = txy;
-    *(volatile float *)&source.z = tz;
+    sourceXy = ((volatile SceneVecBits *)D_0063b1a0)->xy;
+    sourceZ = *(volatile f32 *)D_0063b1a8;
+    *(volatile u64 *)&source.xy = sourceXy;
+    *(volatile f32 *)&source.z = sourceZ;
 
-    fVar2 = RwV3dNormalize(afStack_20, param_1);
-    if (fVar2 == 0.0f) {
-        param_2[0] = 0.0f;
-        param_2[1] = 0.0f;
-        param_2[2] = 0.0f;
+    heading = RwV3dNormalize(normalized, direction);
+    if (heading == 0.0f) {
+        angles[0] = 0.0f;
+        angles[1] = 0.0f;
+        angles[2] = 0.0f;
     }
     else {
-        afStack_20[1] = 0.0f;
-        uVar1 = fptodp(afStack_20[0] * ((float *)&source.xy)[0] +
-                              afStack_20[1] * ((float *)&source.xy)[1] +
-                              afStack_20[2] * source.z);
-        uVar1 = func_0044b8d8(uVar1);
-        fVar2 = fGpffff8428 * dptofp(uVar1);
-        if (afStack_20[0] < 0.0f) {
-            fVar2 = fVar2 * -1.0f;
+        normalized[1] = 0.0f;
+        angleBits = fptodp(normalized[0] * ((f32 *)&source.xy)[0] +
+                              normalized[1] * ((f32 *)&source.xy)[1] +
+                              normalized[2] * source.z);
+        angleBits = func_0044b8d8(angleBits);
+        heading = fGpffff8428 * dptofp(angleBits);
+        if (normalized[0] < 0.0f) {
+            heading = heading * -1.0f;
         }
-        param_2[1] = fVar2;
-        param_2[0] = 0.0f;
-        param_2[2] = 0.0f;
+        angles[1] = heading;
+        angles[0] = 0.0f;
+        angles[2] = 0.0f;
     }
 }
 
 
 
 // FUN_0026C960
-void MT_Scene_EvalCubicBezier(float t, float *x, float *y, float *z, float *outX,
-                   float *outY, float *outZ)
+/* Evaluate a cubic Bezier with four independent control coordinates per axis. */
+void MT_Scene_EvalCubicBezier(f32 t, f32 *x, f32 *y, f32 *z, f32 *outX,
+                   f32 *outY, f32 *outZ)
 {
-    float oneMinus = 1.0f - t;
-    float oneMinusSquared = oneMinus * oneMinus;
-    float w0;
-    float w1;
-    float w2;
-    float w3;
-    float tSquared;
-    float rx;
+    f32 oneMinus = 1.0f - t;
+    f32 oneMinusSquared = oneMinus * oneMinus;
+    f32 w0;
+    f32 w1;
+    f32 w2;
+    f32 w3;
+    f32 tSquared;
+    f32 rx;
 
     RwV3d result;
     w0 = oneMinus * oneMinusSquared;
@@ -2199,46 +2121,44 @@ void MT_Scene_EvalCubicBezier(float t, float *x, float *y, float *z, float *outX
 #pragma opt_lifetimes on
 
 // FUN_0026CA10
-void MT_Scene_SampleCurve(char *param_2, float param_1, float *param_3)
+/* Sample a packed cubic path; neighboring segments share their endpoint and use a 0x24-byte stride. */
+void MT_Scene_SampleCurve(char *path, f32 time, f32 *output)
 {
-    char cVar1;
-    int iVar2;
-    int segmentIndex;
-    int iVar3;
-    float fVar5;
-    float auStack_10 [4];
-    float auStack_20 [4];
-    float auStack_30 [4];
+    char segmentCount;
+    s32 segmentIndex;
+    s32 controlIndex;
+    f32 segmentDuration;
+    f32 controlX [4];
+    f32 controlY [4];
+    f32 controlZ [4];
 
-    cVar1 = *param_2;
-    if ('\0' < cVar1) {
-        if (!(param_1 < 1.0f)) {
-            iVar3 = 0;
-            segmentIndex = cVar1 - 1;
-            param_2 += segmentIndex * 0x24;
-            for (; iVar3 < 4; iVar3 = iVar3 + 1) {
-                iVar2 = iVar3 * 0xc;
-                auStack_10[iVar3] = *(float *)(param_2 + iVar2 + 4);
-                auStack_20[iVar3] = *(float *)(param_2 + iVar2 + 8);
-                auStack_30[iVar3] = *(float *)(param_2 + iVar2 + 0xc);
+    segmentCount = *path;
+    if ('\0' < segmentCount) {
+        if (!(time < 1.0f)) {
+            controlIndex = 0;
+            segmentIndex = segmentCount - 1;
+            path += segmentIndex * 0x24;
+            for (; controlIndex < 4; controlIndex = controlIndex + 1) {
+                controlX[controlIndex] = ((ScenePath *)path)->points[controlIndex].x;
+                controlY[controlIndex] = ((ScenePath *)path)->points[controlIndex].y;
+                controlZ[controlIndex] = ((ScenePath *)path)->points[controlIndex].z;
             }
-            MT_Scene_EvalCubicBezier(1.0f, auStack_10, auStack_20, auStack_30, param_3, param_3 + 1, param_3 + 2);
+            MT_Scene_EvalCubicBezier(1.0f, controlX, controlY, controlZ, output, output + 1, output + 2);
         }
         else {
-            fVar5 = 1.0f / (float)(int)cVar1;
-            segmentIndex = (int)(param_1 / fVar5);
-            iVar3 = 0;
-            param_2 += segmentIndex * 0x24;
-            for (; iVar3 < 4; iVar3 = iVar3 + 1) {
-                iVar2 = iVar3 * 0xc;
-                auStack_10[iVar3] = *(float *)(param_2 + iVar2 + 4);
-                auStack_20[iVar3] = *(float *)(param_2 + iVar2 + 8);
-                auStack_30[iVar3] = *(float *)(param_2 + iVar2 + 0xc);
+            segmentDuration = 1.0f / (f32)(s32)segmentCount;
+            segmentIndex = (s32)(time / segmentDuration);
+            controlIndex = 0;
+            path += segmentIndex * 0x24;
+            for (; controlIndex < 4; controlIndex = controlIndex + 1) {
+                controlX[controlIndex] = ((ScenePath *)path)->points[controlIndex].x;
+                controlY[controlIndex] = ((ScenePath *)path)->points[controlIndex].y;
+                controlZ[controlIndex] = ((ScenePath *)path)->points[controlIndex].z;
             }
-            while (param_1 > fVar5) {
-                param_1 = param_1 - fVar5;
+            while (time > segmentDuration) {
+                time = time - segmentDuration;
             }
-            MT_Scene_EvalCubicBezier(param_1 / fVar5, auStack_10, auStack_20, auStack_30, param_3, param_3 + 1, param_3 + 2);
+            MT_Scene_EvalCubicBezier(time / segmentDuration, controlX, controlY, controlZ, output, output + 1, output + 2);
         }
     }
     return;
@@ -2248,111 +2168,113 @@ void MT_Scene_SampleCurve(char *param_2, float param_1, float *param_3)
 
 
 // FUN_0026CBA0
-float MT_Scene_SampleCurveTable(u32 arg0, float param_2, float param_3)
+/* Construct a one-segment easing curve from the selected four-float table entry. */
+/* Retain byte-addressed scratch storage: the sampler output begins at +0x130 inside the original 0x138-byte stack allocation. */
+f32 MT_Scene_SampleCurveTable(u32 kind, f32 duration, f32 elapsed)
 {
-    u8 *p;
-    u8 auStack[0x138];
+    u8 *controlPoints;
+    u8 pathBuffer[0x138];
 
-    if (arg0 >= 6) {
+    if (kind >= 6) {
         kAssertFail(D_0063B090, 0xA24);
     }
-    if (param_2 == 0.0f) {
-        param_3 = 1.0f;
+    if (duration == 0.0f) {
+        elapsed = 1.0f;
     }
     else {
-        param_3 = param_3 / param_2;
+        elapsed = elapsed / duration;
     }
-    auStack[0] = 1;
-    *(u32 *)(auStack + 4) = 0;
-    *(u32 *)(auStack + 8) = 0;
-    *(u32 *)(auStack + 0xC) = 0;
-    p = resrcMngGetTableEntry(arg0);
-    *(f32 *)(auStack + 0x10) = *(f32 *)(p + 0);
-    *(f32 *)(auStack + 0x14) = *(f32 *)(p + 8);
-    *(u32 *)(auStack + 0x18) = 0;
-    *(f32 *)(auStack + 0x1C) = *(f32 *)(p + 4);
-    *(f32 *)(auStack + 0x20) = *(f32 *)(p + 0xC);
-    *(u32 *)(auStack + 0x24) = 0;
-    *(u32 *)(auStack + 0x28) = 0x3F800000;
-    *(u32 *)(auStack + 0x2C) = 0x3F800000;
-    *(u32 *)(auStack + 0x30) = 0;
-    MT_Scene_SampleCurve((char *)auStack, param_3, (f32 *)(auStack + 0x130));
-    return *(f32 *)(auStack + 0x134) * param_2;
+    pathBuffer[0] = 1;
+    *(u32 *)&((ScenePath *)pathBuffer)->points[0].x = 0;
+    *(u32 *)&((ScenePath *)pathBuffer)->points[0].y = 0;
+    *(u32 *)&((ScenePath *)pathBuffer)->points[0].z = 0;
+    controlPoints = resrcMngGetTableEntry(kind);
+    ((ScenePath *)pathBuffer)->points[1].x = ((f32 *)controlPoints)[0];
+    ((ScenePath *)pathBuffer)->points[1].y = ((f32 *)controlPoints)[2];
+    *(u32 *)&((ScenePath *)pathBuffer)->points[1].z = 0;
+    ((ScenePath *)pathBuffer)->points[2].x = ((f32 *)controlPoints)[1];
+    ((ScenePath *)pathBuffer)->points[2].y = ((f32 *)controlPoints)[3];
+    *(u32 *)&((ScenePath *)pathBuffer)->points[2].z = 0;
+    *(u32 *)&((ScenePath *)pathBuffer)->points[3].x = 0x3F800000;
+    *(u32 *)&((ScenePath *)pathBuffer)->points[3].y = 0x3F800000;
+    *(u32 *)&((ScenePath *)pathBuffer)->points[3].z = 0;
+    MT_Scene_SampleCurve((char *)pathBuffer, elapsed, (f32 *)(pathBuffer + 0x130));
+    return *(f32 *)(pathBuffer + 0x134) * duration;
 }
 // FUN_0026CCA0
-float MT_Scene_GetCurveSegmentLength(float param_1, float param_2, float *param_3, float *param_4,
-                    float *param_5, float *param_6, float *param_7)
+/* Evaluate two positions on a cubic segment and return their straight-line distance. */
+f32 MT_Scene_GetCurveSegmentLength(f32 firstTime, f32 secondTime, f32 *controlX, f32 *controlY,
+                    f32 *controlZ, f32 *firstPoint, f32 *secondPoint)
 {
     RwV3d delta;
-    float first_x;
-    float second_x;
-    float first_y;
-    float second_y;
-    float first_z;
-    float second_z;
-    float first_len;
+    f32 firstX;
+    f32 secondX;
+    f32 firstY;
+    f32 secondY;
+    f32 firstZ;
+    f32 secondZ;
+    f32 length;
 
-    MT_Scene_EvalCubicBezier(param_1, param_3, param_4, param_5, &first_x, &first_y, &first_z);
-    MT_Scene_EvalCubicBezier(param_2, param_3, param_4, param_5, &second_x, &second_y, &second_z);
-    delta.x = second_x - first_x;
-    delta.y = second_y - first_y;
-    delta.z = second_z - first_z;
-    first_len = RwV3dLength(&delta);
-    *param_6 = first_x;
-    param_6[1] = first_y;
-    param_6[2] = first_z;
-    *param_7 = second_x;
-    param_7[1] = second_y;
-    param_7[2] = second_z;
-    return first_len;
+    MT_Scene_EvalCubicBezier(firstTime, controlX, controlY, controlZ, &firstX, &firstY, &firstZ);
+    MT_Scene_EvalCubicBezier(secondTime, controlX, controlY, controlZ, &secondX, &secondY, &secondZ);
+    delta.x = secondX - firstX;
+    delta.y = secondY - firstY;
+    delta.z = secondZ - firstZ;
+    length = RwV3dLength(&delta);
+    *firstPoint = firstX;
+    firstPoint[1] = firstY;
+    firstPoint[2] = firstZ;
+    *secondPoint = secondX;
+    secondPoint[1] = secondY;
+    secondPoint[2] = secondZ;
+    return length;
 }
 
 
 
 // FUN_0026CDB0
-float MT_Scene_GetCurveLength(char *param_1)
+/* Approximate path length with twenty equal-parameter samples per cubic segment. */
+f32 MT_Scene_GetCurveLength(char *path)
 {
-    int iVar1;
-    int lVar2;
-    int iVar3;
-    float fVar4;
-    float fVar5;
-    float fVar6;
-    float scale;
-    float auStack_10 [4];
-    float auStack_20 [4];
-    float auStack_30 [4];
-    float auStack_40 [4];
-    float auStack_50 [4];
+    s32 segmentIndex;
+    s32 sampleIndex;
+    f32 sampleLength;
+    f32 totalLength;
+    f32 segmentLength;
+    f32 scale;
+    f32 firstPoint [4];
+    f32 secondPoint [4];
+    f32 controlX [4];
+    f32 controlY [4];
+    f32 controlZ [4];
 
-    fVar5 = 0.0f;
-    for (lVar2 = 0; lVar2 < *param_1; lVar2 = lVar2 + 1) {
+    totalLength = 0.0f;
+    for (segmentIndex = 0; segmentIndex < *path; segmentIndex = segmentIndex + 1) {
         {
             char *curve;
-            int copyIndex;
+            s32 copyIndex;
 
             copyIndex = 0;
-            curve = param_1 + lVar2 * 0x24;
+            curve = path + segmentIndex * 0x24;
             for (; copyIndex < 4; copyIndex = copyIndex + 1) {
-                iVar1 = copyIndex * 0xc;
-                auStack_30[copyIndex] = *(float *)(curve + iVar1 + 4);
-                auStack_40[copyIndex] = *(float *)(curve + iVar1 + 8);
-                auStack_50[copyIndex] = *(float *)(curve + iVar1 + 0xc);
+                controlX[copyIndex] = ((ScenePath *)curve)->points[copyIndex].x;
+                controlY[copyIndex] = ((ScenePath *)curve)->points[copyIndex].y;
+                controlZ[copyIndex] = ((ScenePath *)curve)->points[copyIndex].z;
             }
         }
 
-        fVar6 = 0.0f;
-        for (iVar3 = 0; iVar3 < 0x14; iVar3 = iVar3 + 1) {
-            fVar4 = (float)iVar3;
+        segmentLength = 0.0f;
+        for (sampleIndex = 0; sampleIndex < 0x14; sampleIndex = sampleIndex + 1) {
+            sampleLength = (f32)sampleIndex;
             scale = D_007614c0;
-            fVar4 = fVar4 * scale;
-            fVar4 = MT_Scene_GetCurveSegmentLength(fVar4, (float)(iVar3 + 1) * scale,
-                                  auStack_30, auStack_40, auStack_50, auStack_10, auStack_20);
-            fVar6 = fVar6 + fVar4;
+            sampleLength = sampleLength * scale;
+            sampleLength = MT_Scene_GetCurveSegmentLength(sampleLength, (f32)(sampleIndex + 1) * scale,
+                                  controlX, controlY, controlZ, firstPoint, secondPoint);
+            segmentLength = segmentLength + sampleLength;
         }
-        fVar5 = fVar5 + fVar6;
+        totalLength = totalLength + segmentLength;
     }
-    return fVar5;
+    return totalLength;
 }
 
 
@@ -2361,15 +2283,16 @@ float MT_Scene_GetCurveLength(char *param_1)
 #pragma optimization_level 1
 
 // FUN_0026D400
-u32 MT_Scene_GetShakeOffset(float* param_1)
+/* Read the two fixed linker-addressed shake outputs; these are global aliases, not fields of a recoverable object. */
+u32 MT_Scene_GetShakeOffset(f32* offset)
 {
     if (*(u16*)&D_00764580 == 0)
     {
         return 0;
     }
 
-    param_1[0] = *(float*)(uintptr_t)0x00881500;
-    param_1[1] = *(float*)(uintptr_t)0x00881504;
+    offset[0] = *(f32*)(uintptr_t)0x00881500;
+    offset[1] = *(f32*)(uintptr_t)0x00881504;
     return 1;
 }
 #pragma optimization_level 2
@@ -2431,6 +2354,7 @@ void MT_Scene_UpdateShake(void)
     if (timing > 0) *(s16 *)&D_00764584 = *(s16 *)&D_00764584 - 1;
 }
 // FUN_0026D780
+/* Enable shake with a finite duration or -1 for indefinite duration; derive separate horizontal and vertical amplitudes. */
 void MT_Scene_StartShake(s32 first, s32 second)
 {
     if (second == 0)
@@ -2454,6 +2378,7 @@ void MT_Scene_StartShake(s32 first, s32 second)
     }
 }
 // FUN_0026D810
+/* Disable shake and stop its associated effect sequence. */
 void MT_Scene_StopShake(void)
 {
     *(u16 *)&D_00764580 = 0;
