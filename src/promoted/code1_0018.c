@@ -1,3 +1,5 @@
+#include "kwln_task_internal.h"
+#include "model_access_internal.h"
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
 #include "sdk_dbprt.h"
@@ -143,7 +145,6 @@ extern u8 D_005F5330[];
 extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8218;
 extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
-extern u8 *mdlGetMatrix(u32 arg0);
 extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
 extern u8 *K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern f32 D_005F2190[];
@@ -343,7 +344,7 @@ extern struct RpSpline *func_003bbbe0(s32 count, s32 type, RainVector *points);
 extern unsigned int func_003e0f80(void);
 extern int func_003e9700(unsigned int);
 extern f32 func_0044b920(f32);
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern f32 KDraw_MatrixYawDeg(void *);
 extern f32 KDraw_MatrixPitchDeg(void *);
 extern f32 KDraw_MatrixRollDeg(void *);
@@ -361,7 +362,7 @@ extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern void FldNpcSetPositionLock(unsigned char *, s32);
 extern s32 func_0018bf50(unsigned char *);
 extern s64 cmmResolveCounterpart(s64);
-extern float func_003e4180(float *);
+extern f32 RwV3dLength(const RainVector *vector);
 extern s32 kwlnGetCamera(void);
 extern void FldRc_SetClumpVector(void *, void *);
 extern s32 mdlPrepareModel(unsigned char *);
@@ -375,19 +376,31 @@ extern void mdlSetLookAtRequested(unsigned char *);
 extern void mdlSetLookStateWord(unsigned char *, u16);
 extern u16 mdlGetLookStateWord(unsigned char *);
 
-extern unsigned char D_00763074[4];
+extern RwRGBA D_00763074;
 extern int func_003bb3a0();
-extern void func_003e0870(void *matrix, const void *axis, s32 mode, f32 angle);
-extern int func_003e05d0();
-extern int func_0047a2f0();
-extern int func_0047a220();
+extern RainMatrix *RwMatrixRotate(RainMatrix *matrix, const RainVector *axis, f32 angle, enum RwOpCombineType mode);
+extern RainMatrix *RwMatrixUpdate(RainMatrix *matrix);
 extern void func_003bb5b0(void *curve, s32 mode, f32 time, f32 *dst, void *aux);
 extern void mdlScale(void *model, const void *scale, s32 combineOp);
-extern int func_0047a310();
+typedef struct FldActorKindOne {
+    u8 pad00[6];
+    s16 animationId;
+    u8 pad08[0xC];
+    f32 scale;
+} FldActorKindOne;
+typedef struct FldActorKindTwo {
+    u8 pad00[0x6C];
+    s16 animationId;
+    u8 pad6E[0xA];
+    u32 resourceId;
+} FldActorKindTwo;
+
 typedef struct {
     u16 id;
-    u8 unk002[0x162];
-    u8 *model;
+    u8 unk002[0x26];
+    u32 flags; /* 0x28: visibility and update flags */
+    u8 unk02C[0x138];
+    void *model;
     u8 unk168[0xb8];
     u16 pathMode;
     u8 unk222[6];
@@ -396,8 +409,8 @@ typedef struct {
     s32 kind;
     u8 unk238[8];
     RainMatrix initialMatrix;
-    u8 *kind1Data;
-    u8 *kind2Data;
+    FldActorKindOne *kind1Data;
+    FldActorKindTwo *kind2Data;
     u8 unk288[12];
     u8 *otherTask;
     u16 pointCount;
@@ -407,21 +420,15 @@ typedef struct {
     u32 curve;
 } FldActorObject;
 
-typedef struct {
-    u8 unk00[0x18];
-    f32 progress;
-    f32 step;
-    f32 direction;
-} FldActorWork;
 
 s32 FldRcAtomicFrustumTest(s32 arg0, s32 *arg1);
 
 /* Update field-actor visibility, animation, spline travel, and facing. */
 // Kept in bucket: diff 35 when moved; cause not diagnosed (uses static inline fldBothReady_0018a200).
 // FUN_0018A200
-s32 FldNpcControlUpdate(u8 *param_1)
+s32 FldNpcControlUpdate(u8 *task)
 {
-  typedef struct { float x, y, z; } FldCopyVec;
+  typedef struct { f32 x, y, z; } FldCopyVec;
   s32 actorIndex;
   s32 objectKind;
   s32 splineMode;
@@ -432,24 +439,26 @@ s32 FldNpcControlUpdate(u8 *param_1)
   s32 updateAnimationKind;
   FldActorObject *initialAnimationObject;
   s32 initialAnimationId;
-  unsigned int temp_v0;
-  s32 temp_v1;
-  unsigned short temp_v2;
-  short temp_v3;
+  u32 matrixSecondWord;
+  s32 canLookAt;
+  u16 lookFlags;
+  s16 animationId;
   u32 movementMode;
   s32 savedAnimation;
   u32 resourceKey;
   s32 eventResource;
-  unsigned int resourceId;
-  int temp_v4;
+  u32 resourceId;
+  s32 value;
+  RainMatrix *actorMatrix;
+  u8 *actorModel;
   u8 *effectTask;
-  unsigned int temp_v5;
+  u32 objectAddress;
   u32 pauseRoll;
-  unsigned int *puVar8;
-  unsigned int temp_v6;
-  int temp_v7;
-  void *pvVar11;
-  float *pfVar12;
+  u32 *matrixDestination;
+  u32 matrixFirstWord;
+  RainMatrix *playerMatrix;
+  void *objectData;
+  f32 *modelBasis;
   RainVector *facingNormal;
   RainVector *targetDirection;
   RainVector *lookTarget;
@@ -459,16 +468,16 @@ s32 FldNpcControlUpdate(u8 *param_1)
   RainVector *turnForward;
   RainVector *turnRight;
   u8 *finalModel;
-  unsigned int temp_v8;
-  u32 temp_v9;
+  void *renderObject;
+  u32 eventFlag;
   u32 fovResult;
   u32 distanceResult;
-  long long temp_v10;
-  unsigned int *puVar16;
+  s64 counterpartId;
+  u32 *matrixSource;
   s32 actorOffset;
-  unsigned int temp_v11_s3;
-  float temp_v12;
-  float temp_v13;
+  u32 pauseFrames;
+  f32 turnAngle;
+  f32 distance;
   f32 facingLimit;
   f32 proximityLimit;
   f32 interactionAngle;
@@ -478,410 +487,417 @@ s32 FldNpcControlUpdate(u8 *param_1)
   f32 initialHeading;
   f32 initialZero;
   f32 initialX;
-  float one;
-  float diff;
-  float ny;
-  float nx;
-  float nz;
+  f32 one;
+  f32 diff;
+  f32 ny;
+  f32 nx;
+  f32 nz;
   f32 sideZ;
   f32 sideX;
   f32 sideY;
   f32 sideZero;
   f32 sideDot;
-  unsigned int *puVar1;
+  FldNpcControlWork *work;
 
-  int iStack_4;
-  float vec10[3];
-  float vec20[3];
-  float vec30[3];
-  float vec40[3];
-  float vec50[3];
-  float vec60[3];
-  float vec70[3];
+  s32 outsideFrustum;
+  f32 playerDelta[3];
+  f32 actorForward[3];
+  f32 actorToPlayer[3];
+  f32 lookPosition[3];
+  f32 cameraTarget[3];
+  f32 cameraDelta[3];
+  f32 cameraPosition[3];
   SVec3 transformAngles;
-  float vec90[3];
-  float vecA0[3];
-  float vecB0[3];
-  float vecC0[3];
-  float vecD0[3];
-  float vecE0[3];
-  float vecF0[3];
-  float vec100[3];
-  float vec110[3];
-  float vec120[3];
-  float vec130[3];
-  float vec140[3];
-  float vec150[3];
-  float vec160[3];  
-  puVar1 = *(unsigned int **)(param_1 + 0x38);
-  if (puVar1[2] == 1) {
+  f32 modelScale[3];
+  f32 attachPosition[3];
+  f32 pathSpan[3];
+  f32 pathStart[3];
+  f32 pathEnd[3];
+  f32 pathPosition[3];
+  f32 pathSample[3];
+  f32 pathDelta[3];
+  f32 oscillatorPosition[3];
+  f32 oscillatorSample[3];
+  f32 oscillatorDelta[3];
+  f32 turnForwardVector[3];
+  f32 turnRightVector[3];
+  f32 movementPosition[3];  
+  work = (FldNpcControlWork *)((KwlnTask *)task)->work;
+  if (work->hidden == 1) {
     return 0;
   }
-  if (*puVar1 >= 4) {
-    if (*(int *)(puVar1[3] + 0x234) == 2) {
-      iStack_4 = 0;
-      temp_v8 = func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-      RpClumpForAllAtomics((void *)temp_v8, (KClumpCallback)FldRcAtomicFrustumTest, &iStack_4);
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
+  if (work->state >= 4) {
+    if (((FldActorObject *)work->actor)->kind == 2) {
+      outsideFrustum = 0;
+      renderObject = mdlGetClump(((FldActorObject *)work->actor)->model);
+      RpClumpForAllAtomics((void *)renderObject, (KClumpCallback)FldRcAtomicFrustumTest, &outsideFrustum);
+      /* Scene state has three position-slot tasks at +0x34; no shared layout exists. */
+      value = (s32)MT_Scene_GetFrameState();
+      if (*(s32 *)(value + work->actorIndex * 4 + 0x34) != 0) {
         s32 actorVisible;
         u8 *visibilityTarget;
-        actorVisible = (iStack_4 != 0) ^ 1;
-        temp_v4 = (s32)MT_Scene_GetFrameState();
-        visibilityTarget = *(u8 **)(temp_v4 + puVar1[0x14] * 4 + 0x34);
-        FldRc_SetPositionSlotVisibility(visibilityTarget,puVar1[0x15],actorVisible);
+        actorVisible = (outsideFrustum != 0) ^ 1;
+        value = (s32)MT_Scene_GetFrameState();
+        visibilityTarget = *(u8 **)(value + work->actorIndex * 4 + 0x34);
+        FldRc_SetPositionSlotVisibility(visibilityTarget,work->positionSlot,actorVisible);
       }
-      if ((*(unsigned int *)(puVar1[3] + 0x28) & 2) == 0) {
-        FldNpcSetPositionLock(param_1,1);
+      if ((((FldActorObject *)work->actor)->flags & 2) == 0) {
+        FldNpcSetPositionLock(task,1);
       }
     }
-    temp_v4 = *(int *)(puVar1[3] + 0x164);
-    resourceId = *(unsigned short *)(temp_v4 + 0xd4);
-    if ((((((resourceId != 5) || (*(unsigned short *)(temp_v4 + 0xd6) != 0x45ed)) &&
-          ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x461f)))) &&
-         ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x4651)))) &&
-        ((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46b5)))) &&
-       (((resourceId != 5 || (*(unsigned short *)(temp_v4 + 0xd6) != 0x46e7)) &&
+    actorModel = ((FldActorObject *)work->actor)->model;
+    /* Model resource type/ID are private prefix halfwords at +0xD4/+0xD6. */
+    resourceId = *(u16 *)(actorModel + 0xd4);
+    if ((((((resourceId != 5) || (*(u16 *)(actorModel + 0xd6) != 0x45ed)) &&
+          ((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x461f)))) &&
+         ((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x4651)))) &&
+        ((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x46b5)))) &&
+       (((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x46e7)) &&
         (fldBothReady_0018a200())))) {
-      temp_v8 = func_0047a2f0(D_007EFA00[0]);
-      temp_v4 = func_0047a2f0(temp_v4);
+      renderObject = mdlGetMatrix(((void **)D_007EFA00)[0]);
+      actorMatrix = mdlGetMatrix(actorModel);
       facingLimit = 120.0f;
-      fovResult = K_FldEvent_IsPosWithinFov((RainMatrix *)temp_v8, &((RainMatrix *)temp_v4)->pos, facingLimit);
+      fovResult = K_FldEvent_IsPosWithinFov((RainMatrix *)renderObject, &actorMatrix->pos, facingLimit);
       if (fovResult == 1) {
-        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        temp_v13 = *(float *)(temp_v4 + 0x30);
-        temp_v4 = func_0047a2f0(D_007EFA00[0]);
-        vec10[0] = temp_v13 - *(float *)(temp_v4 + 0x30);
-        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        temp_v13 = *(float *)(temp_v4 + 0x34);
-        temp_v4 = func_0047a2f0(D_007EFA00[0]);
-        vec10[1] = temp_v13 - *(float *)(temp_v4 + 0x34);
-        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        temp_v13 = *(float *)(temp_v4 + 0x38);
-        temp_v4 = func_0047a2f0(D_007EFA00[0]);
-        vec10[2] = temp_v13 - *(float *)(temp_v4 + 0x38);
-        temp_v13 = func_003e4180(&vec10[0]);
-        if (temp_v13 < 150.0f) {
-          temp_v1 = 1;
-          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          *(FldCopyVec *)vec20 = *(FldCopyVec *)(temp_v4 + 0x20);
-          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          temp_v13 = *(float *)(temp_v4 + 0x30);
-          temp_v4 = func_0047a2f0(D_007EFA00[0]);
-          vec30[0] = *(float *)(temp_v4 + 0x30) - temp_v13;
-          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          temp_v13 = *(float *)(temp_v4 + 0x34);
-          temp_v4 = func_0047a2f0(D_007EFA00[0]);
-          vec30[1] = *(float *)(temp_v4 + 0x34) - temp_v13;
-          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          temp_v13 = *(float *)(temp_v4 + 0x38);
-          temp_v4 = func_0047a2f0(D_007EFA00[0]);
-          vec30[2] = *(float *)(temp_v4 + 0x38) - temp_v13;
-          facingNormal = (RainVector *)vec20;
+        actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+        distance = actorMatrix->pos.x;
+        actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+        playerDelta[0] = distance - actorMatrix->pos.x;
+        actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+        distance = actorMatrix->pos.y;
+        actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+        playerDelta[1] = distance - actorMatrix->pos.y;
+        actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+        distance = actorMatrix->pos.z;
+        actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+        playerDelta[2] = distance - actorMatrix->pos.z;
+        distance = RwV3dLength((RainVector *)playerDelta);
+        if (distance < 150.0f) {
+          canLookAt = 1;
+          actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+          *(FldCopyVec *)actorForward = *(FldCopyVec *)&actorMatrix->at;
+          actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+          distance = actorMatrix->pos.x;
+          actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+          actorToPlayer[0] = actorMatrix->pos.x - distance;
+          actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+          distance = actorMatrix->pos.y;
+          actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+          actorToPlayer[1] = actorMatrix->pos.y - distance;
+          actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+          distance = actorMatrix->pos.z;
+          actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+          actorToPlayer[2] = actorMatrix->pos.z - distance;
+          facingNormal = (RainVector *)actorForward;
           RwV3dNormalize(facingNormal, facingNormal);
-          targetDirection = (RainVector *)vec30;
+          targetDirection = (RainVector *)actorToPlayer;
           RwV3dNormalize(targetDirection, targetDirection);
-          if ((vec20[0] * vec30[0] + vec20[1] * vec30[1] + vec20[2] * vec30[2] <= 0.0f) &&
-             (*(unsigned short *)(puVar1[3] + 0x220) > 0)) {
-            temp_v1 = 0;
+          if ((actorForward[0] * actorToPlayer[0] + actorForward[1] * actorToPlayer[1] + actorForward[2] * actorToPlayer[2] <= 0.0f) &&
+             (((FldActorObject *)work->actor)->pathMode > 0)) {
+            canLookAt = 0;
           }
-          temp_v4 = func_0018bf50(*(unsigned char **)(puVar1[3] + 0x294));
-          if ((temp_v4 == 0) && (temp_v1 == 1)) {
-            temp_v4 = func_0047a2f0(D_007EFA00[0]);
-            lookTarget = (RainVector *)vec40;
-            *(FldCopyVec *)vec40 = *(FldCopyVec *)(temp_v4 + 0x30);
-            vec40[1] = vec40[1] + 140.0f;
-            mdlSetLookAtTargetPoint(*(void **)(puVar1[3] + 0x164), lookTarget);
-            temp_v2 = mdlGetLookStateWord(*(unsigned char **)(puVar1[3] + 0x164));
-            temp_v2 |= 0x1000;
-            mdlSetLookStateWord(*(unsigned char **)(puVar1[3] + 0x164), temp_v2);
+          value = func_0018bf50(((FldActorObject *)work->actor)->otherTask);
+          if ((value == 0) && (canLookAt == 1)) {
+            actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
+            lookTarget = (RainVector *)lookPosition;
+            *(FldCopyVec *)lookPosition = *(FldCopyVec *)&actorMatrix->pos;
+            lookPosition[1] = lookPosition[1] + 140.0f;
+            mdlSetLookAtTargetPoint(((FldActorObject *)work->actor)->model, lookTarget);
+            lookFlags = mdlGetLookStateWord(((FldActorObject *)work->actor)->model);
+            lookFlags |= 0x1000;
+            mdlSetLookStateWord(((FldActorObject *)work->actor)->model, lookFlags);
           }
           else {
-            mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
+            mdlSetLookAtRequested(((FldActorObject *)work->actor)->model);
           }
         }
         else {
-          mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
+          mdlSetLookAtRequested(((FldActorObject *)work->actor)->model);
         }
       }
       else {
-        mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
+        mdlSetLookAtRequested(((FldActorObject *)work->actor)->model);
       }
     }
-    temp_v4 = kwlnGetCamera();
-    temp_v6 = *(unsigned int *)(temp_v4 + 4);
-    FldFrameTask_GetPosition((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
-    *(FldCopyVec *)vec50 = *(FldCopyVec *)vec160;
-    vec50[1] = vec50[1] + 180.0f;
-    temp_v4 = func_003e9700(temp_v6);
-    *(FldCopyVec *)vec70 = *(FldCopyVec *)(temp_v4 + 0x30);
-    vec60[0] = vec50[0] - vec70[0];
-    vec60[1] = vec50[1] - vec70[1];
-    vec60[2] = vec50[2] - vec70[2];
-    temp_v13 = func_003e4180(&vec60[0]);
-    effectTask = (u8 *)puVar1[4];
+    /* Camera/frame prefixes are opaque here: frame at +4, frame position at +0x30. */
+    value = kwlnGetCamera();
+    matrixFirstWord = *(u32 *)(value + 4);
+    FldFrameTask_GetPosition((u8 *)&movementPosition[0],((FldActorObject *)work->actor)->movementTask);
+    *(FldCopyVec *)cameraTarget = *(FldCopyVec *)movementPosition;
+    cameraTarget[1] = cameraTarget[1] + 180.0f;
+    value = func_003e9700(matrixFirstWord);
+    *(FldCopyVec *)cameraPosition = *(FldCopyVec *)(value + 0x30);
+    cameraDelta[0] = cameraTarget[0] - cameraPosition[0];
+    cameraDelta[1] = cameraTarget[1] - cameraPosition[1];
+    cameraDelta[2] = cameraTarget[2] - cameraPosition[2];
+    distance = RwV3dLength((RainVector *)cameraDelta);
+    effectTask = (u8 *)work->effectTask;
     if (effectTask != NULL && KDraw_IsEffectDone(effectTask) == 1) {
-      mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-      kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
-      puVar1[4] = 0;
+      mdlClearAlphaBlend(((FldActorObject *)work->actor)->model);
+      kwlnTaskDestroyWithHierarchy((void *)work->effectTask);
+      work->effectTask = 0;
     }
-    if (temp_v13 <= ((float*)puVar1)[0x12] + 55.0f) {
-      if (puVar1[4] != 0) {
-        mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-        kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
-        puVar1[4] = 0;
+    if (distance <= work->cameraHeight + 55.0f) {
+      if (work->effectTask != 0) {
+        mdlClearAlphaBlend(((FldActorObject *)work->actor)->model);
+        kwlnTaskDestroyWithHierarchy((void *)work->effectTask);
+        work->effectTask = 0;
       }
-      func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
-      puVar1[0x13] = 1;
+      mdlSetColor(((FldActorObject *)work->actor)->model, &D_00763074);
+      work->cameraNear = 1;
     }
-    if ((puVar1[0x13] == 1) && (!(temp_v13 <= *(f32 *)((u32)puVar1 + 0x48) + 55.0f))) {
-      mdlSetAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-      temp_v5 = KMisc_CreateRmdFade((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
-      puVar1[4] = temp_v5;
-      puVar1[0x13] = 0;
+    if ((work->cameraNear == 1) && (!(distance <= work->cameraHeight + 55.0f))) {
+      mdlSetAlphaBlend(((FldActorObject *)work->actor)->model);
+      /* The fade API and animation query accept the model address as an integer handle. */
+      objectAddress = KMisc_CreateRmdFade((s32)task,*(s32 *)(work->actor + 0x164),0,0xff,10);
+      work->effectTask = objectAddress;
+      work->cameraNear = 0;
     }
   }
-  switch(*puVar1) {
+  switch(work->state) {
   case 0:
-    temp_v4 = mdlPrepareModel(*(unsigned char **)(puVar1[3] + 0x164));
-    if (temp_v4 != 0) {
-      temp_v5 = puVar1[3];
-      if (*(int *)(temp_v5 + 0x234) != 3) {
-        puVar8 = (unsigned int *)func_0047a2f0(*(unsigned int *)(temp_v5 + 0x164));
-        puVar16 = (unsigned int *)(temp_v5 + 0x240);
-        temp_v4 = 8;
+    value = mdlPrepareModel(((FldActorObject *)work->actor)->model);
+    if (value != 0) {
+      objectAddress = work->actor;
+      if (((FldActorObject *)objectAddress)->kind != 3) {
+        /* Retail copies the 0x40-byte matrix as eight pairs of words. */
+        matrixDestination = (u32 *)mdlGetMatrix(((FldActorObject *)objectAddress)->model);
+        matrixSource = (u32 *)(objectAddress + 0x240);
+        value = 8;
         do {
-          temp_v6 = *puVar16;
-          temp_v0 = puVar16[1];
-          puVar16 = puVar16 + 2;
-          temp_v4 = temp_v4 - 1;
-          *puVar8 = temp_v6;
-          puVar8[1] = temp_v0;
-          puVar8 = puVar8 + 2;
-        } while (0 < temp_v4);
-        mdlAdvanceModelFromFlags(*(unsigned char **)(puVar1[3] + 0x164));
-        transformAngles.x = KDraw_MatrixPitchDeg((void *)(puVar1[3] + 0x240));
-        transformAngles.y = KDraw_MatrixYawDeg((void *)(puVar1[3] + 0x240));
-        transformAngles.z = KDraw_MatrixRollDeg((void *)(puVar1[3] + 0x240));
-        transformObject = (FldActorObject *)puVar1[3];
+          matrixFirstWord = *matrixSource;
+          matrixSecondWord = matrixSource[1];
+          matrixSource = matrixSource + 2;
+          value = value - 1;
+          *matrixDestination = matrixFirstWord;
+          matrixDestination[1] = matrixSecondWord;
+          matrixDestination = matrixDestination + 2;
+        } while (0 < value);
+        mdlAdvanceModelFromFlags(((FldActorObject *)work->actor)->model);
+        transformAngles.x = KDraw_MatrixPitchDeg((void *)(work->actor + 0x240));
+        transformAngles.y = KDraw_MatrixYawDeg((void *)(work->actor + 0x240));
+        transformAngles.z = KDraw_MatrixRollDeg((void *)(work->actor + 0x240));
+        transformObject = (FldActorObject *)work->actor;
         MT_Scene_SetResPlacement(transformObject->id, (u8 *)&transformObject->initialMatrix.pos, (u8 *)&transformAngles);
-        temp_v8 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        func_003e05d0(temp_v8);
-        func_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);
-        temp_v4 = (s32)MT_Scene_GetResListHead(5);
-        initialX = *(float *)(temp_v4 + 0x1f0);
+        renderObject = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+        RwMatrixUpdate(renderObject);
+        mdlSetColor(((FldActorObject *)work->actor)->model, &D_00763074);
+        value = (s32)MT_Scene_GetResListHead(5);
+        /* Resource-list records expose a vector at +0x1F0; remaining layout is unknown. */
+        initialX = *(f32 *)(value + 0x1f0);
         initialZero = 0.0f;
-        if (((initialZero != initialX) || (initialZero != *(float *)(temp_v4 + 0x1f8))) ||
-           (initialZero != *(float *)(temp_v4 + 500))) {
-          pvVar11 = (void *)func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-          FldRc_SetClumpVector(pvVar11,(u8 *)temp_v4 + 0x1f0);
+        if (((initialZero != initialX) || (initialZero != *(f32 *)(value + 0x1f8))) ||
+           (initialZero != *(f32 *)(value + 500))) {
+          objectData = (void *)mdlGetClump(((FldActorObject *)work->actor)->model);
+          FldRc_SetClumpVector(objectData,(u8 *)value + 0x1f0);
         }
       }
-      temp_v5 = func_003e0f80();
-      puVar1[5] = temp_v5;
-      *puVar1 = *puVar1 + 1;
+      objectAddress = func_003e0f80();
+      work->handle = objectAddress;
+      work->state = work->state + 1;
     }
     break;
   case 1:
-    temp_v4 = func_00102980();
-    if (temp_v4 == 9) {
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      if (*(int *)(temp_v4 + 0x34) == 0) {
+    value = kwlnGetCurrentWorkValue();
+    if (value == 9) {
+      value = (s32)MT_Scene_GetFrameState();
+      if (*(s32 *)(value + 0x34) == 0) {
         break;
       }
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x34));
-      if (temp_v4 == 0) {
+      value = (s32)MT_Scene_GetFrameState();
+      value = FldRc_FileLoadIsReady(*(u8 **)(value + 0x34));
+      if (value == 0) {
         break;
       }
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      if (*(int *)(temp_v4 + 0x38) == 0) {
+      value = (s32)MT_Scene_GetFrameState();
+      if (*(s32 *)(value + 0x38) == 0) {
         break;
       }
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x38));
-      if (temp_v4 == 0) {
+      value = (s32)MT_Scene_GetFrameState();
+      value = FldRc_FileLoadIsReady(*(u8 **)(value + 0x38));
+      if (value == 0) {
         break;
       }
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      if (*(int *)(temp_v4 + 0x3c) == 0) {
+      value = (s32)MT_Scene_GetFrameState();
+      if (*(s32 *)(value + 0x3c) == 0) {
         break;
       }
-      temp_v4 = (s32)MT_Scene_GetFrameState();
-      temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x3c));
-      if (temp_v4 == 0) {
+      value = (s32)MT_Scene_GetFrameState();
+      value = FldRc_FileLoadIsReady(*(u8 **)(value + 0x3c));
+      if (value == 0) {
         break;
       }
     }
-    temp_v5 = puVar1[3];
-    objectKind = ((FldActorObject *)temp_v5)->kind;
+    objectAddress = work->actor;
+    objectKind = ((FldActorObject *)objectAddress)->kind;
     if (objectKind == 1) {
-      temp_v13 = *(float *)(*(int *)(temp_v5 + 0x280) + 0x14);
-      if (temp_v13 != 0.0f) {
-        vec90[0] = vec90[1] = vec90[2] = temp_v13;
-        mdlScale(*(void **)(temp_v5 + 0x164), vec90, 1);
+      distance = ((FldActorObject *)objectAddress)->kind1Data->scale;
+      if (distance != 0.0f) {
+        modelScale[0] = modelScale[1] = modelScale[2] = distance;
+        mdlScale(((FldActorObject *)objectAddress)->model, modelScale, 1);
       }
-      initialAnimationObject = (FldActorObject *)puVar1[3];
-      initialAnimationId = *(s16 *)(initialAnimationObject->kind1Data + 6);
+      initialAnimationObject = (FldActorObject *)work->actor;
+      initialAnimationId = initialAnimationObject->kind1Data->animationId;
       mdlDispatchAnimIfPresent(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
     }
     else if (objectKind == 2) {
-      temp_v5 = *(unsigned int *)(*(int *)(temp_v5 + 0x284) + 0x78);
-      if (temp_v5 != 0) {
+      objectAddress = ((FldActorObject *)objectAddress)->kind2Data->resourceId;
+      if (objectAddress != 0) {
         actorIndex = 1;
-        temp_v3 = (short)temp_v5;
-        resourceKey = (u16)temp_v3;
-        temp_v4 = (s32)cmmKindRecord(resourceKey);
-        if ((*(unsigned int *)(temp_v4 + 4) & 1) != 0) {
-          temp_v10 = cmmResolveCounterpart((s16)resourceKey);
-          temp_v3 = (short)temp_v10;
+        animationId = (s16)objectAddress;
+        resourceKey = (u16)animationId;
+        value = (s32)cmmKindRecord(resourceKey);
+        /* cmmKindRecord exposes flags at +4; its record layout is not declared here. */
+        if ((*(u32 *)(value + 4) & 1) != 0) {
+          counterpartId = cmmResolveCounterpart((s16)resourceKey);
+          animationId = (s16)counterpartId;
         }
-        eventResource = temp_v3;
-        temp_v9 = datGetFlag(eventResource + 0x43f);
-        if (temp_v9 != 0) {
+        eventResource = animationId;
+        eventFlag = datGetFlag(eventResource + 0x43f);
+        if (eventFlag != 0) {
           actorIndex = 2;
         } else {
-          temp_v9 = datGetFlag(eventResource + 0x45f);
-          if (temp_v9 != 0) {
+          eventFlag = datGetFlag(eventResource + 0x45f);
+          if (eventFlag != 0) {
             actorIndex = 0;
           }
         }
-        temp_v4 = mdlComputeIndexedAttachMatrix(*(void **)(puVar1[3] + 0x164),2,&vecA0[0]);
-        if (temp_v4 == 0) {
-          temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-          *(FldCopyVec *)vecA0 = *(FldCopyVec *)(temp_v4 + 0x30);
-          vecA0[1] = vecA0[1] + 175.0f;
+        value = mdlComputeIndexedAttachMatrix(((FldActorObject *)work->actor)->model,2,&attachPosition[0]);
+        if (value == 0) {
+          actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+          *(FldCopyVec *)attachPosition = *(FldCopyVec *)&actorMatrix->pos;
+          attachPosition[1] = attachPosition[1] + 175.0f;
         }
         actorOffset = actorIndex * 4;
-        temp_v4 = (s32)MT_Scene_GetFrameState();
-        temp_v5 = FldRc_RequestPositionSlot(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
-        temp_v4 = (s32)MT_Scene_GetFrameState();
-        FldRc_SetPositionSlotPriority(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
-        puVar1[0x14] = actorIndex;
-        puVar1[0x15] = temp_v5;
+        value = (s32)MT_Scene_GetFrameState();
+        objectAddress = FldRc_RequestPositionSlot(*(u8 **)(value + actorOffset + 0x34),&attachPosition[0]);
+        value = (s32)MT_Scene_GetFrameState();
+        FldRc_SetPositionSlotPriority(*(u8 **)(value + actorOffset + 0x34),objectAddress,4);
+        work->actorIndex = actorIndex;
+        work->positionSlot = objectAddress;
       }
-      initialAnimationObject = (FldActorObject *)puVar1[3];
-      initialAnimationId = *(s16 *)(initialAnimationObject->kind2Data + 0x6c);
+      initialAnimationObject = (FldActorObject *)work->actor;
+      initialAnimationId = initialAnimationObject->kind2Data->animationId;
       mdlDispatchAnimIfPresent(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
     }
-    initialPathObject = (FldActorObject *)puVar1[3];
+    initialPathObject = (FldActorObject *)work->actor;
     if (initialPathObject->pointCount < 4) {
       initialPathObject->pathMode = 0;
     }
-    initialPathObject = (FldActorObject *)puVar1[3];
+    initialPathObject = (FldActorObject *)work->actor;
     splineMode = initialPathObject->pathMode;
     if (splineMode > 0) {
       closedLoopType = 2;
       if (splineMode == closedLoopType) {
-        temp_v6 = (u32)func_003bbbe0(initialPathObject->pointCount,closedLoopType,initialPathObject->points);
-        *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
+        matrixFirstWord = (u32)func_003bbbe0(initialPathObject->pointCount,closedLoopType,initialPathObject->points);
+        ((FldActorObject *)work->actor)->curve = matrixFirstWord;
       } else {
-        temp_v6 = (u32)func_003bbbe0(initialPathObject->pointCount,1,initialPathObject->points);
-        *(unsigned int *)(puVar1[3] + 0x360) = temp_v6;
+        matrixFirstWord = (u32)func_003bbbe0(initialPathObject->pointCount,1,initialPathObject->points);
+        ((FldActorObject *)work->actor)->curve = matrixFirstWord;
       }
-      puVar1[6] = 0;
-      puVar1[8] = 0x3f800000;
-      func_003bb3a0(*(unsigned int *)(puVar1[3] + 0x360),0,&vecC0[0]);
-      func_003bb3a0(*(unsigned int *)(puVar1[3] + 0x360),1,&vecD0[0]);
-      vecB0[0] = vecD0[0] - vecC0[0];
-      vecB0[1] = vecD0[1] - vecC0[1];
-      vecB0[2] = vecD0[2] - vecC0[2];
-      temp_v13 = func_003e4180(&vecB0[0]);
-      initialPathObject = (FldActorObject *)puVar1[3];
-      temp_v13 = (1.0f / (initialPathObject->pointCount - 1)) *
-               (initialPathObject->speed / temp_v13);
-      ((float*)puVar1)[7] = temp_v13;
-      ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
-      mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
-      func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vecD0[0], 0);
-      temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-      *(FldCopyVec *)vecC0 = *(FldCopyVec *)(temp_v4 + 0x30);
-      vecB0[0] = vecD0[0] - vecC0[0];
-      vecB0[1] = vecD0[1] - vecC0[1];
-      vecB0[2] = vecD0[2] - vecC0[2];
-      initialPathDirection = (RainVector *)vecB0;
+      work->progress.bits = 0;
+      work->direction.bits = 0x3f800000;
+      func_003bb3a0(((FldActorObject *)work->actor)->curve,0,&pathStart[0]);
+      func_003bb3a0(((FldActorObject *)work->actor)->curve,1,&pathEnd[0]);
+      pathSpan[0] = pathEnd[0] - pathStart[0];
+      pathSpan[1] = pathEnd[1] - pathStart[1];
+      pathSpan[2] = pathEnd[2] - pathStart[2];
+      distance = RwV3dLength((RainVector *)pathSpan);
+      initialPathObject = (FldActorObject *)work->actor;
+      distance = (1.0f / (initialPathObject->pointCount - 1)) *
+               (initialPathObject->speed / distance);
+      work->step.value = distance;
+      work->progress.value = (work->progress.value + distance);
+      mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,1,4,1);
+      func_003bb5b0((void *)(u32)((FldActorObject *)work->actor)->curve, 10, work->progress.value, &pathEnd[0], 0);
+      actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+      *(FldCopyVec *)pathStart = *(FldCopyVec *)&actorMatrix->pos;
+      pathSpan[0] = pathEnd[0] - pathStart[0];
+      pathSpan[1] = pathEnd[1] - pathStart[1];
+      pathSpan[2] = pathEnd[2] - pathStart[2];
+      initialPathDirection = (RainVector *)pathSpan;
       RwV3dNormalize(initialPathDirection, initialPathDirection);
-      temp_v13 = (float)func_0044b920(vecB0[0] * D_00756520[0] + vecB0[1] * D_00756524[0] + vecB0[2] * D_00756528[0]);
-      initialHeading = fGpffff8300 * temp_v13;
-      if (vecB0[0] < 0.0f) {
+      distance = (f32)func_0044b920(pathSpan[0] * D_00756520[0] + pathSpan[1] * D_00756524[0] + pathSpan[2] * D_00756528[0]);
+      initialHeading = fGpffff8300 * distance;
+      if (pathSpan[0] < 0.0f) {
         initialHeading = initialHeading * -1.0f;
       }
-      ((RainMatrix *)puVar1[5])->right.x =
-          ((RainMatrix *)puVar1[5])->up.y =
-          ((RainMatrix *)puVar1[5])->at.z = 1.0f;
-      ((RainMatrix *)puVar1[5])->up.x = 0.0f;
-      ((RainMatrix *)puVar1[5])->right.z = 0.0f;
-      ((RainMatrix *)puVar1[5])->right.y = 0.0f;
-      ((RainMatrix *)puVar1[5])->at.y = 0.0f;
-      ((RainMatrix *)puVar1[5])->at.x = 0.0f;
-      ((RainMatrix *)puVar1[5])->up.z = 0.0f;
-      ((RainMatrix *)puVar1[5])->pos.z = 0.0f;
-      ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
-      ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
-      ((RainMatrix *)puVar1[5])->flags |= 0x20003;
-      func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, initialHeading);
-      FldFrameTask_SetOrientation(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
+      ((RainMatrix *)work->handle)->right.x =
+          ((RainMatrix *)work->handle)->up.y =
+          ((RainMatrix *)work->handle)->at.z = 1.0f;
+      ((RainMatrix *)work->handle)->up.x = 0.0f;
+      ((RainMatrix *)work->handle)->right.z = 0.0f;
+      ((RainMatrix *)work->handle)->right.y = 0.0f;
+      ((RainMatrix *)work->handle)->at.y = 0.0f;
+      ((RainMatrix *)work->handle)->at.x = 0.0f;
+      ((RainMatrix *)work->handle)->up.z = 0.0f;
+      ((RainMatrix *)work->handle)->pos.z = 0.0f;
+      ((RainMatrix *)work->handle)->pos.y = 0.0f;
+      ((RainMatrix *)work->handle)->pos.x = 0.0f;
+      ((RainMatrix *)work->handle)->flags |= 0x20003;
+      RwMatrixRotate((RainMatrix *)work->handle, (const RainVector *)D_00756510, initialHeading, rwCOMBINEPOSTCONCAT);
+      FldFrameTask_SetOrientation(((FldActorObject *)work->actor)->movementTask,(u8 *)work->handle);
     }
-    puVar1[0xb] = 0xffffffff;
-    *puVar1 = *puVar1 + 1;
+    work->savedAnimation = 0xffffffff;
+    work->state = work->state + 1;
     break;
   case 2:
-    *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
-    mdlSetAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-    temp_v5 = KMisc_CreateRmdFade((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,8);
-    puVar1[4] = temp_v5;
-    *puVar1 = *puVar1 + 1;
+    ((FldActorObject *)work->actor)->flags = ((FldActorObject *)work->actor)->flags | 0x10000000;
+    mdlSetAlphaBlend(((FldActorObject *)work->actor)->model);
+    objectAddress = KMisc_CreateRmdFade((s32)task,*(s32 *)(work->actor + 0x164),0,0xff,8);
+    work->effectTask = objectAddress;
+    work->state = work->state + 1;
     break;
   case 3:
-    temp_v4 = KDraw_IsEffectDone((unsigned char *)puVar1[4]);
-    if (temp_v4 != 0) {
-      mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
-      kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
-      puVar1[4] = 0;
-      *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
-      *puVar1 = *puVar1 + 1;
+    value = KDraw_IsEffectDone((u8 *)work->effectTask);
+    if (value != 0) {
+      mdlClearAlphaBlend(((FldActorObject *)work->actor)->model);
+      kwlnTaskDestroyWithHierarchy((void *)work->effectTask);
+      work->effectTask = 0;
+      ((FldActorObject *)work->actor)->flags = ((FldActorObject *)work->actor)->flags | 0x10000000;
+      work->state = work->state + 1;
     }
     break;
   case 4:
     if (fldBothReady_0018a200()) {
-      temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-      temp_v7 = func_0047a2f0(D_007EFA00[0]);
+      actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+      playerMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
       proximityLimit = 500.0f;
-      distanceResult = K_FldEvent_ArePosWithinDist((RainVector *)(temp_v4 + 0x30), (RainVector *)(temp_v7 + 0x30), proximityLimit);
+      distanceResult = K_FldEvent_ArePosWithinDist(&actorMatrix->pos, &playerMatrix->pos, proximityLimit);
       if (distanceResult == 1) {
-        pvVar11 = (void *)func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        temp_v4 = func_0047a2f0(D_007EFA00[0]);
+        objectData = (void *)mdlGetMatrix(((FldActorObject *)work->actor)->model);
+        actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
         interactionAngle = 90.0f;
         interactionRange = 250.0f;
-        temp_v5 = FldEvent_HasLineOfSight(pvVar11,&((RainMatrix *)temp_v4)->pos,interactionAngle,interactionRange);
-        if (temp_v5 != 0) {
-          if (puVar1[0xb] != 0xffffffff) {
+        objectAddress = FldEvent_HasLineOfSight(objectData,&actorMatrix->pos,interactionAngle,interactionRange);
+        if (objectAddress != 0) {
+          if (work->savedAnimation != 0xffffffff) {
             break;
           }
-          temp_v3 = mdlGetLayerAnimation(*(int *)(puVar1[3] + 0x164), 0);
-          puVar1[0xb] = (int)temp_v3;
-          temp_v5 = puVar1[3];
-          updateAnimationKind = ((FldActorObject *)temp_v5)->kind;
+          animationId = mdlGetLayerAnimation(*(s32 *)(work->actor + 0x164), 0);
+          work->savedAnimation = (s32)animationId;
+          objectAddress = work->actor;
+          updateAnimationKind = ((FldActorObject *)objectAddress)->kind;
           if (updateAnimationKind == 1) {
-            mdlDispatchAnimIfPresent(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
+            mdlDispatchAnimIfPresent(((FldActorObject *)objectAddress)->model,0,(s32)((FldActorObject *)objectAddress)->kind1Data->animationId,4
                           ,1);
             break;
           }
           if (updateAnimationKind != 2) {
             break;
           }
-          mdlDispatchAnimIfPresent(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
+          mdlDispatchAnimIfPresent(((FldActorObject *)objectAddress)->model,0,(s32)((FldActorObject *)objectAddress)->kind2Data->animationId,
                         4,1);
           break;
         }
       }
-      savedAnimation = puVar1[0xb];
+      savedAnimation = work->savedAnimation;
       if (savedAnimation >= 0) {
-        mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,(s16)savedAnimation,4,1);
-        puVar1[0xb] = 0xffffffff;
+        mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,(s16)savedAnimation,4,1);
+        work->savedAnimation = 0xffffffff;
       }
-      temp_v5 = puVar1[3];
-      movementMode = *(u16 *)(temp_v5 + 0x220);
+      objectAddress = work->actor;
+      movementMode = ((FldActorObject *)objectAddress)->pathMode;
       switch (movementMode) {
       case 0:
         break;
@@ -889,125 +905,125 @@ s32 FldNpcControlUpdate(u8 *param_1)
       case 2:
       case 4:
       {
-        FldActorWork *pathWork;
-        if (((movementMode != 4) || ((float *)puVar1)[6] != 1.0f) &&
-            (temp_v3 = mdlGetLayerAnimation(*(int *)(temp_v5 + 0x164), 0), temp_v3 != 1)) {
-          mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+        FldNpcControlWork *pathWork;
+        if (((movementMode != 4) || work->progress.value != 1.0f) &&
+            (animationId = mdlGetLayerAnimation(*(s32 *)(objectAddress + 0x164), 0), animationId != 1)) {
+          mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,1,4,1);
         }
-        func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
-        temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-        *(FldCopyVec *)vecE0 = *(FldCopyVec *)(temp_v4 + 0x30);
-        vec100[0] = vecF0[0] - vecE0[0];
-        vec100[1] = vecF0[1] - vecE0[1];
-        vec100[2] = vecF0[2] - vecE0[2];
-        pathDirection = (RainVector *)vec100;
+        func_003bb5b0((void *)(u32)((FldActorObject *)work->actor)->curve, 10, work->progress.value, &pathSample[0], 0);
+        actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+        *(FldCopyVec *)pathPosition = *(FldCopyVec *)&actorMatrix->pos;
+        pathDelta[0] = pathSample[0] - pathPosition[0];
+        pathDelta[1] = pathSample[1] - pathPosition[1];
+        pathDelta[2] = pathSample[2] - pathPosition[2];
+        pathDirection = (RainVector *)pathDelta;
         RwV3dNormalize(pathDirection, pathDirection);
-        temp_v13 = (float)func_0044b920(vec100[0] * D_00756520[0] + vec100[1] * D_00756524[0] + vec100[2] * D_00756528[0]);
-        pathHeading = fGpffff8300 * temp_v13;
-        if (vec100[0] < 0.0f) {
+        distance = (f32)func_0044b920(pathDelta[0] * D_00756520[0] + pathDelta[1] * D_00756524[0] + pathDelta[2] * D_00756528[0]);
+        pathHeading = fGpffff8300 * distance;
+        if (pathDelta[0] < 0.0f) {
           pathHeading = pathHeading * -1.0f;
         }
-        ((RainMatrix *)puVar1[5])->right.x =
-            ((RainMatrix *)puVar1[5])->up.y =
-            ((RainMatrix *)puVar1[5])->at.z = 1.0f;
-        ((RainMatrix *)puVar1[5])->up.x = 0.0f;
-        ((RainMatrix *)puVar1[5])->right.z = 0.0f;
-        ((RainMatrix *)puVar1[5])->right.y = 0.0f;
-        ((RainMatrix *)puVar1[5])->at.y = 0.0f;
-        ((RainMatrix *)puVar1[5])->at.x = 0.0f;
-        ((RainMatrix *)puVar1[5])->up.z = 0.0f;
-        ((RainMatrix *)puVar1[5])->pos.z = 0.0f;
-        ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
-        ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
-        ((RainMatrix *)puVar1[5])->flags |= 0x20003;
-        func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, pathHeading);
-        pathWork = (FldActorWork *)puVar1;
-        movingObject = (FldActorObject *)puVar1[3];
-        if (movingObject->pathMode != 4 || pathWork->progress < 1.0f) {
-          FldFrameTask_SetOrientation(movingObject->movementTask,(unsigned char *)puVar1[5]);
-          FldFrameTask_SetPosition(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vecF0[0]);
-          pathWork->progress = (pathWork->progress + pathWork->step);
+        ((RainMatrix *)work->handle)->right.x =
+            ((RainMatrix *)work->handle)->up.y =
+            ((RainMatrix *)work->handle)->at.z = 1.0f;
+        ((RainMatrix *)work->handle)->up.x = 0.0f;
+        ((RainMatrix *)work->handle)->right.z = 0.0f;
+        ((RainMatrix *)work->handle)->right.y = 0.0f;
+        ((RainMatrix *)work->handle)->at.y = 0.0f;
+        ((RainMatrix *)work->handle)->at.x = 0.0f;
+        ((RainMatrix *)work->handle)->up.z = 0.0f;
+        ((RainMatrix *)work->handle)->pos.z = 0.0f;
+        ((RainMatrix *)work->handle)->pos.y = 0.0f;
+        ((RainMatrix *)work->handle)->pos.x = 0.0f;
+        ((RainMatrix *)work->handle)->flags |= 0x20003;
+        RwMatrixRotate((RainMatrix *)work->handle, (const RainVector *)D_00756510, pathHeading, rwCOMBINEPOSTCONCAT);
+        pathWork = work;
+        movingObject = (FldActorObject *)work->actor;
+        if (movingObject->pathMode != 4 || pathWork->progress.value < 1.0f) {
+          FldFrameTask_SetOrientation(movingObject->movementTask,(u8 *)work->handle);
+          FldFrameTask_SetPosition(((FldActorObject *)work->actor)->movementTask,(u8 *)&pathSample[0]);
+          pathWork->progress.value = (pathWork->progress.value + pathWork->step.value);
         }
-        if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
-          if (!(pathWork->progress <= 1.0f)) {
-            pathWork->progress = 1.0f;
-            mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+        if (((FldActorObject *)work->actor)->pathMode == 4) {
+          if (!(pathWork->progress.value <= 1.0f)) {
+            pathWork->progress.value = 1.0f;
+            mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,0,4,1);
           }
         }
-        else if (!(pathWork->progress <= 1.0f)) {
-          pathWork->progress = 0.0f;
+        else if (!(pathWork->progress.value <= 1.0f)) {
+          pathWork->progress.value = 0.0f;
         }
       }
         break;
       case 3:
       {
-        temp_v11_s3 = puVar1[10];
-        if ((int)temp_v11_s3 >= 1) {
-          puVar1[10] = temp_v11_s3 - 1;
+        pauseFrames = work->pauseFrames;
+        if ((s32)pauseFrames >= 1) {
+          work->pauseFrames = pauseFrames - 1;
         } else {
-          if ((temp_v11_s3 == 0) && (temp_v3 = mdlGetLayerAnimation(*(int *)(temp_v5 + 0x164), 0), temp_v3 != 1)) {
-            mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+          if ((pauseFrames == 0) && (animationId = mdlGetLayerAnimation(*(s32 *)(objectAddress + 0x164), 0), animationId != 1)) {
+            mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,1,4,1);
           }
-          if ((int)puVar1[9] > 0) {
-            FldFrameTask_Rotate(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
-            puVar1[9] = puVar1[9] - 1;
+          if ((s32)work->turnFrames > 0) {
+            FldFrameTask_Rotate(((FldActorObject *)work->actor)->movementTask, D_00756510, 2.0f);
+            work->turnFrames = work->turnFrames - 1;
           }
           else {
-            func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vec120[0], 0);
-            temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-            *(FldCopyVec *)vec110 = *(FldCopyVec *)(temp_v4 + 0x30);
-            vec130[0] = vec120[0] - vec110[0];
-            vec130[1] = vec120[1] - vec110[1];
-            vec130[2] = vec120[2] - vec110[2];
-            oscillatorDirection = (RainVector *)vec130;
+            func_003bb5b0((void *)(u32)((FldActorObject *)work->actor)->curve, 10, work->progress.value, &oscillatorSample[0], 0);
+            actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+            *(FldCopyVec *)oscillatorPosition = *(FldCopyVec *)&actorMatrix->pos;
+            oscillatorDelta[0] = oscillatorSample[0] - oscillatorPosition[0];
+            oscillatorDelta[1] = oscillatorSample[1] - oscillatorPosition[1];
+            oscillatorDelta[2] = oscillatorSample[2] - oscillatorPosition[2];
+            oscillatorDirection = (RainVector *)oscillatorDelta;
             RwV3dNormalize(oscillatorDirection, oscillatorDirection);
-            temp_v13 = (float)func_0044b920(vec130[0] * D_00756520[0] + vec130[1] * D_00756524[0] + vec130[2] * D_00756528[0]);
-            oscillatorHeading = fGpffff8300 * temp_v13;
-            if (vec130[0] < 0.0f) {
+            distance = (f32)func_0044b920(oscillatorDelta[0] * D_00756520[0] + oscillatorDelta[1] * D_00756524[0] + oscillatorDelta[2] * D_00756528[0]);
+            oscillatorHeading = fGpffff8300 * distance;
+            if (oscillatorDelta[0] < 0.0f) {
               oscillatorHeading = oscillatorHeading * -1.0f;
             }
-            ((RainMatrix *)puVar1[5])->right.x =
-                ((RainMatrix *)puVar1[5])->up.y =
-                ((RainMatrix *)puVar1[5])->at.z = 1.0f;
-            ((RainMatrix *)puVar1[5])->up.x = 0.0f;
-            ((RainMatrix *)puVar1[5])->right.z = 0.0f;
-            ((RainMatrix *)puVar1[5])->right.y = 0.0f;
-            ((RainMatrix *)puVar1[5])->at.y = 0.0f;
-            ((RainMatrix *)puVar1[5])->at.x = 0.0f;
-            ((RainMatrix *)puVar1[5])->up.z = 0.0f;
-            ((RainMatrix *)puVar1[5])->pos.z = 0.0f;
-            ((RainMatrix *)puVar1[5])->pos.y = 0.0f;
-            ((RainMatrix *)puVar1[5])->pos.x = 0.0f;
-            ((RainMatrix *)puVar1[5])->flags |= 0x20003;
-            func_003e0870((void *)(u32)puVar1[5], D_00756510, 2, oscillatorHeading);
-            FldFrameTask_SetOrientation(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)puVar1[5]);
-            FldFrameTask_SetPosition(*(unsigned char **)(puVar1[3] + 0x228),(unsigned char *)&vec120[0]);
+            ((RainMatrix *)work->handle)->right.x =
+                ((RainMatrix *)work->handle)->up.y =
+                ((RainMatrix *)work->handle)->at.z = 1.0f;
+            ((RainMatrix *)work->handle)->up.x = 0.0f;
+            ((RainMatrix *)work->handle)->right.z = 0.0f;
+            ((RainMatrix *)work->handle)->right.y = 0.0f;
+            ((RainMatrix *)work->handle)->at.y = 0.0f;
+            ((RainMatrix *)work->handle)->at.x = 0.0f;
+            ((RainMatrix *)work->handle)->up.z = 0.0f;
+            ((RainMatrix *)work->handle)->pos.z = 0.0f;
+            ((RainMatrix *)work->handle)->pos.y = 0.0f;
+            ((RainMatrix *)work->handle)->pos.x = 0.0f;
+            ((RainMatrix *)work->handle)->flags |= 0x20003;
+            RwMatrixRotate((RainMatrix *)work->handle, (const RainVector *)D_00756510, oscillatorHeading, rwCOMBINEPOSTCONCAT);
+            FldFrameTask_SetOrientation(((FldActorObject *)work->actor)->movementTask,(u8 *)work->handle);
+            FldFrameTask_SetPosition(((FldActorObject *)work->actor)->movementTask,(u8 *)&oscillatorSample[0]);
             {
-            FldActorWork *motionWork = (FldActorWork *)puVar1;
+            FldNpcControlWork *motionWork = work;
             f32 zero;
             f32 one;
 
-            motionWork->progress = (motionWork->step * motionWork->direction + motionWork->progress);
+            motionWork->progress.value = (motionWork->step.value * motionWork->direction.value + motionWork->progress.value);
             zero = 0.0f;
-            if (!(motionWork->direction <= zero)) {
-              f32 endProgress = motionWork->progress;
+            if (!(motionWork->direction.value <= zero)) {
+              f32 endProgress = motionWork->progress.value;
               one = 1.0f;
               if (!(endProgress <= one)) {
-                motionWork->progress = (one - motionWork->step);
-                motionWork->direction = -1.0f;
-                puVar1[9] = 0x5a;
+                motionWork->progress.value = (one - motionWork->step.value);
+                motionWork->direction.value = -1.0f;
+                work->turnFrames = 0x5a;
                 pauseRoll = RpRandom();
-                puVar1[10] = pauseRoll % 0x5a + 0x3c;
-                mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+                work->pauseFrames = pauseRoll % 0x5a + 0x3c;
+                mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,0,4,1);
               }
             }
-            else if (motionWork->progress < zero) {
-              motionWork->progress = motionWork->step;
-              motionWork->direction = 1.0f;
-              puVar1[9] = 0x5a;
+            else if (motionWork->progress.value < zero) {
+              motionWork->progress.value = motionWork->step.value;
+              motionWork->direction.value = 1.0f;
+              work->turnFrames = 0x5a;
               pauseRoll = RpRandom();
-              puVar1[10] = pauseRoll % 0x5a + 0x3c;
-              mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+              work->pauseFrames = pauseRoll % 0x5a + 0x3c;
+              mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,0,4,1);
             }
             }
           }
@@ -1019,53 +1035,54 @@ s32 FldNpcControlUpdate(u8 *param_1)
     break;
   case 5:
   case 6:
-    temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-    *(FldCopyVec *)vec140 = *(FldCopyVec *)(temp_v4 + 0x20);
-    pfVar12 = (float *)func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
-    *(FldCopyVec *)vec150 = *(FldCopyVec *)(pfVar12);
-    turnForward = (RainVector *)vec140;
+    actorMatrix = mdlGetMatrix(((FldActorObject *)work->actor)->model);
+    *(FldCopyVec *)turnForwardVector = *(FldCopyVec *)&actorMatrix->at;
+    /* Preserve the retail two-word cursor copy of the matrix basis. */
+    modelBasis = (f32 *)mdlGetMatrix(((FldActorObject *)work->actor)->model);
+    *(FldCopyVec *)turnRightVector = *(FldCopyVec *)(modelBasis);
+    turnForward = (RainVector *)turnForwardVector;
     RwV3dNormalize(turnForward, turnForward);
-    turnRight = (RainVector *)vec150;
+    turnRight = (RainVector *)turnRightVector;
     RwV3dNormalize(turnRight, turnRight);
-    mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
-    ny = ((float*)puVar1)[0x10];
-    nx = ((float*)puVar1)[0xf];
-    nz = ((float*)puVar1)[0x11];
-    temp_v13 = nx * vec140[0] + ny * vec140[1] + nz * vec140[2];
+    mdlSetLookAtRequested(((FldActorObject *)work->actor)->model);
+    ny = work->headingY;
+    nx = work->headingX;
+    nz = work->headingZ;
+    distance = nx * turnForwardVector[0] + ny * turnForwardVector[1] + nz * turnForwardVector[2];
     one = 1.0f;
-    if (temp_v13 < one) {
-      temp_v12 = 15.0f;
-      diff = one - temp_v13;
+    if (distance < one) {
+      turnAngle = 15.0f;
+      diff = one - distance;
       if (diff < fGpffff8420) {
-        temp_v12 = 180.0f * diff;
-        temp_v13 = one;
+        turnAngle = 180.0f * diff;
+        distance = one;
       }
-      sideZ = vec150[2];
-      sideX = vec150[0];
-      sideY = vec150[1];
+      sideZ = turnRightVector[2];
+      sideX = turnRightVector[0];
+      sideY = turnRightVector[1];
       sideDot = nx * sideX + ny * sideY + nz * sideZ;
       sideZero = 0.0f;
       if (sideDot < sideZero) {
-        temp_v12 = temp_v12 * -1.0f;
+        turnAngle = turnAngle * -1.0f;
       }
-      FldFrameTask_Rotate(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, temp_v12);
+      FldFrameTask_Rotate(((FldActorObject *)work->actor)->movementTask, D_00756510, turnAngle);
     }
-    if (temp_v13 == 1.0f) {
-      if (*puVar1 == 5) {
-        mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,3,8,0);
-        *puVar1 = 7;
+    if (distance == 1.0f) {
+      if (work->state == 5) {
+        mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,3,8,0);
+        work->state = 7;
       }
       else {
-        mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
-        *puVar1 = 4;
+        mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,0,8,1);
+        work->state = 4;
       }
     }
     break;
   case 7:
-    finalModel = ((FldActorObject *)puVar1[3])->model;
+    finalModel = ((FldActorObject *)work->actor)->model;
     if (finalModel[0xee] == 1 &&
-       (temp_v3 = mdlGetLayerAnimation((s32)finalModel, 0), temp_v3 != 0)) {
-      mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
+       (animationId = mdlGetLayerAnimation((s32)finalModel, 0), animationId != 0)) {
+      mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,0,8,1);
     }
   
   case 8:
@@ -1085,25 +1102,28 @@ s32 FldNpcControlUpdate(u8 *param_1)
 #pragma opt_propagation off
 // Kept in bucket: diff 8 when moved; cause not diagnosed (pragma replay checked, no explanation found).
 // FUN_0018BEA0
-s32 func_0018bea0(u8 *arg0)
+/* Return whether the actor is turning toward or away from its stored heading. */
+s32 fldNpcControlIsTurning(u8 *task)
 {
-    u8 *p;
-    s32 r;
-    s32 v;
+    u8 *work;
+    s32 result;
+    s32 state;
 
-    p = *(u8 **)(arg0 + 0x38);
-    r = 0;
-    v = *(s32 *)p;
-    if (v == 5) {
-        goto set;
+    work = ((KwlnTask *)task)->work;
+    result = 0;
+    state = ((FldNpcControlWork *)work)->state;
+    /* A structured || test differed by 22 normalized bytes; keep the shared
+     * success/return labels that match the retail branch chain. */
+    if (state == 5) {
+        goto ready;
     }
-    if (v != 6) {
-        goto rest;
+    if (state != 6) {
+        goto done;
     }
-set:
-    r = 1;
-rest:
-    return r;
+ready:
+    result = 1;
+done:
+    return result;
 }
 /* measured: opt_propagation on closes the state-predicate probe. */
 #pragma opt_propagation on
@@ -1147,13 +1167,17 @@ typedef struct MaterialTextureContext {
 #pragma push
 #pragma opt_propagation off
 // Kept in bucket: diff 7 when moved; cause not diagnosed.
+/* Run the support procedure after its delay, then wait for that script to finish. */
 // FUN_0018DDE0
-s32 FldSupporterUpdate(u8 *arg0)
+/* Work is {state, hidden, delay, startFrame, scriptTask} at 0x00..0x10.
+ * Member access produced 360B in the 336B window (normalized_diff 240);
+ * preserve the mixed signed/unsigned byte accesses instead of steering. */
+s32 FldSupporterUpdate(u8 *task)
 {
     u8 *work;
     s32 state;
 
-    work = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(task + 0x38);
     if ((*(s32 *)(work + 4) == 1))
         return 0;
     if (scrGetWorkCount() > 0)
@@ -1225,45 +1249,49 @@ typedef struct {
 #pragma opt_propagation off
 // Kept in bucket: diff 142 when moved; cause not diagnosed.
 // FUN_0018F7B0
-void FldMapTestCellsFill(u8 *arg0, s16 *arg1, u16 arg2, u16 arg3, s16 arg4)
+/* Cells start at grid+0x2C with 0x10-byte columns/0x100-byte rows.
+ * Pattern flags have 3-byte rows, attributes 12-byte rows at +0x32.
+ * Typed cell/pattern traversal kept the 240-byte size but differed by 169
+ * normalized bytes; retain these offset cursors, not allocation steering. */
+void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
 {
-    s32 i;
-    s32 j;
-    s32 one;
-    u8 *data;
-    s32 base;
-    s32 row;
-    s32 flags;
-    s32 source_base;
-    s32 cell;
-    s32 source;
+    s32 rowIndex;
+    s32 columnIndex;
+    s32 occupied;
+    u8 *pattern;
+    s32 originAddress;
+    s32 rowAddress;
+    s32 flagsAddress;
+    s32 sourceRowAddress;
+    s32 cellAddress;
+    s32 sourceAddress;
 
-    data = (u8 *)arg1;
-    one = (arg4 == arg4);
-    base = (arg2) * 0x10 + (((arg3) << 8) + (s32)arg0);
-    *(u8 *)(base + 0x2D) = one;
-    i = 0;
-    while (i < (s32)data[2]) {
-        j = 0;
-        row = base + (i << 8);
-        flags = (s32)data + i * 3;
-        source_base = (s32)data + i * 12;
-        while (j < (s32)data[1]) {
-            cell = row + (j << 4);
-            if (*(u8 *)(cell + 0x2C) == 0) {
-                *(u8 *)(cell + 0x2C) = one;
-                *(u8 *)(cell + 0x2D) |= *(u8 *)(flags + j + 13);
-                source = source_base + (j << 2);
-                *(u8 *)(cell + 0x36) = *(u8 *)(source + 0x32);
-                *(u8 *)(cell + 0x32) = data[1];
-                *(u8 *)(cell + 0x33) = data[2];
-                *(s8 *)(cell + 0x30) = *(s8 *)data;
-                *(u8 *)(cell + 0x31) = arg4;
-                *(u8 *)(cell + 0x37) = *(u8 *)(source + 0x33);
+    pattern = (u8 *)shapeData;
+    occupied = (rotation == rotation);
+    originAddress = (x) * 0x10 + (((y) << 8) + (s32)grid);
+    *(u8 *)(originAddress + 0x2D) = occupied;
+    rowIndex = 0;
+    while (rowIndex < (s32)pattern[2]) {
+        columnIndex = 0;
+        rowAddress = originAddress + (rowIndex << 8);
+        flagsAddress = (s32)pattern + rowIndex * 3;
+        sourceRowAddress = (s32)pattern + rowIndex * 12;
+        while (columnIndex < (s32)pattern[1]) {
+            cellAddress = rowAddress + (columnIndex << 4);
+            if (*(u8 *)(cellAddress + 0x2C) == 0) {
+                *(u8 *)(cellAddress + 0x2C) = occupied;
+                *(u8 *)(cellAddress + 0x2D) |= *(u8 *)(flagsAddress + columnIndex + 13);
+                sourceAddress = sourceRowAddress + (columnIndex << 2);
+                *(u8 *)(cellAddress + 0x36) = *(u8 *)(sourceAddress + 0x32);
+                *(u8 *)(cellAddress + 0x32) = pattern[1];
+                *(u8 *)(cellAddress + 0x33) = pattern[2];
+                *(s8 *)(cellAddress + 0x30) = *(s8 *)pattern;
+                *(u8 *)(cellAddress + 0x31) = rotation;
+                *(u8 *)(cellAddress + 0x37) = *(u8 *)(sourceAddress + 0x33);
             }
-            j += 1;
+            columnIndex += 1;
         }
-        i += 1;
+        rowIndex += 1;
     }
 }
 // measured: restore propagation for following functions

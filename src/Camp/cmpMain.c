@@ -39,7 +39,7 @@ s32 radarPersonaMenuUpdate(u8 *, s32 *, u8 *);
 s32 radarUpdateState(u32 *, s32 *, u8 *);
 s32 cmpSystemMenuUpdate(u32 *, s32 *, u8 *);
 s32 datCommunityMenuStep(u8 *, s32 *, u8 *);
-s32 func_0012d630(u8 *);
+s32 titleSlotUpdateAndDraw(u8 *);
 s32 radarStepSlotAnimA(u8 *);
 s32 cmpSkillMenuUpdate(u8 *);
 s32 datCommunityPanelUpdate(u8 *);
@@ -426,7 +426,7 @@ void cmpMainUpdateMenus(void) {
         renderStateSetters = D_00887300;
         renderStateSetters[0](0xE, 0);
         if (*(s32 *)(work + 0x10) & 1) {
-            result = func_0012d630(work + 0x18);
+            result = titleSlotUpdateAndDraw(work + 0x18);
             if (result != 0) {
                 *(s32 *)(work + 0x10) &= ~1;
             }

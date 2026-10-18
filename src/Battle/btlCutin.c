@@ -1,13 +1,22 @@
+#include "btl_effect_internal.h"
 /* Original translation unit btlCutin.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
+/* Ten-byte request copied by btlCutinCreatePacket; case 0 uses all three
+ * signed resource IDs, while the other cases use ids[0]. */
+typedef struct BtlCutinRequest {
+    u16 kind;
+    s16 ids[3];
+    s16 count;
+} BtlCutinRequest;
+
 extern u8 *iGpffffb3ac;
 extern void mdlEffectDestroyWithNodes();
 extern u8 *btlPacketAlloc();
 extern s32 btlCutinPoll();
 extern void memcpy();
-extern void btlCutinLoad(u8 *arg0);
+extern void btlCutinLoad(u8 *input);
 extern s32 btlCutinLoadStatus();
 extern s32 H_Cdvd_IsFileLoaded();
 extern void H_Cdvd_Destroy();
@@ -23,7 +32,7 @@ extern char D_006251C0[];
 extern char iGpffffa528[8];
 extern const char *iGpffffa530[2];
 extern s16 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s32 arg0);
+extern s32 calGetDayWindowFlags(s32 input);
 extern u32 datGetFlag(s32 bit);
 extern s32 cutinDrawTaskCreate();
 extern s32 sprintf(char *dst, const char *format, ...);
@@ -42,84 +51,88 @@ extern char D_00625160[];
 /* Exact under MWCC b210/O2: evaluate the case-0 count first, use the
    table element directly for the first format call, then retain the
    table-element address for the loop. */
+/* Build cut-in resource paths from the request and day window, then start the required asynchronous loads.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001F9CF0
-void btlCutinLoad(u8 *arg0) {
-    s32 temp_16;
-    s32 temp_5;
-    s32 var_19;
-    char sp60[0x100];
+void btlCutinLoad(u8 *request) {
+    s32 slotOffset;
+    s32 dayWindow;
+    s32 slotIndex;
+    char path[0x100];
 
-    temp_5 = (calGetDayWindowFlags(datGetDateIndex()) & 1) != 0;
-    switch (*(u16 *)arg0) {
+    dayWindow = (calGetDayWindowFlags(datGetDateIndex()) & 1) != 0;
+    switch (*(u16 *)request) {
     case 0: {
         const char **suffix;
         s32 count;
-        count = *(s16 *)(arg0 + 8);
-        sprintf(sp60, D_00625060, count + 1, count + 1, iGpffffa520[temp_5]);
-        suffix = &iGpffffa520[temp_5];
+        count = *(s16 *)(request + 8);
+        sprintf(path, D_00625060, count + 1, count + 1, iGpffffa520[dayWindow]);
+        suffix = &iGpffffa520[dayWindow];
         func_00440b68(iGpffffa528, D_00625090, 0x26);
-        *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
-        var_19 = 0;
-        while (var_19 < count) {
-            temp_16 = var_19 * 4;
-            sprintf(sp60, D_006250A0, count + 1, count + 1,
-                          D_00625050[var_19],
-                          *(s16 *)(arg0 + var_19 * 2 + 2), *suffix);
+        *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+        slotIndex = 0;
+        while (slotIndex < count) {
+            slotOffset = slotIndex * 4;
+            sprintf(path, D_006250A0, count + 1, count + 1,
+                          D_00625050[slotIndex],
+                          *(s16 *)(request + slotIndex * 2 + 2), *suffix);
             func_00440b68(iGpffffa528, D_00625090, 0x2C);
-            *(s32 *)(iGpffffb3ac + temp_16 + 0xB70) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
-            var_19++;
+            *(s32 *)(iGpffffb3ac + slotOffset + 0xB70) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+            slotIndex++;
         }
-        sprintf(sp60, D_006250D0, count + 1, count + 1);
+        sprintf(path, D_006250D0, count + 1, count + 1);
         func_00440b68(iGpffffa528, D_00625090, 0x2F);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     }
     case 2:
-        sprintf(sp60, D_00625100, *(s16 *)(arg0 + 2), iGpffffa520[temp_5]);
+        sprintf(path, D_00625100, *(s16 *)(request + 2), iGpffffa520[dayWindow]);
         func_00440b68(iGpffffa528, D_00625090, 0x35);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     case 4:
-        if (*(s16 *)(arg0 + 2) < 0xB) sprintf(sp60, D_00625130, *(s16 *)(arg0 + 2));
-        else sprintf(sp60, D_00625160, *(s16 *)(arg0 + 2));
+        if (*(s16 *)(request + 2) < 0xB) sprintf(path, D_00625130, *(s16 *)(request + 2));
+        else sprintf(path, D_00625160, *(s16 *)(request + 2));
         func_00440b68(iGpffffa528, D_00625090, 0x40);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     }
-    *(u16 *)(iGpffffb3ac + 0xB50) = *(u16 *)arg0;
+    *(u16 *)(iGpffffb3ac + 0xB50) = *(u16 *)request;
 }
 
 
 
+/* Poll all pending resource handles; build loaded effects unless cancellation is pending, and release each loaded handle.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001F9FA0
 s32 btlCutinLoadStatus(void) {
-    s32 var_18;
-    s32 var_17;
-    s32 temp_16;
+    s32 slotIndex;
+    s32 allLoaded;
+    s32 slotOffset;
 
-    var_17 = 1;
-    for (var_18 = 0; var_18 < 4; var_18++) {
-        u8 *temp_4 = *(u8 **)((u32)var_18 * 4 + (u32)iGpffffb3ac + 0xB6C);
-        if (temp_4 != NULL) {
-            if (H_Cdvd_IsFileLoaded(temp_4) != 0) {
+    allLoaded = 1;
+    for (slotIndex = 0; slotIndex < 4; slotIndex++) {
+        u8 *handle = *(u8 **)((u32)slotIndex * 4 + (u32)iGpffffb3ac + 0xB6C);
+        if (handle != NULL) {
+            if (H_Cdvd_IsFileLoaded(handle) != 0) {
                 if (!(*(s32 *)(iGpffffb3ac + 0xB4C) & 1)) {
-                    temp_16 = var_18 * 4;
-                    *(u8 **)(iGpffffb3ac + temp_16 + 0xB5C) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) + 0x110));
+                    slotOffset = slotIndex * 4;
+                    *(u8 **)(iGpffffb3ac + slotOffset + 0xB5C) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + slotOffset + 0xB6C) + 0x110));
                 }
-                temp_16 = var_18 * 4;
-                H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C));
-                *(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) = 0;
+                slotOffset = slotIndex * 4;
+                H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + slotOffset + 0xB6C));
+                *(u8 **)(iGpffffb3ac + slotOffset + 0xB6C) = 0;
             } else {
-                var_17 = 0;
+                allLoaded = 0;
             }
         }
     }
-    if (var_17 != 0 && H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
-        s32 temp_3_2 = *(s32 *)(iGpffffb3ac + 0xB4C);
-        if (!(temp_3_2 & 1)) {
+    if (allLoaded != 0 && H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
+        s32 flags = *(s32 *)(iGpffffb3ac + 0xB4C);
+        if (!(flags & 1)) {
             *(u8 **)(iGpffffb3ac + 0xB54) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
         } else {
-            *(s32 *)(iGpffffb3ac + 0xB4C) = temp_3_2 & ~1;
+            *(s32 *)(iGpffffb3ac + 0xB4C) = flags & ~1;
         }
         H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + 0xB58));
         *(u8 **)(iGpffffb3ac + 0xB58) = 0;
@@ -128,70 +141,76 @@ s32 btlCutinLoadStatus(void) {
     return 0;
 }
 
+/* Copy the ten-byte cut-in request into a load packet; the packet polls until every resource is ready. */
 // FUN_001FA110
-u8 *btlCutinCreatePacket(u8 *arg0) {
+u8 *btlCutinCreatePacket(u8 *request) {
     u8 *p = btlPacketAlloc(0xC00, 0xA);
 
-    *(u8 *)(p + 0x47) &= 0xEE;
-    *(void **)(p + 0x68) = (void *)btlCutinLoad;
-    *(void **)(p + 0x6C) = (void *)btlCutinLoadStatus;
-    memcpy(*(s32 **)(p + 0x78), arg0, 0xA);
+    ((BtlPacket *)p)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)p)->initFunc = (void *)btlCutinLoad;
+    *(void **)&((BtlPacket *)p)->updateFunc = (void *)btlCutinLoadStatus;
+    memcpy((s32 *)((BtlPacket *)p)->workData, request, 0xA);
     return p;
 }
 
+/* Advance and draw unfinished cut-in effects, destroy completed ones, and report when all are finished.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001FA190
-s32 btlCutinUpdate(s32 *arg0) {
-    u8 *temp_17;
-    s32 temp_19;
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 var_16;
-    s32 var_20;
+s32 btlCutinUpdate(s32 *elapsed) {
+    u8 *savedTable;
+    s32 slotOffset;
+    s32 effect;
+    s32 mainEffect;
+    s32 slotIndex;
+    s32 allFinished;
 
-    var_20 = 1;
-    temp_17 = TnGetTableBase();
+    allFinished = 1;
+    savedTable = TnGetTableBase();
     TnSetTableBase(&D_005DC8CC);
-    for (var_16 = 0; var_16 < 4; var_16++) {
-        temp_4 = *(s32 *)((u32)var_16 * 4 + (u32)iGpffffb3ac + 0xB5C);
-        if (temp_4 != 0) {
-            if (mdlEffectIsFinished(temp_4) == 0) {
-                temp_19 = var_16 * 4;
-                func_00485630(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
-                func_00485870(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
-                var_20 = 0;
+    for (slotIndex = 0; slotIndex < 4; slotIndex++) {
+        effect = *(s32 *)((u32)slotIndex * 4 + (u32)iGpffffb3ac + 0xB5C);
+        if (effect != 0) {
+            if (mdlEffectIsFinished(effect) == 0) {
+                slotOffset = slotIndex * 4;
+                func_00485630(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
+                func_00485870(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
+                allFinished = 0;
             } else {
-                temp_19 = var_16 * 4;
-                mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
-                *(s32 *)(iGpffffb3ac + temp_19 + 0xB5C) = 0;
+                slotOffset = slotIndex * 4;
+                mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
+                *(s32 *)(iGpffffb3ac + slotOffset + 0xB5C) = 0;
             }
         }
     }
-    temp_4_2 = *(s32 *)(iGpffffb3ac + 0xB54);
-    if (temp_4_2 != 0) {
-        if (mdlEffectIsFinished(temp_4_2) == 0) {
+    mainEffect = *(s32 *)(iGpffffb3ac + 0xB54);
+    if (mainEffect != 0) {
+        if (mdlEffectIsFinished(mainEffect) == 0) {
             func_00485630(*(s32 *)(iGpffffb3ac + 0xB54));
             func_00485870(*(s32 *)(iGpffffb3ac + 0xB54));
-            var_20 = 0;
+            allFinished = 0;
         } else {
             mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + 0xB54));
             *(s32 *)(iGpffffb3ac + 0xB54) = 0;
         }
     }
-    TnSetTableBase(temp_17);
-    *arg0 += 1;
-    return var_20;
+    TnSetTableBase(savedTable);
+    *elapsed += 1;
+    return allFinished;
 }
 
+/* Create a polling packet with a zeroed elapsed counter for completion of the active cut-in effects. */
 // FUN_001FA320
 u8 *btlCutinCreateEndPacket(void) {
     u8 *p = btlPacketAlloc(0xC01, 4);
 
-    *(u8 *)(p + 0x47) &= 0xEE;
-    *(void **)(p + 0x6C) = (void *)btlCutinUpdate;
-    **(s32 **)(p + 0x78) = 0;
+    ((BtlPacket *)p)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)p)->updateFunc = (void *)btlCutinUpdate;
+    **(s32 **)&((BtlPacket *)p)->workData = 0;
     return p;
 }
 
+/* Cancel unfinished loads or destroy loaded cut-in effects; pending loads are marked for discard when they complete.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001FA370
 s32 btlCutinPoll(void) {
     s32 i;
@@ -227,48 +246,50 @@ s32 btlCutinPoll(void) {
     return 1;
 }
 
+/* Queue the cut-in cancellation callback in a zero-work packet. */
 // FUN_001FA450
 void btlCutinCreateStartPacket(void) {
     u8 *p = btlPacketAlloc(0xC02, 0);
 
-    *(u8 *)(p + 0x47) &= 0xEE;
-    *(void **)(p + 0x6C) = (void *)btlCutinPoll;
+    ((BtlPacket *)p)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)p)->updateFunc = (void *)btlCutinPoll;
 }
 
+/* Load the requested cut-in name resource, or create the special draw task from date and flag-dependent parameters. */
 // FUN_001FA490
-void btlCutinSetupName(u8 *arg0) {
-    struct { s16 a; s16 b; } sp12;
-    char sp20[0x10C];
-    s32 temp_5;
-    u16 temp_4;
+void btlCutinSetupName(u8 *request) {
+    struct { s16 a; s16 b; } drawParams;
+    char path[0x10C];
+    s32 dayWindow;
+    u16 kind;
 
-    temp_5 = (calGetDayWindowFlags(datGetDateIndex()) & 1) != 0;
-    temp_4 = *(u16 *)arg0;
-    switch (temp_4) {
+    dayWindow = (calGetDayWindowFlags(datGetDateIndex()) & 1) != 0;
+    kind = ((BtlCutinRequest *)request)->kind;
+    switch (kind) {
     case 1:
-        sprintf(sp20, D_00625190, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
+        sprintf(path, D_00625190, ((BtlCutinRequest *)request)->ids[0], iGpffffa530[dayWindow]);
         func_00440b68(iGpffffa528, D_00625090, 0x152);
-        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp20, 0);
+        *(s32 *)&((BtlBattleState *)iGpffffb3ac)->cutinNameHandle = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     case 3:
-        sprintf(sp20, D_006251C0, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
+        sprintf(path, D_006251C0, ((BtlCutinRequest *)request)->ids[0], iGpffffa530[dayWindow]);
         func_00440b68(iGpffffa528, D_00625090, 0x158);
-        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp20, 0);
+        *(s32 *)&((BtlBattleState *)iGpffffb3ac)->cutinNameHandle = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     case 5:
         if (datGetFlag(0x38) != 0) {
-            sp12.a = 5;
+            drawParams.a = 5;
             if (calGetDayWindowFlags(datGetDateIndex()) & 1) {
-                sp12.b = 0x1E;
+                drawParams.b = 0x1E;
             } else {
-                sp12.b = 0x14;
+                drawParams.b = 0x14;
             }
         } else {
-            sp12.a = 8;
-            sp12.b = 0x1E;
+            drawParams.a = 8;
+            drawParams.b = 0x1E;
         }
-        *(s32 *)(iGpffffb3ac + 0xB88) = cutinDrawTaskCreate(*(s32 *)(iGpffffb3ac + 0xDC8), *(s32 *)&sp12);
+        ((BtlBattleState *)iGpffffb3ac)->cutinNameTask = cutinDrawTaskCreate(((BtlBattleState *)iGpffffb3ac)->cutinTaskParent, *(s32 *)&drawParams);
         break;
     }
-    *(u16 *)(iGpffffb3ac + 0xB7C) = *(u16 *)arg0;
+    ((BtlBattleState *)iGpffffb3ac)->cutinNameKind = ((BtlCutinRequest *)request)->kind;
 }

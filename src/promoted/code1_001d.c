@@ -33,7 +33,7 @@ extern void mdlDestroyModelObject(s32 arg0);
 extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void btlFormationSetPlacement(s32 arg0);
-extern void func_001d6910(u8 *arg0);
+extern void btlEffectReleaseNode(u8 *arg0);
 extern void btlEffectReleaseAllPlacements(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;

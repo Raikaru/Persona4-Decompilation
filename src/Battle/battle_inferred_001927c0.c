@@ -108,7 +108,7 @@ extern void func_00194660(void);
 extern void btlCameraInitSystem(void);
 extern void btlSoundResetSlotQueue(void);
 extern void btlVoiceResetPlaybackState(void);
-extern void func_001d6a60(void);
+extern void btlEffectInitializeNodeSystem(void);
 extern void btlActionResetQueueState(void);
 extern void btlMainReset(void);
 extern void btlSoundResetPlaybackState(void);
@@ -327,7 +327,7 @@ void btlInit(void)
     btlCameraInitSystem();
     btlSoundResetSlotQueue();
     btlVoiceResetPlaybackState();
-    func_001d6a60();
+    btlEffectInitializeNodeSystem();
     btlActionResetQueueState();
     btlMainReset();
     btlSoundResetPlaybackState();

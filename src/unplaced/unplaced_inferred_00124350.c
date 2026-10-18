@@ -70,7 +70,7 @@ extern s32 func_004669d0(s32 , s32 *, s32 );
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern u8 D_005E5720[];
-extern s32 func_0012aa70(u8 *);
+extern s32 titleTaskUpdate(u8 *);
 extern void titleLoaderTeardown(u8 *task);
 extern void sdkSpritePackDestroy(s32 );
 extern void H_Cdvd_Destroy(s32 );
@@ -958,7 +958,7 @@ s32 titleStartLoader(void)
     if (context == NULL)
         kAssertFail(D_005E5548, 0x729);
     ((TitleScene *)context)->complete = 0;
-    kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, titleLoaderTeardown, (u8 *)(context));
+    kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, titleTaskUpdate, titleLoaderTeardown, (u8 *)(context));
 }
 #pragma pop
 

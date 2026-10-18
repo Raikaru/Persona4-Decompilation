@@ -1,3 +1,5 @@
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,7 +9,6 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
 typedef signed __int128 s128;
 typedef struct P4Vec4_001EC2B0 {
     f32 x;
@@ -45,7 +46,7 @@ extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 D_00724504;
 extern s32 btlAICommandSelectCandidates();
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32 input);
 extern u8 *btlEffectFindUnitByIdAndStatus();
 extern u8 *btlAICommandPickUnitByHpWeight();
 
@@ -61,7 +62,7 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32 input);
 
 
 
@@ -84,14 +85,15 @@ extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern u8 D_00609E40[];
-extern s32 datCalcGetHp(s32 arg0);
-extern s32 datCalcIsDead(s32 arg0, s32 arg1);
+extern s32 datCalcGetHp(s32 input);
+extern s32 datCalcIsDead(s32 input, s32 value);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e6d20-001e6ea0 */
 
 /* AI script command 0x207b (p4flow AI.json AI_FUNCTION_007B). */
+/* Resolve kind 0 or 1 to its fixed side/status search and publish the matching action ID; retail assumes a result. */
 // FUN_001E6D20
 s32 btlEffectScriptPickUnitByKind(void) {
     s32 first;
@@ -111,11 +113,13 @@ s32 btlEffectScriptPickUnitByKind(void) {
         result = btlEffectFindUnitByIdAndStatus(second, 2, 0x80000);
         break;
     }
-    scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
+    scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
     return 1;
 }
 
 /* AI script command 0x207c (p4flow AI.json AI_FUNCTION_007C). */
+/* Find the lowest-current-HP living genus-1 action and publish its encoded ID; retail assumes one exists.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001E6DC0
 s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
     u8 *current;
@@ -134,7 +138,7 @@ s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
             entry = *(u8 **)(current + 0x30);
             if (*(u8 *)(entry + 0xA2) == 1 &&
                 datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
-                value = datCalcGetHp(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF;
+                value = datCalcGetHp((s32)((BtlAction *)current)->unit->datUnit) & 0xFFFF;
                 if (value < min) {
                     best = current;
                     min = value;
@@ -148,6 +152,8 @@ s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
 }
 
 /* AI script command 0x207d (p4flow AI.json AI_FUNCTION_007D). */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E6EA0
 s32 btlEffectScriptPickWeakCandidateUnit(void) {
     u8 *work;
@@ -158,7 +164,7 @@ s32 btlEffectScriptPickWeakCandidateUnit(void) {
     work = scrGetAiState();
     flags = scrGetParamInt(0);
     if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
-        count = *(u16 *)(work + 0x6A);
+        count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
@@ -167,7 +173,7 @@ s32 btlEffectScriptPickWeakCandidateUnit(void) {
             } else {
                 result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
             }
-            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
+            scrSetReturnInt((s32)((BtlAction *)result)->id | 0x80000000);
         }
     } else {
         scrSetReturnInt(-1);

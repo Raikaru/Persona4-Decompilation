@@ -21,7 +21,7 @@ extern void func_00122640(s32, s32);
 extern s32 fadeStatus(void);
 extern s32 titleFileLoadStep(u8 *task);
 extern void titleLoaderDestroy(u8 *task);
-extern void func_0012b9a0(void);
+extern void titleDrawChildImage(void);
 extern void *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -159,7 +159,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         break;
     }
     temp_2_7 = PrimAllocQueueNode();
-    *(s32 *)((u8 *)temp_2_7 + 8) = (s32)func_0012b9a0;
+    *(s32 *)((u8 *)temp_2_7 + 8) = (s32)titleDrawChildImage;
     *(s32 **)((u8 *)temp_2_7 + 0x10) = (s32 *)arg0;
     PrimAppendNode(&D_00795E60, temp_2_7);
     return 0;
