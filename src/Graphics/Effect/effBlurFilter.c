@@ -8,18 +8,10 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 
 /* Defined below in this file; called above its definition. */
-extern u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1);
+extern u8 *effBlurFilterCreateRefObj(u16 *object, u16 slot);
 
 extern char D_00714380[];
-extern u8 D_00714394[];
-extern u8 D_00714398[];
-extern u8 D_0071439C[];
-extern u8 D_007143A0[];
 extern char D_00714450[];
-extern u8 D_00714464[];
-extern u8 D_00714468[];
-extern u8 D_0071446C[];
-extern u8 D_00714470[];
 
 extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
@@ -33,35 +25,228 @@ extern void mdlEffectEmitValuePacket(s64 arg);
 extern void mdlEffectEmitSlotPacket(void);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, void *arg1);
-extern void func_004a8250(u8 *arg0, void *arg1);
-extern void func_004a8440(u8 *arg0, void *arg1);
-extern void func_004a86c0(u8 *arg0, void *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *object, void *slot);
+extern void func_004a8250(u8 *object, void *slot);
+extern void func_004a8440(u8 *object, void *slot);
+extern void func_004a86c0(u8 *object, void *slot);
 extern void PrimAppendNode(s32 param, void *work);
 extern s32 TnGetOffset38(u16 param);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
 extern f32 fGpffff80f8;
-extern void func_004a8a50(u8 *arg0, u8 *arg1);
-extern void effBlurFilterSpawnSlot(u8 *arg0, u8 *arg1);
-extern void func_004a8890(u8 *arg0, s32 *arg1);
+extern void func_004a8a50(u8 *object, u8 *slot);
+extern void effBlurFilterSpawnSlot(u8 *object, u8 *slot);
+extern void func_004a8890(u8 *object, s32 *slot);
 extern s32 TnUploadStreamTagged(void *ptr);
 extern s32 TnSlotObject(u16 param);
+extern u8 D_00714394[];
+extern u8 D_00714398[];
+extern u8 D_0071439C[];
+extern u8 D_007143A0[];
+extern u8 D_00714464[];
+extern u8 D_00714468[];
+extern u8 D_0071446C[];
+extern u8 D_00714470[];
+extern u8 D_00714474[];
 extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
-extern u8 D_00714474[];
 
-typedef struct BlurRefObj {
-    s32 f0;
-    s32 f4;
-} BlurRefObj;
+/* Layouts follow the node constructors (0x60 bytes), slot stride (0x34)
+ * and configuration readers. Mode-dependent integer, float and alpha-byte
+ * representations share unions; unknown resource spans stay uninterpreted. */
+typedef struct BlurFilterParameters {
+    union {
+        s32 signedValue;
+        s8 signedByte[4];
+        u32 unsignedValue;
+    } unk00; /* +0x00 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+        s8 signedByte[4];
+    } unk04; /* +0x04 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk08; /* +0x08 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+        s8 signedByte[4];
+    } unk0C; /* +0x0C */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk10; /* +0x10 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk14; /* +0x14 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk18; /* +0x18 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk1C; /* +0x1C */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk20; /* +0x20 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk24; /* +0x24 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk28; /* +0x28 */
+    f32 unk2C; /* +0x2C */
+    f32 unk30; /* +0x30 */
+} BlurFilterParameters;
 
-extern void *effBlurFilterRetainRefObj(BlurRefObj *param_1);
-extern void effBlurFilterReleaseRefObj(void *param_1);
+typedef struct BlurFilterSlot {
+    union {
+        f32 scalar;
+        s32 signedValue;
+        u32 unsignedValue;
+    } unk00; /* +0x00 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } unk04; /* +0x04 */
+    u8 pad08[0x4];
+    union {
+        s32 signedValue;
+        u8 byte[4];
+    } unk0C; /* +0x0C */
+    s32 unk10; /* +0x10 */
+    f32 unk14; /* +0x14 */
+    f32 unk18; /* +0x18 */
+    f32 unk1C; /* +0x1C */
+    f32 unk20; /* +0x20 */
+    f32 unk24; /* +0x24 */
+    f32 unk28; /* +0x28 */
+    f32 unk2C; /* +0x2C */
+    f32 unk30; /* +0x30 */
+} BlurFilterSlot;
 
-extern f32 sinf(f32 fparg0);
+typedef struct BlurFilterQuad {
+    u8 pad00[0x14];
+    f32 unk14; /* +0x14 */
+    f32 unk18; /* +0x18 */
+    f32 unk1C; /* +0x1C */
+    f32 unk20; /* +0x20 */
+    f32 unk24; /* +0x24 */
+    f32 unk28; /* +0x28 */
+} BlurFilterQuad;
+
+typedef struct BlurFilterNode {
+    u8 pad00[0x10];
+    s32 color; /* +0x10 */
+    union {
+        f32 scalar;
+        s32 signedValue;
+    } scale; /* +0x14 */
+    union {
+        s32 signedValue;
+        u16 half[2];
+    } kind; /* +0x18 */
+    s32 elapsed; /* +0x1C */
+    union {
+        s32 signedValue;
+        u8 * bytes;
+        void * pointer;
+    } slots; /* +0x20 */
+    union {
+        const void * constPointer;
+        u8 * bytes;
+    } configuration; /* +0x24 */
+    union {
+        s32 signedValue;
+        u8 * bytes;
+        void * pointer;
+    } reference; /* +0x28 */
+    s32 nodeNext; /* +0x2C */
+    s32 nodePrevious; /* +0x30 */
+    u8 pad34[0x10];
+    s16 tag; /* +0x44 */
+    u8 pad46[0x2];
+    u8 * owner; /* +0x48 */
+    u8 pad4C[0x14];
+} BlurFilterNode;
+
+typedef struct BlurFilterConfiguration {
+    u8 pad00[0x28];
+    union {
+        s32 signedValue;
+        u16 half[2];
+    } resourceId; /* +0x28 */
+    u8 pad2C[0x8C];
+    s32 duration; /* +0xB8 */
+    u8 screenSpace; /* +0xBC */
+    u8 padBD[0x3];
+    union {
+        u8 byte[4];
+    } unkC0; /* +0xC0 */
+    union {
+        u8 byte[4];
+    } unkC4; /* +0xC4 */
+    f32 unkC8; /* +0xC8 */
+    union {
+        s32 signedValue;
+        u8 byte[4];
+    } unkCC; /* +0xCC */
+    s32 unkD0; /* +0xD0 */
+    f32 unkD4; /* +0xD4 */
+} BlurFilterConfiguration;
+
+typedef struct BlurFilterRef {
+    s32 kind; /* +0x00 */
+    s32 references; /* +0x04 */
+    union {
+        s32 signedValue;
+        s32 * words;
+        u8 * bytes;
+        void * pointer;
+    } resource; /* +0x08 */
+} BlurFilterRef;
+
+/* Six-word descriptors: initializer, destructor, tick, draw, reference
+ * flag and copied-data byte count. The D_... labels below name their columns. */
+typedef struct BlurFilterType {
+    u32 initialize;
+    u32 destroy;
+    u32 update;
+    u32 draw;
+    s8 usesReference;
+    u8 pad11[3];
+    s32 dataBytes;
+} BlurFilterType;
+
+/* These linker labels point into descriptor columns, not separate
+ * allocations. Each column repeats at the descriptor's 0x18-byte stride;
+ * using its own alias preserves the retail symbol-relative load immediate. */
+typedef struct BlurFilterCallbackEntry {
+    u32 callback;
+    u8 pad04[0x14];
+} BlurFilterCallbackEntry;
+typedef struct BlurFilterFlagEntry {
+    s8 usesReference;
+    u8 pad01[0x17];
+} BlurFilterFlagEntry;
+typedef struct BlurFilterSizeEntry {
+    s32 dataBytes;
+    u8 pad04[0x14];
+} BlurFilterSizeEntry;
+
+extern void *effBlurFilterRetainRefObj(BlurFilterRef *object);
+extern void effBlurFilterReleaseRefObj(void *object);
+
+extern f32 sinf(f32 scalar);
 extern s32 fptodp(f32 a);
 extern s32 func_0044b310(s32 a);
 extern s32 dpsub(s64 a, s32 b);
@@ -94,23 +279,23 @@ extern void effBlurFilterAdvanceSlots(u8 *a, u8 *b);
 // Ticks a blur slot table with the first alpha ramp (fGpffff8018 and fGpffff8020 constants).
 // FUN_004A8BB0
 void effBlurFilterTickSlotsA(u8 *a, u8 *b) {
-    int *param_1 = (int *)a;
-    float *param_2 = (float *)b;
-    int iVar4;
-    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } uVar2;
-    int iVar1;
-    float fVar6;
+    BlurFilterParameters *parameters = (BlurFilterParameters *)a;
+    BlurFilterSlot *slot = (BlurFilterSlot *)b;
+    int slotIndex;
+    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } color;
+    int slotCount;
+    float wave;
     float alphaF;
-    float temp_f1;
+    float fadedAlpha;
     u32 alpha;
-    s32 var_4;
+    s32 alphaByte;
 
-    iVar1 = *param_1;
-    if (!(iVar1 <= 0x64)) {
+    slotCount = parameters->unk00.signedValue;
+    if (!(slotCount <= 0x64)) {
         kAssertFail(D_00714380, 0x190);
     }
-    uVar2.packed = (u32)param_1[3];
-    alpha = (u32)uVar2.rgba.a;
+    color.packed = (u32)parameters->unk0C.signedValue;
+    alpha = (u32)color.rgba.a;
     if (alpha >= 0) {
         alphaF = (float)alpha;
     } else {
@@ -119,34 +304,34 @@ void effBlurFilterTickSlotsA(u8 *a, u8 *b) {
         alphaF += alphaF;
     }
 
-    for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
-        if (((int *)param_2)[0] == 0) {
+    for (slotIndex = 0; slotIndex < slotCount; slotIndex = slotIndex + 1) {
+        if (slot->unk00.signedValue == 0) {
             float threshold;
-            if (!(param_2[1] <= fGpffff8084)) {
-                func_004a8a50(a, (u8 *)param_2);
+            if (!(slot->unk04.scalar <= fGpffff8084)) {
+                func_004a8a50(a, (u8 *)slot);
             }
-            fVar6 = sinf(param_2[1]);
-            param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
-            temp_f1 = alphaF * dptofp(func_0044e168(fGpffff8018, dpsub(fGpffff8020, func_0044b310(fptodp(param_2[1])))));
+            wave = sinf(slot->unk04.scalar);
+            slot->unk18 = 1.0f + parameters->unk18.scalar * wave;
+            fadedAlpha = alphaF * dptofp(func_0044e168(fGpffff8018, dpsub(fGpffff8020, func_0044b310(fptodp(slot->unk04.scalar)))));
             threshold = 2.1474836e9f;
-            if (threshold <= temp_f1) {
+            if (threshold <= fadedAlpha) {
                 goto alpha_big;
             }
-            var_4 = (s32)temp_f1;
-            var_4 &= 0xFF;
+            alphaByte = (s32)fadedAlpha;
+            alphaByte &= 0xFF;
             goto alpha_done;
         alpha_big:
-            var_4 = (s32)(temp_f1 - threshold);
-            var_4 |= 0x80000000;
-            var_4 &= 0xFF;
+            alphaByte = (s32)(fadedAlpha - threshold);
+            alphaByte |= 0x80000000;
+            alphaByte &= 0xFF;
         alpha_done:
-            *((u8 *)param_2 + 0xF) = (u8)var_4;
-            param_2[1] = param_2[1] + ((float *)param_1)[2];
+            slot->unk0C.byte[3] = (u8)alphaByte;
+            slot->unk04.scalar = slot->unk04.scalar + parameters->unk08.scalar;
         } else {
-            *((u8 *)param_2 + 0xF) = 0;
-            ((int *)param_2)[0] = ((int *)param_2)[0] - 1;
+            slot->unk0C.byte[3] = 0;
+            slot->unk00.signedValue = slot->unk00.signedValue - 1;
         }
-        param_2 = param_2 + 0x34 / 4;
+        slot = slot + 1;
     }
 }
 /* measured: closes effBlurFilterTickSlotsA O1 bracket; restore O2 for the next function. */
@@ -171,37 +356,37 @@ extern f32 fGpffff80cc;
    statement orders tried. FMA-CSE fusion floor. */
 // Spawns one blur slot: random index, random jitter and sine/cosine offsets from the object parameters.
 // FUN_004A8DA0
-void effBlurFilterSpawnSlot(u8 *arg0, u8 *arg1) {
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 temp_f21;
-    f32 temp_f20;
-    u8 *temp_16;
+void effBlurFilterSpawnSlot(u8 *object, u8 *slot) {
+    f32 centerY;
+    f32 angle;
+    f32 centerX;
+    f32 halfSize;
+    u8 *drawData;
 
-    *(u32 *)arg1 = effMiscRand(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
-    *(f32 *)(arg1 + 4) = fGpffff80f4;
-    temp_16 = arg1 + 8;
-    *(s32 *)(arg1 + 0x10) = *(s32 *)(arg0 + 0x10);
-    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg0 + 0x14);
-    *(s32 *)(arg1 + 0xC) = *(s32 *)(arg0 + 0xC);
-    temp_f20 = 0.5f * (f32)*(s32 *)(arg0 + 0x28);
-    temp_f22 = fGpffff8084 * (2.0f * (effMiscRandFloat(0) - 0.5f));
-    temp_f21 = *(f32 *)(arg0 + 0x30);
-    temp_f21 = temp_f21 + (810.0f - temp_f20 - temp_f21) * effMiscRandFloat(0);
-    temp_f21 = (f32)(0.5f * temp_f21);
-    temp_f23 = *(f32 *)(arg0 + 0x2C);
-    temp_f23 = temp_f23 + (650.0f - temp_f20 - temp_f23) * effMiscRandFloat(0);
-    temp_f23 = (f32)(0.5f * temp_f23);
-    temp_f21 = temp_f21 + fGpffff80cc * temp_f20;
-    temp_f23 = temp_f23 + fGpffff80cc * temp_f20;
-    temp_f21 = *(f32 *)(arg0 + 0x1C) + temp_f21 * cosf(temp_f22);
-    temp_f23 = *(f32 *)(arg0 + 0x20) + temp_f23 * sinf(temp_f22);
-    *(f32 *)(temp_16 + 0x14) = temp_f21;
-    *(f32 *)(temp_16 + 0x18) = temp_f23;
-    *(f32 *)(temp_16 + 0x1C) = temp_f21 - temp_f20;
-    *(f32 *)(temp_16 + 0x20) = temp_f23 - temp_f20;
-    *(f32 *)(temp_16 + 0x24) = temp_f21 + temp_f20;
-    *(f32 *)(temp_16 + 0x28) = temp_f23 + temp_f20;
+    ((BlurFilterSlot *)slot)->unk00.unsignedValue = effMiscRand(0) % (u32)(((BlurFilterParameters *)object)->unk04.signedValue + 1);
+    ((BlurFilterSlot *)slot)->unk04.scalar = fGpffff80f4;
+    drawData = slot + 8;
+    ((BlurFilterSlot *)slot)->unk10 = ((BlurFilterParameters *)object)->unk10.signedValue;
+    ((BlurFilterSlot *)slot)->unk14 = ((BlurFilterParameters *)object)->unk14.scalar;
+    ((BlurFilterSlot *)slot)->unk0C.signedValue = ((BlurFilterParameters *)object)->unk0C.signedValue;
+    halfSize = 0.5f * (f32)((BlurFilterParameters *)object)->unk28.signedValue;
+    angle = fGpffff8084 * (2.0f * (effMiscRandFloat(0) - 0.5f));
+    centerX = ((BlurFilterParameters *)object)->unk30;
+    centerX = centerX + (810.0f - halfSize - centerX) * effMiscRandFloat(0);
+    centerX = (f32)(0.5f * centerX);
+    centerY = ((BlurFilterParameters *)object)->unk2C;
+    centerY = centerY + (650.0f - halfSize - centerY) * effMiscRandFloat(0);
+    centerY = (f32)(0.5f * centerY);
+    centerX = centerX + fGpffff80cc * halfSize;
+    centerY = centerY + fGpffff80cc * halfSize;
+    centerX = ((BlurFilterParameters *)object)->unk1C.scalar + centerX * cosf(angle);
+    centerY = ((BlurFilterParameters *)object)->unk20.scalar + centerY * sinf(angle);
+    ((BlurFilterQuad *)drawData)->unk14 = centerX;
+    ((BlurFilterQuad *)drawData)->unk18 = centerY;
+    ((BlurFilterQuad *)drawData)->unk1C = centerX - halfSize;
+    ((BlurFilterQuad *)drawData)->unk20 = centerY - halfSize;
+    ((BlurFilterQuad *)drawData)->unk24 = centerX + halfSize;
+    ((BlurFilterQuad *)drawData)->unk28 = centerY + halfSize;
 }
 
 /* measured: cluster transfer from effBlurFilterTickSlotsA - changing only the assert
@@ -214,23 +399,23 @@ void effBlurFilterSpawnSlot(u8 *arg0, u8 *arg1) {
 // Ticks a blur slot table with the second alpha ramp (fGpffff8018 and fGpffff8010 constants).
 // FUN_004A8F90
 void effBlurFilterTickSlotsB(u8 *a, u8 *b) {
-    int *param_1 = (int *)a;
-    float *param_2 = (float *)b;
-    int iVar4;
-    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } uVar2;
-    int iVar1;
-    float fVar6;
+    BlurFilterParameters *parameters = (BlurFilterParameters *)a;
+    BlurFilterSlot *slot = (BlurFilterSlot *)b;
+    int slotIndex;
+    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } color;
+    int slotCount;
+    float wave;
     float alphaF;
-    float temp_f1;
+    float fadedAlpha;
     u32 alpha;
-    s32 var_4;
+    s32 alphaByte;
 
-    iVar1 = *param_1;
-    if (!(iVar1 <= 0x64)) {
+    slotCount = parameters->unk00.signedValue;
+    if (!(slotCount <= 0x64)) {
         kAssertFail(D_00714380, 575);
     }
-    uVar2.packed = (u32)param_1[3];
-    alpha = (u32)uVar2.rgba.a;
+    color.packed = (u32)parameters->unk0C.signedValue;
+    alpha = (u32)color.rgba.a;
     if (alpha >= 0) {
         alphaF = (float)alpha;
     } else {
@@ -239,34 +424,34 @@ void effBlurFilterTickSlotsB(u8 *a, u8 *b) {
         alphaF += alphaF;
     }
 
-    for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
-        if (((int *)param_2)[0] == 0) {
+    for (slotIndex = 0; slotIndex < slotCount; slotIndex = slotIndex + 1) {
+        if (slot->unk00.signedValue == 0) {
             float threshold;
-            if (!(param_2[1] <= fGpffff8084)) {
-                effBlurFilterSpawnSlot(a, (u8 *)param_2);
+            if (!(slot->unk04.scalar <= fGpffff8084)) {
+                effBlurFilterSpawnSlot(a, (u8 *)slot);
             }
-            fVar6 = sinf(param_2[1]);
-            param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
-            temp_f1 = alphaF * dptofp(func_0044e168(fGpffff8018, dpsub(fGpffff8010, func_0044b310(fptodp(param_2[1])))));
+            wave = sinf(slot->unk04.scalar);
+            slot->unk18 = 1.0f + parameters->unk18.scalar * wave;
+            fadedAlpha = alphaF * dptofp(func_0044e168(fGpffff8018, dpsub(fGpffff8010, func_0044b310(fptodp(slot->unk04.scalar)))));
             threshold = 2.1474836e9f;
-            if (threshold <= temp_f1) {
+            if (threshold <= fadedAlpha) {
                 goto alpha_big;
             }
-            var_4 = (s32)temp_f1;
-            var_4 &= 0xFF;
+            alphaByte = (s32)fadedAlpha;
+            alphaByte &= 0xFF;
             goto alpha_done;
         alpha_big:
-            var_4 = (s32)(temp_f1 - threshold);
-            var_4 |= 0x80000000;
-            var_4 &= 0xFF;
+            alphaByte = (s32)(fadedAlpha - threshold);
+            alphaByte |= 0x80000000;
+            alphaByte &= 0xFF;
         alpha_done:
-            *((u8 *)param_2 + 0xF) = (u8)var_4;
-            param_2[1] = param_2[1] + ((float *)param_1)[2];
+            slot->unk0C.byte[3] = (u8)alphaByte;
+            slot->unk04.scalar = slot->unk04.scalar + parameters->unk08.scalar;
         } else {
-            *((u8 *)param_2 + 0xF) = 0;
-            ((int *)param_2)[0] = ((int *)param_2)[0] - 1;
+            slot->unk0C.byte[3] = 0;
+            slot->unk00.signedValue = slot->unk00.signedValue - 1;
         }
-        param_2 = param_2 + 0x34 / 4;
+        slot = slot + 1;
     }
 }
 /* measured: closes effBlurFilterTickSlotsB O1 bracket; restore O2 for the next function. */
@@ -274,22 +459,22 @@ void effBlurFilterTickSlotsB(u8 *a, u8 *b) {
 // Advances a slot table in place with 13-word slots, fading alpha by the slot fraction.
 // FUN_004A9180
 void effBlurFilterAdvanceSlots(u8 *a, u8 *b) {
-    int *param_1 = (int *)a;
-    float *param_2 = (float *)b;
-    int iVar1;
-    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } uVar2;
-    int iVar4;
-    int iVar5;
-    float fVar6;
-    int iVar7;
-    float fVar8;
+    BlurFilterParameters *parameters = (BlurFilterParameters *)a;
+    BlurFilterSlot *slot = (BlurFilterSlot *)b;
+    int slotCount;
+    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } color;
+    int slotIndex;
+    int centerY;
+    float wave;
+    int radius;
+    float fraction;
     float alphaF;
-    int iVar9;
+    int centerX;
     u32 alpha;
 
-    iVar1 = *param_1;
-    uVar2.packed = (u32)param_1[3];
-    alpha = (u32)uVar2.rgba.a;
+    slotCount = parameters->unk00.signedValue;
+    color.packed = (u32)parameters->unk0C.signedValue;
+    alpha = (u32)color.rgba.a;
     if (alpha >= 0) {
         alphaF = (float)alpha;
     } else {
@@ -298,45 +483,45 @@ void effBlurFilterAdvanceSlots(u8 *a, u8 *b) {
         alphaF += alphaF;
     }
 
-    for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
-        if (!(*param_2 < 0.0f)) {
-            fVar6 = sinf(param_2[1]);
-            param_2[6] = ((float *)param_1)[6] * fVar6 * (1.0f - *param_2) + 1.0f;
-            ((int *)param_2)[3] = param_1[3];
-            fVar6 = alphaF * (1.0f - *param_2);
-            *((u8 *)param_2 + 0xf) = (u8)(u32)fVar6;
-            iVar7 = (int)((float)param_1[10] * *param_2);
-            iVar9 = (int)((float *)param_1)[8];
-            iVar5 = (int)((float *)param_1)[9];
-            param_2[7] = (float)iVar9;
-            param_2[8] = (float)iVar5;
-            param_2[9] = (float)(iVar9 - iVar7);
-            param_2[10] = (float)(iVar5 - iVar7);
-            param_2[0xb] = (float)(iVar9 + iVar7);
-            param_2[0xc] = (float)(iVar5 + iVar7);
-            param_2[1] = param_2[1] + ((float *)param_1)[7];
-            fVar6 = ((float *)param_1)[1];
-            fVar8 = *param_2;
-            *param_2 = fVar8 + fVar6;
-            if (!(fVar8 + fVar6 <= 1.0f)) {
-                param_2[1] = 0.0f;
-                *param_2 = 0.0f;
-                ((int *)param_2)[4] = param_1[4];
-                param_2[5] = ((float *)param_1)[5];
+    for (slotIndex = 0; slotIndex < slotCount; slotIndex = slotIndex + 1) {
+        if (!(slot->unk00.scalar < 0.0f)) {
+            wave = sinf(slot->unk04.scalar);
+            slot->unk18 = parameters->unk18.scalar * wave * (1.0f - slot->unk00.scalar) + 1.0f;
+            slot->unk0C.signedValue = parameters->unk0C.signedValue;
+            wave = alphaF * (1.0f - slot->unk00.scalar);
+            slot->unk0C.byte[3] = (u8)(u32)wave;
+            radius = (int)((float)parameters->unk28.signedValue * slot->unk00.scalar);
+            centerX = (int)parameters->unk20.scalar;
+            centerY = (int)parameters->unk24.scalar;
+            slot->unk1C = (float)centerX;
+            slot->unk20 = (float)centerY;
+            slot->unk24 = (float)(centerX - radius);
+            slot->unk28 = (float)(centerY - radius);
+            slot->unk2C = (float)(centerX + radius);
+            slot->unk30 = (float)(centerY + radius);
+            slot->unk04.scalar = slot->unk04.scalar + parameters->unk1C.scalar;
+            wave = parameters->unk04.scalar;
+            fraction = slot->unk00.scalar;
+            slot->unk00.scalar = fraction + wave;
+            if (!(fraction + wave <= 1.0f)) {
+                slot->unk04.scalar = 0.0f;
+                slot->unk00.scalar = 0.0f;
+                slot->unk10 = parameters->unk10.signedValue;
+                slot->unk14 = parameters->unk14.scalar;
             }
         }
         else {
-            *param_2 = *param_2 + ((float *)param_1)[1];
+            slot->unk00.scalar = slot->unk00.scalar + parameters->unk04.scalar;
         }
-        param_2 = param_2 + 0xd;
+        slot = slot + 1;
     }
 }
 // Refreshes the screen-rect block: default constants on first use, then recomputed from the tracker, with the flag byte cleared below the threshold.
 // FUN_004A93D0
-void effBlurFilterUpdateScreenRect(u8 *arg0) {
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
+void effBlurFilterUpdateScreenRect(u8 *object) {
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *base;
     u8 *obj;
     s32 a;
@@ -345,27 +530,27 @@ void effBlurFilterUpdateScreenRect(u8 *arg0) {
     s32 *pt;
     f32 scale;
 
-    obj = *(u8 **)(arg0 + 0x24);
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (b == 0) {
-        *(s32 *)(base + 0x10) = 0x43A00000;
-        *(s32 *)(base + 0x14) = 0x43600000;
-        *(s32 *)(base + 0x18) = 0;
-        *(s32 *)(base + 0x1C) = 0;
-        *(s32 *)(base + 0x20) = 0x44200000;
-        *(s32 *)(base + 0x24) = 0x43E00000;
-        *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
+        ((BlurFilterParameters *)base)->unk10.signedValue = 0x43A00000;
+        ((BlurFilterParameters *)base)->unk14.signedValue = 0x43600000;
+        ((BlurFilterParameters *)base)->unk18.signedValue = 0;
+        ((BlurFilterParameters *)base)->unk1C.signedValue = 0;
+        ((BlurFilterParameters *)base)->unk20.signedValue = 0x44200000;
+        ((BlurFilterParameters *)base)->unk24.signedValue = 0x43E00000;
+        ((BlurFilterParameters *)base)->unk04.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
     }
     if (a >= b) {
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp6C = *(s32 *)(arg0 + 0x10);
-        pt = &sp6C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -381,7 +566,7 @@ void effBlurFilterUpdateScreenRect(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp68 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -402,47 +587,47 @@ void effBlurFilterUpdateScreenRect(u8 *arg0) {
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x64($sp)      \n"
             :
-            : "r"(&sp68), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-        *(s32 *)base = *(volatile s32 *)&sp64;
-        *(f32 *)(base + 0xC) = 1.0f + fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
-        *(f32 *)(base + 8) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
+        ((BlurFilterParameters *)base)->unk00.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk0C.scalar = 1.0f + fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        ((BlurFilterParameters *)base)->unk08.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
         return;
     }
-    *(s8 *)(base + 3) = 0;
+    ((BlurFilterParameters *)base)->unk00.signedByte[3] = 0;
 }
 
 // Submits the sky pass when the draw count is positive, bracketing the render-state changes.
 // FUN_004A9590
-void effBlurFilterDrawSlotPass(u8 *arg0) {
-    s32 sp12C;
-    u8 sp20[0x108];
+void effBlurFilterDrawSlotPass(u8 *object) {
+    s32 savedState;
+    u8 vertices[0x108];
     u8 *base;
 
-    base = *(u8 **)(arg0 + 0x24) + 0xC0;
-    if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
-        RpSkyRenderStateGet(3, &sp12C);
-        if (mdlEffectProjectBillboardQuad(base, sp20) != 0) {
+    base = ((BlurFilterNode *)object)->configuration.bytes + 0xC0;
+    if (((BlurFilterConfiguration *)((BlurFilterNode *)object)->configuration.bytes)->unkC0.byte[3] > 0) {
+        RpSkyRenderStateGet(3, &savedState);
+        if (mdlEffectProjectBillboardQuad(base, vertices) != 0) {
             D_00887300[0](1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
             mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
-            D_00887314[0](3, sp20, 4, D_00714368, 6);
+            D_00887314[0](3, vertices, 4, D_00714368, 6);
             mdlEffectEmitSlotPacket();
         }
-        RpSkyRenderStateSet(3, sp12C);
+        RpSkyRenderStateSet(3, savedState);
         D_00887300[0](1, 0);
     }
 }
 
 // Updates the quad corners from the scale parameter, running the scaled radius through the VU helper.
 // FUN_004A9690
-void effBlurFilterUpdateRectFromScale(u8 *arg0) {
+void effBlurFilterUpdateRectFromScale(u8 *object) {
     f32 vec[4];
-    s32 sp7C;
-    s32 sp78;
-    s32 sp74;
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *base;
     u8 *obj;
     s32 b;
@@ -454,38 +639,38 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
     f32 g;
     f32 prod;
 
-    obj = *(u8 **)(arg0 + 0x24);
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (a >= b) {
         f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
-        if (*(u8 *)(obj + 0xBC) != 0) {
-            *(f32 *)(base + 0x14) = 320.0f;
-            *(f32 *)(base + 0x18) = 224.0f;
-            *(f32 *)(base + 0x1C) = 320.0f - f;
-            *(f32 *)(base + 0x20) = 224.0f - f;
-            *(f32 *)(base + 0x24) = 320.0f + f;
-            *(f32 *)(base + 0x28) = 224.0f + f;
+        if (((BlurFilterConfiguration *)obj)->screenSpace != 0) {
+            ((BlurFilterParameters *)base)->unk14.scalar = 320.0f;
+            ((BlurFilterParameters *)base)->unk18.scalar = 224.0f;
+            ((BlurFilterParameters *)base)->unk1C.scalar = 320.0f - f;
+            ((BlurFilterParameters *)base)->unk20.scalar = 224.0f - f;
+            ((BlurFilterParameters *)base)->unk24.scalar = 320.0f + f;
+            ((BlurFilterParameters *)base)->unk28.scalar = 224.0f + f;
         } else {
-            prod = f * *(f32 *)(arg0 + 0x14);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            prod = f * ((BlurFilterNode *)object)->scale.scalar;
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(object) : "$vf10", "memory");
             g = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
-            *(f32 *)(base + 0x14) = vec[0];
-            *(f32 *)(base + 0x18) = vec[1];
-            *(f32 *)(base + 0x1C) = vec[0] - g;
-            *(f32 *)(base + 0x20) = vec[1] - g;
-            *(f32 *)(base + 0x24) = vec[0] + g;
-            *(f32 *)(base + 0x28) = vec[1] + g;
+            ((BlurFilterParameters *)base)->unk14.scalar = vec[0];
+            ((BlurFilterParameters *)base)->unk18.scalar = vec[1];
+            ((BlurFilterParameters *)base)->unk1C.scalar = vec[0] - g;
+            ((BlurFilterParameters *)base)->unk20.scalar = vec[1] - g;
+            ((BlurFilterParameters *)base)->unk24.scalar = vec[0] + g;
+            ((BlurFilterParameters *)base)->unk28.scalar = vec[1] + g;
         }
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp7C = *(s32 *)(arg0 + 0x10);
-        pt = &sp7C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -501,7 +686,7 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp78 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -522,18 +707,25 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x74($sp)      \n"
             :
-            : "r"(&sp78), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)(base + 4) = *(volatile s32 *)&sp74;
-        *(f32 *)(base + 0x10) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a) + 1.0f;
-        *(f32 *)(base + 0xC) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
-        *(s32 *)(base + 8) = *(s32 *)(obj + 0x28);
+((BlurFilterParameters *)base)->unk04.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk10.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a) + 1.0f;
+        ((BlurFilterParameters *)base)->unk0C.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
+        ((BlurFilterParameters *)base)->unk08.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
     } else {
-        *(s8 *)(base + 7) = 0;
+        ((BlurFilterParameters *)base)->unk04.signedByte[3] = 0;
     }
 }
+
+typedef struct BlurSkyVertex {
+    u8 pad00[0x10];
+    s32 uBits;
+    s32 vBits;
+    u8 pad18[0x28];
+} BlurSkyVertex;
 
 typedef struct BlurGsQuad {
     f32 x, y;
@@ -548,82 +740,82 @@ typedef struct BlurGsQuad {
 
 // Draws the reference pass with the two saved render states and the slot packet.
 // FUN_004A98D0
-void effBlurFilterDrawRefPass(u8 *arg0) {
-    s32 sp24C;
-    s32 sp248;
-    u8 sp140[0xFC];
-    u8 sp40[0x100];
-    s32 *temp_16;
-    u8 *temp_18;
-    u8 *temp_3;
+void effBlurFilterDrawRefPass(u8 *object) {
+    s32 savedTextureState;
+    s32 savedBlendState;
+    u8 referenceVertices[0xFC];
+    u8 overlayVertices[0x100];
+    s32 *drawData;
+    u8 *parameters;
+    u8 *configuration;
     void (**setState)(u32, u32);
     void (**sendPacket)(s32, void *, s32, void *, s32);
 
-    temp_3 = *(u8 **)(arg0 + 0x24);
-    temp_18 = temp_3 + 0xC0;
-    if (*(u8 *)(temp_3 + 0xC7) > 0) {
-        temp_16 = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
-        RpSkyRenderStateGet(2, &sp24C);
-        RpSkyRenderStateGet(3, &sp248);
+    configuration = ((BlurFilterNode *)object)->configuration.bytes;
+    parameters = configuration + 0xC0;
+    if (((BlurFilterConfiguration *)configuration)->unkC4.byte[3] > 0) {
+        drawData = ((BlurFilterRef *)((BlurFilterNode *)object)->reference.bytes)->resource.words;
+        RpSkyRenderStateGet(2, &savedTextureState);
+        RpSkyRenderStateGet(3, &savedBlendState);
         setState = (void (**)(u32, u32))D_00887300;
-        (*setState)((u32)1, *(u32 *)temp_16);
+        (*setState)((u32)1, *(u32 *)drawData);
         mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
-        func_004a8250(temp_18 + 4, sp140);
+        func_004a8250(parameters + 4, referenceVertices);
         sendPacket = (void (**)(s32, void *, s32, void *, s32))D_00887314;
-        (*sendPacket)(3, sp140, 4, D_00714368, 6);
+        (*sendPacket)(3, referenceVertices, 4, D_00714368, 6);
         mdlEffectEmitTagPair();
-        RpSkyRenderStateSet(2, sp24C | 0x10);
-        if (mdlEffectProjectBillboardQuad(temp_18 + 4, sp40) != 0) {
+        RpSkyRenderStateSet(2, savedTextureState | 0x10);
+        if (mdlEffectProjectBillboardQuad(parameters + 4, overlayVertices) != 0) {
             (*setState)(1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
             mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
-            (*sendPacket)(3, sp40, 4, D_00714368, 6);
+            (*sendPacket)(3, overlayVertices, 4, D_00714368, 6);
             mdlEffectEmitSlotPacket();
         }
         (*setState)(1, 0);
-        RpSkyRenderStateSet(3, sp248);
-        RpSkyRenderStateSet(2, sp24C);
+        RpSkyRenderStateSet(3, savedBlendState);
+        RpSkyRenderStateSet(2, savedTextureState);
     }
 }
 
 // Allocates a slot table (up to 100 entries) and initialises each slot through the init helper.
 // FUN_004A9AA0
-u8 *effBlurFilterAllocSlots(u8 *arg0) {
+u8 *effBlurFilterAllocSlots(u8 *object) {
     s32 i;
     u8 *alloc;
     u8 *base;
     u32 count;
 
-    base = arg0 + 0xC0;
-    if (!(*(u32 *)base <= 0x64)) {
+    base = object + 0xC0;
+    if (!(((BlurFilterParameters *)base)->unk00.unsignedValue <= 0x64)) {
         kAssertFail(D_00714380, 0x169);
     }
-    count = *(u32 *)base;
+    count = ((BlurFilterParameters *)base)->unk00.unsignedValue;
     chkmemAllocSiteTag(D_00714380, 0x16F);
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
         func_004a8a50(base, item);
-        *(f32 *)(item + 4) = fGpffff80f8;
+        ((BlurFilterSlot *)item)->unk04.scalar = fGpffff80f8;
     }
     return alloc;
 }
 
 // Frees a slot table through the engine's free callback.
 // FUN_004A9BA0
-void effBlurFilterFreeSlots(void *param_1) {
-    (*jtbl_008873EC)(param_1);
+void effBlurFilterFreeSlots(void *object) {
+    (*jtbl_008873EC)(object);
 }
 
 // Steps the first slot-list update: refreshes the screen rect and ticks the list with TickSlotsA.
 // FUN_004A9BD0
-void effBlurFilterStepSlotsA(u8 *arg0) {
+void effBlurFilterStepSlotsA(u8 *object) {
     f32 vec[4];
-    s32 sp8C;
-    s32 sp88;
-    s32 sp84;
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *obj;
     u8 *base;
     s32 b;
@@ -635,32 +827,32 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
     f32 f;
     f32 prod;
 
-    list = *(u8 **)(arg0 + 0x20);
-    obj = *(u8 **)(arg0 + 0x24);
+    list = ((BlurFilterNode *)object)->slots.bytes;
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (a >= b) {
         f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
-        if (*(u8 *)(obj + 0xBC) != 0) {
-            *(s32 *)(base + 0x1C) = 0x43A00000;
-            *(s32 *)(base + 0x20) = 0x43600000;
-            *(f32 *)(base + 0x24) = f;
+        if (((BlurFilterConfiguration *)obj)->screenSpace != 0) {
+            ((BlurFilterParameters *)base)->unk1C.signedValue = 0x43A00000;
+            ((BlurFilterParameters *)base)->unk20.signedValue = 0x43600000;
+            ((BlurFilterParameters *)base)->unk24.scalar = f;
         } else {
-            prod = f * *(f32 *)(arg0 + 0x14);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            *(f32 *)(base + 0x24) = mdlEffectAnchorScreenScale(prod);
+            prod = f * ((BlurFilterNode *)object)->scale.scalar;
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(object) : "$vf10", "memory");
+            ((BlurFilterParameters *)base)->unk24.scalar = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
-            *(f32 *)(base + 0x1C) = vec[0];
-            *(f32 *)(base + 0x20) = vec[1];
+            ((BlurFilterParameters *)base)->unk1C.scalar = vec[0];
+            ((BlurFilterParameters *)base)->unk20.scalar = vec[1];
         }
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp8C = *(s32 *)(arg0 + 0x10);
-        pt = &sp8C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -676,7 +868,7 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp88 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -697,22 +889,22 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x84($sp)      \n"
             :
-            : "r"(&sp88), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
-        *(f32 *)(base + 0x18) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
-        *(f32 *)(base + 0x14) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
-        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk18.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        ((BlurFilterParameters *)base)->unk14.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
+        ((BlurFilterParameters *)base)->unk10.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
         effBlurFilterTickSlotsA(base, list);
     } else {
-        *(s32 *)(base + 0xC) = 0;
+        ((BlurFilterParameters *)base)->unk0C.signedValue = 0;
     }
 }
 // Submits every slot with a zero timer and a positive alpha byte to the draw table.
 // FUN_004A9DD0
-void effBlurFilterSubmitZeroTimerSlots(u8 *arg0) {
+void effBlurFilterSubmitZeroTimerSlots(u8 *object) {
     u8 *list;
     u8 *obj;
     u8 *base;
@@ -720,17 +912,17 @@ void effBlurFilterSubmitZeroTimerSlots(u8 *arg0) {
     s32 *table;
     s32 i;
 
-    list = *(u8 **)(arg0 + 0x20);
-    obj = *(u8 **)(arg0 + 0x24);
+    list = ((BlurFilterNode *)object)->slots.bytes;
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    if (*(s32 *)(obj + 0xCC) & 0xFF000000) {
-        table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
-        count = *(s32 *)base;
+    if (((BlurFilterConfiguration *)obj)->unkCC.signedValue & 0xFF000000) {
+        table = ((BlurFilterRef *)((BlurFilterNode *)object)->reference.bytes)->resource.words;
+        count = ((BlurFilterParameters *)base)->unk00.signedValue;
         if (!(count <= 0x64)) {
             kAssertFail(D_00714380, 0x1BA);
         }
         for (i = 0; i < count; i++) {
-            if (*(s32 *)list == 0 && *(u8 *)(list + 0xF) > 0) {
+            if (((BlurFilterSlot *)list)->unk00.signedValue == 0 && ((BlurFilterSlot *)list)->unk0C.byte[3] > 0) {
                 func_004a8890(list + 8, table);
             }
             list += 0x34;
@@ -740,42 +932,42 @@ void effBlurFilterSubmitZeroTimerSlots(u8 *arg0) {
 
 // Allocates a small slot table (up to 40 entries) with zeroed timers and per-index base offsets.
 // FUN_004A9EA0
-void effBlurFilterAllocSlotsSmall(u8 *arg0) {
+void effBlurFilterAllocSlotsSmall(u8 *object) {
     u8 *base;
     u32 count;
     u8 *alloc;
     s32 i;
 
-    base = arg0 + 0xC0;
-    if (!(*(u32 *)base <= 0x28)) {
+    base = object + 0xC0;
+    if (!(((BlurFilterParameters *)base)->unk00.unsignedValue <= 0x28)) {
         kAssertFail(D_00714380, 0x292);
     }
-    count = *(u32 *)base;
+    count = ((BlurFilterParameters *)base)->unk00.unsignedValue;
     chkmemAllocSiteTag(D_00714380, 0x298);
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
-        *(s32 *)(item + 4) = 0;
-        *(s32 *)item = 0;
-        *(s32 *)(item + 0x10) = *(s32 *)(arg0 + 0xD0);
-        *(f32 *)(item + 0x14) = *(f32 *)(arg0 + 0xD4);
-        *(f32 *)item = -(*(f32 *)(arg0 + 0xC8) * (f32)i);
+        ((BlurFilterSlot *)item)->unk04.signedValue = 0;
+        ((BlurFilterSlot *)item)->unk00.signedValue = 0;
+        ((BlurFilterSlot *)item)->unk10 = ((BlurFilterConfiguration *)object)->unkD0;
+        ((BlurFilterSlot *)item)->unk14 = ((BlurFilterConfiguration *)object)->unkD4;
+        ((BlurFilterSlot *)item)->unk00.scalar = -(((BlurFilterConfiguration *)object)->unkC8 * (f32)i);
     }
 }
 
 // Frees a small slot table through the engine's free callback.
 // FUN_004A9FA0
-void effBlurFilterFreeSlotsSmall(void *param_1) {
-    (*jtbl_008873EC)(param_1);
+void effBlurFilterFreeSlotsSmall(void *object) {
+    (*jtbl_008873EC)(object);
 }
 
 // Steps the third slot-list update: refreshes the screen rect and advances the table with AdvanceSlots.
 // FUN_004A9FD0
-void effBlurFilterStepSlotsC(u8 *arg0) {
+void effBlurFilterStepSlotsC(u8 *object) {
     f32 vec[4];
-    s32 sp8C;
-    s32 sp88;
-    s32 sp84;
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *obj;
     u8 *base;
     s32 b;
@@ -787,32 +979,32 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
     f32 f;
     f32 prod;
 
-    list = *(u8 **)(arg0 + 0x20);
-    obj = *(u8 **)(arg0 + 0x24);
+    list = ((BlurFilterNode *)object)->slots.bytes;
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (a >= b) {
         f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
-        if (*(u8 *)(obj + 0xBC) != 0) {
-            *(s32 *)(base + 0x20) = 0x43A00000;
-            *(s32 *)(base + 0x24) = 0x43600000;
-            *(s32 *)(base + 0x28) = (s32)f;
+        if (((BlurFilterConfiguration *)obj)->screenSpace != 0) {
+            ((BlurFilterParameters *)base)->unk20.signedValue = 0x43A00000;
+            ((BlurFilterParameters *)base)->unk24.signedValue = 0x43600000;
+            ((BlurFilterParameters *)base)->unk28.signedValue = (s32)f;
         } else {
-            prod = f * *(f32 *)(arg0 + 0x14);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            *(s32 *)(base + 0x28) = (s32)mdlEffectAnchorScreenScale(prod);
+            prod = f * ((BlurFilterNode *)object)->scale.scalar;
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(object) : "$vf10", "memory");
+            ((BlurFilterParameters *)base)->unk28.signedValue = (s32)mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
-            *(f32 *)(base + 0x20) = vec[0];
-            *(f32 *)(base + 0x24) = vec[1];
+            ((BlurFilterParameters *)base)->unk20.scalar = vec[0];
+            ((BlurFilterParameters *)base)->unk24.scalar = vec[1];
         }
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp8C = *(s32 *)(arg0 + 0x10);
-        pt = &sp8C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -828,7 +1020,7 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp88 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -849,23 +1041,23 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x84($sp)      \n"
             :
-            : "r"(&sp88), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
-        *(f32 *)(base + 0x1C) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
-        *(f32 *)(base + 0x14) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
-        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk1C.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        ((BlurFilterParameters *)base)->unk14.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
+        ((BlurFilterParameters *)base)->unk10.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
         effBlurFilterAdvanceSlots(base, list);
     } else {
-        *(s32 *)(base + 0xC) = 0;
+        ((BlurFilterParameters *)base)->unk0C.signedValue = 0;
     }
 }
 
 // Submits every slot with a non-negative alpha and a positive alpha byte to the draw table.
 // FUN_004AA1F0
-void effBlurFilterSubmitActiveSlots(u8 *arg0) {
+void effBlurFilterSubmitActiveSlots(u8 *object) {
     u8 *list;
     u8 *obj;
     u8 *base;
@@ -873,14 +1065,14 @@ void effBlurFilterSubmitActiveSlots(u8 *arg0) {
     s32 count;
     s32 i;
 
-    list = *(u8 **)(arg0 + 0x20);
-    obj = *(u8 **)(arg0 + 0x24);
+    list = ((BlurFilterNode *)object)->slots.bytes;
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    if (*(s32 *)(obj + 0xCC) & 0xFF000000) {
-        table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
-        count = *(s32 *)base;
+    if (((BlurFilterConfiguration *)obj)->unkCC.signedValue & 0xFF000000) {
+        table = ((BlurFilterRef *)((BlurFilterNode *)object)->reference.bytes)->resource.words;
+        count = ((BlurFilterParameters *)base)->unk00.signedValue;
         for (i = 0; i < count; i++) {
-            if (!(*(f32 *)list < 0.0f) && (*(u8 *)(list + 0xF) > 0)) {
+            if (!(((BlurFilterSlot *)list)->unk00.scalar < 0.0f) && (((BlurFilterSlot *)list)->unk0C.byte[3] > 0)) {
                 func_004a8890(list + 8, table);
             }
             list += 0x34;
@@ -890,10 +1082,10 @@ void effBlurFilterSubmitActiveSlots(u8 *arg0) {
 
 // Refreshes the screen-rect block with the simple variant: default constants on first use, no flag-byte update.
 // FUN_004AA2B0
-void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
+void effBlurFilterUpdateScreenRectSimple(u8 *object) {
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *base;
     u8 *obj;
     s32 a;
@@ -902,27 +1094,27 @@ void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
     s32 *pt;
     f32 scale;
 
-    obj = *(u8 **)(arg0 + 0x24);
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (b == 0) {
-        *(s32 *)(base + 0x10) = 0x43A00000;
-        *(s32 *)(base + 0x14) = 0x43600000;
-        *(s32 *)(base + 0x18) = 0;
-        *(s32 *)(base + 0x1C) = 0;
-        *(s32 *)(base + 0x20) = 0x44200000;
-        *(s32 *)(base + 0x24) = 0x43E00000;
-        *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
+        ((BlurFilterParameters *)base)->unk10.signedValue = 0x43A00000;
+        ((BlurFilterParameters *)base)->unk14.signedValue = 0x43600000;
+        ((BlurFilterParameters *)base)->unk18.signedValue = 0;
+        ((BlurFilterParameters *)base)->unk1C.signedValue = 0;
+        ((BlurFilterParameters *)base)->unk20.signedValue = 0x44200000;
+        ((BlurFilterParameters *)base)->unk24.signedValue = 0x43E00000;
+        ((BlurFilterParameters *)base)->unk04.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
     }
     if (a >= b) {
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp6C = *(s32 *)(arg0 + 0x10);
-        pt = &sp6C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -938,7 +1130,7 @@ void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp68 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -959,76 +1151,76 @@ void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x64($sp)      \n"
             :
-            : "r"(&sp68), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)base = *(volatile s32 *)&sp64;
-        *(f32 *)(base + 0xC) = 1.0f + mdlEffectSampleScalarKeys(obj + 0x34, b, a);
-        *(f32 *)(base + 8) = mdlEffectSampleScalarKeys(obj + 0x60, b, a);
+((BlurFilterParameters *)base)->unk00.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk0C.scalar = 1.0f + mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        ((BlurFilterParameters *)base)->unk08.scalar = mdlEffectSampleScalarKeys(obj + 0x60, b, a);
     } else {
-        *(s8 *)(base + 3) = 0;
+        ((BlurFilterParameters *)base)->unk00.signedByte[3] = 0;
     }
 }
 
 // Draws the overlay pass, bracketed by render-state changes around one slot packet.
 // FUN_004AA460
-void effBlurFilterDrawOverlay(u8 *arg0) {
-    s32 sp12C;
-    u8 sp20[0x108];
+void effBlurFilterDrawOverlay(u8 *object) {
+    s32 savedState;
+    u8 vertices[0x108];
     void *setState;
     u8 *base;
 
-    base = *(u8 **)(arg0 + 0x24) + 0xC0;
-    if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
-        RpSkyRenderStateGet(3, &sp12C);
-        func_004a8440(base, sp20);
+    base = ((BlurFilterNode *)object)->configuration.bytes + 0xC0;
+    if (((BlurFilterConfiguration *)((BlurFilterNode *)object)->configuration.bytes)->unkC0.byte[3] > 0) {
+        RpSkyRenderStateGet(3, &savedState);
+        func_004a8440(base, vertices);
         setState = (void *)D_00887300;
         (*(void (**)(u32, u32))setState)(1, D_00922D90[0]);
         RpSkyRenderStateSet(3, 0x31001);
         mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
-        D_00887314[0](3, sp20, 4, D_00714368, 6);
+        D_00887314[0](3, vertices, 4, D_00714368, 6);
         mdlEffectEmitSlotPacket();
         (*(void (**)(u32, u32))setState)(1, 0);
-        RpSkyRenderStateSet(3, sp12C);
+        RpSkyRenderStateSet(3, savedState);
     }
 }
 // Allocates a spawn-mode slot table (up to 100 entries) and initialises each slot through SpawnSlot.
 // FUN_004AA560
-u8 *effBlurFilterAllocSpawnSlots(u8 *arg0) {
+u8 *effBlurFilterAllocSpawnSlots(u8 *object) {
     s32 i;
     u8 *alloc;
     u8 *base;
     u32 count;
 
-    base = arg0 + 0xC0;
-    if (!(*(u32 *)base <= 0x64)) {
+    base = object + 0xC0;
+    if (!(((BlurFilterParameters *)base)->unk00.unsignedValue <= 0x64)) {
         kAssertFail(D_00714380, 0x218);
     }
-    count = *(u32 *)base;
+    count = ((BlurFilterParameters *)base)->unk00.unsignedValue;
     chkmemAllocSiteTag(D_00714380, 0x21E);
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
         effBlurFilterSpawnSlot(base, item);
-        *(f32 *)(item + 4) = fGpffff80f8;
+        ((BlurFilterSlot *)item)->unk04.scalar = fGpffff80f8;
     }
     return alloc;
 }
 
 // Frees a spawn-mode slot table through the engine's free callback.
 // FUN_004AA660
-void effBlurFilterFreeSpawnSlots(void *param_1) {
-    (*jtbl_008873EC)(param_1);
+void effBlurFilterFreeSpawnSlots(void *object) {
+    (*jtbl_008873EC)(object);
 }
 
 // Steps the second slot-list update: refreshes the screen rect and ticks the list with TickSlotsB.
 // FUN_004AA690
-void effBlurFilterStepSlotsB(u8 *arg0) {
+void effBlurFilterStepSlotsB(u8 *object) {
     f32 vec[4];
-    s32 sp8C;
-    s32 sp88;
-    s32 sp84;
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *obj;
     u8 *base;
     s32 b;
@@ -1040,32 +1232,32 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
     f32 f;
     f32 prod;
 
-    list = *(u8 **)(arg0 + 0x20);
-    obj = *(u8 **)(arg0 + 0x24);
+    list = ((BlurFilterNode *)object)->slots.bytes;
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (a >= b) {
         f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
-        if (*(u8 *)(obj + 0xBC) != 0) {
-            *(s32 *)(base + 0x1C) = 0x43A00000;
-            *(s32 *)(base + 0x20) = 0x43600000;
-            *(f32 *)(base + 0x24) = f;
+        if (((BlurFilterConfiguration *)obj)->screenSpace != 0) {
+            ((BlurFilterParameters *)base)->unk1C.signedValue = 0x43A00000;
+            ((BlurFilterParameters *)base)->unk20.signedValue = 0x43600000;
+            ((BlurFilterParameters *)base)->unk24.scalar = f;
         } else {
-            prod = f * *(f32 *)(arg0 + 0x14);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            *(f32 *)(base + 0x24) = mdlEffectAnchorScreenScale(prod);
+            prod = f * ((BlurFilterNode *)object)->scale.scalar;
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(object) : "$vf10", "memory");
+            ((BlurFilterParameters *)base)->unk24.scalar = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
-            *(f32 *)(base + 0x1C) = vec[0];
-            *(f32 *)(base + 0x20) = vec[1];
+            ((BlurFilterParameters *)base)->unk1C.scalar = vec[0];
+            ((BlurFilterParameters *)base)->unk20.scalar = vec[1];
         }
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp8C = *(s32 *)(arg0 + 0x10);
-        pt = &sp8C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1081,7 +1273,7 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp88 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -1102,23 +1294,23 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x84($sp)      \n"
             :
-            : "r"(&sp88), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
-        *(f32 *)(base + 0x18) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
-        *(f32 *)(base + 0x14) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
-        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk18.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        ((BlurFilterParameters *)base)->unk14.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
+        ((BlurFilterParameters *)base)->unk10.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
         effBlurFilterTickSlotsB(base, list);
     } else {
-        *(s32 *)(base + 0xC) = 0;
+        ((BlurFilterParameters *)base)->unk0C.signedValue = 0;
     }
 }
 
 // Submits zero-timer slots after checking the slot count against the 100-entry limit.
 // FUN_004AA890
-void effBlurFilterSubmitZeroTimerSlotsChecked(u8 *arg0) {
+void effBlurFilterSubmitZeroTimerSlotsChecked(u8 *object) {
     u8 *list;
     u8 *obj;
     u8 *base;
@@ -1126,17 +1318,17 @@ void effBlurFilterSubmitZeroTimerSlotsChecked(u8 *arg0) {
     s32 *table;
     s32 i;
 
-    list = *(u8 **)(arg0 + 0x20);
-    obj = *(u8 **)(arg0 + 0x24);
+    list = ((BlurFilterNode *)object)->slots.bytes;
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    if (*(s32 *)(obj + 0xCC) & 0xFF000000) {
-        table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
-        count = *(s32 *)base;
+    if (((BlurFilterConfiguration *)obj)->unkCC.signedValue & 0xFF000000) {
+        table = ((BlurFilterRef *)((BlurFilterNode *)object)->reference.bytes)->resource.words;
+        count = ((BlurFilterParameters *)base)->unk00.signedValue;
         if (!(count <= 0x64)) {
             kAssertFail(D_00714380, 0x269);
         }
         for (i = 0; i < count; i++) {
-            if (*(s32 *)list == 0 && *(u8 *)(list + 0xF) > 0) {
+            if (((BlurFilterSlot *)list)->unk00.signedValue == 0 && ((BlurFilterSlot *)list)->unk0C.byte[3] > 0) {
                 func_004a8890(list + 8, table);
             }
             list += 0x34;
@@ -1146,10 +1338,10 @@ void effBlurFilterSubmitZeroTimerSlotsChecked(u8 *arg0) {
 
 // Refreshes the screen-rect block from the defaults on first use, then clears the flag byte at offset 3 when the count is below the threshold.
 // FUN_004AA960
-void effBlurFilterUpdateScreenRectFlagged(u8 *arg0) {
-    s32 sp3C;
-    s32 sp38;
-    s32 sp34;
+void effBlurFilterUpdateScreenRectFlagged(u8 *object) {
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *obj;
     u8 *base;
     s32 a;
@@ -1158,25 +1350,25 @@ void effBlurFilterUpdateScreenRectFlagged(u8 *arg0) {
     s32 *pt;
     f32 scale;
 
-    obj = *(u8 **)(arg0 + 0x24);
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (b == 0) {
-        *(s32 *)(base + 8) = 0;
-        *(s32 *)(base + 0xC) = 0;
-        *(s32 *)(base + 0x10) = 0x44200000;
-        *(s32 *)(base + 0x14) = 0x43E00000;
-        *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
+        ((BlurFilterParameters *)base)->unk08.signedValue = 0;
+        ((BlurFilterParameters *)base)->unk0C.signedValue = 0;
+        ((BlurFilterParameters *)base)->unk10.signedValue = 0x44200000;
+        ((BlurFilterParameters *)base)->unk14.signedValue = 0x43E00000;
+        ((BlurFilterParameters *)base)->unk04.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
     }
     if (a >= b) {
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp3C = *(s32 *)(arg0 + 0x10);
-        pt = &sp3C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1192,7 +1384,7 @@ void effBlurFilterUpdateScreenRectFlagged(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp38 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -1213,39 +1405,40 @@ void effBlurFilterUpdateScreenRectFlagged(u8 *arg0) {
             "ppacb $3, $0, $3      \n"
             "sw $3, 0x34($sp)      \n"
             :
-            : "r"(&sp38), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)base = *(volatile s32 *)&sp34;
+((BlurFilterParameters *)base)->unk00.signedValue = *(volatile s32 *)&combinedColor;
     } else {
-        *(s8 *)(base + 3) = 0;
+        ((BlurFilterParameters *)base)->unk00.signedByte[3] = 0;
     }
 }
+/* Draws the auxiliary quad while preserving the active blend state. */
 // FUN_004AAA90
-void effBlurFilterDrawAux(u8 *arg0) {
-    s32 sp12C;
-    u8 sp20[0x108];
+void effBlurFilterDrawAux(u8 *object) {
+    s32 savedState;
+    u8 vertices[0x108];
     u8 *base;
 
-    base = *(u8 **)(arg0 + 0x24) + 0xC0;
-    if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
-        RpSkyRenderStateGet(3, &sp12C);
-        func_004a86c0(base, sp20);
+    base = ((BlurFilterNode *)object)->configuration.bytes + 0xC0;
+    if (((BlurFilterConfiguration *)((BlurFilterNode *)object)->configuration.bytes)->unkC0.byte[3] > 0) {
+        RpSkyRenderStateGet(3, &savedState);
+        func_004a86c0(base, vertices);
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(3, 0x31001);
-        D_00887314[0](3, sp20, 4, D_00714368, 6);
-        RpSkyRenderStateSet(3, sp12C);
+        D_00887314[0](3, vertices, 4, D_00714368, 6);
+        RpSkyRenderStateSet(3, savedState);
     }
 }
 
 // Updates the screen-rect corners from the scale parameter; this variant also writes the corner pairs at offsets 4 and 8.
 // FUN_004AAB50
-void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
+void effBlurFilterUpdateRectFromScaleAux(u8 *object) {
     f32 vec[4];
-    s32 sp7C;
-    s32 sp78;
-    s32 sp74;
+    s32 effectColor;
+    s32 sampledColor;
+    s32 combinedColor;
     u8 *base;
     u8 *obj;
     s32 b;
@@ -1257,38 +1450,38 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
     f32 g;
     f32 prod;
 
-    obj = *(u8 **)(arg0 + 0x24);
+    obj = ((BlurFilterNode *)object)->configuration.bytes;
     base = obj + 0xC0;
-    a = *(s32 *)(obj + 0xB8);
+    a = ((BlurFilterConfiguration *)obj)->duration;
     if (a == 0) {
         b = 0;
     } else {
-        b = *(s32 *)(arg0 + 0x1C);
+        b = ((BlurFilterNode *)object)->elapsed;
     }
     if (a >= b) {
         f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
-        if (*(u8 *)(obj + 0xBC) != 0) {
-            *(f32 *)(base + 4) = 320.0f;
-            *(f32 *)(base + 8) = 224.0f;
-            *(f32 *)(base + 0x14) = 320.0f - f;
-            *(f32 *)(base + 0x18) = 224.0f - f;
-            *(f32 *)(base + 0x1C) = 320.0f + f;
-            *(f32 *)(base + 0x20) = 224.0f + f;
+        if (((BlurFilterConfiguration *)obj)->screenSpace != 0) {
+            ((BlurFilterParameters *)base)->unk04.scalar = 320.0f;
+            ((BlurFilterParameters *)base)->unk08.scalar = 224.0f;
+            ((BlurFilterParameters *)base)->unk14.scalar = 320.0f - f;
+            ((BlurFilterParameters *)base)->unk18.scalar = 224.0f - f;
+            ((BlurFilterParameters *)base)->unk1C.scalar = 320.0f + f;
+            ((BlurFilterParameters *)base)->unk20.scalar = 224.0f + f;
         } else {
-            prod = f * *(f32 *)(arg0 + 0x14);
-            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            prod = f * ((BlurFilterNode *)object)->scale.scalar;
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(object) : "$vf10", "memory");
             g = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
-            *(f32 *)(base + 4) = vec[0];
-            *(f32 *)(base + 8) = vec[1];
-            *(f32 *)(base + 0x14) = vec[0] - g;
-            *(f32 *)(base + 0x18) = vec[1] - g;
-            *(f32 *)(base + 0x1C) = vec[0] + g;
-            *(f32 *)(base + 0x20) = vec[1] + g;
+            ((BlurFilterParameters *)base)->unk04.scalar = vec[0];
+            ((BlurFilterParameters *)base)->unk08.scalar = vec[1];
+            ((BlurFilterParameters *)base)->unk14.scalar = vec[0] - g;
+            ((BlurFilterParameters *)base)->unk18.scalar = vec[1] - g;
+            ((BlurFilterParameters *)base)->unk1C.scalar = vec[0] + g;
+            ((BlurFilterParameters *)base)->unk20.scalar = vec[1] + g;
         }
         tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
-        sp7C = *(s32 *)(arg0 + 0x10);
-        pt = &sp7C;
+        effectColor = ((BlurFilterNode *)object)->color;
+        pt = &effectColor;
         scale = fGpffff8044;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1304,7 +1497,7 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp78 = tmp;
+        sampledColor = tmp;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -1325,58 +1518,58 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
             "ppacb $3, $0, $3      \n"
             "sw $3, 0x74($sp)      \n"
             :
-            : "r"(&sp78), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
-*(s32 *)(base + 0xC) = *(volatile s32 *)&sp74;
-        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
+        ((BlurFilterParameters *)base)->unk10.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
     } else {
-        *(s8 *)(base + 0xF) = 0;
+        ((BlurFilterParameters *)base)->unk0C.signedByte[3] = 0;
     }
 }
 // Draws the second sky pass, bracketed by render-state changes around one slot packet.
 // FUN_004AAD30
-void effBlurFilterDrawPassB(u8 *arg0) {
-    s32 sp24C;
-    s32 sp248;
-    u8 sp140[0xFC];
-    u8 sp40[0xF8];
-    u8 *temp_16;
-    u8 *temp_18;
-    u8 *temp_3;
+void effBlurFilterDrawPassB(u8 *object) {
+    s32 savedTextureState;
+    s32 savedBlendState;
+    u8 referenceVertices[0xFC];
+    u8 overlayVertices[0xF8];
+    u8 *drawData;
+    u8 *parameters;
+    u8 *configuration;
     void *setState;
 
-    temp_3 = *(u8 **)(arg0 + 0x24);
-    temp_18 = temp_3 + 0xC0;
-    if (*(u8 *)(temp_3 + 0xCF) > 0) {
-        temp_16 = *(u8 **)(*(u8 **)(arg0 + 0x28) + 8);
-        RpSkyRenderStateGet(2, &sp24C);
-        RpSkyRenderStateGet(3, &sp248);
+    configuration = ((BlurFilterNode *)object)->configuration.bytes;
+    parameters = configuration + 0xC0;
+    if (((BlurFilterConfiguration *)configuration)->unkCC.byte[3] > 0) {
+        drawData = ((BlurFilterRef *)((BlurFilterNode *)object)->reference.bytes)->resource.bytes;
+        RpSkyRenderStateGet(2, &savedTextureState);
+        RpSkyRenderStateGet(3, &savedBlendState);
         setState = (void *)D_00887300;
-        (*(void (**)(u32, u32))setState)((u32)1, *(u32 *)temp_16);
+        (*(void (**)(u32, u32))setState)((u32)1, *(u32 *)drawData);
         mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
-        func_004a86c0(temp_18 + 0xC, sp140);
-        *(s32 *)(sp140 + 0x10) = 0;
-        *(s32 *)(sp140 + 0x14) = 0;
-        *(s32 *)(sp140 + 0x50) = 0;
-        *(s32 *)(sp140 + 0x54) = 0x3F800000;
-        *(s32 *)(sp140 + 0x90) = 0x3F800000;
-        *(s32 *)(sp140 + 0x94) = 0x3F800000;
-        *(s32 *)(sp140 + 0xD0) = 0x3F800000;
-        *(s32 *)(sp140 + 0xD4) = 0;
-        temp_16 = (u8 *)D_00887314;
-        (*(void (**)(s32, void *, s32, void *, s32))temp_16)(3, sp140, 4, D_00714368, 6);
+        func_004a86c0(parameters + 0xC, referenceVertices);
+        ((BlurSkyVertex *)referenceVertices)[0].uBits = 0;
+        ((BlurSkyVertex *)referenceVertices)[0].vBits = 0;
+        ((BlurSkyVertex *)referenceVertices)[1].uBits = 0;
+        ((BlurSkyVertex *)referenceVertices)[1].vBits = 0x3F800000;
+        ((BlurSkyVertex *)referenceVertices)[2].uBits = 0x3F800000;
+        ((BlurSkyVertex *)referenceVertices)[2].vBits = 0x3F800000;
+        ((BlurSkyVertex *)referenceVertices)[3].uBits = 0x3F800000;
+        ((BlurSkyVertex *)referenceVertices)[3].vBits = 0;
+        drawData = (u8 *)D_00887314;
+        (*(void (**)(s32, void *, s32, void *, s32))drawData)(3, referenceVertices, 4, D_00714368, 6);
         mdlEffectEmitTagPair();
-        RpSkyRenderStateSet(2, sp24C | 0x10);
-        func_004a86c0(temp_18 + 0xC, sp40);
+        RpSkyRenderStateSet(2, savedTextureState | 0x10);
+        func_004a86c0(parameters + 0xC, overlayVertices);
         (*((void (**)(u32, u32))setState))(1, 0);
         RpSkyRenderStateSet(3, 0x31001);
-        (*(void (**)(s32, void *, s32, void *, s32))temp_16)(3, sp40, 4, D_00714368, 6);
-        RpSkyRenderStateSet(3, sp248);
-        RpSkyRenderStateSet(2, sp24C);
+        (*(void (**)(s32, void *, s32, void *, s32))drawData)(3, overlayVertices, 4, D_00714368, 6);
+        RpSkyRenderStateSet(3, savedBlendState);
+        RpSkyRenderStateSet(2, savedTextureState);
     }
 }
 
@@ -1396,6 +1589,7 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
     u8 *object;
     s32 headerBytes = 0x60;
 
+    /* BlurFilterNode offsets are proven above; byte accesses retain the constructor reload and register allocation (typed rewrite: normalized_diff 112). */
     kind = type & 0xFFFF;
     dataSize = *(s32 *)(D_007143A4 + kind * 0x18);
     if ((u32)dataSize + 0x60 >= 0x200U)
@@ -1433,136 +1627,136 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
    documented bpc 00245420 floor (retail move-before-load). */
 /* Rebuilds a node from a record's parameter block and attaches its texture sub-object. */
 // FUN_004AB060
-void *effBlurFilterCopiedInstantiate(void *arg0) {
-    s32 temp_2_2;
-    s32 temp_2_3;
-    u8 *temp_2;
+void *effBlurFilterCopiedInstantiate(void *object) {
+    s32 sourceData;
+    s32 textureData;
+    u8 *instance;
 
-    temp_2_2 = (s32)mdlEffectResolveRelPtrA(arg0);
-    if (temp_2_2 == 0) {
+    sourceData = (s32)mdlEffectResolveRelPtrA(object);
+    if (sourceData == 0) {
         kAssertFail(D_00714380, 0x660);
     }
-    temp_2 = (u8 *)effBlurFilterCopiedCreate(*(u16 *)((u8 *)arg0 + 0xC), (const void *)temp_2_2);
-    if (temp_2 == 0) {
+    instance = (u8 *)effBlurFilterCopiedCreate(((EffSourceDescriptor *)object)->id, (const void *)sourceData);
+    if (instance == 0) {
         kAssertFail(D_00714380, 0x662);
     }
-    temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
-    if ((temp_2_3 != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(temp_2 + 0x18) * 24) != 0)) {
-        *(s32 *)(temp_2 + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)temp_2_3, *(u16 *)((u8 *)arg0 + 0x1C));
+    textureData = (s32)mdlEffectResolveRelPtrB(object);
+    if ((textureData != 0) && (((BlurFilterFlagEntry *)D_007143A0)[((BlurFilterNode *)instance)->kind.signedValue].usesReference != 0)) {
+        ((BlurFilterNode *)instance)->reference.signedValue = (s32)effBlurFilterCreateRefObj((u16 *)textureData, ((EffSourceDescriptor *)object)->kind);
     }
-    return temp_2;
+    return instance;
 }
 
 /* Rebuilds a node from a record's data pointer and attaches its texture sub-object. */
 // FUN_004AB5A0
-void *effBlurFilterDirectInstantiate(void *param_1) {
+void *effBlurFilterDirectInstantiate(void *object) {
     u8 *tmp;
     u16 *tex;
 
-    tmp = (u8 *)mdlEffectResolveRelPtrA(param_1);
+    tmp = (u8 *)mdlEffectResolveRelPtrA(object);
     if (tmp == 0) {
         kAssertFail(D_00714380, 0x72B);
     }
-    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0xC), tmp);
+    tmp = effBlurFilterDirectCreate(((EffSourceDescriptor *)object)->id, tmp);
     if (tmp == 0) {
         kAssertFail(D_00714380, 0x72D);
     }
-    tex = mdlEffectResolveRelPtrB(param_1);
-    if ((tex != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj(tex, *(u16 *)((char *)param_1 + 0x1C));
+    tex = mdlEffectResolveRelPtrB(object);
+    if ((tex != 0) && (((BlurFilterFlagEntry *)D_00714470)[((BlurFilterNode *)tmp)->kind.signedValue].usesReference != 0)) {
+        ((BlurFilterNode *)tmp)->reference.signedValue = (s32)effBlurFilterCreateRefObj(tex, ((EffSourceDescriptor *)object)->kind);
     }
     return tmp;
 }
 
 /* Destroys a node: runs the type's destructor, releases its sub-object, and frees it. */
 // FUN_004AB140
-void effBlurFilterCopiedDestroy(void *param_1) {
-    if (*(void **)((char *)param_1 + 0x20) != 0) {
-        ((void (*)(void *))(*(u32 *)(D_00714394 + *(s32 *)((char *)param_1 + 0x18) * 24)))(*(void **)((char *)param_1 + 0x20));
+void effBlurFilterCopiedDestroy(void *object) {
+    if (((BlurFilterNode *)object)->slots.pointer != 0) {
+        ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714394)[((BlurFilterNode *)object)->kind.signedValue].callback))(((BlurFilterNode *)object)->slots.pointer);
     }
-    if (*(void **)((char *)param_1 + 0x28) != 0) {
-        effBlurFilterReleaseRefObj(*(void **)((char *)param_1 + 0x28));
+    if (((BlurFilterNode *)object)->reference.pointer != 0) {
+        effBlurFilterReleaseRefObj(((BlurFilterNode *)object)->reference.pointer);
     }
-    (*jtbl_008873EC)(param_1);
+    (*jtbl_008873EC)(object);
 }
 
 /* Duplicates a node from its own type and copied parameter block and takes a reference on its sub-object. */
 // FUN_004AB1C0
-void *effBlurFilterCopiedDuplicate(void *param_1) {
+void *effBlurFilterCopiedDuplicate(void *object) {
     u8 *tmp;
 
-    tmp = effBlurFilterCopiedCreate(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
-    if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterRetainRefObj(*(void **)((char *)param_1 + 0x28));
+    tmp = effBlurFilterCopiedCreate(((BlurFilterNode *)object)->kind.half[0], ((BlurFilterNode *)object)->configuration.constPointer);
+    if ((((BlurFilterNode *)object)->reference.pointer != 0) && (((BlurFilterFlagEntry *)D_007143A0)[((BlurFilterNode *)tmp)->kind.signedValue].usesReference != 0)) {
+        ((BlurFilterNode *)tmp)->reference.signedValue = (s32)effBlurFilterRetainRefObj(((BlurFilterNode *)object)->reference.pointer);
     }
     return tmp;
 }
 
 /* Clears the step counter at +0x1C. */
 // FUN_004AB250
-void effBlurFilterCopiedResetCounter(void *param_1) {
-    *(s32 *)((char *)param_1 + 0x1C) = 0;
+void effBlurFilterCopiedResetCounter(void *object) {
+    ((BlurFilterNode *)object)->elapsed = 0;
 }
 
 /* Runs the type's update handler, then increments the step counter at +0x1C. */
 // FUN_004AB260
-void effBlurFilterCopiedAdvance(void *param_1) {
-    ((void (*)(void *))(*(u32 *)(D_00714398 + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
-    *(s32 *)((char *)param_1 + 0x1C) += 1;
+void effBlurFilterCopiedAdvance(void *object) {
+    ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714398)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
+    ((BlurFilterNode *)object)->elapsed += 1;
 }
 
 /* Calls the type's secondary handler for the node. */
 // FUN_004AB2C0
-void effBlurFilterCopiedDispatch(void *param_1) {
-    ((void (*)(void *))(*(u32 *)(D_0071439C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
+void effBlurFilterCopiedDispatch(void *object) {
+    ((void (*)(void *))(((BlurFilterCallbackEntry *)D_0071439C)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
 }
 
 /* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to PrimAppendNode. */
 // FUN_004AB300
-void effBlurFilterCopiedSync(u8 *param_1) {
+void effBlurFilterCopiedSync(u8 *object) {
     u8 *p;
-    if (*(s32 *)(param_1 + 0x1C) > 0) {
-        p = *(u8 **)(param_1 + 0x24);
-        *(s32 *)(param_1 + 0x2C) = 0;
-        *(s32 *)(param_1 + 0x30) = 0;
-        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+    if (((BlurFilterNode *)object)->elapsed > 0) {
+        p = ((BlurFilterNode *)object)->configuration.bytes;
+        ((BlurFilterNode *)object)->nodeNext = 0;
+        ((BlurFilterNode *)object)->nodePrevious = 0;
+        PrimAppendNode(TnGetOffset38(((BlurFilterConfiguration *)p)->resourceId.half[0]), object + 0x2C);
     }
 }
 /* Runs the update handler, increments the step counter, and syncs once it is positive. */
 // FUN_004AB360
-void effBlurFilterCopiedAdvanceAndSync(u8 *param_1) {
+void effBlurFilterCopiedAdvanceAndSync(u8 *object) {
     s32 count;
     u8 *p;
-    ((void (*)(void *))(*(u32 *)(D_00714398 + *(s32 *)(param_1 + 0x18) * 24)))(param_1);
-    count = *(s32 *)(param_1 + 0x1C) + 1;
-    *(s32 *)(param_1 + 0x1C) = count;
+    ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714398)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
+    count = ((BlurFilterNode *)object)->elapsed + 1;
+    ((BlurFilterNode *)object)->elapsed = count;
     if (count > 0) {
-        p = *(u8 **)(param_1 + 0x24);
-        *(s32 *)(param_1 + 0x2C) = 0;
-        *(s32 *)(param_1 + 0x30) = 0;
-        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        p = ((BlurFilterNode *)object)->configuration.bytes;
+        ((BlurFilterNode *)object)->nodeNext = 0;
+        ((BlurFilterNode *)object)->nodePrevious = 0;
+        PrimAppendNode(TnGetOffset38(((BlurFilterConfiguration *)p)->resourceId.half[0]), object + 0x2C);
     }
 }
 typedef signed __int128 s128;
 
 /* Copies a 128-bit value into the node's first field and returns it. */
 // FUN_004AB3F0
-s128 effBlurFilterCopiedStoreVector(void *param_1, const void *param_2) {
-    s128 temp = *(const s128 *)param_2;
-    *(s128 *)param_1 = temp;
+s128 effBlurFilterCopiedStoreVector(void *object, const void *value) {
+    s128 temp = *(const s128 *)value;
+    *(s128 *)object = temp;
     return temp;
 }
 
 /* Stores an s32 at +0x10 of the node. */
 // FUN_004AB400
-void effBlurFilterCopiedSetCount(void *param_1, s32 param_2) {
-    *(s32 *)((char *)param_1 + 0x10) = param_2;
+void effBlurFilterCopiedSetCount(void *object, s32 value) {
+    ((BlurFilterNode *)object)->color = value;
 }
 
 /* Stores an f32 at +0x14 of the node (1.0f from the constructor by default). */
 // FUN_004AB410
-void effBlurFilterCopiedSetScale(void *param_1, f32 param_2) {
-    *(f32 *)((char *)param_1 + 0x14) = param_2;
+void effBlurFilterCopiedSetScale(void *object, f32 value) {
+    ((BlurFilterNode *)object)->scale.scalar = value;
 }
 
 /* measured: 372B/window 384B; only three zero-padding words remain.
@@ -1583,7 +1777,7 @@ u8 *effBlurFilterDirectCreate(u32 type, const void *initialData)
     s32 headerBytes = 0x60;
 
     kind = type & 0xFFFF;
-    dataSize = *(s32 *)(D_00714474 + kind * 0x18);
+    dataSize = ((BlurFilterSizeEntry *)D_00714474)[kind].dataBytes;
     if ((u32)dataSize + 0x60 >= 0x200U)
         kAssertFail(D_00714450, 0x170);
     chkmemAllocSiteTag(D_00714450, 0x171);
@@ -1592,114 +1786,114 @@ u8 *effBlurFilterDirectCreate(u32 type, const void *initialData)
     memset(object, 0, dataSize + 0x60);
     if (object == (u8 *)0)
         kAssertFail(D_00714380, 0x706);
-    *(s32 *)(object + 0x18) = kind;
-    *(s32 *)(object + 0x10) = -1;
-    *(s32 *)(object + 0x14) = 0x3F800000;
-    *(s32 *)(object + 0x28) = 0;
+    ((BlurFilterNode *)object)->kind.signedValue = kind;
+    ((BlurFilterNode *)object)->color = -1;
+    ((BlurFilterNode *)object)->scale.signedValue = 0x3F800000;
+    ((BlurFilterNode *)object)->reference.signedValue = 0;
     __asm__ ("sqc2 vf0, 0(%0)" : : "r"(object) : "memory");
     data = object + headerBytes;
-    *(u8 **)(object + 0x24) = data;
+    ((BlurFilterNode *)object)->configuration.bytes = data;
     memcpy(data, initialData, dataSize);
-    initialize = *(s32 (**)(const void *))(D_00714460 + ((u16)type * 0x18));
+    initialize = (s32 (*)(const void *))((BlurFilterType *)D_00714460)[(u16)type].initialize;
     if (initialize != (s32 (*)(const void *))0)
-        *(s32 *)(object + 0x20) = initialize(initialData);
-    *(s16 *)(object + 0x44) = 0x17;
-    *(u8 **)(object + 0x48) = object;
+        ((BlurFilterNode *)object)->slots.signedValue = initialize(initialData);
+    ((BlurFilterNode *)object)->tag = 0x17;
+    ((BlurFilterNode *)object)->owner = object;
     return object;
 }
 
 /* Destroys a node: runs the type's destructor, releases its sub-object, and frees it. */
 // FUN_004AB680
-void effBlurFilterDirectDestroy(void *param_1) {
-    if (*(void **)((char *)param_1 + 0x20) != 0) {
-        ((void (*)(void *))(*(u32 *)(D_00714464 + *(s32 *)((char *)param_1 + 0x18) * 24)))(*(void **)((char *)param_1 + 0x20));
+void effBlurFilterDirectDestroy(void *object) {
+    if (((BlurFilterNode *)object)->slots.pointer != 0) {
+        ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714464)[((BlurFilterNode *)object)->kind.signedValue].callback))(((BlurFilterNode *)object)->slots.pointer);
     }
-    if (*(void **)((char *)param_1 + 0x28) != 0) {
-        effBlurFilterReleaseRefObj(*(void **)((char *)param_1 + 0x28));
+    if (((BlurFilterNode *)object)->reference.pointer != 0) {
+        effBlurFilterReleaseRefObj(((BlurFilterNode *)object)->reference.pointer);
     }
-    (*jtbl_008873EC)(param_1);
+    (*jtbl_008873EC)(object);
 }
 
 /* Duplicates a node from its own type and direct data pointer and takes a reference on its sub-object. */
 // FUN_004AB700
-void *effBlurFilterDirectDuplicate(void *param_1) {
+void *effBlurFilterDirectDuplicate(void *object) {
     u8 *tmp;
 
-    tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
-    if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterRetainRefObj(*(void **)((char *)param_1 + 0x28));
+    tmp = effBlurFilterDirectCreate(((BlurFilterNode *)object)->kind.half[0], ((BlurFilterNode *)object)->configuration.constPointer);
+    if ((((BlurFilterNode *)object)->reference.pointer != 0) && (((BlurFilterFlagEntry *)D_00714470)[((BlurFilterNode *)tmp)->kind.signedValue].usesReference != 0)) {
+        ((BlurFilterNode *)tmp)->reference.signedValue = (s32)effBlurFilterRetainRefObj(((BlurFilterNode *)object)->reference.pointer);
     }
     return tmp;
 }
 
 /* Clears the step counter at +0x1C. */
 // FUN_004AB790
-void effBlurFilterDirectResetCounter(void *param_1) {
-    *(s32 *)((char *)param_1 + 0x1C) = 0;
+void effBlurFilterDirectResetCounter(void *object) {
+    ((BlurFilterNode *)object)->elapsed = 0;
 }
 
 /* Runs the type's update handler, then increments the step counter at +0x1C. */
 // FUN_004AB7A0
-void effBlurFilterDirectAdvance(void *param_1) {
-    ((void (*)(void *))(*(u32 *)(D_00714468 + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
-    *(s32 *)((char *)param_1 + 0x1C) += 1;
+void effBlurFilterDirectAdvance(void *object) {
+    ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714468)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
+    ((BlurFilterNode *)object)->elapsed += 1;
 }
 
 /* Calls the type's secondary handler for the node. */
 // FUN_004AB800
-void effBlurFilterDirectDispatch(void *param_1) {
-    ((void (*)(void *))(*(u32 *)(D_0071446C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
+void effBlurFilterDirectDispatch(void *object) {
+    ((void (*)(void *))(((BlurFilterCallbackEntry *)D_0071446C)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
 }
 
 /* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to PrimAppendNode. */
 // FUN_004AB840
-void effBlurFilterDirectSync(u8 *param_1) {
+void effBlurFilterDirectSync(u8 *object) {
     u8 *p;
-    if (*(s32 *)(param_1 + 0x1C) > 0) {
-        p = *(u8 **)(param_1 + 0x24);
-        *(s32 *)(param_1 + 0x2C) = 0;
-        *(s32 *)(param_1 + 0x30) = 0;
-        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+    if (((BlurFilterNode *)object)->elapsed > 0) {
+        p = ((BlurFilterNode *)object)->configuration.bytes;
+        ((BlurFilterNode *)object)->nodeNext = 0;
+        ((BlurFilterNode *)object)->nodePrevious = 0;
+        PrimAppendNode(TnGetOffset38(((BlurFilterConfiguration *)p)->resourceId.half[0]), object + 0x2C);
     }
 }
 /* Runs the update handler, increments the step counter, and syncs once it is positive. */
 // FUN_004AB8A0
-void effBlurFilterDirectAdvanceAndSync(u8 *param_1) {
+void effBlurFilterDirectAdvanceAndSync(u8 *object) {
     s32 count;
     u8 *p;
-    ((void (*)(void *))(*(u32 *)(D_00714468 + *(s32 *)(param_1 + 0x18) * 24)))(param_1);
-    count = *(s32 *)(param_1 + 0x1C) + 1;
-    *(s32 *)(param_1 + 0x1C) = count;
+    ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714468)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
+    count = ((BlurFilterNode *)object)->elapsed + 1;
+    ((BlurFilterNode *)object)->elapsed = count;
     if (count > 0) {
-        p = *(u8 **)(param_1 + 0x24);
-        *(s32 *)(param_1 + 0x2C) = 0;
-        *(s32 *)(param_1 + 0x30) = 0;
-        PrimAppendNode(TnGetOffset38(*(u16 *)(p + 0x28)), param_1 + 0x2C);
+        p = ((BlurFilterNode *)object)->configuration.bytes;
+        ((BlurFilterNode *)object)->nodeNext = 0;
+        ((BlurFilterNode *)object)->nodePrevious = 0;
+        PrimAppendNode(TnGetOffset38(((BlurFilterConfiguration *)p)->resourceId.half[0]), object + 0x2C);
     }
 }
 /* Copies a 128-bit value into the node's first field and returns it. */
 // FUN_004AB930
-s128 effBlurFilterDirectStoreVector(void *param_1, const void *param_2) {
-    s128 temp = *(const s128 *)param_2;
-    *(s128 *)param_1 = temp;
+s128 effBlurFilterDirectStoreVector(void *object, const void *value) {
+    s128 temp = *(const s128 *)value;
+    *(s128 *)object = temp;
     return temp;
 }
 
 /* Stores an s32 at +0x10 of the node. */
 // FUN_004AB940
-void effBlurFilterDirectSetCount(void *param_1, s32 param_2) {
-    *(s32 *)((char *)param_1 + 0x10) = param_2;
+void effBlurFilterDirectSetCount(void *object, s32 value) {
+    ((BlurFilterNode *)object)->color = value;
 }
 
 /* Stores an f32 at +0x14 of the node (1.0f from the constructor by default). */
 // FUN_004AB950
-void effBlurFilterDirectSetScale(void *param_1, f32 param_2) {
-    *(f32 *)((char *)param_1 + 0x14) = param_2;
+void effBlurFilterDirectSetScale(void *object, f32 value) {
+    ((BlurFilterNode *)object)->scale.scalar = value;
 }
 
 // Creates a blur resource: type 1 and type 4 resolve their handle through different lookups; other types assert.
 // FUN_004AB960
-u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1) {
+u8 *effBlurFilterCreateRefObj(u16 *object, u16 slot) {
     u8 *tmp;
     s32 t;
 
@@ -1709,15 +1903,15 @@ u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1) {
     if (tmp == 0) {
         kAssertFail(D_00714380, 0x7B0);
     }
-    t = arg1 & 0xFFFF;
-    *(s32 *)(tmp + 0) = t;
-    *(s32 *)(tmp + 4) = 1;
+    t = slot & 0xFFFF;
+    ((BlurFilterRef *)tmp)->kind = t;
+    ((BlurFilterRef *)tmp)->references = 1;
     switch (t) {
     case 1:
-        *(s32 *)(tmp + 8) = TnUploadStreamTagged(arg0);
+        ((BlurFilterRef *)tmp)->resource.signedValue = TnUploadStreamTagged(object);
         break;
     case 4:
-        *(s32 *)(tmp + 8) = TnSlotObject(*arg0);
+        ((BlurFilterRef *)tmp)->resource.signedValue = TnSlotObject(*object);
         break;
     default:
         kAssertFail(D_00714380, 0x7BC);
@@ -1728,29 +1922,29 @@ u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1) {
 
 // Drops one reference; at zero it releases the handle (unless the type is 4) and frees the block.
 // FUN_004ABA70
-void effBlurFilterReleaseRefObj(void *param_1) {
+void effBlurFilterReleaseRefObj(void *object) {
     s32 n;
 
-    if (*(s32 *)((char *)param_1 + 4) == 0) {
+    if (((BlurFilterRef *)object)->references == 0) {
         kAssertFail(D_00714380, 0x7C5);
     }
-    n = *(s32 *)((char *)param_1 + 4) - 1;
-    *(s32 *)((char *)param_1 + 4) = n;
+    n = ((BlurFilterRef *)object)->references - 1;
+    ((BlurFilterRef *)object)->references = n;
     if (n == 0) {
-        if (*(s32 *)((char *)param_1 + 0) != 4) {
-            func_003ef3a0(*(void **)((char *)param_1 + 8));
+        if (((BlurFilterRef *)object)->kind != 4) {
+            func_003ef3a0(((BlurFilterRef *)object)->resource.pointer);
         }
-        (*jtbl_008873EC)(param_1);
+        (*jtbl_008873EC)(object);
     }
 }
 
 // Adds one reference to a blur resource; the second word holds the count.
 // FUN_004ABB00
-void *effBlurFilterRetainRefObj(BlurRefObj *param_1) {
-    if (param_1->f4 == 0) {
+void *effBlurFilterRetainRefObj(BlurFilterRef *object) {
+    if (object->references == 0) {
         kAssertFail(D_00714380, 0x7D7);
     }
-    param_1->f4 += 1;
-    return param_1;
+    object->references += 1;
+    return object;
 }
 

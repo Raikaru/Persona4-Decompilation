@@ -5,7 +5,7 @@
 extern void btlTaskCreate(void);
 extern void btlSetFreeUnitsOnTeardown(void);
 
-extern s32 func_00103590(void);
+extern s32 fclBankNoop(void);
 extern s32 fclBankTaskCreate(void);
 extern void titleStartSoundTask(s32);
 extern s32 btlIsRunning(void);
@@ -77,7 +77,7 @@ void SeqMemcardBootCheck_End(void)
 // FUN_00102D10
 void SeqDebugMenu_Start(void)
 {
-    func_00103590();
+    fclBankNoop();
 }
 
 // FUN_00102D30

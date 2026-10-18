@@ -431,7 +431,7 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
     position.xy.x = 22.0f + inputPosition.xy.x;
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
-    func_002bc4b0(0.0f, *entry, (s32)position.xy.x, (s32)position.xy.y,
+    fclMesWindowDrawItemCategory(0.0f, *entry, (s32)position.xy.x, (s32)position.xy.y,
                   (labelAlpha & 0xFF) | ~0xFF, 1, 8);
 }
 #pragma pop

@@ -6,6 +6,7 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "fcl_assist_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
 static inline s32 p4_pack_or(s32 left, s32 right)
@@ -19,7 +20,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 
 
 
-extern s32 func_002bc0e0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern s32 fclMesWindowDrawItemEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
@@ -120,117 +121,119 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
+/* Draw an item with the standard single-entry flag. */
 // FUN_002BC0B0
-void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
+void fclMesWindowDrawItem(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
                    s32 table, s32 item)
 {
-    func_002bc0e0(x, y, depth, color, font, mode, 1, table, item);
+    fclMesWindowDrawItemEntry(x, y, depth, color, font, mode, 1, table, item);
 }
 
+/* Select item message tables and draw one entry or an item/count pair after bounds checks. */
 // FUN_002BC0E0
- s32 func_002bc0e0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+ s32 fclMesWindowDrawItemEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 kind, s32 item)
 {
     extern s32 datItemCount(s16 id);
-    extern u32 datEntryGetFlags(s16 arg0);
-    extern s32 itfMesWindowRecordCount(s32 arg0);
-    extern s32 itfMesWindowDrawEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-    extern s32 itfMesWindowDrawPair(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10);
+    extern u32 datEntryGetFlags(s16 item);
+    extern s32 itfMesWindowRecordCount(s32 table);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 table, s32 item);
+    extern s32 itfMesWindowDrawPair(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 firstTable, s32 firstItem, s32 secondTable, s32 secondItem);
     extern s32 D_0063F2F0[];
     extern s32 D_0063F310[];
     extern s32 D_0063F2C0[];
-    s32 spC0[6];
-    s32 sp90[9];
+    s32 itemTables[6];
+    s32 entryTables[9];
     s32 *src;
     s32 *dst;
-    u32 temp_22;
+    u32 recordCount;
     s32 *src2;
     s32 *dst2;
     s32 loop;
     s32 loop2;
-    s32 temp_1;
-    s32 temp_2;
-    s32 temp_index;
-    s32 temp_item_index;
-    s32 temp_item;
-    s32 temp_level;
-    u32 temp_index_2;
-    s32 temp_count;
+    s32 firstWord;
+    s32 secondWord;
+    s32 category;
+    s32 tableIndex;
+    s32 messageTable;
+    s32 itemLevel;
+    u32 itemId;
+    s32 entryIndex;
 
     src = D_0063F2F0;
-    dst = spC0;
+    dst = itemTables;
     loop = 3;
     do {
-        temp_1 = src[0];
-        temp_2 = src[1];
+        firstWord = src[0];
+        secondWord = src[1];
         src += 2;
         loop -= 1;
-        dst[0] = temp_1;
-        dst[1] = temp_2;
+        dst[0] = firstWord;
+        dst[1] = secondWord;
         dst += 2;
     } while (loop > 0);
     src2 = D_0063F310;
-    dst2 = sp90;
+    dst2 = entryTables;
     loop2 = 9;
     do {
-        temp_1 = *src2;
+        firstWord = *src2;
         src2 += 1;
         loop2 -= 1;
-        *dst2 = temp_1;
+        *dst2 = firstWord;
         dst2 += 1;
     } while (loop2 > 0);
-    switch (arg4) {
+    switch (kind) {
     case 0:
-        if (arg5 >= 0x400) {
-            temp_index = 5;
+        if (item >= 0x400) {
+            category = 5;
         } else {
-            temp_index = (s32)datEntryGetFlags((s16)arg5);
+            category = (s32)datEntryGetFlags((s16)item);
         }
-        temp_item_index = spC0[temp_index];
-        arg5 = (s16)datItemBankOffset((s16)arg5);
+        tableIndex = itemTables[category];
+        item = (s16)datItemBankOffset((s16)item);
         goto block_23;
     case 1:
-        temp_index_2 = arg5 & 0xFFFF;
-        temp_item_index = spC0[datEntryGetFlags((s16)temp_index_2)];
-        temp_item = D_0063F2B0[temp_item_index];
-        temp_count = (s16)datItemBankOffset((s16)temp_index_2);
-        if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
+        itemId = item & 0xFFFF;
+        tableIndex = itemTables[datEntryGetFlags((s16)itemId)];
+        messageTable = D_0063F2B0[tableIndex];
+        entryIndex = (s16)datItemBankOffset((s16)itemId);
+        if ((u32)itfMesWindowRecordCount(messageTable) < (u32)entryIndex) {
             return 0;
         }
-        temp_level = arg5 >> 16;
-        if ((u32)itfMesWindowRecordCount(D_0063F2C0[0]) < (u32)temp_level) {
+        itemLevel = item >> 16;
+        if ((u32)itfMesWindowRecordCount(D_0063F2C0[0]) < (u32)itemLevel) {
             return 0;
         }
-        itfMesWindowDrawPair(fparg0, fparg1, fparg2,
-                      arg0, arg1, arg2, 1, temp_item, temp_count,
-                      D_0063F2C0[0], temp_level);
+        itfMesWindowDrawPair(x, y, depth,
+                      color, font, mode, 1, messageTable, entryIndex,
+                      D_0063F2C0[0], itemLevel);
         return 0;
     case 2:
-        temp_index_2 = datItemCount((s16)arg5) & 0xFF;
-        temp_item_index = spC0[datEntryGetFlags((s16)temp_index_2)];
-        temp_item = D_0063F2B0[temp_item_index];
-        temp_count = (s16)datItemBankOffset((s16)temp_index_2);
-        if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
+        itemId = datItemCount((s16)item) & 0xFF;
+        tableIndex = itemTables[datEntryGetFlags((s16)itemId)];
+        messageTable = D_0063F2B0[tableIndex];
+        entryIndex = (s16)datItemBankOffset((s16)itemId);
+        if ((u32)itfMesWindowRecordCount(messageTable) < (u32)entryIndex) {
             return 0;
         }
-        temp_22 = itfMesWindowRecordCount(D_0063F2C0[0]);
-        if (temp_22 < (u32)(datItemCount((s16)arg5) & 0xFF)) {
+        recordCount = itfMesWindowRecordCount(D_0063F2C0[0]);
+        if (recordCount < (u32)(datItemCount((s16)item) & 0xFF)) {
             return 0;
         }
-        itfMesWindowDrawPair(fparg0, fparg1, fparg2,
-                      arg0, arg1, arg2, 1, temp_item, temp_count,
-                      D_0063F2C0[0], datItemCount((s16)arg5) & 0xFF);
+        itfMesWindowDrawPair(x, y, depth,
+                      color, font, mode, 1, messageTable, entryIndex,
+                      D_0063F2C0[0], datItemCount((s16)item) & 0xFF);
         return 0;
     default:
-        temp_item_index = sp90[arg4];
+        tableIndex = entryTables[kind];
         goto block_23;
     }
 block_23:
-    temp_item = D_0063F2B0[temp_item_index];
-    if ((u32)itfMesWindowRecordCount(temp_item) < (u32)arg5) {
+    messageTable = D_0063F2B0[tableIndex];
+    if ((u32)itfMesWindowRecordCount(messageTable) < (u32)item) {
         return 0;
     }
-    itfMesWindowDrawEntry(fparg0, fparg1, fparg2,
-                  arg0, arg1, arg2, arg3, temp_item, arg5);
+    itfMesWindowDrawEntry(x, y, depth,
+                  color, font, mode, flags, messageTable, item);
     return 0;
 }
 
@@ -240,52 +243,53 @@ block_23:
 #pragma push
 /* measured: func_002bc4b0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Draw the message entry selected by the item category. */
 // FUN_002BC4B0
-void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
-                    s32 inputArg3, s32 inputArg4, s32 inputArg5)
+void fclMesWindowDrawItemCategory(f32 inputDepth, s16 item, s32 x, s32 y,
+                    s32 inputColor, s32 inputFont, s32 inputMode)
 {
-    extern s32 itfMesWindowDrawEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-    u32 temp_2;
-    f32 fparg0;
-    s32 arg3;
-    s32 arg4;
-    s32 arg5;
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 flags, s32 table, s32 item);
+    u32 category;
+    f32 depth;
+    s32 color;
+    s32 font;
+    s32 mode;
 
-    fparg0 = inputDepth;
-    arg3 = inputArg3;
-    arg4 = inputArg4;
-    arg5 = inputArg5;
-    temp_2 = func_00106850(arg0);
-    switch (temp_2) {
+    depth = inputDepth;
+    color = inputColor;
+    font = inputFont;
+    mode = inputMode;
+    category = func_00106850(item);
+    switch (category) {
     case 0:
-        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
-                      arg3, arg4, arg5, 1, D_0063F2B0[0],
-                      (s16)datItemBankOffset(arg0));
+        itfMesWindowDrawEntry((f32)x, (f32)y, depth,
+                      color, font, mode, 1, D_0063F2B0[0],
+                      (s16)datItemBankOffset(item));
         return;
     case 1:
-        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
-                      arg3, arg4, arg5, 1, D_0063F2B0[1],
-                      (s16)datItemBankOffset(arg0));
+        itfMesWindowDrawEntry((f32)x, (f32)y, depth,
+                      color, font, mode, 1, D_0063F2B0[1],
+                      (s16)datItemBankOffset(item));
         return;
     case 2:
-        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
-                      arg3, arg4, arg5, 1, D_0063F2B0[2],
-                      (s16)datItemBankOffset(arg0));
+        itfMesWindowDrawEntry((f32)x, (f32)y, depth,
+                      color, font, mode, 1, D_0063F2B0[2],
+                      (s16)datItemBankOffset(item));
         return;
     case 3:
-        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
-                      arg3, arg4, arg5, 1, D_0063F2B0[4],
-                      (s16)datItemBankOffset(arg0));
+        itfMesWindowDrawEntry((f32)x, (f32)y, depth,
+                      color, font, mode, 1, D_0063F2B0[4],
+                      (s16)datItemBankOffset(item));
         return;
     case 4:
-        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
-                      arg3, arg4, arg5, 1, D_0063F2B0[5],
-                      (s16)datItemBankOffset(arg0));
+        itfMesWindowDrawEntry((f32)x, (f32)y, depth,
+                      color, font, mode, 1, D_0063F2B0[5],
+                      (s16)datItemBankOffset(item));
         return;
     case 5:
-        itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
-                      arg3, arg4, arg5, 1, D_0063F2B0[7],
-                      (s16)datItemBankOffset(arg0));
+        itfMesWindowDrawEntry((f32)x, (f32)y, depth,
+                      color, font, mode, 1, D_0063F2B0[7],
+                      (s16)datItemBankOffset(item));
     default:
         return;
     }
@@ -301,54 +305,58 @@ void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
     itfMesWindowDrawEntry(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item);
 }
 
+/* Queue an entry on the selected 0x30-byte primitive list. */
 // FUN_002BC7F0
-void fclMesWindowDraw(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 fparg0, f32 fparg1, f32 fparg2) {
-    itfMesWindowQueueEntry(fparg0, fparg1, fparg2, arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0, &D_00793E80[arg5 * 0x30]);
+void fclMesWindowDraw(s32 item, s32 color, s32 font, s32 mode, s32 table, s32 listIndex, f32 x, f32 y, f32 depth) {
+    itfMesWindowQueueEntry(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item, &D_00793E80[listIndex * 0x30]);
 }
 
 // Intent: Draw a message-window entry at the given position using the default table entry and mode 1 [inferred]
 // FUN_002BC860
 void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
-                    s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+                    s32 color, s32 font, s32 mode, s32 item)
 {
-    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 arg0, s32 arg1,
-                            s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-    itfMesWindowDrawEntry(x, y, depth, arg0, arg1, arg2, 1, D_0063F2C8[0], arg3);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font,
+                            s32 mode, s32 flags, s32 table, s32 item);
+    itfMesWindowDrawEntry(x, y, depth, color, font, mode, 1, D_0063F2C8[0], item);
 }
 
+/* Queue an unloaded slot unless it already has a pending request; cancel a pending release. */
+/* Typed slot/list rewrite changed code generation (attach: nd143; update: nd317).
+ * Retain byte accesses: slots are 0x0C bytes at manager+0x1C, links +0x10, payload +0x14. */
 // FUN_002BC890
-s32 fclMiscAttachSlot(u8 *arg0, s32 arg1)
+s32 fclMiscAttachSlot(u8 *manager, s32 slotIndex)
 {
-    s32 temp_3;
-    u8 *temp_16;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_4;
+    s32 flags;
+    u8 *slot;
+    u8 *indexedSlot;
+    u8 *newNode;
+    u8 *list;
     u8 *owner;
-    u8 *var_4;
-    u8 *var_5;
+    u8 *node;
+    u8 *entry;
 
-    if (arg0 == NULL) kAssertFail(&D_0063F2A0, 0x541);
-    if (arg1 < 0) goto invalid_arg;
-    if (arg1 > 0xB) goto invalid_arg;
+    if (manager == NULL) kAssertFail(&D_0063F2A0, 0x541);
+    if (slotIndex < 0) goto invalid_arg;
+    if (slotIndex > 0xB) goto invalid_arg;
     goto valid_arg;
 invalid_arg:
     kAssertFail(&D_0063F2A0, 0x542);
 valid_arg:
-    temp_2 = arg0 + (arg1 * 0xC);
-    temp_16 = temp_2 + 0x1C;
-    temp_3 = *(s32 *)temp_16;
-    if (!(temp_3 & 2)) {
-        var_4 = *(u8 **)(*(u8 **)(arg0 + 0x18) + 4);
+    indexedSlot = manager + (slotIndex * 0xC);
+    slot = indexedSlot + 0x1C;
+    flags = *(s32 *)slot;
+    if (!(flags & 2)) {
+        node = *(u8 **)(*(u8 **)(manager + 0x18) + 4);
         goto loop_test;
 loop_body:
-        var_5 = *(u8 **)(var_4 + 0x14);
-        if (*(s32 *)(var_5 + 4) == arg1) {
-            owner = var_5;
+        entry = *(u8 **)(node + 0x14);
+        if (*(s32 *)(entry + 4) == slotIndex) {
+            owner = entry;
         } else {
-            var_4 = *(u8 **)(var_4 + 0x10);
+            node = *(u8 **)(node + 0x10);
 loop_test:
-            if (var_4 != NULL) {
+            if (node != NULL) {
                 goto loop_body;
             }
             owner = NULL;
@@ -356,104 +364,108 @@ loop_test:
         goto loop_done;
 loop_done:
         if (owner == NULL) {
-            *(s32 *)(temp_16 + 4) = arg1;
-            temp_4 = *(u8 **)(arg0 + 0x18);
-            temp_2_2 = func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0);
-            if (temp_2_2 == NULL) kAssertFail(&D_007488E8, 0x52);
-            *(u8 **)(temp_2_2 + 0x14) = temp_16;
+            *(s32 *)(slot + 4) = slotIndex;
+            list = *(u8 **)(manager + 0x18);
+            newNode = func_002e2170(list, *(u16 *)(list + 0x10) + 1, 0);
+            if (newNode == NULL) kAssertFail(&D_007488E8, 0x52);
+            *(u8 **)(newNode + 0x14) = slot;
             return 1;
         }
     }
-    if (temp_3 & 4) *(s32 *)temp_16 = temp_3 & ~4;
+    if (flags & 4) *(s32 *)slot = flags & ~4;
     return 0;
 }
 
+/* Load the head sprite request, publish readiness, and release slots marked with flag 4. */
+/* Typed slot/list rewrite changed code generation (attach: nd143; update: nd317).
+ * Retain byte accesses: slots are 0x0C bytes at manager+0x1C, links +0x10, payload +0x14. */
 // FUN_002BC9E0
-s32 fclMiscUpdateSlots(u8 *arg0)
+s32 fclMiscUpdateSlots(u8 *manager)
 {
-    u8 sp40[0x20];
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 temp_4;
-    s32 temp_4_3;
-    s32 var_17;
-    u8 *temp_17;
-    u8 *temp_18;
-    u8 *temp_4_2;
-    u8 *var_16;
+    u8 path[0x20];
+    s32 flags;
+    s32 retiringFlags;
+    s32 emptyFlags;
+    s32 sprite;
+    s32 loadedSprite;
+    s32 slotIndex;
+    u8 *pendingSlot;
+    u8 *pendingNode;
+    u8 *list;
+    u8 *slot;
 
-    if (arg0 == NULL) {
+    if (manager == NULL) {
         kAssertFail(&D_0063F2A0, 0x558);
     }
-    temp_18 = *(u8 **)(*(u8 **)(arg0 + 0x18) + 4);
-    if (temp_18 != NULL) {
-        temp_17 = *(u8 **)(temp_18 + 0x14);
-        temp_4 = *(s32 *)(temp_17 + 8);
-        if (temp_4 == 0) {
-            if (*(s32 *)(temp_17 + 4) == 0) {
-                sprintf(sp40, &D_0063F340);
+    pendingNode = *(u8 **)(*(u8 **)(manager + 0x18) + 4);
+    if (pendingNode != NULL) {
+        pendingSlot = *(u8 **)(pendingNode + 0x14);
+        sprite = *(s32 *)(pendingSlot + 8);
+        if (sprite == 0) {
+            if (*(s32 *)(pendingSlot + 4) == 0) {
+                sprintf(path, &D_0063F340);
             } else if ((calGetDayWindowFlags((s16)datGetDateIndex()) & 1) != 0) {
-                sprintf(sp40, &D_0063F360, *(s32 *)(temp_17 + 4));
+                sprintf(path, &D_0063F360, *(s32 *)(pendingSlot + 4));
             } else {
-                sprintf(sp40, &D_0063F380, *(s32 *)(temp_17 + 4));
+                sprintf(path, &D_0063F380, *(s32 *)(pendingSlot + 4));
             }
-            *(s32 *)(temp_17 + 8) = sdkSpriteRequestLoad(sp40);
-        } else if (func_0046a750(temp_4) != 0) {
-            *(s32 *)(temp_17 + 0) = *(s32 *)(temp_17 + 0) | 2;
-            temp_4_2 = *(u8 **)(arg0 + 0x18);
-            func_002e2240(temp_4_2, temp_4_2 + 4, temp_18);
+            *(s32 *)(pendingSlot + 8) = sdkSpriteRequestLoad(path);
+        } else if (func_0046a750(sprite) != 0) {
+            *(s32 *)(pendingSlot + 0) = *(s32 *)(pendingSlot + 0) | 2;
+            list = *(u8 **)(manager + 0x18);
+            func_002e2240(list, list + 4, pendingNode);
         }
     }
-    var_16 = arg0 + 0x1C;
-    var_17 = 0;
+    slot = manager + 0x1C;
+    slotIndex = 0;
     goto loop_19;
 loop_20:
-    temp_3 = *(s32 *)var_16;
-    if (temp_3 & 4) {
-        temp_4_3 = *(s32 *)(var_16 + 8);
-        if (temp_4_3 != 0) {
-            if (func_0046a750(temp_4_3) != 0) {
-                temp_3_2 = *(s32 *)var_16 & ~4;
-                *(s32 *)var_16 = temp_3_2;
-                *(s32 *)var_16 = temp_3_2 & ~2;
-                sdkSpriteRelease(*(void **)(var_16 + 8));
-                *(s32 *)(var_16 + 8) = 0;
+    flags = *(s32 *)slot;
+    if (flags & 4) {
+        loadedSprite = *(s32 *)(slot + 8);
+        if (loadedSprite != 0) {
+            if (func_0046a750(loadedSprite) != 0) {
+                retiringFlags = *(s32 *)slot & ~4;
+                *(s32 *)slot = retiringFlags;
+                *(s32 *)slot = retiringFlags & ~2;
+                sdkSpriteRelease(*(void **)(slot + 8));
+                *(s32 *)(slot + 8) = 0;
             }
         } else {
-            temp_3_3 = temp_3 & ~4;
-            *(s32 *)var_16 = temp_3_3;
-            *(s32 *)var_16 = temp_3_3 & ~2;
+            emptyFlags = flags & ~4;
+            *(s32 *)slot = emptyFlags;
+            *(s32 *)slot = emptyFlags & ~2;
         }
     }
-    var_16 += 0xC;
-    var_17 += 1;
+    slot += 0xC;
+    slotIndex += 1;
 loop_19:
-    if (var_17 < 0xB) {
+    if (slotIndex < 0xB) {
         goto loop_20;
     }
     return 0;
 }
 
+/* Mark a slot for deferred sprite release (flag 4). */
 // FUN_002BCBC0
-s32 fclMiscRequestSlotRelease(u8 *arg0, s32 arg1)
+s32 fclMiscRequestSlotRelease(u8 *manager, s32 slotIndex)
 {
-    u8 *temp_3;
+    FclAssistSlot *slot;
 
-    if (arg0 == 0) {
+    if (manager == 0) {
         kAssertFail(D_0063F2A0, 0x58F);
     }
-    if (arg1 < 0) {
+    if (slotIndex < 0) {
         goto error;
     }
-    if (arg1 <= 0xB) {
+    if (slotIndex <= 0xB) {
         goto done;
     }
 error:
     kAssertFail(D_0063F2A0, 0x590);
 done:
-    temp_3 = arg0 + arg1 * 0xC;
-    *(s32 *)(temp_3 + 0x1C) |= 4;
+    slot = &((FclAssistManager *)manager)->slots[slotIndex];
+    slot->flags |= 4;
     return 0;
 }
 

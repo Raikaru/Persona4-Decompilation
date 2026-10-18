@@ -1584,7 +1584,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
             labelX = (s32)(10.0f + ((2.0f + fx) - 1.0f));
             labelY = (s32)(36.0f + y);
             item = (s16)id;
-            func_002bc4b0(0.0f, item, labelX, labelY, masked | ~0xFF, 1, 0);
+            fclMesWindowDrawItemCategory(0.0f, item, labelX, labelY, masked | ~0xFF, 1, 0);
         }
         frFontClearFlagBits(0x40);
     }
@@ -3797,7 +3797,7 @@ void func_0020b5a0(void)
 // FUN_0020B5B0
 void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 {
-    extern void func_0045c870(u8 *arg0, s32 arg1);
+    extern void effMiscDrawScreenColor(u8 *arg0, s32 arg1);
     u8 *temp_2;
     void (**base)(u32, u32);
     u8 work[4];
@@ -3819,7 +3819,7 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
         work[1] = 0;
         work[2] = 0;
         work[3] = 0;
-        func_0045c870(work, 0);
+        effMiscDrawScreenColor(work, 0);
     }
 }
 

@@ -45,7 +45,7 @@ extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern s32 kwlnGetCamera(void);
-extern void func_0045c870(u8 *arg0, s32 arg1);
+extern void effMiscDrawScreenColor(u8 *arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern u8 *iGpffffb3c4;
@@ -193,7 +193,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                     u8 screenAlpha = (u8)screenOpacity;
                     colors.screen[3] = screenAlpha;
                 }
-                func_0045c870(colors.screen, 0);
+                effMiscDrawScreenColor(colors.screen, 0);
                 colors.radial.bytes[2] = colors.radial.bytes[1] = colors.radial.bytes[0] = 0xFF;
                 {
                     f32 radialOpacity = 160.0f * (1.0f - square);

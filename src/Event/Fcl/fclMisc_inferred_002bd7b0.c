@@ -5,6 +5,8 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "fcl_assist_internal.h"
+#include "kwln_task_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
 static inline s32 p4_pack_or(s32 left, s32 right)
@@ -15,6 +17,14 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
+
+/* Shop task work: a byte state followed by the draw-task handle. */
+typedef struct FclShopMainWork {
+    s8 state;
+    u8 pad01[3];
+    s32 drawTask;
+} FclShopMainWork;
+
 extern void (*jtbl_008873EC[])(void *);
 
 
@@ -115,94 +125,98 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 #pragma push
 #pragma pop
+/* Reset the shared window record and install its message window with style 1. */
 // FUN_002BD7B0
 s32 fclMiscEnsureMesWindow(void)
 {
-    u8 *p;
-    s32 temp_2;
+    FclAssistHandle *window;
+    s32 handle;
 
-    p = (u8 *)D_00882F60;
-    if (p != NULL) {
-        *(s32 *)(p + 0) = -1;
-        *(s8 *)(p + 4) = 0;
-        *(s8 *)(p + 5) = 0;
-        *(s32 *)(p + 8) = -1;
-        *(s8 *)(p + 0xC) = 1;
-        *(s8 *)(p + 0xD) = 1;
+    window = (FclAssistHandle *)D_00882F60;
+    if (window != NULL) {
+        window->handle = -1;
+        window->mode = 0;
+        window->suspended = 0;
+        window->pending = -1;
+        window->unk0c = 1;
+        window->unk0d = 1;
     }
-    if (*(s32 *)(p + 0) < 0) {
-        temp_2 = itfMesWindowInstall();
-        *(s32 *)(p + 0) = temp_2;
-        itfMesWindowSetStyle(temp_2, 1);
+    if (window->handle < 0) {
+        handle = itfMesWindowInstall();
+        window->handle = handle;
+        itfMesWindowSetStyle(handle, 1);
         return 1;
     }
     return 0;
 }
 
+/* Bind an item record to the shared message window and start its animation. */
 // FUN_002BD840
-s32 fclMesWindowShowItemRecord(s32 arg0)
+s32 fclMesWindowShowItemRecord(s32 record)
 {
-    u8 *p;
+    FclAssistHandle *window;
 
-    p = (u8 *)D_00882F60;
-    if (*(s32 *)(p + 0) < 0) {
+    window = (FclAssistHandle *)D_00882F60;
+    if (window->handle < 0) {
         return 0;
     }
-    itfMesWindowSetStyle(*(s32 *)(p + 0), 1);
-    itfMesWindowSetFlagBits(*(s32 *)(p + 0), 0x200000);
-    itfMesWindowBindRecord(*(s32 *)(p + 0), arg0, 0);
-    *(s8 *)(p + 4) = 1;
-    itfMesWindowSetAnim(*(s32 *)(p + 0), -1);
+    itfMesWindowSetStyle(window->handle, 1);
+    itfMesWindowSetFlagBits(window->handle, 0x200000);
+    itfMesWindowBindRecord(window->handle, record, 0);
+    window->mode = 1;
+    itfMesWindowSetAnim(window->handle, -1);
     return 1;
 }
 
+/* Sequence shop scene loading, camera setup, fades, and draw-task completion.
+ * The camera API has no shared layout here; +4 is its scene-camera handle. */
 // FUN_002BD8E0
-s32 fclShopMainUpdate(u8 *arg0)
+s32 fclShopMainUpdate(u8 *task)
 {
-    s8 temp_3;
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_17_2;
+    s8 state;
+    FclShopMainWork *work;
+    u8 *camera;
+    u8 *sceneCamera;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s8 *)(temp_16 + 0);
-    switch (temp_3) {
+    work = (FclShopMainWork *)((struct KwlnTask *)task)->work;
+    state = work->state;
+    switch (state) {
     case 1:
         fieldSceneLoad(8, 4);
-        *(s8 *)(temp_16 + 0) = 2;
+        work->state = 2;
     case 2:
         if ((fieldSceneLoadStep() != 0) && (mtSceneResListPrepareAll() != 0)) {
-            if (fclShopDrawIsReady(*(s32 *)(temp_16 + 4)) == 0) {
+            if (fclShopDrawIsReady(work->drawTask) == 0) {
                 return 0;
             }
             sdkSndPlayCue(0x15, 1);
-            temp_17 = kwlnGetCamera();
-            K_View_SetFov(temp_17, MT_Scene_GetCameraFov());
-            temp_17_2 = kwlnGetCamera();
-            func_003e9cb0(*(s32 *)(temp_17_2 + 4), (void *)MT_Scene_GetCameraResFirst(), 0);
-            *(s8 *)(temp_16 + 0) = 3;
+            camera = kwlnGetCamera();
+            K_View_SetFov(camera, MT_Scene_GetCameraFov());
+            sceneCamera = kwlnGetCamera();
+            func_003e9cb0(*(s32 *)(sceneCamera + 4), (void *)MT_Scene_GetCameraResFirst(), 0);
+            work->state = 3;
         }
         goto block_26;
     case 3:
         func_00122640(1, 0);
-        *(s8 *)(temp_16 + 0) = 4;
+        work->state = 4;
     case 4:
         if (fadeStatus() != 0) {
-            fclShopDrawSetMode(*(s32 *)(temp_16 + 4), 0xD);
-            *(s8 *)(temp_16 + 0) = 7;
+            fclShopDrawSetMode(work->drawTask, 0xD);
+            work->state = 7;
         }
         goto block_26;
     case 5:
         func_00122520(1, 0);
-        *(s8 *)(temp_16 + 0) = 6;
+        work->state = 6;
     case 6:
         if (fadeStatus() != 0) {
-            *(s8 *)(temp_16 + 0) = 0x11;
+            work->state = 0x11;
         }
         goto block_26;
     case 7:
         if (kwlnTaskGetTaskByName(&D_0063F3B0) == 0) {
-            *(s8 *)(temp_16 + 0) = 5;
+            work->state = 5;
         }
         goto block_26;
     case 17:
@@ -215,10 +229,11 @@ s32 fclShopMainUpdate(u8 *arg0)
     }
 }
 
+/* Unload the field scene and free the shop task work block. */
 // FUN_002BDB10
-void fclShopMainDestroy(u8 *arg0)
+void fclShopMainDestroy(u8 *task)
 {
     fieldSceneUnload();
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
 

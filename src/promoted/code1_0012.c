@@ -451,7 +451,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern u32 kwlnTaskGetWork(void *task);
     extern s32 H_Cdvd_LookupRequest();
     extern s32 func_0045ad50();
-    extern void func_0045c870(u8 *colors, s32 enabled);
+    extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
     extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 kAssertFail();
     extern s32 mdlPrepareModel();
@@ -790,7 +790,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     sp6B8 = 0;
     sp6B4.value = fGpffff9c70;
     sp6BC = sp6B4;
-    func_0045c870((u8 *)&sp6BC, 1);
+    effMiscDrawScreenColor((u8 *)&sp6BC, 1);
     temp_3 = (u32)(taskView->state);
     switch (temp_3) {
     case 0:
@@ -800,12 +800,12 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     case 2:
         sp6B0.value = fGpffff9c74;
         sp6BC = sp6B0;
-        func_0045c870((u8 *)&sp6BC, 1);
+        effMiscDrawScreenColor((u8 *)&sp6BC, 1);
         break;
     case 3:
         sp6AC.value = fGpffff9c78;
         sp6BC = sp6AC;
-        func_0045c870((u8 *)&sp6BC, 1);
+        effMiscDrawScreenColor((u8 *)&sp6BC, 1);
         temp_2 = (s32)(taskView->f88 + 1);
         taskView->f88 = temp_2;
         if (temp_2 >= 0x14) {
@@ -1566,7 +1566,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         }
         sp68C.value = fGpffff9c8c;
         sp6BC = sp68C;
-        func_0045c870((u8 *)&sp6BC, 1);
+        effMiscDrawScreenColor((u8 *)&sp6BC, 1);
         temp_f0_9 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
         if (((s32)(temp_f0_9)) >= 0xF) {
             var_16_2 = NULL;

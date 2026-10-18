@@ -601,7 +601,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern void func_0045c870(u8 *arg0, s32 arg1);
+    extern void effMiscDrawScreenColor(u8 *arg0, s32 arg1);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern f32 fGpffff84a4;
@@ -641,7 +641,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
         mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(3, 0x31801);
         color.bytes[3] = 0;
-        func_0045c870(color.bytes, 0);
+        effMiscDrawScreenColor(color.bytes, 0);
         color.bytes[3] = 0xFF;
         color_value.f = color.value;
         shdDrawRadialFan(coords.v, 0.0f,
@@ -663,7 +663,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
             RpSkyRenderStateSet(2, 0x44);
         } else if (arg1 < 0x30) {
             RpSkyRenderStateSet(2, 0x48);
-            func_0045c870((u8 *)&arg0, 0);
+            effMiscDrawScreenColor((u8 *)&arg0, 0);
             RpSkyRenderStateSet(2, 0x44);
         }
     }
