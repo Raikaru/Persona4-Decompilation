@@ -113,7 +113,7 @@ extern void fclCombineLayoutTransition(u8 *, s32);
 extern s8 func_00105f50(u16);
 extern u32 datGetFlag(s32);
 extern void *memset(void *, s32, u32);
-extern void func_002e5ae0(s8, u16 *, s8);
+extern void yListSlotFillNearLevel(s8, u16 *, s8);
 extern void yListSlotFillByLevel(s8, u16 *, s8);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 datPersonaCountSkills(u8 *);
@@ -2180,7 +2180,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         }
         temp_16_43 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1];
         sp110[*(s32 *)(yListSlotWork(0) + 8)] = temp_16_43;
-        func_002e5ae0(0xD, sp110, (s8)datCalcGetLevelById(1));
+        yListSlotFillNearLevel(0xD, sp110, (s8)datCalcGetLevelById(1));
         temp_16_44 = *(u32 *)(yListSlotWork(0xD) + 8);
         temp_16_45 = (RpRandom() % temp_16_44) * 0xA;
         temp_19_9 = (s8)(temp_16_45 % *(u32 *)(yListSlotWork(0xD) + 8));
@@ -3517,7 +3517,7 @@ block_215:
         }
         temp_16_78 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
         sp150[(*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))] = temp_16_78;
-        func_002e5ae0(0xD, (u16 *)(sp150), (s8)(datCalcGetLevelById(1)));
+        yListSlotFillNearLevel(0xD, (u16 *)(sp150), (s8)(datCalcGetLevelById(1)));
         temp_16_79 = (*((u32 *)((u8 *)(yListSlotWork(0xD)) + (8))));
         temp_16_80 = (u32)((u32)((RpRandom() % temp_16_79) * 0xA));
         selectedResult = (s64)((s64)((s8)((temp_16_80 % (u32) (*((u32 *)((u8 *)(yListSlotWork(0xD)) + (8))))))));

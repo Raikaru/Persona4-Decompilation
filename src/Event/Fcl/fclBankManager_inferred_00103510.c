@@ -427,10 +427,10 @@ void fclBankSlotLoad(u8 *slot)
     extern u8 D_005DD670[];
     extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
     extern const char *H_Cdvd_ArchiveEntryName(struct HCdvd *archive, s32 index);
-    extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
+    extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
                             s32 flags, s32 source, s32 buffer, s32 byteCount,
                             const char *cacheName, s32 resultKind, s32 memoryKind);
-    extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *size);
+    extern u8 *filerTakeCompletedRequest(u8 *request, s32 *complete, s32 *size);
     extern s32 func_004672c0(s32 request, u8 *archive);
     extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
     extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
@@ -459,7 +459,7 @@ void fclBankSlotLoad(u8 *slot)
                            H_Cdvd_ArchiveEntryName(*(struct HCdvd **)(slot + 0x24),
                                           *(s32 *)(slot + 0x4C)));
             *(u8 **)(slot + 0x48) =
-                func_004667d0(0, (const char *)slot + 0x60, NULL,
+                filerEnqueueRequest(0, (const char *)slot + 0x60, NULL,
                               0, 0, 0, 0, NULL, 0, 0);
             *(s16 *)slot = 2;
             break;
@@ -474,7 +474,7 @@ void fclBankSlotLoad(u8 *slot)
         break;
     case 2:
         *(s32 *)(slot + 0x368) = *(s32 *)(slot + 0x368) + 1;
-        texture = func_004669d0(*(u8 **)(slot + 0x48), &complete, NULL);
+        texture = filerTakeCompletedRequest(*(u8 **)(slot + 0x48), &complete, NULL);
         offset = *(s32 *)(slot + 0x4C) * 4;
         *(u8 **)(offset + (u32)slot + 0x14) = texture;
         if (complete != 0) {

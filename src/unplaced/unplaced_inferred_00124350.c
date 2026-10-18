@@ -66,7 +66,7 @@ extern void kwlnTaskDestroyWithHierarchy();
 extern void func_003ef3a0(void *);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_004669d0(s32 , s32 *, s32 );
+extern s32 filerTakeCompletedRequest(s32 , s32 *, s32 );
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern u8 D_005E5720[];
@@ -1001,7 +1001,7 @@ s32 titleFileLoadStep(u8 *unusedTask)
     case 1:
         *(s32 *)(work + 0) = 2;
     case 2:
-        *(s32 *)(work + 8) = func_004669d0(*(s32 *)(work + 4), &complete, 0);
+        *(s32 *)(work + 8) = filerTakeCompletedRequest(*(s32 *)(work + 4), &complete, 0);
         if (complete != 0) {
             *(s32 *)(work + 0) = 3;
             *(s32 *)(work + 4) = 0;

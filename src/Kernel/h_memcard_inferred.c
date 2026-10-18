@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -219,7 +220,7 @@ typedef struct FilerDirent {
 
 
 extern void sdkFilerScanDirectory(u8 *work);
-extern void func_00467880(u8 *arg0);
+extern void filerDrawDirectory(u8 *arg0);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00467bd0-00467bd0 */
 
@@ -336,7 +337,7 @@ s32 sdkFilerTaskUpdate(u8 *task)
     u16 length;
     FilerWork *work;
 
-    work = *(FilerWork **)(task + 0x38);
+    work = (FilerWork *)((struct KwlnTask *)task)->work;
     switch (work->state) {
     case 0:
         work->state = 1;
@@ -423,7 +424,7 @@ parentDirectory:
                 work->page = navigation.page;
             }
         }
-        func_00467880((u8 *)work);
+        filerDrawDirectory((u8 *)work);
         break;
     case 3:
         break;
@@ -438,9 +439,10 @@ parentDirectory:
                 work->state = 3;
             }
         }
-        func_00467880((u8 *)work);
+        filerDrawDirectory((u8 *)work);
         break;
     }
     return 0;
 }
+#pragma pop
 

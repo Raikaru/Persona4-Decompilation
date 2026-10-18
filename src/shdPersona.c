@@ -104,7 +104,7 @@ f32 sinf(f32 arg0);
 f32 cosf(f32 arg0);
 extern f32 D_007613EC;
 extern f32 D_00761184;
-s32 func_004669d0();
+s32 filerTakeCompletedRequest();
 s32 func_00440b68();
 extern char D_005E4ED0[];
 extern char D_005E4EF0[];
@@ -3825,7 +3825,7 @@ s32 shdPersonaGetChildTask(u8 *arg0)
 s32 kwlnTaskGetTaskByName(void *arg0);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
 s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
-s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern char D_005E4E60[];
 extern char D_005E4E90[];
 extern char iGpffff9c18;
@@ -3862,12 +3862,12 @@ s32 shdPersonaLoadModelStep(u8 *arg0)
         break;
     case 1:
         if (H_Cdvd_IsFileLoaded(*(s32 *)(work + 0x4C)) != 0) {
-            *(s32 *)(work + 0x48) = func_004667d0(0, (const char *)(work + 0x54), 0, 0, 0, 0, 0, 0, 0, 0);
+            *(s32 *)(work + 0x48) = filerEnqueueRequest(0, (const char *)(work + 0x54), 0, 0, 0, 0, 0, 0, 0, 0);
             *(s32 *)(work + 0) = 2;
         }
         break;
     case 2:
-        *(s32 *)(work + 0x50) = func_004669d0(*(s32 *)(work + 0x48), &sp4C, 0);
+        *(s32 *)(work + 0x50) = filerTakeCompletedRequest(*(s32 *)(work + 0x48), &sp4C, 0);
         if (sp4C != 0) {
             *(s32 *)(work + 0x48) = 0;
             H_Cdvd_Destroy(*(s32 *)(work + 0x4C));
@@ -4191,7 +4191,7 @@ s32 shdPersonaDispCtlUpdate(u8 *arg0)
     s32 r;
 
     w = *(u8 **)(arg0 + 0x38);
-    r = func_004669d0(*(s32 *)w, &out, 0);
+    r = filerTakeCompletedRequest(*(s32 *)w, &out, 0);
     if (out != 0) {
         p4c = *(s32 *)(w + 4);
         if (p4c != 0) {
