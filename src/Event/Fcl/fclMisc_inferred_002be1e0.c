@@ -37,9 +37,9 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern s32 func_002be1e0(s32 arg0);
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern s32 fclFirstSetBitIndex(s32 flags);
+extern void (*D_00887300[])(s32 flags, s32 arg1);
+extern void RpSkyRenderStateSet(s32 flags, s32 arg1);
 extern u32 fclGetMoney(void);
 extern char D_0063F340[];
 extern char D_0063F360[];
@@ -85,12 +85,12 @@ extern FclVec2 fclMakeVec2(f32 x, f32 y);
 
 
 
-extern s32 fclDecimalDigitCount(s32 arg0);
+extern s32 fclDecimalDigitCount(s32 flags);
 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002be1e0-002be4a0 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void func_002b5120(s32 flags, u8 *arg1);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */
@@ -104,69 +104,71 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 #pragma push
 #pragma pop
+/* Return the first set bit index among bits 0..18, or zero when none is set. */
 // FUN_002BE1E0
-s32 func_002be1e0(s32 arg0)
+s32 fclFirstSetBitIndex(s32 flags)
 {
-    if (arg0 & 1) {
+    if (flags & 1) {
         return 0;
     }
-    if (arg0 & 2) {
+    if (flags & 2) {
         return 1;
     }
-    if (arg0 & 4) {
+    if (flags & 4) {
         return 2;
     }
-    if (arg0 & 8) {
+    if (flags & 8) {
         return 3;
     }
-    if (arg0 & 0x10) {
+    if (flags & 0x10) {
         return 4;
     }
-    if (arg0 & 0x20) {
+    if (flags & 0x20) {
         return 5;
     }
-    if (arg0 & 0x40) {
+    if (flags & 0x40) {
         return 6;
     }
-    if (arg0 & 0x80) {
+    if (flags & 0x80) {
         return 7;
     }
-    if (arg0 & 0x100) {
+    if (flags & 0x100) {
         return 8;
     }
-    if (arg0 & 0x200) {
+    if (flags & 0x200) {
         return 9;
     }
-    if (arg0 & 0x400) {
+    if (flags & 0x400) {
         return 0xA;
     }
-    if (arg0 & 0x800) {
+    if (flags & 0x800) {
         return 0xB;
     }
-    if (arg0 & 0x1000) {
+    if (flags & 0x1000) {
         return 0xC;
     }
-    if (arg0 & 0x2000) {
+    if (flags & 0x2000) {
         return 0xD;
     }
-    if (arg0 & 0x4000) {
+    if (flags & 0x4000) {
         return 0xE;
     }
-    if (arg0 & 0x8000) {
+    if (flags & 0x8000) {
         return 0xF;
     }
-    if (arg0 & 0x10000) {
+    if (flags & 0x10000) {
         return 0x10;
     }
-    if (arg0 & 0x20000) {
+    if (flags & 0x20000) {
         return 0x11;
     }
-    if (arg0 & 0x40000) {
+    if (flags & 0x40000) {
         return 0x12;
     }
     return 0;
 }
 
+/* Install the render states used by the FCL UI drawing path. */
 // FUN_002BE3C0
 void fclMiscInitRenderStates(void)
 {
@@ -184,14 +186,15 @@ void fclMiscInitRenderStates(void)
     RpSkyRenderStateSet(3, 0x7100D);
 }
 
+/* Right-align the money text using the decimal digit count and a 21-pixel advance. */
 // FUN_002BE4A0
 void fclDrawMoneyDisplay(void)
 {
-    Vec2f sp18;
+    Vec2f position;
 
-    sp18 = fclMakeVec2(
+    position = fclMakeVec2(
                   580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()),
                   15.0f);
-    shdDrawNumberText(sp18, 1.0f, 0xFF, fclGetMoney());
+    shdDrawNumberText(position, 1.0f, 0xFF, fclGetMoney());
 }
 

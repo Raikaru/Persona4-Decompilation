@@ -20,7 +20,7 @@ extern void frFontExCopyString(void *, void *, s32);
 extern s32 datGetFlag(s32);
 extern u8 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
-extern s32 func_002be100(u8);
+extern s32 fclCalendarMonthOrder(u8);
 extern s32 nmMesWindowSlotStatus(s8);
 extern void nmMesWindowStepSlotRelease(s32);
 extern void nmMesWindowDestroySlot(s8);
@@ -67,7 +67,7 @@ s32 itemShopTalkUpdate(u8 *arg0) {
 
     work = *(s8 **)(arg0 + 0x38);
     i = 0;
-    level_value = (s16)(100 * (func_002be100(fclCalendarMonth()) & 0xFF) +
+    level_value = (s16)(100 * (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF) +
                         (fclCalendarDay() & 0xFF));
     switch (*work) {
     case 0:
@@ -83,9 +83,9 @@ state_zero:
     do {
         entry = D_006450E0 + (i * 0xC);
         min = (s16)(entry[9] +
-                    100 * (func_002be100(entry[8]) & 0xFF));
+                    100 * (fclCalendarMonthOrder(entry[8]) & 0xFF));
         max = (s16)(entry[11] +
-                    100 * (func_002be100(entry[10]) & 0xFF));
+                    100 * (fclCalendarMonthOrder(entry[10]) & 0xFF));
         if (datGetFlag(*(s32 *)(entry + 4)) != 0 ||
             *(s32 *)(entry + 4) == 0) {
             if (min > level) {
@@ -176,7 +176,7 @@ s32 wshopMaterialTalkUpdate(u8 *arg0) {
     s16 max;
 
     work = *(s8 **)(arg0 + 0x38);
-    level_value = (s16)(100 * (func_002be100(fclCalendarMonth()) & 0xFF) +
+    level_value = (s16)(100 * (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF) +
                         (fclCalendarDay() & 0xFF));
     index = 0;
     switch (*work) {
@@ -197,9 +197,9 @@ state_zero_32520:
     do {
         entry = D_006450B0 + (index * 4);
         min = (s16)(entry[1] +
-                    100 * (func_002be100(entry[0]) & 0xFF));
+                    100 * (fclCalendarMonthOrder(entry[0]) & 0xFF));
         max = (s16)(entry[3] +
-                    100 * (func_002be100(entry[2]) & 0xFF));
+                    100 * (fclCalendarMonthOrder(entry[2]) & 0xFF));
         if (min > level) {
             goto state_zero_next_32520;
         }

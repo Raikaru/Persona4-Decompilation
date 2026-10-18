@@ -1129,7 +1129,7 @@ void datGridEffectDraw(u8 *arg0, u8 *arg1) {
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern void func_0045c870(u8 *arg0, s32 arg1);
+    extern void effMiscDrawScreenColor(u8 *arg0, s32 arg1);
     extern f32 cosf(f32 arg0);
     extern void datGridEffectDrawStrip(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
     extern void datGridEffectDrawCell(Vec2f arg0, s32 arg1, f32 dummy, f32 f0, f32 f1, s32 arg2);
@@ -1165,7 +1165,7 @@ void datGridEffectDraw(u8 *arg0, u8 *arg1) {
         col.b[1] = 0xFF;
         col.b[2] = 0xFF;
         col.b[3] = 0;
-        func_0045c870(col.b, 0);
+        effMiscDrawScreenColor(col.b, 0);
     }
     if ((*(s32 *)(p + 8) & 2) != 0) {
         *(s16 *)(p + 0x12) += 1;
@@ -1264,7 +1264,7 @@ void datGridEffectDraw(u8 *arg0, u8 *arg1) {
     col.b[2] = *(u8 *)(p + 0x16);
     col.b[3] = alpha;
     if (effect_timer_past_threshold(p) != 0) {
-        func_0045c870(col.b, 0);
+        effMiscDrawScreenColor(col.b, 0);
         return;
     }
     for (i = 0; i < 0xF; i++) {
@@ -1788,7 +1788,7 @@ void datCommunityListDraw(u8 *work) {
     extern u8 *cmmNameRecord(u32);
     extern u8 *cmmRankNameRecord(s16);
     extern u8 *cmmDetailRecord(s16);
-    extern void func_002bc0b0(f32, f32, f32, u32, u32, u32, s32, s32);
+    extern void fclMesWindowDrawItem(f32, f32, f32, u32, u32, u32, s32, s32);
     extern f32 datCommunityPortraitDraw(u8 *, u8);
     extern f32 datPortraitTextDraw(u8 *, u8);
     extern void datPortraitGetPosition(u8 *, Vec2f *);
@@ -2113,7 +2113,7 @@ void datCommunityListDraw(u8 *work) {
             rankIndex = 10;
             break;
         }
-        func_002bc0b0(position.x, position.y, 0.0f, rankColor, 1, 6, 7, *(s16 *)(rankNames + ((rankIndex & 0xFFFF) * 2)));
+        fclMesWindowDrawItem(position.x, position.y, 0.0f, rankColor, 1, 6, 7, *(s16 *)(rankNames + ((rankIndex & 0xFFFF) * 2)));
         panelX = (15.0f + (originX + menu->panelOffset.x));
         panelY = (17.0f + (originY + menu->panelOffset.y));
         panelAlpha = (u8)(menu->panelOpacity);
@@ -2290,9 +2290,9 @@ void datCommunityListDraw(u8 *work) {
             numberOpacity = numberQuantized & 0xFF;
             numberColor = numberOpacity | ~0x7EFF;
             detailValue = *(s16 *)((u8 *)add_offset_first((u32)(currentRank & 0xFFFF) * 2, (u32)detailValues) - 2);
-            func_002bc0b0(position.x, position.y, 0.0f, numberColor, 1, 8, 7, detailValue - 1);
+            fclMesWindowDrawItem(position.x, position.y, 0.0f, numberColor, 1, 8, 7, detailValue - 1);
             numberColor = numberOpacity | ~0xFF;
-            func_002bc0b0(position.x, 28.0f + position.y, 0.0f, numberColor, 1, 6, 7, detailValue);
+            fclMesWindowDrawItem(position.x, 28.0f + position.y, 0.0f, numberColor, 1, 6, 7, detailValue);
         }
     }
     if (menu->flags & 0x20) {
