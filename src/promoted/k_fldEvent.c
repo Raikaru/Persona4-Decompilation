@@ -78,7 +78,7 @@ void FldFrame_ClearStateFlags(s32, s32);
 void FldPlayerIconUpdatePos(u8 *);
 void FldPlayerIconSetActive(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
-s32 func_0018bea0();
+s32 fldNpcControlIsTurning();
 void FldNpcControlFacePlayer(s32);
 void FldNpcSetPositionLock(s32, s32);
 void FldNpcControlTurnBack(s32);

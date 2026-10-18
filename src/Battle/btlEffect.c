@@ -1,10 +1,12 @@
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
 /* Source unit: src/Battle/btlEffect_001d6880.c */
 #include "btl_skill_target_internal.h"
 #include "type.h"
 #include "include_asm.h"
 extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
-extern s32 btlCond_MYWEAK(u8 *arg0, s16 arg1);
-extern u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
+extern s32 btlCond_MYWEAK(u8 *input, s16 value);
+extern u16 btlSkillClassifyTargets(u8 *input, u8 *value, u16 options, u32 flags);
 extern void scrSetReturnInt(s32 value);
 
 
@@ -24,35 +26,43 @@ typedef struct BtlFormationWork {
   u32 items;
 } BtlFormationWork;
 
-extern void btlFormationResetState(BtlFormationWork* param_1);
-extern void mdlEffectDestroyWithNodes(u32 param_1);
-extern void mdlDestroyModelObject(u32 param_1);
+extern void btlFormationResetState(BtlFormationWork* input);
+extern void mdlEffectDestroyWithNodes(u32 input);
+extern void mdlDestroyModelObject(u32 input);
+
+/* Work payloads written by the sprite/counter packet constructors below. */
+typedef struct BtlSpriteFrameWork {
+    u32 sprite;
+    u16 frame;
+    u8 pad06[2];
+    u32 elapsed;
+} BtlSpriteFrameWork;
+typedef struct BtlEffectCounterWork {
+    s32 effect;
+    s32 limit;
+    s32 elapsed;
+} BtlEffectCounterWork;
+typedef struct BtlUnitCounterWork {
+    s32 unit;
+    s8 mode;
+    u8 pad05;
+    s16 value;
+} BtlUnitCounterWork;
 
 typedef int (*code)();
 
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x47];
-    u8 flags;
-    u8 padding_48[0x20];
-    BtlPacketFunc initFunc;
-    BtlPacketFunc updateFunc;
-    BtlPacketFunc destroyFunc;
-    u8 padding_74[4];
-    void* workData;
-} BtlPacket;
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern void btlEffectReleaseCdvdHandle(void);
 extern u32 btlEffectLoadTable(void);
-extern u32 btlEffectReleaseId(u16 *param_1);
-extern u32 btlEffectApplyFadeCustomColor(u8 *param_1);
+extern u32 btlEffectReleaseId(u16 *input);
+extern u32 btlEffectApplyFadeCustomColor(u8 *input);
 
 typedef u8 bool;
 
 
 
-extern u32 btlPacketStepSpriteFrame(int param_1);
+extern u32 btlPacketStepSpriteFrame(int input);
 
 extern void func_00440b68();
 extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
@@ -62,9 +72,9 @@ extern void H_Cdvd_ReadSync(void* handle);
 extern void chkmemAllocSiteTag(void* msg, s32 id);
 extern void memcpy(void* dst, void* src, u32 size);
 extern void H_Cdvd_Destroy(u8* ptr);
-extern s32 btlFormationAllocWork(u32 param_1);
-extern void btlFormationSetSlot(int param_1, u32 param_2);
-extern u32 btlEffectFindUnitMatchingCallback(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
+extern s32 btlFormationAllocWork(u32 input);
+extern void btlFormationSetSlot(int input, u32 value);
+extern u32 btlEffectFindUnitMatchingCallback(int input, u32 value, u32 options, u32 flags, u16 mode, code *callback);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u8* D_0076449C;
@@ -77,33 +87,37 @@ extern char D_006095C0[];
 
 
 
+/* Release all three optional node resources and restore the default white, twenty-step fade state without unlinking the node.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D6880
-void btlEffectResetEntry(u16 *param_1)
+void btlEffectResetEntry(u16 *node)
 
 {
-  if (*(int *)(param_1 + 8) != 0) {
-    btlFormationResetState((BtlFormationWork *)*(int *)(param_1 + 8));
-    *(u32 *)(param_1 + 8) = 0;
+  if (*(int *)(node + 8) != 0) {
+    btlFormationResetState((BtlFormationWork *)*(int *)(node + 8));
+    *(u32 *)(node + 8) = 0;
   }
-  if (*(int *)(param_1 + 10) != 0) {
-    mdlEffectDestroyWithNodes(*(int *)(param_1 + 10));
-    *(u32 *)(param_1 + 10) = 0;
+  if (*(int *)(node + 10) != 0) {
+    mdlEffectDestroyWithNodes(*(int *)(node + 10));
+    *(u32 *)(node + 10) = 0;
   }
-  if (*(int *)(param_1 + 0xc) != 0) {
-    mdlDestroyModelObject(*(int *)(param_1 + 0xc));
-    *(u32 *)(param_1 + 0xc) = 0;
+  if (*(int *)(node + 0xc) != 0) {
+    mdlDestroyModelObject(*(int *)(node + 0xc));
+    *(u32 *)(node + 0xc) = 0;
   }
-  *(u32 *)(param_1 + 2) = 0xffffffff;
-  *(u8 *)(param_1 + 4) = 0x14;
-  *(u32 *)(param_1 + 6) = 0;
-  *param_1 = 0x200;
+  *(u32 *)(node + 2) = 0xffffffff;
+  *(u8 *)(node + 4) = 0x14;
+  *(u32 *)(node + 6) = 0;
+  *node = 0x200;
   return;
 }
 
 
 
+/* Find an unclaimed pool slot, reset its node resources, and mark its bit used; return NULL if the scan finds none.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D6CE0
-u16 *btlEffectAllocEntry(int param_1)
+u16 *btlEffectAllocEntry(int pool)
 {
   u16 *entry;
   u32 index;
@@ -112,8 +126,8 @@ u16 *btlEffectAllocEntry(int param_1)
   mask = 1;
   index = 0;
   while (index < 0x30) {
-    if ((*(u32 *)(param_1 + 0xc0) & mask) == 0) {
-      entry = *(u16 **)(param_1 + index * 4);
+    if ((*(u32 *)(pool + 0xc0) & mask) == 0) {
+      entry = *(u16 **)(pool + index * 4);
       if (*(int *)(entry + 8) != 0) {
         btlFormationResetState((BtlFormationWork *)*(int *)(entry + 8));
         *(u32 *)(entry + 8) = 0;
@@ -130,7 +144,7 @@ u16 *btlEffectAllocEntry(int param_1)
       *(u8 *)(entry + 4) = 0x14;
       *(u32 *)(entry + 6) = 0;
       *entry = 0x200;
-      *(u32 *)(param_1 + 0xc0) |= mask;
+      *(u32 *)(pool + 0xc0) |= mask;
       return entry;
     }
     mask <<= 1;
@@ -141,8 +155,10 @@ u16 *btlEffectAllocEntry(int param_1)
 
 
 
+/* Locate the node in its pool, release its resources, and clear the corresponding used bit; return whether it was found.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D6DE0
-u32 btlEffectFreeEntry(int param_1, u16 *entry)
+u32 btlEffectFreeEntry(int pool, u16 *entry)
 {
   u32 index;
   u32 mask;
@@ -150,7 +166,7 @@ u32 btlEffectFreeEntry(int param_1, u16 *entry)
   mask = 1;
   index = 0;
   while (index < 0x30) {
-    if (*(u16 **)(param_1 + index * 4) == entry) {
+    if (*(u16 **)(pool + index * 4) == entry) {
       if (*(int *)(entry + 8) != 0) {
         btlFormationResetState((BtlFormationWork *)*(int *)(entry + 8));
         *(u32 *)(entry + 8) = 0;
@@ -167,7 +183,7 @@ u32 btlEffectFreeEntry(int param_1, u16 *entry)
       *(u8 *)(entry + 4) = 0x14;
       *(u32 *)(entry + 6) = 0;
       *entry = 0x200;
-      *(u32 *)(param_1 + 0xc0) &= ~mask;
+      *(u32 *)(pool + 0xc0) &= ~mask;
       return 1;
     }
     mask <<= 1;
@@ -183,11 +199,12 @@ void btlUnitResourceClearFlag(void** units);
 void btlPacketSetValue(u8* packet, s16 value);
 void btlPacketSetTag(void* packet, u32 value);
 u32 btlFormationCurrentEntry(void* formation);
-s16 btlPacketGetValue(s32 param_1);
-void btlFormationEntrySetSelected(s32 param_1, u64* param_2);
-void btlFormationEntryCopySelected(s32 param_1, s32 param_2);
-u32 btlCond_MORE(s32 param_1);
+s16 btlPacketGetValue(s32 input);
+void btlFormationEntrySetSelected(s32 input, u64* value);
+void btlFormationEntryCopySelected(s32 input, s32 value);
+u32 btlCond_MORE(s32 input);
 extern void (*jtbl_008873EC[])(void* ptr);
+/* Clear the active-node bit (0x200) on all 48 pool entries. */
 // FUN_001D6EE0
 void btlUnitResourceClearFlag(void** units)
 {
@@ -200,6 +217,8 @@ void btlUnitResourceClearFlag(void** units)
 }
 
 
+/* Mark a placement dirty only when its selected formation slot changes.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D7100
 void btlPacketSetValue(u8* packet, s16 value)
 {
@@ -212,33 +231,36 @@ void btlPacketSetValue(u8* packet, s16 value)
 
 
 // FUN_001D7130
-s16 btlPacketGetValue(s32 param_1)
+s16 btlPacketGetValue(s32 placement)
 {
-    return *(s16*)(param_1 + 0x10);
+    return ((BtlEffectPlacement *)placement)->slotIndex;
 }
 
 
+/* Set placement alpha from value and force the RGB channels to white. */
 // FUN_001D72C0
 void btlPacketSetTag(void* packet, u32 value)
 {
-    *(u32*)((u8*)packet + 0x14) = (value & 0xFF000000) | 0xFFFFFF;
+    ((BtlEffectPlacement *)packet)->color = (value & 0xFF000000) | 0xFFFFFF;
 }
 
 
+/* Acquire the formation archive, then allocate and populate all 48 slots once the archive is loaded.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D7760
 u32 btlEffectLoadTable(void)
 {
   u32 firstIndex = 0;
   u32 firstValue = 0;
   u32 firstOffset = 0;
-  s32 auStack_4;
+  s32 entrySize;
 
   if (*(int *)(D_0076449C + 0xDC4) == 0) {
     func_00440b68(&iGpffffa290, D_00609548, 0x4AB);
     *(u32 *)(D_0076449C + 0xDC4) = (u32)H_Cdvd_AcquireDirectory((u8 *)D_006095C0, 1);
   } else if (H_Cdvd_IsFileLoaded(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
     for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
-      firstValue = (u32)H_Cdvd_GetArchiveEntry(*(void **)(D_0076449C + 0xDC4), firstIndex, &auStack_4);
+      firstValue = (u32)H_Cdvd_GetArchiveEntry(*(void **)(D_0076449C + 0xDC4), firstIndex, &entrySize);
       firstOffset = firstIndex * 4;
       *(u32 *)(D_0076449C + firstOffset + 0xD04) = btlFormationAllocWork(2);
       btlFormationSetSlot(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);
@@ -249,30 +271,33 @@ u32 btlEffectLoadTable(void)
   return 0;
 }
 
+/* Create a load packet whose init releases the previous handle and whose update waits for the formation archive. */
 // FUN_001D7880
 u8 *btlEffectCreateLoadPacket(void)
 
 {
-  int iVar1 = 0;
+  int packetAddress = 0;
 
-  iVar1 = (int)btlPacketAlloc(0x306,0);
-  *(u8 *)(iVar1 + 0x47) = *(u8 *)(iVar1 + 0x47) & 0xfe;
-  *(code *)(iVar1 + 0x68) = (code)btlEffectReleaseCdvdHandle;
-  *(code *)(iVar1 + 0x6c) = (code)btlEffectLoadTable;
-  return (u8 *)iVar1;
+  packetAddress = (int)btlPacketAlloc(0x306,0);
+  ((BtlPacket *)packetAddress)->flags = ((BtlPacket *)packetAddress)->flags & 0xfe;
+  *(code *)&((BtlPacket *)packetAddress)->initFunc = (code)btlEffectReleaseCdvdHandle;
+  *(code *)&((BtlPacket *)packetAddress)->updateFunc = (code)btlEffectLoadTable;
+  return (u8 *)packetAddress;
 }
 
 
 
 
+/* Load the configured formation resource synchronously and copy its data into an independently owned allocation.
+ * Raw offsets retained: CDVD resource data/size fields and the parallel GP tables lack a shared resource-record layout here. */
 // FUN_001D78D0
 void btlEffectLoadFilesSync(void) {
     s32 *out;
     s32 offset;
     s32 i;
-    s32 temp19;
+    s32 resourceSize;
     u8 *work;
-    void *work2;
+    void *resourceCopy;
     i = 0;
     while (i == 0) {
         func_00440b68(&iGpffffa290, D_00609548, 0x559);
@@ -281,20 +306,20 @@ void btlEffectLoadFilesSync(void) {
         H_Cdvd_ReadSync(work);
         out = (s32 *)((u8 *)&iGpffffb450 + offset);
         *out = btlFormationAllocWork(2);
-        temp19 = *(s32 *)(work + 0x118);
+        resourceSize = *(s32 *)(work + 0x118);
         chkmemAllocSiteTag(D_00609558, 0x3A);
-        work2 = jtbl_008873E8[0](temp19, 0x40000);
-        memcpy(work2, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
-        btlFormationSetSlot(*out, (u32)work2);
+        resourceCopy = jtbl_008873E8[0](resourceSize, 0x40000);
+        memcpy(resourceCopy, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
+        btlFormationSetSlot(*out, (u32)resourceCopy);
         H_Cdvd_Destroy(work);
         i += 1;
     }
 }
 
 // FUN_001D79E0
-u32 btlEffectReleaseId(u16 *param_1)
+u32 btlEffectReleaseId(u16 *mode)
 {
-    CrossfadeRequest(*param_1);
+    CrossfadeRequest(*mode);
     return 1;
 }
 /* Both callers attach dependencies to the allocated packet returned here. */
@@ -311,8 +336,10 @@ BtlPacket *btlEffectCreateReleasePacket(u16 mode)
 
 
 
+/* Copy RGBA and mode into the six-byte custom fade-color work payload.
+ * Raw offsets retained: The halfword at work+4 follows the four-byte color copy; retain the original aggregate-copy/halfword-store shape. */
 // FUN_001D7AB0
-BtlPacket* btlEffectCreateMessagePacket(u8 *param_1,u16 param_2)
+BtlPacket* btlEffectCreateMessagePacket(u8 *color,u16 fadeMode)
 
 {
   typedef struct BtlMessageArgs {
@@ -322,27 +349,28 @@ BtlPacket* btlEffectCreateMessagePacket(u8 *param_1,u16 param_2)
   int packet = 0;
 
   packet = (int)btlPacketAlloc(0x30a,6);
-  *(code *)(packet + 0x6c) = (code)btlEffectApplyFadeCustomColor;
-  work = *(u8 **)(packet + 0x78);
-  *(BtlMessageArgs *)work = *(BtlMessageArgs *)param_1;
-  *(u16 *)(work + 4) = param_2;
+  *(code *)&((BtlPacket *)packet)->updateFunc = (code)btlEffectApplyFadeCustomColor;
+  work = (u8 *)((BtlPacket *)packet)->workData;
+  *(BtlMessageArgs *)work = *(BtlMessageArgs *)color;
+  *(u16 *)(work + 4) = fadeMode;
   return (BtlPacket*)packet;
 }
 
 
 extern void btlFormationDispatchArgs(void);
+/* Store three dispatch arguments in a packet whose update invokes the formation argument dispatcher. */
 // FUN_001D7BF0
-u8 *btlFormationDispatchPacketNew(u32 param_1, u32 param_2, u32 param_3)
+u8 *btlFormationDispatchPacketNew(u32 firstValue, u32 secondValue, u32 thirdValue)
 {
     u32 *work;
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x309, 0xc);
-    *(code **)(packet + 0x6c) = (code *)btlFormationDispatchArgs;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    work[2] = param_3;
+    *(code **)&((BtlPacket *)packet)->updateFunc = (code *)btlFormationDispatchArgs;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = firstValue;
+    work[1] = secondValue;
+    work[2] = thirdValue;
     return packet;
 }
 
@@ -350,21 +378,23 @@ u8 *btlFormationDispatchPacketNew(u32 param_1, u32 param_2, u32 param_3)
 // FUN_001D8BC0
 u32 btlFormationCurrentEntry(void* formation)
 {
-    return *(u32*)((u8*)formation + (*(u16*)((u8*)formation + 0x3A) * 4));
+    return (u32)((BtlTargetSelection *)formation)->entries[((BtlTargetSelection *)formation)->selected];
 }
 
 
+/* Save a target UID in the selection so a later target rebuild can retain that entry. */
 // FUN_001D8BE0
-void btlFormationEntrySetSelected(s32 param_1, u64* param_2)
+void btlFormationEntrySetSelected(s32 selection, u64* key)
 {
-    *(u64*)(param_1 + 0x30) = *param_2;
+    ((BtlTargetSelection *)selection)->key = *key;
 }
 
 
+/* Copy the remembered UID between target selections without changing their arrays or cursors. */
 // FUN_001D8BF0
-void btlFormationEntryCopySelected(s32 param_1, s32 param_2)
+void btlFormationEntryCopySelected(s32 destination, s32 source)
 {
-    *(u64*)(param_1 + 0x30) = *(u64*)(param_2 + 0x30);
+    ((BtlTargetSelection *)destination)->key = ((BtlTargetSelection *)source)->key;
 }
 
 
@@ -373,8 +403,10 @@ void btlFormationEntryCopySelected(s32 param_1, s32 param_2)
  * MATCH nd0 -> MISMATCH nd50 (object 100/96), matching the donor's own
  * recorded W161 annotation of nd0 -> nd50. */
 #pragma opt_loop_invariants on
+/* Combine the genus bits of every action in the target selection; the result is kept to sixteen bits.
+ * Raw offsets retained: The integer-based target cursor preserves the measured loop's pointer and genus-load domains. */
 // FUN_001D8DF0
-u32 btlEffectCollectGenusMask(int param_1)
+u32 btlEffectCollectGenusMask(int selection)
 {
   u32 result;
   u16 count;
@@ -383,10 +415,10 @@ u32 btlEffectCollectGenusMask(int param_1)
 
   result = 0;
   index = 0;
-  count = *(u16 *)(param_1 + 0x38);
+  count = ((BtlTargetSelection *)selection)->count;
   bit = 1;
   for (; (index & 0xffff) < count; index = (u16)(index + 1)) {
-    u8 genus = *(u8 *)(*(int *)(*(int *)(param_1 + (u16)index * 4) + 0x30) + 0xa2);
+    u8 genus = *(u8 *)(*(int *)(*(int *)(selection + (u16)index * 4) + 0x30) + 0xa2);
     result = (result | ((bit << genus) & 0xffff)) & 0xffff;
   }
   return result;
@@ -406,9 +438,9 @@ u32 btlEffectCollectGenusMask(int param_1)
 
 
 // FUN_001DA9F0
-u32 btlCond_MORE(s32 param_1)
+u32 btlCond_MORE(s32 action)
 {
-    return *(u8*)(param_1 + 0x28) > 0;
+    return ((BtlAction *)action)->unk_28 > 0;
 }
 
 
@@ -422,13 +454,14 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 }
 extern u8 *scrGetAiState();
 extern s32 btlAICommandSelectCandidates();
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32 input);
 extern s32 btlAICommandCollectSkillCandidates();
 extern s32 btlAICommandCollectCommandsOfType();
-extern u32 datCalcRandomBelow(u32 arg0);
-extern void btlUnitInitChild(u8 *arg0, u64 arg1);
-extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
+extern u32 datCalcRandomBelow(u32 input);
+extern void btlUnitInitChild(u8 *input, u64 value);
+extern void btlAICommandSetActionCode(u8 *input, u8 *value, u16 options);
 extern void *D_00609CE0[];
+/* Decode the packed condition argument and invoke its table predicate, returning the predicate result to the script. */
 // FUN_001E6B90
 s32 btlAICommandDispatchCheck(void) {
     u32 a = scrGetParamIntS32(0);
@@ -448,23 +481,27 @@ s32 btlAICommandDispatchCheck(void) {
 }
 
 
+/* Set a single explicit action target for unclassified skills; otherwise invoke the first selection handler.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E6C60
 s32 btlAICommandSetTarget(void) {
-    u8 *temp_2;
+    u8 *action;
     u32 index;
 
-    temp_2 = scrGetAiState();
-    if ((btlSkillClassifyTargets(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
+    action = scrGetAiState();
+    if ((btlSkillClassifyTargets(action, 0, ((BtlAction *)action)->unk_6e, 0) & 0xFFFF) == 0) {
         index = scrGetParamIntS32(0);
-        *(u8 **)(temp_2 + 0x38) = btlActionFindById(index & 0xFFFFFFF);
-        *(s16 *)(temp_2 + 0x6A) = 1;
-    } else if (((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0) == 0) {
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0);
+        *(u8 **)(action + 0x38) = btlActionFindById(index & 0xFFFFFFF);
+        *(s16 *)&((BtlAction *)action)->unk_6a = 1;
+    } else if (((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0) == 0) {
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     }
     return 1;
 }
 
 
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E6FA0
 s32 btlAICommandPickWeakCandidateGated(void) {
     u16 count;
@@ -472,7 +509,7 @@ s32 btlAICommandPickWeakCandidateGated(void) {
 
     work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
-        count = *(u16 *)(work + 0x6A);
+        count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
@@ -485,6 +522,8 @@ s32 btlAICommandPickWeakCandidateGated(void) {
 }
 
 
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E7080
 s32 btlAICommandPickWeakCandidate(void) {
     u16 count;
@@ -492,7 +531,7 @@ s32 btlAICommandPickWeakCandidate(void) {
 
     work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
-        count = *(u16 *)(work + 0x6A);
+        count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
@@ -505,6 +544,8 @@ s32 btlAICommandPickWeakCandidate(void) {
 }
 
 
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E7160
 s32 btlAICommandPickNormalCandidate(void) {
     u16 count;
@@ -512,7 +553,7 @@ s32 btlAICommandPickNormalCandidate(void) {
 
     work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
-        count = *(u16 *)(work + 0x6A);
+        count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
@@ -525,6 +566,8 @@ s32 btlAICommandPickNormalCandidate(void) {
 }
 
 
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E7240
 s32 btlAICommandPickNormalCandidateGated(void) {
     u16 count;
@@ -532,7 +575,7 @@ s32 btlAICommandPickNormalCandidateGated(void) {
 
     work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
-        count = *(u16 *)(work + 0x6A);
+        count = ((BtlAction *)work)->unk_6a;
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
         } else {
@@ -546,6 +589,8 @@ s32 btlAICommandPickNormalCandidateGated(void) {
 
 
 // Identical body to btlAICommandPickNormalCandidate (opcode 0x2C); this is a separate AI command, 0x208F, with its own table slot (opcode 0x2D).
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails.
+ * Raw offsets retained: Packed AI candidate-slot accesses retain the original byte/pointer ABI; BtlAction does not yet embed the command-work array as a typed member. */
 // FUN_001E7320
 s32 btlAICommandPickNormalCandidateAlt(void)
 {
@@ -554,7 +599,7 @@ s32 btlAICommandPickNormalCandidateAlt(void)
     work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
     {
-        count = *(u16 *)(work + 0x6A);
+        count = ((BtlAction *)work)->unk_6a;
         if (count == 1)
         {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -575,77 +620,80 @@ s32 btlAICommandPickNormalCandidateAlt(void)
 #pragma push
 #pragma opt_rebuildconditionals off
 #pragma pop
+/* Decode the script action ID and command type, then return the command-collection result. */
 // FUN_001E8BB0
 s32 btlAICommandScriptCollectCommands(void) {
-    u64 temp_16;
-    u64 temp_17;
-    u8 *temp_19;
-    u64 temp_18;
+    u64 commandType;
+    u64 actionId;
+    u8 *action;
+    u64 options;
 
-    temp_19 = scrGetAiState();
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    temp_18 = scrGetParamInt(2);
-    scrSetReturnInt(btlAICommandCollectCommandsOfType(temp_19, btlActionFindById((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
+    action = scrGetAiState();
+    actionId = scrGetParamInt(0);
+    commandType = scrGetParamInt(1);
+    options = scrGetParamInt(2);
+    scrSetReturnInt(btlAICommandCollectCommandsOfType(action, btlActionFindById((u64)(actionId << 0x24) >> 0x24), (s16)commandType, options));
     return 1;
 }
 
 
+/* Decode the script action ID and masks, then return the skill-candidate collection result. */
 // FUN_001E8CD0
 s32 btlAICommandScriptCollectSkills(void) {
-    u64 temp_16;
-    u8 *temp_19;
-    u64 temp_18;
-    u64 temp_17;
+    u64 actionId;
+    u8 *action;
+    u64 skillMask;
+    u64 options;
 
-    temp_19 = scrGetAiState();
-    temp_16 = scrGetParamInt(0);
-    temp_18 = scrGetParamInt(1);
-    temp_17 = scrGetParamInt(2);
-    scrSetReturnInt(btlAICommandCollectSkillCandidates(temp_19, btlActionFindById((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
+    action = scrGetAiState();
+    actionId = scrGetParamInt(0);
+    skillMask = scrGetParamInt(1);
+    options = scrGetParamInt(2);
+    scrSetReturnInt(btlAICommandCollectSkillCandidates(action, btlActionFindById((u64)(actionId << 0x24) >> 0x24), skillMask, options));
     return 1;
 }
 
 
+/* Initialize the current unit's child and assign the requested action code to the current command work. */
 // FUN_001EA2D0
 s32 btlAICommandScriptSpawnChild(void) {
-    u64 temp_16;
-    u8 *temp_18;
-    u64 temp_17;
+    u64 actionCode;
+    u8 *action;
+    u64 childKey;
 
-    temp_18 = scrGetAiState();
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    btlUnitInitChild(*(u8 **)(temp_18 + 0x30), temp_17);
-    btlAICommandSetActionCode(temp_18, temp_18 + 0x38, temp_16 & 0xFFFF);
+    action = scrGetAiState();
+    childKey = scrGetParamInt(0);
+    actionCode = scrGetParamInt(1);
+    btlUnitInitChild((u8 *)((BtlAction *)action)->unit, childKey);
+    btlAICommandSetActionCode(action, action + 0x38, actionCode & 0xFFFF);
     return 1;
 }
 
 
 // FUN_00202010
-BtlPacket* btlEffectCreateSpriteFramePacket(u32 param_1, u16 param_2)
+BtlPacket* btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame)
 {
-  u32 *puVar1;
-  int iVar2 = 0;
+  u32 *work;
+  int packetAddress = 0;
 
-  iVar2 = (int)btlPacketAlloc(0x504, 0xc);
-  *(code *)(iVar2 + 0x6c) = (code)btlPacketStepSpriteFrame;
-  puVar1 = *(u32 **)(iVar2 + 0x78);
-  *puVar1 = param_1;
-  *(u16 *)(puVar1 + 1) = param_2;
-  puVar1[2] = 0;
-  return (BtlPacket*)iVar2;
+  packetAddress = (int)btlPacketAlloc(0x504, 0xc);
+  *(code *)&((BtlPacket *)packetAddress)->updateFunc = (code)btlPacketStepSpriteFrame;
+  work = (u32 *)((BtlPacket *)packetAddress)->workData;
+  *work = sprite;
+  ((BtlSpriteFrameWork *)work)->frame = frame;
+  work[2] = 0;
+  return (BtlPacket*)packetAddress;
 }
-extern void btlPacketIncUnitCounter(u8 *arg0);
-extern s32 btlPacketUpdateHpRatio(u8 *arg0);
-extern void btlPacketDecUnitCounter(u8 *arg0);
-extern s32 btlPacketStepEffectCounter(u8 *arg0);
-extern s32 btlPacketStepSpriteFrameLookup(u8 *arg0);
-extern s32 btlPacketStepSpriteTable(u8 *arg0);
-extern s32 btlPacketSetHpRatio(u8 **arg0);
+extern void btlPacketIncUnitCounter(u8 *input);
+extern s32 btlPacketUpdateHpRatio(u8 *input);
+extern void btlPacketDecUnitCounter(u8 *input);
+extern s32 btlPacketStepEffectCounter(u8 *input);
+extern s32 btlPacketStepSpriteFrameLookup(u8 *input);
+extern s32 btlPacketStepSpriteTable(u8 *input);
+extern s32 btlPacketSetHpRatio(u8 **input);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
-extern void btlPacketIncUnitCounterAlt(u8 *arg0);
-extern void btlPacketDecUnitCounterAlt(u8 *arg0);
+extern void btlPacketIncUnitCounterAlt(u8 *input);
+extern void btlPacketDecUnitCounterAlt(u8 *input);
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma push
@@ -659,71 +707,71 @@ extern void btlPacketDecUnitCounterAlt(u8 *arg0);
 #pragma opt_rebuildconditionals on
 // Intent: allocate the sprite-step packet (type 0x505). [inferred]
 // FUN_00202120
-BtlPacket *btlPacketCreateSpriteStep(u32 param_1, u16 param_2)
+BtlPacket *btlPacketCreateSpriteStep(u32 sprite, u16 frame)
 {
-  u32 *puVar1;
-  int iVar2 = 0;
+  u32 *work;
+  int packetAddress = 0;
 
-  iVar2 = (int)btlPacketAlloc(0x505, 0xc);
-  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteFrameLookup;
-  puVar1 = *(u32 **)(iVar2 + 0x78);
-  *puVar1 = param_1;
-  *(u16 *)(puVar1 + 1) = param_2;
-  puVar1[2] = 0;
-  return (BtlPacket *)iVar2;
+  packetAddress = (int)btlPacketAlloc(0x505, 0xc);
+  *(void **)&((BtlPacket *)packetAddress)->updateFunc = (void *)btlPacketStepSpriteFrameLookup;
+  work = (u32 *)((BtlPacket *)packetAddress)->workData;
+  *work = sprite;
+  ((BtlSpriteFrameWork *)work)->frame = frame;
+  work[2] = 0;
+  return (BtlPacket *)packetAddress;
 }
 
 
 // Intent: allocate the sprite-table packet (type 0x507). [inferred]
 // FUN_002022E0
-u8 *btlPacketCreateSpriteTable(u32 param_1, u16 param_2)
+u8 *btlPacketCreateSpriteTable(u32 sprite, u16 frame)
 {
-  u32 *puVar1;
-  int iVar2 = 0;
+  u32 *work;
+  int packetAddress = 0;
 
-  iVar2 = (int)btlPacketAlloc(0x507, 0xc);
-  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteTable;
-  puVar1 = *(u32 **)(iVar2 + 0x78);
-  *puVar1 = param_1;
-  *(u16 *)(puVar1 + 1) = param_2;
-  puVar1[2] = 0;
-  return (u8 *)iVar2;
+  packetAddress = (int)btlPacketAlloc(0x507, 0xc);
+  *(void **)&((BtlPacket *)packetAddress)->updateFunc = (void *)btlPacketStepSpriteTable;
+  work = (u32 *)((BtlPacket *)packetAddress)->workData;
+  *work = sprite;
+  ((BtlSpriteFrameWork *)work)->frame = frame;
+  work[2] = 0;
+  return (u8 *)packetAddress;
 }
 
 
 // Intent: allocate the effect-counter packet (type 0x506). [inferred]
 // FUN_00202400
-BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1)
+BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit)
 {
-    u8 *temp_2;
-    u8 *temp_3;
+    u8 *packet;
+    u8 *work;
 
-    temp_2 = (u8 *)btlPacketAlloc(0x506, 0xC);
-    *(void **)(temp_2 + 0x6C) = (void *)btlPacketStepEffectCounter;
-    temp_3 = *(u8 **)(temp_2 + 0x78);
-    *(s32 *)(temp_3 + 0) = arg0;
-    *(s32 *)(temp_3 + 4) = arg1;
-    *(s32 *)(temp_3 + 8) = 0;
-    return (BtlPacket *)temp_2;
+    packet = (u8 *)btlPacketAlloc(0x506, 0xC);
+    *(void **)&((BtlPacket *)packet)->updateFunc = (void *)btlPacketStepEffectCounter;
+    work = (u8 *)((BtlPacket *)packet)->workData;
+    ((BtlEffectCounterWork *)work)->effect = effect;
+    ((BtlEffectCounterWork *)work)->limit = limit;
+    ((BtlEffectCounterWork *)work)->elapsed = 0;
+    return (BtlPacket *)packet;
 }
 
 
 // Intent: allocate the unit-counter packet (type 0x500) with inc, update and dec callbacks. [inferred]
 // FUN_00202590
-u8 *btlPacketCreateUnitCounter(s32 arg0, s8 arg1, s16 arg2)
+u8 *btlPacketCreateUnitCounter(s32 unit, s8 mode, s16 value)
 {
     u8 *packet;
     u8 *temp;
 
     packet = (u8 *)btlPacketAlloc(0x500, 8);
-    *(u8 *)(packet + 0x47) &= 0xEF;
-    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounter;
-    *(void **)(packet + 0x6C) = (void *)btlPacketUpdateHpRatio;
-    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounter;
-    temp = *(u8 **)(packet + 0x78);
-    *(s32 *)(temp + 0) = arg0;
-    *(s8 *)(temp + 4) = arg1;
-    *(s16 *)(temp + 6) = arg2;
+    ((BtlPacket *)packet)->flags &= 0xEF;
+    *(void **)&((BtlPacket *)packet)->initFunc = (void *)btlPacketIncUnitCounter;
+    *(void **)&((BtlPacket *)packet)->updateFunc = (void *)btlPacketUpdateHpRatio;
+    *(void **)&((BtlPacket *)packet)->destroyFunc = (void *)btlPacketDecUnitCounter;
+    temp = (u8 *)((BtlPacket *)packet)->workData;
+    ((BtlUnitCounterWork *)temp)->unit = unit;
+    ((BtlUnitCounterWork *)temp)->mode = mode;
+    ((BtlUnitCounterWork *)temp)->value = value;
     return packet;
 }
 
@@ -734,26 +782,26 @@ u8 *btlPacketCreateHpRatio(u8 *unit)
 {
     u8 *packet;
     packet = (u8 *)btlPacketAlloc(0x501, 4);
-    *(u8 *)(packet + 71) &= ~(1 << 4);
-    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounterAlt;
-    *(void **)(packet + 0x6C) = (void *)btlPacketSetHpRatio;
-    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounterAlt;
-    *(u8 **)*(u8 **)(packet + 0x78) = unit;
+    ((BtlPacket *)packet)->flags &= ~(1 << 4);
+    *(void **)&((BtlPacket *)packet)->initFunc = (void *)btlPacketIncUnitCounterAlt;
+    *(void **)&((BtlPacket *)packet)->updateFunc = (void *)btlPacketSetHpRatio;
+    *(void **)&((BtlPacket *)packet)->destroyFunc = (void *)btlPacketDecUnitCounterAlt;
+    *(u8 **)*(u8 **)&((BtlPacket *)packet)->workData = unit;
 
     return packet;
 }
 
 
-s32 kwlnTaskGetTaskByName(void *arg0);
+s32 kwlnTaskGetTaskByName(void *input);
 extern u8 D_0063E918[];
-void kwlnTaskDestroyWithHierarchy(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32 input);
 // Intent: Destroy the time limit task and its hierarchy if it exists [inferred]
 // FUN_002A2740
 void timeLimitTaskDestroy(void) {
-    s32 temp_2;
+    s32 task;
 
-    if ((temp_2 = kwlnTaskGetTaskByName(D_0063E918)) != 0) {
-        kwlnTaskDestroyWithHierarchy(temp_2);
+    if ((task = kwlnTaskGetTaskByName(D_0063E918)) != 0) {
+        kwlnTaskDestroyWithHierarchy(task);
     }
 }
 

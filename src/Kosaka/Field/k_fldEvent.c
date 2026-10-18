@@ -80,7 +80,7 @@ void FldFrame_ClearStateFlags(s32, s32);
 void FldPlayerIconUpdatePos(u8 *);
 void FldPlayerIconSetActive(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
-s32 func_0018bea0();
+s32 fldNpcControlIsTurning();
 void FldNpcControlFacePlayer(s32);
 void FldNpcSetPositionLock(s32, s32);
 void FldNpcControlTurnBack(s32);
@@ -432,7 +432,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
     case 0:
         v = *(s32 *)(*(u8 **)(h + 0x20) + 0x294);
         if (v != 0 && i == 1) {
-            if (func_0018bea0(v, s) == 1) {
+            if (fldNpcControlIsTurning(v, s) == 1) {
                 goto ret1;
             }
             FldNpcControlFacePlayer(*(s32 *)(*(u8 **)(h + 0x20) + 0x294));
@@ -441,7 +441,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
         (*(s32 *)(h + 4))++;
     case 1:
         v = *(s32 *)(*(u8 **)(h + 0x20) + 0x294);
-        if (v == 0 || i != 1 || func_0018bea0(v) != 1) {
+        if (v == 0 || i != 1 || fldNpcControlIsTurning(v) != 1) {
             FldNpcSetPositionLock(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 1);
             s2 = *(u8 **)(h + 0x20);
             if (*(s32 *)(s2 + 0x234) == 1) {

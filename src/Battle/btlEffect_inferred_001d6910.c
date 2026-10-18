@@ -1,10 +1,10 @@
+#include "btl_effect_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
     return left + right;
@@ -13,12 +13,12 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 btlEffectStepFormationPlacement(u8 *arg0);
-extern void btlFormationResetState(s32 arg0);
-extern void mdlEffectDestroyWithNodes(s32 arg0);
-extern void mdlDestroyModelObject(s32 arg0);
+extern s32 btlEffectStepFormationPlacement(u8 *input);
+extern void btlFormationResetState(s32 input);
+extern void mdlEffectDestroyWithNodes(s32 input);
+extern void mdlDestroyModelObject(s32 input);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_001d6910(u8 *arg0);
+extern void btlEffectReleaseNode(u8 *input);
 extern u32 iGpffffb3b8;
 
 extern u8 D_005DC7D0[];
@@ -29,7 +29,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern u8 *(*jtbl_008873E8[])(s32 input, s32 value);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -90,33 +90,35 @@ extern f32 fGpffff8110;
 #pragma push
 /* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
+/* Release node resources, unlink both neighbours, repair the global head if needed, and free the node.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D6910
-void func_001d6910(u8 *arg0)
+void btlEffectReleaseNode(u8 *node)
 {
-    if (*(s32 *)(arg0 + 0x10) != 0) {
-        btlFormationResetState(*(s32 *)(arg0 + 0x10));
-        *(s32 *)(arg0 + 0x10) = 0;
+    if (*(s32 *)(node + 0x10) != 0) {
+        btlFormationResetState(*(s32 *)(node + 0x10));
+        *(s32 *)(node + 0x10) = 0;
     }
-    if (*(s32 *)(arg0 + 0x14) != 0) {
-        mdlEffectDestroyWithNodes(*(s32 *)(arg0 + 0x14));
-        *(s32 *)(arg0 + 0x14) = 0;
+    if (*(s32 *)(node + 0x14) != 0) {
+        mdlEffectDestroyWithNodes(*(s32 *)(node + 0x14));
+        *(s32 *)(node + 0x14) = 0;
     }
-    if (*(s32 *)(arg0 + 0x18) != 0) {
-        mdlDestroyModelObject(*(s32 *)(arg0 + 0x18));
-        *(s32 *)(arg0 + 0x18) = 0;
+    if (*(s32 *)(node + 0x18) != 0) {
+        mdlDestroyModelObject(*(s32 *)(node + 0x18));
+        *(s32 *)(node + 0x18) = 0;
     }
-    *(s32 *)(arg0 + 4) = -1;
-    *(u8 *)(arg0 + 8) = 0x14;
-    *(s32 *)(arg0 + 0xC) = 0;
-    *(u16 *)(arg0 + 0) = 0x200;
-    if (*(u8 **)(arg0 + 0x20) != NULL) {
-        *(u8 **)(*(u8 **)(arg0 + 0x20) + 0x1C) = *(u8 **)(arg0 + 0x1C);
+    *(s32 *)(node + 4) = -1;
+    *(u8 *)(node + 8) = 0x14;
+    *(s32 *)(node + 0xC) = 0;
+    *(u16 *)(node + 0) = 0x200;
+    if (*(u8 **)(node + 0x20) != NULL) {
+        *(u8 **)(*(u8 **)(node + 0x20) + 0x1C) = *(u8 **)(node + 0x1C);
     }
-    if (*(u8 **)(arg0 + 0x1C) != NULL) {
-        *(u8 **)(*(u8 **)(arg0 + 0x1C) + 0x20) = *(u8 **)(arg0 + 0x20);
+    if (*(u8 **)(node + 0x1C) != NULL) {
+        *(u8 **)(*(u8 **)(node + 0x1C) + 0x20) = *(u8 **)(node + 0x20);
     } else {
-        *(u8 **)(iGpffffb3ac + 0x1B8) = *(u8 **)(arg0 + 0x20);
+        *(u8 **)(iGpffffb3ac + 0x1B8) = *(u8 **)(node + 0x20);
     }
-    (*jtbl_008873EC)(arg0);
+    (*jtbl_008873EC)(node);
 }
 

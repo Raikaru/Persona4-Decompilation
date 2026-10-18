@@ -151,10 +151,23 @@ typedef struct {
 /* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
 #pragma push
 #pragma opt_loop_invariants on
+/* This party-change snapshot is distinct from RadarMenu: IDs begin at 0x38,
+ * the count follows eight halfword slots at 0x48, and each snapshot is three
+ * halfwords. The intervening state is not read by this callback. */
+typedef struct RadarPartyChanges {
+    u8 pad00[0x38];
+    s16 partyIds[8];
+    s16 partyCount;
+    u8 pad4A[0xC48 - 0x4A];
+    s16 stats[8][3];
+    u8 padC78[0x1594 - 0xC78];
+    s32 partyTask;
+} RadarPartyChanges;
+
 // Intent: Collect the stat changes of party members, record each changed stat, and spawn the party task when any changed [inferred]
 // Kept in bucket: diff 262 when moved; cause not diagnosed.
 // FUN_00134BE0
-s32 radarCollectPartyChanges(u8 *arg0) {
+s32 radarCollectPartyChanges(u8 *state) {
     struct ChangeRecord {
         s32 id;
         s16 before;
@@ -172,13 +185,13 @@ s32 radarCollectPartyChanges(u8 *arg0) {
     count = 0;
     memset(changes, 0, sizeof(changes));
     partyCount = datBuildPartyIdList(party);
-    for (member = 0; member < *(s16 *)(arg0 + 0x48); member++) {
-        id = *(s16 *)(arg0 + member * 2 + 0x38);
+    for (member = 0; member < ((RadarPartyChanges *)state)->partyCount; member++) {
+        id = ((RadarPartyChanges *)state)->partyIds[member];
         for (search = 0; search < partyCount && id != party[search]; search++) {}
         if (search != partyCount) {
             for (stat = 0; stat < 3; stat++) {
                 value = func_00106cd0(id, stat);
-                old = (s16 *)(arg0 + member * 6 + stat * 2 + 0xC48);
+                old = &((RadarPartyChanges *)state)->stats[member][stat];
                 if (*old != value && stat == 0) {
                     change = &changes[count];
                     change->id = id;
@@ -189,7 +202,7 @@ s32 radarCollectPartyChanges(u8 *arg0) {
             }
         }
     }
-    if (count > 0) *(s32 *)(arg0 + 0x1594) = FldUnit_SpawnPartyTask((u8 *)changes);
+    if (count > 0) ((RadarPartyChanges *)state)->partyTask = FldUnit_SpawnPartyTask((u8 *)changes);
     return count > 0;
 }
 #pragma pop
