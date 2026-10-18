@@ -110,7 +110,7 @@ extern void btlSelectionClearTargetMark(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-u32 func_001deeb0(void *arg0);
+u32 btlEffectHasAiProcedure(void *arg0);
 void btlAICommandSetUnitAction();
 u32 btlAICommandTryReleaseProc();
 s32 datCalcDefaultSkillId(u8 *unit);
@@ -1002,7 +1002,7 @@ void btlActionAiUpdate(u8 *arg0)
 {
     s32 battleFlags;
 
-    if (func_001deeb0(arg0 + 0x38) == 0) {
+    if (btlEffectHasAiProcedure(arg0 + 0x38) == 0) {
         btlAICommandSetUnitAction(arg0, arg0 + 0x38);
     }
     if (btlAICommandTryReleaseProc(arg0 + 0x38) != 0) {

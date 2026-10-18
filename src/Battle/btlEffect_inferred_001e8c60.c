@@ -7,7 +7,6 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
 typedef signed __int128 s128;
 typedef struct P4Vec4_001EC2B0 {
     f32 x;
@@ -86,15 +85,16 @@ extern u8 *iGpffffb42c;
 #pragma push
 #pragma pop
 /* AI script command 0x2087 (p4flow AI.json AI_FUNCTION_0087). */
+/* Consume three AI script parameters, look up the first action ID, and return -1 to the script without using the lookup result. */
 // FUN_001E8C60
-s32 func_001e8c60(void) {
-    u64 temp_16;
+s32 btlEffectScriptDiscardActionLookup(void) {
+    u64 actionId;
 
     scrGetAiState();
-    temp_16 = scrGetParamInt(0);
+    actionId = scrGetParamInt(0);
     scrGetParamInt(1);
     scrGetParamInt(2);
-    btlActionFindById((u64) (temp_16 << 0x24) >> 0x24);
+    btlActionFindById((u64) (actionId << 0x24) >> 0x24);
     scrSetReturnInt(-1);
     return 1;
 }

@@ -1,10 +1,10 @@
+#include "btl_effect_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
     return left + right;
@@ -23,7 +23,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern u8 *(*jtbl_008873E8[])(s32 input, s32 value);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -46,11 +46,11 @@ typedef int (*code)();
 
 
 
-extern s32 func_00122640(s32 arg0, s32 arg1);
+extern s32 func_00122640(s32 input, s32 value);
 
 extern void *btlPacketAlloc();
 
-extern s32 btlEffectSetFadeLevel(u16 *arg0);
+extern s32 btlEffectSetFadeLevel(u16 *input);
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -88,19 +88,20 @@ extern f32 fGpffff8110;
 /* measured: opt_propagation off is required for the default GP load/store register order. */
 /* measured: close opt_propagation after btlEffectFlagToColor. */
 // FUN_001D7B30
-s32 btlEffectSetFadeLevel(u16 *arg0) {
-    func_00122640(1, *arg0);
+s32 btlEffectSetFadeLevel(u16 *level) {
+    func_00122640(1, *level);
     return 1;
 }
 
+/* Create packet 0x30B with a halfword fade-level payload and the corresponding update callback. */
 // FUN_001D7B60
-BtlPacket *btlEffectCreateFadeLevelPacket(u16 param_1)
+BtlPacket *btlEffectCreateFadeLevelPacket(u16 level)
 {
-  int iVar1 = 0;
+  int packetAddress = 0;
 
-  iVar1 = (int)btlPacketAlloc(0x30B, 2);
-  *(code *)(iVar1 + 0x6c) = (code)btlEffectSetFadeLevel;
-  **(u16 **)(iVar1 + 0x78) = param_1;
-  return (BtlPacket *)iVar1;
+  packetAddress = (int)btlPacketAlloc(0x30B, 2);
+  *(code *)&((BtlPacket *)packetAddress)->updateFunc = (code)btlEffectSetFadeLevel;
+  **(u16 **)&((BtlPacket *)packetAddress)->workData = level;
+  return (BtlPacket *)packetAddress;
 }
 
