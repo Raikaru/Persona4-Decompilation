@@ -4,6 +4,9 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "field_event_internal.h"
+#include "field_frame_internal.h"
+#include "sdktask.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -85,8 +88,8 @@ typedef struct {
 } Packet_0014;
 typedef struct {
     u8 pad[0x40];
-    u8 arg0[8];
-    u8 arg1[8];
+    u8 unk40[8];
+    u8 unk48[8];
     Packet_0014 packet[4];
 } Frame_0014;
 
@@ -116,17 +119,17 @@ extern u8 D_005EF820[];
 extern u8 D_005EF870[];
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern s32 datCalcGetLevelById(s32 arg0);
+extern s32 datCalcGetLevelById(s32 );
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 extern void *mdlGetMatrix(void *model);
-extern f32 RwV3dLength(f32 *arg0);
-extern s32 FldEvent_HasLineOfSight(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
+extern f32 RwV3dLength(f32 *);
+extern s32 FldEvent_HasLineOfSight(void *, void *, f32 , f32 );
 
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
-extern void (*D_00887300[])(u32 arg0, u32 arg1);
-extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+extern void (*D_00887300[])(u32 , u32 );
+extern s32 (*D_00887310[])(s32 , void *, s32 );
 extern f32 D_008872F8[];
 extern f32 fGpffff8198;
 extern u8 D_005EF710[];
@@ -141,9 +144,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *, f32 , f32 , f32 ,
+                          u8 , u8 , u8 , u8 , u16 ,
+                          u16 , s16 , f32 , s16 );
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -175,11 +178,11 @@ extern s32 D_007642F0;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *arg0, u8 *arg1);
-extern void FldEventDrawMarker(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(void *, u8 *);
+extern void FldEventDrawMarker(u8 *, u8 *);
 
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 );
 
 
 
@@ -191,7 +194,7 @@ extern u8 *MT_Scene_GetFrameState(void);
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *, s32 , s32 );
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -315,22 +318,24 @@ static inline void fldGridMark(s32 x, s32 y)
 #define FLD_GRID_HITS(cellX, cellY, x, y)                                                                \
     (((cellX) == (x) && (cellY) == (y)) || ((cellX) == (x) + 1 && (cellY) == (y)) ||                      \
      ((cellX) == (x) && (cellY) == (y) + 1) || ((cellX) == (x) + 1 && (cellY) == (y) + 1))
+/* Find the closest actor inside the distance/FOV limits with an unobstructed raised sight line. */
+/* Raw fixed-offset access retained: the equivalent typed-field rewrite changed b210 code generation in whole-file verification. */
 // FUN_0014C540
-u8 *FldEvent_FindNearestVisibleActor(u8 *arg0, f32 fparg0, f32 fparg1) {
-    f32 temp_f0;
-    f32 temp_f23;
-    f32 temp_f23_2;
-    f32 temp_f23_3;
-    RwV3d vec_x;
-    RwV3d vec_y;
+u8 *FldEvent_FindNearestVisibleActor(u8 *actor, f32 maxDistance, f32 fieldOfView) {
+    f32 distance;
+    f32 candidateX;
+    f32 candidateY;
+    f32 candidateZ;
+    RwV3d selfPosition;
+    RwV3d candidatePosition;
     f32 best;
     u8 *result;
     s32 i;
-    u8 **saved_entry;
+    u8 **savedEntry;
     u8 **entry;
-    u8 *arg;
-    u8 *temp_2;
-    u8 *temp_2_2;
+    u8 *sourceActor;
+    u8 *selfMatrix;
+    u8 *candidateMatrix;
     struct C540Stack {
         RwV3d v80;
         RwV3d v8c;
@@ -339,44 +344,44 @@ u8 *FldEvent_FindNearestVisibleActor(u8 *arg0, f32 fparg0, f32 fparg1) {
         u8 padAC[4];
         f32 diffB0[3];
     } stack;
-    extern s32 K_FldEvent_IsPosWithinFov(u8 *arg0, u8 *arg1, f32 fparg0);
+    extern s32 K_FldEvent_IsPosWithinFov(u8 *actor, u8 *, f32 maxDistance);
     extern f32 fGpffff82b4;
     extern u8 *D_007E8020_abs[];
 
-    arg = arg0;
+    sourceActor = actor;
     result = NULL;
     best = fGpffff82b4;
     i = 0;
     goto loop_test_0014c540;
 loop_body_0014c540:
-    saved_entry = (u8 **)(D_007E8020 + (i * 4));
-    if (*saved_entry != 0) {
-        if (K_FldEvent_IsPosWithinFov((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)),
-                          (u8 *)mdlGetMatrix(*(void **)(*saved_entry + 0x50)) + 0x30,
-                          fparg1) != 0) {
+    savedEntry = (u8 **)(D_007E8020 + (i * 4));
+    if (*savedEntry != 0) {
+        if (K_FldEvent_IsPosWithinFov((u8 *)mdlGetMatrix(*(void **)(sourceActor + 0x50)),
+                          (u8 *)mdlGetMatrix(*(void **)(*savedEntry + 0x50)) + 0x30,
+                          fieldOfView) != 0) {
             entry = D_007E8020_abs + (u32)i;
-            temp_f23 = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x30);
-            stack.diffB0[0] = temp_f23 -
-                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)) + 0x30);
-            temp_f23_2 = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x34);
-            stack.diffB0[1] = temp_f23_2 -
-                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)) + 0x34);
-            temp_f23_3 = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x38);
-            stack.diffB0[2] = temp_f23_3 -
-                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(arg + 0x50)) + 0x38);
-            temp_2 = (u8 *)mdlGetMatrix(*(void **)(arg + 0x50));
-            vec_x = *(RwV3d *)(temp_2 + 0x30);
-            stack.v80 = vec_x;
-            temp_2_2 = (u8 *)mdlGetMatrix(*(void **)(*entry + 0x50));
-            vec_y = *(RwV3d *)(temp_2_2 + 0x30);
-            stack.v8c = vec_y;
+            candidateX = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x30);
+            stack.diffB0[0] = candidateX -
+                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(sourceActor + 0x50)) + 0x30);
+            candidateY = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x34);
+            stack.diffB0[1] = candidateY -
+                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(sourceActor + 0x50)) + 0x34);
+            candidateZ = *(f32 *)((u8 *)mdlGetMatrix(*(void **)(*entry + 0x50)) + 0x38);
+            stack.diffB0[2] = candidateZ -
+                              *(f32 *)((u8 *)mdlGetMatrix(*(void **)(sourceActor + 0x50)) + 0x38);
+            selfMatrix = (u8 *)mdlGetMatrix(*(void **)(sourceActor + 0x50));
+            selfPosition = *(RwV3d *)(selfMatrix + 0x30);
+            stack.v80 = selfPosition;
+            candidateMatrix = (u8 *)mdlGetMatrix(*(void **)(*entry + 0x50));
+            candidatePosition = *(RwV3d *)(candidateMatrix + 0x30);
+            stack.v8c = candidatePosition;
             stack.v80.y += 100.0f;
             stack.v8c.y += 100.0f;
             if (FldFrame_RaycastSelectedWorld(&stack.v80, &stack.hitPoint) == 0) {
-                temp_f0 = RwV3dLength(stack.diffB0);
-                if ((temp_f0 < fparg0) && (temp_f0 < best)) {
-                    result = *saved_entry;
-                    best = temp_f0;
+                distance = RwV3dLength(stack.diffB0);
+                if ((distance < maxDistance) && (distance < best)) {
+                    result = *savedEntry;
+                    best = distance;
                 }
             }
         }
@@ -390,6 +395,7 @@ loop_test_0014c540:
 }
 
 /* measured probe: optimization_level 1 on c780. */
+/* The actor level at +0x1C0 is outside the recovered FldEventActor field set; its full record meaning remains unresolved. */
 // FUN_0014C780
 s32 FldEvent_AverageEntryValue(void) {
     s32 index;
@@ -406,8 +412,8 @@ s32 FldEvent_AverageEntryValue(void) {
 loop_body_0014c780:
     hit = 0;
     entry = D_007EF9B0 + (index * 0x750);
-    if ((*(s32 *)(entry + 0x48) != 0) &&
-        (*(s32 *)(entry + 0x54) != 0)) {
+    if (((s32)((FldEventActor *)entry)->unit != 0) &&
+        ((s32)((FldEventActor *)entry)->active != 0)) {
         hit = 1;
     }
     valid = hit != 0;
@@ -428,33 +434,35 @@ loop_test_0014c780:
 }
 
 /* measured: restore optimization_level 2 after FldEvent_AverageEntryValue. */
+/* Return the first region actor that passes the sight-line query. */
 // FUN_0014C850
-s32 *FldEvent_FindFirstRegionActor(u8 *arg0, f32 fparg0, f32 fparg1) {
-    u8 *temp_18;
-    u8 *temp_19;
-    s32 var_16;
-    u8 *temp_2;
+s32 *FldEvent_FindFirstRegionActor(u8 *actor, f32 distance, f32 fieldOfView) {
+    u8 *candidate;
+    u8 *entrySlot;
+    s32 entryIndex;
+    u8 *tableEntry;
 
-    var_16 = 0;
+    entryIndex = 0;
     goto loop_test_0014c850;
 loop_body_0014c850:
-    if (*(s32 *)temp_18 != 0) {
-        if (FldEvent_HasLineOfSight((u8 *)mdlGetMatrix(*(void **)(arg0 + 0x50)),
-                          temp_18 + 0x150, fparg1, fparg0) != 0) {
-            return *(s32 **)temp_19;
+    if (*(s32 *)candidate != 0) {
+        if (FldEvent_HasLineOfSight((u8 *)mdlGetMatrix((void *)((FldEventActor *)actor)->model),
+                          candidate + 0x150, fieldOfView, distance) != 0) {
+            return *(s32 **)entrySlot;
         }
     }
-    var_16 += 1;
+    entryIndex += 1;
 loop_test_0014c850:
-    temp_2 = D_007E8020 + (var_16 * 4);
-    temp_19 = temp_2 + 0x20;
-    temp_18 = *(u8 **)temp_19;
-    if (temp_18 != NULL) {
+    tableEntry = D_007E8020 + (entryIndex * 4);
+    entrySlot = tableEntry + 0x20;
+    candidate = *(u8 **)entrySlot;
+    if (candidate != NULL) {
         goto loop_body_0014c850;
     }
     return NULL;
 }
 
+/* Reset the occupancy mask and resume coordinates for the next free-cell search. */
 // FUN_0014C920
 void FldEvent_BeginGridScan(void) {
     iGpffffb1f8 = 0;
@@ -472,8 +480,9 @@ void FldEvent_BeginGridScan(void) {
    opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
 /* measured: FldEvent_NextGridCell MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Mixed actor/resource cursors retain partial layouts: +0x150 placement and +0x164 model fields are not part of one shared actor type. */
 // FUN_0014C960
-s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1)
+s32 FldEvent_NextGridCell(s32 *columnOut, s32 *rowOut)
 {
     s32 y;
     s32 x;
@@ -569,8 +578,8 @@ s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1)
                     continue;
                 }
             }
-            *arg0 = x;
-            *arg1 = y;
+            *columnOut = x;
+            *rowOut = y;
             fldGridMark(x, y);
             iGpffffb1fc = y;
             iGpffffb1f8 = x;
@@ -585,109 +594,115 @@ s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1)
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
 /* measured: FldEvent_GetGridCellEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Find a resource whose rounded grid position overlaps the requested two-by-two cell. */
+/* The type-15 resource placement/list record has no recovered complete layout; +0x140/+0x148 are its X/Z coordinates. */
 // FUN_0014CEF0
-u8 *FldEvent_GetGridCellEntry(s32 arg0, s32 arg1) {
-    f32 temp_f0;
-    f32 temp_f0_2;
-    s32 temp_16;
-    s32 temp_17;
-    u8 *var_2;
+u8 *FldEvent_GetGridCellEntry(s32 column, s32 row) {
+    f32 normalizedX;
+    f32 normalizedZ;
+    s32 cellX;
+    s32 cellZ;
+    u8 *entry;
 
-    var_2 = MT_Scene_GetResListHead(0xF);
+    entry = MT_Scene_GetResListHead(0xF);
     goto loop_test_0014cef0;
 loop_body_0014cef0:
-    temp_f0 = (600.0f + *(f32 *)(var_2 + 0x140)) / 1200.0f;
-    temp_f0_2 = (600.0f + *(f32 *)(var_2 + 0x148)) / 1200.0f;
-    temp_16 = (s32)temp_f0;
-    temp_17 = (s32)temp_f0_2;
-    if (((temp_16 == arg0) && (temp_17 == arg1)) ||
-        ((temp_16 == (arg0 + 1)) && (temp_17 == arg1)) ||
-        ((temp_16 == arg0) && (temp_17 == (arg1 + 1))) ||
-        ((temp_16 == (arg0 + 1)) && (temp_17 == (arg1 + 1)))) {
-        return var_2;
+    normalizedX = (600.0f + *(f32 *)(entry + 0x140)) / 1200.0f;
+    normalizedZ = (600.0f + *(f32 *)(entry + 0x148)) / 1200.0f;
+    cellX = (s32)normalizedX;
+    cellZ = (s32)normalizedZ;
+    if (((cellX == column) && (cellZ == row)) ||
+        ((cellX == (column + 1)) && (cellZ == row)) ||
+        ((cellX == column) && (cellZ == (row + 1))) ||
+        ((cellX == (column + 1)) && (cellZ == (row + 1)))) {
+        return entry;
     }
-    var_2 = *(u8 **)(var_2 + 0x138);
+    entry = *(u8 **)(entry + 0x138);
 loop_test_0014cef0:
-    if (var_2 != NULL) {
+    if (entry != NULL) {
         goto loop_body_0014cef0;
     }
     return NULL;
 }
 
 /* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
+/* Resolve the containing cell and test whether a placed model overlaps its two-by-two footprint. */
+/* The neighbor probes deliberately address cells before the current cursor; resource placement records still have only partial layouts. */
 // FUN_0014CFD0
-s32 FldEvent_IsCellOccupied(u8 *arg0)
+s32 FldEvent_IsCellOccupied(u8 *position)
 {
-    s32 temp_21;
-    s32 temp_20;
-    u16 temp_19;
-    s32 var_18;
-    s32 var_17;
-    s32 temp_16;
-    s32 temp_19_2;
-    s32 temp_16_2;
-    s32 temp_3;
-    u8 *var_19;
+    s32 columnOffset;
+    s32 resourceId;
+    u16 cellResourceId;
+    s32 cellX;
+    s32 cellZ;
+    s32 rowOffset;
+    s32 adjustedColumnOffset;
+    s32 objectX;
+    s32 objectZ;
+    u8 *entry;
     extern u8 *MT_Scene_GetFrameState(void);
     {
-        f32 temp_f2;
+        f32 centeredX;
 
-        temp_f2 = 600.0f;
-        temp_f2 += *(f32 *)(arg0 + 0);
-        var_18 = (s32)(temp_f2 / 1200.0f);
+        centeredX = 600.0f;
+        centeredX += *(f32 *)(position + 0);
+        cellX = (s32)(centeredX / 1200.0f);
     }
-    var_17 = (s32)((600.0f + *(f32 *)(arg0 + 8)) / 1200.0f);
-    temp_16 = var_17 << 8;
-    temp_21 = var_18 << 4;
-    temp_19 = *(u16 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x56);
-    if ((*(u8 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x58) != 9) &&
-        (*(u8 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x58) != 0xB) &&
-        (*(u8 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x58) != 0xD)) {
+    cellZ = (s32)((600.0f + *(f32 *)(position + 8)) / 1200.0f);
+    rowOffset = cellZ << 8;
+    columnOffset = cellX << 4;
+    cellResourceId = *(u16 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x56);
+    if ((*(u8 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) != 9) &&
+        (*(u8 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) != 0xB) &&
+        (*(u8 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) != 0xD)) {
         return 0;
     }
-    if ((*(u8 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x55) & 0x20) == 0) {
+    if ((*(u8 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x55) & 0x20) == 0) {
         return 0;
     }
-    temp_20 = temp_19;
-    if ((temp_20 == *(u16 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x46)) &&
-        ((*(u8 *)(MT_Scene_GetFrameState() + temp_16 + temp_21 + 0x45) & 0x20) != 0)) {
-        var_18 -= 1;
+    resourceId = cellResourceId;
+    if ((resourceId == *(u16 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x46)) &&
+        ((*(u8 *)(MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x45) & 0x20) != 0)) {
+        cellX -= 1;
     }
-    temp_19_2 = var_18 * 0x10;
-    if ((temp_20 == *(u16 *)(MT_Scene_GetFrameState() + temp_16 + temp_19_2 - 0xAA)) &&
-        ((*(u8 *)(MT_Scene_GetFrameState() + temp_16 + temp_19_2 - 0xAB) & 0x20) != 0)) {
-        var_17 -= 1;
+    adjustedColumnOffset = cellX * 0x10;
+    if ((resourceId == *(u16 *)(MT_Scene_GetFrameState() + rowOffset + adjustedColumnOffset - 0xAA)) &&
+        ((*(u8 *)(MT_Scene_GetFrameState() + rowOffset + adjustedColumnOffset - 0xAB) & 0x20) != 0)) {
+        cellZ -= 1;
     }
-    var_19 = MT_Scene_GetResListHead(3);
+    entry = MT_Scene_GetResListHead(3);
     goto loop_test_0014cfd0;
 loop_body_0014cfd0:
-    temp_16_2 = (s32)((600.0f +
-                       *(f32 *)((u8 *)mdlGetMatrix(*(void **)(var_19 + 0x164)) + 0x30)) /
+    objectX = (s32)((600.0f +
+                       *(f32 *)((u8 *)mdlGetMatrix(*(void **)(entry + 0x164)) + 0x30)) /
                       1200.0f);
-    temp_3 = (s32)((600.0f +
-                    *(f32 *)((u8 *)mdlGetMatrix(*(void **)(var_19 + 0x164)) + 0x38)) /
+    objectZ = (s32)((600.0f +
+                    *(f32 *)((u8 *)mdlGetMatrix(*(void **)(entry + 0x164)) + 0x38)) /
                    1200.0f);
-    if (((temp_16_2 == var_18) && (temp_3 == var_17)) ||
-        ((temp_16_2 == (var_18 + 1)) && (temp_3 == var_17)) ||
-        ((temp_16_2 == var_18) && (temp_3 == (var_17 + 1))) ||
-        ((temp_16_2 == (var_18 + 1)) && (temp_3 == (var_17 + 1)))) {
+    if (((objectX == cellX) && (objectZ == cellZ)) ||
+        ((objectX == (cellX + 1)) && (objectZ == cellZ)) ||
+        ((objectX == cellX) && (objectZ == (cellZ + 1))) ||
+        ((objectX == (cellX + 1)) && (objectZ == (cellZ + 1)))) {
         return 1;
     }
-    var_19 = *(u8 **)(var_19 + 0x138);
+    entry = *(u8 **)(entry + 0x138);
 loop_test_0014cfd0:
-    if (var_19 != NULL) {
+    if (entry != NULL) {
         goto loop_body_0014cfd0;
     }
     return 0;
 }
 
+/* Draw the sampled curve segments and color-coded control points for a queued marker. */
+/* The marker record has sampled-count/color/curve fields at +4/+8/+0xC; its allocation and remaining record layout are unresolved. */
 // FUN_0014D290
-void FldEventDrawMarker(u8 *arg0, u8 *arg1)
+void FldEventDrawMarker(u8 *queueNode, u8 *curve)
 {
-    extern void func_003bb5b0(u8 *arg0, s32 arg1, void *arg2, s32 arg3, f32 arg4);
-    extern s32 func_003bb330(u8 *arg0);
-    extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
-    extern void primLine3D(void *arg0, void *arg1, void *arg2, s32 arg3);
+    extern void func_003bb5b0(u8 *queueNode, s32 curve, void *, s32 , f32 );
+    extern s32 func_003bb330(u8 *queueNode);
+    extern void func_003bb3a0(u8 *queueNode, s32 curve, void *);
+    extern void primLine3D(void *queueNode, void *curve, void *, s32 );
     extern void primSphereLine3D(u8 *position, f32 size, u8 *color, s32 setStates);
     extern f32 D_005EFBB8[];
     extern u8 D_005EFBBC[];
@@ -698,49 +713,51 @@ void FldEventDrawMarker(u8 *arg0, u8 *arg1)
     extern u8 D_005EFBC1[];
     extern u8 D_005EFBC2[];
     extern u8 D_005EFBC3[];
-    f32 sp40[3];
-    f32 sp30[3];
-    P4Bytes0014 sp4C;
-    s32 var_16;
-    s32 var_16_2;
-    s32 temp_3;
-    f32 temp_f0;
-    f32 temp_f1;
+    f32 segmentStart[3];
+    f32 segmentEnd[3];
+    P4Bytes0014 pointColor;
+    s32 segmentIndex;
+    s32 pointIndex;
+    s32 segmentCount;
+    f32 segmentCountFloat;
+    f32 inverseSegmentCount;
 
-    var_16 = 0;
-    while (var_16 < *(s32 *)(arg1 + 4)) {
-        temp_3 = *(s32 *)(arg1 + 4);
-        func_003bb5b0(*(u8 **)(arg1 + 0xC), 0xA, sp40, 0,
-                      (1.0f / (f32)temp_3) * (f32)var_16);
-        temp_f0 = (f32)*(s32 *)(arg1 + 4);
-        temp_f1 = p4_0014_recip(temp_f0);
-        func_003bb5b0(*(u8 **)(arg1 + 0xC), 0xA, sp30, 0,
-                      temp_f1 * (f32)(var_16 + 1));
-        primLine3D(sp40, sp30, arg1 + 8, 1);
-        var_16 += 1;
+    segmentIndex = 0;
+    while (segmentIndex < *(s32 *)(curve + 4)) {
+        segmentCount = *(s32 *)(curve + 4);
+        func_003bb5b0(*(u8 **)(curve + 0xC), 0xA, segmentStart, 0,
+                      (1.0f / (f32)segmentCount) * (f32)segmentIndex);
+        segmentCountFloat = (f32)*(s32 *)(curve + 4);
+        inverseSegmentCount = p4_0014_recip(segmentCountFloat);
+        func_003bb5b0(*(u8 **)(curve + 0xC), 0xA, segmentEnd, 0,
+                      inverseSegmentCount * (f32)(segmentIndex + 1));
+        primLine3D(segmentStart, segmentEnd, curve + 8, 1);
+        segmentIndex += 1;
     }
-    var_16_2 = 0;
-    while (var_16_2 < func_003bb330(*(u8 **)(arg1 + 0xC))) {
-        if (var_16_2 == 1) {
-            *(f32 *)&sp4C = D_005EFBB8[0];
-        } else if (var_16_2 == (func_003bb330(*(u8 **)(arg1 + 0xC))) - 2) {
-            sp4C = *(P4Bytes0014 *)D_005EFBBC;
+    pointIndex = 0;
+    while (pointIndex < func_003bb330(*(u8 **)(curve + 0xC))) {
+        if (pointIndex == 1) {
+            *(f32 *)&pointColor = D_005EFBB8[0];
+        } else if (pointIndex == (func_003bb330(*(u8 **)(curve + 0xC))) - 2) {
+            pointColor = *(P4Bytes0014 *)D_005EFBBC;
         } else {
-            sp4C = *(P4Bytes0014 *)D_005EFBC0;
+            pointColor = *(P4Bytes0014 *)D_005EFBC0;
         }
-        func_003bb3a0(*(u8 **)(arg1 + 0xC), var_16_2, sp40);
-        primSphereLine3D((u8 *)sp40, 5.0f, (u8 *)&sp4C, 1);
-        var_16_2 += 1;
+        func_003bb3a0(*(u8 **)(curve + 0xC), pointIndex, segmentStart);
+        primSphereLine3D((u8 *)segmentStart, 5.0f, (u8 *)&pointColor, 1);
+        pointIndex += 1;
     }
 }
 
+/* Queue a marker callback only while its work record is enabled. */
+/* Queue-node callback/user-data fields are +8/+0x10; the marker owner's +0x110 queue layout is not yet recovered. */
 // FUN_0014D470
-s32 FldEventQueueDraw(u8 *arg0)
+s32 FldEventQueueDraw(u8 *task)
 {
     u8 *work;
     u8 *obj;
 
-    work = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     if (*(s32 *)work == 0) {
         return 0;
     }
@@ -751,9 +768,10 @@ s32 FldEventQueueDraw(u8 *arg0)
     return 0;
 }
 
+/* Release the task-owned drawing work. */
 // FUN_0014D4E0
-void KDraw_GroupTaskDestroy(u8 *arg0)
+void KDraw_GroupTaskDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 

@@ -2,14 +2,25 @@
 #include "sdk_task_registration.h"
 /* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdktask.h"
 
-extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
-extern void FldFilterSetIndex(s32 arg0);
+/* The controller allocates 0x14 bytes; the last four words feed filter entry/type/intensity/duration. */
+typedef struct FldFilterWork {
+    s32 state;
+    s32 index;
+    s32 type;
+    s32 intensity;
+    s32 duration;
+} FldFilterWork;
+
+
+extern void fldFilterBeginTransition(s32 , s32 , s32 );
+extern void FldFilterSetIndex(s32 );
 
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
-extern u32 datGetFlag(s32 arg0);
+extern s64 calGetDayEntryByPhase(s32 , u32 );
+extern u32 datGetFlag(s32 );
 extern s32 FldMap_IsCurrentInEitherBand(void);
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -21,11 +32,11 @@ extern void MT_Scene_CallTaskHook(u8 *task);
 
 
 extern s32 FldRc_GetLoadSource(void);
-extern void strcpy(void *arg0, const char *arg1);
+extern void strcpy(void *, const char *);
 extern void sprintf();
-extern s32 H_Cdvd_FileExists(void *arg0);
-extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
-extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
+extern s32 H_Cdvd_FileExists(void *);
+extern void func_00440b68(char *, const char *, s32 );
+extern u8 *H_Cdvd_AcquireDirectory(void *, s32 );
 extern char D_005EFE78[];
 extern char D_005EFED0[];
 extern char D_005EFE90[];
@@ -33,23 +44,23 @@ extern s32 FldMap_IsInBandB();
 extern u8 *iGpffff9db0;
 extern char iGpffff9e18;
 extern char iGpffff9e20;
-extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *H_Cdvd_LookupRequest(void *arg0, void *arg1);
-extern void memcpy(void *arg0, void *arg1, u32 arg2);
-extern void memset(void *arg0, s32 arg1, u32 arg2);
+extern s32 H_Cdvd_IsFileLoaded(u8 *);
+extern u8 *H_Cdvd_LookupRequest(void *, void *);
+extern void memcpy(void *, void *, u32 );
+extern void memset(void *, s32 , u32 );
 extern u8 *kwlnGetCamera(void);
-extern void K_View_SetFov(void *arg0, f32 arg1);
-extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
+extern void K_View_SetFov(void *, f32 );
+extern void func_003e9cb0(void *, void *, s32 );
 extern s32 *MT_Scene_GetFrameState(void);
 extern void FldCameraAdvanceCurve();
-extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
-extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
-extern void func_0016ea30(s32 arg0, f32 arg1);
-extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
-extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
-extern void FldCameraUpdateLookAt(s32 arg0);
-extern void kAssertFailMsg(const char *arg0, s32 arg1, void *arg2, void *arg3);
-extern void H_Cdvd_Destroy(u8 *arg0);
+extern void FldFrame_SetViewOffset(s32 , void *);
+extern void FldFrame_SetViewDistance(s32 , f32 );
+extern void func_0016ea30(s32 , f32 );
+extern void FldFrame_SetSlotVector(s32 , s32 , void *);
+extern u8 *FldFrame_GetSlotBuffer(s32 );
+extern void FldCameraUpdateLookAt(s32 );
+extern void kAssertFailMsg(const char *, s32 , void *, void *);
+extern void H_Cdvd_Destroy(u8 *);
 extern char D_005EFEF0[];
 
 typedef struct CmrVec3 {
@@ -58,10 +69,13 @@ typedef struct CmrVec3 {
     f32 z;
 } CmrVec3;
 
+
 /* Source unit: src/promoted/k_fldEnvironment.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldEnvironment.c; members 00153a60-00154be0 */
 
 extern s32 FldStepEntry(void);
+/* Use the packed step's environment state when a step record exists. */
+/* FldStepEntry returns a packed step record; only its +0x0D environment-state byte is established here. */
 static inline s32 fldEnvironmentEventState(s32 state)
 {
     u8 *entry;
@@ -73,8 +87,9 @@ static inline s32 fldEnvironmentEventState(s32 state)
     state = *(u8 *)(entry + 0xD);
     return state;
 }
+/* Create a filter controller with default blend type and intensity. */
 // FUN_00153A60
-s32 FldFilterCreate(s32 arg0) {
+s32 FldFilterCreate(s32 parent) {
     u8 *p;
     s32 result;
 
@@ -83,106 +98,113 @@ s32 FldFilterCreate(s32 arg0) {
     if (p == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, FldColorCrossfadeUpdate, MT_Scene_CallTaskHook, (u8 *)(p));
-    *(s32 *)(p + 0x8) = 1;
-    *(s32 *)(p + 0xC) = 0xC8;
+    result = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, FldColorCrossfadeUpdate, MT_Scene_CallTaskHook, (u8 *)(p));
+    ((FldFilterWork *)p)->type = 1;
+    ((FldFilterWork *)p)->intensity = 0xC8;
     return result;
 }
 
+/* Select the filter entry and restart the configured transition. */
 // FUN_00153B20
-void FldFilterSetPrimary(u8 *arg0, s32 arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void FldFilterSetPrimary(u8 *task, s32 value) {
+    u8 *p = (u8 *)((SdkTask *)task)->work;
 
-    *(s32 *)(p + 0x4) = arg1;
-    func_00161460(arg1, *(s32 *)(p + 0x8), *(s32 *)(p + 0x10));
+    ((FldFilterWork *)p)->index = value;
+    fldFilterBeginTransition(value, ((FldFilterWork *)p)->type, ((FldFilterWork *)p)->duration);
 }
 
+/* Set the filter render type and restart the configured transition. */
 // FUN_00153B60
-void FldFilterSetSecondary(u8 *arg0, s32 arg1)
+void FldFilterSetSecondary(u8 *task, s32 value)
 {
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(work + 8) = arg1;
-    func_00161460(*(s32 *)(work + 4), arg1, *(s32 *)(work + 0x10));
+    work = (u8 *)((SdkTask *)task)->work;
+    ((FldFilterWork *)work)->type = value;
+    fldFilterBeginTransition(((FldFilterWork *)work)->index, value, ((FldFilterWork *)work)->duration);
 }
 
+/* Set the crossfade duration and restart the transition. */
 // FUN_00153B90
-void FldFilterSetTertiary(u8 *arg0, s32 arg1)
+void FldFilterSetTertiary(u8 *task, s32 value)
 {
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(work + 0x10) = arg1;
-    func_00161460(*(s32 *)(work + 4), *(s32 *)(work + 8), arg1);
+    work = (u8 *)((SdkTask *)task)->work;
+    ((FldFilterWork *)work)->duration = value;
+    fldFilterBeginTransition(((FldFilterWork *)work)->index, ((FldFilterWork *)work)->type, value);
 }
 
+/* Update the controller intensity and the active global color multiplier. */
 // FUN_00153BD0
-void FldFilterSetIntensity(u8 *arg0, s32 arg1)
+void FldFilterSetIntensity(u8 *task, s32 value)
 {
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(work + 0xC) = arg1;
-    FldFilterSetIndex(arg1);
+    work = (u8 *)((SdkTask *)task)->work;
+    ((FldFilterWork *)work)->intensity = value;
+    FldFilterSetIndex(value);
 }
 
+/* Request the environment file for the current field and room, accounting for shared field ranges. */
 // FUN_00153C00
-s32 FldEnvOpenFile(s32 arg0) {
-    char spA0[0x80];
-    char sp20[0x80];
+s32 FldEnvOpenFile(s32 room) {
+    char directory[0x80];
+    char path[0x80];
     s32 g;
 
     if (*(s32 *)iGpffff9db0 == -1) {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0) {
-        strcpy(&spA0, D_005EFE78);
-        if (FldMap_IsInBandB(*(u16 *)iGpffff9db0, arg0 & 0xFFFF) != 0) {
-            sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0 - 0x14, arg0);
+        strcpy(&directory, D_005EFE78);
+        if (FldMap_IsInBandB(*(u16 *)iGpffff9db0, room & 0xFFFF) != 0) {
+            sprintf(&path, D_005EFE90, *(s32 *)iGpffff9db0 - 0x14, room);
         } else {
-            sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0, arg0);
+            sprintf(&path, D_005EFE90, *(s32 *)iGpffff9db0, room);
         }
         g = *(s32 *)iGpffff9db0;
         if ((g >= 0x33) && (g < 0x3B)) {
-            sprintf(&sp20, D_005EFE90, g - 0x1E, 0);
+            sprintf(&path, D_005EFE90, g - 0x1E, 0);
         }
-        if (H_Cdvd_FileExists(&sp20) == 0) {
+        if (H_Cdvd_FileExists(&path) == 0) {
             return 0;
         }
         func_00440b68(&iGpffff9e18, D_005EFE50, 0x1A1);
-        return (s32)H_Cdvd_AcquireDirectory(&sp20, 0);
+        return (s32)H_Cdvd_AcquireDirectory(&path, 0);
     }
     return 1;
 }
 
 /* measured: MATCH 0 via tools/probe_variants.py src/promoted/k_fldEnvironment.c FldEnvironmentLoad (fnalign retail 592/object 592 exact, 0 edits; probe 21->7 via opt_loop_invariants on, 7->4 via P-index 0x10001 loop ((u8 **)P)[i+10] for lw-before-sll, 4->0 via P-index 0x68/0x78 loops ((s32 *)P)[i+26/30]; five follow-up rounds R1 index ties except hoisted-row 257 fail, R2 decl-orders tie plus hoisted-count/P 535 fail, R3 pragmas loop_invariants 7 win vs unroll/schedule tie, R4 index-under-pragma 4 win, R5 68/78 P-index 0 MATCH). De-noised m2c 347 plus rw 363 plus types 3-vs-2 into file idiom. Production live. */
+/* Install the versioned environment colors, lighting, fog, rain and mipmap parameters. */
+/* Raw versioned environment/camera/light fields retained: the typed-record rewrite produced 2440 bytes for a 2368-byte retail window. */
 // FUN_00153D60
 #pragma push
 /* measured: FldEnvironmentLoad MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
+s32 FldEnvironmentLoad(u8 *file, s32 room)
 {
-    extern u8 *MT_Scene_GetResListHead(s32 arg0);
-    extern void resrcMngSetEnvPrimary(s32 arg0);
-    extern void resrcMngSetEnvSecondary(s32 arg0);
-    extern void resrcMngSetEnvTertiary(s32 arg0);
-    extern void resrcMngSetEnvIntensity(s32 arg0);
+    extern u8 *MT_Scene_GetResListHead(s32 file);
+    extern void resrcMngSetEnvPrimary(s32 file);
+    extern void resrcMngSetEnvSecondary(s32 file);
+    extern void resrcMngSetEnvTertiary(s32 file);
+    extern void resrcMngSetEnvIntensity(s32 file);
     extern u8 *resrcMngGetColorValue(void);
     extern u8 *resrcMngGetColorTarget(void);
     extern u8 *resrcMngGetTransform(void);
-    extern void MT_Scene_SetResVector(u8 *arg0, u8 *arg1);
-    extern s32 FldRainTaskCreate(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4);
-    extern s32 FldFogTaskCreate(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 *arg7);
-    extern void FldMipmapSetFloatParam(f32 arg0);
-    extern void FldMipmapSetFixedParam(f32 arg0);
-    extern u8 *func_003e8180(u8 *arg0, f32 arg1);
-    extern u8 *func_003e81c0(u8 *arg0, f32 arg1);
-    extern void kwlnTaskDestroyWithHierarchy(void *arg0);
-    extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-    extern void kwlnSetColorBytes(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-    extern void FldRc_SetClumpVector(void *arg0, void *arg1);
-    extern void *mdlGetClump(s32 arg0);
+    extern void MT_Scene_SetResVector(u8 *file, u8 *room);
+    extern s32 FldRainTaskCreate(u8 *file, s32 room, f32 , f32 , f32 , f32 , s32 , s32 , s32 );
+    extern s32 FldFogTaskCreate(s32 file, s32 room, f32 , f32 , f32 , s16 , s16 , s16 , s16 , s32 , u8 *);
+    extern void FldMipmapSetFloatParam(f32 file);
+    extern void FldMipmapSetFixedParam(f32 file);
+    extern u8 *func_003e8180(u8 *file, f32 room);
+    extern u8 *func_003e81c0(u8 *file, f32 room);
+    extern void kwlnTaskDestroyWithHierarchy(void *file);
+    extern void kwlnSetColorRgba(u8 file, u8 room, u8 , u8 );
+    extern void kwlnSetColorBytes(u8 file, u8 room, u8 , u8 );
+    extern void FldRc_SetClumpVector(void *file, void *room);
+    extern void *mdlGetClump(s32 file);
     extern char D_005EFEB0[];
     extern s32 iGpffffba48;
     extern u8 iGpffffba4c;
@@ -195,42 +217,42 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
     extern u8 iGpffffba68;
     extern f32 iGpffffba6c;
     typedef struct { f32 x; f32 y; f32 z; f32 w; } F4;
-    char spAC[4];
-    char sp60[0x4C];
+    char lookupSize[4];
+    char path[0x4C];
     u8 *data;
-    u8 *tmp4;
-    u8 *tmp5;
-    f32 fsave;
+    u8 *primaryLight;
+    u8 *secondaryLight;
+    f32 fogDistance;
 
-    if (arg0 == NULL) {
+    if (file == NULL) {
         return 1;
     }
-    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(file) == 0)) {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0) {
-        data = *(u8 **)(arg0 + 0x110);
+        data = *(u8 **)(file + 0x110);
     } else {
-        sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0, arg1);
-        if (FldMap_IsInBandB(*(u16 *)iGpffff9db0, arg1 & 0xFFFF) != 0) {
-            sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0 - 0x14, arg1);
+        sprintf(&path, D_005EFEB0, *(s32 *)iGpffff9db0, room);
+        if (FldMap_IsInBandB(*(u16 *)iGpffff9db0, room & 0xFFFF) != 0) {
+            sprintf(&path, D_005EFEB0, *(s32 *)iGpffff9db0 - 0x14, room);
         }
         {
             s32 g = *(s32 *)iGpffff9db0;
             if ((g >= 0x33) && (g < 0x3B)) {
-                sprintf(&sp60, D_005EFEB0, g - 0x1E, 0);
+                sprintf(&path, D_005EFEB0, g - 0x1E, 0);
             }
         }
-        data = H_Cdvd_LookupRequest(&sp60, &spAC);
+        data = H_Cdvd_LookupRequest(&path, &lookupSize);
         if (data == NULL) {
             return 1;
         }
         if (data == NULL) {
-            kAssertFailMsg(D_005EFE50, 0x1E3, &iGpffff9e20, &sp60);
+            kAssertFailMsg(D_005EFE50, 0x1E3, &iGpffff9e20, &path);
         }
     }
-    tmp4 = MT_Scene_GetResListHead(4);
-    tmp5 = MT_Scene_GetResListHead(5);
+    primaryLight = MT_Scene_GetResListHead(4);
+    secondaryLight = MT_Scene_GetResListHead(5);
     resrcMngSetEnvPrimary(*(u8 *)(data + 8));
     resrcMngSetEnvSecondary(*(u8 *)(data + 9));
     resrcMngSetEnvTertiary(*(u8 *)(data + 0xA));
@@ -251,8 +273,8 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
     kwlnSetColorRgba(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
     kwlnSetColorBytes(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
     func_003e81c0(kwlnGetCamera(), *(f32 *)(data + 0x14));
-    fsave = *(f32 *)(data + 0x10);
-    *(f32 *)(kwlnGetCamera() + 0x88) = fsave;
+    fogDistance = *(f32 *)(data + 0x10);
+    *(f32 *)(kwlnGetCamera() + 0x88) = fogDistance;
     kwlnGetCamera();
     if ((u32)*(s32 *)(data + 4) > 0x10003U) {
         if (*(f32 *)(data + 0x18) > 1.0f) {
@@ -295,12 +317,12 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
             dst += 8;
         } while (count > 0);
     }
-    if (tmp5 != NULL) {
-        *(F4 *)(tmp5 + 0x140) = *(F4 *)(data + 0x80);
-        *(F4 *)(tmp5 + 0x150) = *(F4 *)(data + 0x90);
+    if (secondaryLight != NULL) {
+        *(F4 *)(secondaryLight + 0x140) = *(F4 *)(data + 0x80);
+        *(F4 *)(secondaryLight + 0x150) = *(F4 *)(data + 0x90);
         {
             s32 *src = (s32 *)(data + 0xA0);
-            u8 *dst = tmp5 + 0x160;
+            u8 *dst = secondaryLight + 0x160;
             s32 count = 8;
             s32 first;
             s32 second;
@@ -314,10 +336,10 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
                 dst += 8;
             } while (count > 0);
         }
-        *(F4 *)(tmp5 + 0x1A0) = *(F4 *)(data + 0xE0);
+        *(F4 *)(secondaryLight + 0x1A0) = *(F4 *)(data + 0xE0);
         {
             s32 *src = (s32 *)(data + 0xF0);
-            u8 *dst = tmp5 + 0x1B0;
+            u8 *dst = secondaryLight + 0x1B0;
             s32 count = 8;
             s32 first;
             s32 second;
@@ -332,7 +354,7 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
             } while (count > 0);
         }
         if ((u32)*(s32 *)(data + 4) > 0x10002U) {
-            *(CmrVec3 *)(tmp5 + 0x1F0) = *(CmrVec3 *)(data + 0x1F0);
+            *(CmrVec3 *)(secondaryLight + 0x1F0) = *(CmrVec3 *)(data + 0x1F0);
         }
     }
     if ((u32)*(s32 *)(data + 4) > 0x10000U) {
@@ -342,12 +364,12 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
             MT_Scene_SetResVector(((u8 **)iGpffff9db0)[i + 10], ((u8 **)iGpffff9db0)[i + 10] + 0xA24);
         }
     }
-    if (((u32)*(s32 *)(data + 4) > 0x10001U) && (tmp4 != NULL)) {
-        *(F4 *)(tmp4 + 0x140) = *(F4 *)(data + 0x13C);
-        *(F4 *)(tmp4 + 0x150) = *(F4 *)(data + 0x14C);
+    if (((u32)*(s32 *)(data + 4) > 0x10001U) && (primaryLight != NULL)) {
+        *(F4 *)(primaryLight + 0x140) = *(F4 *)(data + 0x13C);
+        *(F4 *)(primaryLight + 0x150) = *(F4 *)(data + 0x14C);
         {
             s32 *src = (s32 *)(data + 0x160);
-            u8 *dst = tmp4 + 0x160;
+            u8 *dst = primaryLight + 0x160;
             s32 count = 8;
             s32 first;
             s32 second;
@@ -361,10 +383,10 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
                 dst += 8;
             } while (count > 0);
         }
-        *(F4 *)(tmp4 + 0x1A0) = *(F4 *)(data + 0x1A0);
+        *(F4 *)(primaryLight + 0x1A0) = *(F4 *)(data + 0x1A0);
         {
             s32 *src = (s32 *)(data + 0x1B0);
-            u8 *dst = tmp4 + 0x1B0;
+            u8 *dst = primaryLight + 0x1B0;
             s32 count = 8;
             s32 first;
             s32 second;
@@ -379,7 +401,7 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
             } while (count > 0);
         }
         if ((u32)*(s32 *)(data + 4) > 0x10002U) {
-            *(CmrVec3 *)(tmp4 + 0x1F0) = *(CmrVec3 *)(data + 0x1F0);
+            *(CmrVec3 *)(primaryLight + 0x1F0) = *(CmrVec3 *)(data + 0x1F0);
         }
     }
     if ((u32)*(s32 *)(data + 4) > 0x10002U) {
@@ -436,18 +458,20 @@ s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
         FldMipmapSetFixedParam(*(f32 *)(data + 0x378));
     }
     if (FldRc_GetLoadSource() == 0) {
-        H_Cdvd_Destroy(arg0);
+        H_Cdvd_Destroy(file);
     }
     return 1;
 }
 
 #pragma pop
+/* Resolve the environment state using the current calendar condition. */
 // FUN_001546A0
-s32 FldEnvStateFromCalendar(s32 arg0, s32 arg1)
+s32 FldEnvStateFromCalendar(s32 fieldKind, s32 baseState)
 {
-    return FldEnvResolveState(arg0, arg1, (s8)calGetDayEntryByPhase(datGetDateIndex(), datGetTimeSlot() & 0xFF));
+    return FldEnvResolveState(fieldKind, baseState, (s8)calGetDayEntryByPhase(datGetDateIndex(), datGetTimeSlot() & 0xFF));
 }
 
+/* Combine field-specific base-state rules with time-slot and calendar-condition offsets. */
 // FUN_00154720
 s32 FldEnvResolveState(s32 fieldKind, s32 baseState, s32 condition)
 {
@@ -585,54 +609,58 @@ s32 FldEnvResolveState(s32 fieldKind, s32 baseState, s32 condition)
     return environmentState;
 }
 
+/* Request the current field/room camera file when loading from disc. */
+/* The scene-global root is not a camera record; its first two words supply field and room for the path. */
 // FUN_00154B10
 s32 FldCamOpenFile(void) {
-    char sp90[0x80];
-    char sp10[0x80];
+    char directory[0x80];
+    char path[0x80];
 
     if (*(s32 *)iGpffff9db0 == -1) {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0) {
-        strcpy(&sp90, D_005EFE78);
-        sprintf(&sp10, D_005EFED0, *(s32 *)(iGpffff9db0 + 0), *(s32 *)(iGpffff9db0 + 4));
-        if (H_Cdvd_FileExists(&sp10) == 0) {
+        strcpy(&directory, D_005EFE78);
+        sprintf(&path, D_005EFED0, *(s32 *)(iGpffff9db0 + 0), *(s32 *)(iGpffff9db0 + 4));
+        if (H_Cdvd_FileExists(&path) == 0) {
             return 0;
         }
         func_00440b68(&iGpffff9e18, D_005EFE50, 0x571);
-        return (s32)H_Cdvd_AcquireDirectory(&sp10, 0);
+        return (s32)H_Cdvd_AcquireDirectory(&path, 0);
     }
     return 1;
 }
 
+/* Read a versioned camera record into caller outputs or apply it directly to the active field camera. */
+/* Raw camera record fields retained: the typed-record rewrite produced 1164/1168 bytes but 507 differing instruction bytes. */
 // FUN_00154BE0
-s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
-                  u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8)
+s32 FldCamReadRecord(u8 *file, u8 *cameraMatrixOut, u8 *slotMatrixOut, f32 *fovOut, s32 *curveOut,
+                  u8 *viewOffsetOut, f32 *viewDistanceOut, f32 *cameraValueOut, s32 *slotIdsOut, s32 *slotVectorsOut)
 {
-    char spEC[4];
-    char spA0[0x4C];
+    char lookupSize[4];
+    char path[0x4C];
     u8 *data;
 
-    if (arg0 == 0) {
+    if (file == 0) {
         return 1;
     }
-    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(file) == 0)) {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0) {
-        data = *(u8 **)(arg0 + 0x110);
+        data = *(u8 **)(file + 0x110);
     } else {
-        sprintf(&spA0, D_005EFEF0,
+        sprintf(&path, D_005EFEF0,
                       *(s32 *)iGpffff9db0, *(s32 *)(iGpffff9db0 + 4));
-        data = H_Cdvd_LookupRequest(&spA0, &spEC);
+        data = H_Cdvd_LookupRequest(&path, &lookupSize);
         if (data == 0) {
             return 1;
         }
         if (data == 0) {
-            kAssertFailMsg(D_005EFE50, 0x5A1, &iGpffff9e20, &spA0);
+            kAssertFailMsg(D_005EFE50, 0x5A1, &iGpffff9e20, &path);
         }
     }
-    if (arg1 != 0) {
+    if (cameraMatrixOut != 0) {
         s32 *src;
         s32 count;
         s32 first;
@@ -645,21 +673,21 @@ s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
             second = src[1];
             src += 2;
             count--;
-            *(s32 *)arg1 = first;
-            *(s32 *)(arg1 + 4) = second;
-            arg1 += 8;
+            *(s32 *)cameraMatrixOut = first;
+            *(s32 *)(cameraMatrixOut + 4) = second;
+            cameraMatrixOut += 8;
         } while (count > 0);
-        *arg3 = *(f32 *)(data + 8);
-        *arg4 = *(u16 *)(data + 0x50);
-        *(CmrVec3 *)arg5 = *(CmrVec3 *)(data + 0x54);
-        *arg6 = *(f32 *)(data + 0x60);
-        *arg7 = *(f32 *)(data + 0x64);
+        *fovOut = *(f32 *)(data + 8);
+        *curveOut = *(u16 *)(data + 0x50);
+        *(CmrVec3 *)viewOffsetOut = *(CmrVec3 *)(data + 0x54);
+        *viewDistanceOut = *(f32 *)(data + 0x60);
+        *cameraValueOut = *(f32 *)(data + 0x64);
         if (*(u32 *)(data + 4) > 0x10000U) {
-            memcpy(arg_sp0, data + 0x68, 0x20);
-            memcpy(arg_sp8, data + 0x88, 0x180);
+            memcpy(slotIdsOut, data + 0x68, 0x20);
+            memcpy(slotVectorsOut, data + 0x88, 0x180);
         } else {
-            memset(arg_sp0, 0, 0x20);
-            memset(arg_sp8, 0, 0x180);
+            memset(slotIdsOut, 0, 0x20);
+            memset(slotVectorsOut, 0, 0x180);
         }
         if (*(u32 *)(data + 4) > 0x10001U) {
             src = (s32 *)(data + 0x210);
@@ -669,24 +697,24 @@ s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
                 second = src[1];
                 src += 2;
                 count--;
-                *(s32 *)arg2 = first;
-                *(s32 *)(arg2 + 4) = second;
-                arg2 += 8;
+                *(s32 *)slotMatrixOut = first;
+                *(s32 *)(slotMatrixOut + 4) = second;
+                slotMatrixOut += 8;
             } while (count > 0);
         } else {
-            *(f32 *)(arg2 + 0x28) = 1.0f;
-            *(f32 *)(arg2 + 0x14) = 1.0f;
-            *(f32 *)(arg2 + 0) = 1.0f;
-            *(f32 *)(arg2 + 0x10) = 0.0f;
-            *(f32 *)(arg2 + 8) = 0.0f;
-            *(f32 *)(arg2 + 4) = 0.0f;
-            *(f32 *)(arg2 + 0x24) = 0.0f;
-            *(f32 *)(arg2 + 0x20) = 0.0f;
-            *(f32 *)(arg2 + 0x18) = 0.0f;
-            *(f32 *)(arg2 + 0x38) = 0.0f;
-            *(f32 *)(arg2 + 0x34) = 0.0f;
-            *(f32 *)(arg2 + 0x30) = 0.0f;
-            *(s32 *)(arg2 + 0xC) |= 0x20003;
+            *(f32 *)(slotMatrixOut + 0x28) = 1.0f;
+            *(f32 *)(slotMatrixOut + 0x14) = 1.0f;
+            *(f32 *)(slotMatrixOut + 0) = 1.0f;
+            *(f32 *)(slotMatrixOut + 0x10) = 0.0f;
+            *(f32 *)(slotMatrixOut + 8) = 0.0f;
+            *(f32 *)(slotMatrixOut + 4) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x24) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x20) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x18) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x38) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x34) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x30) = 0.0f;
+            *(s32 *)(slotMatrixOut + 0xC) |= 0x20003;
         }
     } else {
         s32 i;
@@ -715,19 +743,19 @@ CMR_loop_skip:
             ;
         }
         if ((u32)*(s32 *)(data + 4) < 0x10002U) {
-            *(f32 *)(arg2 + 0x28) = 1.0f;
-            *(f32 *)(arg2 + 0x14) = 1.0f;
-            *(f32 *)(arg2 + 0) = 1.0f;
-            *(f32 *)(arg2 + 0x10) = 0.0f;
-            *(f32 *)(arg2 + 8) = 0.0f;
-            *(f32 *)(arg2 + 4) = 0.0f;
-            *(f32 *)(arg2 + 0x24) = 0.0f;
-            *(f32 *)(arg2 + 0x20) = 0.0f;
-            *(f32 *)(arg2 + 0x18) = 0.0f;
-            *(f32 *)(arg2 + 0x38) = 0.0f;
-            *(f32 *)(arg2 + 0x34) = 0.0f;
-            *(f32 *)(arg2 + 0x30) = 0.0f;
-            *(s32 *)(arg2 + 0xC) |= 0x20003;
+            *(f32 *)(slotMatrixOut + 0x28) = 1.0f;
+            *(f32 *)(slotMatrixOut + 0x14) = 1.0f;
+            *(f32 *)(slotMatrixOut + 0) = 1.0f;
+            *(f32 *)(slotMatrixOut + 0x10) = 0.0f;
+            *(f32 *)(slotMatrixOut + 8) = 0.0f;
+            *(f32 *)(slotMatrixOut + 4) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x24) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x20) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x18) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x38) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x34) = 0.0f;
+            *(f32 *)(slotMatrixOut + 0x30) = 0.0f;
+            *(s32 *)(slotMatrixOut + 0xC) |= 0x20003;
         }
         dst = FldFrame_GetSlotBuffer(MT_Scene_GetFrameState()[1]);
         src = (s32 *)(data + 0x210);
@@ -744,7 +772,7 @@ CMR_loop_skip:
         FldCameraUpdateLookAt(MT_Scene_GetFrameState()[1]);
     }
     if (FldRc_GetLoadSource() == 0) {
-        H_Cdvd_Destroy(arg0);
+        H_Cdvd_Destroy(file);
     }
     return 1;
 }

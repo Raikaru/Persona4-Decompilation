@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "sdktask.h"
 
 struct RwV3d;
 struct RwMatrix;
@@ -128,8 +129,10 @@ typedef struct
 } FldEvtEntry;
 #define FLD_EVT_TABLE() (*(FldEvtEntry **)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18DC))
 #define FLD_EVT_ENTRY(h) (&FLD_EVT_TABLE()[*(u16 *)((h) + 0x2C) & 0x3FF])
+/* Select paired nearby grid resources when the interaction button is pressed. */
+/* Remaining byte cursors traverse kind-10 resources, model matrices and the grid; these heterogeneous records do not share one layout. */
 // FUN_00171610
-s32 FldEvent_ScanNearbyEntries(u8 *arg0)
+s32 FldEvent_ScanNearbyEntries(u8 *task)
 {
     s32 *h;
     u8 *p;
@@ -149,7 +152,7 @@ s32 FldEvent_ScanNearbyEntries(u8 *arg0)
     u8 *o2;
     FldEventVec3 vec;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     p = (u8 *)MT_Scene_GetResListHead(0xA);
     if (FldMap_IsCurrentInBandA() == 0 && FldMap_IsCurrentInBandB() == 0) {
         return 0;
@@ -237,13 +240,15 @@ found:
     return 0;
 }
 
+/* Run procedure three with field input held, then clear the selected grid resources. */
+/* The signed frame pointer is retained as an integer base for the supporter-task lookup at +0x1C. */
 // FUN_00171A80
-s32 FldEvent_RunTriggerAndReset(s32 arg0)
+s32 FldEvent_RunTriggerAndReset(s32 task)
 {
     s32 *h;
     s32 r;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     switch (h[1]) {
     case 0:
         fclMiscStopAndClose();
@@ -273,13 +278,15 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
     return 1;
 }
 
+/* Acquire an available region actor when the interaction button is pressed. */
+/* The selected region record's +8 availability word has no recovered owner type. */
 // FUN_00171BD0
-s32 FldEvent_AcquirePointEntry(s32 arg0)
+s32 FldEvent_AcquirePointEntry(s32 task)
 {
     s32 *h;
     s32 r;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     r = FldEvent_FindFirstRegionActor(250.0f, 90.0f, D_007EF9B0);
     if (r == 0) {
         goto fail;
@@ -298,13 +305,15 @@ fail:
     return 0;
 }
 
+/* Hold field input while procedure two runs, then release the hold. */
+/* The supporter-task lookup retains the signed frame-base form; the controller work is a separate word array. */
 // FUN_00171C60
-s32 FldEvent_RunTriggerHold(s32 arg0)
+s32 FldEvent_RunTriggerHold(s32 task)
 {
     s32 *h;
     s32 r;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     switch (h[1]) {
     case 0:
         fclMiscStopAndClose();
@@ -334,6 +343,8 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
     return 1;
 }
 
+/* Find an interactable NPC inside the player-facing distance limits. */
+/* NPC resource fields (+0x164 model/+0x294 controller) and model matrix cursors still have partial layouts. */
 // FUN_00171DC0
 s32 FldEvent_FindNearbyEntry(void)
 {
@@ -372,14 +383,15 @@ s32 FldEvent_FindNearbyEntry(void)
     return found;
 }
 
+/* Acquire a nearby scripted NPC unless the interaction cooldown is active. */
 // FUN_00171F60
-s32 FldEvent_AcquireNearbyEntry(s32 arg0)
+s32 FldEvent_AcquireNearbyEntry(s32 task)
 {
     s32 *h;
     s32 r;
     s32 *p;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     r = FldEvent_FindNearbyEntry();
     h[8] = r;
     if (r == 0) {
@@ -402,8 +414,10 @@ fail:
     return 0;
 }
 
+/* Face the selected NPC, run its kind-specific procedure, then unlock it and start a cooldown. */
+/* Raw fixed-offset access retained: the equivalent typed-field rewrite changed b210 code generation in whole-file verification. */
 // FUN_00171FE0
-s32 FldEvent_RunKindSequence(u8 *arg0)
+s32 FldEvent_RunKindSequence(u8 *task)
 {
     u8 *h;
     u8 *s;
@@ -414,7 +428,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
     s32 t2;
     s32 i;
 
-    h = *(u8 **)(arg0 + 0x38);
+    h = ((SdkTask *)task)->work;
     i = 0;
     s = *(u8 **)(h + 0x20);
     if (*(s32 *)(s + 0x234) == 1) {
@@ -501,8 +515,10 @@ ret1:
 
 /* measured: separate unsigned counters plus opt_loop_invariants reproduce the
    retail compaction-loop register allocation and hoisted -1 sentinel (MATCH). */
+/* Pick the player surface event, enforce its flag requirements and update the interaction prompt. */
+/* Event surface output has type-dependent positions/corners at +0x144..0x188; no complete surface-result layout is established. */
 // FUN_00172360
-s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
+s32 FldEvent_SelectEntryAtPosition(u8 *task)
 {
     u8 *h;
     u32 count;
@@ -517,9 +533,9 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
     u32 i;
     s32 ambience;
 
-    h = *(u8 **)(arg0 + 0x38);
+    h = ((SdkTask *)task)->work;
     *(u16 *)(h + 0x2C) = FldFrame_PickSurfaceAtPoint(
-        (u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(*(u8 **)(h + 0x18) + 0x164))) + 0x30,
+        (u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(((FldEventWork *)h)->resource + 0x164))) + 0x30,
         &out);
     id = *(u16 *)(h + 0x2C);
     if (id != 0xFFFF) {
@@ -619,7 +635,7 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
         if (entry[0xD] == 0 || entry[0xD] == 1 ||
             (D_008C024E[0] & 0x40) != 0) {
             *(u16 *)(h + 0x2E) = *(u16 *)(h + 0x2C);
-            *(s32 *)(h + 4) = 0;
+            ((FldEventWork *)h)->state = 0;
             return 1;
         }
     } else {
@@ -639,14 +655,16 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
 #pragma push
 /* measured: FldEvent_HighlightEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
+/* Start the selected surface event animation, transition or script and wait for completion. */
+/* Raw fixed-offset access retained: the equivalent typed-field rewrite changed b210 code generation in whole-file verification. */
 // FUN_001727F0
-s32 FldEvent_HighlightEntry(u8 *arg0)
+s32 FldEvent_HighlightEntry(u8 *task)
 {
     u8 *node;
     u16 id;
     u8 *h;
 
-    h = *(u8 **)(arg0 + 0x38);
+    h = ((SdkTask *)task)->work;
     switch (*(s32 *)(h + 4)) {
     case 0:
         if (FLD_EVT_ENTRY(h)->unk10 == 0xFFFF) {
@@ -703,6 +721,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
 }
 
 #pragma pop
+/* Check the leader persona and party members for the encounter-related skill conditions. */
 // FUN_00172BA0
 s32 FldEvent_PartyHasSkill(void)
 {
@@ -724,15 +743,17 @@ s32 FldEvent_PartyHasSkill(void)
     return 0;
 }
 
+/* Focus the field camera on the player when an ambient encounter is pending. */
+/* The remaining cast reads the model matrix translation at +0x30; the camera target is a complete XYZ copy. */
 // FUN_00172CB0
-s32 FldEvent_SetCameraFocus(u8 *arg0)
+s32 FldEvent_SetCameraFocus(u8 *task)
 {
     s32 *h;
     FldEventVec3 vec;
     u8 *t;
     s32 r;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     if (FldMap_IsCurrentInEitherBand() == 1) {
         r = *(s32 *)FldAmbientFlagPtr();
         if (r != 0) {
@@ -748,12 +769,13 @@ s32 FldEvent_SetCameraFocus(u8 *arg0)
     return 0;
 }
 
+/* Accept the interaction button outside the excluded dungeon step. */
 // FUN_00172D80
-s32 FldEvent_WaitForFieldIdle(u8 *arg0)
+s32 FldEvent_WaitForFieldIdle(u8 *task)
 {
     s32 *h;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     if (FldMap_IsCurrentInEitherBand() == 1) {
         if (FldStepIndex() != 0x9F) {
             if ((D_008C024E[0] & 0x40) != 0) {
@@ -776,13 +798,14 @@ s32 FldEvent_WaitForFieldIdle(u8 *arg0)
  * Exact 6260-byte instruction stream with 12 retail alignment bytes.
  * Shared transport, snapshot extent, reference and fixture evidence:
  * docs/probe_archive/FieldEvent_00172e00_exact_20261003.md. */
+/* Remaining casts address encounter metadata, camera/scene roots and resource models; they are outside the recovered transition-work fields. */
 // FUN_00172E00
 #pragma push
 /* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* measured: FldEvent_FieldToBattle MATCH -> MISMATCH without this pragma. */
 #pragma opt_pulloutconstants off
-s32 FldEvent_FieldToBattle(u8 *arg0)
+s32 FldEvent_FieldToBattle(u8 *task)
 {
     extern u32 D_007EFA00[];
     extern u8 D_007EF9B0[];
@@ -899,7 +922,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     FldEventVec3 translation;
     char modelPath[32];
     FldEventSnapshot snapshot;
-    work = *(FldEventWork **)(arg0 + 0x38);
+    work = (FldEventWork *)((SdkTask *)task)->work;
     {
         s32 state = work->state;
         switch (state) {
@@ -1494,37 +1517,39 @@ running:
 
 #pragma pop
 #pragma pop
+/* Start or poll a scripted encounter while preserving the previous event state. */
+/* The byte-addressed battle flag/result halfwords share a controller word array; preserve their native halfword accesses. */
 // FUN_00174680
-s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2)
+s32 FldEvent_BeginEncounter(s32 task, s32 encounterId, s32 battleFlags)
 {
     s32 *h;
-    s32 *s16;
+    s32 *actor;
     s32 r;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     r = 1;
     if (h[0x43] == 0) {
         h[0x45] = h[1];
         h[0x44] = h[4];
         h[1] = 3;
-        s16 = FldObjFindFree();
-        s16[0x12] = datUnitCreateEncounterGroup(arg1);
-        s16[0x13] = D_00724504 + ((arg1 & 0xFFFF) * 24);
-        *(u16 *)((u8 *)s16 + 0x728) = 0;
-        h[0x11] = (s32)s16;
-        *(u16 *)((u8 *)h + 0x118) = arg2;
+        actor = FldObjFindFree();
+        actor[0x12] = datUnitCreateEncounterGroup(encounterId);
+        actor[0x13] = D_00724504 + ((encounterId & 0xFFFF) * 24);
+        *(u16 *)((u8 *)actor + 0x728) = 0;
+        h[0x11] = (s32)actor;
+        *(u16 *)((u8 *)h + 0x118) = battleFlags;
         h[0x43] = r;
         goto done;
     }
-    s16 = (s32 *)FldEvent_FieldToBattle((u8 *)arg0);
-    if (s16 != 0) {
+    actor = (s32 *)FldEvent_FieldToBattle((u8 *)task);
+    if (actor != 0) {
         goto done;
     }
     if (D_007EF9F8[0].x == 0) {
         r = 0;
     } else {
         if (datUnitGroupIsDefeated((struct DatUnitGenusBase *)(D_007EF9F8[0].x)) == r) {
-            r = (s32)s16 | 0x80000000;
+            r = (s32)actor | 0x80000000;
         } else {
             r = 0;
             if (*(u16 *)((u8 *)h + 0x11A) != 0) {
@@ -1539,15 +1564,17 @@ done:
     return r;
 }
 
+/* Dispatch trigger acquisition/execution and keep the interaction icon synchronized. */
+/* The controller's trailing input/icon fields extend beyond the recovered FldEventWork prefix; callback table entries remain native addresses. */
 // FUN_001747D0
-s32 FldEvent_TriggerUpdate(u8 *arg0)
+s32 FldEvent_TriggerUpdate(u8 *task)
 {
     u8 *h;
     s32 t;
     s32 i;
     s32 v;
 
-    h = *(u8 **)(arg0 + 0x38);
+    h = ((SdkTask *)task)->work;
     *(s32 *)(h + 0x14) = 0;
     t = *(s32 *)(h + 0x24);
     if (t > 0) {
@@ -1559,8 +1586,8 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
     }
     switch (*(s32 *)h) {
     case 0:
-        for (i = 0; i < ((*(s32 *)(h + 8) != 0) ? 1 : 0xB); i++) {
-            if (((s32 (*)(u8 *))D_005F17D0[i * 2])(arg0) == 1) {
+        for (i = 0; i < ((((FldEventWork *)h)->eventPending != 0) ? 1 : 0xB); i++) {
+            if (((s32 (*)(u8 *))D_005F17D0[i * 2])(task) == 1) {
                 *(s32 *)(h + 0xC) = i;
                 break;
             }
@@ -1573,15 +1600,15 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
             if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
                 FldFrame_SetStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 2);
             }
-            *(s32 *)(h + 0x134) = 0;
+            ((FldEventWork *)h)->motionState = 0;
             *(s32 *)(h + 0x14) = 0;
             *(s32 *)h = 1;
         } else {
-            FldEvent_StepMoveToward(arg0);
+            FldEvent_StepMoveToward(task);
             break;
         }
     case 1:
-        if (((s32 (*)(u8 *))D_005F17D4[*(s32 *)(h + 0xC) * 2])(arg0) != 1) {
+        if (((s32 (*)(u8 *))D_005F17D4[*(s32 *)(h + 0xC) * 2])(task) != 1) {
             if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
                 FldFrame_ClearStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 2);
             }
@@ -1604,109 +1631,118 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
     return 0;
 }
 
+/* Release the trigger controller work. */
 // FUN_00174AA0
-void FldEvent_TriggerDestroy(u8 *arg0)
+void FldEvent_TriggerDestroy(u8 *task)
 {
-    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)(s32)((SdkTask *)task)->work);
 }
 
+/* Create the trigger controller and its player-heading mover. */
+/* The trigger allocation extends to 0x160; player resource and heading-mover fields outside the typed prefix remain byte-addressed. */
 // FUN_00174AD0
-s32 FldEvent_SpawnTrigger(s32 arg0)
+s32 FldEvent_SpawnTrigger(s32 parent)
 {
-    u8 *temp_2;
-    u8 *temp_18;
-    u8 *temp_2_2;
+    u8 *work;
+    u8 *resourceSlot;
+    u8 *resource;
 
     chkmemAllocSiteTag(D_005F1798, 0x990);
-    temp_2 = D_008873F4[0](1, 0x160, 0x40000);
-    if (temp_2 == 0) {
+    work = D_008873F4[0](1, 0x160, 0x40000);
+    if (work == 0) {
         return 0;
     }
-    arg0 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, FldEvent_TriggerUpdate, FldEvent_TriggerDestroy, (u8 *)(temp_2));
+    parent = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005F1828), 0xF, 0, 0, FldEvent_TriggerUpdate, FldEvent_TriggerDestroy, (u8 *)(work));
     FldAmbientFlagClear();
-    *(s32 *)(temp_2 + 0xC) = -1;
-    temp_18 = temp_2 + 0x18;
-    *(u8 **)temp_18 = (u8 *)MT_Scene_GetRes(0x400);
-    FldEvent_SetTriggerParam(arg0, D_00724358);
-    *(u16 *)(temp_2 + 0x2E) = 0xFFFF;
-    temp_2_2 = *(u8 **)temp_18;
-    *(s32 *)(temp_2 + 0x13C) = FldEvent_SpawnMover(arg0, *(s32 *)(temp_2_2 + 0x220),
-                                              *(s32 *)(temp_2_2 + 0x164));
-    return arg0;
+    *(s32 *)(work + 0xC) = -1;
+    resourceSlot = work + 0x18;
+    *(u8 **)resourceSlot = (u8 *)MT_Scene_GetRes(0x400);
+    FldEvent_SetTriggerParam(parent, D_00724358);
+    *(u16 *)(work + 0x2E) = 0xFFFF;
+    resource = *(u8 **)resourceSlot;
+    ((FldEventWork *)work)->fieldEffect = FldEvent_SpawnMover(parent, *(s32 *)(resource + 0x220),
+                                              *(s32 *)(resource + 0x164));
+    return parent;
 }
 
+/* Set the trigger dispatch mode when a controller exists. */
+/* The nullable integer task handle retains the native task/work pointer chain at +0x38/+8. */
 // FUN_00174BE0
-void FldEvent_SetTriggerParam(s32 arg0, s32 arg1)
+void FldEvent_SetTriggerParam(s32 task, s32 mode)
 {
-    if (arg0 != 0) {
-        *(s32 *)(*(s32 *)(arg0 + 0x38) + 8) = arg1;
+    if (task != 0) {
+        *(s32 *)((s32)((SdkTask *)task)->work + 8) = mode;
     }
 }
 
+/* Return the currently selected nearby grid resource. */
 // FUN_00174C00
 s32 FldEvent_GetNearestEntry(void)
 {
     return D_007243EC;
 }
 
+/* Return the paired trigger resource. */
 // FUN_00174C10
 s32 FldEvent_GetTriggerEntry(void)
 {
     return D_007243E8;
 }
 
+/* Mark both sides of a grid connection visited and persist the changed cells. */
+/* The two grid cursors retain separate row/column address trees while updating the packed visited/exits byte at cell +0x0B. */
 // FUN_00174C20
 void FldEvent_StepGridCell(void)
 {
-    s32 temp_18;
-    s32 temp_18_2;
-    s32 var_17;
-    s32 var_16;
-    u8 *temp_3;
-    u8 *temp_3_2;
+    s32 visitedMask;
+    s32 neighborVisitedMask;
+    s32 column;
+    s32 row;
+    u8 *cellBase;
+    u8 *neighborBase;
 
-    var_17 = D_007243E4;
-    var_16 = D_007243E0;
-    temp_18 =
-        (u8)((*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
+    column = D_007243E4;
+    row = D_007243E0;
+    visitedMask =
+        (u8)((*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) + (column * 0x10) +
                       0x5F) <<
               4) &
              0xF0);
-    temp_3 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10);
-    temp_3[0x5F] = temp_3[0x5F] | temp_18;
-    FldStepCopyTableEntry(FldStepIndex(), var_17, var_16);
-    if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
+    cellBase = (u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) + (column * 0x10);
+    cellBase[0x5F] = cellBase[0x5F] | visitedMask;
+    FldStepCopyTableEntry(FldStepIndex(), column, row);
+    if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) + (column * 0x10) +
                 0x5F) &
         1) {
-        var_16 -= 1;
-    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) +
-                       (var_17 * 0x10) + 0x5F) &
+        row -= 1;
+    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) +
+                       (column * 0x10) + 0x5F) &
                2) {
-        var_17 -= 1;
-    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) +
-                       (var_17 * 0x10) + 0x5F) &
+        column -= 1;
+    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) +
+                       (column * 0x10) + 0x5F) &
                4) {
-        var_16 += 1;
-    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) +
-                       (var_17 * 0x10) + 0x5F) &
+        row += 1;
+    } else if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) +
+                       (column * 0x10) + 0x5F) &
                8) {
-        var_17 += 1;
+        column += 1;
     }
-    if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
+    if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row << 8) + (column * 0x10) +
                 0x5F) &
         0xF) {
         ;
     } else {
         kAssertFail(D_005F1798, 0x9DD);
     }
-    temp_18_2 =
-        (u8)((*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 * 0x100) +
-                      (var_17 << 4) + 0x5F) <<
+    neighborVisitedMask =
+        (u8)((*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (row * 0x100) +
+                      (column << 4) + 0x5F) <<
               4) &
              0xF0);
-    temp_3_2 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 * 0x100) + (var_17 << 4);
-    temp_3_2[0x5F] = temp_3_2[0x5F] | temp_18_2;
-    FldStepCopyTableEntry(FldStepIndex(), var_17, var_16);
+    neighborBase = (u8 *)(s32)MT_Scene_GetFrameState() + (row * 0x100) + (column << 4);
+    neighborBase[0x5F] = neighborBase[0x5F] | neighborVisitedMask;
+    FldStepCopyTableEntry(FldStepIndex(), column, row);
 }
 
 /* Field movement controller. Retail keeps the unused heading comparison of
@@ -1720,8 +1756,9 @@ void FldEvent_StepGridCell(void)
 #pragma push
 /* measured: FldEvent_StepMoveToward MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
+/* Raw fixed-offset access retained: the equivalent typed-field rewrite changed b210 code generation in whole-file verification. */
 // FUN_00174E10
-s32 FldEvent_StepMoveToward(u8 *arg0)
+s32 FldEvent_StepMoveToward(u8 *task)
 {
     typedef struct {
         FldEventVec3 right;
@@ -1780,7 +1817,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     f32 f23;
     s32 ret16;
 
-    h = *(u8 **)(arg0 + 0x38);
+    h = ((SdkTask *)task)->work;
     kwlnGetCamera();
     {
         u8 *p = (u8 *)&move;
@@ -1863,7 +1900,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
                     rounded = (45.0f * (f32)(quotient + 1)) *
                               (b < 0.0f ? -1.0f : 1.0f);
                 }
-                *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(arg0, 5, (s32)rounded);
+                *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(task, 5, (s32)rounded);
             }
         }
     } else if (D_008C024E[0] & 1) {
@@ -1881,7 +1918,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
                 }
             }
             add = f21 + KDraw_MatrixYawDeg(func_003e9700(*(void **)(kwlnGetCamera() + 4)));
-            *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(arg0, 5, (s32)add);
+            *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(task, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {
         if (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7) {
@@ -1905,7 +1942,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     if (f20 != 0.0f) {
         FldCameraSetDistance(((FldFrame *)MT_Scene_GetFrameState())->cameraTask, f20);
     } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7)) {
-        *(u8 **)(h + 0x138) = FldFrame_RotateTaskCreate(arg0, 5, -1);
+        *(u8 **)(h + 0x138) = FldFrame_RotateTaskCreate(task, 5, -1);
     }
     if (move.z < -48.0f) {
         goto bigmove;
@@ -2070,19 +2107,22 @@ moving:
 }
 
 #pragma pop
+/* Return the last player movement speed. */
 // FUN_00175DB0
 f32 FldEvent_GetMoveStep(void)
 {
     return D_007243DC;
 }
 
+/* Apply incremental heading rotation until the requested duration elapses. */
+/* The mover is a matrix plus word state; +0x54 is read as the floating incremental angle. */
 // FUN_00175DC0
-s32 FldEvent_MoverUpdate(u8 *arg0)
+s32 FldEvent_MoverUpdate(u8 *task)
 {
     s32 *h;
     FldEventVec3 vec;
 
-    h = *(s32 **)(arg0 + 0x38);
+    h = (s32 *)((SdkTask *)task)->work;
     vec = D_005F1838;
     switch (h[0x10]) {
     case 0:
@@ -2101,26 +2141,29 @@ end:
     return 0;
 }
 
+/* Release the heading mover work. */
 // FUN_00175E70
-void FldEvent_MoverDestroy(u8 *arg0)
+void FldEvent_MoverDestroy(u8 *task)
 {
-    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)(s32)((SdkTask *)task)->work);
 }
 
+/* Create a heading mover bound to the movement task and model. */
+/* The 0x60-byte mover begins with a matrix; +0x44/+0x48 bind movement task/model, with other fields configured by heading-turn setup. */
 // FUN_00175EA0
-s32 FldEvent_SpawnMover(s32 arg0, s32 arg1, s32 arg2)
+s32 FldEvent_SpawnMover(s32 parent, s32 movementTask, s32 model)
 {
-    u8 *temp_2;
+    u8 *work;
     s32 ret;
 
     chkmemAllocSiteTag(D_005F1798, 0xB7F);
-    temp_2 = D_008873F4[0](1, 0x60, 0x40000);
-    if (temp_2 == 0) {
+    work = D_008873F4[0](1, 0x60, 0x40000);
+    if (work == 0) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1848), 0xF, 0, 0, FldEvent_MoverUpdate, FldEvent_MoverDestroy, (u8 *)(temp_2));
-    *(s32 *)(temp_2 + 0x44) = arg1;
-    *(s32 *)(temp_2 + 0x48) = arg2;
+    ret = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005F1848), 0xF, 0, 0, FldEvent_MoverUpdate, FldEvent_MoverDestroy, (u8 *)(work));
+    *(s32 *)(work + 0x44) = movementTask;
+    *(s32 *)(work + 0x48) = model;
     return ret;
 }
 

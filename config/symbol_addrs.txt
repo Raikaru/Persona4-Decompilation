@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 1741 of 13102 symbols carry a recovered name.
+// 1750 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -1035,7 +1035,7 @@ func_001605a0 = 0x001605A0; // type:func
 func_00160680 = 0x00160680; // type:func
 func_001607e0 = 0x001607E0; // type:func
 func_00160880 = 0x00160880; // type:func
-func_00161460 = 0x00161460; // type:func
+fldFilterBeginTransition = 0x00161460; // type:func
 func_001614d0 = 0x001614D0; // type:func
 func_00161500 = 0x00161500; // type:func
 func_00161510 = 0x00161510; // type:func
@@ -3333,16 +3333,16 @@ func_0023d9b0 = 0x0023D9B0; // type:func
 func_0023dd90 = 0x0023DD90; // type:func
 func_0023ddc0 = 0x0023DDC0; // type:func
 func_0023df20 = 0x0023DF20; // type:func
-func_0023df70 = 0x0023DF70; // type:func
+datCalcUsesWeaponProperties = 0x0023DF70; // type:func
 func_0023dfe0 = 0x0023DFE0; // type:func
 func_0023dff0 = 0x0023DFF0; // type:func
 func_0023e130 = 0x0023E130; // type:func
 func_0023e140 = 0x0023E140; // type:func
-func_0023e1f0 = 0x0023E1F0; // type:func
+datCalcGetCharacterTableKind = 0x0023E1F0; // type:func
 func_0023e270 = 0x0023E270; // type:func
 func_0023e2f0 = 0x0023E2F0; // type:func
-func_0023e3e0 = 0x0023E3E0; // type:func
-func_0023e5b0 = 0x0023E5B0; // type:func
+datCalcGetWeaponProperty = 0x0023E3E0; // type:func
+datCalcGetArmorProperty = 0x0023E5B0; // type:func
 func_0023e6f0 = 0x0023E6F0; // type:func
 func_002411a0 = 0x002411A0; // type:func
 func_00241bc0 = 0x00241BC0; // type:func
@@ -3358,10 +3358,10 @@ func_00243840 = 0x00243840; // type:func
 func_002438b0 = 0x002438B0; // type:func
 func_00243920 = 0x00243920; // type:func
 func_00243950 = 0x00243950; // type:func
-func_002439c0 = 0x002439C0; // type:func
+datCalcEnemyMoney = 0x002439C0; // type:func
 func_00243a30 = 0x00243A30; // type:func
-func_00243ce0 = 0x00243CE0; // type:func
-func_00243d80 = 0x00243D80; // type:func
+datCalcEnemyHasTableFlag = 0x00243CE0; // type:func
+datCalcEnemyHasExtendedFlag = 0x00243D80; // type:func
 func_00243e30 = 0x00243E30; // type:func
 func_00243e50 = 0x00243E50; // type:func
 func_00243e70 = 0x00243E70; // type:func
@@ -3370,7 +3370,7 @@ func_00243ec0 = 0x00243EC0; // type:func
 func_00243ed0 = 0x00243ED0; // type:func
 func_00243f20 = 0x00243F20; // type:func
 func_00243fa0 = 0x00243FA0; // type:func
-func_00244100 = 0x00244100; // type:func
+datCalcNoOperation = 0x00244100; // type:func
 func_00244110 = 0x00244110; // type:func
 func_00244540 = 0x00244540; // type:func
 func_002447c0 = 0x002447C0; // type:func

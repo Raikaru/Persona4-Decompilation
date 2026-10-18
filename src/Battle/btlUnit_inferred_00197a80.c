@@ -194,7 +194,7 @@ s32 btlUnitArcMovePacketUpdate(u8 *arg0)
     f32 progress;
     s32 use_scaled;
     unit = *(u8 **)arg0;
-    if (func_0023df70(*(u16 *)(arg0 + 4)) != 0) {
+    if (datCalcUsesWeaponProperties(*(u16 *)(arg0 + 4)) != 0) {
         if (*(u16 *)(arg0 + 6) == 0) {
             *(f32 *)(arg0 + 0x24) = 0.5f;
             *(P4_95730_Vec3 *)(arg0 + 0xC) =

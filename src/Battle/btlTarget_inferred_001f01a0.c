@@ -37,7 +37,7 @@ extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern s32 func_00243ce0(s32 arg0);
+extern s32 datCalcEnemyHasTableFlag(s32 arg0);
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
@@ -95,7 +95,7 @@ s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1)
         return 0x104;
     case 3:
         if ((arg1 != NULL) &&
-            (func_00243ce0(*(s32 *)(*(u8 **)(arg1 + 0x30) + 0xA64)) != 0)) {
+            (datCalcEnemyHasTableFlag(*(s32 *)(*(u8 **)(arg1 + 0x30) + 0xA64)) != 0)) {
             return 0x10A;
         }
         return 0x105;

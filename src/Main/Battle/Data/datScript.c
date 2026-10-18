@@ -33,9 +33,9 @@ s32 datCalcGetBattleStat(u16* unit, u32 param);
 s32 datCalcGetAffinity(u8* unit, s32 param);
 s32 datCalcStatusElement(s16 cmd, s32 param);
 s32 datCalcSkillElement(u8* unit, u16 cmd);
-s32 func_0023e3e0(u16* unit, s32 param);
-s32 func_0023e5b0(u16* unit, s32 param);
-s32 func_00243ce0(u16* unit);
+s32 datCalcGetWeaponProperty(u16* unit, s32 param);
+s32 datCalcGetArmorProperty(u16* unit, s32 param);
+s32 datCalcEnemyHasTableFlag(u16* unit);
 
 // FUN_00244F60
 /* Stores the command's unit pointers and parameters, then runs calculation kind arg0 and returns its result. */
@@ -166,7 +166,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         cmd = &DAT_007644A8[D_0088146C[0] * 0x28];
         if (cmd[0] & 2) {
             K_ASSERT(D_00881460[0] != 0, 0x109);
-            result = (f32)(u32)func_0023e3e0(D_00881460[0], 1);
+            result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 1);
         } else {
             result = (f32)(u32)cmd[0xE];
         }
@@ -180,7 +180,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         cmd = &DAT_007644A8[D_0088146C[0] * 0x28];
         if ((cmd[0] & 2) || (cmd[0x11] == 0x10)) {
             K_ASSERT(D_00881460[0] != 0, 0x118);
-            result = (f32)(u32)func_0023e3e0(D_00881460[0], 0);
+            result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 0);
         } else if (D_00881470[0] == 1) {
             result = (f32)*(s16 *)(cmd + 0x12);
         } else if (D_00881470[0] == 2) {
@@ -194,7 +194,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         cmd = &DAT_007644A8[D_0088146C[0] * 0x28];
         if (cmd[0] & 2) {
             K_ASSERT(D_00881460[0] != 0, 0x12B);
-            result = (f32)(u32)func_0023e3e0(D_00881460[0], 2);
+            result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 2);
         } else {
             result = (f32)(u32)cmd[0x25];
         }
@@ -217,7 +217,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         } else if (diff > 0x1F) {
             diff = 0x1F;
         }
-        if ((func_00243ce0(D_00881460[0]) == 0) && (func_00243ce0(D_00881464[0]) == 0)) {
+        if ((datCalcEnemyHasTableFlag(D_00881460[0]) == 0) && (datCalcEnemyHasTableFlag(D_00881464[0]) == 0)) {
             result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x1F) * 4);
         } else {
             result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x5E) * 4);
@@ -265,19 +265,19 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 29:
         K_ASSERT(D_00881460[0] != 0, 0x189);
-        result = (f32)(u32)func_0023e5b0(D_00881460[0], 0);
+        result = (f32)(u32)datCalcGetArmorProperty(D_00881460[0], 0);
         break;
     case 30:
         K_ASSERT(D_00881460[0] != 0, 0x18D);
-        result = (f32)(u32)func_0023e5b0(D_00881460[0], 1);
+        result = (f32)(u32)datCalcGetArmorProperty(D_00881460[0], 1);
         break;
     case 31:
         K_ASSERT(D_00881464[0] != 0, 0x191);
-        result = (f32)(u32)func_0023e5b0(D_00881464[0], 0);
+        result = (f32)(u32)datCalcGetArmorProperty(D_00881464[0], 0);
         break;
     case 32:
         K_ASSERT(D_00881464[0] != 0, 0x195);
-        result = (f32)(u32)func_0023e5b0(D_00881464[0], 1);
+        result = (f32)(u32)datCalcGetArmorProperty(D_00881464[0], 1);
         break;
     case 33:
         K_ASSERT(D_00881460[0] != 0, 0x199);
@@ -290,7 +290,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         } else if (diff > 0x1F) {
             diff = 0x1F;
         }
-        if ((func_00243ce0(D_00881460[0]) == 0) && (func_00243ce0(D_00881464[0]) == 0)) {
+        if ((datCalcEnemyHasTableFlag(D_00881460[0]) == 0) && (datCalcEnemyHasTableFlag(D_00881464[0]) == 0)) {
             result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x1F) * 4);
         } else {
             result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x5E) * 4);

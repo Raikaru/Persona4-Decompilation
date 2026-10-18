@@ -30,7 +30,7 @@ extern s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1);
 extern s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlCameraWaitMotionFrames(u8 *arg0);
 extern void btlCameraSelectPreset(int param_1);
-extern s32 func_00243ce0(u8 *arg0);
+extern s32 datCalcEnemyHasTableFlag(u8 *arg0);
 extern void btlCameraFrameTarget(u8 *arg0, f32 arg1, f32 arg2);
 extern void btlCameraFrameWrapTargetWalk(u8 *arg0, f32 arg1, f32 arg2);
 extern u16 btlTargetGetUnitIndex(BtlTarget *target);
@@ -181,7 +181,7 @@ s32 btlResultSummaryExists(void)
  * Scoped propagation and distinct selector lifetimes reproduce native b210
  * O2: 876/880 bytes, 34 fully resolved relocations, four zero tail bytes.
  */
-extern s32 func_00243d80(u8 *unitData);
+extern s32 datCalcEnemyHasExtendedFlag(u8 *unitData);
 extern s32 datCalcIsGuarding(u16 *unitData);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern f32 fGpffff80e8;
@@ -259,7 +259,7 @@ void btlCameraSelectEncounterPreset(u8 *camera)
     while (enemy != NULL) {
         if ((*(u32 *)(enemy + 0x9C) & 8) != 0 &&
             *(u8 **)(enemy + 0xA64) != NULL &&
-            func_00243d80(*(u8 **)(enemy + 0xA64)) != 0) {
+            datCalcEnemyHasExtendedFlag(*(u8 **)(enemy + 0xA64)) != 0) {
             if (datCalcChkBadStatus(*(s32 *)(enemy + 0xA64), 0x100000) != 0) {
                 hasStatus = 1;
             }
@@ -331,7 +331,7 @@ void btlCameraSelectSkillPreset(u8 *camera)
         RwV3d second;
         RtQuat secondRotation;
     } poses;
-    extern s32 func_00243d80(u8 *unitData);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *unitData);
     extern s32 datCalcIsGuarding(u16 *unitData);
     extern s32 btlCurrentUnitId(void);
     extern u32 btlEffectCollectGenusMask(s32 targets);
@@ -388,7 +388,7 @@ void btlCameraSelectSkillPreset(u8 *camera)
     while (enemy != NULL) {
         if ((*(s32 *)(enemy + 0x9C) & 8) != 0) {
             unitData = *(s32 *)(enemy + 0xA64);
-            if (unitData != 0 && func_00243d80((u8 *)unitData) != 0) {
+            if (unitData != 0 && datCalcEnemyHasExtendedFlag((u8 *)unitData) != 0) {
                 if (datCalcChkBadStatus(*(s32 *)(enemy + 0xA64), 0x100000) != 0) {
                     hasStatus = 1;
                 }
@@ -848,7 +848,7 @@ void btlCameraFrameUnitPair(u8 *arg0)
     u8 *temp_2;
     u8 *temp_16;
     u8 *base;
-    extern s32 func_00243ce0(u8 *arg0);
+    extern s32 datCalcEnemyHasTableFlag(u8 *arg0);
     base = arg0;
     *(u16 *)(DAT_0076449c + 0xC00) = 0;
     temp_2 = *(u8 **)(base + 0xE0);
@@ -864,7 +864,7 @@ void btlCameraFrameUnitPair(u8 *arg0)
             *(u16 *)(DAT_0076449c + 0xC00) = 1;
         }
     } else if ((temp_4 & 0xFFFF & 2) == 0) {
-        if (func_00243ce0((u8 *)*(s32 *)(temp_16 + 0xA64)) != 0) {
+        if (datCalcEnemyHasTableFlag((u8 *)*(s32 *)(temp_16 + 0xA64)) != 0) {
             btlCameraFrameTarget(base, 0.0f, 1.0f);
             return;
         }
@@ -1041,7 +1041,7 @@ void btlCameraTickTargetWait(u8 *arg0)
     self = arg0;
     temp_3 = *(u8 **)(self + 0xE0);
     if (temp_3 != NULL) {
-        if (func_00243ce0((u8 *)*(s32 *)(*(u8 **)(temp_3 + 0x30) + 0xA64)) != 0) {
+        if (datCalcEnemyHasTableFlag((u8 *)*(s32 *)(*(u8 **)(temp_3 + 0x30) + 0xA64)) != 0) {
             if (btlUnitIsUnavailable(*(u8 **)(self + 0xE0), 0, 0) != 0) {
                 btlCameraFrameWrapTargetWalk(self, 0.0f, 0.75f);
             } else {
@@ -1073,14 +1073,14 @@ void btlCameraTickSelectPreset(u8 *arg0)
     u32 temp_4;
     s32 temp_3;
     u8 *temp_5;
-    extern s32 func_00243ce0(u8 *arg0);
+    extern s32 datCalcEnemyHasTableFlag(u8 *arg0);
 
     temp_5 = *(u8 **)(arg0 + 0xE0);
     if ((temp_5 != NULL) &&
         (*(u16 *)(temp_5 + 0x6A) == 1) &&
         (*(s32 *)(arg0 + 0x100) == *(s32 *)(temp_5 + 0x38)) &&
         ((*(u16 *)(temp_5 + 0x1A) & 1) != 0)) {
-        if (func_00243ce0((u8 *)*(s32 *)(*(u8 **)(temp_5 + 0x30) + 0xA64)) == 0) {
+        if (datCalcEnemyHasTableFlag((u8 *)*(s32 *)(*(u8 **)(temp_5 + 0x30) + 0xA64)) == 0) {
             btlCameraSelectPreset((int)arg0);
             return;
         }

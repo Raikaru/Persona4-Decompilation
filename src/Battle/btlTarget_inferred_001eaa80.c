@@ -181,7 +181,7 @@ s32 btlEffectScriptFormationMoveUnit(void) {
     extern void btlFormationCopyRecord(u8 *arg0, u8 *arg1);
     extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
     extern void btlFormationSetPlacement(u8 *arg0);
-    extern s32 func_00243ce0(s32 arg0);
+    extern s32 datCalcEnemyHasTableFlag(s32 arg0);
     u8 *temp_18;
     u8 *var_17;
     u8 *temp_2;
@@ -200,7 +200,7 @@ loop_body:
     temp_4 = *(s32 *)(var_17 + 0xA64);
     if (temp_4 == 0)
         goto loop_advance;
-    if (func_00243ce0(temp_4) == 0)
+    if (datCalcEnemyHasTableFlag(temp_4) == 0)
         goto loop_advance;
     temp_3_2 = *(u16 *)(var_17 + 0xA4);
     switch (temp_3_2) {

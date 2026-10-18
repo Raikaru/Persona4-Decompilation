@@ -88,7 +88,7 @@ extern void (*DAT_008873EC[])(void *);
 u32 MT_Scene_GetResManager(void);
 u8 *MT_Scene_GetResListHead(s32 kind);
 void MT_Scene_SetResEnabledById();
-void func_00161460(u8, u8, u8);
+void fldFilterBeginTransition(u8, u8, u8);
 void FldFilterSetIndex(u8);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern char D_00748340[];
@@ -2130,7 +2130,7 @@ s32 evtCmdScreenColor(int action, int frame, int eventAddress, int ownerAddress,
         if (((EvtChildNode *)commandWords)->start != frame) {
             goto ret;
         }
-        func_00161460(((EvtChildNode *)commandWords)->payload.screenColor.red, ((EvtChildNode *)commandWords)->payload.screenColor.green, ((EvtChildNode *)commandWords)->payload.screenColor.blue);
+        fldFilterBeginTransition(((EvtChildNode *)commandWords)->payload.screenColor.red, ((EvtChildNode *)commandWords)->payload.screenColor.green, ((EvtChildNode *)commandWords)->payload.screenColor.blue);
         FldFilterSetIndex(((EvtChildNode *)commandWords)->payload.screenColor.filter);
         return 1;
     default:

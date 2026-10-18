@@ -487,7 +487,7 @@ s32 btlEffectScriptChooseBestSkill(void) {
     extern s32 datCalcElementBit(s16 arg0);
     extern s32 datCalcSkillElement(u8 *arg0, s32 arg1);
     extern u16 btlSkillClassifyTargets(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
-    extern s32 func_0023df70(s32 arg0);
+    extern s32 datCalcUsesWeaponProperties(s32 arg0);
     extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
     extern u16 datCalcThresholdKind(u8 *arg0, s32 arg1);
     extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
@@ -567,7 +567,7 @@ outer_body:
             goto outer_next;
         }
     }
-    if (func_0023df70(skill) == 0) {
+    if (datCalcUsesWeaponProperties(skill) == 0) {
         if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x80008) != 0) {
             goto outer_next;
         }

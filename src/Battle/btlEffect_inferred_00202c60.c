@@ -2684,7 +2684,7 @@ void btlSelectionResetState(u8 *arg0, u8 *arg1)
 u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
 {
     extern s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1);
-    extern s32 func_0023df70(s32 arg0);
+    extern s32 datCalcUsesWeaponProperties(s32 arg0);
     s32 temp_2;
     u16 var_16;
     u16 temp_16;
@@ -2698,7 +2698,7 @@ u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
         if (datCalcThresholdTrigger(*(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x178) +
                                            0x30) + 0xA64),
                           temp_16) == 0) {
-            if ((func_0023df70(temp_16) != 0) &&
+            if ((datCalcUsesWeaponProperties(temp_16) != 0) &&
                 ((iGpffffb3bc[temp_16 & 0xFFFF].flags & 0x8000) == 0)) {
                 *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 1;
             } else {

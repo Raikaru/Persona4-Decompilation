@@ -1299,7 +1299,7 @@ void btlEplUnitApplyMotion(u8 *effect)
         while (node != NULL) {
             if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
                 ((node->datUnit == 0) ||
-                 (func_00243d80(node->datUnit) != 0) ||
+                 (datCalcEnemyHasExtendedFlag(node->datUnit) != 0) ||
                  (datCalcIsDead(node->datUnit, 0) == 0))) {
                 node->unk9D8 |= 8;
                 if (count == 0) {

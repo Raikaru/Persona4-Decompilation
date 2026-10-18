@@ -6,25 +6,26 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "Kosaka/k_fldFilter_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "Kosaka/k_model_internal.h"
 extern s32 iGpffff9ef8;
 extern s32 iGpffff9f08;
-extern void strcpy(void *arg0, const char *arg1);
+extern void strcpy(void *, const char *);
 extern s32 sprintf(char *buf, const char *fmt, ...);
-extern s32 H_Cdvd_FileExists(void *arg0);
-extern void func_00440b68(char *arg0, const char *arg1, s32 arg2, ...);
-extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
+extern s32 H_Cdvd_FileExists(void *);
+extern void func_00440b68(char *, const char *, s32 , ...);
+extern u8 *H_Cdvd_AcquireDirectory(void *, s32 );
 extern char D_005F1218[];
 extern char D_005F1230[];
 extern char D_005F1248[];
 extern u8 *iGpffffb2b0;
 extern s32 iGpffffb2b8;
 extern void memcpy(void *dst, void *src, u32 size);
-extern void H_Cdvd_Destroy(void *arg0);
-extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
+extern void H_Cdvd_Destroy(void *);
+extern s32 H_Cdvd_IsFileLoaded(u8 *);
 extern u8 *iGpffffb2c8;
 extern u8 *iGpffffb2cc;
 extern u8 D_007E7B20[];
@@ -32,63 +33,68 @@ extern s32 iGpffff9f08;
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Return the active filter entry's render type. */
 // FUN_001614D0
 s32 FldFilterGetEntry(void)
 {
-    return *(s32 *)(iGpffffb2b0 + iGpffffb2b8 * 0x124);
+    return (s32)((FldFilterEntry *)(iGpffffb2b0 + iGpffffb2b8 * 0x124))->type;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Set the global filter intensity multiplier. */
 // FUN_00161500
-void FldFilterSetIndex(s32 arg0)
+void FldFilterSetIndex(s32 intensity)
 {
-    iGpffff9ef8 = arg0;
+    iGpffff9ef8 = intensity;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Open the fixed enemy configuration table if it exists. */
 // FUN_00161510
 s32 FldEnemyOpenTable(void)
 {
-    char sp90[0x80];
-    char sp10[0x80];
+    char directory[0x80];
+    char path[0x80];
 
-    strcpy(sp90, D_005F1218);
-    sprintf(sp10, D_005F1230);
-    if (H_Cdvd_FileExists(sp10) == 0) {
+    strcpy(directory, D_005F1218);
+    sprintf(path, D_005F1230);
+    if (H_Cdvd_FileExists(path) == 0) {
         return 0;
     }
     func_00440b68((char *)&iGpffff9f08, D_005F1248, 0x69);
-    return (s32)H_Cdvd_AcquireDirectory(sp10, 0);
+    return (s32)H_Cdvd_AcquireDirectory(path, 0);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
+/* Copy the loaded enemy configuration table and expose its attack-record block. */
+/* CDVD payload/size are +0x110/+0x118; retain the native cancellation expression when materializing the payload address. */
 // FUN_001615A0
-s32 FldEnemyLoadTable(u8 *arg0)
+s32 FldEnemyLoadTable(u8 *file)
 {
     void *src;
     u32 size;
 
-    if (arg0 == NULL) {
+    if (file == NULL) {
         return 1;
     }
-    if (H_Cdvd_IsFileLoaded(arg0) == 0) {
+    if (H_Cdvd_IsFileLoaded(file) == 0) {
         return 0;
     }
     iGpffffb2c8 = D_007E7B20;
-    size = *(u32 *)(arg0 + 0x118);
-    src = *(void **)(((u8 *)arg0 + size) - size + 0x110);
+    size = *(u32 *)(file + 0x118);
+    src = *(void **)(((u8 *)file + size) - size + 0x110);
     memcpy(iGpffffb2c8, src, size);
     iGpffffb2cc = iGpffffb2c8 + 0x300;
-    H_Cdvd_Destroy(arg0);
+    H_Cdvd_Destroy(file);
     return 1;
 }
 #pragma pop

@@ -6,6 +6,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "Kosaka/k_fldFilter_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
@@ -14,15 +15,15 @@ extern s32 iGpffff9ef8;
 extern s32* MT_Scene_GetFrameState(void);
 extern void (*DAT_008873EC[])(void *);
 extern u8 D_007E4320[];
-extern void func_00440b68(char *arg0, const char *arg1, s32 arg2, ...);
-extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
+extern void func_00440b68(char *, const char *, s32 , ...);
+extern u8 *H_Cdvd_AcquireDirectory(void *, s32 );
 extern u8 *iGpffffb2b0;
 extern s32 iGpffffb2b8;
 extern s32 D_007643A4;
 extern s32 D_007643AC;
 extern f32 D_007643B0;
 extern f32 D_007643B4;
-extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *, s32 , void *, s32 );
 extern u8 D_007943C0[];
 extern u8 D_00794960[];
 extern s32 iGpffffba48;
@@ -31,17 +32,18 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 , s32 );
 extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void H_Cdvd_ReadSync(void *arg0);
+extern void H_Cdvd_ReadSync(void *);
 extern void memcpy(void *dst, void *src, u32 size);
-extern void H_Cdvd_Destroy(void *arg0);
+extern void H_Cdvd_Destroy(void *);
 extern u8 *kwlnGetCamera();
-extern void K_FldFilter_InitQuads(u8 *arg0);
+extern void K_FldFilter_InitQuads(u8 *);
 extern s32 iGpffff9f00;
 extern char D_005F11E8[];
 extern char D_005F1200[];
+/* Release and clear the frame-owned auxiliary script buffer. */
 // FUN_00160440
 void FldAuxBufferRelease(void)
 {
@@ -54,10 +56,12 @@ void FldAuxBufferRelease(void)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+/* Initialize the seven-by-eight screen grid of four-vertex filter quads. */
+/* The remaining camera +0x80 float is the projected quad depth; the camera object's complete layout is not defined in this unit. */
 // FUN_001604A0
-void K_FldFilter_InitQuads(u8 *arg0)
+void K_FldFilter_InitQuads(u8 *camera)
 {
-    f32 depth = *(f32 *)(arg0 + 0x80);
+    f32 depth = *(f32 *)(camera + 0x80);
     f32 inv = 1.0f / depth;
     s32 i;
     s32 j;
@@ -68,8 +72,8 @@ void K_FldFilter_InitQuads(u8 *arg0)
     f32 right;
     f32 bottom;
     s32 x;
-    s32 top_y;
-    s32 bottom_y;
+    s32 topY;
+    s32 bottomY;
 
     for (i = 0; i < 7; i++) {
         j = 0;
@@ -78,28 +82,28 @@ void K_FldFilter_InitQuads(u8 *arg0)
             x = (j * 5) << 4;
             p = row + (j << 8);
             left = (f32)x;
-            *(f32 *)(p + 0) = left;
-            top_y = i << 6;
-            bottom_y = top_y + 64;
-            top = (f32)top_y;
-            *(f32 *)(p + 4) = top;
-            *(f32 *)(p + 8) = depth;
+            ((FldFilterVertex *)p)[0].x = left;
+            topY = i << 6;
+            bottomY = topY + 64;
+            top = (f32)topY;
+            ((FldFilterVertex *)p)[0].y = top;
+            ((FldFilterVertex *)p)[0].z = depth;
             j++;
             right = (f32)((j * 5) << 4);
-            *(f32 *)(p + 64) = right;
-            *(f32 *)(p + 68) = top;
-            *(f32 *)(p + 72) = depth;
-            *(f32 *)(p + 128) = left;
-            bottom = (f32)bottom_y;
-            *(f32 *)(p + 132) = bottom;
-            *(f32 *)(p + 136) = depth;
-            *(f32 *)(p + 192) = right;
-            *(f32 *)(p + 196) = bottom;
-            *(f32 *)(p + 200) = depth;
-            *(f32 *)(p + 24) = inv;
-            *(f32 *)(p + 88) = inv;
-            *(f32 *)(p + 152) = inv;
-            *(f32 *)(p + 216) = inv;
+            ((FldFilterVertex *)p)[1].x = right;
+            ((FldFilterVertex *)p)[1].y = top;
+            ((FldFilterVertex *)p)[1].z = depth;
+            ((FldFilterVertex *)p)[2].x = left;
+            bottom = (f32)bottomY;
+            ((FldFilterVertex *)p)[2].y = bottom;
+            ((FldFilterVertex *)p)[2].z = depth;
+            ((FldFilterVertex *)p)[3].x = right;
+            ((FldFilterVertex *)p)[3].y = bottom;
+            ((FldFilterVertex *)p)[3].z = depth;
+            ((FldFilterVertex *)p)[0].reciprocalDepth = inv;
+            ((FldFilterVertex *)p)[1].reciprocalDepth = inv;
+            ((FldFilterVertex *)p)[2].reciprocalDepth = inv;
+            ((FldFilterVertex *)p)[3].reciprocalDepth = inv;
         }
     }
 }
@@ -108,20 +112,22 @@ void K_FldFilter_InitQuads(u8 *arg0)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Load the complete filter table and initialize its screen-space quad geometry. */
+/* The CDVD request's +0x110 word is the loaded file buffer, not a filter-entry field. */
 // FUN_001605A0
 void FldFilterLoadFile(void)
 {
-    u8 *temp_2;
+    u8 *file;
 
     if (iGpffffb2b0 == NULL) {
         chkmemAllocSiteTag(D_005F11E8, 0xEE);
         iGpffffb2b0 = (u8 *)D_008873F4[0](1, 0x12400, 0x40000);
     }
     func_00440b68((char *)&iGpffff9f00, D_005F11E8, 0xF4);
-    temp_2 = H_Cdvd_AcquireDirectory(D_005F1200, 0);
-    H_Cdvd_ReadSync(temp_2);
-    memcpy(iGpffffb2b0, *(void **)(temp_2 + 0x110), 0x12400);
-    H_Cdvd_Destroy(temp_2);
+    file = H_Cdvd_AcquireDirectory(D_005F1200, 0);
+    H_Cdvd_ReadSync(file);
+    memcpy(iGpffffb2b0, *(void **)(file + 0x110), 0x12400);
+    H_Cdvd_Destroy(file);
     K_FldFilter_InitQuads(kwlnGetCamera());
 }
 #pragma pop
@@ -129,11 +135,12 @@ void FldFilterLoadFile(void)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Set the filter draw states and choose the GS alpha mode from the active table entry. */
 // FUN_00160680
 #pragma opt_propagation off
 void FldFilterResetRenderState(void)
 {
-    s32 temp_5;
+    s32 filterType;
     void (**base)(u32, u32);
 
     base = D_00887300;
@@ -144,8 +151,8 @@ void FldFilterResetRenderState(void)
     base[0](0xC, 1);
     base[0](0xE, 0);
     RpSkyRenderStateSet(3, 0x71801);
-    temp_5 = *(s32 *)(iGpffffb2b0 + iGpffffb2b8 * 0x124);
-    switch (temp_5) {
+    filterType = (s32)((FldFilterEntry *)(iGpffffb2b0 + iGpffffb2b8 * 0x124))->type;
+    switch (filterType) {
     case 0:
         RpSkyRenderStateSet(2, 0x44);
         break;
@@ -165,6 +172,7 @@ void FldFilterResetRenderState(void)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
+/* Apply the packed environment color when environment-color rendering is enabled. */
 // FUN_001607E0
 void FldFilterApplyColour(void)
 {
@@ -234,6 +242,7 @@ static inline s32 previousStateValue_00160880(const s32 *state)
 #pragma opt_propagation on
 #pragma opt_lifetimes on
 // Intent: Advance the colour cross-fade from the previous state table to the current one by one step, writing blended vertex colours for seven rows of eight [inferred]
+/* Byte cursors intentionally retain the measured current/previous row address order and queue callback layout; colors use a 0x24-byte lattice stride. */
 // FUN_00160880
 void FldColorCrossfadeStep(void)
 {
@@ -432,10 +441,10 @@ void FldColorCrossfadeStep(void)
                     u8 *c = &colsA[k * 4];
                     u8 *v = vtx + (k << 6);
 
-                    *(f32 *)(v + 0x20) = (f32)c[0];
-                    *(f32 *)(v + 0x24) = (f32)c[1];
-                    *(f32 *)(v + 0x28) = (f32)c[2];
-                    *(f32 *)(v + 0x2C) = (f32)c[3];
+                    ((FldFilterVertex *)v)[0].red = (f32)c[0];
+                    ((FldFilterVertex *)v)[0].green = (f32)c[1];
+                    ((FldFilterVertex *)v)[0].blue = (f32)c[2];
+                    ((FldFilterVertex *)v)[0].alpha = (f32)c[3];
                 }
                 res = PrimQueueDrawPrimitive(D_007943C0, 4, vtx, 4);
             } else {
@@ -464,10 +473,10 @@ void FldColorCrossfadeStep(void)
                     u8 *c = &colsB[k * 4];
                     u8 *v = vtx + (k << 6);
 
-                    *(f32 *)(v + 0x20) = (f32)c[0];
-                    *(f32 *)(v + 0x24) = (f32)c[1];
-                    *(f32 *)(v + 0x28) = (f32)c[2];
-                    *(f32 *)(v + 0x2C) = (f32)c[3];
+                    ((FldFilterVertex *)v)[0].red = (f32)c[0];
+                    ((FldFilterVertex *)v)[0].green = (f32)c[1];
+                    ((FldFilterVertex *)v)[0].blue = (f32)c[2];
+                    ((FldFilterVertex *)v)[0].alpha = (f32)c[3];
                 }
                 res = PrimQueueDrawPrimitive(D_00794960, 4, vtx, 4);
             }
@@ -475,7 +484,7 @@ void FldColorCrossfadeStep(void)
                 *(void **)(res + 8) = (void *)FldFilterResetRenderState;
                 *(s32 *)(res + 16) = 0;
             }
-            if ((j == 7) && (i == 6) && (*(s32 *)(iGpffffb2b0 + iGpffffb2b8 * 0x124) == 3)) {
+            if ((j == 7) && (i == 6) && ((s32)((FldFilterEntry *)(iGpffffb2b0 + iGpffffb2b8 * 0x124))->type == 3)) {
                 *(void **)(res + 12) = (void *)FldFilterApplyColour;
                 *(s32 *)(res + 20) = 0;
             }

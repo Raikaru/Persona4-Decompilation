@@ -45,7 +45,7 @@ extern u8 iGpffffa4d8[4];
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
-extern s32 func_00243ce0(u8 *arg0);
+extern s32 datCalcEnemyHasTableFlag(u8 *arg0);
 extern void btlCameraFrameTarget(u8 *arg0, f32 arg1, f32 arg2);
 extern u16 btlTargetGetUnitIndex(BtlTarget *target);
 extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
@@ -341,7 +341,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
             var17 = 1;
         }
     } else {
-        if (func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
+        if (datCalcEnemyHasTableFlag(*(u8 **)(unit + 0xA64)) != 0) {
             if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000) == 0) {
                 record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x718;
                 btlCameraLookAtQuat(&rec718.firstRotation, record + 4, record + 0x10, D_0060A0E0);
@@ -378,7 +378,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
     len = btlTargetQuatAngle(&poses.firstRotation, &poses.secondRotation);
     if (var17 != 0 || (!(len <= fGpffff80e4) && var16 == 1)) {
         btlMainApplyUnitBaseColors(NULL);
-        if (*(u8 *)(unit + 0xA2) == 1 && func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
+        if (*(u8 *)(unit + 0xA2) == 1 && datCalcEnemyHasTableFlag(*(u8 **)(unit + 0xA64)) != 0) {
             btlCameraFrameStatusRoll(camera, 2.25f, 2.0f);
         } else {
             btlAct_ENEMY_ALL(camera);
@@ -744,7 +744,7 @@ void btlCameraApplyMode(u8 *camera)
         }
     case 4:
         if (((u16)targetFlags & 2) == 0) {
-            if (func_00243ce0(*(u8 **)(*(u8 **)(*(u8 **)(camera + 0xE0) + 0x30) + 0xA64)) != 0 &&
+            if (datCalcEnemyHasTableFlag(*(u8 **)(*(u8 **)(*(u8 **)(camera + 0xE0) + 0x30) + 0xA64)) != 0 &&
                 btlActionSkillReachesTargets(*(u8 **)(camera + 0xE0)) != 0) {
                 btlCameraFrameTarget(camera, 0.0f, 0.75f);
                 break;
@@ -1101,7 +1101,7 @@ void btlCameraSetRandomSkillPose(u8 *arg0)
     extern void btlMainApplyUnitBaseColors(u8 *arg0);
     extern void btlCameraFrameActionPair(u8 *camera);
 
-    if (func_00243ce0(
+    if (datCalcEnemyHasTableFlag(
             (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64)) != 0) {
         btlMainApplyUnitBaseColors(0);
         index = (u32)(datCalcRandomBelow(2) & 0xFFFF);
@@ -1135,7 +1135,7 @@ void btlCameraSetRandomSkillPose(u8 *arg0)
 // Intent: Tick the skill pose while the unit is free. [inferred]
 // FUN_00228480
 void btlCameraTickUnitPose(u8 *arg0) {
-    if (func_00243ce0((u8 *)*(s32 *)((u8 *)(*(u8 **)((u8 *)(*(u8 **)((u8 *)(arg0) + 0xE0)) + 0x30)) + 0xA64)) == 0) {
+    if (datCalcEnemyHasTableFlag((u8 *)*(s32 *)((u8 *)(*(u8 **)((u8 *)(*(u8 **)((u8 *)(arg0) + 0xE0)) + 0x30)) + 0xA64)) == 0) {
         btlCameraFrameUnitTight(arg0);
     }
 }

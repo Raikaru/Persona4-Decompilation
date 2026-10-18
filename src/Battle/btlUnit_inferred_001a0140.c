@@ -65,7 +65,7 @@ extern u8 *iGpffffb3ac;
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 
 extern u8 *iGpffffb3b8;
-u8 func_0023e1f0(u8 *unitData);
+u8 datCalcGetCharacterTableKind(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
@@ -190,7 +190,7 @@ void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2)
     if (*(u8 *)(iGpffffb3b8 + slotOffset) & 2) {
         battleUnit = action->unit;
         if (battleUnit->genus == 0) {
-            category = func_0023e1f0(*(u8 **)((u8 *)battleUnit + 0xA64)) & 0xFF;
+            category = datCalcGetCharacterTableKind(*(u8 **)((u8 *)battleUnit + 0xA64)) & 0xFF;
             switch (category) {
             case 0:
             case 1:
