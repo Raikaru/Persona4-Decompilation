@@ -1,3 +1,4 @@
+#include "sdk_filer_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -232,7 +233,10 @@ typedef struct MovieNativeWork {
 /* measured: func_004667d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_004667D0
-u8 *func_004667d0(s32 kind, const char *name, const char *path,
+/* Allocate a request from the fixed pool and append it under the interrupt lock. */
+/* FilerRequest/Slot document the proven offsets; typed member access changes
+ * the owner from MATCH to MISMATCH under b210, so retain byte addressing. */
+u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
                     s32 flags, s32 source, s32 buffer, s32 byteCount,
                     const char *cacheName, s32 resultKind, s32 memoryKind)
 {

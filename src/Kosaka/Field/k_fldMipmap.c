@@ -24,9 +24,9 @@ extern void func_003ef3a0(void *arg0);
 extern void func_00440b68(void *arg0, const void *arg1, s32 arg2);
 extern void *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
-extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void *func_003ec590(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
+extern s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 arg2);
 extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003ec6a0(void *arg0, s32 arg1, s32 arg2);
 extern void func_003ec180(void *arg0, void *arg1);
@@ -76,15 +76,15 @@ s32 FldMipmapLoadUpdate(u8 *arg0)
             H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x10)) != 0 &&
             H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x14)) != 0) {
             *(u8 **)(work + 0x34) =
-                (u8 *)func_004667d0(0xA, D_005F5380, 0, 0, 0, 0, 0, 0, 0, 0);
+                (u8 *)filerEnqueueRequest(0xA, D_005F5380, 0, 0, 0, 0, 0, 0, 0, 0);
             *(u8 **)(work + 0x38) =
-                (u8 *)func_004667d0(0xA, D_005F53A0, 0, 0, 0, 0, 0, 0, 0, 0);
+                (u8 *)filerEnqueueRequest(0xA, D_005F53A0, 0, 0, 0, 0, 0, 0, 0, 0);
             *(u8 **)(work + 0x3C) =
-                (u8 *)func_004667d0(0xA, D_005F53C0, 0, 0, 0, 0, 0, 0, 0, 0);
+                (u8 *)filerEnqueueRequest(0xA, D_005F53C0, 0, 0, 0, 0, 0, 0, 0, 0);
             *(u8 **)(work + 0x40) =
-                (u8 *)func_004667d0(0xA, D_005F53E0, 0, 0, 0, 0, 0, 0, 0, 0);
+                (u8 *)filerEnqueueRequest(0xA, D_005F53E0, 0, 0, 0, 0, 0, 0, 0, 0);
             *(u8 **)(work + 0x44) =
-                (u8 *)func_004667d0(0xA, D_005F5400, 0, 0, 0, 0, 0, 0, 0, 0);
+                (u8 *)filerEnqueueRequest(0xA, D_005F5400, 0, 0, 0, 0, 0, 0, 0, 0);
             *(s32 *)work += 1;
         }
         break;
@@ -97,7 +97,7 @@ s32 FldMipmapLoadUpdate(u8 *arg0)
             resource = entry + 0x34;
             if (*(u8 **)resource != NULL) {
                 *(u8 **)(entry + 0x18) =
-                    (u8 *)func_004669d0((s32)*(u8 **)resource, &out, 0);
+                    (u8 *)filerTakeCompletedRequest((s32)*(u8 **)resource, &out, 0);
                 if (out != 0) {
                     *(u8 **)resource = NULL;
                 } else {

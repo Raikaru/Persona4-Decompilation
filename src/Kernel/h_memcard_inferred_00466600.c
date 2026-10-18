@@ -105,7 +105,7 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern void func_00466600(void);
+extern void memcardWakeBackendThread(void);
 extern char D_007127D0[];
 extern char D_00712950[];
 extern char D_008E4900[];
@@ -230,17 +230,18 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_00466600
-void func_00466600(void) {
-    s32 sp20[12];
+/* Wake the backend thread only in its waiting states, preserving interrupt state. */
+void memcardWakeBackendThread(void) {
+    s32 threadStatus[12];
     s32 r;
 
     r = func_0042ba70();
     if (uGpffffb230 != 0) {
-        func_004216e0(D_00724BC8, sp20);
-        if (sp20[0] == 0xC) {
+        func_004216e0(D_00724BC8, threadStatus);
+        if (threadStatus[0] == 0xC) {
             goto call;
         }
-        if (sp20[0] != 8) {
+        if (threadStatus[0] != 8) {
             goto skip;
         }
 call:

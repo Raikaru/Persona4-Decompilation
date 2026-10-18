@@ -3241,10 +3241,10 @@ extern u8 *datPortraitTaskCreate(s32 parent, s64 id, s32 flags);
 extern void func_00440b68();
 extern u8 *H_Cdvd_AcquireDirectory();
 extern s32 H_Cdvd_IsFileLoaded();
-extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
+extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern void *memset(void *destination, s32 value, u32 size);
-extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *result);
+extern u8 *filerTakeCompletedRequest(u8 *request, s32 *complete, s32 *result);
 extern s32 func_00459760();
 extern s32 func_0045b400();
 extern s32 sdkSndFadeMainChannel();
@@ -3370,7 +3370,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         }
         context->relation = 4;
         context->messageData = H_Cdvd_LookupRequest((s32)D_00636780, &fileSize);
-        context->loadRequest = func_004667d0(0, (const char *)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
+        context->loadRequest = filerEnqueueRequest(0, (const char *)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
         {
         u8 *palette;
         s32 raster;
@@ -3388,7 +3388,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         }
         goto tail;
     case 4:
-        context->unk_54 = (s32 *)func_004669d0(context->loadRequest, &loadComplete, 0);
+        context->unk_54 = (s32 *)filerTakeCompletedRequest(context->loadRequest, &loadComplete, 0);
         if (loadComplete == 0) {
             goto tail;
         }

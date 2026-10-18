@@ -5,8 +5,17 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
+
+/* Marker update reads these bytes from its task work; the prefix is owned
+   by the marker drawing routines, not interpreted here. */
+typedef struct YSymbolMarker {
+    u8 pad00[0x20];
+    s8 mode;
+    s8 hidden;
+} YSymbolMarker;
 static inline s32 p4_pack_or(s32 left, s32 right)
 {
     return left | right;
@@ -26,7 +35,7 @@ extern char D_0063F2A0[];
 extern char D_007488E8[];
 
 
-extern u32 datItemPrice(s16 arg0);
+extern u32 datItemPrice(s16 );
 extern u8 *D_00882F40[];
 extern s32 D_0063F2B0[];
 extern u8 D_00793E80[];
@@ -38,31 +47,31 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void (*D_00887300[])(s32 , s32 );
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
 extern f32 iGpffff82fc;
-extern f32 cosf(f32 arg0);
-extern f32 sinf(f32 arg0);
+extern f32 cosf(f32 );
+extern f32 sinf(f32 );
 extern u8 D_0063F3B0[];
 
 
-extern s32 smapWorldToColumn(u8 *arg0);
-extern s32 smapWorldToRow(u8 *arg0);
+extern s32 smapWorldToColumn(u8 *);
+extern s32 smapWorldToRow(u8 *);
 
-extern f32 smapPlayerOffsetX(s32 arg0, f32 fparg0);
-extern f32 smapPlayerOffsetZ(s32 arg0, f32 fparg0);
-extern void mapSymbolMarkerDraw(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2);
-extern u8 *mdlGetMatrix(u32 arg0);
+extern f32 smapPlayerOffsetX(s32 , f32 );
+extern f32 smapPlayerOffsetZ(s32 , f32 );
+extern void mapSymbolMarkerDraw(u8 *, s64 , f32 , s32 );
+extern u8 *mdlGetMatrix(u32 );
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
-extern void strcpy(void *arg0, ...);
-extern void strcat(void *arg0, void *arg1);
-extern void strncpy(void *arg0, void *arg1, s32 arg2);
-extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
-extern s32 func_00443010(u8 *arg0, u8 *arg1);
-extern s32 fclTagTextLength(u8 *arg0, s64 arg1);
+extern void strcpy(void *, ...);
+extern void strcat(void *, void *);
+extern void strncpy(void *, void *, s32 );
+extern void frFontExCopyString(void *, void *, s32 );
+extern s32 func_00443010(u8 *, u8 *);
+extern s32 fclTagTextLength(u8 *, s64 );
 extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
@@ -93,16 +102,16 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 // Intent: Return the work block pointer stored at offset 0x38 of an object [inferred]
 // FUN_002B2940
-u8 *fclGetWorkPointer(u8 *arg0)
+u8 *fclGetWorkPointer(u8 *task)
 {
-    return *(u8 **)(arg0 + 0x38);
+    return ((KwlnTask *)task)->work;
 }
 
 // Intent: sets the symbol system's enabled flag (global iGpffffb55c). The field code sets it to 1 right after smapCreateSymbols, when the map is in band A or B.
 // FUN_002B2950
-void ySymbolSetEnabled(s32 arg0)
+void ySymbolSetEnabled(s32 enabled)
 {
-    iGpffffb55c = arg0;
+    iGpffffb55c = enabled;
 }
 
 // Intent: returns the symbol system's enabled flag (global iGpffffb55c); the symbol update paths return early while it is 0.
@@ -148,58 +157,58 @@ FclBoundsPacket fclMakeBoundsPacket(f32 width, f32 height)
 
 // Intent: Pack four colour bytes into one word, red in the top byte [inferred]
 // FUN_002B2A30
-s32 fclPackRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
+s32 fclPackRgba(u8 red, u8 green, u8 blue, u8 alpha)
 {
     s32 result;
 
-    result = arg3 & 0xFF;
-    result = p4_pack_or(result, (arg2 & 0xFF) << 8);
-    result = p4_pack_or((arg1 & 0xFF) << 16, result);
+    result = alpha & 0xFF;
+    result = p4_pack_or(result, (blue & 0xFF) << 8);
+    result = p4_pack_or((green & 0xFF) << 16, result);
     /* The high byte must be shifted in unsigned 32-bit arithmetic. */
-    result = p4_pack_or((arg0 & 0xFFU) << 24, result);
+    result = p4_pack_or((red & 0xFFU) << 24, result);
     return result;
 }
 
 // Intent: Build a draw colour from four byte channels [inferred]
 // FUN_002B2A60
-FclDrawColor fclMakeDrawColor(u8 arg1, u8 arg2, u8 arg3, u8 arg4)
+FclDrawColor fclMakeDrawColor(u8 red, u8 green, u8 blue, u8 alpha)
 {
     FclDrawColor val;
 
-    val.c0 = (u8)arg1;
-    val.c1 = (u8)arg2;
-    val.c2 = (u8)arg3;
-    val.c3 = (u8)arg4;
+    val.c0 = (u8)red;
+    val.c1 = (u8)green;
+    val.c2 = (u8)blue;
+    val.c3 = (u8)alpha;
     return val;
 }
 
 // Intent: Interpolate between two values by an easing mode: linear, sine or cosine [inferred]
 // FUN_002B2AA0
-f32 fclEaseInterpolate(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
+f32 fclEaseInterpolate(s64 easing, f32 first, f32 second, f32 elapsed, f32 duration)
 {
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f0;
-    f32 temp_f2;
-    s64 temp_3;
+    f32 start;
+    f32 end;
+    f32 weight;
+    f32 difference;
+    s64 mode;
 
-    temp_f20 = fparg0;
-    temp_f21 = fparg1;
-    if (fparg2 == fparg3) {
-        return temp_f21;
+    start = first;
+    end = second;
+    if (elapsed == duration) {
+        return end;
     }
-    temp_3 = (s8)arg0;
-    switch (temp_3) {
+    mode = (s8)easing;
+    switch (mode) {
     case 0:
-        return temp_f20 + ((fparg2 * (temp_f21 - temp_f20)) / fparg3);
+        return start + ((elapsed * (end - start)) / duration);
     case 1:
-        temp_f0 = sinf(p4_mul_left(fparg2, iGpffff82fc / (2.0f * fparg3)));
-        temp_f2 = temp_f21 - temp_f20;
-        return temp_f20 + temp_f2 * temp_f0;
+        weight = sinf(p4_mul_left(elapsed, iGpffff82fc / (2.0f * duration)));
+        difference = end - start;
+        return start + difference * weight;
     case 2:
-        temp_f0 = cosf(p4_mul_left(fparg2, iGpffff82fc / (2.0f * fparg3)));
-        temp_f2 = temp_f21 - temp_f20;
-        return temp_f21 - temp_f2 * temp_f0;
+        weight = cosf(p4_mul_left(elapsed, iGpffff82fc / (2.0f * duration)));
+        difference = end - start;
+        return end - difference * weight;
     default:
         return -1.0f;
     }
@@ -207,234 +216,235 @@ f32 fclEaseInterpolate(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 
 // Intent: Compute a 2D anchor offset for a box of size w by h, from anchor mode 0 (centre), 1 or 2 [inferred]
 // FUN_002B2BD0
-void fclAnchorOffset(f32 *arg0, s64 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
+void fclAnchorOffset(f32 *destination, s64 mode, f32 width, f32 height, f32 referenceWidth, f32 referenceHeight)
 {
-    FclVec2 sp;
+    FclVec2 offset;
 
-    if ((s8)arg1 == 0) {
-        sp.x = fparg0 / 2.0f;
-        sp.y = fparg1 / 2.0f;
-    } else if ((s8)arg1 == 1) {
-        sp.x = (fparg2 / 2.0f) + ((fparg0 - fparg2) / 2.0f);
-        sp.y = (fparg3 / 2.0f) + ((fparg1 - fparg3) / 2.0f);
-    } else if ((s8)arg1 == 2) {
-        sp.x = (fparg0 / 2.0f) - (fparg2 / 2.0f);
-        sp.y = (fparg1 / 2.0f) - (fparg3 / 2.0f);
+    if ((s8)mode == 0) {
+        offset.x = width / 2.0f;
+        offset.y = height / 2.0f;
+    } else if ((s8)mode == 1) {
+        offset.x = (referenceWidth / 2.0f) + ((width - referenceWidth) / 2.0f);
+        offset.y = (referenceHeight / 2.0f) + ((height - referenceHeight) / 2.0f);
+    } else if ((s8)mode == 2) {
+        offset.x = (width / 2.0f) - (referenceWidth / 2.0f);
+        offset.y = (height / 2.0f) - (referenceHeight / 2.0f);
     }
-    *(FclVec2 *)arg0 = sp;
+    *(FclVec2 *)destination = offset;
 }
 
 // Intent: Add two values, clamping to a bound chosen by the mode (0 none, 1 maximum, else the second bound) [inferred]
 // FUN_002B2CB0
-s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
-    if (arg4 == 0) {
-        return arg0 + arg1;
+s32 fclAddClamped(s32 value, s32 increment, s32 limit, s32 wrappedValue, s8 mode) {
+    if (mode == 0) {
+        return value + increment;
     }
     {
-        s32 var = arg0 + arg1;
+        s32 result = value + increment;
         s32 bound;
-        if (arg2 < var) {
-            bound = (arg4 == 1) ? arg2 : arg3;
-            var = bound;
+        if (limit < result) {
+            bound = (mode == 1) ? limit : wrappedValue;
+            result = bound;
         }
-        return var;
+        return result;
     }
 }
 
 // Intent: Subtract two values, clamping to a bound chosen by the mode (0 none, 1 minimum, else the second bound) [inferred]
 // FUN_002B2D00
-s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
-    if (arg4 == 0) {
-        return arg0 - arg1;
+s32 fclSubClamped(s32 value, s32 decrement, s32 limit, s32 wrappedValue, s8 mode) {
+    if (mode == 0) {
+        return value - decrement;
     }
     {
-        s32 var = arg0 - arg1;
+        s32 result = value - decrement;
         s32 bound;
-        if (var < arg2) {
-            bound = (arg4 == 1) ? arg2 : arg3;
-            var = bound;
+        if (result < limit) {
+            bound = (mode == 1) ? limit : wrappedValue;
+            result = bound;
         }
-        return var;
+        return result;
     }
 }
 
 // Intent: Step a list index by a signed delta within a count, wrapping through the window bounds [inferred]
 // FUN_002B2D50
-s16 yListStepIndex(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
-    s32 temp_2_2;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_6;
-    s32 var_2;
+s16 yListStepIndex(s16 index, s16 cursor, s16 count, s16 windowSize, s16 delta) {
+    s32 nextIndex;
+    s32 oldCursor;
+    s32 step;
+    s32 entryCount;
+    s32 previousCursor;
 
-    temp_6 = arg2;
-    if (temp_6 == 0) {
+    entryCount = count;
+    if (entryCount == 0) {
         return 0;
     }
-    temp_3 = arg4;
-    temp_2_2 = arg0 + temp_3;
-    if (temp_2_2 < 0) {
+    step = delta;
+    nextIndex = index + step;
+    if (nextIndex < 0) {
         return 0;
     }
-    if (temp_6 < temp_2_2) {
-        return arg3 - 1;
+    if (entryCount < nextIndex) {
+        return windowSize - 1;
     }
-    if (temp_3 > 0) {
-        return (s16)fclMinS32(arg1 + temp_3, arg3 - 2, temp_6);
+    if (step > 0) {
+        return (s16)fclMinS32(cursor + step, windowSize - 2, entryCount);
     }
-    if (temp_3 < 0) {
-        temp_2 = arg1;
-        if (temp_2 == 0) {
-            var_2 = temp_2 - 1;
-            if (var_2 < 0) {
-                var_2 = 0;
+    if (step < 0) {
+        oldCursor = cursor;
+        if (oldCursor == 0) {
+            previousCursor = oldCursor - 1;
+            if (previousCursor < 0) {
+                previousCursor = 0;
             }
-            return (s16)var_2;
+            return (s16)previousCursor;
         }
-        return (s16)fclMaxS32(temp_2 + temp_3, 1, temp_6);
+        return (s16)fclMaxS32(oldCursor + step, 1, entryCount);
     }
-    return arg1;
+    return cursor;
 }
 
 /* measured: archived body in build/WW15_002b2e70.c (object 276B/window 288B, normalized_diff 5); restored ASM fallback. */
 // Intent: Advance a list cursor and its scroll offset by one step, bounded by the visible window [inferred]
 // FUN_002B2E70
-void yListAdvanceCursorScroll(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
+void yListAdvanceCursorScroll(s32 index, s32 scroll, s32 count, s32 delta, s16 *outIndex, s16 *outScroll)
 {
-    s32 var_4;
-    s32 temp_3;
-    s32 var_12;
-    s32 temp_6;
-    s32 var_11;
-    s32 var_10;
-    s32 temp_7;
-    s32 var_7;
-    var_4 = arg0;
-    var_12 = 0;
-    if (arg2 == 0) { *arg4 = 0; *arg5 = 0; return; }
-    var_10 = arg2 - 1;
-    if (var_4 != var_10) {
-        temp_3 = var_4 - arg1;
-        temp_7 = (s8)arg3;
-        temp_6 = arg2 - (temp_3 + temp_7);
-        if (temp_6 <= 0) {
-            arg2 = var_4;
-            var_11 = 0;
+    s32 nextIndex;
+    s32 relativeIndex;
+    s32 advanced;
+    s32 remaining;
+    s32 stepIndex;
+    s32 lastIndex;
+    s32 step;
+    s32 advanceIndex;
+    nextIndex = index;
+    advanced = 0;
+    if (count == 0) { *outIndex = 0; *outScroll = 0; return; }
+    lastIndex = count - 1;
+    if (nextIndex != lastIndex) {
+        relativeIndex = nextIndex - scroll;
+        step = (s8)delta;
+        remaining = count - (relativeIndex + step);
+        if (remaining <= 0) {
+            count = nextIndex;
+            stepIndex = 0;
             goto loop_10_test;
 loop_10_body:
-            arg2 += 1;
-            if (var_10 < arg2) arg2 = var_10;
-            var_12 += 1;
-            if (arg2 >= var_10) { arg1 += var_12; goto loop_10_done; }
-            var_11 += 1;
+            count += 1;
+            if (lastIndex < count) count = lastIndex;
+            advanced += 1;
+            if (count >= lastIndex) { scroll += advanced; goto loop_10_done; }
+            stepIndex += 1;
 loop_10_test:
-            if (var_11 < temp_7) goto loop_10_body;
+            if (stepIndex < step) goto loop_10_body;
 loop_10_done:
-            var_4 += var_12;
+            nextIndex += advanced;
         } else {
-            if (temp_6 > temp_7) goto loop_18_branch;
+            if (remaining > step) goto loop_18_branch;
             goto loop_17_branch;
 loop_17_branch:
-            var_7 = 0;
+            advanceIndex = 0;
             goto loop_17_test;
             do {
 loop_17_body:
-                var_4 += 1;
-                if (var_10 < var_4) var_4 = var_10;
-                var_7 += 1;
+                nextIndex += 1;
+                if (lastIndex < nextIndex) nextIndex = lastIndex;
+                advanceIndex += 1;
 loop_17_test: ;
-            } while (var_7 < temp_6);
+            } while (advanceIndex < remaining);
             goto loop_17_done;
 loop_18_branch:
-            temp_3 = var_4 + temp_7;
-            var_10 = (var_10 < temp_3) ? var_10 : temp_3;
-            var_4 = var_10;
+            relativeIndex = nextIndex + step;
+            lastIndex = (lastIndex < relativeIndex) ? lastIndex : relativeIndex;
+            nextIndex = lastIndex;
 loop_17_done: ;
         }
     }
-    *arg4 = var_4;
-    *arg5 = arg1;
+    *outIndex = nextIndex;
+    *outScroll = scroll;
 }
 
 // Intent: Retreat a list cursor and its scroll offset by one step, bounded by the visible window [inferred]
 // FUN_002B2F90
-void yListRetreatCursorScroll(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
+void yListRetreatCursorScroll(s32 index, s32 scroll, s32 count, s32 delta, s16 *outIndex, s16 *outScroll)
 {
-    int condition_value;
-    s32 temp_3;
-    s32 var_10;
-    s32 var_6;
-    if (arg2 == 0) {
-        *arg4 = 0;
-        *arg5 = 0;
+    int conditionValue;
+    s32 relativeIndex;
+    s32 stepIndex;
+    s32 step;
+    if (count == 0) {
+        *outIndex = 0;
+        *outScroll = 0;
         goto exit;
     }
-    temp_3 = arg0 - arg1;
-    if (temp_3 == 0) {
-        arg0 = 0;
-        arg1 = 0;
+    relativeIndex = index - scroll;
+    if (relativeIndex == 0) {
+        index = 0;
+        scroll = 0;
         goto done;
     }
-    var_10 = 0;
-    var_6 = (s8)arg3;
+    stepIndex = 0;
+    step = (s8)delta;
     goto loop_test;
 loop_body:
-    temp_3 = (s16)(arg0 - arg1) - 1;
-    if (temp_3 < 0) {
-        temp_3 = 0;
+    relativeIndex = (s16)(index - scroll) - 1;
+    if (relativeIndex < 0) {
+        relativeIndex = 0;
     }
-    if (temp_3 == 0) {
-        arg0 -= 1;
-        if (arg0 < 0) {
-            arg0 = 0;
+    if (relativeIndex == 0) {
+        index -= 1;
+        if (index < 0) {
+            index = 0;
         }
-        if ((!condition_value) && (!condition_value)) {
+        if ((!conditionValue) && (!conditionValue)) {
         }
         goto done;
     }
-    arg0 -= 1;
-    if (arg0 < 0) {
-        arg0 = 0;
+    index -= 1;
+    if (index < 0) {
+        index = 0;
     }
-    var_10 += 1;
+    stepIndex += 1;
 loop_test:
-    if (var_10 < var_6) {
+    if (stepIndex < step) {
         goto loop_body;
     }
 done:
-    *arg4 = arg0;
-    *arg5 = arg1;
+    *outIndex = index;
+    *outScroll = scroll;
 exit:
     ;
 }
 
 // FUN_002B3050
-void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, s16 *arg6)
+/* Retreat the cursor, using the supplied low-byte index for an empty list. */
+void yListRetreatCursorScrollDefaultIndex(s32 index, s32 scroll, s32 count, s64 delta, s32 emptyIndex, s16 *outIndex, s16 *outScroll)
 {
-  int condition_value;
+  int conditionValue;
   s32 value;
   s32 iterations;
-  if (arg2 != 0)
+  if (count != 0)
   {
     goto nonzero;
   }
-  value = arg4 & 0xFF;
-  *arg6 = (*arg5 = value);
+  value = emptyIndex & 0xFF;
+  *outScroll = (*outIndex = value);
   goto done;
   nonzero:
-  if ((arg0 - arg1) != 0U)
+  if ((index - scroll) != 0U)
   {
     goto setup;
   }
-  arg0 = arg4 & 0xFF; arg1 = arg0;
+  index = emptyIndex & 0xFF; scroll = index;
   goto store;
   setup:
   iterations = 0;
 
-  arg2 = (s8) arg3;
+  count = (s8) delta;
   goto loop_test;
   loop_body:
-  value = ((s16) (arg0 - arg1)) - 1;
+  value = ((s16) (index - scroll)) - 1;
 
   if (value < 0)
   {
@@ -444,33 +454,33 @@ void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, 
   {
     goto decrement;
   }
-  arg0 -= 1;
-  if (arg0 < 0)
+  index -= 1;
+  if (index < 0)
   {
-    arg0 = 0;
+    index = 0;
   }
-  if ((!condition_value) && (!condition_value))
+  if ((!conditionValue) && (!conditionValue))
   {
   }
   goto store;
   decrement:
-  arg0 -= 1;
+  index -= 1;
 
-  if (arg0 < 0)
+  if (index < 0)
   {
-    arg0 = 0;
+    index = 0;
   }
   iterations += 1;
   loop_test:
-  if (iterations < arg2)
+  if (iterations < count)
   {
     goto loop_body;
   }
 
   store:
-  *arg5 = arg0;
+  *outIndex = index;
 
-  *arg6 = arg1;
+  *outScroll = scroll;
   done:
   return;
 }
@@ -480,32 +490,32 @@ void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, 
 #pragma opt_rebuildconditionals off
 // Intent: Return the smaller of two signed 32-bit values [inferred]
 // FUN_002B3110
-s32 fclMinS32(s32 arg0, s32 arg1)
+s32 fclMinS32(s32 left, s32 right)
 {
     s32 result;
 
-    if (arg0 < arg1)
+    if (left < right)
         goto choose;
-    result = arg1;
+    result = right;
     goto done;
 choose:
-    result = arg0;
+    result = left;
 done:
     return result;
 }
 
 // Intent: Return the larger of two signed 32-bit values [inferred]
 // FUN_002B3140
-s32 fclMaxS32(s32 arg0, s32 arg1)
+s32 fclMaxS32(s32 left, s32 right)
 {
     s32 result;
 
-    if (arg0 > arg1)
+    if (left > right)
         goto choose;
-    result = arg1;
+    result = right;
     goto done;
 choose:
-    result = arg0;
+    result = left;
 done:
     return result;
 }
@@ -516,15 +526,15 @@ done:
 #pragma opt_loop_invariants on
 // Intent: Count the decimal digits of an integer [inferred]
 // FUN_002B3170
-s32 fclDecimalDigitCount(s32 arg0)
+s32 fclDecimalDigitCount(s32 value)
 {
     s32 result;
 
     result = 0;
     do {
-        arg0 /= 10;
+        value /= 10;
         result++;
-    } while (arg0 != 0);
+    } while (value != 0);
     return result;
 }
 
@@ -533,7 +543,7 @@ s32 fclDecimalDigitCount(s32 arg0)
 #pragma opt_loop_invariants off
 // Intent: Subtract two 3-component float vectors and store the result [inferred]
 // FUN_002B31A0
-void fclVec3Subtract(u8 *arg0, u8 *arg1, u8 *arg2)
+void fclVec3Subtract(u8 *destination, u8 *left, u8 *right)
 {
     struct Vec3 {
         f32 x;
@@ -543,56 +553,57 @@ void fclVec3Subtract(u8 *arg0, u8 *arg1, u8 *arg2)
     struct Vec3 second;
     struct Vec3 result;
 
-    first = *(struct Vec3 *)arg1;
-    second = *(struct Vec3 *)arg2;
+    first = *(struct Vec3 *)left;
+    second = *(struct Vec3 *)right;
     result.x = first.x - second.x;
     result.y = first.y - second.y;
     result.z = first.z - second.z;
-    *(struct Vec3 *)arg0 = result;
+    *(struct Vec3 *)destination = result;
 }
 
 // Intent: Compare two list items by price for qsort: ascending, ties equal [inferred]
 // FUN_002B3230
-s32 datItemPriceCompare(const void *arg0, const void *arg1) {
-    s16 b;
-    u32 x;
-    u32 y;
+s32 datItemPriceCompare(const void *left, const void *right) {
+    s16 rightId;
+    u32 leftPrice;
+    u32 rightPrice;
 
-    b = *(const s16 *)arg1;
-    x = datItemPrice(*(const s16 *)arg0);
-    y = datItemPrice(b);
-    if (x < y) {
+    rightId = *(const s16 *)right;
+    leftPrice = datItemPrice(*(const s16 *)left);
+    rightPrice = datItemPrice(rightId);
+    if (leftPrice < rightPrice) {
         return 1;
     }
-    return -(s32)(y < x);
+    return -(s32)(rightPrice < leftPrice);
 }
 
 // FUN_002B32A0
-s32 func_002b32a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+/* Return the limit once reached, otherwise the enabled fallback or zero. */
+s32 fclSelectBoundedFallback(s32 value, s32 limit, s32 enabled, s32 fallback)
 {
-    s32 var;
+    s32 result;
 
-    var = arg3;
-    if (arg0 >= arg1) {
-        return arg1;
+    result = fallback;
+    if (value >= limit) {
+        return limit;
     }
-    if (arg2 == 0) {
-        var = 0;
+    if (enabled == 0) {
+        result = 0;
     }
-    return var;
+    return result;
 }
 
 // Intent: Expand the name tags <P1>, <P2>, <R1>, <R2> in a text buffer by mode [inferred]
 // FUN_002B32D0
-u8 *fclExpandNameTags(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
+u8 *fclExpandNameTags(u8 *text, s32 mode, u8 *secondName, u8 *thirdName, u8 *fourthName)
 {
-    u8 sp2b0[0x80];
-    u8 sp230[0x80];
-    u8 sp1b0[0x80];
-    u8 sp130[0x80];
-    u8 spf0[0x40];
-    u8 spb0[0x40];
-    u8 sp70[0x40];
+    u8 fourthReplacement[0x80];
+    u8 thirdReplacement[0x80];
+    u8 secondReplacement[0x80];
+    u8 firstReplacement[0x80];
+    u8 prefix[0x40];
+    u8 copiedText[0x40];
+    u8 expandedText[0x40];
     u8 **entry;
     s32 outer;
     u8 *dest;
@@ -601,43 +612,43 @@ u8 *fclExpandNameTags(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
     s32 initial;
     s32 inner;
 
-    strcpy(sp130);
-    strcpy(sp1b0, arg2);
-    strcpy(sp230, arg3);
-    strcpy(sp2b0, arg4);
+    strcpy(firstReplacement);
+    strcpy(secondReplacement, secondName);
+    strcpy(thirdReplacement, thirdName);
+    strcpy(fourthReplacement, fourthName);
     initial = 0;
     while ((s16)initial < 0x40) {
-        sp70[(s16)initial] = 0;
+        expandedText[(s16)initial] = 0;
         initial = (s16)(initial + 1);
     }
     outer = 0;
     while ((s16)outer < 4) {
         entry = &D_0063F110[(s16)outer];
-        if (func_00443010(arg0, *entry) == 0) {
+        if (func_00443010(text, *entry) == 0) {
             outer = (s16)(outer + 1);
         } else {
-            dest = sp130 + ((s16)outer * 0x80);
+            dest = firstReplacement + ((s16)outer * 0x80);
             offset = D_007488C0[(s16)outer];
             do {
                 inner = 0;
                 while ((s16)inner < 0x40) {
-                    spb0[(s16)inner] = 0;
-                    spf0[(s16)inner] = 0;
+                    copiedText[(s16)inner] = 0;
+                    prefix[(s16)inner] = 0;
                     inner = (s16)(inner + 1);
                 }
-                size = fclTagTextLength(arg0, (s8)outer);
-                strncpy(spf0, arg0, size);
-                frFontExCopyString(spf0, spb0, 0x40);
-                strcat(sp70, spb0);
-                strcat(sp70, dest);
-                strcpy(arg0, arg0 + size + offset);
-            } while (func_00443010(arg0, *entry) != 0);
+                size = fclTagTextLength(text, (s8)outer);
+                strncpy(prefix, text, size);
+                frFontExCopyString(prefix, copiedText, 0x40);
+                strcat(expandedText, copiedText);
+                strcat(expandedText, dest);
+                strcpy(text, text + size + offset);
+            } while (func_00443010(text, *entry) != 0);
         }
     }
-    frFontExCopyString(arg0, spb0, 0x40);
-    strcat(sp70, spb0);
-    strcpy(arg0, sp70);
-    return arg0;
+    frFontExCopyString(text, copiedText, 0x40);
+    strcat(expandedText, copiedText);
+    strcpy(text, expandedText);
+    return text;
 }
 
 /* measured: object 504B/window 512B, nd 0. Retail hoists the nine tag-byte and
@@ -652,7 +663,7 @@ u8 *fclExpandNameTags(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
 /* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
 /* measured: fclTagTextLength MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 fclTagTextLength(u8 *p, s64 arg1)
+s32 fclTagTextLength(u8 *p, s64 tagMode)
 {
     s32 count;
     s32 mode;
@@ -660,7 +671,7 @@ s32 fclTagTextLength(u8 *p, s64 arg1)
     u8 uc;
 
     count = 0;
-    mode = (s8)arg1;
+    mode = (s8)tagMode;
     for (;;) {
         c = *(s8 *)p;
         uc = c;
@@ -669,7 +680,7 @@ s32 fclTagTextLength(u8 *p, s64 arg1)
             if (uc > 0x80) {
                 p += 1;
                 count += 1;
-            } else if (c == '<' && *(s8 *)(p + 1) == 'P' && *(s8 *)(p + 2) == '1' && *(s8 *)(p + 3) == '>') {
+            } else if (c == '<' && ((s8 *)p)[1] == 'P' && ((s8 *)p)[2] == '1' && ((s8 *)p)[3] == '>') {
                 goto found;
             }
             p += 1;
@@ -679,7 +690,7 @@ s32 fclTagTextLength(u8 *p, s64 arg1)
             if (uc > 0x80) {
                 p += 1;
                 count += 1;
-            } else if (c == '<' && *(s8 *)(p + 1) == 'P' && *(s8 *)(p + 2) == '2' && *(s8 *)(p + 3) == '>') {
+            } else if (c == '<' && ((s8 *)p)[1] == 'P' && ((s8 *)p)[2] == '2' && ((s8 *)p)[3] == '>') {
                 goto found;
             }
             p += 1;
@@ -689,7 +700,7 @@ s32 fclTagTextLength(u8 *p, s64 arg1)
             if (uc > 0x80) {
                 p += 1;
                 count += 1;
-            } else if (c == '<' && *(s8 *)(p + 1) == 'R' && *(s8 *)(p + 2) == '1' && *(s8 *)(p + 3) == '>') {
+            } else if (c == '<' && ((s8 *)p)[1] == 'R' && ((s8 *)p)[2] == '1' && ((s8 *)p)[3] == '>') {
                 goto found;
             }
             p += 1;
@@ -699,7 +710,7 @@ s32 fclTagTextLength(u8 *p, s64 arg1)
             if (uc > 0x80) {
                 p += 1;
                 count += 1;
-            } else if (c == '<' && *(s8 *)(p + 1) == 'R' && *(s8 *)(p + 2) == '2' && *(s8 *)(p + 3) == '>') {
+            } else if (c == '<' && ((s8 *)p)[1] == 'R' && ((s8 *)p)[2] == '2' && ((s8 *)p)[3] == '>') {
                 goto found;
             }
             p += 1;
@@ -714,52 +725,53 @@ found:
 /* measured: closes the loop-invariant bracket; the unit default is off. */
 // Intent: Map symbol task update: place the marker at the player's position and draw it [inferred]
 // FUN_002B3720
-s32 mapSymbolTaskUpdate(u8 *arg0)
+s32 mapSymbolTaskUpdate(u8 *task)
 {
     FclVec2 out;
     FclVec2 work;
-    f32 temp_f20;
+    f32 mapPosition;
     u8 *p;
     s32 color;
 
-    p = *(u8 **)(arg0 + 0x38);
+    p = ((KwlnTask *)task)->work;
     fclAnchorOffset(&work.x, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     out = *(FclVec2 *)&work;
     if (ySymbolIsEnabled() == 0) {
         return 0;
     }
-    if (*(s8 *)(p + 0x21) == 1) {
+    /* Player actor +0x220 remains byte-addressed: its owner layout is not established here. */
+    if (((YSymbolMarker *)p)->hidden == 1) {
         return 0;
     }
-    if (*(s8 *)(p + 0x20) == 0) {
+    if (((YSymbolMarker *)p)->mode == 0) {
         out.x = out.x + 17.0f;
         out.y = out.y + 264.0f;
         out.x = out.x - 10.0f;
         out.y = out.y - 10.0f;
         out.y = out.y - 2.0f;
-    } else if (*(s8 *)(p + 0x20) == 1) {
-        temp_f20 = ((f32)smapWorldToColumn(
+    } else if (((YSymbolMarker *)p)->mode == 1) {
+        mapPosition = ((f32)smapWorldToColumn(
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 172.0f;
-        out.x = temp_f20 -
+        out.x = mapPosition -
                 smapPlayerOffsetX(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
                               18.0f);
-        temp_f20 = ((f32)smapWorldToRow(
+        mapPosition = ((f32)smapWorldToRow(
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 9.0f;
-        out.y = temp_f20 -
+        out.y = mapPosition -
                 smapPlayerOffsetZ(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
                               18.0f) - 2.0f;
     }
     color = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);
-    mapSymbolMarkerDraw(arg0, *(s64 *)&out, 60002.0f, color);
+    mapSymbolMarkerDraw(task, *(s64 *)&out, 60002.0f, color);
     return 0;
 }
 
 // Intent: destructor for the marker task made by mapSymbolMarkerCreate. Frees the task's data block through the free table.
 // FUN_002B3960
-void mapSymbolMarkerDestroy(u8 *arg0)
+void mapSymbolMarkerDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 

@@ -62,8 +62,8 @@ extern s32 func_0046a750(s32 param);
 extern s32 sdkSpriteRequestLoad(const u8 *name);
 extern void sdkSpriteFreeNode(void *node);
 extern void kAssertFail(void *msg, s32 id);
-extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
-extern s32 func_004669d0(s32, s32 *, s32);
+extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern s32 filerTakeCompletedRequest(s32, s32 *, s32);
 extern s32 smapLoadStep(u8 *arg0);
 extern s32 smapUpdateOverlay(u8 *arg0);
 extern void smapDestroyOverlay(u8 *arg0);
@@ -164,12 +164,12 @@ s32 smapLoadStep(u8 *arg0) {
         break;
     case 3:
         if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)p) != 0) {
-            *(s32 *)(p + 8) = func_004667d0(0, D_0063EFB0, 0, 0, 0, 0, 0, 0, 0, 0);
+            *(s32 *)(p + 8) = filerEnqueueRequest(0, D_0063EFB0, 0, 0, 0, 0, 0, 0, 0, 0);
             *(s8 *)(p + 4) += 1;
         }
         break;
     case 4:
-        D_00764648 = func_004669d0(*(s32 *)(p + 8), &x, 0);
+        D_00764648 = filerTakeCompletedRequest(*(s32 *)(p + 8), &x, 0);
         if (x != 0) {
             *(s32 *)(p + 8) = 0;
             H_Cdvd_Destroy(*(struct HCdvd **)p);

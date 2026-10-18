@@ -11,8 +11,8 @@ void memcpy(void *arg0, void *arg1, s32 arg2);
 u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 void func_003ec330(void *ptr);
-s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
-s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
+s32 filerEnqueueRequest(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 arg2);
 void sdkSpriteDraw(u8 *arg0, s32 arg1);
 
 /* Sprite dispatcher slot at 0x008873EC (absolute, outside gp window). */
@@ -248,7 +248,7 @@ void sdkSpriteLoadStep(u8 *arg0)
                                           *(u32 *)(arg0 + 0x210)), 8);
             *(u32 *)(arg0 + 0x210) += 8;
             *(u32 *)(arg0 + (*(s16 *)(arg0 + 0x214) << 2) + 0x184) =
-                func_004667d0(9, 0, 0, 0, 0,
+                filerEnqueueRequest(9, 0, 0, 0, 0,
                               *(u32 *)(arg0 + 0x20C) + *(u32 *)(temp + 4),
                               0, 0, 0, 0);
             *(u32 *)(arg0 + (*(s16 *)(arg0 + 0x214) << 2) + 0x104) = 0;
@@ -264,7 +264,7 @@ void sdkSpriteLoadStep(u8 *arg0)
             u32 *slot = (u32 *)(entry + 0x104);
 
             if (*slot == 0) {
-                *slot = func_004669d0(*(u32 *)(entry + 0x184),
+                *slot = filerTakeCompletedRequest(*(u32 *)(entry + 0x184),
                                       &complete, 0);
                 if (complete == 0) {
                     *slot = 0;

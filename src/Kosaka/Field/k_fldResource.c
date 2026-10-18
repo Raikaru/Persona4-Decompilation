@@ -78,7 +78,7 @@ extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern s32 func_003df3c0(s32 arg0, s32 *arg1);
 extern void func_003e2ce0(s32 arg0, u32 arg1);
 extern void func_003e2e40(s32 arg0, s32 arg1);
-extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 filerEnqueueRequest(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern s32 func_003dc370(void *arg0);
 extern void func_003ef1b0(s32 arg0);
 extern RwBool (*D_00887300[])(RwRenderState state, void *value);
@@ -91,7 +91,7 @@ extern u8 iGpffffba4c;
 extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
-extern u8 *func_004669d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern u8 *filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 K_Clump_GeometryHasMatUsrData(u8 *arg0, char *arg1);
 extern s32 K_Clump_ClumpHasMatUsrData(u8 *arg0, char *arg1);
 extern void *func_00462ae0(void *arg0);
@@ -1320,7 +1320,7 @@ void FldResource_ParseChunks(u8 *resource)
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
                     destination = *(u8 **)(resource + 0xA44);
-                    child = func_004667d0(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
+                    child = filerEnqueueRequest(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
                     *(s32 *)(destination + *(s32 *)(destination + 0x8C) * 4 + 0x90) = child;
                     func_003e2ce0(streamHandle, chunk[1]);
                     *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) =
@@ -1331,7 +1331,7 @@ void FldResource_ParseChunks(u8 *resource)
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
                     destination = *(u8 **)(resource + 0xA44);
-                    child = func_004667d0(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
+                    child = filerEnqueueRequest(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
                     *(s32 *)(destination + *(s32 *)(destination + 0xA0) * 4 + 0xA4) = child;
                     func_003e2ce0(streamHandle, chunk[1]);
                     *(s32 *)(*(u8 **)(resource + 0xA44) + 0xA0) =
@@ -1346,14 +1346,14 @@ void FldResource_ParseChunks(u8 *resource)
                 case 22:
                     chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
                     chunkMemory[1] = memory[1];
-                    child = func_004667d0(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
+                    child = filerEnqueueRequest(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
                     *(s32 *)(*(u8 **)(resource + 0xA44) + 0x84) = child;
                     func_003e2ce0(streamHandle, chunk[1]);
                     break;
                 case 12:
                     chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
                     chunkMemory[1] = memory[1];
-                    child = func_004667d0(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
+                    child = filerEnqueueRequest(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
                     *(s32 *)(*(u8 **)(resource + 0xA44) + 0x124) = child;
                     func_003e2ce0(streamHandle, chunk[1]);
                     break;
@@ -1397,7 +1397,7 @@ s32 FldResource_PollLoads(u8 *arg0)
         if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x128) != 0) {
             kAssertFail((const char *)D_005EFC80, 0x56C);
         }
-        temp_18 = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84), &sp68, &sp6C);
+        temp_18 = (s32)filerTakeCompletedRequest(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84), &sp68, &sp6C);
         if (sp68 == 1) {
             func_003ef260((const struct RwTexDictionary *)(u32)temp_18, K_Clump_AppendTextureName, *(u8 **)(arg0 + 0xA44) + 0x128);
             func_003ef1b0(temp_18);
@@ -1411,7 +1411,7 @@ s32 FldResource_PollLoads(u8 *arg0)
     }
     for (var_20 = 0; var_20 < *(u32 *)(*(u8 **)(arg0 + 0xA44) + 0x8C); var_20++) {
         if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90) != 0) {
-            temp_19 = func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90), &sp68, &sp6C);
+            temp_19 = filerTakeCompletedRequest(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_20 * 4 + 0x90), &sp68, &sp6C);
             if (sp68 == 1) {
                 if (temp_19 == NULL) {
                     kAssertFail((const char *)D_005EFC80, 0x588);
@@ -1438,7 +1438,7 @@ s32 FldResource_PollLoads(u8 *arg0)
     }
     for (var_19 = 0; var_19 < *(u32 *)(*(u8 **)(arg0 + 0xA44) + 0xA0); var_19++) {
         if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4) != 0) {
-            temp_20 = func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4), &sp68, &sp6C);
+            temp_20 = filerTakeCompletedRequest(*(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4), &sp68, &sp6C);
             if (sp68 == 1) {
                 if (temp_20 == NULL) {
                     kAssertFail((const char *)D_005EFC80, 0x5B4);
@@ -1465,7 +1465,7 @@ s32 FldResource_PollLoads(u8 *arg0)
         }
     }
     if (*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124) != 0) {
-        *(s32 *)(arg0 + 0xA20) = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124), &sp68, &sp6C);
+        *(s32 *)(arg0 + 0xA20) = (s32)filerTakeCompletedRequest(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x124), &sp68, &sp6C);
         if (sp68 == 1) {
             if (sp6C != 0) {
                 func_003e2e40(sp6C, 0);

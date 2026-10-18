@@ -360,7 +360,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern s32 datItemMoonGateSecond(s16);
     extern void func_00106d40(s16, s16, s16);
     extern s64 calGetDayEntryForMonthDay(s32, s32);
-    extern s32 func_002b32a0(s32, s32, s32, s32);
+    extern s32 fclSelectBoundedFallback(s32, s32, s32, s32);
     extern s32 nmMesWindowShowSlotRecordStyle1(s64, s32);
     extern s32 func_002bb1c0(s8);
     extern void nmMesWindowDestroySlot(s8);
@@ -2314,8 +2314,8 @@ block_368:
                 (*(s32 *)(work + 0xC20)) = 0;
                 (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
                 temp_18_57 = (*(s16 *)(work + 4));
-                if (func_002b32a0((s32) (*(s16 *)(work + 4)), 5, yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) < temp_18_57) {
-                    (*(s16 *)(work + 4)) = func_002b32a0((s32) (*(s16 *)(work + 4)), 5, (s32) ((s16) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))), (s32) ((s16) (yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))));
+                if (fclSelectBoundedFallback((s32) (*(s16 *)(work + 4)), 5, yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) < temp_18_57) {
+                    (*(s16 *)(work + 4)) = fclSelectBoundedFallback((s32) (*(s16 *)(work + 4)), 5, (s32) ((s16) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))), (s32) ((s16) (yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))));
                 }
                 fclObjChangeFlagBit((*(void * *)(work + 0xE40)), 0, 1);
                 fclObjChangeFlagBit((*(void * *)(work + 0xE44)), 0, 1);
@@ -3724,7 +3724,7 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
     extern f32 fGpffff8528;
     s8 fclObjHasStatusFlags(u8 *);
     s8 yListKindFor(void *);
-    void func_002b3050(s32, s32, s32, s64, s32, s16 *, s16 *);
+    void yListRetreatCursorScrollDefaultIndex(s32, s32, s32, s64, s32, s16 *, s16 *);
     s8 fclShopUpdateTabs(void *, s8);
     void fclShopDrawSelectRow(void *, s16);
     void fclShopLayoutPanels(void *);
@@ -4017,7 +4017,7 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
                         sdkSndStartStream(0, 0, 0, 0);
                     }
                     if (work->sel == 0) {
-                        func_002b3050(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, 1, &work->cursor, &work->scroll);
+                        yListRetreatCursorScrollDefaultIndex(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, 1, &work->cursor, &work->scroll);
                     } else {
                         yListRetreatCursorScroll(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, &work->cursor, &work->scroll);
                     }

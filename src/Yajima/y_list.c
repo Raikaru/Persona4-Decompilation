@@ -3,6 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "g_data_internal.h"
+#include "kwln_task_internal.h"
 
 /* gp-relative global at 0x0076467C (gp - 0x4A74): pointer to the active list. */
 static u8 *iGpffffb58c;
@@ -12,225 +13,42 @@ extern u8 *iGpffffb3d4;
 extern char D_0063FC48[];
 extern char D_0063FC58[];
 extern u8 *D_00882F70[];
-extern s32 fclFusePairByte(s32 arg0, s32 arg1, s32 arg2);
-extern s32 fclFuseTripleByte(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+extern s32 fclFusePairByte(s32 , s32 , s32 );
+extern s32 fclFuseTripleByte(u16 *, u8 *, u8 *, u8 *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
-extern s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s32 fclSubClamped(s32 , s32 , s32 , s32 , s8 );
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 
 
-extern s32 func_002e23b0(u8 *arg0);
-extern s32 func_002e2410(u8 *arg0);
-extern void func_002e2470(u8 *arg0);
-extern s32 yListSlotRefresh(u8 *arg0);
+extern s32 func_002e23b0(u8 *);
+extern s32 func_002e2410(u8 *);
+extern void func_002e2470(u8 *);
+extern s32 yListSlotRefresh(u8 *);
 extern void yListDestroy(void);
 extern s8 yListSlotFindFree(void);
-extern void yListSlotRelease(s8 arg0);
+extern void yListSlotRelease(s8 );
 extern void *memset(void *dest, s32 value, u32 size);
-extern s32 yListCompareByKeyDesc(const void *arg0, const void *arg1);
-extern s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1);
+extern s32 yListCompareByKeyDesc(const void *, const void *);
+extern s32 yListCompareByWeightedKeyDesc(const void *, const void *);
 #include "rw/std/stdlib.h"
 #include "datPersona_internal.h"
-extern u8 *datPersonaCachedRecord(s32 arg0);
+extern u8 *datPersonaCachedRecord(s32 );
 
 extern void datPersonaInitAllRecords(void);
-extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
-extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s32 yListRecordsDiffer(u8 *, u8 *);
+extern s32 fclAddClamped(s32 , s32 , s32 , s32 , s8 );
 extern s64 cmmCommunityIsListable(s32 id);
 extern s32 cmmCommunityPassesFlagGate(s32 id);
 extern s32 cmmCommunityHasFlagGate(s32 id);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern s32 datItemCount(s16 arg0);
-extern u32 datEntryGetFlags(s16 arg0);
-extern u32 datEntryCategoryMask(s16 arg0);
-extern u32 datItemMoonGateFirst(s16 arg0);
-extern u32 datItemMoonGateSecond(s16 arg0);
-
-/* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
-// FUN_002E24A0
-void yListCreate(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
-    u8 *buf;
-
-    if (iGpffffb58c != NULL) {
-        yListDestroy();
-    }
-    chkmemAllocSiteTag(D_0063FC48, 0x67);
-    buf = D_008873F4[0](1, 0x1810, 0x40000);
-    iGpffffb58c = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(buf));
-    *(s32 *)(buf + 4) = arg0;
-    *(s32 *)(buf + 8) = arg1;
-    *(s8 *)(buf + 1) = arg2;
-    *(s8 *)(buf + 0) = 1;
-    *(s8 *)(buf + 0xC) = arg3;
-}
-
-// FUN_002E2590
-void yListCreateChild(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
-    u8 *buf;
-
-    chkmemAllocSiteTag(D_0063FC48, 0x82);
-    buf = D_008873F4[0](1, 0x1810, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(buf));
-    *(s32 *)(buf + 4) = arg1;
-    *(s32 *)(buf + 8) = arg2;
-    *(s8 *)(buf + 1) = arg3;
-    *(s8 *)(buf + 0) = 1;
-    *(s8 *)(buf + 0xC) = arg4;
-}
-
-// FUN_002E2670
-s16 yListCount(void) {
-    u8 *g = iGpffffb58c;
-
-    if (g == NULL) {
-        return -1;
-    }
-    return *(s16 *)(*(u8 **)(g + 0x38) + 2);
-}
-
-// Intent: index of the last entry in the current list (count - 1, clamped), or -1 when no list is active. Pairs with yListCount.
-// FUN_002E26A0
-s32 yListLastIndex(void) {
-    u8 *g = iGpffffb58c;
-
-    if (g == NULL) {
-        return -1;
-    }
-    return fclSubClamped(*(s16 *)(*(u8 **)(g + 0x38) + 2), 1, 0, 0, 1);
-}
-
-// FUN_002E26F0
-s16 yListCountFor(void *arg0) {
-    return *(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2);
-}
-
-// Intent: index of the last entry in the list `arg0` (count - 1, clamped). Pairs with yListCountFor.
-// FUN_002E2700
-s32 yListLastIndexFor(void *arg0) {
-    return fclSubClamped(*(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2), 1, 0, 0, 1);
-}
-
-// FUN_002E2740
-s32 yListValueAt(s32 arg0) {
-    u8 *g = iGpffffb58c;
-    u8 *p;
-    s32 count;
-
-    if (g == NULL) {
-        return -1;
-    }
-    p = *(u8 **)(g + 0x38);
-    if (g == NULL) {
-        count = -1;
-    } else {
-        count = *(s16 *)(p + 2);
-    }
-    if (count < arg0) {
-        return -1;
-    }
-    switch (*(s8 *)(p + 1)) {
-    case 1: {
-        s32 idx = arg0 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    case 2: {
-        s32 idx = arg0 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    case 3: {
-        s32 idx = arg0 * 2;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    case 4: {
-        s32 idx = arg0 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    default:
-        return -1;
-    }
-}
-
-// FUN_002E2830
-s32 yListValueAtFor(u8 *arg0, s32 arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
-
-    if (*(s16 *)(p + 2) < arg1) {
-        return -1;
-    }
-    switch (*(s8 *)(p + 1)) {
-    case 1: {
-        s32 idx = arg1 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    case 2: {
-        s32 idx = arg1 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    case 3: {
-        s32 idx = arg1 * 2;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    case 4: {
-        s32 idx = arg1 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0xE);
-    }
-    default:
-        return -1;
-    }
-}
-
-// FUN_002E28F0
-s16 yListAuxValueAtFor(u8 *arg0, s32 arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
-
-    if (*(s16 *)(p + 2) < arg1) {
-        return -1;
-    }
-    switch (*(s8 *)(p + 1)) {
-    case 1: {
-        s32 idx = arg1 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0x10);
-    }
-    case 2:
-        return 1;
-    case 3:
-        return 1;
-    case 4: {
-        s32 idx = arg1 * 4;
-        return *(s16 *)((u8 *)(idx + (u32)p) + 0x10);
-    }
-    default:
-        return -1;
-    }
-}
-
-// FUN_002E29A0
-void yListDestroy(void) {
-    u8 *g = iGpffffb58c;
-
-    if (g != NULL) {
-        kwlnTaskDestroyWithHierarchy((s32)g);
-        iGpffffb58c = NULL;
-    }
-}
-
-// FUN_002E29D0
-s8 yListKind(void) {
-    u8 *g = iGpffffb58c;
-
-    if (g != NULL) {
-        return *(s8 *)(*(void **)(g + 0x38));
-    }
-    return -1;
-}
-
-// FUN_002E2A00
-s8 yListKindFor(void *arg0) {
-    return *(s8 *)(*(void **)((u8 *)arg0 + 0x38));
-}
+extern s32 datItemCount(s16 );
+extern u32 datEntryGetFlags(s16 );
+extern u32 datEntryCategoryMask(s16 );
+extern u32 datItemMoonGateFirst(s16 );
+extern u32 datItemMoonGateSecond(s16 );
 
 /* The 0x1810-byte item work area stores either paired IDs and quantities
    or a compact ID list. Compaction reads the paired ID after each move. */
@@ -253,11 +71,233 @@ typedef struct YListItemWork {
     } rows;
 } YListItemWork;
 
+/* Slot constructors allocate 0x3014 bytes. Kinds using the roster reserve
+   a 12-by-12 availability matrix before their twelve 0x30-byte records;
+   other kinds use the full 256-record array at the same union origin. */
+typedef struct YListPersonaWork {
+    u8 ready;
+    u8 pad01[3];
+    union { s32 value; u32 unsignedValue; } kind;
+    union { s32 value; s16 half; u16 unsignedHalf; } count;
+    u8 pad0C[2];
+    s16 cursor;
+    s16 scroll;
+    u8 pad12[2];
+    union {
+        DatPersonaRecord records[0x100];
+        struct {
+            u8 availability[12][12];
+            DatPersonaRecord records[12];
+            u8 available[12];
+        } roster;
+    } entries;
+} YListPersonaWork;
+
+/* Runtime persona metadata has a 14-byte stride; these are the flags,
+   arcana and level bytes consumed by the list filters. */
+typedef struct YListPersonaMetadata {
+    u16 flags;
+    u8 arcana;
+    u8 level;
+    u8 pad04[10];
+} YListPersonaMetadata;
+
+/* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
+// FUN_002E24A0
+/* Create the active item-list task, replacing the previous active list. */
+void yListCreate(s32 filterA, s32 filterB, s8 kind, s8 order) {
+    u8 *work;
+
+    if (iGpffffb58c != NULL) {
+        yListDestroy();
+    }
+    chkmemAllocSiteTag(D_0063FC48, 0x67);
+    work = D_008873F4[0](1, 0x1810, 0x40000);
+    iGpffffb58c = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(work));
+    ((YListItemWork *)(work))->filterA = filterA;
+    ((YListItemWork *)(work))->filterB = filterB;
+    ((YListItemWork *)(work))->kind = kind;
+    ((YListItemWork *)(work))->enabled = 1;
+    ((YListItemWork *)(work))->order = order;
+}
+
+// FUN_002E2590
+/* Create a filtered child item list without replacing the active-list handle. */
+void yListCreateChild(s32 parent, s32 filterA, s32 filterB, s8 kind, s8 order) {
+    u8 *work;
+
+    chkmemAllocSiteTag(D_0063FC48, 0x82);
+    work = D_008873F4[0](1, 0x1810, 0x40000);
+    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(work));
+    ((YListItemWork *)(work))->filterA = filterA;
+    ((YListItemWork *)(work))->filterB = filterB;
+    ((YListItemWork *)(work))->kind = kind;
+    ((YListItemWork *)(work))->enabled = 1;
+    ((YListItemWork *)(work))->order = order;
+}
+
+// FUN_002E2670
+s16 yListCount(void) {
+    u8 *task = iGpffffb58c;
+
+    if (task == NULL) {
+        return -1;
+    }
+    return ((YListItemWork *)(((KwlnTask *)(task))->work))->count;
+}
+
+// Intent: index of the last entry in the current list (count - 1, clamped), or -1 when no list is active. Pairs with yListCount.
+// FUN_002E26A0
+s32 yListLastIndex(void) {
+    u8 *task = iGpffffb58c;
+
+    if (task == NULL) {
+        return -1;
+    }
+    return fclSubClamped(((YListItemWork *)(((KwlnTask *)(task))->work))->count, 1, 0, 0, 1);
+}
+
+// FUN_002E26F0
+s16 yListCountFor(void *task) {
+    return ((YListItemWork *)(((KwlnTask *)((u8 *)task))->work))->count;
+}
+
+// Intent: index of the last entry in the list `task` (count - 1, clamped). Pairs with yListCountFor.
+// FUN_002E2700
+s32 yListLastIndexFor(void *task) {
+    return fclSubClamped(((YListItemWork *)(((KwlnTask *)((u8 *)task))->work))->count, 1, 0, 0, 1);
+}
+
+// FUN_002E2740
+/* Read an ID using the list kind's paired or compact row representation. */
+s32 yListValueAt(s32 index) {
+    u8 *task = iGpffffb58c;
+    u8 *work;
+    s32 count;
+
+    if (task == NULL) {
+        return -1;
+    }
+    work = ((KwlnTask *)(task))->work;
+    if (task == NULL) {
+        count = -1;
+    } else {
+        count = ((YListItemWork *)(work))->count;
+    }
+    if (count < index) {
+        return -1;
+    }
+    switch (((YListItemWork *)(work))->kind) {
+    case 1: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    case 2: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    case 3: {
+        s32 rowOffset = index * 2;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    case 4: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    default:
+        return -1;
+    }
+}
+
+// FUN_002E2830
+/* Read a task-owned list ID using its kind-dependent row stride. */
+s32 yListValueAtFor(u8 *task, s32 index) {
+    u8 *work = ((KwlnTask *)(task))->work;
+
+    if (((YListItemWork *)(work))->count < index) {
+        return -1;
+    }
+    switch (((YListItemWork *)(work))->kind) {
+    case 1: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    case 2: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    case 3: {
+        s32 rowOffset = index * 2;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    case 4: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->id;
+    }
+    default:
+        return -1;
+    }
+}
+
+// FUN_002E28F0
+/* Read the paired quantity, or return one for kinds without quantities. */
+s16 yListAuxValueAtFor(u8 *task, s32 index) {
+    u8 *work = ((KwlnTask *)(task))->work;
+
+    if (((YListItemWork *)(work))->count < index) {
+        return -1;
+    }
+    switch (((YListItemWork *)(work))->kind) {
+    case 1: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->quantity;
+    }
+    case 2:
+        return 1;
+    case 3:
+        return 1;
+    case 4: {
+        s32 rowOffset = index * 4;
+        return ((YListItemRow *)((u8 *)(rowOffset + (u32)work) + 0xE))->quantity;
+    }
+    default:
+        return -1;
+    }
+}
+
+// FUN_002E29A0
+void yListDestroy(void) {
+    u8 *task = iGpffffb58c;
+
+    if (task != NULL) {
+        kwlnTaskDestroyWithHierarchy((s32)task);
+        iGpffffb58c = NULL;
+    }
+}
+
+// FUN_002E29D0
+s8 yListKind(void) {
+    u8 *task = iGpffffb58c;
+
+    if (task != NULL) {
+        return (s8)((YListItemWork *)(((KwlnTask *)(task))->work))->enabled;
+    }
+    return -1;
+}
+
+// FUN_002E2A00
+s8 yListKindFor(void *task) {
+    return (s8)((YListItemWork *)(((KwlnTask *)((u8 *)task))->work))->enabled;
+}
+
+
 #pragma push
 #pragma opt_common_subs on
 #pragma opt_loop_invariants on
 static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     u8 *filter = *(u8 **)(owner + 0x38);
     if (*(s32 *)(filter + 4) == 0 && *(s32 *)(filter + 8) == 0) {
         return 1;
@@ -278,40 +318,43 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 /* measured: 2888 code bytes and eight zero alignment bytes; the scoped
    common-subexpression and loop-invariant settings preserve all siblings. */
 // FUN_002E2A10
-void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
+/* Rebuild the active filtered item list, optionally moving flagged IDs first or sorting by price. */
+void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     s32 reorder[0x600];
-    s32 sortbuf[0x600];
-    s32 out_count;
+    s32 sortedIds[0x600];
+    s32 outputCount;
     s8 mode;
     s16 count;
-    s16 type;
+    s16 category;
     s32 value;
-    s32 ok;
-    YListItemWork *p;
-    u8 *g;
-    g = iGpffffb58c;
-    if (g == NULL) {
+    s32 accepted;
+    YListItemWork *work;
+    u8 *task;
+    task = iGpffffb58c;
+    if (task == NULL) {
         return;
     }
-    p = *(YListItemWork **)(g + 0x38);
-    p->filterA = arg0;
-    p->filterB = arg1;
-    p->kind = arg2;
-    p->count = 0;
-    type = p->kind;
-    switch (type) {
+    work = *(YListItemWork **)(task + 0x38);
+    work->filterA = filterA;
+    work->filterB = filterB;
+    work->kind = kind;
+    work->count = 0;
+    category = work->kind;
+    switch (category) {
     case 1: {
         s16 i;
         for (i = 0; i < 0x600; i++) {
-            p->rows.paired[i].quantity = 0;
-            p->rows.paired[i].id = 0;
+            work->rows.paired[i].quantity = 0;
+            work->rows.paired[i].id = 0;
             if ((datItemCount(i) & 0xFF) > 0) {
-                ok = yListAcceptsItem(iGpffffb58c, i);
-                if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
-                    p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
-                    count = fclAddClamped(p->count, 1, 0, 0, 0);
-                    p->count = count;
+                accepted = yListAcceptsItem(iGpffffb58c, i);
+                if ((accepted == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
+                    work->rows.paired[work->count].id = i;
+                    work->rows.paired[work->count].quantity = datItemCount(i) & 0xFF;
+                    count = fclAddClamped(work->count, 1, 0, 0, 0);
+                    work->count = count;
                 }
             }
         }
@@ -320,39 +363,39 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     case 2: {
         s16 i;
         for (i = 0; i < 0x600; i++) {
-            ok = yListAcceptsItem(iGpffffb58c, i);
-            if (ok == 1) {
-                type = (s16)func_002be1b0(i);
-                if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
+            accepted = yListAcceptsItem(iGpffffb58c, i);
+            if (accepted == 1) {
+                category = (s16)func_002be1b0(i);
+                if ((category != 0x10) && (category != 0x11) && (category != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
                         value = (s32)(datItemMoonGateFirst(i) & 0xFFF00) >> 8;
                         if (fclMoonPhaseAtLeast(value, datItemMoonGateFirst(i) & 0xFF) == 1) {
                             value = (s32)(datItemMoonGateSecond(i) & 0xFFF00) >> 8;
                             if (fclMoonPhaseAtLeast(value, datItemMoonGateSecond(i) & 0xFF) == 1) {
-                                p->rows.paired[i].quantity = 0;
-                                p->rows.paired[p->count].id = i;
-                                count = fclAddClamped(p->count, 1, 0, 0, 0);
-                                p->count = count;
+                                work->rows.paired[i].quantity = 0;
+                                work->rows.paired[work->count].id = i;
+                                count = fclAddClamped(work->count, 1, 0, 0, 0);
+                                work->count = count;
                             }
                         }
                     } else {
-                        p->rows.paired[i].quantity = 0;
-                        p->rows.paired[p->count].id = i;
-                        count = fclAddClamped(p->count, 1, 0, 0, 0);
-                        p->count = count;
+                        work->rows.paired[i].quantity = 0;
+                        work->rows.paired[work->count].id = i;
+                        count = fclAddClamped(work->count, 1, 0, 0, 0);
+                        work->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
                     if (fclItemIsDateAvailable(i) == 1) {
-                        p->rows.paired[i].quantity = 0;
-                        p->rows.paired[p->count].id = i;
-                        count = fclAddClamped(p->count, 1, 0, 0, 0);
-                        p->count = count;
+                        work->rows.paired[i].quantity = 0;
+                        work->rows.paired[work->count].id = i;
+                        count = fclAddClamped(work->count, 1, 0, 0, 0);
+                        work->count = count;
                     }
                 } else {
-                    p->rows.paired[i].quantity = 0;
-                    p->rows.paired[p->count].id = i;
-                    count = fclAddClamped(p->count, 1, 0, 0, 0);
-                    p->count = count;
+                    work->rows.paired[i].quantity = 0;
+                    work->rows.paired[work->count].id = i;
+                    count = fclAddClamped(work->count, 1, 0, 0, 0);
+                    work->count = count;
                 }
             }
         }
@@ -361,30 +404,30 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     case 3: {
         s16 i;
         for (i = 0; i < 0x600; i++) {
-            p->rows.ids[i] = 0;
-            ok = yListAcceptsItem(iGpffffb58c, i);
-            if (ok == 1) {
-                p->rows.ids[p->count] = i;
-                count = fclAddClamped(p->count, 1, 0, 0, 0);
-                p->count = count;
+            work->rows.ids[i] = 0;
+            accepted = yListAcceptsItem(iGpffffb58c, i);
+            if (accepted == 1) {
+                work->rows.ids[work->count] = i;
+                count = fclAddClamped(work->count, 1, 0, 0, 0);
+                work->count = count;
             }
         }
         break;
     }
     case 4: {
         s16 i;
-        count = fclAddClamped(p->count, 1, 0, 0, 0);
-        p->count = count;
+        count = fclAddClamped(work->count, 1, 0, 0, 0);
+        work->count = count;
         for (i = 0; i < 0x600; i++) {
-            p->rows.paired[i].quantity = 0;
-            p->rows.paired[i].id = 0;
+            work->rows.paired[i].quantity = 0;
+            work->rows.paired[i].id = 0;
             if ((datItemCount(i) & 0xFF) > 0) {
-                ok = yListAcceptsItem(iGpffffb58c, i);
-                if (ok == 1) {
-                    p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
-                    count = fclAddClamped(p->count, 1, 0, 0, 0);
-                    p->count = count;
+                accepted = yListAcceptsItem(iGpffffb58c, i);
+                if (accepted == 1) {
+                    work->rows.paired[work->count].id = i;
+                    work->rows.paired[work->count].quantity = datItemCount(i) & 0xFF;
+                    count = fclAddClamped(work->count, 1, 0, 0, 0);
+                    work->count = count;
                 }
             }
         }
@@ -393,51 +436,51 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     default:
         break;
     }
-    mode = (s8)arg3;
+    mode = (s8)order;
     if (mode == 1) {
         s16 fillIndex;
         s16 markIndex;
         s16 compactIndex;
         s16 copyIndex;
-        out_count = 0;
+        outputCount = 0;
         for (fillIndex = 0; fillIndex < 0x600; fillIndex++) {
             reorder[fillIndex] = -1;
         }
-        for (markIndex = 0; markIndex < p->count; markIndex++) {
-            if ((clndGetMoonPhase(p->rows.paired[markIndex].id) & 0xFF) & 1) {
-                reorder[out_count] = p->rows.paired[markIndex].id;
-                value = clndGetMoonPhase(p->rows.paired[markIndex].id);
-                datSetStateTableEntry(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
-                p->rows.paired[markIndex].id = -1;
-                p->rows.paired[markIndex].quantity = 1;
-                out_count++;
+        for (markIndex = 0; markIndex < work->count; markIndex++) {
+            if ((clndGetMoonPhase(work->rows.paired[markIndex].id) & 0xFF) & 1) {
+                reorder[outputCount] = work->rows.paired[markIndex].id;
+                value = clndGetMoonPhase(work->rows.paired[markIndex].id);
+                datSetStateTableEntry(work->rows.paired[markIndex].id, (value | 2) & 0xFF);
+                work->rows.paired[markIndex].id = -1;
+                work->rows.paired[markIndex].quantity = 1;
+                outputCount++;
             }
         }
-        for (compactIndex = 0; compactIndex < p->count; compactIndex++) {
-            if (p->rows.paired[compactIndex].id != -1) {
-                reorder[out_count] = p->rows.paired[compactIndex].id;
-                p->rows.paired[compactIndex].quantity = 0;
-                out_count++;
+        for (compactIndex = 0; compactIndex < work->count; compactIndex++) {
+            if (work->rows.paired[compactIndex].id != -1) {
+                reorder[outputCount] = work->rows.paired[compactIndex].id;
+                work->rows.paired[compactIndex].quantity = 0;
+                outputCount++;
             }
         }
-        for (copyIndex = 0; copyIndex < p->count; copyIndex++) {
-            p->rows.paired[copyIndex].id = (s16)reorder[copyIndex];
+        for (copyIndex = 0; copyIndex < work->count; copyIndex++) {
+            work->rows.paired[copyIndex].id = (s16)reorder[copyIndex];
         }
     }
     if (mode == 2) {
         s16 collectIndex;
         s16 sortedIndex;
-        for (collectIndex = 0; collectIndex < p->count; collectIndex++) {
-            sortbuf[collectIndex] = p->rows.paired[collectIndex].id;
+        for (collectIndex = 0; collectIndex < work->count; collectIndex++) {
+            sortedIds[collectIndex] = work->rows.paired[collectIndex].id;
         }
-        qsort(sortbuf, p->count, 4, datItemPriceCompare);
-        for (sortedIndex = 0; sortedIndex < p->count; sortedIndex++) {
-            p->rows.paired[sortedIndex].id = (s16)sortbuf[sortedIndex];
-            p->rows.paired[sortedIndex].quantity = 0;
-            if ((clndGetMoonPhase(p->rows.paired[sortedIndex].id) & 0xFF) & 1) {
-                p->rows.paired[sortedIndex].quantity = 1;
-                value = clndGetMoonPhase(p->rows.paired[sortedIndex].id);
-                datSetStateTableEntry(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
+        qsort(sortedIds, work->count, 4, datItemPriceCompare);
+        for (sortedIndex = 0; sortedIndex < work->count; sortedIndex++) {
+            work->rows.paired[sortedIndex].id = (s16)sortedIds[sortedIndex];
+            work->rows.paired[sortedIndex].quantity = 0;
+            if ((clndGetMoonPhase(work->rows.paired[sortedIndex].id) & 0xFF) & 1) {
+                work->rows.paired[sortedIndex].quantity = 1;
+                value = clndGetMoonPhase(work->rows.paired[sortedIndex].id);
+                datSetStateTableEntry(work->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
             }
         }
     }
@@ -451,35 +494,38 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
 #pragma opt_loop_invariants on
 /* measured: all 2864 code bytes match with the same scoped settings. */
 // FUN_002E3560
-void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
+/* Rebuild a task-owned filtered item list with the selected ordering mode. */
+void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     s32 reorder[0x600];
-    s32 sortbuf[0x600];
-    s32 out_count;
+    s32 sortedIds[0x600];
+    s32 outputCount;
     s8 mode;
     s16 count;
-    s16 type;
+    s16 category;
     s32 value;
-    s32 ok;
-    YListItemWork *p;
-    p = *(YListItemWork **)(arg0 + 0x38);
-    p->filterA = arg1;
-    p->filterB = arg2;
-    p->kind = arg3;
-    p->count = 0;
-    type = p->kind;
-    switch (type) {
+    s32 accepted;
+    YListItemWork *work;
+    work = *(YListItemWork **)(task + 0x38);
+    work->filterA = filterA;
+    work->filterB = filterB;
+    work->kind = kind;
+    work->count = 0;
+    category = work->kind;
+    switch (category) {
     case 1: {
         s16 i;
         for (i = 0; i < 0x600; i++) {
-            p->rows.paired[i].quantity = 0;
-            p->rows.paired[i].id = 0;
+            work->rows.paired[i].quantity = 0;
+            work->rows.paired[i].id = 0;
             if ((datItemCount(i) & 0xFF) > 0) {
-                ok = yListAcceptsItem(arg0, i);
-                if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
-                    p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
-                    count = fclAddClamped(p->count, 1, 0, 0, 0);
-                    p->count = count;
+                accepted = yListAcceptsItem(task, i);
+                if ((accepted == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
+                    work->rows.paired[work->count].id = i;
+                    work->rows.paired[work->count].quantity = datItemCount(i) & 0xFF;
+                    count = fclAddClamped(work->count, 1, 0, 0, 0);
+                    work->count = count;
                 }
             }
         }
@@ -488,39 +534,39 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     case 2: {
         s16 i;
         for (i = 0; i < 0x600; i++) {
-            ok = yListAcceptsItem(arg0, i);
-            if (ok == 1) {
-                type = (s16)func_002be1b0(i);
-                if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
+            accepted = yListAcceptsItem(task, i);
+            if (accepted == 1) {
+                category = (s16)func_002be1b0(i);
+                if ((category != 0x10) && (category != 0x11) && (category != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
                         value = (s32)(datItemMoonGateFirst(i) & 0xFFF00) >> 8;
                         if (fclMoonPhaseAtLeast(value, datItemMoonGateFirst(i) & 0xFF) == 1) {
                             value = (s32)(datItemMoonGateSecond(i) & 0xFFF00) >> 8;
                             if (fclMoonPhaseAtLeast(value, datItemMoonGateSecond(i) & 0xFF) == 1) {
-                                p->rows.paired[i].quantity = 0;
-                                p->rows.paired[p->count].id = i;
-                                count = fclAddClamped(p->count, 1, 0, 0, 0);
-                                p->count = count;
+                                work->rows.paired[i].quantity = 0;
+                                work->rows.paired[work->count].id = i;
+                                count = fclAddClamped(work->count, 1, 0, 0, 0);
+                                work->count = count;
                             }
                         }
                     } else {
-                        p->rows.paired[i].quantity = 0;
-                        p->rows.paired[p->count].id = i;
-                        count = fclAddClamped(p->count, 1, 0, 0, 0);
-                        p->count = count;
+                        work->rows.paired[i].quantity = 0;
+                        work->rows.paired[work->count].id = i;
+                        count = fclAddClamped(work->count, 1, 0, 0, 0);
+                        work->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
                     if (fclItemIsDateAvailable(i) == 1) {
-                        p->rows.paired[i].quantity = 0;
-                        p->rows.paired[p->count].id = i;
-                        count = fclAddClamped(p->count, 1, 0, 0, 0);
-                        p->count = count;
+                        work->rows.paired[i].quantity = 0;
+                        work->rows.paired[work->count].id = i;
+                        count = fclAddClamped(work->count, 1, 0, 0, 0);
+                        work->count = count;
                     }
                 } else {
-                    p->rows.paired[i].quantity = 0;
-                    p->rows.paired[p->count].id = i;
-                    count = fclAddClamped(p->count, 1, 0, 0, 0);
-                    p->count = count;
+                    work->rows.paired[i].quantity = 0;
+                    work->rows.paired[work->count].id = i;
+                    count = fclAddClamped(work->count, 1, 0, 0, 0);
+                    work->count = count;
                 }
             }
         }
@@ -529,30 +575,30 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     case 3: {
         s16 i;
         for (i = 0; i < 0x600; i++) {
-            p->rows.ids[i] = 0;
-            ok = yListAcceptsItem(arg0, i);
-            if (ok == 1) {
-                p->rows.ids[p->count] = i;
-                count = fclAddClamped(p->count, 1, 0, 0, 0);
-                p->count = count;
+            work->rows.ids[i] = 0;
+            accepted = yListAcceptsItem(task, i);
+            if (accepted == 1) {
+                work->rows.ids[work->count] = i;
+                count = fclAddClamped(work->count, 1, 0, 0, 0);
+                work->count = count;
             }
         }
         break;
     }
     case 4: {
         s16 i;
-        count = fclAddClamped(p->count, 1, 0, 0, 0);
-        p->count = count;
+        count = fclAddClamped(work->count, 1, 0, 0, 0);
+        work->count = count;
         for (i = 0; i < 0x600; i++) {
-            p->rows.paired[i].quantity = 0;
-            p->rows.paired[i].id = 0;
+            work->rows.paired[i].quantity = 0;
+            work->rows.paired[i].id = 0;
             if ((datItemCount(i) & 0xFF) > 0) {
-                ok = yListAcceptsItem(arg0, i);
-                if (ok == 1) {
-                    p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
-                    count = fclAddClamped(p->count, 1, 0, 0, 0);
-                    p->count = count;
+                accepted = yListAcceptsItem(task, i);
+                if (accepted == 1) {
+                    work->rows.paired[work->count].id = i;
+                    work->rows.paired[work->count].quantity = datItemCount(i) & 0xFF;
+                    count = fclAddClamped(work->count, 1, 0, 0, 0);
+                    work->count = count;
                 }
             }
         }
@@ -561,51 +607,51 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     default:
         break;
     }
-    mode = (s8)arg4;
+    mode = (s8)order;
     if (mode == 1) {
         s16 fillIndex;
         s16 markIndex;
         s16 compactIndex;
         s16 copyIndex;
-        out_count = 0;
+        outputCount = 0;
         for (fillIndex = 0; fillIndex < 0x600; fillIndex++) {
             reorder[fillIndex] = -1;
         }
-        for (markIndex = 0; markIndex < p->count; markIndex++) {
-            if ((clndGetMoonPhase(p->rows.paired[markIndex].id) & 0xFF) & 1) {
-                reorder[out_count] = p->rows.paired[markIndex].id;
-                value = clndGetMoonPhase(p->rows.paired[markIndex].id);
-                datSetStateTableEntry(p->rows.paired[markIndex].id, (value | 2) & 0xFF);
-                p->rows.paired[markIndex].id = -1;
-                p->rows.paired[markIndex].quantity = 1;
-                out_count++;
+        for (markIndex = 0; markIndex < work->count; markIndex++) {
+            if ((clndGetMoonPhase(work->rows.paired[markIndex].id) & 0xFF) & 1) {
+                reorder[outputCount] = work->rows.paired[markIndex].id;
+                value = clndGetMoonPhase(work->rows.paired[markIndex].id);
+                datSetStateTableEntry(work->rows.paired[markIndex].id, (value | 2) & 0xFF);
+                work->rows.paired[markIndex].id = -1;
+                work->rows.paired[markIndex].quantity = 1;
+                outputCount++;
             }
         }
-        for (compactIndex = 0; compactIndex < p->count; compactIndex++) {
-            if (p->rows.paired[compactIndex].id != -1) {
-                reorder[out_count] = p->rows.paired[compactIndex].id;
-                p->rows.paired[compactIndex].quantity = 0;
-                out_count++;
+        for (compactIndex = 0; compactIndex < work->count; compactIndex++) {
+            if (work->rows.paired[compactIndex].id != -1) {
+                reorder[outputCount] = work->rows.paired[compactIndex].id;
+                work->rows.paired[compactIndex].quantity = 0;
+                outputCount++;
             }
         }
-        for (copyIndex = 0; copyIndex < p->count; copyIndex++) {
-            p->rows.paired[copyIndex].id = (s16)reorder[copyIndex];
+        for (copyIndex = 0; copyIndex < work->count; copyIndex++) {
+            work->rows.paired[copyIndex].id = (s16)reorder[copyIndex];
         }
     }
     if (mode == 2) {
         s16 collectIndex;
         s16 sortedIndex;
-        for (collectIndex = 0; collectIndex < p->count; collectIndex++) {
-            sortbuf[collectIndex] = p->rows.paired[collectIndex].id;
+        for (collectIndex = 0; collectIndex < work->count; collectIndex++) {
+            sortedIds[collectIndex] = work->rows.paired[collectIndex].id;
         }
-        qsort(sortbuf, p->count, 4, datItemPriceCompare);
-        for (sortedIndex = 0; sortedIndex < p->count; sortedIndex++) {
-            p->rows.paired[sortedIndex].id = (s16)sortbuf[sortedIndex];
-            p->rows.paired[sortedIndex].quantity = 0;
-            if ((clndGetMoonPhase(p->rows.paired[sortedIndex].id) & 0xFF) & 1) {
-                p->rows.paired[sortedIndex].quantity = 1;
-                value = clndGetMoonPhase(p->rows.paired[sortedIndex].id);
-                datSetStateTableEntry(p->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
+        qsort(sortedIds, work->count, 4, datItemPriceCompare);
+        for (sortedIndex = 0; sortedIndex < work->count; sortedIndex++) {
+            work->rows.paired[sortedIndex].id = (s16)sortedIds[sortedIndex];
+            work->rows.paired[sortedIndex].quantity = 0;
+            if ((clndGetMoonPhase(work->rows.paired[sortedIndex].id) & 0xFF) & 1) {
+                work->rows.paired[sortedIndex].quantity = 1;
+                value = clndGetMoonPhase(work->rows.paired[sortedIndex].id);
+                datSetStateTableEntry(work->rows.paired[sortedIndex].id, (value | 2) & 0xFF);
             }
         }
     }
@@ -614,166 +660,164 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
 #pragma pop
 #pragma opt_common_subs on
 
-typedef struct YListPersonaRecord {
-    u16 flags;
-    u16 id;
-    u8 data[0x2C];
-} YListPersonaRecord;
-typedef char YListPersonaSizeCheck[sizeof(YListPersonaRecord) == 0x30 ? 1 : -1];
 
 /* Case 6 compares the inventory persona with its compendium record.
  * Read the copied record ID before both metadata and compendium lookup. */
 // FUN_002E4090
 #pragma push
 #pragma opt_lifetimes on
-s32 yListSlotRefresh(u8 *arg0) {
-    YListPersonaRecord registered;
-    YListPersonaRecord current;
-    s16 i;
-    u16 *tmp;
-    u8 *p;
-    u32 sw;
-    p = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)p == 1) {
+s32 yListSlotRefresh(u8 *task) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
+    DatPersonaRecord registered;
+    DatPersonaRecord current;
+    s16 slotIndex;
+    u16 *selectedRecord;
+    u8 *work;
+    u32 kind;
+    work = *(u8 **)(task + 0x38);
+    if (*(s8 *)work == 1) {
         return 0;
     }
-    *(s32 *)(p + 8) = 0;
-    sw = *(u32 *)(p + 4);
-    switch (sw) {
+    *(s32 *)(work + 8) = 0;
+    kind = *(u32 *)(work + 4);
+    switch (kind) {
     case 0:
-        for (i = 1; i < 0xC; i++) {
-            datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
-            *(s32 *)(p + 8) += 1;
+        for (slotIndex = 1; slotIndex < 0xC; slotIndex++) {
+            datPersonaInitRecord(work + ((slotIndex - 1) * 0x30) + 0x14, (u16)slotIndex);
+            *(s32 *)(work + 8) += 1;
         }
         break;
     case 1:
-        for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
-            if (datPersonaRosterSlotActive(i) == 1) {
-                memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
-                *(s32 *)(p + 8) += 1;
+        for (slotIndex = 0; slotIndex < (datPersonaRosterCapacity() & 0xFFFF); slotIndex++) {
+            if (datPersonaRosterSlotActive(slotIndex) == 1) {
+                memset(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, 0, 0x30);
+                memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
+                *(s32 *)(work + 8) += 1;
             }
         }
         break;
     case 2:
-        for (i = 0; i < 0x100; i++) {
-            if (datPersonaCachedRecord(i) != 0) {
-                memset(p + (*(s32 *)(p + 8) * 0x30) + 0x14, 0, 0x30);
-                memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0x14, datPersonaCachedRecord(i), 0x30);
-                *(s32 *)(p + 8) += 1;
+        for (slotIndex = 0; slotIndex < 0x100; slotIndex++) {
+            if (datPersonaCachedRecord(slotIndex) != 0) {
+                memset(work + (*(s32 *)(work + 8) * 0x30) + 0x14, 0, 0x30);
+                memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0x14, datPersonaCachedRecord(slotIndex), 0x30);
+                *(s32 *)(work + 8) += 1;
             }
         }
         break;
     case 5:
-        for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
-            if (datPersonaRosterSlotActive(i) == 1) {
-                tmp = (u16 *)datPersonaGetRecord(1);
-                if (tmp != (u16 *)datPersonaRosterSlot(i)) {
-                    memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                    memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
-                    *(s32 *)(p + 8) += 1;
+        for (slotIndex = 0; slotIndex < (datPersonaRosterCapacity() & 0xFFFF); slotIndex++) {
+            if (datPersonaRosterSlotActive(slotIndex) == 1) {
+                selectedRecord = (u16 *)datPersonaGetRecord(1);
+                if (selectedRecord != (u16 *)datPersonaRosterSlot(slotIndex)) {
+                    memset(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, 0, 0x30);
+                    memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
+                    *(s32 *)(work + 8) += 1;
                 }
             }
         }
         break;
     case 6:
-        for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
-            if (datPersonaRosterSlotActive(i) == 1) {
-                memcpy(&current, datPersonaRosterSlot(i), 0x30);
+        for (slotIndex = 0; slotIndex < (datPersonaRosterCapacity() & 0xFFFF); slotIndex++) {
+            if (datPersonaRosterSlotActive(slotIndex) == 1) {
+                memcpy(&current, datPersonaRosterSlot(slotIndex), 0x30);
                 if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
                     memcpy(&registered, datPersonaCachedRecord(current.id), 0x30);
                     if (yListRecordsDiffer((u8 *)&current, (u8 *)&registered) == 1) {
-                        memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                        memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
-                        *(s32 *)(p + 8) += 1;
+                        memset(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, 0, 0x30);
+                        memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
+                        *(s32 *)(work + 8) += 1;
                     }
                 }
             }
         }
         break;
     case 7:
-        for (i = 1; i < 0xC0; i++) {
-            datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
-            *(s32 *)(p + 8) += 1;
+        for (slotIndex = 1; slotIndex < 0xC0; slotIndex++) {
+            datPersonaInitRecord(work + ((slotIndex - 1) * 0x30) + 0x14, (u16)slotIndex);
+            *(s32 *)(work + 8) += 1;
         }
         break;
     case 8:
         datPersonaInitAllRecords();
-        for (i = 1; i < 0xC0; i++) {
-            datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
-            *(s32 *)(p + 8) += 1;
+        for (slotIndex = 1; slotIndex < 0xC0; slotIndex++) {
+            datPersonaInitRecord(work + ((slotIndex - 1) * 0x30) + 0x14, (u16)slotIndex);
+            *(s32 *)(work + 8) += 1;
         }
         break;
     default:
         break;
     }
-    *p = 1;
+    *work = 1;
     return 0;
 }
 
 
 #pragma pop
 // FUN_002E45E0
-void yListSlotDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
+void yListSlotDestroy(u8 *task) {
+    jtbl_008873EC[0](((KwlnTask *)((u8 *)task))->work);
 }
 
 // FUN_002E4610
-void yListSlotCreate(s32 arg0, s8 arg1) {
-    u8 *buf;
+/* Create a persona-list slot and initialize its availability matrix for roster kinds. */
+void yListSlotCreate(s32 kind, s8 list) {
+    u8 *work;
     u8 **slot;
-    u8 *base;
-    s16 i;
-    s16 j;
+    u8 *matrixRow;
+    s16 rowIndex;
+    s16 columnIndex;
 
     yListSlotFindFree();
-    slot = &D_00882F70[arg1];
+    slot = &D_00882F70[list];
     if (*slot != NULL) {
-        yListSlotRelease(arg1);
+        yListSlotRelease(list);
     }
     chkmemAllocSiteTag(D_0063FC48, 0x38F);
-    buf = D_008873F4[0](1, 0x3014, 0x40000);
-    *slot = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, yListSlotRefresh, yListSlotDestroy, (u8 *)(buf));
-    buf[0] = 0;
-    *(s32 *)(buf + 4) = arg0;
-    *(s32 *)(buf + 8) = 0;
-    switch (arg0) {
+    work = D_008873F4[0](1, 0x3014, 0x40000);
+    *slot = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, yListSlotRefresh, yListSlotDestroy, (u8 *)(work));
+    ((YListPersonaWork *)work)->ready = 0;
+    ((YListPersonaWork *)(work))->kind.value = kind;
+    ((YListPersonaWork *)(work))->count.value = 0;
+    switch (kind) {
     case 1:
     case 0xA:
     case 6:
-        for (i = 0; i < 0xC; i++) {
-            j = 0;
-            base = buf + i * 12;
-            while (j < 0xC) {
-                *(u8 *)(base + 0x14 + j) = 0;
-                j++;
+        for (rowIndex = 0; rowIndex < 0xC; rowIndex++) {
+            columnIndex = 0;
+            matrixRow = work + rowIndex * 12;
+            while (columnIndex < 0xC) {
+                ((YListPersonaWork *)matrixRow)->entries.roster.availability[0][columnIndex] = 0;
+                columnIndex++;
             }
         }
         break;
     default:
         break;
     }
-    if (arg0 == 0xA) {
-        buf[0] = 1;
+    if (kind == 0xA) {
+        ((YListPersonaWork *)work)->ready = 1;
     }
 }
 // FUN_002E47B0
+/* Return the first unused slot among the fifteen persona-list handles, or minus one. */
 s8 yListSlotFindFree(void) {
-    s16 i = 0;
-    u8 **base = D_00882F70;
+    s16 listIndex = 0;
+    u8 **slots = D_00882F70;
 
-    while (i < 15) {
-        if (*(u8 **)((u32)base + i * 4) == NULL) {
-            return (s8)i;
+    while (listIndex < 15) {
+        if (slots[listIndex] == NULL) {
+            return (s8)listIndex;
         }
-        i++;
+        listIndex++;
     }
     return -1;
 }
 
 // FUN_002E4820
-void yListSlotRelease(s8 arg0) {
-    u8 **p = &D_00882F70[arg0];
+void yListSlotRelease(s8 list) {
+    u8 **p = &D_00882F70[list];
 
     if (*p != NULL) {
         kwlnTaskDestroyWithHierarchy((s32)*p);
@@ -782,27 +826,28 @@ void yListSlotRelease(s8 arg0) {
 }
 
 // FUN_002E4870
-u8 *yListSlotWork(s8 arg0) {
-    return *(void **)(D_00882F70[arg0] + 0x38);
+u8 *yListSlotWork(s8 list) {
+    return ((KwlnTask *)(D_00882F70[list]))->work;
 }
 
 // FUN_002E48A0
-u8 *yListSlotEntry(s8 arg0, s16 arg1) {
-    u8 *p = *(u8 **)(D_00882F70[arg0] + 0x38);
+/* Select a persona record from the full-record or roster representation. */
+u8 *yListSlotEntry(s8 list, s16 index) {
+    u8 *work = ((KwlnTask *)(D_00882F70[list]))->work;
 
-    switch (*(u32 *)(p + 4)) {
+    switch (((YListPersonaWork *)(work))->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
     case 8:
-        return p + ((arg1 * 3) * 0x10) + 0x14;
+        return work + ((index * 3) * 0x10) + 0x14;
     case 1:
     case 5:
     case 6:
     case 10:
-        return p + ((arg1 * 3) * 0x10) + 0xA4;
+        return work + ((index * 3) * 0x10) + 0xA4;
     default:
-        return p + ((arg1 * 3) * 0x10) + 0x14;
+        return work + ((index * 3) * 0x10) + 0x14;
     }
 }
 
@@ -825,21 +870,88 @@ u8 *yListSlotEntry(s8 arg0, s16 arg1) {
    direct switch rewrite; all retained nd 19 or worsened the object.
    Committed at nd 16. */
 // FUN_002E4960
-void yListSlotCopyEntry(u8 *arg0, s8 arg1, s16 arg2) {
- u8 *p; u8 *p0; u8 *p1; s32 n3; u8 *src; u8 *src2; s32 n; p=*(u8 **)(D_00882F70[arg1]+0x38); switch(*(s32 *)(p+4)) {
- case 0: case 7: case 8: p0=p; src=p0; src=(u8 *)(u32)src; src=(u8 *)((s32)arg2*0x30)+(u32)src; src+=0x14; n=6; do{s32 v0=*(s32*)src;s32 v1=*(s32*)(src+4);src+=8;n--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n>0);break;
- case 1: case 10: case 5: case 6: p1=p; src=p1; src=(u8 *)(u32)src; src=(u8 *)((s32)arg2*0x30)+(u32)src; src+=0xa4; n=6; do{s32 v0=*(s32*)src;s32 v1=*(s32*)(src+4);src+=8;n--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n>0);break;
- default: src2=p; src2=(u8 *)(u32)src2; src2=(u8 *)((s32)arg2*0x30)+(u32)src2; src2+=0x14; n3=6; do{s32 v0=*(s32*)src2;s32 v1=*(s32*)(src2+4);src2+=8;n3--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n3>0);break;} }
+/* Copy a persona record as six pairs of words; byte cursors address its representation, not fields. */
+void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
+    u8 *work;
+    u8 *fullWork;
+    u8 *rosterWork;
+    s32 defaultChunks;
+    u8 *source;
+    u8 *defaultSource;
+    s32 chunks;
+    work = ((KwlnTask *)(D_00882F70[list]))->work;
+    switch (((YListPersonaWork *)(work))->kind.value) {
+    case 0:
+    case 7:
+    case 8:
+        fullWork = work;
+        source = fullWork;
+        source = (u8 *)(u32)source;
+        source = (u8 *)((s32)index * 0x30) + (u32)source;
+        source += 0x14;
+        chunks = 6;
+        do {
+            s32 firstWord = *(s32 *)source;
+            s32 secondWord = *(s32 *)(source + 4);
+            source += 8;
+            chunks--;
+            *(s32 *)destination = firstWord;
+            *(s32 *)(destination + 4) = secondWord;
+            destination += 8;
+        } while (chunks > 0);
+        break;
+    case 1:
+    case 10:
+    case 5:
+    case 6:
+        rosterWork = work;
+        source = rosterWork;
+        source = (u8 *)(u32)source;
+        source = (u8 *)((s32)index * 0x30) + (u32)source;
+        source += 0xa4;
+        chunks = 6;
+        do {
+            s32 firstWord = *(s32 *)source;
+            s32 secondWord = *(s32 *)(source + 4);
+            source += 8;
+            chunks--;
+            *(s32 *)destination = firstWord;
+            *(s32 *)(destination + 4) = secondWord;
+            destination += 8;
+        } while (chunks > 0);
+        break;
+    default:
+        defaultSource = work;
+        defaultSource = (u8 *)(u32)defaultSource;
+        defaultSource = (u8 *)((s32)index * 0x30) + (u32)defaultSource;
+        defaultSource += 0x14;
+        defaultChunks = 6;
+        do {
+            s32 firstWord = *(s32 *)defaultSource;
+            s32 secondWord = *(s32 *)(defaultSource + 4);
+            defaultSource += 8;
+            defaultChunks--;
+            *(s32 *)destination = firstWord;
+            *(s32 *)(destination + 4) = secondWord;
+            destination += 8;
+        } while (defaultChunks > 0);
+        break;
+    }
+}
 
 
 
 
 
 static inline u8 *yListWork(s8 list) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     return *(u8 **)(D_00882F70[list] + 0x38);
 }
 
 static inline u8 *yListEntryInWork(u8 *work, s16 index) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     switch (*(u32 *)(work + 4)) {
     case 0:
     case 2:
@@ -865,7 +977,7 @@ static inline u8 *yListEntryInWork(u8 *work, s16 index) {
 // FUN_002E4AC0
 #pragma push
 #pragma opt_loop_invariants on
-void yListBuildAvailability(s32 arg0, s32 arg1) {
+void yListBuildAvailability(s32 modeOrResult, s32 selectedIndex) {
     u8 *base;
     u8 *row;
     u8 *flag;
@@ -878,51 +990,51 @@ void yListBuildAvailability(s32 arg0, s32 arg1) {
     s8 selected;
 
     base = yListWork(0);
-    kind = *(s32 *)(base + 4);
+    kind = ((YListPersonaWork *)(base))->kind.value;
     switch (kind) {
     case 1:
     case 10:
     case 6:
         i = 0;
-        mode = (s8)arg0;
-        selected = (s8)arg1;
-        for (; i < *(s32 *)(yListWork(0) + 8); i++) {
+        mode = (s8)modeOrResult;
+        selected = (s8)selectedIndex;
+        for (; i < ((YListPersonaWork *)(yListWork(0)))->count.value; i++) {
             base[i + 0x2E4] = 0;
             j = 0;
             row = base + i * 12;
-            for (; j < *(s32 *)(yListWork(0) + 8); j++) {
+            for (; j < ((YListPersonaWork *)(yListWork(0)))->count.value; j++) {
                 flag = row + j + 0x14;
                 *flag = 0;
                 if (i != j) {
                     if (mode == 0) {
                         destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
-                        arg0 = (s8)fclFusePairByte((s32)destination,
-                            *(s16 *)(yListEntryInWork(yListWork(0), i) + 2),
-                            *(s16 *)(yListEntryInWork(yListWork(0), j) + 2));
+                        modeOrResult = (s8)fclFusePairByte((s32)destination,
+                            (s16)((DatPersonaRecord *)yListEntryInWork(yListWork(0), i))->id,
+                            (s16)((DatPersonaRecord *)yListEntryInWork(yListWork(0), j))->id);
                     } else if (mode == 1) {
                         if (selected == i || selected == j) {
-                            arg0 = 0;
+                            modeOrResult = 0;
                         } else {
                             destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
-                            arg0 = (s8)fclFuseTripleByte((u16 *)destination,
+                            modeOrResult = (s8)fclFuseTripleByte((u16 *)destination,
                                 yListEntryInWork(yListWork(0), selected),
                                 yListEntryInWork(yListWork(0), i),
                                 yListEntryInWork(yListWork(0), j));
                         }
                         /* Match the neighboring accessors' EE word-address view. */
                         mirror = (u8 *)(i * 12 +
-                            (u32)*(u8 **)(D_00882F70[i + 1] + 0x38)) + j + 0x14;
+                            (u32)((KwlnTask *)(D_00882F70[i + 1]))->work) + j + 0x14;
                         *mirror = 0;
-                        if ((s8)arg0 != 0) {
+                        if ((s8)modeOrResult != 0) {
                             *mirror = 1;
-                            if ((s8)arg0 == 2) {
+                            if ((s8)modeOrResult == 2) {
                                 *mirror = 2;
                             }
                         }
                     }
-                    if ((s8)arg0 != 0) {
+                    if ((s8)modeOrResult != 0) {
                         *flag = 1;
-                        if ((s8)arg0 == 2) {
+                        if ((s8)modeOrResult == 2) {
                             *flag = 2;
                         }
                     }
@@ -936,7 +1048,7 @@ void yListBuildAvailability(s32 arg0, s32 arg1) {
 }
 #pragma pop
 
-extern s32 fclFuseSpecialPartner(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 fclFuseSpecialPartner(u8 *, s32 , s32 );
 
 /* Fill the availability matrix and each row's corresponding pair-result list.
  * Complete the destination lookup before reading the two source record IDs. */
@@ -952,16 +1064,16 @@ void yListBuildPairFlags(void) {
     s16 j;
 
     base = yListWork(0);
-    for (i = 0; i < *(s32 *)(yListWork(0) + 8); i++) {
+    for (i = 0; i < ((YListPersonaWork *)(yListWork(0)))->count.value; i++) {
         j = 0;
         row = base + i * 12;
-        for (; j < *(s32 *)(yListWork(0) + 8); j++) {
+        for (; j < ((YListPersonaWork *)(yListWork(0)))->count.value; j++) {
             flag = row + j + 0x14;
             *flag = 0;
             destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
             if (fclFuseSpecialPartner(destination,
-                    *(u16 *)(yListEntryInWork(yListWork(0), i) + 2),
-                    *(u16 *)(yListEntryInWork(yListWork(0), j) + 2)) == 1) {
+                    ((DatPersonaRecord *)(yListEntryInWork(yListWork(0), i)))->id,
+                    ((DatPersonaRecord *)(yListEntryInWork(yListWork(0), j)))->id) == 1) {
                 *flag = 1;
             }
         }
@@ -970,30 +1082,31 @@ void yListBuildPairFlags(void) {
 #pragma pop
 
 // FUN_002E5270
-s32 yListRecordsDiffer(u8 *arg0, u8 *arg1) {
-    s16 i;
-    s16 j;
-    s16 k;
+/* Compare level, base stats, second stat bonuses, skills and experience of two records. */
+s32 yListRecordsDiffer(u8 *left, u8 *right) {
+    s16 statIndex;
+    s16 bonusIndex;
+    s16 skillIndex;
 
-    if (*(u8 *)(arg0 + 4) != *(u8 *)(arg1 + 4)) {
+    if (((DatPersonaRecord *)(left))->level != ((DatPersonaRecord *)(right))->level) {
         return 1;
     }
-    for (i = 0; i < 5; i++) {
-        if (*(u8 *)(arg0 + 0x1C + i) != *(u8 *)(arg1 + 0x1C + i)) {
+    for (statIndex = 0; statIndex < 5; statIndex++) {
+        if (((DatPersonaRecord *)left)->stats[statIndex] != ((DatPersonaRecord *)right)->stats[statIndex]) {
             return 1;
         }
     }
-    for (j = 0; j < 5; j++) {
-        if (*(u8 *)(arg0 + 0x26 + j) != *(u8 *)(arg1 + 0x26 + j)) {
+    for (bonusIndex = 0; bonusIndex < 5; bonusIndex++) {
+        if ((u8)((DatPersonaRecord *)left)->statBonusB[bonusIndex] != (u8)((DatPersonaRecord *)right)->statBonusB[bonusIndex]) {
             return 1;
         }
     }
-    for (k = 0; k < 8; k++) {
-        if (*(u16 *)(arg0 + 0xC + k * 2) != *(u16 *)(arg1 + 0xC + k * 2)) {
+    for (skillIndex = 0; skillIndex < 8; skillIndex++) {
+        if (((DatPersonaRecord *)left)->skills[skillIndex] != ((DatPersonaRecord *)right)->skills[skillIndex]) {
             return 1;
         }
     }
-    return *(u32 *)(arg0 + 8) != *(u32 *)(arg1 + 8);
+    return (u32)((DatPersonaRecord *)(left))->exp != (u32)((DatPersonaRecord *)(right))->exp;
 }
 // FUN_002E53B0
 /* measured: without `opt_loop_invariants on` MWCC rematerializes the switch
@@ -1002,41 +1115,42 @@ s32 yListRecordsDiffer(u8 *arg0, u8 *arg1) {
 #pragma opt_loop_invariants on
 /* measured: without `opt_loop_invariants on` the switch jump-table base is
    rematerialized in the loop body instead of hoisted to the preheader (nd 30+). */
-s32 yListSlotContainsId(s8 arg0, s16 arg1) {
-    u8 **entryp = &D_00882F70[arg0];
-    u8 *entry;
-    u8 *p;
-    u8 *q;
+/* Test whether an allocated list contains the requested persona ID. */
+s32 yListSlotContainsId(s8 list, s16 id) {
+    u8 **slot = &D_00882F70[list];
+    u8 *task;
+    u8 *work;
+    u8 *record;
     s32 count;
     s32 key;
-    s16 i = 0;
+    s16 rowIndex = 0;
 
-    if (*(u32 *)entryp != 0) {
-        i = 0;
-        key = (s16)arg1;
-        p = *(u8 **)((u8 *)*(u32 *)entryp + 0x38);
-        count = *(s32 *)(p + 8);
-        for (; i < count; i++) {
-            entry = *entryp;
-            p = *(u8 **)(entry + 0x38);
-            switch (*(u32 *)(p + 4)) {
+    if (*(u32 *)slot != 0) {
+        rowIndex = 0;
+        key = (s16)id;
+        work = ((KwlnTask *)((u8 *)*(u32 *)slot))->work;
+        count = ((YListPersonaWork *)(work))->count.value;
+        for (; rowIndex < count; rowIndex++) {
+            task = *slot;
+            work = ((KwlnTask *)(task))->work;
+            switch (((YListPersonaWork *)(work))->kind.unsignedValue) {
             case 0:
             case 2:
             case 7:
             case 8:
-                q = p + ((i * 3) * 0x10) + 0x14;
+                record = work + ((rowIndex * 3) * 0x10) + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                q = p + ((i * 3) * 0x10) + 0xA4;
+                record = work + ((rowIndex * 3) * 0x10) + 0xA4;
                 break;
             default:
-                q = p + ((i * 3) * 0x10) + 0x14;
+                record = work + ((rowIndex * 3) * 0x10) + 0x14;
                 break;
             }
-            if (key == *(u16 *)(q + 2)) {
+            if (key == ((DatPersonaRecord *)(record))->id) {
                 return 1;
             }
         }
@@ -1051,42 +1165,43 @@ s32 yListSlotContainsId(s8 arg0, s16 arg1) {
    jump-table base (lui/addiu) inside the loop body instead of hoisting it into
    the preheader as retail does, giving nd 30+. */
 #pragma opt_loop_invariants on
-s16 yListSlotIndexOf(s8 arg0, s16 arg1) {
-    s16 i = 0;
-    u8 **entryp = &D_00882F70[arg0];
-    u8 *entry;
-    u8 *p;
-    u8 *q;
+/* Find the first matching persona ID, returning minus one when absent. */
+s16 yListSlotIndexOf(s8 list, s16 id) {
+    s16 rowIndex = 0;
+    u8 **slot = &D_00882F70[list];
+    u8 *task;
+    u8 *work;
+    u8 *record;
     s32 count;
     s32 key;
 
-    if (*(u32 *)entryp != 0) {
-        i = 0;
-        key = (s16)arg1;
-        p = *(u8 **)((u8 *)*(u32 *)entryp + 0x38);
-        count = *(s32 *)(p + 8);
-        for (; i < count; i++) {
-            entry = *entryp;
-            p = *(u8 **)(entry + 0x38);
-            switch (*(u32 *)(p + 4)) {
+    if (*(u32 *)slot != 0) {
+        rowIndex = 0;
+        key = (s16)id;
+        work = ((KwlnTask *)((u8 *)*(u32 *)slot))->work;
+        count = ((YListPersonaWork *)(work))->count.value;
+        for (; rowIndex < count; rowIndex++) {
+            task = *slot;
+            work = ((KwlnTask *)(task))->work;
+            switch (((YListPersonaWork *)(work))->kind.unsignedValue) {
             case 0:
             case 2:
             case 7:
             case 8:
-                q = p + ((i * 3) * 0x10) + 0x14;
+                record = work + ((rowIndex * 3) * 0x10) + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                q = p + ((i * 3) * 0x10) + 0xA4;
+                record = work + ((rowIndex * 3) * 0x10) + 0xA4;
                 break;
             default:
-                q = p + ((i * 3) * 0x10) + 0x14;
+                record = work + ((rowIndex * 3) * 0x10) + 0x14;
                 break;
             }
-            if (key == *(u16 *)(q + 2)) {
-                return i;
+            if (key == ((DatPersonaRecord *)(record))->id) {
+                return rowIndex;
             }
         }
     }
@@ -1100,160 +1215,162 @@ s16 yListSlotIndexOf(s8 arg0, s16 arg1) {
    materialization; explicit (u16)arg1 preserves ac10's 16-bit argument. */
 #pragma opt_common_subs off
 // FUN_002E55C0
-void yListSlotAppend(s8 arg0, s32 arg1, s8 arg2) {
-    u8 **entryp;
-    u8 *entry;
+/* Append a default or roster-derived persona record and increment the list count. */
+void yListSlotAppend(s8 list, s32 id, s8 useRoster) {
+    u8 **slot;
+    u8 *task;
 
-    entryp = &D_00882F70[arg0];
-    entry = *entryp;
-    if (entry != NULL) {
-        if (arg2 == 0) {
-            u8 *p;
-            u8 *q;
+    slot = &D_00882F70[list];
+    task = *slot;
+    if (task != NULL) {
+        if (useRoster == 0) {
+            u8 *work;
+            u8 *record;
             s16 index;
 
-            p = *(u8 **)(entry + 0x38);
-            index = *(s16 *)(p + 8);
-            switch (*(s32 *)(p + 4)) {
+            work = ((KwlnTask *)(task))->work;
+            index = ((YListPersonaWork *)(work))->count.half;
+            switch (((YListPersonaWork *)(work))->kind.value) {
             case 0:
             case 2:
             case 7:
             case 8:
-                q = p + ((index * 3) * 0x10) + 0x14;
+                record = work + ((index * 3) * 0x10) + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                q = p + ((index * 3) * 0x10) + 0xA4;
+                record = work + ((index * 3) * 0x10) + 0xA4;
                 break;
             default:
-                q = p + ((index * 3) * 0x10) + 0x14;
+                record = work + ((index * 3) * 0x10) + 0x14;
                 break;
             }
-            datPersonaInitRecord(q, arg1 & 0xFFFF);
-        } else if ((s16)datPersonaFindRosterSlotById(arg1) == -1) {
+            datPersonaInitRecord(record, id & 0xFFFF);
+        } else if ((s16)datPersonaFindRosterSlotById(id) == -1) {
             {
-                u8 *p;
-                u8 *q;
+                u8 *work;
+                u8 *record;
                 s16 index;
 
-                p = *(u8 **)(D_00882F70[arg0] + 0x38);
-                index = *(s16 *)(p + 8);
-                switch (*(s32 *)(p + 4)) {
+                work = ((KwlnTask *)(D_00882F70[list]))->work;
+                index = ((YListPersonaWork *)(work))->count.half;
+                switch (((YListPersonaWork *)(work))->kind.value) {
                 case 0:
                 case 2:
                 case 7:
                 case 8:
-                    q = p + ((index * 3) * 0x10) + 0x14;
+                    record = work + ((index * 3) * 0x10) + 0x14;
                     break;
                 case 1:
                 case 5:
                 case 6:
                 case 10:
-                    q = p + ((index * 3) * 0x10) + 0xA4;
+                    record = work + ((index * 3) * 0x10) + 0xA4;
                     break;
                 default:
-                    q = p + ((index * 3) * 0x10) + 0x14;
+                    record = work + ((index * 3) * 0x10) + 0x14;
                     break;
                 }
-                datPersonaInitRecord(q, arg1 & 0xFFFF);
+                datPersonaInitRecord(record, id & 0xFFFF);
             }
             {
-                u8 *p;
-                u8 *q;
+                u8 *work;
+                u8 *record;
                 s16 index;
 
-                p = *(u8 **)(D_00882F70[arg0] + 0x38);
-                index = *(s16 *)(p + 8);
-                switch (*(s32 *)(p + 4)) {
+                work = ((KwlnTask *)(D_00882F70[list]))->work;
+                index = ((YListPersonaWork *)(work))->count.half;
+                switch (((YListPersonaWork *)(work))->kind.value) {
                 case 0:
                 case 2:
                 case 7:
                 case 8:
-                    q = p + ((index * 3) * 0x10) + 0x14;
+                    record = work + ((index * 3) * 0x10) + 0x14;
                     break;
                 case 1:
                 case 5:
                 case 6:
                 case 10:
-                    q = p + ((index * 3) * 0x10) + 0xA4;
+                    record = work + ((index * 3) * 0x10) + 0xA4;
                     break;
                 default:
-                    q = p + ((index * 3) * 0x10) + 0x14;
+                    record = work + ((index * 3) * 0x10) + 0x14;
                     break;
                 }
-                *(u8 *)(q + 4) = 0;
+                ((DatPersonaRecord *)(record))->level = 0;
             }
         } else {
-            u8 *p;
-            u8 *q;
-            u16 *src;
+            u8 *work;
+            u8 *record;
+            u16 *rosterRecord;
             s16 index;
 
-            p = *(u8 **)(D_00882F70[arg0] + 0x38);
-            index = *(s16 *)(p + 8);
-            switch (*(s32 *)(p + 4)) {
+            work = ((KwlnTask *)(D_00882F70[list]))->work;
+            index = ((YListPersonaWork *)(work))->count.half;
+            switch (((YListPersonaWork *)(work))->kind.value) {
             case 0:
             case 2:
             case 7:
             case 8:
-                q = p + ((index * 3) * 0x10) + 0x14;
+                record = work + ((index * 3) * 0x10) + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                q = p + ((index * 3) * 0x10) + 0xA4;
+                record = work + ((index * 3) * 0x10) + 0xA4;
                 break;
             default:
-                q = p + ((index * 3) * 0x10) + 0x14;
+                record = work + ((index * 3) * 0x10) + 0x14;
                 break;
             }
-            src = (u16 *)datPersonaFindRosterRecordById((u16)arg1);
-            memcpy(q, src, 0x30);
+            rosterRecord = (u16 *)datPersonaFindRosterRecordById((u16)id);
+            memcpy(record, rosterRecord, 0x30);
         }
-        (*(s32 *)(*(u8 **)(*entryp + 0x38) + 8))++;
+        (((YListPersonaWork *)(((KwlnTask *)(*slot))->work))->count.value)++;
     }
 }
 
 /* measured: restore common-subexpression elimination after func_002e55c0. */
 #pragma opt_common_subs on
 // FUN_002E5960
-void yListSlotClear(s8 arg0) {
-    u8 *p;
-    s16 i;
-    s16 j;
-    s32 type;
+/* Clear the kind-dependent record region and reset cursor, scroll and count. */
+void yListSlotClear(s8 list) {
+    u8 *work;
+    s16 recordIndex;
+    s16 rosterIndex;
+    s32 kind;
 
-    if (D_00882F70[arg0] == NULL) {
+    if (D_00882F70[list] == NULL) {
         return;
     }
-    p = *(u8 **)(D_00882F70[arg0] + 0x38);
-    type = *(s32 *)(p + 4);
-    switch (type) {
+    work = ((KwlnTask *)(D_00882F70[list]))->work;
+    kind = ((YListPersonaWork *)(work))->kind.value;
+    switch (kind) {
     case 0:
     case 7:
     case 8:
-        for (i = 0; i < 0x100; i++) {
-            memset(p + ((i * 3) * 0x10) + 0x14, 0, 0x30);
+        for (recordIndex = 0; recordIndex < 0x100; recordIndex++) {
+            memset(work + ((recordIndex * 3) * 0x10) + 0x14, 0, 0x30);
         }
         break;
     case 1:
     case 10:
     case 5:
     case 6:
-        for (j = 0; j < 0xC; j++) {
-            memset(p + ((j * 3) * 0x10) + 0xA4, 0, 0x30);
-            *(u8 *)(p + j + 0x2E4) = 0;
+        for (rosterIndex = 0; rosterIndex < 0xC; rosterIndex++) {
+            memset(work + ((rosterIndex * 3) * 0x10) + 0xA4, 0, 0x30);
+            ((YListPersonaWork *)work)->entries.roster.available[rosterIndex] = 0;
         }
         break;
     default:
         break;
     }
-    *(s16 *)(p + 0xE) = 0;
-    *(s16 *)(p + 0x10) = 0;
-    *(s32 *)(p + 8) = 0;
+    ((YListPersonaWork *)(work))->cursor = 0;
+    ((YListPersonaWork *)(work))->scroll = 0;
+    ((YListPersonaWork *)(work))->count.value = 0;
 }
 
 /* Signed level, bound and metadata-offset snapshots recover the retail spill
@@ -1267,42 +1384,45 @@ void yListSlotClear(s8 arg0) {
 // FUN_002E5AE0
 #pragma push
 #pragma opt_lifetimes on
-extern s32 func_002e6230(u16 arg0, u16 *arg1);
-void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
+extern s32 yListIsExcludedId(u16 , u16 *);
+/* Fill eligible persona IDs around the requested level, widening an empty search until it yields more than five. */
+void yListSlotFillNearLevel(s8 list, u16 *exclude, s8 requestedLevel)
 {
-    u8 *p;
-    s16 lo;
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
+    u8 *work;
+    s16 lowerLevel;
     s32 level;
     u8 **slotp;
-    s32 hi;
+    s32 upperLevel;
     s16 i;
     s16 initialRow;
     s16 expandedRow;
     s32 found;
     u16 id;
-    u8 *q;
-    s16 h;
-    u32 sw1;
-    u32 sw2;
-    u8 *dst1;
-    u8 *dst2;
-    s16 lo2;
-    s16 hi2;
+    u8 *refreshedWork;
+    s16 rowIndex;
+    u32 clearKind;
+    u32 initializeKind;
+    u8 *clearDestination;
+    u8 *initializeDestination;
+    s16 expandedLowerLevel;
+    s16 expandedUpperLevel;
     s16 outer;
     s32 lowLimit;
-    s32 highLimit2;
-    s32 lowLimit2;
-    slotp = &D_00882F70[arg0];
+    s32 expandedHighLimit;
+    s32 expandedLowLimit;
+    slotp = &D_00882F70[list];
     if (*slotp == NULL) {
         return;
     }
-    p = *(u8 **)(*slotp + 0x38);
-    yListSlotClear(arg0);
-    level = (s8)arg2;
-    lo = (s16)fclSubClamped(level, 10, 1, 0x63, 1);
-    hi = (s16)fclAddClamped(level, 1, 0x63, 1, 1);
+    work = *(u8 **)(*slotp + 0x38);
+    yListSlotClear(list);
+    level = (s8)requestedLevel;
+    lowerLevel = (s16)fclSubClamped(level, 10, 1, 0x63, 1);
+    upperLevel = (s16)fclAddClamped(level, 1, 0x63, 1, 1);
     i = 0;
-    lowLimit = (s16)lo;
+    lowLimit = (s16)lowerLevel;
     for (; i < 0xC0; i++) {
         s32 signedIndex = i;
         s32 metadataOffset;
@@ -1322,12 +1442,12 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
         if (cmmCommunityPassesFlagGate(id) == 0) {
             continue;
         }
-        if (func_002e6230(id, arg1) != 0) {
+        if (yListIsExcludedId(id, exclude) != 0) {
             continue;
         }
         if (*(u8 **)(u32)slotp != NULL) {
             for (initialRow = 0; initialRow < *(s32 *)(*(u8 **)(*(u8 **)(u32)slotp + 0x38) + 8); initialRow++) {
-                if (signedIndex == *(u16 *)(yListSlotEntry(arg0, initialRow) + 2)) {
+                if (signedIndex == *(u16 *)(yListSlotEntry(list, initialRow) + 2)) {
                     found = 1;
                     goto initialSearchDone;
                 }
@@ -1343,68 +1463,68 @@ initialSearchDone:
         }
         metadata = iGpffffb3d4;
         metadata += metadataOffset;
-        if (hi < metadata[3] || lowLimit > metadata[3]) {
+        if (upperLevel < metadata[3] || lowLimit > metadata[3]) {
             continue;
         }
-        h = *(s16 *)(p + 8);
-        q = *(u8 **)(*slotp + 0x38);
-        sw1 = *(u32 *)(q + 4);
-        switch (sw1) {
+        rowIndex = *(s16 *)(work + 8);
+        refreshedWork = *(u8 **)(*slotp + 0x38);
+        clearKind = *(u32 *)(refreshedWork + 4);
+        switch (clearKind) {
         case 0:
         case 2:
         case 7:
         case 8:
-            dst1 = q + h * 0x30 + 0x14;
+            clearDestination = refreshedWork + rowIndex * 0x30 + 0x14;
             break;
         case 1:
         case 5:
         case 6:
         case 10:
-            dst1 = q + h * 0x30 + 0xA4;
+            clearDestination = refreshedWork + rowIndex * 0x30 + 0xA4;
             break;
         default:
-            dst1 = q + h * 0x30 + 0x14;
+            clearDestination = refreshedWork + rowIndex * 0x30 + 0x14;
             break;
         }
-        memset(dst1, 0, 0x30);
-        h = *(s16 *)(p + 8);
-        q = *(u8 **)(*slotp + 0x38);
-        sw2 = *(u32 *)(q + 4);
-        switch (sw2) {
+        memset(clearDestination, 0, 0x30);
+        rowIndex = *(s16 *)(work + 8);
+        refreshedWork = *(u8 **)(*slotp + 0x38);
+        initializeKind = *(u32 *)(refreshedWork + 4);
+        switch (initializeKind) {
         case 0:
         case 2:
         case 7:
         case 8:
-            dst2 = q + h * 0x30 + 0x14;
+            initializeDestination = refreshedWork + rowIndex * 0x30 + 0x14;
             break;
         case 1:
         case 5:
         case 6:
         case 10:
-            dst2 = q + h * 0x30 + 0xA4;
+            initializeDestination = refreshedWork + rowIndex * 0x30 + 0xA4;
             break;
         default:
-            dst2 = q + h * 0x30 + 0x14;
+            initializeDestination = refreshedWork + rowIndex * 0x30 + 0x14;
             break;
         }
-        datPersonaInitRecord(dst2, id);
-        *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
+        datPersonaInitRecord(initializeDestination, id);
+        *(s32 *)(work + 8) = *(s32 *)(work + 8) + 1;
     }
-    if (level >= 0x3C && *(s32 *)(p + 8) < 3) {
-        yListSlotClear(arg0);
+    if (level >= 0x3C && *(s32 *)(work + 8) < 3) {
+        yListSlotClear(list);
     }
-    if (*(s32 *)(p + 8) != 0) {
+    if (*(s32 *)(work + 8) != 0) {
         return;
     }
     outer = 0;
     do {
         s32 expansion = outer;
-        lo2 = (s16)fclSubClamped(level, expansion * 5 + 10, 1, 0x63, 1);
-        hi2 = (s16)fclAddClamped(level, expansion + 1, 0x63, 1, 1);
-        yListSlotClear(arg0);
+        expandedLowerLevel = (s16)fclSubClamped(level, expansion * 5 + 10, 1, 0x63, 1);
+        expandedUpperLevel = (s16)fclAddClamped(level, expansion + 1, 0x63, 1, 1);
+        yListSlotClear(list);
         i = 0;
-        highLimit2 = (s16)hi2;
-        lowLimit2 = (s16)lo2;
+        expandedHighLimit = (s16)expandedUpperLevel;
+        expandedLowLimit = (s16)expandedLowerLevel;
         for (; i < 0xC0; i++) {
             s32 signedIndex = i;
             s32 metadataOffset;
@@ -1424,12 +1544,12 @@ initialSearchDone:
             if (cmmCommunityPassesFlagGate(id) == 0) {
                 continue;
             }
-            if (func_002e6230(id, arg1) != 0) {
+            if (yListIsExcludedId(id, exclude) != 0) {
                 continue;
             }
             if (*slotp != NULL) {
                 for (expandedRow = 0; expandedRow < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); expandedRow++) {
-                    if (signedIndex == *(u16 *)(yListSlotEntry(arg0, expandedRow) + 2)) {
+                    if (signedIndex == *(u16 *)(yListSlotEntry(list, expandedRow) + 2)) {
                         found = 1;
                         goto expandedSearchDone;
                     }
@@ -1445,55 +1565,55 @@ expandedSearchDone:
             }
             metadata = iGpffffb3d4;
             metadata += metadataOffset;
-            if (highLimit2 < metadata[3] || lowLimit2 > metadata[3]) {
+            if (expandedHighLimit < metadata[3] || expandedLowLimit > metadata[3]) {
                 continue;
             }
-            h = *(s16 *)(p + 8);
-            q = *(u8 **)(*slotp + 0x38);
-            sw1 = *(u32 *)(q + 4);
-            switch (sw1) {
+            rowIndex = *(s16 *)(work + 8);
+            refreshedWork = *(u8 **)(*slotp + 0x38);
+            clearKind = *(u32 *)(refreshedWork + 4);
+            switch (clearKind) {
             case 0:
             case 2:
             case 7:
             case 8:
-                dst1 = q + h * 0x30 + 0x14;
+                clearDestination = refreshedWork + rowIndex * 0x30 + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                dst1 = q + h * 0x30 + 0xA4;
+                clearDestination = refreshedWork + rowIndex * 0x30 + 0xA4;
                 break;
             default:
-                dst1 = q + h * 0x30 + 0x14;
+                clearDestination = refreshedWork + rowIndex * 0x30 + 0x14;
                 break;
             }
-            memset(dst1, 0, 0x30);
-            h = *(s16 *)(p + 8);
-            q = *(u8 **)(*slotp + 0x38);
-            sw2 = *(u32 *)(q + 4);
-            switch (sw2) {
+            memset(clearDestination, 0, 0x30);
+            rowIndex = *(s16 *)(work + 8);
+            refreshedWork = *(u8 **)(*slotp + 0x38);
+            initializeKind = *(u32 *)(refreshedWork + 4);
+            switch (initializeKind) {
             case 0:
             case 2:
             case 7:
             case 8:
-                dst2 = q + h * 0x30 + 0x14;
+                initializeDestination = refreshedWork + rowIndex * 0x30 + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                dst2 = q + h * 0x30 + 0xA4;
+                initializeDestination = refreshedWork + rowIndex * 0x30 + 0xA4;
                 break;
             default:
-                dst2 = q + h * 0x30 + 0x14;
+                initializeDestination = refreshedWork + rowIndex * 0x30 + 0x14;
                 break;
             }
-            datPersonaInitRecord(dst2, id);
-            *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
+            datPersonaInitRecord(initializeDestination, id);
+            *(s32 *)(work + 8) = *(s32 *)(work + 8) + 1;
         }
         outer++;
-    } while (*(s32 *)(p + 8) <= 5);
+    } while (*(s32 *)(work + 8) <= 5);
 }
 #pragma pop
 
@@ -1514,12 +1634,14 @@ static inline s32 yListExcluded(u16 id, u16 *exclude)
 }
 
 // FUN_002E6230
-s32 func_002e6230(u16 arg0, u16 *arg1) {
-    return yListExcluded(arg0, arg1);
+s32 yListIsExcludedId(u16 id, u16 *exclude) {
+    return yListExcluded(id, exclude);
 }
 
 static inline u8 *yListEntry(s8 list, s16 index)
 {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     u8 *p = *(u8 **)(D_00882F70[list] + 0x38);
 
     switch (*(u32 *)(p + 4)) {
@@ -1540,6 +1662,8 @@ static inline u8 *yListEntry(s8 list, s16 index)
 
 static inline s32 yListContains(s8 list, s16 id)
 {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     s16 k;
 
     if (D_00882F70[list] != NULL) {
@@ -1560,8 +1684,11 @@ static inline s32 yListContains(s8 list, s16 id)
    measured: loop-invariant motion is required (29 words without it). */
 #pragma opt_loop_invariants on
 // FUN_002E6280
+/* Fill eligible arcana-one personas up to level plus three, excluding supplied IDs. */
 void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
 {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
     u8 *data;
     s32 limit;
     s16 i;
@@ -1591,102 +1718,103 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
    The comparator's O1 scope preserves the retail selector and key lifetimes. */
 // FUN_002E6630
 #pragma optimization_level 1
-s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1) {
-    s16 ia = *(const s16 *)arg0;
-    s16 ib = *(const s16 *)arg1;
-    u8 *base = *(u8 **)(D_00882F70[0] + 0x38);
-    u8 *pa;
-    u8 *qa;
-    u8 *pb;
-    u8 *qb;
-    s32 offset_a;
-    s32 offset_b;
+/* Compare persona levels weighted by one hundred times their metadata arcana. */
+s32 yListCompareByWeightedKeyDesc(const void *left, const void *right) {
+    s16 leftIndex = *(const s16 *)left;
+    s16 rightIndex = *(const s16 *)right;
+    u8 *base = ((KwlnTask *)(D_00882F70[0]))->work;
+    u8 *leftRecord;
+    u8 *leftIdRecord;
+    u8 *rightRecord;
+    u8 *rightIdRecord;
+    s32 leftOffset;
+    s32 rightOffset;
     u8 *metadata;
-    u16 va;
-    s32 vb;
-    s32 va_mask;
-    switch (*(u32 *)(base + 4)) {
+    u16 leftKey;
+    s32 rightKey;
+    s32 maskedLeftKey;
+    switch (((YListPersonaWork *)(base))->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
     case 8:
-        offset_a = (ia * 3) * 0x10;
-        pa = base + offset_a + 0x14;
+        leftOffset = (leftIndex * 3) * 0x10;
+        leftRecord = base + leftOffset + 0x14;
         break;
     case 1:
     case 5:
     case 6:
     case 10:
-        offset_a = (ia * 3) * 0x10;
-        pa = base + offset_a + 0xA4;
+        leftOffset = (leftIndex * 3) * 0x10;
+        leftRecord = base + leftOffset + 0xA4;
         break;
     default:
-        offset_a = (ia * 3) * 0x10;
-        pa = base + offset_a + 0x14;
+        leftOffset = (leftIndex * 3) * 0x10;
+        leftRecord = base + leftOffset + 0x14;
         break;
     }
-    switch (*(u32 *)(base + 4)) {
+    switch (((YListPersonaWork *)(base))->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
     case 8:
-        qa = base + offset_a + 0x14;
+        leftIdRecord = base + leftOffset + 0x14;
         break;
     case 1:
     case 5:
     case 6:
     case 10:
-        qa = base + offset_a + 0xA4;
+        leftIdRecord = base + leftOffset + 0xA4;
         break;
     default:
-        qa = base + offset_a + 0x14;
+        leftIdRecord = base + leftOffset + 0x14;
         break;
     }
     metadata = iGpffffb3d4 + 2;
-    va = pa[4] + 100 * metadata[14 * *(u16 *)(qa + 2)];
-    switch (*(u32 *)(base + 4)) {
+    leftKey = leftRecord[4] + 100 * metadata[14 * ((DatPersonaRecord *)(leftIdRecord))->id];
+    switch (((YListPersonaWork *)(base))->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
     case 8:
-        offset_b = (ib * 3) * 0x10;
-        pb = base + offset_b + 0x14;
+        rightOffset = (rightIndex * 3) * 0x10;
+        rightRecord = base + rightOffset + 0x14;
         break;
     case 1:
     case 5:
     case 6:
     case 10:
-        offset_b = (ib * 3) * 0x10;
-        pb = base + offset_b + 0xA4;
+        rightOffset = (rightIndex * 3) * 0x10;
+        rightRecord = base + rightOffset + 0xA4;
         break;
     default:
-        offset_b = (ib * 3) * 0x10;
-        pb = base + offset_b + 0x14;
+        rightOffset = (rightIndex * 3) * 0x10;
+        rightRecord = base + rightOffset + 0x14;
         break;
     }
-    switch (*(u32 *)(base + 4)) {
+    switch (((YListPersonaWork *)(base))->kind.unsignedValue) {
     case 0:
     case 2:
     case 7:
     case 8:
-        qb = base + offset_b + 0x14;
+        rightIdRecord = base + rightOffset + 0x14;
         break;
     case 1:
     case 5:
     case 6:
     case 10:
-        qb = base + offset_b + 0xA4;
+        rightIdRecord = base + rightOffset + 0xA4;
         break;
     default:
-        qb = base + offset_b + 0x14;
+        rightIdRecord = base + rightOffset + 0x14;
         break;
     }
-    vb = (u16)(pb[4] + 100 * metadata[14 * *(u16 *)(qb + 2)]);
-    va_mask = va & 0xFFFF;
-    if (vb < va_mask) {
+    rightKey = (u16)(rightRecord[4] + 100 * metadata[14 * ((DatPersonaRecord *)(rightIdRecord))->id]);
+    maskedLeftKey = leftKey & 0xFFFF;
+    if (rightKey < maskedLeftKey) {
         return 1;
     }
-    return -(va_mask < vb);
+    return -(maskedLeftKey < rightKey);
 }
 #pragma optimization_level 2
 
@@ -1699,64 +1827,67 @@ s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1) {
    jump-table base (lui/addiu) inside the dispatch instead of hoisting it
    into the preheader as retail does. */
 #pragma opt_loop_invariants on
-void yListSlotSortWeighted(s8 arg0) {
-    u8 **slotp = &D_00882F70[arg0];
-    u8 *entry;
-    u8 *p;
-    u8 **ep;
-    u8 *p2;
-    s32 count2;
-    s16 k;
-    s16 j;
-    u8 *dst;
-    s16 i;
-    s16 idx;
-    s16 arr1[0x100];
-    s16 arr2[0x100];
+/* Sort indices by the weighted key, then rebuild records from their cached persona IDs. */
+void yListSlotSortWeighted(s8 list) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
+    u8 **slot = &D_00882F70[list];
+    u8 *task;
+    u8 *work;
+    u8 **workPointer;
+    u8 *sourceWork;
+    s32 count;
+    s16 collectIndex;
+    s16 readIndex;
+    u8 *destination;
+    s16 writeIndex;
+    s16 sortedIndex;
+    s16 sortedIndices[0x100];
+    s16 sortedIds[0x100];
 
-    entry = *slotp;
-    if (entry == NULL) {
+    task = *slot;
+    if (task == NULL) {
         return;
     }
-    ep = (u8 **)(entry + 0x38);
-    p = *(u8 **)(entry + 0x38);
-    for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
-        arr1[k] = k;
+    workPointer = (u8 **)(task + 0x38);
+    work = *(u8 **)(task + 0x38);
+    for (collectIndex = 0; collectIndex < *(s32 *)(*(u8 **)(task + 0x38) + 8); collectIndex++) {
+        sortedIndices[collectIndex] = collectIndex;
     }
-    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, yListCompareByWeightedKeyDesc);
-    j = 0;
-    count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
-    if (count2 > 0) {
-        p2 = *(u8 **)((u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4) + 0x38);
-        for (; j < count2; j++) {
-            u8 *q;
+    qsort(sortedIndices, *(u16 *)((u8 *)*workPointer + 8), 2, yListCompareByWeightedKeyDesc);
+    readIndex = 0;
+    count = *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8);
+    if (count > 0) {
+        sourceWork = *(u8 **)((u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)list * 4) + 0x38);
+        for (; readIndex < count; readIndex++) {
+            u8 *sourceRecord;
 
-            idx = arr1[j];
-            switch (*(u32 *)(p2 + 4)) {
+            sortedIndex = sortedIndices[readIndex];
+            switch (*(u32 *)(sourceWork + 4)) {
             case 0:
             case 2:
             case 7:
             case 8:
-                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                q = p2 + ((idx * 3) * 0x10) + 0xA4;
+                sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0xA4;
                 break;
             default:
-                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0x14;
                 break;
             }
-            arr2[j] = *(u16 *)(q + 2);
+            sortedIds[readIndex] = *(u16 *)(sourceRecord + 2);
         }
     }
-    for (i = 0; i < *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8); i++) {
-        dst = p + ((i * 3) * 0x10) + 0x14;
+    for (writeIndex = 0; writeIndex < *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8); writeIndex++) {
+        destination = work + ((writeIndex * 3) * 0x10) + 0x14;
 
-        memset(dst, 0, 0x30);
-        memcpy(dst, datPersonaCachedRecord(arr2[i]), 0x30);
+        memset(destination, 0, 0x30);
+        memcpy(destination, datPersonaCachedRecord(sortedIds[writeIndex]), 0x30);
     }
 }
 /* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
@@ -1776,67 +1907,68 @@ void yListSlotSortWeighted(s8 arg0) {
 // FUN_002E6B20
 #pragma schedule on
 #pragma optimization_level 1
-s32 yListCompareByKeyDesc(const void *arg0, const void *arg1) {
-    const s16 *arg1_p = arg1;
-    const s16 *arg0_p = arg0;
-    s16 ia;
+/* Compare persona records by their level byte, with equal keys returning zero. */
+s32 yListCompareByKeyDesc(const void *left, const void *right) {
+    const s16 *rightPointer = right;
+    const s16 *leftPointer = left;
+    s16 leftIndex;
     u8 *base;
-    s16 ib;
-    u8 *pa;
-    u8 *pb;
-    s32 vb;
-    u16 va;
-    s32 va_mask;
-    ia = *arg0_p;
-    ib = *arg1_p;
-    base = *(u8 **)(D_00882F70[0] + 0x38);
-    switch ((u32)*(s32 *)(base + 4)) {
+    s16 rightIndex;
+    u8 *leftRecord;
+    u8 *rightRecord;
+    s32 rightKey;
+    u16 leftKey;
+    s32 maskedLeftKey;
+    leftIndex = *leftPointer;
+    rightIndex = *rightPointer;
+    base = ((KwlnTask *)(D_00882F70[0]))->work;
+    switch ((u32)((YListPersonaWork *)(base))->kind.value) {
     case 0:
     case 2:
     case 7:
     case 8:
-        pa = base + ia * 0x30 + 0x14;
+        leftRecord = base + leftIndex * 0x30 + 0x14;
         break;
     case 1:
     case 5:
     case 6:
     case 10:
-        pa = base + ia * 0x30 + 0xA4;
+        leftRecord = base + leftIndex * 0x30 + 0xA4;
         break;
     case 3:
     case 4:
     case 9:
     default:
-        pa = base + ia * 0x30 + 0x14;
+        leftRecord = base + leftIndex * 0x30 + 0x14;
         break;
     }
-    va = *(u8 *)(pa + 4);
-    switch ((u32)*(s32 *)(base + 4)) {
+    leftKey = ((DatPersonaRecord *)(leftRecord))->level;
+    switch ((u32)((YListPersonaWork *)(base))->kind.value) {
     case 0:
     case 2:
     case 7:
     case 8:
-        pb = base + ib * 0x30 + 0x14;
+        rightRecord = base + rightIndex * 0x30 + 0x14;
         break;
     case 1:
     case 5:
     case 6:
     case 10:
-        pb = base + ib * 0x30 + 0xA4;
+        rightRecord = base + rightIndex * 0x30 + 0xA4;
         break;
     case 3:
     case 4:
     case 9:
     default:
-        pb = base + ib * 0x30 + 0x14;
+        rightRecord = base + rightIndex * 0x30 + 0x14;
         break;
     }
-    vb = *(u8 *)(pb + 4);
-    va_mask = va & 0xFFFF;
-    if (vb < va_mask) {
+    rightKey = ((DatPersonaRecord *)(rightRecord))->level;
+    maskedLeftKey = leftKey & 0xFFFF;
+    if (rightKey < maskedLeftKey) {
         return 1;
     }
-    return -(va_mask < vb);
+    return -(maskedLeftKey < rightKey);
 }
 #pragma optimization_level 2
 #pragma schedule off
@@ -1855,65 +1987,68 @@ s32 yListCompareByKeyDesc(const void *arg0, const void *arg1) {
 // FUN_002E6C90
 /* measured: open opt_loop_invariants scope for func_002e6c90. */
 #pragma opt_loop_invariants on
-void yListSlotSortByKey(s8 arg0) {
-    u8 **slotp = &D_00882F70[arg0];
-    u8 *entry;
-    u8 *p;
-    u8 **ep;
-    u8 *p2;
-    s32 count2;
-    s16 k;
-    s16 j;
-    u8 *dst;
-    s16 i;
-    s16 idx;
-    s16 arr1[0x100];
-    s16 arr2[0x100];
+/* Sort indices by level, then rebuild records from their cached persona IDs. */
+void yListSlotSortByKey(s8 list) {
+    /* Layouts are proven above; typed accesses changed the retail codegen in
+       whole-file comparison. Keep the original byte-address form here. */
+    u8 **slot = &D_00882F70[list];
+    u8 *task;
+    u8 *work;
+    u8 **workPointer;
+    u8 *sourceWork;
+    s32 count;
+    s16 collectIndex;
+    s16 readIndex;
+    u8 *destination;
+    s16 writeIndex;
+    s16 sortedIndex;
+    s16 sortedIndices[0x100];
+    s16 sortedIds[0x100];
 
-    entry = *slotp;
-    if (entry == NULL) {
+    task = *slot;
+    if (task == NULL) {
         return;
     }
-    ep = (u8 **)(entry + 0x38);
-    p = *(u8 **)(entry + 0x38);
-    for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
-        arr1[k] = k;
+    workPointer = (u8 **)(task + 0x38);
+    work = *(u8 **)(task + 0x38);
+    for (collectIndex = 0; collectIndex < *(s32 *)(*(u8 **)(task + 0x38) + 8); collectIndex++) {
+        sortedIndices[collectIndex] = collectIndex;
     }
-    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, yListCompareByKeyDesc);
-    j = 0;
-    count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
-    if (count2 > 0) {
-        p2 = *(u8 **)(*(u8 **)((u8 *)D_00882F70 +
-              (u32)(s8)arg0 * 4) + 0x38);
-        for (; j < count2; j++) {
-            u8 *q;
+    qsort(sortedIndices, *(u16 *)((u8 *)*workPointer + 8), 2, yListCompareByKeyDesc);
+    readIndex = 0;
+    count = *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8);
+    if (count > 0) {
+        sourceWork = *(u8 **)(*(u8 **)((u8 *)D_00882F70 +
+              (u32)(s8)list * 4) + 0x38);
+        for (; readIndex < count; readIndex++) {
+            u8 *sourceRecord;
 
-            idx = arr1[j];
-            switch (*(u32 *)(p2 + 4)) {
+            sortedIndex = sortedIndices[readIndex];
+            switch (*(u32 *)(sourceWork + 4)) {
             case 0:
             case 2:
             case 7:
             case 8:
-                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0x14;
                 break;
             case 1:
             case 5:
             case 6:
             case 10:
-                q = p2 + ((idx * 3) * 0x10) + 0xA4;
+                sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0xA4;
                 break;
             default:
-                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0x14;
                 break;
             }
-            arr2[j] = *(u16 *)(q + 2);
+            sortedIds[readIndex] = *(u16 *)(sourceRecord + 2);
         }
     }
-    for (i = 0; i < *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8); i++) {
-        dst = p + ((i * 3) * 0x10) + 0x14;
+    for (writeIndex = 0; writeIndex < *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8); writeIndex++) {
+        destination = work + ((writeIndex * 3) * 0x10) + 0x14;
 
-        memset(dst, 0, 0x30);
-        memcpy(dst, datPersonaCachedRecord(arr2[i]), 0x30);
+        memset(destination, 0, 0x30);
+        memcpy(destination, datPersonaCachedRecord(sortedIds[writeIndex]), 0x30);
     }
 }
 /* measured: closing the scope restores the file baseline; leaving
@@ -1924,21 +2059,22 @@ void yListSlotSortByKey(s8 arg0) {
    constant at the top of the loop body (nd 6) instead of hoisting it into the
    preheader as retail does (addiu $a1,$zero,-1 before the initial branch). */
 #pragma opt_loop_invariants on
+/* Allocate forty-eight minus-one indices followed by a zero count. */
 u8 *yListAllocIndexTable(void) {
-    s16 *buf;
-    s16 i;
+    s16 *indices;
+    s16 index;
     s16 value;
 
     chkmemAllocSiteTag(D_0063FC48, 0x649);
-    buf = (s16 *)D_008873F4[0](1, 0x62, 0x40000);
-    i = 0;
+    indices = (s16 *)D_008873F4[0](1, 0x62, 0x40000);
+    index = 0;
     value = -1;
-    while (i < 0x30) {
-        buf[i] = value;
-        i++;
+    while (index < 0x30) {
+        indices[index] = value;
+        index++;
     }
-    buf[0x30] = 0;
-    return (u8 *)buf;
+    indices[0x30] = 0;
+    return (u8 *)indices;
 }
 /* measured: see the annotation above the matching `on` pragma (func_002e6f00). */
 #pragma opt_loop_invariants off

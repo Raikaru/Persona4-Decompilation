@@ -155,7 +155,7 @@ extern f32 fGpffff81cc;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00466280-00466280 */
 
-extern s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2);
+extern s32 memcardPollCommand(s32 *arg0, s32 *arg1, s32 *arg2);
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -232,25 +232,25 @@ typedef struct MovieNativeWork {
 // FUN_00466280
 s32 H_Memcard_ProbeCardStep(void)
 {
-    s32 sp1c;
-    s32 sp18;
-    s32 sp14;
+    s32 command;
+    s32 cardCode;
+    s32 cardError;
     s32 blocks;
 
     func_00440b68(D_00712950, D_00764BC0);
     switch (D_00764BC0) {
     case 0:
-        sp1c = 0;
-        sp18 = 0;
-        if (func_00464670(&sp1c, &sp18, &sp14) == -1) {
+        command = 0;
+        cardCode = 0;
+        if (memcardPollCommand(&command, &cardCode, &cardError) == -1) {
             sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
             D_00764BC0 = 1;
         }
         goto done;
     case 1:
-        if (func_00464670(&sp1c, &sp18, &sp14) == 1) {
-            if (sp14 == 0) {
-                switch (sp18) {
+        if (memcardPollCommand(&command, &cardCode, &cardError) == 1) {
+            if (cardError == 0) {
+                switch (cardCode) {
                 case 0x6F:
                     return -5;
                 case 0x13:
@@ -278,7 +278,7 @@ s32 H_Memcard_ProbeCardStep(void)
         }
         goto done;
     case 2:
-        if (func_00464670(&sp1c, &sp18, &sp14) == -1) {
+        if (memcardPollCommand(&command, &cardCode, &cardError) == -1) {
             blocks = D_00764BB8;
             sprintf(D_008E4A20, D_007127D0, blocks, blocks);
             func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
@@ -286,9 +286,9 @@ s32 H_Memcard_ProbeCardStep(void)
         }
         goto done;
     case 3:
-        if (func_00464670(&sp1c, &sp18, &sp14) == 1) {
-            if (sp14 == 0) {
-                switch (sp18) {
+        if (memcardPollCommand(&command, &cardCode, &cardError) == 1) {
+            if (cardError == 0) {
+                switch (cardCode) {
                 case 0x9003:
                     return -5;
                 case 0x6F:

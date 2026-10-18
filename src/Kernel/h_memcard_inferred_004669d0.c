@@ -1,3 +1,4 @@
+#include "sdk_filer_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -229,7 +230,10 @@ typedef struct MovieNativeWork {
 /* 512/512 bytes; ten fully resolved relocations.
  * A real interrupt-state local retains the retail spill under register pressure. */
 // FUN_004669D0
-u8 *func_004669d0(u8 *arg0, s32 *arg1, s32 *arg2)
+/* Unlink a completed request, return its kind-specific result and release its pool slot. */
+/* FilerRequest proves these offsets; typed member access changes b210
+ * register allocation and loses MATCH, so preserve byte-base access. */
+u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue)
 {
     s32 lock;
     u8 *next;
@@ -238,82 +242,83 @@ u8 *func_004669d0(u8 *arg0, s32 *arg1, s32 *arg2)
     u8 *table;
     s16 i;
 
-    if (arg0 == NULL) {
+    if (request == NULL) {
         return NULL;
     }
     lock = func_0042ba20();
-    if (*(s32 *)(arg0 + 0x1A4) != 3) {
+    if (*(s32 *)(request + 0x1A4) != 3) {
         goto failed;
     }
-    next = *(u8 **)(arg0 + 4);
+    next = *(u8 **)(request + 4);
     if (next == NULL) {
         goto failed;
     }
-    *(u8 **)(next + 0) = *(u8 **)(arg0 + 0);
-    if (*(u8 **)(arg0 + 0) != NULL) {
-        *(u8 **)(*(u8 **)(arg0 + 0) + 4) = next;
+    *(u8 **)(next + 0) = *(u8 **)(request + 0);
+    if (*(u8 **)(request + 0) != NULL) {
+        *(u8 **)(*(u8 **)(request + 0) + 4) = next;
     }
-    switch (*(s32 *)(arg0 + 0x1AC)) {
+    switch (*(s32 *)(request + 0x1AC)) {
     case 0:
-        result = *(u8 **)(arg0 + 0x1B4);
+        result = *(u8 **)(request + 0x1B4);
         break;
     case 1:
-        result = *(u8 **)(arg0 + 0x10);
-        *arg2 = *(s32 *)(arg0 + 8);
+        result = *(u8 **)(request + 0x10);
+        *resultValue = *(s32 *)(request + 8);
         break;
     case 2:
-        func_003e9680(*(s32 *)(*(u8 **)(arg0 + 0xC) + 4));
-        result = *(u8 **)(arg0 + 0xC);
-        if (arg2 != NULL) {
-            *arg2 = *(s32 *)(arg0 + 8);
+        /* The returned resource's +4 word is owned by func_003e9680; its complete layout is not known here. */
+        func_003e9680(*(s32 *)(*(u8 **)(request + 0xC) + 4));
+        result = *(u8 **)(request + 0xC);
+        if (resultValue != NULL) {
+            *resultValue = *(s32 *)(request + 8);
         }
         break;
     case 3:
-        result = *(u8 **)(arg0 + 0x14);
+        result = *(u8 **)(request + 0x14);
         break;
     case 4:
-        result = *(u8 **)(arg0 + 0x1BC);
-        if (arg2 != NULL) {
-            *arg2 = *(s32 *)(arg0 + 8);
+        result = *(u8 **)(request + 0x1BC);
+        if (resultValue != NULL) {
+            *resultValue = *(s32 *)(request + 8);
         }
         break;
     case 5:
-        result = *(u8 **)(arg0 + 0x18);
-        if (arg2 != NULL) {
-            *arg2 = *(s32 *)(arg0 + 8);
+        result = *(u8 **)(request + 0x18);
+        if (resultValue != NULL) {
+            *resultValue = *(s32 *)(request + 8);
         }
         break;
     case 6:
-        result = *(u8 **)(arg0 + 0x1C);
+        result = *(u8 **)(request + 0x1C);
         break;
     case 7:
-        result = *(u8 **)(arg0 + 0x1C8);
-        if (arg2 != NULL) {
-            *arg2 = *(s32 *)(arg0 + 8);
+        result = *(u8 **)(request + 0x1C8);
+        if (resultValue != NULL) {
+            *resultValue = *(s32 *)(request + 8);
         }
         break;
     case 8:
-        result = *(u8 **)(arg0 + 0x1D0);
-        if (arg2 != NULL) {
-            *arg2 = *(s32 *)(arg0 + 8);
+        result = *(u8 **)(request + 0x1D0);
+        if (resultValue != NULL) {
+            *resultValue = *(s32 *)(request + 8);
         }
         break;
     case 9:
-        result = *(u8 **)(arg0 + 0x1B8);
-        if (arg2 != NULL) {
-            *arg2 = (s32)result;
+        result = *(u8 **)(request + 0x1B8);
+        if (resultValue != NULL) {
+            *resultValue = (s32)result;
         }
         break;
     case 10:
-        result = *(u8 **)(arg0 + 0x1C4);
-        if (arg2 != NULL) {
-            *arg2 = (s32)result;
+        result = *(u8 **)(request + 0x1C4);
+        if (resultValue != NULL) {
+            *resultValue = (s32)result;
         }
         break;
     case 11:
-        result = *(u8 **)(arg0 + 0x1C);
-        if (arg2 != NULL) {
-            *arg2 = *(s32 *)(arg0 + 8);
+        result = *(u8 **)(request + 0x1C);
+        if (resultValue != NULL) {
+            *resultValue = *(s32 *)(request + 8);
         }
         break;
     }
@@ -321,19 +326,19 @@ u8 *func_004669d0(u8 *arg0, s32 *arg1, s32 *arg2)
     table = (u8 *)D_008E4D30;
     while (i < 0x100) {
         entry = table + i * 0x1DC;
-        if (*(s32 *)entry != 0 && arg0 == entry + 4) {
+        if (*(s32 *)entry != 0 && request == entry + 4) {
             *(s32 *)entry = 0;
             break;
         }
         i++;
     }
-    *arg1 = 1;
+    *completed = 1;
     if (lock != 0) {
         func_0042ba70();
     }
     return result;
 failed:
-    *arg1 = 0;
+    *completed = 0;
     if (lock != 0) {
         func_0042ba70();
     }

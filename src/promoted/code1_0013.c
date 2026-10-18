@@ -8,7 +8,7 @@
 extern u32 datCalcGetHpById(s16 arg0);
 extern u32 datCalcGetSpById(s16 arg0);
 extern s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2);
-extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
+extern s32 cmpSkillApplySelected(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 RpRandom(void);
 extern s32 nLineIsIdle(void);
 struct GDataEntry;

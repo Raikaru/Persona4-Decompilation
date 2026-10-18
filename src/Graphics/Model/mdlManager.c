@@ -6231,7 +6231,7 @@ s32 mdlReadAuxChunks(u8 *model)
     /* H011: pointer parameters keep D_0070B610 an address constant per call;
        the u32 definition in rtanim.c makes b210 hoist it (measured MISMATCH). */
     extern u32 func_003d60e0(void *schema, void *dictionary);
-    extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
+    extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
         s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
         const void *resultKind, s32 memoryKind);
     extern u32 mdlEffectListCreate(void);
@@ -6274,7 +6274,7 @@ s32 mdlReadAuxChunks(u8 *model)
             func_003ef1b0(dictionary);
         } else {
             LOAD_MEMORY();
-            state->textureRequest = func_004667d0(8, 0, 0, 0,
+            state->textureRequest = filerEnqueueRequest(8, 0, 0, 0,
                 (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, 0, 0);
             func_003e2ce0(state->stream, chunk.length);
         }
@@ -6330,7 +6330,7 @@ s32 mdlReadAuxChunks(u8 *model)
         } else {
             if (state->clumpStream == 0 && state->clumpRequest == 0) {
                 LOAD_MEMORY();
-                state->uvRequest = func_004667d0(7, 0, 0, 0,
+                state->uvRequest = filerEnqueueRequest(7, 0, 0, 0,
                     (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, D_0070B610, 0);
             } else {
                 if (state->uvRequests == 0) {
@@ -6340,7 +6340,7 @@ s32 mdlReadAuxChunks(u8 *model)
                 }
                 LOAD_MEMORY();
                 {
-                    u8 *request = func_004667d0(7, 0, 0, 0,
+                    u8 *request = filerEnqueueRequest(7, 0, 0, 0,
                         (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, D_0070B610, 0);
                     state->uvRequests[state->slot] = request;
                 }
@@ -6670,11 +6670,11 @@ s32 mdlReadAuxChunks(u8 *model)
 
 
 
-extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *handle);
+extern u8 *filerTakeCompletedRequest(u8 *request, s32 *ready, s32 *handle);
 extern s32 func_003ef1b0(void* dictionary);
 extern s32 func_003e2e40(void* stream, void* data);
 extern void* func_003d60e0(void* schema, void* dictionary);
-extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
+extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
     s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
     s32 resultKind, s32 memoryKind);
 extern s32 *mdlMatAnimCreateList(void);
@@ -6740,7 +6740,7 @@ s32 mdlPollAuxResources(u8 *arg0)
     okA = 1;
     okB = 1;
     if (*(u32 *)(owner + 4) != 0) {
-        primaryResult = func_004669d0(*(u8 **)(owner + 4), &loaded.ready, &loaded.handle);
+        primaryResult = filerTakeCompletedRequest(*(u8 **)(owner + 4), &loaded.ready, &loaded.handle);
         if (loaded.ready == 1) {
             func_003ef260((const struct RwTexDictionary *)primaryResult, K_Clump_AppendTextureName, owner + 0x34);
             func_003ef1b0((void *)primaryResult);
@@ -6752,7 +6752,7 @@ s32 mdlPollAuxResources(u8 *arg0)
         }
     }
     if (*(u32 *)(owner + 8) != 0) {
-        secondaryResult = func_004669d0(*(u8 **)(owner + 8), &loaded.ready, &loaded.handle);
+        secondaryResult = filerTakeCompletedRequest(*(u8 **)(owner + 8), &loaded.ready, &loaded.handle);
         if (loaded.ready == 1) {
             if (*(void **)(arg0 + 0x254) == 0) {
                 cnt = *(u16 *)(owner + 0x20);
@@ -6781,7 +6781,7 @@ s32 mdlPollAuxResources(u8 *arg0)
             requestByteOffset = i * 4;
             pendingRequest = *(u8 **)(requestTable + requestByteOffset);
             if (pendingRequest != 0) {
-                entryResult = func_004669d0(pendingRequest, &loaded.ready, &loaded.handle);
+                entryResult = filerTakeCompletedRequest(pendingRequest, &loaded.ready, &loaded.handle);
                 if (loaded.ready == 1) {
                     if (*(void **)(arg0 + 0x254) == 0) {
                         cnt = *(u16 *)(owner + 0x20);
@@ -6810,11 +6810,11 @@ s32 mdlPollAuxResources(u8 *arg0)
     if (pendingSource != 0 || *(u32 *)(owner + 0x10) != 0) {
         if (okA == 1 && okB == 1) {
             if (pendingSource != 0) {
-                *(u32 *)(owner + 0x10) = (u32)func_004667d0(2, 0, 0, 0, pendingSource, 0, 0, 0, 0, 0);
+                *(u32 *)(owner + 0x10) = (u32)filerEnqueueRequest(2, 0, 0, 0, pendingSource, 0, 0, 0, 0, 0);
                 *(u32 *)(owner + 0x14) = 0;
                 ok = 0;
             } else {
-                clumpResult = func_004669d0(*(u8 **)(owner + 0x10), &loaded.ready, &loaded.handle);
+                clumpResult = filerTakeCompletedRequest(*(u8 **)(owner + 0x10), &loaded.ready, &loaded.handle);
                 if (loaded.ready == 1) {
                     *(u32 *)(arg0 + 0xDC) = (u32)clumpResult;
                     func_003e2e40((void *)loaded.handle, 0);

@@ -1,3 +1,4 @@
+#include "sdk_filer_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -228,8 +229,12 @@ typedef struct MovieNativeWork {
 /* 512/512 bytes; ten fully resolved relocations.
  * A real interrupt-state local retains the retail spill under register pressure. */
 // FUN_00467880
+/* Draw the current directory page, selection highlight and proportional scrollbar. */
+/* FilerTable proves the page/row/count offsets; member-access conversion
+ * changes b210 register allocation and loses MATCH, so retain raw addressing.
+ * The local FilerDrawPacket casts expose packed position/color words, not pointers. */
 /* measured: honest void *table plus explicit function-pointer casts; object 848B/window 848B/nd 0; no H001 waiver. */
-void func_00467880(u8 *arg0)
+void filerDrawDirectory(u8 *directory)
 {
     extern u32 func_003e8110(u32 camera);
     extern u32 func_003e8120(u32 camera);
@@ -237,18 +242,18 @@ void func_00467880(u8 *arg0)
     extern char iGpffffb01c;
     extern u8 D_00712A20[];
     extern u8 D_00712A30[];
-    struct Work {
-        s32 field40;
-        f32 field44;
-        s32 field48;
-        s32 field4c;
-        s32 pair0;
-        f32 pair4;
-        s32 field58;
-        s8 color0;
-        s8 color1;
-        s8 color2;
-        s8 color3;
+    struct FilerDrawPacket {
+        s32 rectangleX;
+        f32 rectangleYBits;
+        s32 rectangleWidth;
+        s32 rectangleHeight;
+        s32 textXBits;
+        f32 textY;
+        s32 savedRenderState;
+        s8 red;
+        s8 green;
+        s8 blue;
+        s8 alpha;
     } work;
     s16 i;
     u8 *entry;
@@ -257,16 +262,16 @@ void func_00467880(u8 *arg0)
     void *table;
 
     if (func_003e8120((u32)kwlnGetCamera()) != 0) {
-        D_00887304[0]((RwRenderState)(0xE), (void *)(&work.field58));
+        D_00887304[0]((RwRenderState)(0xE), (void *)(&work.savedRenderState));
         table = D_00887300;
         (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(0));
-        work.pair0 = 0x40800000;
-        work.pair4 = 4.0f;
-        H_Dbprt_FmtAt(*(s64 *)(void *)&work.pair0, &iGpffffb01c, arg0);
-        work.pair4 += 2.0f;
+        work.textXBits = 0x40800000;
+        work.textY = 4.0f;
+        H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits, &iGpffffb01c, directory);
+        work.textY += 2.0f;
         i = 0;
         while (i < 10) {
-            entry = arg0 + (*(s16 *)(arg0 + 0x80F84) + i) * 0x108;
+            entry = directory + (*(s16 *)(directory + 0x80F84) + i) * 0x108;
             data = entry + 0x100;
             if (*(s32 *)(entry + 0x204) == 0) {
                 break;
@@ -274,59 +279,59 @@ void func_00467880(u8 *arg0)
             kind = *(s32 *)(data + 0x100);
             switch (kind) {
             case 0:
-                H_Dbprt_FmtAt(*(s64 *)(void *)&work.pair0,
+                H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits,
                               &iGpffffb01c, data);
                 break;
             case 1:
-                H_Dbprt_FmtAt(*(s64 *)(void *)&work.pair0,
+                H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits,
                               (char *)&D_00712A20, data);
                 break;
             default:
-                H_Dbprt_FmtAt(*(s64 *)(void *)&work.pair0,
+                H_Dbprt_FmtAt(*(s64 *)(void *)&work.textXBits,
                               (char *)&D_00712A30, data);
                 break;
             }
-            work.pair4 += 1.0f;
+            work.textY += 1.0f;
             i++;
         }
-        work.field40 = 0x30;
-        *(s32 *)(void *)&work.field44 = 0x30;
-        work.field48 = 0x190;
-        work.field4c = 0x90;
-        *(u8 *)(void *)&work.color3 = 0xFF;
-        work.color2 = 0x1E;
-        work.color1 = 0x1E;
-        work.color0 = 0x1E;
-        PrimDrawFlatRectangle((u8 *)&work.color0,
-                      (f32 *)(void *)&work.field40, 0.0f, 1);
-        work.field40 = 0x30;
-        *(s32 *)(void *)&work.field44 =
+        work.rectangleX = 0x30;
+        *(s32 *)(void *)&work.rectangleYBits = 0x30;
+        work.rectangleWidth = 0x190;
+        work.rectangleHeight = 0x90;
+        *(u8 *)(void *)&work.alpha = 0xFF;
+        work.blue = 0x1E;
+        work.green = 0x1E;
+        work.red = 0x1E;
+        PrimDrawFlatRectangle((u8 *)&work.red,
+                      (f32 *)(void *)&work.rectangleX, 0.0f, 1);
+        work.rectangleX = 0x30;
+        *(s32 *)(void *)&work.rectangleYBits =
             (s32)(0.0f + 72.0f +
-                  12.0f * (f32)*(s16 *)(arg0 + 0x80F82));
-        work.field48 = 0x184;
-        work.field4c = 0xC;
-        *(u8 *)(void *)&work.color3 = 0xFF;
-        *(u8 *)(void *)&work.color2 = 0xFF;
-        work.color1 = 0x50;
-        work.color0 = 0x50;
-        PrimDrawFlatRectangle((u8 *)&work.color0,
-                      (f32 *)(void *)&work.field40, 0.0f, 1);
-        work.field40 = 0x1B4;
-        *(s32 *)(void *)&work.field44 =
+                  12.0f * (f32)*(s16 *)(directory + 0x80F82));
+        work.rectangleWidth = 0x184;
+        work.rectangleHeight = 0xC;
+        *(u8 *)(void *)&work.alpha = 0xFF;
+        *(u8 *)(void *)&work.blue = 0xFF;
+        work.green = 0x50;
+        work.red = 0x50;
+        PrimDrawFlatRectangle((u8 *)&work.red,
+                      (f32 *)(void *)&work.rectangleX, 0.0f, 1);
+        work.rectangleX = 0x1B4;
+        *(s32 *)(void *)&work.rectangleYBits =
             (s32)(72.0f +
-                  (f32)(((*(s16 *)(arg0 + 0x80F82) +
-                          *(s16 *)(arg0 + 0x80F84)) *
+                  (f32)(((*(s16 *)(directory + 0x80F82) +
+                          *(s16 *)(directory + 0x80F84)) *
                          0x78) /
-                        *(s16 *)(arg0 + 0x80F86)));
-        work.field48 = 0xC;
-        work.field4c = 0x78 / *(s16 *)(arg0 + 0x80F86);
-        *(u8 *)(void *)&work.color3 = 0xFF;
-        *(u8 *)(void *)&work.color2 = 0x80;
-        *(u8 *)(void *)&work.color1 = 0x80;
-        *(u8 *)(void *)&work.color0 = 0x80;
-        PrimDrawFlatRectangle((u8 *)&work.color0,
-                      (f32 *)(void *)&work.field40, 0.0f, 1);
-        (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(work.field58));
+                        *(s16 *)(directory + 0x80F86)));
+        work.rectangleWidth = 0xC;
+        work.rectangleHeight = 0x78 / *(s16 *)(directory + 0x80F86);
+        *(u8 *)(void *)&work.alpha = 0xFF;
+        *(u8 *)(void *)&work.blue = 0x80;
+        *(u8 *)(void *)&work.green = 0x80;
+        *(u8 *)(void *)&work.red = 0x80;
+        PrimDrawFlatRectangle((u8 *)&work.red,
+                      (f32 *)(void *)&work.rectangleX, 0.0f, 1);
+        (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(work.savedRenderState));
         func_003e8110((u32)kwlnGetCamera());
     }
 }

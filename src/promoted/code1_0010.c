@@ -11,7 +11,7 @@ extern u8 *D_00764298;
 extern void func_00440b68();
 extern void func_0042c0d8(void);
 extern void func_004ccb38(s32 arg0);
-extern u8 *func_00100230(void);
+extern u8 *kwlnProbeHeapBudget(void);
 extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
 extern u8 D_00559820[];

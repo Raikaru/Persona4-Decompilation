@@ -7,7 +7,7 @@
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
 extern s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2);
-extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
+extern s32 cmpSkillApplySelected(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern s32 nLineIsIdle(void);
 struct GDataEntry;
 
@@ -1711,7 +1711,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 break;
             }
             if (D_008C024E[0] & 0x40) {
-                applicationResult = (s8)func_0013f720((s16)character, (s16)recipientId, skillIndex, arg2);
+                applicationResult = (s8)cmpSkillApplySelected((s16)character, (s16)recipientId, skillIndex, arg2);
                 switch (applicationResult) {
                 case 0:
                 case 1:
@@ -1756,7 +1756,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     break;
                 }
                 if (D_008C024E[0] & 0x40) {
-                    allApplicationResult = (s8)func_0013f720((s16)character, -1, skillIndex, arg2);
+                    allApplicationResult = (s8)cmpSkillApplySelected((s16)character, -1, skillIndex, arg2);
                     switch (allApplicationResult) {
                     case 0:
                     case 1:

@@ -1,4 +1,5 @@
 #include "model_callbacks_internal.h"
+#include "camp_menu_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -102,16 +103,16 @@ extern u8 D_005EF540[];
 extern u8 D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
-extern void datScreenWipeSetTarget(u8 *arg0, u8 *arg1);
-extern void datScreenWipeInit(u8 *arg0, Float2_0014 *arg1, Float2_0014 *arg2);
-extern void datScreenWipeSetOffset(u8 *arg0, Float2_0014 arg1);
-extern void datScreenWipeSetColor(u8 *arg0, s32 arg1);
-extern void datScreenWipeSetScale(u8 *arg0, u8 *arg1);
+extern void datScreenWipeSetTarget(u8 *work, u8 *value);
+extern void datScreenWipeInit(u8 *work, Float2_0014 *value, Float2_0014 *context);
+extern void datScreenWipeSetOffset(u8 *work, Float2_0014 value);
+extern void datScreenWipeSetColor(u8 *work, s32 value);
+extern void datScreenWipeSetScale(u8 *work, u8 *value);
 
 
 
 extern void sdkSpriteFreeNode(void *node);
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 work);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -122,18 +123,18 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void kAssertFail(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *work, s32 value);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern s32 datCalcGetLevelById(s32 arg0);
+extern s32 datCalcGetLevelById(s32 work);
 extern u8 D_007EF9B0[];
 extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
 
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
-extern void (*D_00887300[])(u32 arg0, u32 arg1);
-extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+extern void (*D_00887300[])(u32 work, u32 value);
+extern s32 (*D_00887310[])(s32 work, void *value, s32 context);
 extern f32 D_008872F8[];
 extern f32 fGpffff8198;
 extern u8 D_005EF710[];
@@ -150,9 +151,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *work, f32 depth, f32 coordinate, f32 scale,
+                          u8 value, u8 context, u8 option, u8 fourth, u16 fifth,
+                          u16 sixth, s16 seventh, f32 rotation, s16 extra);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -185,24 +186,24 @@ extern s32 D_007642F0;
 
 
 extern s32 nLineIsIdle(void);
-extern void radarInitState(u8 *arg0);
-extern s32 radarAdvanceStage(u8 *arg0);
-extern s32 radarEntriesReady(u8 *arg0);
-extern void radarDestroy(u8 *arg0);
-extern void radarLoadSlotCoords(u8 *arg0);
-extern s32 nLineSelectSet(s32 arg0);
-extern void nLineSelectSetImmediate(s32 arg0);
+extern void radarInitState(u8 *work);
+extern s32 radarAdvanceStage(u8 *work);
+extern s32 radarEntriesReady(u8 *work);
+extern void radarDestroy(u8 *work);
+extern void radarLoadSlotCoords(u8 *work);
+extern s32 nLineSelectSet(s32 work);
+extern void nLineSelectSetImmediate(s32 work);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
-extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
-extern void sflDataResetPersonaState(void *arg0);
-extern void sflDataLoadPersonaState(void *arg0, s16 pcId);
-extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void sdkListStateSetActive(void *arg0, s32 arg1);
-extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 sdkListStateHandleInput(void *arg0);
-extern void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void datScreenWipeSetTextureId(u8 *work, s32 value);
+extern void sflDataResetPersonaState(void *work);
+extern void sflDataLoadPersonaState(void *work, s16 pcId);
+extern void sdkListStateConfigure(void *work, s32 value, s32 context, s32 option, s32 fourth);
+extern void sdkListStateSetActive(void *work, s32 value);
+extern void sdkListStateSetSecondaryMasks(void *work, s32 value, s32 context, s32 option, s32 fourth);
+extern s32 sdkListStateHandleInput(void *work);
+extern void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option);
 
 
 
@@ -214,7 +215,7 @@ extern u8 D_005EFAA0[];
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void datCommunityEntryStep(u8 *arg0);
+extern void datCommunityEntryStep(u8 *work);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -271,28 +272,31 @@ extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 extern void sdkRenderStateSetDefault(void);
-extern void nLineDrawSet(Float2_0014 work, s32 arg1, s32 arg2, f32 fparg0);
-extern f32 cmpGridCellFade(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
-extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void sdkSpriteDrawFooter(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-extern void datScreenWipeSetAlpha(u8 *work, u8 arg1);
+extern void nLineDrawSet(Float2_0014 work, s32 value, s32 context, f32 depth);
+extern f32 cmpGridCellFade(u8 *work, f32 depth, f32 coordinate, f32 scale);
+extern void sdkSpriteDrawAt(void *work, f32 depth, f32 coordinate, u8 value, u8 context, u8 option, u8 fourth);
+extern void sdkSpriteDrawSized(u8 *work, f32 depth, f32 coordinate, f32 scale, u8 value, u8 context, u8 option, u8 fourth, u16 fifth, u16 sixth, s16 seventh, f32 rotation, s16 extra);
+extern void sdkSpriteDrawFooter(Float2_0014 work, f32 depth, u8 value, s32 context, s32 option);
+extern void datScreenWipeSetAlpha(u8 *work, u8 value);
 extern void datScreenWipeDraw(void *work);
 extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 datCalcGetLevelById(s32 work);
 extern u32 datPersonaNamePart1(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
-extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
-extern void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option);
+extern void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option);
 
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001400f0-001437b0 */
 
+/* Draw the camp background, party labels, grid and radar selected by flags.
+ * CampMenu member conversion loses MATCH (7172B versus the 7168B window);
+ * retain byte-base access and the original mixed float/word snapshots. */
 // FUN_001400F0
 void radarDrawFrame(u8 *work)
 {
     extern void radarDrawPolygon(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
-    extern void radarDrawSegment(s64 work, s64 arg1, s32 arg2, f32 fparg0, u8 arg3);
+    extern void radarDrawSegment(s64 work, s64 value, s32 context, f32 depth, u8 option);
     void *sprite;
     f32 opacity;
     f32 originX;
@@ -599,30 +603,36 @@ void radarDrawFrame(u8 *work)
 }
 
 #pragma pop
+/* Shift the selected halfword into its previous slot before storing a value.
+ * Index-before-base addition is retained for the measured b210 instruction order. */
 // FUN_00141CF0
-s32 radarPushValue(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *temp_3;
+s32 radarPushValue(u8 *work, s32 value, s32 context) {
+    u8 *entryBase;
 
-    temp_3 = p4_00141cf0_add((u32)(arg1 * 2), arg0);
-    *(s16 *)(temp_3 + 0x36) = *(s16 *)(temp_3 + 0x34);
-    *(s16 *)(temp_3 + 0x34) = arg2;
+    entryBase = p4_00141cf0_add((u32)(value * 2), work);
+    *(s16 *)(entryBase + 0x36) = *(s16 *)(entryBase + 0x34);
+    *(s16 *)(entryBase + 0x34) = context;
     return 1;
 }
 
+/* Advance all 108 grid effects; their 0x14-byte records begin at CampMenu.grid. */
 // FUN_00141D10
-void radarResetEntries(u8 *arg0) {
+void radarResetEntries(u8 *work) {
     s32 i;
 
     for (i = 0; i < 0x6C; i++) {
-        datCommunityEntryStep(arg0 + i * 0x14 + 0xFA0);
+        datCommunityEntryStep(work + i * 0x14 + 0xFA0);
     }
 }
 
 /* measured: opt_loop_invariants on hoists the shared float conversion constants in radarSetMode. */
 /* measured: radarSetMode MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Snapshot the 41 current animations, then install the requested mode's targets.
+ * Flag masks select the draw components; see radarDrawFrame for each consumer.
+ * CampMenu member conversion grows this 784B window to 788B; keep byte cursors. */
 // FUN_00141D80
-s32 radarSetMode(u8 *arg0, s32 arg1) {
+s32 radarSetMode(u8 *work, s32 value) {
     s32 i;
     s32 j;
     u8 *table;
@@ -630,57 +640,57 @@ s32 radarSetMode(u8 *arg0, s32 arg1) {
     u8 *dst;
 
     table = NULL;
-    if (*(s32 *)(arg0 + 0x18) == arg1) {
+    if (*(s32 *)(work + 0x18) == value) {
         return 0;
     }
     for (i = 0; i < 0x29; i++) {
-        dst = arg0 + i * 0x30;
+        dst = work + i * 0x30;
         *(f32 *)(dst + 0x40) = *(f32 *)(dst + 0x50);
         *(f32 *)(dst + 0x44) = *(f32 *)(dst + 0x54);
         *(u16 *)(dst + 0x5C) = *(u16 *)(dst + 0x60);
         *(u16 *)(dst + 0x62) = *(u16 *)(dst + 0x66);
         *(u8 *)(dst + 0x58) = *(u8 *)(dst + 0x5A);
     }
-    switch (arg1) {
+    switch (value) {
     case 0:
         table = D_005EDA20;
-        *(s32 *)(arg0 + 0x1C) = 0x149;
-        *(s16 *)(arg0 + 0x38) = 0;
+        *(s32 *)(work + 0x1C) = 0x149;
+        *(s16 *)(work + 0x38) = 0;
         break;
     case 1:
         table = D_005EDEA0;
         break;
     case 2:
         table = D_005EE320;
-        *(s32 *)(arg0 + 0x1C) = 0x949;
-        *(s16 *)(arg0 + 0x38) = 0;
+        *(s32 *)(work + 0x1C) = 0x949;
+        *(s16 *)(work + 0x38) = 0;
         break;
     case 3:
         table = D_005EE7A0;
-        *(s32 *)(arg0 + 0x1C) = 0xBDB;
-        if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg0 + 0x34) * 2), arg0) + 0x22) == 1) {
-            *(s16 *)(arg0 + 0x38) = 6;
+        *(s32 *)(work + 0x1C) = 0xBDB;
+        if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(work + 0x34) * 2), work) + 0x22) == 1) {
+            *(s16 *)(work + 0x38) = 6;
         } else {
-            *(s16 *)(arg0 + 0x38) = 5;
+            *(s16 *)(work + 0x38) = 5;
         }
         break;
     case 4:
         table = D_005EEC20;
-        *(s32 *)(arg0 + 0x1C) = 0xED2;
-        if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg0 + 0x34) * 2), arg0) + 0x22) == 1) {
-            *(s16 *)(arg0 + 0x38) = 6;
+        *(s32 *)(work + 0x1C) = 0xED2;
+        if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(work + 0x34) * 2), work) + 0x22) == 1) {
+            *(s16 *)(work + 0x38) = 6;
         } else {
-            *(s16 *)(arg0 + 0x38) = 5;
+            *(s16 *)(work + 0x38) = 5;
         }
         break;
     case 5:
         table = D_005EF0A0;
-        *(s32 *)(arg0 + 0x1C) = 0xAF6;
-        *(s16 *)(arg0 + 0x38) = 7;
+        *(s32 *)(work + 0x1C) = 0xAF6;
+        *(s16 *)(work + 0x38) = 7;
         break;
     case 6:
-        *(s32 *)(arg0 + 0x1C) = 0x874;
-        *(s16 *)(arg0 + 0x38) = 7;
+        *(s32 *)(work + 0x1C) = 0x874;
+        *(s16 *)(work + 0x38) = 7;
         break;
     default:
         kAssertFail(&D_005EF6C8, 0x425);
@@ -689,7 +699,7 @@ s32 radarSetMode(u8 *arg0, s32 arg1) {
     if (table != NULL) {
         for (j = 0; j < 0x29; j++) {
             src = table + j * 0x1C;
-            dst = arg0 + j * 0x30;
+            dst = work + j * 0x30;
             *(f32 *)(dst + 0x48) = *(f32 *)(src + 0);
             *(f32 *)(dst + 0x4C) = *(f32 *)(src + 4);
             *(u16 *)(dst + 0x5E) = (u16)*(f32 *)(src + 8);
@@ -698,87 +708,93 @@ s32 radarSetMode(u8 *arg0, s32 arg1) {
             *(s32 *)(dst + 0x68) = *(s32 *)(src + 0x14);
             *(s32 *)(dst + 0x6C) = *(s32 *)(src + 0x18);
         }
-        *(s32 *)(arg0 + 0x18) = arg1;
-        *(s16 *)(arg0 + 0x20) = 0;
+        *(s32 *)(work + 0x18) = value;
+        *(s16 *)(work + 0x20) = 0;
     }
     return 1;
 }
 
 /* measured: restore loop-invariant hoisting after radarSetMode. */
 /* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
+/* Move the selected party slot to the focus position and fade the others out.
+ * Offsets address CampMenu.entries with its shared 0x30-byte animation stride. */
 // FUN_00142090
-void radarLayoutSlots(u8 *arg0)
+void radarLayoutSlots(u8 *work)
 {
     s32 i;
-    s16 cur;
-    u8 *p;
-    f32 f;
+    s16 selectedSlot;
+    u8 *slot;
+    f32 offsetY;
 
+    /* MenuSlotAnimation member conversion grows this 160B window to 164B. */
     for (i = 0; i < 8; i++) {
-        cur = *(s16 *)((u8 *)arg0 + 0x34);
-        if (i == cur) {
-            p = (u8 *)arg0 + i * 0x30;
-            *(s32 *)(p + 0x78) = 0xC4480000;
-            *(s32 *)(p + 0x7C) = 0;
-            *(u8 *)(p + 0x89) = 0xFF;
+        selectedSlot = *(s16 *)((u8 *)work + 0x34);
+        if (i == selectedSlot) {
+            slot = (u8 *)work + i * 0x30;
+            *(s32 *)(slot + 0x78) = 0xC4480000;
+            *(s32 *)(slot + 0x7C) = 0;
+            *(u8 *)(slot + 0x89) = 0xFF;
         } else {
-            f = 200.0f;
-            if (i < cur) {
-                f = -f;
+            offsetY = 200.0f;
+            if (i < selectedSlot) {
+                offsetY = -offsetY;
             }
-            p = (u8 *)arg0 + i * 0x30;
-            *(s32 *)(p + 0x78) = 0;
-            *(f32 *)(p + 0x7C) = f;
-            *(u8 *)(p + 0x89) = 0;
+            slot = (u8 *)work + i * 0x30;
+            *(s32 *)(slot + 0x78) = 0;
+            *(f32 *)(slot + 0x7C) = offsetY;
+            *(u8 *)(slot + 0x89) = 0;
         }
     }
 }
 
 /* measured: restore loop-invariant hoisting after radarLayoutSlots. */
+/* Restore the rightward panel transition, alpha endpoints and frame counter.
+ * Word stores carry IEEE-754 position constants, not integer coordinates. */
 // FUN_00142130
-void radarResetStateDefault(u8 *arg0) {
-    *(f32 *)(arg0 + 0x250) = (f32) 0x28A;
-    *(s32 *)(arg0 + 0x258) = 0;
-    *(s32 *)(arg0 + 0x1F0) = 0x42C80000;
-    *(s32 *)(arg0 + 0x220) = 0x42C80000;
-    *(u8 *)(arg0 + 0x208) = 0;
-    *(u8 *)(arg0 + 0x209) = 0xFF;
-    *(u8 *)(arg0 + 0x238) = 0;
-    *(u8 *)(arg0 + 0x239) = 0xFF;
-    *(u8 *)(arg0 + 0x298) = 0;
-    *(u8 *)(arg0 + 0x299) = 0xFF;
-    *(s32 *)(arg0 + 0x708) = 0xC3160000;
-    *(s32 *)(arg0 + 0x6D8) = 0xC2C80000;
-    *(s32 *)(arg0 + 0x738) = 0xC2C80000;
-    *(u8 *)(arg0 + 0x718) = 0xFF;
-    *(u8 *)(arg0 + 0x778) = 0xFF;
-    *(u8 *)(arg0 + 0x6E8) = 0xFF;
-    *(u8 *)(arg0 + 0x748) = 0xFF;
-    *(u8 *)(arg0 + 0x7A8) = 0xFF;
-    *(s16 *)(arg0 + 0x20) = 0;
+void radarResetStateDefault(u8 *work) {
+    ((CampMenu *)work)->entries[11].startX.f = (f32)0x28A;
+    ((CampMenu *)work)->entries[11].targetX.s = 0;
+    ((CampMenu *)work)->entries[9].startX.s = 0x42C80000;
+    ((CampMenu *)work)->entries[10].startX.s = 0x42C80000;
+    ((CampMenu *)work)->entries[9].startAlpha.u = 0;
+    ((CampMenu *)work)->entries[9].targetAlpha = 0xFF;
+    ((CampMenu *)work)->entries[10].startAlpha.u = 0;
+    ((CampMenu *)work)->entries[10].targetAlpha = 0xFF;
+    ((CampMenu *)work)->entries[12].startAlpha.u = 0;
+    ((CampMenu *)work)->entries[12].targetAlpha = 0xFF;
+    ((CampMenu *)work)->entries[36].targetX.s = 0xC3160000;
+    ((CampMenu *)work)->entries[35].targetX.s = 0xC2C80000;
+    ((CampMenu *)work)->entries[37].targetX.s = 0xC2C80000;
+    ((CampMenu *)work)->entries[36].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[38].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[35].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[37].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[39].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->frame = 0;
 }
 
+/* Mirror the panel transition's horizontal endpoints; keep float bit-pattern stores. */
 // FUN_001421B0
-void radarResetStateMirrored(u8 *arg0) {
-    *(s32 *)(arg0 + 0x250) = 0xC3160000;
-    *(s32 *)(arg0 + 0x258) = 0;
-    *(s32 *)(arg0 + 0x1F0) = 0xC2C80000;
-    *(s32 *)(arg0 + 0x220) = 0xC2C80000;
-    *(u8 *)(arg0 + 0x208) = 0;
-    *(u8 *)(arg0 + 0x209) = 0xFF;
-    *(u8 *)(arg0 + 0x238) = 0;
-    *(u8 *)(arg0 + 0x239) = 0xFF;
-    *(u8 *)(arg0 + 0x298) = 0;
-    *(u8 *)(arg0 + 0x299) = 0xFF;
-    *(f32 *)(arg0 + 0x708) = (f32) 0x28A;
-    *(s32 *)(arg0 + 0x6D8) = 0x42C80000;
-    *(s32 *)(arg0 + 0x738) = 0x42C80000;
-    *(u8 *)(arg0 + 0x778) = 0xFF;
-    *(u8 *)(arg0 + 0x718) = 0xFF;
-    *(u8 *)(arg0 + 0x6E8) = 0xFF;
-    *(u8 *)(arg0 + 0x748) = 0xFF;
-    *(u8 *)(arg0 + 0x7A8) = 0xFF;
-    *(s16 *)(arg0 + 0x20) = 0;
+void radarResetStateMirrored(u8 *work) {
+    ((CampMenu *)work)->entries[11].startX.s = 0xC3160000;
+    ((CampMenu *)work)->entries[11].targetX.s = 0;
+    ((CampMenu *)work)->entries[9].startX.s = 0xC2C80000;
+    ((CampMenu *)work)->entries[10].startX.s = 0xC2C80000;
+    ((CampMenu *)work)->entries[9].startAlpha.u = 0;
+    ((CampMenu *)work)->entries[9].targetAlpha = 0xFF;
+    ((CampMenu *)work)->entries[10].startAlpha.u = 0;
+    ((CampMenu *)work)->entries[10].targetAlpha = 0xFF;
+    ((CampMenu *)work)->entries[12].startAlpha.u = 0;
+    ((CampMenu *)work)->entries[12].targetAlpha = 0xFF;
+    ((CampMenu *)work)->entries[36].targetX.f = (f32)0x28A;
+    ((CampMenu *)work)->entries[35].targetX.s = 0x42C80000;
+    ((CampMenu *)work)->entries[37].targetX.s = 0x42C80000;
+    ((CampMenu *)work)->entries[38].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[36].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[35].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[37].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->entries[39].startAlpha.u = 0xFF;
+    ((CampMenu *)work)->frame = 0;
 }
 
 // FUN_00142230
@@ -786,24 +802,26 @@ void radarResetStateMirrored(u8 *arg0) {
    keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
 /* measured: radarLoadSlotCoords MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
-void radarLoadSlotCoords(u8 *arg0) {
+/* Select five radar target coordinates from the selected persona's label values.
+ * Byte cursors preserve the measured O1 index-before-base address order. */
+void radarLoadSlotCoords(u8 *work) {
     extern u8 iGpffff9cd8[8];
     extern u8 D_005EF5A0[];
     s32 i;
     u8 *base;
     s32 value;
     u8 *table;
-    u8 *temp_3;
-    u8 *temp_5;
+    u8 *entryBase;
+    u8 *coordinateEntry;
     i = 0;
     base = iGpffff9cd8;
     table = D_005EF5A0;
     while (i < 5) {
-        value = *(s16 *)(arg0 + (*(u8 *)(base + i) * 2) + 0x187E) - 1;
-        temp_5 = table + i * 0x28 + value * 8;
-        temp_3 = arg0 + i * 0x30;
-        *(f32 *)(temp_3 + 0x588) = *(f32 *)(temp_5 + 0);
-        *(f32 *)(temp_3 + 0x58C) = *(f32 *)(temp_5 + 4);
+        value = *(s16 *)(work + (*(u8 *)(base + i) * 2) + 0x187E) - 1;
+        coordinateEntry = table + i * 0x28 + value * 8;
+        entryBase = work + i * 0x30;
+        *(f32 *)(entryBase + 0x588) = *(f32 *)(coordinateEntry + 0);
+        *(f32 *)(entryBase + 0x58C) = *(f32 *)(coordinateEntry + 4);
         i++;
     }
 }
@@ -811,39 +829,43 @@ void radarLoadSlotCoords(u8 *arg0) {
 /* measured: closes the scoped optimization-level-1 probe. */
 /* measured: radarDrawNumber, radarDrawText, radarDrawPolygon, radarDrawSegment, radarDrawEdge, radarUpdateState, radarAnimateValue MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
+/* Release the 25 sprites and wipe task, clear their handles and disable drawing.
+ * The shifted sprite cursor retains the original handle-clearing order. */
 // FUN_001422B0
-void radarDestroy(u8 *arg0) {
-    s32 temp_4;
-    s32 temp_4_2;
+void radarDestroy(u8 *work) {
+    s32 sprite;
+    s32 wipeTask;
 s32 i;
     u8 *p;
     u8 *q;
 
     for (i = 0; i < 0x19; i++) {
-        p = arg0 + i * 4;
+        p = work + i * 4;
         q = p + 0x1810;
-        temp_4 = *(s32 *)(p + 0x1810);
-        if (temp_4 != 0) {
-            sdkSpriteFreeNode((void *)temp_4);
+        sprite = *(s32 *)(p + 0x1810);
+        if (sprite != 0) {
+            sdkSpriteFreeNode((void *)sprite);
             *(s32 *)q = 0;
         }
     }
-    temp_4_2 = *(s32 *)(arg0 + 0x3C);
-    if (temp_4_2 != 0) {
-        kwlnTaskDestroyWithHierarchy(temp_4_2);
-        *(s32 *)(arg0 + 0x3C) = 0;
+    wipeTask = *(s32 *)(work + 0x3C);
+    if (wipeTask != 0) {
+        kwlnTaskDestroyWithHierarchy(wipeTask);
+        *(s32 *)(work + 0x3C) = 0;
     }
-    *(s32 *)(arg0 + 0x1C) = 0;
+    *(s32 *)(work + 0x1C) = 0;
 }
 
+/* All 41 animation end frames and the line system must be ready before returning 1.
+ * The byte cursor addresses CampMenu.entries[i].endFrame at stride 0x30. */
 // FUN_00142340
-s32 radarEntriesReady(u8 *arg0) {
+s32 radarEntriesReady(u8 *work) {
     s32 flag = 1;
     s32 i = 0;
-    s32 v = *(s16 *)(arg0 + 0x20);
+    s32 v = *(s16 *)(work + 0x20);
 
     while (i < 41) {
-        if (v < *(s32 *)(arg0 + i * 48 + 0x6C)) {
+        if (v < *(s32 *)(work + i * 48 + 0x6C)) {
             flag = 0;
         }
         i++;
@@ -852,24 +874,27 @@ s32 radarEntriesReady(u8 *arg0) {
 }
 
 /* measured: opt_propagation off probe for radarDrawNumber. */
+/* Draw decimal digits right to left from the packed position/color arguments.
+ * Casts into those arguments expose their packed ABI words; the digit sprites
+ * start at CampMenu.sprites[13] and use a four-byte handle stride. */
 // FUN_001423C0
-void radarDrawNumber(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
+void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option)
 {
     u8 *base;
     s32 count;
     u8 c1;
     u8 c2;
     u8 c3;
-    base = arg2;
-    count = arg3;
-    c1 = ((u8 *)&arg1)[3];
-    c2 = ((u8 *)&arg1)[2];
-    c3 = ((u8 *)&arg1)[1];
+    base = context;
+    count = option;
+    c1 = ((u8 *)&value)[3];
+    c2 = ((u8 *)&value)[2];
+    c3 = ((u8 *)&value)[1];
     while (count > 0) {
         sdkSpriteDrawSized(*(u8 **)(base + ((count % 10) * 4) + 0x1844),
-                      *(f32 *)&arg0, *(((f32 *)&arg0) + 1), fparg0, *(u8 *)&arg1, c3, c2,
+                      *(f32 *)&work, *(((f32 *)&work) + 1), depth, *(u8 *)&value, c3, c2,
                       c1, 0x1000, 0x1000, 0, 0, 0);
-        *(f32 *)&arg0 -= 22.0f;
+        *(f32 *)&work -= 22.0f;
         count /= 10;
     }
 }
@@ -878,72 +903,74 @@ void radarDrawNumber(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 /* Field portrait circle, type icon and rank label. Unions preserve the packed
    position/color words; keep retail's integer tint scaling. Exact 776/784
    bytes, 16 fully resolved relocations and eight zero alignment bytes. */
+/* Draw a radar label, icon and community rank using packed color/position words.
+ * Label data belongs to the external persona-state provider, so retain its offsets. */
 // FUN_001424B0
-void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option)
 {
     extern f32 fGpffff9ce0;
     extern u8 iGpffff9cd8[8];
     extern f32 D_005EF6E0[];
     extern f32 D_005EF6E4[];
     extern void kAssertFail(const void *file, s32 line);
-    extern void datGridEffectDrawStrip(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
-    extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-    extern s32 cmmRankStringAt(s16 arg0, s16 arg1);
+    extern void datGridEffectDrawStrip(s64 work, f32 f0, f32 f1, s32 value, f32 f2, s32 context, s32 option);
+    extern void sdkSpriteDrawAt(void *work, f32 depth, f32 coordinate, u8 value, u8 context, u8 option, u8 fourth);
+    extern s32 cmmRankStringAt(s16 work, s16 value);
     extern s32 frFontExDrawTextOutA(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
 
-    f32 saved_fparg0;
-    f32 pos_y;
+    f32 savedDepth;
+    f32 positionY;
     union { f32 value; s32 bits; u8 bytes[4]; } color;
     s32 kind;
     union { Float2_0014 position; s64 bits; } pos2;
     u8 *str;
 
-    saved_fparg0 = fparg0;
-    pos_y = pos.y;
-    if (arg3 >= 5) {
+    savedDepth = depth;
+    positionY = pos.y;
+    if (option >= 5) {
         kAssertFail(&D_005EF6C8, 0x50F);
     }
 
     color.value = fGpffff9ce0;
     pos2.position.x = 59.0f + pos.x;
-    pos2.position.y = 59.0f + pos_y;
-    color.bytes[3] = (u8)((*arg2 * 255) / 255);
+    pos2.position.y = 59.0f + positionY;
+    color.bytes[3] = (u8)((*context * 255) / 255);
 
-    datGridEffectDrawStrip(pos2.bits, saved_fparg0, 59.0f, color.bits, 0.0f, 0x30, 1);
+    datGridEffectDrawStrip(pos2.bits, savedDepth, 59.0f, color.bits, 0.0f, 0x30, 1);
 
-    kind = iGpffff9cd8[arg3];
+    kind = iGpffff9cd8[option];
     switch (kind) {
     case 0:
         pos2.position.x = 26.0f + pos.x;
-        pos2.position.y = (pos_y + 36.0f) - 3.0f - 3.0f;
+        pos2.position.y = (positionY + 36.0f) - 3.0f - 3.0f;
         break;
     case 2:
         pos2.position.x = 26.0f + pos.x;
-        pos2.position.y = 36.0f + pos_y;
+        pos2.position.y = 36.0f + positionY;
         break;
     case 1:
         pos2.position.x = 26.0f + pos.x;
-        pos2.position.y = 36.0f + pos_y;
+        pos2.position.y = 36.0f + positionY;
         break;
     case 4:
         pos2.position.x = 10.0f + pos.x;
-        pos2.position.y = 36.0f + pos_y;
+        pos2.position.y = 36.0f + positionY;
         break;
     case 3:
         pos2.position.x = 11.0f + pos.x;
-        pos2.position.y = 36.0f + pos_y;
+        pos2.position.y = 36.0f + positionY;
         break;
     default:
         kAssertFail(&D_005EF6C8, 0x539);
         break;
     }
 
-    sdkSpriteDrawAt(*(u8 **)(p4_00141cf0_add(arg3 * 4, arg2) + 0x1820), pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, arg1);
-    str = (u8 *)cmmRankStringAt((s16) kind, *(s16 *)(p4_00141cf0_add(kind * 2, arg2) + 0x187E));
-    frFontExDrawTextOutA(61.0f + pos.x + D_005EF6E0[arg3 * 2],
-                  62.0f + pos_y + D_005EF6E4[arg3 * 2],
+    sdkSpriteDrawAt(*(u8 **)(p4_00141cf0_add(option * 4, context) + 0x1820), pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, value);
+    str = (u8 *)cmmRankStringAt((s16) kind, *(s16 *)(p4_00141cf0_add(kind * 2, context) + 0x187E));
+    frFontExDrawTextOutA(61.0f + pos.x + D_005EF6E0[option * 2],
+                  62.0f + positionY + D_005EF6E4[option * 2],
                   0.0f,
-                  ((u8)arg1 | -256),
+                  ((u8)value | -256),
                   8,
                   3,
                   (const char *)str,
@@ -961,11 +988,13 @@ void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 #pragma push
 /* measured: radarDrawPolygon MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Draw a filled radar fan and its five point sprites. Vertex packets follow the
+ * RenderWare 0x40-byte stride; byte/float stores preserve their packed representation. */
 void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
-    extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void sdkSpriteDrawAt(void *work, f32 depth, f32 coordinate, u8 value, u8 context, u8 option, u8 fourth);
     union { RadarVertex vertices[7]; u8 bytes[7 * sizeof(RadarVertex)]; } packet;
     f32 screenDepth;
     f32 reciprocalNear;
@@ -1042,42 +1071,44 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 /* measured: radarDrawSegment MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_00142BF0
-void radarDrawSegment(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
+/* Join the two packed endpoints with a four-vertex strip for the chosen edge.
+ * Raw accesses address packed ABI pairs and a 0x40-byte RenderWare vertex packet. */
+void radarDrawSegment(s64 work, s64 value, s32 context, f32 depth, s32 option)
 {
     u8 packet[0x100];
-    f32 temp_f20;
+    f32 startValue;
     f32 diff;
-    s32 var_12;
+    s32 vertexIndex;
     u8 *base;
-    u8 *var_10;
-    u8 *temp_8;
-    u8 *temp_7;
+    u8 *endpoint;
+    u8 *offsetEntry;
+    u8 *vertex;
 
-    if (arg2 >= 5) {
+    if (context >= 5) {
         kAssertFail(&D_005EF6C8, 0x5B6);
     }
-    temp_f20 = D_008872F8[0];
+    startValue = D_008872F8[0];
     D_00887300[0](1, 0);
-    var_12 = 0;
-    base = D_005EF710 + (arg2 << 5);
-    diff = temp_f20 - fparg0;
-    var_10 = (u8 *)&arg1;
-    while (var_12 < 4) {
-        if (var_12 < 2) {
-            var_10 = (u8 *)&arg0;
+    vertexIndex = 0;
+    base = D_005EF710 + (context << 5);
+    diff = startValue - depth;
+    endpoint = (u8 *)&value;
+    while (vertexIndex < 4) {
+        if (vertexIndex < 2) {
+            endpoint = (u8 *)&work;
         } else {
-            var_10 = (u8 *)&arg1;
+            endpoint = (u8 *)&value;
         }
-        temp_8 = base + (var_12 * 8);
-        temp_7 = packet + (var_12 << 6);
-        *(f32 *)(temp_7 + 0) = *(f32 *)var_10 + *(f32 *)(temp_8 + 0);
-        *(f32 *)(temp_7 + 4) = *((f32 *)var_10 + 1) + *(f32 *)(temp_8 + 4);
-        *(f32 *)(temp_7 + 8) = diff;
-        *(u32 *)(temp_7 + 0x20) = 0x437F0000;
-        *(u32 *)(temp_7 + 0x24) = 0x431E0000;
-        *(u32 *)(temp_7 + 0x28) = 0x40C00000;
-        *(f32 *)(temp_7 + 0x2C) = (f32)(u32)arg3;
-        var_12 += 1;
+        offsetEntry = base + (vertexIndex * 8);
+        vertex = packet + (vertexIndex << 6);
+        *(f32 *)(vertex + 0) = *(f32 *)endpoint + *(f32 *)(offsetEntry + 0);
+        *(f32 *)(vertex + 4) = *((f32 *)endpoint + 1) + *(f32 *)(offsetEntry + 4);
+        *(f32 *)(vertex + 8) = diff;
+        *(u32 *)(vertex + 0x20) = 0x437F0000;
+        *(u32 *)(vertex + 0x24) = 0x431E0000;
+        *(u32 *)(vertex + 0x28) = 0x40C00000;
+        *(f32 *)(vertex + 0x2C) = (f32)(u32)option;
+        vertexIndex += 1;
     }
     shdEnableBlendFlag();
     D_00887310[0](4, packet, 4);
@@ -1087,91 +1118,96 @@ void radarDrawSegment(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
 /* measured: closes opt_loop_invariants on probe for radarDrawSegment. */
 /* measured: restores opt_propagation after radarDrawSegment probe. */
 // FUN_00142D80
-void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+/* Choose forward/reverse wipe endpoints, optionally initialize, then set tint/scale.
+ * The 0x1C-byte constant table contains two positions, an offset and a color word. */
+void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option) {
     Float2_0014 pair;
     Float2_0014 pair2;
-    s32 temp_19;
-    u8 *temp_2;
-    u8 *var_5;
-    u8 *var_6;
+    s32 color;
+    u8 *offsetEntry;
+    u8 *startPosition;
+    u8 *endPosition;
 
-    if ((arg1 < 0) || (arg1 >= 4)) {
+    if ((value < 0) || (value >= 4)) {
         kAssertFail(&D_005EF6C8, 0x5D8);
     }
-    if (arg0 == NULL) {
+    if (work == NULL) {
         kAssertFail(&D_005EF6C8, 0x5D9);
     }
-    if (arg3 != 0) {
-        var_6 = D_005EF530 + (arg1 * 0x1C);
-        var_5 = var_6 + 8;
+    if (option != 0) {
+        endPosition = D_005EF530 + (value * 0x1C);
+        startPosition = endPosition + 8;
     } else {
-        var_5 = D_005EF530 + (arg1 * 0x1C);
-        var_6 = var_5 + 8;
+        startPosition = D_005EF530 + (value * 0x1C);
+        endPosition = startPosition + 8;
     }
-    temp_2 = D_005EF540 + (arg1 * 0x1C);
-    pair = *(Float2_0014 *)temp_2;
-    temp_19 = *(s32 *)(D_005EF548 + (arg1 * 0x1C));
-    if (arg2 != 0) {
-        datScreenWipeInit(arg0, (Float2_0014 *)var_5, (Float2_0014 *)var_6);
+    offsetEntry = D_005EF540 + (value * 0x1C);
+    pair = *(Float2_0014 *)offsetEntry;
+    color = *(s32 *)(D_005EF548 + (value * 0x1C));
+    if (context != 0) {
+        datScreenWipeInit(work, (Float2_0014 *)startPosition, (Float2_0014 *)endPosition);
     } else {
-        datScreenWipeSetTarget(arg0, var_6);
+        datScreenWipeSetTarget(work, endPosition);
     }
-    datScreenWipeSetOffset(arg0, pair);
-    datScreenWipeSetColor(arg0, temp_19);
-    if (arg1 == 2) {
+    datScreenWipeSetOffset(work, pair);
+    datScreenWipeSetColor(work, color);
+    if (value == 2) {
         pair2.x = fGpffff8110;
         pair2.y = pair2.x;
-        datScreenWipeSetScale(arg0, (u8 *)&pair2);
+        datScreenWipeSetScale(work, (u8 *)&pair2);
         return;
     }
-    datScreenWipeSetScale(arg0, NULL);
+    datScreenWipeSetScale(work, NULL);
 }
 
 /* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
+/* Drive camp menu navigation, transitions, persona labels and the three-frame fade.
+ * Typed CampMenu access grows this 2192B window to 2208B; retain raw addressing.
+ * The list query and persona labels are external provider-owned packed records. */
 // FUN_00142F20
-s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
+s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
 {
     u8 query[0x30];
     f32 alpha;
     s32 resultFlag;
     s32 queryResult;
 
-    *arg1 = (resultFlag = 1);
-    switch (*arg0) {
+    *value = (resultFlag = 1);
+    switch (*work) {
     case 0:
-        radarInitState(arg2);
-        *arg0 = 1;
-        *arg1 = 0;
+        radarInitState(context);
+        *work = 1;
+        *value = 0;
         break;
     case 1:
-        if ((radarAdvanceStage(arg2) & nLineIsIdle()) != 0) {
-            *arg0 = 3;
+        if ((radarAdvanceStage(context) & nLineIsIdle()) != 0) {
+            *work = 3;
             nLineSelectSet(0x15);
         } else {
-            *arg1 = 0;
+            *value = 0;
         }
         break;
     case 2:
-        if (radarEntriesReady(arg2) != 0) {
-            radarDestroy(arg2);
+        if (radarEntriesReady(context) != 0) {
+            radarDestroy(context);
             return 1;
         }
         break;
     case 3:
-        if (radarEntriesReady(arg2) != 0) {
-            radarSetMode(arg2, 2);
-            *arg0 = 4;
+        if (radarEntriesReady(context) != 0) {
+            radarSetMode(context, 2);
+            *work = 4;
             resrcMngSuppressRender();
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 1, 0);
+            radarDrawEdge(*(u8 **)(context + 0x3C), 0, 1, 0);
         }
         break;
     case 4:
         if (D_008C024E[0] & 0x20) {
-            radarSetMode(arg2, 1);
-            *arg0 = 2;
+            radarSetMode(context, 1);
+            *work = 2;
             resrcMngUnsuppressRender();
             nLineSelectSet(0x17);
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
+            radarDrawEdge(*(u8 **)(context + 0x3C), 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             u8 *base4;
@@ -1179,60 +1215,60 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             s32 *ldst4;
             s32 n4;
             s32 tmp4;
-            radarSetMode(arg2, 3);
-            radarLayoutSlots(arg2);
-            *arg0 = 5;
+            radarSetMode(context, 3);
+            radarLayoutSlots(context);
+            *work = 5;
             nLineSelectSet(0x16);
-            base4 = arg2 + 0x1878;
+            base4 = context + 0x1878;
             sflDataResetPersonaState(base4);
-            sflDataLoadPersonaState(base4, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
-            lsrc4 = (s32 *)(arg2 + 0x1878);
-            ldst4 = (s32 *)(arg2 + 0x1894);
+            sflDataLoadPersonaState(base4, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context) + 0x22));
+            lsrc4 = (s32 *)(context + 0x1878);
+            ldst4 = (s32 *)(context + 0x1894);
             n4 = 7;
             do {
                 tmp4 = *lsrc4++;
                 n4--;
                 *ldst4++ = tmp4;
             } while (n4 > 0);
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 1, 0, 0);
+            radarDrawEdge(*(u8 **)(context + 0x3C), 1, 0, 0);
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 9;
+            *(s32 *)(context + 0x10) = datCommunityRequestExit();
+            *work = 9;
         } else {
-            sdkListStateConfigure(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
+            sdkListStateConfigure(query, *(s16 *)(context + 0x32), *(s16 *)(context + 0x32), *(s16 *)(context + 0x34), 0);
             sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
             if (sdkListStateHandleInput(query) != 0) {
-                radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
-                datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                radarPushValue(context, 0, *(s32 *)(query + 0x24));
+                datScreenWipeSetTextureId(*(u8 **)(context + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context) + 0x22));
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
     case 5:
-        if (radarEntriesReady(arg2) != 0) {
-            radarSetMode(arg2, 4);
-            *arg0 = 6;
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 1, 0);
+        if (radarEntriesReady(context) != 0) {
+            radarSetMode(context, 4);
+            *work = 6;
+            radarDrawEdge(*(u8 **)(context + 0x3C), 2, 1, 0);
         }
         break;
     case 6:
         if (D_008C024E[0] & 0x20) {
-            radarSetMode(arg2, 2);
-            *arg0 = 3;
+            radarSetMode(context, 2);
+            *work = 3;
             nLineSelectSetImmediate(0x15);
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
+            radarDrawEdge(*(u8 **)(context + 0x3C), 2, 0, 1);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 9;
+            *(s32 *)(context + 0x10) = datCommunityRequestExit();
+            *work = 9;
         } else if (D_008C024E[0] & 0x80) {
-            if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
-                radarSetMode(arg2, 5);
-                radarLoadSlotCoords(arg2);
-                *arg0 = 7;
+            if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context) + 0x22) == 1) {
+                radarSetMode(context, 5);
+                radarLoadSlotCoords(context);
+                *work = 7;
                 nLineSelectSet(0x18);
-                radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
+                radarDrawEdge(*(u8 **)(context + 0x3C), 2, 0, 1);
                 sdkSndStartStream(0, 2, 0, 3);
             }
         } else {
@@ -1241,72 +1277,72 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             s32 n6;
             s32 tmp6;
             u8 *base6;
-            sdkListStateConfigure(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
+            sdkListStateConfigure(query, *(s16 *)(context + 0x32), *(s16 *)(context + 0x32), *(s16 *)(context + 0x34), 0);
             sdkListStateSetActive(query, 0);
             sdkListStateSetSecondaryMasks(query, 8, 4, 0, 0);
             queryResult = sdkListStateHandleInput(query);
             if (queryResult > 0) {
-                radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
+                radarPushValue(context, 0, *(s32 *)(query + 0x24));
                 if (queryResult == 2) {
-                    radarResetStateDefault(arg2);
+                    radarResetStateDefault(context);
                 } else if (queryResult == 1) {
-                    radarResetStateMirrored(arg2);
+                    radarResetStateMirrored(context);
                 }
-                lsrc6 = (s32 *)(arg2 + 0x1878);
-                ldst6 = (s32 *)(arg2 + 0x1894);
+                lsrc6 = (s32 *)(context + 0x1878);
+                ldst6 = (s32 *)(context + 0x1894);
                 n6 = 7;
                 do {
                     tmp6 = *lsrc6++;
                     n6--;
                     *ldst6++ = tmp6;
                 } while (n6 > 0);
-                base6 = arg2 + 0x1878;
+                base6 = context + 0x1878;
                 sflDataResetPersonaState(base6);
-                sflDataLoadPersonaState(base6, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
-                if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
-                    *(s16 *)(arg2 + 0x38) = 6;
+                sflDataLoadPersonaState(base6, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context) + 0x22));
+                if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context) + 0x22) == 1) {
+                    *(s16 *)(context + 0x38) = 6;
                 } else {
-                    *(s16 *)(arg2 + 0x38) = 5;
+                    *(s16 *)(context + 0x38) = 5;
                 }
-                datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                datScreenWipeSetTextureId(*(u8 **)(context + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context) + 0x22));
                 sdkSndStartStream(0, 1, 0, 5);
             }
         }
         break;
     case 7:
-        if (*(s16 *)(arg2 + 0x20) == 1) {
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 1, 0);
+        if (*(s16 *)(context + 0x20) == 1) {
+            radarDrawEdge(*(u8 **)(context + 0x3C), 3, 1, 0);
         }
-        if (radarEntriesReady(arg2) != 0) {
-            radarSetMode(arg2, 6);
-            *arg0 = 8;
+        if (radarEntriesReady(context) != 0) {
+            radarSetMode(context, 6);
+            *work = 8;
         }
         break;
     case 8:
         if (D_008C024E[0] & 0x80) {
-            radarSetMode(arg2, 3);
-            *arg0 = 5;
+            radarSetMode(context, 3);
+            *work = 5;
             nLineSelectSetImmediate(0x16);
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
+            radarDrawEdge(*(u8 **)(context + 0x3C), 3, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 9;
+            *(s32 *)(context + 0x10) = datCommunityRequestExit();
+            *work = 9;
         } else if (D_008C024E[0] & 0x20) {
-            radarSetMode(arg2, 3);
-            *arg0 = 5;
+            radarSetMode(context, 3);
+            *work = 5;
             nLineSelectSetImmediate(0x16);
-            radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
+            radarDrawEdge(*(u8 **)(context + 0x3C), 3, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         }
         break;
     case 9:
-        if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
+        if ((++*(u16 *)(context + 0xC) & 0xFFFF) >= 3) {
             resultFlag = 1;
         } else {
-            alpha = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
+            alpha = (1.0f - ((f32)*(u16 *)(context + 0xC) / 3.0f)) * 255.0f;
             queryResult = (u8)alpha;
-            *(u8 *)arg2 = queryResult;
+            *(u8 *)context = queryResult;
             resultFlag = 0;
         }
         if (resultFlag != 0) {
@@ -1319,94 +1355,91 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
     return 0;
 }
 
+/* Interpolate position, alpha and scale, clamping the frame to the record interval.
+ * Modes 0/1/2 use sine/linear/one-minus-cosine for position; other fields are linear.
+ * Byte offsets describe the shared MenuSlotAnimation record, including word aliases. */
 // FUN_001437B0
-void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2) {
+void radarAnimateValue(u8 *work, s32 frame, s32 mode) {
     extern f32 D_00761184;
-    extern f32 cosf(f32 fparg0);
-    extern f32 sinf(f32 fparg0);
-    f32 temp_f21;
-    f32 temp_f20;
-    s32 temp_17;
-    s32 temp_16;
-    u8 temp_4;
-    u16 temp_4_2;
-    u16 temp_4_3;
+    extern f32 cosf(f32 angle);
+    extern f32 sinf(f32 angle);
+    f32 angle;
+    f32 startValue;
+    s32 duration;
+    s32 elapsed;
+    u8 startAlpha;
+    u16 startScaleX;
+    u16 startScaleY;
 
-    temp_17 = *(s32 *)(arg0 + 0x2C) - *(s32 *)(arg0 + 0x28);
-    if (temp_17 == 0) {
-        *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 8);
-        *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0xC);
-        *(u8 *)(arg0 + 0x1A) = *(u8 *)(arg0 + 0x19);
-        *(u16 *)(arg0 + 0x20) = *(u16 *)(arg0 + 0x1E);
-        *(u16 *)(arg0 + 0x26) = *(u16 *)(arg0 + 0x24);
+    duration = ((MenuSlotAnimation *)work)->endFrame.s - ((MenuSlotAnimation *)work)->startFrame.s;
+    if (duration == 0) {
+        ((MenuSlotAnimation *)work)->currentX.f = ((MenuSlotAnimation *)work)->targetX.f;
+        ((MenuSlotAnimation *)work)->currentY.f = ((MenuSlotAnimation *)work)->targetY.f;
+        ((MenuSlotAnimation *)work)->currentAlpha = ((MenuSlotAnimation *)work)->targetAlpha;
+        ((MenuSlotAnimation *)work)->currentScaleX = ((MenuSlotAnimation *)work)->targetScaleX;
+        ((MenuSlotAnimation *)work)->currentScaleY = ((MenuSlotAnimation *)work)->targetScaleY;
         return;
     }
-    if (*(s32 *)(arg0 + 0x2C) < arg1) {
-        arg1 = *(s32 *)(arg0 + 0x2C);
+    if (((MenuSlotAnimation *)work)->endFrame.s < frame) {
+        frame = ((MenuSlotAnimation *)work)->endFrame.s;
     }
-    if (arg1 < *(s32 *)(arg0 + 0x28)) {
-        arg1 = *(s32 *)(arg0 + 0x28);
+    if (frame < ((MenuSlotAnimation *)work)->startFrame.s) {
+        frame = ((MenuSlotAnimation *)work)->startFrame.s;
     }
-    temp_16 = arg1 - *(s32 *)(arg0 + 0x28);
-    switch (arg2) {
+    elapsed = frame - ((MenuSlotAnimation *)work)->startFrame.s;
+    switch (mode) {
     case 0:
-        temp_f21 = (D_00761184 * (f32)temp_16) / (f32)temp_17;
-        temp_f20 = *(f32 *)arg0;
-        *(f32 *)(arg0 + 0x10) =
-            temp_f20 + (*(f32 *)(arg0 + 8) - temp_f20) *
-                           sinf(temp_f21);
-        temp_f20 = *(f32 *)(arg0 + 4);
-        *(f32 *)(arg0 + 0x14) =
-            temp_f20 + (*(f32 *)(arg0 + 0xC) - temp_f20) *
-                           sinf(temp_f21);
-        temp_4 = *(u8 *)(arg0 + 0x18);
-        *(u8 *)(arg0 + 0x1A) =
-            temp_4 + (s32)(temp_16 * (*(u8 *)(arg0 + 0x19) - temp_4)) / temp_17;
-        temp_4_2 = *(u16 *)(arg0 + 0x1C);
-        *(u16 *)(arg0 + 0x20) =
-            temp_4_2 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x1E) - temp_4_2)) / temp_17;
-        temp_4_3 = *(u16 *)(arg0 + 0x22);
-        *(u16 *)(arg0 + 0x26) =
-            temp_4_3 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x24) - temp_4_3)) / temp_17;
+        angle = (D_00761184 * (f32)elapsed) / (f32)duration;
+        startValue = ((MenuSlotAnimation *)work)->startX.f;
+        ((MenuSlotAnimation *)work)->currentX.f =
+            startValue + (((MenuSlotAnimation *)work)->targetX.f - startValue) * sinf(angle);
+        startValue = ((MenuSlotAnimation *)work)->startY.f;
+        ((MenuSlotAnimation *)work)->currentY.f =
+            startValue + (((MenuSlotAnimation *)work)->targetY.f - startValue) * sinf(angle);
+        startAlpha = ((MenuSlotAnimation *)work)->startAlpha.u;
+        ((MenuSlotAnimation *)work)->currentAlpha =
+            startAlpha + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetAlpha - startAlpha)) / duration;
+        startScaleX = ((MenuSlotAnimation *)work)->startScaleX;
+        ((MenuSlotAnimation *)work)->currentScaleX =
+            startScaleX + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetScaleX - startScaleX)) / duration;
+        startScaleY = ((MenuSlotAnimation *)work)->startScaleY;
+        ((MenuSlotAnimation *)work)->currentScaleY =
+            startScaleY + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetScaleY - startScaleY)) / duration;
         break;
     case 1:
-        *(f32 *)(arg0 + 0x10) =
-            *(f32 *)arg0 +
-            ((f32)temp_16 * (*(f32 *)(arg0 + 8) - *(f32 *)arg0)) /
-                (f32)temp_17;
-        *(f32 *)(arg0 + 0x14) =
-            *(f32 *)(arg0 + 4) +
-            ((f32)temp_16 * (*(f32 *)(arg0 + 0xC) - *(f32 *)(arg0 + 4))) /
-                (f32)temp_17;
-        temp_4 = *(u8 *)(arg0 + 0x18);
-        *(u8 *)(arg0 + 0x1A) =
-            temp_4 + (s32)(temp_16 * (*(u8 *)(arg0 + 0x19) - temp_4)) / temp_17;
-        temp_4_2 = *(u16 *)(arg0 + 0x1C);
-        *(u16 *)(arg0 + 0x20) =
-            temp_4_2 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x1E) - temp_4_2)) / temp_17;
-        temp_4_3 = *(u16 *)(arg0 + 0x22);
-        *(u16 *)(arg0 + 0x26) =
-            temp_4_3 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x24) - temp_4_3)) / temp_17;
+        ((MenuSlotAnimation *)work)->currentX.f =
+            ((MenuSlotAnimation *)work)->startX.f +
+            ((f32)elapsed * (((MenuSlotAnimation *)work)->targetX.f - ((MenuSlotAnimation *)work)->startX.f)) / (f32)duration;
+        ((MenuSlotAnimation *)work)->currentY.f =
+            ((MenuSlotAnimation *)work)->startY.f +
+            ((f32)elapsed * (((MenuSlotAnimation *)work)->targetY.f - ((MenuSlotAnimation *)work)->startY.f)) / (f32)duration;
+        startAlpha = ((MenuSlotAnimation *)work)->startAlpha.u;
+        ((MenuSlotAnimation *)work)->currentAlpha =
+            startAlpha + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetAlpha - startAlpha)) / duration;
+        startScaleX = ((MenuSlotAnimation *)work)->startScaleX;
+        ((MenuSlotAnimation *)work)->currentScaleX =
+            startScaleX + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetScaleX - startScaleX)) / duration;
+        startScaleY = ((MenuSlotAnimation *)work)->startScaleY;
+        ((MenuSlotAnimation *)work)->currentScaleY =
+            startScaleY + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetScaleY - startScaleY)) / duration;
         break;
     case 2:
-        temp_f21 = (D_00761184 * (f32)temp_16) / (f32)temp_17;
-        temp_f20 = *(f32 *)arg0;
-        *(f32 *)(arg0 + 0x10) =
-            temp_f20 + (*(f32 *)(arg0 + 8) - temp_f20) *
-                           (1.0f - cosf(temp_f21));
-        temp_f20 = *(f32 *)(arg0 + 4);
-        *(f32 *)(arg0 + 0x14) =
-            temp_f20 + (*(f32 *)(arg0 + 0xC) - temp_f20) *
-                           (1.0f - cosf(temp_f21));
-        temp_4 = *(u8 *)(arg0 + 0x18);
-        *(u8 *)(arg0 + 0x1A) =
-            temp_4 + (s32)(temp_16 * (*(u8 *)(arg0 + 0x19) - temp_4)) / temp_17;
-        temp_4_2 = *(u16 *)(arg0 + 0x1C);
-        *(u16 *)(arg0 + 0x20) =
-            temp_4_2 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x1E) - temp_4_2)) / temp_17;
-        temp_4_3 = *(u16 *)(arg0 + 0x22);
-        *(u16 *)(arg0 + 0x26) =
-            temp_4_3 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x24) - temp_4_3)) / temp_17;
+        angle = (D_00761184 * (f32)elapsed) / (f32)duration;
+        startValue = ((MenuSlotAnimation *)work)->startX.f;
+        ((MenuSlotAnimation *)work)->currentX.f =
+            startValue + (((MenuSlotAnimation *)work)->targetX.f - startValue) * (1.0f - cosf(angle));
+        startValue = ((MenuSlotAnimation *)work)->startY.f;
+        ((MenuSlotAnimation *)work)->currentY.f =
+            startValue + (((MenuSlotAnimation *)work)->targetY.f - startValue) * (1.0f - cosf(angle));
+        startAlpha = ((MenuSlotAnimation *)work)->startAlpha.u;
+        ((MenuSlotAnimation *)work)->currentAlpha =
+            startAlpha + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetAlpha - startAlpha)) / duration;
+        startScaleX = ((MenuSlotAnimation *)work)->startScaleX;
+        ((MenuSlotAnimation *)work)->currentScaleX =
+            startScaleX + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetScaleX - startScaleX)) / duration;
+        startScaleY = ((MenuSlotAnimation *)work)->startScaleY;
+        ((MenuSlotAnimation *)work)->currentScaleY =
+            startScaleY + (s32)(elapsed * (((MenuSlotAnimation *)work)->targetScaleY - startScaleY)) / duration;
         break;
     default:
         return;

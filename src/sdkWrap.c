@@ -14,7 +14,7 @@ extern u8 D_00712A00[];
 extern u8 D_007129A0[];
 extern u8 D_007129C0[];
 extern s32 func_004671c0(u8 *arg0);
-extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
+extern s32 filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 arg2);
 extern void func_003ef3a0(s32 arg0);
 extern void func_00466c60(void);
 extern void func_00466e80(u8 *);
@@ -257,7 +257,7 @@ s32 func_004671c0(u8 *arg0)
     s32 handle;
 
     work = *(u8 **)(arg0 + 0x38);
-    handle = func_004669d0(*(s32 *)work, &count, 0);
+    handle = filerTakeCompletedRequest(*(s32 *)work, &count, 0);
     if (count != 0) {
         if (*(u8 **)(work + 4) != NULL) {
             func_00440b68((const char *)D_007129A0, *(u8 **)(work + 4) + 0x10);

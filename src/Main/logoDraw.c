@@ -13,7 +13,7 @@ extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
 extern s32 kwlnTaskIsLinked(s32);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
-extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
 extern void func_00122520(s32, s32);
@@ -86,12 +86,12 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
             allocator = (u32)D_008873F4;
             temp_2_3 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_3[0] = 0;
-            temp_2_3[1] = (s32)func_004667d0(0, D_005E5770, 0, 0, 0, 0, 0, 0, 0, 0);
+            temp_2_3[1] = (s32)filerEnqueueRequest(0, D_005E5770, 0, 0, 0, 0, 0, 0, 0, 0);
             temp_2->task10 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, titleFileLoadStep, titleLoaderDestroy, (u8 *)(temp_2_3));
             chkmemAllocSiteTag(&D_005E5730, 0x4D);
             temp_2_4 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_4[0] = 0;
-            temp_2_4[1] = (s32)func_004667d0(0, D_005E5790, 0, 0, 0, 0, 0, 0, 0, 0);
+            temp_2_4[1] = (s32)filerEnqueueRequest(0, D_005E5790, 0, 0, 0, 0, 0, 0, 0, 0);
             temp_2->task14 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, titleFileLoadStep, titleLoaderDestroy, (u8 *)(temp_2_4));
         }
         break;
