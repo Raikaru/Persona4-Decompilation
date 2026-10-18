@@ -85,10 +85,10 @@ extern void sdkSpriteDrawOnceTinted(s32 parent, s32 , s32 , f32 x, f32 y,
                           f32 z, s32 );
 extern u32 datEntryGetFlags(s16 );
 extern s32 resourceFindByName(void *param);
-extern u16 func_001068b0(s16 );
-extern u16 func_001068e0(s16 );
-extern u16 func_00106940(s16 );
-extern u16 func_00106970(s16 );
+extern u16 datEntryGetPrimaryValue(s16 );
+extern u16 datEntryGetSecondaryValue(s16 );
+extern u16 datEntryGetMiddleBandValue(s16 );
+extern u16 datEntryGetLastBandValue(s16 );
 extern s32 datIdBand(s16 );
 extern s8 D_005E47F0[];
 static inline s32 datAddSkillByteOffset(s32 offset, s32 base)
@@ -116,8 +116,8 @@ void datCarryOverPersistentState(void)
     s8 flag;
     s32 i;
     s32 savedValues[344];
-    s32 func_001064f0(s32);
-    void func_00106550(s32, u32);
+    s32 datGetScriptValue(s32);
+    void datSetScriptValue(s32, u32);
     s32 datItemCount(s16);
     s32 datGetFlag(s32);
     void datSetFlag(s32, s32);
@@ -135,7 +135,7 @@ void datCarryOverPersistentState(void)
     count = 0;
     flag = 0;
     *(Vec4 *)savedValues = *(Vec4 *)D_005E4700;
-    value = func_001064f0(0x7C);
+    value = datGetScriptValue(0x7C);
     clearCount = (s32)datGetClearedWord() + 1;
     if ((datItemCount(0x4A0) & 0xFF) > 0) {
         savedValues[4] = 0x4A0;
@@ -306,7 +306,7 @@ loop6_check:
     }
     fclCombineRestoreSnapshot();
     datSetFlag(0x1210, 1);
-    func_00106550(0x7C, (u32)value);
+    datSetScriptValue(0x7C, (u32)value);
     func_00110470((u32)clearCount);
     i = 0;
     goto loop7_check;
@@ -576,37 +576,37 @@ void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
     color.b[3] = alpha;
     switch (datIdBand(*(s16 *)entry)) {
     case 0:
-        value = func_001068b0(*(s16 *)entry);
+        value = datEntryGetPrimaryValue(*(s16 *)entry);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (*(s16 *)(entry + 6) != -1) {
             func_00112830_arrow(pos, depth, color,
-                                func_001068b0(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetPrimaryValue(*(s16 *)(entry + 6)), value, tex);
         }
         pos.x += 42.0f;
-        value = func_001068e0(*(s16 *)entry);
+        value = datEntryGetSecondaryValue(*(s16 *)entry);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (*(s16 *)(entry + 6) != -1) {
             func_00112830_arrow(pos, depth, color,
-                                func_001068e0(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetSecondaryValue(*(s16 *)(entry + 6)), value, tex);
         }
         break;
     case 1:
-        value = func_00106940(*(s16 *)entry);
+        value = datEntryGetMiddleBandValue(*(s16 *)entry);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (*(s16 *)(entry + 6) != -1) {
             func_00112830_arrow(pos, depth, color,
-                                func_00106940(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetMiddleBandValue(*(s16 *)(entry + 6)), value, tex);
         }
         pos.x += 42.0f;
-        value = func_00106970(*(s16 *)entry);
+        value = datEntryGetLastBandValue(*(s16 *)entry);
         func_00112830_number(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (*(s16 *)(entry + 6) != -1) {
             func_00112830_arrow(pos, depth, color,
-                                func_00106970(*(s16 *)(entry + 6)), value, tex);
+                                datEntryGetLastBandValue(*(s16 *)(entry + 6)), value, tex);
         }
         break;
     case 2:

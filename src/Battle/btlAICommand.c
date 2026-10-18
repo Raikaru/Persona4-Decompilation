@@ -24,7 +24,7 @@ extern u16 datCalcMaxHp(DatUnit *unit);
 
 s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled);
 
-extern u64 func_0010f460();
+extern u64 datGetCollectionEntryBits();
 
 extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
 
@@ -422,7 +422,7 @@ u8 btlCond_ANALYZE(s32 action)
   if ((((BtlAction *)action))->unit->genus != 1) {
     return 0;
   }
-  analysisFlag = func_0010f460((((BtlAction *)action))->unit->charId);
+  analysisFlag = datGetCollectionEntryBits((((BtlAction *)action))->unit->charId);
   return analysisFlag != 0;
 }
 

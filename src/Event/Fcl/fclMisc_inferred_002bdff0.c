@@ -109,7 +109,7 @@ s32 fclItemIsDateAvailable(s16 item)
     s32 availableMonthAgain;
     s32 availableDay;
 
-    if (func_00106850(item) != 3) {
+    if (datEntryGetKind(item) != 3) {
         goto false_result;
     }
     availableMonth = fclCalendarMonthOrder((u8)datItemAvailableMonth(item)) & 0xFF;

@@ -1959,7 +1959,7 @@ void btlActionReadyInit(void)
 /* Raw skill and readiness words lie in opaque shared spans; integer-address helpers preserve measured operand order. */
 void btlActionReadyUpdate(u8 *actionBytes)
 {
-    extern void func_001eb420(u8 *target);
+    extern void btlTargetSavePair(u8 *target);
     extern s32 btlActionSkillReachesTargets(u8 *action);
     extern void btlActionRollGroupRatio(s32 state);
     extern s32 btlSoundCanReceiveStatus(u8 *action);
@@ -1993,7 +1993,7 @@ incr:
 donecheck:
         if (loopIndex == (((BtlAction *)actionBytes)->unk_6a)) {
             if (!((((BtlAction *)actionBytes)->flags) & 4)) {
-                func_001eb420(actionBytes + 0x38);
+                btlTargetSavePair(actionBytes + 0x38);
             }
             (((BtlAction *)actionBytes)->flags) = (u16)((u16) ((((BtlAction *)actionBytes)->flags) & 0xFFFD));
             delayFlag = 0;

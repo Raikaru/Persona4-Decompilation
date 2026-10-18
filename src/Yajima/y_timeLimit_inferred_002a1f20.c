@@ -84,7 +84,7 @@ extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
-extern void func_0010d490(u8 *arg0, u8 *arg1);
+extern void datSetHeroNameParts(u8 *arg0, u8 *arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void func_00122640(s32 arg0, s32 arg1);
 extern void func_0029ebf0(u8 *arg0, s32 arg1);
@@ -263,7 +263,7 @@ loop_28_cond:
                         goto loop_28_body;
                     }
 clear_done:
-                    func_0010d490(D_00882EF0, D_00882ED0);
+                    datSetHeroNameParts(D_00882EF0, D_00882ED0);
                     *(s32 *)(temp_16 + 0x18) = 0;
                     *(s32 *)(temp_16 + 8) = 1;
                 } else if (temp_2_4 == 1) {

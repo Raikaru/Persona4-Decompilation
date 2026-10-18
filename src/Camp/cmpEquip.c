@@ -6,7 +6,7 @@
 void radarAnimateValue(void *, s32, s32);
 void cmpEquipStepTabAnimations(u8 *);
 void cmpEquipMenuDraw(u8 *);
-s16 func_00106cd0(s16, s16);
+s16 datGetEquippedItemByUnit(s16, s16);
 s32 datItemCount(s16 id);
 s32 datEntryHasFlag(s16, s16);
 s32 datIdBand(s16);
@@ -134,7 +134,7 @@ void cmpEquipMenuInit(u8 *workArea)
         equipmentIndex = 0;
         slot = (s32 *)(base + partyIndex * 6);
         while (equipmentIndex < 3) {
-            equippedId = func_00106cd0(value, equipmentIndex);
+            equippedId = datGetEquippedItemByUnit(value, equipmentIndex);
             ((CmpEquipWork *)slot)->equipped[0][equipmentIndex] = equippedId;
             equipmentIndex++;
         }
@@ -191,7 +191,7 @@ void cmpEquipBuildItemList(s16 *workArea) {
     type = workArea[21];
     equipmentType = type;
     for (i = 0, count = 0; i < 0x2FF; i++) {
-        found = i == func_00106cd0(id, equipmentType);
+        found = i == datGetEquippedItemByUnit(id, equipmentType);
         if (!found) {
             filter = (u8)datItemCount((s16)i) != 0;
             if (filter) {
@@ -291,7 +291,7 @@ void cmpEquipMenuDraw(u8 *workArea)
     extern void datEntryDrawRow(Vec2f workArea, f32, u8, u8 *);
     extern void datEntryReset(u8 *workArea);
     extern u32 datEntryGetFlags(s16 workArea);
-    extern s16 func_00106cd0(s16 workArea, s16);
+    extern s16 datGetEquippedItemByUnit(s16 workArea, s16);
     extern u32 datPersonaNamePart1(s16 workArea);
     extern s32 radarFlagToIconMode(s32 workArea);
     extern void radarDrawPalettePair(u8 *workArea, s64 , s64 , u8);
@@ -489,7 +489,7 @@ void cmpEquipMenuDraw(u8 *workArea)
       scaleY = (f32)*(u16 *)(work + rowCounter * 0x30 + 0xf16);
       switch (rowCounter) {
       case 0:
-        itemFlags = datEntryGetFlags(func_00106cd0(actor.id, 0));
+        itemFlags = datEntryGetFlags(datGetEquippedItemByUnit(actor.id, 0));
         rowValueIndex = radarFlagToIconMode(itemFlags);
         rowIcon = (s16)rowValueIndex;
         break;
@@ -553,7 +553,7 @@ void cmpEquipMenuDraw(u8 *workArea)
       } else {
         descriptor.style = 4;
       }
-      descriptor.itemId = func_00106cd0(actor.id,rowCounter);
+      descriptor.itemId = datGetEquippedItemByUnit(actor.id,rowCounter);
       descriptor.quantity = 0xffff;
       descriptor.unk08 = 0xffffffff;
       descriptor.unk0C = 1;
@@ -690,7 +690,7 @@ void cmpEquipMenuDraw(u8 *workArea)
     alphaValue *= opacityScale;
     descriptorAlpha = (u8)alphaValue;
     datEntryReset((u8 *)&descriptor);
-    selectedItemId = func_00106cd0(actor.id,*(s16 *)(work + 0x2a));
+    selectedItemId = datGetEquippedItemByUnit(actor.id,*(s16 *)(work + 0x2a));
     descriptor.itemId = selectedItemId;
     descriptor.quantity = 0xffff;
     descriptor.unk08 = 0xffffffff;

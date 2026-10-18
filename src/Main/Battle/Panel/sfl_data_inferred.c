@@ -20,8 +20,8 @@ typedef union {
 } PairBits;
 typedef struct PersonaWork PersonaWork;
 extern s16 datCategoryRank(s16 index);
-extern u16 func_00105290(s16 pcId);
-extern s32 func_00105a50(s16 pcId);
+extern u16 datGetPersonaIdByUnit(s16 pcId);
+extern s32 datGetExperienceToNextLevel(s16 pcId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
@@ -558,7 +558,7 @@ void sflDataDrawEntry(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
 void sflDataLoadPersonaState(void *work, s16 pcId)
 {
     u8 *state = (u8 *)work + 4;
-    u16 personaId = func_00105290(pcId);
+    u16 personaId = datGetPersonaIdByUnit(pcId);
     PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)pcId);
     *(s16 *)state = pcId;
     *(u8 **)(state + 16) = datPersonaGetRow(personaId);
@@ -566,7 +566,7 @@ void sflDataLoadPersonaState(void *work, s16 pcId)
     *(u8 *)(state + 21) = datPersonaGetLevel((s32)persona);
     if (pcId == 1) {
         s16 i;
-        *(s32 *)(state + 12) = func_00105a50(pcId);
+        *(s32 *)(state + 12) = datGetExperienceToNextLevel(pcId);
         for (i = 0; i < 5; i++)
             *(s16 *)(state + i * 2 + 2) = datCategoryRank(i);
     } else {

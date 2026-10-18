@@ -385,7 +385,7 @@ case8_failure:
 // FUN_001D53E0
 void func_001d53e0(s32 arg0)
 {
-    extern void func_001fc2c0(u32 a0, u32 a1);
+    extern void mdlSetFileStatePair(u32 a0, u32 a1);
     extern void mdlEffectSetChildPositions(u8 *a0, f32 *a1);
     extern void mdlEffectSetChildRotations(u8 *a0, u8 *a1);
     extern void mdlEffectSetChildScales(u8 *a0, f32 a1);
@@ -431,7 +431,7 @@ void func_001d53e0(s32 arg0)
         }
         w->size = *(f32 *)(unit + 0x2C);
     }
-    func_001fc2c0((u32)w->unit, (u32)w->target);
+    mdlSetFileStatePair((u32)w->unit, (u32)w->target);
     now = (u32)frame;
     handles = w->handles;
     count = w->count;

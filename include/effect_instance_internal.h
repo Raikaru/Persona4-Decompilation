@@ -63,12 +63,24 @@ typedef struct ParticleLinkNode {
     u8 *owner;               /* +0x1C: the particle that owns this node */
 } ParticleLinkNode;
 
-/* Effect particle (effParticle.c). Only the texture scale and link are named; the other
- * fields are not yet typed. */
+/* Effect particle: the allocator reserves 0x60 bytes. Handle words are also
+ * consumed as pointers by subtype-specific paths; retain both representations. */
 typedef struct EffParticleInstance {
-    u8 field_0x00[0x48];
+    union { s32 signedValue; u32 value; } recordCount; /* +0x00 */
+    union { s32 signedValue; u32 value; } packedColor; /* +0x04 */
+    union { f32 value; s32 signedBits; u32 bits; } scale; /* +0x08 */
+    u16 kind;                /* +0x0C: subtype dispatch */
+    u8 flags;                /* +0x0E: bit zero owns the emitter */
+    u8 padF;
+    u8 pad10[0x24];
+    union { s32 handle; u8 *bytes; u8 **objects; } children; /* +0x34 */
+    union { s32 handle; u8 *bytes; void *pointer; } childAllocation; /* +0x38 */
+    union { s32 handle; u8 *bytes; u8 **objects; } models; /* +0x3C */
+    union { s32 handle; u8 *bytes; void *pointer; } modelAllocation; /* +0x40 */
+    union { s32 handle; u8 *bytes; } animation; /* +0x44 */
     s32 tlpRef;              /* +0x48: TLP handle, reference-counted by ParticleCopyModeFromSource */
-    u8 field_0x4C[0x54 - 0x4C];
+    union { s32 handle; u32 bits; u8 *bytes; } emitter; /* +0x4C */
+    union { s32 handle; u8 *bytes; } geometry; /* +0x50 */
     f32 texScaleX;           /* +0x54: texture scale, the texture's +0xC word divided by 32 */
     f32 texScaleY;           /* +0x58: texture scale, the texture's +0x10 word divided by 32 */
     ParticleLinkNode *link;  /* +0x5C */

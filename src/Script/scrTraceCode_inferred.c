@@ -4,6 +4,18 @@
 #include "scr_internal.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
+
+/* Partial script execution context; the interpreter establishes the PC and timers. */
+typedef struct ScrContext {
+    u8 pad00[0x18];
+    s32 pc;
+    u8 pad1C[0x114];
+    s32 messageManager;
+    u8 pad134[4];
+    s32 commandTimer;
+    u8 pad13C[0x18];
+    s32 aiState;
+} ScrContext;
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
@@ -62,22 +74,22 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 
 // Stores arg0 (a script label address) as the current label of the script context.
 // FUN_0029D010
-void scrSetCurrentLabel(s32 arg0)
+void scrSetCurrentLabel(s32 labelAddress)
 {
-    *(s32 *)(iGpffffb510 + 0x18) = arg0;
+    ((ScrContext*)iGpffffb510)->pc = labelAddress;
 }
 
 // FUN_0029D020
 s32 scrGetCmdTimer(void)
 {
-    return *(s32 *)(iGpffffb510 + 0x138);
+    return ((ScrContext*)iGpffffb510)->commandTimer;
 }
 
 // Returns the message-window manager index stored in the script context at +0x130.
 // FUN_0029D030
 s32 scrGetMessageManager(void)
 {
-    return *(s32 *)(iGpffffb510 + 0x130);
+    return ((ScrContext*)iGpffffb510)->messageManager;
 }
 
 // Returns the script context (the iGpffffb510 block) that the battle and script
@@ -93,6 +105,6 @@ s32 scrGetContext(void)
 // FUN_0029D050
 s32 scrGetAiState(void)
 {
-    return *(s32 *)(iGpffffb510 + 0x154);
+    return ((ScrContext*)iGpffffb510)->aiState;
 }
 

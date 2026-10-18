@@ -203,7 +203,7 @@ extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
 extern u32 datCalcSkillCost(u8 *unit, s32 skill);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
-extern s16 func_00105f00(s16 arg0);
+extern s16 datGetUnitAiTactic(s16 arg0);
 extern u32 datPersonaNamePart1(s16 arg0);
 extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 mode,
                          s32 style, s32 flags, s32 handle, s32 index);
@@ -235,7 +235,7 @@ static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
     (*setState)(6, 0);
 }
 struct FrFontNode;
-extern u16 func_0010f8c0(s32 arg0);
+extern u16 datGetSkillPropertyByte(s32 arg0);
 extern s32 btlUnitGetDataRowAlt(u8 *arg0);
 extern void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1);
 extern void btlPanelReleaseText(s32 task);
@@ -1701,7 +1701,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
     btlUiDrawSpriteFaded(glyphs, 9, 0x3C, 155.0f + x,
                   24.0f + y, tone, tone, tone, opacity);
     btlUiDrawSpriteFaded(
-        glyphs, 9, func_00105f00(*(s16 *)(persona + 0xA4)) + 0x3F,
+        glyphs, 9, datGetUnitAiTactic(*(s16 *)(persona + 0xA4)) + 0x3F,
         178.0f + x, 16.0f + y, tone, tone, tone,
         opacity);
 }
@@ -3172,8 +3172,8 @@ void btlSelectionResetSubList(u8 *arg0, u8 *arg1)
 // FUN_00209DC0
 u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
 {
-    extern s16 func_00105f00(s16 arg0);
-    extern void func_00105e30(s16 arg0, s16 arg1);
+    extern s16 datGetUnitAiTactic(s16 arg0);
+    extern void datSetUnitAiTactic(s16 arg0, s16 arg1);
     extern u8 *btlActionFindByUnit(s32 arg0);
     extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3,
                               s32 arg4);
@@ -3189,8 +3189,8 @@ u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
     case 2:
         temp_16 = *(s16 *)(arg0 + 4);
         if (temp_16 !=
-            func_00105f00(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4))) {
-            func_00105e30(
+            datGetUnitAiTactic(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4))) {
+            datSetUnitAiTactic(
                 *(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4), temp_16);
             temp_2 = btlActionFindByUnit(*(s32 *)(arg1 + 0x190));
             if (temp_2 != NULL) {
@@ -3240,7 +3240,7 @@ void func_00209f90(void)
 void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s16 func_00105f00(s16 selection);
+    extern s16 datGetUnitAiTactic(s16 selection);
     extern u32 datPersonaNamePart1(s16 selection);
     extern s32 frFontNodeWidth(struct FrFontNode *node);
     extern void frFontMoveListTo(s32 node, s32 x, s32 y);
@@ -3341,7 +3341,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     renderer->setState(6, 1);
     btlUiSetAlpha(glyphs, 50.0f);
     btlUiDrawSpriteFaded(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-    iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
+    iconFrame = (s16)datGetUnitAiTactic(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
     btlUiDrawSpriteFaded(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     frFontSetFlagBits(0x40);
     nameAddress = datPersonaNamePart1(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
@@ -3829,7 +3829,7 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
 extern u32 btlEffectCollectGenusMask(u8 *arg0);
-extern u16 func_0010f8c0(s32 arg0);
+extern u16 datGetSkillPropertyByte(s32 arg0);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern s32 datCalcElementBit(s16 arg0);
 extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
@@ -3894,7 +3894,7 @@ void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
     }
     spC0 = *(u16 *)(arg2 + 0x38);
     temp_16 = (u16)arg3;
-    spB0 = func_0010f8c0(temp_16) & 0xFFFF;
+    spB0 = datGetSkillPropertyByte(temp_16) & 0xFFFF;
     var_20 = 0;
     spD0 = temp_16 & 0xFFFF;
     goto loop_condition;
@@ -4025,7 +4025,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
             } else {
                 btlEffectSelectNeighbourTarget(*(u8 **)(arg0 + 8), *(u8 **)(arg0 + 0x10));
                 if (*(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) & 1) {
-                    if ((u16)func_0010f8c0(*(u16 *)(arg0 + 0x14)) == 0) {
+                    if ((u16)datGetSkillPropertyByte(*(u16 *)(arg0 + 0x14)) == 0) {
                         selected = (u8 *)btlFormationCurrentEntry(*(u8 **)(arg0 + 0x10));
                         btlPanelStartEntry(*(s32 *)(arg0 + 0x18), btlUnitGetDataRowAlt(*(u8 **)(selected + 0x30)));
                         btlPanelSetCountdown(*(s32 *)(arg0 + 0x18), -1);

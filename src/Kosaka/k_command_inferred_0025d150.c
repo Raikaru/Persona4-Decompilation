@@ -33,8 +33,8 @@ s32 fadeIsIdle(void);
 
 s16 datGetPartyId(s32 arg0);
 void datSetPartyId(s32 arg0, s32 arg1);
-s16 func_00106cd0(s16 arg0, s16 arg1);
-void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
+s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
+void datAssignEquippedItem(s16 arg0, s16 arg1, s16 arg2);
 s32 kwlnTaskIsLinked(s32 arg0);
 void taskRecordRequestPrimary(s32 arg0);
 s32 mcIconTaskCreate(u8 *parent, s32 mode);
@@ -144,7 +144,7 @@ s32 scrCommonGetCharStat(void) {
 
     temp_16 = scrGetParamInt(0);
     temp_5 = scrGetParamInt(1);
-    scrSetReturnInt((s32)func_00106cd0(temp_16, temp_5));
+    scrSetReturnInt((s32)datGetEquippedItemByUnit(temp_16, temp_5));
     return 1;
 }
 
@@ -155,7 +155,7 @@ s32 scrCommonSetCharStat(void) {
 
     a = scrGetParamInt(0);
     b = scrGetParamInt(1);
-    func_00106d40(a, b, (s16)scrGetParamInt(2));
+    datAssignEquippedItem(a, b, (s16)scrGetParamInt(2));
     return 1;
 }
 

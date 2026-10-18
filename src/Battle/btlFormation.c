@@ -120,7 +120,7 @@ extern u8 D_00763388;
 
 s32 sprintf(char *destination, const char *format, ...);
 
-void func_001fc2e0(u32 first, u32 second, u32 third);
+void mdlSetFileStateTriple(u32 first, u32 second, u32 third);
 u32 btlUiBeginSequence(void);
 
 
@@ -1501,7 +1501,7 @@ void btlFormationFormatName(u32 value, char *destination)
 // FUN_001D7BB0
 u32 btlFormationDispatchArgs(u32* args)
 {
-    func_001fc2e0(args[0], args[1], args[2]);
+    mdlSetFileStateTriple(args[0], args[1], args[2]);
     return 1;
 }
 

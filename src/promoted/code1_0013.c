@@ -27,11 +27,11 @@ extern void radarDrawFrame(u8 *arg0);
 extern void radarResetEntries(u8 *arg0);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern void datClampUnitHpSp(s16 arg0);
-extern u16 func_0010f8c0(s32 arg0);
+extern u16 datGetSkillPropertyByte(s32 arg0);
 extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 extern s32 nLineSelectSet(s32 arg0);
 extern s32 radarEntryTypeIsActive(s16 arg0);
-extern s32 func_0010f540(s32 arg0);
+extern s32 datIsSkillAvailable(s32 arg0);
 extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaRefreshDispCtlPosition(u8 *arg0, void *arg1);
@@ -54,9 +54,9 @@ extern void cmpEquipBuildItemList(u8 *arg0);
 extern void cmpEquipSetMode(u8 *arg0, s32 arg1);
 extern void radarBeginSlideOut(u8 *arg0);
 extern void radarBeginSlideIn(u8 *arg0);
-extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
 extern s32 datItemCount(s16 arg0);
-extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
+extern void datAssignEquippedItem(s16 arg0, s16 arg1, s16 arg2);
 extern void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2);
 extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
@@ -190,7 +190,7 @@ s32 radarCollectPartyChanges(u8 *state) {
         for (search = 0; search < partyCount && id != party[search]; search++) {}
         if (search != partyCount) {
             for (stat = 0; stat < 3; stat++) {
-                value = func_00106cd0(id, stat);
+                value = datGetEquippedItemByUnit(id, stat);
                 old = &((RadarPartyChanges *)state)->stats[member][stat];
                 if (*old != value && stat == 0) {
                     change = &changes[count];

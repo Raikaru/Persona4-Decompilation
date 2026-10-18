@@ -429,7 +429,7 @@ void btlMainInitInit(void) {
     btlSoundFadeChannel(2, 0);
     btlSoundFadeChannel(3, 0);
     btlSoundFadeOutBgm(0);
-    func_00106550(0x78, func_001064f0(0x78) + 1);
+    datSetScriptValue(0x78, datGetScriptValue(0x78) + 1);
 }
 
 // FUN_001B1940

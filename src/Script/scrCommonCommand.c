@@ -31,7 +31,7 @@ extern s32 scrGetLabelAddr(s32 index);
 extern void scrSetCurrentLabel(s32 addr);
 extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
 extern void datStopPadRumble(void);
-extern s32 func_001064f0(s32 index);
+extern s32 datGetScriptValue(s32 index);
 extern void* scrGetContext(void);
 extern void* scrStartProcedureWork(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
 
@@ -127,6 +127,7 @@ u32 scrCmdTimerActive(void)
 }
 
 // FUN_00298FC0
+/* Complete immediately for nonpositive waits; otherwise yield until the command timer reaches parameter zero. */
 u32 scrCommand_WAIT()
 {
     s32 cmdTimer;
@@ -200,10 +201,10 @@ u32 scrIsFading(void)
 // Sends the value of parameter 0 as a two-entry parameter pair through the sound/command channel [inferred].
 // FUN_00299170
 s32 scrSendParamPair(void) {
-    s16 sp1C[2]; /* measured: 2-element form required for retail slot at 0x1c */
+    s16 parameters[2]; /* measured: 2-element form required for retail slot at 0x1c */
 
-    sp1C[0] = scrGetParamInt(0);
-    func_001029a0(0x1D, sp1C, 2, 0xA);
+    parameters[0] = scrGetParamInt(0);
+    func_001029a0(0x1D, parameters, 2, 0xA);
     return 1;
 }
 
@@ -286,7 +287,7 @@ u32 scrRumbleOrDrawEntry(void)
 // FUN_002993C0
 u32 scrQueryTableValue(void)
 {
-    scrSetReturnInt(func_001064f0(scrGetParamInt(0)));
+    scrSetReturnInt(datGetScriptValue(scrGetParamInt(0)));
     return 1;
 }
 
@@ -294,7 +295,7 @@ u32 scrQueryTableValue(void)
 // FUN_00299400
 u32 scrSetTableValue()
 {
-    func_00106550(scrGetParamInt(0), scrGetParamInt(1));
+    datSetScriptValue(scrGetParamInt(0), scrGetParamInt(1));
 
     return true;
 }
@@ -341,6 +342,7 @@ u32 scrStartProcedureTask(void)
 }
 
 // FUN_002995C0
+/* Wait until the task handle in parameter zero is no longer linked to the scheduler. */
 u32 scrCommand_SCR_KILL_SYNC()
 {
     KwlnTask* task;
@@ -353,6 +355,7 @@ u32 scrCommand_SCR_KILL_SYNC()
 
 
 // FUN_00299600
+/* Return whether the task handle in parameter zero is still linked to the scheduler. */
 u32 scrCommand_SCR_EXISTS()
 {
     KwlnTask* task;
@@ -374,6 +377,7 @@ u32 scrCommand_SCR_EXISTS()
 
 
 // FUN_00299660
+/* Return a linked task's timer, or zero when the handle is no longer linked. */
 u32 scrCommand_SCR_GET_TIMER()
 {
     KwlnTask* task;

@@ -175,7 +175,7 @@ void kAssertFail(void *arg0, s32 arg1);
 void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2);
 extern s64 datGetDateIndex(void);
-extern s32 func_001064f0(s32 arg0);
+extern s32 datGetScriptValue(s32 arg0);
 extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 D_007E8BF8[];
 void *memset(void *arg0, s32 arg1, u32 arg2);

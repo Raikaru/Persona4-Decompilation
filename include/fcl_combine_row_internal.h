@@ -69,7 +69,18 @@ typedef struct {
 typedef struct {
     u8 unknown00[4];
     s16 image;
-    u8 unknown06[0x68];
+    u8 unknown06[0xA];
+    s16 flags;                       /* 0x10: fclSpriteSetFlag bit set */
+    u8 unknown12[0x16];
+    FclVec2 positionStart;            /* 0x28: y_draw.c transition endpoints */
+    FclVec2 positionEnd;
+    FclVec2 position;
+    s16 positionDuration;             /* 0x40 */
+    s16 positionElapsed;
+    s16 positionDelay;
+    u8 positionMode;
+    u8 positionReverse;
+    u8 unknown48[0x26];
     u8 alpha;
     u8 unknown6F[4];
     u8 flag73;

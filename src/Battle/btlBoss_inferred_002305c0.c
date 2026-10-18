@@ -17,7 +17,7 @@ extern s32 btlBossLoadEndBgmStep(u8 *work);
 extern s32 btlCurrentUnitId(void);
 extern s64 datGetDateIndex(void);
 extern s32 datGetFlag(s32 arg0);
-extern s32 func_00106cd0(s32 arg0, s32 arg1);
+extern s32 datGetEquippedItemByUnit(s32 arg0, s32 arg1);
 extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
@@ -190,7 +190,7 @@ s32 btlBossResolveModelName(u32 arg0, u16 arg1, char *arg2)
         }
         else
         {
-            temp_18 = func_00106cd0(3, 0) & 0xFFFF;
+            temp_18 = datGetEquippedItemByUnit(3, 0) & 0xFFFF;
             if (temp_18 >= 0x70 && temp_18 < 0x96)
             {
                 if (calGetDayWindowFlags((s16)datGetDateIndex()) & 1)

@@ -951,7 +951,7 @@ void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex)
     extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
-    extern s32 func_00105330(s32 character);
+    extern s32 datGetActiveRosterIndex(s32 character);
     extern void shdPersonaDrawByMode(Vec2f position, u8 alpha, s16 *panel, f32 depth);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
@@ -1051,7 +1051,7 @@ void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex)
             sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[21], position.x, position.y,
                           digitRed, digitGreen, digitBlue, spriteAlpha);
         }
-        if (rowIndex == func_00105330(1) && (*(u32 *)&((CmpPersonaWork *)work)->visible & 0x20)) {
+        if (rowIndex == datGetActiveRosterIndex(1) && (*(u32 *)&((CmpPersonaWork *)work)->visible & 0x20)) {
             position.x = 22.0f;
             position.y = rowY;
             sdkSpriteDrawAt(((CmpPersonaWork *)work)->sprites[22], position.x, position.y,

@@ -21,10 +21,29 @@ extern MdlStridedCallback24 D_00713f1c[];
 extern MdlStridedCallback24 D_00713f20[];
 
 
+/* Partial layouts: only the fields accessed by these helpers are established. */
+typedef struct MdlEffectObject {
+    u8 pad00[0x40];
+    u_long128 position;
+    u_long128 orientation;
+    u8 pad60[4];
+    u32 packedColor;
+} MdlEffectObject;
+
+typedef struct MdlCallbackObject {
+    u8 pad00[4];
+    u32 unk04;
+    u8 pad08[0x20];
+    s32 count;
+    s32 callbackIndex;
+} MdlCallbackObject;
+
+
 
 
 // FUN_001FC2C0
-void func_001fc2c0(u32 first, u32 second)
+/* Stores two words in the file-state globals at 0x881440 and 0x881444. */
+void mdlSetFileStatePair(u32 first, u32 second)
 {
     DAT_00881440_abs[0] = first;
     DAT_00881444_abs[0] = second;
@@ -34,7 +53,8 @@ void func_001fc2c0(u32 first, u32 second)
 
 
 // FUN_001FC2E0
-void func_001fc2e0(u32 first, u32 second, u32 third)
+/* Stores three words in the next three file-state globals. */
+void mdlSetFileStateTriple(u32 first, u32 second, u32 third)
 {
     DAT_00881448_abs[0] = first;
     DAT_0088144c_abs[0] = second;
@@ -44,7 +64,8 @@ void func_001fc2e0(u32 first, u32 second, u32 third)
 
 
 // FUN_0047DE90
-u32 func_0047de90(u32* resource)
+/* Dereferences the resource pointer then returns the first word of its payload. */
+u32 mdlReadResourceHeaderWord(u32* resource)
 {
     return *(u32*)*resource;
 }
@@ -55,7 +76,7 @@ u32 func_0047de90(u32* resource)
 // FUN_004866E0
 u_long128 mdlEffectGetPositionVec(int object, u32 *output)
 {
-    u_long128 value = *(u_long128 *)(object + 0x40);
+    u_long128 value = ((MdlEffectObject*)object)->position;
     *(u_long128 *)output = value;
     return value;
 }
@@ -66,7 +87,7 @@ u_long128 mdlEffectGetPositionVec(int object, u32 *output)
 // FUN_004866F0
 u_long128 mdlEffectGetOrientationVec(int object, u32 *output)
 {
-    u_long128 value = *(u_long128 *)(object + 0x50);
+    u_long128 value = ((MdlEffectObject*)object)->orientation;
     *(u_long128 *)output = value;
     return value;
 }
@@ -77,21 +98,25 @@ u_long128 mdlEffectGetOrientationVec(int object, u32 *output)
 // FUN_00486700
 u32 mdlEffectGetPackedColorWord(void* object)
 {
-    return *(u32*)((u8*)object + 0x64);
+    return ((MdlEffectObject*)object)->packedColor;
 }
 
 
 
 // FUN_00489F40
-void func_00489f40(void* object, u32 value)
+/* Writes the object word at offset four. */
+void mdlSetObjectHeaderValue(void* object, u32 value)
 {
-    *(u32*)((u8*)object + 4) = value;
+    ((MdlCallbackObject*)object)->unk04 = value;
 }
 
 
 
+/* Invoke the selected pre-callback, increment the count, then invoke its object callback when positive. */
+/* Raw fields retain MATCH: typed count/index accesses enlarged this body from 144 to 152 bytes.
+ * The proven s32 count/index pair is at 0x28/0x2C. */
 // FUN_00498C50
-void func_00498c50(int object)
+void mdlAdvanceObjectCallback(int object)
 {
     int count;
     int address;
@@ -108,8 +133,11 @@ void func_00498c50(int object)
 
 
 
+/* Advance the alternate callback state's count between its two callback stages. */
+/* Raw fields retain MATCH: typed count/index accesses enlarged this body from 144 to 152 bytes.
+ * The proven s32 count/index pair is at 0x34/0x38. */
 // FUN_0049A710
-void func_0049a710(int object)
+void mdlAdvanceStateCallback(int object)
 {
     int count;
     int address;

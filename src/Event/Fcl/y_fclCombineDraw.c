@@ -92,7 +92,7 @@ extern void sdkSpriteFreeNode(void *node);
 extern void fclSpriteSetFlag(s16, s16, s8);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
-extern s32 func_00110140(void);
+extern s32 datGetPersonaCacheCompletionPercent(void);
 extern void fclSpriteResetScale(s16);
 extern s32 fclAddClamped(s32, s32, s32, s32, s8);
 extern s32 fclSubClamped(s32, s32, s32, s32, s8);
@@ -4621,7 +4621,7 @@ void fclCombineDrawCounter(u8 *arg0, s8 arg1) {
         origin.x = x;
         origin.y = y;
     }
-    t17 = (s8)func_00110140();
+    t17 = (s8)datGetPersonaCacheCompletionPercent();
     t16 = (s8)arg1;
     if (t16 == 0) {
         fclSpriteCreate(0x2CF, origin, 215.0f, 0x56);
@@ -4687,7 +4687,7 @@ void fclCombineDrawCounter(u8 *arg0, s8 arg1) {
             fclSpriteStartPositionAt(0x2D1, spC8, sp68, 1, 0xA, 2);
         }
     }
-    if (func_00110140() == 0x64) {
+    if (datGetPersonaCacheCompletionPercent() == 0x64) {
         spC8 = fclMakeVec2(195.0f + origin.x, f21);
         if (t16 == 0) {
             fclSpriteCreate(0x10D, spC8, 211.0f, 0x57);
