@@ -26,7 +26,7 @@ extern char* scrGetParamString(s32 paramIdx);
 extern void func_00122640(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern s32 scrGetLabelAddr(s32 index);
 extern void scrSetCurrentLabel(s32 addr);
 extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
@@ -214,7 +214,7 @@ s32 scrSendParamPair(void) {
 // FUN_002991C0
 u32 scrIsIdle(void)
 {
-    return ~func_00102980() == 0;
+    return ~kwlnGetCurrentWorkValue() == 0;
 }
 
 // Case dispatch: parameter 0 selects a case (0..6) and parameter caseIdx + 1 names its label; a negative index or label returns without jumping.

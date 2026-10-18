@@ -47,7 +47,7 @@ extern s32 FldMapTestUpdate(u8 *arg0);
 extern void FldMapTestDestroy(u8 *arg0);
 extern u8 D_005F57B0[];
 extern u8 D_005F57C0[];
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 /* One 0x4A-byte pad record; the pads start at 0x8C0240 (sdkPadInit). */
 typedef struct {
     u8 unk00[0xC];
@@ -310,7 +310,7 @@ s32 FldViewerUpdate(u8 *arg0)
         }
         break;
     case 2:
-        if (func_00102980() == 0) {
+        if (kwlnGetCurrentWorkValue() == 0) {
             iGpffffb3a4 = 0;
             sdkLboxSetSelection(*(u8 **)(temp_16 + 4), 1);
             *(s32 *)temp_16 = 1;

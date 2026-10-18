@@ -69,7 +69,7 @@ extern u8* cmmItemInfoRecord(s32 arg0);
 extern void cmmAdvanceReverseProgress(s32 arg0);
 extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern s32 datPersonaDisplayName(s16 arg0);
 extern s8 cmmCommunityEventValue(s32 arg0, s32 arg1);
 extern s32 cmmNameRecord(s32 arg0);
@@ -259,7 +259,7 @@ s32 cmmMsgStreamUpdate(void)
     } else if (x > 0xA) {
         u32 b;
 
-        b = ~func_00102980() == 0;
+        b = ~kwlnGetCurrentWorkValue() == 0;
         if (b) {
             if (p->view.raw.unk13 != 0) {
                 u8* entry;

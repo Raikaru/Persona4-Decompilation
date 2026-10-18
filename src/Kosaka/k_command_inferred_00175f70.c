@@ -44,7 +44,7 @@ typedef struct
 extern void FldStepResetTables();
 extern s32 mtSceneResListPrepareAll();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
@@ -359,7 +359,7 @@ s32 K_Cmd_CALL_EVENT(void)
     if (temp_3 == 3) {
         func_001029a0(0xA, sp30, 0x1C, 2);
     } else if (temp_3 > 0xA) {
-        if (func_00102980() == -1) {
+        if (kwlnGetCurrentWorkValue() == -1) {
             iGpffffb300 = 0;
             var_16 = 1;
         } else {
@@ -379,7 +379,7 @@ s32 K_Cmd_CALL_DNG_FLOOR_ONLY(void)
         return 0;
     }
     sdlSchedulerEnable();
-    if (func_00102980() != 0xB) {
+    if (kwlnGetCurrentWorkValue() != 0xB) {
         fieldSceneUnload();
     }
     sp18[0] = scrGetParamInt(0);
@@ -396,7 +396,7 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
-    if (func_00102980() != 0xB) {
+    if (kwlnGetCurrentWorkValue() != 0xB) {
         fieldSceneUnload();
     }
     sdlSchedulerEnable();

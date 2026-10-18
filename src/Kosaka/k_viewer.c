@@ -22,7 +22,7 @@ extern s32 D_00764494;
 extern void FldStepResetTables(void);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 
 extern s32 FldViewerUpdate(u8 *arg0);
@@ -103,7 +103,7 @@ s32 K_Viewer_Update(u8 *task)
         }
         break;
     case 2:
-        if (func_00102980() == 0) {
+        if (kwlnGetCurrentWorkValue() == 0) {
             D_00764494 = 0;
             sdkLboxSetSelection(work->listBox, 1);
             work->state = 1;

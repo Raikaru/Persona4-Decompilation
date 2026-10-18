@@ -98,7 +98,7 @@ extern void btlUnitLoadSyncedAssets(void);
 extern void mdlAppRegisterModelCallbacks(void);
 extern void mdlAppPreloadResource(void);
 extern void cmmLoadTables(void);
-extern void func_0025ff90(void);
+extern void cldSchedulerInit(void);
 extern void cldDayChangePreloadData(void);
 extern void mtSceneIconLoadDirectory(void);
 extern void frFontStartup(void);

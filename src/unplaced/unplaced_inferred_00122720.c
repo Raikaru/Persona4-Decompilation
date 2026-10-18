@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "calendar_fade_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -21,13 +22,13 @@ extern s32 iGpffffb1cc;
    The labels are declared in that object order because b210 lays case bodies
    out in declaration order. */
 s32 fadeStatus(void) {
-    s32 *state;
+    CalendarFade *state;
 
-    state = (s32 *)iGpffffb1cc;
+    state = (CalendarFade *)iGpffffb1cc;
     if (state == NULL) {
         return 1;
     }
-    switch ((u32)state[0]) {
+    switch ((u32)state->state) {
     case 0:
         return 1;
     case 1:
@@ -44,39 +45,42 @@ s32 fadeStatus(void) {
 
 #pragma push
 #pragma opt_propagation on
+/* Return the configured fade mode, or 1 when no fade exists. */
 // FUN_001227A0
 s32 fadeState(void)
 {
     if (iGpffffb1cc == 0) {
         return 1;
     }
-    return *(s32 *)(iGpffffb1cc + 4);
+    return ((CalendarFade *)iGpffffb1cc)->mode;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
+/* Request calendar synchronization after the fade reaches its hold state. */
 // FUN_001227D0
 void fadeBegin(void)
 {
     if (iGpffffb1cc != 0) {
-        *(s32 *)(iGpffffb1cc + 0x14) = 1;
+        ((CalendarFade *)iGpffffb1cc)->changeRequested = 1;
     }
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
+/* Report whether a calendar-change request is no longer pending. */
 // FUN_001227F0
 s32 fadeIsIdle(void)
 {
     s32 result;
-    u8 *temp_3;
+    u8 *fade;
     result = 1;
-    temp_3 = (u8 *)iGpffffb1cc;
-    if (temp_3 == NULL)
+    fade = (u8 *)iGpffffb1cc;
+    if (fade == NULL)
         return 1;
-    if (*(s32 *)(temp_3 + 0x14) != 0)
+    if (((CalendarFade *)fade)->changeRequested != 0)
         result = 0;
     return result;
 }
@@ -84,19 +88,21 @@ s32 fadeIsIdle(void)
 
 #pragma push
 #pragma opt_propagation on
+/* Start the day-change task with the previous and current day. */
 // FUN_00122820
-void calendarStartDayChange(s32 arg0, s32 arg1)
+void calendarStartDayChange(s32 previousDay, s32 currentDay)
 {
-    cldDayChangeStartTask(0, arg0, arg1, D_00796670);
+    cldDayChangeStartTask(0, previousDay, currentDay, D_00796670);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
+/* Start the time-change task with the previous and current period. */
 // FUN_00122860
-void calendarStartTimeChange(s32 arg0, s32 arg1)
+void calendarStartTimeChange(s32 previousPeriod, s32 currentPeriod)
 {
-    cldTimeChangeCreate(0, arg0, arg1, D_00796670);
+    cldTimeChangeCreate(0, previousPeriod, currentPeriod, D_00796670);
 }
 #pragma pop
 

@@ -26,7 +26,7 @@ extern void fclMiscPruneGlobal(void);
 extern void resrcMngSelectDrawSet(s32);
 extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void FldResource_Destroy(s32);
-extern s32 func_00102980(void);
+extern s32 kwlnGetCurrentWorkValue(void);
 extern void FldSlotTablesReset(void);
 extern void FldUnit_ReleaseGroupSlots(void);
 extern void FldUnit_ReleaseAllSlots(void);
@@ -387,9 +387,9 @@ void FldRootDestroy(u8 *arg0)
             var_18 += 1;
         }
     }
-    if (func_00102980() != 9 &&
-        func_00102980() != 0xB &&
-        func_00102980() != 0xA) {
+    if (kwlnGetCurrentWorkValue() != 9 &&
+        kwlnGetCurrentWorkValue() != 0xB &&
+        kwlnGetCurrentWorkValue() != 0xA) {
         FldSlotTablesReset();
     }
     if ((u16)*(u16 *)(temp_17 + 0x18) < 0x15) {

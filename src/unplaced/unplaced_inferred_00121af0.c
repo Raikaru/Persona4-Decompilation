@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "calendar_fade_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -13,127 +14,139 @@ extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 sinf();
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2,
-                          s32 arg3, s32 arg4);
+extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
+extern void PrimDrawPoints(void *, void *, f32 , s32 ,
+                          s32 , s32 );
 extern f32 fGpffff8478;
-extern f32 cosf(f32 fparg0);
+extern f32 cosf(f32 );
 extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void fclBankTableReset(void);
-extern s32 func_00121af0(u8 *task);
+extern s32 tickerInitBankTable(u8 *task);
+/* The queue allocation is opaque beyond its callback and user-data fields. */
+typedef struct FadeQueueNode {
+    u8 pad0[8];
+    void *callback;
+    s32 unkC;
+    s32 userData;
+} FadeQueueNode;
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(char *name, u8 *task);
-extern void fadeUpdateCallback(void *arg0, u8 *arg1);
+extern void fadeUpdateCallback(void *, u8 *);
 extern char D_00796340[];
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
-extern s32 func_00268990(s32 arg0);
+extern s32 cldDungeonInStart(s32 );
 extern void fclBankTableInit(void);
+/* Initialize the bank table from the ticker task callback. */
 // FUN_00121AF0
-s32 func_00121af0(u8 *unusedTask)
+s32 tickerInitBankTable(u8 *unusedTask)
 {
     fclBankTableInit();
     return 0;
 }
 
+/* Reset the bank table and register its initializer task. */
 // FUN_00121B20
 void tickerStartTask(void) {
     fclBankTableReset();
-    kwlnTaskCreate((const void *)(&iGpffff9c58), 0xF, 0, 0, func_00121af0, 0, (u8 *)(0));
+    kwlnTaskCreate((const void *)(&iGpffff9c58), 0xF, 0, 0, tickerInitBankTable, 0, (u8 *)(0));
 }
 
+/* Step fade-in/out counters and wait for any calendar-change child task. */
 // FUN_00121B70
+/* Raw offsets preserve the measured match: CalendarFade access changed codegen (nd 306). */
 s32 fadeTaskStep(u8 *unusedTask) {
-    extern s32 calendarStartDayChange(s32 arg0, s32 arg1);
-    extern s32 calendarStartTimeChange(s32 arg0, s32 arg1);
+    extern s32 calendarStartDayChange(s32 , s32 );
+    extern s32 calendarStartTimeChange(s32 , s32 );
     extern s32 clndGetPeriod(void);
     extern s32 clndGetDaysSinceApr5(void);
     extern void calendarSyncFromDate(void);
-    s32 temp_17;
-    s32 temp_18;
-    s32 temp_19;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    s32 temp_3;
-    u32 temp_2;
-    u8 *temp_16;
+    s32 previousDay;
+    s32 previousPeriod;
+    s32 currentDay;
+    s32 nextCounter;
+    s32 previousCounter;
+    s32 currentPeriod;
+    s32 duration;
+    u32 state;
+    u8 *fade;
 
-    temp_16 = (u8 *)iGpffffb1cc;
-    temp_2 = *(u32 *)(temp_16 + 0);
-    switch (temp_2) {
+    fade = (u8 *)iGpffffb1cc;
+    state = *(u32 *)(fade + 0);
+    switch (state) {
     case 0:
-        *(s32 *)(temp_16 + 0x14) = 0;
+        *(s32 *)(fade + 0x14) = 0;
         break;
     case 1:
-        *(s32 *)(temp_16 + 0x10) = 1;
-        *(u32 *)(temp_16 + 0) = 2;
+        *(s32 *)(fade + 0x10) = 1;
+        *(u32 *)(fade + 0) = 2;
         break;
     case 2:
-        *(s32 *)(temp_16 + 0x10) = 1;
-        temp_2_2 = *(s32 *)(temp_16 + 0xC) + 1;
-        *(s32 *)(temp_16 + 0xC) = temp_2_2;
-        temp_3 = *(s32 *)(temp_16 + 8);
-        if (temp_2_2 >= temp_3) {
-            *(s32 *)(temp_16 + 0xC) = temp_3;
-            *(u32 *)(temp_16 + 0) = 3;
+        *(s32 *)(fade + 0x10) = 1;
+        nextCounter = *(s32 *)(fade + 0xC) + 1;
+        *(s32 *)(fade + 0xC) = nextCounter;
+        duration = *(s32 *)(fade + 8);
+        if (nextCounter >= duration) {
+            *(s32 *)(fade + 0xC) = duration;
+            *(u32 *)(fade + 0) = 3;
         }
         break;
     case 3:
-        *(s32 *)(temp_16 + 0x10) = 1;
-        if (*(s32 *)(temp_16 + 0x14) != 0) {
-            *(u32 *)(temp_16 + 0) = 6;
-        } else if ((*(s32 *)(temp_16 + 4) == 4) &&
-                   (*(s32 *)(temp_16 + 0x18) != 0)) {
-            *(s32 *)(temp_16 + 0x1C) = func_00268990(0);
-            *(u32 *)(temp_16 + 0) = 7;
-            *(s32 *)(temp_16 + 0x18) = 0;
+        *(s32 *)(fade + 0x10) = 1;
+        if (*(s32 *)(fade + 0x14) != 0) {
+            *(u32 *)(fade + 0) = 6;
+        } else if ((*(s32 *)(fade + 4) == 4) &&
+                   (*(s32 *)(fade + 0x18) != 0)) {
+            *(s32 *)(fade + 0x1C) = cldDungeonInStart(0);
+            *(u32 *)(fade + 0) = 7;
+            *(s32 *)(fade + 0x18) = 0;
         }
         break;
     case 4:
-        *(s32 *)(temp_16 + 0x10) = 1;
-        *(u32 *)(temp_16 + 0) = 5;
+        *(s32 *)(fade + 0x10) = 1;
+        *(u32 *)(fade + 0) = 5;
         break;
     case 5:
-        *(s32 *)(temp_16 + 0x10) = 1;
-        temp_2_3 = *(s32 *)(temp_16 + 0xC) - 1;
-        *(s32 *)(temp_16 + 0xC) = temp_2_3;
-        if (temp_2_3 <= 0) {
-            *(s32 *)(temp_16 + 0x10) = 0;
-            *(s32 *)(temp_16 + 0xC) = 0;
-            *(u32 *)(temp_16 + 0) = 0;
+        *(s32 *)(fade + 0x10) = 1;
+        previousCounter = *(s32 *)(fade + 0xC) - 1;
+        *(s32 *)(fade + 0xC) = previousCounter;
+        if (previousCounter <= 0) {
+            *(s32 *)(fade + 0x10) = 0;
+            *(s32 *)(fade + 0xC) = 0;
+            *(u32 *)(fade + 0) = 0;
         }
         break;
     case 6:
-        temp_17 = clndGetDaysSinceApr5();
-        temp_18 = clndGetPeriod();
+        previousDay = clndGetDaysSinceApr5();
+        previousPeriod = clndGetPeriod();
         calendarSyncFromDate();
-        temp_19 = clndGetDaysSinceApr5();
-        temp_2_4 = clndGetPeriod();
-        if (temp_17 != temp_19) {
-            *(s32 *)(temp_16 + 0x1C) = calendarStartDayChange(temp_17, temp_19);
-            *(u32 *)(temp_16 + 0) = 7;
-        } else if (temp_18 != temp_2_4) {
-            *(s32 *)(temp_16 + 0x1C) = calendarStartTimeChange(temp_18, temp_2_4);
-            *(u32 *)(temp_16 + 0) = 7;
+        currentDay = clndGetDaysSinceApr5();
+        currentPeriod = clndGetPeriod();
+        if (previousDay != currentDay) {
+            *(s32 *)(fade + 0x1C) = calendarStartDayChange(previousDay, currentDay);
+            *(u32 *)(fade + 0) = 7;
+        } else if (previousPeriod != currentPeriod) {
+            *(s32 *)(fade + 0x1C) = calendarStartTimeChange(previousPeriod, currentPeriod);
+            *(u32 *)(fade + 0) = 7;
         } else {
-            *(s32 *)(temp_16 + 0x14) = 0;
-            *(u32 *)(temp_16 + 0) = 3;
+            *(s32 *)(fade + 0x14) = 0;
+            *(u32 *)(fade + 0) = 3;
         }
         break;
     case 7:
-        if (kwlnTaskGetState(*(s32 *)(temp_16 + 0x1C)) == 3) {
-            *(s32 *)(temp_16 + 0x14) = 0;
-            *(u32 *)(temp_16 + 0) = 3;
+        if (kwlnTaskGetState(*(s32 *)(fade + 0x1C)) == 3) {
+            *(s32 *)(fade + 0x14) = 0;
+            *(u32 *)(fade + 0) = 3;
         }
         break;
     }
     return 0;
 }
 
+/* Release the shared fade work allocation. */
 // FUN_00121DB0
 void fadeTaskDestroy(u8 *unusedTask)
 {
@@ -142,82 +155,79 @@ void fadeTaskDestroy(u8 *unusedTask)
 }
 
 typedef struct {
-    s32 s0;
-    s32 s1;
-    s32 s2;
-    s32 s3;
+    s32 x;
+    s32 y;
+    s32 width;
+    s32 height;
     u8 pad10[0xC];
-    u8 c1c;
-    u8 c1d;
-    u8 c1e;
-    u8 c1f;
-} Frame00121DE0;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} FadeWipePacket;
 
+/* Draw a 640-by-480 sine-eased horizontal wipe. */
 // FUN_00121DE0
 void fadeDrawWipe(void)
 {
-    extern f32 sinf(void *arg0, f32 arg1);
-    Frame00121DE0 sp;
-    u8 *temp_4;
-    s32 temp_3;
-    s32 var_16;
-    s32 var_2;
+    extern f32 sinf(void *, f32 );
+    FadeWipePacket rectangle;
+    u8 *fade;
+    s32 duration;
+    s32 left;
+    s32 right;
     f32 result;
-    f32 high_temp;
+    f32 leftEdge;
     f32 ratio;
 
-    temp_4 = (u8 *)iGpffffb1cc;
-    if (temp_4 != NULL) {
-        temp_3 = *(s32 *)(temp_4 + 8);
-        if (*(s32 *)temp_4 >= 4) {
-            ratio = (fGpffff84a4 * (f32)*(s32 *)(temp_4 + 0xC)) / (f32)temp_3;
-            result = sinf(temp_4, ratio);
-            high_temp = 640.0f - (640.0f * result);
-            var_16 = (s32)high_temp;
-            var_2 = 0x280;
+    fade = (u8 *)iGpffffb1cc;
+    if (fade != NULL) {
+        duration = ((CalendarFade *)fade)->duration;
+        if (((CalendarFade *)fade)->state >= 4) {
+            ratio = (fGpffff84a4 * (f32)((CalendarFade *)fade)->counter) / (f32)duration;
+            result = sinf(fade, ratio);
+            leftEdge = 640.0f - (640.0f * result);
+            left = (s32)leftEdge;
+            right = 0x280;
         } else {
-            var_16 = 0;
-            ratio = (fGpffff84a4 * (f32)*(s32 *)(temp_4 + 0xC)) / (f32)temp_3;
-            result = sinf(temp_4, ratio);
-            var_2 = (s32)(640.0f * result);
+            left = 0;
+            ratio = (fGpffff84a4 * (f32)((CalendarFade *)fade)->counter) / (f32)duration;
+            result = sinf(fade, ratio);
+            right = (s32)(640.0f * result);
         }
-        sp.s0 = var_16;
-        sp.s1 = 0;
-        sp.s2 = var_2 - var_16;
-        sp.s3 = 0x1E0;
-        sp.c1f = 0xFF;
-        sp.c1c = iGpffffb1d8;
-        sp.c1d = iGpffffb1d4;
-        sp.c1e = iGpffffb1d0;
-        PrimDrawFlatRectangle(&sp.c1c, &sp.s0, 0.0f, 1);
+        rectangle.x = left;
+        rectangle.y = 0;
+        rectangle.width = right - left;
+        rectangle.height = 0x1E0;
+        rectangle.alpha = 0xFF;
+        rectangle.red = iGpffffb1d8;
+        rectangle.green = iGpffffb1d4;
+        rectangle.blue = iGpffffb1d0;
+        PrimDrawFlatRectangle(&rectangle.red, &rectangle.x, 0.0f, 1);
     }
 }
 
+/* Draw the radial fade mesh as 36 adjacent quadrilaterals. */
 // FUN_00121F20
 void fadeDrawMesh(void)
 {
+    typedef struct { f32 x, y; } FadePoint;
     typedef struct {
-        f32 p0;
-        f32 p1;
-        f32 p2;
-        f32 p3;
-    } Code1Point4;
+        FadePoint inner;
+        FadePoint outer;
+    } FadeSpoke;
     typedef struct {
-        f32 p0;
-        f32 p1;
-    } Code1Point2;
-    typedef struct {
-        u8 c0;
-        u8 c1;
-        u8 c2;
-        u8 c3;
-    } Code1Color4;
-    extern f32 sinf(f32 fparg0);
-    Code1Point4 points[0x25];
-    Code1Point2 quad[4];
-    Code1Color4 color[4];
-    u8 *temp_6;
-    Code1Point4 *point;
+        u8 red;
+        u8 green;
+        u8 blue;
+        u8 alpha;
+    } FadeColor;
+    extern f32 sinf(f32 );
+    FadeSpoke points[0x25];
+    FadePoint quad[4];
+    FadeColor color[4];
+    u8 *fade;
+    FadeSpoke *point;
     f32 result;
     f32 angle;
     f32 scale;
@@ -226,18 +236,18 @@ void fadeDrawMesh(void)
     f32 cosine;
     s32 i;
 
-    temp_6 = (u8 *)iGpffffb1cc;
-    if (temp_6 != NULL) {
-        color[0].c3 = 0xFF;
-        color[0].c0 = iGpffffb1d8;
-        color[0].c1 = iGpffffb1d4;
-        color[0].c2 = iGpffffb1d0;
+    fade = (u8 *)iGpffffb1cc;
+    if (fade != NULL) {
+        color[0].alpha = 0xFF;
+        color[0].red = iGpffffb1d8;
+        color[0].green = iGpffffb1d4;
+        color[0].blue = iGpffffb1d0;
         color[3] = color[0];
         color[2] = color[3];
         color[1] = color[2];
         result = sinf(
-            (fGpffff84a4 * (f32)*(s32 *)(temp_6 + 0xC)) /
-            (f32)*(s32 *)(temp_6 + 8));
+            (fGpffff84a4 * (f32)((CalendarFade *)fade)->counter) /
+            (f32)((CalendarFade *)fade)->duration);
         scale = 600.0f - (600.0f * result);
         angle = 0.0f;
         i = 0;
@@ -246,52 +256,53 @@ void fadeDrawMesh(void)
             sine = cosf(x);
             cosine = sinf(x);
             point = &points[i];
-            point->p0 = ((scale * sine * 1066.0f) / 1000.0f) + 320.0f;
-            point->p1 = (scale * cosine) + 224.0f;
-            point->p2 = ((sine * 600.0f * 1066.0f) / 1000.0f) + 320.0f;
-            point->p3 = (cosine * 600.0f) + 224.0f;
+            point->inner.x = ((scale * sine * 1066.0f) / 1000.0f) + 320.0f;
+            point->inner.y = (scale * cosine) + 224.0f;
+            point->outer.x = ((sine * 600.0f * 1066.0f) / 1000.0f) + 320.0f;
+            point->outer.y = (cosine * 600.0f) + 224.0f;
             angle += 10.0f;
             i++;
         }
         i = 0;
         while (i < 0x24) {
             point = &points[i];
-            quad[0] = *(Code1Point2 *)point;
-            quad[1] = *(Code1Point2 *)((u8 *)point + 8);
-            quad[2] = *(Code1Point2 *)(point + 1);
-            quad[3] = *(Code1Point2 *)((u8 *)(point + 1) + 8);
+            quad[0] = point->inner;
+            quad[1] = point->outer;
+            quad[2] = point[1].inner;
+            quad[3] = point[1].outer;
             PrimDrawPoints(color, quad, 0.0f, 4, 4, 1);
             i++;
         }
     }
 }
 
+/* Dispatch the active fade renderer while preserving the previous render state. */
 // FUN_001221A0
 /* measured: opt_propagation off preserves the single hoisted D_00887300 base
    used by retail across this callback's state setup sequence. */
 #pragma opt_propagation off
-void fadeUpdateCallback(void *arg0, u8 *arg1)
+void fadeUpdateCallback(void *unusedContext, u8 *fadeWork)
 {
     typedef struct {
-        s32 s0;
-        s32 s1;
-        s32 s2;
-        s32 s3;
+        s32 x;
+        s32 y;
+        s32 width;
+        s32 height;
         u8 pad10[8];
-        u8 c1c;
-        u8 c1d;
-        u8 c1e;
-        u8 c1f;
-    } Frame001221A0;
-    extern s32 (*D_00887304[])(s32 arg0, void *arg1);
-    extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    Frame001221A0 sp;
-    void (**base)(s32 arg0, s32 arg1);
+        u8 red;
+        u8 green;
+        u8 blue;
+        u8 alpha;
+    } FadeRectanglePacket;
+    extern s32 (*D_00887304[])(s32 unusedContext, void *fadeWork);
+    extern void (*D_00887300[])(s32 unusedContext, s32 fadeWork);
+    FadeRectanglePacket rectangle;
+    void (**base)(s32 unusedContext, s32 fadeWork);
     s32 result;
     s32 state;
     s32 alpha;
 
-    if ((*(u32 *)(arg1 + 0x10) & 1) != 0) {
+    if ((((CalendarFade *)fadeWork)->drawEnabled & 1) != 0) {
         D_00887304[0](0xE, &result);
         base = D_00887300;
         base[0](0xE, 0);
@@ -306,7 +317,7 @@ void fadeUpdateCallback(void *arg0, u8 *arg1)
         base[0](0xE, 0);
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
-        state = *(s32 *)(arg1 + 4);
+        state = ((CalendarFade *)fadeWork)->mode;
         if (state == 3)
             goto state3;
         if (state == 2)
@@ -320,17 +331,17 @@ void fadeUpdateCallback(void *arg0, u8 *arg1)
         goto done;
     draw:
         if (iGpffffb1cc != 0) {
-            alpha = ((*(s32 *)(iGpffffb1cc + 0xC) * 0xFF) /
-                     *(s32 *)(iGpffffb1cc + 8));
-            sp.s0 = 0;
-            sp.s1 = 0;
-            sp.s2 = 0x280;
-            sp.s3 = 0x1E0;
-            sp.c1f = (u8)alpha;
-            sp.c1c = iGpffffb1d8;
-            sp.c1d = iGpffffb1d4;
-            sp.c1e = iGpffffb1d0;
-            PrimDrawFlatRectangle(&sp.c1c, &sp.s0, 0.0f, 1);
+            alpha = ((((CalendarFade *)iGpffffb1cc)->counter * 0xFF) /
+                     ((CalendarFade *)iGpffffb1cc)->duration);
+            rectangle.x = 0;
+            rectangle.y = 0;
+            rectangle.width = 0x280;
+            rectangle.height = 0x1E0;
+            rectangle.alpha = (u8)alpha;
+            rectangle.red = iGpffffb1d8;
+            rectangle.green = iGpffffb1d4;
+            rectangle.blue = iGpffffb1d0;
+            PrimDrawFlatRectangle(&rectangle.red, &rectangle.x, 0.0f, 1);
         }
         goto done;
     state2:
@@ -345,6 +356,7 @@ void fadeUpdateCallback(void *arg0, u8 *arg1)
 
 #pragma push
 #pragma opt_propagation on
+/* Queue the shared fade work for the render callback. */
 // FUN_001223D0
 s32 fadeQueueCallback(u8 *unusedTask) {
     u8 *p;
@@ -355,14 +367,14 @@ s32 fadeQueueCallback(u8 *unusedTask) {
     if (x == 0) {
         return 0;
     }
-    *(void **)(p + 8) = (void *)fadeUpdateCallback;
-    *(s32 *)(p + 0x10) = x;
+    ((FadeQueueNode *)p)->callback = (void *)fadeUpdateCallback;
+    ((FadeQueueNode *)p)->userData = x;
     PrimAppendNode(D_00796340, p);
     return 0;
 }
 #pragma pop
 
-extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern s32 RpSkyRenderStateSet(s32 , s32 );
+extern void (*D_00887300[])(s32 , s32 );
+extern s32 RpSkyRenderStateSet(s32 , s32 );
 #include "btl_shuffle_draw_internal.h"

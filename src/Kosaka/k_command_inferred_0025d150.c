@@ -22,7 +22,7 @@ extern char D_00635C40[];
 extern char D_00635C60[];
 extern s32 cutinDrawTaskCreate(s32 arg0, s32 arg1);
 extern s32 taskRecordIsDone(s32 arg0);
-extern void func_00120f00(s32 arg0);
+extern void taskRecordRequestSecondary(s32 arg0);
 extern void taskRecordSetPosition(s32 arg0, s64 arg1);
 extern s32 iGpffffb480;
 
@@ -36,7 +36,7 @@ void datSetPartyId(s32 arg0, s32 arg1);
 s16 func_00106cd0(s16 arg0, s16 arg1);
 void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 s32 kwlnTaskIsLinked(s32 arg0);
-void func_00120f20(s32 arg0);
+void taskRecordRequestPrimary(s32 arg0);
 s32 mcIconTaskCreate(u8 *parent, s32 mode);
 s32 mcIconTaskPoll(void);
 extern u8 D_00635BF0[];
@@ -266,7 +266,7 @@ s32 K_Cmd_CUTIN_DRAW_START(void) {
         goto block_4;
     }
     if (taskRecordIsDone(iGpffffb480) != 0) {
-        func_00120f00(iGpffffb480);
+        taskRecordRequestSecondary(iGpffffb480);
         taskRecordSetPosition(iGpffffb480, *(s64 *)&local.f0);
         scrSetReturnInt(iGpffffb480);
         iGpffffb480 = 0;
@@ -283,7 +283,7 @@ s32 K_Cmd_TASK_DESTROY(void) {
     temp_16 = scrGetParamInt(0);
     if (scrGetCmdTimer() == 0) {
         if (kwlnTaskIsLinked(temp_16) != 0) {
-            func_00120f20(temp_16);
+            taskRecordRequestPrimary(temp_16);
         }
     } else {
         return 1;

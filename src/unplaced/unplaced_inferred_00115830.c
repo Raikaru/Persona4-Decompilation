@@ -4,7 +4,16 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
-extern void memset(u8 *arg0, s32 arg1, s32 arg2);
+
+/* Reset writes prove the two 0x3C-byte blocks and the eight-byte header. */
+typedef struct DatPanel {
+    s16 kind;
+    s16 unk2;
+    s32 unk4;
+    u8 primary[0x3C];
+    u8 secondary[0x3C];
+} DatPanel;
+extern void memset(u8 *, s32 , s32 );
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
@@ -12,11 +21,12 @@ extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 #pragma opt_rebuildconditionals on
 // Intent: Reset a panel: zero two 0x3C-byte sub-blocks and set the header to 1, 0, 0 [inferred]
 // FUN_00115830
-void datPanelReset(u8 *arg0) {
-    memset(arg0 + 8, 0, 0x3C);
-    memset(arg0 + 0x44, 0, 0x3C);
-    *(s16 *)(arg0 + 0) = 1;
-    *(s16 *)(arg0 + 2) = 0;
-    *(s32 *)(arg0 + 4) = 0;
+void datPanelReset(u8 *panelBytes) {
+    DatPanel *panel = (DatPanel *)panelBytes;
+    memset(panel->primary, 0, 0x3C);
+    memset(panel->secondary, 0, 0x3C);
+    panel->kind = 1;
+    panel->unk2 = 0;
+    panel->unk4 = 0;
 }
 #pragma pop

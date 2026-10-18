@@ -54,7 +54,7 @@ extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void fclBankTableReset(void);
 
-extern s32 func_00121af0(u8 *task);
+extern s32 tickerInitBankTable(u8 *task);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(char *name, u8 *task);
 extern void fadeUpdateCallback(void *arg0, u8 *arg1);
@@ -74,11 +74,11 @@ extern void datSetPendingDateIndex();
 extern void datSetPendingTimeSlot();
 extern void datSetPendingFlag();
 extern s32 calHasDayEntry();
-extern void func_00260450(void);
+extern void cldSchedulerStart(void);
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
-extern s32 func_00268990(s32 arg0);
+extern s32 cldDungeonInStart(s32 arg0);
 extern void fclBankTableInit(void);
 extern void poolFree(s32 arg0);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
@@ -419,7 +419,7 @@ typedef struct {
     s32 f88;
 } TitleTaskView;
 #include "btl_shuffle_draw_internal.h"
-void func_00124bb0(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 arg1, u32 arg2, f32 fparg6, s32 arg3, u32 *arg4);
+void titleTransformSlotModel(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 arg1, u32 arg2, f32 fparg6, s32 arg3, u32 *arg4);
 
 void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1);
 
@@ -999,7 +999,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                                     s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7) + (0))));
                                     u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                                     u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, temp_q1) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, temp_q1) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, temp_q1) << 8) | 0xFF;
-                                    func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7) + (8))), (*(f32 *)((u8 *)(temp_7) + (0xC))), (*(f32 *)((u8 *)(temp_7) + (0x10))), (*(f32 *)((u8 *)(temp_7) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7) + (0x18))), 0x42, temp_20);
+                                    titleTransformSlotModel(a0, (*(f32 *)((u8 *)(temp_7) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7) + (8))), (*(f32 *)((u8 *)(temp_7) + (0xC))), (*(f32 *)((u8 *)(temp_7) + (0x10))), (*(f32 *)((u8 *)(temp_7) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7) + (0x18))), 0x42, temp_20);
                                 }
                             }
                         }
@@ -1019,7 +1019,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                             s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7_2) + (0))));
                             u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                             u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-                            func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7_2) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_2) + (8))), (*(f32 *)((u8 *)(temp_7_2) + (0xC))), (*(f32 *)((u8 *)(temp_7_2) + (0x10))), (*(f32 *)((u8 *)(temp_7_2) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_2) + (0x18))), 0x42, temp_20);
+                            titleTransformSlotModel(a0, (*(f32 *)((u8 *)(temp_7_2) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_2) + (8))), (*(f32 *)((u8 *)(temp_7_2) + (0xC))), (*(f32 *)((u8 *)(temp_7_2) + (0x10))), (*(f32 *)((u8 *)(temp_7_2) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_2) + (0x18))), 0x42, temp_20);
                         }
                     }
                 }
@@ -1071,7 +1071,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                     {
                         s32 a0 = (s32)((f32) D_005E5370[0]);
                         u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
-                        func_00124bb0(a0, (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
+                        titleTransformSlotModel(a0, (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
                     }
                 } else if (temp_16 < 0xD2) {
                     lerpT = sinf(((((1.5707964f * (f32) (temp_16 - 0xBD)) / 20.0f))));
@@ -1083,7 +1083,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                     {
                         s32 a0 = (s32)((f32) D_005E5398[0]);
                         u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
-                        func_00124bb0(a0, (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
+                        titleTransformSlotModel(a0, (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
                     }
                 } else {
                     titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
@@ -1534,7 +1534,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7_5) + (0))));
                 u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                 u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-                func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7_5) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_5) + (8))), (*(f32 *)((u8 *)(temp_7_5) + (0xC))), (*(f32 *)((u8 *)(temp_7_5) + (0x10))), (*(f32 *)((u8 *)(temp_7_5) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_5) + (0x18))), 0x42, temp_20);
+                titleTransformSlotModel(a0, (*(f32 *)((u8 *)(temp_7_5) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_5) + (8))), (*(f32 *)((u8 *)(temp_7_5) + (0xC))), (*(f32 *)((u8 *)(temp_7_5) + (0x10))), (*(f32 *)((u8 *)(temp_7_5) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_5) + (0x18))), 0x42, temp_20);
             }
         }
         titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
@@ -1799,7 +1799,7 @@ s32 func_0012aa70(u8 *task)
     extern s32 shdSpriteEnsureLoaded(u8 *task);
     extern s32 taskLoadSlotModels(u8 *task);
     extern s32 titleMusicStreamStep(u8 *task);
-    extern s32 func_00124350(u8 *unusedWork);
+    extern s32 titleChooseSceneVariant(u8 *unusedWork);
     extern s32 calReadDayFlagMask(void);
     extern void calWriteDayFlagMask(s32 task);
     extern s32 calCaptureDayFlagMask(void);
@@ -1996,7 +1996,7 @@ s32 func_0012aa70(u8 *task)
         *(s32 *)work = 9;
         *(s32 *)(work + 0x14) = 0;
         *(s32 *)(work + 0xC) = 0;
-        *(s32 *)(work + 0x84) = func_00124350(work);
+        *(s32 *)(work + 0x84) = titleChooseSceneVariant(work);
         matrix.right.x = matrix.up.y = matrix.at.z = 1.0f;
         matrix.up.z = matrix.at.x = matrix.at.y = matrix.right.y = matrix.right.z = matrix.up.x = 0.0f;
         matrix.pos.x = matrix.pos.y = matrix.pos.z = 0.0f;
@@ -2306,7 +2306,7 @@ typedef char CampMenuWorkSize[(sizeof(CampMenuWork) == 0x2A4) ? 1 : -1];
 // FUN_0012D630
 s32 func_0012d630(u8 *menu)
 {
-    extern s32 func_0012e1d0(u8 *arg0);
+    extern s32 titleSlotFramesElapsed(u8 *arg0);
     extern void sdkRenderStateSetDefault(void);
     extern void sdkSpriteDrawSized(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
                               u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
@@ -2330,7 +2330,7 @@ s32 func_0012d630(u8 *menu)
     finished = 1;
     switch (*(s32 *)(bytes + 0x18)) {
     case 0:
-        if (func_0012e1d0(bytes) != 0) {
+        if (titleSlotFramesElapsed(bytes) != 0) {
             titleSlotSetMode(bytes, 1);
             break;
         }
@@ -2358,7 +2358,7 @@ s32 func_0012d630(u8 *menu)
         }
         break;
     case 2:
-        if (func_0012e1d0(bytes) != 0) {
+        if (titleSlotFramesElapsed(bytes) != 0) {
             titleSlotSetMode(bytes, 1);
             break;
         }

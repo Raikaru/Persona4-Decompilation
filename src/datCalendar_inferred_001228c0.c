@@ -771,7 +771,7 @@ s32 clndSceneUpdate(u8 *arg0)
     extern void sdkSndStopMainChannel(void);
     extern void sdkSndFadeOutChannel(s32 arg0, s32 arg1);
     extern s32 logoTaskStart(void);
-    extern s32 func_0012c1a0(s32 arg0);
+    extern s32 titleSoundReapTask(s32 arg0);
     extern s32 mwPlayerCreate(void *arg0, s32 arg1, void *arg2);
     extern void calendarStart(void);
     extern void func_00122640(s32 arg0, s32 arg1);
@@ -831,7 +831,7 @@ s32 clndSceneUpdate(u8 *arg0)
         *(u32 *)temp_16 = 3;
         break;
     case 3:
-        if (func_0012c1a0(*(s32 *)(temp_16 + 0xC)) != 0) {
+        if (titleSoundReapTask(*(s32 *)(temp_16 + 0xC)) != 0) {
             *(u32 *)temp_16 = 4;
         }
         break;

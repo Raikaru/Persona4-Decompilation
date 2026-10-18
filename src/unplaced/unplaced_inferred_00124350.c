@@ -10,11 +10,11 @@ typedef signed __int128 s128;
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
-extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void func_002ab550(void *arg0, void *arg1);
-extern void mdlAdvanceModelFromFlags(void *arg0);
+extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
+extern s32 mdlCopyIndexedMatrix(void *, s32 , void *);
+extern void mdlApplyModelMatrix(void *, void *, s32 );
+extern void func_002ab550(void *, void *);
+extern void mdlAdvanceModelFromFlags(void *);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -24,201 +24,223 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffb1e8;
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 sdkListStateHandleInput(void *arg0);
-extern s32 sdkListStateGetCursor(void *arg0);
+extern void sdkListStateConfigure(void *, s32 , s32 , s32 , s32 );
+extern void sdkListStateSetSecondaryMasks(void *, s32 , s32 , s32 , s32 );
+extern s32 sdkListStateHandleInput(void *);
+extern s32 sdkListStateGetCursor(void *);
 extern u16 D_008C024E[];
-extern void sprintf(void *arg0, const char *arg1, ...);
-extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
-extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
-extern s32 mdlPrepareModel(void *arg0);
+extern void sprintf(void *, const char *, ...);
+extern s32 H_Cdvd_LookupRequest(void *, s32 *);
+extern void *mdlCreateModelObjectFromMemory(u32 , u16 , void *, u32 , u32 );
+extern s32 mdlPrepareModel(void *);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
-typedef struct {
+
+/* Allocation at titleStartLoader is 0x90 bytes; model slots are 15 words. */
+typedef struct TitleScene {
     u8 pad0[0x18];
-    s32 field_18;
-} B810Obj;
+    s32 complete;
+    s32 mode;
+    s32 cursor;
+    s32 previousCursor;
+    s32 cursorFixed;
+    u8 pad2C[0xC];
+    s32 file;
+    s32 sprites;
+    s32 unk40;
+    u8 *models[15];
+    s32 ringFrame;
+    u8 pad84[0xC];
+} TitleScene;
+
+typedef struct TitleFileWork {
+    s32 state;
+    s32 request;
+    s32 resource;
+} TitleFileWork;
+
 
 extern s32 kwlnTaskIsLinked();
 extern void *kwlnTaskGetWork();
 extern void kwlnTaskDestroyWithHierarchy();
-extern void func_003ef3a0(void *arg0);
+extern void func_003ef3a0(void *);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
+extern s32 func_004669d0(s32 , s32 *, s32 );
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern u8 D_005E5720[];
-extern s32 func_0012aa70(u8 *arg0);
+extern s32 func_0012aa70(u8 *);
 extern void titleLoaderTeardown(u8 *task);
-extern void sdkSpritePackDestroy(s32 arg0);
-extern void H_Cdvd_Destroy(s32 arg0);
-extern void sdkSndStopChannel(s32 arg0);
-extern void mdlDestroyModelObject(s32 arg0);
+extern void sdkSpritePackDestroy(s32 );
+extern void H_Cdvd_Destroy(s32 );
+extern void sdkSndStopChannel(s32 );
+extern void mdlDestroyModelObject(s32 );
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Choose a title scene variant using weighted random branches and the global progression value. */
 // FUN_00124350
 extern u32 RpRandom(void);
-s32 func_00124350(u8 *unusedWork)
+s32 titleChooseSceneVariant(u8 *unusedWork)
 {
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    s32 var_16;
-    u32 var_3;
-    u32 var_3_2;
-    u32 var_3_3;
-    u32 var_3_4;
-    u32 var_3_5;
-    f32 var_f0;
-    f32 var_f0_2;
-    f32 var_f0_3;
-    f32 var_f0_4;
-    f32 var_f0_5;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    s32 temp_2_5;
+    f32 entryChance;
+    f32 groupChance;
+    f32 lowChoice;
+    f32 rareChance;
+    f32 highChoice;
+    s32 selection;
+    u32 entryRoll;
+    u32 groupRoll;
+    u32 lowRoll;
+    u32 rareRoll;
+    u32 highRoll;
+    f32 entrySample;
+    f32 groupSample;
+    f32 lowSample;
+    f32 rareSample;
+    f32 highSample;
+    s32 entryRandom;
+    s32 groupRandom;
+    s32 lowRandom;
+    s32 rareRandom;
+    s32 highRandom;
 
-    var_16 = 0;
+    selection = 0;
     if (iGpffffb1e8 > 1) {
-        temp_2 = RpRandom();
-        var_f0 = (f32)(u32)temp_2;
-        temp_f0 = 100.0f * (var_f0 / 2147483648.0f);
-        var_3 = (u32)temp_f0;
-        if (var_3 > 0x3B)
+        entryRandom = RpRandom();
+        entrySample = (f32)(u32)entryRandom;
+        entryChance = 100.0f * (entrySample / 2147483648.0f);
+        entryRoll = (u32)entryChance;
+        if (entryRoll > 0x3B)
             goto block_second;
     }
 block_8:
-    var_16 = 0;
+    selection = 0;
     goto block_end;
 block_second:
-    temp_2_2 = RpRandom();
-    var_f0_2 = (f32)(u32)temp_2_2;
-    temp_f0_2 = 100.0f * (var_f0_2 / 2147483648.0f);
-    var_3_2 = (u32)temp_f0_2;
-    if (var_3_2 < 0x32) {
-        temp_2_3 = RpRandom();
-        var_f0_3 = (f32)(u32)temp_2_3;
-        temp_f0_3 = 3.0f * (var_f0_3 / 2147483648.0f);
-        var_3_3 = (u32)temp_f0_3;
-        var_16 = var_3_3 + 1;
+    groupRandom = RpRandom();
+    groupSample = (f32)(u32)groupRandom;
+    groupChance = 100.0f * (groupSample / 2147483648.0f);
+    groupRoll = (u32)groupChance;
+    if (groupRoll < 0x32) {
+        lowRandom = RpRandom();
+        lowSample = (f32)(u32)lowRandom;
+        lowChoice = 3.0f * (lowSample / 2147483648.0f);
+        lowRoll = (u32)lowChoice;
+        selection = lowRoll + 1;
     } else {
-        temp_2_4 = RpRandom();
-        var_f0_4 = (f32)(u32)temp_2_4;
-        temp_f0_4 = 100.0f * (var_f0_4 / 2147483648.0f);
-        var_3_4 = (u32)temp_f0_4;
-        if (var_3_4 < 0xA) {
-            var_16 = 7;
+        rareRandom = RpRandom();
+        rareSample = (f32)(u32)rareRandom;
+        rareChance = 100.0f * (rareSample / 2147483648.0f);
+        rareRoll = (u32)rareChance;
+        if (rareRoll < 0xA) {
+            selection = 7;
         } else if (iGpffffb1e8 >= 0xA) {
-            temp_2_5 = RpRandom();
-            var_f0_5 = (f32)(u32)temp_2_5;
-            temp_f0_5 = 3.0f * (var_f0_5 / 2147483648.0f);
-            var_3_5 = (u32)temp_f0_5;
-            var_16 = var_3_5 + 4;
+            highRandom = RpRandom();
+            highSample = (f32)(u32)highRandom;
+            highChoice = 3.0f * (highSample / 2147483648.0f);
+            highRoll = (u32)highChoice;
+            selection = highRoll + 4;
         }
     }
 block_end:
-    if (var_16 >= 8) {
-        var_16 = 8;
+    if (selection >= 8) {
+        selection = 8;
     }
-    return var_16 + 0xB;
+    return selection + 0xB;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Request and prepare all fifteen slot models; return nonzero only when all are ready. */
 // FUN_001246D0
-s32 taskLoadSlotModels(u8 *arg0)
+s32 taskLoadSlotModels(u8 *context)
 {
-    u32 sp7C;
-    u8 sp50[0x2C];
-    s32 var_16;
-    s32 var_17;
-    u8 *temp_2;
-    u8 *temp_4;
+    u32 fileSize;
+    u8 filename[0x2C];
+    s32 modelIndex;
+    s32 ready;
+    u8 **modelSlot;
 
-    var_17 = 1;
-    if (arg0 == NULL) {
+    ready = 1;
+    if (context == NULL) {
         kAssertFail(D_005E5548, 0xF4);
     }
-    var_16 = 0;
+    modelIndex = 0;
     goto loop_14;
 loop_18:
-    temp_2 = arg0 + (var_16 * 4);
-    temp_4 = temp_2 + 0x44;
-    if (*(u8 **)temp_4 == NULL) {
-        if (var_16 < 8) {
-            sprintf(sp50, (const char *)D_005E5560, var_16 + 1);
+    modelSlot = &((TitleScene *)context)->models[modelIndex];
+    if (*modelSlot == NULL) {
+        if (modelIndex < 8) {
+            sprintf(filename, (const char *)D_005E5560, modelIndex + 1);
         } else {
-            sprintf(sp50, (const char *)D_005E5570, var_16 - 7);
+            sprintf(filename, (const char *)D_005E5570, modelIndex - 7);
         }
-        var_17 = H_Cdvd_LookupRequest(sp50, (s32 *)&sp7C);
-        if (var_17 == 0) {
+        ready = H_Cdvd_LookupRequest(filename, (s32 *)&fileSize);
+        if (ready == 0) {
             kAssertFail(D_005E5548, 0xFE);
         }
-        *(u8 **)temp_4 =
-            mdlCreateModelObjectFromMemory(9, 0xFF01, (void *)var_17, sp7C, 0);
-        var_17 = 0;
+        *modelSlot =
+            mdlCreateModelObjectFromMemory(9, 0xFF01, (void *)ready, fileSize, 0);
+        ready = 0;
     }
-    if ((*(u8 **)temp_4 != NULL) &&
-        (mdlPrepareModel(*(u8 **)temp_4) == 0)) {
-        var_17 = 0;
+    if ((*modelSlot != NULL) &&
+        (mdlPrepareModel(*modelSlot) == 0)) {
+        ready = 0;
         goto done;
     }
-    var_16++;
+    modelIndex++;
     goto loop_14;
 loop_14:
-    if (var_16 < 0xF) {
+    if (modelIndex < 0xF) {
         goto loop_18;
     }
 done:
-    return var_17;
+    return ready;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Process the three-entry title music selector and retain the previous cursor for animation. */
 // FUN_00124830
-s32 titleMusicStreamStep(u8 *arg0)
+/* Raw offsets preserve the measured match: TitleScene access changed codegen (nd 229). */
+s32 titleMusicStreamStep(u8 *context)
 {
-    u8 sp40[0x30];
-    s32 temp_18;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 var_16;
+    u8 listState[0x30];
+    s32 previousCursor;
+    s32 inputResult;
+    s32 cursor;
+    s32 confirmed;
 
-    var_16 = 0;
-    sdkListStateConfigure(sp40, 3, 3, *(s32 *)(arg0 + 0x20), 0);
-    sdkListStateSetSecondaryMasks(sp40, 0x4000, 0x1000, 0, 0);
-    temp_2 = sdkListStateHandleInput(sp40);
-    switch (temp_2) {
+    confirmed = 0;
+    sdkListStateConfigure(listState, 3, 3, *(s32 *)(context + 0x20), 0);
+    sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0, 0);
+    inputResult = sdkListStateHandleInput(listState);
+    switch (inputResult) {
     case 1:
-        var_16 = 1;
+        confirmed = 1;
         break;
     case 2:
-        var_16 = 1;
+        confirmed = 1;
         break;
     }
-    temp_18 = *(s32 *)(arg0 + 0x20);
-    temp_2_2 = sdkListStateGetCursor(sp40);
-    *(s32 *)(arg0 + 0x20) = temp_2_2;
-    if (temp_2_2 != temp_18) {
-        *(s32 *)(arg0 + 0x24) = temp_18;
-        *(s32 *)(arg0 + 0x28) = temp_18 << 16;
+    previousCursor = *(s32 *)(context + 0x20);
+    cursor = sdkListStateGetCursor(listState);
+    *(s32 *)(context + 0x20) = cursor;
+    if (cursor != previousCursor) {
+        *(s32 *)(context + 0x24) = previousCursor;
+        *(s32 *)(context + 0x28) = previousCursor << 16;
     }
     if (D_008C024E[0] & 0x40) {
         sdkSndStartStream(0, 0, 0, 1);
-        return *(s32 *)(arg0 + 0x20) + 1;
+        return *(s32 *)(context + 0x20) + 1;
     }
-    if (var_16 != 0) {
+    if (confirmed != 0) {
         sdkSndStartStream(0, 0, 0, 0);
         return 0;
     }
@@ -229,68 +251,70 @@ s32 titleMusicStreamStep(u8 *arg0)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Attach the companion slot model to frame 0x64, then apply color and draw flags. */
 // FUN_00124970
-void taskPrepareSlotModel(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
+/* Raw offsets preserve the measured match: model flags at +0xD8 changed codegen (nd 229). */
+void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *context)
 {
-    u8 spAC[4];
-    u8 sp60[0x4C];
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *var_17;
-    u8 *var_16;
+    u8 color[4];
+    u8 matrix[0x4C];
+    u8 *baseCursor;
+    u8 *attachedCursor;
+    u8 *baseModel;
+    u8 *attachedModel;
 
-    if (arg0 >= 0xF) {
-        var_17 = NULL;
+    if (modelIndex >= 0xF) {
+        baseModel = NULL;
     } else {
-        temp_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg3);
-        var_17 = temp_2 + 0x44;
-        if (mdlPrepareModel(*(u8 **)var_17) != 0) {
-            var_17 = *(u8 **)var_17;
+        baseCursor = (u8 *)code1_0012_stride(modelIndex * 4, (s32)context);
+        baseModel = baseCursor + 0x44;
+        if (mdlPrepareModel(*(u8 **)baseModel) != 0) {
+            baseModel = *(u8 **)baseModel;
         } else {
-            var_17 = NULL;
+            baseModel = NULL;
         }
     }
-    if (var_17 != NULL) {
-        if ((arg0 + 8) >= 0xF) {
-            var_16 = NULL;
+    if (baseModel != NULL) {
+        if ((modelIndex + 8) >= 0xF) {
+            attachedModel = NULL;
         } else {
-            temp_2_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg3);
-            var_16 = temp_2_2 + 0x64;
-            if (mdlPrepareModel(*(u8 **)var_16) != 0) {
-                var_16 = *(u8 **)var_16;
+            attachedCursor = (u8 *)code1_0012_stride(modelIndex * 4, (s32)context);
+            attachedModel = attachedCursor + 0x64;
+            if (mdlPrepareModel(*(u8 **)attachedModel) != 0) {
+                attachedModel = *(u8 **)attachedModel;
             } else {
-                var_16 = NULL;
+                attachedModel = NULL;
             }
         }
-        if ((var_16 != NULL) && (mdlCopyIndexedMatrix(var_17, 0x64, sp60) != 0)) {
-            spAC[0] = arg1 >> 0x18;
-            spAC[1] = arg1 >> 0x10;
-            spAC[2] = arg1 >> 8;
-            spAC[3] = arg1;
-            mdlApplyModelMatrix(var_16, sp60, 0);
-            if (arg2 & 1) {
-                *(s32 *)(var_16 + 0xD8) |= 8;
+        if ((attachedModel != NULL) && (mdlCopyIndexedMatrix(baseModel, 0x64, matrix) != 0)) {
+            color[0] = packedColor >> 0x18;
+            color[1] = packedColor >> 0x10;
+            color[2] = packedColor >> 8;
+            color[3] = packedColor;
+            mdlApplyModelMatrix(attachedModel, matrix, 0);
+            if (flags & 1) {
+                *(s32 *)(attachedModel + 0xD8) |= 8;
             } else {
-                *(s32 *)(var_16 + 0xD8) &= ~8;
+                *(s32 *)(attachedModel + 0xD8) &= ~8;
             }
-            if (arg2 & 2) {
-                *(s32 *)(var_16 + 0xD8) |= 0x10;
+            if (flags & 2) {
+                *(s32 *)(attachedModel + 0xD8) |= 0x10;
             } else {
-                *(s32 *)(var_16 + 0xD8) &= ~0x10;
+                *(s32 *)(attachedModel + 0xD8) &= ~0x10;
             }
-            if (arg2 & 0x10) {
-                *(s32 *)(var_16 + 0xD8) |= 0x100000;
+            if (flags & 0x10) {
+                *(s32 *)(attachedModel + 0xD8) |= 0x100000;
             } else {
-                *(s32 *)(var_16 + 0xD8) &= ~0x100000;
+                *(s32 *)(attachedModel + 0xD8) &= ~0x100000;
             }
-            if (arg2 & 0x40) {
-                *(s32 *)(var_16 + 0xD8) |= 0x40000;
+            if (flags & 0x40) {
+                *(s32 *)(attachedModel + 0xD8) |= 0x40000;
             } else {
-                *(s32 *)(var_16 + 0xD8) &= ~0x40000;
+                *(s32 *)(attachedModel + 0xD8) &= ~0x40000;
             }
-            func_002ab550(var_16, spAC);
-            if (!(arg2 & 0x10000)) {
-                mdlAdvanceModelFromFlags(var_16);
+            func_002ab550(attachedModel, color);
+            if (!(flags & 0x10000)) {
+                mdlAdvanceModelFromFlags(attachedModel);
             }
         }
     }
@@ -310,61 +334,63 @@ extern u8 D_005E55D8[];
 typedef struct {
     u8 q[8];
     f32 f;
-} Code1GlobalPair12;
+} TitleAxisPair;
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Transform, tint and update a title slot model and its companion passes. */
 // FUN_00124BB0
 /* 956/960 bytes; twenty-five resolved relocations and one zero alignment word. */
 #pragma push
 #pragma opt_propagation off
-void func_00124bb0(s32 arg0,
-                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   f32 fparg4, f32 fparg5,
-                   u32 arg1, u32 arg2,
-                   f32 fparg6,
-                   s32 arg3, u32 *arg4)
+/* Raw offsets preserve the measured match: TitleScene/model fields changed codegen (nd 307). */
+void titleTransformSlotModel(s32 modelIndex,
+                   f32 x, f32 y, f32 z, f32 pitch,
+                   f32 yaw, f32 roll,
+                   u32 baseColor, u32 highlightColor,
+                   f32 scale,
+                   s32 flags, u32 *context)
 {
     u8 color[4];
-    Code1GlobalPair12 global_pair;
-    u8 vec_f[0x10];
-    u8 vec_e[0x10];
-    u8 vec_d[0x10];
+    TitleAxisPair yawAxis;
+    u8 pitchAxis[0x10];
+    u8 rollAxis[0x10];
+    u8 transformVector[0x10];
     u8 matrix[0x40];
-    u8 *temp_2;
-    u8 *var_16;
+    u8 *modelCursor;
+    u8 *model;
 
     {
         s64 q = *(s64 *)D_005E55B0;
         f32 f = *(f32 *)D_005E55B8;
-        *(s64 *)global_pair.q = q;
-        global_pair.f = f;
+        *(s64 *)yawAxis.q = q;
+        yawAxis.f = f;
     }
     {
         s64 q = *(s64 *)D_005E55C0;
         f32 f = *(f32 *)D_005E55C8;
-        *(s64 *)vec_f = q;
-        *(f32 *)(vec_f + 8) = f;
+        *(s64 *)pitchAxis = q;
+        *(f32 *)(pitchAxis + 8) = f;
     }
     {
         s64 q = *(s64 *)D_005E55D0;
         f32 f = *(f32 *)D_005E55D8;
-        *(s64 *)vec_e = q;
-        *(f32 *)(vec_e + 8) = f;
+        *(s64 *)rollAxis = q;
+        *(f32 *)(rollAxis + 8) = f;
     }
-    if (arg0 >= 0xF) {
-        var_16 = NULL;
+    if (modelIndex >= 0xF) {
+        model = NULL;
     } else {
-        temp_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg4);
-        var_16 = temp_2 + 0x44;
-        if (mdlPrepareModel(*(u8 **)var_16) != 0) {
-            var_16 = *(u8 **)var_16;
+        modelCursor = (u8 *)code1_0012_stride(modelIndex * 4, (s32)context);
+        model = modelCursor + 0x44;
+        if (mdlPrepareModel(*(u8 **)model) != 0) {
+            model = *(u8 **)model;
         } else {
-            var_16 = NULL;
+            model = NULL;
         }
     }
-    if (var_16 != NULL) {
+    if (model != NULL) {
         *(s32 *)(matrix + 0x28) = 0x3F800000;
         *(s32 *)(matrix + 0x14) = 0x3F800000;
         *(s32 *)(matrix + 0x00) = 0x3F800000;
@@ -378,56 +404,56 @@ void func_00124bb0(s32 arg0,
         *(s32 *)(matrix + 0x34) = 0;
         *(s32 *)(matrix + 0x30) = 0;
         *(s32 *)(matrix + 0x0C) |= 0x20003;
-        RwMatrixRotate(matrix, &global_pair, fparg4, 0);
-        *(s32 *)(vec_f + 0x00) = 0x3F800000;
-        *(s32 *)(vec_f + 0x04) = 0;
-        *(s32 *)(vec_f + 0x08) = 0;
-        func_003e4320(vec_f, vec_f, matrix);
-        RwMatrixRotate(matrix, vec_f, fparg3, 2);
-        *(s32 *)(vec_e + 0x00) = 0;
-        *(s32 *)(vec_e + 0x04) = 0;
-        *(s32 *)(vec_e + 0x08) = 0x3F800000;
-        func_003e4320(vec_e, vec_e, matrix);
-        RwMatrixRotate(matrix, vec_e, fparg5, 2);
-        *(f32 *)(vec_d + 0x00) = fparg6;
-        *(f32 *)(vec_d + 0x04) = fparg6;
-        *(f32 *)(vec_d + 0x08) = fparg6;
-        RwMatrixScale(matrix, vec_d, 2);
-        *(f32 *)(vec_d + 0x00) = fparg0;
-        *(f32 *)(vec_d + 0x04) = fparg1;
-        *(f32 *)(vec_d + 0x08) = fparg2;
-        RwMatrixTranslate(matrix, vec_d, 2);
-        mdlApplyModelMatrix(var_16, matrix, 0);
-        color[0] = arg1 >> 0x18;
-        color[1] = arg1 >> 0x10;
-        color[2] = arg1 >> 8;
-        color[3] = arg1;
-        if (arg3 & 1) {
-            *(s32 *)(var_16 + 0xD8) |= 8;
+        RwMatrixRotate(matrix, &yawAxis, yaw, 0);
+        *(s32 *)(pitchAxis + 0x00) = 0x3F800000;
+        *(s32 *)(pitchAxis + 0x04) = 0;
+        *(s32 *)(pitchAxis + 0x08) = 0;
+        func_003e4320(pitchAxis, pitchAxis, matrix);
+        RwMatrixRotate(matrix, pitchAxis, pitch, 2);
+        *(s32 *)(rollAxis + 0x00) = 0;
+        *(s32 *)(rollAxis + 0x04) = 0;
+        *(s32 *)(rollAxis + 0x08) = 0x3F800000;
+        func_003e4320(rollAxis, rollAxis, matrix);
+        RwMatrixRotate(matrix, rollAxis, roll, 2);
+        *(f32 *)(transformVector + 0x00) = scale;
+        *(f32 *)(transformVector + 0x04) = scale;
+        *(f32 *)(transformVector + 0x08) = scale;
+        RwMatrixScale(matrix, transformVector, 2);
+        *(f32 *)(transformVector + 0x00) = x;
+        *(f32 *)(transformVector + 0x04) = y;
+        *(f32 *)(transformVector + 0x08) = z;
+        RwMatrixTranslate(matrix, transformVector, 2);
+        mdlApplyModelMatrix(model, matrix, 0);
+        color[0] = baseColor >> 0x18;
+        color[1] = baseColor >> 0x10;
+        color[2] = baseColor >> 8;
+        color[3] = baseColor;
+        if (flags & 1) {
+            *(s32 *)(model + 0xD8) |= 8;
         } else {
-            *(s32 *)(var_16 + 0xD8) &= ~8;
+            *(s32 *)(model + 0xD8) &= ~8;
         }
-        if (arg3 & 2) {
-            *(s32 *)(var_16 + 0xD8) |= 0x10;
+        if (flags & 2) {
+            *(s32 *)(model + 0xD8) |= 0x10;
         } else {
-            *(s32 *)(var_16 + 0xD8) &= ~0x10;
+            *(s32 *)(model + 0xD8) &= ~0x10;
         }
-        if (arg3 & 0x10) {
-            *(s32 *)(var_16 + 0xD8) |= 0x100000;
+        if (flags & 0x10) {
+            *(s32 *)(model + 0xD8) |= 0x100000;
         } else {
-            *(s32 *)(var_16 + 0xD8) &= ~0x100000;
+            *(s32 *)(model + 0xD8) &= ~0x100000;
         }
-        if (arg3 & 0x40) {
-            *(s32 *)(var_16 + 0xD8) |= 0x40000;
+        if (flags & 0x40) {
+            *(s32 *)(model + 0xD8) |= 0x40000;
         } else {
-            *(s32 *)(var_16 + 0xD8) &= ~0x40000;
+            *(s32 *)(model + 0xD8) &= ~0x40000;
         }
-        if (!(arg3 & 0x10000)) {
-            mdlAdvanceModelFromFlags(var_16);
+        if (!(flags & 0x10000)) {
+            mdlAdvanceModelFromFlags(model);
         }
-        taskPrepareSlotModel(arg0, arg2, arg3 | 2, arg4);
-        func_002ab550(var_16, color);
-        taskPrepareSlotModel(arg0, arg2, arg3 | 1, arg4);
+        taskPrepareSlotModel(modelIndex, highlightColor, flags | 2, context);
+        func_002ab550(model, color);
+        taskPrepareSlotModel(modelIndex, highlightColor, flags | 1, context);
     }
 }
 #pragma pop
@@ -484,6 +510,7 @@ static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalett
 static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOffset)
 {
     *(TitlePalette *)destination = *(const TitlePalette *)source;
+    /* Indexed-word selection changed titleDrawScene (nd 2808); retain the byte offset. */
     return *(u32 *)(destination + byteOffset);
 }
 
@@ -491,6 +518,8 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma always_inline on
+/* Draw the title scene model passes and full-screen palette/brightness layers.
+ * Raw palette offsets retain the measured copy/selection codegen (indexed words: nd 2808). */
 // FUN_00124F70
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
@@ -499,7 +528,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         s32 spriteIndex, s32 frame, u8 *sprites, s32 flags);
     extern void titleSkyApplyBasePreset(void);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void func_00124bb0(s32 modelIndex, f32 x, f32 y, f32 z,
+    extern void titleTransformSlotModel(s32 modelIndex, f32 x, f32 y, f32 z,
         f32 pitch, f32 yaw, f32 roll, u32 baseColor, u32 highlightColor,
         f32 scale, s32 flags, u32 *models);
     extern TitlePalette D_005E5530;
@@ -590,7 +619,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         s32 a0 = (s32)(f32)*(s32 *)modelIndexField;
         u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
         u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-        func_00124bb0(a0, *(f32 *)xField, 0.0f, *(f32 *)zField, *(f32 *)pitchField, *(f32 *)yawField, *(f32 *)rollField, a1, a2, *(f32 *)scaleField, 0x10052, (u32 *)sceneContext);
+        titleTransformSlotModel(a0, *(f32 *)xField, 0.0f, *(f32 *)zField, *(f32 *)pitchField, *(f32 *)yawField, *(f32 *)rollField, a1, a2, *(f32 *)scaleField, 0x10052, (u32 *)sceneContext);
     }
     secondPalette = D_005E5530;
     titlePaletteCopy(&secondHighlight, &secondPalette);
@@ -604,7 +633,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         s32 a0 = (s32)(f32)*(s32 *)modelIndexField;
         u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
         u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-        func_00124bb0(a0, *(f32 *)xField, 0.0f, *(f32 *)zField, *(f32 *)pitchField, *(f32 *)yawField, *(f32 *)rollField, a1, a2, *(f32 *)scaleField, modelFlags | 0x12, (u32 *)sceneContext);
+        titleTransformSlotModel(a0, *(f32 *)xField, 0.0f, *(f32 *)zField, *(f32 *)pitchField, *(f32 *)yawField, *(f32 *)rollField, a1, a2, *(f32 *)scaleField, modelFlags | 0x12, (u32 *)sceneContext);
     }
     flatPalette = D_005E5530;
     titlePaletteCopy(&flatRed, &flatPalette);
@@ -622,7 +651,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     {
         u32 c = brightness & 0xFF;
         u32 rep = (c << 24) | (c << 16) | (c << 8) | 0xFF;
-        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, rep >> 8, 0xFF, 0, 0, (u8 *)(*(s32 *)(sceneContext + 0x3C)), 0);
+        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, rep >> 8, 0xFF, 0, 0, (u8 *)(((TitleScene *)sceneContext)->sprites), 0);
     }
     /* Preserve sequential byte stores while applying RGB brightness. */
     shadePalette = D_005E5530;
@@ -667,24 +696,25 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
 }
 #pragma pop
 
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
+extern s32 shdSpriteDrawNow(f32 , f32 , f32 , s32 , u8 , s32 , s32 , u8 * , s32 );
 extern void titleSkyApplyBasePreset(void);
-extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern s32 RpSkyRenderStateSet(s32 , s32 );
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 D_005E55E0[];
 extern s8 D_005E5610[];
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void (*D_00887300[])(s32 , s32 );
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Translate six point rows and draw the title backdrop with transformed vertex colors. */
 // FUN_00125E80
-void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
+void titleBuildPointRows(f32 originX, f32 originY, f32 depth, s32 opacity, u8 *context)
 {
-    u8 spCC[4];
-    PrimPointRow sp90[6];
-    s8 sp70[0x20];
-    PrimPoint sp40[6];
+    u8 clearColor[4];
+    PrimPointRow sourcePoints[6];
+    s8 colors[0x20];
+    PrimPoint points[6];
     s32 *src;
     PrimPointRow *dst;
     s32 count;
@@ -704,7 +734,7 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     PrimPointRow *in;
 
     src = D_005E55E0;
-    dst = sp90;
+    dst = sourcePoints;
     count = 6;
     do {
         temp1 = src[0];
@@ -717,7 +747,7 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     } while (count > 0);
 
     src8 = D_005E5610;
-    dst8 = sp70;
+    dst8 = colors;
     count8 = 0xC;
     do {
         temp8_1 = src8[0];
@@ -729,7 +759,7 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
         dst8 += 2;
     } while (count8 > 0);
 
-    p = spCC;
+    p = clearColor;
     n = 4;
     if (p != NULL) {
         do {
@@ -740,15 +770,15 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     }
 
     mdlEffectEmitMaskedTagPair();
-    shdSpriteDrawNow(0.0f, 0.0f, fparg2, 0xFFFFFF, arg0 & 0xFF, 0x1000D, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
+    shdSpriteDrawNow(0.0f, 0.0f, depth, 0xFFFFFF, opacity & 0xFF, 0x1000D, 0, (u8 *)(((TitleScene *)context)->sprites), 1);
     mdlEffectEmitTagPair();
 
     i = 0;
-    x = -100.0f + fparg0;
-    y = -200.0f + fparg1;
+    x = -100.0f + originX;
+    y = -200.0f + originY;
     while ((u32)i < 6) {
-        in = &sp90[i];
-        out = sp40[i].v;
+        in = &sourcePoints[i];
+        out = points[i].v;
         out[0] = x + in->point.v[0];
         out[1] = y + in->point.v[1];
         i++;
@@ -758,16 +788,16 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     D_00887300[0](6, 1);
     RpSkyRenderStateSet(3, 0x5000D);
     RpSkyRenderStateSet(2, 0x58);
-    PrimDrawTransformed(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
+    PrimDrawTransformed(colors, points, depth, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
 #pragma pop
 
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
-extern s32 shdSpriteDrawNowEx(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
-                         s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
+extern s32 shdSpriteDrawNow(f32 , f32 , f32 , s32 opacity, u8 context, s32 , s32 , u8 *, s32 );
+extern s32 shdSpriteDrawNowEx(f32 , f32 , f32 , s32 opacity, u8 context, s32 , s32 , u8 *, s32 ,
+                         s16 , s16 , f32 , f32 , f32 );
 extern void titleSkyApplyBasePreset(void);
-extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern s32 RpSkyRenderStateSet(s32 opacity, s32 context);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 typedef struct { u8 c0, c1, c2, c3; } __attribute__((aligned(4))) TitleColor;
@@ -787,8 +817,10 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Draw title shade bars and counter-rotating rings on a 200-frame cycle. */
 // FUN_00126090
-void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
+/* Raw offsets preserve the measured match: TitleScene access changed codegen (nd 663). */
+void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
 {
     TitleColor fillColor;
     TitleColor black;
@@ -815,7 +847,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
     fillColor = black;
     titleRectangle((u8 *)&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, NULL);
     mdlEffectEmitMaskedTagPair();
-    shdSpriteDrawNow(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
+    shdSpriteDrawNow(0.0f, 0.0f, 0.0f, 0xFFFFFF, opacity & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(context + 0x3C)), 1);
     mdlEffectEmitTagPair();
     mdlEffectEmitMaskedTagPair();
     p = (u8 *)&clear;
@@ -836,25 +868,25 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
     rect = lower;
     PrimDrawFlatRectangle(&shade, &rect, 0.0f, 0);
     mdlEffectEmitTagPair();
-    frame = *(s32 *)(arg1 + 0x80) + 1;
-    *(s32 *)(arg1 + 0x80) = frame;
+    frame = *(s32 *)(context + 0x80) + 1;
+    *(s32 *)(context + 0x80) = frame;
     if (frame >= 200) {
-        *(s32 *)(arg1 + 0x80) = 0;
+        *(s32 *)(context + 0x80) = 0;
     }
-    phase = (f32)*(s32 *)(arg1 + 0x80) / 200.0f;
+    phase = (f32)*(s32 *)(context + 0x80) / 200.0f;
     titleSkyApplyBasePreset();
     RpSkyRenderStateSet(3, 0x53001);
     RpSkyRenderStateSet(2, 0x58);
     angle = 360.0f * phase;
-    titleRing(35.0f, 152.0f, 0x202020, 2.4f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
-    titleRing(233.0f, 102.0f, 0x808080, 1.8f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
-    titleRing(377.0f, 93.0f, 0x808080, 1.4f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
-    titleRing(626.0f, 110.0f, 0x808080, 1.1f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(35.0f, 152.0f, 0x202020, 2.4f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(233.0f, 102.0f, 0x808080, 1.8f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(377.0f, 93.0f, 0x808080, 1.4f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(626.0f, 110.0f, 0x808080, 1.1f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
     angle = -360.0f * phase;
-    titleRing(35.0f, 152.0f, 0x808080, 2.2f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
-    titleRing(233.0f, 102.0f, 0x808080, 1.45f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
-    titleRing(377.0f, 93.0f, 0x808080, 1.0f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
-    titleRing(626.0f, 110.0f, 0x808080, 1.55f, angle, (u8 *)(*(s32 *)(arg1 + 0x3C)));
+    titleRing(35.0f, 152.0f, 0x808080, 2.2f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(233.0f, 102.0f, 0x808080, 1.45f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(377.0f, 93.0f, 0x808080, 1.0f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
+    titleRing(626.0f, 110.0f, 0x808080, 1.55f, angle, (u8 *)(*(s32 *)(context + 0x3C)));
 }
 #pragma pop
 
@@ -870,17 +902,18 @@ typedef union Code12FrameVectorTransfer {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Release fifteen models, the sprite pack, the file request and the title work. */
 // FUN_0012B660
 void titleLoaderTeardown(u8 *unusedTask)
 {
-    u8 *temp_2;
-    s32 temp_3;
-    s32 temp_4;
-    s32 var_17;
+    u8 *context;
+    s32 mode;
+    s32 model;
+    s32 modelIndex;
 
-    temp_2 = kwlnTaskGetWork();
-    temp_3 = *(s32 *)(temp_2 + 0x1C);
-    switch (temp_3) {
+    context = kwlnTaskGetWork();
+    mode = ((TitleScene *)context)->mode;
+    switch (mode) {
     case 2:
         break;
     case 3:
@@ -894,80 +927,84 @@ error:
         sdkSndStopChannel(0x1E);
         break;
     }
-    var_17 = 0;
+    modelIndex = 0;
     goto loop_10_test;
 loop_10_body:
-    temp_4 = *(s32 *)(temp_2 + var_17 * 4 + 0x44);
-    if (temp_4 != 0) {
-        mdlDestroyModelObject(temp_4);
+    model = (s32)((TitleScene *)context)->models[modelIndex];
+    if (model != 0) {
+        mdlDestroyModelObject(model);
     }
-    var_17 += 1;
+    modelIndex += 1;
 loop_10_test:
-    if (var_17 < 0xF) {
+    if (modelIndex < 0xF) {
         goto loop_10_body;
     }
-    sdkSpritePackDestroy(*(s32 *)(temp_2 + 0x3C));
-    H_Cdvd_Destroy(*(s32 *)(temp_2 + 0x38));
-    jtbl_008873EC[0](temp_2);
+    sdkSpritePackDestroy(((TitleScene *)context)->sprites);
+    H_Cdvd_Destroy(((TitleScene *)context)->file);
+    jtbl_008873EC[0](context);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Allocate the 0x90-byte title work and register its loader callbacks. */
 // FUN_0012B760
 s32 titleStartLoader(void)
 {
-    u8 *temp_2;
+    u8 *context;
     chkmemAllocSiteTag(D_005E5548, 0x728);
-    temp_2 = D_008873F4[0](1, 0x90, 0x40000);
-    if (temp_2 == NULL)
+    context = D_008873F4[0](1, 0x90, 0x40000);
+    if (context == NULL)
         kAssertFail(D_005E5548, 0x729);
-    *(s32 *)(temp_2 + 0x18) = 0;
-    kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, titleLoaderTeardown, (u8 *)(temp_2));
+    ((TitleScene *)context)->complete = 0;
+    kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, titleLoaderTeardown, (u8 *)(context));
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Destroy a linked loader once its completion word is nonzero; return that word. */
 // FUN_0012B810
-s32 titleLoaderReap(s32 arg0)
+s32 titleLoaderReap(s32 task)
 {
-    B810Obj *temp_2;
+    TitleScene *context;
 
-    if ((arg0 == 0) || (kwlnTaskIsLinked() == 0)) {
+    if ((task == 0) || (kwlnTaskIsLinked() == 0)) {
         return -1;
     }
-    temp_2 = (B810Obj *)(kwlnTaskGetWork(arg0));
-    if (temp_2->field_18 != 0) {
-        kwlnTaskDestroyWithHierarchy(arg0);
+    context = (TitleScene *)(kwlnTaskGetWork(task));
+    if (context->complete != 0) {
+        kwlnTaskDestroyWithHierarchy(task);
     }
-    return temp_2->field_18;
+    return context->complete;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Advance the asynchronous file request and keep its resource until destruction. */
 // FUN_0012B890
+/* Raw offsets preserve the measured match: TitleFileWork access changed codegen (nd 116). */
 s32 titleFileLoadStep(u8 *unusedTask)
 {
-    s32 sp2C;
-    u8 *temp_2;
-    s32 temp_3;
-    temp_2 = (u8 *)kwlnTaskGetWork();
-    temp_3 = *(s32 *)(temp_2 + 0);
-    switch (temp_3) {
+    s32 complete;
+    u8 *work;
+    s32 state;
+    work = (u8 *)kwlnTaskGetWork();
+    state = *(s32 *)(work + 0);
+    switch (state) {
     case 0:
-        *(s32 *)(temp_2 + 0) = 1;
+        *(s32 *)(work + 0) = 1;
     case 1:
-        *(s32 *)(temp_2 + 0) = 2;
+        *(s32 *)(work + 0) = 2;
     case 2:
-        *(s32 *)(temp_2 + 8) = func_004669d0(*(s32 *)(temp_2 + 4), &sp2C, 0);
-        if (sp2C != 0) {
-            *(s32 *)(temp_2 + 0) = 3;
-            *(s32 *)(temp_2 + 4) = 0;
+        *(s32 *)(work + 8) = func_004669d0(*(s32 *)(work + 4), &complete, 0);
+        if (complete != 0) {
+            *(s32 *)(work + 0) = 3;
+            *(s32 *)(work + 4) = 0;
         }
         break;
     case 3:
@@ -980,16 +1017,17 @@ s32 titleFileLoadStep(u8 *unusedTask)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Release a loaded resource, if present, then free the file task work. */
 // FUN_0012B940
-void titleLoaderDestroy(u8 *arg0) {
-    u8 *p;
-    s32 v;
+void titleLoaderDestroy(u8 *unusedTask) {
+    u8 *work;
+    s32 resource;
 
-    p = kwlnTaskGetWork();
-    v = *(s32 *)(p + 8);
-    if (v != 0) {
-        func_003ef3a0((void *)v);
+    work = kwlnTaskGetWork();
+    resource = ((TitleFileWork *)work)->resource;
+    if (resource != 0) {
+        func_003ef3a0((void *)resource);
     }
-    jtbl_008873EC[0](p);
+    jtbl_008873EC[0](work);
 }
 #pragma pop

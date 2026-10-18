@@ -5,6 +5,29 @@
 #include "cmm_internal.h"
 #include "datPersona_internal.h"
 
+
+/* cmm.bin chunks have an eight-byte header and fixed-stride records. */
+typedef struct CmmChunkHeader { u32 unk00; u32 count; } CmmChunkHeader;
+/* The candidate table has fourteen-byte rows: flags at 0 and level at 3. */
+typedef struct CmmPersonaCandidateRecord { u16 flags; u8 unk02, level; u8 pad04[10]; } CmmPersonaCandidateRecord;
+typedef struct CmmConditionRecord {
+    u16 communityId; u16 unk02; u16 kind;
+    union { u16 weekday; struct { u8 month, day; } date; } value;
+} CmmConditionRecord;
+typedef struct CmmEligibleRecord {
+    u8 month, day; u16 communityId; u16 minRank, maxRank;
+} CmmEligibleRecord;
+typedef struct CmmReversePair { u16 communityId, otherId; s32 increment; } CmmReversePair;
+typedef struct CmmMessageEntry {
+    u16 communityId; u8 kind, rank; u8 pad04[8]; u32 flagBit;
+} CmmMessageEntry;
+typedef struct CmmLookupValue { s32 key; u16 kind; u8 pad06[2]; s32 value; } CmmLookupValue;
+typedef struct CmmFlaggedValue { s32 flagBit, key; u16 kind, value; } CmmFlaggedValue;
+typedef struct CmmDateRange { s16 threshold[2]; u8 pad04[4]; } CmmDateRange;
+typedef struct CmmDateColumn { u16 itemFirst; s16 deltaFirst; u16 itemSecond; s16 deltaSecond; s32 value; u8 pad0C[4]; } CmmDateColumn;
+typedef struct CmmDateRecord { u8 month, day, specialMonth, specialDay; CmmDateColumn columns[2]; } CmmDateRecord;
+typedef struct CmmFishingRecord { s16 base, span; u8 pad04[2]; s16 effect; u8 pad08[6]; } CmmFishingRecord;
+
 extern u32 RpRandom(void);
 
 
@@ -31,7 +54,7 @@ extern s32 calIsCurrentMonthDay(s32 a, s32 b, s32 c);
 extern s32 calIsDayInRange(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
 extern s32 cmmCommunityRecordValue(s32 idx);
-extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 arg1);
+extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 option);
 extern u16 cmmCommunityGetTableHead(void);
 extern s64 cmmCommunityArcana(s32 idx);
 extern s32 cmmCommunityHasRecord(u16 idx);
@@ -39,8 +62,8 @@ extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
 extern s32 calDayOfYearFromMonthDay(s32 a, s32 b);
 extern s32 calHasDayEntry(s32 idx);
 extern s32 cmmDateTableFindIndex();
-extern u16 cmmCommunityCategory(s32 arg0);
-extern s32 cmmReversedAtRank(s32 arg0);
+extern u16 cmmCommunityCategory(s32 value);
+extern s32 cmmReversedAtRank(s32 value);
 extern void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
 extern void chkmemAllocSiteTag(void *, s32);
 
@@ -93,56 +116,56 @@ static inline s32 cmmMiscOr(s32 left, s32 right) {
 // Loads the cmm.bin event file (retail path string at D_006359E0) and fills D_00881480[0..0x1B] with its 28 chunks. Called once from the kwln table init.
 // FUN_00246700
 void cmmLoadTables(void) {
-    s32 sp3C;
+    s32 entrySize;
     s32 i;
     void *handle;
 
     func_00440b68(&D_007636F0, D_006359D0, 0x3F);
     H_Cdvd_ReadSync(handle = H_Cdvd_AcquireDirectory(D_006359E0, 1));
     for (i = 0; i < 0x1C; i++) {
-        D_00881480[i] = H_Cdvd_GetArchiveEntry(handle, i, &sp3C);
+        D_00881480[i] = H_Cdvd_GetArchiveEntry(handle, i, &entrySize);
     }
 }
 
-// Kind record: returns the 100-byte kind record for index arg0 (table D_00881480), asserting the index is in range. Callers test its +4 flags and read its +8 sprite width base.
+// Kind record: returns the 100-byte kind record for index value (table D_00881480), asserting the index is in range. Callers test its +4 flags and read its +8 sprite width base.
 // FUN_002467B0
-u8 *cmmKindRecord(s32 arg0) {
-    u8 *temp_16 = D_00881480[0];
+u8 *cmmKindRecord(s32 kindId) {
+    u8 *table = D_00881480[0];
     s32 off;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(kindId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x4C);
     }
-    off = (u16)arg0 * 100;
-    return (u8 *)(off + (u32)temp_16 + 8);
+    off = (u16)kindId * 100;
+    return (u8 *)(off + (u32)table + 8);
 }
 
-// Name record: returns the 64-byte name record for id arg0 (table D_00881484), asserting the id is in range. Callers read it as a display string or record.
+// Name record: returns the 64-byte name record for id value (table D_00881484), asserting the id is in range. Callers read it as a display string or record.
 // FUN_00246830
-u8 *cmmNameRecord(u32 arg0) {
-    u32 temp_16;
-    u8 *temp_17;
+u8 *cmmNameRecord(u32 nameId) {
+    u32 index;
+    u8 *table;
 
-    temp_17 = D_00881484[0];
-    temp_16 = arg0 & 0xFFFF;
-    if (temp_16 >= *(u32 *)(temp_17 + 4)) {
+    table = D_00881484[0];
+    index = nameId & 0xFFFF;
+    if (index >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x54);
     }
-    return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
+    return (u8 *)((index << 6) + (u32)table + 8);
 }
 
-// Text record: returns the 64-byte text record for id arg0 (table D_008814DC), asserting the id is in range. Callers read it as a display string.
+// Text record: returns the 64-byte text record for id value (table D_008814DC), asserting the id is in range. Callers read it as a display string.
 // FUN_002468A0
-u8 *cmmTextRecord(u32 arg0) {
-    u32 temp_16;
-    u8 *temp_17;
+u8 *cmmTextRecord(u32 textId) {
+    u32 index;
+    u8 *table;
 
-    temp_17 = D_008814DC[0];
-    temp_16 = arg0 & 0xFFFF;
-    if (temp_16 >= *(u32 *)(temp_17 + 4)) {
+    table = D_008814DC[0];
+    index = textId & 0xFFFF;
+    if (index >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x5C);
     }
-    return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
+    return (u8 *)((index << 6) + (u32)table + 8);
 }
 
 /* MATCHED (wave 14): `#pragma opt_propagation off` (measured: nd 9 -> 2,
@@ -150,16 +173,16 @@ u8 *cmmTextRecord(u32 arg0) {
    hoisted `s32 base` local + the cmmMiscAddOff inline helper (measured:
    nd 2 -> 1, fixes the `addu $v0,$v0,$a1` mul-first operand order). Retail
    loads the global into $a1 FIRST, then the x24 chain, then `addu $v0,$v0,$a1`. */
-// Rank name record: 24-byte record from chunk 7 (D_0088149C) for rank index arg0.
+// Rank name record: 24-byte record from chunk 7 (D_0088149C) for rank index value.
 // FUN_00246910
 #pragma opt_propagation off
-u8 *cmmRankNameRecord(s16 arg0) {
+u8 *cmmRankNameRecord(s16 value) {
     s32 base = D_0088149C[0];
-    s32 mul = (s16)arg0 * 24;
+    s32 mul = (s16)value * 24;
     return (u8 *)(cmmMiscAddOff(mul, base) + 8);
 }
 #pragma opt_propagation on
-// Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index arg0.
+// Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index value.
 // FUN_00246940
 /* MATCHED (wave 14): same recipe as cmmRankNameRecord — `#pragma opt_propagation
    off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
@@ -167,9 +190,9 @@ u8 *cmmRankNameRecord(s16 arg0) {
    (fixes the `addu $v0,$v0,$a1` operand order). Final residual is a benign
    reloc-masked word. */
 #pragma opt_propagation off
-u8 *cmmDetailRecord(s16 arg0) {
+u8 *cmmDetailRecord(s16 value) {
     s32 base = D_008814A0[0];
-    s32 mul = (s16)arg0 * 20;
+    s32 mul = (s16)value * 20;
     return (u8 *)(cmmMiscAddOff(mul, base) + 8);
 }
 #pragma opt_propagation on
@@ -179,55 +202,56 @@ s32 cmmAuxTable(void) {
     return D_008814A4[0];
 }
 
-// Rank string: returns the address of the string for kind arg0 and level arg1 in chunk 10 (D_008814A8), with 65-byte kind and 13-byte level strides.
+// Rank string: returns the address of the string for kind value and level option in chunk 10 (D_008814A8), with 65-byte kind and 13-byte level strides.
 // FUN_00246980
-s32 cmmRankStringAt(s16 arg0, s16 arg1) {
+s32 cmmRankStringAt(s16 value, s16 option) {
     s32 base = D_008814A8[0] + 8;
 
-    if (arg0 >= 5) {
+    if (value >= 5) {
         kAssertFail(D_006359D0, 0xBC);
     }
-    if ((arg1 <= 0) || (arg1 > 5)) {
-        kAssertFailMsg(D_006359D0, 0xBD, &D_007636F8, arg1);
+    if ((option <= 0) || (option > 5)) {
+        kAssertFailMsg(D_006359D0, 0xBD, &D_007636F8, option);
     }
-    return base + arg0 * 0x41 + (arg1 - 1) * 0xD;
+    return base + value * 0x41 + (option - 1) * 0xD;
 }
 
 /* MATCHED (wave 14): lever-3 static inline helper `cmmMiscAddOff(offset, base)`
    carrying the addu operand order through its parameters fixed the two
    transposed `addu` residuals (nd 4 -> 0). The `index` local + first helper
-   call fixed the first addu; the second call `cmmMiscAddOff(arg1*2, mid)`
+   call fixed the first addu; the second call `cmmMiscAddOff(option*2, mid)`
    fixed the second. Original residual was `addu $v0,$v1,$v0` vs retail
    `addu $v0,$v0,$v1` (fresh sll result in rs). */
-// Rank threshold: returns the s16 threshold from chunk 11 (D_008814AC) for category arg0 at level arg1. g_data.c uses it for rank thresholds.
+// Rank threshold: returns the s16 threshold from chunk 11 (D_008814AC) for category value at level option. g_data.c uses it for rank thresholds.
 // FUN_00246A50
-s32 cmmRankThreshold(s16 arg0, s16 arg1) {
+s32 cmmRankThreshold(s16 value, s16 option) {
     s32 base = D_008814AC[0] + 8;
     s32 index;
     s32 mid;
 
-    if (arg0 >= 5) {
+    if (value >= 5) {
         kAssertFail(D_006359D0, 0xC8);
     }
-    if ((arg1 <= 0) || (arg1 > 5)) {
-        kAssertFailMsg(D_006359D0, 0xC9, &D_007636F8, arg1);
+    if ((option <= 0) || (option > 5)) {
+        kAssertFailMsg(D_006359D0, 0xC9, &D_007636F8, option);
     }
-    index = arg0 * 8;
+    index = value * 8;
     mid = cmmMiscAddOff(index, base);
-    return *(s16 *)(cmmMiscAddOff(arg1 * 2, mid) - 2);
+    /* Serialized halfwords retain the measured two-stage address-add order described above. */
+    return *(s16 *)(cmmMiscAddOff(option * 2, mid) - 2);
 }
-// Label record: 64-byte label record from chunk 12 (D_008814B0) for id arg0. cmmPersonaDetailShow copies it as a display string.
+// Label record: 64-byte label record from chunk 12 (D_008814B0) for id value. cmmPersonaDetailShow copies it as a display string.
 // FUN_00246B10
-u8 *cmmLabelRecord(u32 arg0) {
-    u32 temp_16;
-    u8 *temp_17;
+u8 *cmmLabelRecord(u32 labelId) {
+    u32 index;
+    u8 *table;
 
-    temp_17 = D_008814B0[0];
-    temp_16 = arg0 & 0xFFFF;
-    if (temp_16 >= *(u32 *)(temp_17 + 4)) {
+    table = D_008814B0[0];
+    index = labelId & 0xFFFF;
+    if (index >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0xD1);
     }
-    return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
+    return (u8 *)((index << 6) + (u32)table + 8);
 }
 
 // Earn-scale table: returns the chunk 14 header (D_008814B8) at its record area. cmmCommunity earn scaling reads its f32 multipliers and counts from it.
@@ -236,134 +260,134 @@ CmmEarnScale *cmmEarnScaleTable(void) {
     return (CmmEarnScale *)(D_008814B8[0] + 8);
 }
 
-// Entry value record: 24-byte record from chunk 15 (D_008814BC) for entry arg0. cmmCommunityEntryValue reads its value from this record.
+// Entry value record: 24-byte record from chunk 15 (D_008814BC) for entry value. cmmCommunityEntryValue reads its value from this record.
 // FUN_00246BA0
-u8 *cmmEntryValueRecord(s32 arg0) {
-    u8 *temp_16 = D_008814BC[0];
+u8 *cmmEntryValueRecord(s32 entryId) {
+    u8 *table = D_008814BC[0];
     s32 off;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(entryId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0xEE);
     }
-    off = (u16)arg0 * 24;
-    return (u8 *)(off + (u32)temp_16 + 8);
+    off = (u16)entryId * 24;
+    return (u8 *)(off + (u32)table + 8);
 }
 
-// Slot name record: 64-byte name record from chunk 17 (D_008814C4) for community slot arg0. Read by the group-slot text in code1_0027.c.
+// Slot name record: 64-byte name record from chunk 17 (D_008814C4) for community slot value. Read by the group-slot text in code1_0027.c.
 // FUN_00246C20
-u8 *cmmSlotNameRecord(u32 arg0) {
-    u32 temp_16;
-    u8 *temp_17;
+u8 *cmmSlotNameRecord(u32 slotId) {
+    u32 index;
+    u8 *table;
 
-    temp_17 = D_008814C4[0];
-    temp_16 = arg0 & 0xFFFF;
-    if (temp_16 >= *(u32 *)(temp_17 + 4)) {
+    table = D_008814C4[0];
+    index = slotId & 0xFFFF;
+    if (index >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x104);
     }
-    return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
+    return (u8 *)((index << 6) + (u32)table + 8);
 }
 
-// Item description text record: 64-byte text record from chunk 21 (D_008814D4), or NULL when id arg0 is out of range. Read through the item record's text slots 0x12/0x22.
+// Item description text record: 64-byte text record from chunk 21 (D_008814D4), or NULL when id value is out of range. Read through the item record's text slots 0x12/0x22.
 // FUN_00246C90
-u8 *cmmItemDescRecordOrNull(u32 arg0) {
-    if (arg0 >= *(u32 *)(D_008814D4[0] + 4)) {
+u8 *cmmItemDescRecordOrNull(u32 value) {
+    if (value >= ((CmmChunkHeader *)D_008814D4[0])->count) {
         return NULL;
     }
-    return (u8 *)((arg0 << 6) + (u32)D_008814D4[0] + 8);
+    return (u8 *)((value << 6) + (u32)D_008814D4[0] + 8);
 }
 
-// Item info record: 72-byte item record from chunk 24 (D_008814E0) for id arg0. cmmItemInfoShow reads its name, value, and text fields.
+// Item info record: 72-byte item record from chunk 24 (D_008814E0) for id value. cmmItemInfoShow reads its name, value, and text fields.
 // FUN_00246CD0
-u8 *cmmItemInfoRecord(s32 arg0) {
-    u8 *temp_16 = D_008814E0[0];
+u8 *cmmItemInfoRecord(s32 itemId) {
+    u8 *table = D_008814E0[0];
     s32 off;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(itemId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x13B);
     }
-    off = (u16)arg0 * 72;
-    return (u8 *)(off + (u32)temp_16 + 8);
+    off = (u16)itemId * 72;
+    return (u8 *)(off + (u32)table + 8);
 }
 
-// Item extra text record: 64-byte text record from chunk 22 (D_008814D8), or NULL when id arg0 is out of range. Read through the item record's text slots 0x10/0x20.
+// Item extra text record: 64-byte text record from chunk 22 (D_008814D8), or NULL when id value is out of range. Read through the item record's text slots 0x10/0x20.
 // FUN_00246D50
-u8 *cmmItemExtraRecordOrNull(u32 arg0) {
-    if (arg0 >= *(u32 *)(D_008814D8[0] + 4)) {
+u8 *cmmItemExtraRecordOrNull(u32 value) {
+    if (value >= ((CmmChunkHeader *)D_008814D8[0])->count) {
         return NULL;
     }
-    return (u8 *)((arg0 << 6) + (u32)D_008814D8[0] + 8);
+    return (u8 *)((value << 6) + (u32)D_008814D8[0] + 8);
 }
 
-// Persona record: 66-byte record from chunk 25 (D_008814E4) for id arg0. The persona row sits at +0x40.
+// Persona record: 66-byte record from chunk 25 (D_008814E4) for id value. The persona row sits at +0x40.
 // FUN_00246D90
-u8 *cmmPersonaRecord(s32 arg0) {
-    u8 *temp_16 = D_008814E4[0];
+u8 *cmmPersonaRecord(s32 personaId) {
+    u8 *table = D_008814E4[0];
     s32 off;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(personaId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x15B);
     }
-    off = (u16)arg0 * 66;
-    return (u8 *)(off + (u32)temp_16 + 8);
+    off = (u16)personaId * 66;
+    return (u8 *)(off + (u32)table + 8);
 }
 
-// Month profile: 72-byte month profile from chunk 26 (D_008814E8) for index arg0, offset by -0x40 (see CmmMonthProfile in cmmScript.c).
+// Month profile: 72-byte month profile from chunk 26 (D_008814E8) for index value, offset by -0x40 (see CmmMonthProfile in cmmScript.c).
 // FUN_00246E10
-s32 cmmMonthProfileRecord(s32 arg0) {
-    s32 temp_16;
-    s32 temp_2;
+s32 cmmMonthProfileRecord(s32 monthId) {
+    s32 table;
+    s32 month;
     s32 off;
 
-    temp_16 = D_008814E8[0];
-    temp_2 = arg0 & 0xFFFF;
-    if ((temp_2 <= 0) || (temp_2 > 0xC)) {
+    table = D_008814E8[0];
+    month = monthId & 0xFFFF;
+    if ((month <= 0) || (month > 0xC)) {
         kAssertFail(D_006359D0, 0x163);
     }
-    off = (u16)arg0 * 72;
-    return off + (u32)temp_16 - 0x40;
+    off = (u16)monthId * 72;
+    return off + (u32)table - 0x40;
 }
 
-// Fishing entry: 14-byte fishing record from chunk 27 (D_008814EC) for index arg0, asserting the index is at most 5.
+// Fishing entry: 14-byte fishing record from chunk 27 (D_008814EC) for index value, asserting the index is at most 5.
 // FUN_00246E90
-u8 *cmmFishingEntryRecord(s32 arg0) {
-    u8 *temp_16 = (u8 *)D_008814EC[0];
+u8 *cmmFishingEntryRecord(s32 entryId) {
+    u8 *table = (u8 *)D_008814EC[0];
     s32 off;
 
-    if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
+    if (((s32)(entryId & 0xFFFF) < 0) || ((entryId & 0xFFFF) > 5)) {
         kAssertFail(D_006359D0, 0x16B);
     }
-    off = (u16)arg0 * 14;
-    return (u8 *)(off + (u32)temp_16 + 8);
+    off = (u16)entryId * 14;
+    return (u8 *)(off + (u32)table + 8);
 }
-// Condition check: scans the 8-byte condition table (chunk 13, D_008814B4) and returns 1 when an entry for id arg0 is met. Kind 0 tests calIsCurrentMonthDay, kind 1 tests calGetWeekdayOfDay.
+// Condition check: scans the 8-byte condition table (chunk 13, D_008814B4) and returns 1 when an entry for id value is met. Kind 0 tests calIsCurrentMonthDay, kind 1 tests calGetWeekdayOfDay.
 // FUN_00246F10
-s32 cmmConditionMet(s32 arg0) {
-    u16 temp_2;
-    u16 temp_3;
-    u8 *var_19 = D_008814B4[0] + 8;
-    s32 temp_17 = *(s32 *)(D_008814B4[0] + 4);
-    s32 var_18 = 0;
-    s32 a0 = arg0 & 0xFFFF;
+s32 cmmConditionMet(s32 requestedId) {
+    u16 communityId;
+    u16 conditionKind;
+    u8 *entry = D_008814B4[0] + 8;
+    s32 count = (s32)((CmmChunkHeader *)D_008814B4[0])->count;
+    s32 index = 0;
+    s32 targetId = requestedId & 0xFFFF;
 
-    while (var_18 < temp_17) {
-        temp_2 = *(u16 *)var_19;
-        if (temp_2 == 0 || temp_2 == a0) {
-            temp_3 = *(u16 *)(var_19 + 4);
-            switch (temp_3) {
+    while (index < count) {
+        communityId = ((CmmConditionRecord *)entry)->communityId;
+        if (communityId == 0 || communityId == targetId) {
+            conditionKind = ((CmmConditionRecord *)entry)->kind;
+            switch (conditionKind) {
             case 0:
-                if (calIsCurrentMonthDay((s16)datGetDateIndex(), var_19[6], var_19[7]) != 0) {
+                if (calIsCurrentMonthDay((s16)datGetDateIndex(), ((CmmConditionRecord *)entry)->value.date.month, ((CmmConditionRecord *)entry)->value.date.day) != 0) {
                     return 1;
                 }
                 break;
             case 1:
-                if (*(u16 *)(var_19 + 6) == calGetWeekdayOfDay((s16)datGetDateIndex())) {
+                if (((CmmConditionRecord *)entry)->value.weekday == calGetWeekdayOfDay((s16)datGetDateIndex())) {
                     return 1;
                 }
                 break;
             }
         }
-        var_19 += 8;
-        var_18++;
+        entry += 8;
+        index++;
     }
     return 0;
 }
@@ -406,48 +430,48 @@ s32 cmmHasPendingUnlock(void) {
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 #pragma opt_common_subs off
 s32 cmmFindFreshReverseCandidate(void) {
-    s32 temp_16;
-    u32 *temp_17;
-    u32 *temp_17_2;
-    s32 var_19;
-    s32 var_2;
-    s32 var_2_2;
-    s32 temp_18;
+    s32 kindOffset;
+    u32 *table;
+    u32 *flagsTable;
+    s32 communityId;
+    s32 enabled;
+    s32 blocked;
+    s32 kindId;
 
-    for (var_19 = 1; var_19 < 0x1F; var_19++) {
-        if (cmmCommunityCanRankUp(var_19 & 0xFFFF) != 0) {
-            temp_18 = var_19 & 0xFFFF;
-            if (temp_18 == 0) {
+    for (communityId = 1; communityId < 0x1F; communityId++) {
+        if (cmmCommunityCanRankUp(communityId & 0xFFFF) != 0) {
+            kindId = communityId & 0xFFFF;
+            if (kindId == 0) {
                 kAssertFail(D_006359D0, 0x1B3);
             }
-            if (datGetFlag(temp_18 + 0x5BF) != 0) {
-                if ((temp_18 == 0xA) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
-                    var_2 = 0;
-                } else if ((temp_18 == 3) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
-                    var_2 = 0;
+            if (datGetFlag(kindId + 0x5BF) != 0) {
+                if ((kindId == 0xA) && ((cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
+                    enabled = 0;
+                } else if ((kindId == 3) && ((cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
+                    enabled = 0;
                 } else {
-                    var_2 = 1;
+                    enabled = 1;
                 }
             } else {
-                var_2 = 0;
+                enabled = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFF) == 0)) {
-                temp_17 = (u32 *)D_00881480[0];
-                if ((u32)temp_18 >= temp_17[1]) {
+            if ((enabled != 0) && (cmmCommunityTestReversed(communityId & 0xFFFF) == 0) && (cmmCommunityTestBroken(communityId & 0xFFFF) == 0) && (cmmCommunityHasTierBit(communityId & 0xFFFF, cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFF) == 0)) {
+                table = (u32 *)D_00881480[0];
+                if ((u32)kindId >= table[1]) {
                     kAssertFail(D_006359D0, 0x4C);
                 }
-                temp_16 = (var_19 & 0xFFFF) * 0x64;
-                var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
-                if (var_2_2 != 0) {
-                    var_2_2 = cmmHasPendingUnlock() == 1;
+                kindOffset = (communityId & 0xFFFF) * 0x64;
+                blocked = ((s32)((CmmKindRecord *)((u32)kindOffset + (u32)table + 8))->flags & 0x10) != 0;
+                if (blocked != 0) {
+                    blocked = cmmHasPendingUnlock() == 1;
                 }
-                if (var_2_2 == 0) {
-                    temp_17_2 = (u32 *)D_00881480[0];
-                    if ((u32)temp_18 >= temp_17_2[1]) {
+                if (blocked == 0) {
+                    flagsTable = (u32 *)D_00881480[0];
+                    if ((u32)kindId >= flagsTable[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (cmmConditionMet(var_19 & 0xFFFF) == 0)) {
-                        return var_19 & 0xFFFF;
+                    if (((s32)((CmmKindRecord *)((u32)kindOffset + (u32)flagsTable + 8))->flags & 2) && (cmmCommunityTestMarked(communityId & 0xFFFF) == 0) && (cmmConditionMet(communityId & 0xFFFF) == 0)) {
+                        return communityId & 0xFFFF;
                     }
                 }
             }
@@ -468,48 +492,48 @@ s32 cmmFindFreshReverseCandidate(void) {
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 #pragma opt_common_subs off
 s32 cmmFindReverseCandidate(void) {
-    s32 temp_16;
-    u32 *temp_17;
-    u32 *temp_17_2;
-    s32 var_19;
-    s32 var_2;
-    s32 var_2_2;
-    s32 temp_18;
+    s32 kindOffset;
+    u32 *table;
+    u32 *flagsTable;
+    s32 communityId;
+    s32 enabled;
+    s32 blocked;
+    s32 kindId;
 
-    for (var_19 = 1; var_19 < 0x1F; var_19++) {
-        if (cmmCommunityCanRankUp(var_19 & 0xFFFF) != 0) {
-            temp_18 = var_19 & 0xFFFF;
-            if (temp_18 == 0) {
+    for (communityId = 1; communityId < 0x1F; communityId++) {
+        if (cmmCommunityCanRankUp(communityId & 0xFFFF) != 0) {
+            kindId = communityId & 0xFFFF;
+            if (kindId == 0) {
                 kAssertFail(D_006359D0, 0x1B3);
             }
-            if (datGetFlag(temp_18 + 0x5BF) != 0) {
-                if ((temp_18 == 0xA) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
-                    var_2 = 0;
-                } else if ((temp_18 == 3) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
-                    var_2 = 0;
+            if (datGetFlag(kindId + 0x5BF) != 0) {
+                if ((kindId == 0xA) && ((cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
+                    enabled = 0;
+                } else if ((kindId == 3) && ((cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
+                    enabled = 0;
                 } else {
-                    var_2 = 1;
+                    enabled = 1;
                 }
             } else {
-                var_2 = 0;
+                enabled = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFF) != 0)) {
-                temp_17 = (u32 *)D_00881480[0];
-                if ((u32)temp_18 >= temp_17[1]) {
+            if ((enabled != 0) && (cmmCommunityTestReversed(communityId & 0xFFFF) == 0) && (cmmCommunityTestBroken(communityId & 0xFFFF) == 0) && (cmmCommunityHasTierBit(communityId & 0xFFFF, cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFF) != 0)) {
+                table = (u32 *)D_00881480[0];
+                if ((u32)kindId >= table[1]) {
                     kAssertFail(D_006359D0, 0x4C);
                 }
-                temp_16 = (var_19 & 0xFFFF) * 0x64;
-                var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
-                if (var_2_2 != 0) {
-                    var_2_2 = cmmHasPendingUnlock() == 1;
+                kindOffset = (communityId & 0xFFFF) * 0x64;
+                blocked = ((s32)((CmmKindRecord *)((u32)kindOffset + (u32)table + 8))->flags & 0x10) != 0;
+                if (blocked != 0) {
+                    blocked = cmmHasPendingUnlock() == 1;
                 }
-                if (var_2_2 == 0) {
-                    temp_17_2 = (u32 *)D_00881480[0];
-                    if ((u32)temp_18 >= temp_17_2[1]) {
+                if (blocked == 0) {
+                    flagsTable = (u32 *)D_00881480[0];
+                    if ((u32)kindId >= flagsTable[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (cmmConditionMet(var_19 & 0xFFFF) == 0)) {
-                        return var_19 & 0xFFFF;
+                    if (((s32)((CmmKindRecord *)((u32)kindOffset + (u32)flagsTable + 8))->flags & 2) && (cmmCommunityTestMarked(communityId & 0xFFFF) == 0) && (cmmConditionMet(communityId & 0xFFFF) == 0)) {
+                        return communityId & 0xFFFF;
                     }
                 }
             }
@@ -523,12 +547,12 @@ s32 cmmFindReverseCandidate(void) {
    off` (measured) stops mwcc b210 from CSE-ing `i & 0xFFFF` into a saved reg
    so retail's `andi $a0,$i` is re-emitted at each call site; `i` MUST be
    declared FIRST (measured: nd 12 -> 0) so the allocator picks
-   best=$s2/bestId=$s1/se=$s0/i=$s3; `target=(s16)arg0` sign-extends once
+   best=$s2/bestId=$s1/se=$s0/i=$s3; `target=(s16)value` sign-extends once
    before the loop; `i=1` is set before the empty-init for. */
-// Top community of arcana: returns the community id whose arcana (cmmCommunityArcana) equals arg0 and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
+// Top community of arcana: returns the community id whose arcana (cmmCommunityArcana) equals value and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
 // FUN_00247770
 #pragma opt_common_subs off
-s16 cmmTopCommunityOfArcana(s32 arg0) {
+s16 cmmTopCommunityOfArcana(s32 value) {
     s32 i;
     s32 largest;
     s32 result;
@@ -537,7 +561,7 @@ s16 cmmTopCommunityOfArcana(s32 arg0) {
     largest = 0;
     result = 0;
     i = 1;
-    target = (s16)arg0;
+    target = (s16)value;
     for (; i < 0x1F; i++) {
         if (target == (s8)cmmCommunityArcana(i & 0xFFFF)) {
             s32 v = cmmCommunityRecordValue(i & 0xFFFF) & 0xFFFF;
@@ -554,11 +578,11 @@ s16 cmmTopCommunityOfArcana(s32 arg0) {
    CSE-ing `i & 0xFFFF` into a saved reg so retail's `andi $a0,$i` is
    re-emitted at each call site; declaration order target/i/largest/result
    (measured: nd 8 -> 0) yields retail's $s0=target/$s1=result/$s2=largest/
-   $s3=i/$s4=v; `target=(s8)func_00248760(arg0&0xFFFF)` sign-extends once. */
-// Top persona of arcana: returns the roster persona whose arcana matches the arcana of community arg0 and whose rank is highest, or 0 when none matches.
+   $s3=i/$s4=v; `target=(s8)func_00248760(value&0xFFFF)` sign-extends once. */
+// Top persona of arcana: returns the roster persona whose arcana matches the arcana of community value and whose rank is highest, or 0 when none matches.
 // FUN_00247820
 #pragma opt_common_subs off
-s16 cmmTopPersonaOfArcana(s32 arg0) {
+s16 cmmTopPersonaOfArcana(s32 value) {
     s32 target;
     s32 i;
     s32 largest;
@@ -568,7 +592,7 @@ s16 cmmTopPersonaOfArcana(s32 arg0) {
 
     largest = 0;
     result = 0;
-    target = (s8)cmmCommunityArcana(arg0 & 0xFFFF);
+    target = (s8)cmmCommunityArcana(value & 0xFFFF);
     for (i = 0; i < (datPersonaCountValidMembers() & 0xFFFF); i++) {
         v = datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF;
         if (target == (datPersonaGetArcana(v) & 0xFF)) {
@@ -585,9 +609,9 @@ s16 cmmTopPersonaOfArcana(s32 arg0) {
 /* measured: 796 executable bytes match all 20 resolved relocations; the
    800-byte retail window ends with one unreachable alignment word.
    Ordinary s32 target/threshold lifetimes reproduce both sq/lq spills. */
-// Arcana candidate: for arcana arg0 and level threshold arg1, lists the personas at or below the threshold plus the nearest one above it, sorted by level. arg2 of -1 returns the count; otherwise the arg2-th entry, or 0.
+// Arcana candidate: for arcana value and level threshold option, lists the personas at or below the threshold plus the nearest one above it, sorted by level. selection of -1 returns the count; otherwise the selection-th entry, or 0.
 // FUN_00247900
-s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2) {
+s32 cmmArcanaCandidateAt(s32 value, s32 option, s32 selection) {
     s32 target;
     s32 threshold;
     s32 *left;
@@ -608,30 +632,30 @@ s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2) {
     u16 flags;
     u8 level;
 
-    target = (s8)cmmCommunityArcana(arg0);
+    target = (s8)cmmCommunityArcana(value);
     nextLevel = 0;
     nextId = 0;
     list = 0;
     count = 0;
     capacity = 0;
-    if (arg2 != -1) {
-        capacity = cmmArcanaCandidateAt(arg0, arg1, -1);
+    if (selection != -1) {
+        capacity = cmmArcanaCandidateAt(value, option, -1);
         chkmemAllocSiteTag(D_006359D0, 0x23A);
         list = (s32 *)D_008873F4[0](1, capacity * 4, 0x40000);
     }
     id = 1;
-    threshold = arg1 & 0xFF;
+    threshold = option & 0xFF;
     for (; id < 0x100; id++) {
         if (target == (datPersonaGetArcana(id & 0xFFFF) & 0xFF)) {
             blocked = 1;
             base = (s32)iGpffffb3d4;
             offset = id * 14;
-            flags = *(u16 *)((u32)base + offset);
+            flags = ((CmmPersonaCandidateRecord *)((u32)base + offset))->flags;
             if (!(flags & 0x10) && !(flags & 8)) {
                 blocked = 0;
             }
-            if (blocked == 0 && (!(flags & 0x40) || ((cmmCommunityRecordValue(arg0) & 0xFFFF) == 10))) {
-                level = *(u8 *)((u32)iGpffffb3d4 + offset + 3);
+            if (blocked == 0 && (!(flags & 0x40) || ((cmmCommunityRecordValue(value) & 0xFFFF) == 10))) {
+                level = ((CmmPersonaCandidateRecord *)((u32)iGpffffb3d4 + offset))->level;
                 if (level <= threshold) {
                     if (list != 0) {
                         if (count >= capacity) {
@@ -665,14 +689,14 @@ s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2) {
                 right = &list[j];
                 rightId = *right;
                 leftId = *left;
-                if (*(u8 *)((u32)base + leftId * 14 + 3) > *(u8 *)((u32)base + rightId * 14 + 3)) {
+                if (((CmmPersonaCandidateRecord *)((u32)base + leftId * 14))->level > ((CmmPersonaCandidateRecord *)((u32)base + rightId * 14))->level) {
                     *left = rightId;
                     *right = leftId;
                 }
             }
         }
-        if (arg2 < count) {
-            count = list[arg2];
+        if (selection < count) {
+            count = list[selection];
         } else {
             count = 0;
         }
@@ -681,11 +705,11 @@ s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2) {
     return count;
 }
 
-// Roster has arcana: returns 1 when any valid roster persona has arcana arg0, else 0.
+// Roster has arcana: returns 1 when any valid roster persona has arcana value, else 0.
 // FUN_00247C20
-s32 cmmRosterHasArcana(s16 arg0) {
+s32 cmmRosterHasArcana(s16 value) {
     s32 i = 0;
-    s32 key = (s32)arg0;
+    s32 key = (s32)value;
 
     while (i < (datPersonaCountValidMembers() & 0xFFFF)) {
         if (key == (datPersonaGetArcana(datPersonaRosterSlotId(i & 0xFFFF) & 0xFFFF) & 0xFF)) {
@@ -708,62 +732,62 @@ s32 cmmRosterHasArcana(s16 arg0) {
    `move $v0,$s0`. Guard spelling probes (`n >= 4` versus `n > 3`) were
    measured separately on cmmDateTableAddCount; the base spelling was retained.
    Committed at nd 0. */
-// Community for arcana: maps arcana arg0 (2 to 8) to its community id, using the alternate id when the primary community has no record. Returns 0 when neither has one.
+// Community for arcana: maps arcana value (2 to 8) to its community id, using the alternate id when the primary community has no record. Returns 0 when neither has one.
 // FUN_00247CB0
-u16 cmmCommunityForArcana(s64 arg0) {
-    u16 var_16;
-    s64 temp_2;
+u16 cmmCommunityForArcana(s64 arcanaValue) {
+    u16 communityId;
+    s64 arcana;
 
-    var_16 = 0;
-    temp_2 = (s64) (arg0 << 0x30) >> 0x30;
-    switch (temp_2) {
+    communityId = 0;
+    arcana = (s64) (arcanaValue << 0x30) >> 0x30;
+    switch (arcana) {
     case 2:
-        var_16 = 7;
+        communityId = 7;
         break;
     case 3:
-        var_16 = 0xB;
+        communityId = 0xB;
         if (cmmCommunityHasRecord(0xB) == 0) {
-            var_16 = 0xC;
+            communityId = 0xC;
         }
         break;
     case 4:
-        var_16 = 5;
+        communityId = 5;
         if (cmmCommunityHasRecord(5) == 0) {
-            var_16 = 6;
+            communityId = 6;
         }
         break;
     case 5:
-        var_16 = 3;
+        communityId = 3;
         if (cmmCommunityHasRecord(3) == 0) {
-            var_16 = 4;
+            communityId = 4;
         }
         break;
     case 6:
-        var_16 = 0xA;
+        communityId = 0xA;
         break;
     case 7:
-        var_16 = 0xE;
+        communityId = 0xE;
         if (cmmCommunityHasRecord(0xE) == 0) {
-            var_16 = 0xF;
+            communityId = 0xF;
         }
         break;
     case 8:
-        var_16 = 0x18;
+        communityId = 0x18;
         break;
     }
-    if (cmmCommunityHasRecord(var_16) == 0) {
-        var_16 = 0;
+    if (cmmCommunityHasRecord(communityId) == 0) {
+        communityId = 0;
     }
-    return var_16;
+    return communityId;
 }
 /* Find the first enabled entry with the requested low-16 category.
    measured: use a cast for the bounds check and a mask for the address and
    category call, avoiding a cached masked counter across calls. Reuse the
    existing address-order helper. Exact 228B instructions plus 12B zero tail;
    retain the caller's s32 ABI and pass the index omitted by IDA explicitly. */
-// Find community of category: returns the first community that has a record, flag 4 in its kind record, and category arg0 (cmmCommunityCategory). Returns 0 when none matches.
+// Find community of category: returns the first community that has a record, flag 4 in its kind record, and category value (cmmCommunityCategory). Returns 0 when none matches.
 // FUN_00247DD0
-s32 cmmFindCommunityOfCategory(s32 arg0)
+s32 cmmFindCommunityOfCategory(s32 value)
 {
     s32 i;
     u32 target;
@@ -771,14 +795,14 @@ s32 cmmFindCommunityOfCategory(s32 arg0)
     s32 offset;
 
     i = 0;
-    target = (u16)arg0;
+    target = (u16)value;
     while (i < 31) {
         base = D_00881480[0];
-        if ((u32)(u16)i >= *(u32 *)(base + 4)) {
+        if ((u32)(u16)i >= ((CmmChunkHeader *)base)->count) {
             kAssertFail(D_006359D0, 0x4C);
         }
         offset = (i & 0xFFFF) * 100;
-        if (*(u32 *)(cmmMiscAddOff(offset, (s32)base) + 12) & 4) {
+        if (((CmmKindRecord *)(cmmMiscAddOff(offset, (s32)base) + 8))->flags & 4) {
             if (target == (u16)cmmCommunityCategory(i & 0xFFFF) &&
                 cmmCommunityHasRecord((u16)i) != 0) {
                 return (u16)i;
@@ -789,7 +813,7 @@ s32 cmmFindCommunityOfCategory(s32 arg0)
     return 0;
 }
 
-// Date listed: returns 1 when the (month, day) pair for the date seed arg0 is in the D_00881498 pair list, else 0. The positive counterpart of cmmDateNotListed.
+// Date listed: returns 1 when the (month, day) pair for the date seed value is in the D_00881498 pair list, else 0. The positive counterpart of cmmDateNotListed.
 // FUN_00247EC0
 s32 cmmDateListed(s32 seed) {
     u8 *p = D_00881498[0] + 8;
@@ -799,7 +823,7 @@ s32 cmmDateListed(s32 seed) {
     s32 count;
 
     calSplitDayOfYear(seed, &a, &b);
-    count = *(s32 *)(D_00881498[0] + 4);
+    count = (s32)((CmmChunkHeader *)D_00881498[0])->count;
     i = 0;
     a0 = a;
     b0 = b;
@@ -820,10 +844,10 @@ s32 cmmDateListed(s32 seed) {
    this puts the sentinel in $v0 and yields retail's shared `beqz $v0 ->
    RET1` check. The inverted guard `if (found != 0) return 0; return 1;`
    (measured: nd 9 -> 0) matches retail's branch polarity. */
-// Date not listed: returns 1 when the (month, day) pair for the date seed arg0 is absent from the D_00881498 pair list, else 0. Script callers use it as a date-availability gate.
+// Date not listed: returns 1 when the (month, day) pair for the date seed value is absent from the D_00881498 pair list, else 0. Script callers use it as a date-availability gate.
 // FUN_00247F60
 #pragma opt_loop_invariants on
-s32 cmmDateNotListed(s32 arg0) {
+s32 cmmDateNotListed(s32 value) {
     u8 *p;
     s32 key1;
     s32 key2;
@@ -831,12 +855,12 @@ s32 cmmDateNotListed(s32 arg0) {
     s32 i;
     s32 found;
 
-    if (calHasDayEntry(arg0) == 0) {
+    if (calHasDayEntry(value) == 0) {
         return 0;
     }
     p = D_00881498[0] + 8;
-    calSplitDayOfYear(arg0, &key1, &key2);
-    count = *(s32 *)(D_00881498[0] + 4);
+    calSplitDayOfYear(value, &key1, &key2);
+    count = (s32)((CmmChunkHeader *)D_00881498[0])->count;
     for (i = 0; i < count; i++) {
         if (p[0] == key1 && p[1] == key2) {
             found = 1;
@@ -852,28 +876,28 @@ done:
     return 1;
 }
 #pragma opt_loop_invariants off
-// Next unlisted date: returns the next date seed after arg0 (below 0x16D) whose (month, day) pair is not in the D_00881498 list and whose date is valid. Returns 0 when there is none.
+// Next unlisted date: returns the next date seed after value (below 0x16D) whose (month, day) pair is not in the D_00881498 list and whose date is valid. Returns 0 when there is none.
 // FUN_00248040
-s32 cmmNextUnlistedDate(s32 arg0) {
-    s32 var_16 = arg0 + 1;
-    s32 var_2;
+s32 cmmNextUnlistedDate(s32 startDate) {
+    s32 date = startDate + 1;
+    s32 eligible;
     goto body;
 incr:
-    var_16 += 1;
-    if (var_16 < 0x16D) {
+    date += 1;
+    if (date < 0x16D) {
         goto body;
     }
     return 0;
 body:
-    if (calHasDayEntry(var_16) == 0) {
-        var_2 = 0;
-    } else if (cmmDateListed(var_16) != 0) {
-        var_2 = 0;
+    if (calHasDayEntry(date) == 0) {
+        eligible = 0;
+    } else if (cmmDateListed(date) != 0) {
+        eligible = 0;
     } else {
-        var_2 = 1;
+        eligible = 1;
     }
-    if (var_2 != 0) {
-        return var_16;
+    if (eligible != 0) {
+        return date;
     }
     goto incr;
 }
@@ -881,48 +905,48 @@ body:
    of line) with 8 saved regs; mwcc b210 inlines the fail skips and balloons
    to 10 saved registers (best nd 30 without the ret booleanize, 82 with).
    Register-pressure + if-chain-layout floor. */
-// Nth eligible community: returns the id of the arg0-th community in the D_00881490 table for (arg1, arg2) whose rank is inside its bounds, is not rank 10, is not flagged 3, and is not the table head. Returns 0 when there is no such entry.
+// Nth eligible community: returns the id of the value-th community in the D_00881490 table for (option, selection) whose rank is inside its bounds, is not rank 10, is not flagged 3, and is not the table head. Returns 0 when there is no such entry.
 // FUN_002480E0
-u16 cmmNthEligibleCommunity(s32 arg0, s32 arg1, s32 arg2) {
-    s32 temp_22;
-    s32 temp_3;
-    u8 *var_18;
-    s32 var_17;
-    s32 var_2;
-    u16 temp_23;
-    s32 var_16;
+u16 cmmNthEligibleCommunity(s32 requestedIndex, s32 month, s32 day) {
+    s32 count;
+    s32 rank;
+    CmmEligibleRecord *entry;
+    s32 index;
+    s32 eligible;
+    u16 communityId;
+    s32 matchIndex;
 
-    var_18 = D_00881490[0] + 8;
-    temp_22 = *(s32 *)(D_00881490[0] + 4);
-    var_16 = 0;
-    var_17 = 0;
+    entry = (CmmEligibleRecord *)(D_00881490[0] + 8);
+    count = (s32)((CmmChunkHeader *)D_00881490[0])->count;
+    matchIndex = 0;
+    index = 0;
     goto loop_15;
 body_15:
-    if ((var_18[0] == arg1) && (var_18[1] == arg2)) {
-        temp_3 = (s32)(cmmCommunityRecordValue(*(u16 *)(var_18 + 2)) & 0xFFFF);
-        if ((temp_3 >= (s32)*(u16 *)(var_18 + 4)) &&
-            (temp_3 <= (s32)*(u16 *)(var_18 + 6)) &&
-            ((cmmCommunityRecordValue(*(u16 *)(var_18 + 2)) & 0xFFFF) != 0xA) &&
-            (cmmCommunityTestRecordFlags(*(u16 *)(var_18 + 2), 3) == 0) &&
-            ((temp_23 = *(u16 *)(var_18 + 2)), (temp_23 != (cmmCommunityGetTableHead() & 0xFFFF)))) {
-            var_2 = 1;
+    if ((entry->month == month) && (entry->day == day)) {
+        rank = (s32)(cmmCommunityRecordValue(entry->communityId) & 0xFFFF);
+        if ((rank >= (s32)entry->minRank) &&
+            (rank <= (s32)entry->maxRank) &&
+            ((cmmCommunityRecordValue(entry->communityId) & 0xFFFF) != 0xA) &&
+            (cmmCommunityTestRecordFlags(entry->communityId, 3) == 0) &&
+            ((communityId = entry->communityId), (communityId != (cmmCommunityGetTableHead() & 0xFFFF)))) {
+            eligible = 1;
         } else {
-            var_2 = 0;
+            eligible = 0;
         }
-        if (var_2 != 0) {
-            if (var_16 == arg0) {
-                return *(u16 *)(var_18 + 2);
+        if (eligible != 0) {
+            if (matchIndex == requestedIndex) {
+                return entry->communityId;
             }
-            var_16 += 1;
+            matchIndex += 1;
             goto block_14;
         }
         goto block_14;
     }
 block_14:
-    var_18 += 8;
-    var_17 += 1;
+    entry++;
+    index += 1;
 loop_15:
-    if (var_17 < temp_22) {
+    if (index < count) {
         goto body_15;
     }
     return 0U;
@@ -940,36 +964,36 @@ loop_15:
 /* measured: opt_common_subs off restores retail per-use masks while preserving the two table bases. */
 #pragma opt_common_subs off
 void cmmTickReverseProgress(void) {
-    s32 temp_17;
-    s32 var_20;
-    s32 var_3;
-    u32 temp_18;
-    u32 *temp_16;
-    u32 *temp_16_2;
-    u8 *temp_2;
+    s32 kindOffset;
+    s32 communityId;
+    s32 thresholdReached;
+    u32 kindId;
+    u32 *table;
+    u32 *thresholdTable;
+    CmmCommunityRecord *record;
 
-    var_20 = 1;
-    while (var_20 < 0x1F) {
-        if ((cmmCommunityHasRecord(var_20 & 0xFFFF) != 0) && (cmmCommunityTestRecordFlags(var_20 & 0xFFFF, 3) == 0)) {
-            temp_2 = (u8 *)cmmCommunityFindRecord(var_20 & 0xFFFF);
-            if (temp_2 == NULL) {
-                var_3 = 0;
+    communityId = 1;
+    while (communityId < 0x1F) {
+        if ((cmmCommunityHasRecord(communityId & 0xFFFF) != 0) && (cmmCommunityTestRecordFlags(communityId & 0xFFFF, 3) == 0)) {
+            record = (CmmCommunityRecord *)cmmCommunityFindRecord(communityId & 0xFFFF);
+            if (record == NULL) {
+                thresholdReached = 0;
                 goto block_13;
             }
-            temp_16 = (u32 *)D_00881480[0];
-            temp_18 = var_20 & 0xFFFF;
-            if (temp_18 >= temp_16[1]) {
+            table = (u32 *)D_00881480[0];
+            kindId = communityId & 0xFFFF;
+            if (kindId >= table[1]) {
                 kAssertFail(D_006359D0, 0x4C);
             }
-            temp_17 = (var_20 & 0xFFFF) * 0x64;
-            if (*(u16 *)((u32)temp_17 + (u32)temp_16 + 0x12) != 0) {
-                *(u16 *)(temp_2 + 0xA) = *(u16 *)(temp_2 + 0xA) + 1;
-                temp_16_2 = (u32 *)D_00881480[0];
-                if (temp_18 >= temp_16_2[1]) {
+            kindOffset = (communityId & 0xFFFF) * 0x64;
+            if (((CmmKindRecord *)((u32)kindOffset + (u32)table + 8))->reverseThreshold != 0) {
+                record->reverseProgress = record->reverseProgress + 1;
+                thresholdTable = (u32 *)D_00881480[0];
+                if (kindId >= thresholdTable[1]) {
                     kAssertFail(D_006359D0, 0x4C);
                 }
-                if (*(u16 *)(temp_2 + 0xA) >= *(u16 *)((u32)temp_17 + (u32)temp_16_2 + 0x12)) {
-                    var_3 = 1;
+                if (record->reverseProgress >= ((CmmKindRecord *)((u32)kindOffset + (u32)thresholdTable + 8))->reverseThreshold) {
+                    thresholdReached = 1;
                 } else {
                     goto block_12;
                 }
@@ -978,13 +1002,13 @@ void cmmTickReverseProgress(void) {
             }
             goto block_13;
 block_12:
-            var_3 = 0;
+            thresholdReached = 0;
 block_13:
-            if (var_3 != 0) {
-                cmmCommunitySetReversed(var_20 & 0xFFFF);
+            if (thresholdReached != 0) {
+                cmmCommunitySetReversed(communityId & 0xFFFF);
             }
         }
-        var_20 += 1;
+        communityId += 1;
     }
 }
 /* measured: opt_common_subs on restores the file baseline after func_00248240. */
@@ -1001,172 +1025,172 @@ block_13:
    kAssertFail(void *,s32), cmmCommunitySetReversed(s32), and
    cmmCommunityHasRecord(s32); active seed measured 552B vs 544B retail window,
    normalized_diff 109 (oversized reconstruction); archived without further probes. */
-// Advance reverse progress: for each rank-10 community (other than arg0) with a record and no flag band 3, adds its paired value from the D_00881494 pair table to its progress counter (+0xA). When the progress reaches the kind record's threshold (+0x12), sets REVERSED through cmmCommunitySetReversed.
+// Advance reverse progress: for each rank-10 community (other than value) with a record and no flag band 3, adds its paired value from the D_00881494 pair table to its progress counter (+0xA). When the progress reaches the kind record's threshold (+0x12), sets REVERSED through cmmCommunitySetReversed.
 // FUN_002483C0
 #pragma push
 /* measured: opt_propagation off + saved regs $s6=temp_20, $s5=var_20 counter(1),
    $s4=temp_17, $s3=temp_18 mask, $s2=temp_19 masked arg, $s1=temp_2, $s0=temp_16;
    per-use u16 call_idx=(u16)var_20 conversions preserve andi immediates and remove $s7 constant. */
 #pragma opt_propagation off
-void cmmAdvanceReverseProgress(u16 arg0) {
-    s32 temp_20;
-    s32 var_20;
-    s32 temp_17;
-    u32 temp_19;
-    u8 *temp_2;
-    u32 *temp_16;
-    u32 *temp_16_2;
-    s32 var_3;
-    u16 call_idx;
+void cmmAdvanceReverseProgress(u16 excludedCommunity) {
+    s32 kindOffset;
+    s32 communityId;
+    s32 increment;
+    u32 excludedId;
+    CmmCommunityRecord *record;
+    u32 *table;
+    u32 *thresholdTable;
+    s32 thresholdReached;
+    u16 callId;
 
-    var_20 = 1;
-    temp_19 = arg0;
-    while (var_20 < 0x1F) {
-        if (temp_19 == var_20) {
+    communityId = 1;
+    excludedId = excludedCommunity;
+    while (communityId < 0x1F) {
+        if (excludedId == communityId) {
             goto block_15;
         }
-        if (cmmCommunityHasRecord((u16)var_20) == 0) {
+        if (cmmCommunityHasRecord((u16)communityId) == 0) {
             goto block_15;
         }
-        call_idx = (u16)var_20;
-        if (((u16)cmmCommunityRecordValue(call_idx)) != 0xA) {
+        callId = (u16)communityId;
+        if (((u16)cmmCommunityRecordValue(callId)) != 0xA) {
             goto block_15;
         }
-        call_idx = (u16)var_20;
-        if (cmmReversedAtRank(call_idx) == 0) {
+        callId = (u16)communityId;
+        if (cmmReversedAtRank(callId) == 0) {
             goto block_15;
         }
-        call_idx = (u16)var_20;
-        if (cmmCommunityTestRecordFlags(call_idx, 3) != 0) {
+        callId = (u16)communityId;
+        if (cmmCommunityTestRecordFlags(callId, 3) != 0) {
             goto block_15;
         }
         {
             u8 *p;
             s32 count;
             s32 i;
-            s32 temp_18;
+            s32 kindId;
 
-            temp_16 = (u32 *)D_00881494[0];
-            p = (u8 *)temp_16 + 8;
-            count = *(s32 *)(temp_16 + 1);
+            table = (u32 *)D_00881494[0];
+            p = (u8 *)table + 8;
+            count = (s32)((CmmChunkHeader *)table)->count;
             i = 0;
-            temp_18 = (u16)var_20;
+            kindId = (u16)communityId;
             while (i < count) {
-                if (*(u16 *)p == temp_18) {
-                    if (*(u16 *)(p + 2) == temp_19) {
-                        temp_17 = *(s32 *)(p + 4);
+                if (((CmmReversePair *)p)->communityId == kindId) {
+                    if (((CmmReversePair *)p)->otherId == excludedId) {
+                        increment = ((CmmReversePair *)p)->increment;
                         goto block_14;
                     }
                 }
                 p += 8;
                 i += 1;
             }
-            temp_17 = 0;
+            increment = 0;
 block_14:
-            call_idx = (u16)var_20;
-            temp_2 = (u8 *)cmmCommunityFindRecord(call_idx);
-            if (temp_2 == NULL) {
-                var_3 = 0;
+            callId = (u16)communityId;
+            record = (CmmCommunityRecord *)cmmCommunityFindRecord(callId);
+            if (record == NULL) {
+                thresholdReached = 0;
                 goto block_13;
             }
-            temp_16 = (u32 *)D_00881480[0];
-            if (temp_18 >= temp_16[1]) {
+            table = (u32 *)D_00881480[0];
+            if (kindId >= table[1]) {
                 kAssertFail(D_006359D0, 0x4C);
             }
-            call_idx = (u16)var_20;
-            temp_20 = call_idx * 0x64;
-            if (*(u16 *)((u32)temp_20 + (u32)temp_16 + 0x12) == 0) {
+            callId = (u16)communityId;
+            kindOffset = callId * 0x64;
+            if (((CmmKindRecord *)((u32)kindOffset + (u32)table + 8))->reverseThreshold == 0) {
                 goto block_12;
             }
-            *(u16 *)(temp_2 + 0xA) += temp_17 & 0xFFFF;
-            temp_16_2 = (u32 *)D_00881480[0];
-            if (temp_18 >= temp_16_2[1]) {
+            record->reverseProgress += increment & 0xFFFF;
+            thresholdTable = (u32 *)D_00881480[0];
+            if (kindId >= thresholdTable[1]) {
                 kAssertFail(D_006359D0, 0x4C);
             }
-            if (*(u16 *)(temp_2 + 0xA) >= *(u16 *)((u32)temp_20 + (u32)temp_16_2 + 0x12)) {
-                var_3 = 1;
+            if (record->reverseProgress >= ((CmmKindRecord *)((u32)kindOffset + (u32)thresholdTable + 8))->reverseThreshold) {
+                thresholdReached = 1;
             } else {
                 goto block_12;
             }
             goto block_13;
 block_12:
-            var_3 = 0;
+            thresholdReached = 0;
 block_13:
-            if (var_3 != 0) {
-                call_idx = (u16)var_20;
-                cmmCommunitySetReversed(call_idx);
+            if (thresholdReached != 0) {
+                callId = (u16)communityId;
+                cmmCommunitySetReversed(callId);
             }
         }
 block_15:
-        var_20 += 1;
+        communityId += 1;
     }
 }
 /* measured: restore pragma state after func_002483c0. */
 #pragma pop
 
 /* measured: #pragma opt_loop_invariants on/off scoped around this function:
-   retail hoists arg1&0xFFFF and var_4&0xFFFF into $s1/$s6 before the loop;
+   retail hoists option&0xFFFF and var_4&0xFFFF into $s1/$s6 before the loop;
    without the pragma mwcc b210 re-masks inside the loop (nd 43 -> 2). s32
-   arg1 (not u16) is also required so the ladder calls pass the raw register
+   option (not u16) is also required so the ladder calls pass the raw register
    instead of a CSE'd mask. */
-// Message-stream entry: returns the chunk 3 record (D_0088148C) for kind arg0 and community id arg1. When arg0 is 0 it derives the state code from cmmCommunityHasRecord and cmmCommunityCanRankUp (1, 2, 3, or 6). cmmMsgStreamStart stores the record as the stream source.
+// Message-stream entry: returns the chunk 3 record (D_0088148C) for kind value and community id option. When value is 0 it derives the state code from cmmCommunityHasRecord and cmmCommunityCanRankUp (1, 2, 3, or 6). cmmMsgStreamStart stores the record as the stream source.
 // FUN_002485E0
 #pragma opt_loop_invariants on
-u8 *cmmMsgStreamEntry(s32 arg0, s32 arg1) {
-    s32 var_4 = arg0;
-    s32 var_2;
-    s32 temp_18;
-    s32 var_20;
-    s32 temp_4;
-    u8 temp_16;
-    u8 *var_19;
+u8 *cmmMsgStreamEntry(s32 requestedKind, s32 communityId) {
+    s32 kind = requestedKind;
+    s32 selectedKind;
+    s32 count;
+    s32 index;
+    s32 flagBit;
+    u8 rank;
+    u8 *entry;
 
-    if (!(var_4 & 0xFFFF)) {
+    if (!(kind & 0xFFFF)) {
         /* cmmCommunityHasRecord is narrow at the 00247270-family sites for retail's
-           andi, but 002485e0 passes arg1 whole as s32, so override it here. */
+           andi, but 002485e0 passes communityId whole as s32, so override it here. */
         extern s32 cmmCommunityHasRecord(s32 idx);
-        if (cmmCommunityHasRecord(arg1) == 0) {
-            var_2 = 3;
-        } else if (cmmCommunityCanRankUp(arg1) != 0) {
-            if ((cmmCommunityRecordValue(arg1) & 0xFFFF) == 9) {
-                var_2 = 6;
+        if (cmmCommunityHasRecord(communityId) == 0) {
+            selectedKind = 3;
+        } else if (cmmCommunityCanRankUp(communityId) != 0) {
+            if ((cmmCommunityRecordValue(communityId) & 0xFFFF) == 9) {
+                selectedKind = 6;
             } else {
-                var_2 = 2;
+                selectedKind = 2;
             }
         } else {
-            var_2 = 1;
+            selectedKind = 1;
         }
-        var_4 = var_2 & 0xFFFF;
+        kind = selectedKind & 0xFFFF;
     }
-    var_19 = (u8 *)(D_0088148C[0] + 8);
-    temp_18 = *(u32 *)(D_0088148C[0] + 4);
-    var_20 = 0;
-    while (var_20 < temp_18) {
-        if ((*(u16 *)var_19 == (arg1 & 0xFFFF)) && (*(u8 *)(var_19 + 2) == (var_4 & 0xFFFF)) && ((temp_16 = *(u8 *)(var_19 + 3), temp_16 == 0) || ((temp_16 != 0) && (temp_16 == (cmmCommunityRecordValue(arg1) & 0xFFFF)))) && ((temp_4 = *(u32 *)(var_19 + 0xC), temp_4 == 0) || (datGetFlag(temp_4) != 0))) {
-            return var_19;
+    entry = (u8 *)(D_0088148C[0] + 8);
+    count = ((CmmChunkHeader *)D_0088148C[0])->count;
+    index = 0;
+    while (index < count) {
+        if ((((CmmMessageEntry *)entry)->communityId == (communityId & 0xFFFF)) && (((CmmMessageEntry *)entry)->kind == (kind & 0xFFFF)) && ((rank = ((CmmMessageEntry *)entry)->rank, rank == 0) || ((rank != 0) && (rank == (cmmCommunityRecordValue(communityId) & 0xFFFF)))) && ((flagBit = ((CmmMessageEntry *)entry)->flagBit, flagBit == 0) || (datGetFlag(flagBit) != 0))) {
+            return entry;
         }
-        var_19 += 0x10;
-        var_20 += 1;
+        entry += 0x10;
+        index += 1;
     }
     return NULL;
 }
 #pragma opt_loop_invariants off
-// Community arcana: returns the arcana byte at +0x10 of community arg0's kind record (chunk 0), asserting the id is in range.
+// Community arcana: returns the arcana byte at +0x10 of community value's kind record (chunk 0), asserting the id is in range.
 // FUN_00248760
-s64 cmmCommunityArcana(s32 arg0) {
-    u8 *temp_16 = D_00881480[0];
+s64 cmmCommunityArcana(s32 communityId) {
+    u8 *table = D_00881480[0];
     s32 off;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(communityId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x4C);
     }
-    off = (u16)arg0 * 100;
-    return ((CmmKindRecord *)(off + (u32)temp_16 + 8))->arcana;
+    off = (u16)communityId * 100;
+    return ((CmmKindRecord *)(off + (u32)table + 8))->arcana;
 }
 
-// Community event value: returns the s8 value for slot arg1 (0 to 7) of community arg0's record array (stride 8, value at +0x28) when the slot's gate at +0x24 is zero or its datGetFlag is set. Returns 0 otherwise.
+// Community event value: returns the s8 value for slot option (0 to 7) of community value's record array (stride 8, value at +0x28) when the slot's gate at +0x24 is zero or its datGetFlag is set. Returns 0 otherwise.
 // FUN_002487E0
-s8 cmmCommunityEventValue(s32 arg0, s8 arg1) {
+s8 cmmCommunityEventValue(s32 value, s8 option) {
     u8 *base;
     s32 off;
     s32 elem;
@@ -1175,19 +1199,20 @@ s8 cmmCommunityEventValue(s32 arg0, s8 arg1) {
     u8 *q;
     s32 v;
 
-    if (arg1 >= 8) {
+    if (option >= 8) {
         kAssertFail(D_006359D0, 0x3A3);
     }
     base = D_00881480[0];
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(base + 4)) {
+    if ((u32)(value & 0xFFFF) >= ((CmmChunkHeader *)base)->count) {
         kAssertFail(D_006359D0, 0x4C);
     }
-    off = (u16)arg0 * 100;
+    off = (u16)value * 100;
     elem = off + (s32)base + 8;
     if (elem != 0) {
-        idx = arg1 * 8;
+        idx = option * 8;
         p = idx + elem;
         q = (u8 *)(p + 0x28);
+        /* Eight-byte event slots: gate at +0x24, value at +0x28; a typed slot changes MWCC scheduling (nd 60). */
         if (*(u32 *)(p + 0x28) != 0) {
             v = *(u32 *)(p + 0x24);
             if ((v == 0) || (datGetFlag(v) != 0)) {
@@ -1197,82 +1222,82 @@ s8 cmmCommunityEventValue(s32 arg0, s8 arg1) {
     }
     return 0;
 }
-// Community tier bit: returns 1 when bit (arg1 - 1) is set in the u16 at +0xC of community arg0's kind record. arg1 must be 1 to 9.
+// Community tier bit: returns 1 when bit (option - 1) is set in the u16 at +0xC of community value's kind record. option must be 1 to 9.
 // FUN_002488E0
-s32 cmmCommunityHasTierBit(s32 arg0, s32 arg1) {
-    s32 temp_3;
-    s32 var_4;
-    u8 *temp_16 = D_00881480[0];
-    u8 *temp_2;
+s32 cmmCommunityHasTierBit(s32 communityId, s32 requestedTier) {
+    s32 tier;
+    s32 tierBits;
+    u8 *table = D_00881480[0];
+    u8 *record;
     s32 off;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(communityId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x4C);
     }
-    off = (u16)arg0 * 100;
-    temp_2 = (u8 *)(off + (u32)temp_16 + 8);
-    if (temp_2 != NULL) {
-        var_4 = ((CmmKindRecord *)temp_2)->tierBits;
+    off = (u16)communityId * 100;
+    record = (u8 *)(off + (u32)table + 8);
+    if (record != NULL) {
+        tierBits = ((CmmKindRecord *)record)->tierBits;
     } else {
-        var_4 = 0;
+        tierBits = 0;
     }
-    temp_3 = arg1 & 0xFF;
-    if ((temp_3 == 0) || (temp_3 >= 0xA)) {
+    tier = requestedTier & 0xFF;
+    if ((tier == 0) || (tier >= 0xA)) {
         return 0;
     }
-    return (var_4 & (1 << (temp_3 - 1))) != 0;
+    return (tierBits & (1 << (tier - 1))) != 0;
 }
-// Community category: returns the u16 at +0xE of community arg0's kind record (chunk 0), asserting the id is in range.
+// Community category: returns the u16 at +0xE of community value's kind record (chunk 0), asserting the id is in range.
 // FUN_002489C0
-u16 cmmCommunityCategory(s32 arg0) {
-    u8 *temp_16 = D_00881480[0];
+u16 cmmCommunityCategory(s32 communityId) {
+    u8 *table = D_00881480[0];
     s32 off;
-    u8 *temp_2;
+    u8 *record;
 
-    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
+    if ((u32)(communityId & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
         kAssertFail(D_006359D0, 0x4C);
     }
-    off = (u16)arg0 * 100;
-    temp_2 = (u8 *)(off + (u32)temp_16 + 8);
-    if (temp_2 != NULL) {
-        return ((CmmKindRecord *)temp_2)->category;
+    off = (u16)communityId * 100;
+    record = (u8 *)(off + (u32)table + 8);
+    if (record != NULL) {
+        return ((CmmKindRecord *)record)->category;
     }
     return 0;
 }
 
-/* measured: retail keeps arg0 raw in $s3, masks once into $s1 (temp_17)
+/* measured: retail keeps value raw in $s3, masks once into $s1 (temp_17)
    and re-masks into $v1 for the 100-multiply; mwcc b210 CSEs the mask into
    one register (best nd 37) in every spelling tried ((u16) vs & 0xFFFF vs
-   temp_17 = arg0). Mask-CSE floor (same family as FUN_00247DD0). */
-// Reversed at rank: returns 1 when community arg0 has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from cmmCommunityRecordValue; else 0.
+   temp_17 = value). Mask-CSE floor (same family as FUN_00247DD0). */
+// Reversed at rank: returns 1 when community value has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from cmmCommunityRecordValue; else 0.
 // FUN_00248A60
 /* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
 #pragma opt_common_subs off
-s32 cmmReversedAtRank(s32 arg0) {
-    s32 temp_16;
-    u32 temp_17;
-    u8 temp_16_2;
-    u32 *temp_18;
-    u32 *temp_18_2;
+s32 cmmReversedAtRank(s32 communityId) {
+    s32 kindOffset;
+    u32 kindId;
+    u8 level;
+    u32 *table;
+    u32 *levelTable;
 
-    /* Retail reuses raw arg0 for this unprototyped call; keep that a0 value. */
+    /* Retail reuses raw communityId for this unprototyped call; keep that a0 value. */
     extern s32 cmmCommunityHasRecord();
     if (cmmCommunityHasRecord() == 0) {
         return 0;
     }
-    temp_18 = (u32 *)D_00881480[0];
-    temp_17 = arg0 & 0xFFFF;
-    if (temp_17 >= temp_18[1]) {
+    table = (u32 *)D_00881480[0];
+    kindId = communityId & 0xFFFF;
+    if (kindId >= table[1]) {
         kAssertFail(D_006359D0, 0x4C);
     }
-    temp_16 = (arg0 & 0xFFFF) * 0x64;
-    if (*(s32 *)((u32)temp_16 + (u32)temp_18 + 0xC) & 1) {
-        temp_18_2 = (u32 *)D_00881480[0];
-        if (temp_17 >= temp_18_2[1]) {
+    kindOffset = (communityId & 0xFFFF) * 0x64;
+    if ((s32)((CmmKindRecord *)((u32)kindOffset + (u32)table + 8))->flags & 1) {
+        levelTable = (u32 *)D_00881480[0];
+        if (kindId >= levelTable[1]) {
             kAssertFail(D_006359D0, 0x4C);
         }
-        temp_16_2 = *(u8 *)((u32)temp_16 + (u32)temp_18_2 + 0x11);
-        if ((s32)temp_16_2 >= (cmmCommunityRecordValue(arg0) & 0xFFFF)) {
+        level = ((CmmKindRecord *)((u32)kindOffset + (u32)levelTable + 8))->reverseRankLimit;
+        if ((s32)level >= (cmmCommunityRecordValue(communityId) & 0xFFFF)) {
             return 1;
         }
     }
@@ -1291,56 +1316,56 @@ s32 cmmReversedAtRank(s32 arg0) {
 /* measured: opt_common_subs off restores retail per-use masks while preserving both table bases. */
 #pragma opt_common_subs off
 s32 cmmTopReversedCommunity(void) {
-    s32 temp_20;
-    s32 temp_2;
-    s32 var_18;
-    s32 var_17;
-    s32 var_16;
-    s32 var_2;
-    u32 temp_21;
-    u8 temp_19_3;
-    u32 *temp_19;
-    u32 *temp_19_2;
+    s32 kindOffset;
+    s32 rank;
+    s32 communityId;
+    s32 highestRank;
+    s32 result;
+    s32 eligible;
+    u32 kindId;
+    u8 level;
+    u32 *table;
+    u32 *levelTable;
 
-    var_17 = -1;
-    var_16 = 0;
-    var_18 = 0;
-    while (var_18 < 0x1F) {
-        if (cmmCommunityHasRecord(var_18 & 0xFFFF) == 0) {
-            var_2 = 0;
+    highestRank = -1;
+    result = 0;
+    communityId = 0;
+    while (communityId < 0x1F) {
+        if (cmmCommunityHasRecord(communityId & 0xFFFF) == 0) {
+            eligible = 0;
         } else {
-            temp_19 = (u32 *)D_00881480[0];
-            temp_21 = var_18 & 0xFFFF;
-            if (temp_21 >= temp_19[1]) {
+            table = (u32 *)D_00881480[0];
+            kindId = communityId & 0xFFFF;
+            if (kindId >= table[1]) {
                 kAssertFail(D_006359D0, 0x4C);
             }
-            temp_20 = (var_18 & 0xFFFF) * 0x64;
-            if (*(s32 *)((u32)temp_20 + (u32)temp_19 + 0xC) & 1) {
-                temp_19_2 = (u32 *)D_00881480[0];
-                if (temp_21 >= temp_19_2[1]) {
+            kindOffset = (communityId & 0xFFFF) * 0x64;
+            if ((s32)((CmmKindRecord *)((u32)kindOffset + (u32)table + 8))->flags & 1) {
+                levelTable = (u32 *)D_00881480[0];
+                if (kindId >= levelTable[1]) {
                     kAssertFail(D_006359D0, 0x4C);
                 }
-                temp_19_3 = *(u8 *)((u32)temp_20 + (u32)temp_19_2 + 0x11);
-                if ((s32)temp_19_3 >= (cmmCommunityRecordValue(var_18 & 0xFFFF) & 0xFFFF)) {
-                    var_2 = 1;
+                level = ((CmmKindRecord *)((u32)kindOffset + (u32)levelTable + 8))->reverseRankLimit;
+                if ((s32)level >= (cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF)) {
+                    eligible = 1;
                 } else {
                     goto block_10;
                 }
             } else {
 block_10:
-                var_2 = 0;
+                eligible = 0;
             }
         }
-        if (var_2 != 0) {
-            temp_2 = cmmCommunityRecordValue(var_18 & 0xFFFF) & 0xFFFF;
-            if (var_17 < temp_2) {
-                var_17 = temp_2;
-                var_16 = var_18;
+        if (eligible != 0) {
+            rank = cmmCommunityRecordValue(communityId & 0xFFFF) & 0xFFFF;
+            if (highestRank < rank) {
+                highestRank = rank;
+                result = communityId;
             }
         }
-        var_18 += 1;
+        communityId += 1;
     }
-    return var_16 & 0xFFFF;
+    return result & 0xFFFF;
 }
 /* measured: opt_common_subs on restores the file baseline after func_00248b80. */
 #pragma opt_common_subs on
@@ -1349,25 +1374,25 @@ block_10:
    loop and keeps the loop count in $t0; without #pragma opt_loop_invariants
    mwcc b210 rematerializes lui per iteration (nd 16). Declarations must be
    count/var_10/var_9/temp_7 order for the $t0/$t1/$t2 allocation. */
-// Table lookup value: scans the 12-byte entries at D_008814C0 for the key (arg0 high half, arg1 low half, arg2 at +4) and returns the value at +8, or -1.
+// Table lookup value: scans the 12-byte entries at D_008814C0 for the key (value high half, option low half, selection at +4) and returns the value at +8, or -1.
 // FUN_00248D00
 #pragma opt_loop_invariants on
-s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2) {
+s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
     s32 count;
-    u8 *var_10;
-    s32 var_9;
-    s32 temp_7;
+    u8 *entry;
+    s32 index;
+    s32 key;
 
-    var_10 = D_008814C0[0] + 8;
-    count = *(s32 *)(D_008814C0[0] + 4);
-    var_9 = 0;
-    while (var_9 < count) {
-        temp_7 = *(s32 *)var_10;
-        if ((((u32)(temp_7 & 0xFFFF0000) >> 0x10) == arg0) && ((temp_7 & 0xFFFF) == arg1) && (*(u16 *)(var_10 + 4) == arg2)) {
-            return *(s32 *)(var_10 + 8);
+    entry = D_008814C0[0] + 8;
+    count = (s32)((CmmChunkHeader *)D_008814C0[0])->count;
+    index = 0;
+    while (index < count) {
+        key = ((CmmLookupValue *)entry)->key;
+        if ((((u32)(key & 0xFFFF0000) >> 0x10) == keyHigh) && ((key & 0xFFFF) == keyLow) && (((CmmLookupValue *)entry)->kind == kind)) {
+            return ((CmmLookupValue *)entry)->value;
         }
-        var_10 += 0xC;
-        var_9 += 1;
+        entry += 0xC;
+        index += 1;
     }
     return -1;
 }
@@ -1378,22 +1403,22 @@ s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2) {
    the caller pass the already-masked key in $s1, reproducing the retail move
    and the complete -0x40 frame/s0-s2 prologue. With propagation disabled,
    this body is MATCH at nd 0 (object 148B/window 160B). */
-// Resolve counterpart: returns the counterpart of community arg0 when arg0 has no record and its counterpart does; otherwise returns arg0.
+// Resolve counterpart: returns the counterpart of community value when value has no record and its counterpart does; otherwise returns value.
 // FUN_00248D80
 /* measured: opt_propagation off preserves retail's raw/key lifetimes. */
 #pragma opt_propagation off
-s64 cmmResolveCounterpart(s64 arg0)
+s64 cmmResolveCounterpart(s64 value)
 {
     s64 raw;
     s64 key;
-    s64 raw_low;
+    s64 rawLow;
 
-    raw = arg0;
+    raw = value;
     key = raw & 0xFFFF;
     if (cmmCommunityHasRecord(key) == 0) {
-        raw_low = (s16)raw;
+        rawLow = (s16)raw;
         key = (s16)cmmCommunityCounterpart(key);
-        if ((raw_low != key) && (cmmCommunityHasRecord((u16)key) != 0)) {
+        if ((rawLow != key) && (cmmCommunityHasRecord((u16)key) != 0)) {
             return key;
         }
     }
@@ -1404,54 +1429,54 @@ s64 cmmResolveCounterpart(s64 arg0)
 
 
 
-// Table lookup flagged: scans the 12-byte entries at D_008814C8 for the key (arg0 high half, arg1 low half, arg2 or 0xFFFF) and returns the u16 at +0xA when its 0x8000 bit is set. Returns -1 otherwise.
+// Table lookup flagged: scans the 12-byte entries at D_008814C8 for the key (value high half, option low half, selection or 0xFFFF) and returns the u16 at +0xA when its 0x8000 bit is set. Returns -1 otherwise.
 // FUN_00248E20
-s32 cmmTableLookupFlagged(s32 arg0, s32 arg1, s32 arg2) {
-    s32 temp_16;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *var_18;
-    s32 var_17;
-    u16 temp_2;
+s32 cmmTableLookupFlagged(s32 keyHigh, s32 keyLow, s32 kind) {
+    s32 count;
+    s32 key;
+    s32 flagBit;
+    u8 *entry;
+    s32 index;
+    u16 value;
 
-    var_18 = D_008814C8[0] + 8;
-    temp_16 = *(s32 *)(D_008814C8[0] + 4);
-    var_17 = 0;
-    while (var_17 < temp_16) {
-        temp_4 = *(s32 *)var_18;
-        if (temp_4 == 0 || datGetFlag(temp_4) != 0) {
-            temp_3 = *(s32 *)(var_18 + 4);
-            if (((u32)(temp_3 & 0xFFFF0000) >> 0x10) == arg0 && (temp_3 & 0xFFFF) == arg1 && (*(u16 *)(var_18 + 8) == 0xFFFF || *(u16 *)(var_18 + 8) == arg2)) {
-                temp_2 = *(u16 *)(var_18 + 0xA);
-                if (temp_2 & 0x8000) {
-                    return temp_2;
+    entry = D_008814C8[0] + 8;
+    count = (s32)((CmmChunkHeader *)D_008814C8[0])->count;
+    index = 0;
+    while (index < count) {
+        flagBit = ((CmmFlaggedValue *)entry)->flagBit;
+        if (flagBit == 0 || datGetFlag(flagBit) != 0) {
+            key = ((CmmFlaggedValue *)entry)->key;
+            if (((u32)(key & 0xFFFF0000) >> 0x10) == keyHigh && (key & 0xFFFF) == keyLow && (((CmmFlaggedValue *)entry)->kind == 0xFFFF || ((CmmFlaggedValue *)entry)->kind == kind)) {
+                value = ((CmmFlaggedValue *)entry)->value;
+                if (value & 0x8000) {
+                    return value;
                 }
             }
         }
-        var_18 += 0xC;
-        var_17++;
+        entry += 0xC;
+        index++;
     }
     return -1;
 }
-// Returns 0 when arg1 is at or below the first threshold of date-table entry arg0, 1 when it is at or below the second, else 2 [inferred].
+// Returns 0 when option is at or below the first threshold of date-table entry value, 1 when it is at or below the second, else 2 [inferred].
 // FUN_00248F20
-s32 cmmDateTableRangeKind(s32 arg0, s32 arg1) {
-    u8 *temp_19 = (u8 *)(D_008814CC[0] + 8);
-    s16 temp_17 = (s16)arg0;
-    s32 temp_16;
+s32 cmmDateTableRangeKind(s32 entryId, s32 value) {
+    u8 *table = (u8 *)(D_008814CC[0] + 8);
+    s16 index = (s16)entryId;
+    s32 offset;
 
-    if (temp_17 >= 5) {
+    if (index >= 5) {
         kAssertFail(D_006359D0, 0x11B);
     }
-    temp_16 = temp_17 * 8;
-    if (arg1 <= *(s16 *)(temp_19 + temp_16)) {
+    offset = index * 8;
+    if (value <= ((CmmDateRange *)(table + offset))->threshold[0]) {
         return 0;
     }
-    temp_19 = (u8 *)(D_008814CC[0] + 8);
-    if (temp_17 >= 5) {
+    table = (u8 *)(D_008814CC[0] + 8);
+    if (index >= 5) {
         kAssertFail(D_006359D0, 0x11B);
     }
-    if (arg1 <= *(s16 *)(temp_16 + (u32)temp_19 + 2)) {
+    if (value <= ((CmmDateRange *)(offset + (u32)table))->threshold[1]) {
         return 1;
     }
     return 2;
@@ -1462,7 +1487,7 @@ s32 cmmDateTableRangeKind(s32 arg0, s32 arg1) {
 s32 cmmDateTableFindIndex(s32 seed) {
     u8 *base = D_008814D0[0];
     u8 *p = base + 8;
-    s32 count = *(s32 *)(base + 4);
+    s32 count = (s32)((CmmChunkHeader *)base)->count;
     s32 a, b;
     s32 a0, b0;
     s32 i;
@@ -1472,7 +1497,7 @@ s32 cmmDateTableFindIndex(s32 seed) {
     a0 = a;
     b0 = b;
     while (i < count) {
-        if ((p[0] == a0) && (p[1] == b0)) {
+        if ((((CmmDateRecord *)p)->month == a0) && (((CmmDateRecord *)p)->day == b0)) {
             return i;
         }
         p += 0x24;
@@ -1487,9 +1512,9 @@ s32 cmmDateTableFindIndex(s32 seed) {
 // Date table find record: returns the ordinary record for the date seed, or NULL when none matches.
 // FUN_002490B0
 u8 *cmmDateTableFindRecord(s32 seed) {
-    s32 sp4C;
-    s32 sp48;
-    u8 *temp_17;
+    s32 month;
+    s32 day;
+    u8 *records;
     u8 *p;
     s32 count;
     s32 a0;
@@ -1497,15 +1522,15 @@ u8 *cmmDateTableFindRecord(s32 seed) {
     s32 i;
     s32 k;
 
-    temp_17 = D_008814D0[0] + 8;
-    p = temp_17;
-    count = *(s32 *)(D_008814D0[0] + 4);
-    calSplitDayOfYear(seed, &sp4C, &sp48);
+    records = D_008814D0[0] + 8;
+    p = records;
+    count = (s32)((CmmChunkHeader *)D_008814D0[0])->count;
+    calSplitDayOfYear(seed, &month, &day);
     i = 0;
-    a0 = sp4C;
-    b0 = sp48;
+    a0 = month;
+    b0 = day;
     while (i < count) {
-        if ((p[0] == a0) && (p[1] == b0)) {
+        if ((((CmmDateRecord *)p)->month == a0) && (((CmmDateRecord *)p)->day == b0)) {
             k = i;
             goto found;
         }
@@ -1515,23 +1540,23 @@ u8 *cmmDateTableFindRecord(s32 seed) {
     k = -1;
 found:
     if (k != -1) {
-        return temp_17 + k * 0x24;
+        return records + k * 0x24;
     }
     return NULL;
 }
 
-// Date table find special record: returns the special record (slot from func_001064F0 at 0x6D) when flag 0xA61 is set and arg0 has reached its threshold, else NULL.
+// Date table find special record: returns the special record (slot from func_001064F0 at 0x6D) when flag 0xA61 is set and value has reached its threshold, else NULL.
 // FUN_00249180
-u8 *cmmDateTableFindSpecialRecord(u32 arg0) {
-    s32 sp3C;
-    s32 sp38;
-    u8 *temp_17 = D_008814D0[0] + 8;
+u8 *cmmDateTableFindSpecialRecord(u32 date) {
+    s32 month;
+    s32 day;
+    u8 *record = D_008814D0[0] + 8;
 
-    calSplitDayOfYear(arg0, &sp3C, &sp38);
+    calSplitDayOfYear(date, &month, &day);
     if (datGetFlag(0xA61) != 0) {
-        temp_17 += func_001064f0(0x6D) * 0x24;
-        if (arg0 >= calDayOfYearFromMonthDay(temp_17[2], temp_17[3])) {
-            return temp_17;
+        record += func_001064f0(0x6D) * 0x24;
+        if (date >= calDayOfYearFromMonthDay(((CmmDateRecord *)record)->specialMonth, ((CmmDateRecord *)record)->specialDay)) {
+            return record;
         }
     }
     return NULL;
@@ -1558,21 +1583,21 @@ s32 cmmDateTableHasEntry(void) {
 /* measured: both failure paths reach one `p = NULL; t = p;` block (a goto target) and the success
    path copies `t = p` before the join - the copy keeps retail's b-over-null trampoline; the return
    is `if (t == NULL) return 0; return 1;` (retail bnez / move v0,zero / li 1 tail). */
-// Date table has special record: returns 1 when the special record for date arg0 is unlocked (flag 0xA61 and its threshold), else 0.
+// Date table has special record: returns 1 when the special record for date value is unlocked (flag 0xA61 and its threshold), else 0.
 // FUN_002492B0
-s32 cmmDateTableHasSpecialRecord(u32 arg0) {
-    s32 sp3C;
-    s32 sp38;
+s32 cmmDateTableHasSpecialRecord(u32 date) {
+    s32 month;
+    s32 day;
     u8 *p;
     u8 *t;
 
     p = D_008814D0[0] + 8;
-    calSplitDayOfYear(arg0, &sp3C, &sp38);
+    calSplitDayOfYear(date, &month, &day);
     if (datGetFlag(0xA61) == 0) {
         goto null_p;
     }
     p += func_001064f0(0x6D) * 0x24;
-    if (arg0 < calDayOfYearFromMonthDay(p[2], p[3])) {
+    if (date < calDayOfYearFromMonthDay(((CmmDateRecord *)p)->specialMonth, ((CmmDateRecord *)p)->specialDay)) {
         goto null_p;
     }
     t = p;
@@ -1590,7 +1615,7 @@ join:
    measured: the neighboring shared-NULL join/copy pattern retains retail's
    branch trampolines; cmmMiscAddOff preserves the final address operand order.
    Exact 328B instructions plus 8B zero tail; caller-facing s32 ABI unchanged. */
-// Date table read column: returns the 32-bit value at +12 of column arg2 (0 or 1) of the record selected for date arg1; special selects the special record, otherwise the ordinary record. Returns 0 when no record is selected.
+// Date table read column: returns the 32-bit value at +12 of column selection (0 or 1) of the record selected for date option; special selects the special record, otherwise the ordinary record. Returns 0 when no record is selected.
 // FUN_00249370
 s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column)
 {
@@ -1614,7 +1639,7 @@ s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column)
         calSplitDayOfYear(date, &month, &day);
         if (datGetFlag(0xA61) == 0) goto null_record;
         record += func_001064f0(0x6D) * 36;
-        if ((u32)date < calDayOfYearFromMonthDay(record[2], record[3])) goto null_record;
+        if ((u32)date < calDayOfYearFromMonthDay(((CmmDateRecord *)record)->specialMonth, ((CmmDateRecord *)record)->specialDay)) goto null_record;
         selected = record;
         goto selected_record;
 null_record:
@@ -1626,7 +1651,7 @@ selected_record:
         kAssertFail(D_006359D0, 0x4A0);
     }
     if (selected == NULL) return 0;
-    return *(s32 *)(cmmMiscAddOff(column * 16, (s32)selected) + 12);
+    return ((CmmDateColumn *)(cmmMiscAddOff(column * 16, (s32)selected) + 4))->value;
 }
 /* Unsigned address addition preserves the retail operand order without
    changing the signed counter-delta arithmetic. */
@@ -1653,7 +1678,7 @@ s32 cmmDateTableApplyColumnDelta(s32 date, s32 column)
     calSplitDayOfYear(date, &month, &day);
     if (datGetFlag(0xA61) == 0) goto null_record;
     record = base + func_001064f0(0x6D) * 36;
-    if ((u32)date < (u32)calDayOfYearFromMonthDay(record[2], record[3])) goto null_record;
+    if ((u32)date < (u32)calDayOfYearFromMonthDay(((CmmDateRecord *)record)->specialMonth, ((CmmDateRecord *)record)->specialDay)) goto null_record;
     selected = record;
     goto selected_record;
 null_record:
@@ -1667,7 +1692,7 @@ selected_record:
     id = *key;
     if (id != 0) {
         value = datItemCount((s16)id) & 0xFF;
-        value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 6));
+        value = cmmMiscAddOff(value, ((CmmDateColumn *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 4))->deltaFirst);
         if (value > 99) value = 99;
         datItemSetCount((s32)*(s16 *)key, value & 0xFF);
     }
@@ -1676,7 +1701,7 @@ selected_record:
     if (id != 0) {
         offset = (u32)column << 4;
         value = datItemCount((s16)id) & 0xFF;
-        value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddOff(offset, (s32)selected) + 10));
+        value = cmmMiscAddOff(value, ((CmmDateColumn *)(cmmMiscAddOff(offset, (s32)selected) + 4))->deltaSecond);
         if (value > 99) value = 99;
         datItemSetCount((s32)*(s16 *)key, value & 0xFF);
     }
@@ -1690,13 +1715,13 @@ selected_record:
    Two levers. Declaring `v` before `n` fixes a whole-function $s0/$s1 mirror
    (14 -> 5) -- m2c's own var_16/var_17 numbering is the hint, var_17 is `v` and
    retail colours it $s1. Then `#pragma opt_propagation off` (measured: 5 -> 4)
-   stops b210 forwarding `v = arg0` so the zero test reads the saved $s1 copy the
+   stops b210 forwarding `v = value` so the zero test reads the saved $s1 copy the
    way retail does, instead of testing $a0 directly.
 
    Residual: the two parameter saves are emitted in register order ($s0 then $s1)
-   where retail emits them in parameter order (arg0 to $s1 first), and one
+   where retail emits them in parameter order (value to $s1 first), and one
    commutative `addu` has its operands transposed. Measured and rejected:
-   `arg1 + func_001064f0(0x57)`, seeding `n = arg1` at the top, seeding it just
+   `option + func_001064f0(0x57)`, seeding `n = option` at the top, seeding it just
    before the add, and opt_common_subs off (5). Nine spellings.
    Parameter-save order floor. */
 static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta; }
@@ -1716,28 +1741,28 @@ static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta;
    Committed at nd 4. */
 /* measured: parked body committed at nd 4. */
 /* measured: parked body committed at nd 4. */
-// Date table add count: selects counter slot arg0 (0 = the next free slot), adds arg1 through cmmAddCountFirst, and at 4 completes the slot by setting flag 0x9AF+slot and clearing the counter.
+// Date table add count: selects counter slot value (0 = the next free slot), adds option through cmmAddCountFirst, and at 4 completes the slot by setting flag 0x9AF+slot and clearing the counter.
 // FUN_00249670
 /* measured: opt_propagation off is required for the parked nd4 body. */
 #pragma opt_propagation off
-s32 cmmDateTableAddCount(s32 arg0, s32 arg1)
+s32 cmmDateTableAddCount(s32 value, s32 option)
 {
     s32 n;
 
-    if (arg0 == 0) {
-        arg0 = func_001064f0(0x58);
-        if (arg0 == 0) {
+    if (value == 0) {
+        value = func_001064f0(0x58);
+        if (value == 0) {
             kAssertFail(D_006359D0, 0x4C8);
         }
     }
-    func_00106550(0x58, arg0);
-    if (!(datItemCount((s16)(arg0 + 0x4EA)) & 0xFF)) {
+    func_00106550(0x58, value);
+    if (!(datItemCount((s16)(value + 0x4EA)) & 0xFF)) {
         kAssertFail(D_006359D0, 0x4CC);
     }
-    n = cmmAddCountFirst(func_001064f0(0x57), arg1);
+    n = cmmAddCountFirst(func_001064f0(0x57), option);
     if (n >= 4) {
         n = 0;
-        datSetFlag(arg0 + 0x9AF, 1);
+        datSetFlag(value + 0x9AF, 1);
         func_00106550(0x58, 0);
     }
     func_00106550(0x57, n);
@@ -1745,64 +1770,64 @@ s32 cmmDateTableAddCount(s32 arg0, s32 arg1)
 }
 /* measured: opt_propagation scope closes at the file baseline. */
 #pragma opt_propagation on
-// Date table find nth match: counts the 20 records of D_008814E0 whose date matches arg0 (0 = any) and whose status matches arg1 (0-3); returns the 1-based index of the record at count arg2, or 0 when none.
+// Date table find nth match: counts the 20 records of D_008814E0 whose date matches value (0 = any) and whose status matches option (0-3); returns the 1-based index of the record at count selection, or 0 when none.
 // FUN_00249770
-s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2) {
-    s32 var_16;
-    s32 var_20;
+s32 cmmDateTableFindNthMatch(s32 date, s32 status, s32 requestedIndex) {
+    s32 index;
+    s32 passedChecks;
     s32 off;
-    u8 *temp_20;
+    u8 *table;
     u8 *p;
-    s32 var_21;
+    s32 matchIndex;
 
-    var_21 = 0;
-    var_16 = 0;
-    while (var_16 < 0x14) {
-        temp_20 = D_008814E0[0];
-        if ((u32)((var_16 + 1) & 0xFFFF) >= *(u32 *)(temp_20 + 4)) {
+    matchIndex = 0;
+    index = 0;
+    while (index < 0x14) {
+        table = D_008814E0[0];
+        if ((u32)((index + 1) & 0xFFFF) >= ((CmmChunkHeader *)table)->count) {
             kAssertFail(D_006359D0, 0x13B);
         }
-        off = (u16)(var_16 + 1) * 72;
-        p = (u8 *)(off + (u32)temp_20 + 8);
-        var_20 = 0;
-        if (arg0 == 0 || arg0 == *(s32 *)p) {
-            var_20 += 1;
+        off = (u16)(index + 1) * 72;
+        p = (u8 *)(off + (u32)table + 8);
+        passedChecks = 0;
+        if (date == 0 || date == *(s32 *)p) {
+            passedChecks += 1;
         }
-        switch (arg1) {
+        switch (status) {
         case 0:
-            if (datGetFlag(var_16 + 0x9B0) != 0) {
-                var_20 += 1;
+            if (datGetFlag(index + 0x9B0) != 0) {
+                passedChecks += 1;
             }
             break;
         case 1:
-            if (((datItemCount((s16)(var_16 + 0x4EB)) & 0xFF) > 0) && (datGetFlag(var_16 + 0x9B0) == 0)) {
-                var_20 += 1;
+            if (((datItemCount((s16)(index + 0x4EB)) & 0xFF) > 0) && (datGetFlag(index + 0x9B0) == 0)) {
+                passedChecks += 1;
             }
             break;
         case 2:
-            if ((datItemCount((s16)(var_16 + 0x4EB)) & 0xFF) > 0) {
-                var_20 += 1;
+            if ((datItemCount((s16)(index + 0x4EB)) & 0xFF) > 0) {
+                passedChecks += 1;
             }
             break;
         case 3:
-            if ((datItemCount((s16)(var_16 + 0x4EB)) & 0xFF) == 0) {
-                var_20 += 1;
+            if ((datItemCount((s16)(index + 0x4EB)) & 0xFF) == 0) {
+                passedChecks += 1;
             }
             break;
         }
-        if (var_20 == 2) {
-            if (var_21 == arg2) {
-                return var_16 + 1;
+        if (passedChecks == 2) {
+            if (matchIndex == requestedIndex) {
+                return index + 1;
             }
-            var_21 += 1;
+            matchIndex += 1;
         }
-        var_16++;
+        index++;
     }
     return 0;
 }
 
-/* measured: the retail range guard is now byte-exact -- `((s32)(arg0 &
-   0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)` reproduces `andi; bltz; slti $at,6`
+/* measured: the retail range guard is now byte-exact -- `((s32)(value &
+   0xFFFF) < 0) || ((value & 0xFFFF) > 5)` reproduces `andi; bltz; slti $at,6`
    (nd 34 -> 21), so the "dead-comparison" half of the old note is solved.
    Recipe A half-scaler (s32 z; u32 c; fz = (f32)(s32)((c>>1)|(c&1));
    fz = fz + fz) and retail's `if (z >= 0) direct else half-scaler` layout
@@ -1822,10 +1847,10 @@ s32 cmmDateTableRollValue(s32 index)
   u8 *base = (u8 *) D_008814EC[0];
   s32 offset;
   u8 *record;
-  s16 base_value;
-  unsigned int random_value;
+  s16 baseValue;
+  unsigned int randomValue;
   u32 bits;
-  f32 random_float;
+  f32 randomFloat;
   f32 scale;
   if ((((s32) (index & 0xFFFF)) < 0) || ((index & 0xFFFF) > 5))
   {
@@ -1833,21 +1858,21 @@ s32 cmmDateTableRollValue(s32 index)
   }
   offset = ((u16) index) * 14;
   record = (u8 *) ((offset + ((u32) base)) + 8);
-  base_value = *((s16 *) ((offset + ((u32) base)) + 8));
-  random_value = RpRandom();
-  if (random_value >= 0)
+  baseValue = ((CmmFishingRecord *)(offset + (u32)base + 8))->base;
+  randomValue = RpRandom();
+  if (randomValue >= 0)
   {
-    random_float = (f32) random_value;
+    randomFloat = (f32) randomValue;
   }
   else
   {
-    bits = (u32) random_value;
-    random_float = (f32) ((s32) ((bits >> 1) | (bits & 1)));
-    random_float = random_float + random_float;
+    bits = (u32) randomValue;
+    randomFloat = (f32) ((s32) ((bits >> 1) | (bits & 1)));
+    randomFloat = randomFloat + randomFloat;
   }
-  scale = random_float;
+  scale = randomFloat;
   scale = scale / 2147483648.0f;
-  return (s32) (((f32) base_value) + (((f32) (*((s16 *) (record + 2)))) * scale));
+  return (s32) (((f32) baseValue) + (((f32) ((CmmFishingRecord *)record)->span) * scale));
 }
 
 /* The retail range guard tests the MASKED index twice and lowers the upper
@@ -1856,19 +1881,19 @@ s32 cmmDateTableRollValue(s32 index)
    puts the slti result in $at (see docs/matching.md); re-masking in both
    halves of the || is what makes bltz test the masked value. Same shape as
    FUN_00246E90. */
-// Date table run effect: runs the effect recorded in roll entry arg0 (D_008814EC) through datEntryDrawGatedByFlag39.
+// Date table run effect: runs the effect recorded in roll entry value (D_008814EC) through datEntryDrawGatedByFlag39.
 // FUN_00249A60
-void cmmDateTableRunEffect(s32 arg0) {
-    u8 *temp_16 = (u8 *)D_008814EC[0];
+void cmmDateTableRunEffect(s32 entryId) {
+    u8 *table = (u8 *)D_008814EC[0];
     s32 off;
     s16 v;
     s32 a;
 
-    if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
+    if (((s32)(entryId & 0xFFFF) < 0) || ((entryId & 0xFFFF) > 5)) {
         kAssertFail(D_006359D0, 0x16B);
     }
-    off = (u16)arg0 * 14;
-    v = *(s16 *)(off + (u32)temp_16 + 0xE);
+    off = (u16)entryId * 14;
+    v = ((CmmFishingRecord *)(off + (u32)table + 8))->effect;
     a = (s16)(v >> 8);
     datEntryDrawGatedByFlag39(a, (s16)((((v >> 1) & 0xFF) << 1) | (v & 1)), a, 0);
 }

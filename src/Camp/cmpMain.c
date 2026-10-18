@@ -29,9 +29,9 @@ s32 func_0046a750(s32 param);
 void titleSlotTableInit(u8 *);
 s32 titleSlotsSettled(u8 *);
 void titleSlotSetMode(u8 *, s32);
-s32 func_0012e1d0(u8 *);
+s32 titleSlotFramesElapsed(u8 *);
 void titleFreeSpriteNodes(u8 *);
-void func_0012db80(u8 *, s32);
+void titleSelectSlot(u8 *, s32);
 s32 radarItemMenuUpdate(u8 *, s32 *, u8 *);
 s32 radarRecipientMenuUpdate(u32 *, s32 *, u8 *);
 s32 radarTransferMenuUpdate(u8 *, s32 *, u8 *);
@@ -206,13 +206,13 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
                               *(s32 *)(work + 0x28), 0);
                 sdkListStateSetSecondaryMasks(&inputState, 0x4000, 0x1000, 0, 0);
                 if (sdkListStateHandleInput(&inputState) != 0) {
-                    func_0012db80(work + 0x18, *(s32 *)((u8 *)&inputState + 0x24));
+                    titleSelectSlot(work + 0x18, *(s32 *)((u8 *)&inputState + 0x24));
                 }
             }
         }
         break;
     case 13:
-        if ((func_0012e1d0(work + 0x18) != 0) && (*(s32 *)(work + 0x14) != 0)) {
+        if ((titleSlotFramesElapsed(work + 0x18) != 0) && (*(s32 *)(work + 0x14) != 0)) {
             return -1;
         }
         break;
@@ -221,7 +221,7 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         if ((result < 4) || (result > 0xD)) {
             kAssertFail(D_005E5890, 0x133);
         }
-        if (func_0012e1d0(work + 0x18) != 0) {
+        if (titleSlotFramesElapsed(work + 0x18) != 0) {
             titleFreeSpriteNodes(work + 0x18);
             *(s32 *)work = *(s32 *)(work + 8);
         }

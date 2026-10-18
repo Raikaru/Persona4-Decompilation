@@ -411,7 +411,7 @@ extern s32 btlSoundStopStep(void);
 extern s32 btlSoundReleaseStep(void);
 extern void mdlEffectDestroyWithNodes(s32 arg0);
 extern void mdlEffectUpdateChildren(s32 arg0);
-extern void func_00120f20(s32 arg0);
+extern void taskRecordRequestPrimary(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void func_001fa490(void);
 extern s32 btlCdvdLoadPoll(void);
@@ -501,7 +501,7 @@ u8 *btlSoundLoadPacketNew(const void *arg0) {
 // FUN_001FA7A0
 s32 btlSoundLoadPoll(s32 *arg0)
 {
-    extern void func_00120f00(s32 arg0);
+    extern void taskRecordRequestSecondary(s32 arg0);
     extern s32 mdlEffectIsFinished(s32 arg0);
     extern s32 TnGetTableBase(void);
     extern void TnSetTableBase(void *arg0);
@@ -521,7 +521,7 @@ s32 btlSoundLoadPoll(s32 *arg0)
             return 1;
         }
         if (*arg0 == 0) {
-            func_00120f00(temp_4_2);
+            taskRecordRequestSecondary(temp_4_2);
         }
         goto block_12;
     }
@@ -578,7 +578,7 @@ s32 btlSoundStopStep(void) {
     }
     temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
     if (temp_4_2 != 0) {
-        func_00120f20(temp_4_2);
+        taskRecordRequestPrimary(temp_4_2);
         *(s32 *)(D_0076449C + 0xB88) = 0;
     }
     return 1;
@@ -606,7 +606,7 @@ s32 btlSoundReleaseStep(void) {
     }
     temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
     if (temp_4_2 != 0) {
-        func_00120f20(temp_4_2);
+        taskRecordRequestPrimary(temp_4_2);
         *(s32 *)(D_0076449C + 0xB88) = 0;
     }
     return 1;

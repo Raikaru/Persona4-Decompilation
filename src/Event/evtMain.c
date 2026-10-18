@@ -126,8 +126,8 @@ s32 fadeState(void);
 void H_Fade_SetCustomColor(u8 red, u8 green, u8 blue);
 s32 cutinDrawTaskCreate(s32 parentTask, s32 packedCode);
 s32 taskRecordIsDone(void *task);
-void func_00120f00(void *task);
-void func_00120f20(void *task);
+void taskRecordRequestSecondary(void *task);
+void taskRecordRequestPrimary(void *task);
 void taskRecordSetPosition(u8 *task, s64 packedPosition);
 
 
@@ -818,7 +818,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
             if ((waitFlags & 0x80000000) != 0) {
                 if (*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) != NULL) {
                     if (kwlnTaskIsLinked(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4)) != 0) {
-                        func_00120f20(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
+                        taskRecordRequestPrimary(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
                         if (taskRecordIsDone(*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4)) != 0) {
                             kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u8 **)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
                         }
@@ -841,7 +841,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                     cutinCode.halves.second = (s16)secondCode;
                     linkedObject = (u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4);
                     if ((linkedObject != NULL) && (kwlnTaskIsLinked((void *)linkedObject) != 0)) {
-                        func_00120f20(linkedObject);
+                        taskRecordRequestPrimary(linkedObject);
                     }
                     {
                         s32 createdTask = cutinDrawTaskCreate((s32)evtFindTask(), cutinCode.packed);
@@ -870,13 +870,13 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                                 break;
                             }
                         }
-                        func_00120f00((void *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
+                        taskRecordRequestSecondary((void *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4));
                     }
                     break;
                 case 2:
                     currentKey = (u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4);
                     if ((currentKey != NULL) && (kwlnTaskIsLinked((void *)currentKey) != 0)) {
-                        func_00120f20(currentKey);
+                        taskRecordRequestPrimary(currentKey);
                     }
                     *(s32 *)(evtCutinAddress(*(u32 *)(owner + 4), event) + 0x6C4) = 0;
                     break;
