@@ -431,7 +431,7 @@ void fclBankSlotLoad(u8 *slot)
                             s32 flags, s32 source, s32 buffer, s32 byteCount,
                             const char *cacheName, s32 resultKind, s32 memoryKind);
     extern u8 *filerTakeCompletedRequest(u8 *request, s32 *complete, s32 *size);
-    extern s32 func_004672c0(s32 request, u8 *archive);
+    extern s32 sdkWrapStreamCloseCreate(s32 request, u8 *archive);
     extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
     extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
     extern s32 func_003ef3a0(struct RwTexture *texture);
@@ -496,7 +496,7 @@ void fclBankSlotLoad(u8 *slot)
         *(s32 *)(slot + 0x364) = *(s32 *)(slot + 0x364) + 1;
         request = *(u8 **)(slot + 0x48);
         if (request != NULL) {
-            func_004672c0((s32)request, *(u8 **)(slot + 0x24));
+            sdkWrapStreamCloseCreate((s32)request, *(u8 **)(slot + 0x24));
             *(u8 **)(slot + 0x48) = NULL;
             *(u8 **)(slot + 0x24) = NULL;
         } else {

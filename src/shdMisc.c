@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "shd_misc_internal.h"
+#include "mdl_effect_internal.h"
 
 
 /* gp - 0x5418 = 0x00763CD8, accessed as a 64-bit word (ld/sd). */
@@ -169,7 +170,7 @@ typedef struct ShdQuadVertex {
 #pragma opt_loop_invariants on
 // Intent: Draw a four-vertex colour quad from its corner floats and colour [inferred]
 // FUN_00364680
-void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3)
+void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, f32 height, u8 *texture, s32 drawMask, s32 blendMode)
 {
     ShdQuadVertex verts[4];
     f32 z;
@@ -183,8 +184,8 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3,
     s32 (**draw)(s32, void *, s32);
 
     z = D_008872F8[0] - depth;
-    q = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
-    if (ptr == NULL) {
+    q = 1.0f / ((MdlEffectCamera *)(u8 *)kwlnGetCamera())->nearPlane;
+    if (texture == NULL) {
         kAssertFail(D_0064E2F8, 153);
     }
     alpha = (u8)(((u32)color & 0xFF000000) >> 24);
@@ -193,7 +194,7 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3,
     blue = color & 0xFF;
     flag = (blue ^ 0xFF) != 0;
     if (flag) {
-        flag = arg2 != 0;
+        flag = drawMask != 0;
     }
     verts[0].z = z;
     verts[1].z = z;
@@ -218,18 +219,18 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3,
     renderState[0](0xE, 0);
     renderState[0](9, 2);
     renderState[0](0xC, 1);
-    renderState[0](1, *(u32 *)ptr);
+    renderState[0](1, *(u32 *)texture);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
     if (flag) {
-        verts[0].x = fparg3;
-        verts[0].y = fparg4;
-        verts[1].x = fparg3 + fparg5;
-        verts[1].y = fparg4;
-        verts[2].x = fparg3 + fparg5;
-        verts[2].y = fparg4 + fparg6;
-        verts[3].x = fparg3;
-        verts[3].y = fparg4 + fparg6;
+        verts[0].x = maskX;
+        verts[0].y = maskY;
+        verts[1].x = maskX + width;
+        verts[1].y = maskY;
+        verts[2].x = maskX + width;
+        verts[2].y = maskY + height;
+        verts[3].x = maskX;
+        verts[3].y = maskY + height;
         {
             s32 i;
 
@@ -243,14 +244,14 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3,
         RpSkyRenderStateSet(3, 0x31801);
         D_00887310[0](5, verts, 4);
     }
-    verts[0].x = fparg1;
-    verts[0].y = fparg2;
-    verts[1].x = fparg1 + fparg5;
-    verts[1].y = fparg2;
-    verts[2].x = fparg1 + fparg5;
-    verts[2].y = fparg2 + fparg6;
-    verts[3].x = fparg1;
-    verts[3].y = fparg2 + fparg6;
+    verts[0].x = x;
+    verts[0].y = y;
+    verts[1].x = x + width;
+    verts[1].y = y;
+    verts[2].x = x + width;
+    verts[2].y = y + height;
+    verts[3].x = x;
+    verts[3].y = y + height;
     {
         s32 i;
 
@@ -270,7 +271,7 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3,
     draw[0](5, verts, 4);
     mdlEffectEmitTagPair();
     renderState[0](1, 0);
-    switch (arg3) {
+    switch (blendMode) {
     case 0:
         RpSkyRenderStateSet(2, 0x54);
         break;
@@ -286,14 +287,14 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3,
     } else {
         RpSkyRenderStateSet(3, 0x31801);
     }
-    verts[0].x = fparg1;
-    verts[0].y = fparg2;
-    verts[1].x = fparg1 + fparg5;
-    verts[1].y = fparg2;
-    verts[2].x = fparg1;
-    verts[2].y = fparg2 + fparg6;
-    verts[3].x = fparg1 + fparg5;
-    verts[3].y = fparg2 + fparg6;
+    verts[0].x = x;
+    verts[0].y = y;
+    verts[1].x = x + width;
+    verts[1].y = y;
+    verts[2].x = x;
+    verts[2].y = y + height;
+    verts[3].x = x + width;
+    verts[3].y = y + height;
     {
         s32 i;
 
@@ -355,7 +356,7 @@ void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
         geometry[2] = third;
         geometry[3] = fourth;
     }
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
+    reciprocal = 1.0f / ((MdlEffectCamera *)(u8 *)(u32)kwlnGetCamera())->nearPlane;
     far_depth = D_008872F8[0];
     sine = sinf(angle);
     cosine = cosf(angle);
@@ -400,7 +401,7 @@ static inline void shdFarX(f32 *out, const f32 *origin,
 
 // Intent: Draw a wedge from a centre point and an angle; arg3 selects the far-column layout [inferred]
 // FUN_00364FB0
-void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32 arg3) {
+void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 blend, s32 farColumn) {
     f32 vertices[4][16];
     f32 sine;
     f32 far_depth;
@@ -417,7 +418,7 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32
     origin_x = position.x;
     origin_y = position.y;
     far_depth = D_008872F8[0] - depth;
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
+    reciprocal = 1.0f / ((MdlEffectCamera *)(u8 *)(u32)kwlnGetCamera())->nearPlane;
     sine = sinf(angle);
     cosine = cosf(angle);
     red = (s32)(u8)(((u32)color >> 24) & 0xFF);
@@ -440,7 +441,7 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32
     vertices[1][10] = (f32)(u32)blue;
     vertices[1][11] = (f32)(u32)alpha;
     vertices[1][6] = reciprocal;
-    if (arg3 != 0) {
+    if (farColumn != 0) {
         vertices[2][0] = (0.0f + origin_x) - 402.0f * sine;
         vertices[2][1] = (0.0f + origin_y) + 402.0f * cosine;
         vertices[2][2] = far_depth - depth;
@@ -479,11 +480,11 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32
         vertices[3][11] = (f32)(u32)alpha;
         vertices[3][6] = reciprocal;
     }
-    if (arg2 != 0) {
+    if (blend != 0) {
         iGpffffabe8 |= 0x80;
     }
     D_00887310[0](4, vertices, 4);
-    if (arg2 != 0) {
+    if (blend != 0) {
         iGpffffabe8 &= ~0x80;
     }
 }
@@ -491,58 +492,58 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32
    The canonical declaration is shared with the panel transition caller. */
 /* measured: the four byte->float conversions are plain `(f32)(u32)x` (mwcc emits the
    bltz / srl-andi-or / mtc1 / cvt / add.s idiom itself with retail's $v1 destination;
-   spelling it out by hand colours $v0). The angle is `iGpffff8094 * (f32)var_20`
+   spelling it out by hand colours $v0). The angle is `iGpffff8094 * (f32)vertexIndex`
    in one expression so the GP constant is the first mul.s operand. */
 // Intent: Draw a rotating quad: four points on a circle around the origin, spaced by a fixed angle step [inferred]
 // FUN_003657D0
-void shdDrawRotatingQuad(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32 arg2) {
+void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color, f32 radius, f32 initialAngle, s32 blend) {
     f32 vertices[4][16];
     f32 sine;
     f32 cosine;
-    f32 temp_f23;
+    f32 reciprocalDepth;
     f32 origin_x;
     f32 origin_y;
-    f32 temp_f20;
-    f32 temp_f27;
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
-    s32 temp_19;
-    s32 var_20;
-    u8 *temp_2;
+    f32 vertexDepth;
+    f32 angle;
+    s32 alpha;
+    s32 blue;
+    s32 green;
+    s32 red;
+    s32 vertexIndex;
+    u8 *vertex;
 
-    origin_y = arg0.y;
-    origin_x = arg0.x;
-    temp_f23 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
-    temp_f20 = D_008872F8[0];
-    temp_19 = (s32)(u8)(((u32)arg1 & 0xFF000000) >> 24);
-    temp_18 = (s32)(u8)(((u32)arg1 & 0x00FF0000) >> 16);
-    temp_17 = (s32)(u8)(((u32)arg1 & 0x0000FF00) >> 8);
-    temp_16 = arg1 & 0xFF;
-    var_20 = 0;
-    temp_f20 -= fparg0;
-    while (var_20 < 4) {
-        temp_f27 = iGpffff8094 * (f32)var_20;
-        temp_f27 += fparg2;
-        sine = sinf(temp_f27);
-        cosine = cosf(temp_f27);
-        temp_2 = (u8 *)&vertices[var_20][0];
-        *(f32 *)(temp_2 + 0) = origin_x + fparg1 * sine;
-        *(f32 *)(temp_2 + 4) = origin_y + fparg1 * cosine;
-        *(f32 *)(temp_2 + 8) = temp_f20;
-        *(f32 *)(temp_2 + 0x20) = (f32)(u32)temp_19;
-        *(f32 *)(temp_2 + 0x24) = (f32)(u32)temp_18;
-        *(f32 *)(temp_2 + 0x28) = (f32)(u32)temp_17;
-        *(f32 *)(temp_2 + 0x2C) = (f32)(u32)temp_16;
-        *(f32 *)(temp_2 + 0x18) = temp_f23;
-        var_20 += 1;
+    origin_y = position.y;
+    origin_x = position.x;
+    reciprocalDepth = 1.0f / ((MdlEffectCamera *)(u8 *)(u32)kwlnGetCamera())->nearPlane;
+    vertexDepth = D_008872F8[0];
+    red = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
+    green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
+    blue = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
+    alpha = color & 0xFF;
+    vertexIndex = 0;
+    vertexDepth -= depth;
+    while (vertexIndex < 4) {
+        angle = iGpffff8094 * (f32)vertexIndex;
+        angle += initialAngle;
+        sine = sinf(angle);
+        cosine = cosf(angle);
+        vertex = (u8 *)&vertices[vertexIndex][0];
+        ((ShdQuadVertex *)vertex)->x = origin_x + radius * sine;
+        ((ShdQuadVertex *)vertex)->y = origin_y + radius * cosine;
+        ((ShdQuadVertex *)vertex)->z = vertexDepth;
+        ((ShdQuadVertex *)vertex)->r = (f32)(u32)red;
+        ((ShdQuadVertex *)vertex)->g = (f32)(u32)green;
+        ((ShdQuadVertex *)vertex)->b = (f32)(u32)blue;
+        ((ShdQuadVertex *)vertex)->a = (f32)(u32)alpha;
+        ((ShdQuadVertex *)vertex)->q = reciprocalDepth;
+        vertexIndex += 1;
     }
     D_00887300[0](1, 0);
-    if ((arg2 != 0) && ((temp_16 & 0xFF) == 0xFF)) {
+    if ((blend != 0) && ((alpha & 0xFF) == 0xFF)) {
         iGpffffabe8 |= 0x80;
     }
     D_00887310[0](5, &vertices[0], 4);
-    if ((arg2 != 0) && ((temp_16 & 0xFF) == 0xFF)) {
+    if ((blend != 0) && ((alpha & 0xFF) == 0xFF)) {
         iGpffffabe8 &= ~0x80;
     }
 }
@@ -588,7 +589,7 @@ void shdDrawRectOutline(Vec2f position, f32 depth, s32 color, f32 angle, f32 wid
     width = width * iGpffff83d4;
     vertexDepth = D_008872F8[0] - depth;
     camera = ((u8 *)(u32)kwlnGetCamera());
-    reciprocalDepth = 1.0f / *(f32 *)(camera + 0x80);
+    reciprocalDepth = 1.0f / ((MdlEffectCamera *)camera)->nearPlane;
     red = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
     green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
     blue = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
@@ -637,6 +638,7 @@ static inline s32 radialCheckedSegmentCount(u32 segments)
 }
 
 // Intent: Draw a radial fan of up to 100 segments from the centre colour to the edge colour [inferred]
+/* measured: the packed-position byte read matches; using position.y changes instructions. */
 // FUN_00365F00
 void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
                    f32 radius, f32 angle, u32 segments, f32 xscale, f32 yscale,
@@ -669,7 +671,7 @@ void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     origin_y = *(f32 *)((u8 *)&position + 4);
     origin_x = position.x;
     far_depth = D_008872F8[0];
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
+    reciprocal = 1.0f / ((MdlEffectCamera *)(u8 *)(u32)kwlnGetCamera())->nearPlane;
     num_segments = radialCheckedSegmentCount(segments);
     vertices[0][0] = position.x;
     vertices[0][1] = origin_y;
