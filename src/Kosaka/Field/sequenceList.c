@@ -9,8 +9,8 @@ extern s32 fclBankNoop(void);
 extern s32 fclBankTaskCreate(void);
 extern void titleStartSoundTask(s32);
 extern s32 btlIsRunning(void);
-extern void func_002853b0(void);
-extern s32 func_002853c0(void);
+extern void evtNoopCallback(void);
+extern s32 evtLookupTask(void);
 extern void scrCreateScriptChildTask(void *);
 extern void seqYajiTaskCreate(void);
 extern s32 func_002bdb50(s32, s8);
@@ -173,21 +173,21 @@ void SeqScriptViewer_End(void)
 // FUN_00102FE0
 void SeqEvent_Start(void)
 {
-    if (func_002853c0() == 0) {
-        func_002853b0();
+    if (evtLookupTask() == 0) {
+        evtNoopCallback();
     }
 }
 
 // FUN_00103010
 s32 SeqEvent_IsRunning(void)
 {
-    return (s32)(func_002853c0() != 0);
+    return (s32)(evtLookupTask() != 0);
 }
 
 // FUN_00103040
 void SeqEvent_End(void)
 {
-    s32 handle = func_002853c0();
+    s32 handle = evtLookupTask();
 
     if (handle == 0) {
         kAssertFail(D_005DCB68, 0x165);

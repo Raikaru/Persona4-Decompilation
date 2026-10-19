@@ -3,8 +3,8 @@
 
 #include "type.h"
 
-/* frFontCreateGlyphNode initializes all 0x2C bytes of this pool object.
- * Links remain integer handles because the public font API uses EE addresses. */
+/* frFontInitManager allocates 0x2C-byte glyph records; the node constructor
+ * and metrics routine establish these fields. Links use EE integer handles. */
 typedef struct FrFontGlyphData {
     u16 character;
     u16 frame;
@@ -44,8 +44,8 @@ typedef struct FrFontTextRun {
     s32 next;
     s32 root;
     s32 command;
-    s32 previousCommand;
-    s32 commandChanged;
+    s32 unk34;
+    s32 unk38;
     s32 duration;
     s32 enabled;
 } FrFontTextRun;
