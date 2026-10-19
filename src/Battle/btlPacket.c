@@ -28,7 +28,9 @@ void btlPacketCallbackRun(BtlPacketCallbackWork* work)
 /* measured probe: opt_loop_invariants on hoists the wait-type constant into the loop preheaders. */
 #pragma opt_loop_invariants on
 // FUN_00194C90
-u8 *btlPacketAllocZeroed(void *arg0, void *arg1)
+/* Allocate a callback packet and its payload, initialize wait modes, and install the callback
+ * dispatcher. */
+u8 *btlPacketAllocZeroed(void *callback, void *data)
 {
     typedef struct BtlPacketWaitCondition BtlPacketWaitCondition;
     struct BtlPacketWaitCondition
@@ -99,13 +101,15 @@ u8 *btlPacketAllocZeroed(void *arg0, void *arg1)
     packet->unk_47 |= 0x31;
     packet->updateFunc = (BtlPacketCallback)btlPacketCallbackRun;
     callbackWork = (BtlPacketCallbackWork *)packet->workData;
-    callbackWork->callback = (BtlPacketCallback)arg0;
-    callbackWork->data = arg1;
+    callbackWork->callback = (BtlPacketCallback)callback;
+    callbackWork->data = data;
     return (u8 *)packet;
 }
 /* measured probe: closes the opt_loop_invariants scope for btlPacketAllocZeroed. */
 #pragma opt_loop_invariants off
 // FUN_00194DC0
+/* Reset unit transform, color sets, light orientation and associated mode fields to their initial
+ * values. */
 void btlPacketResetUnit(BtlUnit* unit)
 {
     unit->scale = 1.0f;

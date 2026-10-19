@@ -5,6 +5,8 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
+#include "btl_formation_attach_internal.h"
+#include "btl_unit_internal.h"
 typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
@@ -16,28 +18,28 @@ extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *center);
 extern s32 mdlComputeIndexedAttachMatrix();
-extern void mdlUpdateModelMatrix(u8 *arg0);
-extern void mdlPrepareItemSlots(u8 *arg0);
-extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+extern void mdlUpdateModelMatrix(u8 *model);
+extern void mdlPrepareItemSlots(u8 *model);
+extern void RtQuatTransformVectors(f32 *output, f32 *input, s32 count, u8 *rotation);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
-extern void btlFormationVuTransform(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
+extern void btlFormationVuTransform(f32 distance, f32 height, f32 *center, s32 *rotation, u8 *mode, u8 *position);
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern u8 *(*jtbl_008873E8[])(s32 size, s32 flags);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
 extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
-extern void mdlEffectCopyCameraAim(u8 *arg0);
-extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
+extern void mdlEffectCopyCameraAim(u8 *output);
+extern void func_003dc740(void *rotation, void *axis, f32 angle, s32 combine);
 
 
 extern u8 D_008813B0[];
@@ -58,22 +60,6 @@ typedef int (*code)();
 
 
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
@@ -87,43 +73,45 @@ extern f32 fGpffff8110;
 /* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 #pragma push
 #pragma pop
+/* Resolve a world-space attachment point, including camera-relative VU0 normalization.
+ * The final raw word store clears the output vector padding lane. */
 // FUN_001D44A0
-void btlFormationVuTransform(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *arg2, u8 *arg3)
+void btlFormationVuTransform(f32 distance, f32 height, f32 *center, s32 *rotation, u8 *mode, u8 *position)
 {
     struct Vec4 {
         f32 value[4];
     };
-    f32 fStack_10[4];
-    f32 uStack_20[4];
+    f32 offset[4];
+    f32 orientation[4];
     f32 vectorWork[4];
     f32 origin[4];
-    f32 var_f20;
-    f32 neg_limit;
-    s32 var_16;
-    u8 temp_6;
-    u8 temp_7;
+    f32 positionY;
+    f32 negativeDistance;
+    s32 positionMode;
+    u8 heightMode;
+    u8 positionKind;
 
-    temp_6 = *(u8 *)(arg2 + 1);
-    temp_7 = *(u8 *)(arg2 + 2);
-    if (temp_6 == 4) {
-        var_16 = temp_7 & 0xFF;
-        if (var_16 == 8) {
-            var_f20 = (*(u16 *)(arg2 + 4) == 0) ? 2.0f : fparg0;
+    heightMode = ((BtlAttachMode *)mode)->heightMode;
+    positionKind = ((BtlAttachMode *)mode)->positionMode;
+    if (heightMode == 4) {
+        positionMode = positionKind & 0xFF;
+        if (positionMode == 8) {
+            positionY = (((BtlAttachMode *)mode)->matrixIndex == 0) ? 2.0f : distance;
         } else {
-            var_f20 = 2.0f;
+            positionY = 2.0f;
         }
     } else {
-        var_f20 = *(f32 *)((u8 *)arg0 + 4) + fparg1 * D_006094B0[temp_6];
-        var_16 = temp_7 & 0xFF;
-        if ((var_16 == 8) && (*(u16 *)(arg2 + 4) != 0)) {
-            var_f20 += fparg0;
+        positionY = center[1] + height * D_006094B0[heightMode];
+        positionMode = positionKind & 0xFF;
+        if ((positionMode == 8) && (((BtlAttachMode *)mode)->matrixIndex != 0)) {
+            positionY += distance;
         }
     }
-    switch (var_16) {
+    switch (positionMode) {
     case 8:
-        *(f32 *)((u8 *)arg3 + 0) = *(f32 *)((u8 *)arg0 + 0);
-        *(f32 *)((u8 *)arg3 + 4) = var_f20;
-        *(f32 *)((u8 *)arg3 + 8) = *(f32 *)((u8 *)arg0 + 8);
+        ((BtlAttachV4 *)position)->x = center[0];
+        ((BtlAttachV4 *)position)->y = positionY;
+        ((BtlAttachV4 *)position)->z = center[2];
         break;
     case 9:
     case 10:
@@ -133,20 +121,20 @@ void btlFormationVuTransform(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *a
             :
             : "r"(origin)
             : "$vf10", "memory");
-        if (fparg0 < fparg1) {
-            fparg1 = fparg1;
+        if (distance < height) {
+            height = height;
         } else {
-            fparg1 = fparg0;
+            height = distance;
         }
-        neg_limit = -fparg1;
-        if (var_16 == 9) {
-            origin[0] = *(f32 *)((u8 *)arg0 + 0);
-            origin[1] = *(f32 *)((u8 *)arg0 + 4);
-            origin[2] = *(f32 *)((u8 *)arg0 + 8);
+        negativeDistance = -height;
+        if (positionMode == 9) {
+            origin[0] = center[0];
+            origin[1] = center[1];
+            origin[2] = center[2];
         } else {
-            origin[0] = *(f32 *)((u8 *)arg0 + 0);
-            origin[1] = var_f20;
-            origin[2] = *(f32 *)((u8 *)arg0 + 8);
+            origin[0] = center[0];
+            origin[1] = positionY;
+            origin[2] = center[2];
         }
         __asm__ volatile(
             "lqc2 $vf11, 0(%0) \n"
@@ -154,7 +142,7 @@ void btlFormationVuTransform(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *a
             :
             : "r"(origin)
             : "$vf10", "$vf11", "memory");
-        if (var_16 == 10) {
+        if (positionMode == 10) {
             __asm__ volatile(
                 "sqc2 $vf11, 0(%0) \n"
                 :
@@ -184,33 +172,35 @@ void btlFormationVuTransform(f32 fparg0, f32 fparg1, f32 *arg0, s32 *arg1, u8 *a
             "qmtc2 $3, $vf2 \n"
             "vmulx.xyzw $vf11, $vf11, $vf2x \n"
             :
-            : "f"(neg_limit)
+            : "f"(negativeDistance)
             : "$3", "$vf2", "$vf11", "memory");
         __asm__ volatile(
             "lqc2 $vf10, 0(%0) \n"
             "vadd.xyzw $vf10, $vf10, $vf11 \n"
             "sqc2 $vf10, 0(%1) \n"
             :
-            : "r"(origin), "r"(arg3)
+            : "r"(origin), "r"(position)
             : "$vf10", "$vf11", "memory");
         break;
     default:
-        *(struct Vec4 *)uStack_20 = *(struct Vec4 *)arg1;
-        func_003dc740(uStack_20, D_0060A0E0, D_006094D0[temp_7], 2);
-        RtQuatTransformVectors(fStack_10, (f32 *)D_0060A0F0, 1, (u8 *)uStack_20);
-        fStack_10[0] = fStack_10[0] * fparg0;
-        fStack_10[1] = fStack_10[1] * fparg0;
-        fStack_10[2] = fStack_10[2] * fparg0;
-        *(f32 *)((u8 *)arg3 + 0) = *(f32 *)((u8 *)arg0 + 0) + fStack_10[0];
-        *(f32 *)((u8 *)arg3 + 4) = var_f20 + fStack_10[1];
-        *(f32 *)((u8 *)arg3 + 8) = *(f32 *)((u8 *)arg0 + 8) + fStack_10[2];
+        *(struct Vec4 *)orientation = *(struct Vec4 *)rotation;
+        func_003dc740(orientation, D_0060A0E0, D_006094D0[positionKind], 2);
+        RtQuatTransformVectors(offset, (f32 *)D_0060A0F0, 1, (u8 *)orientation);
+        offset[0] = offset[0] * distance;
+        offset[1] = offset[1] * distance;
+        offset[2] = offset[2] * distance;
+        ((BtlAttachV4 *)position)->x = center[0] + offset[0];
+        ((BtlAttachV4 *)position)->y = positionY + offset[1];
+        ((BtlAttachV4 *)position)->z = center[2] + offset[2];
         break;
     }
-    *(s32 *)((u8 *)arg3 + 0xC) = 0;
+    *(s32 *)((u8 *)position + 0xC) = 0;
 }
 
 // FUN_001D4780
-void btlFormationTransformOffset(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Scale and rotate the work offset, then apply the entry position mode relative to the unit. The raw
+ * entry halfword retains the mode-specific distance interpretation. */
+void btlFormationTransformOffset(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value50;
         f32 value54;
@@ -224,31 +214,32 @@ void btlFormationTransformOffset(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         f32 value74;
         f32 value78;
     } frame;
-    s32 temp_2;
-    f32 var_f20;
-    f32 temp_f21;
-    u8 *temp_s0;
+    s32 matrixIndex;
+    f32 distance;
+    f32 halfRadius;
+    u8 *attachmentMode;
 
-    temp_s0 = arg2 + 8;
-    temp_2 = *(u16 *)(arg2 + 0xC);
-    if (temp_2 == 0) {
-        var_f20 = *(f32 *)(arg0 + 0x30) * *(f32 *)(arg1 + 0x2C);
+    attachmentMode = attachment + 8;
+    matrixIndex = *(u16 *)(attachment + 0xC);
+    if (matrixIndex == 0) {
+        distance = ((BtlAttachWork *)work)->height * ((BtlUnit *)unit)->scale;
     } else {
-        var_f20 = (f32)temp_2;
+        distance = (f32)matrixIndex;
     }
-    temp_f21 = 0.5f * (*(f32 *)(arg0 + 0x2C) * *(f32 *)(arg1 + 0x2C));
-    frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
-    frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
-    frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-    RtQuatTransformVectors(&frame.value50, &frame.value60, 1, arg0 + 0x40);
-    frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
-    frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
-    frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
-    btlFormationVuTransform(var_f20, temp_f21, &frame.value70, (s32 *)(arg0 + 0x40), temp_s0, (u8 *)arg3);
+    halfRadius = 0.5f * (((BtlAttachWork *)work)->radius * ((BtlUnit *)unit)->scale);
+    frame.value60 = ((BtlAttachWork *)work)->scale.x * ((BtlAttachWork *)work)->size;
+    frame.value64 = ((BtlAttachWork *)work)->scale.y * ((BtlAttachWork *)work)->size;
+    frame.value68 = ((BtlAttachWork *)work)->scale.z * ((BtlAttachWork *)work)->size;
+    RtQuatTransformVectors(&frame.value50, &frame.value60, 1, work + 0x40);
+    frame.value70 = frame.value50 + ((BtlAttachWork *)work)->pos.x;
+    frame.value74 = frame.value54 + ((BtlAttachWork *)work)->pos.y;
+    frame.value78 = frame.value58 + ((BtlAttachWork *)work)->pos.z;
+    btlFormationVuTransform(distance, halfRadius, &frame.value70, (s32 *)(work + 0x40), attachmentMode, (u8 *)position);
 }
 
 // FUN_001D48B0
-void btlFormationOrientToUnit(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Use the indexed model attachment position when available, otherwise transform the saved unit offset. */
+void btlFormationOrientToUnit(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value30;
         f32 value34;
@@ -262,31 +253,33 @@ void btlFormationOrientToUnit(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         f32 value54;
         f32 value58;
     } frame;
-    u16 temp_2;
-    u8 *temp_16;
+    u16 matrixIndex;
+    u8 *attachmentMode;
 
-    temp_16 = arg2 + 8;
-    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        btlUnitGetSphereWorldCenter(arg1, &frame.value50);
+    attachmentMode = attachment + 8;
+    if ((((BtlUnit *)unit)->flags2 & 2) == 0) {
+        btlUnitGetSphereWorldCenter(unit, &frame.value50);
     } else {
-        temp_2 = *(u16 *)(temp_16 + 4);
-        if (mdlComputeIndexedAttachMatrix(*(u8 **)(arg1 + 0xA00), temp_2, &frame.value50) == 0) {
-            frame.value40 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
-            frame.value44 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
-            frame.value48 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-            RtQuatTransformVectors(&frame.value30, &frame.value40, 1, arg0 + 0x40);
-            frame.value50 = frame.value30 + *(f32 *)(arg0 + 0x34);
-            frame.value54 = frame.value34 + *(f32 *)(arg0 + 0x38);
-            frame.value58 = frame.value38 + *(f32 *)(arg0 + 0x3C);
+        matrixIndex = ((BtlAttachMode *)attachmentMode)->matrixIndex;
+        if (mdlComputeIndexedAttachMatrix(((BtlUnit *)unit)->layerHandle, matrixIndex, &frame.value50) == 0) {
+            frame.value40 = ((BtlAttachWork *)work)->scale.x * ((BtlAttachWork *)work)->size;
+            frame.value44 = ((BtlAttachWork *)work)->scale.y * ((BtlAttachWork *)work)->size;
+            frame.value48 = ((BtlAttachWork *)work)->scale.z * ((BtlAttachWork *)work)->size;
+            RtQuatTransformVectors(&frame.value30, &frame.value40, 1, work + 0x40);
+            frame.value50 = frame.value30 + ((BtlAttachWork *)work)->pos.x;
+            frame.value54 = frame.value34 + ((BtlAttachWork *)work)->pos.y;
+            frame.value58 = frame.value38 + ((BtlAttachWork *)work)->pos.z;
         }
     }
-    arg3[0] = frame.value50;
-    arg3[1] = frame.value54;
-    arg3[2] = frame.value58;
+    position[0] = frame.value50;
+    position[1] = frame.value54;
+    position[2] = frame.value58;
 }
 
 // FUN_001D49C0
-void btlFormationApplyModelMatrix(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Resolve a position on the alternate attached model, falling back to the unit model and saved offset.
+ * The raw child-model slot is an opaque model-handle field. */
+void btlFormationApplyModelMatrix(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value50;
         f32 value54;
@@ -300,38 +293,40 @@ void btlFormationApplyModelMatrix(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         f32 value74;
         f32 value78;
     } frame;
-    u8 *temp_2;
-    u8 *var_19;
-    u8 *temp_s2;
+    u8 *model;
+    u8 *attachedModel;
+    u8 *attachmentMode;
 
-    temp_s2 = arg2 + 8;
-    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        btlUnitGetSphereWorldCenter(arg1, &frame.value70);
+    attachmentMode = attachment + 8;
+    if ((((BtlUnit *)unit)->flags2 & 2) == 0) {
+        btlUnitGetSphereWorldCenter(unit, &frame.value70);
     } else {
-        temp_2 = *(u8 **)(arg1 + 0xA00);
-        var_19 = *(u8 **)(temp_2 + 0x29C);
-        if (var_19 == NULL) {
-            var_19 = temp_2;
+        model = ((BtlUnit *)unit)->layerHandle;
+        attachedModel = *(u8 **)(model + 0x29C);
+        if (attachedModel == NULL) {
+            attachedModel = model;
         }
-        mdlUpdateModelMatrix(var_19);
-        mdlPrepareItemSlots(var_19);
-        if (mdlComputeIndexedAttachMatrix(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
-            frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
-            frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
-            frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-            RtQuatTransformVectors(&frame.value50, &frame.value60, 1, arg0 + 0x40);
-            frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
-            frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
-            frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+        mdlUpdateModelMatrix(attachedModel);
+        mdlPrepareItemSlots(attachedModel);
+        if (mdlComputeIndexedAttachMatrix(attachedModel, ((BtlAttachMode *)attachmentMode)->matrixIndex, &frame.value70) == 0) {
+            frame.value60 = ((BtlAttachWork *)work)->scale.x * ((BtlAttachWork *)work)->size;
+            frame.value64 = ((BtlAttachWork *)work)->scale.y * ((BtlAttachWork *)work)->size;
+            frame.value68 = ((BtlAttachWork *)work)->scale.z * ((BtlAttachWork *)work)->size;
+            RtQuatTransformVectors(&frame.value50, &frame.value60, 1, work + 0x40);
+            frame.value70 = frame.value50 + ((BtlAttachWork *)work)->pos.x;
+            frame.value74 = frame.value54 + ((BtlAttachWork *)work)->pos.y;
+            frame.value78 = frame.value58 + ((BtlAttachWork *)work)->pos.z;
         }
     }
-    arg3[0] = frame.value70;
-    arg3[1] = frame.value74;
-    arg3[2] = frame.value78;
+    position[0] = frame.value70;
+    position[1] = frame.value74;
+    position[2] = frame.value78;
 }
 
 // FUN_001D4B00
-void btlFormationApplyModelMatrixAlt(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Resolve a position on the other attached model, falling back to the unit model and saved offset. The
+ * raw child-model slot is an opaque model-handle field. */
+void btlFormationApplyModelMatrixAlt(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value50;
         f32 value54;
@@ -345,38 +340,40 @@ void btlFormationApplyModelMatrixAlt(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         f32 value74;
         f32 value78;
     } frame;
-    u8 *temp_2;
-    u8 *var_19;
-    u8 *temp_s2;
+    u8 *model;
+    u8 *attachedModel;
+    u8 *attachmentMode;
 
-    temp_s2 = arg2 + 8;
-    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        btlUnitGetSphereWorldCenter(arg1, &frame.value70);
+    attachmentMode = attachment + 8;
+    if ((((BtlUnit *)unit)->flags2 & 2) == 0) {
+        btlUnitGetSphereWorldCenter(unit, &frame.value70);
     } else {
-        temp_2 = *(u8 **)(arg1 + 0xA00);
-        var_19 = *(u8 **)(temp_2 + 0x290);
-        if (var_19 == NULL) {
-            var_19 = temp_2;
+        model = ((BtlUnit *)unit)->layerHandle;
+        attachedModel = *(u8 **)(model + 0x290);
+        if (attachedModel == NULL) {
+            attachedModel = model;
         }
-        mdlUpdateModelMatrix(var_19);
-        mdlPrepareItemSlots(var_19);
-        if (mdlComputeIndexedAttachMatrix(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
-            frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
-            frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
-            frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-            RtQuatTransformVectors(&frame.value50, &frame.value60, 1, arg0 + 0x40);
-            frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
-            frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
-            frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+        mdlUpdateModelMatrix(attachedModel);
+        mdlPrepareItemSlots(attachedModel);
+        if (mdlComputeIndexedAttachMatrix(attachedModel, ((BtlAttachMode *)attachmentMode)->matrixIndex, &frame.value70) == 0) {
+            frame.value60 = ((BtlAttachWork *)work)->scale.x * ((BtlAttachWork *)work)->size;
+            frame.value64 = ((BtlAttachWork *)work)->scale.y * ((BtlAttachWork *)work)->size;
+            frame.value68 = ((BtlAttachWork *)work)->scale.z * ((BtlAttachWork *)work)->size;
+            RtQuatTransformVectors(&frame.value50, &frame.value60, 1, work + 0x40);
+            frame.value70 = frame.value50 + ((BtlAttachWork *)work)->pos.x;
+            frame.value74 = frame.value54 + ((BtlAttachWork *)work)->pos.y;
+            frame.value78 = frame.value58 + ((BtlAttachWork *)work)->pos.z;
         }
     }
-    arg3[0] = frame.value70;
-    arg3[1] = frame.value74;
-    arg3[2] = frame.value78;
+    position[0] = frame.value70;
+    position[1] = frame.value74;
+    position[2] = frame.value78;
 }
 
 // FUN_001D4C40
-void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Build an attachment point around bounds of both battle sides; a nonzero entry distance overrides the
+ * group radius. */
+void btlFormationOffsetTransformA(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         s32 zero0;
         s32 zero1;
@@ -388,11 +385,11 @@ void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     f32 base;
     f32 value;
     s32 temp;
-    u8 *temp16;
+    u8 *attachmentMode;
 
-    temp16 = arg2 + 8;
+    attachmentMode = attachment + 8;
     base = btlUnitGetGroupBounds(3, 0, &frame.center, &frame.value4C, 0, 0);
-    temp = *(u16 *)(temp16 + 4);
+    temp = ((BtlAttachMode *)attachmentMode)->matrixIndex;
     if (temp == 0) {
         value = base;
     } else {
@@ -402,11 +399,13 @@ void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, attachmentMode, (u8 *)position);
 }
 
 // FUN_001D4CF0
-void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Build an attachment point around the unit side bounds, using the entry distance override when
+ * present. */
+void btlFormationOffsetTransformB(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         s32 zero0;
         s32 zero1;
@@ -419,16 +418,16 @@ void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     f32 value;
     s32 mode;
     s32 temp;
-    u8 *temp16;
+    u8 *attachmentMode;
 
-    if (*(u8 *)(arg1 + 0xA2) == 0) {
+    if (((BtlUnit *)unit)->genus == 0) {
         mode = 1;
     } else {
         mode = 2;
     }
-    temp16 = arg2 + 8;
+    attachmentMode = attachment + 8;
     base = btlUnitGetGroupBounds(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
-    temp = *(u16 *)(temp16 + 4);
+    temp = ((BtlAttachMode *)attachmentMode)->matrixIndex;
     if (temp == 0) {
         value = base;
     } else {
@@ -438,11 +437,13 @@ void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, attachmentMode, (u8 *)position);
 }
 
 // FUN_001D4DC0
-void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+/* Build an attachment point around the opposing side bounds, using the entry distance override when
+ * present. */
+void btlFormationOffsetTransformC(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         s32 zero0;
         s32 zero1;
@@ -455,16 +456,16 @@ void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     f32 value;
     s32 mode;
     s32 temp;
-    u8 *temp16;
+    u8 *attachmentMode;
 
-    if (*(u8 *)(arg1 + 0xA2) == 0) {
+    if (((BtlUnit *)unit)->genus == 0) {
         mode = 2;
     } else {
         mode = 1;
     }
-    temp16 = arg2 + 8;
+    attachmentMode = attachment + 8;
     base = btlUnitGetGroupBounds(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
-    temp = *(u16 *)(temp16 + 4);
+    temp = ((BtlAttachMode *)attachmentMode)->matrixIndex;
     if (temp == 0) {
         value = base;
     } else {
@@ -474,6 +475,6 @@ void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, (u8 *)arg3);
+    btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, attachmentMode, (u8 *)position);
 }
 

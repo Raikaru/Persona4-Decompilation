@@ -51,7 +51,7 @@ extern void mdlSetColor(u8 *arg0, u32 *arg1);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void mdlEffectCommitTreeFrame(u8 *arg0);
-extern void func_001d53e0(s32 arg0);
+extern void btlFormationUpdateAttachments(s32 arg0);
 extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];

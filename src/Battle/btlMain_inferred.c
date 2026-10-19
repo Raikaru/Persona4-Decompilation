@@ -15,6 +15,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
+#include "btl_effect_internal.h"
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -98,6 +99,13 @@ typedef struct ColorBlendWork {
     u32 frames;
     u32 frame;
 } ColorBlendWork;
+/* Packet 0x60A allocates 0x28 bytes, with two quaternions and frame counters. */
+typedef struct BtlQuatMatrixWork {
+    f32 rotationX, rotationY, rotationZ, rotationW;
+    f32 initialX, initialY, initialZ, initialW;
+    u32 totalFrames;
+    u32 currentFrame;
+} BtlQuatMatrixWork;
 static inline u8 blendChannel(u8 start, u8 target, f32 t, f32 inv)
 {
     f32 s = (1.0f / 255.0f) * (f32)start;
@@ -128,10 +136,12 @@ struct RwV3d;
    with it written as a literal no pragmas are needed. The start colour is
    one struct copy (retail loads all four bytes, then stores them). */
 // FUN_001BA0E0
+/* Blend the current window RGBA toward the packet color, rounding each normalized channel back to a
+ * byte. */
 s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 {
     extern u8 *kwlnGetColorRgb(void);
-    extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+    extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
     f32 t;
     f32 inv;
     u8 r;
@@ -159,19 +169,24 @@ s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 }
 
 // FUN_001BA530
-u8 *btlColorBlendPacketCreate(s32 arg0, s32 arg1) {
-    u8 *o = btlPacketAlloc(0x608, 0x10);
-    u8 *p;
+/* Create a packed window-color blend packet with its frame duration. The raw packed-color write spans
+ * the four target channel bytes. */
+u8 *btlColorBlendPacketCreate(s32 targetColor, s32 duration) {
+    u8 *packet = btlPacketAlloc(0x608, 0x10);
+    u8 *work;
 
-    *(void (**)(void))(o + 0x6C) = (void (*)(void))btlColorBlendPacketUpdate;
-    p = *(u8 **)(o + 0x78);
-    *(s32 *)p = arg0;
-    *(s32 *)(p + 8) = arg1;
-    return o;
+    *(void (**)(void))&((BtlPacket *)packet)->updateFunc = (void (*)(void))btlColorBlendPacketUpdate;
+    work = (u8 *)((BtlPacket *)packet)->workData;
+    *(s32 *)work = targetColor;
+    *(s32 *)(work + 8) = duration;
+    return packet;
 }
 
 // FUN_001BA590
-s32 btlQuatMatrixPacketUpdate(u8 *arg0)
+/* Capture the initial scene quaternion, wait for the duration, then publish the target rotation
+ * matrix. Measured: typing the first frame test adds a +0x24 address temporary; paired raw words
+ * preserve the matrix copy order. */
+s32 btlQuatMatrixPacketUpdate(u8 *work)
 {
     typedef struct {
         f32 x;
@@ -189,111 +204,111 @@ s32 btlQuatMatrixPacketUpdate(u8 *arg0)
         u32 pad3;
     } Ba590Matrix;
     Ba590Matrix matrix;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f10;
-    f32 temp_f11;
-    f32 temp_f12;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f3;
-    f32 temp_f3_2;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 temp_f5;
-    f32 temp_f6;
-    f32 temp_f7;
-    f32 temp_f8;
-    f32 temp_f9;
-    u32 temp_3;
-    s32 temp_3_2;
-    s32 temp_4;
-    u8 *var_6;
-    s32 var_5;
-    u8 *var_2;
+    f32 normalization;
+    f32 scaledZ;
+    f32 productXW;
+    f32 quatZ;
+    f32 quatX;
+    f32 scaledY;
+    f32 scaledX;
+    f32 productXY;
+    f32 quatW;
+    f32 productZX;
+    f32 quatY;
+    f32 productYZ;
+    f32 productZZ;
+    f32 productYY;
+    f32 productXX;
+    f32 productZW;
+    f32 productYW;
+    u32 currentFrame;
+    s32 secondWord;
+    s32 firstWord;
+    u8 *source;
+    s32 copyCount;
+    u8 *destination;
 
-    if (*(s32 *)(arg0 + 0x24) == 0) {
-        var_2 = (u8 *)iGpffffb3ac;
-        temp_f3 = *(f32 *)(var_2 + 0x20C);
-        temp_f2 = *(f32 *)(var_2 + 0x210);
-        temp_f1 = *(f32 *)(var_2 + 0x214);
-        temp_f0 = *(f32 *)(var_2 + 0x218);
-        *(f32 *)(arg0 + 0x10) = temp_f3;
-        *(f32 *)(arg0 + 0x14) = temp_f2;
-        *(f32 *)(arg0 + 0x18) = temp_f1;
-        *(f32 *)(arg0 + 0x1C) = temp_f0;
-    }
-    temp_3 = *(s32 *)(arg0 + 0x24);
-    if (temp_3 >= *(u32 *)(arg0 + 0x20)) {
-    temp_f4 = *(f32 *)(arg0 + 4);
-    temp_f12 = *(f32 *)(arg0 + 0);
-    temp_f11 = *(f32 *)(arg0 + 8);
-    temp_f3 = *(f32 *)(arg0 + 0xC);
-    temp_f0 =
-        2.0f / ((temp_f12 * temp_f12) +
-                (temp_f4 * temp_f4) +
-                (temp_f11 * temp_f11) +
-                (temp_f3 * temp_f3));
-    temp_f2 = temp_f12 * temp_f0;
-    temp_f1 = temp_f4 * temp_f0;
-    temp_f0_2 = temp_f11 * temp_f0;
-    temp_f10 = temp_f2 * temp_f3;
-    temp_f9 = temp_f1 * temp_f3;
-    temp_f8 = temp_f0_2 * temp_f3;
-    temp_f7 = temp_f12 * temp_f2;
-    temp_f6 = temp_f4 * temp_f1;
-    temp_f5 = temp_f11 * temp_f0_2;
-    temp_f4_2 = temp_f4 * temp_f0_2;
-    temp_f3_2 = temp_f11 * temp_f2;
-    temp_f2_2 = temp_f12 * temp_f1;
-    matrix.right.x = 1.0f - (temp_f6 + temp_f5);
-    matrix.right.y = temp_f2_2 + temp_f8;
-    matrix.right.z = temp_f3_2 - temp_f9;
-    matrix.up.x = temp_f2_2 - temp_f8;
-    matrix.up.y = 1.0f - (temp_f5 + temp_f7);
-    matrix.up.z = temp_f4_2 + temp_f10;
-    matrix.at.x = temp_f3_2 + temp_f9;
-    matrix.at.y = temp_f4_2 - temp_f10;
-    matrix.at.z = 1.0f - (temp_f7 + temp_f6);
+    if (*(s32 *)(work + 0x24) == 0) { destination = (u8 *)iGpffffb3ac;
+    quatW = ((BtlBattleState *)destination)->list4.rotation.imag.x;
+    scaledX = ((BtlBattleState *)destination)->list4.rotation.imag.y;
+    scaledY = ((BtlBattleState *)destination)->list4.rotation.imag.z;
+    normalization = ((BtlBattleState *)destination)->list4.rotation.real;
+    ((BtlQuatMatrixWork *)work)->initialX = quatW;
+    ((BtlQuatMatrixWork *)work)->initialY = scaledX;
+    ((BtlQuatMatrixWork *)work)->initialZ = scaledY;
+    ((BtlQuatMatrixWork *)work)->initialW = normalization; }
+    currentFrame = ((BtlQuatMatrixWork *)work)->currentFrame;
+    if (currentFrame >= ((BtlQuatMatrixWork *)work)->totalFrames) {
+    quatY = ((BtlQuatMatrixWork *)work)->rotationY;
+    quatX = ((BtlQuatMatrixWork *)work)->rotationX;
+    quatZ = ((BtlQuatMatrixWork *)work)->rotationZ;
+    quatW = ((BtlQuatMatrixWork *)work)->rotationW;
+    normalization =
+        2.0f / ((quatX * quatX) +
+                (quatY * quatY) +
+                (quatZ * quatZ) +
+                (quatW * quatW));
+    scaledX = quatX * normalization;
+    scaledY = quatY * normalization;
+    scaledZ = quatZ * normalization;
+    productXW = scaledX * quatW;
+    productYW = scaledY * quatW;
+    productZW = scaledZ * quatW;
+    productXX = quatX * scaledX;
+    productYY = quatY * scaledY;
+    productZZ = quatZ * scaledZ;
+    productYZ = quatY * scaledZ;
+    productZX = quatZ * scaledX;
+    productXY = quatX * scaledY;
+    matrix.right.x = 1.0f - (productYY + productZZ);
+    matrix.right.y = productXY + productZW;
+    matrix.right.z = productZX - productYW;
+    matrix.up.x = productXY - productZW;
+    matrix.up.y = 1.0f - (productZZ + productXX);
+    matrix.up.z = productYZ + productXW;
+    matrix.at.x = productZX + productYW;
+    matrix.at.y = productYZ - productXW;
+    matrix.at.z = 1.0f - (productXX + productYY);
     matrix.pos.x = 0.0f;
     matrix.pos.y = 0.0f;
     matrix.pos.z = 0.0f;
     matrix.flags = 3;
-    var_2 = SceneDraw_GetList4Matrix();
-    var_6 = (u8 *)&matrix;
-    var_5 = 8;
+    destination = SceneDraw_GetList4Matrix();
+    source = (u8 *)&matrix;
+    copyCount = 8;
     do {
-        temp_4 = *(s32 *)(var_6 + 0);
-        temp_3_2 = *(s32 *)(var_6 + 4);
-        var_6 += 8;
-        var_5 -= 1;
-        *(s32 *)(var_2 + 0) = temp_4;
-        *(s32 *)(var_2 + 4) = temp_3_2;
-        var_2 += 8;
-    } while (var_5 > 0);
+        firstWord = *(s32 *)(source + 0);
+        secondWord = *(s32 *)(source + 4);
+        source += 8;
+        copyCount -= 1;
+        *(s32 *)(destination + 0) = firstWord;
+        *(s32 *)(destination + 4) = secondWord;
+        destination += 8;
+    } while (copyCount > 0);
     return 1;
     }
-    *(s32 *)(arg0 + 0x24) = temp_3 + 1;
+    *(s32 *)(work + 0x24) = currentFrame + 1;
     return 0;
 }
 
 // FUN_001BA710
-u8 *btlQuatMatrixPacketCreate(f32 *arg0, s32 arg1) {
+/* Create the quaternion-to-matrix packet and copy its four target components. The raw duration store
+ * follows the original float-array payload shape. */
+u8 *btlQuatMatrixPacketCreate(f32 *rotation, s32 duration) {
     struct F4 {
         f32 x0;
         f32 x1;
         f32 x2;
         f32 x3;
     } value;
-    u8 *o = btlPacketAlloc(0x60A, 0x28);
-    f32 *p;
+    u8 *packet = btlPacketAlloc(0x60A, 0x28);
+    f32 *work;
 
-    *(void (**)(void))(o + 0x6C) = (void (*)(void))btlQuatMatrixPacketUpdate;
-    p = *(f32 **)(o + 0x78);
-    value = *(struct F4 *)arg0;
-    *(struct F4 *)p = value;
-    *(s32 *)(p + 8) = arg1;
-    return o;
+    *(void (**)(void))&((BtlPacket *)packet)->updateFunc = (void (*)(void))btlQuatMatrixPacketUpdate;
+    work = (f32 *)((BtlPacket *)packet)->workData;
+    value = *(struct F4 *)rotation;
+    *(struct F4 *)work = value;
+    *(s32 *)(work + 8) = duration;
+    return packet;
 }
 
