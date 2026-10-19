@@ -2,6 +2,9 @@
 
 #include "mt_scene_internal.h"
 #include "field_frame_internal.h"
+#include "field_event_internal.h"
+#include "sdktask.h"
+#include "resrc_manager_internal.h"
 #include "rw_geometry_internal.h"
 #include "field_transition_internal.h"
 #include "model_callbacks_internal.h"
@@ -14,92 +17,91 @@
 #include "Kosaka/k_clump_internal.h"
 #include "sdk_snd_internal.h"
 #include "rw/plcore/barenderstate.h"
-typedef struct
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} Vec3_00178590;
+#include "scene_light_override_internal.h"
+typedef RwV3d FldAreaPosition;
 
 extern s32 *MT_Scene_GetFrameState(void);
-extern s32 datGetFlag(s32 arg0);
+extern s32 datGetFlag(s32);
 extern s32 FldStepIndex(void);
-extern void FldSlotBroadcastState(s32 arg0);
-extern void FldFrameObjSetActive(s32 arg0, s32 arg1);
-extern s32 scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
-extern s32 kwlnTaskIsLinked(s32 arg0);
+extern void FldSlotBroadcastState(s32);
+extern void FldFrameObjSetActive(s32, s32);
+extern s32 scrStartProcedureIndex(s32, u8 *, s32);
+extern s32 kwlnTaskIsLinked(s32);
 extern s32 iGpffffb284;
 extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldMap_IsCurrentInBandB(void);
-extern s32 FldResAreaHitTest(u8 *arg0, s32 arg1);
+extern s32 FldResAreaHitTest(u8 *, s32);
 extern s32 D_007EF9F8[];
 extern u32 D_007EFA04[];
 extern u8 D_007EF9B0[];
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern s32 FldStepGetScriptData(void);
 extern s32 FldStepGetScriptSize(void);
-extern void func_0015a7c0(s32 arg0);
-extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_0015a7c0(s32);
+extern s32 scrStartProcedureChecked(s32, s32, s32, s32);
 extern u16 D_008C024E[];
-extern void FldPanel2dSetState(s32 arg0, s32 arg1);
-extern void smapRefreshCells(u8 *arg0, s8 arg1);
-extern void smapSetPhase(s32 arg0, s32 arg1);
-extern s32 cmpMainTaskCreate(s32 arg0, s32 arg1);
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
-extern s32 kwlnTaskIsLinked(s32 arg0);
-extern void *mdlGetMatrix(void *arg0);
+extern void FldPanel2dSetState(s32, s32);
+extern void smapRefreshCells(u8 *, s8);
+extern void smapSetPhase(s32, s32);
+extern s32 cmpMainTaskCreate(s32, s32);
+extern void datSetFlag(s32, s32);
+extern u8 *MT_Scene_GetResListHead(s32);
+extern s32 K_FldFrame_IsPointInTriangle(void *, void *, void *);
+extern s32 kwlnTaskIsLinked(s32);
+extern void *mdlGetMatrix(void *);
 extern void fclMiscStopAndClose(void);
 extern void fclMiscSetDoneFlag(void);
 // FUN_00170960
-s32 FldSmapViewTriggerTest(u8 *arg0)
+/* Start map-view input handling when the map exists and the map button is pressed. */
+s32 FldSmapViewTriggerTest(u8 *task)
 {
-    u8 *temp;
+    u8 *work;
 
-    temp = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     if ((((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0) && (D_008C024E[0] & 0x800)) {
-        *(s32 *)(temp + 4) = 0;
+        ((FldEventWork *)work)->state = 0;
         return 1;
     }
     return 0;
 }
 
 // FUN_001709C0
-s32 FldSmapViewTriggerRun(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Open the map view, suspend field controls, then restore them when the close input arrives. */
+s32 FldSmapViewTriggerRun(u8 *task)
 {
     s32 state;
-    u8 *temp_16;
-    u8 *temp_2;
+    u8 *work;
+    u8 *frame;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    state = *(s32 *)(temp_16 + 4);
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)(work + 4);
     switch (state) {
     case 0:
         FldSlotBroadcastState(1);
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
-        temp_2 = (u8 *)MT_Scene_GetFrameState();
-        FldFrameObjSetActive(*(s32 *)(temp_2 + 0x1C), 1);
+        frame = (u8 *)MT_Scene_GetFrameState();
+        FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 1);
         sdkSndStartStream(0, 0, 0, 3);
-        temp_2 = (u8 *)MT_Scene_GetFrameState();
-        FldPanel2dSetState(*(s32 *)(temp_2 + 0x30), 1);
-        temp_2 = (u8 *)MT_Scene_GetFrameState();
-        smapRefreshCells(*(u8 **)(temp_2 + 0x18), 1);
-        *(s32 *)(temp_16 + 4) += 1;
+        frame = (u8 *)MT_Scene_GetFrameState();
+        FldPanel2dSetState(*(s32 *)(frame + 0x30), 1);
+        frame = (u8 *)MT_Scene_GetFrameState();
+        smapRefreshCells(*(u8 **)(frame + 0x18), 1);
+        *(s32 *)(work + 4) += 1;
         break;
     case 1:
         if (D_008C024E[0] & 0x820) {
             FldSlotBroadcastState(0);
-            temp_2 = (u8 *)MT_Scene_GetFrameState();
-            FldFrameObjSetActive(*(s32 *)(temp_2 + 0x1C), 0);
-            temp_2 = (u8 *)MT_Scene_GetFrameState();
-            FldPanel2dSetState(*(s32 *)(temp_2 + 0x30), 0);
-            temp_2 = (u8 *)MT_Scene_GetFrameState();
-            smapRefreshCells(*(u8 **)(temp_2 + 0x18), 0);
+            frame = (u8 *)MT_Scene_GetFrameState();
+            FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 0);
+            frame = (u8 *)MT_Scene_GetFrameState();
+            FldPanel2dSetState(*(s32 *)(frame + 0x30), 0);
+            frame = (u8 *)MT_Scene_GetFrameState();
+            smapRefreshCells(*(u8 **)(frame + 0x18), 0);
             sdkSndStartStream(0, 0, 0, 4);
-            *(s32 *)(temp_16 + 0x10) = 0;
-            *(s32 *)(temp_16 + 4) += 1;
+            *(s32 *)(work + 0x10) = 0;
+            *(s32 *)(work + 4) += 1;
         }
         break;
     case 2:
@@ -111,30 +113,33 @@ s32 FldSmapViewTriggerRun(u8 *arg0)
 }
 
 // FUN_00170B50
-s32 FldCampTriggerTest(u8 *arg0)
+/* Start the camp menu on its button unless flag 0x37 blocks access. */
+s32 FldCampTriggerTest(u8 *task)
 {
-    u8 *temp;
+    u8 *work;
 
-    temp = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     if (datGetFlag(0x37) == 1) {
         return 0;
     }
     if (D_008C024E[0] & 0x10) {
-        *(s32 *)(temp + 4) = 0;
+        ((FldEventWork *)work)->state = 0;
         return 1;
     }
     return 0;
 }
 
 // FUN_00170BC0
-s32 FldCampTriggerRun(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Run the camp task and restore field controls, or launch the requested field script on exit. */
+s32 FldCampTriggerRun(u8 *task)
 {
-    s32 temp_17;
+    s32 scriptData;
     s32 state;
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    state = *(s32 *)(temp_16 + 4);
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)(work + 4);
     switch (state) {
     case 0:
         if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
@@ -142,29 +147,29 @@ s32 FldCampTriggerRun(u8 *arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
-        *(s32 *)(temp_16 + 0x10) = cmpMainTaskCreate((s32)arg0, 1);
+        *(s32 *)(work + 0x10) = cmpMainTaskCreate((s32)task, 1);
         if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0)
             smapSetPhase((s32)((FldFrame *)MT_Scene_GetFrameState())->smapObject, 1);
         FldSlotBroadcastState(1);
-        *(s32 *)(temp_16 + 4) += 1;
+        *(s32 *)(work + 4) += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) != 1) {
             if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
                 FldPanel2dSetState((s32)((FldFrame *)MT_Scene_GetFrameState())->panelTask, 0);
             if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(FldStepIndex());
                 datSetFlag(0x1401, 0);
-                temp_17 = FldStepGetScriptData();
-                scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 5);
-                *(s32 *)(temp_16 + 4) = 3;
+                scriptData = FldStepGetScriptData();
+                scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 5);
+                *(s32 *)(work + 4) = 3;
             } else {
                 if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0)
                     smapSetPhase((s32)((FldFrame *)MT_Scene_GetFrameState())->smapObject, 0);
                 FldSlotBroadcastState(0);
                 FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
-                *(s32 *)(temp_16 + 0x10) = 0;
-                *(s32 *)(temp_16 + 4) += 1;
+                *(s32 *)(work + 0x10) = 0;
+                *(s32 *)(work + 4) += 1;
             }
         }
         break;
@@ -179,44 +184,47 @@ s32 FldCampTriggerRun(u8 *arg0)
 }
 
 // FUN_00170E10
-s32 FldFieldScriptTriggerTest(u8 *arg0)
+/* Reset the trigger state when the field-script button is pressed. */
+s32 FldFieldScriptTriggerTest(u8 *task)
 {
-    u8 *temp;
+    u8 *work;
 
-    temp = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     if (D_008C024E[0] & 0x80) {
-        *(s32 *)(temp + 4) = 0;
+        ((FldEventWork *)work)->state = 0;
         return 1;
     }
     return 0;
 }
 
 // FUN_00170E50
-s32 FldFieldScriptTriggerRun(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Run the indexed field procedure while field controls are suspended; finish when its task exits. */
+s32 FldFieldScriptTriggerRun(u8 *task)
 {
     s32 state;
-    u8 *temp_16;
-    u8 *temp_2;
+    u8 *work;
+    u8 *frame;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    state = *(s32 *)(temp_16 + 4);
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)(work + 4);
     switch (state) {
     case 0:
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
-        temp_2 = (u8 *)MT_Scene_GetFrameState();
-        FldFrameObjSetActive(*(s32 *)(temp_2 + 0x1C), 1);
-        *(s32 *)(temp_16 + 0x10) = scrStartProcedureIndex(0xF, (u8 *)iGpffffb284, 1);
+        frame = (u8 *)MT_Scene_GetFrameState();
+        FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 1);
+        *(s32 *)(work + 0x10) = scrStartProcedureIndex(0xF, (u8 *)iGpffffb284, 1);
         FldSlotBroadcastState(1);
-        *(s32 *)(temp_16 + 4) += 1;
+        *(s32 *)(work + 4) += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) == 1)
+        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) == 1)
             break;
-        temp_2 = (u8 *)MT_Scene_GetFrameState();
-        FldFrameObjSetActive(*(s32 *)(temp_2 + 0x1C), 0);
+        frame = (u8 *)MT_Scene_GetFrameState();
+        FldFrameObjSetActive(*(s32 *)(frame + 0x1C), 0);
         FldSlotBroadcastState(0);
-        *(s32 *)(temp_16 + 4) += 1;
+        *(s32 *)(work + 4) += 1;
     case 2:
         return 0;
     default:
@@ -226,97 +234,99 @@ s32 FldFieldScriptTriggerRun(u8 *arg0)
 }
 
 // FUN_00170F60
-s32 FldResAreaHitTest(u8 *arg0, s32 arg1)
+/* Test the model position against each resource quad and a 200-unit vertical band; filter by area kind. */
+s32 FldResAreaHitTest(u8 *unit, s32 areaKind)
 {
-    Vec3_00178590 sp70;
-    u8 *sp60[3];
-    f32 temp_f20;
-    f32 temp_f2;
-    f32 temp_f1;
-    f32 temp_f0;
-    f32 temp_f3;
-    f32 temp_f3_2;
-    s32 var_17;
-    u8 *temp_2;
-    u8 *var_16;
+    FldAreaPosition position;
+    u8 *triangle[3];
+    f32 unusedScale;
+    f32 unusedY;
+    f32 unusedX;
+    f32 unusedZ;
+    f32 firstHeight;
+    f32 secondHeight;
+    s32 hit;
+    u8 *matrix;
+    u8 *area;
 
-    var_17 = 0;
-    var_16 = MT_Scene_GetResListHead(0xD);
+    hit = 0;
+    area = MT_Scene_GetResListHead(0xD);
     if ((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0))
         return 0;
-    temp_2 = mdlGetMatrix(*(u8 **)(arg0 + 0x50));
-    sp70 = *(Vec3_00178590 *)(temp_2 + 0x30);
+    matrix = mdlGetMatrix((u8 *)((FldEventActor *)unit)->model);
+    position = ((SceneLightMatrix *)matrix)->pos;
     goto loop_21_cond;
 loop_21_body:
     {
-        extern Vec3_00178590 D_005F1758;
-        Vec3_00178590 sp50;
+        extern FldAreaPosition D_005F1758;
+        FldAreaPosition direction;
 
-        sp50 = D_005F1758;
-        sp60[0] = var_16 + 0x15C;
-        sp60[1] = var_16 + 0x168;
-        sp60[2] = var_16 + 0x174;
-        if ((K_FldFrame_IsPointInTriangle(&sp70, sp60, &sp50) == 1) &&
-            (temp_f3 = *(f32 *)(sp60[0] + 4), (sp70.y < (200.0f + temp_f3))) &&
-            !(sp70.y <= (temp_f3 - 200.0f))) {
-            if (arg1 == 0) {
-                if ((*(u16 *)var_16 & 0x3FF) == 0x3FF)
+        direction = D_005F1758;
+        triangle[0] = area + 0x15C;
+        triangle[1] = area + 0x168;
+        triangle[2] = area + 0x174;
+        if ((K_FldFrame_IsPointInTriangle(&position, triangle, &direction) == 1) &&
+            (firstHeight = ((FldAreaPosition *)triangle[0])->y, (position.y < (200.0f + firstHeight))) &&
+            !(position.y <= (firstHeight - 200.0f))) {
+            if (areaKind == 0) {
+                if ((*(u16 *)area & 0x3FF) == 0x3FF)
                     goto loop_21_found1;
             }
-            if (arg1 != 1)
+            if (areaKind != 1)
                 goto loop_21_done;
-            if ((*(u16 *)var_16 & 0x3FF) != 0x3FE)
+            if ((*(u16 *)area & 0x3FF) != 0x3FE)
                 goto loop_21_done;
 loop_21_found1:
-            var_17 = 1;
+            hit = 1;
             goto loop_21_done;
         }
-        sp60[0] = var_16 + 0x168;
-        sp60[1] = var_16 + 0x174;
-        sp60[2] = var_16 + 0x180;
-        if ((K_FldFrame_IsPointInTriangle(&sp70, sp60, &sp50) == 1) &&
-            (temp_f3_2 = *(f32 *)(sp60[0] + 4),
-             (sp70.y < (200.0f + temp_f3_2))) &&
-            !(sp70.y <= (temp_f3_2 - 200.0f))) {
-            if (arg1 == 0) {
-                if ((*(u16 *)var_16 & 0x3FF) == 0x3FF)
+        triangle[0] = area + 0x168;
+        triangle[1] = area + 0x174;
+        triangle[2] = area + 0x180;
+        if ((K_FldFrame_IsPointInTriangle(&position, triangle, &direction) == 1) &&
+            (secondHeight = ((FldAreaPosition *)triangle[0])->y,
+             (position.y < (200.0f + secondHeight))) &&
+            !(position.y <= (secondHeight - 200.0f))) {
+            if (areaKind == 0) {
+                if ((*(u16 *)area & 0x3FF) == 0x3FF)
                     goto loop_21_found2;
             }
-            if (arg1 != 1)
+            if (areaKind != 1)
                 goto loop_21_done;
-            if ((*(u16 *)var_16 & 0x3FF) != 0x3FE)
+            if ((*(u16 *)area & 0x3FF) != 0x3FE)
                 goto loop_21_done;
 loop_21_found2:
-            var_17 = 1;
+            hit = 1;
             goto loop_21_done;
         }
-        var_16 = *(u8 **)(var_16 + 0x138);
+        area = (u8 *)((ResrcRecord *)area)->next;
     }
 loop_21_cond:
-    if (var_16 != NULL)
+    if (area != NULL)
         goto loop_21_body;
 loop_21_done:
-    return var_17;
+    return hit;
 }
 
 // FUN_001711B0
-s32 FldStepAreaTriggerTest(u8 *arg0)
+/* Arm the step-area script for resource id 0x3FF when the action button is pressed. */
+s32 FldStepAreaTriggerTest(u8 *task)
 {
-    s32 var_2;
-    u8 *temp_16;
+    s32 ready;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     if ((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0))
         return 0;
-    var_2 = D_007EF9F8[0] != 0;
-    if (var_2 != 0)
-        var_2 = D_007EFA04[0] != 0;
-    if (var_2 == 0)
+    ready = D_007EF9F8[0] != 0;
+    if (ready != 0)
+        ready = D_007EFA04[0] != 0;
+    if (ready == 0)
         return 0;
     if (FldResAreaHitTest(D_007EF9B0, 0) == 1) {
-        *(s32 *)(temp_16 + 0x14) = 1;
+        ((FldEventWork *)work)->unknown14 = 1;
         if (D_008C024E[0] & 0x40) {
-            *(s32 *)(temp_16 + 4) = 0;
+            ((FldEventWork *)work)->state = 0;
             return 1;
         }
     }
@@ -324,14 +334,16 @@ s32 FldStepAreaTriggerTest(u8 *arg0)
 }
 
 // FUN_00171280
-s32 FldStepAreaTriggerRun(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Run the step script with mode zero while field controls are suspended. */
+s32 FldStepAreaTriggerRun(u8 *task)
 {
-    s32 temp_17;
+    s32 scriptData;
     s32 state;
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    state = *(s32 *)(temp_16 + 4);
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)(work + 4);
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
@@ -339,17 +351,17 @@ s32 FldStepAreaTriggerRun(u8 *arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
-        temp_17 = FldStepGetScriptData();
-        *(s32 *)(temp_16 + 0x10) =
-            scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 0);
+        scriptData = FldStepGetScriptData();
+        *(s32 *)(work + 0x10) =
+            scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 0);
         FldSlotBroadcastState(1);
-        *(s32 *)(temp_16 + 4) += 1;
+        *(s32 *)(work + 4) += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) != 1) {
             FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
-            *(s32 *)(temp_16 + 4) += 1;
+            *(s32 *)(work + 4) += 1;
         }
         break;
     case 2:
@@ -361,23 +373,24 @@ s32 FldStepAreaTriggerRun(u8 *arg0)
 }
 
 // FUN_001713E0
-s32 FldStepAreaAltTriggerTest(u8 *arg0)
+/* Arm the alternate step-area script for resource id 0x3FE on action input. */
+s32 FldStepAreaAltTriggerTest(u8 *task)
 {
-    s32 var_2;
-    u8 *temp_16;
+    s32 ready;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     if ((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0))
         return 0;
-    var_2 = D_007EF9F8[0] != 0;
-    if (var_2 != 0)
-        var_2 = D_007EFA04[0] != 0;
-    if (var_2 == 0)
+    ready = D_007EF9F8[0] != 0;
+    if (ready != 0)
+        ready = D_007EFA04[0] != 0;
+    if (ready == 0)
         return 0;
     if (FldResAreaHitTest(D_007EF9B0, 1) == 1) {
-        *(s32 *)(temp_16 + 0x14) = 1;
+        ((FldEventWork *)work)->unknown14 = 1;
         if (D_008C024E[0] & 0x40) {
-            *(s32 *)(temp_16 + 4) = 0;
+            ((FldEventWork *)work)->state = 0;
             return 1;
         }
     }
@@ -385,14 +398,16 @@ s32 FldStepAreaAltTriggerTest(u8 *arg0)
 }
 
 // FUN_001714B0
-s32 FldStepAreaAltTriggerRun(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+/* Run the alternate step script with mode one and restore field controls after its task exits. */
+s32 FldStepAreaAltTriggerRun(u8 *task)
 {
-    s32 temp_17;
+    s32 scriptData;
     s32 state;
-    u8 *temp_16;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    state = *(s32 *)(temp_16 + 4);
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)(work + 4);
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
@@ -400,18 +415,18 @@ s32 FldStepAreaAltTriggerRun(u8 *arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
-        temp_17 = FldStepGetScriptData();
-        *(s32 *)(temp_16 + 0x10) =
-            scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 1);
+        scriptData = FldStepGetScriptData();
+        *(s32 *)(work + 0x10) =
+            scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 1);
         FldSlotBroadcastState(1);
-        *(s32 *)(temp_16 + 4) += 1;
+        *(s32 *)(work + 4) += 1;
         break;
     case 1:
-        if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
+        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) != 1) {
             FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
-            *(s32 *)(temp_16 + 0x10) = 0;
-            *(s32 *)(temp_16 + 4) += 1;
+            *(s32 *)(work + 0x10) = 0;
+            *(s32 *)(work + 4) += 1;
         }
         break;
     case 2:

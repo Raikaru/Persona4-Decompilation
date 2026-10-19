@@ -7,16 +7,16 @@ struct BtlBedWork
     u8 pad[0x630];
     u16 flags;      // 0x630
     u16 count;      // 0x632
-    u32 field634;   // 0x634
+    u32 savedRecord;   // 0x634
 };
 
 typedef struct BtlBed BtlBed;
 struct BtlBed
 {
     BtlBedWork* work;   // 0x00
-    s32 field04;        // 0x04
-    u8* field08;        // 0x08
-    u16 field0C;        // 0x0C
+    s32 directoryHandle;        // 0x04
+    u8* directoryName;        // 0x08
+    u16 loadFlags;        // 0x0C
 };
 
 void btlFormationCopyRecord(BtlBedWork* work, u32 param);
@@ -30,6 +30,8 @@ extern void (*jtbl_008873EC[])(void* ptr);
 extern char iGpffffa288;
 extern char D_00609538[];
 
+/* Count the outstanding BED load, optionally copy its saved formation record,
+ * and acquire the directory unless the descriptor requests deferred loading. */
 // FUN_001D5CA0
 void btlBedCopyRecord(BtlBed* bed)
 {
@@ -37,30 +39,32 @@ void btlBedCopyRecord(BtlBed* bed)
 
     work->count++;
     if ((work->flags & 8) && work->count == 2) {
-        btlFormationCopyRecord(work, work->field634);
+        btlFormationCopyRecord(work, work->savedRecord);
     }
-    if (!(bed->field0C & 1)) {
+    if (!(bed->loadFlags & 1)) {
         func_00440b68(&iGpffffa288, D_00609538, 0x499);
-        bed->field04 = (s32)H_Cdvd_AcquireDirectory(bed->field08, 0);
+        bed->directoryHandle = (s32)H_Cdvd_AcquireDirectory(bed->directoryName, 0);
     } else {
-        bed->field04 = 0;
+        bed->directoryHandle = 0;
     }
     work->flags |= 1;
 }
 
+/* Poll the directory, install its record, and release completed work when the
+ * last outstanding load finishes. Returns one only after installation. */
 // FUN_001D5D60
 s32 btlBedLoad(BtlBed* bed)
 {
     BtlBedWork* work = bed->work;
-    s32 sp3C;
+    s32 requestSize;
 
-    if (bed->field04 == 0) {
+    if (bed->directoryHandle == 0) {
         func_00440b68(&iGpffffa288, D_00609538, 0x4B1);
-        bed->field04 = (s32)H_Cdvd_AcquireDirectory(bed->field08, 0);
+        bed->directoryHandle = (s32)H_Cdvd_AcquireDirectory(bed->directoryName, 0);
     }
-    if (H_Cdvd_IsFileLoaded((u8*)bed->field04) != 0) {
-        btlFormationCopyRecord(work, H_Cdvd_LookupRequest(bed->field08, &sp3C));
-        H_Cdvd_Destroy((u8*)bed->field04);
+    if (H_Cdvd_IsFileLoaded((u8*)bed->directoryHandle) != 0) {
+        btlFormationCopyRecord(work, H_Cdvd_LookupRequest(bed->directoryName, &requestSize));
+        H_Cdvd_Destroy((u8*)bed->directoryHandle);
         work->flags &= 0xFFFE;
         work->flags |= 2;
         work->count--;

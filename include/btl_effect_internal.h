@@ -59,9 +59,17 @@ typedef struct BtlPacket {
     u8 dependencyKind;      /* 0x00: 4 waits for dependencyUID */
     u8 pad01[7];
     u64 dependencyUID;      /* 0x08 */
-    u8 pad10[0x37];
+    u8 dependencyKind2;     /* 0x10: second dispatcher condition */
+    u8 pad11[7];
+    u64 dependencyUID2;     /* 0x18 */
+    u8 dependencyKind3;     /* 0x20: third dispatcher condition */
+    u8 pad21[7];
+    u64 dependencyUID3;     /* 0x28 */
+    u8 pad30[0x17];
     u8 flags;               /* 0x47 */
-    u8 pad48[0x10];
+    u16 delay;              /* 0x48: frames before dispatch */
+    u16 duration;           /* 0x4A: packet-specific frame interval */
+    u8 pad4C[0x0C];
     u64 uid;                /* 0x58 */
     u64 actionUID;          /* 0x60 */
     BtlPacketFunc initFunc;  /* 0x68 */
@@ -123,7 +131,7 @@ typedef struct BtlBattleState {
     u32 flags;                     /* 0x0C */
     u32 battleFlags;               /* 0x10 */
     u32 resourceFlags;             /* 0x14 */
-    u8 pad18[2];
+    u16 actionEndFlags;           /* 0x18: end-action camera/formation requests */
     u16 openingSide;               /* 0x1A */
     s16 endState;                 /* 0x1C: 1 victory, 2 defeat, 3 no party */
     u8 pad1E[2];
@@ -137,7 +145,14 @@ typedef struct BtlBattleState {
     u8 pad1BC[0x26C - 0x1BC];
     u16 formation;                /* 0x26C */
     u16 formationVariant;         /* 0x26E */
-    u8 pad270[0xA70 - 0x270];
+    u8 pad270[0x290 - 0x270];
+    u16 queueFlags;               /* 0x290: enable, reorder and advance bits */
+    u8 pad292[2];
+    s32 actionCount;              /* 0x294: dispatched actions this round */
+    s32 unk298;
+    s32 actionQueue[12];          /* 0x29C: action pointers in execution order */
+    s32 activeActions[12];        /* 0x2CC: pending follow-up actions */
+    u8 pad2FC[0xA70 - 0x2FC];
     s16 unkA70;
     s16 unkA72;
     u8 padA74[0xB4C - 0xA74];
@@ -152,17 +167,46 @@ typedef struct BtlBattleState {
     u8 padB7E[6];
     u8 *cutinNameHandle;           /* 0xB84 */
     s32 cutinNameTask;             /* 0xB88 */
-    u8 padB8C[0xC60 - 0xB8C];
+    u8 padB8C[4];
+    u32 bossPakHandle;            /* 0xB90: boss resource directory */
+    u32 bossEndBgmHandle;         /* 0xB94: end-BGM resource directory */
+    u8 padB98[0xC12 - 0xB98];
+    s8 pendingBossCue;            /* 0xC12: reset to -1 for selected bosses */
+    u8 padC13[0xC48 - 0xC13];
+    u8 *partyActions[4];          /* 0xC48 */
+    u16 partyActionCount;         /* 0xC58 */
+    u16 unkC5A;
+    u8 padC5C[4];
     s32 messageWindow;            /* 0xC60 */
     u8 unkC64;
     s8 isFieldEncounter;          /* 0xC65: no explicit setup passed */
-    u8 padC66[0xC70 - 0xC66];
+    u8 padC66[2];
+    s32 encounterRecord;          /* 0xC68 */
+    u16 encounterIndex;           /* 0xC6C: next encounter slot */
+    u8 padC6E[2];
     BtlEncounterSetup encounter;  /* 0xC70 */
-    u8 padCAC[0xD04 - 0xCAC];
+    u16 resultFlags;              /* 0xCAC: shuffle eligibility and result mode */
+    u8 padCAE[0xCB8 - 0xCAE];
+    s32 resultEncounterId;        /* 0xCB8 */
+    u16 unkCBC;
+    u16 survivingPartyIds[4];     /* 0xCBE: populated from party tail at +0x17C */
+    u8 padCC6[2];
+    s32 survivingPartyCount;      /* 0xCC8 */
+    s32 partyUnitCount;           /* 0xCCC */
+    s16 unkCD0;
+    u16 unkCD2;
+    u8 padCD4[8];
+    u32 unkCDC;
+    s16 unkCE0;
+    u8 padCE2[2];
+    s32 unkCE4;
+    s32 unkCE8;
+    u8 padCEC[0xD04 - 0xCEC];
     u8 *formations[48];           /* 0xD04 */
     u8 *formationHandle;           /* 0xDC4 */
     s32 cutinTaskParent;           /* 0xDC8: owning battle task */
-    u8 padDCC[8];
+    u8 padDCC[4];
+    s32 shuffleTask;              /* 0xDD0: result/shuffle task */
     s32 uiTask;                   /* 0xDD4 */
     u8 padDD8[0xE18 - 0xDD8];
     BtlRenderNode renderStateNode;/* 0xE18 */

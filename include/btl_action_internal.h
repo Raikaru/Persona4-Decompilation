@@ -66,7 +66,8 @@ struct BtlAction
     s16 unk_43c;             /* 0x43C */
     u8 unk_43e[0x02];        /* 0x43E */
     void *unk_440;           /* 0x440. Callback slot set beside state changes */
-    u8 unk_444[0x0C];        /* 0x444 */
+    u8 unk_444[8];           /* 0x444 */
+    BtlAction *previous;     /* 0x44C. Paired with next by create/unlink */
     BtlAction *next;         /* 0x450. Walked as the action list from D_0076449C+0x174 */
 };
 /* BtlAction.flags (+0x18). Bit 0 is the callback-pending bit (btlActionSetCallbackPending).

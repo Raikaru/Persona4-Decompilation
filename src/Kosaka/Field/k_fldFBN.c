@@ -78,7 +78,7 @@ extern void NpcTable_RequestBlockTable(u8 *, s32 );
 extern s32 NpcTable_InstallBlockTable(u8 *, s32 );
 extern void FldStepReleaseHandle(u8 *);
 extern u16 *FldStepFindEmptySlot(u32 );
-extern u8 *func_0015d310(u16 *);
+extern u8 *fldStepFindEligibleRecord(u16 *);
 extern void FldFrameTask_SetHeight(u8 *, f32 );
 extern void FldShadow_SetRingParticles(u8 *, f32 );
 extern s32 FldNpcControlTaskCreate(s32 , s32 );
@@ -262,7 +262,7 @@ s32 FldFbnReadTable(u8 *file, u8 **cachedDataOut, s32 field, s32 room, s32 varia
             }
         }
         for (k = 0; k < D_00764388; k++) {
-            AnimEntry2 *e2 = (AnimEntry2 *)func_0015d310(FldStepFindEmptySlot(k));
+            AnimEntry2 *e2 = (AnimEntry2 *)fldStepFindEligibleRecord(FldStepFindEmptySlot(k));
 
             if (e2 != NULL) {
                 u8 *q = fbn + 0x18;
