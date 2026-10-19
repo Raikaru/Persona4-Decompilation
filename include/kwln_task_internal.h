@@ -10,7 +10,10 @@ struct KwlnTask
     u8 unk0[0x18];
     s32 nameSum;
     u32 flags;
-    u8 unk20[4];
+    union {
+        u8 unk20[4];
+        s32 unk20Value; /* 0x20: status-window setup reads this word before starting its procedure. */
+    };
     u32 unk24;
     u32 unk28;
     u16 unk2C;
