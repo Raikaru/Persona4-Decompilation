@@ -24,7 +24,7 @@ typedef struct BtlUnitAlphaWork {
 
 extern u32 btlCountUnitRecords(void);
 extern u32 btlSoundIsPlaybackActive(void);
-extern void func_001f75b0(void);
+extern void btlSoundResetBattleChannels(void);
 
 typedef int (*code)();
 
@@ -158,7 +158,7 @@ u32 btlMainExitUpdate(void* work)
 
     if (btlCountUnitRecords() == 0 && btlSoundIsPlaybackActive() == 0)
     {
-        func_001f75b0();
+        btlSoundResetBattleChannels();
         btl = (BtlBattleState*)iGpffffb3ac;
         btl->flags &= ~1;
     }

@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2468 of 13102 symbols carry a recovered name.
+// 2470 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -2713,7 +2713,7 @@ func_001f73c0 = 0x001F73C0; // type:func
 func_001f73d0 = 0x001F73D0; // type:func
 func_001f7530 = 0x001F7530; // type:func
 func_001f7570 = 0x001F7570; // type:func
-func_001f75b0 = 0x001F75B0; // type:func
+btlSoundResetBattleChannels = 0x001F75B0; // type:func
 func_001f7620 = 0x001F7620; // type:func
 func_001f7650 = 0x001F7650; // type:func
 func_001f7830 = 0x001F7830; // type:func
@@ -5310,7 +5310,7 @@ func_0036ddc0 = 0x0036DDC0; // type:func
 func_0036dde0 = 0x0036DDE0; // type:func
 func_0036de20 = 0x0036DE20; // type:func
 func_0036de40 = 0x0036DE40; // type:func
-func_0036de60 = 0x0036DE60; // type:func
+btlShuffleCardGetKind = 0x0036DE60; // type:func
 func_0036de70 = 0x0036DE70; // type:func
 func_0036deb0 = 0x0036DEB0; // type:func
 func_0036dee0 = 0x0036DEE0; // type:func

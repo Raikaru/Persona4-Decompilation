@@ -12,6 +12,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
+#include "btl_sound_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
@@ -42,7 +43,7 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00624FF0[])(u8 *input, s32 value, s32 option);
 
 
 
@@ -60,7 +61,7 @@ extern u16 D_00624FC0[];
 extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
-extern void sdkSndResetChannel(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 input, s32 value);
 extern s32 sdkSndStopMainChannel(void);
 
 
@@ -96,10 +97,10 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f75b0-001f75b0 */
 
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlSoundRollStatusCure(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u32 input);
+extern s32 btlSoundRollStatusCure(u8 *input);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *input);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *input);
 extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
@@ -130,14 +131,14 @@ extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
 /* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
 /* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
+/* Reset the three voice channels and stop the main stream when battle audio is enabled. */
 // FUN_001F75B0
-void func_001f75b0(void)
+void btlSoundResetBattleChannels(void)
 {
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x40) != 0) {
+    if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x40) != 0) {
         sdkSndResetChannel(1, 0);
         sdkSndResetChannel(2, 0);
         sdkSndResetChannel(3, 0);
         sdkSndStopMainChannel();
     }
 }
-
