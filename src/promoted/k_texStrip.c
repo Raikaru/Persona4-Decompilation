@@ -14,7 +14,7 @@ extern void *func_003ef650(void *arg0, const char *arg1);
 extern void func_003ef610(s32 arg0);
 extern void func_003ef5b0(s32 arg0, s32 arg1);
 
-extern s32 func_00468170(void *arg0, const char *arg1);
+extern s32 sdkFilerTaskCreate(void *arg0, const char *arg1);
 extern s32 sdkFilerPollResult(s32 arg0, void *arg1);
 extern void K_Clump_LogCodeCounts(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);

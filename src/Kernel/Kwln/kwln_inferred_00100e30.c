@@ -53,7 +53,7 @@ extern s32 iGpffffb1a0;
 extern s32 iGpffffb19c;
 extern void H_Cdvd_UpdateRequests(void);
 extern void resourceLoadSprites(void);
-extern void func_0045b7c0(void);
+extern void sdkSndUpdateDecodeSlots(void);
 extern void sdkSndUpdate(void);
 extern void sdkPadUpdateAll(void);
 extern s32 kwlnTaskRunFrame(void);
@@ -99,7 +99,7 @@ extern void RpSkySelectTrueTSClipper(s32 arg0);
 extern void RpSkySelectTrueTLClipper(s32 arg0);
 extern void func_00418b18(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void func_0044f570(s32 arg0);
+extern void sdkDbprtInit(s32 arg0);
 extern void kwlnTaskInitPool(s32 arg0);
 extern void H_Cdvd_ResetStreamState(void);
 extern void H_Cdvd_InitDevices(void);
@@ -286,7 +286,7 @@ void kwlnInitSubsystems(void)
     sdkSndSetSlotTrack(1, 2);
     mdlResetModelTable((s32)&D_005DC878);
     mdlAppRegisterModelCallbacks();
-    func_0044f570(kwlnGetCamera());
+    sdkDbprtInit(kwlnGetCamera());
     RpSkySelectTrueTSClipper(1);
     RpSkySelectTrueTLClipper(1);
     func_00466680();
@@ -336,7 +336,7 @@ s32 kwlnRunFrame(void)
     iGpffffb194 = *(u32 *)0x10000000;
     H_Cdvd_UpdateRequests();
     resourceLoadSprites();
-    func_0045b7c0();
+    sdkSndUpdateDecodeSlots();
     sdkSndUpdate();
     sdkPadUpdateAll();
     if (kwlnTaskRunFrame() == 0) {

@@ -19,8 +19,8 @@ typedef struct HsndSlotWork
     u32 data5;               /* 0x24 */
 } HsndSlotWork;
 
-extern void func_0045c130(s16 param1, s16 param2);
-extern s32 func_0045c390(s16 param1);
+extern void sdkSndLoadDecodeFiles(s16 param1, s16 param2);
+extern s32 sdkSndIsDecodeSlotReady(s16 param1);
 
 extern u8 sdkSndPlayCue(s16 id, s32 unused);
 
@@ -49,18 +49,18 @@ void hsndSlotUpdate(HsndSlotWork* slot)
         case 2:
             if (slot->callbackMode == 0)
             {
-                func_0045c130(slot->param1, slot->param2);
+                sdkSndLoadDecodeFiles(slot->param1, slot->param2);
             }
             else
             {
-                func_0045c210(slot->param1, slot->param2, slot->data0, slot->data3,
+                sdkSndLoadDecodeBuffers(slot->param1, slot->param2, slot->data0, slot->data3,
                                slot->data1, slot->data4, slot->data2, slot->data5);
             }
             slot->state = 3;
             break;
 
         case 3:
-            if (func_0045c390(slot->param1) != 0)
+            if (sdkSndIsDecodeSlotReady(slot->param1) != 0)
             {
                 slot->completed = 1;
                 slot->state = 1;

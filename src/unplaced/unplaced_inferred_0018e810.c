@@ -176,7 +176,7 @@ s32 FldMapTestUpdate(u8 *task)
         if (D_008C0240[0].trigger & 0x40) {
             FldBoardGenerate(*(s32 *)(work + 0x4), 0, 0);
         }
-        func_00450340(iGpffff9fd0, iGpffff9fdc, iGpffffb240);
+        sdkDbprtQueueText(iGpffff9fd0, iGpffff9fdc, iGpffffb240);
         {
             s32 y;
             s32 x;

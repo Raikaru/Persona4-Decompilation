@@ -17,7 +17,7 @@ extern u8 D_0064E240[];
 extern char D_0064E270[];
 
 s8 nmMesWindowAcquire(void *);
-s32 func_003544f0(void);
+s32 datCommunityDefaultSetting(void);
 void memset(void *, s32, s32);
 void *resourceFindByName(char *);
 s32 sdkSpriteNewNode(void *, u8);
@@ -167,7 +167,7 @@ void cmpSystemMenuInit(u8 *work)
     }
     ((CmpSystemWork *)work)->graphFrame = 0;
     ((CmpSystemWork *)work)->graphFrame2 = 0;
-    ((CmpSystemWork *)work)->unk38 = func_003544f0();
+    ((CmpSystemWork *)work)->unk38 = datCommunityDefaultSetting();
     cmpSystemSetMode(work, 0);
 }
 /* measured: see the annotation above the matching `on` pragma (func_0035f5b0). */

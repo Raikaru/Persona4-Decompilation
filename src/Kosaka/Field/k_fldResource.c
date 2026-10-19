@@ -36,8 +36,8 @@ extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
 extern s32 H_Cdvd_AcquireDirectory(char *path, s32 mode);
 extern s32 H_Cdvd_IsFileLoaded(s32 handle);
-extern u8 *func_00460f80(u8 *list, s32 arg1);
-extern u8 *func_00461080(u8 *list, s32 arg1);
+extern u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 arg1);
+extern u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 arg1);
 extern u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
 extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
@@ -51,8 +51,8 @@ extern void mdlDestroyModelObject(s32 arg0);
 extern void mdlEffectDestroy(s32 arg0);
 extern void func_003bbb60(void *arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *func_00460e80(u8 *list, s32 arg1);
-extern u8 *func_00461290(u8 *list, s32 arg1);
+extern u8 *sdkOtQueueClump(u8 *list, s32 arg1);
+extern u8 *sdkOtQueueWorld(u8 *list, s32 arg1);
 extern s32 kwlnGetCamera(void);
 extern s32 K_Clump_GetWorld(void);
 extern u8 *K_Clump_GetLightA(void);
@@ -94,7 +94,7 @@ extern u8 iGpffffba58;
 extern u8 *filerTakeCompletedRequest(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 K_Clump_GeometryHasMatUsrData(u8 *arg0, char *arg1);
 extern s32 K_Clump_ClumpHasMatUsrData(u8 *arg0, char *arg1);
-extern void *func_00462ae0(void *arg0);
+extern void *sdkClumpCreateBuckets(void *arg0);
 extern void func_003db550(u8 *arg0, u8 *arg1);
 extern char D_005EFCE0[];
 extern char D_005EFD00[];
@@ -1524,10 +1524,10 @@ s32 FldResource_PollLoads(u8 *resource)
                     *(s32 *)(resource + 0x14) = (s32)clump;
                 } else if (!(*(s32 *)(resource + 0) & 1) && *(s32 *)(resource + 8) == 0) {
                     *(s32 *)(resource + 8) = (s32)clump;
-                    *(void **)(resource + 0xC) = func_00462ae0(clump);
+                    *(void **)(resource + 0xC) = sdkClumpCreateBuckets(clump);
                 } else {
                     *(s32 *)(resource + *(s32 *)(resource + 0x18) * 4 + 0x1C) = (s32)clump;
-                    *(void **)(resource + *(s32 *)(resource + 0x18) * 4 + 0x9C) = func_00462ae0(clump);
+                    *(void **)(resource + *(s32 *)(resource + 0x18) * 4 + 0x9C) = sdkClumpCreateBuckets(clump);
                     *(s32 *)(resource + 0x18) = *(s32 *)(resource + 0x18) + 1;
                 }
                 *(s32 *)(*(u8 **)(resource + 0xA44) + clumpIndex * 4 + 0xA4) = 0;
@@ -1996,13 +1996,13 @@ void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
         primaryObject = *(s32 *)(resource + 8);
         if (primaryObject != 0) {
             if (flags & 0x80000000) {
-                worldCommand = func_00461290(list, *(s32 *)(resource + 0xC));
+                worldCommand = sdkOtQueueWorld(list, *(s32 *)(resource + 0xC));
             } else if (flags & 0x40000000) {
-                worldCommand = func_00461290(list, *(s32 *)(resource + 0x10));
+                worldCommand = sdkOtQueueWorld(list, *(s32 *)(resource + 0x10));
             } else if ((flags & 0x20000000) && *(s32 *)(resource + 0x14) != 0) {
-                worldCommand = func_00461290(list, *(s32 *)(resource + 0x14));
+                worldCommand = sdkOtQueueWorld(list, *(s32 *)(resource + 0x14));
             } else {
-                worldCommand = func_00461290(list, primaryObject);
+                worldCommand = sdkOtQueueWorld(list, primaryObject);
             }
             *(void (**)(void))(worldCommand + 8) = (void (*)(void))FldResource_BeginDrawState;
             *(u8 **)(worldCommand + 0x10) = resource;
@@ -2012,7 +2012,7 @@ void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
     } else {
         if (flags & 0x80000000) {
             if (*(s32 *)(resource + 0xC) != 0) {
-                primaryCommand = func_00460e80(list, *(s32 *)(resource + 0xC));
+                primaryCommand = sdkOtQueueClump(list, *(s32 *)(resource + 0xC));
             } else {
                 primaryCommand = PrimQueueSkyStateEnter(list, *(s32 *)(resource + 8));
             }
@@ -2033,7 +2033,7 @@ void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
     if (!(*(u32 *)resource & 0xC0000000)) {
         for (i = 0; i < *(u32 *)(resource + 0x18); i++) {
             if (*(s32 *)(resource + 0x9C + i * 4) != 0) {
-                clumpCommand = func_00460e80(list, *(s32 *)(resource + 0x9C + i * 4));
+                clumpCommand = sdkOtQueueClump(list, *(s32 *)(resource + 0x9C + i * 4));
             } else {
                 clumpCommand = PrimQueueSkyStateEnter(list, *(s32 *)(resource + 0x1C + i * 4));
             }
@@ -2061,7 +2061,7 @@ void FldResource_QueueDrawCallbacksPrimary(u8 *list, u8 *resource)
     primaryCommand = NULL;
     if (!(*(u32 *)resource & 1)) {
         if ((*(u32 *)resource & 0x80000000) && *(u8 **)(resource + 0xC) != NULL) {
-            primaryCommand = func_00460f80(list, ((FldResource *)resource)->primaryDrawObject);
+            primaryCommand = sdkOtQueueClumpPrimaryPass(list, ((FldResource *)resource)->primaryDrawObject);
         }
         if (primaryCommand != NULL) {
             *(void (**)(void))(primaryCommand + 8) = (void (*)(void))FldResource_BeginDrawState;
@@ -2073,7 +2073,7 @@ void FldResource_QueueDrawCallbacksPrimary(u8 *list, u8 *resource)
     if (!(*(u32 *)resource & 0xC0000000)) {
         for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
             if (*(u8 **)(resource + 0x9C + i * 4) != NULL) {
-                clumpCommand = func_00460f80(list, *(s32 *)(resource + 0x9C + i * 4));
+                clumpCommand = sdkOtQueueClumpPrimaryPass(list, *(s32 *)(resource + 0x9C + i * 4));
                 if (clumpCommand != NULL && i == 0) {
                     *(void (**)(void))(clumpCommand + 8) = (void (*)(void))FldResource_BeginDrawState;
                     *(u8 **)(clumpCommand + 0x10) = resource;
@@ -2098,7 +2098,7 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
     if (!(*(u32 *)resource & 1)) {
         if ((*(u32 *)resource & 0x80000000)) {
             if (((FldResource *)resource)->primaryDrawObject != 0) {
-                primaryCommand = func_00461080(list, ((FldResource *)resource)->primaryDrawObject);
+                primaryCommand = sdkOtQueueClumpSecondaryPass(list, ((FldResource *)resource)->primaryDrawObject);
             }
         } else if ((*(u32 *)resource & 0x40000000)) {
             if (((FldResource *)resource)->alternateObject != 0) {
@@ -2119,7 +2119,7 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
     if (!(*(u32 *)resource & 0xC0000000)) {
         for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
             if (*(u8 **)(resource + 0x9C + i * 4) != NULL) {
-                clumpCommand = func_00461080(list, *(s32 *)(resource + 0x9C + i * 4));
+                clumpCommand = sdkOtQueueClumpSecondaryPass(list, *(s32 *)(resource + 0x9C + i * 4));
                 if (clumpCommand != NULL && i == 0) {
                     *(void (**)(void))(clumpCommand + 8) = (void (*)(void))FldResource_BeginDrawState;
                     *(u8 **)(clumpCommand + 0x10) = resource;
@@ -2393,7 +2393,7 @@ FldResource *FldResource_CloneRotated(FldResource *src, void *translation, u32 q
     dst->minorId = src->minorId;
     if (src->primaryObject != 0) {
         dst->primaryObject = func_003c0520(src->primaryObject);
-        dst->primaryDrawObject = (s32)func_00462ae0((void *)dst->primaryObject);
+        dst->primaryDrawObject = (s32)sdkClumpCreateBuckets((void *)dst->primaryObject);
     }
     if (src->alternateObject != 0) {
         dst->alternateObject = func_003c0520(src->alternateObject);
@@ -2409,7 +2409,7 @@ FldResource *FldResource_CloneRotated(FldResource *src, void *translation, u32 q
             destinationCursor = (u8 *)dst + i * 4;
             clumpSlot = (s32 *)(destinationCursor + 28);
             *clumpSlot = func_003c0520(clump);
-            *(s32 *)(destinationCursor + 156) = (s32)func_00462ae0((void *)*clumpSlot);
+            *(s32 *)(destinationCursor + 156) = (s32)sdkClumpCreateBuckets((void *)*clumpSlot);
         }
     }
     dst->entryCount = src->entryCount;

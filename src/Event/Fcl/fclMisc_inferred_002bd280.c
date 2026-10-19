@@ -39,7 +39,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *nmListAppendNode(u8 *arg0, s32 arg1, s32 arg2);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -117,7 +117,7 @@ s32 fclMiscAddRecord(s32 slotIndex, s32 record, s32 value, s16 entryFlags)
     }
     source = manager->source;
     list = manager->entries;
-    node = (FclAssistNode *)func_002e2170((u8 *)list, list->count + 1, 0x30);
+    node = (FclAssistNode *)nmListAppendNode((u8 *)list, list->count + 1, 0x30);
     entry = (FclAssistEntry *)node->data;
     entry->node = node;
     entry->slotIndex = slotIndex;

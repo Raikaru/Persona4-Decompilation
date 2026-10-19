@@ -3,12 +3,13 @@
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
+#include "rw_camera_internal.h"
 extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
-extern void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
+extern void sdkDbprtDrawText(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
 extern s32 iGpffffb9e8;
 struct RwCamera;
 struct RwSphere;
@@ -49,16 +50,6 @@ typedef struct {
 #include "rw_types_internal.h"
 typedef RwV3d Code45Vec3;
 
-typedef struct RwMatrixTag {
-    Code45Vec3 right;
-    u32 flags;
-    Code45Vec3 up;
-    u32 pad1;
-    Code45Vec3 at;
-    u32 pad2;
-    Code45Vec3 pos;
-    u32 pad3;
-} Code45Matrix;
 
 typedef struct RwSphere {
     Code45Vec3 center;
@@ -215,8 +206,9 @@ static inline s32 fontAtlasColumn(s32 value)
  * twelve zero alignment bytes. Preserve the explicit vertex pointer
  * in each initialization loop and copy the panel extent before adding
  * its border. See docs/probe_archive/Debug_overlay_00450630_20260924.md. */
+/* Draws the enabled debug overlay panel and its buffered text rows. */
 // FUN_00450630
-void func_00450630(void)
+void sdkDbprtDrawOverlay(void)
 {
     typedef Code45Im2DVertex OverlayVertex;
     Code45TexCoords uvs[4];
@@ -239,7 +231,7 @@ void func_00450630(void)
     u8 glyph;
     s32 atlasColumn;
 
-    reciprocalDepth = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
+    reciprocalDepth = 1.0f / ((RwCamera *)iGpffffb9e0)->nearPlane;
     if (iGpffffb9d4 == 0) {
         return;
     }
@@ -349,8 +341,9 @@ void func_00450630(void)
  * twelve zero alignment bytes. Color and position use their complete
  * packed-value ABI; both variadic callers retain identical native code.
  * See docs/probe_archive/Debug_immediate_text_00450a50_20260924.md. */
+/* Draws an immediate string using packed color, position and depth values. */
 // FUN_00450A50
-void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters)
+void sdkDbprtDrawText(PackedColor4 color, PackedVec2f position, f32 depth, void *characters)
 {
     Code45TexCoords uvs[4];
     typedef Code45Im2DVertex FontVertex;
@@ -376,7 +369,7 @@ void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *ch
     blue = color.rgba[2];
     green = color.rgba[1];
     red = color.rgba[0];
-    reciprocal = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
+    reciprocal = 1.0f / ((RwCamera *)iGpffffb9e0)->nearPlane;
     font = iGpffffb9e8;
     if (font == 0) {
         return;
@@ -445,8 +438,9 @@ void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *ch
 #pragma pop
 /* Measured: 164/176 bytes, three resolved relocations and 12 zero tail bytes.
  * O1 preserves the compiler-reported variadic argument-count branch. */
+/* Formats an immediate string and draws it with the default packed color. */
 // FUN_00450DD0
-void func_00450dd0(PackedVec2f position, f32 z, const void *format, ...)
+void sdkDbprtPrint(PackedVec2f position, f32 z, const void *format, ...)
 {
     char buffer[0x100];
     union { f32 f; s32 bits; PackedColor4 color; } scale;
@@ -459,14 +453,15 @@ void func_00450dd0(PackedVec2f position, f32 z, const void *format, ...)
     if (count >= 8) count = 0; else count = (8 - count) * 8;
     args = (char *)__builtin_next_arg(format) - count;
     func_00446ed8(buffer, format, args);
-    func_00450a50(scale.color, position, z, buffer);
+    sdkDbprtDrawText(scale.color, position, z, buffer);
 }
 
 /* measured: restore O2 after func_00450dd0. */
 /* Measured: 156/160 bytes, two resolved relocations and four zero tail bytes.
  * Color and position aggregates use the compiler's real variadic save area. */
+/* Formats and draws an immediate string using the supplied packed color. */
 // FUN_00450E80
-void func_00450e80(PackedColor4 color, PackedVec2f position, f32 z,
+void sdkDbprtPrintColor(PackedColor4 color, PackedVec2f position, f32 z,
                    const void *format, ...)
 {
     char buffer[0x100];
@@ -483,6 +478,6 @@ void func_00450e80(PackedColor4 color, PackedVec2f position, f32 z,
     }
     args = (char *)__builtin_next_arg(format) - count;
     func_00446ed8(buffer, format, args);
-    func_00450a50(color, position, z, buffer);
+    sdkDbprtDrawText(color, position, z, buffer);
 }
 

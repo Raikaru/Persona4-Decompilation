@@ -63,7 +63,7 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
+extern s32 sdkSndStartIndexedSource(s32 arg0, s32 arg1, s32 arg2);
 
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
@@ -166,7 +166,7 @@ s32 btlVoicePacketUpdate(u8 *arg0)
         if (temp_2 == -1) {
             return 1;
         }
-        func_0045ae10(*(u16 *)(iGpffffb3ac + 0xB30), 3, (u16)temp_2);
+        sdkSndStartIndexedSource(*(u16 *)(iGpffffb3ac + 0xB30), 3, (u16)temp_2);
         *(s32 *)(arg0 + 0x14) = 1;
         goto block_15_9800;
     }

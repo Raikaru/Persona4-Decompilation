@@ -217,12 +217,12 @@ s32 calendarDraw(u8 *unusedTask)
     dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
     PrimDrawFlatRectangle(color, dim, 0.0f, 1);
     pos.xy.x = 100.0f; pos.xy.y = 100.0f;
-    func_00450dd0(pos, 0.0f, D_005E5028, month, D_005E5010[datGetTimeSlot()]);
+    sdkDbprtPrint(pos, 0.0f, D_005E5028, month, D_005E5010[datGetTimeSlot()]);
     pos.xy.x = 0.0f + 100.0f + 36.0f * (f32)weekday;
     pos.xy.y = 124.0f;
     index = 0;
     while (index < calGetMonthLength(month)) {
-        func_00450dd0(pos, 0.0f, &iGpffff9c54, index + 1);
+        sdkDbprtPrint(pos, 0.0f, &iGpffff9c54, index + 1);
         weekday++;
         if (weekday > 6) {
             weekday = 0;

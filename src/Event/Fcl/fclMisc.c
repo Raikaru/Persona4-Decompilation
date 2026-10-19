@@ -32,7 +32,7 @@ extern s32 itfMesWindowInstall(u8 *);
 extern s32 itfMesWindowSetStyle(s32, s16);
 extern void itfMesWindowSetFlagBits(s32, s32);
 extern s32 itfMesWindowBindRecord(s32, s32, s32);
-extern u8 *func_002e1db0(s32, int (*)(), int (*)(), int (*)());
+extern u8 *nmListAllocManager(s32, int (*)(), int (*)(), int (*)());
 
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
@@ -116,10 +116,10 @@ void fclMiscCreateAssistTask(void)
     u8 *globalState;
 
     globalState = D_00882F30;
-    work = func_002e1db0(0xa0, 0, 0, 0);
+    work = nmListAllocManager(0xa0, 0, 0, 0);
     state = (u8 *)((FclAssistList *)work)->work;
     ((FclAssistManager *)state)->entries = (FclAssistList *)work;
-    ((FclAssistManager *)state)->pending = (FclAssistList *)func_002e1db0(0xc, 0, 0, 0);
+    ((FclAssistManager *)state)->pending = (FclAssistList *)nmListAllocManager(0xc, 0, 0, 0);
     ((FclAssistManager *)state)->flags |= 1;
     iGpffffb57c = (int)state;
     if (globalState != NULL)

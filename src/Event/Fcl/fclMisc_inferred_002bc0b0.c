@@ -43,7 +43,7 @@ extern s32 iGpffffb57c;
 extern void itfMesWindowDrawEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
 extern u32 datEntryGetFlags(s16 item);
-extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *nmListAppendNode(u8 *arg0, s32 arg1, s32 arg2);
 extern void sprintf();
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 arg0);
@@ -366,7 +366,7 @@ loop_done:
         if (owner == NULL) {
             *(s32 *)(slot + 4) = slotIndex;
             list = *(u8 **)(manager + 0x18);
-            newNode = func_002e2170(list, *(u16 *)(list + 0x10) + 1, 0);
+            newNode = nmListAppendNode(list, *(u16 *)(list + 0x10) + 1, 0);
             if (newNode == NULL) kAssertFail(&D_007488E8, 0x52);
             *(u8 **)(newNode + 0x14) = slot;
             return 1;

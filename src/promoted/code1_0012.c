@@ -470,7 +470,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern f32 sinf(f32);
     extern u32 kwlnTaskGetWork(void *task);
     extern s32 H_Cdvd_LookupRequest();
-    extern s32 func_0045ad50();
+    extern s32 sdkSndStartStereoBuffer();
     extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
     extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 kAssertFail();
@@ -1152,7 +1152,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 shdSpriteDrawNow(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - backgroundFade)), 0, 0, titleTask->sprites, 0);
             }
             if (frame == 0x55) {
-                func_0045ad50(2, H_Cdvd_LookupRequest(&D_005E56D0, &fileSize), fileSize);
+                sdkSndStartStereoBuffer(2, H_Cdvd_LookupRequest(&D_005E56D0, &fileSize), fileSize);
             }
             if (frame > 0x5a) {
                 if (frame < 0x65) {

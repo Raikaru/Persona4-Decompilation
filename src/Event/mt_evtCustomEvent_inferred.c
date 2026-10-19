@@ -71,8 +71,8 @@ extern void mtMiscCollectType2Records(u8 *arg0);
 void evtModelQueueMotionAt(u16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    f32 fparg2, f32 fparg3, s32 arg2, u8 *arg3)
 {
-    extern u8 *func_002e1db0();
-    extern u8 *func_002e2170();
+    extern u8 *nmListAllocManager();
+    extern u8 *nmListAppendNode();
 extern s32 evtModelUpdateTask(u8 *task);
 extern void evtModelTaskDestroy(u8 *task);
 
@@ -109,7 +109,7 @@ extern void evtModelTaskDestroy(u8 *task);
 
     result = kwlnTaskGetTaskByName(D_0063C958);
     if (result == 0) {
-        work = func_002e1db0(4, 0, 0, 0);
+        work = nmListAllocManager(4, 0, 0, 0);
         work_link = *(u8 ***)(work + 0x24);
         *work_link = work;
         result = (s32)kwlnTaskCreate((const void *)(D_0063C958), 15, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(work_link));
@@ -134,7 +134,7 @@ extern void evtModelTaskDestroy(u8 *task);
         data.field_28 = value_0;
     }
     list = *(u8 **)manager;
-    record = func_002e2170(list, *(u16 *)(list + 0x10) + 1, 0x4C);
+    record = nmListAppendNode(list, *(u16 *)(list + 0x10) + 1, 0x4C);
     manager = *(u8 **)(record + 0x14);
     memcpy(manager, &data, 0x2C);
     *(s32 *)(manager + 0x2C) =

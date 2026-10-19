@@ -63,7 +63,7 @@ extern u8 D_00624B22[];
 
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 
-extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
+extern s32 sdkSndStartIndexedSource(s32 arg0, s32 arg1, s32 arg2);
 
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
@@ -145,7 +145,7 @@ extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
 // FUN_001F9A50
 void func_001f9a50(s32 arg0, s32 arg1) {
     s32 f = *(u16 *)((u8 *)iGpffffb3ac + 0xB3A);
-    func_0045ae10((u16)f, (u16)arg1, (u16)arg0);
+    sdkSndStartIndexedSource((u16)f, (u16)arg1, (u16)arg0);
 }
 
 // FUN_001F9A90
