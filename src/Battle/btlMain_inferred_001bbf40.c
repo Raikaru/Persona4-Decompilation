@@ -14,6 +14,9 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
+#include "btl_effect_internal.h"
+#include "btl_unit_internal.h"
+#include "btl_action_internal.h"
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -110,88 +113,95 @@ s32 btlTargetIsSlotAlive(u8 *arg0);
 #pragma push
 #pragma pop
 // FUN_001BBF40
-void btlCameraSetTransitionDuration(u8 *arg0, f32 fparg0) {
-    *(f32 *)(arg0 + 0x84) = (f32) ((60.0f * fparg0) / 2.0f);
-    *(u16 *)(arg0 + 0) = (u16) (*(u16 *)(arg0 + 0) & 0xFFFD);
-    *(u16 *)(arg0 + 0) = (u16) (*(u16 *)(arg0 + 0) & 0xFFFB);
-    *(u16 *)(arg0 + 0) = (u16) (*(u16 *)(arg0 + 0) & 0xFFF7);
+/* Set the linear camera transition duration and clear the spring/easing mode bits. */
+void btlCameraSetTransitionDuration(u8 *camera, f32 seconds) {
+    ((BtlCamera *)camera)->curveDuration = (f32) ((60.0f * seconds) / 2.0f);
+    ((BtlCamera *)camera)->curveFlags = (u16) (((BtlCamera *)camera)->curveFlags & 0xFFFD);
+    ((BtlCamera *)camera)->curveFlags = (u16) (((BtlCamera *)camera)->curveFlags & 0xFFFB);
+    ((BtlCamera *)camera)->curveFlags = (u16) (((BtlCamera *)camera)->curveFlags & 0xFFF7);
 }
 
 // FUN_001BBF90
-void btlCameraUpdateTransition(u8 *arg0)
+/* Compute the selected linear, spring, or eased time step and publish the sampled camera pose.
+ * Measured: the raw step store avoids an extra +0x94 address temporary. */
+void btlCameraUpdateTransition(u8 *camera)
 {
-    f32 temp_f2;
-    f32 temp_f4;
-    f32 var_f12;
-    u16 temp_3;
-    u8 *temp_2;
+    f32 progress;
+    f32 nextProgress;
+    f32 timeStep;
+    u16 flags;
+    u8 *battle;
 
-    temp_3 = *(u16 *)arg0;
-    if ((temp_3 & 2) != 0) {
-        var_f12 =
-            btlTargetSmoothStep(1.0f, (f32 *)(arg0 + 0x84)) -
-            *(f32 *)(arg0 + 0x80);
-    } else if ((temp_3 & 4) != 0) {
-        temp_f2 = *(f32 *)(arg0 + 0x94);
-        if (temp_f2 < fGpffff8430) {
-            temp_f4 = temp_f2 + (1.0f / *(f32 *)(arg0 + 0x84));
-            *(f32 *)(arg0 + 0x94) = temp_f4;
-            temp_f2 = 0.0f + (-1.0f) +
-                      ((-2.0f * temp_f4) * temp_f4) +
-                      (4.0f * temp_f4);
-            var_f12 =
-                (2.0f * (temp_f2 - 0.5f)) -
-                *(f32 *)(arg0 + 0x80);
+    flags = ((BtlCamera *)camera)->curveFlags;
+    if ((flags & 2) != 0) {
+        timeStep =
+            btlTargetSmoothStep(1.0f, (f32 *)(camera + 0x84)) -
+            ((BtlCamera *)camera)->transitionTime;
+    } else if ((flags & 4) != 0) {
+        progress = ((BtlCamera *)camera)->curveStep;
+        if (progress < fGpffff8430) {
+            nextProgress = progress + (1.0f / ((BtlCamera *)camera)->curveDuration);
+            *(f32 *)(camera + 0x94) = nextProgress;
+            progress = 0.0f + (-1.0f) +
+                      ((-2.0f * nextProgress) * nextProgress) +
+                      (4.0f * nextProgress);
+            timeStep =
+                (2.0f * (progress - 0.5f)) -
+                ((BtlCamera *)camera)->transitionTime;
         } else {
-            var_f12 = 0.0f;
+            timeStep = 0.0f;
         }
-    } else if ((temp_3 & 8) != 0) {
-        if (*(f32 *)(arg0 + 0x88) >
-            (0.5f * *(f32 *)(arg0 + 0x84))) {
-            var_f12 =
-                func_001ba790_mul(btlTargetSmoothStep(1.0f, (f32 *)(arg0 + 0x84)), 2.0f) -
-                *(f32 *)(arg0 + 0x80);
+    } else if ((flags & 8) != 0) {
+        if (((BtlCamera *)camera)->springElapsed >
+            (0.5f * ((BtlCamera *)camera)->curveDuration)) {
+            timeStep =
+                func_001ba790_mul(btlTargetSmoothStep(1.0f, (f32 *)(camera + 0x84)), 2.0f) -
+                ((BtlCamera *)camera)->transitionTime;
         } else {
-            var_f12 = 0.0f;
+            timeStep = 0.0f;
         }
     } else {
-        var_f12 = 1.0f / *(f32 *)(arg0 + 0x84);
+        timeStep = 1.0f / ((BtlCamera *)camera)->curveDuration;
     }
-    *(f32 *)(arg0 + 0x80) =
-        *(f32 *)(arg0 + 0x80) + var_f12;
-    btlCameraAdvanceKeyframes(arg0, var_f12);
-    temp_2 = D_0076449C;
-    btlCameraSampleKeyframes(temp_2 + 0x24, (f32 *)(temp_2 + 0xC0),
-                  (f32 *)(temp_2 + 0xCC));
+    ((BtlCamera *)camera)->transitionTime =
+        ((BtlCamera *)camera)->transitionTime + timeStep;
+    btlCameraAdvanceKeyframes(camera, timeStep);
+    battle = D_0076449C;
+    btlCameraSampleKeyframes(battle + 0x24, (f32 *)(battle + 0xC0),
+                  (f32 *)(battle + 0xCC));
 }
 
 // FUN_001BC140
-s32 btlCameraIsActionBlocked(u8 *arg0) {
-    u8 *temp_16;
+/* Reject a camera action when its acting unit has either tested bad-status bit or a special target
+ * hit. Raw data-record handles retain the existing status-query ABI. */
+s32 btlCameraIsActionBlocked(u8 *camera) {
+    u8 *action;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0xE0));
-    if (temp_16 == NULL) {
+    action = (u8 *)((u8 *)((BtlCamera *)camera)->action);
+    if (action == NULL) {
         return 0;
     }
-    if (datCalcChkBadStatus(*(s32 *)((u8 *)(*(u8 **)(temp_16 + 0x30)) + 0xA64), 0x60) != 0) {
+    if (datCalcChkBadStatus(*(s32 *)((u8 *)((u8 *)((BtlAction *)action)->unit) + 0xA64), 0x60) != 0) {
         return 1;
     }
-    return (s32)(btlActionAnyTargetSpecialHit(temp_16) != 0);
+    return (s32)(btlActionAnyTargetSpecialHit(action) != 0);
 }
 
 // FUN_001BC1B0
-s32 btlCameraIsTargetEligible(u8 *arg0)
+/* Reject camera targeting for flagged child-unit records or skills with exclusion bit 0x10. Raw child-
+ * unit table rows retain their observed 0x58 stride. */
+s32 btlCameraIsTargetEligible(u8 *camera)
 {
-    u8 *temp_2;
-    u8 *temp_3;
+    u8 *childUnit;
+    u8 *action;
     BtlSkillFlags *base;
     s32 index;
 
-    temp_3 = *(u8 **)(arg0 + 0xE0);
-    temp_2 = *(u8 **)(*(u8 **)(temp_3 + 0x30) + 0xA0C);
-    index = *(u16 *)(temp_3 + 0x6E);
-    if ((temp_2 != NULL) &&
-        (*(u16 *)(iGpffffb3e0 + (*(u16 *)(temp_2 + 0xA4) * 0x58)) & 1)) {
+    action = (u8 *)((BtlCamera *)camera)->action;
+    childUnit = *(u8 **)((u8 *)((BtlAction *)action)->unit + 0xA0C);
+    index = ((BtlAction *)action)->unk_6e;
+    if ((childUnit != NULL) &&
+        (*(u16 *)(iGpffffb3e0 + (((BtlUnit *)childUnit)->charId * 0x58)) & 1)) {
         return 0;
     }
     base = iGpffffb3bc;
@@ -203,18 +213,20 @@ s32 btlCameraIsTargetEligible(u8 *arg0)
 
 // FUN_001BC240
 /* measured: opt_propagation off probe for bc240 table-address order. */
-s32 btlCameraIsTargetPrioritized(s32 arg0)
+/* Honor the battle override, otherwise require an eligible skill with priority bit 0x20. Raw indexed
+ * skill rows retain the established selector/base evaluation order. */
+s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill)
 {
     s32 result;
     u8 *temp;
     u8 *base;
 
-    if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) != 0) {
+    if ((((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) != 0) {
         result = 1;
         goto done;
     }
-    temp = *(u8 **)((u8 *)arg0 + 0xE0);
-    arg0 = *(u16 *)(temp + 0x6E);
+    temp = *(u8 **)((u8 *)cameraOrSkill + 0xE0);
+    cameraOrSkill = *(u16 *)(temp + 0x6E);
     temp = *(u8 **)(*(u8 **)(temp + 0x30) + 0xA0C);
     if ((temp != NULL) &&
         ((*(u16 *)(iGpffffb3e0 +
@@ -223,7 +235,7 @@ s32 btlCameraIsTargetPrioritized(s32 arg0)
         goto check20;
     }
     base = (u8 *)iGpffffb3bc;
-    if ((*(u16 *)((u8 *)(((arg0 & 0xFFFF) << 2) + (u32)base) + 2) &
+    if ((*(u16 *)((u8 *)(((cameraOrSkill & 0xFFFF) << 2) + (u32)base) + 2) &
          0x10) != 0) {
         result = 0;
         goto check20;
@@ -234,7 +246,7 @@ check20:
         goto final_zero;
     }
     base = (u8 *)iGpffffb3bc;
-    if ((*(u16 *)((u8 *)(((arg0 & 0xFFFF) << 2) + (u32)base) + 2) &
+    if ((*(u16 *)((u8 *)(((cameraOrSkill & 0xFFFF) << 2) + (u32)base) + 2) &
          0x20) != 0) {
         result = 1;
         goto done;
@@ -247,14 +259,16 @@ done:
 
 /* measured: close opt_propagation probe for bc240. */
 // FUN_001BC330
-s32 btlCameraIsOrbitAction(u8 *arg0) {
-    u8 *ptr = *(u8 **)(arg0 + 0xE0);
-    if (ptr == NULL) {
+/* Test the current action slot and its action mode. Measured: keep the second action-pointer reload
+ * raw across the slot predicate. */
+s32 btlCameraIsOrbitAction(u8 *camera) {
+    u8 *action = (u8 *)((BtlCamera *)camera)->action;
+    if (action == NULL) {
         return 0;
     }
-    if (btlTargetIsSlotAlive(ptr) == 0) {
+    if (btlTargetIsSlotAlive(action) == 0) {
         return 1;
     }
-    return *(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6C) == 3;
+    return *(u16 *)(*(u8 **)(camera + 0xE0) + 0x6C) == 3;
 }
 

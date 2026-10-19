@@ -49,15 +49,17 @@ typedef struct BtlCameraScriptWork {
  * and the effect-script readers/writers establish the fields used here. */
 typedef struct BtlCamera {
     u16 curveFlags;                  /* 0x00 */
-    u8 pad02[0x72];
-    s16 curveIndex;                  /* 0x74 */
-    s16 curveNext;                   /* 0x76 */
-    s16 curveCount;                  /* 0x78 */
+    u8 pad02[2];
+    BtlCameraPose curveKeys[4];      /* 0x04: four-entry ring, 0x1C-byte poses */
+    union { s16 curveIndex; u16 keyReadIndex; }; /* 0x74 */
+    union { s16 curveNext; u16 keyCount; };      /* 0x76 */
+    union { s16 curveCount; u16 keyWriteIndex; };/* 0x78 */
     u8 pad7A[2];
-    s32 unk7C;
-    s32 unk80;
+    union { s32 unk7C; f32 keyTime; };
+    union { s32 unk80; f32 transitionTime; };
     f32 curveDuration;               /* 0x84 */
-    u8 pad88[0x0C];
+    f32 springElapsed;              /* 0x88: midpoint test in UpdateTransition */
+    u8 pad8C[8];
     f32 curveStep;                   /* 0x94 */
     s32 workList;                    /* 0x98 */
     BtlCameraPose pose;              /* 0x9C */

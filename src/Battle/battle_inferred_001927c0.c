@@ -344,7 +344,7 @@ s32 btlRelease(void)
     btlActionListDestroyAll();
     btlUnitFreeRemovedUnits();
     btlMainSaveFieldSnapshotAndUnload();
-    func_001b6110();
+    btlMainRelease();
     btlEffectFreeAllNodes();
     btlVoiceFreePlaybackBuffers();
     func_001f73c0();

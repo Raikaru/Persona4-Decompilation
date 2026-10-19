@@ -2,9 +2,10 @@
 /* Original translation unit btlResultHeroLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "btl_result_ui_internal.h"
 
-typedef struct BtlResultWork BtlResultWork;
-struct BtlResultWork
+typedef struct BtlResultHeroWork BtlResultHeroWork;
+struct BtlResultHeroWork
 {
     u16 flags;          // 0x00
     u8 pad2[2];
@@ -57,6 +58,7 @@ extern u32 D_00795F20[];
 extern s32 iGpffffa5C0;
 
 // FUN_00221AB0
+/* Choose a living party member for a level-up voice cue, or use the protagonist fallback cue group. */
 void btlResultHeroLvUpInit(void)
 {
     s16 list[4];
@@ -138,28 +140,30 @@ void btlResultHeroLvUpInit(void)
 // residual the $v0-vs-$at compare-temp floor. The permuter cracked it from the
 // preserved body.
 #pragma tailcall off
-s32 btlResultHeroLvUpStep(BtlResultWork* work)
+/* Sequence the hero level and unlock messages, then delay before completion. The raw archive handle is
+ * read from the shared result parent. */
+s32 btlResultHeroLvUpStep(BtlResultHeroWork* work)
 {
-    BtlResultWork* work_p = work;
-    u32 sp30[4];
-    u32 sp20[4];
+    BtlResultHeroWork* result = work;
+    u32 levelText[4];
+    u32 unlockText[4];
 
-    switch (work_p->state40) {
+    switch (result->state40) {
     case 0:
         if ((work->flags & 8) || (D_008C024E[0] & 0x50) ||
-            ((D_008C024C[0] & 0x10) && ((work->count = work_p->count + 1) > 4))) {
-            nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8**)(work_p->field3C + 0x934), 0, 0)));
-            sprintf(sp30, &iGpffffa5C8, datCalcGetLevelById(1) & 0xFF);
-            nmMesWindowSetCurrentString(0, sp30);
+            ((D_008C024C[0] & 0x10) && ((work->count = result->count + 1) > 4))) {
+            nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8 **)&((BtlResultWork *)result->field3C)->file, 0, 0)));
+            sprintf(levelText, &iGpffffa5C8, datCalcGetLevelById(1) & 0xFF);
+            nmMesWindowSetCurrentString(0, levelText);
             nmMesWindowShowCurrentRecord(3);
             work->state40 = 1;
         }
         break;
     case 1:
         if (datMemberNoticeTryBegin(1) == 0) {
-            if (btlLogoUnlockStage((u8*)work_p) != 0) {
+            if (btlLogoUnlockStage((u8*)result) != 0) {
                 nmMesWindowShowCurrentRecord(4);
-                work_p->state40 = 2;
+                result->state40 = 2;
             } else {
                 work->state40 = 4;
             }
@@ -168,8 +172,8 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
     case 2:
         if (datMemberNoticeTryBegin(1) == 0) {
             sdkSndStartStream(1, 0, 3, 0);
-            sprintf(sp20, &iGpffffa5C8, work->field44);
-            nmMesWindowSetCurrentString(0, sp20);
+            sprintf(unlockText, &iGpffffa5C8, work->field44);
+            nmMesWindowSetCurrentString(0, unlockText);
             nmMesWindowShowCurrentRecord(5);
             work->state40 = 3;
         }
@@ -181,11 +185,11 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         break;
     case 4:
         nmMesWindowResetCurrent();
-        work_p->count = 0;
+        result->count = 0;
         work->state40 = 5;
         /* fallthrough */
     case 5:
-        if ((work->count = 1 + work_p->count) <= 4) {
+        if ((work->count = 1 + result->count) <= 4) {
             break;
         }
         return 1;
@@ -198,9 +202,11 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
 #pragma tailcall on
 
 // FUN_00221F40
-s32 btlResultHeroLvUpRun(u8* arg0)
+/* Drive the hero result task, wipe, persona descriptor and message lifecycle until teardown. Raw
+ * parent archive/flags and adjacent sprite symbols retain their established external storage. */
+s32 btlResultHeroLvUpRun(u8* task)
 {
-    BtlResultWork* work = (BtlResultWork*)kwlnTaskGetWork((u32)arg0);
+    BtlResultHeroWork* work = (BtlResultHeroWork*)kwlnTaskGetWork((u32)task);
     s32 i;
 
     work->field0C = 0;
@@ -210,7 +216,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
     case 0:
         sflDataResetPersonaState(&work->field58);
         sflDataLoadPersonaState(&work->field58, 1);
-        work->field4C = datScreenWipeTaskCreate(arg0, 1);
+        work->field4C = datScreenWipeTaskCreate(task, 1);
         radarDrawEdge(work->field4C, 2, 1, 0);
         datScreenWipeSetColor(work->field4C, 0);
         work->flags |= 2;
@@ -230,11 +236,11 @@ s32 btlResultHeroLvUpRun(u8* arg0)
         break;
     case 2:
         if (btlResultHeroLvUpStep(work) != 0) {
-            s32 f = *(s32*)(work->field3C + 0x60);
+            s32 f = *(s32 *)&((BtlResultWork *)work->field3C)->awards.flags;
 
             if (f & 8) {
                 work->state = 3;
-                nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8**)(work->field3C + 0x934), 0, 0)));
+                nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8 **)&((BtlResultWork *)work->field3C)->file, 0, 0)));
                 nmMesWindowShowCurrentRecord(1);
             } else if (f & 0x10) {
                 work->flags &= 0xFFFE;
