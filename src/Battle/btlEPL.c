@@ -9,11 +9,11 @@
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
-extern void func_004abd60(s32 input);
+extern void mdlEffectDestroyModel(s32 input);
 extern void (*jtbl_008873EC[])(void *);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern s32 func_004abc50(s32 input, s32 value);
+extern s32 mdlEffectCreateUniqueModel(s32 input, s32 value);
 extern s32 EffModelFindOrCreate(s32 input);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00625230[];
@@ -253,7 +253,7 @@ s32 *btlEplNewIdHandle(s32 context, s32 kind, s32 source, s32 options) {
     chkmemAllocSiteTag(D_00625230, 0xB1);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     if ((source != 0) && ((kind & 0xFFFF) == 3)) {
-        *result = func_004abc50(source, options);
+        *result = mdlEffectCreateUniqueModel(source, options);
     } else {
         *result = 0;
     }
@@ -282,7 +282,7 @@ s32 *btlEplNewIdHandleFromUnit(u8 *effect) {
 // FUN_001FC5E0
 void btlEplFreeIdHandle(s32 *work) {
     if (*work != 0) {
-        func_004abd60(*work);
+        mdlEffectDestroyModel(*work);
     }
     jtbl_008873EC[0](work);
 }
@@ -1043,7 +1043,7 @@ s32 *btlEplNewWideIdHandle(s32 context, s32 kind, s32 source, s32 options) {
     chkmemAllocSiteTag(D_00625230, 0x429);
     result = (s32 *)(*jtbl_008873E8)(0x24, 0x40000);
     if ((source != 0) && ((kind & 0xFFFF) == 3)) {
-        *result = func_004abc50(source, options);
+        *result = mdlEffectCreateUniqueModel(source, options);
     } else {
         *result = 0;
     }
@@ -1072,7 +1072,7 @@ s32 *btlEplNewWideIdHandleFromUnit(u8 *effect) {
 // FUN_001FF440
 void btlEplFreeWideIdHandle(s32 *work) {
     if (*work != 0) {
-        func_004abd60(*work);
+        mdlEffectDestroyModel(*work);
     }
     jtbl_008873EC[0](work);
 }
@@ -1328,7 +1328,7 @@ s32 *btlEplNewZeroedIdHandle(s32 context, s32 kind, s32 source, s32 options) {
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     *result = 0;
     if ((source != 0) && ((kind & 0xFFFF) == 3)) {
-        *result = func_004abc50(source, options);
+        *result = mdlEffectCreateUniqueModel(source, options);
     } else {
         *result = 0;
     }
@@ -1359,7 +1359,7 @@ s32 *btlEplNewZeroedIdHandleFromUnit(u8 *effect) {
 // FUN_002001E0
 void btlEplFreeZeroedIdHandle(s32 *work) {
     if (*work != 0) {
-        func_004abd60(*work);
+        mdlEffectDestroyModel(*work);
     }
     jtbl_008873EC[0](work);
 }
@@ -1464,7 +1464,7 @@ s32 *btlEplNewPatternWork(s32 context, s32 kind, s32 source, s32 options) {
     result->target = 0;
     result->pattern = 0;
     if ((source != 0) && ((kind & 0xFFFF) == 3)) {
-        value = func_004abc50(source, options);
+        value = mdlEffectCreateUniqueModel(source, options);
         result->target = value;
         rnd = mdlCountIntUserData(value);
         if ((rnd >> 1) != 0) {

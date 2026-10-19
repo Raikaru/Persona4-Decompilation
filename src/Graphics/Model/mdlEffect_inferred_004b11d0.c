@@ -21,9 +21,9 @@ extern s32 D_00922DA0[];
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern void TnSetTableBase(void *arg0);
-extern void mdlEffectFlushTreeFrame(void *arg0);
-extern void mdlEffectAdvanceAndDrawChildren(void *arg0);
+extern void TnSetTableBase(void *table);
+extern void mdlEffectFlushTreeFrame(void *table);
+extern void mdlEffectAdvanceAndDrawChildren(void *table);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -45,11 +45,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *table, s32 effect);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 table, u32 effect);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -61,21 +61,23 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b11d0-004b1210 */
 
+/* Optionally select the table base, then flush the previous child-effect frame. */
 // FUN_004B11D0
-void func_004b11d0(void *arg0, void *arg1)
+void mdlEffectFlushWithTable(void *table, void *effect)
 {
-    if (arg0 != NULL) {
-        TnSetTableBase(arg0);
+    if (table != NULL) {
+        TnSetTableBase(table);
     }
-    mdlEffectFlushTreeFrame(arg1);
+    mdlEffectFlushTreeFrame(effect);
 }
 
+/* Optionally select the table base, then run both child-effect processing passes. */
 // FUN_004B1210
-void func_004b1210(void *arg0, void *arg1)
+void mdlEffectAdvanceAndFlushWithTable(void *table, void *effect)
 {
-    if (arg0 != NULL) {
-        TnSetTableBase(arg0);
+    if (table != NULL) {
+        TnSetTableBase(table);
     }
-    mdlEffectAdvanceAndDrawChildren(arg1);
+    mdlEffectAdvanceAndDrawChildren(effect);
 }
 

@@ -102,7 +102,7 @@ extern u8 *GeometryCreateStripGridMultiPart(s32, s32, s32, s32, s32);
 extern s32 TnSlotObject(s32);
 extern void mdlEffectSetGeometryTexture(void *, s32);
 extern void mdlEffectUploadGeometryTexture(void *, s32);
-extern void func_004a1d70(void *, void *);
+extern void mdlEffectBuildWindFadeRows(void *, void *);
 extern void FallingFunnelWindInitEntries(u8 *, u8 *);
 extern void SpiralWindInitEntries(u8 *, u8 *);
 extern u8 *mdlEffectCloneMultipartGeometry(u8 *);
@@ -160,7 +160,7 @@ u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
     } else {
         mdlEffectUploadGeometryTexture(*(void **)(work + 4), texture);
     }
-    func_004a1d70(work, config);
+    mdlEffectBuildWindFadeRows(work, config);
     return work;
 }
 
@@ -189,7 +189,7 @@ u8 *FunnelWindAllocFromParent(u8 *parent)
         *(u32 *)(config + 0x8C) = 3U;
     }
     *(u8 **)(work + 4) = mdlEffectCloneMultipartGeometry(*(u8 **)(parentBlock + 4));
-    func_004a1d70(work, config);
+    mdlEffectBuildWindFadeRows(work, config);
     return work;
 }
 

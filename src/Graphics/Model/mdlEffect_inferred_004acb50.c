@@ -1,3 +1,6 @@
+#include "rw_camera_internal.h"
+#include "mdl_file_internal.h"
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -22,9 +25,9 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *drawable);
 extern u8 D_0071413C[];
-extern s32 TnGetOffset38(u16 arg0);
+extern s32 TnGetOffset38(u16 drawable);
 extern void EffModelDrawableUpdate();
 extern f32 iGpffff8080;
 
@@ -54,7 +57,7 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerTime(u8 *drawable, s32 state, f32 count);
 
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
@@ -62,11 +65,11 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 drawable, s32 state, s32 count, s32 flags,
+                          void *data, s32 options);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
-extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(void *drawable, s32 state, f32 count);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
@@ -82,10 +85,10 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004acb50-004ad450 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
-extern void func_004a8250(u8 *arg0, u8 *arg1);
-extern void func_004a8440(u8 *arg0, u8 *arg1);
-extern void func_004a86c0(u8 *arg0, u8 *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *drawable, u8 *state);
+extern void mdlEffectBuildRectQuad(u8 *drawable, u8 *state);
+extern void mdlEffectBuildOffsetQuad(u8 *drawable, u8 *state);
+extern void mdlEffectBuildDirectRectQuad(u8 *drawable, u8 *state);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
@@ -105,38 +108,39 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 #pragma pop
 /* Sets layer 0 time of the model object at +0xB4 to 0. */
 // FUN_004ACB50
-void EffModelDrawableResetLayerTime(u8 *arg0) {
-    mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0, 0.0f);
+void EffModelDrawableResetLayerTime(u8 *drawable) {
+    mdlSetLayerTime(((MdlEffectModelDrawable *)drawable)->model, 0, 0.0f);
 }
 
 /* Moves the layer time to the cycle window edge when the frame index passes it, and sets the progress at +0x08 to 1.0. */
 // FUN_004ACB80
-void EffModelDrawableRollCycle(u8 *arg0)
+void EffModelDrawableRollCycle(u8 *drawable)
 {
-    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-    f32 temp_f0;
-    u32 temp_3;
-    u32 temp_3_2;
-    u32 temp_4;
+    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
+    f32 layerTime;
+    u32 frameCount;
+    u32 cycleEnd;
+    u32 nextFrame;
 
-    temp_f0 = mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
-    temp_4 = (u32)temp_f0 + 1;
-    temp_3 = *(u32 *)(arg0 + 0x9C);
-    if (temp_3 >= temp_4 || temp_3 == 0) {
-        if (*(u8 *)(arg0 + 0xB8) == 1) {
-            if (*(u32 *)(arg0 + 0x74) <= temp_4) {
-                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
-                              (f32)*(s32 *)(arg0 + 0x70) - 1.0f);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    layerTime = mdlGetLayerWeight(*(s32 *)(drawable + 0xB4), 0);
+    nextFrame = (u32)layerTime + 1;
+    frameCount = ((MdlEffectModelDrawable *)drawable)->duration;
+    if (frameCount >= nextFrame || frameCount == 0) {
+        if (((MdlEffectModelDrawable *)drawable)->cycleMode == 1) {
+            if (((MdlEffectModelDrawable *)drawable)->cycleEnd <= nextFrame) {
+                mdlSetLayerTime(((MdlEffectModelDrawable *)drawable)->model, 0,
+                              (f32)((MdlEffectModelDrawable *)drawable)->cycleStart - 1.0f);
             }
-        } else if (*(u8 *)(arg0 + 0x80) != 0 &&
-                   *(u32 *)(arg0 + 0x70) <= temp_4) {
-            temp_3_2 = *(u32 *)(arg0 + 0x74);
-            if (temp_4 < temp_3_2) {
-                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
-                              (f32)(s32)temp_3_2 - 1.0f);
+        } else if (((MdlEffectModelDrawable *)drawable)->cycleEnabled != 0 &&
+                   (u32)((MdlEffectModelDrawable *)drawable)->cycleStart <= nextFrame) {
+            cycleEnd = ((MdlEffectModelDrawable *)drawable)->cycleEnd;
+            if (nextFrame < cycleEnd) {
+                mdlSetLayerTime(((MdlEffectModelDrawable *)drawable)->model, 0,
+                              (f32)(s32)cycleEnd - 1.0f);
             }
         }
-        *(f32 *)(arg0 + 8) = 1.0f;
+        ((MdlEffectModelDrawable *)drawable)->progress = 1.0f;
     }
 }
 
@@ -144,7 +148,7 @@ void EffModelDrawableRollCycle(u8 *arg0)
    three-argument helper signature keeps frame_index/frame_count in a1/a2. */
 /* Per-frame draw callback on the model object: derives a screen-space scale and offset from the camera, rotates by +0x90/+0x94/+0x98, writes the translated origin into the model matrix, then updates the model matrix and item slots. */
 // FUN_004ACCC0
-void EffModelDrawCallback(u8 *arg0)
+void EffModelDrawCallback(u8 *drawable)
 {
     struct Vec3 {
         f32 x;
@@ -169,16 +173,16 @@ void EffModelDrawCallback(u8 *arg0)
     extern union BasisConst D_007144C8[];
     extern union BasisConst D_007144D8[];
     extern union BasisConst D_007144E8[];
-    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-    extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
-    extern u8 *func_003e9700(s32 arg0);
-    extern u8 *mdlGetMatrix(s32 arg0);
-    extern u8 *RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
-    extern void RwMatrixRotate(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-    extern void RwMatrixScale(void *arg0, void *arg1, s32 arg2);
-    extern void func_003e4320(void *arg0, void *arg1, void *arg2);
-    extern void mdlUpdateModelMatrix(s32 arg0);
-    extern void mdlPrepareItemSlots(s32 arg0);
+    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
+    extern f32 mdlEffectSampleScalarKeys(u8 *drawable, s32 state, s32 count);
+    extern u8 *func_003e9700(s32 drawable);
+    extern u8 *mdlGetMatrix(s32 drawable);
+    extern u8 *RwMatrixMultiply(void *drawable, void *state, void *count);
+    extern void RwMatrixRotate(void *drawable, void *state, f32 fparg0, s32 count);
+    extern void RwMatrixScale(void *drawable, void *state, s32 count);
+    extern void func_003e4320(void *drawable, void *state, void *count);
+    extern void mdlUpdateModelMatrix(s32 drawable);
+    extern void mdlPrepareItemSlots(s32 drawable);
     s32 frame_count;
     u32 frame_index;
     u8 *node;
@@ -195,97 +199,103 @@ void EffModelDrawCallback(u8 *arg0)
     basis1 = D_007144C8[0].value;
     basis2 = D_007144D8[0].value;
     basis3 = D_007144E8[0].value;
-    frame_index = (u32)mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
-    frame_count = *(s32 *)(arg0 + 0x9C);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    frame_index = (u32)mdlGetLayerWeight(*(s32 *)(drawable + 0xB4), 0);
+    frame_count = (s32)((MdlEffectModelDrawable *)drawable)->duration;
     if (frame_count >= (s32)frame_index || frame_count == 0) {
-        scale = mdlEffectSampleScalarKeys(arg0 + 0x44, frame_index, frame_count) / 10.0f;
+        scale = mdlEffectSampleScalarKeys(drawable + 0x44, frame_index, frame_count) / 10.0f;
         node = ((u8 *)(u32)kwlnGetCamera()) + 0x68;
         camera = ((u8 *)(u32)kwlnGetCamera());
-        near_height = *(f32 *)(camera + 0x80);
+        near_height = ((RwCamera *)camera)->nearPlane;
         camera = ((u8 *)(u32)kwlnGetCamera());
-        far_z = *(f32 *)(camera + 0x84);
+        far_z = ((RwCamera *)camera)->farPlane;
         depth = (((f32)-0xFFFF * near_height) * far_z) /
                 (((f32)-0xFFFF * far_z) -
                  (-31.0f * (far_z - near_height)));
-        width = 2.0f * (*(f32 *)(node + 0) * depth);
-        near_height = 2.0f * (*(f32 *)(node + 4) * depth);
+        width = 2.0f * (((f32 *)node)[0] * depth);
+        near_height = 2.0f * (((f32 *)node)[1] * depth);
         camera = ((u8 *)(u32)kwlnGetCamera());
-        matrix = func_003e9700(*(s32 *)(camera + 4));
+        matrix = func_003e9700((s32)((RwCamera *)camera)->object.object.parent);
         RwMatrixRotate(frame.matrix, &basis1,
-                      *(f32 *)(arg0 + 0x90), 0);
-        if (*(f32 *)(arg0 + 0x94) != 0.0f) {
+                      ((MdlEffectModelDrawable *)drawable)->rotationX, 0);
+        if (((MdlEffectModelDrawable *)drawable)->rotationY != 0.0f) {
             RwMatrixRotate(frame.matrix, &basis2,
-                          *(f32 *)(arg0 + 0x94), 2);
+                          ((MdlEffectModelDrawable *)drawable)->rotationY, 2);
         }
-        if (*(f32 *)(arg0 + 0x98) != 0.0f) {
+        if (((MdlEffectModelDrawable *)drawable)->rotationZ != 0.0f) {
             RwMatrixRotate(frame.matrix, &basis3,
-                          *(f32 *)(arg0 + 0x98), 2);
+                          ((MdlEffectModelDrawable *)drawable)->rotationZ, 2);
         }
         temp = (width / 640.0f) * scale;
         frame.scale.z = temp;
         frame.scale.y = temp;
         frame.scale.x = temp;
         RwMatrixScale(frame.matrix, &frame.scale, 2);
-        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
         RwMatrixMultiply(object, frame.matrix, matrix);
         frame.scale.x =
-            width * (0.5f + (-(f32)(*(f32 *)(arg0 + 0) +
-                                    *(f32 *)(arg0 + 0x84)) /
+            width * (0.5f + (-(f32)(((MdlEffectModelDrawable *)drawable)->x +
+                                    ((MdlEffectModelDrawable *)drawable)->offsetX) /
                               640.0f));
         frame.scale.y =
-            near_height * (0.5f + (-(f32)(*(f32 *)(arg0 + 4) +
-                                          *(f32 *)(arg0 + 0x88)) /
+            near_height * (0.5f + (-(f32)(((MdlEffectModelDrawable *)drawable)->y +
+                                          ((MdlEffectModelDrawable *)drawable)->offsetY) /
                                     448.0f));
-        frame.scale.z = *(f32 *)(arg0 + 0x8C) + depth;
+        frame.scale.z = ((MdlEffectModelDrawable *)drawable)->offsetZ + depth;
         func_003e4320(&frame.transformed, &frame.scale, matrix);
-        scale = *(f32 *)(matrix + 0x30) + frame.transformed.x;
-        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
-        *(f32 *)(object + 0x30) = scale;
-        scale = *(f32 *)(matrix + 0x34) + frame.transformed.y;
-        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
-        *(f32 *)(object + 0x34) = scale;
-        scale = *(f32 *)(matrix + 0x38) + frame.transformed.z;
-        object = mdlGetMatrix(*(s32 *)(arg0 + 0xB4));
-        *(f32 *)(object + 0x38) = scale;
-        mdlUpdateModelMatrix(*(s32 *)(arg0 + 0xB4));
-        mdlPrepareItemSlots(*(s32 *)(arg0 + 0xB4));
+        scale = ((RwMatrixTag *)matrix)->pos.x + frame.transformed.x;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        ((RwMatrixTag *)object)->pos.x = scale;
+        scale = ((RwMatrixTag *)matrix)->pos.y + frame.transformed.y;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        ((RwMatrixTag *)object)->pos.y = scale;
+        scale = ((RwMatrixTag *)matrix)->pos.z + frame.transformed.z;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        object = mdlGetMatrix(*(s32 *)(drawable + 0xB4));
+        ((RwMatrixTag *)object)->pos.z = scale;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlUpdateModelMatrix(*(s32 *)(drawable + 0xB4));
+        mdlPrepareItemSlots((s32)((MdlEffectModelDrawable *)drawable)->model);
     }
 }
 
 /* measured: effModel EffModelUpdate VU0 colour-pack idiom with D_00761134 (1/255) scale; */
-/* measured: plain `(u32)temp_f0` gives retail's `lui $3,0x8000; or` (no D_80000001, unlike */
-/* measured: the `+1` siblings); `sp5C = *(s32 *)&sp50` forces the packed word back through */
+/* measured: plain `(u32)layerTime` gives retail's `lui $3,0x8000; or` (no D_80000001, unlike */
+/* measured: the `+1` siblings); `appliedColor = *(s32 *)&packedColor` forces the packed word back through */
 /* measured: memory so the `lw $2,0x50; sw $2,0x5C` copy survives and the saved ranking stays */
-/* measured: arg0 $s3, arg1 $s2, frame_index $s1, frame_count $s0 with frame 0x60. */
+/* measured: drawable $s3, state $s2, frame_index $s1, frame_count $s0 with frame 0x60. */
 /* measured: probe c: 0 differing words, object 528B/window 528B. */
 /* Samples a packed colour with func_0048abd0, applies it to the model object at +0xB4, sets alpha-blend flags from +0xA0/+0xA4, sets the layer weight from +0x08, attaches the owner and queues the model for draw. */
 // FUN_004AD030
-void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
+void EffModelDrawableUpdate(s32 drawable, u8 *state)
 {
-    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-    extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern void mdlSetColor(void *arg0, s32 *arg1);
-    extern f32 mdlEffectSampleScalarKeys(void *arg0, u32 arg1, u32 arg2);
-    extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
+    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
+    extern s32 mdlEffectSamplePackedColor(u8 *drawable, u8 *state, s32 count, s32 flags);
+    extern void mdlSetColor(void *drawable, s32 *state);
+    extern f32 mdlEffectSampleScalarKeys(void *drawable, u32 state, u32 count);
+    extern void mdlSetLayerWeight(void *drawable, s32 state, f32 count);
     extern s32 TnGetTableBase(void);
-    extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
-    extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
+    extern void mdlSetAttachedOwner(void *drawable, s32 state);
+    extern void mdlQueueModelForDraw(s32 drawable, void *state);
     extern f32 D_00761134;
-    s32 sp5C;
-    s32 sp58;
-    s32 sp54;
-    s32 sp50;
-    f32 temp_f0;
+    s32 appliedColor;
+    s32 baseColor;
+    s32 sampledColor;
+    s32 packedColor;
+    f32 layerTime;
     u32 frame_index;
     u32 frame_count;
     s32 color;
 
-    temp_f0 = mdlGetLayerWeight(*(s32 *)(arg1 + 0xB4), 0);
-    frame_index = (u32)temp_f0;
-    frame_count = *(u32 *)(arg1 + 0x9C);
+    layerTime = mdlGetLayerWeight((s32)((MdlEffectModelDrawable *)state)->model, 0);
+    frame_index = (u32)layerTime;
+    frame_count = ((MdlEffectModelDrawable *)state)->duration;
     if ((frame_count >= frame_index) || (frame_count == 0)) {
-        color = mdlEffectSamplePackedColor(arg1 + 0x10, arg1 + 0x34, frame_index, frame_count);
-        sp58 = *(s32 *)(arg1 + 0xC);
+        color = mdlEffectSamplePackedColor(state + 0x10, state + 0x34, frame_index, frame_count);
+        baseColor = ((MdlEffectModelDrawable *)state)->packedColor;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -298,9 +308,9 @@ void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(&sp58), "f"(D_00761134)
+            : "r"(&baseColor), "f"(D_00761134)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp54 = color;
+        sampledColor = color;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -321,83 +331,91 @@ void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
             "ppacb $2, $0, $2      \n"
             "sw $2, 80($sp)        \n"
             :
-            : "r"(&sp54), "f"(D_00761134)
+            : "r"(&sampledColor), "f"(D_00761134)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp5C = *(s32 *)&sp50;
-        mdlSetColor(*(u8 **)(arg1 + 0xB4), &sp5C);
-        mdlEffectSampleScalarKeys(arg1 + 0x44, frame_index, frame_count);
-        *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x100;
-        if ((*(u8 *)(arg1 + 0xA1) != 0) && (*(s32 *)(arg1 + 0xA4) == 0)) {
-            *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) |= 0x18;
+        appliedColor = *(s32 *)&packedColor;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlSetColor(*(u8 **)(state + 0xB4), &appliedColor);
+        mdlEffectSampleScalarKeys(state + 0x44, frame_index, frame_count);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        ((MdlFileModel *)*(u8 **)(state + 0xB4))->flags &= ~0x100;
+        if ((((MdlEffectModelDrawable *)state)->blend != 0) && (((MdlEffectModelDrawable *)state)->blendMode == 0)) {
+            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+            ((MdlFileModel *)*(u8 **)(state + 0xB4))->flags |= 0x18;
         } else {
-            *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x18;
+            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+            ((MdlFileModel *)*(u8 **)(state + 0xB4))->flags &= ~0x18;
         }
-        mdlSetLayerWeight(*(u8 **)(arg1 + 0xB4), 0, *(f32 *)(arg1 + 8));
-        mdlSetAttachedOwner(*(u8 **)(arg1 + 0xB4), TnGetTableBase());
-        mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0xB4));
-        *(s32 *)(arg1 + 8) = 0;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlSetLayerWeight(*(u8 **)(state + 0xB4), 0, ((MdlEffectModelDrawable *)state)->progress);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlSetAttachedOwner(*(u8 **)(state + 0xB4), TnGetTableBase());
+        mdlQueueModelForDraw(drawable, ((MdlEffectModelDrawable *)state)->model);
+        /* The progress float is cleared through its integer zero bit pattern; retain that representation. */
+        *(s32 *)(state + 8) = 0;
     }
 }
 
 /* Runs EffModelDrawableUpdate with the offset from TnGetOffset38(+0x38). */
 // FUN_004AD240
-void EffModelDrawableUpdateByOffset(u8 *arg0) {
-    EffModelDrawableUpdate(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
+void EffModelDrawableUpdateByOffset(u8 *drawable) {
+    EffModelDrawableUpdate(TnGetOffset38(((MdlEffectModelDrawable *)drawable)->scene), drawable);
 }
 
 /* Rolls the cycle as EffModelDrawableRollCycle does, then runs EffModelDrawableUpdate with the offset from TnGetOffset38(+0x38). */
 // FUN_004AD280
-void EffModelDrawableRollAndUpdate(u8 *arg0)
+void EffModelDrawableRollAndUpdate(u8 *drawable)
 {
-    extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-    f32 temp_f0;
-    u32 var_3;
-    u32 temp_2;
-    u32 temp_2_2;
+    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
+    f32 layerTime;
+    u32 nextFrame;
+    u32 frameCount;
+    u32 cycleEnd;
 
-    temp_f0 = mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
-    var_3 = (u32)temp_f0 + 1;
-    temp_2 = *(u32 *)(arg0 + 0x9C);
-    if (temp_2 >= var_3 || temp_2 == 0) {
-        if (*(u8 *)(arg0 + 0xB8) == 1) {
-            if (*(u32 *)(arg0 + 0x74) <= var_3) {
-                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
-                              (f32)*(s32 *)(arg0 + 0x70) - 1.0f);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    layerTime = mdlGetLayerWeight(*(s32 *)(drawable + 0xB4), 0);
+    nextFrame = (u32)layerTime + 1;
+    frameCount = ((MdlEffectModelDrawable *)drawable)->duration;
+    if (frameCount >= nextFrame || frameCount == 0) {
+        if (((MdlEffectModelDrawable *)drawable)->cycleMode == 1) {
+            if (((MdlEffectModelDrawable *)drawable)->cycleEnd <= nextFrame) {
+                mdlSetLayerTime(((MdlEffectModelDrawable *)drawable)->model, 0,
+                              (f32)((MdlEffectModelDrawable *)drawable)->cycleStart - 1.0f);
             }
-        } else if (*(u8 *)(arg0 + 0x80) != 0 &&
-                   *(u32 *)(arg0 + 0x70) <= var_3) {
-            temp_2_2 = *(u32 *)(arg0 + 0x74);
-            if (var_3 < temp_2_2) {
-                mdlSetLayerTime(*(u8 **)(arg0 + 0xB4), 0,
-                              (f32)(s32)temp_2_2 - 1.0f);
+        } else if (((MdlEffectModelDrawable *)drawable)->cycleEnabled != 0 &&
+                   (u32)((MdlEffectModelDrawable *)drawable)->cycleStart <= nextFrame) {
+            cycleEnd = ((MdlEffectModelDrawable *)drawable)->cycleEnd;
+            if (nextFrame < cycleEnd) {
+                mdlSetLayerTime(((MdlEffectModelDrawable *)drawable)->model, 0,
+                              (f32)(s32)cycleEnd - 1.0f);
             }
         }
-        *(f32 *)(arg0 + 8) = 1.0f;
+        ((MdlEffectModelDrawable *)drawable)->progress = 1.0f;
     }
-    EffModelDrawableUpdate(TnGetOffset38(*(u16 *)(arg0 + 0x38)), arg0);
+    EffModelDrawableUpdate(TnGetOffset38(((MdlEffectModelDrawable *)drawable)->scene), drawable);
 }
 
-/* Copies the first two floats of arg1 into +0x00 and +0x04 of the drawable. */
+/* Copies the first two floats of state into +0x00 and +0x04 of the drawable. */
 // FUN_004AD3E0
-void EffModelDrawableSetPosition(u8 *arg0, f32 *arg1) {
-    *(f32 *)(arg0 + 0x0) = arg1[0];
-    *(f32 *)(arg0 + 0x4) = arg1[1];
+void EffModelDrawableSetPosition(u8 *drawable, f32 *state) {
+    ((MdlEffectModelDrawable *)drawable)->x = state[0];
+    ((MdlEffectModelDrawable *)drawable)->y = state[1];
 }
 
 /* Stores the lookup index at +0x0C of the drawable. */
 // FUN_004AD400
-void EffModelDrawableSetLookupIndex(u8 *arg0, s32 arg1) {
-    *(s32 *)(arg0 + 0xC) = arg1;
+void EffModelDrawableSetLookupIndex(u8 *drawable, s32 state) {
+    ((MdlEffectModelDrawable *)drawable)->packedColor = state;
 }
 
 /* Returns 1 when no model object is attached or the model byte at +0xEE equals 1, otherwise 0. */
 // FUN_004AD410
-s32 EffModelDrawableIsFinished(u8 *arg0) {
+s32 EffModelDrawableIsFinished(u8 *drawable) {
     u8 *p;
     s32 result;
-    p = *(u8 **)(arg0 + 0xB4);
+    p = ((MdlEffectModelDrawable *)drawable)->model;
     if (p != NULL) {
-        result = (*(u8 *)(p + 0xEE) ^ 1U) < 1U;
+        result = (((MdlFileModel *)p)->finished ^ 1U) < 1U;
     } else {
         result = 1;
     }
@@ -406,13 +424,13 @@ s32 EffModelDrawableIsFinished(u8 *arg0) {
 
 /* Returns nonzero when the cycle flag at +0xB8 of the drawable is set. */
 // FUN_004AD440
-s32 EffModelDrawableHasCycle(u8 *arg0) {
-    return *(u8 *)(arg0 + 0xB8) != 0;
+s32 EffModelDrawableHasCycle(u8 *drawable) {
+    return ((MdlEffectModelDrawable *)drawable)->cycleMode != 0;
 }
 
 /* Clears the cycle flag at +0xB8 of the drawable. */
 // FUN_004AD450
-void EffModelDrawableClearCycle(u8 *arg0) {
-    *(u8 *)(arg0 + 0xB8) = 0;
+void EffModelDrawableClearCycle(u8 *drawable) {
+    ((MdlEffectModelDrawable *)drawable)->cycleMode = 0;
 }
 

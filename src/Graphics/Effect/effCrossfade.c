@@ -44,7 +44,7 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void kAssertFail(const char *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
-extern void func_004b2a00(u8 *object);
+extern void mdlEffectDrawCameraFade(u8 *object);
 extern s32 effCrossfadeCaptureDisplay(u8 *object);
 extern void mdlEffectReleaseCameraTexture(u8 *object);
 extern s32 CrossfadeUpdate(u8 *object);
@@ -127,7 +127,7 @@ void CrossfadeAdvance(u8 *unusedTask, u8 *work)
 
     switch (((CrossfadeWork *)work)->state) {
     case 3:
-        func_004b2a00(work);
+        mdlEffectDrawCameraFade(work);
         /* measured: using the compound assignment's VALUE keeps the nextFrame
            counter in one register, so the sh lands before the compare mask
            exactly as retail does; a separate increment-then-store pair masks

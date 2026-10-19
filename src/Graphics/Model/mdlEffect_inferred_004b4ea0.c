@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -42,11 +43,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *sourceBytes, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 sourceBytes, u32 value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -62,22 +63,23 @@ extern void (*jtbl_008873EC[])(void *);
 #pragma pop
 #pragma push
 #pragma pop
+/* Dispatch the kind-specific work destructor and free the outer LineNova record. */
 // FUN_004B4EA0
-void func_004b4ea0(u8 *arg0)
+void mdlEffectDestroyLineNovaRecord(u8 *effect)
 {
-    u8 *temp_16;
+    u8 *instance;
 
-    temp_16 = arg0;
-    (*(void (**)(u8 *))(D_00714658 + (*(s32 *)(temp_16 + 0x18) * 0x18)))(
-        *(u8 **)(temp_16 + 0x20));
-    jtbl_008873EC[0](temp_16);
+    instance = effect;
+    (*(void (**)(u8 *))(D_00714658 + (((MdlEffectLineNovaRecord *)instance)->kind * 0x18)))(
+        ((MdlEffectLineNovaRecord *)instance)->work);
+    jtbl_008873EC[0](instance);
 }
 
 // Creates a LineNova instance from a record: kind at +0x18 and parameters at +0x24.
 // FUN_004B4F10
 void *LineNovaCreateInstanceForRecord(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
-    return LineNovaCreateKindInstance(*(u16 *)(arg0 + 0x18), *(u8 **)(arg0 + 0x24));
+    u8 *sourceBytes = opaqueSource;
+    return LineNovaCreateKindInstance((u16)((MdlEffectLineNovaRecord *)sourceBytes)->kind, ((MdlEffectLineNovaRecord *)sourceBytes)->parameters);
 }
 

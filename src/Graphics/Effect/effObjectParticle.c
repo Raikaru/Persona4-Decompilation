@@ -27,7 +27,7 @@ extern void *mdlEffectSetFlag40(void *object, void *data);
 extern void mdlEffectAdvanceEmitter(void *particle);
 extern void mdlEffectInitDirectionEntry(void *particle, void *sourceId);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern u8 *func_00492b20(u16 particle, u32 sourceId, void *sourceData);
+extern u8 *mdlEffectAllocateTrackPath(u16 particle, u32 sourceId, void *sourceData);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
@@ -218,7 +218,7 @@ void ObjectParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *sourceData)
     if ((u32)((WaveSpawnParameters *)sourceData)->trailCount != 0) {
         kAssertFail(D_00714520, 0x18B);
     }
-    inst->list = func_00492b20(sourceId & 0xFFFF, inst->recordCount, sourceData);
+    inst->list = mdlEffectAllocateTrackPath(sourceId & 0xFFFF, inst->recordCount, sourceData);
     if (inst->recordTable != 0) {
         jtbl_008873EC[0](inst->recordTable);
     }
@@ -375,7 +375,7 @@ void ObjectParticleDraw(u8 *particle)
     extern u_long128 mdlEffectLoadQuadB(int emitterAddress, u32 *snapshot);
     extern u_long128 mdlEffectLoadQuadA(int emitterAddress, u32 *snapshot);
     extern void effMiscBuildRotationVU(void);
-    extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
+    extern void mdlEffectMultiplyPaletteColorVU(u8 *a, u8 *b, s32 c);
     extern void *mdlEffectSetAllColors(void *object, void *data);
     extern u8 *func_003bfe90(u8 *particle);
     extern void RwMatrixMultiply(EffObjectMatrix *dst, EffObjectMatrix *a, EffObjectMatrix *b);
@@ -485,7 +485,7 @@ void ObjectParticleDraw(u8 *particle)
                     effectVuLoad11(&colorBase);
                     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                     if (((ObjectParticleRecord *)objectRecord)->rotationMode >= 0) {
-                        func_004ae2f0((u8 *)self, objectRecord, life);
+                        mdlEffectMultiplyPaletteColorVU((u8 *)self, objectRecord, life);
                     }
                     __asm__ volatile(
                         "lui $2, 0x437F\n"
@@ -580,7 +580,7 @@ void ObjectParticleDraw(u8 *particle)
                     effectVuLoad11(&colorBase);
                     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                     if (((ObjectParticleRecord *)objectRecord)->rotationMode >= 0) {
-                        func_004ae2f0((u8 *)self, objectRecord, ((SpawnParticle *)sourceRecord)->age);
+                        mdlEffectMultiplyPaletteColorVU((u8 *)self, objectRecord, ((SpawnParticle *)sourceRecord)->age);
                     }
                     effectVuScale10(full);
                     __asm__ volatile(
