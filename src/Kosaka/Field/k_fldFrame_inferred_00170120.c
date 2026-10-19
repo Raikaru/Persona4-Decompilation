@@ -1,5 +1,6 @@
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
+#include "field_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -127,21 +128,23 @@ extern s32 iGpffffba48;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00170120-00170120 */
 
+/* Select one of idle animations 6..8 for character type 1 in eligible rooms/steps;
+ * otherwise retain animation 1. The preliminary selector call is preserved. */
 // FUN_00170120
-s32 FldPlayerRandomIdleAnimId(s32 arg0)
+s32 FldPlayerRandomIdleAnimId(s32 characterType)
 {
-    u8 *temp_2;
-    u8 *temp_4;
+    u8 *scene;
+    u8 *currentScene;
 
     FldCharacterAnimSelect();
-    if (arg0 != 1)
+    if (characterType != 1)
         return 1;
-    temp_2 = iGpffff9db0;
-    if (FldRoomIsListed(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1)
+    scene = iGpffff9db0;
+    if (FldRoomIsListed(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]) == 1)
         return (RpRandom() % 3U) + 6;
-    temp_4 = iGpffff9db0;
-    if ((*(s32 *)(temp_4 + 0) == 0x44) &&
-        (*(s32 *)(temp_4 + 4) == 1))
+    currentScene = iGpffff9db0;
+    if ((((FieldSceneState *)currentScene)->field.value == 0x44) &&
+        (((FieldSceneState *)currentScene)->room.value == 1))
         return (RpRandom() % 3U) + 6;
     if (FldStepIndex() != 0)
         return 1;
