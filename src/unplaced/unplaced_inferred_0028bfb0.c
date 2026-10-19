@@ -7,12 +7,13 @@
 #include "scene_event_internal.h"
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
-extern f32 evtLerpFloatIfEnabled(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
-extern void evtPolygonMovieLerpPose(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
-                          f32 *arg4);
-s32 evtCheckCondition(u8 *arg0);
-static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
-    return (s32)arg0 + arg1;
+extern f32 evtLerpFloatIfEnabled(s32, f32, f32, f32);
+extern void evtPolygonMovieLerpPose(s32, f32, f32 *, f32 *, f32 *);
+s32 evtCheckCondition(u8 *);
+typedef struct EvtMatrixPayload { f32 first, second; } EvtMatrixPayload;
+
+static inline s32 evtAddKeyFrameOffset(u16 keyFrame, s16 offset) {
+    return (s32)keyFrame + offset;
 }
 
 #pragma push
@@ -20,41 +21,41 @@ static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
 // Finds the node range for a key: walks the event node list and reports the first and last matching nodes [inferred].
 // FUN_0028BFB0
 void evtFindNodeRange(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
-    u8 *temp_3;
-    s16 temp_8;
-    s32 temp_6;
+    u8 *node;
+    s16 frameOffset;
+    s32 frame;
 
     *arg2 = NULL;
     *arg3 = NULL;
     if (arg0 == NULL) {
         goto done;
     }
-    temp_8 = *(s16 *)(arg0 + 0x1C);
-    *arg3 = *(u8 **)(arg0 + 0x68);
+    frameOffset = ((EvtNode *)arg0)->frameOffset;
+    *arg3 = (u8 *)((EvtNode *)arg0)->childHead;
     goto loop_4_test;
 loop_4_body:
-    temp_6 = func_0028_sum(*(u16 *)temp_3, temp_8);
-    if (temp_6 > arg1) {
+    frame = evtAddKeyFrameOffset(((EvtChildNode *)node)->start, frameOffset);
+    if (frame > arg1) {
         goto block_8;
     }
-    *arg3 = *(u8 **)(temp_3 + 0x4C);
+    *arg3 = (u8 *)((EvtChildNode *)node)->childNext;
 loop_4_test:
-    temp_3 = *arg3;
-    if (temp_3 != NULL) {
+    node = *arg3;
+    if (node != NULL) {
         goto loop_4_body;
     }
 block_8:
-    if (temp_3 != NULL) {
-        *arg2 = *(u8 **)(temp_3 + 0x50);
+    if (node != NULL) {
+        *arg2 = (u8 *)((EvtChildNode *)node)->childPrev;
         goto loop_10_test;
     }
-    *arg2 = *(u8 **)(arg0 + 0x6C);
+    *arg2 = (u8 *)((EvtNode *)arg0)->childTail;
     goto loop_10_test;
 loop_10_body:
     if (evtCheckCondition(*arg2) == 1) {
         goto done;
     }
-    *arg2 = *(u8 **)(*arg2 + 0x50);
+    *arg2 = (u8 *)((EvtChildNode *)*arg2)->childPrev;
 loop_10_test:
     if (*arg2 != NULL) {
         goto loop_10_body;
@@ -68,17 +69,17 @@ done:
 #pragma opt_loop_invariants off
 // Interpolates two matrix pairs between their start and end times, by the ratio of elapsed time [inferred].
 // FUN_0028C080
-void evtInterpolateNodeMatrices(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4,
-                   f32 *arg5) {
+void evtInterpolateNodeMatrices(u8 *work, u8 *owner, s32 frame, u8 *output, f32 *firstValue,
+                   f32 *secondValue) {
     u8 *start;
     u8 *end;
     f32 value0;
-    f32 end_value0;
+    f32 endFirst;
     f32 value1;
-    f32 end_value1;
+    f32 endSecond;
     f32 ratio;
-    s32 start_time;
-    s32 end_time;
+    s32 startFrame;
+    s32 endFrame;
     s32 count;
     f32 *matrix0;
     f32 *matrix1;
@@ -87,30 +88,30 @@ void evtInterpolateNodeMatrices(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg
     f32 *out;
     s32 i;
 
-    evtFindNodeRange(arg1, arg2, &start, &end);
+    evtFindNodeRange(owner, frame, &start, &end);
     if (start != NULL) {
-        start_time = *(u16 *)start;
+        startFrame = ((EvtChildNode *)start)->start;
     } else {
-        start_time = *(s32 *)(arg0 + 0xC);
+        startFrame = ((EvtEventWork *)work)->startFrame;
     }
     if (end != NULL) {
-        end_time = *(u16 *)end;
+        endFrame = ((EvtChildNode *)end)->start;
     } else {
-        end_time = *(s32 *)(arg0 + 0x10);
+        endFrame = ((EvtEventWork *)work)->frameLimit;
     }
-    if (end_time - start_time != 0) {
-        ratio = (f32)(arg2 - start_time) / (f32)(end_time - start_time);
+    if (endFrame - startFrame != 0) {
+        ratio = (f32)(frame - startFrame) / (f32)(endFrame - startFrame);
     } else {
         ratio = 0.0f;
     }
-    dst = (f32 *)arg3;
+    dst = (f32 *)output;
     if (start == NULL) {
         goto no_start;
     }
-    matrix0 = *(f32 **)(start + 0x48);
-    value0 = *(f32 *)(start + 0x10);
-    value1 = *(f32 *)(start + 0x14);
-    count = *(s32 *)(start + 4);
+    matrix0 = (f32 *)((EvtChildNode *)start)->ownedBlock48;
+    value0 = ((EvtMatrixPayload *)&((EvtChildNode *)start)->payload)->first;
+    value1 = ((EvtMatrixPayload *)&((EvtChildNode *)start)->payload)->second;
+    count = ((EvtChildNode *)start)->unk04;
     goto have_start;
 
 no_start:
@@ -131,17 +132,17 @@ no_start:
         dst[9] = value;
         dst[10] = value;
         dst[11] = 0.0f;
-        *arg4 = 7.0f;
-        *arg5 = 0.0f;
+        *firstValue = 7.0f;
+        *secondValue = 0.0f;
     }
     goto done;
 have_start:
     if (end == NULL) {
         goto no_end;
     }
-    matrix1 = *(f32 **)(end + 0x48);
-    end_value0 = *(f32 *)(end + 0x10);
-    end_value1 = *(f32 *)(end + 0x14);
+    matrix1 = (f32 *)((EvtChildNode *)end)->ownedBlock48;
+    endFirst = ((EvtMatrixPayload *)&((EvtChildNode *)end)->payload)->first;
+    endSecond = ((EvtMatrixPayload *)&((EvtChildNode *)end)->payload)->second;
     goto have_end;
 
 no_end:
@@ -152,8 +153,8 @@ no_end:
         out[4] = src[4];
         out[8] = src[8];
     }
-    *arg4 = value0;
-    *arg5 = value1;
+    *firstValue = value0;
+    *secondValue = value1;
     goto done;
 
 have_end:
@@ -180,8 +181,8 @@ have_end:
         dst[9] = value;
         dst[10] = value;
         dst[11] = 0.0f;
-        *arg4 = 7.0f;
-        *arg5 = 0.0f;
+        *firstValue = 7.0f;
+        *secondValue = 0.0f;
     }
     goto done;
 
@@ -194,12 +195,12 @@ have_matrix:
             out[4] = src[4];
             out[8] = src[8];
         }
-        *arg4 = value0;
-        *arg5 = value1;
+        *firstValue = value0;
+        *secondValue = value1;
     } else {
         evtPolygonMovieLerpPose(count, ratio, matrix0, matrix1, dst);
-        *arg4 = evtLerpFloatIfEnabled(count, ratio, value0, end_value0);
-        *arg5 = evtLerpFloatIfEnabled(count, ratio, value1, end_value1);
+        *firstValue = evtLerpFloatIfEnabled(count, ratio, value0, endFirst);
+        *secondValue = evtLerpFloatIfEnabled(count, ratio, value1, endSecond);
     }
 
 done:

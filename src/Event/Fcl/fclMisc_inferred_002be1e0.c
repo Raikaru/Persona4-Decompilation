@@ -90,7 +90,7 @@ extern s32 fclDecimalDigitCount(s32 flags);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002be1e0-002be4a0 */
 
-extern void func_002b5120(s32 flags, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 flags, u8 *arg1);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
 /* measured: restores opt_propagation after func_002b5120. */

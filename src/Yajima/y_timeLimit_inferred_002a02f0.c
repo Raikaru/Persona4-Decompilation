@@ -26,7 +26,7 @@ extern u8 D_007966A0[];
 extern f32 fGpffff8204;
 extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void func_0029fbb0(u8 *arg0, s32 arg1);
+extern void yTimeLimitDrawButton(u8 *arg0, s32 arg1);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 
@@ -81,10 +81,10 @@ void yTimeNameDrawSelections(u8 *task, s32 preserveStatus) {
             *(s16 *)((u8 *)work + (i * 4) + 0x1C38) = 0;
         }
     }
-    func_0029fbb0(task, 0);
-    func_0029fbb0(task, 1);
-    func_0029fbb0(task, 2);
-    func_0029fbb0(task, 4);
-    func_0029fbb0(task, 5);
+    yTimeLimitDrawButton(task, 0);
+    yTimeLimitDrawButton(task, 1);
+    yTimeLimitDrawButton(task, 2);
+    yTimeLimitDrawButton(task, 4);
+    yTimeLimitDrawButton(task, 5);
 }
 

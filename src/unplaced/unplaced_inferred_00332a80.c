@@ -11,10 +11,16 @@
 #include "scr_internal.h"
 #include "shd_misc_internal.h"
 #include "fcl_combine_internal.h"
+typedef struct FclMoneyPlacement {
+    u8 pad00[0x1E0];
+    Vec2f position;
+} FclMoneyPlacement;
+
 extern u32 fclGetMoney(void);
 extern void (*D_00887300[])(s32, s32);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 , s32 );
 // Identical to fclMiscInitRenderStates (fclMisc_inferred_002be1e0.c).
+/* Initialize the fusion draw render states and the common sky blend preset. */
 // FUN_00332A80
 void fclCombineInitRenderStates(void)
 {
@@ -32,8 +38,9 @@ void fclCombineInitRenderStates(void)
     RpSkyRenderStateSet(3, 0x7100D);
 }
 
+/* Draw the current money total at the menu record's configured position. */
 // FUN_00332B60
-void fclCombineDrawMoney(u8 *arg0, u8 *arg1)
+void fclCombineDrawMoney(u8 *unusedQueue, u8 *placement)
 {
-    shdDrawNumberText(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, fclGetMoney());
+    shdDrawNumberText(((FclMoneyPlacement *)placement)->position, 1.0f, 0xFF, fclGetMoney());
 }

@@ -71,7 +71,7 @@ typedef FclVec2 F2_0033;
 
 extern u32 fclGetMoney(void);
 extern s32 fclDecimalDigitCount(s32 task);
-extern void func_0033d3c0(void *, f32);
+extern void fclBustupObjSetAnchorValue(void *, f32);
 extern void fclBustupObjStartPosition(void *, F2_0033, F2_0033, u32, u32, s64);
 extern f32 D_0064A1D8[];
 extern f32 D_0064A1E0[];
@@ -132,7 +132,7 @@ extern void fclShopDrawNumber(F2_0033 position, f32 depth, FclDrawColor color, u
 extern void fclMesWindowDraw(s32 task, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 extern s32 yListCount(void);
 extern u8 *fclBustupObjGetWork(u8 *task);
-extern void func_0033d3d0(u8 *task, s32 arg1);
+extern void fclBustupObjSetAnchorMode(u8 *task, s32 arg1);
 extern f32 D_0064A2B0[];
 extern f32 D_0064A2B8[];
 extern u8 D_00795E60[];
@@ -314,34 +314,34 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         tbl = (F2_0033 *)D_0064A290;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x110), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x110), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0x110), 17.0f);
-        func_0033d3d0(*(void **)(work + 0x110), 0x63);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x110), 17.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x110), 0x63);
         tbl = (F2_0033 *)D_0064A298;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x114), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x114), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0x114), 17.0f);
-        func_0033d3d0(*(void **)(work + 0x114), 0x63);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x114), 17.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x114), 0x63);
         tbl = (F2_0033 *)D_0064A290;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x1A8), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x1A8), fclMakeVec2(-0x125, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2,
                       0x14, 0);
         *(FclDrawColor *)(fclBustupObjGetWork(*(void **)(work + 0x1A8)) + 0x79) = fclMakeDrawColor(0, 0, 0, 0xFF);
-        func_0033d3c0(*(void **)(work + 0x1A8), 16.0f);
-        func_0033d3d0(*(void **)(work + 0x1A8), 0x63);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x1A8), 16.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x1A8), 0x63);
         tbl = (F2_0033 *)D_0064A298;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x1AC), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x1AC), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2,
                       0x14, 0);
         *(FclDrawColor *)(fclBustupObjGetWork(*(void **)(work + 0x1AC)) + 0x79) = fclMakeDrawColor(0, 0, 0, 0xFF);
-        func_0033d3c0(*(void **)(work + 0x1AC), 16.0f);
-        func_0033d3d0(*(void **)(work + 0x1AC), 0x63);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x1AC), 16.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x1AC), 0x63);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x10), fclMakeVec2(0x28A, D_0064A090[1]), fclMakeVec2(D_0064A090[0], D_0064A090[1]),
                       0, 0x1E, 0xA);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 3, 0);
         fclBustupObjStartTween(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0x1E, 0xA);
-        func_0033d3c0(*(void **)(work + 0x10), 36.0f);
-        func_0033d3d0(*(void **)(work + 0x10), 0x62);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x10), 36.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x10), 0x62);
         tbl = (F2_0033 *)D_0064A338;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x164), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x164), 0, 0xFF, 0, 0, 0x2B);
@@ -352,21 +352,21 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                                     (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
                       fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x2B);
         sdkSpriteFreeNode(labelFont);
-        func_0033d3c0(*(void **)(work + 0x164), 69.0f);
-        func_0033d3d0(*(void **)(work + 0x164), 0x56);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x164), 69.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x164), 0x56);
         *(s16 *)(work + 0x3D4) = 0x2D;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xB0), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0xB0), 0, 0xFF, 0, 7, 0x3F);
         fclBustupObjStartUniformRevealScale(*(void **)(work + 0xB0), 0.1f, 1.0f, 0, 0xF, 0x3F);
-        func_0033d3c0(*(void **)(work + 0xB0), 52.0f);
-        func_0033d3d0(*(void **)(work + 0xB0), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xB0), 52.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xB0), 0x5B);
         for (introPanel = 0; introPanel < 3; introPanel++) {
             fclBustupObjChangeFlagBit(*(void **)(work + introPanel * 4 + 0x17C), 0, 0);
             fclBustupObjStartAlpha(*(void **)(work + introPanel * 4 + 0x17C), 0, 0xFF, 0, 7, 0x3F);
             fclBustupObjStartUniformRevealScale(*(void **)(work + introPanel * 4 + 0x17C), 0.1f, 1.0f, 0, 0xF, 0x3F);
             fclBustupObjStartTween(*(u8 **)(work + introPanel * 4 + 0x17C), (f32)((introPanel + 1) * 0x5A), (f32)((introPanel + 1) * 0x5A), 0, 0, 0);
-            func_0033d3c0(*(void **)(work + introPanel * 4 + 0x17C), (f32)(introPanel + 0x31));
-            func_0033d3d0(*(void **)(work + introPanel * 4 + 0x17C), 0x5B);
+            fclBustupObjSetAnchorValue(*(void **)(work + introPanel * 4 + 0x17C), (f32)(introPanel + 0x31));
+            fclBustupObjSetAnchorMode(*(void **)(work + introPanel * 4 + 0x17C), 0x5B);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + introPanel * 4 + 0x17C)) + 0x100) = *(s16 *)(fclBustupObjGetWork(*(void **)(work + introPanel * 4 + 0x17C)) + 0x102) = 0;
         }
         *(f32 *)(work + 0x1D0) = 0x28A;
@@ -377,32 +377,32 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         tbl = (F2_0033 *)D_0064A1D8;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xB4), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xB4), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x16);
-        func_0033d3c0(*(void **)(work + 0xB4), 47.0f);
-        func_0033d3d0(*(void **)(work + 0xB4), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xB4), 47.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xB4), 0x61);
         tbl = (F2_0033 *)D_0064A1E0;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xB8), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xB8), fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 9, 0x1C);
-        func_0033d3c0(*(void **)(work + 0xB8), 33.0f);
-        func_0033d3d0(*(void **)(work + 0xB8), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xB8), 33.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xB8), 0x61);
         tbl = (F2_0033 *)D_0064A1E8;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xBC), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xBC), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0, 0xF, 0x19);
-        func_0033d3c0(*(void **)(work + 0xBC), 48.0f);
-        func_0033d3d0(*(void **)(work + 0xBC), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xBC), 48.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xBC), 0x61);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x178), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x178), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0, 0xF, 0x19);
-        func_0033d3c0(*(void **)(work + 0x178), 48.0f);
-        func_0033d3d0(*(void **)(work + 0x178), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x178), 48.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x178), 0x61);
         tbl = (F2_0033 *)D_0064A0E8;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x3C), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x3C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x3C), 0, 0xFF, 0, 0xA, 0x28);
-        func_0033d3c0(*(void **)(work + 0x3C), 46.0f);
-        func_0033d3d0(*(void **)(work + 0x3C), 0x62);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x3C), 46.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x3C), 0x62);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x14), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x14), 0, 0xFF, 0, 5, 0x28);
-        func_0033d3c0(*(void **)(work + 0x14), 30.0f);
-        func_0033d3d0(*(void **)(work + 0x14), 0x63);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x14), 30.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x14), 0x63);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             layer0 = (s16)(panelIndex * 3 + 0x2D);
             rowIndex = panelIndex + 3;
@@ -410,8 +410,8 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjChangeFlagBit(*(void **)(work + panelIndex * 4 + 0x1C), 0, 0);
             fclBustupObjStartUniformRevealScale(*(void **)(work + panelIndex * 4 + 0x1C), 0.7f, 1.0f, 0, 5, layer0);
             fclBustupObjStartAlpha(*(void **)(work + panelIndex * 4 + 0x1C), 0, 0xFF, 0, 5, layer0);
-            func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x1C), (f32)(panelIndex + 0x1A));
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x1C), 0x63);
+            fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x1C), (f32)(panelIndex + 0x1A));
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x1C), 0x63);
             rowFont = sdkSpriteNewNode(*(void **)(work + 0xC), rowIndex);
             fclBustupObjStartPosition(*(void **)(work + panelIndex * 4 + 0x1C),
                           fclMakeVec2((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
@@ -440,32 +440,32 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         }
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             if (fclBustupObjTestFlagBit(*(void **)(work + panelIndex * 4 + 0x1C), 2) == 0) {
-                func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x1C), 0xAB);
+                fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x1C), 0xAB);
             }
         }
         if (fclBustupObjTestFlagBit(*(void **)(work + 0xB0), 2) == 0 && fclBustupObjTestFlagBit(*(void **)(work + 0xB0), 4) == 0) {
             fclBustupObjChangeFlagBit(*(void **)(work + 0x58), 0, 0);
-            func_0033d3c0(*(void **)(work + 0x58), 80.0f);
-            func_0033d3d0(*(void **)(work + 0x58), 0x3D);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x58), 80.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x58), 0x3D);
             fclBustupObjChangeFlagBit(*(void **)(work + 0x5C), 0, 0);
-            func_0033d3c0(*(void **)(work + 0x5C), 81.0f);
-            func_0033d3d0(*(void **)(work + 0x5C), 0x3D);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x5C), 81.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x5C), 0x3D);
             tbl = (F2_0033 *)D_0064A2A0;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x118), 0, 0);
-            func_0033d3c0(*(void **)(work + 0x118), 82.0f);
-            func_0033d3d0(*(void **)(work + 0x118), 0x3E);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x118), 82.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x118), 0x3E);
             fclBustupObjStartPosition(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
                           fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
             tbl = (F2_0033 *)D_0064A2A8;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x11C), 0, 0);
-            func_0033d3c0(*(void **)(work + 0x11C), 83.0f);
-            func_0033d3d0(*(void **)(work + 0x11C), 0x3E);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x11C), 83.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x11C), 0x3E);
             fclBustupObjStartPosition(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
                           fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
             for (panelIndex = 0; panelIndex < 6; panelIndex++) {
                 fclBustupObjChangeFlagBit(*(void **)(work + panelIndex * 4 + 0x40), 0, 1);
-                func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x40), (f32)(panelIndex + 0x4A));
-                func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x40), 0x3F);
+                fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x40), (f32)(panelIndex + 0x4A));
+                fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x40), 0x3F);
             }
             fclBustupObjChangeFlagBit(*(void **)(work + 0x4C), 0, 0);
             fclBustupObjChangeFlagBit(*(void **)(work + 0x44), 0, 0);
@@ -552,27 +552,27 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             *(s8 *)(work + i + 0x2D8) = 1;
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x58), 0, 0);
-        func_0033d3c0(*(void **)(work + 0x58), 80.0f);
-        func_0033d3d0(*(void **)(work + 0x58), 0x3D);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x58), 80.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x58), 0x3D);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x5C), 0, 0);
-        func_0033d3c0(*(void **)(work + 0x5C), 81.0f);
-        func_0033d3d0(*(void **)(work + 0x5C), 0x3D);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x5C), 81.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x5C), 0x3D);
         tbl = (F2_0033 *)D_0064A2A0;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x118), 0, 0);
-        func_0033d3c0(*(void **)(work + 0x118), 82.0f);
-        func_0033d3d0(*(void **)(work + 0x118), 0x3E);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x118), 82.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x118), 0x3E);
         fclBustupObjStartPosition(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
                       fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
         tbl = (F2_0033 *)D_0064A2A8;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x11C), 0, 0);
-        func_0033d3c0(*(void **)(work + 0x11C), 83.0f);
-        func_0033d3d0(*(void **)(work + 0x11C), 0x3E);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x11C), 83.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x11C), 0x3E);
         fclBustupObjStartPosition(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
                       fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
         for (panelIndex = 0; panelIndex < 6; panelIndex++) {
             fclBustupObjChangeFlagBit(*(void **)(work + panelIndex * 4 + 0x40), 0, 1);
-            func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x40), (f32)(panelIndex + 0x4A));
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x40), 0x3F);
+            fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x40), (f32)(panelIndex + 0x4A));
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x40), 0x3F);
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x4C), 0, 0);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x44), 0, 0);
@@ -621,8 +621,8 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             break;
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x60), 0, 0);
-        func_0033d3c0(*(void **)(work + 0x60), 14.0f);
-        func_0033d3d0(*(void **)(work + 0x60), 0x64);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x60), 14.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x60), 0x64);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x164), 0, 1);
         *(s32 *)(work + 0x2AC) = 0;
         *(s8 *)(work + 0) = 5;
@@ -715,9 +715,9 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                 for (panelIndex = 0; panelIndex < 3; panelIndex++) {
                     fclBustupObjStartUniformRevealScale(*(void **)(work + panelIndex * 4 + 0x17C), 1.0f, 4.5f, 0, 0x14, 0);
                 }
-                func_0033d3c0(*(void **)(work + 0x110), 84.0f);
-                func_0033d3c0(*(void **)(work + 0x114), 84.0f);
-                func_0033d3c0(*(void **)(work + 0x60), 83.0f);
+                fclBustupObjSetAnchorValue(*(void **)(work + 0x110), 84.0f);
+                fclBustupObjSetAnchorValue(*(void **)(work + 0x114), 84.0f);
+                fclBustupObjSetAnchorValue(*(void **)(work + 0x60), 83.0f);
                 *(s8 *)(work + 0) = 9;
                 break;
             case 1:
@@ -800,17 +800,17 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         fclBustupObjChangeFlagBit(*(void **)(work + 0x110), 0, 1);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x114), 0, 1);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x60), 0, 1);
-        func_0033d3d0(*(void **)(work + 0xB0), 0x65);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xB0), 0x65);
         for (panelIndex = 0; panelIndex < 3; panelIndex++) {
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x17C), 0x65);
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x17C), 0x65);
         }
         for (listRevealPanel = 0; listRevealPanel < 4; listRevealPanel++) {
             fclBustupObjChangeFlagBit(*(void **)(work + listRevealPanel * 4 + 0x188), 13, 0);
             fclBustupObjChangeFlagBit(*(void **)(work + listRevealPanel * 4 + 0x188), 0, 0);
             fclBustupObjStartUniformRevealScale(*(void **)(work + listRevealPanel * 4 + 0x188), 0.1f, 2.7f, 0, 0xC, 0);
             fclBustupObjStartTween(*(u8 **)(work + listRevealPanel * 4 + 0x188), 0.0f, listRevealPanel * 0x5A, 0, 0, 0);
-            func_0033d3c0(*(void **)(work + listRevealPanel * 4 + 0x188), 1.0f);
-            func_0033d3d0(*(void **)(work + listRevealPanel * 4 + 0x188), 0x64);
+            fclBustupObjSetAnchorValue(*(void **)(work + listRevealPanel * 4 + 0x188), 1.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + listRevealPanel * 4 + 0x188), 0x64);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + listRevealPanel * 4 + 0x188)) + 0x100) = *(s16 *)(fclBustupObjGetWork(*(void **)(work + listRevealPanel * 4 + 0x188)) + 0x102) = 0;
             *(u8 *)(fclBustupObjGetWork(*(void **)(work + listRevealPanel * 4 + 0x188)) + 0x62) = 2;
         }
@@ -822,8 +822,8 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         fclBustupObjChangeFlagBit(*(void **)(work + 0x158), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x158), 0, 0xFF, 0, 0, 0xF);
         fclBustupObjStartUniformRevealScale(*(void **)(work + 0x158), 0.1f, 1.0f, 0, 8, 0xF);
-        func_0033d3c0(*(void **)(work + 0x158), 45.0f);
-        func_0033d3d0(*(void **)(work + 0x158), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x158), 45.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x158), 0x5B);
         labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x52);
         fclBustupObjStartPosition(*(void **)(work + 0x158),
                       fclMakeVec2((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
@@ -833,21 +833,21 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         tbl = (F2_0033 *)D_0064A200;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xC8), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xC8), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0x14, 5);
-        func_0033d3c0(*(void **)(work + 0xC8), 42.0f);
-        func_0033d3d0(*(void **)(work + 0xC8), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xC8), 42.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xC8), 0x61);
         tbl = (F2_0033 *)D_0064A1F0;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xC0), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xC0), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
-        func_0033d3c0(*(void **)(work + 0xC0), 43.0f);
-        func_0033d3d0(*(void **)(work + 0xC0), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xC0), 43.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xC0), 0x61);
         tbl = (F2_0033 *)D_0064A1F8;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xC4), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xC4), fclMakeVec2(980.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
         fclBustupObjStartTween(*(u8 **)(work + 0xC4), 0.0f, -90.0f, 0, 0, 0);
         *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xC4)) + 0xBC) = *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xC4)) + 0xC0) =
             *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xC4)) + 0xC4) = -90.0f;
-        func_0033d3c0(*(void **)(work + 0xC4), 44.0f);
-        func_0033d3d0(*(void **)(work + 0xC4), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xC4), 44.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xC4), 0x61);
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             layer1 = (s16)(panelIndex * 3 + 0xF);
             listIndex = panelIndex + 7;
@@ -855,8 +855,8 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjChangeFlagBit(*(void **)(work + panelIndex * 4 + 0x2C), 0, 0);
             fclBustupObjStartUniformRevealScale(*(void **)(work + panelIndex * 4 + 0x2C), 0.7f, 1.0f, 0, 5, layer1);
             fclBustupObjStartAlpha(*(void **)(work + panelIndex * 4 + 0x2C), 0, 0xFF, 0, 5, layer1);
-            func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x2C), (f32)(panelIndex + 0x1A));
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x2C), 0x63);
+            fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x2C), (f32)(panelIndex + 0x1A));
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x2C), 0x63);
             rowFont = sdkSpriteNewNode(*(void **)(work + 0xC), listIndex);
             fclBustupObjStartPosition(*(void **)(work + panelIndex * 4 + 0x2C),
                           fclMakeVec2((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
@@ -866,42 +866,42 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x18), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x18), 0, 0xFF, 0, 0x14, 0xA);
-        func_0033d3c0(*(void **)(work + 0x18), 21.0f);
-        func_0033d3d0(*(void **)(work + 0x18), 0x64);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x18), 21.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x18), 0x64);
         tbl = (F2_0033 *)D_0064A208;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xCC), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xCC), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
-        func_0033d3c0(*(void **)(work + 0xCC), 68.0f);
-        func_0033d3d0(*(void **)(work + 0xCC), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xCC), 68.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xCC), 0x5B);
         tbl = (F2_0033 *)D_0064A210;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xD0), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xD0), fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
-        func_0033d3c0(*(void **)(work + 0xD0), 60.0f);
-        func_0033d3d0(*(void **)(work + 0xD0), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xD0), 60.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xD0), 0x5B);
         tbl = (F2_0033 *)D_0064A218;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xD4), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xD4), fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
-        func_0033d3c0(*(void **)(work + 0xD4), 59.0f);
-        func_0033d3d0(*(void **)(work + 0xD4), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xD4), 59.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xD4), 0x5B);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x150), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x150), 0, 0xFF, 0, 0, 0xA);
-        func_0033d3c0(*(void **)(work + 0x150), 56.0f);
-        func_0033d3d0(*(void **)(work + 0x150), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x150), 56.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x150), 0x5B);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x198), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x198), 0, 0xFF, 0, 0, 0xA);
         fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0x198), 57.0f);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x198), 57.0f);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
             (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
-        func_0033d3d0(*(void **)(work + 0x198), 0x5B);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x198), 0x5B);
         *(FclDrawColor *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0x79) = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x19C), 0, 0xFF, 0, 0, 0xA);
         fclBustupObjStartPosition(*(void **)(work + 0x19C), fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x19C), 57.0f);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
             (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
-        func_0033d3d0(*(void **)(work + 0x19C), 0x5B);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x19C), 0x5B);
         *(FclDrawColor *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0x79) = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
         if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 1);
@@ -910,33 +910,33 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             fclBustupObjChangeFlagBit(*(void **)(work + panelIndex * 4 + 0x64), 0, 0);
             fclBustupObjStartAlpha(*(void **)(work + panelIndex * 4 + 0x64), 0, 0xFF, 0, 0xA, 0x19);
-            func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x64), 15.0f);
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x64), 0x64);
+            fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x64), 15.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x64), 0x64);
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x70), 0, 1);
         tbl = (F2_0033 *)D_0064A228;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xDC), 0, 1);
         fclBustupObjStartPosition(*(void **)(work + 0xDC), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0xDC), 66.0f);
-        func_0033d3d0(*(void **)(work + 0xDC), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xDC), 66.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xDC), 0x5B);
         tbl = (F2_0033 *)D_0064A230;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xE0), 0, 1);
         fclBustupObjStartPosition(*(void **)(work + 0xE0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0xE0), 67.0f);
-        func_0033d3d0(*(void **)(work + 0xE0), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xE0), 67.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xE0), 0x5B);
         tbl = (F2_0033 *)D_0064A220;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xD8), 0, 1);
         fclBustupObjStartPosition(*(void **)(work + 0xD8), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0xD8), 61.0f);
-        func_0033d3d0(*(void **)(work + 0xD8), 0x5B);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xD8), 61.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xD8), 0x5B);
         if (*(s8 *)(work + 0x424) == 1) {
             capFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x51);
             tbl = (F2_0033 *)D_0064A318;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x154), 0, 0);
             fclBustupObjStartPosition(*(void **)(work + 0x154), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
             fclBustupObjStartTween(*(u8 **)(work + 0x154), -90.0f, 0.0f, 0, 7, 0xA);
-            func_0033d3c0(*(void **)(work + 0x154), 40.0f);
-            func_0033d3d0(*(void **)(work + 0x154), 0x62);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x154), 40.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x154), 0x62);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x154)) + 0x100) = 0;
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x154)) + 0x102) = sdkSpriteScaledHeight(capFont);
             sdkSpriteFreeNode(capFont);
@@ -948,16 +948,16 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjStartTween(*(u8 **)(work + 0x168), 150.0f, 0.0f, 0, 0xA, 0x1B);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x168)) + 0x100) = 0x231 - tbl->x;
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x168)) + 0x102) = 470.0f - tbl->y;
-            func_0033d3c0(*(void **)(work + 0x168), 24.0f);
-            func_0033d3d0(*(void **)(work + 0x168), 0x63);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x168), 24.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x168), 0x63);
             tbl = (F2_0033 *)D_0064A348;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x16C), 0, 0);
             fclBustupObjStartPosition(*(void **)(work + 0x16C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
             fclBustupObjStartAlpha(*(void **)(work + 0x16C), 0xFF, 0x33, 0, 0x14, 0x34);
             fclBustupObjStartUniformRevealScale(*(void **)(work + 0x16C), 0.0f, 1.0f, 0, 0, 0x25);
             *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x16C)) + 0xC4) = 0.0f;
-            func_0033d3c0(*(void **)(work + 0x16C), 23.0f);
-            func_0033d3d0(*(void **)(work + 0x16C), 0x63);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x16C), 23.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x16C), 0x63);
             labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x58);
             tbl = (F2_0033 *)D_0064A350;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x170), 0, 0);
@@ -967,16 +967,16 @@ s32 fclItemShopUpdate(u8 *shopTask) {
             fclBustupObjStartUniformRevealScale(*(void **)(work + 0x170), 0.0f, 1.05f, 2, 5, 0x23);
             fclBustupObjStartAlpha(*(void **)(work + 0x170), 0, 0xFF, 0, 0, 0x23);
             *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x170)) + 0xC4) = 0.0f;
-            func_0033d3c0(*(void **)(work + 0x170), 22.0f);
-            func_0033d3d0(*(void **)(work + 0x170), 0x63);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x170), 22.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x170), 0x63);
             sdkSpriteFreeNode(labelFont);
             tbl = (F2_0033 *)D_0064A358;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x174), 0, 0);
             fclBustupObjStartPositionMode(*(u8 **)(work + 0x174), fclMakeVec2(0x113 + tbl->x, tbl->y),
                           fclMakeVec2(tbl->x, tbl->y - 120.0f), 1, 0, 0xE, 0x20);
             *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0xC4) = 0.0f;
-            func_0033d3c0(*(void **)(work + 0x174), 9.0f);
-            func_0033d3d0(*(void **)(work + 0x174), 0x64);
+            fclBustupObjSetAnchorValue(*(void **)(work + 0x174), 9.0f);
+            fclBustupObjSetAnchorMode(*(void **)(work + 0x174), 0x64);
         }
         *(s8 *)(work + 2) = 0;
         *(s8 *)(work + 0) = 0xA;
@@ -990,9 +990,9 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         if (fclBustupObjTestFlagBit(*(void **)(work + 0x188), 4) != 0) {
             break;
         }
-        func_0033d3d0(*(void **)(work + 0xB0), 0x5B);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xB0), 0x5B);
         for (panelIndex = 0; panelIndex < 3; panelIndex++) {
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x17C), 0x5B);
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x17C), 0x5B);
         }
         for (panelIndex = 0; panelIndex < 4; panelIndex++) {
             fclBustupObjChangeFlagBit(*(void **)((work + panelIndex * 4) + 0x188), 0, 1);
@@ -1123,16 +1123,16 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     fclBustupObjStartPosition(*(void **)(work + 0x15C), fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2(tbl->x, tbl->y - 7.0f), 1, 0xA, 7);
                     fclBustupObjStartAlpha(*(void **)(work + 0x15C), 0, 0xFF, 0, 0xA, 7);
-                    func_0033d3c0(*(void **)(work + 0x15C), 54.0f);
-                    func_0033d3d0(*(void **)(work + 0x15C), 0x5B);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x15C), 54.0f);
+                    fclBustupObjSetAnchorMode(*(void **)(work + 0x15C), 0x5B);
                     *(s8 *)(fclBustupObjGetWork(*(void **)(work + 0x15C)) + 0x3B) = 1;
                     tbl = (F2_0033 *)D_0064A330;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x160), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x160), fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2(tbl->x, 7.0f + tbl->y), 1, 0xA, 7);
                     fclBustupObjStartAlpha(*(void **)(work + 0x160), 0, 0xFF, 0, 0xA, 7);
-                    func_0033d3c0(*(void **)(work + 0x160), 55.0f);
-                    func_0033d3d0(*(void **)(work + 0x160), 0x5B);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x160), 55.0f);
+                    fclBustupObjSetAnchorMode(*(void **)(work + 0x160), 0x5B);
                     *(s8 *)(fclBustupObjGetWork(*(void **)(work + 0x160)) + 0x3B) = 1;
                     *(s8 *)(work + 0) = 0xC;
                     *(s8 *)(work + 3) = 1;
@@ -1158,7 +1158,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x158), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x158), 0xFF, 0, 0, 5, 0);
                     fclBustupObjStartUniformRevealScale(*(void **)(work + 0x158), 1.0f, 0.6f, 0, 5, 0);
-                    func_0033d3c0(*(void **)(work + 0x158), 45.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x158), 45.0f);
                     cardFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x52);
                     fclBustupObjStartPosition(*(void **)(work + 0x158), fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2((sdkSpriteScaledWidth(cardFont) / 10.0f) * 2.0f + tbl->x + 0.0f,
@@ -1169,24 +1169,24 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xC8), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xC8), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xF, 0);
-                    func_0033d3c0(*(void **)(work + 0xC8), 42.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xC8), 42.0f);
                     tbl = (F2_0033 *)D_0064A1F0;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xC0), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xC0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xC, 0);
-                    func_0033d3c0(*(void **)(work + 0xC0), 43.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xC0), 43.0f);
                     tbl = (F2_0033 *)D_0064A1F8;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xC4), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xC4), fclMakeVec2(tbl->x, tbl->y),
                                   fclMakeVec2(320.0f + tbl->x, tbl->y), 0, 0xC, 0);
-                    func_0033d3c0(*(void **)(work + 0xC4), 44.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xC4), 44.0f);
                     for (panelIndex = 0; panelIndex < 4; panelIndex++) {
                         layer2 = (s16)(panelIndex * 2);
                         cardIndex = panelIndex + 7;
                         coords = (f32 *)((u8 *)D_0064A090 + cardIndex * 8);
                         fclBustupObjStartUniformRevealScale(*(void **)(work + panelIndex * 4 + 0x2C), 1.0f, 0.7f, 0, 4, layer2);
                         fclBustupObjStartAlpha(*(void **)(work + panelIndex * 4 + 0x2C), 0xFF, 0, 0, 4, layer2);
-                        func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x2C), (f32)(panelIndex + 0x1A));
+                        fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x2C), (f32)(panelIndex + 0x1A));
                         font = sdkSpriteNewNode(*(void **)(work + 0xC), cardIndex);
                         fclBustupObjStartPosition(*(void **)(work + panelIndex * 4 + 0x2C), fclMakeVec2(coords[0], coords[1]),
                                       fclMakeVec2((sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f,
@@ -1196,38 +1196,38 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     }
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x18), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x18), 0xFF, 0, 0, 5, 0);
-                    func_0033d3c0(*(void **)(work + 0x18), 21.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x18), 21.0f);
                     tbl = (F2_0033 *)D_0064A208;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xCC), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xCC), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xA, 0);
-                    func_0033d3c0(*(void **)(work + 0xCC), 68.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xCC), 68.0f);
                     tbl = (F2_0033 *)D_0064A210;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xD0), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xD0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(1064.0f, tbl->y), 0,
                                   0xA, 0);
-                    func_0033d3c0(*(void **)(work + 0xD0), 60.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xD0), 60.0f);
                     tbl = (F2_0033 *)D_0064A218;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xD4), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xD4),
                                   fclMakeVec2(tbl->x, *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xD4)) + 0x30)),
                                   fclMakeVec2(1064.0f, *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xD4)) + 0x30)), 0, 0xA,
                                   0);
-                    func_0033d3c0(*(void **)(work + 0xD4), 59.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xD4), 59.0f);
                     fclBustupObjStartAlpha(*(void **)(work + 0x150), 0xFF, 0, 0, 0, 5);
-                    func_0033d3c0(*(void **)(work + 0x150), 56.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x150), 56.0f);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x198), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0,
                                   0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x198), 0xFF, 0, 0, 0, 5);
-                    func_0033d3c0(*(void **)(work + 0x198), 57.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x198), 57.0f);
                     *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
                         (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x19C), fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0,
                                   0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x19C), 0xFF, 0, 0, 0, 5);
-                    func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x19C), 57.0f);
                     *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
                         (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
                     if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
@@ -1237,7 +1237,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     }
                     for (panelIndex = 0; panelIndex < 4; panelIndex++) {
                         fclBustupObjStartAlpha(*(void **)(work + panelIndex * 4 + 0x64), 0xFF, 0, 0, 5, 0);
-                        func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x64), 15.0f);
+                        fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x64), 15.0f);
                     }
                     if (*(s8 *)(work + 2) == 1) {
                         tbl = (F2_0033 *)D_0064A228;
@@ -1281,37 +1281,37 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xB4), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xB4), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0xF, 0xC);
-                    func_0033d3c0(*(void **)(work + 0xB4), 47.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xB4), 47.0f);
                     tbl = (F2_0033 *)D_0064A1E0;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xB8), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xB8), fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1,
                                   9, 0xC);
-                    func_0033d3c0(*(void **)(work + 0xB8), 33.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xB8), 33.0f);
                     tbl = (F2_0033 *)D_0064A1E8;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xBC), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xBC), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0,
                                   0xF, 0x18);
-                    func_0033d3c0(*(void **)(work + 0xBC), 48.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xBC), 48.0f);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x178), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x178), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0,
                                   0xF, 0x18);
-                    func_0033d3c0(*(void **)(work + 0x178), 48.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x178), 48.0f);
                     tbl = (F2_0033 *)D_0064A0E8;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x3C), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x3C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x3C), 0, 0xFF, 0, 0xF, 0x25);
-                    func_0033d3c0(*(void **)(work + 0x3C), 46.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x3C), 46.0f);
                     tbl = (F2_0033 *)D_0064A290;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x110), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x110), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0x14, 0xC);
-                    func_0033d3c0(*(void **)(work + 0x110), 17.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x110), 17.0f);
                     tbl = (F2_0033 *)D_0064A298;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x114), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x114), fclMakeVec2(0x305, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0x14, 0xC);
-                    func_0033d3c0(*(void **)(work + 0x114), 17.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x114), 17.0f);
                     for (fadeBand = 0; fadeBand < 4; fadeBand++) {
                         layer3 = (s16)(fadeBand * 3 + 0x14);
                         index = fadeBand + 3;
@@ -1320,7 +1320,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                         fclBustupObjStartUniformRevealScale(*(void **)(work + fadeBand * 4 + 0x1C), 0.7f, 1.0f, 0, 4, layer3);
                         fclBustupObjStartAlpha(*(void **)(work + fadeBand * 4 + 0x1C), 0, 0xFF, 0, 4, layer3);
                         fclBustupObjStartAlpha(*(void **)(work + fadeBand * 4 + 0x1C), 0, 0xFF, 0, 0, layer3);
-                        func_0033d3c0(*(void **)(work + fadeBand * 4 + 0x1C), (f32)(fadeBand + 0x1A));
+                        fclBustupObjSetAnchorValue(*(void **)(work + fadeBand * 4 + 0x1C), (f32)(fadeBand + 0x1A));
                         iconFont = sdkSpriteNewNode(*(void **)(work + 0xC), index);
                         fclBustupObjStartPosition(*(void **)(work + fadeBand * 4 + 0x1C),
                                       fclMakeVec2((sdkSpriteScaledWidth(iconFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
@@ -1330,46 +1330,46 @@ s32 fclItemShopUpdate(u8 *shopTask) {
                     }
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x14), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x14), 0, 0xFF, 0, 0xA, 0x14);
-                    func_0033d3c0(*(void **)(work + 0x14), 30.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x14), 30.0f);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xB0), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0xB0), 0, 0xFF, 0, 0xA, 0x14);
                     fclBustupObjStartUniformRevealScale(*(void **)(work + 0xB0), 0.35f, 1.0f, 0, 0xA, 0x14);
-                    func_0033d3c0(*(void **)(work + 0xB0), 52.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0xB0), 52.0f);
                     for (menuRevealPanel = 0; menuRevealPanel < 3; menuRevealPanel++) {
                         fclBustupObjChangeFlagBit(*(void **)(work + menuRevealPanel * 4 + 0x17C), 0, 0);
                         fclBustupObjStartAlpha(*(void **)(work + menuRevealPanel * 4 + 0x17C), 0, 0xFF, 0, 0xA, 0x14);
                         fclBustupObjStartUniformRevealScale(*(void **)(work + menuRevealPanel * 4 + 0x17C), 0.35f, 1.0f, 0, 0xA, 0x14);
-                        func_0033d3c0(*(void **)(work + menuRevealPanel * 4 + 0x17C), (f32)(menuRevealPanel + 0x31));
+                        fclBustupObjSetAnchorValue(*(void **)(work + menuRevealPanel * 4 + 0x17C), (f32)(menuRevealPanel + 0x31));
                     }
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x58), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x58), 0, 0xFF, 0, 0xA, 0x14);
-                    func_0033d3c0(*(void **)(work + 0x58), 80.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x58), 80.0f);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x5C), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x5C), 0, 0xFF, 0, 0xA, 0x14);
-                    func_0033d3c0(*(void **)(work + 0x5C), 81.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x5C), 81.0f);
                     tbl = (F2_0033 *)D_0064A2A0;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x118), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x118), 0, 0xFF, 0, 0xA, 0x14);
-                    func_0033d3c0(*(void **)(work + 0x118), 82.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x118), 82.0f);
                     fclBustupObjStartPosition(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
                                   fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
                     tbl = (F2_0033 *)D_0064A2A8;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x11C), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x11C), 0, 0xFF, 0, 0xA, 0x14);
-                    func_0033d3c0(*(void **)(work + 0x11C), 83.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x11C), 83.0f);
                     fclBustupObjStartPosition(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
                                   fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
                     for (panelIndex = 0; panelIndex < 6; panelIndex++) {
                         fclBustupObjChangeFlagBit(*(void **)(work + panelIndex * 4 + 0x40), 0, 1);
                         fclBustupObjStartAlpha(*(void **)(work + panelIndex * 4 + 0x40), 0, 0xFF, 0, 0xA, 0x14);
-                        func_0033d3c0(*(void **)(work + panelIndex * 4 + 0x40), (f32)(panelIndex + 0x4A));
+                        fclBustupObjSetAnchorValue(*(void **)(work + panelIndex * 4 + 0x40), (f32)(panelIndex + 0x4A));
                     }
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x4C), 0, 0);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x44), 0, 0);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x48), 0, 0);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x60), 0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x60), 0, 0xFF, 0, 0xF, 0x14);
-                    func_0033d3c0(*(void **)(work + 0x60), 14.0f);
+                    fclBustupObjSetAnchorValue(*(void **)(work + 0x60), 14.0f);
                     *(s8 *)(work + 0) = 0xE;
                 }
             }
@@ -1405,22 +1405,22 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x1A0), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x1A0), fclMakeVec2(0x167, 134.0f), fclMakeVec2(0x167, 134.0f), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0x1A0), 57.0f);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x1A0), 57.0f);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x1A0)) + 0xF8) = *(s8 *)(work + 3) % 10 + 0x46;
-        func_0033d3d0(*(void **)(work + 0x1A0), 0x61);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x1A0), 0x61);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x1A4), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x1A4), fclMakeVec2(332.0f, 134.0f), fclMakeVec2(332.0f, 134.0f), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0x1A4), 57.0f);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0x1A4), 57.0f);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x1A4)) + 0xF8) = *(s8 *)(work + 3) / 10 + 0x46;
-        func_0033d3d0(*(void **)(work + 0x1A4), 0x61);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x1A4), 0x61);
         if (*(s8 *)(work + 3) / 10 == 0) {
             fclBustupObjChangeFlagBit(*(void **)(work + 0x1A4), 0, 1);
             fclBustupObjStartPosition(*(void **)(work + 0x1A0), fclMakeVec2(346.0f, 134.0f), fclMakeVec2(346.0f, 134.0f), 0, 0, 0);
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0xA0), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xA0), fclMakeVec2(45.0f, 133.0f), fclMakeVec2(45.0f, 133.0f), 0, 0, 0);
-        func_0033d3c0(*(void **)(work + 0xA0), 53.0f);
-        func_0033d3d0(*(void **)(work + 0xA0), 0x61);
+        fclBustupObjSetAnchorValue(*(void **)(work + 0xA0), 53.0f);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xA0), 0x61);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
@@ -1674,28 +1674,28 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         fclBustupObjChangeFlagBit(*(void **)(work + 0x5C), 0, 1);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x118), 0, 1);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x11C), 0, 1);
-        func_0033d3d0(*(void **)(work + 0xB0), 0x65);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0xB0), 0x65);
         for (panelIndex = 0; panelIndex < 3; panelIndex++) {
-            func_0033d3d0(*(void **)(work + panelIndex * 4 + 0x17C), 0x65);
+            fclBustupObjSetAnchorMode(*(void **)(work + panelIndex * 4 + 0x17C), 0x65);
         }
-        func_0033d3d0(*(void **)(work + 0x110), 0x65);
-        func_0033d3d0(*(void **)(work + 0x114), 0x65);
-        func_0033d3d0(*(void **)(work + 0x60), 0x65);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x110), 0x65);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x114), 0x65);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x60), 0x65);
         for (exitPanel = 0; exitPanel < 4; exitPanel++) {
             fclBustupObjChangeFlagBit(*(void **)(work + exitPanel * 4 + 0x188), 13, 0);
             fclBustupObjChangeFlagBit(*(void **)(work + exitPanel * 4 + 0x188), 0, 0);
             fclBustupObjStartUniformRevealScale(*(void **)(work + exitPanel * 4 + 0x188), 0.1f, 2.7f, 0, 0xA, 0);
             fclBustupObjStartTween(*(u8 **)(work + exitPanel * 4 + 0x188), 0.0f, exitPanel * 0x5A, 0, 0, 0);
-            func_0033d3c0(*(void **)(work + exitPanel * 4 + 0x188), 1.0f);
+            fclBustupObjSetAnchorValue(*(void **)(work + exitPanel * 4 + 0x188), 1.0f);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + exitPanel * 4 + 0x188)) + 0x100) = *(s16 *)(fclBustupObjGetWork(*(void **)(work + exitPanel * 4 + 0x188)) + 0x102) = 0;
             *(u8 *)(fclBustupObjGetWork(*(void **)(work + exitPanel * 4 + 0x188)) + 0x62) = 2;
-            func_0033d3d0(*(void **)(work + exitPanel * 4 + 0x188), 0x64);
+            fclBustupObjSetAnchorMode(*(void **)(work + exitPanel * 4 + 0x188), 0x64);
         }
         fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x10), fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(0x28A, 241.0f),
                       0, 0xA, 0);
         fclBustupObjStartTween(*(u8 **)(work + 0x10), -720.0f, 0.0f, 0, 0xA, 0);
-        func_0033d3d0(*(void **)(work + 0x10), 0x62);
+        fclBustupObjSetAnchorMode(*(void **)(work + 0x10), 0x62);
         fadeBeginTransition(1, 0x1E);
         *(s8 *)(work + 0) = 0x12;
         break;
@@ -1807,7 +1807,7 @@ void fclItemShopStartExit(u8 *shopTask) {
         item = work + (s16)i * 4 + 0x1C;
         fclBustupObjStartUniformRevealScale((void *)*(s32 *)item, 1.0f, 0.5f, 0, 10, layer);
         fclBustupObjStartAlpha((void *)*(s32 *)item, 0xFF, 0, 0, 10, layer);
-        func_0033d3d0((void *)*(s32 *)item, 0xAC);
+        fclBustupObjSetAnchorMode((void *)*(s32 *)item, 0xAC);
         font = sdkSpriteNewNode((void *)*(s32 *)(work + 0xC), itemIndex);
         pos0 = fclMakeVec2(coords[0], coords[1]);
         x = (sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f;
@@ -1819,7 +1819,7 @@ void fclItemShopStartExit(u8 *shopTask) {
     }
     fclBustupObjChangeFlagBit((void *)*(s32 *)(work + 0x14), 0, 0);
     fclBustupObjStartAlpha((void *)*(s32 *)(work + 0x14), 0xFF, 0, 0, 10, 0);
-    func_0033d3d0((void *)*(s32 *)(work + 0x14), 0xAC);
+    fclBustupObjSetAnchorMode((void *)*(s32 *)(work + 0x14), 0xAC);
     table = (u8 *)D_0064A1D8;
     pos2 = fclMakeVec2(*(f32 *)(table + 0), *(f32 *)(table + 4));
     pos3 = fclMakeVec2(-180.0f, *(f32 *)(table + 4));
@@ -1845,9 +1845,9 @@ void fclItemShopStartExit(u8 *shopTask) {
         fclBustupObjStartUniformRevealScale((void *)*(s32 *)(work + (s16)i * 4 + 0x17C), 1.0f, 4.5f, 0, 0xF, 0);
         i = (s16)(i + 1);
     }
-    func_0033d3c0((void *)*(s32 *)(work + 0x110), 84.0f);
-    func_0033d3c0((void *)*(s32 *)(work + 0x114), 84.0f);
-    func_0033d3c0((void *)*(s32 *)(work + 0x60), 83.0f);
+    fclBustupObjSetAnchorValue((void *)*(s32 *)(work + 0x110), 84.0f);
+    fclBustupObjSetAnchorValue((void *)*(s32 *)(work + 0x114), 84.0f);
+    fclBustupObjSetAnchorValue((void *)*(s32 *)(work + 0x60), 83.0f);
     *(f32 *)(work + 0x1D0) = 580.0f - (f32)fclDecimalDigitCount(fclGetMoney()) * 21.0f;
     *(s32 *)(work + 0x1D4) = 0x41700000;
     *(f32 *)(work + 0x1D8) = (f32)0x28A;
@@ -1934,16 +1934,16 @@ void fclItemShopDrawList(u8 *shopTask)
     *(f32 *)(fclBustupObjGetWork(*(u8 **)(p + 0x120)) + 0x2C) = fy;
     fy = tbl->y + (f32)(*(s16 *)(p + 6) * 28);
     *(f32 *)(fclBustupObjGetWork(*(u8 **)(p + 0x120)) + 0x30) = fy;
-    func_0033d3c0(*(void **)(p + 0x120), 63.0f);
-    func_0033d3d0(*(u8 **)(p + 0x120), 0x5B);
+    fclBustupObjSetAnchorValue(*(void **)(p + 0x120), 63.0f);
+    fclBustupObjSetAnchorMode(*(u8 **)(p + 0x120), 0x5B);
     tbl = (F2_0033 *)D_0064A2B8;
     fclBustupObjChangeFlagBit(*(void **)(p + 0x124), 0, 0);
     fy = tbl->x;
     *(f32 *)(fclBustupObjGetWork(*(u8 **)(p + 0x124)) + 0x2C) = fy;
     fy = tbl->y + (f32)(*(s16 *)(p + 6) * 28);
     *(f32 *)(fclBustupObjGetWork(*(u8 **)(p + 0x124)) + 0x30) = fy;
-    func_0033d3c0(*(void **)(p + 0x124), 63.0f);
-    func_0033d3d0(*(u8 **)(p + 0x124), 0x5B);
+    fclBustupObjSetAnchorValue(*(void **)(p + 0x124), 63.0f);
+    fclBustupObjSetAnchorMode(*(u8 **)(p + 0x124), 0x5B);
     i = *(s16 *)(p + 4) - *(s16 *)(p + 6);
     row = 0;
     bound = i + 5;

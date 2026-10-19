@@ -181,7 +181,7 @@ extern u8 D_007E80A0[];
 extern s32 D_00764654;
 extern void mapSymbolMarkerSetHighlight(u8 *);
 extern void mapSymbolTargetSetState(u8 *, s8);
-extern void func_002b5100(u8 *, s8);
+extern void fclFadeRectSetControl(u8 *, s8);
 extern void mapSymbolPointSetState(u8 *, s8);
 extern void fclSpriteStartPositionTask(u8 *, YVec2f, YVec2f, u32, u32, s16);
 extern void fclSpriteStartAlphaTask(u8 *, u8, u8, u8, s32, s16);
@@ -1335,7 +1335,7 @@ void smapRefreshCells(u8 *task, s8 mode)
     }
     for (markerIndex = 0; markerIndex < 8; markerIndex++) {
         if (*(s32 *)(D_007E80A0 + markerIndex * 0x168) != 0)
-            func_002b5100(*(u8 **)(work + markerIndex * 4 + 0x114), mode);
+            fclFadeRectSetControl(*(u8 **)(work + markerIndex * 4 + 0x114), mode);
     }
     for (markerIndex = 0; markerIndex < 2; markerIndex++) {
         u8 *task = *(u8 **)(work + markerIndex * 4 + 0xD0);

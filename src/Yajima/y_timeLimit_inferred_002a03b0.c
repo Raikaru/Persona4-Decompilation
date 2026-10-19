@@ -86,7 +86,7 @@ extern void yTimeNameDrawSelections(u8 *arg0, s32 arg1);
 void yTimeNameDrawKeyboard(u8 *task) {
     extern u8 iGpffffb528[4];
     extern s32 iGpffffb538;
-    extern s32 func_0029f790(u8 *task);
+    extern s32 yTimeLimitDrawIdlePulse(u8 *task);
     extern u32 strlen(const void *task);
     extern void strncpy(void *task, const void *arg1, s32 arg2);
     extern s32 frFontExDrawText(f32 task, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
@@ -254,7 +254,7 @@ void yTimeNameDrawKeyboard(u8 *task) {
         }
         cellIndex += 1;
     }
-    func_0029f790(task);
+    yTimeLimitDrawIdlePulse(task);
     if (*(s32 *)(work + 0x14) != 3) {
         cursorRow = *(s32 *)(work + 0x20);
         cursorColumn = *(s32 *)(work + 0x1C);
