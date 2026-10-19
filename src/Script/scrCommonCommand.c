@@ -23,8 +23,8 @@ extern float scrGetParamFloat(s32 paramIdx);
 extern void scrSetReturnFloat(float value);
 extern float sqrtf(float x);
 extern char* scrGetParamString(s32 paramIdx);
-extern void func_00122640(s32 arg0, s32 arg1);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern void fadeBeginReturnTransition(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
 extern s32 kwlnGetCurrentWorkValue(void);
 extern s32 scrGetLabelAddr(s32 index);
@@ -170,7 +170,7 @@ u32 scrKillTask(void)
     task = scrGetParamInt(0);
     if (task != 0)
     {
-        func_00122640(0, task);
+        fadeBeginReturnTransition(0, task);
     }
     return 1;
 }
@@ -186,7 +186,7 @@ u32 scrSetTaskParam(void)
     p1 = scrGetParamInt(1);
     if (p1 != 0)
     {
-        func_00122520(p0, p1);
+        fadeBeginTransition(p0, p1);
     }
     return 1;
 }

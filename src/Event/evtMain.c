@@ -120,8 +120,8 @@ extern f32 D_008821B0[];
 extern f32 D_008821C0[];
 extern f32 D_008821D0[];
 extern s8 D_00763888[8];
-s32 func_00122520(s32 mode, s32 duration);
-s32 func_00122640(s32 mode, s32 duration);
+s32 fadeBeginTransition(s32 mode, s32 duration);
+s32 fadeBeginReturnTransition(s32 mode, s32 duration);
 s32 fadeState(void);
 void H_Fade_SetCustomColor(u8 red, u8 green, u8 blue);
 s32 cutinDrawTaskCreate(s32 parentTask, s32 packedCode);
@@ -676,7 +676,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
         if (currentKey == NULL) {
             if ((waitFlags & 0x80000000) != 0 && *(s32 *)(event + 0x758) == 1) {
                 func_00440b68((char *)D_0063C3F0);
-                func_00122640(1, 1);
+                fadeBeginReturnTransition(1, 1);
                 *(s32 *)(event + 0x758) = 0;
             }
         } else {
@@ -690,7 +690,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                         if (*(s16 *)(currentKey + 0x12) == -1) {
                             *(s16 *)(currentKey + 0x12) = 0;
                         }
-                        func_00122640(*(s16 *)(currentKey + 0x12), *(u16 *)(currentKey + 2));
+                        fadeBeginReturnTransition(*(s16 *)(currentKey + 0x12), *(u16 *)(currentKey + 2));
                     }
                     break;
                 case 1: {
@@ -713,7 +713,7 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
                                 copiedColors[1] = secondColorByte;
                                 copiedColors += 2;
                             } while (colorPairsLeft > 0);
-                            func_00122520(fadeMode, *(u16 *)(currentKey + 2));
+                            fadeBeginTransition(fadeMode, *(u16 *)(currentKey + 2));
                             if ((fadeColorIndex != 0) && ((u32)fadeColorIndex < 3U)) {
                                 H_Fade_SetCustomColor((u8)fadeColors[fadeColorIndex * 4 - 4],
                                     (u8)fadeColors[fadeColorIndex * 4 - 3], (u8)fadeColors[fadeColorIndex * 4 - 2]);

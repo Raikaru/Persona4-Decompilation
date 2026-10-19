@@ -349,7 +349,7 @@ static inline u32 fieldTransitionEntryActive(u32 index)
     if (*(s32 *)(entry + 0x48) != 0 && *(u8 **)(entry + 0x54) != NULL) active = 1;
     return active != 0;
 }
-extern void func_00122520(s32 enabled, s32 mode);
+extern void fadeBeginTransition(s32 enabled, s32 mode);
 extern void H_Fade_SetCustomColor(s32 red, s32 green, s32 blue);
 extern void RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];
@@ -880,7 +880,7 @@ s32 FldRc_TransitionStep(u8 *task)
                             destination[1] = second;
                             destination += 2;
                         } while (count > 0);
-                        func_00122520(1, 1);
+                        fadeBeginTransition(1, 1);
                         H_Fade_SetCustomColor(color[0], color[1], color[2]);
                         ++*(s32 *)work;
                     }

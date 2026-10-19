@@ -883,7 +883,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
     s32 FldCameraTaskCreate(s32);
     s32 FldUnit_SpawnEncounterTask(u8 *, s32);
     u32 FldUnit_IsSettled(u8 *);
-    s32 func_00122640(s32, s32);
+    s32 fadeBeginReturnTransition(s32, s32);
     s32 fadeStatus(void);
     s32 FldStepGetScriptData(void);
     s32 FldStepGetScriptSize(void);
@@ -1477,7 +1477,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
             goto running;
         case 16:
             if (FldUnit_IsSettled(((FldFrame *)MT_Scene_GetFrameState())->unitTask) != 0) {
-                func_00122640(1, 0);
+                fadeBeginReturnTransition(1, 0);
                 work->state = work->state + 1;
             }
             goto running;

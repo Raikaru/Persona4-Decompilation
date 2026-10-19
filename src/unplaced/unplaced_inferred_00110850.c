@@ -365,7 +365,7 @@ s32 calRestoreStateImage(void)
     savedState = iGpffffb19c;
     if (iGpffffb1b4 != 0) {
         sdlSchedulerDestroy();
-        func_00122520(1, 1);
+        fadeBeginTransition(1, 1);
         dayFlags = calReadDayFlagMask();
         datInitDefaultGameState();
         iGpffffb1f0 = 1;
@@ -392,7 +392,7 @@ s32 calRestoreStateImage(void)
 // FUN_00110FC0
 void sdlSchedulerTeardown(void) {
     sdlSchedulerDestroy();
-    func_00122520(1, 1);
+    fadeBeginTransition(1, 1);
     func_001029a0(0x1B, 0, 0, 8);
 }
 #pragma pop

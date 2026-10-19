@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 /* Source unit: src/cutinDraw_00120bc0.c */
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "effect_update_internal.h"
 #include "sdk_snd_internal.h"
 
@@ -32,63 +33,81 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag();
 
-s32 func_00120bc0(u8 *arg0);
-void func_00120db0(u8 *task);
+s32 cutinDrawTaskUpdate(u8 *input);
+void cutinDrawTaskDestroy(u8 *task);
 
 
+
+/* The constructor allocates 0x2C bytes; the update and destructor share these offsets. */
+typedef struct CutinDrawWork {
+    s32 state;
+    s16 firstId;
+    s16 secondId;
+    u8 pad08[4];
+    s32 active;
+    s32 resetRequested;
+    s32 drawEnabled;
+    s32 soundStarted;
+    f32 x;
+    f32 y;
+    union { u8 *pointer; s32 handle; } effect;
+    s32 directory;
+} CutinDrawWork;
 
 // FUN_00120BC0
-s32 func_00120bc0(u8 *arg0)
+/* Load the cutin directory, create its effect, then draw and poll it while enabled. */
+s32 cutinDrawTaskUpdate(u8 *task)
 {
     struct {
         f32 x;
         f32 y;
         s32 z;
-    } sp220;
-    u8 sp120[0x100];
-    u8 sp20[0x100];
-    s32 temp_3;
-    u8 *temp_16;
+    } position;
+    u8 directoryPath[0x100];
+    u8 resourcePath[0x100];
+    s32 state;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)temp_16;
-    switch (temp_3) {
+    /* CutinDrawWork offsets are proven below; member access changed retail scheduling (four bytes). */
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)work;
+    switch (state) {
     case 0:
-        sprintf(sp120, D_005E4FA0, *(s16 *)(temp_16 + 4),
-                      *(s16 *)(temp_16 + 6));
+        sprintf(directoryPath, D_005E4FA0, *(s16 *)(work + 4),
+                      *(s16 *)(work + 6));
         func_00440b68(&iGpffff9c28, D_005E4FB8, 0x28);
-        *(s32 *)(temp_16 + 0x28) = H_Cdvd_AcquireDirectory(sp120, 0);
-        *(s32 *)temp_16 = 1;
+        *(s32 *)(work + 0x28) = H_Cdvd_AcquireDirectory(directoryPath, 0);
+        *(s32 *)work = 1;
         break;
     case 1:
-        if (H_Cdvd_IsFileLoaded(*(s32 *)(temp_16 + 0x28)) != 0) {
-            sprintf(sp20, D_005E4FA0, *(s16 *)(temp_16 + 4),
-                          *(s16 *)(temp_16 + 6));
-            *(u8 **)(temp_16 + 0x24) = mdlEffectCreateFromResource(H_Cdvd_LookupRequest(sp20, 0));
-            *(s32 *)temp_16 = 2;
+        if (H_Cdvd_IsFileLoaded(*(s32 *)(work + 0x28)) != 0) {
+            sprintf(resourcePath, D_005E4FA0, *(s16 *)(work + 4),
+                          *(s16 *)(work + 6));
+            *(u8 **)(work + 0x24) = mdlEffectCreateFromResource(H_Cdvd_LookupRequest(resourcePath, 0));
+            *(s32 *)work = 2;
         }
         break;
     case 2:
-        sp220.x = *(f32 *)(temp_16 + 0x1C);
-        sp220.y = *(f32 *)(temp_16 + 0x20);
-        sp220.z = 0;
-        if (*(s32 *)(temp_16 + 0x14) != 0) {
-            if (*(s32 *)(temp_16 + 0xC) != 0 && *(s32 *)(temp_16 + 0x10) != 0) {
-                mdlEffectUpdate(*(s32 *)(temp_16 + 0x24));
-                *(s32 *)(temp_16 + 0x10) = 0;
-                *(s32 *)(temp_16 + 0xC) = 0;
+        position.x = *(f32 *)(work + 0x1C);
+        position.y = *(f32 *)(work + 0x20);
+        position.z = 0;
+        if (*(s32 *)(work + 0x14) != 0) {
+            if (*(s32 *)(work + 0xC) != 0 && *(s32 *)(work + 0x10) != 0) {
+                mdlEffectUpdate(*(s32 *)(work + 0x24));
+                *(s32 *)(work + 0x10) = 0;
+                *(s32 *)(work + 0xC) = 0;
             }
-            if (*(s32 *)(temp_16 + 0x18) == 0) {
+            if (*(s32 *)(work + 0x18) == 0) {
                 sdkSndStartStream(0, 0, 5, 0);
-                *(s32 *)(temp_16 + 0x18) = 1;
+                *(s32 *)(work + 0x18) = 1;
             }
-            func_004b1250(*(s32 *)(temp_16 + 0x24), &sp220);
-            func_004b1190(*(u8 **)(temp_16 + 0x24));
-            func_004b11d0(D_005DC974, *(s32 *)(temp_16 + 0x24));
-            if (mdlEffectIsActive(*(s32 *)(temp_16 + 0x24)) != 0) {
-                *(s32 *)(temp_16 + 0xC) = 1;
+            func_004b1250(*(s32 *)(work + 0x24), &position);
+            func_004b1190(*(u8 **)(work + 0x24));
+            func_004b11d0(D_005DC974, *(s32 *)(work + 0x24));
+            if (mdlEffectIsActive(*(s32 *)(work + 0x24)) != 0) {
+                *(s32 *)(work + 0xC) = 1;
             }
-            if (mdlEffectIsFinished(*(s32 *)(temp_16 + 0x24)) != 0) {
+            if (mdlEffectIsFinished(*(s32 *)(work + 0x24)) != 0) {
                 return -1;
             }
         }
@@ -100,19 +119,20 @@ s32 func_00120bc0(u8 *arg0)
 
 
 // FUN_00120DB0
-void func_00120db0(u8 *arg0)
+/* Destroy the cutin effect and directory before freeing the task work. */
+void cutinDrawTaskDestroy(u8 *task)
 {
-    u8 *temp_16;
+    CutinDrawWork *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_16 + 0x24) != 0) {
-        mdlEffectDestroy(*(s32 *)(temp_16 + 0x24));
+    work = (CutinDrawWork *)((struct KwlnTask *)task)->work;
+    if (work->effect.handle != 0) {
+        mdlEffectDestroy(work->effect.handle);
     }
-    if (*(s32 *)(temp_16 + 0x28) != 0) {
-        H_Cdvd_Destroy(*(s32 *)(temp_16 + 0x28));
-        *(s32 *)(temp_16 + 0x28) = 0;
+    if (work->directory != 0) {
+        H_Cdvd_Destroy(work->directory);
+        work->directory = 0;
     }
-    (*jtbl_008873EC)(temp_16);
+    (*jtbl_008873EC)(work);
 }
 
 
@@ -140,14 +160,14 @@ void func_00120db0(u8 *arg0)
    permute_ast + permute_min; the reduction needed no dead code, so it cleaned up to
    ordinary C (renames and cast tidying verified byte-identical). */
 // FUN_00120E20
-s32 cutinDrawTaskCreate(s32 arg0, s32 arg1)
+s32 cutinDrawTaskCreate(s32 unused, s32 packedIds)
 {
-  u8 *work;
+  CutinDrawWork *work;
   s32 packed;
   s32 result;
   s16 lo;
   s16 hi;
-  packed = arg1;
+  packed = packedIds;
   chkmemAllocSiteTag(D_005E4FB8, 0x68);
   work = D_008873F4[0](1, 0x2C, 0x40000);
   if (work == NULL)
@@ -156,10 +176,11 @@ s32 cutinDrawTaskCreate(s32 arg0, s32 arg1)
   }
   result = *(s16 *)&packed;
   lo = result;
+  /* Packed IDs are read as two little-endian signed halfwords from the stack. */
   hi = *(s16 *)((u8 *)&packed + 2);
-  *(s16 *)(work + 4) = lo;
-  *(s16 *)(work + 6) = hi;
-  result = (s32)kwlnTaskCreate((const void *)(D_005E4FC8), 0xF, 0, 0, func_00120bc0, func_00120db0, (u8 *)(work));
+  work->firstId = lo;
+  work->secondId = hi;
+  result = (s32)kwlnTaskCreate((const void *)(D_005E4FC8), 0xF, 0, 0, cutinDrawTaskUpdate, cutinDrawTaskDestroy, (u8 *)(work));
   if (result == 0)
   {
     return 0;

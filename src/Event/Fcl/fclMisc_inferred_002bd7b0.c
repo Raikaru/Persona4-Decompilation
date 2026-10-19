@@ -56,8 +56,8 @@ extern f32 iGpffff82fc;
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern s32 fieldSceneLoadStep(void);
 extern s32 mtSceneResListPrepareAll(void);
-extern void func_00122520(s32 arg0, s32 arg1);
-extern s32 func_00122640(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
+extern s32 fadeBeginReturnTransition(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
 extern s32 fclShopDrawIsReady(s32 arg0);
 extern void fclShopDrawSetMode(s32 arg0, s32 arg1);
@@ -198,7 +198,7 @@ s32 fclShopMainUpdate(u8 *task)
         }
         goto block_26;
     case 3:
-        func_00122640(1, 0);
+        fadeBeginReturnTransition(1, 0);
         work->state = 4;
     case 4:
         if (fadeStatus() != 0) {
@@ -207,7 +207,7 @@ s32 fclShopMainUpdate(u8 *task)
         }
         goto block_26;
     case 5:
-        func_00122520(1, 0);
+        fadeBeginTransition(1, 0);
         work->state = 6;
     case 6:
         if (fadeStatus() != 0) {

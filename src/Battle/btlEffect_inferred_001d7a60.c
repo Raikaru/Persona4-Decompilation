@@ -87,7 +87,7 @@ extern f32 fGpffff8110;
 /* Apply the requested fade mode and RGB channels, then report packet completion. */
 // FUN_001D7A60
 s32 btlEffectApplyFadeCustomColor(u8 *request) {
-    func_00122520(1, ((BtlEffectFadeColor *)request)->mode);
+    fadeBeginTransition(1, ((BtlEffectFadeColor *)request)->mode);
     H_Fade_SetCustomColor(((BtlEffectFadeColor *)request)->red, ((BtlEffectFadeColor *)request)->green, ((BtlEffectFadeColor *)request)->blue);
     return 1;
 }

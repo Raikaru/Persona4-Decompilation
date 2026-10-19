@@ -9,7 +9,7 @@
 #include "message_procedure_api.h"
 
 
-extern int *func_002e2240(int *, int *, int *);
+extern int *comuDataRemoveAndReleaseNode(int *, int *, int *);
 
 // P3 counterpart iGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
 // uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
@@ -45,7 +45,7 @@ extern s32 fclMiscActivateHandle(u8 *, s32, s32);
 extern void fclMiscUpdateHandle(int *);
 extern u32 fclMiscCloseHandle();
 extern void fclMiscSetWord14();
-extern void func_002e22f0();
+extern void comuDataClearList();
 extern s32 fclMiscRequestSlotRelease(u8 *, s32);
 extern s32 fclMiscAttachSlot(u8 *, s32);
 extern s32 fclMiscUpdateSlots(u8 *);
@@ -89,7 +89,7 @@ u64 fclMiscPruneLists(int *manager)
     while (item != 0) {
         node = (int *)((FclAssistNode *)item)->data;
         if (((FclAssistSlot *)node)->sprite == 0) {
-            item = func_002e2240((int *)((FclAssistManager *)manager)->pending, (int *)&((FclAssistManager *)manager)->pending->head, item);
+            item = comuDataRemoveAndReleaseNode((int *)((FclAssistManager *)manager)->pending, (int *)&((FclAssistManager *)manager)->pending->head, item);
         }
         else {
             item = (int *)((FclAssistNode *)item)->next;
@@ -99,7 +99,7 @@ u64 fclMiscPruneLists(int *manager)
     while (item != 0) {
         node = (int *)((FclAssistNode *)item)->data;
         if ((((FclAssistEntry *)node)->flags & 2) == 0) {
-            item = func_002e2240((int *)((FclAssistManager *)manager)->entries, (int *)&((FclAssistManager *)manager)->entries->head, item);
+            item = comuDataRemoveAndReleaseNode((int *)((FclAssistManager *)manager)->entries, (int *)&((FclAssistManager *)manager)->entries->head, item);
         }
         else {
             item = (int *)((FclAssistNode *)item)->next;
@@ -159,7 +159,7 @@ s32 msgAssistUpdate(u8 *unusedTask)
             {
                 *(s32 *)(manager + 4) &= ~2;
                 fclMiscSetWord14(0);
-                func_002e22f0(*(void **)manager,
+                comuDataClearList(*(void **)manager,
                               (u8 *)*(void **)manager + 4);
                 i = 0;
                 while (i < 0xb)
@@ -199,7 +199,7 @@ update_tail:
             if (fclMiscTryReleaseEntry(manager, entry) != 0)
             {
                 *(s32 *)(manager + 4) |= 1;
-                func_002e2240(*(int **)manager,
+                comuDataRemoveAndReleaseNode(*(int **)manager,
                               (int *)((u8 *)*(int **)manager + 4),
                               (int *)head);
             }

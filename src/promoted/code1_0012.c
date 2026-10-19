@@ -1833,8 +1833,8 @@ s32 titleTaskUpdate(u8 *task)
     extern void calWriteDayFlagMask(s32 task);
     extern s32 calCaptureDayFlagMask(void);
     extern void datInitDefaultGameState(void);
-    extern void func_00122520(s32 task, s32 mode);
-    extern void func_00122640(s32 task, s32 mode);
+    extern void fadeBeginTransition(s32 task, s32 mode);
+    extern void fadeBeginReturnTransition(s32 task, s32 mode);
     extern s32 fadeStatus(void);
     extern s32 cmpConfigCreate(void *task, s32 mode);
     extern s32 cmpConfigIsStepDone(u8 *task);
@@ -1877,7 +1877,7 @@ s32 titleTaskUpdate(u8 *task)
     switch (state) {
     case 0:
         *(s32 *)work = 1;
-        func_00122640(1, 1);
+        fadeBeginReturnTransition(1, 1);
     case 1:
         *(s32 *)work = 2;
         func_00440b68((const char *)&iGpffff9c90, D_005E5548, 0x5D0);
@@ -2007,7 +2007,7 @@ s32 titleTaskUpdate(u8 *task)
             *(s32 *)work = 0x10;
             *(s32 *)(work + 0x1C) = 1;
             *(s32 *)(work + 0x2C) = 0xA;
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
         } else {
             if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
                 sdkSndStartStream(0, 0, 0, 1);
@@ -2070,7 +2070,7 @@ s32 titleTaskUpdate(u8 *task)
         result = mcIconTaskPoll();
         switch (result) {
         case 1:
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
             *(s32 *)(work + 0x1C) = 3;
             *(s32 *)work = 0x10;
             break;
@@ -2082,7 +2082,7 @@ s32 titleTaskUpdate(u8 *task)
         break;
     case 12:
         *(s32 *)work = 0xD;
-        func_00122520(1, 0xA);
+        fadeBeginTransition(1, 0xA);
     case 13:
         if (fadeStatus() != 0) {
             *(s32 *)(work + 0x1C) = 2;
