@@ -59,26 +59,56 @@ typedef struct FclCombineWork {
     s8 refreshRequested;
     u8 pad46[0x6C];
     s8 fB2;
-    u8 padB3[0x6B];
+    s8 slotCursor;               /* +0xB3: three-slot menu selection */
+    s8 commandCursor;
+    s8 commandCount;
+    s8 actionKind;
+    s8 actionCount;
+    s16 selectedIds[6];          /* +0xB8: resource IDs, followed by nine ten-byte rows */
+    struct {
+        s16 state0;
+        s16 state1;
+        s16 id;
+        s16 x;
+        s16 y;
+    } commandRows[9];            /* +0xC4: row ID at +0xC8 */
     s16 f11E;
-    u8 pad120[0x2];
+    s16 windowRow;
     s8 f122;
-    u8 pad123[0x5];
+    s8 headerSelection;
+    f32 rowSpacing;              /* +0x124: cursor-indicator row displacement */
     s8 f128;
     s8 f129;
-    u8 pad12A[0x1E];
+    u8 pad12A[0xE];
+    s8 choiceFlags;
+    s8 choiceCount;
+    s8 redrawRequested;
+    u8 pad13B[0xD];
     u8 *f148;
     u8 pad14C[0x3C];
     s32 f188;
-    u8 pad18C[0xC0];
+    u8 pad18C[0x90];
+    u8 *ballTasks[12];            /* +0x21C: per-row ball draw tasks */
     struct KwlnTask *unk24C;      /* optional child tasks destroyed with the menu */
     struct KwlnTask *unk250;
-    u8 pad254[0x38];
+    u8 pad254[4];
+    u8 *clipTasks[12];           /* +0x258: row clips, also addressed as two per column */
+    u8 pad288[4];
     u8 *f28C;
     u8 *f290;
-    u8 pad294[0x28];
+    s8 cursorStates[2];
+    u8 pad296[2];
+    FclVec2 cursorPosition;
+    u8 pad2A0[0x1C];
     s32 f2BC;
-    u8 pad2C0[0x39];
+    u8 pad2C0[4];
+    s8 detailFlags[2][5];
+    u8 pad2CE[4];
+    s8 calendarMonth;
+    s8 calendarDay;
+    s8 ruleIndices[2];
+    s8 detailSide;
+    u8 pad2D7[0x22];
     s8 f2F9;
     s8 f2FA;
     u8 pad2FB[0x5];

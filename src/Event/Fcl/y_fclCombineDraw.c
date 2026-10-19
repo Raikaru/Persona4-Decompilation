@@ -59,6 +59,38 @@ typedef struct {
     u8 pad46[2];
 } FclCombineLoaderWork;
 
+/* The detail tables contain five four-byte effects per day (0x14), or a
+   header and five effects per rule (0x1C); +2/+A are the effect argument. */
+typedef struct {
+    s8 kind;
+    u8 pad01;
+    u16 argument;
+} FclCombineDetailEffect;
+
+typedef struct {
+    u8 pad00[2];
+    s8 kind;
+    u8 pad03;
+    s16 firstPersona;
+    s16 secondPersona;
+    FclCombineDetailEffect effects[5];
+} FclCombineCalendarRule;
+
+/* The ball allocator reserves 0xF10 bytes; fourteen inline quad packets and
+   the animation state precede the color-mode byte used by the row renderer. */
+typedef struct {
+    u8 pad00[0xF00];
+    s8 colorMode;
+    u8 padF01[0xF];
+} FclCombineBallWork;
+
+/* The recovered model-work prefix reaches 0xF4; the selected-name path clears byte +1. */
+typedef struct {
+    s8 state;
+    u8 unk1;
+    u8 pad02[0xF2];
+} FclCombineModelState;
+
 /* Extend the shared sprite prefix (sizeof 0x8C) only for fields exercised
    here: the color-animation flag and the independent X/Y scale values. */
 typedef struct {
@@ -260,14 +292,14 @@ void fclDrawSetState(u8 *task, s8 closeObject) {
 // Store value/selector, enter mode 0, and place the Persona origin at Y = 40 * row.
 // FUN_00314450
 void fclDrawSetPlacement(u8 *task, s32 value, u8 selector, s32 row) {
-    /* Raw work words retain retail load/store order; the proven FclPersonaDrawWork rewrite changed codegen. */
+    /* measured: either remaining field conversion changes b210 reload order (nd 9). */
     f32 originCoordinates1[2];
-    u32 work = *(u32 *)(task + 0x38);
+    u32 work = (u32)((struct KwlnTask *)task)->work;
 
     fclZero8((u8 *)originCoordinates1);
     originCoordinates1[1] = 40.0f * (f32)row;
-    *(s32 *)((u32)work + 8) = value;
-    *(u8 *)((u32)work + 0xC) = selector;
+    ((FclPersonaDrawWork *)work)->value = value;
+    ((FclPersonaDrawWork *)work)->selector = selector;
     *(u8 *)((u32)work + 0) = 0;
     shdPersonaSetOrigin((u8 *)*(u32 *)((u32)work + 4), originCoordinates1);
 }
@@ -275,17 +307,16 @@ void fclDrawSetPlacement(u8 *task, s32 value, u8 selector, s32 row) {
 // Fcl draw placement (ex): as fclDrawSetPlacement with mode 8 and an extra value.
 // FUN_003144D0
 void fclDrawSetPlacementEx(u8 *task, s32 value, s8 selector, s32 extraValue, s32 row) {
-    /* Raw work words retain retail load/store order; the proven FclPersonaDrawWork rewrite changed codegen. */
     f32 originCoordinates1[2];
-    u32 work = *(u32 *)(task + 0x38);
+    u32 work = (u32)((struct KwlnTask *)task)->work;
 
     fclZero8((u8 *)originCoordinates1);
     originCoordinates1[1] = 40.0f * (f32)row;
-    *(s32 *)((u32)work + 8) = value;
-    *(s8 *)((u32)work + 0xC) = selector;
-    *(u8 *)((u32)work + 0) = 8;
-    *(s32 *)((u32)work + 0x10) = extraValue;
-    shdPersonaSetOrigin((u8 *)*(u32 *)((u32)work + 4), originCoordinates1);
+    ((FclPersonaDrawWork *)(u32)work)->value = value;
+    ((FclPersonaDrawWork *)(u32)work)->selector = selector;
+    ((FclPersonaDrawWork *)(u32)work)->state = 8;
+    ((FclPersonaDrawWork *)(u32)work)->extraValue = extraValue;
+    shdPersonaSetOrigin((u8 *)((FclPersonaDrawWork *)(u32)work)->personaHandle, originCoordinates1);
 }
 
 // Store value/selector and display the Persona; keepSelection chooses the display variant.
@@ -314,10 +345,10 @@ s32 fclDrawIsActive(u8 *task) {
     if (kwlnTaskIsLinked((void *)task) == 0) {
         return 0;
     }
-    if (*(u32 *)(task + 0x38) == 0) {
+    if ((u32)((struct KwlnTask *)task)->work == 0) {
         return 0;
     }
-    return *(s8 *)(*(u32 *)(task + 0x38)) < 6;
+    return ((FclPersonaDrawWork *)((struct KwlnTask *)task)->work)->state < 6;
 }
 
 // Fcl draw get state: returns the state byte.
@@ -356,14 +387,13 @@ void fclDrawSetHandleValue(u8 *task, u32 value) {
 // FUN_003146F0
 void fclDrawSetSlotMode(u8 *task, s32 value, s8 selector)
 {
-    /* Keep byte-relative access: the proven work struct changes retail reload
-       order under b210, so the typed rewrite was measured and reverted. */
+    /* measured: Value reload stays raw: its member substitution changes b210 codegen (nd 10). */
     u8 *obj;
 
     obj = ((struct KwlnTask *)task)->work;
-    *(s32 *)(obj + 8) = value;
-    *(s8 *)(obj + 0xC) = selector;
-    shdPersonaSetDisplayState(*(u8 **)(obj + 4), 0, *(u32 *)(obj + 8), *(s8 *)(obj + 0xC));
+    ((FclPersonaDrawWork *)obj)->value = value;
+    ((FclPersonaDrawWork *)obj)->selector = selector;
+    shdPersonaSetDisplayState((u8 *)((FclPersonaDrawWork *)obj)->personaHandle, 0, *(u32 *)(obj + 8), ((FclPersonaDrawWork *)obj)->selector);
 }
 
 
@@ -391,14 +421,13 @@ void fclDrawSetFlag(u8 *task, s8 flag) {
 // Restore the retained origin and select the object's slide-out or close transition from visible.
 // FUN_00314750
 void fclDrawSetVisible(u8 *task, s8 visible) {
-    /* Keep byte-relative access: the proven work struct changes retail reload
-       order under b210, so the typed rewrite was measured and reverted. */
+    /* measured: The two post-origin handle reloads stay raw: member substitutions change b210 codegen (nd 84). */
     u8 *work;
     s64 originPacket;
     f32 *p;
 
     work = ((struct KwlnTask *)task)->work;
-    shdPersonaSetOrigin((u8 *)*(u32 *)(work + 4),
+    shdPersonaSetOrigin((u8 *)((FclPersonaDrawWork *)work)->personaHandle,
                   (p = (f32 *)&originPacket, (originPacket = iGpffffa908, p)));
     if (visible == 0) {
         shdPersonaStartSlideOut((u8 *)*(u32 *)(work + 4));
@@ -431,8 +460,7 @@ u8 *fclDrawGetResource(u8 *task) {
 // Kinds 0x174 and 0x160 add extra cells; kind 0x16C draws through fclCombineDrawListRowPlain at a fixed position.
 // FUN_003147E0
 void fclCombineDrawListRow(u8 *task, s8 row, FclVec2 position, s16 resource, s16 delay, s8 mode) {
-    /* Raw clip-slot indexing retains the row bias before the 0x258 field;
-       the complete handle-table extent is not established by these draws. */
+    /* measured: clipTasks member indexing changes b210 address codegen (nd 1); retain the byte-table base. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -535,8 +563,7 @@ void fclCombineDrawListRow(u8 *task, s8 row, FclVec2 position, s16 resource, s16
 // Fcl combine list row, plain variant: the same row layout without the kind-specific cells; reached for kind 0x16C.
 // FUN_00314EF0
 void fclCombineDrawListRowPlain(u8 *task, s8 row, FclVec2 position, s16 resource, s16 delay, s8 mode) {
-    /* Raw clip-slot indexing retains the row bias before the 0x258 field;
-       the complete handle-table extent is not established by these draws. */
+    /* measured: clipTasks member indexing changes b210 address codegen (nd 2); retain the byte-table base. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -601,7 +628,7 @@ void fclCombineDrawListRowPlain(u8 *task, s8 row, FclVec2 position, s16 resource
 // Fcl combine slot rows: draws the three slot rows at the base offset (fclCombineDrawListRow for each), then recolours the selected slot's sprites; the middle row uses 0x160 when flag 0x1305 is set.
 // FUN_00315310
 void fclCombineDrawSlotRows(u8 *task, s64 delay) {
-    /* Raw row-table access preserves the offset-first resource index; the row table is outside the shared work prefix. */
+    /* measured: Remaining slot-cursor reads and the conditional ID store change b210 codegen when typed (nd 286..468). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -617,9 +644,9 @@ void fclCombineDrawSlotRows(u8 *task, s64 delay) {
 
     raw = delay;
     work = ((struct KwlnTask *)task)->work;
-    *(s16 *)(work + 0xB8) = 0x15D;
-    *(s16 *)(work + 0xBA) = 0x15E;
-    *(s16 *)(work + 0xBC) = 0x15F;
+    ((FclCombineWork *)(work))->selectedIds[0] = 0x15D;
+    ((FclCombineWork *)(work))->selectedIds[1] = 0x15E;
+    ((FclCombineWork *)(work))->selectedIds[2] = 0x15F;
     if (datGetFlag(0x1305) != 0) {
         *(s16 *)(work + 0xBA) = 0x160;
     }
@@ -628,16 +655,16 @@ void fclCombineDrawSlotRows(u8 *task, s64 delay) {
     for (; (s16)i < 3; i = (s16)(i + 1)) {
         off = (s16)i * 2;
         drawPosition1 = fclMakeVec2(26.0f, (f32)((s16)i * 34 + 0x57));
-        fclCombineDrawListRow(task, (s8)(s16)i, drawPosition1, *(s16 *)(work + off + 0xB8), (s16)(base + off), 0);
+        fclCombineDrawListRow(task, (s8)(s16)i, drawPosition1, ((FclCombineWork *)(work + off))->selectedIds[0], (s16)(base + off), 0);
     }
     drawColor1 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
-    p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) * 2 + 0x1F4));
+    p = fclSpriteEntry((s16)(((FclCombineWork *)work)->slotCursor * 2 + 0x1F4));
     ((FclCombineRowSprite *)p)->color = drawColor1;
     drawColor2 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) * 2 + 0x1F5));
     ((FclCombineRowSprite *)p)->color = drawColor2;
     drawColor3 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-    p = fclSpriteEntry((s16)*(s16 *)(addOff(*(s8 *)(work + 0xB3) * 2, (u32)work) + 0xB8));
+    p = fclSpriteEntry((s16)((FclCombineWork *)(addOff(*(s8 *)(work + 0xB3) * 2, (u32)work)))->selectedIds[0]);
     ((FclCombineRowSprite *)p)->color = drawColor3;
     if (*(s8 *)(work + 0xB3) == 1) {
         if (datGetFlag(0x1305) != 0) {
@@ -1043,8 +1070,7 @@ void fclCombineFadeCursorArrow(u8 *task, s64 mode, f32 offsetX) {
 // Recolor the current slot, step it for command 0/1, then apply the selected colors to the new slot.
 // FUN_00317410
 void fclCombineStepSlotSelection(u8 *task, s8 command) {
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining slot-cursor/color-source member substitutions change b210 codegen (nd 8..843). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -1063,29 +1089,29 @@ void fclCombineStepSlotSelection(u8 *task, s8 command) {
 
     work = ((struct KwlnTask *)task)->work;
     drawColor1 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) * 2 + 0x1F5));
-    *(FclDrawColor *)(p + 0x85) = drawColor1;
+    p = fclSpriteEntry((s16)(((FclCombineWork *)work)->slotCursor * 2 + 0x1F5));
+    ((FclCombineRowSprite *)p)->color = drawColor1;
     q = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) * 2 + 0x1F4));
-    *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
+    ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
     drawColor2 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
     v = *(s8 *)(work + 0xB3) * 2;
-    p = fclSpriteEntry((s16)*(s16 *)(v + (s32)work + 0xB8));
-    *(FclDrawColor *)(p + 0x85) = drawColor2;
+    p = fclSpriteEntry((s16)((FclCombineWork *)(v + (s32)work))->selectedIds[0]);
+    ((FclCombineRowSprite *)p)->color = drawColor2;
     if (*(s8 *)(work + 0xB3) == 1) {
         if (datGetFlag(0x1305) != 0) {
             drawColor3 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
             p = fclSpriteEntry(0x2EB);
-            *(FclDrawColor *)(p + 0x85) = drawColor3;
+            ((FclCombineRowSprite *)p)->color = drawColor3;
         }
     }
     if (*(s8 *)(work + 0xB3) == 2) {
         drawColor4 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
         p = fclSpriteEntry(0x175);
-        *(FclDrawColor *)(p + 0x85) = drawColor4;
+        ((FclCombineRowSprite *)p)->color = drawColor4;
     }
     drawColor5 = fclMakeDrawColor(0x25, 0x2F, 0x94, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) + 0x2FB));
-    *(FclDrawColor *)(p + 0x85) = drawColor5;
+    ((FclCombineRowSprite *)p)->color = drawColor5;
     sdkSndStartStream(0, 0, 0, 0);
     switch (command) {
     case 0:
@@ -1101,29 +1127,29 @@ void fclCombineStepSlotSelection(u8 *task, s8 command) {
     }
     drawColor6 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) * 2 + 0x1F4));
-    *(FclDrawColor *)(p + 0x85) = drawColor6;
+    ((FclCombineRowSprite *)p)->color = drawColor6;
     drawColor7 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) * 2 + 0x1F5));
-    *(FclDrawColor *)(p + 0x85) = drawColor7;
+    ((FclCombineRowSprite *)p)->color = drawColor7;
     drawColor8 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     v = *(s8 *)(work + 0xB3) * 2;
-    p = fclSpriteEntry((s16)*(s16 *)(v + (s32)work + 0xB8));
-    *(FclDrawColor *)(p + 0x85) = drawColor8;
+    p = fclSpriteEntry((s16)((FclCombineWork *)(v + (s32)work))->selectedIds[0]);
+    ((FclCombineRowSprite *)p)->color = drawColor8;
     if (*(s8 *)(work + 0xB3) == 1) {
         if (datGetFlag(0x1305) != 0) {
             drawColor9 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             p = fclSpriteEntry(0x2EB);
-            *(FclDrawColor *)(p + 0x85) = drawColor9;
+            ((FclCombineRowSprite *)p)->color = drawColor9;
         }
     }
     if (*(s8 *)(work + 0xB3) == 2) {
         drawColor10 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         p = fclSpriteEntry(0x175);
-        *(FclDrawColor *)(p + 0x85) = drawColor10;
+        ((FclCombineRowSprite *)p)->color = drawColor10;
     }
     drawColor11 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(work + 0xB3) + 0x2FB));
-    *(FclDrawColor *)(p + 0x85) = drawColor11;
+    ((FclCombineRowSprite *)p)->color = drawColor11;
 }
 
 
@@ -1136,7 +1162,7 @@ void fclCombineStepSlotSelection(u8 *task, s8 command) {
 // Draw entry from startPosition to endPosition at delay, depth and layer; the selected entry adds animated highlights.
 // FUN_00317900
 void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPosition, s8 entry, s16 delay, s16 depth, s16 layer) {
-    /* Raw selected-entry indexing retains the ten-byte row stride; flag 0x73 is deliberately byte-addressed. */
+    /* measured: commandRows[commandCursor].id indexing changes b210 address codegen (nd 1); retain the ten-byte stride. */
     extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     FclDrawColor drawColor1;
@@ -1185,7 +1211,7 @@ void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPositio
     fclSpriteCreate(entry + 0xFD, fclMakeVec2(endPosition.x - 12.0f, 104.0f + endPosition.y), (f32)depth, order + 2);
     drawColor3 = fclMakeDrawColor(0xE0, 0xFF, 0x33, 0xFF);
     ((FclCombineRowSprite *)fclSpriteEntry(entry + 0xFD))->color = drawColor3;
-    if (entry == ((s16 *)(work + 0xC8))[*(s8 *)(work + 0xB4) * 5]) {
+    if (entry == ((s16 *)(work + 0xC8))[((FclCombineWork *)work)->commandCursor * 5]) {
         fclSpriteCreate(sprite, fclMakeVec2(6.0f + pos.x, 4.0f + pos.y), 59.0f, 0xAB);
         scale = iGpffff8360;
         ((FclCombineDrawSprite *)fclSpriteEntry(sprite))->scaleX = scale;
@@ -1213,7 +1239,7 @@ void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPositio
         fclSpriteStartPositionAt(0x216, fclMakeVec2(6.0f + pos.x, 62.0f + pos.y), fclMakeVec2(6.0f + endPosition.x, 62.0f + endPosition.y), 0, 8, delay);
         fadeA = delay + 8;
         fclSpriteStartAlphaAt(0x216, 0x40, 0x80, 1, 0x3C, fadeA);
-        *(u8 *)(fclSpriteEntry(0x216) + 0x73) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x216))->flag73 = 1;
         fclSpriteSetFlag(0x216, 0xB, 0);
         fclSpriteReset(0x217, 0x87);
         ((FclCombineRowSprite *)fclSpriteEntry(0x217))->flags = 0;
@@ -1221,7 +1247,7 @@ void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPositio
         fclSpriteStartPositionAt(0x217, fclMakeVec2(33.0f + pos.x, 62.0f + pos.y), fclMakeVec2(33.0f + endPosition.x, 62.0f + endPosition.y), 0, 8, delay);
         fadeB = delay + 0x26;
         fclSpriteStartAlphaAt(0x217, 0x40, 0x80, 1, 0x3C, fadeB);
-        *(u8 *)(fclSpriteEntry(0x217) + 0x73) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x217))->flag73 = 1;
         fclSpriteSetFlag(0x217, 0xB, 0);
         fclSpriteReset(0x218, 0x86);
         ((FclCombineRowSprite *)fclSpriteEntry(0x218))->flags = 0;
@@ -1229,28 +1255,28 @@ void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPositio
         fclSpriteStartPositionAt(0x218, fclMakeVec2(20.0f + pos.x, 62.0f + pos.y), fclMakeVec2(20.0f + endPosition.x, 62.0f + endPosition.y), 0, 8, delay);
         fadeC = delay + 0x17;
         fclSpriteStartAlphaAt(0x218, 0x40, 0x80, 1, 0x3C, fadeC);
-        *(u8 *)(fclSpriteEntry(0x218) + 0x73) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x218))->flag73 = 1;
         fclSpriteSetFlag(0x218, 0xB, 0);
         fclSpriteReset(0x219, 0x89);
         ((FclCombineRowSprite *)fclSpriteEntry(0x219))->flags = 0;
         fclSpriteCreate(0x219, fclMakeVec2(6.0f + pos.x, pos.y - 44.0f), 62.0f, 0xAA);
         fclSpriteStartPositionAt(0x219, fclMakeVec2(6.0f + pos.x, pos.y - 44.0f), fclMakeVec2(6.0f + endPosition.x, endPosition.y - 44.0f), 0, 8, delay);
         fclSpriteStartAlphaAt(0x219, 0x80, 0xFF, 1, 0x3C, fadeA);
-        *(u8 *)(fclSpriteEntry(0x219) + 0x73) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x219))->flag73 = 1;
         fclSpriteSetFlag(0x219, 0xB, 0);
         fclSpriteReset(0x21A, 0x89);
         ((FclCombineRowSprite *)fclSpriteEntry(0x21A))->flags = 0;
         fclSpriteCreate(0x21A, fclMakeVec2(33.0f + pos.x, pos.y - 44.0f), 62.0f, 0xAA);
         fclSpriteStartPositionAt(0x21A, fclMakeVec2(33.0f + pos.x, pos.y - 44.0f), fclMakeVec2(33.0f + endPosition.x, endPosition.y - 44.0f), 0, 8, delay);
         fclSpriteStartAlphaAt(0x21A, 0x80, 0xFF, 1, 0x3C, fadeB);
-        *(u8 *)(fclSpriteEntry(0x21A) + 0x73) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x21A))->flag73 = 1;
         fclSpriteSetFlag(0x21A, 0xB, 0);
         fclSpriteReset(0x21B, 0x88);
         ((FclCombineRowSprite *)fclSpriteEntry(0x21B))->flags = 0;
         fclSpriteCreate(0x21B, fclMakeVec2(20.0f + pos.x, pos.y - 44.0f), 61.0f, 0xAA);
         fclSpriteStartPositionAt(0x21B, fclMakeVec2(20.0f + pos.x, pos.y - 44.0f), fclMakeVec2(20.0f + endPosition.x, endPosition.y - 44.0f), 0, 8, delay);
         fclSpriteStartAlphaAt(0x21B, 0x80, 0xFF, 1, 0x3C, fadeC);
-        *(u8 *)(fclSpriteEntry(0x21B) + 0x73) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x21B))->flag73 = 1;
         fclSpriteSetFlag(0x21B, 0xB, 0);
         return;
     }
@@ -1269,7 +1295,6 @@ void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPositio
 // Move/show the selected row's entry highlight; otherwise restore the entry icon at depth and layer + 1.
 // FUN_00318840
 void fclCombineUpdateEntryHighlight(u8 *task, s8 row, s8 entry, s16 depth, s16 layer) {
-    /* Raw order/depth words are outside the shared sprite prefix; preserve signed depth conversion at the store. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -1292,7 +1317,7 @@ void fclCombineUpdateEntryHighlight(u8 *task, s8 row, s8 entry, s16 depth, s16 l
     } else if (entry == 8) {
         icon = 0xED;
     }
-    if (row == *(s8 *)(work + 0xB4)) {
+    if (row == ((FclCombineWork *)work)->commandCursor) {
         ((FclCombineRowSprite *)fclSpriteEntry(0x1DC))->position = pos;
         ((FclCombineRowSprite *)fclSpriteEntry(0x216))->position = fclMakeVec2(6.0f + pos.x, 62.0f + pos.y);
         ((FclCombineRowSprite *)fclSpriteEntry(0x217))->position = fclMakeVec2(33.0f + pos.x, 62.0f + pos.y);
@@ -1303,8 +1328,8 @@ void fclCombineUpdateEntryHighlight(u8 *task, s8 row, s8 entry, s16 depth, s16 l
         scale = iGpffff8360;
         ((FclCombineDrawSprite *)fclSpriteEntry(icon))->scaleX = scale;
         ((FclCombineDrawSprite *)fclSpriteEntry(icon))->scaleY = scale;
-        *(f32 *)(fclSpriteEntry(icon) + 0x14) = 59.0f;
-        *(s32 *)(fclSpriteEntry(icon) + 0x8) = 0xAB;
+        ((FclCombineRowSprite *)fclSpriteEntry(icon))->depth = 59.0f;
+        ((FclCombineRowSprite *)fclSpriteEntry(icon))->order = 0xAB;
         h = sdkSpriteNewNode(fclCombineGetSpritePool(), icon);
         ((FclCombineRowSprite *)fclSpriteEntry(icon))->position = fclMakeVec2((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(h) / 10.0f), pos.y - 3.0f);
         sdkSpriteFreeNode(h);
@@ -1330,8 +1355,8 @@ void fclCombineUpdateEntryHighlight(u8 *task, s8 row, s8 entry, s16 depth, s16 l
     ((FclCombineRowSprite *)fclSpriteEntry(resource))->color = drawColor3;
     ((FclCombineDrawSprite *)fclSpriteEntry(icon))->scaleX = 1.0f;
     ((FclCombineDrawSprite *)fclSpriteEntry(icon))->scaleY = 1.0f;
-    *(f32 *)(fclSpriteEntry(icon) + 0x14) = depth;
-    *(s32 *)(fclSpriteEntry(icon) + 0x8) = layer + 1;
+    ((FclCombineRowSprite *)fclSpriteEntry(icon))->depth = depth;
+    ((FclCombineRowSprite *)fclSpriteEntry(icon))->order = layer + 1;
     ((FclCombineRowSprite *)fclSpriteEntry(icon))->position = fclMakeVec2(6.0f + pos.x, 4.0f + pos.y);
     drawColor4 = fclMakeDrawColor(0x42, 0x6E, 0xFF, 0xFF);
     ((FclCombineRowSprite *)fclSpriteEntry(icon))->color = drawColor4;
@@ -1371,14 +1396,13 @@ void fclCombineMarkRow(s16 row) {
 // Fcl combine rows busy: returns 1 while any row sprite or the 0x1DC sprite is still animating.
 // FUN_003190D0
 s32 fclCombineRowsBusy(u8 *task) {
-    /* The entry table uses ten-byte rows; raw indexing avoids inventing the unobserved fields of each row. */
     u8 *work;
     s16 i;
 
     work = ((struct KwlnTask *)task)->work;
-    for (i = 0; i < *(s8 *)(work + 0xB5); i++) {
-        if (*(s8 *)(work + 0xB4) != i) {
-            if ((s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry((s16)(*(s16 *)(work + i * 10 + 0xC8) + 0x20D)))->flags, 1) == 1) {
+    for (i = 0; i < ((FclCombineWork *)work)->commandCount; i++) {
+        if (((FclCombineWork *)work)->commandCursor != i) {
+            if ((s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry((s16)(((FclCombineWork *)work)->commandRows[i].id + 0x20D)))->flags, 1) == 1) {
                 return 1;
             }
         }
@@ -1392,8 +1416,7 @@ s32 fclCombineRowsBusy(u8 *task) {
 // Draw the party row's icon, Persona, arcana, level and labels; mode 1 transitions existing sprites out.
 // FUN_003191C0
 void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 level, s16 delay, s8 mode, s8 rowCountLimit) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
+    /* measured: Remaining row-handle/cursor member substitutions change b210 codegen (nd 2..5043). */
     /* Slot is s32 here, not the header's s8: fclCombinePartyRow passes an unnarrowed
        value. Measured: the s8 prototype regresses this function to nd. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
@@ -1441,11 +1464,11 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
     u8 **pp;
     s8 c2;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
     special = 0;
-    if (*(u8 *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), row) + 0x75) == 0x8C) {
-        if (*(u8 *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), row) + 0x76) == 0xE2) {
-            if (*(u8 *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), row) + 0x77) == 0xFF) {
+    if (((FclObject *)((u8 *)fclCombineSlotRecord((u8 *)((FclCombineWork *)work)->f188, row) - 4))->color.c0 == 0x8C) {
+        if (((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(work + 0x188), row) - 4))->color.c1 == 0xE2) {
+            if (((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(work + 0x188), row) - 4))->color.c2 == 0xFF) {
                 special = 1;
             }
         }
@@ -1466,7 +1489,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
             drawColor2 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor2;
             fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, delay);
-        } else if (*(s16 *)(work + 0x11E) == c) {
+        } else if (((FclCombineRowWork *)work)->cursorRow == c) {
             drawColor3 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor3;
             fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, delay);
@@ -1483,7 +1506,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
     id = (s16)(c + 0x22B);
     hB = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x19A);
     if ((s8)mode == 1) {
-        if (*(s16 *)(work + 0x11E) == c) {
+        if (((FclCombineRowWork *)work)->cursorRow == c) {
             fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, delay + 3);
         } else {
             fclSpriteStartAlphaAt(id, ((FclCombineRowSprite *)fclSpriteEntry(id))->alpha, 0, 0, 0, delay + 3);
@@ -1496,7 +1519,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
             drawColor5 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor5;
             fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, delay);
-        } else if (*(s16 *)(work + 0x11E) == c) {
+        } else if (((FclCombineRowWork *)work)->cursorRow == c) {
             drawColor6 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor6;
             fclSpriteStartAlphaAt(id, 0, 0xFF, 0, 0, delay);
@@ -1523,7 +1546,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
         if (special == 1) {
             drawColor8 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor8;
-        } else if (*(s16 *)(work + 0x11E) == c) {
+        } else if (((FclCombineRowWork *)work)->cursorRow == c) {
             drawColor9 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor9;
         } else {
@@ -1550,7 +1573,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
         if (special == 1) {
             drawColor12 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor12;
-        } else if (*(s16 *)(work + 0x11E) == c) {
+        } else if (((FclCombineRowWork *)work)->cursorRow == c) {
             drawColor13 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(id))->color = drawColor13;
         } else {
@@ -1563,14 +1586,14 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
         }
     }
     sdkSpriteFreeNode(hD);
-    if (*(s16 *)(work + 0x11E) == c) {
+    if (((FclCombineRowWork *)work)->cursorRow == c) {
         fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(work + 0x188), row), fclMakeVec2(position.x, y),
                       (drawColor16 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF)), (drawColor17 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF)),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)delay, mode, 0);
     } else if (special == 1) {
         fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(work + 0x188), row), fclMakeVec2(position.x, y),
-                      *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), row) + 0x75),
-                      *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), row) + 0x75),
+                      ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(work + 0x188), row) - 4))->color,
+                      ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(work + 0x188), row) - 4))->color,
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)delay, mode, 0);
     } else {
         fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(work + 0x188), row), fclMakeVec2(position.x, y),
@@ -1635,7 +1658,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
         } else {
             drawColor1 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
         }
-        nmMesWindowShowNumber(*(u8 **)(work + 0x2BC), (s8)(u32)row, level, position, drawColor1, 3, (s16)delay, 46.0f, 0x59, mode);
+        nmMesWindowShowNumber(((FclCombineRowWork *)work)->digitTask, (s8)(u32)row, level, position, drawColor1, 3, (s16)delay, 46.0f, 0x59, mode);
         return;
     }
     if ((s8)mode == 1) {
@@ -1645,9 +1668,9 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
         pp = (u8 **)(work + 0x21C) + c2;
         fclCombineSetSprite(*pp, fclMakeVec2(30.0f + position.x, 7.0f + y), 0x59, fclMakeDrawColor(0, 0, 0x66, 0xFF), 157.0f);
         fclCombineSetTint(*pp, 0, 0xFF, 0, 3, delay);
-        *(s8 *)(fclCombineGetWorkAlt(*pp) + 0xF00) = 0;
+        ((FclCombineBallWork *)(fclCombineGetWorkAlt(*pp)))->colorMode = 0;
         if (*(s16 *)(work + 0x11E) == c2) {
-            *(s8 *)(fclCombineGetWorkAlt(*pp) + 0xF00) = 1;
+            ((FclCombineBallWork *)(fclCombineGetWorkAlt(*pp)))->colorMode = 1;
         }
     }
     fclSpriteSetFlag((s16)(c + 0x250), 0, 1);
@@ -1682,7 +1705,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
     rowIndex = (s8)row;
     rowY += (f32)(rowIndex * 23);
     if (checkAvailability == 1) {
-        availability = *(s8 *)(yListSlotWork(0) + (s32)selectedRow * 12 + rowIndex + 0x14);
+        availability = ((FclCombineRowList *)(yListSlotWork(0) + (s32)selectedRow * 12 + rowIndex))->availability[0][0];
     }
     if (work->firstSelectedRow != rowIndex && work->secondSelectedRow != rowIndex && (rowAvailability = availability) > 0) {
         if (rowAvailability != 2) {
@@ -1857,7 +1880,7 @@ void fclCombineDrawPersonaCard(u8 *task, s16 slot, FclVec2 startPosition, FclVec
     s16 b;
     u8 alpha;
 
-    w = *(s16 *)(yListSlotEntry(0, slot) + 2);
+    w = (s16)((FclCombinePersonaHeader *)yListSlotEntry(0, slot))->personaId;
     b = ((FclCombinePersonaHeader *)yListSlotEntry(0, slot))->level;
     pos = startPosition;
     alpha = ((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha;
@@ -1932,7 +1955,7 @@ void fclCombineDrawPersonaCardAlt(u8 *task, s16 slot, FclVec2 startPosition, Fcl
     s16 b;
     u8 alpha;
 
-    w = *(s16 *)(yListSlotEntry(0, slot) + 2);
+    w = (s16)((FclCombinePersonaHeader *)yListSlotEntry(0, slot))->personaId;
     b = ((FclCombinePersonaHeader *)yListSlotEntry(0, slot))->level;
     pos = startPosition;
     alpha = ((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha;
@@ -1994,8 +2017,7 @@ void fclCombineDrawPersonaCardAlt(u8 *task, s16 slot, FclVec2 startPosition, Fcl
 // FUN_0031D630
 #pragma opt_propagation off
 void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 secondSelectedSlot, s64 skipRoster) {
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining row-task/color-source member substitutions change b210 codegen (nd 1..1159). */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -2016,25 +2038,25 @@ void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 seco
     f32 f;
     work = ((struct KwlnTask *)task)->work;
     v = (s8)slot;
-    if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry((s16)(v + 0x21C)) + 0x10), 1) != 0) {
+    if ((s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry((s16)(v + 0x21C)))->flags, 1) != 0) {
         return;
     }
     if (((FclCombineRowWork *)work)->cursorRow == v) {
         result = fclCombineApplySlotState(task, slot, 1, 0xFF);
-        *(s8 *)((u8 *)fclCombineGetWorkAlt(((u8 **)(work + 0x21C))[(s32)v]) + 0xF00) = 1;
+        ((FclCombineBallWork *)((u8 *)fclCombineGetWorkAlt(((u8 **)(work + 0x21C))[(s32)v])))->colorMode = 1;
         if ((s8)skipRoster == 0) {
             s16 i = 0;
             s8 row = slot;
             u8 *base = work + (s32)v * 4;
             s32 off12 = row * 12;
             for (; (s16)i < (u16)datPersonaRosterCapacity(); ++i) {
-                e = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
+                e = fclCombineSlotRecord(((FclCombineRowWork *)base)->gridRowTasks[0], (s8)i);
                 if (((*(s16 *)e & 4) >> 2) == 0) {
                     drawColor1 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                     p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                     ((FclObject *)((u8 *)p - 4))->color = drawColor1;
-                    *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i) + 0x5E) = 0xFF;
-                    if (*(s8 *)((u8 *)(off12 + (uintptr_t)yListSlotWork(0)) + (s16)i + 0x14) > 0) {
+                    ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i) - 4))->alpha = 0xFF;
+                    if (((FclCombineRowList *)((u8 *)(off12 + (uintptr_t)yListSlotWork(0)) + (s16)i))->availability[0][0] > 0) {
                         drawColor2 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
                         p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                         ((FclObject *)((u8 *)p - 4))->color = drawColor2;
@@ -2048,10 +2070,10 @@ void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 seco
             s32 overflowSlot = (s8)slot;
             drawColor3 = fclMakeDrawColor(0x24, 0x3F, 0x9F, 0xFF);
             p = fclSpriteEntry((s16)(overflowSlot + 0x244));
-            *(FclDrawColor *)(p + 0x85) = drawColor3;
+            ((FclCombineRowSprite *)p)->color = drawColor3;
             q = fclSpriteEntry((s16)(overflowSlot + 0x238));
-            *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
-            *(s8 *)((u8 *)fclCombineGetWorkAlt(((u8 **)(work + 0x21C))[overflowSlot]) + 0xF00) = 0;
+            ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
+            ((FclCombineBallWork *)((u8 *)fclCombineGetWorkAlt(((u8 **)(work + 0x21C))[overflowSlot])))->colorMode = 0;
         }
         if ((s8)firstSelectedSlot == v || (s8)secondSelectedSlot == v) {
             s32 highlightedSlot = (s8)slot;
@@ -2059,42 +2081,42 @@ void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 seco
             s32 v21c = highlightedSlot + 0x21C;
             drawColor4 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
             p = fclSpriteEntry((s16)v22b);
-            *(FclDrawColor *)(p + 0x85) = drawColor4;
+            ((FclCombineRowSprite *)p)->color = drawColor4;
             q = fclSpriteEntry((s16)v21c);
-            *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
-            *(u8 *)(fclSpriteEntry((s16)v21c) + 0x6E) =
-                *(u8 *)(fclSpriteEntry((s16)v22b) + 0x6E) = 0xFF;
+            ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
+            ((FclCombineRowSprite *)fclSpriteEntry((s16)v21c))->alpha =
+                ((FclCombineRowSprite *)fclSpriteEntry((s16)v22b))->alpha = 0xFF;
             drawColor5 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
             p = fclSpriteEntry((s16)(highlightedSlot + 0x244));
-            *(FclDrawColor *)(p + 0x85) = drawColor5;
+            ((FclCombineRowSprite *)p)->color = drawColor5;
             q = fclSpriteEntry((s16)(highlightedSlot + 0x238));
-            *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
+            ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
             drawColor6 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
-            p = fclCombineSlotRecord(*(u8 **)(work + 0x188), slot);
+            p = fclCombineSlotRecord((u8 *)((FclCombineWork *)work)->f188, slot);
             ((FclObject *)((u8 *)p - 4))->color = drawColor6;
             drawColor7 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
             p = fclSpriteEntry((s16)(highlightedSlot + 0x39));
-            *(FclDrawColor *)(p + 0x85) = drawColor7;
+            ((FclCombineRowSprite *)p)->color = drawColor7;
             result = fclPackRgba(0, 0, 0x66, 0xFF);
             packedColor1.channels = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-            nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s8)slot, packedColor1.channels);
+            nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s8)slot, packedColor1.channels);
         }
         if ((s8)skipRoster == 0) {
             s16 j = 0;
             u8 *base = work + (s8)slot * 4;
             s32 off12 = (s8)slot * 12;
             for (; (s16)j < (u16)datPersonaRosterCapacity(); ++j) {
-                e = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
+                e = fclCombineSlotRecord(((FclCombineRowWork *)base)->gridRowTasks[0], (s8)j);
                 if (((*(s16 *)e & 4) >> 2) == 0) {
                     drawColor8 = fclMakeDrawColor(0, 0, 0x99, 0xA5);
                     p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                     ((FclObject *)((u8 *)p - 4))->color = drawColor8;
-                    *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xA5;
-                    if (*(s8 *)((u8 *)(off12 + (uintptr_t)yListSlotWork(0)) + (s16)j + 0x14) > 0) {
+                    ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) - 4))->alpha = 0xA5;
+                    if (((FclCombineRowList *)((u8 *)(off12 + (uintptr_t)yListSlotWork(0)) + (s16)j))->availability[0][0] > 0) {
                         drawColor9 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xA5);
                         p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                         ((FclObject *)((u8 *)p - 4))->color = drawColor9;
-                        *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xCC;
+                        ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) - 4))->alpha = 0xCC;
                     }
                 }
             }
@@ -2114,10 +2136,7 @@ void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 seco
 // Apply selected or idle colors to slot and return its packed label color with the requested opacity.
 // FUN_0031DDF0
 s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining color-source member substitutions change b210 byte-copy codegen (nd 8..728). */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -2133,7 +2152,7 @@ s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
     u8 *q;
     s32 result;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
     if (selected == 1) {
         s32 slotIndex;
         s32 rightBarSprite;
@@ -2141,26 +2160,26 @@ s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
         slotIndex = (s8)slot;
         rightBarSprite = slotIndex + 0x22B;
         leftBarSprite = slotIndex + 0x21C;
-        *(u8 *)(fclSpriteEntry((s16)leftBarSprite) + 0x6E) =
-            *(u8 *)(fclSpriteEntry((s16)rightBarSprite) + 0x6E) = 0xFF;
+        ((FclCombineRowSprite *)fclSpriteEntry((s16)leftBarSprite))->alpha =
+            ((FclCombineRowSprite *)fclSpriteEntry((s16)rightBarSprite))->alpha = 0xFF;
         drawColor1 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
-        p = fclCombineSlotRecord(*(u8 **)(work + 0x188), slot);
-        *(FclDrawColor *)(p + 0x75) = drawColor1;
+        p = fclCombineSlotRecord((u8 *)((FclCombineWork *)work)->f188, slot);
+        ((FclObject *)((u8 *)p - 4))->color = drawColor1;
         q = fclSpriteEntry((s16)(slotIndex + 0x244));
-        *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x75);
+        ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x75);
         p = fclSpriteEntry((s16)(slotIndex + 0x238));
-        *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(q + 0x85);
+        ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(q + 0x85);
         q = fclSpriteEntry((s16)rightBarSprite);
-        *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
+        ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
         p = fclSpriteEntry((s16)leftBarSprite);
-        *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(q + 0x85);
+        ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(q + 0x85);
         drawColor2 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         p = fclSpriteEntry((s16)(slotIndex + 0x250));
-        *(FclDrawColor *)(p + 0x85) = drawColor2;
+        ((FclCombineRowSprite *)p)->color = drawColor2;
         q = fclSpriteEntry((s16)(slotIndex + 0x39));
-        *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
+        ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
         packedColor1.channels = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-        nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s8)slot, packedColor1.channels);
+        nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s8)slot, packedColor1.channels);
         result = fclPackRgba(0x2D, 0x2D, 0x2D, opacity);
     } else {
         s32 slotIndex;
@@ -2171,24 +2190,24 @@ s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
         leftBarSprite = slotIndex + 0x21C;
         drawColor3 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
         p = fclSpriteEntry((s16)rightBarSprite);
-        *(FclDrawColor *)(p + 0x85) = drawColor3;
+        ((FclCombineRowSprite *)p)->color = drawColor3;
         q = fclSpriteEntry((s16)leftBarSprite);
-        *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
-        *(u8 *)(fclSpriteEntry((s16)leftBarSprite) + 0x6E) =
-            *(u8 *)(fclSpriteEntry((s16)rightBarSprite) + 0x6E) = 0x66;
+        ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
+        ((FclCombineRowSprite *)fclSpriteEntry((s16)leftBarSprite))->alpha =
+            ((FclCombineRowSprite *)fclSpriteEntry((s16)rightBarSprite))->alpha = 0x66;
         drawColor4 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
         p = fclSpriteEntry((s16)(slotIndex + 0x244));
-        *(FclDrawColor *)(p + 0x85) = drawColor4;
+        ((FclCombineRowSprite *)p)->color = drawColor4;
         q = fclSpriteEntry((s16)(slotIndex + 0x238));
-        *(FclDrawColor *)(q + 0x85) = *(FclDrawColor *)(p + 0x85);
+        ((FclCombineRowSprite *)q)->color = *(FclDrawColor *)(p + 0x85);
         drawColor5 = fclMakeDrawColor(0, 0, 0x99, 0xFF);
-        *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), slot) + 0x75) = drawColor5;
+        ((FclObject *)((u8 *)fclCombineSlotRecord((u8 *)((FclCombineWork *)work)->f188, slot) - 4))->color = drawColor5;
         drawColor6 = fclMakeDrawColor(0x8C, 0xE2, 0xFF, 0xFF);
-        *(FclDrawColor *)(fclSpriteEntry((s16)(slotIndex + 0x39)) + 0x85) = drawColor6;
+        ((FclCombineRowSprite *)fclSpriteEntry((s16)(slotIndex + 0x39)))->color = drawColor6;
         drawColor7 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-        *(FclDrawColor *)(fclSpriteEntry((s16)(slotIndex + 0x250)) + 0x85) = drawColor7;
+        ((FclCombineRowSprite *)fclSpriteEntry((s16)(slotIndex + 0x250)))->color = drawColor7;
         packedColor2.channels = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
-        nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s8)slot, packedColor2.channels);
+        nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s8)slot, packedColor2.channels);
         result = fclPackRgba(0xCC, 0xFF, 0xFF, opacity);
     }
     return result;
@@ -2196,7 +2215,7 @@ s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
 // Flash slot's four sprites and descriptor pale yellow, enabling their color-transition flags.
 // FUN_0031E320
 void fclCombineFlashSlot(u8 *task, s8 slot) {
-    /* Raw packed color words preserve the existing color-call contract; the descriptor flag is outside its shared prefix. */
+    /* measured: The two descriptor-list member substitutions change b210 codegen (nd 122); packed calls read color storage. */
     s32 idx;
     s16 n1;
     s16 n2;
@@ -2216,28 +2235,28 @@ void fclCombineFlashSlot(u8 *task, s8 slot) {
     n1 = (s16)(idx + 0x21C);
     p1 = fclSpriteEntry(n1);
     drawColor1 = fclMakeDrawColor(0xFF, 0xFF, 0x9E, 0xFF);
-    fclSpriteStartColorAt(n1, *(s32 *)(p1 + 0x85), *(s32 *)&drawColor1, 1, 6, 0);
+    fclSpriteStartColorAt(n1, *(s32 *)&((FclCombineRowSprite *)p1)->color, *(s32 *)&drawColor1, 1, 6, 0);
     ((FclCombineDrawSprite *)fclSpriteEntry(n1))->colorTransitionActive = 1;
     n2 = (s16)(idx + 0x22B);
     p2 = fclSpriteEntry(n2);
     drawColor2 = fclMakeDrawColor(0xFF, 0xFF, 0x9E, 0xFF);
-    fclSpriteStartColorAt(n2, *(s32 *)(p2 + 0x85), *(s32 *)&drawColor2, 1, 6, 0);
+    fclSpriteStartColorAt(n2, *(s32 *)&((FclCombineRowSprite *)p2)->color, *(s32 *)&drawColor2, 1, 6, 0);
     ((FclCombineDrawSprite *)fclSpriteEntry(n2))->colorTransitionActive = 1;
     n3 = (s16)(idx + 0x238);
     p3 = fclSpriteEntry(n3);
     drawColor3 = fclMakeDrawColor(0xFF, 0xFF, 0x9E, 0xFF);
-    fclSpriteStartColorAt(n3, *(s32 *)(p3 + 0x85), *(s32 *)&drawColor3, 1, 6, 0);
+    fclSpriteStartColorAt(n3, *(s32 *)&((FclCombineRowSprite *)p3)->color, *(s32 *)&drawColor3, 1, 6, 0);
     ((FclCombineDrawSprite *)fclSpriteEntry(n3))->colorTransitionActive = 1;
     n4 = (s16)(idx + 0x244);
     p4 = fclSpriteEntry(n4);
     drawColor4 = fclMakeDrawColor(0xFF, 0xFF, 0x9E, 0xFF);
-    fclSpriteStartColorAt(n4, *(s32 *)(p4 + 0x85), *(s32 *)&drawColor4, 1, 6, 0);
+    fclSpriteStartColorAt(n4, *(s32 *)&((FclCombineRowSprite *)p4)->color, *(s32 *)&drawColor4, 1, 6, 0);
     ((FclCombineDrawSprite *)fclSpriteEntry(n4))->colorTransitionActive = 1;
-    q1 = fclCombineSlotRecord(*(u8 **)(work + 0x188), slot);
+    q1 = fclCombineSlotRecord((u8 *)((FclCombineWork *)work)->f188, slot);
     q2 = fclCombineSlotRecord(*(u8 **)(work + 0x188), slot);
     drawColor5 = fclMakeDrawColor(0xFF, 0xFF, 0x9E, 0xFF);
     fclSpriteStartColor(q1, ((FclObject *)((u8 *)q2 - 4))->color, *(FclDrawColor *)&drawColor5, 1, 6, 0);
-    *(s8 *)(fclCombineSlotRecord(*(u8 **)(work + 0x188), slot) + 0x81) = 1;
+    ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(work + 0x188), slot) - 4))->colorLoop = 1;
 }
 
 
@@ -2640,7 +2659,6 @@ void fclCombineDrawSlotLabels(u8 *task, FclVec2 position, s16 delay, s8 mode) {
 // Fcl combine slot slide-in: starts the slide-in of the slot sprites for two slot resources, firstResource from the left (x - 200) and secondResource from the right; resource 0x92 also starts the 0x1E6 sprite.
 // FUN_003205F0
 void fclCombineSlideInSlotSprites(u8 *task, s16 firstResource, s16 secondResource) {
-    /* The two cursor handles lie outside the shared row-work prefix; retain their established byte offsets. */
     extern void fclSpriteSetHidden(u8 *, u8);
     FclVec2 drawPosition1;
     FclVec2 drawPosition2;
@@ -2663,8 +2681,8 @@ void fclCombineSlideInSlotSprites(u8 *task, s16 firstResource, s16 secondResourc
     u8 *spriteEntry;
 
     obj = ((struct KwlnTask *)task)->work;
-    fclSpriteSetHidden(*(u8 **)(obj + 0x28C), 0);
-    fclSpriteSetHidden(*(u8 **)(obj + 0x290), 0);
+    fclSpriteSetHidden(((FclCombineWork *)obj)->f28C, 0);
+    fclSpriteSetHidden(((FclCombineWork *)obj)->f290, 0);
     idx1 = (s16)firstResource;
     if (idx1 != 0) {
         tbl1 = (FclVec2 *)&D_00643D70[idx1 * 2];
@@ -2924,6 +2942,7 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
 // Fcl combine grid fade advance: sets the cell colours of the pair grid (the mode-1 call swaps the two cell colours), writes next_state into the task's state byte, and draws the row labels with the selected row in the dark colour.
 // FUN_003212E0
 void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
+    /* measured: Remaining row-task member substitutions change b210 codegen (nd 752..766); keep row-biased cursors. */
     /* Keep byte-biased row/cell pointers and offset-first availability reads; they index distinct parallel tables. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -2967,19 +2986,19 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
         for (; (s16)j < (s32)(u16)datPersonaRosterCapacity(); j = (s16)(j + 1)) {
             cellTransition = rowState + (s32)(s16)j + 0x18C;
             if (*(s8 *)cellTransition == 0) {
-                if (((*(s16 *)fclCombineSlotRecord(*(u8 **)(rowTasks + 0x154), j) & 0x200) >> 9) == 0) {
+                if (((*(s16 *)fclCombineSlotRecord(((FclCombineRowWork *)rowTasks)->gridRowTasks[0], j) & 0x200) >> 9) == 0) {
                     fclSpriteStartColor(fclCombineSlotRecord(*(u8 **)(rowTasks + 0x154), j), drawColor2, drawColor1, 0, 2, 1);
-                    if (*(s8 *)((u8 *)addOff(rowOffset, (u32)yListSlotWork(0)) + (s32)(s16)j + 0x14) > 0) {
+                    if (((FclCombineRowList *)((u8 *)addOff(rowOffset, (u32)yListSlotWork(0)) + (s32)(s16)j))->availability[0][0] > 0) {
                         fclSpriteStartColor(fclCombineSlotRecord(*(u8 **)(rowTasks + 0x154), j), drawColor2, drawColor3, 0, 2, 1);
                         cell2 = fclCombineSlotRecord(*(u8 **)(rowTasks + 0x154), j);
-                        fclSpriteStartAlpha(cell2, *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowTasks + 0x154), j) + 0x5E), 0xCC, 0, 2, 1);
+                        fclSpriteStartAlpha(cell2, ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowTasks + 0x154), j) - 4))->alpha, 0xCC, 0, 2, 1);
                     }
                     *(s8 *)cellTransition = 1;
                 }
-            } else if ((*(s8 *)(lastCellState + 0x18C) == 1) && ((s16)lastCellIndex == ((s16)j + rowOffset))) {
+            } else if ((((FclCombineRowWork *)lastCellState)->cellTransitionStarted[0][0] == 1) && ((s16)lastCellIndex == ((s16)j + rowOffset))) {
                 lastRowTasks = work + ((u16)datPersonaRosterCapacity() * 4);
-                if (((*(s16 *)fclCombineSlotRecord(*(u8 **)(lastRowTasks + 0x150), (u16)datPersonaRosterCapacity() - 1) & 0x200) >> 9) == 0) {
-                    *(u8 *)(work + 1) = nextState;
+                if (((*(s16 *)fclCombineSlotRecord(((FclCombineRowWork *)lastRowTasks)->gridRowTasks[-1], (u16)datPersonaRosterCapacity() - 1) & 0x200) >> 9) == 0) {
+                    ((FclCombineWork *)work)->f1 = nextState;
                     if (((FclCombineRowWork *)work)->firstSelectedRow == -1) {
                         ((FclCombineRowWork *)work)->cursorRow = 0;
                     }
@@ -2989,8 +3008,8 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
         {
             s64 renderedRow = (s16)i;
             s32 rowResource = (s32)renderedRow + 0x21C;
-            elapsedOrTextY = (f32)(s32)*(s16 *)((u8 *)fclSpriteEntry((s16)rowResource) + 0x42);
-            duration = (f32)(s32)*(s16 *)((u8 *)fclSpriteEntry((s16)rowResource) + 0x40);
+            elapsedOrTextY = (f32)(s32)((FclCombineRowSprite *)(u8 *)fclSpriteEntry((s16)rowResource))->positionElapsed;
+            duration = (f32)(s32)((FclCombineRowSprite *)(u8 *)fclSpriteEntry((s16)rowResource))->positionDuration;
             interpolatedAlpha = fclEaseInterpolate(0, 0.0f, 255.0f, elapsedOrTextY, duration);
             textColor = (u8)interpolatedAlpha;
             alpha = textColor & 0xFF;
@@ -2999,9 +3018,9 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
             } else {
                 textColor = fclPackRgba(0xCC, 0xFF, 0xFF, alpha);
             }
-            if ((s16)i < *(s32 *)((u8 *)yListSlotWork(0) + 8)) {
+            if ((s16)i < ((FclCombinePersonaListHeader *)(u8 *)yListSlotWork(0))->count) {
                 elapsedOrTextY = (f32)(s32)((s16)i * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB(113.0f, elapsedOrTextY, 43.0f, textColor, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)((u8 *)yListSlotEntry(0, i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, elapsedOrTextY, 43.0f, textColor, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(((FclCombinePersonaHeader *)(u8 *)yListSlotEntry(0, i))->personaId) * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
     }
@@ -3022,7 +3041,7 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
 // Fcl combine grid cell refresh: for each roster row, redraws the row's cells with colours taken from the selected row (0x11E) and the availability counts, and resets the row sprite and its column header at the given order.
 // FUN_003218A0
 void fclCombineRefreshGridCells(u8 *task, s16 delay) {
-    /* Raw cell descriptors preserve repeated provider lookups and row-first availability addressing. */
+    /* measured: Remaining row-task member substitutions change b210 codegen (nd 413..650); provider calls stay independent. */
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     FclDrawColor drawColor1;
@@ -3050,7 +3069,7 @@ void fclCombineRefreshGridCells(u8 *task, s16 delay) {
     order = delay;
     for (; i < (u16)datPersonaRosterCapacity(); i++) {
         x = i * 23;
-        e = fclCombineSlotRecord(*(u8 **)(work + 0x184), i);
+        e = fclCombineSlotRecord(((FclCombineRowWork *)work)->gridColumnHeaderTask, i);
         fclSpriteStartEntrance(e, fclMakeVec2(x + 0x149, 104.0f),
                       drawColor1 = fclMakeDrawColor(0, 0, 0x99, 0xFF), drawColor2 = fclMakeDrawColor(0, 0, 0x99, 0xFF),
                       0xFF, 0xFF, 32.0f, 159.0f, 2, order, 0, 0);
@@ -3070,14 +3089,14 @@ void fclCombineRefreshGridCells(u8 *task, s16 delay) {
         for (; j < (u16)datPersonaRosterCapacity(); j++) {
             if (((FclCombineRowWork *)work)->cursorRow == i) {
                 drawColor3 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-                ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(p + 0x154), j) - 4))->color = drawColor3;
+                ((FclObject *)((u8 *)fclCombineSlotRecord(((FclCombineRowWork *)p)->gridRowTasks[0], j) - 4))->color = drawColor3;
                 if (((s8 *)yListSlotWork(0))[row + j + 0x14] > 0) {
                     drawColor4 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
                     ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(p + 0x154), j) - 4))->color = drawColor4;
                 }
             } else {
                 drawColor5 = fclMakeDrawColor(0, 0, 0x99, 0xA5);
-                ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(p + 0x154), j) - 4))->color = drawColor5;
+                ((FclObject *)((u8 *)fclCombineSlotRecord(((FclCombineRowWork *)p)->gridRowTasks[0], j) - 4))->color = drawColor5;
                 if (((s8 *)yListSlotWork(0))[row + j + 0x14] > 0) {
                     drawColor6 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xCC);
                     ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(p + 0x154), j) - 4))->color = drawColor6;
@@ -3090,7 +3109,7 @@ void fclCombineRefreshGridCells(u8 *task, s16 delay) {
                           *(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x78),
                           *(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x78),
                           32.0f,
-                          *(f32 *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 4),
+                          ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(p + 0x154), j) - 4))->anchorValue,
                           3, order, 0, 0);
         }
     }
@@ -3101,15 +3120,14 @@ void fclCombineRefreshGridCells(u8 *task, s16 delay) {
    Cursor activation and the 0x7E reset follow the retail control-flow join. */
 static inline void fclShowCombineCursorArrows(u8 *work)
 {
-    /* The two cursor handles lie outside the shared row-work prefix; retain their established byte offsets. */
     FclVec2 *v = (FclVec2 *)D_00644C90;
     f32 dx = 60.0f;
 
     fclSpriteCreate(0x1E4, fclMakeVec2(v->x + dx, v->y), 103.0f, 0xBC);
     fclSpriteStartAlphaAt(0x1E4, 0, 0xFF, 0, 0xA, 0);
     fclSpriteStartTweenAt(0x1E4, 0, 0, 0, 0.0f, 90.0f);
-    fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-    fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
+    fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+    fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
 }
 
 /* measured: opt_lifetimes on keeps the independent nested counters live.
@@ -3120,8 +3138,7 @@ static inline void fclShowCombineCursorArrows(u8 *work)
 #pragma push
 #pragma opt_lifetimes on
 void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelState) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
+    /* measured: Remaining selection/row-task member substitutions change b210 codegen (nd 602..4002). */
     extern u16 D_008C027A[];
     extern u16 D_008C024E[];
     extern u16 D_008C024C[];
@@ -3170,30 +3187,30 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
     u8 *hc;
     s32 xc;
 
-    work = *(u8 **)(task + 0x38);
-    *(s8 *)(work + 0x128) = -1;
-    *(s8 *)(work + 0x129) = -1;
+    work = ((struct KwlnTask *)task)->work;
+    ((FclCombineRowWork *)work)->firstSelectedRow = -1;
+    ((FclCombineRowWork *)work)->secondSelectedRow = -1;
     i = 0;
     while ((s16)i < (u16)datPersonaRosterCapacity()) {
         fclCombineSelectSlotEntry(task, (s8)i, *(s8 *)(work + 0x128), *(s8 *)(work + 0x129), mode);
         ++i;
     }
     if (D_008C027A[0] & 0x1000) {
-        *(s16 *)(work + 0x11E) = fclSubClamped(*(s16 *)(work + 0x11E), 1, 0, (u16)datPersonaRosterCapacity() - 1, 2);
+        ((FclCombineRowWork *)work)->cursorRow = fclSubClamped(*(s16 *)(work + 0x11E), 1, 0, (u16)datPersonaRosterCapacity() - 1, 2);
         sdkSndStartStream(0, 0, 0, 0);
         return;
     }
     if (D_008C027A[0] & 0x4000) {
-        *(s16 *)(work + 0x11E) = fclAddClamped(*(s16 *)(work + 0x11E), 1, (u16)datPersonaRosterCapacity() - 1, 0, 2);
+        ((FclCombineRowWork *)work)->cursorRow = fclAddClamped(*(s16 *)(work + 0x11E), 1, (u16)datPersonaRosterCapacity() - 1, 0, 2);
         sdkSndStartStream(0, 0, 0, 0);
         return;
     }
     if (D_008C024E[0] & 0x80) {
-        if (*(s16 *)(work + 0x11E) < *(s32 *)(yListSlotWork(0) + 8)) {
+        if (((FclCombineRowWork *)work)->cursorRow < ((FclCombinePersonaListHeader *)yListSlotWork(0))->count) {
             sdkSndStartStream(0, 1, 0, 3);
             ia = 0;
             while ((s16)ia < (u16)datPersonaRosterCapacity()) {
-                fclCombinePartyRow(task, fclMakeVec2(16.0f, 128.0f), (s8)ia, *(u16 *)(yListSlotEntry(0, ia) + 2), *(u8 *)(yListSlotEntry(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
+                fclCombinePartyRow(task, fclMakeVec2(16.0f, 128.0f), (s8)ia, ((FclCombinePersonaHeader *)yListSlotEntry(0, ia))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, ia))->level, 0, 1, (rowCount = *(s8*)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
                 ++ia;
             }
             fclCombineDrawSlotFields(task, fclMakeVec2(16.0f, 104.0f), 0, 1, 0, 0, 0);
@@ -3201,20 +3218,20 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
             ja = 0;
             while ((s16)ja < (u16)datPersonaRosterCapacity()) {
                 ma = ja * 23;
-                pa = fclCombineSlotRecord(*(u8 **)(work + 0x184), (s8)ja);
+                pa = fclCombineSlotRecord(((FclCombineRowWork *)work)->gridColumnHeaderTask, (s8)ja);
                 fclSpriteStartEntrance(pa, fclMakeVec2((f32)(ma + 0x149), 104.0f), fclMakeDrawColor(0, 0, 0x99, 0xFF),
                               fclMakeDrawColor(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
                 ka = 0;
                 rowa = work + ja * 4;
                 acca = ma + 0x7F;
                 while ((s16)ka < (u16)datPersonaRosterCapacity()) {
-                    fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka),
+                    fclSpriteStartEntrance(fclCombineSlotRecord(((FclCombineRowWork *)rowa)->gridRowTasks[0], (s8)ka),
                                   fclMakeVec2((f32)(ka * 23 + 0x149), (f32)acca),
-                                  *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
-                                  *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
-                                  *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x5E),
-                                  *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x5E),
-                                  32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 4), 3, 0, 1, 0);
+                                  ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) - 4))->color,
+                                  ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) - 4))->color,
+                                  ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) - 4))->alpha,
+                                  ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) - 4))->alpha,
+                                  32.0f, ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) - 4))->anchorValue, 3, 0, 1, 0);
                     ++ka;
                 }
                 {
@@ -3232,13 +3249,13 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
             }
             fclShowCombineCursorArrows(work);
             if ((s8)mode == 0) {
-                *(u8 *)(work + 1) = 0x28;
+                ((FclCombineWork *)work)->f1 = 0x28;
             } else {
-                *(u8 *)(work + 1) = 0x3E;
+                ((FclCombineWork *)work)->f1 = 0x3E;
             }
         }
     } else if (D_008C024C[0] & 0x40) {
-        if (*(s16 *)(work + 0x11E) < *(s32 *)(yListSlotWork(0) + 8)) {
+        if (((FclCombineRowWork *)work)->cursorRow < ((FclCombinePersonaListHeader *)yListSlotWork(0))->count) {
             sdkSndStartStream(0, 0, 0, 1);
             *(s8 *)(work + 0x128) = *(s16 *)(work + 0x11E);
             v = (FclVec2 *)D_00644150;
@@ -3246,22 +3263,22 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
             if ((s8)mode == 0) {
                 jb1 = 0;
                 while ((s16)jb1 < (u16)datPersonaRosterCapacity()) {
-                    fclCombineDrawPersonaRow(task, fclMakeVec2((f32)0x149, 128.0f), *(s8 *)(work + 0x128), (s8)jb1, *(u16 *)(yListSlotEntry(*(s8 *)(work + 0x128) + 1, jb1) + 2), *(u8 *)(yListSlotEntry(*(s8 *)(work + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
+                    fclCombineDrawPersonaRow(task, fclMakeVec2((f32)0x149, 128.0f), *(s8 *)(work + 0x128), (s8)jb1, ((FclCombinePersonaHeader *)yListSlotEntry(*(s8 *)(work + 0x128) + 1, jb1))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(*(s8 *)(work + 0x128) + 1, jb1))->level, 3, 0, 1, 0xCC);
                     mb1 = jb1 * 23;
-                    pb1 = fclCombineSlotRecord(*(u8 **)(work + 0x184), (s8)jb1);
+                    pb1 = fclCombineSlotRecord(((FclCombineRowWork *)work)->gridColumnHeaderTask, (s8)jb1);
                     fclSpriteStartEntrance(pb1, fclMakeVec2((f32)(mb1 + 0x149), 104.0f), fclMakeDrawColor(0, 0, 0x99, 0xFF),
                                   fclMakeDrawColor(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
                     kb1 = 0;
                     rowb1 = work + jb1 * 4;
                     accb1 = mb1 + 0x7F;
                     while ((s16)kb1 < (u16)datPersonaRosterCapacity()) {
-                        fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1),
+                        fclSpriteStartEntrance(fclCombineSlotRecord(((FclCombineRowWork *)rowb1)->gridRowTasks[0], (s8)kb1),
                                       fclMakeVec2((f32)(kb1 * 23 + 0x149), (f32)accb1),
-                                      *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
-                                      *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
-                                      *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x5E),
-                                      *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x5E),
-                                      32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 4), 3, 0, 1, 0);
+                                      ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) - 4))->color,
+                                      ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) - 4))->color,
+                                      ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) - 4))->alpha,
+                                      ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) - 4))->alpha,
+                                      32.0f, ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) - 4))->anchorValue, 3, 0, 1, 0);
                         ++kb1;
                     }
                     {
@@ -3275,7 +3292,7 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
                                       fclMakeVec2((f32)xb1, 110.0f + sdkSpriteScaledHeight(hb1) / 2.0f), 0, 3, 0);
                         sdkSpriteFreeNode(hb1);
                         c = *(s8 *)(work + 0x128);
-                        if (*(s8 *)(yListSlotWork(0) + c * 12 + (u32)normalizedRow + 0x14) > 0) {
+                        if (((FclCombineRowList *)(yListSlotWork(0) + c * 12 + (u32)normalizedRow))->availability[0][0] > 0) {
                             fclCombineFuseSourceRecords((u16 *)yListSlotEntry(*(s8 *)(work + 0x128) + 1, jb1),
                                                         yListSlotEntry(0, *(s8 *)(work + 0x128)),
                                                         yListSlotEntry(0, jb1), 0, 0, 0, 0, 2, (s8)(c + 1), (s8)jb1);
@@ -3290,7 +3307,7 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
             } else {
                 yListBuildAvailability(1, *(s8 *)(work + 0x128));
                 fclSpriteStartAlphaAt(0x7E, 0xFF, 0, 0, 6, 0);
-                *(u8 *)(fclSpriteEntry(0x7E) + 0x47) = 0;
+                ((FclCombineRowSprite *)fclSpriteEntry(0x7E))->positionReverse = 0;
                 jb2 = 0;
                 while ((s16)jb2 < (u16)datPersonaRosterCapacity()) {
                     s16 cur;
@@ -3300,17 +3317,17 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
                     m = cur * 12;
                     rowb2 = work + cur * 4;
                     while ((s16)kb2 < (u16)datPersonaRosterCapacity()) {
-                        if (*(s8 *)((u8 *)addOff(m, (u32)yListSlotWork(0)) + kb2 + 0x14) == 0) {
+                        if (((FclCombineRowList *)((u8 *)addOff(m, (u32)yListSlotWork(0)) + kb2))->availability[0][0] == 0) {
                             if (*(s16 *)(work + 0x11E) == cur) {
                                 drawColor1 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                             } else {
                                 drawColor1 = fclMakeDrawColor(0, 0, 0x99, 0xA5);
                             }
                             alpha = drawColor1.c3;
-                            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
-                                          *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
+                            fclSpriteStartEntrance(fclCombineSlotRecord(((FclCombineRowWork *)rowb2)->gridRowTasks[0], (s8)kb2),
+                                          ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) - 4))->anchorPosition,
                                           fclMakeDrawColor(0, 0, 0x99, 0xA5), drawColor1, alpha, alpha,
-                                          32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
+                                          32.0f, ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) - 4))->anchorValue, 6, 0, 1, 1);
                         } else {
                             if (*(s16 *)(work + 0x11E) == cur) {
                                 drawColor1 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
@@ -3318,10 +3335,10 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
                                 drawColor1 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xCC);
                             }
                             alpha = drawColor1.c3;
-                            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
-                                          *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
+                            fclSpriteStartEntrance(fclCombineSlotRecord(((FclCombineRowWork *)rowb2)->gridRowTasks[0], (s8)kb2),
+                                          ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) - 4))->anchorPosition,
                                           fclMakeDrawColor(0, 0, 0x99, 0xCC), drawColor1, alpha, alpha,
-                                          32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
+                                          32.0f, ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) - 4))->anchorValue, 6, 0, 1, 1);
                         }
                         ++kb2;
                     }
@@ -3330,7 +3347,7 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
                 fclCombineSlideInSlotSprites(task, 0x94, 0x93);
                 fclCombineFlashSlot(task, (s32)*(s8 *)(work + 0x128));
             }
-            *(u8 *)(work + 1) = selectedState;
+            ((FclCombineWork *)work)->f1 = selectedState;
         }
     } else if (D_008C024E[0] & 0x20) {
         sdkSndStartStream(0, 0, 0, 2);
@@ -3338,20 +3355,20 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
         fclCombineDrawSlotFields(task, fclMakeVec2(16.0f, 104.0f), 0, 1, 0, 0, 0);
         jc = 0;
         while ((s16)jc < (u16)datPersonaRosterCapacity()) {
-            fclCombinePartyRow(task, fclMakeVec2(16.0f, 128.0f), (s8)jc, *(u16 *)(yListSlotEntry(0, jc) + 2), *(u8 *)(yListSlotEntry(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
+            fclCombinePartyRow(task, fclMakeVec2(16.0f, 128.0f), (s8)jc, ((FclCombinePersonaHeader *)yListSlotEntry(0, jc))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, jc))->level, 0, 1, (rowCount = *(s8*)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
             m = jc * 23;
-            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(work + 0x184), (s8)jc), fclMakeVec2((f32)(m + 0x149), 104.0f), fclMakeDrawColor(0, 0, 0x99, 0xFF),
+            fclSpriteStartEntrance(fclCombineSlotRecord(((FclCombineRowWork *)work)->gridColumnHeaderTask, (s8)jc), fclMakeVec2((f32)(m + 0x149), 104.0f), fclMakeDrawColor(0, 0, 0x99, 0xFF),
                           fclMakeDrawColor(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
             kc = 0;
             rowc = work + jc * 4;
             while ((s16)kc < (u16)datPersonaRosterCapacity()) {
-                fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc),
-                              *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x28),
-                              *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
-                              *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
-                              *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x5E),
-                              *(u8 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x5E),
-                              32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 4), 3, 0, 1, 0);
+                fclSpriteStartEntrance(fclCombineSlotRecord(((FclCombineRowWork *)rowc)->gridRowTasks[0], (s8)kc),
+                              ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) - 4))->anchorPosition,
+                              ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) - 4))->color,
+                              ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) - 4))->color,
+                              ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) - 4))->alpha,
+                              ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) - 4))->alpha,
+                              32.0f, ((FclObject *)((u8 *)fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) - 4))->anchorValue, 3, 0, 1, 0);
                 ++kc;
             }
             {
@@ -3373,7 +3390,7 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
         }
         fclCombineLayoutFrame(task, 1, 1);
         fclCombineFadeLabelSprites(task, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
-        *(u8 *)(work + 1) = cancelState;
+        ((FclCombineWork *)work)->f1 = cancelState;
     }
 }
 
@@ -3396,10 +3413,7 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
 // Fcl combine roster selection refresh: for each roster row, refreshes the slot entry, then colours the selected row's sprites (selection flags and the 0x2A3 highlight) or the other rows' sprites, and flags the row's entries when their availability count is 2.
 // FUN_003233D0
 void fclCombineRefreshRosterSelection(u8 *task) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining selection/availability/color member substitutions change b210 codegen (nd 8..1648). */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -3414,80 +3428,80 @@ void fclCombineRefreshRosterSelection(u8 *task) {
     s16 i;
     u8 *work;
     u8 *p;
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
     for (i = 0; (s16)i < (u16)datPersonaRosterCapacity(); ++i) {
-        fclCombineSelectSlotEntry(task, (s8)i, *(s8 *)(work + 0x128), *(s8 *)(work + 0x129), 0);
-        if ((s16)i < *(s32 *)(yListSlotWork(0) + 8)) {
-            if ((s16)i == *(s16 *)(work + 0x11E)) {
+        fclCombineSelectSlotEntry(task, (s8)i, ((FclCombineRowWork *)work)->firstSelectedRow, ((FclCombineRowWork *)work)->secondSelectedRow, 0);
+        if ((s16)i < ((FclCombinePersonaListHeader *)yListSlotWork(0))->count) {
+            if ((s16)i == ((FclCombineRowWork *)work)->cursorRow) {
                 u8 *p297;
                 u8 *p28B;
                 u8 *p27D;
-                *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
-                    *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0xFF;
+                ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x270)))->alpha =
+                    ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x27D)))->alpha = 0xFF;
                 drawColor1 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
                 p297 = fclSpriteEntry((s16)((s16)i + 0x297));
-                *(FclDrawColor *)(p297 + 0x85) = drawColor1;
+                ((FclCombineRowSprite *)p297)->color = drawColor1;
                 p28B = fclSpriteEntry((s16)((s16)i + 0x28B));
-                *(FclDrawColor *)(p28B + 0x85) = *(FclDrawColor *)(p297 + 0x85);
+                ((FclCombineRowSprite *)p28B)->color = *(FclDrawColor *)(p297 + 0x85);
                 p27D = fclSpriteEntry((s16)((s16)i + 0x27D));
-                *(FclDrawColor *)(p27D + 0x85) = *(FclDrawColor *)(p28B + 0x85);
+                ((FclCombineRowSprite *)p27D)->color = *(FclDrawColor *)(p28B + 0x85);
                 p = fclSpriteEntry((s16)((s16)i + 0x270));
-                *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(p27D + 0x85);
+                ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(p27D + 0x85);
                 drawColor2 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                 p = fclSpriteEntry((s16)((s16)i + 0x2A3));
-                *(FclDrawColor *)(p + 0x85) = drawColor2;
+                ((FclCombineRowSprite *)p)->color = drawColor2;
                 packedColor1.channels = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-                nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s16)((s16)i + 0xC), packedColor1.channels);
+                nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s16)((s16)i + 0xC), packedColor1.channels);
                 fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF);
-                if (*(s8 *)(yListSlotWork(0) + *(s8 *)(work + 0x129) * 0xC + (s16)i + 0x14) == 2) {
+                if (((FclCombineRowList *)(yListSlotWork(0) + *(s8 *)(work + 0x129) * 0xC + (s16)i))->availability[0][0] == 2) {
                     fclSpriteSetFlag(0xCF, 0, 1);
                     fclSpriteSetFlag(0xD2, 0, 1);
                     fclSpriteSetFlag((s16)((s16)i + 0x270), 0, 0);
                     fclSpriteSetFlag((s16)((s16)i + 0x27D), 0, 0);
                 }
-            } else if (*(s8 *)(yListSlotWork(0) + *(s8 *)(work + 0x129) * 0xC + (s16)i + 0x14) == 2) {
+            } else if (((FclCombineRowList *)(yListSlotWork(0) + *(s8 *)(work + 0x129) * 0xC + (s16)i))->availability[0][0] == 2) {
                 u8 *p27D;
-                *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
-                    *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0;
+                ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x270)))->alpha =
+                    ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x27D)))->alpha = 0;
                 drawColor3 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                 p27D = fclSpriteEntry((s16)((s16)i + 0x27D));
-                *(FclDrawColor *)(p27D + 0x85) = drawColor3;
+                ((FclCombineRowSprite *)p27D)->color = drawColor3;
                 p = fclSpriteEntry((s16)((s16)i + 0x270));
-                *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(p27D + 0x85);
+                ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(p27D + 0x85);
                 drawColor4 = fclMakeDrawColor(0xFF, 0xCC, 0xFA, 0xFF);
                 p = fclSpriteEntry((s16)((s16)i + 0x2A3));
-                *(FclDrawColor *)(p + 0x85) = drawColor4;
+                ((FclCombineRowSprite *)p)->color = drawColor4;
                 packedColor2.channels = fclMakeDrawColor(0xFF, 0xCC, 0xFA, 0xFF);
-                nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s16)((s16)i + 0xC), packedColor2.channels);
+                nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s16)((s16)i + 0xC), packedColor2.channels);
                 fclPackRgba(0xFF, 0xCC, 0xFA, 0xFF);
                 fclSpriteSetFlag(0xCF, 0, 0);
                 fclSpriteSetFlag(0xD2, 0, 0);
             } else {
                 u8 *p27D;
                 u8 *p297;
-                *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
-                    *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0xCC;
+                ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x270)))->alpha =
+                    ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x27D)))->alpha = 0xCC;
                 drawColor5 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
                 p27D = fclSpriteEntry((s16)((s16)i + 0x27D));
-                *(FclDrawColor *)(p27D + 0x85) = drawColor5;
+                ((FclCombineRowSprite *)p27D)->color = drawColor5;
                 p = fclSpriteEntry((s16)((s16)i + 0x270));
-                *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(p27D + 0x85);
+                ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(p27D + 0x85);
                 drawColor6 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
                 p297 = fclSpriteEntry((s16)((s16)i + 0x297));
-                *(FclDrawColor *)(p297 + 0x85) = drawColor6;
+                ((FclCombineRowSprite *)p297)->color = drawColor6;
                 p = fclSpriteEntry((s16)((s16)i + 0x28B));
-                *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(p297 + 0x85);
+                ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(p297 + 0x85);
                 drawColor7 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
                 p = fclSpriteEntry((s16)((s16)i + 0x2A3));
-                *(FclDrawColor *)(p + 0x85) = drawColor7;
+                ((FclCombineRowSprite *)p)->color = drawColor7;
                 packedColor3.channels = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
-                nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s16)((s16)i + 0xC), packedColor3.channels);
+                nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s16)((s16)i + 0xC), packedColor3.channels);
                 fclPackRgba(0xCC, 0xFF, 0xFF, 0xFF);
             }
             if (*(s8 *)(work + 0x128) != (s16)i && *(s8 *)(work + 0x129) != (s16)i) {
-                if (*(s8 *)(yListSlotWork((s8)(*(s8 *)(work + 0x129) + 1)) + *(s8 *)(work + 0x129) * 0xC + (s16)i + 0x14) > 0) {
-                    f32 elapsed = (f32)*(s16 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x42);
-                    s16 duration = *(s16 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x40);
+                if (((FclCombineRowList *)(yListSlotWork((s8)(*(s8 *)(work + 0x129) + 1)) + *(s8 *)(work + 0x129) * 0xC + (s16)i))->availability[0][0] > 0) {
+                    f32 elapsed = (f32)((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x270)))->positionElapsed;
+                    s16 duration = ((FclCombineRowSprite *)fclSpriteEntry((s16)((s16)i + 0x270)))->positionDuration;
                     f32 f = fclEaseInterpolate(0, 0.0f, 255.0f, elapsed, (f32)duration);
                     u8 alpha;
                     s32 result;
@@ -3496,11 +3510,11 @@ void fclCombineRefreshRosterSelection(u8 *task) {
                         result = fclPackRgba(0x2D, 0x2D, 0x2D, alpha);
                     } else {
                         result = fclPackRgba(0xCC, 0xFF, 0xFF, alpha);
-                        if (*(s8 *)(yListSlotWork(0) + *(s8 *)(work + 0x129) * 0xC + (s16)i + 0x14) == 2) {
+                        if (((FclCombineRowList *)(yListSlotWork(0) + *(s8 *)(work + 0x129) * 0xC + (s16)i))->availability[0][0] == 2) {
                             result = fclPackRgba(0xFF, 0xCC, 0xFA, alpha);
                         }
                     }
-                    frFontExDrawTextDeferredOutB(405.0f, (f32)((s16)i * 0x17 + 0x80), 43.0f, result, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(yListSlotEntry((s8)(*(s8 *)(work + 0x129) + 1), (s16)i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+                    frFontExDrawTextDeferredOutB(405.0f, (f32)((s16)i * 0x17 + 0x80), 43.0f, result, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(((FclCombinePersonaHeader *)yListSlotEntry((s8)(*(s8 *)(work + 0x129) + 1), (s16)i))->personaId) * 0x11), 0, 0, D_00795E60, 0x15);
                 }
             }
         }
@@ -3544,7 +3558,7 @@ void fclCombineDrawSidePanels(u8 *task, s32 delayStep, s8 mode) {
     fclCombineDrawSlotFields(task, positionPacket2.position, 0, mode, 1, 0, 0);
     for (k = 0; k < ((FclCombinePersonaListHeader *)yListSlotWork(1))->count; k++) {
         positionPacket3.position = fclMakeVec2(313, 128.0f);
-        fclCombinePartyRow(task, positionPacket3.position, (s8)k, ((FclCombinePersonaHeader *)yListSlotEntry(1, k))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(1, k))->level, (s16)(k * delayStep), mode, (count = *(s8 *)(yListSlotWork(1) + 8)));
+        fclCombinePartyRow(task, positionPacket3.position, (s8)k, ((FclCombinePersonaHeader *)yListSlotEntry(1, k))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(1, k))->level, (s16)(k * delayStep), mode, (count = *(s8*)&((FclCombinePersonaListHeader *)yListSlotWork(1))->count));
     }
     for (k = 0; k < ((FclCombinePersonaListHeader *)yListSlotWork(0))->count; k++) {
         positionPacket4.position = fclMakeVec2(16.0f, 128.0f);
@@ -3625,7 +3639,7 @@ void fclCombineDrawSidePanels(u8 *task, s32 delayStep, s8 mode) {
 // Advance sprite's side-panel cursor animation through start, wait and hide states for side.
 // FUN_00324410
 void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
-    /* Raw side indexing preserves the cursor-state byte bias before applying its field displacement. */
+    /* Cursor-state pointers retain the side-byte bias before the field displacement. */
     FclVec2 drawPosition1;
     FclVec2 drawPosition2;
     FclVec2 drawPosition3;
@@ -3637,9 +3651,9 @@ void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
 
     work = ((struct KwlnTask *)task)->work;
-    drawPosition1 = *(FclVec2 *)(work + 0x298);
+    drawPosition1 = ((FclCombineRowWork *)work)->cursorPosition;
     sideIndex = side;
-    switch (*(s8 *)((u8 *)(sideIndex + (s32)work) + 0x294)) {
+    switch (((FclCombineWork *)((u8 *)(sideIndex + (s32)work)))->cursorStates[0]) {
     case 0:
         if ((s64)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry(sprite))->flags, 2) == 1) { break; }
         fclSpriteReset(sprite, 0x1C7);
@@ -3657,12 +3671,12 @@ void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
             fclSpriteStartRevealScaleAt(sprite, 1.0f, 2.0f, 1.0f, 1.0f, 0, 0, 0);
         }
         fclSpriteStartAlphaAt(sprite, 0, 0xFF, 1, 0x32, 0);
-        *(s8 *)(fclSpriteEntry(sprite) + 0x73) = 1;
-        *(s8 *)((u8 *)(sideIndex + (s32)work) + 0x294) = 1;
+        ((FclCombineRowSprite *)fclSpriteEntry(sprite))->flag73 = 1;
+        ((FclCombineWork *)((u8 *)(sideIndex + (s32)work)))->cursorStates[0] = 1;
         break;
     case 1:
         if ((s64)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry(sprite))->flags, 1) == 1) { break; }
-        *(s8 *)((u8 *)(sideIndex + (s32)work) + 0x294) = 0;
+        ((FclCombineWork *)((u8 *)(sideIndex + (s32)work)))->cursorStates[0] = 0;
         break;
     case 2:
         fclSpriteSetFlag(sprite, 0, 1);
@@ -3692,8 +3706,7 @@ void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
 // Redraw the pair-grid frame, headers, lists and side panels for mode using delayStep between rows.
 // FUN_00324680
 void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: The three color-source member substitutions change b210 byte-copy codegen (nd 8). */
     extern f32 D_006443D8[];
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -3720,7 +3733,7 @@ void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
     i = 0;
     m = (s16)delayStep;
     for (; i < 12; i++) {
-        fclCombinePartyRow(task, fclMakeVec2((f32)315, 128.0f), (s8)i, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->level, (s16)(i * m), mode, (count = *(s8 *)(yListSlotWork(0) + 8)));
+        fclCombinePartyRow(task, fclMakeVec2((f32)315, 128.0f), (s8)i, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->level, (s16)(i * m), mode, (count = *(s8*)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
     }
     fclCombineDrawPersonaRow(task, fclMakeVec2(6.0f, 195.0f), 0, 0, ((FclCombinePersonaHeader *)yListSlotEntry(1, 0))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(1, 0))->level, 0, mode, 0, 0xCC);
     if ((s8)mode == 0) {
@@ -3729,23 +3742,23 @@ void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
         u8 *p27D;
         drawColor1 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
         p297 = fclSpriteEntry(0x297);
-        *(FclDrawColor *)(p297 + 0x85) = drawColor1;
+        ((FclCombineRowSprite *)p297)->color = drawColor1;
         p28B = fclSpriteEntry(0x28B);
-        *(FclDrawColor *)(p28B + 0x85) = *(FclDrawColor *)(p297 + 0x85);
+        ((FclCombineRowSprite *)p28B)->color = *(FclDrawColor *)(p297 + 0x85);
         p27D = fclSpriteEntry(0x27D);
-        *(FclDrawColor *)(p27D + 0x85) = *(FclDrawColor *)(p28B + 0x85);
+        ((FclCombineRowSprite *)p27D)->color = *(FclDrawColor *)(p28B + 0x85);
         p = fclSpriteEntry(0x270);
-        *(FclDrawColor *)(p + 0x85) = *(FclDrawColor *)(p27D + 0x85);
+        ((FclCombineRowSprite *)p)->color = *(FclDrawColor *)(p27D + 0x85);
         drawColor2 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         p = fclSpriteEntry(0x2A3);
-        *(FclDrawColor *)(p + 0x85) = drawColor2;
+        ((FclCombineRowSprite *)p)->color = drawColor2;
         drawColor3 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-        nmMesWindowSetNumberColor(*(u8 **)(work + 0x2BC), (s16)(i + 0xC), drawColor3);
+        nmMesWindowSetNumberColor(((FclCombineRowWork *)work)->digitTask, (s16)(i + 0xC), drawColor3);
     }
     v = (FclVec2 *)D_006440F8;
     fclSpriteCreate(0x71, fclMakeVec2(v->x, v->y), 138.0f, 0x41);
     drawColor4 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-    *(FclDrawColor *)(fclSpriteEntry(0x71) + 0x85) = drawColor4;
+    ((FclCombineRowSprite *)fclSpriteEntry(0x71))->color = drawColor4;
     {
         s32 off = (1 - (s8)mode) * 0xFF;
         s32 on = (s8)mode * 0xFF;
@@ -3753,26 +3766,26 @@ void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
         v = (FclVec2 *)D_006440F0;
         fclSpriteCreate(0x70, fclMakeVec2(v->x, v->y), 139.0f, 0x41);
         drawColor5 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclDrawColor *)(fclSpriteEntry(0x70) + 0x85) = drawColor5;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x70))->color = drawColor5;
         fclSpriteStartAlphaAt(0x70, (s32)on, (s32)off, 0, 0, 0);
         for (i = 0; i < 2; i++) {
             v = (FclVec2 *)D_00644290;
             a = i + 0x2BB;
             fclSpriteCreate(a, fclMakeVec2(v->x + (f32)(i * 0x139), v->y), 140.0f, 0x41);
             drawColor6 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclDrawColor *)(fclSpriteEntry(a) + 0x85) = drawColor6;
+            ((FclCombineRowSprite *)fclSpriteEntry(a))->color = drawColor6;
             fclSpriteStartAlphaAt(a, (s32)on, (s32)off, 0, 0, 0);
             v = (FclVec2 *)D_00644298;
             a = i + 0x2BD;
             fclSpriteCreate(a, fclMakeVec2(v->x + (f32)(i * 0x14A), v->y), 141.0f, 0x41);
             drawColor7 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclDrawColor *)(fclSpriteEntry(a) + 0x85) = drawColor7;
+            ((FclCombineRowSprite *)fclSpriteEntry(a))->color = drawColor7;
             fclSpriteStartAlphaAt(a, (s32)on, (s32)off, 0, 0, 0);
             v = (FclVec2 *)D_00644350;
             a = i + 0x2BF;
             fclSpriteCreate(a, fclMakeVec2(v->x + (f32)(i * 0xE), v->y), 142.0f, 0x41);
             drawColor8 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-            *(FclDrawColor *)(fclSpriteEntry(a) + 0x85) = drawColor8;
+            ((FclCombineRowSprite *)fclSpriteEntry(a))->color = drawColor8;
             fclSpriteStartAlphaAt(a, (s32)on, (s32)off, 0, 0, 0);
         }
     }
@@ -3780,14 +3793,14 @@ void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
         v = (FclVec2 *)D_00644350;
         fclSpriteCreate(0xBC, fclMakeVec2(28.0f + v->x, v->y), 142.0f, 0x41);
         drawColor9 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-        *(FclDrawColor *)(fclSpriteEntry(0xBC) + 0x85) = drawColor9;
+        ((FclCombineRowSprite *)fclSpriteEntry(0xBC))->color = drawColor9;
         fclSpriteStartAlphaAt(0xBC, (s8)mode * 0xFF, (1 - (s8)mode) * 0xFF, 0, 0, 0);
         v = (FclVec2 *)D_006443D8;
         fclSpriteCreate(0xCD, fclMakeVec2(v->x, v->y), 143.0f, 0x41);
         fclSpriteStartAlphaAt(0xCD, (s8)mode * 0xFF, (1 - (s8)mode) * 0xFF, 1, 0xF, 0);
     }
     drawColor10 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
-    *(FclDrawColor *)(fclSpriteEntry(0xCD) + 0x85) = drawColor10;
+    ((FclCombineRowSprite *)fclSpriteEntry(0xCD))->color = drawColor10;
 }
 #pragma pop
 
@@ -3878,7 +3891,6 @@ static inline void fclShowCursorArrow(s8 flag)
 // Draw stage's banner tiles and marker; mode 0 also initializes the stage/window selection.
 // FUN_00325450
 void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
-    /* Raw stage/window bytes and cursor handles belong to work spans absent from the shared row prefix. */
     u8 *work = ((struct KwlnTask *)task)->work;
     FclVec2 pos = fclMakeVec2(18.0f, 14.0f);
     FclDrawColor drawColor1 = fclMakeDrawColor(0, 0, 0x99, 0xFF);
@@ -3929,7 +3941,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteStartShowHide(0x2DF, pt, 0x125, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
         fclSpriteStartShowHide(0x2C1, pt, 0x14F, drawColor2, 35.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(work + 0x122) * 0xD6), 4.0f + pos.y);
+        pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(((FclCombineWork *)work)->f122 * 0xD6), 4.0f + pos.y);
         fclSpriteStartShowHide(0x150, pt, 0x150, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2E0, 0x150);
         fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -3948,7 +3960,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteStartShowHide(0x2DF, pt, 0x127, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
         fclSpriteStartShowHide(0x2C1, pt, 0x14F, drawColor2, 35.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(work + 0x122) * 0xD6), 4.0f + pos.y);
+        pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(((FclCombineWork *)work)->f122 * 0xD6), 4.0f + pos.y);
         fclSpriteStartShowHide(0x150, pt, 0x150, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2E0, 0x150);
         fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -3972,9 +3984,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
         fclSpriteStartShowHide(0x2C1, pt, 0x14F, drawColor2, 35.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         if ((s8)mode == 0) {
-            *(s8 *)(work + 0x122) = 1;
+            ((FclCombineWork *)work)->f122 = 1;
         }
-        pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(work + 0x122) * 0xD6), 4.0f + pos.y);
+        pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(((FclCombineWork *)work)->f122 * 0xD6), 4.0f + pos.y);
         fclSpriteStartShowHide(0x150, pt, 0x150, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2E0, 0x150);
         fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -3987,9 +3999,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteReset(0x2E1, 0x14C);
         fclSpriteReset(0x2E2, 0x14F);
         if ((s8)mode == 0) {
-            fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-            fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
-            *(s8 *)(work + 0x122) = 2;
+            fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+            fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
+            ((FclCombineWork *)work)->f122 = 2;
         }
         pt = fclMakeVec2(138.0f + pos.x, (9.0f + pos.y));
         fclSpriteStartShowHide(0x13F, pt, 0x13F, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -4000,7 +4012,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         pt = fclMakeVec2(416.0f + pos.x, (9.0f + pos.y));
         fclSpriteStartShowHide(0x14C, pt, 0x14C, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E1, pt, 0x14C, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2(88.0f + pos.x + (f32)(*(s8 *)(work + 0x122) * 0x8E), 4.0f + pos.y);
+        pt = fclMakeVec2(88.0f + pos.x + (f32)(((FclCombineWork *)work)->f122 * 0x8E), 4.0f + pos.y);
         fclSpriteStartShowHide(0x151, pt, 0x151, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E0, pt, 0x151, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
@@ -4018,9 +4030,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteReset(0x2E3, 0x141);
         fclSpriteReset(0x2E4, 0x14F);
         if ((s8)mode == 0) {
-            fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-            fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
-            *(s8 *)(work + 0x122) = 3;
+            fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+            fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
+            ((FclCombineWork *)work)->f122 = 3;
         }
         pt = fclMakeVec2(127.0f + pos.x, (9.0f + pos.y));
         fclSpriteStartShowHide(0x13F, pt, 0x13F, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -4034,7 +4046,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         pt = fclMakeVec2(435 + pos.x, (9.0f + pos.y));
         fclSpriteStartShowHide(0x14C, pt, 0x14C, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E1, pt, 0x14C, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2(88.0f + pos.x + (f32)(*(s8 *)(work + 0x122) * 0x6B), 4.0f + pos.y);
+        pt = fclMakeVec2(88.0f + pos.x + (f32)(((FclCombineWork *)work)->f122 * 0x6B), 4.0f + pos.y);
         fclSpriteStartShowHide(0x152, pt, 0x152, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E0, pt, 0x152, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
@@ -4057,9 +4069,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteReset(0x2E6, 0x14F);
         fclSpriteReset(0x2E7, 0x14B);
         if ((s8)mode == 0) {
-            fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-            fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
-            *(s8 *)(work + 0x122) = 4;
+            fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+            fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
+            ((FclCombineWork *)work)->f122 = 4;
         }
         pt = fclMakeVec2(114.0f + pos.x, (9.0f + pos.y));
         fclSpriteStartShowHide(0x13F, pt, 0x13F, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -4079,7 +4091,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         pt = fclMakeVec2(446.0f + pos.x, (9.0f + pos.y));
         fclSpriteStartShowHide(0x14C, pt, 0x14C, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E1, pt, 0x14C, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2(88.0f + pos.x + (f32)(*(s8 *)(work + 0x122) * 0x55), 4.0f + pos.y);
+        pt = fclMakeVec2(88.0f + pos.x + (f32)(((FclCombineWork *)work)->f122 * 0x55), 4.0f + pos.y);
         fclSpriteStartShowHide(0x153, pt, 0x153, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E0, pt, 0x153, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
@@ -4108,9 +4120,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteReset(0x2EA, 0x14B);
         fclSpriteReset(0x2EB, 0x14B);
         if ((s8)mode == 0) {
-            fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-            fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
-            *(s8 *)(work + 0x122) = 5;
+            fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+            fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
+            ((FclCombineWork *)work)->f122 = 5;
         }
         pt = fclMakeVec2(20.0f + (87.0f + pos.x), (9.0f + pos.y));
         fclSpriteStartShowHide(0x13F, pt, 0x13F, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -4136,7 +4148,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         pt = fclMakeVec2(11.0f + (355 + (87.0f + pos.x)), (9.0f + pos.y));
         fclSpriteStartShowHide(0x14C, pt, 0x14C, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E1, pt, 0x14C, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2((87.0f + pos.x) + (f32)(*(s8 *)(work + 0x122) * 0x47), 4.0f + pos.y);
+        pt = fclMakeVec2((87.0f + pos.x) + (f32)(((FclCombineWork *)work)->f122 * 0x47), 4.0f + pos.y);
         fclSpriteStartShowHide(0x154, pt, 0x154, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E0, pt, 0x154, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
@@ -4171,9 +4183,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteReset(0x2EE, 0x14B);
         fclSpriteReset(0x2EF, 0x14B);
         if ((s8)mode == 0) {
-            fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-            fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
-            *(s8 *)(work + 0x122) = 6;
+            fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+            fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
+            ((FclCombineWork *)work)->f122 = 6;
         }
         pt = fclMakeVec2(13.0f + (87.0f + pos.x), (9.0f + pos.y));
         fclSpriteStartShowHide(0x13F, pt, 0x13F, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
@@ -4205,7 +4217,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         pt = fclMakeVec2(6.0f + (366.0f + (87.0f + pos.x)), (9.0f + pos.y));
         fclSpriteStartShowHide(0x14C, pt, 0x14C, drawColor5, 29.0f, 0xBD, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E1, pt, 0x14C, drawColor4, 25.0f, 0xBF, mode, 6, 3, 0, fclCombineGetSpritePool());
-        pt = fclMakeVec2((87.0f + pos.x) + (f32)(*(s8 *)(work + 0x122) * 0x3D), 4.0f + pos.y);
+        pt = fclMakeVec2((87.0f + pos.x) + (f32)(((FclCombineWork *)work)->f122 * 0x3D), 4.0f + pos.y);
         fclSpriteStartShowHide(0x155, pt, 0x155, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E0, pt, 0x155, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
@@ -4230,13 +4242,13 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
         fclSpriteReset(0x2E2, 0x14F);
         fclSpriteReset(0x2E3, 0x14F);
         if ((s8)mode == 0) {
-            fclSpriteSetHidden(*(u8 **)(work + 0x28C), 1);
-            fclSpriteSetHidden(*(u8 **)(work + 0x290), 1);
-            *(s8 *)(work + 0x122) = 0xC;
-            *(s16 *)(work + 0x120) = 6;
+            fclSpriteSetHidden(((FclCombineWork *)work)->f28C, 1);
+            fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
+            ((FclCombineWork *)work)->f122 = 0xC;
+            ((FclCombineWork *)work)->windowRow = 6;
         }
         fclCombineDrawStageTiles(task, 6, mode);
-        pt = fclMakeVec2((87.0f + pos.x) + (f32)(*(s16 *)(work + 0x120) * 0x3D), 4.0f + pos.y);
+        pt = fclMakeVec2((87.0f + pos.x) + (f32)(((FclCombineWork *)work)->windowRow * 0x3D), 4.0f + pos.y);
         fclSpriteStartShowHide(0x155, pt, 0x155, drawColor6, 36.0f, 0xBC, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteStartShowHide(0x2E0, pt, 0x155, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, mode, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
@@ -4279,7 +4291,7 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
 #pragma opt_propagation off
 static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
 {
-    /* The caller supplies a byte displacement into a float table; retain that storage interface and scoped load order. */
+    /* measured: float-element indexing changes the inlined stage-tile body (nd 496, 1268/1248 bytes). */
     x += *(const f32 *)((const u8 *)table + offset);
     return x;
 }
@@ -4288,6 +4300,7 @@ static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
 // Draw seven visible stage tiles and their shadows with duration and mode; later tiles add secondary pairs.
 // FUN_00329310
 void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
+    /* measured: Float-element indexing changes b210 codegen (nd 701); retain the byte displacement. */
     /* Table displacements are byte offsets; the stage/window bytes are outside the shared row-work prefix. */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     PackedColor white;
@@ -4311,7 +4324,7 @@ void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
     task = ((struct KwlnTask *)owner)->work;
     constructedOrigin = fclMakeVec2(18.0f, 14.0f);
     *(FclVec2 *)origin = constructedOrigin;
-    first = (s8)(*(s8 *)(task + 0x122) - *(s16 *)(task + 0x120));
+    first = (s8)(((FclCombineWork *)task)->f122 - ((FclCombineWork *)task)->windowRow);
     for (i = 0; i < 14; ++i) {
         fclSpriteSetFlag((s16)(i + 0x13F), 0, 1);
     }
@@ -4493,7 +4506,7 @@ static inline void fclCopyPositionStorage(void *out, const void *in)
 // Fcl combine header panel: draws the fixed header panel at (79, 97): a backing frame, the title sprites and two highlight rows whose x offset comes from the cursor byte at work+0x123 (step 0x101). delay and mode are passed through to every draw call.
 // FUN_00329E40
 void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
-    /* Raw header selection reads the byte at 0x123, which is not part of the shared row-work prefix. */
+    /* measured: The remaining header-selection member substitutions change b210 codegen (nd 2124). */
 
 
     FclVec2 origin;
@@ -4544,7 +4557,7 @@ void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
         panelColor = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
         origin = fclMakeVec2(79.0f, 97.0f);
         fclSpriteReset(0x2EA, 0x193);
-        drawPosition8 = fclMakeVec2(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
+        drawPosition8 = fclMakeVec2(origin.x + (f32)(((FclCombineWork *)work)->headerSelection * 0x101), origin.y);
         fclSpriteStartShowHide(0x2EA, drawPosition8, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2EB, 0x19C);
         drawPosition9 = fclMakeVec2(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
@@ -4615,7 +4628,7 @@ void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
         drawColor1 = fclMakeDrawColor(0, 0, 0, 0xFF);
         p = fclSpriteEntry(0x9E);
         ((FclCombineRowSprite *)p)->color = drawColor1;
-        *(s8 *)(fclSpriteEntry(0x9E) + 0x6E) = 0x66;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x9E))->alpha = 0x66;
         fclSpriteStartAlphaAt(0x9E, 0, 0x66, 0, 5, 3);
     } else {
         fclSpriteStartAlphaAt(0x9E, ((FclCombineRowSprite *)fclSpriteEntry(0x9E))->alpha, 0, 0, 0, 0);
@@ -4626,7 +4639,7 @@ void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
         drawColor2 = fclMakeDrawColor(0, 0, 0, 0xFF);
         p = fclSpriteEntry(0xA0);
         ((FclCombineRowSprite *)p)->color = drawColor2;
-        *(s8 *)(fclSpriteEntry(0xA0) + 0x6E) = 0x66;
+        ((FclCombineRowSprite *)fclSpriteEntry(0xA0))->alpha = 0x66;
         fclSpriteStartAlphaAt(0xA0, 0, 0x66, 0, 5, 3);
     } else {
         fclSpriteStartAlphaAt(0xA0, ((FclCombineRowSprite *)fclSpriteEntry(0xA0))->alpha, 0, 0, 0, 0);
@@ -4661,7 +4674,7 @@ void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
         drawColor5 = fclMakeDrawColor(0, 0, 0, 0xFF);
         p = fclSpriteEntry(0x2E2);
         ((FclCombineRowSprite *)p)->color = drawColor5;
-        *(s8 *)(fclSpriteEntry(0x2E2) + 0x6E) = 0x66;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x2E2))->alpha = 0x66;
         {
             f32 scale = 1.0f;
         p = fclSpriteEntry(0x2E2);
@@ -4680,7 +4693,7 @@ void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
         drawColor6 = fclMakeDrawColor(0, 0, 0, 0xFF);
         p = fclSpriteEntry(0x2E3);
         ((FclCombineRowSprite *)p)->color = drawColor6;
-        *(s8 *)(fclSpriteEntry(0x2E3) + 0x6E) = 0x66;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x2E3))->alpha = 0x66;
         {
             f32 scale = 1.0f;
         p = fclSpriteEntry(0x2E3);
@@ -4775,7 +4788,7 @@ void fclCombineDrawCounter(u8 *task, s8 mode) {
     drawPosition1 = fclMakeVec2(247.0f + origin.x, rowY);
     if (entryMode == 0) {
         fclSpriteCreate(0x2D0, drawPosition1, 211.0f, 0x57);
-        *(s16 *)(fclSpriteEntry(0x2D0) + 0x4) = (s16)(((counter % 10) + 0x10C));
+        ((FclCombineRowSprite *)fclSpriteEntry(0x2D0))->image = (s16)(((counter % 10) + 0x10C));
         fclSpriteStartAlphaAt(0x2D0, 0, 0xFF, 0, 0xA, 2);
         drawPosition10 = fclMakeVec2(drawPosition1.x, drawPosition1.y - 20.0f);
         fclSpriteStartPositionAt(0x2D0, drawPosition10, drawPosition1, 1, 0xA, 2);
@@ -4788,7 +4801,7 @@ void fclCombineDrawCounter(u8 *task, s8 mode) {
         drawPosition1 = fclMakeVec2(221.0f + origin.x, rowY);
         if (entryMode == 0) {
             fclSpriteCreate(0x2D1, drawPosition1, 211.0f, 0x57);
-            *(s16 *)(fclSpriteEntry(0x2D1) + 0x4) = (s16)((((s8)(counter / 10) % 10) + 0x10C));
+            ((FclCombineRowSprite *)fclSpriteEntry(0x2D1))->image = (s16)((((s8)(counter / 10) % 10) + 0x10C));
             fclSpriteStartAlphaAt(0x2D1, 0, 0xFF, 0, 0xA, 2);
             drawPosition12 = fclMakeVec2(drawPosition1.x, drawPosition1.y - 20.0f);
             fclSpriteStartPositionAt(0x2D1, drawPosition12, drawPosition1, 1, 0xA, 2);
@@ -4822,8 +4835,7 @@ void fclCombineDrawCounter(u8 *task, s8 mode) {
 // FUN_0032B770
 void fclCombineDrawRosterRows(u8 *task, s32 delayStep, s32 rowCount, s8 mode)
 {
-  /* Raw word/float addresses preserve the addressable work snapshots and
-     shared Y accumulator of this measured matching implementation. */
+  /* Keep the addressable row-spacing snapshot and the byte-displaced scalar Y accumulator. */
   float markY;
   f32 *rowStepAddress;
   FclVec2 drawPosition1;
@@ -4845,7 +4857,7 @@ void fclCombineDrawRosterRows(u8 *task, s32 delayStep, s32 rowCount, s8 mode)
   f32 windowStart;
   s16 selectedRow;
   f32 rowStepOrY;
-  workAddress = (u8 **) (task + 0x38);
+  workAddress = &((struct KwlnTask *)task)->work;
   obj = *workAddress;
   drawPosition1 = fclMakeVec2(156.0f, (float) ((float) 87.0f));
   fclCombineDrawSlotFields(task, drawPosition1, 0, mode, 0, 1, 1);
@@ -4859,25 +4871,25 @@ void fclCombineDrawRosterRows(u8 *task, s32 delayStep, s32 rowCount, s8 mode)
     drawPosition2 = fclMakeVec2(162.0f, 111.0);
     ;
     ;
-    fclCombineDrawPersonaRow(task, drawPosition2, -1, (s8) i, (*((u16 *) (yListSlotEntry(0, i) + 2))) & 0xFFFFu, *((u8 *) (yListSlotEntry(0, i) + 4)), (s16) (((s16) i) * rowDelayStep), mode, 0, 0x99);
+    fclCombineDrawPersonaRow(task, drawPosition2, -1, (s8) i, (((FclCombinePersonaHeader *)yListSlotEntry(0, i))->personaId) & 0xFFFFu, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->level, (s16) (((s16) i) * rowDelayStep), mode, 0, 0x99);
     i++;
   }
 
   yOffset = 0x3C;
-  selectionAddress = (s16 *) (obj + 0x11E);
+  selectionAddress = &((FclCombineRowWork *)obj)->cursorRow;
   fclCombineSlideInHeaderSprites(417.0, 220.0f, task, 0, mode);
   savedWork = obj;
-  rowStepField = (f32 *) (obj + 0x124);
+  rowStepField = &((FclCombineWork *)obj)->rowSpacing;
   drawPosition3 = fclMakeVec2(472.0f, 112.0f);
   fclCombineDrawSlotFrames(task, drawPosition3, 0, mode);
-  windowStart = (selectedRow = *selectionAddress) - (*((s16 *) (savedWork + 0x120)));
+  windowStart = (selectedRow = *selectionAddress) - (((FclCombineWork *)savedWork)->windowRow);
   rowStepOrY = *rowStepField;
   rowStepAddress = &rowStepOrY;
-  frameYAddress = fclSpriteEntry(b) + 0x3C;
+  frameYAddress = (u8 *)&((FclCombineRowSprite *)fclSpriteEntry(b))->position.y;
   *((f32 *) (fclSpriteEntry(0xB1) + yOffset)) = (rowStepOrY = (*((f32 *) frameYAddress)) + ((*rowStepAddress) * windowStart));
-  indicatorY = *((f32 *) (fclSpriteEntry(0xB1) + 0x3C));
+  indicatorY = ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y;
   markY = 52.0f + indicatorY;
-  *((f32 *) (fclSpriteEntry(0xB5) + 0x3C)) = (rowStepOrY = markY);
+  ((FclCombineRowSprite *)fclSpriteEntry(0xB5))->position.y = (rowStepOrY = markY);
 }
 
 /* The mode byte is passed unconverted to every callee, so each callee takes it as s8.
@@ -4885,8 +4897,7 @@ void fclCombineDrawRosterRows(u8 *task, s32 delayStep, s32 rowCount, s8 mode)
 // Draw rowCount windowed roster rows with delayStep and mode, highlighting the cursor and updating the header/counter.
 // FUN_0032B9D0
 void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
+    /* measured: Remaining task/cursor member substitutions change b210 codegen (nd 749..1257). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -4915,7 +4926,7 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
     f32 y;
     f32 y9;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
     drawPosition1 = fclMakeVec2(88.0f, 127.0f);
     fclCombineDrawSlotFields(task, drawPosition1, 0, mode, 0, 1, 3);
     drawPosition4 = fclMakeVec2(390.0f, 127.0f);
@@ -4937,7 +4948,7 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
     drawColor5 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
     fclSpriteStartShowHide(0x11D, drawPosition8, 0x11D, drawColor5, 191.0f, 0x56, mode, 6, 3, 0, fclCombineGetSpritePool());
     fclCombineDrawHeaderPanel(task, 0, mode);
-    entry = *(s16 *)(work + 0x11E) - *(s16 *)(work + 0x120);
+    entry = ((FclCombineRowWork *)work)->cursorRow - ((FclCombineWork *)work)->windowRow;
     row = 0;
     step = (s16)delayStep;
     end = (s16)rowCount + entry;
@@ -4946,7 +4957,7 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
             /* The label point is returned by value into its named slot while
                the row offset is evaluated ahead of the constructor call. */
 
-            fclCombineDrawPersonaRow(task, drawPosition2 = fclMakeVec2(90.0f, 151.0f), -1, row, *(u16 *)(yListSlotEntry(0, entry) + 2), *(u8 *)(yListSlotEntry(0, entry) + 4), (s16)(row * step), mode, 0, 0x99);
+            fclCombineDrawPersonaRow(task, drawPosition2 = fclMakeVec2(90.0f, 151.0f), -1, row, ((FclCombinePersonaHeader *)yListSlotEntry(0, entry))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, entry))->level, (s16)(row * step), mode, 0, 0x99);
         }
         rowWork = *(u8 **)(task + 0x38);
         drawPosition9 = fclMakeVec2(390.0f, 151.0f);
@@ -4954,7 +4965,7 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
         drawColor7 = fclMakeDrawColor(0, 0, 0x99, 0x80);
         *(FclDrawColor *)&drawColor6 = drawColor7;
         cell.y += (s8)row * 23;
-        if (*(s16 *)(rowWork + 0x120) == (s8)row) {
+        if (((FclCombineWork *)rowWork)->windowRow == (s8)row) {
             drawColor6 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
         }
         fclSpriteStartShowHide((s8)row + 0x21F, cell, 0x193, drawColor6, 191.0f, 0x41, mode, 6, 3, row * step, fclCombineGetSpritePool());
@@ -4963,7 +4974,7 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
     }
     drawPosition3 = fclMakeVec2(535, 154.0f);
     fclCombineDrawSlotFrames(task, drawPosition3, 0, mode);
-    ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y = *(f32 *)(work + 0x124) * (*(s16 *)(work + 0x11E) - *(s16 *)(work + 0x120)) + ((FclCombineRowSprite *)fclSpriteEntry(0xAA))->position.y;
+    ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y = ((FclCombineWork *)work)->rowSpacing * (*(s16 *)(work + 0x11E) - *(s16 *)(work + 0x120)) + ((FclCombineRowSprite *)fclSpriteEntry(0xAA))->position.y;
     ((FclCombineRowSprite *)fclSpriteEntry(0xB5))->position.y = 52.0f + ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y;
     fclCombineSlideInHeaderSprites(359, 300.0f, task, 1, mode);
     fclCombineDrawCounter(task, mode);
@@ -4981,59 +4992,58 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
 // Move the roster cursor for command, retaining the visible window and repositioning its two indicators.
 // FUN_0032C0C0
 void fclCombineMoveRosterCursor(u8 *task, s64 command) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
+    /* measured: Remaining cursor members/field-address substitutions change b210 codegen (nd 165..600). */
     f32 fdiff;
     f32 facc;
     s16 r;
     s32 nextRow;
     u8 *obj;
 
-    obj = *(u8 **)(task + 0x38);
+    obj = ((struct KwlnTask *)task)->work;
     r = 8;
-    if (*(s32 *)(yListSlotWork(0) + 8) < 8) {
-        r = *(s16 *)(yListSlotWork(0) + 8);
+    if (((FclCombinePersonaListHeader *)yListSlotWork(0))->count < 8) {
+        r = *(s16*)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count;
     }
-    *(s8 *)(obj + 0x13A) = 1;
+    ((FclCombineWork *)obj)->redrawRequested = 1;
     switch ((s8)command) {
     case 0:
-        *(s16 *)(obj + 0x11E) = fclAddClamped(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 1);
-        *(s16 *)(obj + 0x120) = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), r, 1);
+        ((FclCombineRowWork *)obj)->cursorRow = fclAddClamped(*(s16 *)(obj + 0x11E), 1, (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), 0, 1);
+        ((FclCombineWork *)obj)->windowRow = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), r, 1);
         break;
     case 1:
-        *(s16 *)(obj + 0x11E) = fclSubClamped(*(s16 *)(obj + 0x11E), 1, 0, 0, 1);
+        ((FclCombineRowWork *)obj)->cursorRow = fclSubClamped(*(s16 *)(obj + 0x11E), 1, 0, 0, 1);
         {
-        s16 count = *(s16 *)(yListSlotWork(0) + 8);
-        *(s16 *)(obj + 0x120) = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), count, r, -1);
+        s16 count = *(s16*)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count;
+        ((FclCombineWork *)obj)->windowRow = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), count, r, -1);
         }
         break;
     case 2:
-        yListAdvanceCursorScroll(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(yListSlotWork(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
+        yListAdvanceCursorScroll(((FclCombineRowWork *)obj)->cursorRow, ((FclCombineWork *)obj)->windowRow, ((FclCombinePersonaListHeader *)yListSlotWork(0))->count, 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
         break;
     case 3:
-        yListRetreatCursorScroll(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(yListSlotWork(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
+        yListRetreatCursorScroll(((FclCombineRowWork *)obj)->cursorRow, ((FclCombineWork *)obj)->windowRow, ((FclCombinePersonaListHeader *)yListSlotWork(0))->count, 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
         break;
     case 4:
-        nextRow = fclAddClamped(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 2);
+        nextRow = fclAddClamped(((FclCombineRowWork *)obj)->cursorRow, 1, (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), 0, 2);
         *(u16 *)(obj + 0x11E) = (u16)nextRow;
         if ((s16)nextRow == 0) {
-            *(s16 *)(obj + 0x120) = 0;
+            ((FclCombineWork *)obj)->windowRow = 0;
         } else {
-            *(s16 *)(obj + 0x120) = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), r, 1);
+            ((FclCombineWork *)obj)->windowRow = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), r, 1);
         }
         break;
     case 5:
-        if (*(s16 *)(obj + 0x11E) == 0) {
-            *(s16 *)(obj + 0x11E) = fclSubClamped(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
-            *(s16 *)(obj + 0x120) = (s16)((s16)r - 1);
+        if (((FclCombineRowWork *)obj)->cursorRow == 0) {
+            *(s16 *)(obj + 0x11E) = fclSubClamped(*(s16 *)(obj + 0x11E), 1, 0, (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), 2);
+            ((FclCombineWork *)obj)->windowRow = (s16)((s16)r - 1);
         } else {
-            *(s16 *)(obj + 0x11E) = fclSubClamped(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
-            *(s16 *)(obj + 0x120) = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), r, -1);
+            *(s16 *)(obj + 0x11E) = fclSubClamped(*(s16 *)(obj + 0x11E), 1, 0, (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), 2);
+            ((FclCombineWork *)obj)->windowRow = yListStepIndex(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), r, -1);
         }
         break;
     }
-    fdiff = (f32)(*(s16 *)(obj + 0x11E) - *(s16 *)(obj + 0x120));
-    facc = *(f32 *)(obj + 0x124);
+    fdiff = (f32)(((FclCombineRowWork *)obj)->cursorRow - ((FclCombineWork *)obj)->windowRow);
+    facc = ((FclCombineWork *)obj)->rowSpacing;
     facc = 0.0f + ((FclCombineRowSprite *)fclSpriteEntry(0xAA))->position.y + facc * fdiff;
     ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y = facc;
     facc = 52.0f + ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y;
@@ -5062,7 +5072,6 @@ static inline u8 *fclDrawPersonaTask(u8 *draw)
 // FUN_0032C480
 void fclCombineDrawSelectedName(u8 *task)
 {
-    /* The model provider returns a word handle; retain its byte-relative state access rather than guessing its work layout. */
     FclVec2 drawPosition1;
     FclCombineModelWork *obj;
     s32 n;
@@ -5078,7 +5087,7 @@ void fclCombineDrawSelectedName(u8 *task)
     itfMesWindowQueueEntry(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
         ((FclCombinePersonaHeader *)yListSlotEntry(0, obj->selection))->personaId, D_00796370);
     fclCombineSetModel((s32)obj->model, ((FclCombinePersonaHeader *)yListSlotEntry(0, obj->selection))->personaId, 1);
-    *(u8 *)(fclCombineGetWork(obj->model) + 1) = 0;
+    ((FclCombineModelState *)(fclCombineGetWork(obj->model)))->unk1 = 0;
     shdPersonaSetOpacity(fclDrawPersonaTask(obj->draw), 64000.0f);
 }
 
@@ -5091,6 +5100,7 @@ void fclCombineDrawSelectedName(u8 *task)
 // Fcl combine slot panel column: slides the panel of column slot (0 or 1; sprite bases 0x1CA and 0x2E4) in or out. mode 1 creates the sprites at origin plus travelDistance and slides them to shownPosition, then sets the two clip boxes from the work table. Any other mode slides them to origin, or to hiddenPosition when useHiddenPosition is set, and fades the frame sprites out.
 // FUN_0032C660
 void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosition, s32 mode, s32 useHiddenPosition) {
+    /* measured: clipTasks member indexing changes b210 address codegen (nd 2 for either clip); retain byte-table bases. */
     f32 travelDistance = 600.0f;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -5625,7 +5635,7 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
 // Fcl combine detail panel: draws the text panel for the highlighted choice. When its table index (t+0x2D6 selecting an entry in t+0x2D4) is -1 it draws the empty-choice header and the entries flagged in t+0x2C4; otherwise it draws the entry's three info lines or its header, then the same flagged-entry list.
 // FUN_0032E570
 void fclCombineDrawDetailPanel(u8 *task) {
-    /* Raw calendar/choice entries use distinct 0x14/0x1C records; unobserved fields and complete table extents are not inferred. */
+    /* measured: Remaining side/flag member substitutions change b210 codegen (nd 2..2002); calendar records are typed. */
     extern u8 fclCalendarMonth(void);
     extern s32 fclCalendarDay(void);
     extern s64 calGetDayEntryForMonthDay(s32 month, s32 day);
@@ -5666,26 +5676,26 @@ void fclCombineDrawDetailPanel(u8 *task) {
     f32 x;
 
     work = ((struct KwlnTask *)task)->work;
-    *(s8 *)(work + 0x2D6) = *(s8 *)(work + 0x122) ^ 1;
-    alpha = fclEaseInterpolate(2, 0.0f, 255.0f, (f32)*(s16 *)(fclSpriteEntry(0x2E4) + 0x42),
-                          (f32)*(s16 *)(fclSpriteEntry(0x2E4) + 0x40));
+    ((FclCombineWork *)work)->detailSide = ((FclCombineWork *)work)->f122 ^ 1;
+    alpha = fclEaseInterpolate(2, 0.0f, 255.0f, (f32)((FclCombineRowSprite *)fclSpriteEntry(0x2E4))->positionElapsed,
+                          (f32)((FclCombineRowSprite *)fclSpriteEntry(0x2E4))->positionDuration);
     v = ((s8 *)(work + 0x2D4))[*(s8 *)(work + 0x2D6)];
     if (v == -1) {
         if (*(s8 *)(work + 0x122) == 1) {
             base = D_00643D00 + (s8)calGetDayEntryForMonthDay(fclCalendarMonth() & 0xFF, fclCalendarDay() & 0xFF) * 0x14;
         } else if (*(s8 *)(work + 0x122) == 0) {
-            base = D_00643D00 + (s8)calGetDayEntryForMonthDay(*(s8 *)(work + 0x2D2), *(s8 *)(work + 0x2D3)) * 0x14;
+            base = D_00643D00 + (s8)calGetDayEntryForMonthDay(((FclCombineWork *)work)->calendarMonth, ((FclCombineWork *)work)->calendarDay) * 0x14;
         }
         fclCombineDrawResourceAt(0x1D2, fclMakeVec2(135.0f, 96.0f), 43.0f, fclPackRgba(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
         frFontExDrawTextDeferred(153.0f, 86.0f, 43.0f, fclPackRgba(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
         for (j1 = 0, n1 = 0; j1 < 5; j1++) {
-            if (*(s8 *)(work + *(s8 *)(work + 0x2D6) * 5 + j1 + 0x2C4) == 1) {
+            if (((FclCombineWork *)(work + *(s8 *)(work + 0x2D6) * 5 + j1))->detailFlags[0][0] == 1) {
                 off = n1 * 0x22;
                 fclCombineDrawResourceAt(0x1D2, fclMakeVec2(135.0f, (f32)(off + 0xC3)), 43.0f, fclPackRgba(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
                 e = base + j1 * 4;
                 id = *(s8 *)e;
                 if (id == 0xA) {
-                    strcpy(text, func_00243840(*(u16 *)(e + 2)));
+                    strcpy(text, func_00243840(((FclCombineDetailEffect *)e)->argument));
                     strcpy(suffix, D_00644D20[0]);
                     frFontExCopyString(suffix, convertedSuffix, 0x40);
                     strcat(text, convertedSuffix);
@@ -5703,14 +5713,14 @@ void fclCombineDrawDetailPanel(u8 *task) {
     } else {
         ent = D_006432B0 + v * 0x1C;
         fclCombineDrawResourceAt(0x1D2, fclMakeVec2(135.0f, 96.0f), 43.0f, fclPackRgba(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
-        if (*(s8 *)(ent + 2) != 0) {
+        if (((FclCombineCalendarRule *)ent)->kind != 0) {
             k = 0;
             x = 153.0f;
             for (; k < 3; k++) {
                 strcpy(text, (D_00643220 + *(s8 *)(ent + 2) * 3)[k]);
-                secondPersona = *(s16 *)(ent + 6);
+                secondPersona = ((FclCombineCalendarRule *)ent)->secondPersona;
                 b44c = (u8 *)iGpffffb44c;
-                firstPersona = *(s16 *)(ent + 4);
+                firstPersona = ((FclCombineCalendarRule *)ent)->firstPersona;
                 b440 = (u8 *)iGpffffb440;
                 frFontExDrawTextDeferred(153.0f, (f32)(k * 0x19 + 0x56), 43.0f, fclPackRgba(0xFF, 0xFF, 0xFF, alpha), 0, 1,
                               fclExpandNameTags(text, b440 + firstPersona * 0x11, b440 + secondPersona * 0x11, b44c + firstPersona * 0x15, b44c + secondPersona * 0x15),
@@ -5721,13 +5731,13 @@ void fclCombineDrawDetailPanel(u8 *task) {
             frFontExDrawTextDeferred(153.0f, 86.0f, 43.0f, fclPackRgba(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);
         }
         for (j = 0, n = 0; j < 5; j++) {
-            if (*(s8 *)(work + *(s8 *)(work + 0x2D6) * 5 + j + 0x2C4) == 1) {
+            if (((FclCombineWork *)(work + *(s8 *)(work + 0x2D6) * 5 + j))->detailFlags[0][0] == 1) {
                 off = n * 0x22;
                 fclCombineDrawResourceAt(0x1D2, fclMakeVec2(135.0f, (f32)(off + 0xC3)), 43.0f, fclPackRgba(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
                 e = ent + j * 4;
-                id = *(s8 *)(e + 8);
+                id = ((FclCombineCalendarRule *)e)->effects[0].kind;
                 if (id == 0xA) {
-                    strcpy(text, func_00243840(*(u16 *)(e + 10)));
+                    strcpy(text, func_00243840(((FclCombineCalendarRule *)e)->effects[0].argument));
                     strcpy(suffix, D_00644D20[0]);
                     frFontExCopyString(suffix, convertedSuffix, 0x40);
                     strcat(text, convertedSuffix);
@@ -5825,13 +5835,12 @@ typedef union {
 static inline void fclStoreActionResource(s16 id, s32 offset, u8 *work)
 {
     /* Offset-first row-ID stores preserve retail address operand order; offset is already a byte displacement. */
-    *(s16 *)((u32)offset + (u32)work + 0xB8) = id;
+    ((FclCombineWork *)((u32)offset + (u32)work))->selectedIds[0] = id;
 }
 // Fcl combine action list: builds the action rows (sprite ids 0x169 and 0x16A, then 0x16B and 0x16C when flags 0x1305 and 0x1306 are set, then 0x16D and 0x16E), lays them out 34 units apart, draws them with fclCombineDrawListRow and sets the row colours. Flag 0x1306 also recolours sprites 0x200, 0x201, 0x16B and 0x301.
 // FUN_0032F4D0
 void fclCombineDrawActionList(u8 *task) {
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining count/color-source member substitutions change b210 codegen (nd 8..1087). */
     FclVec2 tbl[5];
     FclActionColor packedColor1;
     FclActionColor packedColor2;
@@ -5849,9 +5858,9 @@ void fclCombineDrawActionList(u8 *task) {
 
     work = ((struct KwlnTask *)task)->work;
     rowAdjustment = 0.0f;
-    *(s8 *)(work + 0xB7) = 0;
-    fclStoreActionResource(0x169, *(s8 *)(work + 0xB7) * 2, work);
-    tbl[*(s8 *)(work + 0xB7)] = fclMakeVec2(26.0f, (f32)(*(s8 *)(work + 0xB7) * 34 + 0x57));
+    ((FclCombineWork *)work)->actionCount = 0;
+    fclStoreActionResource(0x169, ((FclCombineWork *)work)->actionCount * 2, work);
+    tbl[*(s8 *)(work + 0xB7)] = fclMakeVec2(26.0f, (f32)(((FclCombineWork *)work)->actionCount * 34 + 0x57));
     *(s8 *)(work + 0xB7) += 1;
     fclStoreActionResource(0x16A, *(s8 *)(work + 0xB7) * 2, work);
     tbl[*(s8 *)(work + 0xB7)] = fclMakeVec2(26.0f, (f32)(*(s8 *)(work + 0xB7) * 34 + 0x57));
@@ -5876,9 +5885,9 @@ void fclCombineDrawActionList(u8 *task) {
     i = 0;
     for (; (s16)i < *(s8 *)(work + 0xB7); i = (s16)(i + 1)) {
         n = (s16)i;
-        fclCombineDrawListRow(task, (s8)(n + 4), tbl[n], *(s16 *)(work + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
+        fclCombineDrawListRow(task, (s8)(n + 4), tbl[n], ((FclCombineWork *)(work + n * 2))->selectedIds[0], (s16)(n * 2 + 3), 0);
     }
-    r = (s16)fclCombineMapSlotKind(*(s8 *)(work + 0xB6));
+    r = (s16)fclCombineMapSlotKind(((FclCombineWork *)work)->actionKind);
     packedColor1.channels = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
     packedColor2.channels = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     packedColor3.channels = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
@@ -5886,21 +5895,20 @@ void fclCombineDrawActionList(u8 *task) {
     if (datGetFlag(0x1306) != 0) {
         drawColor1 = fclMakeDrawColor(0x29, 0x29, 0x29, 0xFF);
         p1 = fclSpriteEntry(0x201);
-        *(FclDrawColor *)(p1 + 0x85) = drawColor1;
+        ((FclCombineRowSprite *)p1)->color = drawColor1;
         p2 = fclSpriteEntry(0x200);
-        *(FclDrawColor *)(p2 + 0x85) = *(FclDrawColor *)(p1 + 0x85);
+        ((FclCombineRowSprite *)p2)->color = *(FclDrawColor *)(p1 + 0x85);
         drawColor2 = fclMakeDrawColor(0x61, 0x61, 0x61, 0xFF);
-        *(FclDrawColor *)(fclSpriteEntry(0x16B) + 0x85) = drawColor2;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x16B))->color = drawColor2;
         drawColor3 = fclMakeDrawColor(0x4A, 0x4A, 0x4A, 0xFF);
-        *(FclDrawColor *)(fclSpriteEntry(0x301) + 0x85) = drawColor3;
+        ((FclCombineRowSprite *)fclSpriteEntry(0x301))->color = drawColor3;
     }
 }
 
 // Fcl combine slot colours: sets the colours of the slot's two sprite pairs and the marker sprites.
 // FUN_0032FA30
 void fclCombineSetSlotColors(u8 *task, s16 slot, FclDrawColor barColor, FclDrawColor labelColor, FclDrawColor markerColor) {
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: The remaining color-source member substitution changes b210 byte-copy codegen (nd 8). */
     u8 *work;
     u8 *p1;
     u8 *p2;
@@ -5910,14 +5918,14 @@ void fclCombineSetSlotColors(u8 *task, s16 slot, FclDrawColor barColor, FclDrawC
 
     work = ((struct KwlnTask *)task)->work;
     p1 = fclSpriteEntry((s16)((slot + 4) * 2 + 0x1F5));
-    *(FclDrawColor *)(p1 + 0x85) = barColor;
+    ((FclCombineRowSprite *)p1)->color = barColor;
     p2 = fclSpriteEntry((s16)((slot + 4) * 2 + 0x1F4));
-    *(FclDrawColor *)(p2 + 0x85) = *(FclDrawColor *)(p1 + 0x85);
+    ((FclCombineRowSprite *)p2)->color = *(FclDrawColor *)(p1 + 0x85);
     idx = slot * 2;
-    p3 = fclSpriteEntry(*(s16 *)(idx + (s32)work + 0xB8));
-    *(FclDrawColor *)(p3 + 0x85) = labelColor;
+    p3 = fclSpriteEntry(((FclCombineWork *)(idx + (s32)work))->selectedIds[0]);
+    ((FclCombineRowSprite *)p3)->color = labelColor;
     p4 = fclSpriteEntry((s16)(slot + 0x2FF));
-    *(FclDrawColor *)(p4 + 0x85) = markerColor;
+    ((FclCombineRowSprite *)p4)->color = markerColor;
 }
 // Fcl combine map slot kind: maps a slot kind through D_00749530 when flag 0x1306 is set.
 // FUN_0032FB60
@@ -5936,7 +5944,7 @@ s8 fclCombineMapSlotKind(s8 kind) {
 // Fcl combine grid rows: draws the roster grid: a slot-field header, then one party row per roster entry with its eight slot cells, and each row's marker sprite (0x25E + row), which fades in and slides to x = 0x14E + 23 * row.
 // FUN_0032FBC0
 void fclCombineDrawGridRows(u8 *task) {
-    /* Raw descriptor reads preserve independent provider lookups; row-task pointers keep their four-byte bias. */
+    /* measured: Remaining row-task member substitutions change b210 codegen (nd 151..696); keep four-byte row bias. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclVec2 drawPosition1;
@@ -5956,7 +5964,7 @@ void fclCombineDrawGridRows(u8 *task) {
     i = 0;
     while ((s16)i < (u16)datPersonaRosterCapacity()) {
         drawPosition2 = fclMakeVec2(16.0f, 128.0f);
-        fclCombinePartyRow(task, drawPosition2, (s8)i, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->level, 0, 1, (s8)*(u8 *)(yListSlotWork(0) + 8));
+        fclCombinePartyRow(task, drawPosition2, (s8)i, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, i))->level, 0, 1, (s8)*(u8*)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count);
         j = 0;
         p = work + (s16)i * 4;
         while ((s16)j < (u16)datPersonaRosterCapacity()) {
@@ -5967,20 +5975,20 @@ void fclCombineDrawGridRows(u8 *task) {
             u8 *e4;
             u8 *e5;
             u8 *e6;
-            e0 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
+            e0 = fclCombineSlotRecord(((FclCombineRowWork *)p)->gridRowTasks[0], (s8)j);
             e1 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e2 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e3 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e4 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e5 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e6 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
-            fclSpriteStartEntrance(e0, *(FclVec2 *)(e1 + 0x28),
+            fclSpriteStartEntrance(e0, ((FclObject *)((u8 *)e1 - 4))->anchorPosition,
                           ((FclObject *)((u8 *)e2 - 4))->color, ((FclObject *)((u8 *)e3 - 4))->color,
-                          *(u8 *)(e4 + 0x5E), *(u8 *)(e5 + 0x5E),
-                          32.0f, *(f32 *)(e6 + 4), 3, 0, 1, 0);
+                          ((FclObject *)((u8 *)e4 - 4))->alpha, ((FclObject *)((u8 *)e5 - 4))->alpha,
+                          32.0f, ((FclObject *)((u8 *)e6 - 4))->anchorValue, 3, 0, 1, 0);
             ++j;
         }
-        p = fclCombineSlotRecord(*(u8 **)(work + 0x184), (s8)i);
+        p = fclCombineSlotRecord(((FclCombineRowWork *)work)->gridColumnHeaderTask, (s8)i);
         {
             f32 spacing = 23.0f;
             f32 row = (f32)i;
@@ -6017,10 +6025,7 @@ void fclCombineDrawGridRows(u8 *task) {
 // Move the eight-entry grid cursor for command, redraw the six-row window highlights and reposition its indicators.
 // FUN_00330060
 void fclCombineMoveGridCursor(u8 *task, s32 command) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining cursor/color members/field-address substitutions change b210 codegen (nd 8..1342). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -6042,46 +6047,46 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
     f32 base;
     f32 fv;
     f32 fv2;
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
     drawColor1 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    p = fclSpriteEntry((s16)(*(s16 *)(work + 0x120) * 2 + 0x1F5));
-    *(FclDrawColor *)(p + 0x85) = drawColor1;
+    p = fclSpriteEntry((s16)(((FclCombineWork *)work)->windowRow * 2 + 0x1F5));
+    ((FclCombineRowSprite *)p)->color = drawColor1;
     p1 = fclSpriteEntry((s16)(*(s16 *)(work + 0x120) * 2 + 0x1F4));
-    *(FclDrawColor *)(p1 + 0x85) = *(FclDrawColor *)(p + 0x85);
+    ((FclCombineRowSprite *)p1)->color = *(FclDrawColor *)(p + 0x85);
     drawColor2 = fclMakeDrawColor(0x25, 0x2F, 0x94, 0xFF);
     p = fclSpriteEntry((s16)(*(s16 *)(work + 0x120) + 0x2FB));
-    *(FclDrawColor *)(p + 0x85) = drawColor2;
-    *(u8 *)(work + 0x13A) = 1;
+    ((FclCombineRowSprite *)p)->color = drawColor2;
+    ((FclCombineWork *)work)->redrawRequested = 1;
     switch ((s8)command) {
     case 0:
-        if (*(s16 *)(work + 0x11E) != 7) {
+        if (((FclCombineRowWork *)work)->cursorRow != 7) {
             sdkSndStartStream(0, 0, 0, 0);
         }
         *(s16 *)(work + 0x11E) = (s16)fclAddClamped(*(s16 *)(work + 0x11E), 1, 7, 0, 1);
         *(s16 *)(work + 0x120) = yListStepIndex(*(s16 *)(work + 0x11E), *(s16 *)(work + 0x120), 7, 6, 1);
         break;
     case 1:
-        if (*(s16 *)(work + 0x11E) != 0) {
+        if (((FclCombineRowWork *)work)->cursorRow != 0) {
             sdkSndStartStream(0, 0, 0, 0);
         }
         *(s16 *)(work + 0x11E) = (s16)fclSubClamped(*(s16 *)(work + 0x11E), 1, 0, 0, 1);
         *(s16 *)(work + 0x120) = yListStepIndex(*(s16 *)(work + 0x11E), *(s16 *)(work + 0x120), 7, 6, -1);
         break;
     case 2:
-        if (*(s16 *)(work + 0x11E) != 7) {
+        if (((FclCombineRowWork *)work)->cursorRow != 7) {
             sdkSndStartStream(0, 0, 0, 0);
         }
         yListAdvanceCursorScroll(*(s16 *)(work + 0x11E), *(s16 *)(work + 0x120), 8, 6, (s16 *)(work + 0x11E), (s16 *)(work + 0x120));
         break;
     case 3:
-        if (*(s16 *)(work + 0x11E) != 0) {
+        if (((FclCombineRowWork *)work)->cursorRow != 0) {
             sdkSndStartStream(0, 0, 0, 0);
         }
         yListRetreatCursorScroll(*(s16 *)(work + 0x11E), *(s16 *)(work + 0x120), 8, 6, (s16 *)(work + 0x11E), (s16 *)(work + 0x120));
         break;
     case 4:
         sdkSndStartStream(0, 0, 0, 0);
-        *(s16 *)(work + 0x11E) = (s16)fclAddClamped(*(s16 *)(work + 0x11E), 1, 7, 0, 2);
+        ((FclCombineRowWork *)work)->cursorRow = (s16)fclAddClamped(*(s16 *)(work + 0x11E), 1, 7, 0, 2);
         if (*(s16 *)(work + 0x11E) == 0) {
             *(s16 *)(work + 0x120) = 0;
         } else {
@@ -6090,11 +6095,11 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
         break;
     case 5:
         sdkSndStartStream(0, 0, 0, 0);
-        if (*(s16 *)(work + 0x11E) == 0) {
-            *(s16 *)(work + 0x11E) = (s16)fclSubClamped(*(s16 *)(work + 0x11E), 1, 0, 7, 2);
+        if (((FclCombineRowWork *)work)->cursorRow == 0) {
+            *(s16 *)(work + 0x11E) = (s16)fclSubClamped(((FclCombineRowWork *)work)->cursorRow, 1, 0, 7, 2);
             *(s16 *)(work + 0x120) = 5;
         } else {
-            *(s16 *)(work + 0x11E) = (s16)fclSubClamped(*(s16 *)(work + 0x11E), 1, 0, 7, 2);
+            *(s16 *)(work + 0x11E) = (s16)fclSubClamped(((FclCombineRowWork *)work)->cursorRow, 1, 0, 7, 2);
             *(s16 *)(work + 0x120) = yListStepIndex(*(s16 *)(work + 0x11E), *(s16 *)(work + 0x120), 7, 6, -1);
         }
         break;
@@ -6102,7 +6107,7 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
     for (i = 0; i < 9; ++i) {
         fclSpriteSetFlag((s16)(i + 0x179), 0, 1);
     }
-    diff = (s16)(*(s16 *)(work + 0x11E) - *(s16 *)(work + 0x120));
+    diff = (s16)(((FclCombineRowWork *)work)->cursorRow - *(s16 *)(work + 0x120));
     cur = diff;
     jj = 0;
     lim = diff + 6;
@@ -6115,23 +6120,23 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
         fclSpriteResetScale((s16)bid);
         drawColor3 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
         p = fclSpriteEntry((s16)bid);
-        *(FclDrawColor *)(p + 0x85) = drawColor3;
+        ((FclCombineRowSprite *)p)->color = drawColor3;
         ++cur;
         ++jj;
     }
     drawColor4 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
     p = fclSpriteEntry((s16)(*(s16 *)(work + 0x120) * 2 + 0x1F5));
-    *(FclDrawColor *)(p + 0x85) = drawColor4;
+    ((FclCombineRowSprite *)p)->color = drawColor4;
     p1 = fclSpriteEntry((s16)(*(s16 *)(work + 0x120) * 2 + 0x1F4));
-    *(FclDrawColor *)(p1 + 0x85) = *(FclDrawColor *)(p + 0x85);
+    ((FclCombineRowSprite *)p1)->color = *(FclDrawColor *)(p + 0x85);
     drawColor5 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     p = fclSpriteEntry((s16)addOff(diff + 0x179, *(s16 *)(work + 0x120)));
-    *(FclDrawColor *)(p + 0x85) = drawColor5;
+    ((FclCombineRowSprite *)p)->color = drawColor5;
     drawColor6 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
     p = fclSpriteEntry((s16)(*(s16 *)(work + 0x120) + 0x2FB));
-    *(FclDrawColor *)(p + 0x85) = drawColor6;
+    ((FclCombineRowSprite *)p)->color = drawColor6;
     diff_f = (f32)(*(s16 *)(work + 0x11E) - *(s16 *)(work + 0x120));
-    base = *(f32 *)(work + 0x124);
+    base = ((FclCombineWork *)work)->rowSpacing;
     fv = ((FclCombineRowSprite *)fclSpriteEntry(0xA9))->position.y;
     base = base * diff_f + fv;
     ((FclCombineRowSprite *)fclSpriteEntry(0xB1))->position.y = base;
@@ -6166,45 +6171,42 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
 // Restore the old choice colors, move the cursor for command through choiceTable, then highlight the new choice.
 // FUN_003307B0
 void fclCombineMoveChoiceCursor(u8 *task, s64 command, s32 choiceTable) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
-    /* Raw field access retains retail byte-copy aliasing/load order; the existing
-       FclCombineRowSprite layout is proven, but member typing changed codegen. */
+    /* measured: Remaining cursor/color member substitutions change b210 codegen (nd 8..1238); choice pairs are interleaved. */
     FclDrawColor drawColor1, drawColor2, drawColor3, drawColor4, drawColor5, drawColor6, drawColor7, drawColor8, drawColor9, drawColor10;
-    u8 *obj = *(u8 **)(task + 0x38);
-    s64 choiceCount = (s8)obj[0x139];
+    u8 *obj = ((struct KwlnTask *)task)->work;
+    s64 choiceCount = (s8)((FclCombineWork *)obj)->choiceCount;
     s8 choiceKind;
     u8 *p1, *p2;
 
     drawColor1 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
-    *(FclDrawColor *)(p1 + 0x85) = drawColor1;
+    p1 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + ((FclCombineRowWork *)obj)->cursorRow * 2) * 2 + 0x1F5));
+    ((FclCombineRowSprite *)p1)->color = drawColor1;
     p2 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
-    *(FclDrawColor *)(p2 + 0x85) = *(FclDrawColor *)(p1 + 0x85);
+    ((FclCombineRowSprite *)p2)->color = *(FclDrawColor *)(p1 + 0x85);
     drawColor2 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)choiceTable) + 1) + 0x168));
-    *(FclDrawColor *)(p1 + 0x85) = drawColor2;
+    ((FclCombineRowSprite *)p1)->color = drawColor2;
     drawColor3 = fclMakeDrawColor(0x25, 0x2F, 0x94, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
-    *(FclDrawColor *)(p1 + 0x85) = drawColor3;
+    ((FclCombineRowSprite *)p1)->color = drawColor3;
     if ((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) == 1) {
         drawColor4 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
         p1 = fclSpriteEntry(0x175);
-        *(FclDrawColor *)(p1 + 0x85) = drawColor4;
+        ((FclCombineRowSprite *)p1)->color = drawColor4;
     }
     choiceKind = (s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2);
     if (choiceKind == 0xA) {
-        if (((s8)obj[0x138] & 1) == 1) {
+        if (((s8)((FclCombineWork *)obj)->choiceFlags & 1) == 1) {
             drawColor5 = fclMakeDrawColor(0xFF, 0xCC, 0xFF, 0xFF);
             p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)choiceTable) + 1) + 0x168));
-            *(FclDrawColor *)(p1 + 0x85) = drawColor5;
+            ((FclCombineRowSprite *)p1)->color = drawColor5;
         }
-    } else if ((choiceKind == 0xB) && (((s32)((s8)obj[0x138] & 2) >> 1) == 1)) {
+    } else if ((choiceKind == 0xB) && (((s32)((s8)((FclCombineWork *)obj)->choiceFlags & 2) >> 1) == 1)) {
         drawColor6 = fclMakeDrawColor(0xFF, 0xCC, 0xFF, 0xFF);
         p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)choiceTable) + 1) + 0x168));
-        *(FclDrawColor *)(p1 + 0x85) = drawColor6;
+        ((FclCombineRowSprite *)p1)->color = drawColor6;
     }
-    obj[0x13A] = 1;
+    ((FclCombineWork *)obj)->redrawRequested = 1;
     switch ((s8)command) {
     case 0: {
         s32 lastChoice = (s16)((s16)choiceCount - 1);
@@ -6234,19 +6236,19 @@ void fclCombineMoveChoiceCursor(u8 *task, s64 command, s32 choiceTable) {
     }
     drawColor7 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
-    *(FclDrawColor *)(p1 + 0x85) = drawColor7;
+    ((FclCombineRowSprite *)p1)->color = drawColor7;
     p2 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
-    *(FclDrawColor *)(p2 + 0x85) = *(FclDrawColor *)(p1 + 0x85);
+    ((FclCombineRowSprite *)p2)->color = *(FclDrawColor *)(p1 + 0x85);
     drawColor8 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)choiceTable) + 1) + 0x168));
-    *(FclDrawColor *)(p1 + 0x85) = drawColor8;
+    ((FclCombineRowSprite *)p1)->color = drawColor8;
     drawColor9 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
     p1 = fclSpriteEntry((s16)((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
-    *(FclDrawColor *)(p1 + 0x85) = drawColor9;
+    ((FclCombineRowSprite *)p1)->color = drawColor9;
     if ((s8)*(u8 *)(choiceTable + *(s16 *)(obj + 0x11E) * 2) == 1) {
         drawColor10 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         p1 = fclSpriteEntry(0x175);
-        *(FclDrawColor *)(p1 + 0x85) = drawColor10;
+        ((FclCombineRowSprite *)p1)->color = drawColor10;
     }
 }
 // Queue resource at position with the supplied color, alpha, depth, layer, scale and draw queue.
@@ -6260,78 +6262,77 @@ void fclCombineDrawResourceAt(s32 resource, FclVec2 position, f32 depth, s32 col
 // Fcl combine CDVD task update: polls the disc load for the task and advances its load state.
 // FUN_00330F20
 s32 fclCombineCdvdTaskUpdate(u8 *task) {
-    /* Keep byte-relative access: the proven work struct changes retail reload
-       order under b210, so the typed rewrite was measured and reverted. */
+    /* measured: The eight zero-store member substitutions change b210 state-update codegen (nd 571..574). */
     s32 firstLoaded, secondLoaded, thirdLoaded, fourthLoaded;
     u8 *work;
 
     work = ((struct KwlnTask *)task)->work;
-    if (*(s8 *)(work + 0x45) == 1) {
+    if (((FclCombineLoaderWork *)work)->destroyRequested == 1) {
         return -1;
     }
-    switch (*(s8 *)(work + 0)) {
+    switch (((FclCombineLoaderWork *)work)->state) {
     case 0:
-        if (H_Cdvd_IsFileLoaded(*(u32 *)(work + 0xC)) == 0) {
+        if (H_Cdvd_IsFileLoaded(((FclCombineLoaderWork *)work)->firstDirectory) == 0) {
             return 0;
         }
-        if (H_Cdvd_IsFileLoaded(*(u32 *)(work + 0x10)) == 0) {
+        if (H_Cdvd_IsFileLoaded(((FclCombineLoaderWork *)work)->secondDirectory) == 0) {
             return 0;
         }
-        if (H_Cdvd_IsFileLoaded(*(u32 *)(work + 0x14)) == 0) {
+        if (H_Cdvd_IsFileLoaded(((FclCombineLoaderWork *)work)->thirdDirectory) == 0) {
             return 0;
         }
-        if (H_Cdvd_IsFileLoaded(*(u32 *)(work + 0x18)) == 0) {
+        if (H_Cdvd_IsFileLoaded(((FclCombineLoaderWork *)work)->fourthDirectory) == 0) {
             return 0;
         }
-        *(u32 *)(work + 4) = sdkSpriteRequestLoad(D_00644D70);
-        *(u32 *)(work + 8) = sdkSpriteRequestLoad(D_00644D90);
-        *(u32 *)(work + 0x34) = filerEnqueueRequest(0, D_00644DB0, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(u32 *)(work + 0x38) = filerEnqueueRequest(0, D_00644DD0, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(u32 *)(work + 0x3C) = filerEnqueueRequest(0, D_00644DF0, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(u32 *)(work + 0x40) = filerEnqueueRequest(0, D_00644E10, 0, 0, 0, 0, 0, 0, 0, 0);
-        *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
+        ((FclCombineLoaderWork *)work)->firstSpriteRequest = sdkSpriteRequestLoad(D_00644D70);
+        ((FclCombineLoaderWork *)work)->secondSpriteRequest = sdkSpriteRequestLoad(D_00644D90);
+        ((FclCombineLoaderWork *)work)->firstResourceRequest = filerEnqueueRequest(0, D_00644DB0, 0, 0, 0, 0, 0, 0, 0, 0);
+        ((FclCombineLoaderWork *)work)->secondResourceRequest = filerEnqueueRequest(0, D_00644DD0, 0, 0, 0, 0, 0, 0, 0, 0);
+        ((FclCombineLoaderWork *)work)->thirdResourceRequest = filerEnqueueRequest(0, D_00644DF0, 0, 0, 0, 0, 0, 0, 0, 0);
+        ((FclCombineLoaderWork *)work)->fourthResourceRequest = filerEnqueueRequest(0, D_00644E10, 0, 0, 0, 0, 0, 0, 0, 0);
+        ((FclCombineLoaderWork *)work)->state = (s8)(((FclCombineLoaderWork *)work)->state + 1);
     case 1:
-        if (hMaestroDecodeIsReady(*(u32 *)(work + 4)) != 0 && hMaestroDecodeIsReady(*(u32 *)(work + 8)) != 0) {
-            *(u32 *)(work + 0x24) = filerTakeCompletedRequest(*(u32 *)(work + 0x34), &firstLoaded, 0);
+        if (hMaestroDecodeIsReady(((FclCombineLoaderWork *)work)->firstSpriteRequest) != 0 && hMaestroDecodeIsReady(((FclCombineLoaderWork *)work)->secondSpriteRequest) != 0) {
+            ((FclCombineLoaderWork *)work)->firstResource = filerTakeCompletedRequest(((FclCombineLoaderWork *)work)->firstResourceRequest, &firstLoaded, 0);
             if (firstLoaded != 0) {
-                H_Cdvd_Destroy((u8 *)*(u32 *)(work + 0xC));
+                H_Cdvd_Destroy((u8 *)((FclCombineLoaderWork *)work)->firstDirectory);
                 *(u32 *)(work + 0xC) = 0;
                 *(u32 *)(work + 0x34) = 0;
-                *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
+                ((FclCombineLoaderWork *)work)->state = (s8)(((FclCombineLoaderWork *)work)->state + 1);
             }
         }
         break;
     case 2:
-        *(u32 *)(work + 0x28) = filerTakeCompletedRequest(*(u32 *)(work + 0x38), &secondLoaded, 0);
+        ((FclCombineLoaderWork *)work)->secondResource = filerTakeCompletedRequest(((FclCombineLoaderWork *)work)->secondResourceRequest, &secondLoaded, 0);
         if (secondLoaded != 0) {
-            H_Cdvd_Destroy((u8 *)*(u32 *)(work + 0x10));
+            H_Cdvd_Destroy((u8 *)((FclCombineLoaderWork *)work)->secondDirectory);
             *(u32 *)(work + 0x10) = 0;
             *(u32 *)(work + 0x38) = 0;
-            *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
+            ((FclCombineLoaderWork *)work)->state = (s8)(((FclCombineLoaderWork *)work)->state + 1);
         }
         break;
     case 3:
-        *(u32 *)(work + 0x2C) = filerTakeCompletedRequest(*(u32 *)(work + 0x3C), &thirdLoaded, 0);
+        ((FclCombineLoaderWork *)work)->thirdResource = filerTakeCompletedRequest(((FclCombineLoaderWork *)work)->thirdResourceRequest, &thirdLoaded, 0);
         if (thirdLoaded != 0) {
-            H_Cdvd_Destroy((u8 *)*(u32 *)(work + 0x14));
+            H_Cdvd_Destroy((u8 *)((FclCombineLoaderWork *)work)->thirdDirectory);
             *(u32 *)(work + 0x14) = 0;
             *(u32 *)(work + 0x3C) = 0;
-            *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
+            ((FclCombineLoaderWork *)work)->state = (s8)(((FclCombineLoaderWork *)work)->state + 1);
         }
         break;
     case 4:
-        *(u32 *)(work + 0x30) = filerTakeCompletedRequest(*(u32 *)(work + 0x40), &fourthLoaded, 0);
+        ((FclCombineLoaderWork *)work)->fourthResource = filerTakeCompletedRequest(((FclCombineLoaderWork *)work)->fourthResourceRequest, &fourthLoaded, 0);
         if (fourthLoaded != 0) {
-            H_Cdvd_Destroy((u8 *)*(u32 *)(work + 0x18));
+            H_Cdvd_Destroy((u8 *)((FclCombineLoaderWork *)work)->fourthDirectory);
             *(u32 *)(work + 0x18) = 0;
             *(u32 *)(work + 0x40) = 0;
-            *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
+            ((FclCombineLoaderWork *)work)->state = (s8)(((FclCombineLoaderWork *)work)->state + 1);
         }
         break;
     case 5:
-        if (H_Cdvd_IsFileLoaded(*(u32 *)(work + 0x1C)) != 0 && H_Cdvd_IsFileLoaded(*(u32 *)(work + 0x20)) != 0) {
-            *(s8 *)(work + 0x44) = itfMesWindowInstall(H_Cdvd_LookupRequest(D_00644E30, 0));
-            *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
+        if (H_Cdvd_IsFileLoaded(((FclCombineLoaderWork *)work)->messageDirectory) != 0 && H_Cdvd_IsFileLoaded(((FclCombineLoaderWork *)work)->extraDirectory) != 0) {
+            ((FclCombineLoaderWork *)work)->messageWindow = itfMesWindowInstall(H_Cdvd_LookupRequest(D_00644E30, 0));
+            ((FclCombineLoaderWork *)work)->state = (s8)(((FclCombineLoaderWork *)work)->state + 1);
         }
         break;
     case 6:
@@ -6343,11 +6344,10 @@ s32 fclCombineCdvdTaskUpdate(u8 *task) {
 // Fcl combine CDVD task destroy: releases the sprites, the message window, and the CDVD handles.
 // FUN_003312E0
 void fclCombineCdvdTaskDestroy(u8 *task) {
-    /* Raw task/list access preserves retail aliasing and reload order; replacing
-       these accesses with the canonical structs changed this function's codegen. */
+    /* measured: The final task-work member substitution changes b210 reload codegen (nd 5). */
     u8 *work;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((struct KwlnTask *)task)->work;
     sdkSpriteRelease((u8 *)((FclCombineLoaderWork *)(work))->firstSpriteRequest);
     sdkSpriteRelease((u8 *)((FclCombineLoaderWork *)(work))->secondSpriteRequest);
     func_003ef3a0((u8 *)((FclCombineLoaderWork *)(work))->firstResource);
