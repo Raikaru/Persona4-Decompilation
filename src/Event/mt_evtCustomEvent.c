@@ -15,15 +15,15 @@ extern void MT_Scene_DestroyRes(u32);
 // FUN_00291900
 void evtCustomEventReleaseRes(void)
 {
-    int iVar3;
-    u32 uVar1;
-    u32 lVar2;
+    int resourceIndex;
+    u32 resourceId;
+    u32 resource;
 
-    for (iVar3 = 0; iVar3 < 8; iVar3 = iVar3 + 1) {
-        uVar1 = iVar3 + 0x38eU & 0x3ff | 0xc00;
-        lVar2 = MT_Scene_GetRes((u16)uVar1);
-        if (lVar2 != 0) {
-            MT_Scene_DestroyRes((u16)uVar1);
+    for (resourceIndex = 0; resourceIndex < 8; resourceIndex = resourceIndex + 1) {
+        resourceId = resourceIndex + 0x38eU & 0x3ff | 0xc00;
+        resource = MT_Scene_GetRes((u16)resourceId);
+        if (resource != 0) {
+            MT_Scene_DestroyRes((u16)resourceId);
         }
     }
     return;
