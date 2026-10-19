@@ -1,3 +1,4 @@
+#include "sdk_pad_record.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -237,26 +238,28 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma pop
 // Intent: per-button repeat timer for record `arg0`. A button in the first mask resets its timer to 7. A held button counts the timer down and, at zero, re-sends its bit and reloads the timer to 3.
+/* SdkPadRecord fixes the 0x4A stride and field roles; keep interior-symbol
+ * loads because replacing them with typed record accesses lost MATCH. */
 // FUN_00453250
-void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2) {
+void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex) {
     s32 bits;
-    s32 off;
-    u16 *word;
+    s32 recordOffset;
+    u16 *repeatMask;
     u8 *timer;
 
-    off = arg0 * 0x4A;
-    bits = arg1 & 0xFFFF;
-    if (bits & *(u16 *)(D_008C02EE + off)) {
-        *(u8 *)(D_008C0300 + off + arg2) = 7;
+    recordOffset = slot * 0x4A;
+    bits = button & 0xFFFF;
+    if (bits & *(u16 *)(D_008C02EE + recordOffset)) {
+        *(u8 *)(D_008C0300 + recordOffset + timerIndex) = 7;
         return;
     }
-    if (bits & *(u16 *)(D_008C02EC + off)) {
-        timer = D_008C0300 + off;
-        timer = timer + arg2;
+    if (bits & *(u16 *)(D_008C02EC + recordOffset)) {
+        timer = D_008C0300 + recordOffset;
+        timer = timer + timerIndex;
         *timer -= 1;
         if (*timer == 0) {
-            word = (u16 *)(D_008C02F2 + off);
-            *word |= arg1;
+            repeatMask = (u16 *)(D_008C02F2 + recordOffset);
+            *repeatMask |= button;
             *timer = 3;
         }
     }

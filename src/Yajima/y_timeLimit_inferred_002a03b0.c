@@ -3,6 +3,8 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+#include "name_entry_internal.h"
+#include "kwln_task_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
@@ -23,7 +25,7 @@ extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
 extern u8 yTimeTrackClear(s32 arg0);
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
 extern void yTimeTrackAdvance(u8 *arg0);
 extern s32 yTimeTrackIsNotDone(u8 *arg0);
@@ -33,13 +35,7 @@ extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, 
 extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-typedef struct P4_002aabf0_Work {
-    f32 values[4];
-    s32 pad80;
-    s32 sp84;
-    s32 sp88;
-    u8 colors[4];
-} P4_002aabf0_Work;
+
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
 extern u8 D_0063EEA0[];
@@ -48,21 +44,9 @@ extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
-typedef struct P4_002aa450_Pair {
-    s64 bits;
-    f32 value;
-} P4_002aa450_Pair;
-typedef struct P4_002aa450_Work {
-    u8 matrix[0x40];
-    P4_002aa450_Pair pair4;
-    P4_002aa450_Pair pair3;
-    P4_002aa450_Pair pair2;
-    P4_002aa450_Pair pair1;
-    P4_002aa450_Pair pair0;
-} P4_002aa450_Work;
-static inline f32 p4_002aa450_mul(f32 left, f32 right) {
-    return left * right;
-}
+
+
+
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -90,262 +74,267 @@ extern u8 iGpffffa7e8;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a03b0-002a03b0 */
 
-extern void func_002a02f0(u8 *arg0, s32 arg1);
+extern void yTimeNameDrawSelections(u8 *arg0, s32 arg1);
 /* 3888/3888 bytes. Keep the remaining-alpha accumulator separate from
  * the narrowed active alpha, and apply each cursor offset before drawing. */
 // FUN_002A03B0
-void func_002a03b0(u8 *arg0) {
+/* Draw the interactive name-entry keyboard, selection fades, cursor and the two eight-character name buffers. */
+/* Draw the interactive name-entry keyboard, selection fades, cursor and both names.
+ * Byte-domain tween-array and glyph-row addresses are retained: typed array accesses changed the matching code. */
+/* Raw work/row offsets retain the original alias and address trees: both typed-array and typed-scalar rewrites failed MATCH.
+ * The corresponding layout is NameEntryWork in name_entry_internal.h. */
+void yTimeNameDrawKeyboard(u8 *task) {
     extern u8 iGpffffb528[4];
     extern s32 iGpffffb538;
-    extern s32 func_0029f790(u8 *arg0);
-    extern u32 strlen(const void *arg0);
-    extern void strncpy(void *arg0, const void *arg1, s32 arg2);
-    extern s32 frFontExDrawText(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+    extern s32 func_0029f790(u8 *task);
+    extern u32 strlen(const void *task);
+    extern void strncpy(void *task, const void *arg1, s32 arg2);
+    extern s32 frFontExDrawText(f32 task, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
     f32 pos[2];
     f32 px;
     f32 py;
-    f32 temp_f20;
-    f32 temp_f21_2;
-    f32 temp_f20_2;
-    f32 var_f12;
-    f32 var_f2;
-    s32 temp_18_2;
-    u8 temp_20_3;
-    f32 tt;
-    f32 yv;
+    f32 labelX;
+    f32 cellX;
+    f32 cellY;
+    f32 glyphX;
+    f32 cursorX;
+    s32 selectedCell;
+    u8 cellAlpha;
+    f32 cellProgress;
+    f32 cursorY;
     f32 cursorOfs = -12.0f;
-    s32 temp_21;
-    s32 temp_22;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_5;
-    s32 temp_6;
-    s32 temp_lo;
-    s32 temp_lo_2;
-    u8 var_16;
-    u8 var_20;
-    s32 var_16_2;
-    u8 var_18;
-    s32 var_20_2;
-    s32 var_18_2;
-    s32 var_3_2;
-    s32 var_2;
-    u32 temp_16;
-    u32 temp_16_2;
-    u32 var_19;
-    s32 var_18_3;
-    u32 var_19_2;
-    s32 var_18_4;
-    u8 *temp_18;
-    u8 *temp_19;
-    u8 *temp_20;
-    u8 *temp_20_2;
+    s32 previousCell;
+    s32 changedCell;
+    s32 backgroundFrame;
+    s32 selectionState;
+    s32 nameCursor;
+    s32 cursorColumn;
+    s32 cursorRow;
+    s32 cursorGroup;
+    s32 glyphGroup;
+    u8 transitionAlpha;
+    u8 inactiveAlpha;
+    s32 cellIndex;
+    u8 activeAlpha;
+    s32 glyphRow;
+    s32 glyphColumn;
+    s32 nameCursorX;
+    s32 nameCursorY;
+    u32 firstNameLength;
+    u32 lastNameLength;
+    u32 firstNameIndex;
+    s32 firstNameX;
+    u32 lastNameIndex;
+    s32 lastNameX;
+    u8 *inputWork;
+    u8 *work;
+    u8 *changedTween;
+    u8 *cellTween;
     s32 sum;
     u8 *rowBase;
     s32 yBase;
-    s32 tv;
-    s32 tex;
+    s32 glyph;
+    s32 spriteIndex;
 
-    temp_19 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(task + 0x38);
     sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xA4, iGpffffb540, 1);
-    temp_2 = *(s32 *)(temp_19 + 0x1C68) + 1;
-    *(s32 *)(temp_19 + 0x1C68) = temp_2;
-    if (temp_2 > 0x5A0) {
-        *(s32 *)(temp_19 + 0x1C68) = 0;
+    backgroundFrame = *(s32 *)(work + 0x1C68) + 1;
+    *(s32 *)(work + 0x1C68) = backgroundFrame;
+    if (backgroundFrame > 0x5A0) {
+        *(s32 *)(work + 0x1C68) = 0;
     }
-    sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
-    sdkSpriteDrawNow(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+    sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(work + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+    sdkSpriteDrawNow(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(work + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
     sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
     sdkSpriteDrawNowUnscaled(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
-    yTimeTrackAdvance(temp_19 + 0x2A8);
-    var_16 = (u8)(255.0f * yTimeTrackProgress(temp_19 + 0x2A8));
-    yTimeTrackCurrentKey(temp_19 + 0x2A8, pos);
+    yTimeTrackAdvance(work + 0x2A8);
+    transitionAlpha = (u8)(255.0f * yTimeTrackProgress(work + 0x2A8));
+    yTimeTrackCurrentKey(work + 0x2A8, pos);
     px = pos[0];
     py = pos[1];
-    temp_3 = *(s32 *)(temp_19 + 0x1C34);
-    if (temp_3 == 0) {
-        var_20 = var_16 & 0xFF;
-        var_18 = 0;
-    } else if (temp_3 == 1) {
+    selectionState = *(s32 *)(work + 0x1C34);
+    if (selectionState == 0) {
+        inactiveAlpha = transitionAlpha & 0xFF;
+        activeAlpha = 0;
+    } else if (selectionState == 1) {
         s32 remaining = 0xFF;
-        var_18 = var_16 & 0xFF;
-        remaining -= var_18;
-        var_20 = (remaining >> 2) & 0xFF;
-    } else if (temp_3 == 2) {
-        var_20 = var_16 & 0xFF;
-        var_18 = ((0xFF - var_20) >> 2) & 0xFF;
+        activeAlpha = transitionAlpha & 0xFF;
+        remaining -= activeAlpha;
+        inactiveAlpha = (remaining >> 2) & 0xFF;
+    } else if (selectionState == 2) {
+        inactiveAlpha = transitionAlpha & 0xFF;
+        activeAlpha = ((0xFF - inactiveAlpha) >> 2) & 0xFF;
     }
-    sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, var_20, 0x13, iGpffffb540, 1);
-    temp_f20 = 105.0f + px;
-    sdkSpriteDrawNowUnscaled(temp_f20, py, 0.0f, 0xFFFFFF, var_20, 0x11, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, inactiveAlpha, 0x13, iGpffffb540, 1);
+    labelX = 105.0f + px;
+    sdkSpriteDrawNowUnscaled(labelX, py, 0.0f, 0xFFFFFF, inactiveAlpha, 0x11, iGpffffb540, 1);
     py = py + 3.0f;
-    sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, var_18, 0x13, iGpffffb540, 1);
-    sdkSpriteDrawNowUnscaled(temp_f20, py, 0.0f, 0xFFFFFF, var_18, 0x12, iGpffffb540, 1);
-    func_002a02f0(arg0, 0);
-    if (*(s32 *)(temp_19 + 0x1C34) != 0) {
-        var_16 = 0xFF;
+    sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, activeAlpha, 0x13, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(labelX, py, 0.0f, 0xFFFFFF, activeAlpha, 0x12, iGpffffb540, 1);
+    yTimeNameDrawSelections(task, 0);
+    if (*(s32 *)(work + 0x1C34) != 0) {
+        transitionAlpha = 0xFF;
     }
-    temp_18 = *(u8 **)(arg0 + 0x38);
-    sdkSpriteDrawNowUnscaled(229.0f, 150.0f, 0.0f, 0x4972FF, var_16, 0x17, iGpffffb540, 1);
-    sdkSpriteDrawNowUnscaled(229.0f, 182.0f, 0.0f, 0x4972FF, var_16, 0x17, iGpffffb540, 1);
-    if (*(s32 *)(temp_18 + 0x14) != 3) {
-        temp_3_2 = iGpffffb538;
-        if (temp_3_2 < 8) {
-            var_3_2 = (temp_3_2 * 0x1C) + 0xE3;
-            var_2 = 0x97;
+    inputWork = *(u8 **)(task + 0x38);
+    sdkSpriteDrawNowUnscaled(229.0f, 150.0f, 0.0f, 0x4972FF, transitionAlpha, 0x17, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(229.0f, 182.0f, 0.0f, 0x4972FF, transitionAlpha, 0x17, iGpffffb540, 1);
+    if (*(s32 *)(inputWork + 0x14) != 3) {
+        nameCursor = iGpffffb538;
+        if (nameCursor < 8) {
+            nameCursorX = (nameCursor * 0x1C) + 0xE3;
+            nameCursorY = 0x97;
         } else {
-            var_3_2 = ((temp_3_2 - 8) * 0x1C) + 0xE3;
-            var_2 = 0xB7;
+            nameCursorX = ((nameCursor - 8) * 0x1C) + 0xE3;
+            nameCursorY = 0xB7;
         }
-        sdkSpriteDrawNowUnscaled((f32)var_3_2, (f32)var_2, 0.0f, 0xCCFF33, var_16, 0x18, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)nameCursorX, (f32)nameCursorY, 0.0f, 0xCCFF33, transitionAlpha, 0x18, iGpffffb540, 1);
     }
-    yTimeTrackProgress(temp_19 + 0x210);
-    yTimeTrackCurrentKey(temp_19 + 0x210, pos);
-    temp_18_2 = *(s32 *)(temp_19 + 0x24) / 5;
-    temp_21 = *(s32 *)(temp_19 + 0x30) / 5;
-    temp_22 = *(s32 *)(temp_19 + 0x3C) / 5;
-    var_16_2 = 0;
-    while (var_16_2 < 0x18) {
-        temp_f21_2 = (f32)(((var_16_2 / 6) * 0x94) + 0x19);
-        temp_f20_2 = (f32)(((var_16_2 % 6) * 0x19) + 0xE3);
-        sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x4972FF, 0xFF, 1, iGpffffb540, 1);
-        if (var_16_2 == 0) {
+    yTimeTrackProgress(work + 0x210);
+    yTimeTrackCurrentKey(work + 0x210, pos);
+    selectedCell = *(s32 *)(work + 0x24) / 5;
+    previousCell = *(s32 *)(work + 0x30) / 5;
+    changedCell = *(s32 *)(work + 0x3C) / 5;
+    cellIndex = 0;
+    while (cellIndex < 0x18) {
+        cellX = (f32)(((cellIndex / 6) * 0x94) + 0x19);
+        cellY = (f32)(((cellIndex % 6) * 0x19) + 0xE3);
+        sdkSpriteDrawNowUnscaled(cellX, cellY, 0.0f, 0x4972FF, 0xFF, 1, iGpffffb540, 1);
+        if (cellIndex == 0) {
             sdkSpriteDrawNowUnscaled(18.0f, 219.0f, 0.0f, 0x4972FF, 0xFF, 0x1B, iGpffffb540, 1);
         }
-        if (var_16_2 == 5) {
+        if (cellIndex == 5) {
             sdkSpriteDrawNowUnscaled(18.0f, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1C, iGpffffb540, 1);
         }
-        if (var_16_2 == 0x12) {
+        if (cellIndex == 0x12) {
             sdkSpriteDrawNowUnscaled((f32)0x24A, 219.0f, 0.0f, 0x4972FF, 0xFF, 0x1D, iGpffffb540, 1);
         }
-        if (var_16_2 == 0x17) {
+        if (cellIndex == 0x17) {
             sdkSpriteDrawNowUnscaled((f32)0x24A, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1E, iGpffffb540, 1);
         }
-        if (*(s32 *)(temp_19 + 0x14) != 3) {
-            if ((temp_18_2 != temp_21) && (var_16_2 == temp_22)) {
-                temp_20 = temp_19 + (var_16_2 * 0x98) + 0x340;
-                yTimeTrackClear((s32)temp_20);
-                func_002a27c0((s32)temp_20, 0, 0, 0, 0,
+        if (*(s32 *)(work + 0x14) != 3) {
+            if ((selectedCell != previousCell) && (cellIndex == changedCell)) {
+                changedTween = work + (cellIndex * 0x98) + 0x340;
+                yTimeTrackClear((s32)changedTween);
+                yTimeTrackAppendKey((s32)changedTween, 0, 0, 0, 0,
                               fGpffff8204, 0, 0, 0x14);
             }
-            temp_20_2 = temp_19 + (var_16_2 * 0x98) + 0x340;
-            yTimeTrackAdvance(temp_20_2);
-            if (var_16_2 == temp_18_2) {
-                sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
-                if (var_16_2 == 0) {
+            cellTween = work + (cellIndex * 0x98) + 0x340;
+            yTimeTrackAdvance(cellTween);
+            if (cellIndex == selectedCell) {
+                sdkSpriteDrawNowUnscaled(cellX, cellY, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
+                if (cellIndex == 0) {
                     sdkSpriteDrawNowUnscaled(18.0f, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1B, iGpffffb540, 1);
                 }
-                if (var_16_2 == 5) {
+                if (cellIndex == 5) {
                     sdkSpriteDrawNowUnscaled(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1C, iGpffffb540, 1);
                 }
-                if (var_16_2 == 0x12) {
+                if (cellIndex == 0x12) {
                     sdkSpriteDrawNowUnscaled((f32)0x24A, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1D, iGpffffb540, 1);
                 }
-                if (var_16_2 == 0x17) {
+                if (cellIndex == 0x17) {
                     sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1);
                 }
-            } else if (yTimeTrackIsNotDone(temp_20_2) != 0) {
-                tt = yTimeTrackProgress(temp_20_2);
-                temp_20_3 = (u8)(255.0f * (1.0f - tt));
-                sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, temp_20_3, 1, iGpffffb540, 1);
-                if (var_16_2 == 0) {
-                    sdkSpriteDrawNowUnscaled(18.0f, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1B, iGpffffb540, 1);
+            } else if (yTimeTrackIsNotDone(cellTween) != 0) {
+                cellProgress = yTimeTrackProgress(cellTween);
+                cellAlpha = (u8)(255.0f * (1.0f - cellProgress));
+                sdkSpriteDrawNowUnscaled(cellX, cellY, 0.0f, 0x49AFFD, cellAlpha, 1, iGpffffb540, 1);
+                if (cellIndex == 0) {
+                    sdkSpriteDrawNowUnscaled(18.0f, pos[1], 0.0f, 0x49AFFD, cellAlpha, 0x1B, iGpffffb540, 1);
                 }
-                if (var_16_2 == 5) {
-                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1C, iGpffffb540, 1);
+                if (cellIndex == 5) {
+                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, cellAlpha, 0x1C, iGpffffb540, 1);
                 }
-                if (var_16_2 == 0x12) {
-                    sdkSpriteDrawNowUnscaled((f32)0x24A, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1D, iGpffffb540, 1);
+                if (cellIndex == 0x12) {
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, pos[1], 0.0f, 0x49AFFD, cellAlpha, 0x1D, iGpffffb540, 1);
                 }
-                if (var_16_2 == 0x17) {
-                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1E, iGpffffb540, 1);
+                if (cellIndex == 0x17) {
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, cellAlpha, 0x1E, iGpffffb540, 1);
                 }
             }
         }
-        var_16_2 += 1;
+        cellIndex += 1;
     }
-    func_0029f790(arg0);
-    if (*(s32 *)(temp_19 + 0x14) != 3) {
-        temp_6 = *(s32 *)(temp_19 + 0x20);
-        temp_5 = *(s32 *)(temp_19 + 0x1C);
-        var_f2 = (f32)((temp_5 % 5) * 0x1B);
-        temp_lo = temp_5 / 5;
-        switch (temp_lo) {
+    func_0029f790(task);
+    if (*(s32 *)(work + 0x14) != 3) {
+        cursorRow = *(s32 *)(work + 0x20);
+        cursorColumn = *(s32 *)(work + 0x1C);
+        cursorX = (f32)((cursorColumn % 5) * 0x1B);
+        cursorGroup = cursorColumn / 5;
+        switch (cursorGroup) {
         case 0:
-            var_f2 += 30.0f;
+            cursorX += 30.0f;
             break;
         case 1:
-            var_f2 += 178.0f;
+            cursorX += 178.0f;
             break;
         case 2:
-            var_f2 += 326.0f;
+            cursorX += 326.0f;
             break;
         case 3:
-            var_f2 += 474.0f;
+            cursorX += 474.0f;
             break;
         }
-        yv = (f32)((temp_6 * 0x19) + 0xE5);
-        var_f2 += cursorOfs;
-        yv += cursorOfs;
-        sdkSpriteDrawNowUnscaled(var_f2, yv, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
+        cursorY = (f32)((cursorRow * 0x19) + 0xE5);
+        cursorX += cursorOfs;
+        cursorY += cursorOfs;
+        sdkSpriteDrawNowUnscaled(cursorX, cursorY, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
     }
-    for (var_20_2 = 0; var_20_2 < 6; var_20_2++) {
-        var_18_2 = 0;
-        rowBase = D_007485D0 + (var_20_2 * 0x28);
-        yBase = (var_20_2 * 25) + 0xE5;
-        for (; var_18_2 < 0x14; var_18_2++) {
-            tv = *(s16 *)(rowBase + (var_18_2 * 2));
-            if (tv >= 0) {
-                tex = tv + 0x20;
-                var_f12 = (f32)((var_18_2 % 5) * 0x1B);
-                temp_lo_2 = var_18_2 / 5;
-                switch (temp_lo_2) {
+    for (glyphRow = 0; glyphRow < 6; glyphRow++) {
+        glyphColumn = 0;
+        rowBase = D_007485D0 + (glyphRow * 0x28);
+        yBase = (glyphRow * 25) + 0xE5;
+        for (; glyphColumn < 0x14; glyphColumn++) {
+            glyph = *(s16 *)(rowBase + (glyphColumn * 2));
+            if (glyph >= 0) {
+                spriteIndex = glyph + 0x20;
+                glyphX = (f32)((glyphColumn % 5) * 0x1B);
+                glyphGroup = glyphColumn / 5;
+                switch (glyphGroup) {
                 case 0:
-                    var_f12 += 30.0f;
+                    glyphX += 30.0f;
                     break;
                 case 1:
-                    var_f12 += 178.0f;
+                    glyphX += 178.0f;
                     break;
                 case 2:
-                    var_f12 += 326.0f;
+                    glyphX += 326.0f;
                     break;
                 case 3:
-                    var_f12 += 474.0f;
+                    glyphX += 474.0f;
                     break;
                 }
-                sdkSpriteDrawNowUnscaled(var_f12, (f32)yBase, 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
+                sdkSpriteDrawNowUnscaled(glyphX, (f32)yBase, 0.0f, 0x2D2D2D, 0xFF, spriteIndex, iGpffffb540, 1);
             }
         }
     }
-    if ((*(s32 *)(temp_19 + 0x14) == 3) &&
-        (*(s32 *)(temp_19 + 8) == 0)) {
+    if ((*(s32 *)(work + 0x14) == 3) &&
+        (*(s32 *)(work + 8) == 0)) {
         sdkSpriteDrawNowUnscaled(0.0f, 102.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAC, iGpffffb540, 1);
     }
     if ((strlen(D_00882EF0) >> 1) != 0) {
-        temp_16 = (u32)(strlen(D_00882EF0) >> 1);
+        firstNameLength = (u32)(strlen(D_00882EF0) >> 1);
         sum = 0;
-        var_18_3 = 0xE7;
-        var_19 = 0;
-        while (var_19 < temp_16) {
-            strncpy(iGpffffb528, D_00882EF0 + (var_19 * 2), 2);
-            sum += frFontExDrawText((f32)var_18_3, 121.0f, 0.0f,
+        firstNameX = 0xE7;
+        firstNameIndex = 0;
+        while (firstNameIndex < firstNameLength) {
+            strncpy(iGpffffb528, D_00882EF0 + (firstNameIndex * 2), 2);
+            sum += frFontExDrawText((f32)firstNameX, 121.0f, 0.0f,
                                  0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
-            var_18_3 += 0x1C;
-            var_19 += 1;
+            firstNameX += 0x1C;
+            firstNameIndex += 1;
         }
     }
     if ((strlen(D_00882ED0) >> 1) != 0) {
-        temp_16_2 = (u32)(strlen(D_00882ED0) >> 1);
+        lastNameLength = (u32)(strlen(D_00882ED0) >> 1);
         sum = 0;
-        var_18_4 = 0xE7;
-        var_19_2 = 0;
-        while (var_19_2 < temp_16_2) {
-            strncpy(iGpffffb528, D_00882ED0 + (var_19_2 * 2), 2);
-            sum += frFontExDrawText((f32)var_18_4, 153.0f, 0.0f,
+        lastNameX = 0xE7;
+        lastNameIndex = 0;
+        while (lastNameIndex < lastNameLength) {
+            strncpy(iGpffffb528, D_00882ED0 + (lastNameIndex * 2), 2);
+            sum += frFontExDrawText((f32)lastNameX, 153.0f, 0.0f,
                                  0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
-            var_18_4 += 0x1C;
-            var_19_2 += 1;
+            lastNameX += 0x1C;
+            lastNameIndex += 1;
         }
     }
 }

@@ -1,6 +1,7 @@
 /* Source unit: src/Yajima/y_timeLimit_002a2340.c */
 #include "include_asm.h"
 #include "type.h"
+#include "name_entry_internal.h"
 
 extern u32 D_00882F08[];
 extern u32 D_00882F0C[];
@@ -22,7 +23,7 @@ extern char *strcat(char *dst, const char *src);
 void yTimeLimitReset(void)
 
 {
-  int i;
+  s32 i;
 
   D_00882F08[0] = 0;
   D_00882F0C[0] = 0;
@@ -46,76 +47,57 @@ void yTimeLimitReset(void)
 
 // Intent: clears a track's state (fields 0x80..0x94). Returns 1 when the track pointer is null.
 // FUN_002A2780
-u8 yTimeTrackClear(int param_1)
+u8 yTimeTrackClear(s32 track)
 
 {
-  if (param_1 != 0) goto clear;
-  return 1;
-clear:
-  *(u32 *)(param_1 + 0x80) = 0;
-  *(u32 *)(param_1 + 0x84) = 0;
-  *(u32 *)(param_1 + 0x88) = 0;
-  *(u32 *)(param_1 + 0x8c) = 0;
-  *(u32 *)(param_1 + 0x90) = 0;
-  *(u32 *)(param_1 + 0x94) = 0;
+  if (track == 0) {
+    return 1;
+  }
+  ((NameTweenState *)track)->current = 0;
+  ((NameTweenState *)track)->count = 0;
+  ((NameTweenState *)track)->frame = 0;
+  ((NameTweenState *)track)->flags = 0;
+  ((NameTweenState *)track)->timer = 0;
+  ((NameTweenState *)track)->total = 0;
   return 0;
 }
 
 
 
+/* Append a two-dimensional key, clamping duration to one frame and queueing
+ * linear (zero rate), decaying (positive rate), or sine (negative rate) motion. */
 // FUN_002A27C0
 u32
-func_002A27C0(float param_1,int param_2,int param_3,int param_4,int param_5,int param_6,
-            u8 param_7,u8 param_8,short param_9)
+yTimeTrackAppendKey(f32 rate,s32 track,s32 startX,s32 startY,s32 endX,s32 endY,
+            u8 delay,u8 hold,s16 durationFrames)
 {
-  struct TweenEntry {
-    float startX;
-    float startY;
-    float endX;
-    float endY;
-    float stepX;
-    float stepY;
-    float rate;
-    s8 delay;
-    s8 hold;
-    s16 duration;
-  };
-  struct TweenState {
-    struct TweenEntry entries[4];
-    s32 current;
-    s32 count;
-    s32 frame;
-    u32 flags;
-    s32 timer;
-    s32 total;
-  };
-  struct TweenState *state;
-  struct TweenEntry *entry;
-  float duration;
+  NameTweenState *state;
+  NameTweenEntry *entry;
+  f32 duration;
 
-  if (param_2 == 0) {
+  if (track == 0) {
     return 1;
   }
-  state = (struct TweenState *)param_2;
+  state = (NameTweenState *)track;
   if (state->count >= 4) {
     return 2;
   }
   entry = &state->entries[state->count];
-  entry->duration = param_9;
+  entry->duration = durationFrames;
   if (entry->duration < 1) {
     entry->duration = 1;
   }
-  duration = (float)entry->duration;
-  entry->startX = (float)param_3;
-  entry->startY = (float)param_4;
-  entry->endX = (float)param_5;
-  entry->endY = (float)param_6;
-  entry->rate = param_1;
-  if (param_1 > 0.0f) {
-    entry->stepX = param_1 * (entry->endX - entry->startX);
+  duration = (f32)entry->duration;
+  entry->startX = (f32)startX;
+  entry->startY = (f32)startY;
+  entry->endX = (f32)endX;
+  entry->endY = (f32)endY;
+  entry->rate = rate;
+  if (rate > 0.0f) {
+    entry->stepX = rate * (entry->endX - entry->startX);
     entry->stepY = entry->rate * (entry->endY - entry->startY);
   }
-  else if (param_1 < 0.0f) {
+  else if (rate < 0.0f) {
     entry->stepX = entry->startX;
     entry->stepY = entry->startY;
   }
@@ -123,8 +105,8 @@ func_002A27C0(float param_1,int param_2,int param_3,int param_4,int param_5,int 
     entry->stepX = (entry->endX - entry->startX) / duration;
     entry->stepY = (entry->endY - entry->startY) / duration;
   }
-  entry->delay = param_7;
-  entry->hold = param_8;
+  entry->delay = delay;
+  entry->hold = hold;
   if (entry->delay < 0) {
     entry->delay = 0;
   }
@@ -154,169 +136,169 @@ static inline int yTimeLess(int lhs, int rhs)
 extern f32 sinf(f32 fparg0);
 extern f32 fGpffff8110;
 extern f32 fGpffff8094;
-// Intent: advances a track by one key and bumps its step counters (0x88, 0x90). Returns 1 on success.
+// Intent: advance one frame through delay, interpolation and hold; return 2 when finished, 1 while advancing, 0 when inactive, or -1 for null.
 // FUN_002A2980
-u32 yTimeTrackAdvance(int param_1)
+u32 yTimeTrackAdvance(s32 track)
 {
-  char cVar1;
-  int iVar3;
-  int lVar4;
-  float *pfVar5;
-  u8 *iVar6;
-  float fVar7;
-  float fVar8;
-  float fVar9;
+  s8 delay;
+  s32 endFrame;
+  s32 frame;
+  NameTweenEntry *entry;
+  NameTweenState *state;
+  f32 blend;
+  f32 angle;
+  f32 start;
 
-  if (param_1 == 0) {
+  if (track == 0) {
     return 0xffffffff;
   }
-  iVar6 = (u8 *)(uintptr_t)param_1;
-  if ((*(u32 *)(iVar6 + 0x8c) & 2) != 0) {
+  state = (NameTweenState *)(uintptr_t)track;
+  if ((state->flags & 2) != 0) {
     return 2;
   }
-  if ((*(u32 *)(iVar6 + 0x8c) & 1) == 0) {
+  if ((state->flags & 1) == 0) {
     return 0;
   }
-  if ((*(int *)(iVar6 + 0x80) == 0) && (*(int *)(iVar6 + 0x88) == 0)) {
-    *(u32 *)(iVar6 + 0x90) = 0;
+  if ((state->current == 0) && (state->frame == 0)) {
+    state->timer = 0;
   }
-  pfVar5 = (float *)(iVar6 + *(int *)(iVar6 + 0x80) * 0x20);
-  cVar1 = *(char *)(pfVar5 + 7);
-  lVar4 = *(int *)(iVar6 + 0x88);
-  if (!yTimeLess(lVar4, cVar1)) {
-    iVar3 = (int)cVar1 + (int)*(short *)((int)pfVar5 + 0x1e);
-    if (lVar4 < iVar3) {
-      if (lVar4 == iVar3 + -1) {
-        *pfVar5 = pfVar5[2];
-        pfVar5[1] = pfVar5[3];
+  entry = &state->entries[state->current];
+  delay = entry->delay;
+  frame = state->frame;
+  if (!yTimeLess(frame, delay)) {
+    endFrame = (s32)delay + (s32)entry->duration;
+    if (frame < endFrame) {
+      if (frame == endFrame + -1) {
+        entry->startX = entry->endX;
+        entry->startY = entry->endY;
       }
-      else if (pfVar5[6] < 0.0f) {
-        fVar8 = (fGpffff8094 * (float)(*(int *)(iVar6 + 0x88) - (int)cVar1)) /
-                (float)(int)*(short *)((int)pfVar5 + 0x1e);
-        fVar9 = pfVar5[4];
-        fVar7 = sinf(fVar8);
-        *pfVar5 = yTimeBlend(fVar9, pfVar5[2] - fVar9, fVar7) + 0.0f;
-        fVar9 = pfVar5[5];
-        fVar7 = sinf(fVar8);
-        pfVar5[1] = yTimeBlend(fVar9, pfVar5[3] - fVar9, fVar7) + 0.0f;
+      else if (entry->rate < 0.0f) {
+        angle = (fGpffff8094 * (f32)(state->frame - (s32)delay)) /
+                (f32)(s32)entry->duration;
+        start = entry->stepX;
+        blend = sinf(angle);
+        entry->startX = yTimeBlend(start, entry->endX - start, blend) + 0.0f;
+        start = entry->stepY;
+        blend = sinf(angle);
+        entry->startY = yTimeBlend(start, entry->endY - start, blend) + 0.0f;
       }
       else {
-        *pfVar5 = *pfVar5 + pfVar5[4];
-        pfVar5[1] = pfVar5[1] + pfVar5[5];
-        if (pfVar5[6] > 0.0f) {
-          pfVar5[4] = pfVar5[6] * (pfVar5[2] - *pfVar5);
-          pfVar5[5] = pfVar5[6] * (pfVar5[3] - pfVar5[1]);
+        entry->startX = entry->startX + entry->stepX;
+        entry->startY = entry->startY + entry->stepY;
+        if (entry->rate > 0.0f) {
+          entry->stepX = entry->rate * (entry->endX - entry->startX);
+          entry->stepY = entry->rate * (entry->endY - entry->startY);
         }
       }
     }
-    else if (!yTimeLess(lVar4, *(char *)((int)pfVar5 + 0x1d) + iVar3 + -1)) {
-      iVar3 = *(int *)(iVar6 + 0x80) + 1;
-      *(int *)(iVar6 + 0x80) = iVar3;
-      if (!yTimeLess(iVar3, *(int *)(iVar6 + 0x84))) {
-        *(u32 *)(iVar6 + 0x88) = 0;
-        *(u32 *)(iVar6 + 0x90) = 0;
-        *(int *)(iVar6 + 0x80) = *(int *)(iVar6 + 0x80) + -1;
-        *(u32 *)(iVar6 + 0x8c) = *(u32 *)(iVar6 + 0x8c) | 2;
+    else if (!yTimeLess(frame, entry->hold + endFrame + -1)) {
+      endFrame = state->current + 1;
+      state->current = endFrame;
+      if (!yTimeLess(endFrame, state->count)) {
+        state->frame = 0;
+        state->timer = 0;
+        state->current = state->current + -1;
+        state->flags = state->flags | 2;
         return 2;
       }
-      *(u32 *)(iVar6 + 0x88) = 0;
+      state->frame = 0;
       return 1;
     }
   }
-  *(int *)(iVar6 + 0x88) = *(int *)(iVar6 + 0x88) + 1;
-  *(int *)(iVar6 + 0x90) = *(int *)(iVar6 + 0x90) + 1;
+  state->frame = state->frame + 1;
+  state->timer = state->timer + 1;
   return 1;
 }
 // Intent: copies the current key's (x, y) pair into the output. Returns 1 for a null track, 2 when the track has no keys, 0 on success.
 // FUN_002A2C10
-u32 yTimeTrackCurrentKey(int param_1,float *param_2)
+u32 yTimeTrackCurrentKey(s32 track,f32 *output)
 {
-  struct Pair2 { float x; float y; };
-  struct Pair2 *puVar1;
-  struct Pair2 *puVar2;
+  struct Pair2 { f32 x; f32 y; };
+  struct Pair2 *key;
+  struct Pair2 *pair;
 
-  if ((param_1 == 0) || (param_2 == (float *)0)) {
+  if ((track == 0) || (output == (f32 *)0)) {
     return 1;
   }
-  if (*(int *)(param_1 + 0x84) < 1) {
+  if (((NameTweenState *)track)->count < 1) {
     return 2;
   }
-  puVar1 = (struct Pair2 *)(param_1 + (*(int *)(param_1 + 0x80) << 5));
-  puVar2 = (struct Pair2 *)param_2;
-  *puVar2 = *puVar1;
+  key = (struct Pair2 *)&((NameTweenState *)track)->entries[((NameTweenState *)track)->current];
+  pair = (struct Pair2 *)output;
+  *pair = *key;
   return 0;
 }
 
 
 
-// Intent: returns 1 when the track's done flag (bit 2 of 0x8C) is clear; 0 for a null track.
+// Intent: return 1 while the finished mask (0x2) is clear; a null track returns 0.
 // FUN_002A2C70
-int yTimeTrackIsNotDone(int param_1)
+s32 yTimeTrackIsNotDone(s32 track)
 
 {
-  int bVar1;
+  s32 notDone;
 
-  if (param_1 == 0) {
-    bVar1 = 0;
+  if (track == 0) {
+    notDone = 0;
   }
   else {
-    bVar1 = !((*(u32 *)((int)param_1 + 0x8c) & 2) > 0);
+    notDone = !((((NameTweenState *)track)->flags & 2) > 0);
   }
-  return bVar1;
+  return notDone;
 }
 
 
 
 // Intent: returns 1 when the track's active flag (bit 1 of 0x8C) is clear; a null track counts as idle.
 // FUN_002A2CA0
-int yTimeTrackIsIdle(int param_1)
+s32 yTimeTrackIsIdle(s32 track)
 
 {
-  int bVar1;
+  s32 idle;
 
-  if (param_1 == 0) {
-    bVar1 = 1;
+  if (track == 0) {
+    idle = 1;
   }
   else {
-    bVar1 = !((*(u32 *)((int)param_1 + 0x8c) & 1) > 0);
+    idle = !((((NameTweenState *)track)->flags & 1) > 0);
   }
-  return bVar1;
+  return idle;
 }
 
 
 
 // Intent: returns the track's progress in 0..1: 1.0 when done, 0.0 when inactive, else the fraction through its key table.
 // FUN_002A2CD0
-float yTimeTrackProgress(int param_1)
+f32 yTimeTrackProgress(s32 track)
 {
-  int flags;
-  int total;
-  int start;
-  int tableOffset;
-  int endOffset;
-  int current;
-  int numerator;
-  int denominator;
-  float progress;
+  s32 flags;
+  s32 total;
+  s32 start;
+  s32 tableOffset;
+  s32 endOffset;
+  s32 current;
+  s32 numerator;
+  s32 denominator;
+  f32 progress;
 
-  if (param_1 == 0) {
+  if (track == 0) {
     return 0.0f;
   }
-  flags = *(u32 *)(param_1 + 0x8c);
+  flags = ((NameTweenState *)track)->flags;
   if ((flags & 2) != 0) {
     return 1.0f;
   }
   if ((flags & 1) == 0) {
     return 0.0f;
   }
-  total = *(int *)(param_1 + 0x94);
+  total = ((NameTweenState *)track)->total;
   if (total < 1) {
     return 0.0f;
   }
-  start = *(char *)(param_1 + 0x1c);
-  tableOffset = *(int *)(param_1 + 0x84) * 0x20;
-  endOffset = *(char *)(tableOffset + param_1 - 3);
-  current = *(int *)(param_1 + 0x90);
+  start = ((NameTweenState *)track)->entries[0].delay;
+  tableOffset = ((NameTweenState *)track)->count * 0x20;
+  endOffset = ((NameTweenEntry *)(tableOffset + track - 0x20))->hold;
+  current = ((NameTweenState *)track)->timer;
   if (current < start) {
     return 0.0f;
   }
@@ -328,7 +310,7 @@ float yTimeTrackProgress(int param_1)
   if ((numerator < 1) || (denominator < 1)) {
     return 0.0f;
   }
-  progress = (float)numerator / (float)denominator;
+  progress = (f32)numerator / (f32)denominator;
   if (progress < 0.0f) {
     progress = 0.0f;
   }

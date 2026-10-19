@@ -25,7 +25,7 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
 }
 
 extern u8 yTimeTrackClear(s32 arg0);
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
                           s32 arg7);
 extern f32 fGpffff8204;
@@ -129,7 +129,7 @@ void func_0029ebf0(u8 *arg0, s32 arg1)
         var_18 = 0x49;
     }
     yTimeTrackClear(temp_16 + 0x2A8);
-    func_002a27c0(temp_16 + 0x2A8, var_19, var_18, var_19, var_17,
+    yTimeTrackAppendKey(temp_16 + 0x2A8, var_19, var_18, var_19, var_17,
                   fGpffff8204, 0, 0, 0xA);
 }
 #pragma pop
@@ -538,7 +538,7 @@ void func_0029f790(u8 *arg0)
             }
             temp_f20 = (f32)(temp_6 * 25 + 0xE5);
             yTimeTrackClear((s32)(temp_16 + 0xE0));
-            func_002a27c0((s32)code29AddOff(0xE0, temp_16),
+            yTimeTrackAppendKey((s32)code29AddOff(0xE0, temp_16),
                           (s32)temp_f21,
                           (s32)temp_f20, (s32)temp_f21, (s32)temp_f20,
                           fGpffff8204, 0, 0, 0x3C);
@@ -658,7 +658,7 @@ do_copy:
                 s32 a0 = tbl[arg1].f4;
                 s32 a1 = tbl[arg1].f5;
                 yTimeTrackClear((s32)temp_18);
-                func_002a27c0((s32)temp_18, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
+                yTimeTrackAppendKey((s32)temp_18, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
                 *p16 = *p22;
             }
             yTimeTrackAdvance(temp_18);
@@ -677,9 +677,9 @@ do_copy:
                 s32 a1 = tbl[arg1].f5;
                 yTimeTrackClear((s32)temp_18);
                 if (*p16 == 3) {
-                    func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
+                    yTimeTrackAppendKey((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
                 } else {
-                    func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 0xA);
+                    yTimeTrackAppendKey((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 0xA);
                 }
             }
             *p16 = *p22;
@@ -717,7 +717,7 @@ do_copy:
                 ix = t17;
                 iy = t18;
                 yTimeTrackClear((s32)temp_19);
-                func_002a27c0((s32)temp_19, t17, t18, t17, t18, fGpffff8204, 0, 0, 2);
+                yTimeTrackAppendKey((s32)temp_19, t17, t18, t17, t18, fGpffff8204, 0, 0, 2);
             }
         }
         if ((yTimeTrackIsIdle(temp_19) == 0) && (yTimeTrackIsNotDone(temp_19) != 0)) {

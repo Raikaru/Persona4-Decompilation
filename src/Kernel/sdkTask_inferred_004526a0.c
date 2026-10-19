@@ -1,3 +1,5 @@
+#include "sdk_pad_record.h"
+#include "kwln_task_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -231,20 +233,21 @@ static inline s32 fontAtlasColumn(s32 value)
 
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
+/* Clear parent/sibling links for the children being detached from this task. */
 // FUN_004526A0
-void func_004526a0(u8 *arg0) {
+void kwlnTaskDetachChildren(u8 *parent) {
     u8 *node;
     u8 *match;
 
-    node = *(u8 **)(arg0 + 0x4C);
+    node = (u8 *)((KwlnTask *)parent)->childList;
     goto loop_004526a0_check;
 loop_004526a0_body:
-    if (*(u8 **)(node + 0x48) == arg0) {
+    if ((u8 *)((KwlnTask *)node)->parent == parent) {
         match = node;
     }
-    node = *(u8 **)(node + 0x50);
-    *(s32 *)(match + 0x48) = 0;
-    *(s32 *)(match + 0x50) = 0;
+    node = (u8 *)((KwlnTask *)node)->next;
+    ((KwlnTask *)match)->parent = NULL;
+    ((KwlnTask *)match)->next = NULL;
 loop_004526a0_check:
     if (node != NULL) {
         goto loop_004526a0_body;
@@ -260,16 +263,16 @@ s32 kwlnTaskGetCurrent(void)
 
 // Intent: task callback. Calls the dispatch slot D_008873FC with (arg1, arg0). Registered for a task by kwlnTaskRegisterCallback.
 // FUN_004526F0
-void kwlnTaskDispatchCallback(u8* arg0, s32 arg1)
+void kwlnTaskDispatchCallback(u8* task, s32 value)
 {
-    (*D_008873FC)(arg1, arg0);
+    (*D_008873FC)(value, task);
 }
 
 // Intent: registers kwlnTaskDispatchCallback for the task node `arg0` through func_003e18c0. Called from the primitive node setup in primitive_inferred_004601c0.c.
 // FUN_00452730
-void kwlnTaskRegisterCallback(void *arg0)
+void kwlnTaskRegisterCallback(void *task)
 {
-    func_003e18c0(arg0, kwlnTaskDispatchCallback, (s32)arg0);
+    func_003e18c0(task, kwlnTaskDispatchCallback, (s32)task);
 }
 
 // Intent: clears the pad records and state buffers, initialises the pad library and both ports, then sets each slot's id and default repeat counter (3). Called from kwlnInitIop.
@@ -304,11 +307,12 @@ void sdkPadInit(void)
     three = 3;
     for (; i < 2; i++) {
         ptr = base + i * 0x4A;
-        *(s16 *)(ptr + 8) = i;
-        *(s16 *)(ptr + 0xA) = 0;
-        *(s16 *)(ptr + 2) = 0;
-        *(s16 *)(ptr + 0) = 0;
-        *(s16 *)(ptr + 4) = three;
+        ((SdkPadRecord *)ptr)->port = i;
+        ((SdkPadRecord *)ptr)->slot = 0;
+        ((SdkPadRecord *)ptr)->state = 0;
+        ((SdkPadRecord *)ptr)->mode = 0;
+        ((SdkPadRecord *)ptr)->requestedMode = three;
     }
 }
+#pragma pop
 

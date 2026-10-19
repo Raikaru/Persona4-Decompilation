@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 /* Original translation unit sdkTask.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_pad_record.h"
 
 extern s32 func_003e1220(u32 a0, u32 a1, u32 a2, u32 a3, void* a4, u32 a5);
 /* GP-relative scalar at gp -0x45E8 (absolute 0x00764B08). */
@@ -10,10 +11,10 @@ extern u32 D_008BFFB0[];
 
 struct KwlnTask
 {
-    u8 unk0[0x18];
+    s8 name[0x18];
     s32 nameSum;               /* 0x18 */
     u32 flags;                 /* 0x1C */
-    u8 unk20[0x24 - 0x20];
+    u32 priority;              /* 0x20: ascending scheduler order */
     u32 unk24;                 /* 0x24 */
     u32 unk28;                 /* 0x28 */
     u16 unk2C;                 /* 0x2C */
@@ -85,6 +86,7 @@ extern KwlnTask* kwlnTaskGetTaskByName(const char* name);
 
 
 
+/* Unlink from the state-selected scheduler list, updating traversal and counts. */
 // FUN_00450F20
 void kwlnTaskUnlinkFromList(KwlnTask* task)
 {
@@ -168,6 +170,7 @@ err:
     }
 }
 
+/* Insert into the state-selected list in ascending priority order. */
 // FUN_00451110
 void kwlnTaskLinkToList(KwlnTask* task)
 {
@@ -219,7 +222,7 @@ err:
     {
         while (node != 0)
         {
-            if ((u32)*(u32*)((u8*)node + 0x20) > (u32)*(u32*)((u8*)task + 0x20))
+            if ((u32)node->priority > (u32)task->priority)
             {
                 if (node->listPrev != 0)
                 {
@@ -309,6 +312,7 @@ err:
     }
 }
 
+/* Snapshot or mask input, invoke the update callback, and process its result. */
 // FUN_00451430
 /* measured: without opt_loop_invariants the D_008C0240 base address and the
  * 0x80 constant are rematerialized inside the init loop (nd 68); with it they
@@ -332,13 +336,13 @@ s32 kwlnTaskRunUpdate(KwlnTask* task)
         for (i = 0; i < 2; i++)
         {
             ptr = (u8*)D_008C0240 + i * 0x4A;
-            *(u16*)(ptr + 0x16) = 0x80;
-            *(u16*)(ptr + 0x18) = 0x80;
-            *(u16*)(ptr + 0x1A) = 0x80;
-            *(u8*)(ptr + 0x1C) = 0x80;
-            *(u8*)(ptr + 0x1D) = 0x80;
-            *(u8*)(ptr + 0x1E) = 0x80;
-            *(u8*)(ptr + 0x1F) = 0x80;
+            ((SdkPadRecord*)ptr)->directions = 0x80;
+            ((SdkPadRecord*)ptr)->directionPressed = 0x80;
+            ((SdkPadRecord*)ptr)->previousDirections = 0x80;
+            ((SdkPadRecord*)ptr)->leftX = 0x80;
+            ((SdkPadRecord*)ptr)->leftY = 0x80;
+            ((SdkPadRecord*)ptr)->rightX = 0x80;
+            ((SdkPadRecord*)ptr)->rightY = 0x80;
         }
     }
     else
@@ -368,6 +372,7 @@ s32 kwlnTaskRunUpdate(KwlnTask* task)
 /* measured: see the annotation above the matching `on` pragma (func_00451430). */
 #pragma opt_loop_invariants off
 
+/* Visit runnable tasks while allowing callbacks to unlink the current node. */
 // FUN_004515B0
 void kwlnTaskRunList(void)
 {
@@ -416,6 +421,7 @@ void kwlnTaskRunList(void)
         }
     }
 }
+/* Destroy descendants, invoke teardown, detach hierarchy links, and free the task. */
 // FUN_004516B0
 void kwlnTaskFinalize(KwlnTask* task)
 {
@@ -436,9 +442,10 @@ void kwlnTaskFinalize(KwlnTask* task)
     }
     task->flags &= ~0xF;
     kwlnTaskRemoveFromParent(task);
-    func_004526a0(task);
+    kwlnTaskDetachChildren(task);
     jtbl_008873FC[0](iGpffffba18, task);
 }
+/* Move a live task to the dying list; finalize immediately for a zero delay. */
 // FUN_00451770
 void kwlnTaskMoveToDying(KwlnTask* task)
 {
@@ -489,12 +496,13 @@ body:
         }
         task->flags &= ~0xF;
         kwlnTaskRemoveFromParent(task);
-        func_004526a0(task);
+        kwlnTaskDetachChildren(task);
         jtbl_008873FC[0](iGpffffba18, task);
     }
     return;
 }
 
+/* Mark a sibling chain and its descendants for destruction. */
 // FUN_004518E0
 void kwlnTaskKillSiblingChain(KwlnTask* task)
 {
@@ -544,10 +552,11 @@ err:
     }
 }
 
+/* Print the task hierarchy recursively, preserving indentation for sibling branches. */
 // FUN_00451A10
 void kwlnTaskDumpNode(KwlnTask* task, s32 depth)
 {
-    func_00440b68(D_00710598, D_008BFF70, task, *(u32*)((u8*)task + 0x20));
+    func_00440b68(D_00710598, D_008BFF70, task, task->priority);
     if (task->flags & 0x20)
     {
         func_00440b68(&iGpffffac60);
@@ -581,6 +590,7 @@ void kwlnTaskDumpNode(KwlnTask* task, s32 depth)
     }
 }
 
+/* Dump root hierarchies from the waiting, running, and dying lists. */
 // FUN_00451B70
 /* measured: without opt_loop_invariants the 0x20 constant and the D_008BFF70
  * base address are rematerialized inside the fill loop (nd 65); with it they
@@ -630,14 +640,16 @@ void kwlnTaskDumpAll(void)
 }
 /* measured: see the annotation above the matching `on` pragma (func_00451b70). */
 #pragma opt_loop_invariants off
+/* Create the fixed-size task pool with the requested capacity. */
 // FUN_00451CA0
-void kwlnTaskInitPool(s32 arg0)
+void kwlnTaskInitPool(s32 capacity)
 {
-    iGpffffba18 = func_003e1220(0x54, arg0, 4, 1, D_008BFFB0, 0x41001);
+    iGpffffba18 = func_003e1220(0x54, capacity, 4, 1, D_008BFFB0, 0x41001);
 }
 
 
 
+/* Start expired waiting tasks, run updates, and finalize expired dying tasks. */
 // FUN_00451CF0
 s32 kwlnTaskRunFrame(void)
 {
@@ -684,15 +696,16 @@ s32 kwlnTaskRunFrame(void)
     }
     return 1;
 }
+/* Allocate a named task, initialize callbacks and delays, and link its initial state. */
 // FUN_00451DE0
-void* kwlnTaskCreate(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, SdkTaskDestroy a5, u8 *a6)
+void* kwlnTaskCreate(const void* taskName, s32 priority, s32 startDelay, s32 destroyDelay, SdkTaskUpdate update, SdkTaskDestroy destroy, u8 *work)
 {
     KwlnTask* task;
     s8* dst;
     const s8* name;
     s32 i;
 
-    name = (const s8*)a0;
+    name = (const s8*)taskName;
     if (name[0] == 0)
     {
         kAssertFail(D_00710568, 0x4A9);
@@ -714,20 +727,20 @@ void* kwlnTaskCreate(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, S
         task->nameSum += name[i];
         i++;
     }
-    ((u8*)task)[0x17] = 0;
+    task->name[0x17] = 0;
     task->flags = 0;
     task->flags |= 1;
-    *(u32*)((u8*)task + 0x20) = a1;
+    task->priority = priority;
     task->unk24 = 0;
     task->unk28 = 0;
-    task->unk2C = (u16)a2;
-    task->unk2E = (u16)a3;
-    task->unk30 = a4;
-    task->unk34 = a5;
-    task->work = a6;
+    task->unk2C = (u16)startDelay;
+    task->unk2E = (u16)destroyDelay;
+    task->unk30 = update;
+    task->unk34 = destroy;
+    task->work = work;
     task->listNext = 0;
-    *(u32*)((u8*)task + 0x40) = 0;
-    *(u32*)((u8*)task + 0x44) = 0;
+    task->listPrev = 0;
+    task->listPrev2 = 0;
     task->parent = 0;
     task->childList = 0;
     task->next = 0;
@@ -746,15 +759,16 @@ void* kwlnTaskCreate(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, S
     }
     return task;
 }
+/* Create a task and optionally append it to the parent hierarchy. */
 // FUN_00451FC0
-void* kwlnTaskCreateChild(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, SdkTaskUpdate a5, SdkTaskDestroy a6, u8 *a7)
+void* kwlnTaskCreateChild(void* parent, const void* taskName, s32 priority, s32 startDelay, s32 destroyDelay, SdkTaskUpdate update, SdkTaskDestroy destroy, u8 *work)
 {
     void* result;
 
-    result = kwlnTaskCreate((const void *)(a1), a2, a3, a4, a5, a6, (u8 *)(a7));
-    if (result != 0 && a0 != 0)
+    result = kwlnTaskCreate((const void *)(taskName), priority, startDelay, destroyDelay, update, destroy, (u8 *)(work));
+    if (result != 0 && parent != 0)
     {
-        kwlnTaskAddChild(a0, result);
+        kwlnTaskAddChild(parent, result);
     }
     return result;
 }
@@ -774,6 +788,7 @@ u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
 
 
 
+/* Request hierarchical destruction, or finalize a dying task whose delay expired. */
 // FUN_00452080
 u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task)
 {
@@ -841,7 +856,7 @@ inner_err:
             }
             task->flags &= ~0xF;
             kwlnTaskRemoveFromParent(task);
-            func_004526a0(task);
+            kwlnTaskDetachChildren(task);
             jtbl_008873FC[0](iGpffffba18, task);
         }
         break;
@@ -855,6 +870,7 @@ outer_err:
     return 1;
 }
 
+/* Return a linked task state; reject states outside the scheduler low nibble. */
 // FUN_004522D0
 s32 kwlnTaskGetState(void* task)
 {
@@ -865,7 +881,7 @@ s32 kwlnTaskGetState(void* task)
         return 0;
     }
 
-    state = *(u32*)((u8*)task + 0x1C) & 0xF;
+    state = ((KwlnTask*)task)->flags & 0xF;
     switch (state)
     {
     case 1:
@@ -878,6 +894,7 @@ s32 kwlnTaskGetState(void* task)
         return 0;
     }
 }
+/* Search all scheduler lists by signed-character name sum, then exact spelling. */
 // FUN_00452380
 /* measured: without opt_loop_invariants the switch-case constants and the
  * three list heads are rematerialized inside the dispatch loop; with it they
@@ -919,7 +936,7 @@ KwlnTask* kwlnTaskGetTaskByName(const char* name)
             if (node->nameSum == sum)
             {
                 i = len;
-                while (name[i] == ((s8*)node)[i])
+                while (name[i] == node->name[i])
                 {
                     if (i == 0)
                     {
@@ -936,6 +953,7 @@ KwlnTask* kwlnTaskGetTaskByName(const char* name)
 /* measured: see the annotation above the matching `on` pragma (func_00452380). */
 #pragma opt_loop_invariants off
 
+/* Test membership in any of the three scheduler lists. */
 // FUN_00452490
 /* measured: without opt_loop_invariants the switch case constants are
  * rematerialized inside the loop (nd 25); with it they hoist to the
@@ -968,7 +986,7 @@ s32 kwlnTaskIsLinked(void* target)
             {
                 return 1;
             }
-            node = *(void**)((u8*)node + 0x3C);
+            node = ((KwlnTask*)node)->listNext;
         }
     }
     return 0;
@@ -978,22 +996,23 @@ s32 kwlnTaskIsLinked(void* target)
 // FUN_00452540
 u32 kwlnTaskGetTimer(void* task)
 {
-    return *(u32*)((u8*)task + 0x28);
+    return ((KwlnTask*)task)->unk28;
 }
 
 /* Stores `value` in the task's +0x38 field. */
 // FUN_00452550
 void kwlnTaskSetValue38(KwlnTask* task, u32 value)
 {
-    *(u32*)((u8*)task + 0x38) = value;
+    task->work = (u8*)value;
 }
 
 // FUN_00452560
 u32 kwlnTaskGetWork(void* task)
 {
-    return *(u32*)((u8*)task + 0x38);
+    return (u32)((KwlnTask*)task)->work;
 }
 
+/* Append a child, first detaching it from any previous parent. */
 // FUN_00452570
 void kwlnTaskAddChild(KwlnTask* parent, KwlnTask* child)
 {
@@ -1021,6 +1040,7 @@ void kwlnTaskAddChild(KwlnTask* parent, KwlnTask* child)
     child->parent = parent;
 }
 
+/* Remove a child from its parent chain and clear its hierarchy links. */
 // FUN_00452600
 void kwlnTaskRemoveFromParent(KwlnTask* childTask)
 {

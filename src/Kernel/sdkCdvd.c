@@ -10,6 +10,36 @@ void H_Cdvd_BuildPathUppercase(void* a0, void* a1);
 void H_Cdvd_SplitPath(void* a0, void* a1, void* a2);
 s32 func_004c74f8(void* a0, void* a1, void* a2, void* a3);
 void memcpy(void* dst, void* src, u32 size);
+/* Fixed stream device and 0x110-byte per-channel storage initialized below. */
+typedef struct HCdvdStreamSlot {
+    u8 pad00[0x50];
+    u8 *device;
+    u8 pad54[0x14];
+    u8 *buffer;
+    s32 bufferSize;
+    u8 pad70[0xA0];
+} HCdvdStreamSlot;
+
+typedef struct HCdvdStreamDevice {
+    u8 pad00[0x14];
+    void *getSlot, *freeContext;
+    u8 pad1C[0xC];
+    void *attachCache, *close, *read;
+    u8 pad34[4];
+    void *seek;
+    u8 pad3C[8];
+    void *atEnd;
+    u8 pad48[4];
+    void *isCached;
+    u8 pad50[8];
+    u8 *slots;
+} HCdvdStreamDevice;
+
+typedef struct HCdvdArchiveHeader {
+    u8 pad00[0xFC];
+    s32 size;
+} HCdvdArchiveHeader;
+
 typedef void *ADXF;
 
 typedef struct HCdvd {
@@ -24,19 +54,25 @@ typedef struct HCdvd {
     s32 unk11C;                  /* 0x11C */
     s32 unk120;                  /* 0x120 */
     s32 readByteSize;            /* 0x124 */
-    u8 unk128[0x2C];             /* 0x128 */
+    u8 unk128[0x28];             /* 0x128 */
+    s32 flags;                  /* 0x150 */
     ADXF adxf;                   /* 0x154 */
     char fileName[0x100];        /* 0x158 */
     u8 dir[0x102];               /* 0x258 */
     s16 refCount;                /* 0x35A */
     s16 pendingDestroyCount;     /* 0x35C */
     s16 readPollCount;           /* 0x35E */
-} HCdvd;                         /* 0x360 */
+    u16 unk360;
+    s16 classes;                /* 0x362 */
+} HCdvd;                         /* 0x364 allocation */
 
 typedef struct HCdvdCache {
     s32 isValid;                 /* 0x00 */
     s32 *requestData;            /* 0x04 */
-    u8 data[0x8C];               /* 0x08 */
+    u8 name[0x80];             /* 0x08 */
+    s32 value;                 /* 0x88 */
+    s32 slot;                  /* 0x8C */
+    s32 unk90;                 /* 0x90 */
 } HCdvdCache;                    /* 0x94 */
 
 extern HCdvdCache D_008C8780[];
@@ -228,20 +264,22 @@ tail:
 #pragma pop
 
 // Intent: returns the directory node for `arg0`, creating it when needed, and takes a reference on it.
+/* HCdvd proves these request links and path buffers; retain byte accesses
+ * because the typed pointer rewrite changed the measured matching codegen. */
 // FUN_00454A60
-u8* H_Cdvd_AcquireDirectory(u8* arg0, s32 arg1) {
-    u8 buf[0x100];
+u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags) {
+    u8 normalizedPath[0x100];
     u8* node;
-    u8* newnode;
+    u8* newNode;
 
-    H_Dbprt_FmtLog(D_00710900, arg0);
+    H_Dbprt_FmtLog(D_00710900, path);
     node = D_008D1B80;
-    H_Cdvd_BuildPathUppercase(arg0, buf);
-    func_00440b68(D_00710910, arg0);
+    H_Cdvd_BuildPathUppercase(path, normalizedPath);
+    func_00440b68(D_00710910, path);
     if (D_008D1B84[0] != NULL) {
         while (1) {
-            if (strcmp(buf, node + 0x10) == 0) {
-                *(s16*)(node + 0x35A) = (s16)(*(s16*)(node + 0x35A) + 1);
+            if (strcmp(normalizedPath, node + 0x10) == 0) {
+                ((HCdvd *)node)->refCount = (s16)(((HCdvd *)node)->refCount + 1);
                 return node;
             }
             if (*(u8**)(node + 4) == NULL) {
@@ -251,20 +289,20 @@ u8* H_Cdvd_AcquireDirectory(u8* arg0, s32 arg1) {
         }
     }
     chkmemAllocSiteTag(D_00710870, 0x198);
-    newnode = D_008873F4[0](1, 0x364, 0x40000);
-    H_Cdvd_BuildPathUppercase(arg0, newnode + 0x10);
-    H_Cdvd_BuildVolumePaths(newnode + 0x10, newnode + 0x158, newnode + 0x258);
-    *(s32*)(newnode + 0xC) = 0;
-    *(u8**)(node + 4) = newnode;
-    *(u8**)(newnode + 0) = node;
-    *(s32*)(newnode + 4) = 0;
-    *(s32*)(newnode + 0x110) = 0;
-    *(s32*)(newnode + 8) = 0;
-    *(s32*)(newnode + 0x150) = arg1;
-    *(s16*)(newnode + 0x35A) = 1;
-    *(s32*)(newnode + 0x154) = 0;
-    *(s16*)(newnode + 0x362) = chkmemGetClasses();
-    return newnode;
+    newNode = D_008873F4[0](1, 0x364, 0x40000);
+    H_Cdvd_BuildPathUppercase(path, newNode + 0x10);
+    H_Cdvd_BuildVolumePaths(newNode + 0x10, newNode + 0x158, newNode + 0x258);
+    ((HCdvd *)newNode)->readState = 0;
+    *(u8**)(node + 4) = newNode;
+    *(u8**)(newNode + 0) = node;
+    *(s32*)(newNode + 4) = 0;
+    *(s32*)(newNode + 0x110) = 0;
+    ((HCdvd *)newNode)->hasExternalMemory = 0;
+    ((HCdvd *)newNode)->flags = flags;
+    ((HCdvd *)newNode)->refCount = 1;
+    *(s32*)(newNode + 0x154) = 0;
+    ((HCdvd *)newNode)->classes = chkmemGetClasses();
+    return newNode;
 }
 
 // Intent: stream close callback. Nothing to release.
@@ -366,40 +404,40 @@ extern s32 iGpffffbaa0;
 /* measured: D_008873F4 is a function-pointer table; retail hoists the TABLE
    ADDRESS into $s0 (lui/addiu) and loads the function pointer per call
    (lw $v0,($s0); jalr $v0). Achieved with an integer-cast base local
-   (u32 base = (u32)D_008873F4), and arg3/arg4 declared s32 (not u8*) — the
-   pointer arg types mis-coloured obj/arg4 ($s1/$s2 swap, nd 8). */
-u8* H_Cdvd_CreateStreamDevice(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
-    u8* obj;
+   (u32 base = (u32)D_008873F4), and context/owner declared s32 (not u8*) — the
+   pointer arg types mis-coloured device/owner ($s1/$s2 swap, nd 8). */
+u8* H_Cdvd_CreateStreamDevice(s32 slotCount, u8* buffer, s32 slotSize, s32 context, s32 owner) {
+    u8* device;
     u32 base;
-    u8* sub;
+    u8* slots;
     s32 i;
 
-    if (func_003dd900(arg4) != 0) {
+    if (func_003dd900(owner) != 0) {
         return NULL;
     }
     chkmemAllocSiteTag(D_00710870, 0x425);
     base = (u32)D_008873F4;
-    obj = ((u8* (*)(s32, s32, s32))*(u32*)base)(1, 0x5C, 0x40000);
-    *(void**)(obj + 0x14) = &H_Cdvd_StreamGetSlot;
-    *(void**)(obj + 0x18) = &H_Cdvd_StreamContextFree;
-    *(void**)(obj + 0x28) = &H_Cdvd_StreamAttachCacheEntry;
-    *(void**)(obj + 0x2C) = &H_Cdvd_StreamCloseNoop;
-    *(void**)(obj + 0x30) = &H_Cdvd_StreamReadChunk;
-    *(void**)(obj + 0x44) = &H_Cdvd_StreamAtEnd;
-    *(void**)(obj + 0x38) = &H_Cdvd_StreamSeek;
-    *(void**)(obj + 0x4C) = &H_Cdvd_IsCached;
+    device = ((u8* (*)(s32, s32, s32))*(u32*)base)(1, 0x5C, 0x40000);
+    ((HCdvdStreamDevice *)device)->getSlot = &H_Cdvd_StreamGetSlot;
+    ((HCdvdStreamDevice *)device)->freeContext = &H_Cdvd_StreamContextFree;
+    ((HCdvdStreamDevice *)device)->attachCache = &H_Cdvd_StreamAttachCacheEntry;
+    ((HCdvdStreamDevice *)device)->close = &H_Cdvd_StreamCloseNoop;
+    ((HCdvdStreamDevice *)device)->read = &H_Cdvd_StreamReadChunk;
+    ((HCdvdStreamDevice *)device)->atEnd = &H_Cdvd_StreamAtEnd;
+    ((HCdvdStreamDevice *)device)->seek = &H_Cdvd_StreamSeek;
+    ((HCdvdStreamDevice *)device)->isCached = &H_Cdvd_IsCached;
     chkmemAllocSiteTag(D_00710870, 0x430);
-    sub = ((u8* (*)(s32, s32, s32))*(u32*)base)(arg0, 0x110, 0x40000);
-    *(void**)(obj + 0x58) = sub;
-    for (i = 0; i < arg0; i++) {
-        *(void**)(sub + i * 0x110 + 0x50) = obj;
-        *(u8**)(sub + i * 0x110 + 0x68) = arg1 + i * arg2;
-        *(s32*)(sub + i * 0x110 + 0x6C) = arg2;
+    slots = ((u8* (*)(s32, s32, s32))*(u32*)base)(slotCount, 0x110, 0x40000);
+    ((HCdvdStreamDevice *)device)->slots = slots;
+    for (i = 0; i < slotCount; i++) {
+        ((HCdvdStreamSlot *)slots)[i].device = device;
+        ((HCdvdStreamSlot *)slots)[i].buffer = buffer + i * slotSize;
+        ((HCdvdStreamSlot *)slots)[i].bufferSize = slotSize;
     }
-    if (func_003dd290(obj, arg0, arg4, arg3) != 1) {
+    if (func_003dd290(device, slotCount, owner, context) != 1) {
         kAssertFailAt(D_00711658, D_00710870, 0x441);
     }
-    return obj;
+    return device;
 }
 
 /* measured: opt_propagation off keeps the D_008873AC table address hoisted in
@@ -414,15 +452,15 @@ u8* H_Cdvd_CreateStreamDevice(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) 
 // FUN_004559B0
 void H_Cdvd_InitDevices(void) {
     void (**base)(void*, void*);
-    u8* tmp1;
-    u8* tmp2;
+    u8* fileDevice;
+    u8* streamDevice;
 
     func_003dd760(-1);
     base = D_008873AC;
     base[0](&iGpffffba40, &iGpffffad60);
     base[0](&iGpffffba38, &iGpffffad68);
-    if ((tmp1 = func_003dea20(5, D_008C5F80, 0x800, &iGpffffba40, &iGpffffba38)) != NULL) {
-        if (func_003dd830(tmp1) == 0) {
+    if ((fileDevice = func_003dea20(5, D_008C5F80, 0x800, &iGpffffba40, &iGpffffba38)) != NULL) {
+        if (func_003dd830(fileDevice) == 0) {
             func_00440b68(D_00711670);
             return;
         }
@@ -433,12 +471,12 @@ void H_Cdvd_InitDevices(void) {
     base[0](&iGpffffba38, &iGpffffad70);
     {
         extern u8* H_Cdvd_CreateStreamDevice(s32, u8*, s32, u8*, u8*);
-        tmp2 = H_Cdvd_CreateStreamDevice(5, D_008C3780, 0x800, &iGpffffba40, &iGpffffba38);
+        streamDevice = H_Cdvd_CreateStreamDevice(5, D_008C3780, 0x800, &iGpffffba40, &iGpffffba38);
     }
-    if (func_003dd830(tmp2) == 0) {
+    if (func_003dd830(streamDevice) == 0) {
         func_00440b68(D_00711690);
     } else {
-        func_003ddde0(tmp2);
+        func_003ddde0(streamDevice);
     }
     base = D_008873AC;
     base[0](&iGpffffba40, &iGpffffad78);
@@ -460,17 +498,17 @@ void kAssertFailAt(const void* file, const void* file2, u32 line);
 
 // Intent: stores a request record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
 // FUN_00455D70
-void H_Cdvd_RegisterRequest(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
+void H_Cdvd_RegisterRequest(u8* request, u8* value, u8* slot, u8* name) {
     s32 i;
 
     for (i = 0; i < 0x100; i++) {
-        if (*(s32*)((u8*)D_008C8780 + i * 0x94) == 0) {
-            *(s32*)((u8*)D_008C8780 + i * 0x94) = 1;
-            *(s32*)(D_008C8784 + i * 0x94) = (s32)arg0;
-            *(s32*)(D_008C8808 + i * 0x94) = (s32)arg1;
-            *(s32*)(D_008C880C + i * 0x94) = (s32)arg2;
-            *(s32*)(D_008C8810 + i * 0x94) = 0;
-            memcpy((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
+        if (D_008C8780[i].isValid == 0) {
+            D_008C8780[i].isValid = 1;
+            D_008C8780[i].requestData = (s32 *)request;
+            D_008C8780[i].value = (s32)value;
+            D_008C8780[i].slot = (s32)slot;
+            D_008C8780[i].unk90 = 0;
+            memcpy(D_008C8780[i].name, name, 0x80);
             return;
         }
         if (i == 0xFF) {
@@ -485,48 +523,48 @@ void H_Cdvd_RegisterRequest(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
    keeps entry+0x100 in $a0 and size+0x3f in $v1 as retail. */
 // Intent: returns the data of archive entry `arg1` and writes its length to `arg2`, or to a local when `arg2` is null.
 // FUN_00455EA0
-u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2) {
+u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size) {
     u8 header[0x100];
-    s32 out_local;
+    s32 localSize;
     s32 i;
     u8 *entry;
 
-    if (arg2 == NULL) {
-        arg2 = &out_local;
+    if (size == NULL) {
+        size = &localSize;
     }
-    entry = *(u8 **)(arg0 + 0x110);
-    for (i = 0; i < arg1; i++) {
+    entry = (u8 *)((HCdvd *)request)->fileMemory;
+    for (i = 0; i < entryIndex; i++) {
         memcpy(header, entry, 0x100);
         entry += 0x100;
-        entry += ((*(s32 *)(header + 0xFC) + 0x3F) / 64) * 64;
+        entry += ((((HCdvdArchiveHeader *)header)->size + 0x3F) / 64) * 64;
     }
     memcpy(header, entry, 0x100);
-    *arg2 = *(s32 *)(header + 0xFC);
+    *size = ((HCdvdArchiveHeader *)header)->size;
     return entry + 0x100;
 }
 // Intent: finds the registered request whose normalised path matches `arg0`. Writes its slot to `arg1` and returns its value, or 0 when none matches.
 // FUN_00455F70
-s32 H_Cdvd_LookupRequest(s32 arg0, s32* arg1) {
-    u8 buf1[0x100];
-    u8 buf2[0x100];
-    u8 buf3[0x100];
-    s32 out_slot;
+s32 H_Cdvd_LookupRequest(s32 pathAddress, s32* slot) {
+    u8 uppercasePath[0x100];
+    u8 normalizedPath[0x100];
+    u8 normalizedEntry[0x100];
+    s32 localSlot;
     s32 i;
 
-    if (arg1 == NULL) {
-        arg1 = &out_slot;
+    if (slot == NULL) {
+        slot = &localSlot;
     }
-    if (arg0 == 1) {
+    if (pathAddress == 1) {
         return 0;
     }
-    H_Cdvd_BuildPathUppercase((void*)arg0, buf1);
-    H_Cdvd_NormalizePath(buf1, buf2);
+    H_Cdvd_BuildPathUppercase((void*)pathAddress, uppercasePath);
+    H_Cdvd_NormalizePath(uppercasePath, normalizedPath);
     for (i = 0; i < 0x100; i++) {
-        if (*(s32*)((u8*)D_008C8780 + i * 0x94) != 0) {
-            H_Cdvd_NormalizePath((u8*)D_008C8780 + i * 0x94 + 8, buf3);
-            if (strcmp(buf3, buf2) == 0) {
-                *arg1 = *(s32*)(D_008C880C + i * 0x94);
-                return *(s32*)(D_008C8808 + i * 0x94);
+        if (D_008C8780[i].isValid != 0) {
+            H_Cdvd_NormalizePath(D_008C8780[i].name, normalizedEntry);
+            if (strcmp(normalizedEntry, normalizedPath) == 0) {
+                *slot = D_008C8780[i].slot;
+                return D_008C8780[i].value;
             }
         }
     }
@@ -535,26 +573,26 @@ s32 H_Cdvd_LookupRequest(s32 arg0, s32* arg1) {
 
 // Intent: starts a stream load of path `arg1` on channel `arg0`, reporting completion through `arg3`. Returns 0.
 // FUN_00456250
-s32 H_Cdvd_StartStreamLoad(s32 arg0, void* arg1, s32 arg2, void* arg3) {
-    H_Cdvd_BuildPathUppercase(arg1, D_008C0680);
+s32 H_Cdvd_StartStreamLoad(s32 channel, void* path, s32 flags, void* completion) {
+    H_Cdvd_BuildPathUppercase(path, D_008C0680);
     H_Cdvd_SplitPath(D_008C0680, D_008C0780, D_008C0880);
-    func_004c74f8((void*)arg0, D_008C0780, D_005BC790, arg3);
+    func_004c74f8((void*)channel, D_008C0780, D_005BC790, completion);
     return 0;
 }
 
 // Intent: stores an archive entry record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
 // FUN_00456400
-void H_Cdvd_RegisterArchiveEntry(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
+void H_Cdvd_RegisterArchiveEntry(s32 requestAddress, s32 value, s32 slot, u8* name) {
     s32 i;
 
     for (i = 0; i < 0x100; i++) {
-        if (*(s32*)((u8*)D_008C8780 + i * 0x94) == 0) {
-            *(s32*)((u8*)D_008C8780 + i * 0x94) = 1;
-            *(s32*)(D_008C8784 + i * 0x94) = arg0;
-            *(s32*)(D_008C8808 + i * 0x94) = arg1;
-            *(s32*)(D_008C880C + i * 0x94) = arg2;
-            *(s32*)(D_008C8810 + i * 0x94) = 0;
-            memcpy((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
+        if (D_008C8780[i].isValid == 0) {
+            D_008C8780[i].isValid = 1;
+            D_008C8780[i].requestData = (s32 *)requestAddress;
+            D_008C8780[i].value = value;
+            D_008C8780[i].slot = slot;
+            D_008C8780[i].unk90 = 0;
+            memcpy(D_008C8780[i].name, name, 0x80);
             return;
         }
         if (i == 0xFF) {
