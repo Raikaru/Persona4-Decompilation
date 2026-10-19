@@ -310,3 +310,5 @@ fadeCreateController = 0x00122430; // type:func  evidence: inferred: Allocates 0
 fadeBeginTransition = 0x00122520; // type:func  evidence: inferred: Starts an idle fade or requests the special mode-4 child while in state 3.
 fadeBeginReturnTransition = 0x00122640; // type:func  evidence: inferred: Starts the return fade from state 3 with a supplied or default 30-frame duration.
 evtNpcResourceHook = 0x0028F530; // type:func  evidence: inferred: Empty retail hook called for each type-3 NPC resource before its event node is allocated.
+btlActionGetRoundupCompletion = 0x001AE3C0; // type:func  evidence: inferred: Returns the +0x428 flag set after the roundup prompt queues its selected continuation; supplied as the formation sequence's completion callback.
+fldStepFindEligibleRecord = 0x0015D310; // type:func  evidence: inferred: Scans step records backward and returns the first record whose field/room, calendar conditions, excluded flags and required flag pairs allow it.
