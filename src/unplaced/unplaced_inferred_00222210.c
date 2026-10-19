@@ -10,6 +10,7 @@
 #include "btl_cond_internal.h"
 #include "effect_instance_internal.h"
 #include "datPersona_internal.h"
+#include "btl_result_ui_internal.h"
 extern void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback);
 typedef struct LogoVec2 {
     f32 x;
@@ -23,17 +24,17 @@ typedef struct LogoColor {
     u8 a;
 } LogoColor;
 
-extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+extern void sdkSpriteDrawOnceScaled(s32, s32, f32, f32, f32, u8, u8, u8, u8, u16, u16, f32, s16, s16);
 static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2 pos)
 {
-    s32 res = *(s32 *)(work + 0x50);
+    s32 res = ((BtlLogoWork *)work)->sprite;
     f32 x;
     f32 y;
     f32 qx;
 
     x = ofs.x + pos.x;
     y = ofs.y + pos.y;
-    sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x54), 0x1D, x, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - x), (s16)(pos.y - y));
+    sdkSpriteDrawOnceScaled(((BtlLogoWork *)work)->titleSprite, 0x1D, x, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - x), (s16)(pos.y - y));
     x = ofs.x + pos.x;
     y = ofs.y + pos.y;
     qx = (207.0f + x) - 6.0f;
@@ -52,21 +53,22 @@ static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 // Intent: Draw the logo title sprites at the given alpha. [inferred]
+/* Remaining raw frame reloads/resets avoid the b210 member-address hoisting measured across float conversions. */
 // FUN_00222210
 void btlLogoDrawTitle(u8 *work, u32 alpha)
 {
-    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
+    extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
+    extern s32 RpSkyRenderStateSet(s32, s32);
     extern void shdEnableBlendFlag(void);
     extern void shdDisableBlendFlag(void);
-    extern void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4);
+    extern void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
     extern f32 fGpffff8384;
     extern f32 fGpffff8388;
-    f32 var_f24;
-    f32 var_f22;
-    f32 var_f21;
-    f32 var_f23;
-    f32 var_f20;
+    f32 redSlide;
+    f32 whiteSlide;
+    f32 yellowSlide;
+    f32 titleSlide;
+    f32 scrollPhase;
     f32 coords[6];
     LogoVec2 pos;
     LogoVec2 base;
@@ -74,31 +76,31 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
     LogoColor color;
     s32 i;
 
-    if ((*(u16 *)work & 8) == 0) {
-        var_f24 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
-        var_f22 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
-        var_f21 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
-        var_f23 = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
+    if ((((BtlLogoWork *)work)->flags & 8) == 0) {
+        redSlide = 1.0f - btlShuffleCalcWave((f32)(u32)((BtlLogoWork *)work)->animationFrame, 0.0f, 6.0f, 1);
+        whiteSlide = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
+        yellowSlide = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
+        titleSlide = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
         if (*(u16 *)(work + 0x46) >= 7) {
-            if (++*(u16 *)(work + 0x48) >= 0x28) {
+            if (++((BtlLogoWork *)work)->waveFrame >= 0x28) {
                 *(u16 *)(work + 0x48) = 0;
             }
-            var_f20 = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+            scrollPhase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
         }
     } else {
-        var_f24 = 0.0f;
-        var_f22 = 0.0f;
-        var_f21 = 0.0f;
-        var_f23 = 0.0f;
-        if (++*(u16 *)(work + 0x48) >= 0x28) {
+        redSlide = 0.0f;
+        whiteSlide = 0.0f;
+        yellowSlide = 0.0f;
+        titleSlide = 0.0f;
+        if (++((BtlLogoWork *)work)->waveFrame >= 0x28) {
             *(u16 *)(work + 0x48) = 0;
         }
-        var_f20 = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+        scrollPhase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
     }
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x44);
 
-    pos.x = (f32)0x109 + (f32)0x177 * var_f22;
+    pos.x = (f32)0x109 + (f32)0x177 * whiteSlide;
     pos.y = 0.0f;
     coords[0] = pos.x;
     coords[1] = pos.y;
@@ -116,7 +118,7 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
     PrimDrawPoints((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
     shdDisableBlendFlag();
 
-    pos.x = 348.0f + 292.0f * var_f24;
+    pos.x = 348.0f + 292.0f * redSlide;
     pos.y = 0.0f;
     coords[0] = pos.x;
     coords[1] = pos.y;
@@ -134,9 +136,9 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
     PrimDrawPoints((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
     shdDisableBlendFlag();
 
-    base.x = (220.0f + fGpffff8384 * var_f21) - 9.0f;
-    base.y = -94.0f + fGpffff8388 * var_f21;
-    pos.x = -(394.0f * var_f20);
+    base.x = (220.0f + fGpffff8384 * yellowSlide) - 9.0f;
+    base.y = -94.0f + fGpffff8388 * yellowSlide;
+    pos.x = -(394.0f * scrollPhase);
     pos.y = 0.0f;
     color.r = 0xFF;
     color.g = 0xD4;
@@ -147,8 +149,8 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
         pos.x = pos.x + 394.0f;
     }
 
-    base.x = 1.0f + ((f32)0x185 + fGpffff8384 * var_f23);
-    base.y = (-5.0f + fGpffff8388 * var_f23) - 1.0f;
+    base.x = 1.0f + ((f32)0x185 + fGpffff8384 * titleSlide);
+    base.y = (-5.0f + fGpffff8388 * titleSlide) - 1.0f;
     pos.x = 0.0f;
     pos.y = 0.0f;
     color.r = 0xFF;
@@ -162,6 +164,7 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
 #pragma push
 #pragma opt_propagation off
 // Intent: Draw the logo scene and title for one frame. [inferred]
+/* b210: remaining frame and wipe-pointer reloads individually change instructions when typed. */
 // FUN_00222D20
 void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
 {
@@ -170,12 +173,12 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     typedef union { Vec2fLocal draw; DescriptorPair descriptor; } OriginPair;
     extern void btlLogoDrawTitle(u8 *work, u32 alpha);
     extern void sdkRenderStateSetDefault(void);
-    extern void nLineDrawSet(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
-    extern void datScreenWipeDraw(u8 *arg0);
-    extern s32 datScreenWipeTexture(u8 *arg0);
-    extern void datScreenWipeGetPositions(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern void datScreenWipeGetScale(u8 *arg0, f32 *arg1);
-    extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void nLineDrawSet(Vec2fLocal, s32, s32, f32);
+    extern void datScreenWipeDraw(u8 *);
+    extern s32 datScreenWipeTexture(u8 *);
+    extern void datScreenWipeGetPositions(u8 *, u8 *, u8 *, u8 *);
+    extern void datScreenWipeGetScale(u8 *, f32 *);
+    extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
     extern void shdDrawColourQuad(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
                               f32 width, f32 height, s32 color, s32 texture,
                               s32 shadow, s32 mode);
@@ -193,10 +196,10 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     f32 scale[2];
 
     work = (u8 *)workAddress;
-    if ((*(u16 *)work & 2) != 0) {
-        if ((*(u16 *)work & 8) == 0) {
-            if (++*(u16 *)(work + 0x46) >= 54) {
-                *(u16 *)work |= 8;
+    if ((((BtlLogoWork *)work)->flags & 2) != 0) {
+        if ((((BtlLogoWork *)work)->flags & 8) == 0) {
+            if (++((BtlLogoWork *)work)->animationFrame >= 54) {
+                ((BtlLogoWork *)work)->flags |= 8;
             }
             alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 5.0f, 1));
             if (*(u16 *)(work + 0x46) == 14) {
@@ -211,18 +214,18 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
         origin.draw.y = 0.0f;
         nLineDrawSet(origin.draw, alpha, 0x16, 0.0f);
         btlLogoDrawTitle(work, alpha);
-        datScreenWipeDraw(*(u8 **)(work + 0x4C));
+        datScreenWipeDraw(((BtlLogoWork *)work)->wipe);
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
         texture = datScreenWipeTexture(*(u8 **)(work + 0x4C));
         if (texture != 0) {
-            if (*(u16 *)(work + 0x46) >= 24) {
+            if (((BtlLogoWork *)work)->animationFrame >= 24) {
                 u32 overlayAlpha;
                 f32 opacity;
                 f32 drawX;
                 f32 drawY;
                 s32 color;
-                phase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 27.0f, 54.0f, 2);
+                phase = btlShuffleCalcWave((f32)(u32)((BtlLogoWork *)work)->animationFrame, 27.0f, 54.0f, 2);
                 datScreenWipeGetPositions(*(u8 **)(work + 0x4C), 0, (u8 *)position, 0);
                 datScreenWipeGetScale(*(u8 **)(work + 0x4C), scale);
                 drawY = position[1];
@@ -237,7 +240,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                 RpSkyRenderStateSet(2, 0x44);
             }
         }
-        sflDataDrawEntry(origin.descriptor, 0.0f, alpha, (s16 *)(work + 0x58));
+        sflDataDrawEntry(origin.descriptor, 0.0f, alpha, ((BtlLogoWork *)work)->descriptor);
     }
 }
 #pragma pop

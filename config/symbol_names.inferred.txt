@@ -622,3 +622,4 @@ itfMesWindowGetCursor = 0x00278260; // type:func  evidence: inferred: Return the
 itfMesWindowGetChoiceCount = 0x00279010; // type:func  evidence: inferred: Return the signed visible-choice count at window offset 0x4E
 itfMesWindowGetProcedureParam = 0x0027B6E0; // type:func  evidence: inferred: Read one of four words following the window procedure callback
 itfMesWindowSetProcedureParam = 0x0027B750; // type:func  evidence: inferred: Write one of four words following the window procedure callback
+btlPanelNoOp = 0x00216E50; // type:func  evidence: inferred: empty hook between the panel-record initializer and timed-message renderer
