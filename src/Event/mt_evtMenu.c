@@ -1,7 +1,7 @@
 /* Source unit: src/Event/mt_evtMenu_00285260.c */
 #include "type.h"
 #include "scene_event_internal.h"
-extern u32 DAT_00882170_abs[];
+extern u32 DAT_00882170_abs[]; /* thirteen menu slots; slot zero is preserved */
 
 
 
@@ -10,15 +10,15 @@ extern u32 DAT_00882170_abs[];
 // FUN_00285260
 void evtMenuClearSlots(void)
 {
-    int iVar1;
-    u32 *puVar2;
+    int slotIndex;
+    u32 *slots;
 
-    iVar1 = 0;
-    puVar2 = (u32 *)DAT_00882170_abs;
-    while (iVar1 < 0xd) {
-        if (iVar1 != 0) {
-            puVar2[iVar1] = 0;
+    slotIndex = 0;
+    slots = (u32 *)DAT_00882170_abs;
+    while (slotIndex < 0xd) {
+        if (slotIndex != 0) {
+            slots[slotIndex] = 0;
         }
-        iVar1 = iVar1 + 1;
+        slotIndex = slotIndex + 1;
     }
 }
