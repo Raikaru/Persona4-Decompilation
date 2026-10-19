@@ -1,3 +1,4 @@
+#include "nm_message_record.h"
 #include "btl_action_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
@@ -107,23 +108,23 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
-// Intent: returns the status of slot `arg0`; 0 when the slot is empty or closed, or flagged and in state 2.
+// Intent: returns the status of slot `slotIndex`; 0 when the slot is empty or closed, or flagged and in state 2.
 // FUN_002BB680
-s32 nmMesWindowSlotStatus(s32 arg0) {
-    u8 *p;
+s32 nmMesWindowSlotStatus(s32 slotIndex) {
+    u8 *record;
 
-    p = D_00882F40[(s8)arg0];
-    if (p == NULL) {
+    record = D_00882F40[(s8)slotIndex];
+    if (record == NULL) {
         return 0;
     }
-    if (*(s32 *)p < 0) {
+    if (((NmMesWindowRecord *)record)->handle < 0) {
         return 0;
     }
-    if (*(s8 *)(p + 5) != 0) {
-        if (*(s8 *)(p + 4) == 2) {
+    if (((NmMesWindowRecord *)record)->paused != 0) {
+        if (((NmMesWindowRecord *)record)->state == 2) {
             return 0;
         }
     }
-    return *(s8 *)(p + 4);
+    return ((NmMesWindowRecord *)record)->state;
 }
 
