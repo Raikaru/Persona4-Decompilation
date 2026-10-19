@@ -345,7 +345,7 @@ s32 btlSoundGetSlotVoiceIndex(u8 *arg0, s32 arg1)
 // FUN_001F8920
 s32 btlSoundPickActionVoice(u8 *arg0)
 {
-    extern s32 func_0022bd20(void);
+    extern s32 btlEncounterIsBoss(void);
     s32 temp_16;
     s32 var_2;
     u16 temp_2;
@@ -361,7 +361,7 @@ s32 btlSoundPickActionVoice(u8 *arg0)
         }
         return var_2;
     }
-    if (func_0022bd20() == 0) {
+    if (btlEncounterIsBoss() == 0) {
         return -1;
     }
     temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);

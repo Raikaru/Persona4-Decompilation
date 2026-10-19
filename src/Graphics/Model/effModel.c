@@ -11,40 +11,82 @@ typedef struct RwV3d RwV3d;
    quadword copy, with no inline asm. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
-extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
+/* Work extents are proven by the 0x9C/0xBC constructors and model ID accesses. */
+typedef struct MdlDrawableEffect {
+    u8 pad0[0xC];
+    s32 tint; /* +0xC */
+    u8 pad10[0x60];
+    s32 firstFrame; /* +0x70 */
+    s32 lastFrame; /* +0x74 */
+    u8 pad78[0x28];
+    u8 visible; /* +0xA0 */
+    u8 padA1[0x3];
+    union { s32 signedWord; u32 word; } modelFlag; /* +0xA4 */
+    u8 padA8[0xC];
+    union { u32 word; u8 * bytes; void * pointer; } model; /* +0xB4 */
+    union { s8 signedByte; u8 byte; } validFrameRange; /* +0xB8 */
+} MdlDrawableEffect;
+
+typedef struct MdlEffectModel {
+    u8 pad0[0xD4];
+    u16 id; /* +0xD4 */
+    u16 subId; /* +0xD6 */
+    union { s32 signedWord; u32 word; } flags; /* +0xD8 */
+} MdlEffectModel;
+
+typedef struct MdlEffectInstance {
+    f32 positionX; /* +0x0 */
+    f32 positionY; /* +0x4 */
+    f32 positionZ; /* +0x8 */
+    u8 padC[0x14];
+    f32 scale; /* +0x20 */
+    union { f32 scalar; s32 signedWord; } layerWeight; /* +0x24 */
+    union { int value0; s32 signedWord; } tint; /* +0x28 */
+    u8 pad2C[0x28];
+    u16 drawSlot; /* +0x54 */
+    u8 pad56[0x36];
+    u32 duration; /* +0x8C */
+    u8 drawFlags; /* +0x90 */
+    u8 pad91[0x3];
+    union { u32 word; u8 * bytes; void * pointer; } model; /* +0x94 */
+    union { s32 signedWord; u32 word; } elapsed; /* +0x98 */
+} MdlEffectInstance;
+
+extern void mdlSetLayerTime(u8 *model, s32 layer, f32 time);
 
 extern void TnInvokeCallback(void);
 extern void EffModelResetCallback(void);
-extern s32 TnGetOffset1C(s32 arg0);
-extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
-extern void kAssertFail(const char *arg0, s32 arg1);
-extern void mdlInitIdentityMatrix(void *arg0);
-extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
-extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
-extern void mdlDestroyModelObject(u32 arg0);
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
+extern s32 TnGetOffset1C(s32 slotIndex);
+extern void *mdlFindOrCreateModelObject(u32 type, u16 id, u32 loadFlags);
+extern void kAssertFail(const char *file, s32 line);
+extern void mdlInitIdentityMatrix(void *model);
+extern s32 mdlLayerIsPresent(void *model, s32 layer);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 weight);
+extern void mdlSetResetCallback(void *model, void (*callback)(void), void *context);
+extern void mdlDestroyModelObject(u32 model);
+extern void memcpy(void *destination, void *source, s32 size);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007144A8[];
-extern void EffModelRebindModel(u8 *arg0, u8 *arg1);
-extern void EffModelUpdate(s32 arg0, u8 *arg1);
-extern void EffModelRebindDrawable(u8 *arg0, u8 *arg1);
-extern void mdlSetDrawCallback(u8 *arg0, void (*arg1)(u8 *), void *arg2);
-extern void mdlClearAtomicFlags(void *arg0, s32 arg1);
-extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
-extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
-extern u16 iGpffffbb90;
+extern void EffModelRebindModel(u8 *destination, u8 *source);
+extern void EffModelUpdate(s32 drawList, u8 *effect);
+extern void EffModelRebindDrawable(u8 *destination, u8 *source);
+extern void mdlSetDrawCallback(u8 *model, void (*callback)(u8 *), void *context);
+extern void mdlClearAtomicFlags(void *model, s32 mask);
+extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *resource, u32 size, u32 flags);
+extern u16 iGpffffbb90; /* next candidate ID for embedded type-six models */
 extern char D_007144B8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 
 
+/* Finds the source model by its IDs, resets its transform and layer zero, and installs the effect reset callback. */
 // FUN_004ABD80
-void *EffModelFindOrCreate(void *arg0)
+void *EffModelFindOrCreate(void *effect)
 {
     void *work;
 
-    work = mdlFindOrCreateModelObject(*(u16 *)((u8 *)arg0 + 0xD4), *(u16 *)((u8 *)arg0 + 0xD6), 1);
+    work = mdlFindOrCreateModelObject(((MdlEffectModel *)effect)->id, ((MdlEffectModel *)effect)->subId, 1);
     if (work == 0) {
         kAssertFail(D_007144A8, 0x55);
     }
@@ -53,7 +95,7 @@ void *EffModelFindOrCreate(void *arg0)
         mdlDispatchAnimIfPresent(work, 0, 0, 0, 0);
         mdlSetLayerWeight(work, 0, 1.0f);
     }
-    *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
+    ((MdlEffectModel *)work)->flags.word &= 0xFFFFFFFD;
     mdlSetResetCallback(work, EffModelResetCallback, work);
     return work;
 }
@@ -67,81 +109,87 @@ void EffModelResetCallback(void) {
    arguments with the canonical u32 model-lookup prototype. */
 #pragma push
 #pragma opt_propagation off
+/* Allocates a 0x9C-byte effect and optionally creates its embedded model resource with a free type-six ID. */
 // FUN_004ABE80
-void *EffModelCreate(void *arg0) {
-    f32 temp_f20;
-    s32 temp_18;
-    s32 temp_2_3;
-    u8 *temp_2;
+void *EffModelCreate(void *source) {
+    f32 unitWeight;
+    s32 resourceSize;
+    s32 modelResource;
+    u8 *effect;
     u32 lookupType;
-    u8 *temp_2_2;
-    u8 *temp_2_4;
+    u8 *parameters;
+    u8 *model;
 
     chkmemAllocSiteTag(D_007144B8, 0x171);
-    temp_2 = (u8 *)jtbl_008873E8[0](0x9C, 0x40000);
-    memset(temp_2, 0, 0x9C);
-    if (temp_2 == NULL) {
+    effect = (u8 *)jtbl_008873E8[0](0x9C, 0x40000);
+    memset(effect, 0, 0x9C);
+    if (effect == NULL) {
         kAssertFail(D_007144A8, 0x73);
     }
-    *(s32 *)(temp_2 + 0x98) = 0;
-    *(s32 *)(temp_2 + 0x28) = -1;
-    temp_f20 = 1.0f;
-    *(f32 *)(temp_2 + 0x20) = temp_f20;
-    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
-    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(temp_2) : "memory");
-    if (arg0 != NULL) {
-        temp_2_2 = mdlEffectResolveRelPtrA(arg0);
-        if (temp_2_2 == NULL) {
+    ((MdlEffectInstance *)effect)->elapsed.signedWord = 0;
+    ((MdlEffectInstance *)effect)->tint.signedWord = -1;
+    unitWeight = 1.0f;
+    ((MdlEffectInstance *)effect)->scale = unitWeight;
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(effect) : "memory");
+    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(effect) : "memory");
+    if (source != NULL) {
+        parameters = mdlEffectResolveRelPtrA(source);
+        if (parameters == NULL) {
             kAssertFail(D_007144A8, 0x83);
         }
-        memcpy(temp_2 + 0x2C, temp_2_2, 0x68);
-        temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
-        if (temp_2_3 != 0) {
-            if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
+        memcpy(effect + 0x2C, parameters, 0x68);
+        modelResource = (s32)mdlEffectResolveRelPtrB(source);
+        if (modelResource != 0) {
+            if (((EffSourceDescriptor *)source)->kind != 3) {
                 kAssertFail(D_007144A8, 0x8A);
             }
-            temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
+            resourceSize = (s32)((EffSourceDescriptor *)source)->clumpInput;
             while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
-            temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
-            mdlInitIdentityMatrix(temp_2_4);
-            if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
-                mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
-                mdlSetLayerWeight(temp_2_4, 0, temp_f20);
+            model = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)modelResource, (u32)resourceSize, 1);
+            mdlInitIdentityMatrix(model);
+            if (mdlLayerIsPresent(model, 0) != 0) {
+                mdlDispatchAnimIfPresent(model, 0, 0, 0, 0);
+                mdlSetLayerWeight(model, 0, unitWeight);
             }
-            *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
-            mdlSetResetCallback(temp_2_4, EffModelResetCallback, temp_2_4);
+            ((MdlEffectModel *)model)->flags.word &= ~2U;
+            mdlSetResetCallback(model, EffModelResetCallback, model);
             iGpffffbb90 += 1;
-            *(u8 **)(temp_2 + 0x94) = temp_2_4;
+            ((MdlEffectInstance *)effect)->model.bytes = model;
         }
     }
-    return temp_2;
+    return effect;
 }
 #pragma pop
+/* Destroys the owned model before releasing its effect allocation. */
 // FUN_004AC0B0
-void EffModelFree(void *arg0)
+void EffModelFree(void *effect)
 {
-    if (*(void **)((u8 *)arg0 + 0x94) != 0) {
-        mdlDestroyModelObject(*(u32 *)((u8 *)arg0 + 0x94));
+    if (((MdlEffectInstance *)effect)->model.pointer != 0) {
+        mdlDestroyModelObject(((MdlEffectInstance *)effect)->model.word);
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](effect);
 }
 
+/* Copies effect parameters and acquires a separate model object for the clone. */
 // FUN_004AC100
-void *EffModelClone(void *arg0)
+void *EffModelClone(void *effect)
 {
     void *work;
 
     work = EffModelCreate(0);
-    memcpy((u8 *)work + 0x2C, (u8 *)arg0 + 0x2C, 0x68);
-    EffModelRebindModel(work, arg0);
+    memcpy((u8 *)work + 0x2C, (u8 *)effect + 0x2C, 0x68);
+    EffModelRebindModel(work, effect);
     return work;
 }
 
+/* Replaces the destination model with a reference acquired from the source model IDs. */
 // FUN_004AC170
 void EffModelRebindModel(u8 *dst, u8 *src)
 {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 191 differing bytes). Offsets remain as observed. */
     void *work;
 
     if (*(void **)(src + 0x94) == 0) {
@@ -165,67 +213,74 @@ void EffModelRebindModel(u8 *dst, u8 *src)
 }
 
 // FUN_004AC290
-void EffModelResetLayerTime(u8 *arg0) {
-    mdlSetLayerTime(*(u8 **)(arg0 + 0x94), 0, 0.0f);
+void EffModelResetLayerTime(u8 *effect) {
+    mdlSetLayerTime(((MdlEffectInstance *)effect)->model.bytes, 0, 0.0f);
 }
 
 
 
+/* Advances the effect age while its configured duration permits another update. */
 // FUN_004AC2C0
-void EffModelRollCycle(u32 *param_1)
+void EffModelRollCycle(u32 *effect)
 {
-  if ((param_1[0x23] >= param_1[0x26]) || (param_1[0x23] == 0)) {
-    *(f32 *)(param_1 + 9) = 1.0f;
-    param_1[0x26] = param_1[0x26] + 1;
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 44 differing bytes). Offsets remain as observed. */
+  if ((effect[0x23] >= effect[0x26]) || (effect[0x23] == 0)) {
+    *(f32 *)(effect + 9) = 1.0f;
+    effect[0x26] = effect[0x26] + 1;
   }
 }
 
 
 
-extern void EffModelDrawCallback(u8 *arg0);
+extern void EffModelDrawCallback(u8 *effect);
 extern char D_007144B8[];
-extern void mdlSetAlphaBlend(void *arg0);
-extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern void mdlSetColor(void *arg0, s32 *arg1);
-extern f32 mdlEffectSampleScalarKeys(void *arg0, u32 arg1, u32 arg2);
-extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
+extern void mdlSetAlphaBlend(void *effect);
+extern s32 mdlEffectSamplePackedColor(u8 *effect, u8 *scale, s32 elapsed, s32 duration);
+extern void mdlSetColor(void *effect, s32 *scale);
+extern f32 mdlEffectSampleScalarKeys(void *keys, u32 elapsed, u32 duration);
+extern void mdlEffectBuildBasisRows(void *effect, void *scale);
+extern void mdlApplyModelMatrix(void *effect, void *scale, s32 combineOp);
+extern void mdlScale(void *effect, f32 *scale, s32 combineOp);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
+extern void mdlSetAttachedOwner(void *model, s32 owner);
 extern s32 TnGetTableBase(void);
-extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
+extern void mdlQueueModelForDraw(s32 drawList, void *model);
 extern f32 D_00761134;
 
+/* Samples colour and scale keys, applies the effect transform and layer weight, then queues its model for drawing. */
 // FUN_004AC300
-void EffModelUpdate(s32 arg0, u8 *arg1)
+void EffModelUpdate(s32 drawList, u8 *effect)
 {
-    s32 spBC;
-    s32 spB8;
-    s32 spB4;
-    s32 spB0;
-    f32 spA0[3];
-    u8 sp60[0x40];
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 428 differing bytes). Offsets remain as observed. */
+    /* VU/MMI packing writes combinedColor via its retail stack slot; retain this order. */
+    s32 outputColor;
+    s32 tintColor;
+    s32 sampledColor;
+    s32 combinedColor;
+    f32 vector[3];
+    u8 matrix[0x40];
     s32 *pt;
-    f32 temp_f0;
-    f32 temp_f20;
-    s32 temp_2;
-    s32 temp_3;
-    u32 temp_17;
-    u32 temp_16;
-    u8 *temp_3_2;
-    u8 *temp_4;
+    f32 uniformScale;
+    f32 keyScale;
+    s32 value;
+    s32 color;
+    u32 elapsed;
+    u32 duration;
+    u8 *enabledModel;
+    u8 *disabledModel;
     f32 scale;
 
-    temp_17 = *(u32 *)(arg1 + 0x98);
-    temp_16 = *(u32 *)(arg1 + 0x8C);
-    if ((temp_16 >= temp_17) || (temp_16 == 0)) {
-        if (temp_16 == 0x4C9) {
-            mdlSetAlphaBlend(*(u8 **)(arg1 + 0x94));
+    elapsed = *(u32 *)(effect + 0x98);
+    duration = *(u32 *)(effect + 0x8C);
+    if ((duration >= elapsed) || (duration == 0)) {
+        if (duration == 0x4C9) {
+            mdlSetAlphaBlend(*(u8 **)(effect + 0x94));
         }
-        temp_3 = mdlEffectSamplePackedColor(arg1 + 0x2C, arg1 + 0x50, temp_17, temp_16);
-        spB8 = *(s32 *)(arg1 + 0x28);
-        pt = &spB8;
+        color = mdlEffectSamplePackedColor(effect + 0x2C, effect + 0x50, elapsed, duration);
+        tintColor = *(s32 *)(effect + 0x28);
+        pt = &tintColor;
         scale = D_00761134;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -241,7 +296,7 @@ void EffModelUpdate(s32 arg0, u8 *arg1)
             :
             : "r"(pt), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        spB4 = temp_3;
+        sampledColor = color;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -262,49 +317,52 @@ void EffModelUpdate(s32 arg0, u8 *arg1)
             "ppacb $2, $0, $2      \n"
             "sw $2, 176($sp)       \n"
             :
-            : "r"(&spB4), "f"(scale)
+            : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        spBC = *(s32 *)&spB0;
-        mdlSetColor(*(u8 **)(arg1 + 0x94), &spBC);
-        temp_f20 = mdlEffectSampleScalarKeys(arg1 + 0x60, temp_17, temp_16) / 10.0f;
-        mdlEffectBuildBasisRows(sp60, arg1 + 0x10);
-        mdlApplyModelMatrix(*(u8 **)(arg1 + 0x94), sp60, 0);
-        temp_f0 = *(f32 *)(arg1 + 0x20) * temp_f20;
-        spA0[2] = temp_f0;
-        spA0[1] = temp_f0;
-        spA0[0] = temp_f0;
-        mdlScale(*(u8 **)(arg1 + 0x94), spA0, 2);
-        spA0[0] = *(f32 *)(arg1 + 0);
-        spA0[1] = *(f32 *)(arg1 + 4);
-        spA0[2] = *(f32 *)(arg1 + 8);
-        mdlTranslateMatrix((RwMatrix *)*(u8 **)(arg1 + 0x94), (const RwV3d *)spA0, 2);
-        if (*(u8 *)(arg1 + 0x90) != 0) {
-            temp_3_2 = *(u8 **)(arg1 + 0x94);
-            *(s32 *)(temp_3_2 + 0xD8) = *(s32 *)(temp_3_2 + 0xD8) | 0x18;
+        outputColor = *(s32 *)&combinedColor;
+        mdlSetColor(*(u8 **)(effect + 0x94), &outputColor);
+        keyScale = mdlEffectSampleScalarKeys(effect + 0x60, elapsed, duration) / 10.0f;
+        mdlEffectBuildBasisRows(matrix, effect + 0x10);
+        mdlApplyModelMatrix(*(u8 **)(effect + 0x94), matrix, 0);
+        uniformScale = *(f32 *)(effect + 0x20) * keyScale;
+        vector[2] = uniformScale;
+        vector[1] = uniformScale;
+        vector[0] = uniformScale;
+        mdlScale(*(u8 **)(effect + 0x94), vector, 2);
+        vector[0] = *(f32 *)(effect + 0);
+        vector[1] = *(f32 *)(effect + 4);
+        vector[2] = *(f32 *)(effect + 8);
+        mdlTranslateMatrix((RwMatrix *)*(u8 **)(effect + 0x94), (const RwV3d *)vector, 2);
+        if (*(u8 *)(effect + 0x90) != 0) {
+            enabledModel = *(u8 **)(effect + 0x94);
+            *(s32 *)(enabledModel + 0xD8) = *(s32 *)(enabledModel + 0xD8) | 0x18;
         } else {
-            temp_4 = *(u8 **)(arg1 + 0x94);
-            *(s32 *)(temp_4 + 0xD8) = *(s32 *)(temp_4 + 0xD8) & ~0x18;
+            disabledModel = *(u8 **)(effect + 0x94);
+            *(s32 *)(disabledModel + 0xD8) = *(s32 *)(disabledModel + 0xD8) & ~0x18;
         }
-        mdlSetLayerWeight(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
-        mdlSetAttachedOwner(*(u8 **)(arg1 + 0x94), TnGetTableBase());
-        mdlQueueModelForDraw(arg0, *(u8 **)(arg1 + 0x94));
-        *(s32 *)(arg1 + 0x24) = 0;
+        mdlSetLayerWeight(*(u8 **)(effect + 0x94), 0, *(f32 *)(effect + 0x24));
+        mdlSetAttachedOwner(*(u8 **)(effect + 0x94), TnGetTableBase());
+        mdlQueueModelForDraw(drawList, *(u8 **)(effect + 0x94));
+        *(s32 *)(effect + 0x24) = 0;
     }
 }
 // FUN_004AC550
-void EffModelUpdateByOffset(void *arg0)
+void EffModelUpdateByOffset(void *effect)
 {
-    EffModelUpdate(TnGetOffset1C(*(u16 *)((u8 *)arg0 + 0x54)), arg0);
+    EffModelUpdate(TnGetOffset1C(((MdlEffectInstance *)effect)->drawSlot), effect);
 }
 
+/* Advances the permitted effect age and queues it using its mapped draw-list slot. */
 // FUN_004AC590
-void EffModelRollAndUpdate(u32 *param_1)
+void EffModelRollAndUpdate(u32 *effect)
 {
-    if ((param_1[0x23] >= param_1[0x26]) || (param_1[0x23] == 0)) {
-        *(f32 *)(param_1 + 9) = 1.0f;
-        param_1[0x26] = param_1[0x26] + 1;
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 73 differing bytes). Offsets remain as observed. */
+    if ((effect[0x23] >= effect[0x26]) || (effect[0x23] == 0)) {
+        *(f32 *)(effect + 9) = 1.0f;
+        effect[0x26] = effect[0x26] + 1;
     }
-    EffModelUpdate(TnGetOffset1C(*(u16 *)&param_1[0x15]), (u8 *)param_1);
+    EffModelUpdate(TnGetOffset1C(*(u16 *)&effect[0x15]), (u8 *)effect);
 }
 
 // FUN_004AC600
@@ -318,106 +376,114 @@ u_long128 EffModelCopyQuadSecond(u_long128 *dst, u_long128 *src) {
 }
 
 // FUN_004AC630
-void EffModelSetScale(void *arg0, f32 arg1)
+void EffModelSetScale(void *effect, f32 scale)
 {
-    *(f32 *)((u8 *)arg0 + 0x20) = arg1;
+    ((MdlEffectInstance *)effect)->scale = scale;
 }
 
 // FUN_004AC620
-void EffModelSetLookupIndex(int param_1, int param_2)
+void EffModelSetLookupIndex(int effect, int packedColor)
 {
-  *(int *)(param_1 + 0x28) = param_2;
+  ((MdlEffectInstance *)effect)->tint.value0 = packedColor;
 }
 
 /* Measured: the same staged lookup type preserves this constructor's call order. */
 #pragma push
 #pragma opt_propagation off
+/* Allocates a 0xBC-byte drawable effect, creates the embedded model and configures its draw callback and frame range. */
 // FUN_004AC640
-void *EffModelCreateDrawable(void *arg0) {
-    s32 temp_18;
-    s32 temp_2_3;
-    s32 temp_2_5;
-    s32 temp_3;
-    u8 *temp_2;
+void *EffModelCreateDrawable(void *source) {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 130 differing bytes). Offsets remain as observed. */
+    s32 resourceSize;
+    s32 modelResource;
+    s32 lastFrame;
+    s32 firstFrame;
+    u8 *effect;
     u32 lookupType;
-    u8 *temp_2_2;
-    u8 *temp_2_4;
-    u8 *temp_4;
+    u8 *parameters;
+    u8 *model;
+    u8 *flaggedModel;
 
     chkmemAllocSiteTag(D_007144B8, 0x171);
-    temp_2 = (u8 *)jtbl_008873E8[0](0xBC, 0x40000);
-    memset(temp_2, 0, 0xBC);
-    if (temp_2 == NULL) {
+    effect = (u8 *)jtbl_008873E8[0](0xBC, 0x40000);
+    memset(effect, 0, 0xBC);
+    if (effect == NULL) {
         kAssertFail(D_007144A8, 0x18A);
     }
-    *(s32 *)(temp_2 + 0xC) = -1;
-    if (arg0 != NULL) {
-        temp_2_2 = mdlEffectResolveRelPtrA(arg0);
-        if (temp_2_2 == NULL) {
+    *(s32 *)(effect + 0xC) = -1;
+    if (source != NULL) {
+        parameters = mdlEffectResolveRelPtrA(source);
+        if (parameters == NULL) {
             kAssertFail(D_007144A8, 0x196);
         }
-        memcpy(temp_2 + 0x10, temp_2_2, 0xA4);
-        temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
-        if (temp_2_3 != 0) {
-            if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
+        memcpy(effect + 0x10, parameters, 0xA4);
+        modelResource = (s32)mdlEffectResolveRelPtrB(source);
+        if (modelResource != 0) {
+            if (*(u16 *)((u8 *)source + 0x1C) != 3) {
                 kAssertFail(D_007144A8, 0x19D);
             }
-            temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
+            resourceSize = *(s32 *)((u8 *)source + 0x24);
             while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
-            temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
-            mdlInitIdentityMatrix(temp_2_4);
-            if (mdlLayerIsPresent(temp_2_4, 0) != 0) {
-                mdlDispatchAnimIfPresent(temp_2_4, 0, 0, 0, 0);
-                mdlSetLayerWeight(temp_2_4, 0, 1.0f);
+            model = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)modelResource, (u32)resourceSize, 1);
+            mdlInitIdentityMatrix(model);
+            if (mdlLayerIsPresent(model, 0) != 0) {
+                mdlDispatchAnimIfPresent(model, 0, 0, 0, 0);
+                mdlSetLayerWeight(model, 0, 1.0f);
             }
-            *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
-            mdlSetResetCallback(temp_2_4, EffModelResetCallback, temp_2_4);
+            *(u32 *)(model + 0xD8) &= ~2U;
+            mdlSetResetCallback(model, EffModelResetCallback, model);
             iGpffffbb90 += 1;
-            *(u8 **)(temp_2 + 0xB4) = temp_2_4;
-            mdlSetDrawCallback(temp_2_4, EffModelDrawCallback, temp_2);
-            if (*(u8 *)(temp_2 + 0xA0) == 0) {
-                mdlClearAtomicFlags(*(u8 **)(temp_2 + 0xB4), 0x20);
+            *(u8 **)(effect + 0xB4) = model;
+            mdlSetDrawCallback(model, EffModelDrawCallback, effect);
+            if (*(u8 *)(effect + 0xA0) == 0) {
+                mdlClearAtomicFlags(*(u8 **)(effect + 0xB4), 0x20);
             }
-            if (*(s32 *)(temp_2 + 0xA4) != 0) {
-                temp_4 = *(u8 **)(temp_2 + 0xB4);
-                *(u32 *)(temp_4 + 0xD8) |= 0x40000;
+            if (*(s32 *)(effect + 0xA4) != 0) {
+                flaggedModel = *(u8 **)(effect + 0xB4);
+                *(u32 *)(flaggedModel + 0xD8) |= 0x40000;
             }
-            temp_3 = *(s32 *)(temp_2 + 0x70);
-            if ((temp_3 >= 0) && (temp_2_5 = *(s32 *)(temp_2 + 0x74), temp_2_5 >= 0) && (temp_2_5 >= temp_3)) {
-                *(s8 *)(temp_2 + 0xB8) = 1;
+            firstFrame = *(s32 *)(effect + 0x70);
+            if ((firstFrame >= 0) && (lastFrame = *(s32 *)(effect + 0x74), lastFrame >= 0) && (lastFrame >= firstFrame)) {
+                *(s8 *)(effect + 0xB8) = 1;
             } else {
-                *(s8 *)(temp_2 + 0xB8) = 0;
+                *(s8 *)(effect + 0xB8) = 0;
             }
         }
     }
-    return temp_2;
+    return effect;
 }
 #pragma pop
+/* Destroys the drawable model before releasing its effect allocation. */
 // FUN_004AC8E0
-void EffModelFreeDrawable(void *arg0)
+void EffModelFreeDrawable(void *effect)
 {
-    if (*(void **)((u8 *)arg0 + 0xB4) != 0) {
-        mdlDestroyModelObject(*(u32 *)((u8 *)arg0 + 0xB4));
+    if (((MdlDrawableEffect *)effect)->model.pointer != 0) {
+        mdlDestroyModelObject(((MdlDrawableEffect *)effect)->model.word);
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](effect);
 }
 
+/* Copies drawable parameters and acquires a separate model for the clone. */
 // FUN_004AC930
-void *EffModelCloneDrawable(void *arg0)
+void *EffModelCloneDrawable(void *effect)
 {
     void *work;
 
     work = EffModelCreateDrawable(0);
-    memcpy((u8 *)work + 0x10, (u8 *)arg0 + 0x10, 0xA4);
-    EffModelRebindDrawable(work, arg0);
+    memcpy((u8 *)work + 0x10, (u8 *)effect + 0x10, 0xA4);
+    EffModelRebindDrawable(work, effect);
     return work;
 }
 
+/* Replaces the drawable model by source IDs and reapplies its callback, visibility and frame-range flags. */
 // FUN_004AC9A0
 void EffModelRebindDrawable(u8 *dst, u8 *src)
 {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 294 differing bytes). Offsets remain as observed. */
     void *work;
 
     if (*(void **)(src + 0xB4) == 0) {
