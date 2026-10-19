@@ -17,7 +17,7 @@ void btlShuffleDrawViewRequestStep(u8 *arg0, u8 arg1, u8 arg2, u8 arg3);
 s32 datGetFlag(u32 arg0);
 
 extern u8 *D_007246AC;
-void func_00389180(u8 *arg0);
+void btlShuffleDrawViewRequestWhiteStep(u8 *arg0);
 extern void memset(void *dst, s32 value, u32 size);
 extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
@@ -26,13 +26,13 @@ extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
-extern void func_00389cb0(u8 *arg0);
+extern void btlShuffleInitWaveStrips(u8 *arg0);
 extern void btlShuffleDrawCardReset(u8 *arg0);
-extern void func_003889b0(s32 arg0, u8 *arg1);
+extern void btlShuffleDrawViewForeground(s32 arg0, u8 *arg1);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
 extern void btlShuffleDrawViewClearFlags(u8 *arg0);
-extern void func_003874c0(s32 arg0, u8 *arg1);
+extern void btlShuffleDrawViewBackground(s32 arg0, u8 *arg1);
 extern s32 btlShuffleDrawViewStep(u8 *arg0);
 extern void btlShuffleDrawViewDestroy(u8 *arg0);
 extern u8 *iGpffffb5b0;
@@ -44,11 +44,11 @@ extern u8 D_0064EEB0[];
 extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern void sdkRenderStateSetDefault(void);
-extern void func_0038acd0(u8 *arg0);
-extern void func_0038bab0(u8 *arg0);
-extern void func_0038c100(u8 *arg0);
-extern void func_0038c770(u8 *arg0);
-extern void func_0038cab0(u8 *arg0);
+extern void btlShuffleDrawRevealBands(u8 *arg0);
+extern void btlShuffleDrawDetailBars(u8 *arg0);
+extern void btlShuffleDrawCountTransition(u8 *arg0);
+extern void btlShuffleDrawCardShadow(u8 *arg0);
+extern void btlShuffleDrawSelectionColumn(u8 *arg0);
 
 extern f32 D_00761470;
 extern f32 D_008872F8[];
@@ -63,11 +63,11 @@ extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
 extern s32 func_003df590(s32 arg0, ...);
 extern u8 *func_003df4d0(s32 *arg0);
-extern void func_00389370();
-extern void func_00389640();
+extern void btlShuffleDrawBackgroundPulse();
+extern void btlShuffleDrawBackgroundRings();
 extern void btlShuffleDrawWave();
-extern void func_0038a940();
-extern void func_0038b1c0();
+extern void btlShuffleUpdateRing();
+extern void btlShuffleDrawSpriteCues();
 extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
                           u8 r, u8 g, u8 b, u8 alpha);
 extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
@@ -209,7 +209,7 @@ s32 btlShuffleEffStep(u8 *task) {
     work = (s32 *)((SdkTask *)task)->work;
     btlShuffleDrawViewReset(*work);
     btlShuffleEffUpdate(task);
-    func_0038d330(work);
+    btlShuffleUpdateRewardEffects(work);
     return 0;
 }
 

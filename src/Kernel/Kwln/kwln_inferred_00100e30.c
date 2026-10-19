@@ -141,7 +141,7 @@ typedef struct {
 extern u8 D_00796460[];
 extern void sdkSndInit(void);
 extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
-extern void func_0045b430(void);
+extern void mdlRenderInitializeBuffers(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void hMaestroCreateServicesTask(void);
 extern void func_00466680(void);
@@ -235,7 +235,7 @@ void kwlnInitSubsystems(void)
     H_Cdvd_ResetStreamState();
     H_Cdvd_InitDevices();
     func_0010d7b0();
-    func_0045b430();
+    mdlRenderInitializeBuffers();
     sdkSndInit();
     memset(&D_00764D10[0], 0, 0x14);
     D_00764D10[0] = (s32)((u8 *)&D_00761690 + 4);

@@ -55,7 +55,7 @@ extern void RpSkyTexCacheRasterLock(s32 arg0, s32 arg1);
 extern void func_003e8440(u8 *arg0);
 extern u8 *GeometryCloneBlock(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
-extern void func_004b1a00(u8 *arg0, u8 *arg1);
+extern void mdlEffectScreenSpriteCopyResource(u8 *arg0, u8 *arg1);
 extern s32 mdlEffectShareTrackInstance(s32 arg0);
 extern void mdlEffectReleaseTrackInstance(s32 arg0);
 extern void TlpRelease(s32 arg0);
