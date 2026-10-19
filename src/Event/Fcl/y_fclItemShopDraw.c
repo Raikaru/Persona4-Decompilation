@@ -120,7 +120,7 @@ extern f32 iGpffff84cc;
 extern f32 D_0064A210[];
 extern f32 D_0064A218[];
 extern void sdkSndStartStream(s32, s32, s32, s32);
-extern s32 func_002bb1c0(s8 arg0);
+extern s32 nmMesWindowGetSlotState(s8 arg0);
 extern void fclAddMoney(s32 arg0);
 void fclItemShopDrawList(u8 *arg0);
 extern void fclBustupStartSlide(void *arg0);
@@ -1458,7 +1458,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             break;
         }
         *(s8 *)(work + 0) = 0xC;
-        if (!func_002bb1c0(*(s8 *)(work + 8))) {
+        if (!nmMesWindowGetSlotState(*(s8 *)(work + 8))) {
             datItemSetCount((s16)yListValueAt(*(s16 *)(work + 4)),
                           (u8)(*(s8 *)(work + 3) + (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4)))));
             fclAddMoney(fclGetMoney() -

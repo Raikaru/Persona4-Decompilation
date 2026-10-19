@@ -2,6 +2,8 @@
 #include "type.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "fr_font_objects.h"
+#include "primitive_queue_internal.h"
 
 extern void kAssertFail(const void *file, u32 line);
 extern char D_0063BAE8[];
@@ -10,21 +12,21 @@ extern char D_0063BC78[];
 /* Font lock / busy flag (s16 at gp-0x58E0). */
 extern s16 D_00763810;
 
-extern void frFontMoveListToFloat(int param_1, float param_2, float param_3);
+extern void frFontMoveListToFloat(int value, float otherValue, float thirdValue);
 extern void frFontSetGlyphColor(u32 resource, u32 color);
-extern u32 frFontFadeNodes(int param_1);
-extern u32 frFontListRelease(int param_1);
+extern u32 frFontFadeNodes(int value);
+extern u32 frFontListRelease(int value);
 extern int frFontNodeWidth(int node);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *param, void *work);
 extern void memset(void *dst, s32 value, s32 size);
 
-/* Font-height tables (P3FES frFontGetHeight ports). */
+/* Font-height table (P3FES frFontGetHeight port). */
 extern s8 D_00763808[8];
-extern s8 D_00764670;
+extern s8 D_00764670; /* message-window slot state */
 
 /* Cleanup callback registered by the 002755xx draw wrappers. */
-extern void frFontExFreeText(s32 arg0, int font);
+extern void frFontExFreeText(s32 value, int font);
 
 /* Anonymous gp globals (gp-relative stores in retail). */
 extern s32 D_007645A0;
@@ -49,8 +51,8 @@ void frFontExSetScale(int font, f32 scale)
         kAssertFail(D_0063BC78, 0x12);
     }
     while (font != 0) {
-        *(f32 *)(font + 0x14) = scale;
-        font = *(int *)(font + 0x24);
+        ((FrFontTextRun *)font)->depth.scale = scale;
+        font = ((FrFontTextRun *)font)->previous;
     }
 }
 
@@ -61,14 +63,14 @@ s32 frFontExLayoutText(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
 {
     s32 width = 0;
     int node;
-    int g;
+    int glyphNode;
     s32 dx;
     s32 dy;
 
     if ((flags & 0xb) != 0) {
-        for (g = *(int *)(font + 0x1c); g != 0; g = *(int *)(g + 0x28)) {
-            width += *(int *)(g + 0xc);
-            width += (int)*(char *)(font + 3);
+        for (glyphNode = ((FrFontTextRun *)font)->firstGlyph; glyphNode != 0; glyphNode = ((FrFontGlyphData *)glyphNode)->next) {
+            width += ((FrFontGlyphData *)glyphNode)->advance;
+            width += (int)((FrFontTextRun *)font)->spacing;
         }
     }
     if ((flags & 8) != 0) {
@@ -86,30 +88,30 @@ s32 frFontExLayoutText(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
     if (font == 0) {
         kAssertFail(D_0063BAE8, 0x71F);
     }
-    while (*(int *)(node + 0x24) != 0) {
-        node = *(int *)(node + 0x24);
+    while (((FrFontTextRun *)node)->previous != 0) {
+        node = ((FrFontTextRun *)node)->previous;
     }
-    dx = (s32)(16.0f * x) - *(int *)(node + 4);
-    dy = (s32)(8.0f * y) - *(int *)(node + 8);
+    dx = (s32)(16.0f * x) - ((FrFontTextRun *)node)->x;
+    dy = (s32)(8.0f * y) - ((FrFontTextRun *)node)->y;
     while (node != 0) {
-        *(int *)(node + 4) = *(int *)(node + 4) + dx;
-        *(int *)(node + 8) = *(int *)(node + 8) + dy;
-        node = *(int *)(node + 0x28);
+        ((FrFontTextRun *)node)->x = ((FrFontTextRun *)node)->x + dx;
+        ((FrFontTextRun *)node)->y = ((FrFontTextRun *)node)->y + dy;
+        node = ((FrFontTextRun *)node)->next;
     }
     node = font;
     if (font == 0) {
         kAssertFail(D_0063BC78, 0x12);
     }
     while (node != 0) {
-        *(f32 *)(node + 0x14) = scale;
-        node = *(int *)(node + 0x24);
+        ((FrFontTextRun *)node)->depth.scale = scale;
+        node = ((FrFontTextRun *)node)->previous;
     }
-    for (; font != 0; font = *(int *)(font + 0x24)) {
+    for (; font != 0; font = ((FrFontTextRun *)font)->previous) {
         int glyph;
 
-        for (glyph = *(int *)(font + 0x1c); glyph != 0;
-             glyph = *(int *)(glyph + 0x28)) {
-            *(u32 *)(glyph + 0x10) = color;
+        for (glyph = ((FrFontTextRun *)font)->firstGlyph; glyph != 0;
+             glyph = ((FrFontGlyphData *)glyph)->next) {
+            ((FrFontGlyphData *)glyph)->color = color;
         }
     }
     return width;
@@ -118,11 +120,11 @@ s32 frFontExLayoutText(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
 /* Creates and lays out a text list from a string; returns the list handle and optionally its width. */
 // FUN_00274CD0
 int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
-                  const char *str, int flags, int *width_out)
+                  const char *str, int flags, int *widthOut)
 {
     int font;
     int node;
-    int g;
+    int glyphNode;
     s32 width;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
@@ -130,9 +132,9 @@ int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     width = 0;
     if ((flags & 0xb) != 0) {
-        for (g = *(int *)(font + 0x1c); g != 0; g = *(int *)(g + 0x28)) {
-            width += *(int *)(g + 0xc);
-            width += (int)*(char *)(font + 3);
+        for (glyphNode = ((FrFontTextRun *)font)->firstGlyph; glyphNode != 0; glyphNode = ((FrFontGlyphData *)glyphNode)->next) {
+            width += ((FrFontGlyphData *)glyphNode)->advance;
+            width += (int)((FrFontTextRun *)font)->spacing;
         }
     }
     if ((flags & 8) != 0) {
@@ -152,34 +154,34 @@ int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
         kAssertFail(D_0063BC78, 0x12);
     }
     while (node != 0) {
-        *(f32 *)(node + 0x14) = scale;
-        node = *(int *)(node + 0x24);
+        ((FrFontTextRun *)node)->depth.scale = scale;
+        node = ((FrFontTextRun *)node)->previous;
     }
     frFontSetGlyphColor(font, color);
-    if (width_out != 0) {
-        *width_out = width;
+    if (widthOut != 0) {
+        *widthOut = width;
     }
     return font;
 }
 
-/* Creates, lays out, draws and frees a text list. The arg8 word is unused by this variant. */
+/* Creates, lays out, draws and frees a text list. The final word is unused by this variant. */
 // FUN_00274ED0
 int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
-                  const char *str, int flags, int arg8)
+                  const char *str, int flags, int unused)
 {
     int font;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     /* Retail callers pass this word; this font variant does not use it. */
-    (void)arg8;
+    (void)unused;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     frFontDrawList((void *)font, 1, 0);
     if ((s8)frFontFadeNodes(font) == 0) {
@@ -195,7 +197,7 @@ int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, in
 {
     int font;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
@@ -203,11 +205,11 @@ int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, in
     if (font == 0) {
         kAssertFail(D_0063BAE8, 0x6C3);
     }
-    *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = frFontNodeWidth(font);
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    ((FrFontTextRun *)font)->spacing = charWidth;
+    ((FrFontTextRun *)font)->width = frFontNodeWidth(font);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     frFontDrawList((void *)font, 1, 0);
     if ((s8)frFontFadeNodes(font) == 0) {
@@ -223,7 +225,7 @@ int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
 {
     int font;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     D_007645A0 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
@@ -232,11 +234,11 @@ int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     if (font == 0) {
         kAssertFail(D_0063BAE8, 0x6C3);
     }
-    *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = frFontNodeWidth(font);
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    ((FrFontTextRun *)font)->spacing = charWidth;
+    ((FrFontTextRun *)font)->width = frFontNodeWidth(font);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     D_007645A0 = 0;
     frFontDrawList((void *)font, 1, 0);
@@ -253,7 +255,7 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
 {
     int font;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     D_007645A8 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
@@ -262,11 +264,11 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     if (font == 0) {
         kAssertFail(D_0063BAE8, 0x6C3);
     }
-    *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = frFontNodeWidth(font);
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    ((FrFontTextRun *)font)->spacing = charWidth;
+    ((FrFontTextRun *)font)->width = frFontNodeWidth(font);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     D_007645A8 = 0;
     frFontDrawList((void *)font, 1, 0);
@@ -278,7 +280,7 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
 
 /* Cleanup callback: frees a text list. */
 // FUN_002754C0
-void frFontExFreeText(s32 arg0, int font)
+void frFontExFreeText(s32 unused, int font)
 {
     frFontDrawList((void *)font, 1, 0);
     if ((s8)frFontFadeNodes(font) == 0) {
@@ -294,21 +296,21 @@ int frFontExDrawTextDeferred(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     int font;
     void *work;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     if (font == 0) {
         kAssertFail(D_0063BC78, 0xE6);
     }
     work = PrimAllocQueueNode();
-    *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
-    *(s32 *)((char *)work + 0x10) = font;
+    ((PrimQueueNode *)work)->callback = (void *)frFontExFreeText;
+    ((PrimQueueNode *)work)->argument.handle = font;
     PrimAppendNode(param, work);
     return result;
 }
@@ -322,7 +324,7 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
     int font;
     void *work;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
@@ -330,18 +332,18 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
     if (font == 0) {
         kAssertFail(D_0063BAE8, 0x6C3);
     }
-    *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = frFontNodeWidth(font);
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    ((FrFontTextRun *)font)->spacing = charWidth;
+    ((FrFontTextRun *)font)->width = frFontNodeWidth(font);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     if (font == 0) {
         kAssertFail(D_0063BC78, 0xF9);
     }
     work = PrimAllocQueueNode();
-    *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
-    *(s32 *)((char *)work + 0x10) = font;
+    ((PrimQueueNode *)work)->callback = (void *)frFontExFreeText;
+    ((PrimQueueNode *)work)->argument.handle = font;
     PrimAppendNode(param, work);
     return result;
 }
@@ -354,23 +356,23 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
     int font;
     void *work;
     s32 result;
-    s32 tmp;
+    s32 layoutWidth;
 
     D_007645A8 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
     font = (int)frFontCreateTextList((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
-    tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
+    layoutWidth = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
-        result = tmp;
+        result = layoutWidth;
     }
     D_007645A8 = 0;
     if (font == 0) {
         kAssertFail(D_0063BC78, 0x128);
     }
     work = PrimAllocQueueNode();
-    *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
-    *(s32 *)((char *)work + 0x10) = font;
+    ((PrimQueueNode *)work)->callback = (void *)frFontExFreeText;
+    ((PrimQueueNode *)work)->argument.handle = font;
     PrimAppendNode(param, work);
     return result;
 }
@@ -403,15 +405,16 @@ void frFontExCopyString(char *src, char *dst, int maxlen)
 
 /* Glyph height of a character (retail frFontGetHeight), read from the D_00763808 table. */
 // FUN_00275A40
-s8 frFontExGlyphHeight(char param_1)
+s8 frFontExGlyphHeight(char index)
 {
-    return D_00763808[param_1];
+    return D_00763808[index];
 }
 
 
 
 // FUN_002BB1C0
-s32 func_002bb1c0(s8 param_1)
+/* Return the signed message-window slot state set by nmMesWindowAcquire. */
+s32 nmMesWindowGetSlotState(s8 index)
 {
-    return (&D_00764670)[param_1];
+    return (&D_00764670)[index];
 }

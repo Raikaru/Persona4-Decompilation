@@ -362,7 +362,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern s64 calGetDayEntryForMonthDay(s32, s32);
     extern s32 fclSelectBoundedFallback(s32, s32, s32, s32);
     extern s32 nmMesWindowShowSlotRecordStyle1(s64, s32);
-    extern s32 func_002bb1c0(s8);
+    extern s32 nmMesWindowGetSlotState(s8);
     extern void nmMesWindowDestroySlot(s8);
     extern s32 nmMesWindowSlotStatus(s8);
     extern void nmMesWindowStepSlotRelease(s32);
@@ -1706,7 +1706,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU));
         if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
             nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
-        } else if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
+        } else if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
             sdkSndStartStream(0, 0, 0, 6);
             nmMesWindowDestroySlot((*fclShopMesSlot(work)));
             fclAddMoney(fclGetMoney() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
@@ -1729,7 +1729,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
             nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
         } else {
-            if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
                 sdkSndStartStream(0, 0, 0, 7);
                 nmMesWindowDestroySlot((*fclShopMesSlot(work)));
                 sp690.v0 = (s32) ((s16) (datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
@@ -1757,7 +1757,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
             nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
         } else {
-            if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
                 fclAddMoney(fclGetMoney() + (datItemPrice(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
                 sdkSndStartStream(0, 0, 0, 6);
             } else {
@@ -1972,7 +1972,7 @@ block_368:
         fclShopListInputStep(arg0);
         if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
             nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
-        } else if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
+        } else if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
             sdkSndStartStream(0, 0, 0, 6);
             nmMesWindowDestroySlot((*fclShopMesSlot(work)));
             fclShopSlideInFromRight(arg0);
@@ -2203,7 +2203,7 @@ block_368:
         } else {
             (*(s16 *)(work + 0xC16)) = 0;
             (*(s16 *)(work + 0xC18)) = 0;
-            if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
                 sdkSndStartStream(0, 0, 0, 6);
                 if (datEntryGetKind(temp_19_7) == 5) {
                     temp_16_76 = (s16) (temp_19_7);
@@ -2287,7 +2287,7 @@ block_368:
         } else {
             (*(s16 *)(work + 0xC16)) = 0;
             (*(s16 *)(work + 0xC18)) = 0;
-            if (func_002bb1c0((*fclShopMesSlot(work))) == 0) {
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
                 nmMesWindowDestroySlot((*fclShopMesSlot(work)));
                 sdkSndStartStream(0, 0, 0, 6);
                 for (var_18_6 = 1; var_18_6 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_6++) {
