@@ -16,7 +16,7 @@ extern u8 *D_007246AC;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
-extern void func_00389cb0(u8 *arg0);
+extern void btlShuffleInitWaveStrips(u8 *arg0);
 
 extern u8 *iGpffffb5b0;
 extern u8 D_00794990[];
@@ -44,7 +44,7 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
 /* Source unit: src/promoted/code1_0038.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0038.c; members 0038dd90-0038dd90 */
 
-extern void func_00389cb0(u8 *arg0);
+extern void btlShuffleInitWaveStrips(u8 *arg0);
 /* measured: opt_rebuildconditionals off preserves the retail positive branch. */
 /* measured: restore conditional rebuilding after this function. */
 /* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */

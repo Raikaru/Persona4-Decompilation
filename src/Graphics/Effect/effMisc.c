@@ -47,7 +47,7 @@ extern void effMiscAxisAngleMatrix(f32 angle, const RwV3d* axis, RwMatrix* matri
 
 
 
-extern void func_0045b430(void);
+extern void mdlRenderInitializeBuffers(void);
 extern f32 D_008872F8_abs[];
 extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);

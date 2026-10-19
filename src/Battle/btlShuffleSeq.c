@@ -44,8 +44,8 @@ extern s32 btlShuffleSeq3Run(u8 *a);
 extern s32 btlShuffleSeq4Run(u8 *a);
 extern s32 btlShuffleSeq5Run(u8 *a);
 extern s32 btlShuffleResultSpawn(s32 a, s32 b, s32 c, s32 d);
-extern s32 func_00383c00(s32 a);
-extern s32 func_00383c20(s32 a);
+extern s32 btlShuffleRosterHasResult(s32 a);
+extern s32 btlShuffleRosterRequestResult(s32 a);
 extern void btlShuffleDrawReset(u8 *a);
 extern void btlShuffleDrawFrame(u8 *a);
 extern void btlShuffleDrawViewClearFlags(s32 a);
@@ -767,8 +767,8 @@ s32 btlShuffleSeqCardCount(u8 *arg0, s32 arg1) {
 
 // FUN_00379D70
 s32 btlShuffleSeqDispatch(u8 *arg0) {
-    if (func_00383c00(*(s32 *)(arg0 + 0x1F290)) != 0) {
-        s32 r = func_00383c20(*(s32 *)(arg0 + 0x1F290));
+    if (btlShuffleRosterHasResult(*(s32 *)(arg0 + 0x1F290)) != 0) {
+        s32 r = btlShuffleRosterRequestResult(*(s32 *)(arg0 + 0x1F290));
         *(s32 *)(arg0 + 0x1F290) = 0;
         switch (r) {
         case 1:

@@ -155,7 +155,7 @@ extern u8 D_00796460[];
 extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern void sdkSndInit(void);
 extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
-extern void func_0045b430(void);
+extern void mdlRenderInitializeBuffers(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void hMaestroCreateServicesTask(void);
 extern void func_00466680(void);

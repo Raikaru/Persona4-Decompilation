@@ -2,45 +2,47 @@
 
 #include "include_asm.h"
 #include "type.h"
-extern s32 btlShuffleDrawTableLookup(s32 arg0, s32 arg1);
-extern void btlShuffleDrawSetRotate(u8 *arg0, s32 arg1, f32 *arg2);
-extern s32 btlShuffleCalcUpdateSpeed(u8 *arg0, u8 *arg1);
-extern f32 RwV2dLength(f32 *arg0);
+#include "btl_shuffle_state_internal.h"
+extern s32 btlShuffleDrawTableLookup(s32 context, s32 gridIndex);
+extern void btlShuffleDrawSetRotate(u8 *context, s32 gridIndex, f32 *pose);
+extern s32 btlShuffleCalcUpdateSpeed(u8 *context, u8 *gridIndex);
+extern f32 RwV2dLength(f32 *context);
 #pragma push
 #pragma opt_propagation on
+/* Project every card and return the closest to the requested three-by-three grid point. */
 // FUN_0037ED90
-s32 btlShuffleSeqFindNearestCard(u8 *arg0, s32 arg1) {
+s32 btlShuffleSeqFindNearestCard(u8 *context, s32 gridIndex) {
     f32 work[4];
     f32 screen[2];
     f32 delta[2];
-    f32 target_x;
-    f32 best_dist;
-    f32 target_y;
-    f32 dist;
+    f32 targetX;
+    f32 bestDistance;
+    f32 targetY;
+    f32 distance;
     s32 count;
     s32 i;
     s32 best;
 
-    target_x = (f32)((arg1 / 3 - 1) * 0x6B) + 314.0f;
-    target_y = (f32)(arg1 % 3 - 1) * 120.0f + 236.0f;
-    count = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304),
-                          *(s32 *)(arg0 + 0x1F2FC));
-    btlShuffleDrawSetRotate(arg0, 0, work);
+    targetX = (f32)((gridIndex / 3 - 1) * 0x6B) + 314.0f;
+    targetY = (f32)(gridIndex % 3 - 1) * 120.0f + 236.0f;
+    count = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount,
+                          ((BtlShuffleContext *)context)->pattern);
+    btlShuffleDrawSetRotate(context, 0, work);
     btlShuffleCalcUpdateSpeed((u8 *)work, (u8 *)screen);
-    delta[0] = screen[0] - target_x;
-    delta[1] = screen[1] - target_y;
-    best_dist = RwV2dLength(delta);
+    delta[0] = screen[0] - targetX;
+    delta[1] = screen[1] - targetY;
+    bestDistance = RwV2dLength(delta);
     i = 1;
     best = 0;
     while (i < count) {
-        btlShuffleDrawSetRotate(arg0, i, work);
+        btlShuffleDrawSetRotate(context, i, work);
         btlShuffleCalcUpdateSpeed((u8 *)work, (u8 *)screen);
-        delta[0] = screen[0] - target_x;
-        delta[1] = screen[1] - target_y;
-        dist = RwV2dLength(delta);
-        if (dist < best_dist) {
+        delta[0] = screen[0] - targetX;
+        delta[1] = screen[1] - targetY;
+        distance = RwV2dLength(delta);
+        if (distance < bestDistance) {
             best = i;
-            best_dist = dist;
+            bestDistance = distance;
         }
         i++;
     }

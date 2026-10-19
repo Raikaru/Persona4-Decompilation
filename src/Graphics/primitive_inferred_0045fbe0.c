@@ -237,7 +237,7 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045fbe0-0045fbe0 */
 
 extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_0045b430(void);
+extern void mdlRenderInitializeBuffers(void);
 extern void PrimDrawFlatTriangle(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
 extern s32 kwlnGetCamera(void);
 #pragma push
