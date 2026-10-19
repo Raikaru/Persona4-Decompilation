@@ -5,6 +5,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+#include "rw_types_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
@@ -28,6 +29,10 @@ extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 
 
 /* 4-byte color, copied field-by-field by retail. */
 typedef EffMeshColor Color4;
+/* Five packed colors per 0x14-byte strip row; retail also copies RGBA bytes. */
+typedef struct EffThunderColorRow {
+    union { u32 packed; Color4 rgba; } colors[5];
+} EffThunderColorRow;
 extern s32 mdlEffectSamplePackedColor(u8 *parameters, u8 *baseColor, s32 age, s32 duration);
 extern void GeometryMatrixBuild(void *dst, void *obj, void *src, f32 scale);
 extern void func_003e9cb0(void *frame, void *matrix, s32 combineMode);
@@ -45,7 +50,7 @@ extern void GeometryBlockBindResource(void *geometry, u16 resource);
 // FUN_00495160
 u8 *ThunderGeometryCreate(u8 *parameters)
 {
-    /* Keep parameter/list/geometry/color byte accesses: typed layouts changed b210 codegen (parameter-only normalized_diff 767). */
+    /* Earlier parameter-only probe: normalized_diff 767; remaining raw sites are isolated below. */
     u32 rgb0;
     u32 rgb1;
     u32 rgb2;
@@ -70,40 +75,43 @@ u8 *ThunderGeometryCreate(u8 *parameters)
     f32 fade;
     u32 alpha;
 
-    copyCount = *(u32 *)(parameters + 0x38);
+    copyCount = ((EffThunderParameters *)parameters)->copies.value;
     chkmemAllocSiteTag(D_00713E50, 0x50);
     list = (*jtbl_008873E8)(copyCount * 0x10 + 4, 0x40000);
     if (list == 0) {
         kAssertFail(D_00713E50, 0x51);
     }
-    *(u8 **)(list + 0) = list + 4;
-    if (*(u32 *)(parameters + 0x3C) < 3) {
+    ((EffThunderList *)list)->entries = list + 4;
+    if (((EffThunderParameters *)parameters)->segments.value < 3) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         *(u32 *)(parameters + 0x3C) = 3;
     }
-    color0 = *(u32 *)(parameters + 0x70);
+    color0 = ((EffThunderParameters *)parameters)->centerColor;
     rgb0 = color0 & 0xFFFFFF;
-    color1 = *(u32 *)(parameters + 0x74);
+    color1 = ((EffThunderParameters *)parameters)->innerColor;
     rgb1 = color1 & 0xFFFFFF;
-    color2 = *(u32 *)(parameters + 0x78);
+    color2 = ((EffThunderParameters *)parameters)->outerColor;
     rgb2 = color2 & 0xFFFFFF;
     alpha0 = color0 >> 24;
     alpha1 = color1 >> 24;
     alpha2 = color2 >> 24;
-    entry = *(u8 **)list;
+    entry = ((EffThunderList *)list)->entries;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     sampleTotal = (f32)(*(s32 *)(parameters + 0x3C) + 1);
-    fadeStart = (s32)(*(f32 *)(parameters + 0x68) * sampleTotal);
-    endIndex = (s32)(*(f32 *)(parameters + 0x6C) * sampleTotal);
+    fadeStart = (s32)(((EffThunderParameters *)parameters)->fadeStart * sampleTotal);
+    endIndex = (s32)(((EffThunderParameters *)parameters)->fadeEnd * sampleTotal);
     fadeEnd = (u32)endIndex;
     copyIndex = 0;
     while (copyIndex < copyCount) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
-        *(u8 **)entry = geometry;
-        sampleCount = *(s16 *)(geometry + 8) / 5;
+        ((EffThunderBolt *)entry)->geometry = geometry;
+        sampleCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
         {
             u32 sampleIndex;
             u8 *colors;
 
-            colors = *(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x30);
+            colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
             sampleIndex = 0;
             fadeOutCount = sampleCount - (s32)fadeEnd;
             while (sampleIndex < (u32)sampleCount) {
@@ -120,20 +128,21 @@ u8 *ThunderGeometryCreate(u8 *parameters)
                 }
                 scaledAlpha = (f32)alpha2 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)colors = rgb2 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[0].packed = rgb2 | ((u32)alpha << 24);
                 scaledAlpha = (f32)alpha1 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)(colors + 4) = rgb1 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[1].packed = rgb1 | ((u32)alpha << 24);
                 scaledAlpha = (f32)alpha0 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)(colors + 8) = rgb0 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[2].packed = rgb0 | ((u32)alpha << 24);
                 {
                     Color4 color1;
                     Color4 color0;
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     color1 = *(Color4 *)(colors + 4);
-                    *(Color4 *)(colors + 12) = color1;
-                    color0 = *(Color4 *)colors;
-                    *(Color4 *)(colors + 16) = color0;
+                    ((EffThunderColorRow *)colors)->colors[3].rgba = color1;
+                    color0 = ((EffThunderColorRow *)colors)->colors[0].rgba;
+                    ((EffThunderColorRow *)colors)->colors[4].rgba = color0;
                 }
                 sampleIndex += 1;
                 colors += 0x14;
@@ -142,9 +151,9 @@ u8 *ThunderGeometryCreate(u8 *parameters)
         {
             s32 value = -1;
             value -= (s32)(copyIndex * 4);
-            *(s32 *)(entry + 4) = value;
+            ((EffThunderBolt *)entry)->age = value;
         }
-        *(s32 *)(entry + 0xC) = 0;
+        *(s32 *)&((EffThunderBolt *)entry)->baseAngle = 0;
         copyIndex += 1;
         entry += 0x10;
     }
@@ -191,7 +200,7 @@ static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
 // FUN_004956B0
 void ThunderBoltUpdateStrip(u8 *effect)
 {
-    /* Keep bolt/geometry/vertex byte accesses: typed layouts changed b210 codegen (normalized_diff 1277). */
+    /* Earlier whole-layout probe: normalized_diff 1277; remaining raw sites are isolated below. */
     extern void mdlEffectCopyCameraOrigin(f32 *origin);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
@@ -257,7 +266,7 @@ void ThunderBoltUpdateStrip(u8 *effect)
 
     block = ((EffThunderInstance *)effect)->work.bytes;
     parameters = ((EffThunderInstance *)effect)->parameters.bytes;
-    bolt = *(u8 **)block;
+    bolt = ((EffThunderList *)block)->entries;
     if ((((EffThunderParameters *)parameters)->duration.value < ((EffThunderInstance *)effect)->age.value) && (((EffThunderParameters *)parameters)->duration.value != 0)) {
         return;
     }
@@ -299,30 +308,34 @@ void ThunderBoltUpdateStrip(u8 *effect)
     jitterBase = 0.25f;
     half = 0.5f;
     for (; copyIndex < copyCount; copyIndex++, bolt += 0x10) {
-        if (*(s32 *)(bolt + 4) == -1) {
-            *(s32 *)(bolt + 8) = -1;
+        if (((EffThunderBolt *)bolt)->age == -1) {
+            ((EffThunderBolt *)bolt)->color.signedValue = -1;
             goto advance;
         }
         length = (lengthScale * ((one - lengthSpread) + lengthSpread * effMiscRandFloat(0))) / segmentScale;
-        base = *(f32 *)(bolt + 0xC);
+        base = ((EffThunderBolt *)bolt)->baseAngle;
         if ((effMiscRand(0) & 1) != 0) {
             length = length * negone;
         }
         offset = length;
-        state = *(u32 *)(bolt + 8);
+        state = ((EffThunderBolt *)bolt)->color.value;
         if ((state & 0xFF000000) > 0x40000000U) {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             *(u32 *)(bolt + 8) = state + 0xC0000000;
         } else {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             *(s32 *)(bolt + 4) = -1;
             if (respawnRange > 0) {
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 *(s32 *)(bolt + 4) = *(s32 *)(bolt + 4) - effMiscRand(0) % respawnRange;
             }
             continue;
         }
-        geometry = *(u8 **)bolt;
-        rowCount = *(s16 *)(geometry + 8) / 5;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(geometry + 0x10) + 0x18), 2);
-        vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x5C) + 0x14);
+        geometry = ((EffThunderBolt *)bolt)->geometry;
+        rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
         if ((effMiscRand(0) & 1) != 0) {
             amplitude = amplitude * negone;
         }
@@ -363,41 +376,41 @@ void ThunderBoltUpdateStrip(u8 *effect)
                 "vmove.xyzw $vf11, $vf12\n" : : : "$vf10", "$vf11");
             effectVuScale10(outer);
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x0) = D_00713D10[0];
-            *(f32 *)(vertices + 0x4) = D_00713D14[0];
-            *(f32 *)(vertices + 0x8) = D_00713D18[0];
+            ((RwV3d *)vertices)[0].x = D_00713D10[0];
+            ((RwV3d *)vertices)[0].y = D_00713D14[0];
+            ((RwV3d *)vertices)[0].z = D_00713D18[0];
             __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x30) = D_00713D10[0];
-            *(f32 *)(vertices + 0x34) = D_00713D14[0];
-            *(f32 *)(vertices + 0x38) = D_00713D18[0];
+            ((RwV3d *)vertices)[4].x = D_00713D10[0];
+            ((RwV3d *)vertices)[4].y = D_00713D14[0];
+            ((RwV3d *)vertices)[4].z = D_00713D18[0];
             effectVuScale11(inner);
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0xC) = D_00713D10[0];
-            *(f32 *)(vertices + 0x10) = D_00713D14[0];
-            *(f32 *)(vertices + 0x14) = D_00713D18[0];
+            ((RwV3d *)vertices)[1].x = D_00713D10[0];
+            ((RwV3d *)vertices)[1].y = D_00713D14[0];
+            ((RwV3d *)vertices)[1].z = D_00713D18[0];
             __asm__ volatile("vsub.xyz $vf11, $vf0, $vf11" : : : "$vf11");
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x24) = D_00713D10[0];
-            *(f32 *)(vertices + 0x28) = D_00713D14[0];
-            *(f32 *)(vertices + 0x2C) = D_00713D18[0];
-            *(f32 *)(vertices + 0x18) = zero;
-            *(f32 *)(vertices + 0x1C) = zero;
-            *(f32 *)(vertices + 0x20) = zero;
+            ((RwV3d *)vertices)[3].x = D_00713D10[0];
+            ((RwV3d *)vertices)[3].y = D_00713D14[0];
+            ((RwV3d *)vertices)[3].z = D_00713D18[0];
+            ((RwV3d *)vertices)[2].x = zero;
+            ((RwV3d *)vertices)[2].y = zero;
+            ((RwV3d *)vertices)[2].z = zero;
             __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11");
             effectVuScale11(previous);
         }
         for (columnIndex = 0; columnIndex < 5; columnIndex++) {
             u8 *vertex = vertices + columnIndex * 12;
-            D_00713D10[0] = *(f32 *)(vertex + 0x0);
-            D_00713D14[0] = *(f32 *)(vertex + 0x4);
-            D_00713D18[0] = *(f32 *)(vertex + 0x8);
+            D_00713D10[0] = ((RwV3d *)vertex)[0].x;
+            D_00713D14[0] = ((RwV3d *)vertex)[0].y;
+            D_00713D18[0] = ((RwV3d *)vertex)[0].z;
             effectVuLoad10((EffectVuVector *)D_00713D10);
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertex + 0x0) = D_00713D10[0];
-            *(f32 *)(vertex + 0x4) = D_00713D14[0];
-            *(f32 *)(vertex + 0x8) = D_00713D18[0];
+            ((RwV3d *)vertex)[0].x = D_00713D10[0];
+            ((RwV3d *)vertex)[0].y = D_00713D14[0];
+            ((RwV3d *)vertex)[0].z = D_00713D18[0];
             drift[columnIndex] = zero;
         }
         vertices += 0x3C;
@@ -441,26 +454,26 @@ void ThunderBoltUpdateStrip(u8 *effect)
                 drift[nextColumnIndex] = drift[nextColumnIndex] + step;
                 __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11");
                 vertex = vertices + nextColumnIndex * 12;
-                D_00713D10[0] = *(f32 *)(vertex - 0x3C);
-                D_00713D14[0] = *(f32 *)(vertex - 0x38);
-                D_00713D18[0] = *(f32 *)(vertex - 0x34);
+                D_00713D10[0] = ((RwV3d *)vertex)[-5].x;
+                D_00713D14[0] = ((RwV3d *)vertex)[-5].y;
+                D_00713D18[0] = ((RwV3d *)vertex)[-5].z;
                 effectVuLoad10((EffectVuVector *)D_00713D10);
                 effectVuScale11(hypot + drift[nextColumnIndex]);
                 __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                 __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-                *(f32 *)(vertex + 0x0) = D_00713D10[0];
-                *(f32 *)(vertex + 0x4) = D_00713D14[0];
-                *(f32 *)(vertex + 0x8) = D_00713D18[0];
+                ((RwV3d *)vertex)[0].x = D_00713D10[0];
+                ((RwV3d *)vertex)[0].y = D_00713D14[0];
+                ((RwV3d *)vertex)[0].z = D_00713D18[0];
                 drift[nextColumnIndex] = step;
             }
         }
-        vertices = *(u8 **)(*(u8 **)(geometry + 0x10) + 0x18);
+        vertices = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry;
         func_003c22f0(vertices);
-        if ((*(u16 *)geometry & 4) != 0) {
-            *(u16 *)(vertices + 0xC) |= 1;
+        if ((((EffGeometryBlock *)geometry)->kind & 4) != 0) {
+            ((RpGeometry *)vertices)->lockedSinceLastInst |= 1;
         }
 advance:
-        *(s32 *)(bolt + 4) = *(s32 *)(bolt + 4) + 1;
+        ((EffThunderBolt *)bolt)->age = ((EffThunderBolt *)bolt)->age + 1;
     }
 }
 #pragma pop
@@ -490,7 +503,7 @@ void ThunderBoltWriteRows(u8 *effect)
 
     block = ((EffThunderInstance *)effect)->work.bytes;
     parameters = ((EffThunderInstance *)effect)->parameters.bytes;
-    bolt = *(u8 **)block;
+    bolt = ((EffThunderList *)block)->entries;
     age = ((EffThunderInstance *)effect)->age.signedValue;
     durationOrCopies = ((EffThunderParameters *)parameters)->duration.signedValue;
     if ((durationOrCopies >= age) || (durationOrCopies == 0))
@@ -539,8 +552,7 @@ void ThunderBoltWriteRows(u8 *effect)
             if (((EffThunderBolt *)bolt)->age > 0)
             {
                 geometry = ((EffThunderBolt *)bolt)->geometry;
-                /* Shared EffGeometryBlock omits the frame pointer at +0xC; keep its ABI access local. */
-                func_003e9cb0(*(void **)(geometry + 0xC), &matrix[0], 0);
+                func_003e9cb0(((EffGeometryBlock *)geometry)->frame, &matrix[0], 0);
                 boltColor = ((EffThunderBolt *)bolt)->color.signedValue;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -586,11 +598,11 @@ void ThunderBoltWriteRows(u8 *effect)
                 }
                 if (((EffThunderParameters *)parameters)->visible != 0)
                 {
-                    *(u16 *)geometry = *(u16 *)geometry | 1;
+                    ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind | 1;
                 }
                 else
                 {
-                    *(u16 *)geometry = *(u16 *)geometry & 0xFFFE;
+                    ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind & 0xFFFE;
                 }
                 {
                     s32 resource = ((EffThunderParameters *)parameters)->resource;
@@ -657,7 +669,7 @@ void ThunderBoltInitFade(u8 *effect)
 // FUN_00496340
 u8 *ThunderGeometryCreatePadded(u8 *parameters)
 {
-    /* Keep parameter/list/geometry/color byte accesses: typed layouts changed b210 codegen (parameter-only normalized_diff 762). */
+    /* Earlier parameter-only probe: normalized_diff 762; remaining raw sites are isolated below. */
     u32 rgb0;
     u32 rgb1;
     u32 rgb2;
@@ -682,41 +694,44 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
     f32 fade;
     u32 alpha;
 
-    copyCount = *(u32 *)(parameters + 0x38);
+    copyCount = ((EffThunderParameters *)parameters)->copies.value;
     chkmemAllocSiteTag(D_00713E50, 0x2B5);
     list = (*jtbl_008873E8)(copyCount * 0x30 + 0x10, 0x40000);
     if (list == 0) {
         kAssertFail(D_00713E50, 0x2B6);
     }
-    *(u8 **)(list + 0) = list + 0x10;
-    *(u8 **)(list + 0x0C) = list;
-    if (*(u32 *)(parameters + 0x3C) < 3) {
+    ((EffThunderOrbitList *)list)->entries = list + 0x10;
+    ((EffThunderOrbitList *)list)->allocation = list;
+    if (((EffThunderParameters *)parameters)->segments.value < 3) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         *(u32 *)(parameters + 0x3C) = 3;
     }
-    color0 = *(u32 *)(parameters + 0x70);
+    color0 = ((EffThunderParameters *)parameters)->centerColor;
     rgb0 = color0 & 0xFFFFFF;
-    color1 = *(u32 *)(parameters + 0x74);
+    color1 = ((EffThunderParameters *)parameters)->innerColor;
     rgb1 = color1 & 0xFFFFFF;
-    color2 = *(u32 *)(parameters + 0x78);
+    color2 = ((EffThunderParameters *)parameters)->outerColor;
     rgb2 = color2 & 0xFFFFFF;
     alpha0 = color0 >> 24;
     alpha1 = color1 >> 24;
     alpha2 = color2 >> 24;
-    entry = *(u8 **)list;
+    entry = ((EffThunderOrbitList *)list)->entries;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     sampleTotal = (f32)(*(s32 *)(parameters + 0x3C) + 1);
-    fadeStart = (s32)(*(f32 *)(parameters + 0x68) * sampleTotal);
-    endIndex = (s32)(*(f32 *)(parameters + 0x6C) * sampleTotal);
+    fadeStart = (s32)(((EffThunderParameters *)parameters)->fadeStart * sampleTotal);
+    endIndex = (s32)(((EffThunderParameters *)parameters)->fadeEnd * sampleTotal);
     fadeEnd = (u32)endIndex;
     copyIndex = 0;
     while (copyIndex < copyCount) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
-        *(u8 **)entry = geometry;
-        sampleCount = *(s16 *)(geometry + 8) / 5;
+        ((EffThunderOrbitBolt *)entry)->geometry = geometry;
+        sampleCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
         {
             u32 sampleIndex;
             u8 *colors;
 
-            colors = *(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x30);
+            colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
             sampleIndex = 0;
             fadeOutCount = sampleCount - (s32)fadeEnd;
             while (sampleIndex < (u32)sampleCount) {
@@ -733,20 +748,21 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
                 }
                 scaledAlpha = (f32)alpha2 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)colors = rgb2 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[0].packed = rgb2 | ((u32)alpha << 24);
                 scaledAlpha = (f32)alpha1 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)(colors + 4) = rgb1 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[1].packed = rgb1 | ((u32)alpha << 24);
                 scaledAlpha = (f32)alpha0 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)(colors + 8) = rgb0 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[2].packed = rgb0 | ((u32)alpha << 24);
                 {
                     Color4 color1;
                     Color4 color0;
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     color1 = *(Color4 *)(colors + 4);
-                    *(Color4 *)(colors + 12) = color1;
-                    color0 = *(Color4 *)colors;
-                    *(Color4 *)(colors + 16) = color0;
+                    ((EffThunderColorRow *)colors)->colors[3].rgba = color1;
+                    color0 = ((EffThunderColorRow *)colors)->colors[0].rgba;
+                    ((EffThunderColorRow *)colors)->colors[4].rgba = color0;
                 }
                 sampleIndex += 1;
                 colors += 0x14;
@@ -755,7 +771,7 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
         {
             s32 value = -1;
             value -= (s32)(copyIndex * 4);
-            *(s32 *)(entry + 0x14) = value;
+            ((EffThunderOrbitBolt *)entry)->age = value;
         }
         copyIndex += 1;
         entry += 0x30;
@@ -801,7 +817,7 @@ void ThunderPaddedGeometryDestroy(u8 *effect)
 // FUN_004968A0
 void ThunderOrbitBoltUpdateStrip(u8 *effect)
 {
-    /* Keep bolt/geometry/vertex byte accesses: typed layouts changed b210 codegen (normalized_diff 1868). */
+    /* Earlier whole-layout probe: normalized_diff 1868; remaining raw sites are isolated below. */
     extern void mdlEffectCopyCameraOrigin(f32 *origin);
     extern f32 sinf(f32 angle);
     extern f32 cosf(f32 angle);
@@ -882,7 +898,7 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
 
     block = ((EffThunderInstance *)effect)->work.bytes;
     parameters = ((EffThunderInstance *)effect)->parameters.bytes;
-    bolt = *(u8 **)block;
+    bolt = ((EffThunderOrbitList *)block)->entries;
     if ((((EffThunderParameters *)parameters)->duration.value < ((EffThunderInstance *)effect)->age.value) && (((EffThunderParameters *)parameters)->duration.value != 0)) {
         return;
     }
@@ -912,8 +928,8 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
     one = 1.0f;
     delta.lane[3] = 1.0f;
     point.lane[3] = 1.0f;
-    radius = *(f32 *)(block + 4);
-    *(f32 *)(block + 4) = radius + *(f32 *)(block + 8);
+    radius = ((EffThunderOrbitList *)block)->radius;
+    ((EffThunderOrbitList *)block)->radius = radius + ((EffThunderOrbitList *)block)->radiusStep;
     copyIndex = 0;
     half = 0.5f;
     two = 2.0f;
@@ -927,22 +943,25 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
     jitterRange = 0.75f;
     jitterBase = 0.25f;
     for (; copyIndex < copyCount; copyIndex++, bolt += 0x30) {
-        if (*(s32 *)(bolt + 0x14) == -1) {
+        if (((EffThunderOrbitBolt *)bolt)->age == -1) {
             f32 t = ((EffThunderOrbitParameters *)parameters)->orbitSpeedSpread;
 
-            *(f32 *)(bolt + 0x24) = ((EffThunderOrbitParameters *)parameters)->orbitSpeed * ((one - t) + t * effMiscRandFloat(0));
-            *(f32 *)(bolt + 0x28) = zero;
+            ((EffThunderOrbitBolt *)bolt)->speed = ((EffThunderOrbitParameters *)parameters)->orbitSpeed * ((one - t) + t * effMiscRandFloat(0));
+            ((EffThunderOrbitBolt *)bolt)->angle = zero;
             if (mode == 0) {
-                *(f32 *)(bolt + 0x1C) = twoPi * (two * (effMiscRandFloat(0) - half));
-                *(f32 *)(bolt + 0x2C) = zero;
+                ((EffThunderOrbitBolt *)bolt)->tilt = twoPi * (two * (effMiscRandFloat(0) - half));
+                ((EffThunderOrbitBolt *)bolt)->height = zero;
             } else {
-                *(f32 *)(bolt + 0x1C) = tilt * (two * (effMiscRandFloat(0) - half));
-                *(f32 *)(bolt + 0x2C) = ((EffThunderOrbitParameters *)parameters)->heightRange * effMiscRandFloat(0);
+                ((EffThunderOrbitBolt *)bolt)->tilt = tilt * (two * (effMiscRandFloat(0) - half));
+                ((EffThunderOrbitBolt *)bolt)->height = ((EffThunderOrbitParameters *)parameters)->heightRange * effMiscRandFloat(0);
             }
-            *(f32 *)(bolt + 0x20) = twoPi * (two * (effMiscRandFloat(0) - half));
+            ((EffThunderOrbitBolt *)bolt)->yaw = twoPi * (two * (effMiscRandFloat(0) - half));
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             effMiscRotateXVU(*(f32 *)(bolt + 0x1C));
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             effMiscRotateYVU(*(f32 *)(bolt + 0x20));
             effMiscCombineRotationVU();
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             angle = *(f32 *)(bolt + 0x28);
             point.lane[0] = radius * cosf(angle);
             point.lane[1] = zero;
@@ -953,26 +972,30 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
                 "vmadday.xyzw $ACC, $vf29, $vf10y\n"
                 "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
             effectVuStore10(&point);
-            *(f32 *)(bolt + 0x4) = point.lane[0];
-            *(f32 *)(bolt + 0x8) = point.lane[1];
-            *(f32 *)(bolt + 0xC) = point.lane[2];
-            *(s32 *)(bolt + 0x18) = -1;
+            ((EffThunderOrbitBolt *)bolt)->previousPosition[0] = point.lane[0];
+            ((EffThunderOrbitBolt *)bolt)->previousPosition[1] = point.lane[1];
+            ((EffThunderOrbitBolt *)bolt)->previousPosition[2] = point.lane[2];
+            ((EffThunderOrbitBolt *)bolt)->color.signedValue = -1;
             goto advance;
         }
-        state = *(u32 *)(bolt + 0x18);
+        state = ((EffThunderOrbitBolt *)bolt)->color.value;
         if ((state & 0xFF000000) > 0x40000000U) {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             *(u32 *)(bolt + 0x18) = state + 0xC0000000;
         } else {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             *(s32 *)(bolt + 0x14) = -1;
             if (respawnRange > 0) {
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 *(s32 *)(bolt + 0x14) = *(s32 *)(bolt + 0x14) - effMiscRand(0) % respawnRange;
             }
             continue;
         }
-        geometry = *(u8 **)bolt;
-        rowCount = *(s16 *)(geometry + 8) / 5;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(geometry + 0x10) + 0x18), 2);
-        vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x5C) + 0x14);
+        geometry = ((EffThunderOrbitBolt *)bolt)->geometry;
+        rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
         if ((effMiscRand(0) & 1) != 0) {
             amplitude = amplitude * negone;
         }
@@ -992,13 +1015,14 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
         }
         drop = dropScale * (dropBase + dropRange * effMiscRandFloat(0));
         {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             f32 t = (f32)(*(s32 *)(bolt + 0x14) + 1);
 
-            orbit = t * (*(f32 *)(bolt + 0x24) + half * (spin * t));
-            orbit += *(f32 *)(bolt + 0x28);
+            orbit = t * (((EffThunderOrbitBolt *)bolt)->speed + half * (spin * t));
+            orbit += ((EffThunderOrbitBolt *)bolt)->angle;
         }
-        effMiscRotateXVU(*(f32 *)(bolt + 0x1C));
-        effMiscRotateYVU(*(f32 *)(bolt + 0x20));
+        effMiscRotateXVU(((EffThunderOrbitBolt *)bolt)->tilt);
+        effMiscRotateYVU(((EffThunderOrbitBolt *)bolt)->yaw);
         effMiscCombineRotationVU();
         point.lane[0] = radius * cosf(orbit);
         point.lane[1] = zero;
@@ -1019,9 +1043,9 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
             "vwaitq\n"
             "vmulq.xyz $vf10, $vf10, $Q\n" : : : "$vf2", "$vf10");
         effectVuStore10(&heading);
-        delta.lane[0] = position.lane[0] - *(f32 *)(bolt + 0x4);
-        delta.lane[1] = position.lane[1] - *(f32 *)(bolt + 0x8);
-        delta.lane[2] = position.lane[2] - *(f32 *)(bolt + 0xC);
+        delta.lane[0] = position.lane[0] - ((EffThunderOrbitBolt *)bolt)->previousPosition[0];
+        delta.lane[1] = position.lane[1] - ((EffThunderOrbitBolt *)bolt)->previousPosition[1];
+        delta.lane[2] = position.lane[2] - ((EffThunderOrbitBolt *)bolt)->previousPosition[2];
         effectVuLoad10(&delta);
         __asm__ volatile(
             "vmul.xyz $vf2, $vf10, $vf10\n"
@@ -1054,46 +1078,46 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
             "vmove.xyzw $vf11, $vf10\n" : : : "$vf2", "$vf10", "$vf11", "$vf12");
         effectVuScale10(outer);
         __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-        *(f32 *)(vertices + 0x0) = D_00713D10[0];
-        *(f32 *)(vertices + 0x4) = D_00713D14[0];
-        *(f32 *)(vertices + 0x8) = D_00713D18[0];
+        ((RwV3d *)vertices)[0].x = D_00713D10[0];
+        ((RwV3d *)vertices)[0].y = D_00713D14[0];
+        ((RwV3d *)vertices)[0].z = D_00713D18[0];
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10");
         __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-        *(f32 *)(vertices + 0x30) = D_00713D10[0];
-        *(f32 *)(vertices + 0x34) = D_00713D14[0];
-        *(f32 *)(vertices + 0x38) = D_00713D18[0];
+        ((RwV3d *)vertices)[4].x = D_00713D10[0];
+        ((RwV3d *)vertices)[4].y = D_00713D14[0];
+        ((RwV3d *)vertices)[4].z = D_00713D18[0];
         effectVuScale11(inner);
         __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-        *(f32 *)(vertices + 0xC) = D_00713D10[0];
-        *(f32 *)(vertices + 0x10) = D_00713D14[0];
-        *(f32 *)(vertices + 0x14) = D_00713D18[0];
+        ((RwV3d *)vertices)[1].x = D_00713D10[0];
+        ((RwV3d *)vertices)[1].y = D_00713D14[0];
+        ((RwV3d *)vertices)[1].z = D_00713D18[0];
         __asm__ volatile("vsub.xyz $vf11, $vf0, $vf11" : : : "$vf11");
         __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-        *(f32 *)(vertices + 0x24) = D_00713D10[0];
-        *(f32 *)(vertices + 0x28) = D_00713D14[0];
-        *(f32 *)(vertices + 0x2C) = D_00713D18[0];
-        *(f32 *)(vertices + 0x18) = zero;
-        *(f32 *)(vertices + 0x1C) = zero;
-        *(f32 *)(vertices + 0x20) = zero;
-        point.lane[1] = point.lane[1] + *(f32 *)(bolt + 0x2C);
+        ((RwV3d *)vertices)[3].x = D_00713D10[0];
+        ((RwV3d *)vertices)[3].y = D_00713D14[0];
+        ((RwV3d *)vertices)[3].z = D_00713D18[0];
+        ((RwV3d *)vertices)[2].x = zero;
+        ((RwV3d *)vertices)[2].y = zero;
+        ((RwV3d *)vertices)[2].z = zero;
+        point.lane[1] = point.lane[1] + ((EffThunderOrbitBolt *)bolt)->height;
         effectVuLoad11(&point);
         for (columnIndex = 0; columnIndex < 5; columnIndex++) {
             u8 *vertex = vertices + columnIndex * 12;
-            D_00713D10[0] = *(f32 *)(vertex + 0x0);
-            D_00713D14[0] = *(f32 *)(vertex + 0x4);
-            D_00713D18[0] = *(f32 *)(vertex + 0x8);
+            D_00713D10[0] = ((RwV3d *)vertex)[0].x;
+            D_00713D14[0] = ((RwV3d *)vertex)[0].y;
+            D_00713D18[0] = ((RwV3d *)vertex)[0].z;
             effectVuLoad10((EffectVuVector *)D_00713D10);
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertex + 0x0) = D_00713D10[0];
-            *(f32 *)(vertex + 0x4) = D_00713D14[0];
-            *(f32 *)(vertex + 0x8) = D_00713D18[0];
+            ((RwV3d *)vertex)[0].x = D_00713D10[0];
+            ((RwV3d *)vertex)[0].y = D_00713D14[0];
+            ((RwV3d *)vertex)[0].z = D_00713D18[0];
             drift[columnIndex] = zero;
         }
         vertices += 0x3C;
-        *(f32 *)(bolt + 0x4) = position.lane[0];
-        *(f32 *)(bolt + 0x8) = position.lane[1];
-        *(f32 *)(bolt + 0xC) = position.lane[2];
+        ((EffThunderOrbitBolt *)bolt)->previousPosition[0] = position.lane[0];
+        ((EffThunderOrbitBolt *)bolt)->previousPosition[1] = position.lane[1];
+        ((EffThunderOrbitBolt *)bolt)->previousPosition[2] = position.lane[2];
         for (rowIndex = 1; rowIndex < rowCount; rowIndex++, vertices += 0x3C) {
             f32 slope;
 
@@ -1156,26 +1180,26 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
                 drift[nextColumnIndex] = drift[nextColumnIndex] + offset;
                 __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11");
                 vertex = vertices + nextColumnIndex * 12;
-                D_00713D10[0] = *(f32 *)(vertex - 0x3C);
-                D_00713D14[0] = *(f32 *)(vertex - 0x38);
-                D_00713D18[0] = *(f32 *)(vertex - 0x34);
+                D_00713D10[0] = ((RwV3d *)vertex)[-5].x;
+                D_00713D14[0] = ((RwV3d *)vertex)[-5].y;
+                D_00713D18[0] = ((RwV3d *)vertex)[-5].z;
                 effectVuLoad10((EffectVuVector *)D_00713D10);
                 effectVuScale11(stepLength + drift[nextColumnIndex]);
                 __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                 __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-                *(f32 *)(vertex + 0x0) = D_00713D10[0];
-                *(f32 *)(vertex + 0x4) = D_00713D14[0];
-                *(f32 *)(vertex + 0x8) = D_00713D18[0];
+                ((RwV3d *)vertex)[0].x = D_00713D10[0];
+                ((RwV3d *)vertex)[0].y = D_00713D14[0];
+                ((RwV3d *)vertex)[0].z = D_00713D18[0];
                 drift[nextColumnIndex] = offset;
             }
         }
-        vertices = *(u8 **)(*(u8 **)(geometry + 0x10) + 0x18);
+        vertices = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry;
         func_003c22f0(vertices);
-        if ((*(u16 *)geometry & 4) != 0) {
-            *(u16 *)(vertices + 0xC) |= 1;
+        if ((((EffGeometryBlock *)geometry)->kind & 4) != 0) {
+            ((RpGeometry *)vertices)->lockedSinceLastInst |= 1;
         }
 advance:
-        *(s32 *)(bolt + 0x14) = *(s32 *)(bolt + 0x14) + 1;
+        ((EffThunderOrbitBolt *)bolt)->age = ((EffThunderOrbitBolt *)bolt)->age + 1;
     }
 }
 #pragma pop
@@ -1205,7 +1229,7 @@ void ThunderOrbitBoltWriteRows(u8 *effect)
 
     block = ((EffThunderInstance *)effect)->work.bytes;
     parameters = ((EffThunderInstance *)effect)->parameters.bytes;
-    bolt = *(u8 **)block;
+    bolt = ((EffThunderOrbitList *)block)->entries;
     age = ((EffThunderInstance *)effect)->age.signedValue;
     durationOrCopies = ((EffThunderParameters *)parameters)->duration.signedValue;
     if ((durationOrCopies >= age) || (durationOrCopies == 0))
@@ -1254,8 +1278,7 @@ void ThunderOrbitBoltWriteRows(u8 *effect)
             if (((EffThunderOrbitBolt *)bolt)->age > 0)
             {
                 geometry = ((EffThunderOrbitBolt *)bolt)->geometry;
-                /* Shared EffGeometryBlock omits the frame pointer at +0xC; keep its ABI access local. */
-                func_003e9cb0(*(void **)(geometry + 0xC), &matrix[0], 0);
+                func_003e9cb0(((EffGeometryBlock *)geometry)->frame, &matrix[0], 0);
                 boltColor = ((EffThunderOrbitBolt *)bolt)->color.signedValue;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -1301,11 +1324,11 @@ void ThunderOrbitBoltWriteRows(u8 *effect)
                 }
                 if (((EffThunderParameters *)parameters)->visible != 0)
                 {
-                    *(u16 *)geometry = *(u16 *)geometry | 1;
+                    ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind | 1;
                 }
                 else
                 {
-                    *(u16 *)geometry = *(u16 *)geometry & 0xFFFE;
+                    ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind & 0xFFFE;
                 }
                 {
                     s32 resource = ((EffThunderParameters *)parameters)->resource;
@@ -1351,7 +1374,7 @@ void ThunderPairedInitStates(u8 *effect)
 // FUN_00497750
 u8 *ThunderPairedGeometryCreate(u8 *parameters)
 {
-    /* Keep parameter/list/geometry/color byte accesses: typed layouts changed b210 codegen (parameter-only normalized_diff 804). */
+    /* Earlier parameter-only probe: normalized_diff 804; remaining raw sites are isolated below. */
     u32 rgb0;
     u32 rgb1;
     u32 rgb2;
@@ -1376,45 +1399,50 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
     f32 fade;
     u32 alpha;
 
-    copyCount = *(u32 *)(parameters + 0x38);
+    copyCount = ((EffThunderParameters *)parameters)->copies.value;
     chkmemAllocSiteTag(D_00713E50, 0x499);
     list = (*jtbl_008873E8)(copyCount * 0x0C + 4, 0x40000);
     if (list == 0) {
         kAssertFail(D_00713E50, 0x49A);
     }
-    *(u8 **)(list + 0) = list + 4;
-    if (*(u32 *)(parameters + 0x3C) < 3) {
+    ((EffThunderList *)list)->entries = list + 4;
+    if (((EffThunderParameters *)parameters)->segments.value < 3) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         *(u32 *)(parameters + 0x3C) = 3;
     }
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     if ((*(u32 *)(parameters + 0x3C) & 1) == 0) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         *(u32 *)(parameters + 0x3C) += 1;
     }
-    color0 = *(u32 *)(parameters + 0x70);
+    color0 = ((EffThunderParameters *)parameters)->centerColor;
     rgb0 = color0 & 0xFFFFFF;
-    color1 = *(u32 *)(parameters + 0x74);
+    color1 = ((EffThunderParameters *)parameters)->innerColor;
     rgb1 = color1 & 0xFFFFFF;
-    color2 = *(u32 *)(parameters + 0x78);
+    color2 = ((EffThunderParameters *)parameters)->outerColor;
     rgb2 = color2 & 0xFFFFFF;
     alpha0 = color0 >> 24;
     alpha1 = color1 >> 24;
     alpha2 = color2 >> 24;
-    entry = *(u8 **)list;
+    entry = ((EffThunderList *)list)->entries;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     sampleTotal = (f32)(*(s32 *)(parameters + 0x3C) + 1);
-    fadeStart = (s32)(*(f32 *)(parameters + 0x68) * sampleTotal);
-    endIndex = (s32)(*(f32 *)(parameters + 0x6C) * sampleTotal);
+    fadeStart = (s32)(((EffThunderParameters *)parameters)->fadeStart * sampleTotal);
+    endIndex = (s32)(((EffThunderParameters *)parameters)->fadeEnd * sampleTotal);
     fadeEnd = (u32)endIndex;
     /* Retail retains this initial value across geometry allocations. */
     fade = 0.0f;
     copyIndex = 0;
     while (copyIndex < copyCount) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
-        *(u8 **)entry = geometry;
-        sampleCount = *(s16 *)(geometry + 8) / 5;
+        ((EffThunderPairedBolt *)entry)->geometry = geometry;
+        sampleCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
         {
             u32 sampleIndex;
             u8 *colors;
 
-            colors = *(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x30);
+            colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
             sampleIndex = 0;
             fadeOutCount = sampleCount - (s32)fadeEnd;
             while (sampleIndex < (u32)sampleCount) {
@@ -1433,20 +1461,21 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
                 }
                 scaledAlpha = (f32)alpha2 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)colors = rgb2 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[0].packed = rgb2 | ((u32)alpha << 24);
                 scaledAlpha = (f32)alpha1 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)(colors + 4) = rgb1 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[1].packed = rgb1 | ((u32)alpha << 24);
                 scaledAlpha = (f32)alpha0 * fade;
                 alpha = (u32)scaledAlpha;
-                *(u32 *)(colors + 8) = rgb0 | ((u32)alpha << 24);
+                ((EffThunderColorRow *)colors)->colors[2].packed = rgb0 | ((u32)alpha << 24);
                 {
                     Color4 color1;
                     Color4 color0;
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     color1 = *(Color4 *)(colors + 4);
-                    *(Color4 *)(colors + 12) = color1;
-                    color0 = *(Color4 *)colors;
-                    *(Color4 *)(colors + 16) = color0;
+                    ((EffThunderColorRow *)colors)->colors[3].rgba = color1;
+                    color0 = ((EffThunderColorRow *)colors)->colors[0].rgba;
+                    ((EffThunderColorRow *)colors)->colors[4].rgba = color0;
                 }
                 colors += 0x14;
                 sampleIndex += 1;
@@ -1455,7 +1484,7 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
         {
             s32 value = -1;
             value -= (s32)(copyIndex * 4);
-            *(s32 *)(entry + 4) = value;
+            ((EffThunderPairedBolt *)entry)->age = value;
         }
         copyIndex += 1;
         entry += 0x0C;
@@ -1500,7 +1529,7 @@ void ThunderPairedGeometryDestroy(u8 *effect)
 // FUN_00497CE0
 void ThunderPairedUpdateStrip(u8 *effect)
 {
-    /* Keep bolt/geometry/vertex byte accesses: typed layouts changed b210 codegen (normalized_diff 1305). */
+    /* Earlier whole-layout probe: normalized_diff 1305; remaining raw sites are isolated below. */
     extern void mdlEffectCopyCameraOrigin(f32 *origin);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
@@ -1558,7 +1587,7 @@ void ThunderPairedUpdateStrip(u8 *effect)
 
     block = ((EffThunderInstance *)effect)->work.bytes;
     parameters = ((EffThunderInstance *)effect)->parameters.bytes;
-    bolt = *(u8 **)block;
+    bolt = ((EffThunderList *)block)->entries;
     if ((((EffThunderParameters *)parameters)->duration.value < ((EffThunderInstance *)effect)->age.value) && (((EffThunderParameters *)parameters)->duration.value != 0)) {
         return;
     }
@@ -1624,24 +1653,28 @@ void ThunderPairedUpdateStrip(u8 *effect)
     half = 0.5f;
     swing = fGpffff80d8;
     for (; copyIndex < copyCount; copyIndex++, bolt += 0xC) {
-        if (*(s32 *)(bolt + 4) == -1) {
-            *(u32 *)(bolt + 8) = invalid;
+        if (((EffThunderPairedBolt *)bolt)->age == -1) {
+            ((EffThunderPairedBolt *)bolt)->color.value = invalid;
             goto advance;
         }
-        state = *(u32 *)(bolt + 8);
+        state = ((EffThunderPairedBolt *)bolt)->color.value;
         if ((state & 0xFF000000) > 0x40000000U) {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             *(u32 *)(bolt + 8) = state + 0xC0000000;
         } else {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             *(s32 *)(bolt + 4) = -1;
             if (respawnRange > 0) {
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 *(s32 *)(bolt + 4) = *(s32 *)(bolt + 4) - effMiscRand(0) % respawnRange;
             }
             continue;
         }
-        geometry = *(u8 **)bolt;
-        rowCount = (*(s16 *)(geometry + 8) / 5) >> 1;
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(geometry + 0x10) + 0x18), 2);
-        vertices = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(geometry + 0x10) + 0x18) + 0x5C) + 0x14);
+        geometry = ((EffThunderPairedBolt *)bolt)->geometry;
+        rowCount = (((EffGeometryBlock *)geometry)->vertexCount / 5) >> 1;
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
         effectVuLoad10(&up);
         effectVuLoad11(&direction);
         __asm__ volatile(
@@ -1707,9 +1740,9 @@ void ThunderPairedUpdateStrip(u8 *effect)
             __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
             effectVuLoad10(&position);
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x18) = D_00713D10[0];
-            *(f32 *)(vertices + 0x1C) = D_00713D14[0];
-            *(f32 *)(vertices + 0x20) = D_00713D18[0];
+            ((RwV3d *)vertices)[2].x = D_00713D10[0];
+            ((RwV3d *)vertices)[2].y = D_00713D14[0];
+            ((RwV3d *)vertices)[2].z = D_00713D18[0];
             __asm__ volatile("vmove.xyzw $vf10, $vf11" : : : "$vf10");
             effectVuLoad11(&innerExtent);
             __asm__ volatile(
@@ -1720,16 +1753,16 @@ void ThunderPairedUpdateStrip(u8 *effect)
                 "vmove.xyzw $vf11, $vf10\n"
                 "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0xC) = D_00713D10[0];
-            *(f32 *)(vertices + 0x10) = D_00713D14[0];
-            *(f32 *)(vertices + 0x14) = D_00713D18[0];
+            ((RwV3d *)vertices)[1].x = D_00713D10[0];
+            ((RwV3d *)vertices)[1].y = D_00713D14[0];
+            ((RwV3d *)vertices)[1].z = D_00713D18[0];
             __asm__ volatile(
                 "vmove.xyzw $vf10, $vf12\n"
                 "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x24) = D_00713D10[0];
-            *(f32 *)(vertices + 0x28) = D_00713D14[0];
-            *(f32 *)(vertices + 0x2C) = D_00713D18[0];
+            ((RwV3d *)vertices)[3].x = D_00713D10[0];
+            ((RwV3d *)vertices)[3].y = D_00713D14[0];
+            ((RwV3d *)vertices)[3].z = D_00713D18[0];
             effectVuLoad10(&tangent);
             effectVuLoad11(&outerExtent);
             __asm__ volatile(
@@ -1740,16 +1773,16 @@ void ThunderPairedUpdateStrip(u8 *effect)
                 "vmove.xyzw $vf11, $vf10\n"
                 "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x0) = D_00713D10[0];
-            *(f32 *)(vertices + 0x4) = D_00713D14[0];
-            *(f32 *)(vertices + 0x8) = D_00713D18[0];
+            ((RwV3d *)vertices)[0].x = D_00713D10[0];
+            ((RwV3d *)vertices)[0].y = D_00713D14[0];
+            ((RwV3d *)vertices)[0].z = D_00713D18[0];
             __asm__ volatile(
                 "vmove.xyzw $vf10, $vf12\n"
                 "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x30) = D_00713D10[0];
-            *(f32 *)(vertices + 0x34) = D_00713D14[0];
-            *(f32 *)(vertices + 0x38) = D_00713D18[0];
+            ((RwV3d *)vertices)[4].x = D_00713D10[0];
+            ((RwV3d *)vertices)[4].y = D_00713D14[0];
+            ((RwV3d *)vertices)[4].z = D_00713D18[0];
             nextRow = vertices + 0x3C;
             {
                 u_long128 *dst = (u_long128 *)&previousTangent;
@@ -1767,9 +1800,9 @@ void ThunderPairedUpdateStrip(u8 *effect)
             }
             effectVuLoad10(&position);
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x54) = D_00713D10[0];
-            *(f32 *)(vertices + 0x58) = D_00713D14[0];
-            *(f32 *)(vertices + 0x5C) = D_00713D18[0];
+            ((RwV3d *)vertices)[7].x = D_00713D10[0];
+            ((RwV3d *)vertices)[7].y = D_00713D14[0];
+            ((RwV3d *)vertices)[7].z = D_00713D18[0];
             effectVuLoad10(&tangent);
             effectVuLoad11(&innerExtent);
             __asm__ volatile(
@@ -1780,16 +1813,16 @@ void ThunderPairedUpdateStrip(u8 *effect)
                 "vmove.xyzw $vf11, $vf10\n"
                 "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x48) = D_00713D10[0];
-            *(f32 *)(vertices + 0x4C) = D_00713D14[0];
-            *(f32 *)(vertices + 0x50) = D_00713D18[0];
+            ((RwV3d *)vertices)[6].x = D_00713D10[0];
+            ((RwV3d *)vertices)[6].y = D_00713D14[0];
+            ((RwV3d *)vertices)[6].z = D_00713D18[0];
             __asm__ volatile(
                 "vmove.xyzw $vf10, $vf12\n"
                 "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x60) = D_00713D10[0];
-            *(f32 *)(vertices + 0x64) = D_00713D14[0];
-            *(f32 *)(vertices + 0x68) = D_00713D18[0];
+            ((RwV3d *)vertices)[8].x = D_00713D10[0];
+            ((RwV3d *)vertices)[8].y = D_00713D14[0];
+            ((RwV3d *)vertices)[8].z = D_00713D18[0];
             effectVuLoad10(&tangent);
             effectVuLoad11(&outerExtent);
             __asm__ volatile(
@@ -1800,16 +1833,16 @@ void ThunderPairedUpdateStrip(u8 *effect)
                 "vmove.xyzw $vf11, $vf10\n"
                 "vadd.xyzw $vf10, $vf10, $vf12\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x3C) = D_00713D10[0];
-            *(f32 *)(vertices + 0x40) = D_00713D14[0];
-            *(f32 *)(vertices + 0x44) = D_00713D18[0];
+            ((RwV3d *)vertices)[5].x = D_00713D10[0];
+            ((RwV3d *)vertices)[5].y = D_00713D14[0];
+            ((RwV3d *)vertices)[5].z = D_00713D18[0];
             __asm__ volatile(
                 "vmove.xyzw $vf10, $vf12\n"
                 "vsub.xyzw $vf11, $vf11, $vf10\n" : : : "$vf10", "$vf11");
             __asm__ volatile("sqc2 $vf11, 0(%1)" : "=m"(*(EffectVuVector *)D_00713D10) : "r"(D_00713D10) : "memory");
-            *(f32 *)(vertices + 0x6C) = D_00713D10[0];
-            *(f32 *)(vertices + 0x70) = D_00713D14[0];
-            *(f32 *)(vertices + 0x74) = D_00713D18[0];
+            ((RwV3d *)vertices)[9].x = D_00713D10[0];
+            ((RwV3d *)vertices)[9].y = D_00713D14[0];
+            ((RwV3d *)vertices)[9].z = D_00713D18[0];
             vertices = nextRow + 0x3C;
             phase += sample;
             cycle += sample;
@@ -1894,21 +1927,21 @@ void ThunderPairedUpdateStrip(u8 *effect)
                     "vmulq.xyz $vf10, $vf10, $Q\n"
                     "vmove.xyzw $vf11, $vf12\n"
                     "vmul.xyzw $vf10, $vf10, $vf11\n" : : : "$vf2", "$vf10", "$vf11");
-                D_00713D10[0] = *(f32 *)(anchor + 0x0);
-                D_00713D14[0] = *(f32 *)(anchor + 0x4);
-                D_00713D18[0] = *(f32 *)(anchor + 0x8);
+                D_00713D10[0] = ((RwV3d *)anchor)[0].x;
+                D_00713D14[0] = ((RwV3d *)anchor)[0].y;
+                D_00713D18[0] = ((RwV3d *)anchor)[0].z;
                 effectVuLoad11((EffectVuVector *)D_00713D10);
                 __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                 effectVuStore10(&position);
             }
         }
-        vertices = *(u8 **)(*(u8 **)(geometry + 0x10) + 0x18);
+        vertices = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry;
         func_003c22f0(vertices);
-        if ((*(u16 *)geometry & 4) != 0) {
-            *(u16 *)(vertices + 0xC) |= 1;
+        if ((((EffGeometryBlock *)geometry)->kind & 4) != 0) {
+            ((RpGeometry *)vertices)->lockedSinceLastInst |= 1;
         }
 advance:
-        *(s32 *)(bolt + 4) = *(s32 *)(bolt + 4) + 1;
+        ((EffThunderPairedBolt *)bolt)->age = ((EffThunderPairedBolt *)bolt)->age + 1;
     }
 }
 #pragma pop
@@ -1938,7 +1971,7 @@ void ThunderPairedWriteRows(u8 *effect)
 
     block = ((EffThunderInstance *)effect)->work.bytes;
     parameters = ((EffThunderInstance *)effect)->parameters.bytes;
-    bolt = *(u8 **)block;
+    bolt = ((EffThunderList *)block)->entries;
     age = ((EffThunderInstance *)effect)->age.signedValue;
     durationOrCopies = ((EffThunderParameters *)parameters)->duration.signedValue;
     if ((durationOrCopies >= age) || (durationOrCopies == 0))
@@ -1987,8 +2020,7 @@ void ThunderPairedWriteRows(u8 *effect)
             if (((EffThunderPairedBolt *)bolt)->age > 0)
             {
                 geometry = ((EffThunderPairedBolt *)bolt)->geometry;
-                /* Shared EffGeometryBlock omits the frame pointer at +0xC; keep its ABI access local. */
-                func_003e9cb0(*(void **)(geometry + 0xC), &matrix[0], 0);
+                func_003e9cb0(((EffGeometryBlock *)geometry)->frame, &matrix[0], 0);
                 boltColor = ((EffThunderPairedBolt *)bolt)->color.signedValue;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -2034,11 +2066,11 @@ void ThunderPairedWriteRows(u8 *effect)
                 }
                 if (((EffThunderParameters *)parameters)->visible != 0)
                 {
-                    *(u16 *)geometry = *(u16 *)geometry | 1;
+                    ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind | 1;
                 }
                 else
                 {
-                    *(u16 *)geometry = *(u16 *)geometry & 0xFFFE;
+                    ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind & 0xFFFE;
                 }
                 {
                     s32 resource = ((EffThunderParameters *)parameters)->resource;

@@ -49,7 +49,9 @@ struct RpGeometry {
 
 typedef struct RpAtomic RpAtomic;
 struct RpAtomic {
-    u8 pad0[0x18];
+    u8 pad0[4];
+    void *frame; /* +0x04: object.object.parent in rw/world/baclump.h */
+    u8 pad8[0x10];
     RpGeometry *geometry;
 };
 
@@ -59,7 +61,8 @@ typedef struct EffGeometryBlock {
     u16 kind;
     u8 pad2[6];
     s16 vertexCount;
-    u8 padA[6];
+    u8 padA[2];
+    void *frame; /* +0x0C: frame passed to func_003e9cb0 by thunder draws */
     u8 *atomic;
     u8 *material;
     u8 pad18[0x30];
