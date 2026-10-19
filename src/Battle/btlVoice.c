@@ -1,79 +1,48 @@
 /* Source unit: src/Battle/btlVoice_001f99c0.c */
 #include "type.h"
-#include "btl_action_internal.h"
+#include "btl_voice_internal.h"
+#include "btl_effect_internal.h"
 
-typedef u32 (*BtlPacketUpdateFunc)(void* work);
-
-typedef struct BtlPacket {
-    u8 padding_00[0x47];
-    u8 unk_47;
-    u8 padding_48[0x24];
-    BtlPacketUpdateFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-typedef struct BtlVoicePacket001f99c0 {
-    BtlAction* action; // 0x00
-    u16 unk_04;        // 0x04: cue index, read unsigned by callback
-    u8 unkData1[2];
-    s32 unk_08;        // 0x08
-    s32 unk_0c;        // 0x0c
-    s16 unk_10;        // 0x10
-    u8 unkData2[2];
-    s32 unk_14;        // 0x14
-} BtlVoicePacket001f99c0;
-
-BtlPacket* btlPacketAlloc(u32 type, s32 workSize);
-u32 btlVoicePacketUpdate(void* work);
-
-typedef struct BtlVoicePacketA03Work {
-    u32 result;
-    u32 state;
-    u16 voiceId;
-} BtlVoicePacketA03Work;
-u32 btlVoiceIdPacketUpdate(BtlVoicePacketA03Work* work);
-
-typedef struct BtlCamera {
-    u8 padding_00[0xe0];
-    BtlAction* action;
-} BtlCamera;
-
+BtlPacket* btlPacketAlloc(s32 type, s32 workSize);
+s32 btlVoicePacketUpdate(void* work);
+s32 btlVoiceIdPacketUpdate(BtlVoiceIdWork* work);
 void btlCameraFrameUnitPair(BtlCamera* camera);
 
 
 
+/* Allocate an action-voice request; flags bit 0 leaves model talk state alone. */
 // FUN_001F99C0
-BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 param_2, s32 param_3,
-                                s32 param_4, s32 param_5)
+BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 callbackIndex, s32 argument,
+                                s32 extraArgument, s32 flags)
 {
     BtlPacket* packet;
-    BtlVoicePacket001f99c0* work;
+    BtlVoicePacketWork* work;
 
-    packet = btlPacketAlloc(0xa01, sizeof(BtlVoicePacket001f99c0));
-    packet->updateFunc = btlVoicePacketUpdate;
-    work = (BtlVoicePacket001f99c0*)packet->workData;
+    packet = btlPacketAlloc(0xa01, sizeof(BtlVoicePacketWork));
+    packet->updateFunc = (BtlPacketFunc)btlVoicePacketUpdate;
+    work = (BtlVoicePacketWork*)packet->workData;
     work->action = action;
-    work->unk_04 = param_2;
-    work->unk_08 = param_3;
-    work->unk_0c = param_4;
-    work->unk_10 = param_5;
-    work->unk_14 = 0;
+    work->callbackIndex = callbackIndex;
+    work->argument = argument;
+    work->extraArgument = extraArgument;
+    work->flags = flags;
+    work->started = 0;
     return packet;
 }
 
 
 
+/* Queue an ID-selected voice without the packet's default flag bit 0. */
 // FUN_001F9B80
 BtlPacket* btlVoiceCreateIdPacket(u16 voiceId)
 {
     BtlPacket* packet;
-    BtlVoicePacketA03Work* work;
+    BtlVoiceIdWork* work;
 
-    packet = btlPacketAlloc(0xa03, sizeof(BtlVoicePacketA03Work));
-    packet->unk_47 &= 0xfe;
-    packet->updateFunc = (BtlPacketUpdateFunc)btlVoiceIdPacketUpdate;
-    work = (BtlVoicePacketA03Work*)packet->workData;
+    packet = btlPacketAlloc(0xa03, sizeof(BtlVoiceIdWork));
+    packet->flags &= 0xfe;
+    packet->updateFunc = (BtlPacketFunc)btlVoiceIdPacketUpdate;
+    work = (BtlVoiceIdWork*)packet->workData;
     work->voiceId = voiceId;
     work->result = 0;
     work->state = 0;
@@ -82,8 +51,9 @@ BtlPacket* btlVoiceCreateIdPacket(u16 voiceId)
 
 
 
+/* Only nonparty, valid actions request actor/target-pair camera framing. */
 // FUN_00225E00
-void func_00225e00(BtlCamera* camera)
+void btlCameraFrameNonpartyActionPair(BtlCamera* camera)
 {
     BtlAction* action;
 
@@ -94,7 +64,7 @@ void func_00225e00(BtlCamera* camera)
     }
     return;
 }
-extern u8 *DAT_0076449c;
+extern u8 *DAT_0076449c; /* active battle context */
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 #pragma push
 #pragma opt_loop_invariants on
@@ -134,14 +104,14 @@ extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 #pragma opt_propagation on
 // Intent: Wait until the presentation is idle, then clear its flag. [inferred]
 // FUN_0022B040
-s32 btlEncounterWaitIdle(s64 *arg0)
+s32 btlEncounterWaitIdle(s64 *actionUid)
 {
-    u8 *temp_4;
+    u8 *battle;
 
-    if (btlUnitRecordFindByActionUID(*arg0,
+    if (btlUnitRecordFindByActionUID(*actionUid,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        temp_4 = DAT_0076449c;
-        *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;
+        battle = DAT_0076449c;
+        ((BtlBattleState *)battle)->flags &= 0xFFF7FFFF;
         return 0;
     }
     return 1;

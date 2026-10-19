@@ -10,6 +10,7 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
+#include "btl_unit_look_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -28,17 +29,17 @@ typedef struct DatUnit DatUnit;
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
-extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3c0;
-extern u8 *iGpffffb3cc;
+extern u8 *iGpffffb3ac; /* active battle context */
+extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
+extern u8 *iGpffffb3c0; /* party visual records, stride 0x14C */
+extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 
 
 extern u8 *iGpffff9db0;
-extern u8 *D_0076449C;
-extern u8 *iGpffffb3ac;
+extern u8 *D_0076449C; /* active battle context */
+extern u8 *iGpffffb3ac; /* active battle context */
 extern u8 *iGpffffb414;
-extern u8 *iGpffffb3e0;
+extern u8 *iGpffffb3e0; /* child visual records, stride 0x58 */
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
 extern s32 iGpffffb438;
@@ -192,75 +193,80 @@ extern u8 D_00794150[];
 #pragma pop
 /* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before mdlLookAtSetupSetRange. */
 #pragma push
+/* Aim the selected unit, or active party units, at the packet's world point.
+ * The selected action's unit gets the wider yaw range. */
 // FUN_0019DF20
-s32 btlUnitSetLookAtRanges(u8 *arg0)
+s32 btlUnitSetLookAtRanges(u8 *work)
 {
     u8 *unit;
 
-    if ((*(u16 *)(arg0 + 0x10) & 1) != 0) {
-        f32 angle1;
-        f32 angle2;
-        f32 call_angle1;
-        f32 call_angle2;
+    if ((((BtlUnitLookPointWork *)work)->flags & 1) != 0) {
+        f32 pitchLimit;
+        f32 yawLimit;
+        f32 callPitch;
+        f32 callYaw;
         s32 enabled;
 
-        unit = *(u8 **)(iGpffffb3ac + 0x17C);
+        unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
         while (unit != NULL) {
-            if ((*(s32 *)(unit + 0x9C) & 8) != 0) {
-                if (&angle1 != NULL) {
-                    angle1 = 70.0f;
+            if ((*(s32 *)&((BtlUnit *)unit)->flags3 & 8) != 0) {
+                if (&pitchLimit != NULL) {
+                    pitchLimit = 70.0f;
                 }
-                if (&angle2 != NULL) {
-                    angle2 =
-                        (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) ==
+                if (&yawLimit != NULL) {
+                    yawLimit =
+                        ((u8 *)((BtlAction *)((BtlBattleState *)iGpffffb3ac)->selectedAction)->unit ==
                          unit) ? 70.0f : 60.0f;
                 }
-                call_angle2 = angle2;
-                call_angle1 = angle1;
-                enabled = *(s32 *)(unit + 0x98) & 2;
+                callYaw = yawLimit;
+                callPitch = pitchLimit;
+                enabled = *(s32 *)&((BtlUnit *)unit)->flags2 & 2;
                 if (enabled != 0) {
-                    mdlLookAtSetupSetRange(*(u8 **)(unit + 0xA00), call_angle1, call_angle2);
+                    mdlLookAtSetupSetRange(((BtlUnit *)unit)->layerHandle, callPitch, callYaw);
                 }
-                if ((*(s32 *)(unit + 0x98) & 2) != 0) {
-                    mdlSetBlendWeight(*(u8 **)(unit + 0xA00), 0.25f);
+                /* measured: a second typed flags access retains unit+0x98 in s2 (536B vs 528B). */
+        if ((*(s32 *)(unit + 0x98) & 2) != 0) {
+                    mdlSetBlendWeight(((BtlUnit *)unit)->layerHandle, 0.25f);
                 }
-                *(s16 *)(unit + 0xB0) = 1;
-                *(P4_95730_Vec3 *)(unit + 0xB8) =
-                    *(P4_95730_Vec3 *)(arg0 + 4);
+                *(s16 *)&((BtlUnit *)unit)->lookAtMode = 1;
+                ((BtlUnit *)unit)->lookAtTargetPos =
+                    ((BtlUnitLookPointWork *)work)->point;
                 btlUnitApplyModelState(unit, 3);
             }
-            unit = *(u8 **)(unit + 0xA68);
+            unit = *(u8 **)&((BtlUnit *)unit)->prevUnit;
         }
     } else {
-        f32 angle1;
-        f32 angle2;
-        f32 call_angle1;
-        f32 call_angle2;
+        f32 pitchLimit;
+        f32 yawLimit;
+        f32 callPitch;
+        f32 callYaw;
         s32 enabled;
 
-        unit = *(u8 **)arg0;
-        if (&angle1 != NULL) {
-            angle1 = 70.0f;
+        unit = ((BtlUnitLookPointWork *)work)->unit;
+        if (&pitchLimit != NULL) {
+            pitchLimit = 70.0f;
         }
-        if (&angle2 != NULL) {
-            angle2 =
-                (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) == unit) ?
+        if (&yawLimit != NULL) {
+            yawLimit =
+                ((u8 *)((BtlAction *)((BtlBattleState *)iGpffffb3ac)->selectedAction)->unit == unit) ?
                 70.0f : 60.0f;
         }
-        call_angle2 = angle2;
-        call_angle1 = angle1;
-        enabled = *(s32 *)(unit + 0x98) & 2;
+        callYaw = yawLimit;
+        callPitch = pitchLimit;
+        enabled = *(s32 *)&((BtlUnit *)unit)->flags2 & 2;
         if (enabled != 0) {
-            mdlLookAtSetupSetRange(*(u8 **)(unit + 0xA00), call_angle1, call_angle2);
+            mdlLookAtSetupSetRange(((BtlUnit *)unit)->layerHandle, callPitch, callYaw);
         }
+        /* measured: a second typed flags access retains unit+0x98 in s2 (536B vs 528B). */
         if ((*(s32 *)(unit + 0x98) & 2) != 0) {
-            mdlSetBlendWeight(*(u8 **)(unit + 0xA00), 0.25f);
+            mdlSetBlendWeight(((BtlUnit *)unit)->layerHandle, 0.25f);
         }
-        *(s16 *)(unit + 0xB0) = 1;
-        *(P4_95730_Vec3 *)(unit + 0xB8) =
-            *(P4_95730_Vec3 *)(arg0 + 4);
+        *(s16 *)&((BtlUnit *)unit)->lookAtMode = 1;
+        ((BtlUnit *)unit)->lookAtTargetPos =
+            ((BtlUnitLookPointWork *)work)->point;
         btlUnitApplyModelState(unit, 3);
     }
     return 1;
 }
+#pragma pop
 

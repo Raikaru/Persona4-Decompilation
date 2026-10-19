@@ -9,6 +9,8 @@
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
+#include "btl_effect_internal.h"
+#include "dat_skill_entry_internal.h"
 typedef struct BtlPacket BtlPacket;
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
@@ -39,7 +41,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
     return btlPacketCreateEffectCounter(unit, message);
 }
-extern u8 *iGpffffb3cc;
+extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 extern f32 D_005F6D20[];
 
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
@@ -60,11 +62,11 @@ void btlActionFinishPresentation(BtlAction *action);
 BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 
-extern u8 *D_0076449C;
-extern u8 *iGpffffb3ac;
+extern u8 *D_0076449C; /* active battle context */
+extern u8 *iGpffffb3ac; /* active battle context */
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 
-extern u8 *iGpffffb3b8;
+extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
 u8 datCalcGetCharacterTableKind(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
@@ -92,115 +94,103 @@ extern f32 D_0076144C;
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: func_001a0140 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 btlActionAnyTargetDownOrHitFlagged(u8 *arg0)
+s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
 {
-    s32 i0;
+    /* measured: typed target-array indexing reverses two addu operands;
+     * the +0x38 array loads keep the retail base-first address shape. */
+    s32 targetIndex;
     u8 unitKind;
 
-    unitKind = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
+    unitKind = *(u8 *)&((BtlUnit *)(*(u8 **)&((BtlAction *)action)->unit))->genus;
     switch (unitKind) {
     case 0:
     {
-        s32 j0;
-        s32 n0;
-        s32 count0;
-        s32 mask0;
-        u8 *target0;
+        s32 hitIndex;
+        s32 targetCount;
+        s32 hitCount;
+        s32 statusMask;
+        u8 *target;
 
-        i0 = 0;
-        n0 = *(u16 *)(arg0 + 0x6A);
-        mask0 = 0x100000;
-        goto outer0_test;
-outer0_body:
-        target0 = *(u8 **)(arg0 + ((u16)i0 * 4) + 0x38);
-        count0 = target0[0xD9];
-        j0 = 0;
-        goto inner0_test;
-inner0_body:
-        if ((*(s32 *)(target0 + ((u16)j0 << 5) + 0xF8) & mask0) != 0) {
-            return 1;
+        targetIndex = 0;
+        targetCount = ((BtlAction *)action)->unk_6a;
+        statusMask = 0x100000;
+        while ((targetIndex & 0xFFFF) < targetCount) {
+            target = *(u8 **)(action + ((u16)targetIndex * 4) + 0x38);
+            hitCount = ((BtlAction *)target)->targetBlock.hitRowCount;
+            hitIndex = 0;
+            while ((hitIndex & 0xFFFF) < hitCount) {
+                if ((*(s32 *)&((BtlAction *)target)->targetBlock.hitRows[(u16)hitIndex].addedStatus & statusMask) != 0) {
+                    return 1;
+                }
+                hitIndex = (hitIndex + 1) & 0xFFFF;
+            }
+            targetIndex = (targetIndex + 1) & 0xFFFF;
         }
-        j0 = (j0 + 1) & 0xFFFF;
-inner0_test:
-        if ((j0 & 0xFFFF) < count0) {
-            goto inner0_body;
-        }
-        i0 = (i0 + 1) & 0xFFFF;
-outer0_test:
-        if ((i0 & 0xFFFF) >= n0) {
-            goto block_20;
-        }
-        goto outer0_body;
+        break;
     }
     case 1:
     {
-        s32 i1;
-        s32 j1;
-        s32 n1;
-        s32 count1;
-        u8 *target1;
+        s32 enemyTargetIndex;
+        s32 enemyHitIndex;
+        s32 enemyTargetCount;
+        s32 enemyHitCount;
+        u8 *enemyTarget;
 
-        i1 = 0;
-        n1 = *(u16 *)(arg0 + 0x6A);
-        goto outer1_test;
-outer1_body:
-        target1 = *(u8 **)(arg0 + ((u16)i1 * 4) + 0x38);
-        count1 = target1[0xD9];
-        j1 = 0;
-        goto inner1_test;
-inner1_body:
-        if ((*(u16 *)(target1 + ((u16)j1 << 5) + 0x10E) & 4) != 0) {
-            return 1;
+        enemyTargetIndex = 0;
+        enemyTargetCount = *(u16 *)&((BtlAction *)action)->unk_6a;
+        while ((enemyTargetIndex & 0xFFFF) < enemyTargetCount) {
+            enemyTarget = *(u8 **)(action + ((u16)enemyTargetIndex * 4) + 0x38);
+            enemyHitCount = ((BtlAction *)enemyTarget)->targetBlock.hitRowCount;
+            enemyHitIndex = 0;
+            while ((enemyHitIndex & 0xFFFF) < enemyHitCount) {
+                if ((((BtlAction *)enemyTarget)->targetBlock.hitRows[(u16)enemyHitIndex].flags & 4) != 0) {
+                    return 1;
+                }
+                enemyHitIndex = (enemyHitIndex + 1) & 0xFFFF;
+            }
+            enemyTargetIndex = (enemyTargetIndex + 1) & 0xFFFF;
         }
-        j1 = (j1 + 1) & 0xFFFF;
-inner1_test:
-        if ((j1 & 0xFFFF) < count1) {
-            goto inner1_body;
-        }
-        i1 = (i1 + 1) & 0xFFFF;
-outer1_test:
-        if ((i1 & 0xFFFF) < n1) {
-            goto outer1_body;
-        }
-        goto block_20;
+        break;
     }
     default:
-        goto block_20;
+        break;
     }
-block_20:
     return 0;
 }
 
 /* measured: close loop-invariant probe for 001A0140. */
+/* Choose the two effect indices from the action flags and unit category. */
 // FUN_001A0290
-void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2)
+void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices)
 {
+    /* measured: repeated typed output[1] stores retain output+2 in a saved
+     * register (300B vs 288B); keep the second output byte-addressed. */
     s32 slotOffset;
     s32 category;
     BtlUnit *battleUnit;
 
     if (action->flags & 0x4000) {
-        *(s16 *)arg2 = 0x24;
-        *(s16 *)(arg2 + 2) = -1;
+        ((s16 *)effectIndices)[0] = 0x24;
+        *(s16 *)(effectIndices + 2) = -1;
         return;
     }
-    *(s16 *)arg2 = 0;
-    *(s16 *)(arg2 + 2) = 3;
-    slotOffset = (arg1 & 0xFFFF) * 0x28;
-    if (*(u8 *)(iGpffffb3b8 + slotOffset) & 2) {
+    ((s16 *)effectIndices)[0] = 0;
+    *(s16 *)(effectIndices + 2) = 3;
+    slotOffset = (skillId & 0xFFFF) * 0x28;
+    if (((DatSkillEntry *)(iGpffffb3b8 + slotOffset))->flags00 & 2) {
         battleUnit = action->unit;
         if (battleUnit->genus == 0) {
-            category = datCalcGetCharacterTableKind(*(u8 **)((u8 *)battleUnit + 0xA64)) & 0xFF;
+            category = datCalcGetCharacterTableKind((u8 *)battleUnit->datUnit) & 0xFF;
             switch (category) {
             case 0:
             case 1:
             case 6:
-                *(s16 *)arg2 = 1;
-                *(s16 *)(arg2 + 2) = 4;
+                ((s16 *)effectIndices)[0] = 1;
+                *(s16 *)(effectIndices + 2) = 4;
                 return;
             case 5:
-                *(s16 *)arg2 = 2;
-                *(s16 *)(arg2 + 2) = 5;
+                ((s16 *)effectIndices)[0] = 2;
+                *(s16 *)(effectIndices + 2) = 5;
                 return;
             case 2:
             case 3:
@@ -210,17 +200,20 @@ void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2)
         } else {
             switch (battleUnit->charId) {
             case 0x109:
-                *(s16 *)arg2 = 2;
-                *(s16 *)(arg2 + 2) = 5;
+                ((s16 *)effectIndices)[0] = 2;
+                *(s16 *)(effectIndices + 2) = 5;
                 break;
             }
         }
     }
 }
 
+/* Enqueue the requested presentation cleanup packets with the action UID. */
 // FUN_001A03B0
 void btlActionFinishPresentation(BtlAction *action)
 {
+    /* measured: a repeated typed unit load saves listUnit+0x30 in s2
+     * (580B versus the 576B window); retain the second unit reload. */
     u8 *lookAtDeactivatePacket;
     u8 *ambientPacket;
     u8 *unitPacket;
@@ -234,77 +227,70 @@ void btlActionFinishPresentation(BtlAction *action)
     u8 *listUnit;
 
     battleCtx = D_0076449C;
-    if (*(s32 *)(battleCtx + 0xC) & 0x400000) {
-        if (*(u16 *)(battleCtx + 0x18) & 0x20) {
+    if (*(s32 *)&((BtlBattleState *)battleCtx)->flags & 0x400000) {
+        if (((BtlBattleState *)battleCtx)->actionEndFlags & 0x20) {
             lookAtDeactivatePacket = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
-            *(s64 *)(lookAtDeactivatePacket + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)lookAtDeactivatePacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(lookAtDeactivatePacket, 1);
         }
-        if (*(u16 *)(D_0076449C + 0x18) & 2) {
+        if (((BtlBattleState *)D_0076449C)->actionEndFlags & 2) {
             ambientPacket = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
-            *(s64 *)(ambientPacket + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)ambientPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(ambientPacket, 0);
         }
         battleCtxAlt = D_0076449C;
-        if (*(u16 *)(battleCtxAlt + 0x18) & 1) {
-            listUnit = *(u8 **)(battleCtxAlt + 0x174);
-            goto loop_test;
-loop_body:
-            if ((*(u16 *)(listUnit + 0x1A) & 1) &&
-                datCalcIsDead(*(s32 *)(*(u8 **)(listUnit + 0x30) + 0xA64), 0) == 0) {
-                unitPacket = btlUnitCreateMotionRequestPacket(*(u8 **)(listUnit + 0x30), 0);
-                *(s64 *)(unitPacket + 0x60) = *(s64 *)action;
-                btlPacketEnqueue(unitPacket, 0);
-            }
-            listUnit = *(u8 **)(listUnit + 0x450);
-loop_test:
-            if (listUnit != NULL) {
-                goto loop_body;
+        if (((BtlBattleState *)battleCtxAlt)->actionEndFlags & 1) {
+            listUnit = ((BtlBattleState *)battleCtxAlt)->actions;
+            while (listUnit != NULL) {
+                if ((((BtlAction *)listUnit)->unk_1a & 1) &&
+                    datCalcIsDead(*(s32 *)&((BtlUnit *)(*(u8 **)&((BtlAction *)listUnit)->unit))->datUnit, 0) == 0) {
+                    unitPacket = btlUnitCreateMotionRequestPacket(*(u8 **)(listUnit + 0x30), 0);
+                    *(s64 *)&((BtlPacket *)unitPacket)->actionUID = *(s64 *)action;
+                    btlPacketEnqueue(unitPacket, 0);
+                }
+                listUnit = *(u8 **)&((BtlAction *)listUnit)->next;
             }
         }
-        if (*(u16 *)(D_0076449C + 0x18) & 0x10) {
+        if (*(u16 *)&((BtlBattleState *)D_0076449C)->actionEndFlags & 0x10) {
             effectPacket = (u8 *)btlMainCreateColorSetPacket(0);
-            *(s64 *)(effectPacket + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)effectPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(effectPacket, 1);
         }
-        if (*(u16 *)(D_0076449C + 0x18) & 8) {
+        if (*(u16 *)&((BtlBattleState *)D_0076449C)->actionEndFlags & 8) {
             subPacket = (u8 *)btlEffectCreateReleasePacket(5);
-            *(s64 *)(subPacket + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)subPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(subPacket, 1);
         }
-        if (*(u16 *)(D_0076449C + 0x18) & 4) {
+        if (*(u16 *)&((BtlBattleState *)D_0076449C)->actionEndFlags & 4) {
             cameraPacket = (u8 *)btlCameraCreateSetStatePacket(action, 0x24);
-            *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)cameraPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(cameraPacket, 0);
         }
-        if (*(u16 *)(D_0076449C + 0x18) & 0x40) {
+        if (*(u16 *)&((BtlBattleState *)D_0076449C)->actionEndFlags & 0x40) {
             endPacket = btlPacketCreateFinishEffect();
-            *(s64 *)(endPacket + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)endPacket)->actionUID = *(s64 *)action;
             btlPacketEnqueue(endPacket, 0);
         }
-        *(u16 *)(D_0076449C + 0x18) = 0;
+        *(u16 *)&((BtlBattleState *)D_0076449C)->actionEndFlags = 0;
         battleCtxClear = D_0076449C;
-        *(s32 *)(battleCtxClear + 0xC) &= 0xFFBFFFFF;
+        *(s32 *)&((BtlBattleState *)battleCtxClear)->flags &= 0xFFBFFFFF;
     }
 }
 
+/* A valid action with a linked child is active when the child's model is loaded. */
 // FUN_001A05F0
 s32 btlActionLinkedUnitIsActive(BtlAction *action) {
     u16 flags;
     u8 *unitState;
 
     flags = action->unk_1a;
-    if (flags & 1) {
-        goto cont1;
+    if ((flags & 1) == 0) {
+        return 0;
     }
-    return 0;
-cont1:
-    unitState = *(u8 **)((u8 *)action->unit + 0xA0C);
-    if (flags & 0x10) {
-        goto cont2;
+    unitState = (u8 *)action->unit->childUnit;
+    if ((flags & 0x10) == 0) {
+        return 0;
     }
-    return 0;
-cont2:
-    return (*(s32 *)(unitState + 0x98) & 2) != 0;
+    return (*(s32 *)&((BtlUnit *)unitState)->flags2 & 2) != 0;
 }
 

@@ -452,7 +452,7 @@ void btlActionCommandUpdate(u8 *action)
     u8 *cameraPacket;
     u8 *actionCursor;
 
-    func_0019fc60();
+    btlUnitNoop();
     btlUnitTickIdleAnims();
     btlDamageSetActive(((BtlBattleState *)iGpffffb3ac)->uiTask);
     if (*(s32 *)(action + 0x420) == 1) {
@@ -645,7 +645,7 @@ after_type_1c80:
 void btlActionTargetUpdate(u8 *action) {
     extern u16 D_008C024C[];
     extern void btlUnitTickIdleAnims(void);
-    extern void func_0019fc60(void);
+    extern void btlUnitNoop(void);
     extern s32 btlConditionMessageId(s32 condition);
     extern void btlUiSelectEffect(s32 unit, u32 message);
     extern void btlPanelSetActive(s32 task);
@@ -680,7 +680,7 @@ void btlActionTargetUpdate(u8 *action) {
     u8 *actionCursor;
     u8 *clearCursor;
 
-    func_0019fc60();
+    btlUnitNoop();
     btlUnitTickIdleAnims();
     selectionState = btlSelectionGetTargetMark((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask)) & 0xFFFF;
     if ((D_008C024C[0] & 8) && !(selectionState & 0xFFFF)) {

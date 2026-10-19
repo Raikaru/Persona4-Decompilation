@@ -872,3 +872,5 @@ btlTargetPickPartyCountMessage = 0x001F3F60; // type:func  evidence: inferred: r
 btlVoiceEnablePlaybackPacketUpdate = 0x001F9750; // type:func  evidence: inferred: initializes the wait state and enables action voice playback when its result word clears
 btlVoicePlayIdCue = 0x001F9A50; // type:func  evidence: inferred: plays the supplied cue/channel using the bank selected by the voice-id packet
 btlVoiceFadeOut = 0x001F9A90; // type:func  evidence: inferred: fades channel one over eight frames
+btlUnitNoop = 0x0019FC60; // type:func  evidence: inferred: Empty retail battle-unit hook; returns without side effects.
+btlCameraFrameNonpartyActionPair = 0x00225E00; // type:func  evidence: inferred: Calls btlCameraFrameUnitPair only for a non-NULL valid action whose unit genus is nonzero.
