@@ -1,45 +1,10 @@
 #include "include_asm.h"
 /* Original translation unit eff_after.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "effect_mesh_internal.h"
+#include "rw_object_internal.h"
 
-/* 12-byte vector copy; mwcc emits all loads then all stores for a struct
-   assignment, matching retail, where per-element statements interleave. */
-typedef struct {
-    f32 c[3];
-} EffAfterVec;
-/* Ribbon sample queue shared by the sample writer and the offset builder. */
-typedef struct {
-    f32 mid[3];
-    f32 headMid;
-    f32 headNext;
-    f32 tailMid;
-    f32 tailPrev;
-    f32 width[2];
-    f32 alpha[2];
-    f32 lengthScale; /* +0x2C: scales accumulated section lengths */
-} EffAfterParam;
-
-typedef struct {
-    EffAfterParam *param;
-    u8 *material;
-    s32 capacity;
-    s32 sectionCount; /* +0xC: ribbon subdivision count */
-    s32 mode;
-    f32 width;
-} EffAfterConfig;
-
-typedef struct EffAfterQueue {
-    EffAfterConfig *config;
-    u32 flags;
-    s32 count;
-    s32 writeIndex;
-    EffAfterVec *positions;
-    EffAfterVec *normals;
-    EffAfterVec *positionOffsets[2];
-    EffAfterVec *normalOffsets[2];
-    u8 pad28[0x10];
-    s16 mode; /* +0x38: copied from the section configuration */
-} EffAfterQueue;
+#include "effect_after_internal.h"
 
 static inline u8 *effAfterWorkFieldPtr(u32 offset, u8 *base)
 {
@@ -86,8 +51,7 @@ extern void effMiscProgressBlendColor(u8 *work, s32 side, f32 t, u8 *out);
 /* Finds the section containing `distance` along the path and the fraction of that section it reaches. */
 // FUN_004B7460
 void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 697 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 697 differing bytes; remaining raw sites are isolated below. */
     EffAfterVec leadingDelta;
     EffAfterVec trailingDelta;
     u8 *vectorBase;
@@ -110,7 +74,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     f32 targetDistance = distance;
 
     total = 0.0f;
-    for (totalIndex = 0; totalIndex < *(s32 *)(data + 8) - 1; totalIndex++) {
+    for (totalIndex = 0; totalIndex < ((EffAfterQueue *)data)->count - 1; totalIndex++) {
         total += Vpad_GetSegmentLength(data, totalIndex);
     }
     if (total <= 0.0f) {
@@ -119,13 +83,14 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
         return;
     }
     currentSection = 0;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     while (currentSection < *(s32 *)(data + 8) - 1) {
         cumulative = 0.0f;
         for (leadingIndex = 0; leadingIndex < currentSection + 1; leadingIndex++) {
             firstIndex = effAfterHistoryIndex((const EffAfterQueue *)data, leadingIndex);
             nextIndex = effAfterHistoryIndex((const EffAfterQueue *)data, leadingIndex + 1);
             sectionLength = 0.0f;
-            vectorBase = (u8 *)*(s32 *)(data + 0x10);
+            vectorBase = (u8 *)(s32)((EffAfterQueue *)data)->positions;
             firstOffset = firstIndex * 0xC;
             nextOffset = nextIndex * 0xC;
             nextSample = (EffAfterVec *)(vectorBase + nextOffset);
@@ -135,7 +100,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
             leadingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
             leadingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
             sectionLength += RwV3dLength(&leadingDelta.c[0]);
-            vectorBase = (u8 *)*(s32 *)(data + 0x14);
+            vectorBase = (u8 *)(s32)((EffAfterQueue *)data)->normals;
             nextSample = (EffAfterVec *)(vectorBase + nextOffset);
             nextX = nextSample->c[0];
             firstSample = (EffAfterVec *)(vectorBase + firstOffset);
@@ -144,7 +109,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
             leadingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
             sectionLength += RwV3dLength(&leadingDelta.c[0]);
             scaledLength = 0.0f;
-            scaledLength += sectionLength * *(f32 *)((u8 *)*(void **)*(void **)data + 0x2C);
+            scaledLength += sectionLength * ((EffAfterQueue *)data)->config->param->lengthScale;
             cumulative += scaledLength / total;
         }
         if (targetDistance < cumulative) {
@@ -160,7 +125,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
             firstIndex = effAfterHistoryIndex((const EffAfterQueue *)data, trailingIndex);
             nextIndex = effAfterHistoryIndex((const EffAfterQueue *)data, trailingIndex + 1);
             sectionLength = 0.0f;
-            vectorBase = (u8 *)*(s32 *)(data + 0x10);
+            vectorBase = (u8 *)(s32)((EffAfterQueue *)data)->positions;
             firstOffset = firstIndex * 0xC;
             nextOffset = nextIndex * 0xC;
             nextSample = (EffAfterVec *)(vectorBase + nextOffset);
@@ -170,7 +135,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
             trailingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
             trailingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
             sectionLength += RwV3dLength(&trailingDelta.c[0]);
-            vectorBase = (u8 *)*(s32 *)(data + 0x14);
+            vectorBase = (u8 *)(s32)((EffAfterQueue *)data)->normals;
             nextSample = (EffAfterVec *)(vectorBase + nextOffset);
             nextX = nextSample->c[0];
             firstSample = (EffAfterVec *)(vectorBase + firstOffset);
@@ -179,7 +144,7 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
             trailingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
             sectionLength += RwV3dLength(&trailingDelta.c[0]);
             scaledLength = 0.0f;
-            scaledLength += sectionLength * *(f32 *)((u8 *)*(void **)*(void **)data + 0x2C);
+            scaledLength += sectionLength * ((EffAfterQueue *)data)->config->param->lengthScale;
             previous += scaledLength / total;
         }
     }
@@ -460,8 +425,7 @@ typedef RwV3d AfterVector3;
 #pragma opt_loop_invariants on
 u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 2017 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 2017 differing bytes; remaining raw sites are isolated below. */
     typedef struct RwSphere {
         AfterVector3 center;
         f32 radius;
@@ -487,33 +451,35 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
     f32 denom;
 
     flags = 0x4A;
-    if ((**(u32 **)(*(s32 *)work + 4) & 1) != 0) {
+    /* measured: typing the config-pointer load alone changes owner instructions (singleton MISMATCH). */
+    if ((((EffAfterMaterial *)((EffAfterConfig *)*(s32 *)work)->material)->flags & 1) != 0) {
         flags |= 4;
     }
     nIdx = 0;
     nVtx = 0;
-    switch (*(s16 *)(work + 0x38)) {
+    switch (((EffAfterQueue *)work)->mode) {
     case 0:
-        n = *(s32 *)(*(u8 **)work + 0xC);
+        n = ((EffAfterQueue *)work)->config->sectionCount;
         nIdx = (n - 1) * 2 + 1;
         nVtx = n * 2 + 1;
         break;
     case 1:
-        n = *(s32 *)(*(u8 **)work + 0xC);
+        n = ((EffAfterQueue *)work)->config->sectionCount;
         nIdx = n * 4 + 4;
         nVtx = n * 3 + 6;
         break;
     case 2:
-        n = *(s32 *)(*(u8 **)work + 0xC);
+        n = ((EffAfterQueue *)work)->config->sectionCount;
         nIdx = n * 4 + 4;
         nVtx = n * 3 + 6;
         break;
     }
     obj = (u8 *)func_003c2630(nVtx, nIdx, flags);
-    idx = *(struct RpTriangle **)(obj + 0x2C);
+    idx = (struct RpTriangle *)((RpGeometry *)obj)->triangles;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     switch (*(s16 *)(work + 0x38)) {
     case 0:
-        for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC) - 1; i++) {
+        for (i = 0; i < ((EffAfterQueue *)work)->config->sectionCount - 1; i++) {
             s32 next;
             s32 mid;
 
@@ -536,7 +502,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
             func_003c2130((const struct RpGeometry *)obj, (struct RpTriangle *)(firstStripTriangle + 1), 2, 4, 1);
             firstStripTriangle += 2;
             stripVertex = 2;
-            for (stripIndex = 0; stripIndex < *(s32 *)(*(u8 **)work + 0xC); stripIndex++) {
+            for (stripIndex = 0; stripIndex < ((EffAfterQueue *)work)->config->sectionCount; stripIndex++) {
                 s32 base;
                 s32 next;
                 s32 a;
@@ -573,7 +539,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
             func_003c2130((const struct RpGeometry *)obj, (struct RpTriangle *)(secondStripTriangle + 1), 2, 4, 1);
             secondStripTriangle += 2;
             stripVertex = 2;
-            for (stripIndex = 0; stripIndex < *(s32 *)(*(u8 **)work + 0xC); stripIndex++) {
+            for (stripIndex = 0; stripIndex < ((EffAfterQueue *)work)->config->sectionCount; stripIndex++) {
                 s32 base;
                 s32 next;
                 s32 a;
@@ -604,19 +570,24 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
     }
     {
         s32 attributeIndex;
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         materialTriangle = *(struct RpTriangle **)(obj + 0x2C);
         for (attributeIndex = 0; attributeIndex < nIdx;) {
             func_003c2150((struct RpGeometry *)obj, (struct RpTriangle *)materialTriangle, material);
             attributeIndex++;
             materialTriangle++;
         }
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         switch (*(s16 *)(work + 0x38)) {
         case 0:
-            col = *(u8 **)(obj + 0x30);
+            col = (u8 *)((RpGeometry *)obj)->colors;
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)work + 0xC);) {
                 if (attributeIndex == 0) {
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     t = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                 } else {
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     t = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                 }
                 effMiscProgressBlendColor(work, 0, t, col);
@@ -627,9 +598,10 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
             {
                 s32 rightIndex;
                 u8 *rightColor;
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 rightColor = *(u8 **)(obj + 0x30) + 4;
-                for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)work + 0xC);) {
-                    t = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+                for (rightIndex = 0; rightIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
+                    t = (f32)rightIndex / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
                     effMiscProgressBlendColor(work, 1, t, rightColor);
                     rightIndex++;
                     rightColor += 8;
@@ -641,7 +613,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 s32 k;
                 u8 *c;
 
-                c = *(u8 **)(obj + 0x30);
+                c = (u8 *)((RpGeometry *)obj)->colors;
                 for (k = 0; k < nVtx;) {
                     c[0] = 0;
                     c[1] = 0;
@@ -657,7 +629,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 s32 k;
                 u8 *c;
 
-                c = *(u8 **)(obj + 0x30);
+                c = (u8 *)((RpGeometry *)obj)->colors;
                 for (k = 0; k < nVtx;) {
                     c[0] = 0;
                     c[1] = 0;
@@ -669,19 +641,20 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
             }
             break;
         }
-        cfg = *(u8 **)work;
-        if ((**(u32 **)(cfg + 4) & 1) != 0) {
+        cfg = (u8 *)((EffAfterQueue *)work)->config;
+        if ((((EffAfterMaterial *)((EffAfterConfig *)cfg)->material)->flags & 1) != 0) {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             switch (*(s16 *)(work + 0x38)) {
             case 0:
-                uv = *(AfterTexCoord **)(obj + 0x34);
-                for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)work + 0xC);) {
-                    if (*(s32 *)(*(u8 **)work + 0xC) - 1 <= 0) {
+                uv = (AfterTexCoord *)((RpGeometry *)obj)->texCoords[0];
+                for (attributeIndex = 0; attributeIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
+                    if (((EffAfterQueue *)work)->config->sectionCount - 1 <= 0) {
                         kAssertFail(D_007146E0, 0x226);
                     }
                     if (attributeIndex == 0) {
-                        uv[0].u = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+                        uv[0].u = (f32)attributeIndex / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
                     } else {
-                        uv[0].u = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+                        uv[0].u = ((f32)attributeIndex - 0.5f) / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
                     }
                     uv[0].v = 0.0f;
                     attributeIndex++;
@@ -692,12 +665,13 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 {
                     s32 rightIndex;
                     AfterTexCoord *rightUV;
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     rightUV = *(AfterTexCoord **)(obj + 0x34) + 1;
-                    for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)work + 0xC);) {
-                        if (*(s32 *)(*(u8 **)work + 0xC) - 1 <= 0) {
+                    for (rightIndex = 0; rightIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
+                        if (((EffAfterQueue *)work)->config->sectionCount - 1 <= 0) {
                             kAssertFail(D_007146E0, 0x234);
                         }
-                        rightUV[0].u = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+                        rightUV[0].u = (f32)rightIndex / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
                         rightUV[0].v = 1.0f;
                         rightIndex++;
                         rightUV += 2;
@@ -705,8 +679,8 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 }
                 break;
             case 1:
-                uv = *(AfterTexCoord **)(obj + 0x34);
-                n = *(s32 *)(cfg + 0xC);
+                uv = (AfterTexCoord *)((RpGeometry *)obj)->texCoords[0];
+                n = ((EffAfterConfig *)cfg)->sectionCount;
                 last = n * 3 + 6;
                 denom = 0.5f + (f32)n;
                 uv[0].u = 0.0f;
@@ -734,7 +708,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                     h = 0.5f / denom;
                     q = uv + 3;
                     k = 0;
-                    while (k < *(s32 *)(*(u8 **)work + 0xC)) {
+                    while (k < ((EffAfterQueue *)work)->config->sectionCount) {
                         q[0].u = h;
                         q[0].v = 0.0f;
                         q[1].u = h;
@@ -748,7 +722,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                         AfterTexCoord *center;
                         center = uv + 5;
                         centerIndex = 0;
-                        while (centerIndex < *(s32 *)(*(u8 **)work + 0xC)) {
+                        while (centerIndex < ((EffAfterQueue *)work)->config->sectionCount) {
                             center[0].u = u;
                             center[0].v = 0.5f;
                             centerIndex++;
@@ -759,8 +733,8 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                 }
                 break;
             case 2:
-                uv = *(AfterTexCoord **)(obj + 0x34);
-                n = *(s32 *)(cfg + 0xC);
+                uv = (AfterTexCoord *)((RpGeometry *)obj)->texCoords[0];
+                n = ((EffAfterConfig *)cfg)->sectionCount;
                 last = n * 3 + 6;
                 denom = 0.5f + (f32)n;
                 uv[0].u = 0.0f;
@@ -788,7 +762,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                     h = 0.5f / denom;
                     q = uv + 3;
                     k = 0;
-                    while (k < *(s32 *)(*(u8 **)work + 0xC)) {
+                    while (k < ((EffAfterQueue *)work)->config->sectionCount) {
                         q[0].u = h;
                         q[0].v = 0.0f;
                         q[1].u = h;
@@ -802,7 +776,7 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
                         AfterTexCoord *center;
                         center = uv + 5;
                         centerIndex = 0;
-                        while (centerIndex < *(s32 *)(*(u8 **)work + 0xC)) {
+                        while (centerIndex < ((EffAfterQueue *)work)->config->sectionCount) {
                             center[0].u = u;
                             center[0].v = 0.5f;
                             centerIndex++;
@@ -819,39 +793,43 @@ u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
     sphere.center.y = 0.0f;
     sphere.center.z = 0.0f;
     sphere.radius = 1000000000;
-    *(AfterSphere *)(*(u8 **)(obj + 0x5C) + 4) = sphere;
+    *(AfterSphere *)&((RpGeometry *)obj)->morphTarget->boundingSphere = sphere;
     return obj;
 }
 #pragma pop
 /* Allocates six capacity-sized vector arrays in one block and initializes the section's sample ring. */
 // FUN_004B8DF0
 void effAfterAllocVectorBuffers(u8 *work, u8 *config) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 215 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 215 differing bytes; remaining raw sites are isolated below. */
     u8 *p;
     u8 *q;
     s32 size;
 
     size = 0;
-    size += (*(s32 *)(config + 8) * 3 << 3);
-    size += (*(s32 *)(config + 8) * 3 << 4);
+    size += (((EffAfterConfig *)config)->capacity * 3 << 3);
+    size += (((EffAfterConfig *)config)->capacity * 3 << 4);
     chkmemAllocSiteTag(D_007146E0, 0x2A5);
     p = (u8 *)(*jtbl_008873E8)(size, 0x40000);
-    *(void **)(work + 0x10) = p;
+    ((EffAfterQueue *)work)->positions = (EffAfterVec *)(p);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     q = p + *(s32 *)(config + 8) * 0xC;
-    *(void **)(work + 0x14) = q;
+    ((EffAfterQueue *)work)->normals = (EffAfterVec *)(q);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     q = q + *(s32 *)(config + 8) * 0xC;
-    *(void **)(work + 0x18) = q;
+    ((EffAfterQueue *)work)->positionOffsets[0] = (EffAfterVec *)(q);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     q = q + *(s32 *)(config + 8) * 0xC;
-    *(void **)(work + 0x1C) = q;
+    ((EffAfterQueue *)work)->positionOffsets[1] = (EffAfterVec *)(q);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     q = q + *(s32 *)(config + 8) * 0xC;
-    *(void **)(work + 0x20) = q;
-    *(void **)(work + 0x24) = q + *(s32 *)(config + 8) * 0xC;
-    *(s32 *)(work + 4) = 0;
-    *(void **)(work + 0) = config;
-    *(s32 *)(work + 8) = 0;
-    *(s32 *)(work + 0xC) = 0;
-    *(s16 *)(work + 0x38) = *(s32 *)(config + 0x10);
+    ((EffAfterQueue *)work)->normalOffsets[0] = (EffAfterVec *)(q);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    ((EffAfterQueue *)work)->normalOffsets[1] = (EffAfterVec *)(q + *(s32 *)(config + 8) * 0xC);
+    ((EffAfterQueue *)work)->flags = 0;
+    ((EffAfterQueue *)work)->config = (EffAfterConfig *)(config);
+    ((EffAfterQueue *)work)->count = 0;
+    ((EffAfterQueue *)work)->writeIndex = 0;
+    ((EffAfterQueue *)work)->mode = ((EffAfterConfig *)config)->mode;
 }
 
 /* Frees the vector buffer at work+0x10. */
@@ -904,8 +882,7 @@ typedef struct {
 void effAfterRebuildTrailMesh(u8 *work, void **pp)
 
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 2093 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 2093 differing bytes; remaining raw sites are isolated below. */
 /* irregular: 5 native warning(s); review required */
   s16 mode;
   u8 *byteCursor;
@@ -944,35 +921,35 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
   EffAfterVec ctrl[4];
   
   RpGeometryLock(*pp,0x1a);
-  if (((*(u32 *)effAfterWorkFieldPtr(4, work) & 1) != 0) || ((~*(u32 *)effAfterWorkFieldPtr(4, work) & 2) != 0)) {
-    switch (*(s16 *)effAfterWorkFieldPtr(0x38, work)) {
+  if (((((EffAfterQueue *)work)->flags & 1) != 0) || ((~((EffAfterQueue *)work)->flags & 2) != 0)) {
+    switch (((EffAfterQueue *)work)->mode) {
     case 0:
     {
       s32 i;
       u8 *col;
 
-      col = *(u8 **)(*(u8 **)pp + 0x30);
-      for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
-        if (*(s32 *)(*(u8 **)work + 0xC) - 1 < 1) {
+      col = (u8 *)((RpGeometry *)*pp)->colors;
+      for (i = 0; i < ((EffAfterQueue *)work)->config->sectionCount;) {
+        if (((EffAfterQueue *)work)->config->sectionCount - 1 < 1) {
           kAssertFail(D_007146E0,0x3d1);
         }
         if (i == 0) {
-          fraction = (f32)i / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+          fraction = (f32)i / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
         }
         else {
-          fraction = ((f32)i - 0.5f) / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+          fraction = ((f32)i - 0.5f) / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
         }
         effMiscProgressBlendColor(work,0,fraction,col);
         i++;
         col += 8;
       }
       effMiscProgressBlendColor(work,0,1.0f,col);
-      col = *(u8 **)(*(u8 **)pp + 0x30) + 4;
-      for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
-        if (*(s32 *)(*(u8 **)work + 0xC) - 1 < 1) {
+      col = (u8 *)((RpGeometry *)*pp)->colors + 4;
+      for (i = 0; i < ((EffAfterQueue *)work)->config->sectionCount;) {
+        if (((EffAfterQueue *)work)->config->sectionCount - 1 < 1) {
           kAssertFail(D_007146E0,0x3dc);
         }
-        fraction = (f32)i / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+        fraction = (f32)i / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1);
         effMiscProgressBlendColor(work,1,fraction,col);
         i++;
         col += 8;
@@ -981,14 +958,14 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 1:
     {
-      colorBytes = *(u8 **)(*(u8 **)pp + 0x30);
+      colorBytes = (u8 *)((RpGeometry *)*pp)->colors;
       effMiscProgressBlendColor(work,0,0.0f,colorBytes);
       effMiscProgressBlendColor(work,1,0.0f,colorBytes + 4);
       colorBytes[8] = (u8)((s32)((u32)colorBytes[0] + (u32)colorBytes[4]) >> 1);
       colorBytes[9] = (u8)((s32)((u32)colorBytes[1] + (u32)colorBytes[5]) >> 1);
       colorBytes[10] = (u8)((s32)((u32)colorBytes[2] + (u32)colorBytes[6]) >> 1);
       colorBytes[0xb] = (u8)((s32)((u32)colorBytes[3] + (u32)colorBytes[7]) >> 1);
-      index = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
+      index = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
       effMiscProgressBlendColor(work,0,1.0f,colorBytes + (index - 3) * 4);
       effMiscProgressBlendColor(work,1,1.0f,colorBytes + (index - 2) * 4);
       byteCursor = effAfterWorkFieldPtr(index * 4, colorBytes);
@@ -996,11 +973,11 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       byteCursor[-3] = (u8)((s32)((u32)byteCursor[-0xb] + (u32)byteCursor[-7]) >> 1);
       byteCursor[-2] = (u8)((s32)((u32)byteCursor[-10] + (u32)byteCursor[-6]) >> 1);
       byteCursor[-1] = (u8)((s32)((u32)byteCursor[-9] + (u32)byteCursor[-5]) >> 1);
-      blend = 0.5f + (f32)*(s32 *)(*(u8 **)work + 0xC);
+      blend = 0.5f + (f32)((EffAfterQueue *)work)->config->sectionCount;
       sampleStep = 1.0f / blend;
       colorWords = (u32 *)(colorBytes + 0xc);
       sampleFraction = 0.5f / blend;
-      for (countOrAddress = 0; countOrAddress < *(s32 *)(*(u8 **)work + 0xC);) {
+      for (countOrAddress = 0; countOrAddress < ((EffAfterQueue *)work)->config->sectionCount;) {
         effMiscProgressBlendColor(work,0,sampleFraction,(u8 *)colorWords++);
         effMiscProgressBlendColor(work,1,sampleFraction,(u8 *)colorWords++);
         colorWords++;
@@ -1012,7 +989,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         u8 *c;
 
         c = colorBytes + 0x14;
-        for (j = 0; j < *(s32 *)(*(u8 **)work + 0xC);) {
+        for (j = 0; j < ((EffAfterQueue *)work)->config->sectionCount;) {
           c[0] = (u8)((s32)((u32)c[8] + ((u32)c[4] + ((u32)c[-8] + (u32)c[-4]))) >> 2);
           c[1] = (u8)((s32)((u32)c[9] + ((u32)c[5] + ((u32)c[-7] + (u32)c[-3]))) >> 2);
           c[2] = (u8)((s32)((u32)c[10] + ((u32)c[6] + ((u32)c[-6] + (u32)c[-2]))) >> 2);
@@ -1035,17 +1012,17 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       f32 step;
       f32 t;
 
-      col = *(u8 **)(*(u8 **)pp + 0x30);
+      col = (u8 *)((RpGeometry *)*pp)->colors;
       effMiscProgressBlendColor(work,1,0.0f,col);
       effMiscProgressBlendColor(work,1,0.0f,col + 4);
-      lim = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
+      lim = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
       effMiscProgressBlendColor(work,1,1.0f,col + (lim - 3) * 4);
       effMiscProgressBlendColor(work,1,1.0f,col + (lim - 2) * 4);
-      den = 0.5f + (f32)*(s32 *)(*(u8 **)work + 0xC);
+      den = 0.5f + (f32)((EffAfterQueue *)work)->config->sectionCount;
       step = 1.0f / den;
       cur = (u32 *)(col + 0xc);
       t = 0.5f / den;
-      for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
+      for (i = 0; i < ((EffAfterQueue *)work)->config->sectionCount;) {
         effMiscProgressBlendColor(work,1,t,(u8 *)cur++);
         effMiscProgressBlendColor(work,1,t,(u8 *)cur++);
         cur++;
@@ -1057,7 +1034,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       step = 1.0f / (f32)den;
       t = step;
       col += 0x14;
-      for (k = 0; k < *(s32 *)(*(u8 **)work + 0xC);) {
+      for (k = 0; k < ((EffAfterQueue *)work)->config->sectionCount;) {
         effMiscProgressBlendColor(work,0,t,col);
         k++;
         t += step;
@@ -1067,13 +1044,14 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     }
     *(u32 *)effAfterWorkFieldPtr(4, work) = *(u32 *)effAfterWorkFieldPtr(4, work) | 2;
   }
+  /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
   if (*(s32 *)(work + 8) < 2) {
-    switch (*(s16 *)(work + 0x38)) {
+    switch (((EffAfterQueue *)work)->mode) {
     case 0:
     {
-      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
-      colorWords = vertexWords + *(s32 *)(*(u8 **)pp + 0x14) * 3;
-      for (countOrAddress = 0; countOrAddress < *(s32 *)(*(u8 **)work + 0xC) + 1;) {
+      vertexWords = (u32 *)((RpGeometry *)*pp)->morphTarget->vertices;
+      colorWords = vertexWords + ((RpGeometry *)*pp)->vertexCount * 3;
+      for (countOrAddress = 0; countOrAddress < ((EffAfterQueue *)work)->config->sectionCount + 1;) {
         if (colorWords == vertexWords) {
           kAssertFail(D_007146E0,0x43c);
         }
@@ -1083,8 +1061,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         countOrAddress++;
         vertexWords += 6;
       }
-      vertexWords = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14) + 0xc);
-      for (countOrAddress = 0; countOrAddress < *(s32 *)(*(u8 **)work + 0xC);) {
+      vertexWords = (u32 *)((u8 *)((RpGeometry *)*pp)->morphTarget->vertices + 0xc);
+      for (countOrAddress = 0; countOrAddress < ((EffAfterQueue *)work)->config->sectionCount;) {
         if (colorWords == vertexWords) {
           kAssertFail(D_007146E0,0x446);
         }
@@ -1098,8 +1076,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 1:
     {
-      countOrAddress = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      countOrAddress = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
+      vertexWords = (u32 *)((RpGeometry *)*pp)->morphTarget->vertices;
       for (index = 0; index < countOrAddress;) {
         vertexWords[0] = 0;
         vertexWords[1] = 0;
@@ -1111,8 +1089,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 2:
     {
-      countOrAddress = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      countOrAddress = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
+      vertexWords = (u32 *)((RpGeometry *)*pp)->morphTarget->vertices;
       for (index = 0; index < countOrAddress;) {
         vertexWords[0] = 0;
         vertexWords[1] = 0;
@@ -1124,7 +1102,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     }
   }
   else {
-    switch (*(s16 *)((work) + 0x38)) {
+    switch (((EffAfterQueue *)work)->mode) {
     case 0:
     {
       f32 *out;
@@ -1140,56 +1118,62 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       f32 *pb;
       f32 s;
 
-      base = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      lim = (f32 *)(base + *(s32 *)(((u8 *)*pp) + 0x14) * 0xc);
+      base = (s32)((RpGeometry *)*pp)->morphTarget->vertices;
+      lim = (f32 *)(base + ((RpGeometry *)*pp)->vertexCount * 0xc);
       for (side = 0; side < 2;) {
         out = (f32 *)(base + side * 0xc);
         cache = 0xffffffff;
         switch (side) {
         case 0:
-          span = *(s32 *)((*(u8 **)work) + 0xc);
+          span = ((EffAfterQueue *)work)->config->sectionCount;
           break;
         case 1:
-          span = *(s32 *)((*(u8 **)work) + 0xc) - 1;
+          span = ((EffAfterQueue *)work)->config->sectionCount - 1;
           break;
         }
         for (jj = 0; jj < span;) {
-          if (*(s32 *)((*(u8 **)work) + 0xc) - 1 < 1) {
+          if (((EffAfterQueue *)work)->config->sectionCount - 1 < 1) {
             kAssertFail(D_007146E0,0x480);
           }
           if (side == 0) {
             if (jj == 0) {
-              effAfterSectionFraction(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,
+              effAfterSectionFraction(work,(f32)jj / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1),&section,
                             &fraction);
             }
             else {
               effAfterSectionFraction(work,((f32)jj - 0.5f) /
-                                    (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),&section,&fraction
+                                    (f32)(((EffAfterQueue *)work)->config->sectionCount - 1),&section,&fraction
                            );
             }
           }
           else {
-            effAfterSectionFraction(work,(f32)jj / (f32)(*(s32 *)((*(u8 **)work) + 0xc) - 1),
+            effAfterSectionFraction(work,(f32)jj / (f32)(((EffAfterQueue *)work)->config->sectionCount - 1),
                           &section,&fraction);
           }
           if (section != cache) {
             cache = section;
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             ia = (*(s32 *)((work) + 0xc) - 1) - section;
             if (ia < 0) {
-              ia = ia + *(s32 *)((work) + 8);
+              ia = ia + ((EffAfterQueue *)work)->count;
             }
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             ib = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
             if (ib < 0) {
-              ib = ib + *(s32 *)((work) + 8);
+              ib = ib + ((EffAfterQueue *)work)->count;
             }
             ia = ia * 0xc;
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             pa = (f32 *)(*(u8 **)(((work) + side * 4 + 0x10)) + ia);
             ctrl[0] = *(EffAfterVec *)pa;
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             pb = (f32 *)(*(u8 **)(((work) + side * 8 + 0x18)) + ia);
             ctrl[1].c[0] = *pa - *pb;
             ctrl[1].c[1] = pa[1] - pb[1];
             ctrl[1].c[2] = pa[2] - pb[2];
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             pa = (f32 *)(*(u8 **)(((work) + side * 8 + 0x1c)) + ia);
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             pb = (f32 *)(*(u8 **)(((work) + side * 4 + 0x10)) + ib * 0xc);
             ctrl[2].c[0] = *pb + *pa;
             ctrl[2].c[1] = pb[1] + pa[1];
@@ -1206,19 +1190,22 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
           jj++;
           out = out + 6;
         }
-        jj = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
+        jj = ((EffAfterQueue *)work)->writeIndex - ((EffAfterQueue *)work)->count;
         if (jj < 0) {
-          jj = jj + *(s32 *)((work) + 8);
+          jj = jj + ((EffAfterQueue *)work)->count;
         }
         if (out >= lim) {
           kAssertFail(D_007146E0,0x4ae);
         }
+        /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
         pb = (f32 *)(*(s32 *)(((work) + side * 4 + 0x10)) + jj * 0xc);
         *(EffAfterVec *)out = *(EffAfterVec *)pb;
-        if (*(s32 *)((work) + 8) < *(s32 *)((*(u8 **)work) + 8)) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+        if (*(s32 *)((work) + 8) < ((EffAfterQueue *)work)->config->capacity) {
           section = 0;
         }
         else {
+          /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
           section = *(u32 *)((work) + 0xc);
         }
           side++;
@@ -1227,8 +1214,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 1:
     {
-      countOrAddress = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
-      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      countOrAddress = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
+      vertexWords = (u32 *)((RpGeometry *)*pp)->morphTarget->vertices;
       for (index = 0; index < countOrAddress;) {
         vertexWords[0] = 0;
         vertexWords[1] = 0;
@@ -1236,10 +1223,10 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         index++;
         vertexWords += 3;
       }
-      vertexBase = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      countOrAddress = *(s32 *)((work) + 0xc) - 1;
+      vertexBase = ((RpGeometry *)*pp)->morphTarget->vertices;
+      countOrAddress = ((EffAfterQueue *)work)->writeIndex - 1;
       if (countOrAddress < 0) {
-        countOrAddress = countOrAddress + *(s32 *)((work) + 8);
+        countOrAddress = countOrAddress + ((EffAfterQueue *)work)->count;
       }
       vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + countOrAddress * 0xc);
       *(EffAfterVec *)vertexBase = *(EffAfterVec *)vectorCursor;
@@ -1251,9 +1238,11 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       vertexBase[6] = vertexBase[6] * 0.5f;
       vertexBase[7] = vertexBase[7] * 0.5f;
       vertexBase[8] = vertexBase[8] * 0.5f;
-      countOrAddress = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
+      countOrAddress = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
+      /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
       index = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
       if (index < 0) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         index = index + *(s32 *)((work) + 8);
       }
 {
@@ -1261,8 +1250,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         u32 srcOff;
 
         srcOff = index * 0xc;
-        *(EffAfterVec *)((row = (f32 *)effAfterWorkFieldPtr((u32)(countOrAddress * 3) * 4, (u8 *)vertexBase)) - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + srcOff);
-      *(EffAfterVec *)(row - 6) = *(EffAfterVec *)(*(u8 **)(work + 0x14) + srcOff);
+        ((EffAfterVec *)(row = (f32 *)effAfterWorkFieldPtr((u32)(countOrAddress * 3) * 4, (u8 *)vertexBase)))[-3] = ((EffAfterQueue *)work)->positions[index];
+      ((EffAfterVec *)row)[-2] = ((EffAfterQueue *)work)->normals[index];
       row[-3] = row[-9] + row[-6];
       row[-2] = row[-8] + row[-5];
       row[-1] = row[-7] + row[-4];
@@ -1270,8 +1259,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       row[-2] = row[-2] * 0.5f;
       row[-1] = row[-1] * 0.5f;
       }
-      countOrAddress = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      blend = (f32)*(s32 *)((*(u8 **)work) + 0xc) + 0.5f;
+      countOrAddress = (s32)((RpGeometry *)*pp)->morphTarget->vertices;
+      blend = (f32)((EffAfterQueue *)work)->config->sectionCount + 0.5f;
       sampleStep = 1.0f / blend;
       for (index = 0; index < 2; index = index + 1) {
         switch (index) {
@@ -1284,26 +1273,32 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         }
         sampleFraction = 0.5f / blend;
         cachedSection = 0xffffffff;
-        for (sampleIndex = 0; sampleIndex < *(s32 *)((*(u8 **)work) + 0xc);) {
+        for (sampleIndex = 0; sampleIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
           effAfterSectionFraction(work,sampleFraction,&section,&fraction);
           if (section != cachedSection) {
             cachedSection = section;
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             firstOffset = (*(s32 *)((work) + 0xc) - 1) - section;
             if (firstOffset < 0) {
-              firstOffset = firstOffset + *(s32 *)((work) + 8);
+              firstOffset = firstOffset + ((EffAfterQueue *)work)->count;
             }
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             secondIndex = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
             if (secondIndex < 0) {
-              secondIndex = secondIndex + *(s32 *)((work) + 8);
+              secondIndex = secondIndex + ((EffAfterQueue *)work)->count;
             }
             firstOffset = firstOffset * 0xc;
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             vectorCursor = (f32 *)(*(u8 **)(((work) + index * 4 + 0x10)) + firstOffset);
             ctrl[0] = *(EffAfterVec *)vectorCursor;
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             vertexBase = (f32 *)(*(u8 **)(((work) + index * 8 + 0x18)) + firstOffset);
             ctrl[1].c[0] = *vectorCursor - *vertexBase;
             ctrl[1].c[1] = vectorCursor[1] - vertexBase[1];
             ctrl[1].c[2] = vectorCursor[2] - vertexBase[2];
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             vectorCursor = (f32 *)(*(u8 **)(((work) + index * 8 + 0x1c)) + firstOffset);
+            /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
             vertexBase = (f32 *)(*(u8 **)(((work) + index * 4 + 0x10)) + secondIndex * 0xc);
             ctrl[2].c[0] = *vertexBase + *vectorCursor;
             ctrl[2].c[1] = vertexBase[1] + vectorCursor[1];
@@ -1321,7 +1316,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
           outputVertex = outputVertex + 9;
         }
         outputVertex = (f32 *)(countOrAddress + 0x3c);
-        for (sampleIndex = 0; sampleIndex < *(s32 *)((*(u8 **)work) + 0xc);) {
+        for (sampleIndex = 0; sampleIndex < ((EffAfterQueue *)work)->config->sectionCount;) {
           *outputVertex = outputVertex[-6] + outputVertex[-3];
           outputVertex[1] = outputVertex[-5] + outputVertex[-2];
           outputVertex[2] = outputVertex[-4] + outputVertex[-1];
@@ -1342,42 +1337,45 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 2:
     {
-      halfWidth = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
+      halfWidth = ((EffAfterQueue *)work)->config->width / 2.0f;
       countOrAddress = kwlnGetCamera();
-      countOrAddress = *(s32 *)(((u8 *)countOrAddress) + 4);
+      countOrAddress = (s32)((RwObject *)countOrAddress)->parent;
       cameraPosition = (f32 *)(countOrAddress + 0x40);
-      vertexBase = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      weight = 0.5f + (f32)*(s32 *)((*(u8 **)work) + 0xc);
+      vertexBase = ((RpGeometry *)*pp)->morphTarget->vertices;
+      weight = 0.5f + (f32)((EffAfterQueue *)work)->config->sectionCount;
       sampleFraction = 1.0f / weight;
       weight = 0.5f / weight;
       cachedSection = 0xffffffff;
       vectorCursor = vertexBase + 9;
-      index = *(s32 *)((work) + 0xc) - 1;
+      index = ((EffAfterQueue *)work)->writeIndex - 1;
       if (index < 0) {
-        index = index + *(s32 *)((work) + 8);
+        index = index + ((EffAfterQueue *)work)->count;
       }
-      prev = *(EffAfterVec *)(*(u8 **)(work + 0x10) + index * 0xc);
-      for (index = 0; index < *(s32 *)((*(u8 **)work) + 0xc);) {
+      prev = ((EffAfterQueue *)work)->positions[index];
+      for (index = 0; index < ((EffAfterQueue *)work)->config->sectionCount;) {
         effAfterSectionFraction(work,weight,&section,&fraction);
         if (section != cachedSection) {
           cachedSection = section;
+          /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
           sampleIndex = (*(s32 *)((work) + 0xc) - 1) - section;
           if (sampleIndex < 0) {
-            sampleIndex = sampleIndex + *(s32 *)((work) + 8);
+            sampleIndex = sampleIndex + ((EffAfterQueue *)work)->count;
           }
+          /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
           secondIndex = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
           if (secondIndex < 0) {
-            secondIndex = secondIndex + *(s32 *)((work) + 8);
+            secondIndex = secondIndex + ((EffAfterQueue *)work)->count;
           }
           sampleIndex = sampleIndex * 0xc;
+          /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
           byteCursor = *(u8 **)(work + 0x10);
           controlStart = (f32 *)(byteCursor + sampleIndex);
           ctrl[0] = *(EffAfterVec *)controlStart;
-          controlEnd = (f32 *)(((u8 *)*(u8 **)((u8 *)(work) + 0x18)) + sampleIndex);
+          controlEnd = (f32 *)(((u8 *)(u8 *)((EffAfterQueue *)work)->positionOffsets[0]) + sampleIndex);
           ctrl[1].c[0] = *controlStart - *controlEnd;
           ctrl[1].c[1] = controlStart[1] - controlEnd[1];
           ctrl[1].c[2] = controlStart[2] - controlEnd[2];
-          controlStart = (f32 *)(((u8 *)*(u8 **)((u8 *)(work) + 0x1c)) + sampleIndex);
+          controlStart = (f32 *)(((u8 *)(u8 *)((EffAfterQueue *)work)->positionOffsets[1]) + sampleIndex);
           controlEnd = (f32 *)(byteCursor + secondIndex * 0xc);
           ctrl[2].c[0] = *controlEnd + *controlStart;
           ctrl[2].c[1] = controlEnd[1] + controlStart[1];
@@ -1423,11 +1421,12 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         weight = weight + sampleFraction;
         index++;
       }
-      sampleIndex = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
+      sampleIndex = ((EffAfterQueue *)work)->config->sectionCount * 3 + 6;
       vectorCursor = vertexBase + (sampleIndex - 3) * 3;
-      index = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
+      /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+      index = *(s32 *)((work) + 0xc) - ((EffAfterQueue *)work)->count;
       if (index < 0) {
-        index = index + *(s32 *)((work) + 8);
+        index = index + ((EffAfterQueue *)work)->count;
       }
       controlEnd = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + index * 0xc);
       cur = *(EffAfterVec *)controlEnd;
@@ -1464,8 +1463,10 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       vertexBase[sampleIndex * 3 - 3] = vertexBase[sampleIndex * 3 - 3] * 0.5f;
       vertexBase[sampleIndex * 3 - 2] = vertexBase[sampleIndex * 3 - 2] * 0.5f;
       vertexBase[sampleIndex * 3 - 1] = vertexBase[sampleIndex * 3 - 1] * 0.5f;
+      /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
       index = *(s32 *)((work) + 0xc) - 1;
       if (index < 0) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         index = index + *(s32 *)((work) + 8);
       }
       vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + index * 0xc);
@@ -1504,7 +1505,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       vertexBase[7] = vertexBase[7] * 0.5f;
       vertexBase[8] = vertexBase[8] * 0.5f;
       vertexBase = vertexBase + 0xf;
-      for (countOrAddress = 0; countOrAddress < *(s32 *)((*(u8 **)work) + 0xc);) {
+      for (countOrAddress = 0; countOrAddress < ((EffAfterQueue *)work)->config->sectionCount;) {
         *vertexBase = vertexBase[-6] + vertexBase[-3];
         vertexBase[1] = vertexBase[-5] + vertexBase[-2];
         vertexBase[2] = vertexBase[-4] + vertexBase[-1];
@@ -1524,12 +1525,12 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     }
   }
   func_003c22f0(*pp);
-  *(u16 *)effAfterWorkFieldPtr(0xc, (u8 *)*pp) = *(u16 *)effAfterWorkFieldPtr(0xc, (u8 *)*pp) | 1;
+  ((RpGeometry *)*pp)->lockedSinceLastInst = ((RpGeometry *)*pp)->lockedSinceLastInst | 1;
   bound.center.c[0] = 0.0f;
   bound.center.c[1] = 0.0f;
   bound.center.c[2] = 0.0f;
   bound.radius = (f32)1000000000;
-  *(EffAfterSphere *)(*(u8 **)(*(u8 **)pp + 0x5c) + 4) = bound;
+  *(EffAfterSphere *)&((RpGeometry *)*pp)->morphTarget->boundingSphere = bound;
   return;
 }
 
@@ -1605,6 +1606,7 @@ void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
                 }
                 else
                 {
+                    /* Packed halfword command operand; this branch alone permits an aligned word load. */
                     duration = *(u32*)(cursor + 1);
                 }
                 work->flags |= 1;
@@ -1622,6 +1624,7 @@ void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
             }
             else
             {
+                /* Packed halfword command operand; this branch alone permits an aligned word load. */
                 duration = *(u32*)(cursor + 1);
             }
             stop = 1;
@@ -1671,6 +1674,7 @@ void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
             }
             else
             {
+                /* Packed halfword command operand; this branch alone permits an aligned word load. */
                 duration = *(u32*)(cursor + 1);
             }
             work->duration = duration;
@@ -2144,6 +2148,7 @@ f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
         i += ((EffAfterQueue *)work)->count;
     }
     /* The helper preserves offset-first table addressing; a typed rewrite changes the add order. */
+    /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
     p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(side * 4, work) + 0x10) + i * 0xC);
     a = p[0];
     b = p[1];
@@ -2156,6 +2161,7 @@ f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
         i += ((EffAfterQueue *)work)->count;
     }
     offset = i * 0xC;
+    /* Interleaved side-pointer table: preserve the observed 4/8-byte slot addressing. */
     p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(side * 4, work) + 0x10) + offset);
     t = p[0];
     v[0] -= t;
@@ -2170,8 +2176,7 @@ f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
 // Turn factor of a section: (1 - dot) / 2 of the normalised edge vectors at the section's two ends; 0 for a straight run, 1 for a reversal.
 // FUN_004BC310
 f32 effAfterSectionTurnFactor(u8 *work, s32 section) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 369 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 369 differing bytes; remaining raw sites are isolated below. */
     EffAfterVec v1;
     EffAfterVec v2;
     EffAfterVec *q;
@@ -2181,28 +2186,33 @@ f32 effAfterSectionTurnFactor(u8 *work, s32 section) {
     s32 j;
     u8 *p;
 
-    if (section == *(s32 *)(work + 8) - 1) {
+    if (section == ((EffAfterQueue *)work)->count - 1) {
         kAssertFail(D_007146E0, 0x709);
     }
-    i = (*(s32 *)(work + 0xC) - 1) - section;
+    i = (((EffAfterQueue *)work)->writeIndex - 1) - section;
     if (i < 0) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         i += *(s32 *)(work + 8);
     }
-    p = (u8 *)(*(s32 *)(work + 0x14) + i * 0xC);
+    p = (u8 *)((s32)((EffAfterQueue *)work)->normals + i * 0xC);
     v1 = *(EffAfterVec *)p;
-    p = (u8 *)(*(s32 *)(work + 0x10) + i * 0xC);
+    p = (u8 *)((s32)((EffAfterQueue *)work)->positions + i * 0xC);
     q = (EffAfterVec *)p;
     t = q->c[0];
     v1.c[0] -= t;
     v1.c[1] -= q->c[1];
     v1.c[2] -= q->c[2];
     RwV3dNormalize(&v1.c[0], &v1.c[0]);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     j = (-2 - section) + *(s32 *)(work + 0xC);
     if (j < 0) {
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         j += *(s32 *)(work + 8);
     }
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     p = (u8 *)(*(s32 *)(work + 0x14) + j * 0xC);
     v2 = *(EffAfterVec *)p;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     p = (u8 *)(*(s32 *)(work + 0x10) + j * 0xC);
     q = (EffAfterVec *)p;
     t = q->c[0];
