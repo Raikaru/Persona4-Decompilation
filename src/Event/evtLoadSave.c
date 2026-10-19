@@ -9,17 +9,32 @@
 typedef struct { u8 c[4]; } Rgba8;
 typedef struct { s16 a; s16 b; s16 c; s16 d; } S16x4;
 typedef struct { f32 x; f32 y; f32 z; f32 pad; } F32x4;
-typedef struct { s64 a; f32 b; s32 pad; } StateFrame;
 typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
-/* Payload of record arg2: the 0x10-byte table at +0x94 when the scene header
-   kind is 4, otherwise the 0x3C-byte table at +0x98 (recordOffset = arg2 * 0x3C). */
-static inline u8 *evtLoadRecordPayload(u8 *arg0, s32 arg2, s32 recordOffset)
+/* Serialized per-kind record payload: readers copy words at +4..+0x24;
+   the first byte is a signed operation in command records. Interpretations of
+   the remaining words depend on the parent node kind. */
+typedef struct EvtRecordPayload {
+    union { s32 word; s8 operation; } first;
+    s32 unk04;
+    s32 unk08;
+    s32 unk0C;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+} EvtRecordPayload;
+
+/* Payload of recordIndex: the 0x10-byte table at +0x94 when the scene header
+   kind is 4, otherwise the 0x3C-byte table at +0x98 (recordOffset = recordIndex * 0x3C). */
+static inline u8 *evtLoadRecordPayload(u8 *source, s32 recordIndex, s32 recordOffset)
 {
-    MtMiscSceneSource *src = (MtMiscSceneSource *)arg0;
+    MtMiscSceneSource *src = (MtMiscSceneSource *)source;
 
     if (src->header->kind == 4) {
-        return (u8 *)((u8 *)src->records94 + (arg2 * 0x10) + 8);
+        return (u8 *)((u8 *)src->records94 + (recordIndex * 0x10) + 8);
     }
     return (u8 *)((u8 *)src->records98 + recordOffset + 0x14);
 }
@@ -49,94 +64,93 @@ extern u8 D_0063CAB0[];
 extern s64 D_0063CAE8[];
 extern f32 D_0063CAF0[];
 
-// Intent: Copies record arg2 from the node's record table into entry arg1: coordinates, kind and the per-kind fields [inferred]
+// Intent: Copies recordIndex from the source record table into entry: coordinates, kind and the per-kind fields [inferred]
 // FUN_00294610
-void evtNodeLoadRecordEntry(u8 *arg0, u8 *arg1, s32 arg2) {
-    S16x4 sp48;
+void evtNodeLoadRecordEntry(u8 *source, u8 *entry, s32 recordIndex) {
+    /* measured: typed mutable child fields cache addresses and lose MATCH; retain raw stores and aliasing table reloads. */
+    S16x4 coordinates;
     s16 *coord;
-    s32 temp_3;
-    s16 temp_9;
-    s16 temp_8;
-    s16 temp_7;
-    s16 temp_10;
-    s32 type;
-    s32 type2;
-    s32 v38;
-    s32 v40;
-    s32 v16;
-    s32 v28;
-    s32 v2A;
-    u8 *q;
+    s32 recordOffset;
+    s16 coordFirst;
+    s16 coordSecond;
+    s16 coordThird;
+    s16 coordFourth;
+    s32 sourceKind;
+    s32 parentKind;
+    s32 blurIndex;
+    s32 firstPercent;
+    s32 secondPercent;
+    u8 *payload;
 
-    temp_3 = arg2 * 0x3C;
-    coord = &temp_9;
-    *coord = *(s16 *)((u32)temp_3 + (u32)*(s32 *)(arg0 + 0x98) + 0xC);
-    coord = &temp_8;
-    *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
-    coord = &temp_7;
-    *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
-    coord = &temp_10;
-    *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
-    sp48.a = temp_9;
-    sp48.b = temp_8;
-    sp48.c = temp_7;
-    sp48.d = temp_10;
-    *(S16x4 *)(arg1 + 8) = sp48;
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s8 *)(arg1 + 0x10) = *(s8 *)q;
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x14) = *(s32 *)(q + 4);
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x18) = *(s32 *)(q + 8);
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x1C) = *(s32 *)(q + 0xC);
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x20) = *(s32 *)(q + 0x10);
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x24) = *(s32 *)(q + 0x14);
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x28) = *(s32 *)(q + 0x18);
-    q = evtLoadRecordPayload(arg0, arg2, temp_3);
-    *(s32 *)(arg1 + 0x2C) = *(s32 *)(q + 0x1C);
-    v38 = *(s32 *)(arg1 + 0x38);
-    if (v38 == 1) {
-        *(s32 *)(arg1 + 0x30) = 0;
-    } else if (v38 == 0x30) {
-        q = evtLoadRecordPayload(arg0, arg2, temp_3);
-        *(s32 *)(arg1 + 0x30) = *(s32 *)(q + 0x20);
+    recordOffset = recordIndex * 0x3C;
+    coord = &coordFirst;
+    *coord = ((EvtSceneRecord *)((u32)recordOffset + (u32)(s32)((MtMiscSceneSource *)source)->records98))->position[0];
+    coord = &coordSecond;
+    *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[1];
+    coord = &coordThird;
+    *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[2];
+    coord = &coordFourth;
+    *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[3];
+    coordinates.a = coordFirst;
+    coordinates.b = coordSecond;
+    coordinates.c = coordThird;
+    coordinates.d = coordFourth;
+    *(S16x4 *)&((EvtChildNode *)entry)->unk08 = coordinates;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s8 *)(entry + 0x10) = ((EvtRecordPayload *)payload)->first.operation;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x14) = ((EvtRecordPayload *)payload)->unk04;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x18) = ((EvtRecordPayload *)payload)->unk08;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x1C) = ((EvtRecordPayload *)payload)->unk0C;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x20) = ((EvtRecordPayload *)payload)->unk10;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x24) = ((EvtRecordPayload *)payload)->unk14;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x28) = ((EvtRecordPayload *)payload)->unk18;
+    payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+    *(s32 *)(entry + 0x2C) = ((EvtRecordPayload *)payload)->unk1C;
+    parentKind = *(s32 *)&((EvtChildNode *)entry)->kind;
+    if (parentKind == 1) {
+        *(s32 *)(entry + 0x30) = 0;
+    } else if (parentKind == 0x30) {
+        payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+        *(s32 *)(entry + 0x30) = ((EvtRecordPayload *)payload)->unk20;
     }
-    type2 = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
-    if (type2 < 0xC) {
-        if (*(s32 *)(arg1 + 0x38) == 1) {
-            q = evtLoadRecordPayload(arg0, arg2, temp_3);
-            *(s32 *)(arg1 + 0x34) = *(s32 *)(q + 0x20);
+    sourceKind = ((MtMiscSceneSource *)source)->header->kind;
+    if (sourceKind < 0xC) {
+        if (*(s32 *)(entry + 0x38) == 1) {
+            payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+            *(s32 *)(entry + 0x34) = ((EvtRecordPayload *)payload)->unk20;
         }
     } else {
-        q = evtLoadRecordPayload(arg0, arg2, temp_3);
-        *(s32 *)(arg1 + 0x34) = *(s32 *)(q + 0x24);
+        payload = evtLoadRecordPayload(source, recordIndex, recordOffset);
+        *(s32 *)(entry + 0x34) = ((EvtRecordPayload *)payload)->unk24;
     }
-    *(s32 *)(arg1 + 4) = -1;
-    switch (*(s8 *)(arg1 + 0x10)) {
+    *(s32 *)(entry + 4) = -1;
+    switch (*(s8 *)(entry + 0x10)) {
     case 1:
-        switch (*(s8 *)(arg1 + 0x14)) {
+        switch (*(s8 *)(entry + 0x14)) {
         case 1:
-            v16 = *(s16 *)(temp_3 + (s32)*(s32 *)(arg0 + 0x98) + 0xA);
-            evtBlurFilterEnsureBlock(arg1);
-            if (*(s32 *)(arg1 + 0x40) == 0) {
+            blurIndex = *(s16 *)(recordOffset + (s32)*(s32 *)(source + 0x98) + 0xA);
+            evtBlurFilterEnsureBlock(entry);
+            if (*(s32 *)(entry + 0x40) == 0) {
                 kAssertFail(D_0063CAB0, 0x726);
             }
-            memcpy((u8 *)(*(s32 *)(arg1 + 0x40)), (u8 *)(*(s32 *)(arg0 + 0x60) + (v16 * 0x130)), 0x130);
+            memcpy((u8 *)(*(s32 *)(entry + 0x40)), (u8 *)(*(s32 *)(source + 0x60) + (blurIndex * 0x130)), 0x130);
             break;
         }
         break;
     case 2:
-        v28 = *(s16 *)(arg1 + 0x28);
-        if ((v28 < 0) || (v28 > 0x1F4)) {
-            *(s16 *)(arg1 + 0x28) = 0x64;
+        firstPercent = *(s16 *)(entry + 0x28);
+        if ((firstPercent < 0) || (firstPercent > 0x1F4)) {
+            *(s16 *)(entry + 0x28) = 0x64;
         }
-        v2A = *(s16 *)(arg1 + 0x2A);
-        if ((v2A < 0) || (v2A > 0x1F4)) {
-            *(s16 *)(arg1 + 0x2A) = 0x64;
+        secondPercent = *(s16 *)(entry + 0x2A);
+        if ((secondPercent < 0) || (secondPercent > 0x1F4)) {
+            *(s16 *)(entry + 0x2A) = 0x64;
         }
         break;
     default:
@@ -144,39 +158,40 @@ void evtNodeLoadRecordEntry(u8 *arg0, u8 *arg1, s32 arg2) {
     }
 }
 
-// Intent: Loads each kind-1 record whose count equals arg3 into a new node entry (through evtNodeLoadRecordEntry) [inferred]
+// Intent: Loads each kind-1 record whose count equals recordCount into a new node entry (through evtNodeLoadRecordEntry) [inferred]
 // FUN_00294A90
-void evtNodeLoadRecordsByCount(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
+void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCount) {
+    /* measured: typing the +0x94/+0x98 source pointers loses MATCH; preserve the raw table loads and packed count read. */
     s32 i;
     s32 type;
-    u16 var_4;
-    u16 var_2;
+    u16 recordKind;
+    u16 recordId;
     s32 count;
-    s32 off;
-    u8 *temp_5;
+    s32 recordOffset;
+    u8 *record;
 
-    if ((arg0 == NULL) || (arg2 == NULL)) {
+    if ((source == NULL) || (node == NULL)) {
         return;
     }
-    count = arg3 & 0xFFFF;
+    count = recordCount & 0xFFFF;
     if (count != 0) {
-        for (i = 0; i < *(s32 *)(arg0 + 0xAC); i++) {
-            type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+        for (i = 0; i < ((MtMiscSceneSource *)source)->countAC; i++) {
+            type = ((MtMiscSceneSource *)source)->header->kind;
             if (type == 4) {
-                var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10));
+                recordKind = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->type;
             } else {
-                var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C));
+                recordKind = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (i * 0x3C)))->type;
             }
-            if ((var_4 & 0xFFFF) == 1) {
-                off = i * 0x3C;
-                temp_5 = (u8 *)((s32)(*(s32 *)(arg0 + 0x98)) + off);
-                if (count == *(u16 *)(temp_5 + 8)) {
+            if ((recordKind & 0xFFFF) == 1) {
+                recordOffset = i * 0x3C;
+                record = (u8 *)((s32)(*(s32 *)(source + 0x98)) + recordOffset);
+                if (count == *(u16 *)(record + 8)) {
                     if (type == 4) {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 2);
+                        recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->id;
                     } else {
-                        var_2 = *(u16 *)(temp_5 + 2);
+                        recordId = ((EvtSceneRecord *)record)->id;
                     }
-                    evtNodeLoadRecordEntry(arg0, evtNodeCreate(arg2, var_2 & 0xFFFF, arg1), i);
+                    evtNodeLoadRecordEntry(source, evtNodeCreate(node, recordId & 0xFFFF, eventWork), i);
                 }
             }
         }
@@ -189,172 +204,174 @@ void evtNodeLoadRecordsByCount(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
  * fields retain retail's constant-load and stack-store ordering. */
 // Intent: Builds the camera resources (ids 0x1E58 and 0x1E59) and the kind-0x21 node entries from the record table [inferred]
 // FUN_00294BE0
-void evtNodeLoadCameraRecords(u8 *arg0, u8 *arg1) {
+void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork) {
+    /* measured: typed source/header reloads and mutable child fields lose MATCH; retain their byte-addressed alias boundaries. */
     typedef struct { f32 x; f32 y; f32 z; } EventVector;
     StackState stack;
     s16 *coord;
-    s16 temp_6;
-    s16 temp_5_2;
-    s16 temp_4;
-    s16 temp_7_2;
-    s64 *angles_xy_ptr;
-    f32 *angles_z_ptr;
-    s64 angles_xy;
-    f32 angles_z;
+    s16 coordFirst;
+    s16 coordSecond;
+    s16 coordThird;
+    s16 coordFourth;
+    s64 *packedAnglesPtr;
+    f32 *angleZPtr;
+    s64 packedAngles;
+    f32 angleZ;
     u8 *zero;
-    s32 zero_count;
+    s32 clearBytes;
     s32 type;
     s32 idx;
     s32 off;
-    u16 resource_id;
+    u16 resourceId;
     u8 *dest;
     u8 *resource;
-    u8 *temp_3;
+    u8 *cameraResource;
     u16 id;
-    u16 var_2;
-    u16 var_4;
-    u8 *temp_2_3;
-    u8 *temp_7;
-    u8 *q;
+    u16 recordId;
+    u16 recordFlags;
+    u8 *entry;
+    u8 *record;
+    u8 *payload;
     zero = (u8 *)&stack.vec[1];
-    zero_count = 0xC;
+    clearBytes = 0xC;
     if (zero != NULL) {
         do {
             *zero = 0;
             zero++;
-            zero_count--;
-        } while (zero_count != 0);
+            clearBytes--;
+        } while (clearBytes != 0);
     }
-    angles_xy_ptr = &angles_xy;
-    *angles_xy_ptr = D_0063CAE8[0];
-    angles_z_ptr = &angles_z;
-    *angles_z_ptr = D_0063CAF0[0];
-    *(s64 *)&stack.vec[0] = angles_xy;
-    stack.vec[0].z = angles_z;
+    packedAnglesPtr = &packedAngles;
+    *packedAnglesPtr = D_0063CAE8[0];
+    angleZPtr = &angleZ;
+    *angleZPtr = D_0063CAF0[0];
+    *(s64 *)&stack.vec[0] = packedAngles;
+    stack.vec[0].z = angleZ;
     if (MT_Scene_GetResManager() != 0) {
         idx = (s32)MT_Scene_GetRes(0x1E58);
         if (idx == 0) {
-            resource_id = MT_Scene_CreateRes07(0x258) & 0xFFFF;
-            idx = (s32)MT_Scene_GetRes(resource_id);
+            resourceId = MT_Scene_CreateRes07(0x258) & 0xFFFF;
+            idx = (s32)MT_Scene_GetRes(resourceId);
         } else {
-            resource_id = *(u16 *)idx;
+            resourceId = *(u16 *)idx;
         }
-        MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
+        MT_Scene_SetResPlacement(resourceId, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
+        /* Resource +0x144 and owner +0x12C are not exposed by the shared scene layouts. */
         *(s32 *)((u8 *)idx + 0x144) = 0;
-        *(u8 **)(arg1 + 0x12C) = MT_Scene_GetRes(resource_id);
+        *(u8 **)(eventWork + 0x12C) = MT_Scene_GetRes(resourceId);
         MT_Scene_OffsetPointByRotation(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
-        MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
+        MT_Scene_SetResPlacement(resourceId, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)MT_Scene_GetRes(0x1E59);
         if (resource == NULL) {
-            resource_id = MT_Scene_CreateRes07(0x259) & 0xFFFF;
-            MT_Scene_GetRes(resource_id);
+            resourceId = MT_Scene_CreateRes07(0x259) & 0xFFFF;
+            MT_Scene_GetRes(resourceId);
         } else {
-            resource_id = *(u16 *)resource;
+            resourceId = *(u16 *)resource;
         }
-        MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
-        *(s32 *)((u8 *)MT_Scene_GetRes(resource_id) + 0x144) = 0;
-        evtSetKindExclusiveRes(arg1, 0);
-        temp_3 = *(u8 **)(arg1 + 0x12C);
-        if (temp_3 != NULL) {
-            dest = (u8 *)evtNodeAllocWithRes(0x21, arg1, *(u16 *)temp_3, NULL);
-            *(s32 *)(dest + 8) = -1;
-            *(EventVector *)(dest + 0x38) = *(EventVector *)&stack.vec[2];
-            *(EventVector *)(dest + 0x44) = *(EventVector *)&stack.vec[0];
-            for (idx = 0; idx < *(s32 *)(arg0 + 0xAC); idx++) {
-                type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+        MT_Scene_SetResPlacement(resourceId, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
+        *(s32 *)((u8 *)MT_Scene_GetRes(resourceId) + 0x144) = 0;
+        evtSetKindExclusiveRes(eventWork, 0);
+        cameraResource = *(u8 **)(eventWork + 0x12C);
+        if (cameraResource != NULL) {
+            dest = (u8 *)evtNodeAllocWithRes(0x21, eventWork, *(u16 *)cameraResource, NULL);
+            ((EvtNode *)dest)->unk08 = -1;
+            *(EventVector *)&((MtMiscSceneNode *)dest)->unk_38 = *(EventVector *)&stack.vec[2];
+            *(EventVector *)&((MtMiscSceneNode *)dest)->unk_44 = *(EventVector *)&stack.vec[0];
+            for (idx = 0; idx < ((MtMiscSceneSource *)source)->countAC; idx++) {
+                type = ((MtMiscSceneSource *)source)->header->kind;
                 if (type == 4) {
-                    id = *(u16 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10));
+                    id = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (idx * 0x10)))->type;
                 } else {
-                    id = *(u16 *)(*(s32 *)(arg0 + 0x98) + (idx * 0x3C));
+                    id = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (idx * 0x3C)))->type;
                 }
                 if ((id & 0xFFFF) == 0x21) {
                     if (type == 4) {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 2);
+                        recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (idx * 0x10)))->id;
                     } else {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (idx * 0x3C) + 2);
+                        recordId = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (idx * 0x3C)))->id;
                     }
-                    temp_2_3 = evtNodeCreate(dest, var_2 & 0xFFFF, arg1);
+                    entry = evtNodeCreate(dest, recordId & 0xFFFF, eventWork);
                     off = idx * 0x3C;
-                    temp_7 = (u8 *)(*(s32 *)(arg0 + 0x98) + off);
-                    coord = &temp_6;
-                    *coord = *(s16 *)(temp_7 + 0xC);
-                    coord = &temp_5_2;
-                    *coord = *(s16 *)(temp_7 + 0xE);
-                    coord = &temp_4;
-                    *coord = *(s16 *)(temp_7 + 0x10);
-                    coord = &temp_7_2;
-                    *coord = *(s16 *)(temp_7 + 0x12);
-                    stack.coord.a = temp_6;
-                    stack.coord.b = temp_5_2;
-                    stack.coord.c = temp_4;
-                    stack.coord.d = temp_7_2;
-                    *(S16x4 *)(temp_2_3 + 8) = stack.coord;
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 4);
+                    record = (u8 *)(*(s32 *)(source + 0x98) + off);
+                    coord = &coordFirst;
+                    *coord = ((EvtSceneRecord *)(record))->position[0];
+                    coord = &coordSecond;
+                    *coord = ((EvtSceneRecord *)(record))->position[1];
+                    coord = &coordThird;
+                    *coord = ((EvtSceneRecord *)(record))->position[2];
+                    coord = &coordFourth;
+                    *coord = ((EvtSceneRecord *)(record))->position[3];
+                    stack.coord.a = coordFirst;
+                    stack.coord.b = coordSecond;
+                    stack.coord.c = coordThird;
+                    stack.coord.d = coordFourth;
+                    *(S16x4 *)&((EvtChildNode *)entry)->unk08 = stack.coord;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        recordFlags = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (idx * 0x10)))->unk_04;
                     } else {
-                        var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + off + 4);
+                        recordFlags = *(u16 *)(*(s32 *)(source + 0x98) + off + 4);
                     }
-                    *(u16 *)(temp_2_3 + 2) = var_4;
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(u16 *)(entry + 2) = recordFlags;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x10) = *(s32 *)q;
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x10) = ((EvtRecordPayload *)payload)->first.word;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x14) = *(s32 *)(q + 4);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x14) = ((EvtRecordPayload *)payload)->unk04;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x18) = *(s32 *)(q + 8);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x18) = ((EvtRecordPayload *)payload)->unk08;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x1C) = *(s32 *)(q + 0xC);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x1C) = ((EvtRecordPayload *)payload)->unk0C;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x20) = *(s32 *)(q + 0x10);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x20) = ((EvtRecordPayload *)payload)->unk10;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x24) = *(s32 *)(q + 0x14);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x24) = ((EvtRecordPayload *)payload)->unk14;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x28) = *(s32 *)(q + 0x18);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x28) = ((EvtRecordPayload *)payload)->unk18;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x2C) = *(s32 *)(q + 0x1C);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x2C) = ((EvtRecordPayload *)payload)->unk1C;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x30) = *(s32 *)(q + 0x20);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    *(s32 *)(entry + 0x30) = ((EvtRecordPayload *)payload)->unk20;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (idx * 0x10) + 8);
                     } else {
-                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + off + 0x14);
                     }
-                    *(s32 *)(temp_2_3 + 0x34) = *(s32 *)(q + 0x24);
+                    *(s32 *)(entry + 0x34) = ((EvtRecordPayload *)payload)->unk24;
                 }
             }
         }
@@ -363,94 +380,95 @@ void evtNodeLoadCameraRecords(u8 *arg0, u8 *arg1) {
 
 // Intent: Allocates three kind-0x24 slot nodes and loads the kind-0x24 records into them [inferred]
 // FUN_002951C0
-void evtNodeLoadRecords24(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords24(u8 *source, u8 *eventWork) {
+    /* measured: typed source/header reloads and mutable payload stores lose MATCH; retain these raw accesses. */
     u8 *arr[3];
-    S16x4 sp58;
+    S16x4 coordinates;
     s16 *coord;
     s32 i;
     s32 type;
     s32 idx;
     u16 id;
-    u16 var_2;
-    s32 temp_3;
-    s16 temp_6;
-    s16 temp_5_2;
-    s16 temp_4;
-    s16 temp_7_2;
-    u8 *p;
+    u16 recordId;
+    s32 recordOffset;
+    s16 coordFirst;
+    s16 coordSecond;
+    s16 coordThird;
+    s16 coordFourth;
+    u8 *payloadForSlot;
     u8 *dest;
-    u8 *q;
+    u8 *payload;
 
     for (i = 0; i < 3; i++) {
-        arr[i] = evtNodeAlloc(0x24, arg1);
-        *(s32 *)(arr[i] + 8) = -1;
-        *(s32 *)(arr[i] + 0x34) = 0;
-        *(s32 *)(arr[i] + 4) = i;
+        arr[i] = evtNodeAlloc(0x24, eventWork);
+        ((EvtNode *)arr[i])->unk08 = -1;
+        *(s32 *)&((EvtNode *)arr[i])->res = 0;
+        ((EvtNode *)arr[i])->param04 = i;
     }
-    for (i = 0; i < *(s32 *)(arg0 + 0xAC); i++) {
-        type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+    for (i = 0; i < ((MtMiscSceneSource *)source)->countAC; i++) {
+        type = ((MtMiscSceneSource *)source)->header->kind;
         if (type == 4) {
-            id = *(u16 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10));
+            id = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->type;
         } else {
-            id = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C));
+            id = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (i * 0x3C)))->type;
         }
         if ((id & 0xFFFF) == 0x24) {
             if (type == 4) {
-                p = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+                payloadForSlot = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                p = (u8 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C) + 0x14);
+                payloadForSlot = (u8 *)(*(s32 *)(source + 0x98) + (i * 0x3C) + 0x14);
             }
-            idx = *(s8 *)(p + 1);
+            idx = (s8)((EvtPayloadKind24 *)payloadForSlot)->unk01;
             if (type == 4) {
-                var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 2);
+                recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->id;
             } else {
-                var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C) + 2);
+                recordId = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (i * 0x3C)))->id;
             }
-            dest = evtNodeCreate(arr[idx], var_2 & 0xFFFF, arg1);
-            temp_3 = i * 0x3C;
-            coord = &temp_6;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
-            coord = &temp_5_2;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
-            coord = &temp_4;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
-            coord = &temp_7_2;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
-            sp58.a = temp_6;
-            sp58.b = temp_5_2;
-            sp58.c = temp_4;
-            sp58.d = temp_7_2;
-            *(S16x4 *)(dest + 8) = sp58;
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                q = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+            dest = evtNodeCreate(arr[idx], recordId & 0xFFFF, eventWork);
+            recordOffset = i * 0x3C;
+            coord = &coordFirst;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[0];
+            coord = &coordSecond;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[1];
+            coord = &coordThird;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[2];
+            coord = &coordFourth;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[3];
+            coordinates.a = coordFirst;
+            coordinates.b = coordSecond;
+            coordinates.c = coordThird;
+            coordinates.d = coordFourth;
+            *(S16x4 *)&((EvtChildNode *)dest)->unk08 = coordinates;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x10) = *(s32 *)q;
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                q = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+            *(s32 *)(dest + 0x10) = ((EvtRecordPayload *)payload)->first.word;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x14) = *(s32 *)(q + 4);
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                q = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+            *(s32 *)(dest + 0x14) = ((EvtRecordPayload *)payload)->unk04;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x18) = *(s32 *)(q + 8);
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                q = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+            *(s32 *)(dest + 0x18) = ((EvtRecordPayload *)payload)->unk08;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x1C) = *(s32 *)(q + 0xC);
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                q = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+            *(s32 *)(dest + 0x1C) = ((EvtRecordPayload *)payload)->unk0C;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(dest + 0x20) = *(s32 *)(q + 0x10);
+            *(s32 *)(dest + 0x20) = ((EvtRecordPayload *)payload)->unk10;
         }
     }
 }
@@ -458,79 +476,80 @@ void evtNodeLoadRecords24(u8 *arg0, u8 *arg1) {
 /* measured: address-taken coordinate locals preserve retail's grouped loads and stores; the clamp uses a direct swapped relational guard so b210 emits retail's $at compare. Object 592/592, normalized_diff 0. Committed at nd 0. */
 // Intent: Creates a kind-0x2F node, loads its kind-0x2F records and clamps the field at +0x1A to 100 when out of range [inferred]
 // FUN_002954F0
-void evtNodeLoadRecords2F(u8 *arg0, u8 *arg1) {
-    u8 *temp_17;
-    S16x4 sp58;
+void evtNodeLoadRecords2F(u8 *source, u8 *eventWork) {
+    /* measured: typed source/header reloads and payload stores lose MATCH; retain raw accesses, including the overlapping clamp halfword. */
+    u8 *node;
+    S16x4 coordinates;
     s16 *coord;
-    s32 temp_3;
-    s32 var_16;
-    s32 temp_5;
-    u16 var_2;
-    u16 var_3;
-    s16 temp_6;
-    s16 temp_5_2;
-    s16 temp_4;
-    s16 temp_7_2;
-    u8 *temp_2;
-    u8 *var_3_2;
-    s32 *var_4;
-    u8 *var_4_2;
-    temp_17 = (u8 *)(evtNodeAlloc(0x2F, arg1));
-    for (var_16 = 0; var_16 < *(s32 *)(arg0 + 0xAC); var_16++) {
-        temp_5 = (s32)(*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14));
-        if (temp_5 == 4) {
-            var_3 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (var_16 * 0x10));
+    s32 recordOffset;
+    s32 recordIndex;
+    s32 sourceKind;
+    u16 recordId;
+    u16 recordKind;
+    s16 coordFirst;
+    s16 coordSecond;
+    s16 coordThird;
+    s16 coordFourth;
+    u8 *entry;
+    u8 *payloadForClamp;
+    s32 *payloadWord;
+    u8 *payload;
+    node = (u8 *)(evtNodeAlloc(0x2F, eventWork));
+    for (recordIndex = 0; recordIndex < ((MtMiscSceneSource *)source)->countAC; recordIndex++) {
+        sourceKind = (s32)(((MtMiscSceneSource *)source)->header->kind);
+        if (sourceKind == 4) {
+            recordKind = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10)))->type;
         } else {
-            var_3 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_16 * 0x3C));
+            recordKind = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (recordIndex * 0x3C)))->type;
         }
-        if ((var_3 & 0xFFFF) == 0x2F) {
-            if (temp_5 == 4) {
-                var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (var_16 * 0x10) + 2);
+        if ((recordKind & 0xFFFF) == 0x2F) {
+            if (sourceKind == 4) {
+                recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10)))->id;
             } else {
-                var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_16 * 0x3C) + 2);
+                recordId = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (recordIndex * 0x3C)))->id;
             }
-            temp_2 = (u8 *)(evtNodeCreate(temp_17, var_2 & 0xFFFF, arg1));
-            temp_3 = var_16 * 0x3C;
-            coord = &temp_6;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
-            coord = &temp_5_2;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
-            coord = &temp_4;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
-            coord = &temp_7_2;
-            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
-            sp58.a = temp_6;
-            sp58.b = temp_5_2;
-            sp58.c = temp_4;
-            sp58.d = temp_7_2;
-            *(S16x4 *)(temp_2 + 8) = sp58;
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                var_4 = (s32 *)(*(s32 *)(arg0 + 0x94) + (var_16 * 0x10) + 8);
+            entry = (u8 *)(evtNodeCreate(node, recordId & 0xFFFF, eventWork));
+            recordOffset = recordIndex * 0x3C;
+            coord = &coordFirst;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[0];
+            coord = &coordSecond;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[1];
+            coord = &coordThird;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[2];
+            coord = &coordFourth;
+            *coord = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + recordOffset))->position[3];
+            coordinates.a = coordFirst;
+            coordinates.b = coordSecond;
+            coordinates.c = coordThird;
+            coordinates.d = coordFourth;
+            *(S16x4 *)&((EvtChildNode *)entry)->unk08 = coordinates;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payloadWord = (s32 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
             } else {
-                var_4 = (s32 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payloadWord = (s32 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(temp_2 + 0x10) = *(s32 *)var_4;
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                var_4_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (var_16 * 0x10) + 8);
+            *(s32 *)(entry + 0x10) = ((EvtRecordPayload *)payloadWord)->first.word;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
             } else {
-                var_4_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(temp_2 + 0x14) = *(s32 *)(var_4_2 + 4);
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                var_3_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (var_16 * 0x10) + 8);
+            *(s32 *)(entry + 0x14) = ((EvtRecordPayload *)payload)->unk04;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payloadForClamp = (u8 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
             } else {
-                var_3_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
+                payloadForClamp = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            *(s32 *)(temp_2 + 0x18) = *(s32 *)(var_3_2 + 8);
-            if (*(s8 *)(temp_2 + 0x10) == 1) {
-                if (*(s16 *)(temp_2 + 0x1A) < 0) {
+            *(s32 *)(entry + 0x18) = ((EvtRecordPayload *)payloadForClamp)->unk08;
+            if (*(s8 *)(entry + 0x10) == 1) {
+                if (*(s16 *)(entry + 0x1A) < 0) {
                     goto clamp_954;
                 }
-                if (0x1F4 >= *(s16 *)(temp_2 + 0x1A)) {
+                if (0x1F4 >= *(s16 *)(entry + 0x1A)) {
                     goto next_954;
                 }
 clamp_954:
-                *(s16 *)(temp_2 + 0x1A) = 0x64;
+                *(s16 *)(entry + 0x1A) = 0x64;
             }
 next_954:
             ;
@@ -540,191 +559,194 @@ next_954:
 
 // Intent: Creates the entry's model, attaches its owner, creates its NPC shadow resource and copies its colour to the node [inferred]
 // FUN_00295740
-void evtNodeCreateModel(s32 arg0, u8 *arg1) {
-    s32 sp6C;
-    u32 sp68;
+void evtNodeCreateModel(s32 eventWork, u8 *node) {
+    /* measured: typed node argument loads across model calls lose MATCH; +0x1F remains an unnamed flag byte in the shared layout. */
+    s32 modelId;
+    u32 modelSize;
     struct {
         f32 x;
         s32 y;
         f32 z;
-    } sp58;
-    s32 temp_17;
-    s32 temp_2;
-    s32 temp_2_2;
-    s8 temp_5;
-    u16 *temp_2_3;
-    u16 temp_16;
-    u8 *temp_2_4;
+    } position;
+    s32 model;
+    s32 modelData;
+    s32 positionOffset;
+    s8 slot;
+    u16 *resource;
+    u16 resourceId;
+    u8 *color;
 
-    temp_5 = (s8)arg1[0x1E];
-    if (temp_5 >= 0) {
-        temp_2 = mtMiscReadSlotValues(arg0, temp_5, (s32 *)&sp68, (s32 *)&sp6C);
-        if (temp_2 != 0) {
-            temp_17 = (s32)mdlCreateModelObjectFromMemory(5, (u16)sp6C, (void *)temp_2, sp68, 1);
-            if (*(s8 *)(arg1 + 0x1F) & 1) {
-                mdlSetAttachedOwner(temp_17, D_005DC7D0);
+    slot = (s8)node[0x1E];
+    if (slot >= 0) {
+        modelData = mtMiscReadSlotValues(eventWork, slot, (s32 *)&modelSize, (s32 *)&modelId);
+        if (modelData != 0) {
+            model = (s32)mdlCreateModelObjectFromMemory(5, (u16)modelId, (void *)modelData, modelSize, 1);
+            if (*(s8 *)(node + 0x1F) & 1) {
+                mdlSetAttachedOwner(model, D_005DC7D0);
             } else {
-                mdlSetAttachedOwner(temp_17, D_005DC878);
+                mdlSetAttachedOwner(model, D_005DC878);
             }
-            temp_16 = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(evtCustomEventResId(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
-            MT_Scene_SetResActiveById(temp_16, 1);
-            temp_2_2 = (s32)(*(s32 *)(arg1 + 4) * 0x1E);
-            sp58.x = (f32)temp_2_2;
-            sp58.y = 0;
-            sp58.z = (f32)-temp_2_2;
-            MT_Scene_SetResPlacement(temp_16, (u8 *)&sp58, 0);
-            temp_2_3 = (u16 *)(MT_Scene_GetRes(temp_16));
-            if (temp_2_3 == NULL) {
+            resourceId = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(evtCustomEventResId(*(s32 *)(node + 4)) & 0xFFFF), 0, model) & 0xFFFF);
+            MT_Scene_SetResActiveById(resourceId, 1);
+            positionOffset = (s32)(*(s32 *)(node + 4) * 0x1E);
+            position.x = (f32)positionOffset;
+            position.y = 0;
+            position.z = (f32)-positionOffset;
+            MT_Scene_SetResPlacement(resourceId, (u8 *)&position, 0);
+            resource = (u16 *)(MT_Scene_GetRes(resourceId));
+            if (resource == NULL) {
                 kAssertFail(D_0063CAB0, 0x9C5);
             }
-            evtNodeSetRes(arg1, temp_16, temp_2_3);
-            temp_2_4 = (u8 *)(mdlGetColor(temp_17));
-            *(Rgba8 *)(arg1 + 0x50) = *(Rgba8 *)(temp_2_4);
+            evtNodeSetRes(node, resourceId, resource);
+            color = (u8 *)(mdlGetColor(model));
+            *(Rgba8 *)&((EvtNode *)node)->color = *(Rgba8 *)(color);
             return;
         }
-        evtNodeSetRes(arg1, 0U, NULL);
+        evtNodeSetRes(node, 0U, NULL);
     }
 }
 
 // Intent: Allocates three kind-0x34 slot nodes and copies the 0x28-byte payload of each kind-0x34 record [inferred]
 // FUN_00295B80
-void evtNodeLoadRecords34(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords34(u8 *source, u8 *eventWork) {
+    /* measured: typed source/header reloads lose MATCH; keep them raw while using typed row and coordinate fields. */
     u8 *arr[3];
-    S16x4 sp58;
+    S16x4 coordinates;
     s32 i;
     s32 type;
     u16 id;
     u8 *entry;
-    u8 *var_2;
-    u16 var_2_2;
-    u8 *temp_2_2;
-    s32 temp_8;
-    s32 temp_7;
-    s16 temp_5;
-    s16 temp_4;
-    s16 temp_3_2;
-    s16 temp_6_2;
+    u8 *payload;
+    u16 recordId;
+    u8 *child;
+    s32 compactOffset;
+    s32 recordOffset;
+    s16 coordFirst;
+    s16 coordSecond;
+    s16 coordThird;
+    s16 coordFourth;
     s16 *q;
     s32 idx;
 
     for (i = 0; i < 3; i++) {
-        arr[i] = evtNodeAlloc(0x34, arg1);
-        *(s32 *)(arr[i] + 8) = -1;
-        *(s32 *)(arr[i] + 0x34) = 0;
-        *(s32 *)(arr[i] + 4) = i;
+        arr[i] = evtNodeAlloc(0x34, eventWork);
+        ((EvtNode *)arr[i])->unk08 = -1;
+        *(s32 *)&((EvtNode *)arr[i])->res = 0;
+        ((EvtNode *)arr[i])->param04 = i;
     }
-    for (i = 0; i < *(s32 *)(arg0 + 0xAC); i++) {
-        type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+    for (i = 0; i < ((MtMiscSceneSource *)source)->countAC; i++) {
+        type = ((MtMiscSceneSource *)source)->header->kind;
         if (type == 4) {
-            id = *(u16 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10));
+            id = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->type;
         } else {
-            id = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C));
+            id = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (i * 0x3C)))->type;
         }
         if ((id & 0xFFFF) == 0x34) {
             if (type == 4) {
-                var_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 8);
+                payload = (u8 *)(*(s32 *)(source + 0x94) + (i * 0x10) + 8);
             } else {
-                var_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C) + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + (i * 0x3C) + 0x14);
             }
             if (type == 4) {
-                var_2_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (i * 0x10) + 2);
+                recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (i * 0x10)))->id;
             } else {
-                var_2_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C) + 2);
+                recordId = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (i * 0x3C)))->id;
             }
-            idx = (u8)(*(u8 *)(var_2 + 2)) >> 4;
-            temp_2_2 = evtNodeCreate(arr[idx], var_2_2 & 0xFFFF, arg1);
-            temp_8 = i * 0x10;
-            temp_7 = i * 0x3C;
-            entry = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_7);
-            q = &temp_5;
-            *q = *(s16 *)(entry + 0xC);
-            q = &temp_4;
-            *q = *(s16 *)(entry + 0xE);
-            q = &temp_3_2;
-            *q = *(s16 *)(entry + 0x10);
-            q = &temp_6_2;
-            *q = *(s16 *)(entry + 0x12);
-            sp58.a = temp_5;
-            sp58.b = temp_4;
-            sp58.c = temp_3_2;
-            sp58.d = temp_6_2;
-            *(S16x4 *)(temp_2_2 + 8) = sp58;
-            if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                var_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + temp_8 + 8);
+            idx = (u8)(((EvtPayloadKind34 *)payload)->unk02) >> 4;
+            child = evtNodeCreate(arr[idx], recordId & 0xFFFF, eventWork);
+            compactOffset = i * 0x10;
+            recordOffset = i * 0x3C;
+            entry = (u8 *)(*(s32 *)(source + 0x98) + recordOffset);
+            q = &coordFirst;
+            *q = ((EvtSceneRecord *)entry)->position[0];
+            q = &coordSecond;
+            *q = ((EvtSceneRecord *)entry)->position[1];
+            q = &coordThird;
+            *q = ((EvtSceneRecord *)entry)->position[2];
+            q = &coordFourth;
+            *q = ((EvtSceneRecord *)entry)->position[3];
+            coordinates.a = coordFirst;
+            coordinates.b = coordSecond;
+            coordinates.c = coordThird;
+            coordinates.d = coordFourth;
+            *(S16x4 *)&((EvtChildNode *)child)->unk08 = coordinates;
+            if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                payload = (u8 *)(*(s32 *)(source + 0x94) + compactOffset + 8);
             } else {
-                var_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_7 + 0x14);
+                payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
             }
-            memcpy(temp_2_2 + 0x10, var_2, 0x28);
+            memcpy(child + 0x10, payload, 0x28);
         }
     }
 }
 
 // Intent: Allocates eight kind-0x30 slot nodes and loads the kind-0x30 records matching each slot's index, then the table at +0x100 [inferred]
 // FUN_00295910
-void evtNodeLoadRecords30(u8 *arg0, u8 *arg1) {
-    u8 *temp_2;
-    u8 *var_5;
-    u8 *var_4;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 var_19;
-    s32 var_20;
-    s32 var_19_2;
+void evtNodeLoadRecords30(u8 *source, u8 *eventWork) {
+    /* measured: typed source pointers/node fields lose MATCH; the raw five-word descriptor copy preserves its advancing cursors. */
+    u8 *node;
+    u8 *descriptor;
+    u8 *descriptorDest;
+    s32 sourceKind;
+    s32 descriptorWord;
+    s32 recordIndex;
+    s32 slotIndex;
+    s32 descriptorIndex;
     s32 off2;
-    s32 var_3_3;
-    u16 var_2;
-    u16 var_3;
-    u8 *var_3_2;
+    s32 wordsLeft;
+    u16 recordId;
+    u16 recordKind;
+    u8 *payload;
 
-    for (var_20 = 0; var_20 < 8; var_20++) {
-        temp_2 = (u8 *)(evtNodeAlloc(0x30, arg1));
-        *(s32 *)(temp_2 + 4) = var_20;
-        for (var_19 = 0; var_19 < *(s32 *)(arg0 + 0xAC); var_19++) {
-            temp_2_2 = (s32)(*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14));
-            if (temp_2_2 == 4) {
-                var_3 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (var_19 * 0x10));
+    for (slotIndex = 0; slotIndex < 8; slotIndex++) {
+        node = (u8 *)(evtNodeAlloc(0x30, eventWork));
+        *(s32 *)(node + 4) = slotIndex;
+        for (recordIndex = 0; recordIndex < ((MtMiscSceneSource *)source)->countAC; recordIndex++) {
+            sourceKind = (s32)(((MtMiscSceneSource *)source)->header->kind);
+            if (sourceKind == 4) {
+                recordKind = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10)))->type;
             } else {
-                var_3 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_19 * 0x3C));
+                recordKind = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (recordIndex * 0x3C)))->type;
             }
-            if ((var_3 & 0xFFFF) == 0x30) {
-                if (temp_2_2 == 4) {
-                    var_3_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (var_19 * 0x10) + 8);
+            if ((recordKind & 0xFFFF) == 0x30) {
+                if (sourceKind == 4) {
+                    payload = (u8 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10) + 8);
                 } else {
-                    var_3_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + (var_19 * 0x3C) + 0x14);
+                    payload = (u8 *)(*(s32 *)(source + 0x98) + (recordIndex * 0x3C) + 0x14);
                 }
-                if (*(s32 *)(temp_2 + 4) == *(s8 *)(var_3_2 + 0x20)) {
-                    if (temp_2_2 == 4) {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (var_19 * 0x10) + 2);
+                if (*(s32 *)(node + 4) == *(s8 *)(payload + 0x20)) {
+                    if (sourceKind == 4) {
+                        recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (recordIndex * 0x10)))->id;
                     } else {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_19 * 0x3C) + 2);
+                        recordId = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (recordIndex * 0x3C)))->id;
                     }
-                    evtNodeLoadRecordEntry(arg0, evtNodeCreate(temp_2, var_2 & 0xFFFF, arg1), var_19);
+                    evtNodeLoadRecordEntry(source, evtNodeCreate(node, recordId & 0xFFFF, eventWork), recordIndex);
                 }
             }
         }
-        if (*(s32 *)(arg0 + 0x100) != 0) {
-            for (var_19_2 = 0; var_19_2 < *(s32 *)(arg0 + 0x104); var_19_2++) {
-                off2 = var_19_2 * 0x14;
-                var_5 = (u8 *)((s32)*(s32 *)(arg0 + 0x100) + off2);
-                if (*(s16 *)(var_5 + 2) != -1) {
+        if (*(s32 *)(source + 0x100) != 0) {
+            for (descriptorIndex = 0; descriptorIndex < *(s32 *)(source + 0x104); descriptorIndex++) {
+                off2 = descriptorIndex * 0x14;
+                descriptor = (u8 *)((s32)*(s32 *)(source + 0x100) + off2);
+                if (*(s16 *)(descriptor + 2) != -1) {
                     kAssertFail(D_0063CAB0, 0x822);
                     continue;
                 }
-                if ((*(s32 *)(temp_2 + 0) == *(u8 *)(var_5 + 0)) && (*(s32 *)(temp_2 + 4) == *(u8 *)(var_5 + 1))) {
-                    var_4 = temp_2 + 0x18;
-                    var_3_3 = 5;
+                if ((*(s32 *)(node + 0) == *(u8 *)(descriptor + 0)) && (*(s32 *)(node + 4) == *(u8 *)(descriptor + 1))) {
+                    descriptorDest = node + 0x18;
+                    wordsLeft = 5;
                     do {
-                        temp_2_3 = *(s32 *)var_5;
-                        var_5 += 4;
-                        var_3_3 -= 1;
-                        *(s32 *)var_4 = temp_2_3;
-                        var_4 += 4;
-                    } while (var_3_3 > 0);
+                        descriptorWord = *(s32 *)descriptor;
+                        descriptor += 4;
+                        wordsLeft -= 1;
+                        *(s32 *)descriptorDest = descriptorWord;
+                        descriptorDest += 4;
+                    } while (wordsLeft > 0);
                     break;
                 }
             }
         }
-        evtNodeCreateModel((s32)arg1, temp_2);
+        evtNodeCreateModel((s32)eventWork, node);
     }
 }
 
@@ -733,155 +755,156 @@ void evtNodeLoadRecords30(u8 *arg0, u8 *arg1) {
    retail (object 1336B against the 1344B retail window). */
 // Intent: Allocates three kind-0xA nodes and loads the kind-0xA records matching each node's index [inferred]
 // FUN_00295DB0
-void evtNodeLoadRecords0A(u8 *arg0, u8 *arg1) {
-    S16x4 sp88;
+void evtNodeLoadRecords0A(u8 *source, u8 *eventWork) {
+    /* measured: typed source/header reloads and node fields lose MATCH; retain their aliasing and the five-word descriptor copy. */
+    S16x4 coordinates;
     s16 *coord;
-    s16 temp_5;
-    s16 temp_4;
-    s16 temp_3;
-    s16 temp_6;
-    s16 var_2_7;
-    u8 *temp_2;
-    u8 *var_5;
-    u8 *dest_2;
+    s16 coordFirst;
+    s16 coordSecond;
+    s16 coordThird;
+    s16 coordFourth;
+    s16 recordValue;
+    u8 *node;
+    u8 *descriptor;
+    u8 *descriptorDest;
     s32 inner;
     s32 outer;
     s32 type;
-    s32 temp_8;
+    s32 recordOffset;
     s32 off2;
     u16 id;
-    u16 var_2;
-    u16 var_4;
-    u8 *temp_2_2;
-    u8 *temp_6_2;
-    u8 *temp_7_2;
-    u8 *var_2_2;
-    f32 *var_2_3;
-    s32 var_3_3;
-    s32 temp_2_3;
+    u16 recordId;
+    u16 recordFlags;
+    u8 *child;
+    u8 *payload;
+    u8 *record;
+    u8 *payloadHalfwords;
+    f32 *payloadFloat;
+    s32 wordsLeft;
+    s32 descriptorWord;
     for (outer = 0; outer < 3; outer++) {
-        temp_2 = evtNodeAlloc(0xA, arg1);
-        *(s32 *)(temp_2 + 4) = outer;
-        for (inner = 0; inner < *(s32 *)(arg0 + 0xAC); inner++) {
-            type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+        node = evtNodeAlloc(0xA, eventWork);
+        *(s32 *)(node + 4) = outer;
+        for (inner = 0; inner < ((MtMiscSceneSource *)source)->countAC; inner++) {
+            type = ((MtMiscSceneSource *)source)->header->kind;
             if (type == 4) {
-                id = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10));
+                id = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->type;
             } else {
-                id = *(u16 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C));
+                id = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (inner * 0x3C)))->type;
             }
             if ((id & 0xFFFF) == 0xA) {
                 if (type == 4) {
-                    temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                 } else {
-                    temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C) + 0x14);
+                    payload = (u8 *)(*(s32 *)(source + 0x98) + (inner * 0x3C) + 0x14);
                 }
-                if (outer == *(s16 *)(temp_6_2 + 8)) {
+                if (outer == ((EvtPayloadKind0A *)payload)->unk08) {
                     if (type == 4) {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 2);
+                        recordId = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->id;
                     } else {
-                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C) + 2);
+                        recordId = ((EvtSceneRecord *)(*(s32 *)(source + 0x98) + (inner * 0x3C)))->id;
                     }
-                    temp_2_2 = evtNodeCreate(temp_2, var_2 & 0xFFFF, arg1);
-                    temp_8 = inner * 0x3C;
-                    temp_7_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8);
-                    coord = &temp_5;
-                    *coord = *(s16 *)(temp_7_2 + 0xC);
-                    coord = &temp_4;
-                    *coord = *(s16 *)(temp_7_2 + 0xE);
-                    coord = &temp_3;
-                    *coord = *(s16 *)(temp_7_2 + 0x10);
-                    coord = &temp_6;
-                    *coord = *(s16 *)(temp_7_2 + 0x12);
-                    sp88.a = temp_5;
-                    sp88.b = temp_4;
-                    sp88.c = temp_3;
-                    sp88.d = temp_6;
-                    *(S16x4 *)(temp_2_2 + 8) = sp88;
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        var_2_3 = (f32 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    child = evtNodeCreate(node, recordId & 0xFFFF, eventWork);
+                    recordOffset = inner * 0x3C;
+                    record = (u8 *)(*(s32 *)(source + 0x98) + recordOffset);
+                    coord = &coordFirst;
+                    *coord = ((EvtSceneRecord *)(record))->position[0];
+                    coord = &coordSecond;
+                    *coord = ((EvtSceneRecord *)(record))->position[1];
+                    coord = &coordThird;
+                    *coord = ((EvtSceneRecord *)(record))->position[2];
+                    coord = &coordFourth;
+                    *coord = ((EvtSceneRecord *)(record))->position[3];
+                    coordinates.a = coordFirst;
+                    coordinates.b = coordSecond;
+                    coordinates.c = coordThird;
+                    coordinates.d = coordFourth;
+                    *(S16x4 *)&((EvtChildNode *)child)->unk08 = coordinates;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payloadFloat = (f32 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
-                        var_2_3 = (f32 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                        payloadFloat = (f32 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
-                    *(f32 *)(temp_2_2 + 0x10) = *var_2_3;
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    ((EvtChildNode *)child)->payload.kind0A.unk00 = *payloadFloat;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
-                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
-                    *(f32 *)(temp_2_2 + 0x14) = *(f32 *)(temp_6_2 + 4);
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    ((EvtChildNode *)child)->payload.kind0A.unk04 = ((EvtPayloadKind0A *)payload)->unk04;
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
-                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                        payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
-                    *(s16 *)(temp_2_2 + 0x18) = *(s16 *)(temp_6_2 + 8);
-                    type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+                    ((EvtChildNode *)child)->payload.kind0A.unk08 = ((EvtPayloadKind0A *)payload)->unk08;
+                    type = *(s32 *)(*(s32 *)(source + 0x80) + 0x14);
                     if (type < 7) {
                         if (type == 4) {
-                            var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                            payloadHalfwords = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                         } else {
-                            var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                            payloadHalfwords = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                         }
-                        *(s16 *)(temp_2_2 + 2) = *(s16 *)(var_2_2 + 0xA);
+                        *(s16 *)(child + 2) = *(s16 *)(payloadHalfwords + 0xA);
                     } else {
                         if (type == 4) {
-                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 4);
+                            recordFlags = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->unk_04;
                         } else {
-                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 4);
+                            recordFlags = *(u16 *)(*(s32 *)(source + 0x98) + recordOffset + 4);
                         }
-                        *(s16 *)(temp_2_2 + 2) = (s16)var_4;
+                        *(s16 *)(child + 2) = (s16)recordFlags;
                     }
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        var_2_7 = *(s16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 6);
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        recordValue = *(s16 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 6);
                     } else {
-                        var_2_7 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 6);
+                        recordValue = *(s16 *)(*(s32 *)(source + 0x98) + recordOffset + 6);
                     }
-                    *(s32 *)(temp_2_2 + 4) = var_2_7;
-                    type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+                    ((EvtChildNode *)child)->unk04 = recordValue;
+                    type = *(s32 *)(*(s32 *)(source + 0x80) + 0x14);
                     if (type < 7) {
                         if (type == 4) {
-                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 4);
+                            recordFlags = ((MtMiscSceneRecord16 *)(*(s32 *)(source + 0x94) + (inner * 0x10)))->unk_04;
                         } else {
-                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 4);
+                            recordFlags = *(u16 *)(*(s32 *)(source + 0x98) + recordOffset + 4);
                         }
-                        memcpy(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + ((var_4 & 0xFFFF) * 0x30)), 0x30);
+                        memcpy((u8 *)((EvtChildNode *)child)->ownedBlock48, (u8 *)(*(s32 *)(source + 0xB8) + ((recordFlags & 0xFFFF) * 0x30)), 0x30);
                     } else {
                         if (type == 4) {
-                            temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                            payload = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                         } else {
-                            temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                            payload = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                         }
-                        memcpy(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + (*(s16 *)(temp_6_2 + 0xA) * 0x30)), 0x30);
+                        memcpy((u8 *)((EvtChildNode *)child)->ownedBlock48, (u8 *)(*(s32 *)(source + 0xB8) + (*(s16 *)(payload + 0xA) * 0x30)), 0x30);
                     }
-                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-                        var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    if (*(s32 *)(*(s32 *)(source + 0x80) + 0x14) == 4) {
+                        payloadHalfwords = (u8 *)(*(s32 *)(source + 0x94) + (inner * 0x10) + 8);
                     } else {
-                        var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                        payloadHalfwords = (u8 *)(*(s32 *)(source + 0x98) + recordOffset + 0x14);
                     }
-                    *(s16 *)(temp_2_2 + 0x1C) = *(s16 *)(var_2_2 + 0xC);
+                    *(s16 *)(child + 0x1C) = *(s16 *)(payloadHalfwords + 0xC);
                 }
             }
         }
-        if (*(s32 *)(arg0 + 0x100) != 0) {
-            for (temp_8 = 0; temp_8 < *(s32 *)(arg0 + 0x104); temp_8++) {
-                off2 = temp_8 * 0x14;
-                var_5 = (u8 *)*(s32 **)(arg0 + 0x100);
-                var_5 += off2;
-                if (*(s16 *)(var_5 + 2) != -1) {
+        if (*(s32 *)(source + 0x100) != 0) {
+            for (recordOffset = 0; recordOffset < *(s32 *)(source + 0x104); recordOffset++) {
+                off2 = recordOffset * 0x14;
+                descriptor = (u8 *)*(s32 **)(source + 0x100);
+                descriptor += off2;
+                if (*(s16 *)(descriptor + 2) != -1) {
                     kAssertFail(D_0063CAB0, 0x822);
                     continue;
                 }
-                if ((*(s32 *)(temp_2 + 0) == *(u8 *)(var_5 + 0)) &&
-                    (*(s32 *)(temp_2 + 4) == *(u8 *)(var_5 + 1))) {
-                    dest_2 = temp_2 + 0x18;
-                    var_3_3 = 5;
+                if ((*(s32 *)(node + 0) == *(u8 *)(descriptor + 0)) &&
+                    (*(s32 *)(node + 4) == *(u8 *)(descriptor + 1))) {
+                    descriptorDest = node + 0x18;
+                    wordsLeft = 5;
                     do {
-                        temp_2_3 = *(s32 *)var_5;
-                        var_5 += 4;
-                        var_3_3--;
-                        *(s32 *)dest_2 = temp_2_3;
-                        dest_2 += 4;
-                    } while (var_3_3 > 0);
+                        descriptorWord = *(s32 *)descriptor;
+                        descriptor += 4;
+                        wordsLeft--;
+                        *(s32 *)descriptorDest = descriptorWord;
+                        descriptorDest += 4;
+                    } while (wordsLeft > 0);
                     break;
                 }
             }

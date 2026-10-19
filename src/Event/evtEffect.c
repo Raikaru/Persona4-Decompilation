@@ -5,9 +5,9 @@
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
-extern void evtMemAccount(s32 arg0, s32 arg1);
-extern void H_Cdvd_Destroy(u8 *arg0);
-extern void mtMiscClearAllSlotRes(u8 *arg0);
+extern void evtMemAccount(s32 category, s32 bytes);
+extern void H_Cdvd_Destroy(u8 *request);
+extern void mtMiscClearAllSlotRes(u8 *table);
 extern void (*jtbl_008873EC[])(void *);
 extern void memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -17,9 +17,26 @@ extern u8 D_0063C840[];
 extern u8 D_0063C870[];
 extern u8 iGpffffa7b8;
 extern void func_00440b68();
-extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *H_Cdvd_LookupRequest(u8 *arg0, u32 *arg1);
-extern s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
+extern s32 H_Cdvd_IsFileLoaded(u8 *request);
+extern u8 *H_Cdvd_LookupRequest(u8 *name, u32 *size);
+extern s32 H_Cdvd_AcquireDirectory(u8 *name, s32 mode);
+
+/* The loader advances 0x2C bytes per record; requests and lookup results occupy
+   the last two words. The allocation is 0x190 bytes, with a 0x10-byte header. */
+typedef struct EvtEffectEntry {
+    s32 kind;
+    u8 filename[0x20];
+    s32 lookupResult;
+    u8 *request;
+} EvtEffectEntry;
+
+typedef struct EvtEffectTable {
+    s32 state;
+    s32 count;
+    s32 nextIndex;
+    s32 pendingRequest;
+    EvtEffectEntry entries[];
+} EvtEffectTable;
 
 // Intent: Allocates a 0x190-byte effect table with its count cleared and accounts the memory [inferred]
 // FUN_00290F00
@@ -34,85 +51,86 @@ u8 *evtEffectTableCreate(void)
         kAssertFail(D_0063C830, 0x69);
     }
     memset(work, 0, 0x190);
-    *(s32 *)work = 0;
+    ((EvtEffectTable *)work)->state = 0;
     return work;
 }
 
 // Intent: Frees an effect table: destroys its CD requests, releases its sequence and frees the block [inferred]
 // FUN_00290FA0
-void evtEffectTableDestroy(u8 *arg0)
+void evtEffectTableDestroy(u8 *table)
 {
     s32 i;
-    u8 *e;
+    u8 *entryBase;
 
-    if (arg0 != NULL) {
-        for (i = 0; i < *(s32 *)(arg0 + 4); i++) {
-            e = arg0 + i * 0x2C;
-            if (*(s32 *)(e + 0x10) == 1) {
-                H_Cdvd_Destroy(*(u8 **)(e + 0x38));
+    if (table != NULL) {
+        for (i = 0; i < ((EvtEffectTable *)table)->count; i++) {
+            entryBase = table + i * 0x2C;
+            if (((EvtEffectEntry *)(entryBase + 0x10))->kind == 1) {
+                H_Cdvd_Destroy(((EvtEffectEntry *)(entryBase + 0x10))->request);
             }
         }
-        mtMiscClearAllSlotRes(arg0);
-        jtbl_008873EC[0](arg0);
+        mtMiscClearAllSlotRes(table);
+        jtbl_008873EC[0](table);
         evtMemAccount(0xB, -0x190);
     }
 }
 // Intent: Resets an effect sequence record to state 1 with an empty entry count [inferred]
 // FUN_00291060
-void evtEffectSequenceReset(u32 *param_1)
+void evtEffectSequenceReset(u32 *sequence)
 {
-    *param_1 = 1;
-    param_1[2] = 0;
+    ((EvtEffectTable *)sequence)->state = 1;
+    ((EvtEffectTable *)sequence)->nextIndex = 0;
 
     return;
 }
 
 // Intent: Effect sequence step: advances the load over each entry (direct load, or wait for a CD file to load and look up its request) [inferred]
 // FUN_00291080
-s32 evtEffectLoadStep(s32 *arg0)
+s32 evtEffectLoadStep(s32 *sequence)
 {
-    u32 sp5C;
+    /* measured: typed member updates/entry indexing retain extra addresses (0x80 vs 0x60 frame); keep those word accesses. */
+    u32 requestSize;
     s32 result;
     s32 index;
     s32 offset;
     s32 kind;
     u8 *record;
     u8 *handle;
-    s32 temp2;
+    s32 request;
 
     result = 1;
-    if (arg0[0] != 1) {
+    if (((EvtEffectTable *)sequence)->state != 1) {
         return result;
     }
 
-    index = arg0[2];
-    if (index == arg0[1]) {
-        arg0[0] = 2;
+    index = ((EvtEffectTable *)sequence)->nextIndex;
+    if (index == ((EvtEffectTable *)sequence)->count) {
+        sequence[0] = 2;
         return result;
     }
 
-    kind = arg0[index * 11 + 4];
+    kind = sequence[index * 11 + 4];
     if (kind == 0) {
         func_00440b68(D_0063C840, index);
-        arg0[2] += 1;
+        sequence[2] += 1;
     } else if (kind == 1) {
-        handle = (u8 *)arg0[3];
+        handle = (u8 *)sequence[3];
         if (handle != NULL) {
             if (H_Cdvd_IsFileLoaded(handle) == 1) {
                 offset = index * 11;
-                record = (u8 *)(arg0 + offset + 5);
-                arg0[offset + 13] = (s32)H_Cdvd_LookupRequest(record, &sp5C);
+                record = (u8 *)(sequence + offset + 5);
+                sequence[offset + 13] = (s32)H_Cdvd_LookupRequest(record, &requestSize);
                 func_00440b68(D_0063C870, index, record);
-                arg0[3] = 0;
-                arg0[2] += 1;
+                sequence[3] = 0;
+                sequence[2] += 1;
             }
         } else {
             func_00440b68(&iGpffffa7b8, D_0063C830, 0xB0);
             offset = index * 11;
-            record = (u8 *)(arg0 + offset + 5);
-            temp2 = (s32)H_Cdvd_AcquireDirectory(record, 0);
-            arg0[offset + 14] = temp2;
-            arg0[3] = temp2;
+            record = (u8 *)(sequence + offset + 5);
+            request = (s32)H_Cdvd_AcquireDirectory(record, 0);
+            sequence[offset + 14] = request;
+            sequence[3] = request;
         }
     }
 

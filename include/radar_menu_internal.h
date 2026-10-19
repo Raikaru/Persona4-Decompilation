@@ -104,4 +104,41 @@ typedef struct TitleSlotMenu {
     MenuSlotAnimation slots[11];        /* 0x94 */
 } TitleSlotMenu;
 
+/* The cmpSystem/community panel menu is a separate allocation from RadarMenu.
+ * Its 29 animations use the same radarAnimateValue 0x30-byte block. Release
+ * establishes 42 sprite handles at +0x658 and an optional child at +0x704. */
+#include "fcl_draw_types.h"
+
+typedef struct RadarBarTarget {
+    s16 target, bound, countdown, current, stepCountdown;
+} RadarBarTarget;
+
+typedef struct RadarMenuWork {
+    u8 alpha;
+    u8 pad1[3];
+    MenuAnimValue x, y;
+    u16 fadeFrame;
+    u8 padE[2];
+    s32 background;
+    s32 state;
+    u8 pad18[4];
+    s32 drawFlags;
+    s16 elapsed, topWaveFrame, bottomWaveFrame, slideElapsed;
+    s16 selectedHeader, selectedRow, topRow;
+    u8 pad2E[4];
+    s16 previousTopRow, footerMode;
+    u8 pad36[2];
+    s32 rowCount;
+    s8 messageSlot;
+    u8 pad3D[3];
+    FclVec2 cursor;
+    MenuSlotAnimation panels[29];
+    MenuSlotAnimation slide;
+    RadarBarTarget bars[11];
+    u8 pad656[2];
+    RadarSprite sprites[42];
+    s32 footerResource;
+    RadarSprite configTask;
+} RadarMenuWork;
+
 #endif
