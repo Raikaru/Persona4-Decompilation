@@ -2,7 +2,9 @@
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "type.h"
+#include "rw_camera_internal.h"
 #include "h_cdvd.h"
+#include "h_cdvd_request_internal.h"
 
 void chkmemAllocSiteTag(void *arg0, s32 arg1);
 void strcpy(void *arg0, const char *arg1);
@@ -103,7 +105,10 @@ typedef struct SdkSpriteRecord {
     u8 pad1C[0x10];
     u32 renderFlags;
     u8 pad30[4];
-    s32 topBorder, bottomBorder, leftBorder, rightBorder;
+    union {
+        struct { s32 topBorder, bottomBorder, leftBorder, rightBorder; };
+        s32 borders[4];
+    };
     s32 originX, originY;
     u8 pad4C[8];
     s32 left, top, right, bottom;
@@ -126,6 +131,12 @@ typedef struct SdkSpriteSample {
     u8 red, green, blue, pad2B;
 } SdkSpriteSample;
 
+/* Each eight-byte blob-directory entry carries its payload offset in word 1. */
+typedef struct SdkSpriteBlobEntry {
+    u32 unk00;
+    u32 offset;
+} SdkSpriteBlobEntry;
+
 typedef struct SdkSpritePack {
     s16 state;
     char name[0x102];
@@ -141,28 +152,31 @@ typedef struct SdkSpritePack {
     u8 pad230[8];
     u8 *next, *prev;
 } SdkSpritePack;
+typedef char SdkSpriteBlobEntrySizeCheck[sizeof(SdkSpriteBlobEntry) == 8 ? 1 : -1];
 typedef char SdkSpriteRecordSizeCheck[sizeof(SdkSpriteRecord) == 0x80 ? 1 : -1];
 typedef char SdkSpriteSampleSizeCheck[sizeof(SdkSpriteSample) == 0x2C ? 1 : -1];
 typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
 /* Keep the same address-word view used by the attachment transformer. */
 #define SDK_SPRITE_RECORD(sample) \
-    ((u8 *)((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord) + \
-            (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))
+    ((u8 *)((u32)((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord) + \
+            (u32)(u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress))
 /* Same address with the table term first. Selected point/extent sites use
  * this expression for their measured load/add order; C does not sequence
  * the two addition operands. */
+/* measured: typing the remaining recordIndex load in this macro loses sdkSpriteDraw MATCH. */
 #define SDK_SPRITE_RECORD_TABLE_FIRST(sample) \
-    ((u8 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + \
-            *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord)))
+    ((u8 *)(((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + \
+            *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord))) /* measured: access-site field typing here loses MATCH. */
 /* Same address through sdkAddOffset (index term first): the helper's
  * parameter boundary gives retail's index-first addu at the packed-colour
  * reads and the points[2].x extent of sdkSpriteDraw. */
 #define SDK_SPRITE_RECORD_VIA_ADD(sample) \
-    ((u8 *)sdkAddOffset((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord), \
-                        (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))
+    ((u8 *)sdkAddOffset((u32)((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord), \
+                        (u32)(u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress))
 
+/* measured: a typed pack raster-array access loses sdkSpriteDraw MATCH. */
 #define SDK_SPRITE_RASTERS(sample) \
-    (*(u8 *(*)[32])(*(u8 **)(sample) + 0x104))
+    (*(u8 *(*)[32])((u8 *)((SdkSpriteSample *)(sample))->packAddress + 0x104))
 
 /* Same unsigned extent, optional signed override, and Q12 scale as the
  * public width/height queries above. Each call reads the current payload. */
@@ -172,7 +186,7 @@ typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
  * reads and preserves their separate offset-first addu (fnalign 11 -> 7). */
 static inline f32 sdkSpriteBorder(u8 *output, u32 offset, s32 field)
 {
-    return (f32)*(s32 *)((s32)offset + (s32)output + field);
+    return (f32)((SdkSpriteRecord *)((s32)offset + (s32)output))->borders[(field - 0x34) / 4];
 }
 
 static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
@@ -183,24 +197,24 @@ static inline f32 sdkSpriteRight(u8 *sample, s32 includeBorder)
     u8 *overrideBase;
     f32 extent;
 
-    offset = *(u32 *)(sample + 4) * 0x80;
-    output = *(u8 **)(*(u8 **)sample + 0x204);
-    value = (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5C) -
-            (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    offset = *(u32 *)(sample + 4) * 0x80; /* measured: access-site field typing here loses MATCH. */
+    output = (u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
+    value = (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->right -
+            (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->left;
     overrideBase = output + 0x74;
-    if (*(s16 *)(overrideBase + offset) != 0) {
-        value = *(s16 *)(overrideBase + offset);
+    if (*(s16 *)(overrideBase + offset) != 0) { /* measured: access-site field typing here loses MATCH. */
+        value = *(s16 *)(overrideBase + offset); /* measured: access-site field typing here loses MATCH. */
     }
-    if (*(u16 *)(sample + 0x20) != 0) {
-        value = (value * *(u16 *)(sample + 0x20)) >> 12;
+    if (*(u16 *)(sample + 0x20) != 0) { /* measured: access-site field typing here loses MATCH. */
+        value = (value * ((SdkSpriteSample *)sample)->scaleX) >> 12;
     }
     extent = (f32)value;
     if (includeBorder != 0) {
         f32 border = sdkSpriteBorder(output, offset, 0x40);
-        extent -= (f32)*(s16 *)(sample + 0x1C);
+        extent -= (f32)*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
         return border + extent;
     }
-    extent -= (f32)*(s16 *)(sample + 0x1C);
+    extent -= (f32)*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
     return extent;
 }
 
@@ -212,24 +226,24 @@ static inline f32 sdkSpriteBottom(u8 *sample, s32 includeBorder)
     u8 *overrideBase;
     f32 extent;
 
-    offset = *(u32 *)(sample + 4) * 0x80;
-    output = *(u8 **)(*(u8 **)sample + 0x204);
-    value = (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
-            (u32)*(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
+    offset = *(u32 *)(sample + 4) * 0x80; /* measured: access-site field typing here loses MATCH. */
+    output = (u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
+    value = (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->bottom -
+            (u32)((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->top;
     overrideBase = output + 0x76;
-    if (*(s16 *)(overrideBase + offset) != 0) {
-        value = *(s16 *)(overrideBase + offset);
+    if (*(s16 *)(overrideBase + offset) != 0) { /* measured: access-site field typing here loses MATCH. */
+        value = *(s16 *)(overrideBase + offset); /* measured: access-site field typing here loses MATCH. */
     }
-    if (*(u16 *)(sample + 0x22) != 0) {
-        value = (value * *(u16 *)(sample + 0x22)) >> 12;
+    if (*(u16 *)(sample + 0x22) != 0) { /* measured: access-site field typing here loses MATCH. */
+        value = (value * ((SdkSpriteSample *)sample)->scaleY) >> 12;
     }
     extent = (f32)value;
     if (includeBorder != 0) {
         f32 border = sdkSpriteBorder(output, offset, 0x38);
-        extent -= (f32)*(s16 *)(sample + 0x1E);
+        extent -= (f32)*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
         return border + extent;
     }
-    extent -= (f32)*(s16 *)(sample + 0x1E);
+    extent -= (f32)*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
     return extent;
 }
 
@@ -258,8 +272,6 @@ static inline void sdkSpritePositionQuad(SdkSpriteVertex vertex[4], const RwV2d 
 
 
 /* Advance pack loading through header, raster requests, and sprite-record copies. */
-/* Proven pack/sample layouts are above; byte-offset accesses retain MATCH:
- * typed members changed field-address hoisting and saved-register allocation. */
 // FUN_0046AB90
 void sdkSpriteLoadStep(u8 *pack)
 {
@@ -269,52 +281,52 @@ void sdkSpriteLoadStep(u8 *pack)
     s32 complete;
     s16 state;
 
-    state = *(s16 *)pack;
+    state = ((SdkSpritePack *)pack)->state;
     switch (state) {
     case 0:
         func_00440b68(&iGpffffb038, D_007130C8, 0xB3);
-        *(u32 *)(pack + 0x208) = (u32)H_Cdvd_AcquireDirectory(pack + 2, 0);
-        *(s16 *)pack = 1;
+        ((SdkSpritePack *)pack)->directoryAddress = (u32)H_Cdvd_AcquireDirectory(pack + 2, 0);
+        ((SdkSpritePack *)pack)->state = 1;
         break;
     case 1:
-        if (*(u32 *)(pack + 0x208) != 0) {
-            if (H_Cdvd_IsFileLoaded((struct HCdvd *)*(u32 *)(pack + 0x208)) != 1) {
+        if (((SdkSpritePack *)pack)->directoryAddress != 0) {
+            if (H_Cdvd_IsFileLoaded((struct HCdvd *)((SdkSpritePack *)pack)->directoryAddress) != 1) {
                 break;
             }
-            *(u32 *)(pack + 0x20C) =
-                *(u32 *)(*(u8 **)(pack + 0x208) + 0x110);
+            ((SdkSpritePack *)pack)->blobAddress =
+                (u32)((HCdvdRequest *)*(u8 **)(pack + 0x208))->data; /* measured: access-site field typing here loses MATCH. */
         }
-        memcpy(pack + 0x218, (void *)*(u32 *)(pack + 0x20C), 0x20);
-        *(u32 *)(pack + 0x210) += 0x20;
-        *(s16 *)pack = 2;
-        *(s16 *)(pack + 0x214) = 0;
-        if (*(u16 *)(pack + 0x22C) == 0) {
-            *(s16 *)pack = 4;
+        memcpy(pack + 0x218, (void *)((SdkSpritePack *)pack)->blobAddress, 0x20);
+        ((SdkSpritePack *)pack)->cursor += 0x20;
+        ((SdkSpritePack *)pack)->state = 2;
+        ((SdkSpritePack *)pack)->rasterIndex = 0;
+        if (((SdkSpritePack *)pack)->rasterCount == 0) {
+            ((SdkSpritePack *)pack)->state = 4;
             break;
         }
     case 2:
         do {
-            memcpy(rasterEntry, (void *)(*(u32 *)(pack + 0x20C) +
-                                          *(u32 *)(pack + 0x210)), 8);
-            *(u32 *)(pack + 0x210) += 8;
-            *(u32 *)(pack + (*(s16 *)(pack + 0x214) << 2) + 0x184) =
+            memcpy(rasterEntry, (void *)(((SdkSpritePack *)pack)->blobAddress +
+                                          ((SdkSpritePack *)pack)->cursor), 8);
+            *(u32 *)(pack + 0x210) += 8; /* measured: access-site field typing here loses MATCH. */
+            ((SdkSpritePack *)pack)->rasterRequests[((SdkSpritePack *)pack)->rasterIndex] =
                 filerEnqueueRequest(9, 0, 0, 0, 0,
-                              *(u32 *)(pack + 0x20C) + *(u32 *)(rasterEntry + 4),
+                              *(u32 *)(pack + 0x20C) + ((SdkSpriteBlobEntry *)rasterEntry)->offset, /* measured: access-site field typing here loses MATCH. */
                               0, 0, 0, 0);
-            *(u32 *)(pack + (*(s16 *)(pack + 0x214) << 2) + 0x104) = 0;
-            *(s16 *)(pack + 0x214) += 1;
-        } while (*(u16 *)(pack + 0x22C) !=
-                 *(s16 *)(pack + 0x214));
-        *(s16 *)pack = 3;
+            ((SdkSpritePack *)pack)->rasters[*(s16 *)(pack + 0x214)] = 0; /* measured: access-site field typing here loses MATCH. */
+            *(s16 *)(pack + 0x214) += 1; /* measured: access-site field typing here loses MATCH. */
+        } while (((SdkSpritePack *)pack)->rasterCount !=
+                 *(s16 *)(pack + 0x214)); /* measured: access-site field typing here loses MATCH. */
+        ((SdkSpritePack *)pack)->state = 3;
         break;
     case 3:
         complete = 1;
-        for (i = 0; i < *(u16 *)(pack + 0x22C); i++) {
+        for (i = 0; i < ((SdkSpritePack *)pack)->rasterCount; i++) {
             u8 *entry = pack + (i << 2);
             u32 *slot = (u32 *)(entry + 0x104);
 
             if (*slot == 0) {
-                *slot = filerTakeCompletedRequest(*(u32 *)(entry + 0x184),
+                *slot = filerTakeCompletedRequest(((SdkSpritePack *)entry)->rasterRequests[0],
                                       &complete, 0);
                 if (complete == 0) {
                     *slot = 0;
@@ -325,25 +337,25 @@ void sdkSpriteLoadStep(u8 *pack)
         if (complete == 0) {
             break;
         }
-        *(s16 *)pack = 4;
+        ((SdkSpritePack *)pack)->state = 4;
     case 4:
         chkmemAllocSiteTag(D_007130C8, 0xFD);
-        *(u32 *)(pack + 0x204) =
-            (u32)D_008873F4[0](*(u16 *)(pack + 0x22E), 0x80, 0x40000);
-        for (i = 0; i < *(u16 *)(pack + 0x22E); i++) {
-            memcpy(spriteEntry, (void *)(*(u32 *)(pack + 0x20C) +
-                                            *(u32 *)(pack + 0x210)), 8);
-            *(u32 *)(pack + 0x210) += 8;
-            memcpy((u8 *)(*(u32 *)(pack + 0x204) + (i << 7)),
-                          (void *)(*(u32 *)(pack + 0x20C) + *(u32 *)(spriteEntry + 4)),
+        ((SdkSpritePack *)pack)->recordsAddress =
+            (u32)D_008873F4[0](((SdkSpritePack *)pack)->spriteCount, 0x80, 0x40000);
+        for (i = 0; i < *(u16 *)(pack + 0x22E); i++) { /* measured: access-site field typing here loses MATCH. */
+            memcpy(spriteEntry, (void *)(((SdkSpritePack *)pack)->blobAddress +
+                                            ((SdkSpritePack *)pack)->cursor), 8);
+            *(u32 *)(pack + 0x210) += 8; /* measured: access-site field typing here loses MATCH. */
+            memcpy((u8 *)(*(u32 *)(pack + 0x204) + (i << 7)), /* measured: access-site field typing here loses MATCH. */
+                          (void *)(*(u32 *)(pack + 0x20C) + ((SdkSpriteBlobEntry *)spriteEntry)->offset), /* measured: access-site field typing here loses MATCH. */
                           0x80);
         }
-        if (*(u32 *)(pack + 0x208) != 0) {
-            H_Cdvd_Destroy((struct HCdvd *)*(u32 *)(pack + 0x208));
+        if (((SdkSpritePack *)pack)->directoryAddress != 0) {
+            H_Cdvd_Destroy((struct HCdvd *)((SdkSpritePack *)pack)->directoryAddress);
         }
-        *(u32 *)(pack + 0x208) = 0;
-        *(s16 *)(pack + 0x216) = *(u16 *)(pack + 0x22E);
-        *(s16 *)pack = 5;
+        *(u32 *)(pack + 0x208) = 0; /* measured: access-site field typing here loses MATCH. */
+        ((SdkSpritePack *)pack)->recordCount = *(u16 *)(pack + 0x22E); /* measured: access-site field typing here loses MATCH. */
+        ((SdkSpritePack *)pack)->state = 5;
         break;
     case 5:
         break;
@@ -351,8 +363,6 @@ void sdkSpriteLoadStep(u8 *pack)
 }
 
 /* Queue a named sprite pack for asynchronous directory loading. */
-/* SdkSpritePack proves these links; retain byte accesses because typed
- * link expressions changed the measured matching instruction allocation. */
 // FUN_0046AEA0
 u8 *sdkSpriteRequestLoad(const char *name)
 {
@@ -361,18 +371,18 @@ u8 *sdkSpriteRequestLoad(const char *name)
 
     chkmemAllocSiteTag(D_007130C8, 0x115);
     node = D_008873F4[0](1, 0x240, 0x40000);
-    *(s16 *)node = 0;
+    ((SdkSpritePack *)node)->state = 0;
     strcpy(node + 2, name);
     if (iGpffffbb18 == NULL) {
         iGpffffbb18 = node;
     } else {
         last = iGpffffbb18;
 loop:
-        if (*(u8 **)(last + 0x238) == NULL) {
-            *(u8 **)(last + 0x238) = node;
-            *(u8 **)(node + 0x23C) = last;
+        if (((SdkSpritePack *)last)->next == NULL) {
+            *(u8 **)(last + 0x238) = node; /* measured: access-site field typing here loses MATCH. */
+            ((SdkSpritePack *)node)->prev = last;
         } else {
-            last = *(u8 **)(last + 0x238);
+            last = ((SdkSpritePack *)last)->next;
             goto loop;
         }
     }
@@ -380,8 +390,6 @@ loop:
 }
 
 /* Queue an already available sprite blob for raster and record loading. */
-/* SdkSpritePack proves these links; retain byte accesses because typed
- * link expressions changed the measured matching instruction allocation. */
 // FUN_0046AF60
 u8 *sdkSpriteAdoptBlob(u32 blobAddress)
 {
@@ -390,18 +398,18 @@ u8 *sdkSpriteAdoptBlob(u32 blobAddress)
 
     chkmemAllocSiteTag(D_007130C8, 0x12D);
     node = D_008873F4[0](1, 0x240, 0x40000);
-    *(s16 *)node = 1;
+    ((SdkSpritePack *)node)->state = 1;
     ((SdkSpritePack *)node)->blobAddress = blobAddress;
     if (iGpffffbb18 == NULL) {
         iGpffffbb18 = node;
     } else {
         last = iGpffffbb18;
 loop:
-        if (*(u8 **)(last + 0x238) == NULL) {
-            *(u8 **)(last + 0x238) = node;
-            *(u8 **)(node + 0x23C) = last;
+        if (((SdkSpritePack *)last)->next == NULL) {
+            *(u8 **)(last + 0x238) = node; /* measured: access-site field typing here loses MATCH. */
+            ((SdkSpritePack *)node)->prev = last;
         } else {
-            last = *(u8 **)(last + 0x238);
+            last = ((SdkSpritePack *)last)->next;
             goto loop;
         }
     }
@@ -409,8 +417,6 @@ loop:
 }
 
 /* Resolve a registered blob by name and append its sprite-pack loader. */
-/* SdkSpritePack proves these links; retain byte accesses because typed
- * link expressions changed the measured matching instruction allocation. */
 // FUN_0046B000
 u8 *sdkSpriteCreateFromName(const char *name)
 {
@@ -420,7 +426,7 @@ u8 *sdkSpriteCreateFromName(const char *name)
 
     chkmemAllocSiteTag(D_007130C8, 0x146);
     node = D_008873F4[0](1, 0x240, 0x40000);
-    *(s16 *)node = 1;
+    ((SdkSpritePack *)node)->state = 1;
     strcpy(node + 2, name);
     ((SdkSpritePack *)node)->blobAddress = (u32)H_Cdvd_LookupRequest((void *)name, &out);
     if (iGpffffbb18 == NULL) {
@@ -428,11 +434,11 @@ u8 *sdkSpriteCreateFromName(const char *name)
     } else {
         last = iGpffffbb18;
 loop:
-        if (*(u8 **)(last + 0x238) == NULL) {
-            *(u8 **)(last + 0x238) = node;
-            *(u8 **)(node + 0x23C) = last;
+        if (((SdkSpritePack *)last)->next == NULL) {
+            *(u8 **)(last + 0x238) = node; /* measured: access-site field typing here loses MATCH. */
+            ((SdkSpritePack *)node)->prev = last;
         } else {
-            last = *(u8 **)(last + 0x238);
+            last = ((SdkSpritePack *)last)->next;
             goto loop;
         }
     }
@@ -440,42 +446,40 @@ loop:
 }
 
 /* Unlink a pack and release its rasters, pending directory, and copied records. */
-/* Proven pack/sample layouts are above; byte-offset accesses retain MATCH:
- * typed members changed field-address hoisting and saved-register allocation. */
 // FUN_0046B0D0
 void sdkSpriteRelease(u8 *node)
 {
     s32 i;
 
-    if (*(u8 **)(node + 0x23C) == NULL) {
-        if (*(u8 **)(node + 0x238) == NULL) {
+    if (((SdkSpritePack *)node)->prev == NULL) {
+        if (((SdkSpritePack *)node)->next == NULL) {
             iGpffffbb18 = NULL;
         } else {
-            iGpffffbb18 = *(u8 **)(node + 0x238);
-            *(u8 **)(iGpffffbb18 + 0x23C) = NULL;
-            *(u8 **)(*(u8 **)(node + 0x238) + 0x23C) = NULL;
+            iGpffffbb18 = ((SdkSpritePack *)node)->next;
+            ((SdkSpritePack *)iGpffffbb18)->prev = NULL;
+            ((SdkSpritePack *)*(u8 **)(node + 0x238))->prev = NULL; /* measured: access-site field typing here loses MATCH. */
         }
     } else {
-        *(u8 **)(*(u8 **)(node + 0x23C) + 0x238) = *(u8 **)(node + 0x238);
-        if (*(u8 **)(node + 0x238) != NULL) {
-            *(u8 **)(*(u8 **)(node + 0x238) + 0x23C) = *(u8 **)(node + 0x23C);
+        ((SdkSpritePack *)((SdkSpritePack *)node)->prev)->next = ((SdkSpritePack *)node)->next;
+        if (((SdkSpritePack *)node)->next != NULL) {
+            ((SdkSpritePack *)((SdkSpritePack *)node)->next)->prev = *(u8 **)(node + 0x23C); /* measured: access-site field typing here loses MATCH. */
         }
     }
     i = 0;
     while (i < 0x20) {
-        if (*(u32 *)(node + 0x104 + (i << 2)) != 0) {
-            func_003ec330((void *)*(u32 *)(node + 0x104 + (i << 2)));
-            *(u32 *)(node + 0x104 + (i << 2)) = 0;
+        if (((SdkSpritePack *)node)->rasters[i] != 0) {
+            func_003ec330((void *)((SdkSpritePack *)node)->rasters[i]);
+            ((SdkSpritePack *)node)->rasters[i] = 0;
         }
         i++;
     }
-    if (*(u8 **)(node + 0x208) != NULL) {
-        H_Cdvd_Destroy(*(struct HCdvd **)(node + 0x208));
-        *(u8 **)(node + 0x208) = NULL;
+    if ((u8 *)((SdkSpritePack *)node)->directoryAddress != NULL) {
+        H_Cdvd_Destroy((struct HCdvd *)((SdkSpritePack *)node)->directoryAddress);
+        *(u8 **)(node + 0x208) = NULL; /* measured: access-site field typing here loses MATCH. */
     }
-    if (*(u32 *)(node + 0x204) != 0) {
-        jtbl_008873EC[0]((void *)*(u32 *)(node + 0x204));
-        *(u32 *)(node + 0x204) = 0;
+    if (((SdkSpritePack *)node)->recordsAddress != 0) {
+        jtbl_008873EC[0]((void *)((SdkSpritePack *)node)->recordsAddress);
+        *(u32 *)(node + 0x204) = 0; /* measured: access-site field typing here loses MATCH. */
     }
     jtbl_008873EC[0](node);
 }
@@ -484,8 +488,6 @@ void sdkSpriteRelease(u8 *node)
    Donor struct fields map onto P4 offsets: output at 0x204, overrideX at 0x74,
    right/left at 0x5c/0x54. The `sdkAddOffset` inline carries the offset-first
    operand order retail emits (addu $v0,$a1,$a0). */
-/* The pack/sample/record layouts are proven above; raw indexed accesses
- * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046B1F0
 f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
 {
@@ -495,19 +497,17 @@ f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
     u8 *overrideBase;
 
     offset = index * 0x80;
-    output = *(u8 **)(blob + 0x204);
-    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5c) -
-            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    output = (u8 *)((SdkSpritePack *)blob)->recordsAddress;
+    value = ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->right -
+            ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->left;
     overrideBase = output + 0x74;
-    if (*(s16 *)(overrideBase + offset) != 0)
+    if (*(s16 *)(overrideBase + offset) != 0) /* measured: access-site field typing here loses MATCH. */
     {
-        value = *(s16 *)(overrideBase + offset);
+        value = *(s16 *)(overrideBase + offset); /* measured: access-site field typing here loses MATCH. */
     }
     return (f32)value;
 }
 /* Return the width with optional signed override and unsigned Q12 scaling. */
-/* The pack/sample/record layouts are proven above; raw indexed accesses
- * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046B260
 f32 sdkSpriteScaledWidth(u8 *sprite)
 {
@@ -520,13 +520,13 @@ f32 sdkSpriteScaledWidth(u8 *sprite)
     sample = sprite;
 
     offset = ((SdkSpriteSample *)sample)->recordIndex * 0x80;
-    output = *(u8 **)(*(u8 **)(sample + 0x0) + 0x204);
-    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5c) -
-            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    output = (u8 *)((SdkSpritePack *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
+    value = ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->right -
+            ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->left;
     overrideBase = output + 0x74;
-    if (*(s16 *)(overrideBase + offset) != 0)
+    if (*(s16 *)(overrideBase + offset) != 0) /* measured: access-site field typing here loses MATCH. */
     {
-        value = *(s16 *)(overrideBase + offset);
+        value = *(s16 *)(overrideBase + offset); /* measured: access-site field typing here loses MATCH. */
     }
     if (((SdkSpriteSample *)sample)->scaleX != 0)
     {
@@ -535,8 +535,6 @@ f32 sdkSpriteScaledWidth(u8 *sprite)
     return (f32)value;
 }
 /* Return the height with optional signed override and unsigned Q12 scaling. */
-/* The pack/sample/record layouts are proven above; raw indexed accesses
- * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046B2F0
 f32 sdkSpriteScaledHeight(u8 *sprite)
 {
@@ -549,13 +547,13 @@ f32 sdkSpriteScaledHeight(u8 *sprite)
     sample = (u8 *)sprite;
 
     offset = ((SdkSpriteSample *)sample)->recordIndex * 0x80;
-    output = *(u8 **)(*(u8 **)(sample + 0x0) + 0x204);
-    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
-            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
+    output = (u8 *)((SdkSpritePack *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
+    value = ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->bottom -
+            ((SdkSpriteRecord *)sdkAddOffset(offset, (u32)output))->top;
     overrideBase = output + 0x76;
-    if (*(s16 *)(overrideBase + offset) != 0)
+    if (*(s16 *)(overrideBase + offset) != 0) /* measured: access-site field typing here loses MATCH. */
     {
-        value = *(s16 *)(overrideBase + offset);
+        value = *(s16 *)(overrideBase + offset); /* measured: access-site field typing here loses MATCH. */
     }
     if (((SdkSpriteSample *)sample)->scaleY != 0)
     {
@@ -569,15 +567,15 @@ f32 sdkSpriteScaledHeight(u8 *sprite)
 #pragma opt_loop_invariants on
 static inline u8 *sdkSpriteIndexedRecord(u8 *sample)
 {
-    u32 offset = *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord);
-    u32 base = *(u32 *)(*(u8 **)sample + 0x204);
+    u32 offset = *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord); /* measured: access-site field typing here loses MATCH. */
+    u32 base = ((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
     return (u8 *)sdkAddOffset(offset, base);
 }
 
 static inline u8 *sdkSpriteTableRecord(u8 *sample)
 {
-    u32 base = *(u32 *)(*(u8 **)sample + 0x204);
-    u32 offset = *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord);
+    u32 base = ((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
+    u32 offset = *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord); /* measured: access-site field typing here loses MATCH. */
     return (u8 *)sdkAddOffset(offset, base);
 }
 
@@ -585,8 +583,6 @@ static inline u8 *sdkSpriteTableRecord(u8 *sample)
  * retail leaves unwritten (commented at each site). Each colour arm forms one
  * record pointer that the flags test reuses; the redundant alpha mask
  * reproduces retail's second andi before the fade load. */
-/* Proven pack/sample layouts are above; byte-offset accesses retain MATCH:
- * typed members changed field-address hoisting and saved-register allocation. */
 // FUN_0046B380
 void sdkSpriteDraw(u8 *sample, s32 setStates)
 {
@@ -608,7 +604,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
     s32 (**states)(RwRenderState, void *);
     s32 (**render)(s32, void *, s32);
 
-    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+    reciprocalZ = 1.0f / ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     if (setStates != 0) {
         s32 (**initialStates)(RwRenderState, void *) =
             &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;
@@ -623,19 +619,19 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         initialStates[0](2, (void *)4);
         initialStates[0](0xE, (void *)0);
     }
-    rasterIndex = *(s32 *)(sdkSpriteIndexedRecord(sample) + 0x14);
-    raster = ((u8 **)(u32)(*(u8 **)(sample) + 0x104))[rasterIndex];
+    rasterIndex = ((SdkSpriteRecord *)sdkSpriteIndexedRecord(sample))->rasterIndex;
+    raster = ((u8 **)(u32)((u8 *)((SdkSpriteSample *)(sample))->packAddress + 0x104))[rasterIndex]; /* measured: typing the raster-array access loses MATCH. */
     if (raster != NULL) {
-        s32 width = *(s32 *)(raster + 0xC);
-        s32 height = *(s32 *)(raster + 0x10);
+        s32 width = ((RwRaster *)raster)->width;
+        s32 height = ((RwRaster *)raster)->height;
 
-        uv[0].x = (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x54);
+        uv[0].x = (f32)((SdkSpriteRecord *)SDK_SPRITE_RECORD(sample))->left;
         uv[0].x /= (f32)width;
-        uv[0].y = (f32)*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x58);
+        uv[0].y = (f32)((SdkSpriteRecord *)SDK_SPRITE_RECORD(sample))->top;
         uv[0].y /= (f32)height;
-        uv[3].x = (f32)(*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x5C) - 1);
+        uv[3].x = (f32)(((SdkSpriteRecord *)SDK_SPRITE_RECORD(sample))->right - 1);
         uv[3].x /= (f32)width;
-        uv[3].y = (f32)(*(s32 *)(SDK_SPRITE_RECORD(sample) + 0x60) - 1);
+        uv[3].y = (f32)(((SdkSpriteRecord *)SDK_SPRITE_RECORD(sample))->bottom - 1);
         uv[3].y /= (f32)height;
         uv[1].x = uv[3].x;
         uv[2].x = uv[0].x;
@@ -645,11 +641,11 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
     if (setStates != 0) {
         RpSkyRenderStateSet(2, (void *)0x44);
         RpSkyRenderStateSet(3, (void *)0x717FB);
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x2C) & 1) != 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->renderFlags & 1) != 0) {
             RpSkyRenderStateSet(2, (void *)0x48);
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x2C) & 2) != 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->renderFlags & 2) != 0) {
             RpSkyRenderStateSet(2, (void *)0x42);
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
@@ -659,7 +655,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
      * packet lane that the renderer may omit does not define these local
      * float reads. Retain the assembly guard until the input contract is
      * recovered; this is not a defined C implementation of that path. */
-    if ((*(u32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 2) != 0) {
+    if ((*(u32 *)(((SdkSpritePack *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 2) != 0) { /* measured: access-site field typing here loses MATCH. */
         verticalLeft = uv[0];
         uv[0] = uv[2];
         uv[2] = verticalLeft;
@@ -667,7 +663,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         uv[1] = uv[3];
         uv[3] = verticalRight;
     }
-    if ((*(u32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 1) != 0) {
+    if ((*(u32 *)(((SdkSpritePack *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + 0x18 + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) & 1) != 0) { /* measured: access-site field typing here loses MATCH. */
         horizontalTop = uv[0];
         uv[0] = uv[1];
         uv[1] = horizontalTop;
@@ -676,8 +672,8 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         uv[3] = horizontalBottom;
     }
 
-    source[0].x = (f32)-*(s16 *)(sample + 0x1C);
-    source[0].y = (f32)-*(s16 *)(sample + 0x1E);
+    source[0].x = (f32)-((SdkSpriteSample *)sample)->pivotX;
+    source[0].y = (f32)-((SdkSpriteSample *)sample)->pivotY;
     source[3].x = sdkSpriteRight(sample, 0);
     source[3].y = sdkSpriteBottom(sample, 0);
     source[1].x = source[3].x;
@@ -688,7 +684,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
      * Both VectorMultPoints and the installed vectorASMMultPoints provider
      * read Z into their XYZ arithmetic. A unit-Z rotation axis and unused
      * output Z do not establish an initialized input for these calls. */
-    angle = *(f32 *)(sample + 0x18);
+    angle = ((SdkSpriteSample *)sample)->angle;
     if (angle != 0.0f) {
         f32 x, x2, polynomial, quadraticProduct, correction;
         f32 oneMinusCosine, sine;
@@ -740,13 +736,13 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
     {
         s32 pointIndex;
         for (pointIndex = 0; pointIndex < 4; pointIndex++) {
-            points[pointIndex].x = *(f32 *)(sample + 8) +
-                ((f32)*(s16 *)(sample + 0x1C) + source[pointIndex].x) +
-                (f32)*(s32 *)(SDK_SPRITE_RECORD_TABLE_FIRST(sample) + 0x44);
+            points[pointIndex].x = ((SdkSpriteSample *)sample)->x +
+                ((f32)*(s16 *)(sample + 0x1C) + source[pointIndex].x) + /* measured: access-site field typing here loses MATCH. */
+                (f32)((SdkSpriteRecord *)SDK_SPRITE_RECORD_TABLE_FIRST(sample))->originX;
             {
-                f32 subtotal = *(f32 *)(sample + 0xC) +
-                    ((f32)*(s16 *)(sample + 0x1E) + source[pointIndex].y);
-                subtotal += (f32)*(s32 *)(SDK_SPRITE_RECORD_TABLE_FIRST(sample) + 0x48);
+                f32 subtotal = ((SdkSpriteSample *)sample)->y +
+                    ((f32)*(s16 *)(sample + 0x1E) + source[pointIndex].y); /* measured: access-site field typing here loses MATCH. */
+                subtotal += (f32)((SdkSpriteRecord *)SDK_SPRITE_RECORD_TABLE_FIRST(sample))->originY;
                 points[pointIndex].y = subtotal;
             }
         }
@@ -758,7 +754,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
             RwRGBA color;
             u8 *record;
 
-            vertex->u.els.screen.z = D_008872F8[0] - *(f32 *)(sample + 0x24);
+            vertex->u.els.screen.z = D_008872F8[0] - ((SdkSpriteSample *)sample)->depth;
             vertex->u.els.reciprocalZ = reciprocalZ;
             vertex->u.els.u = uv[vertexIndex].x;
             vertex->u.els.v = uv[vertexIndex].y;
@@ -766,7 +762,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
                 u32 packed;
 
                 record = SDK_SPRITE_RECORD(sample);
-                packed = *(u32 *)(record + 0x70);
+                packed = ((SdkSpriteRecord *)record)->colors[3];
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
@@ -775,7 +771,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
                 u32 packed;
 
                 record = SDK_SPRITE_RECORD(sample);
-                packed = *(u32 *)(record + 0x6C);
+                packed = ((SdkSpriteRecord *)record)->colors[2];
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
@@ -784,16 +780,16 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
                 u32 packed;
 
                 record = SDK_SPRITE_RECORD(sample);
-                packed = *(u32 *)(record + 0x64 + vertexIndex * 4);
+                packed = ((SdkSpriteRecord *)record)->colors[vertexIndex];
                 color.red = (packed & 0xFF000000) >> 24;
                 color.green = (packed & 0xFF0000) >> 16;
                 color.blue = (packed & 0xFF00) >> 8;
                 color.alpha = packed & 0xFF;
             }
-            color.red = color.red * *(u8 *)(sample + 0x28) / 255;
-            color.green = color.green * *(u8 *)(sample + 0x29) / 255;
-            color.blue = color.blue * *(u8 *)(sample + 0x2A) / 255;
-            if ((*(u32 *)(record + 0x18) & 8) == 0) {
+            color.red = color.red * ((SdkSpriteSample *)sample)->red / 255;
+            color.green = color.green * ((SdkSpriteSample *)sample)->green / 255;
+            color.blue = color.blue * ((SdkSpriteSample *)sample)->blue / 255;
+            if ((((SdkSpriteRecord *)record)->flags & 8) == 0) {
                 if (color.red > 128) color.red = 255;
                 else color.red = color.red * 255 / 128;
                 if (color.green > 128) color.green = 255;
@@ -805,9 +801,9 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
             }
             /* Retail masks alpha again at the join (andi t2,t2,0xff) before the fade:
              * the narrowed operand is evaluated ahead of the fade load. */
-            color.alpha = (u8)(color.alpha & 0xFF) * (255 - *(u8 *)(sample + 0x11)) / 255;
-            if (*(u8 *)(sample + 0x10) < color.alpha) {
-                color.alpha -= *(u8 *)(sample + 0x10);
+            color.alpha = (u8)(color.alpha & 0xFF) * (255 - ((SdkSpriteSample *)sample)->fade) / 255;
+            if (((SdkSpriteSample *)sample)->alphaSubtract < color.alpha) {
+                color.alpha -= ((SdkSpriteSample *)sample)->alphaSubtract;
             } else {
                 color.alpha = 0;
             }
@@ -817,7 +813,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
             vertices[vertexIndex].u.els.screen.y = points[vertexIndex].y;
         }
     }
-    if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+    if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
         states = &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;
         states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
     } else {
@@ -833,34 +829,34 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         }
     }
 
-    if (*(s32 *)(sdkSpriteTableRecord(sample) + 0x34) != 0) {
-        points[0].x = (f32)-*(s16 *)(sample + 0x1C);
-        points[0].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(sdkSpriteTableRecord(sample) + 0x34));
+    if (((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->topBorder != 0) {
+        points[0].x = (f32)-*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
+        points[0].y = (f32)-(*(s16 *)(sample + 0x1E) + ((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->topBorder); /* measured: access-site field typing here loses MATCH. */
         points[1].x = sdkSpriteRight(sample, 0);
-        points[1].y = (f32)-(*(s16 *)(sample + 0x1E) + *(s32 *)(sdkSpriteTableRecord(sample) + 0x34));
-        points[2].x = (f32)-*(s16 *)(sample + 0x1C);
-        points[2].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[1].y = (f32)-(*(s16 *)(sample + 0x1E) + ((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->topBorder); /* measured: access-site field typing here loses MATCH. */
+        points[2].x = (f32)-*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
+        points[2].y = (f32)-*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
         points[3].x = sdkSpriteRight(sample, 0);
-        points[3].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[3].y = (f32)-*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
         sdkSpriteTransformPoints(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
         vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
         vertices[2].u.els.u = uv[0].x; vertices[2].u.els.v = uv[0].y;
         vertices[3].u.els.u = uv[1].x; vertices[3].u.els.v = uv[1].y;
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(sdkSpriteTableRecord(sample) + 0x38) != 0) {
-        points[0].x = (f32)-*(s16 *)(sample + 0x1C);
+    if (((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->bottomBorder != 0) {
+        points[0].x = (f32)-*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
         points[0].y = sdkSpriteBottom(sample, 0);
         points[1].x = sdkSpriteRight(sample, 0);
         points[1].y = sdkSpriteBottom(sample, 0);
-        points[2].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[2].x = (f32)-*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
         points[2].y = sdkSpriteBottom(sample, 1);
         points[3].x = sdkSpriteRight(sample, 0);
         points[3].y = sdkSpriteBottom(sample, 1);
@@ -870,21 +866,21 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
         vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x3C + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) != 0) {
-        points[0].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(*(u32 *)(*(u8 **)(sample) + 0x204) + 0x3C + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)));
-        points[0].y = (f32)-*(s16 *)(sample + 0x1E);
-        points[1].x = (f32)-*(s16 *)(sample + 0x1C);
-        points[1].y = (f32)-*(s16 *)(sample + 0x1E);
-        points[2].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(SDK_SPRITE_RECORD_VIA_ADD(sample) + 0x3C));
+    if (*(s32 *)(((SdkSpritePack *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + 0x3C + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord)) != 0) { /* measured: access-site field typing here loses MATCH. */
+        points[0].x = (f32)-(*(s16 *)(sample + 0x1C) + *(s32 *)(((SdkSpritePack *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + 0x3C + *(u32 *)(sample + 4) * sizeof(SdkSpriteRecord))); /* measured: access-site field typing here loses MATCH. */
+        points[0].y = (f32)-*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
+        points[1].x = (f32)-*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
+        points[1].y = (f32)-*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
+        points[2].x = (f32)-(*(s16 *)(sample + 0x1C) + ((SdkSpriteRecord *)SDK_SPRITE_RECORD_VIA_ADD(sample))->leftBorder); /* measured: access-site field typing here loses MATCH. */
         points[2].y = sdkSpriteBottom(sample, 0);
-        points[3].x = (f32)-*(s16 *)(sample + 0x1C);
+        points[3].x = (f32)-*(s16 *)(sample + 0x1C); /* measured: access-site field typing here loses MATCH. */
         points[3].y = sdkSpriteBottom(sample, 0);
         sdkSpriteTransformPoints(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
@@ -892,18 +888,18 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[0].x; vertices[1].u.els.v = uv[0].y;
         vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
         vertices[3].u.els.u = uv[2].x; vertices[3].u.els.v = uv[2].y;
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
         }
         render[0](4, vertices, 4);
     }
-    if (*(s32 *)(sdkSpriteIndexedRecord(sample) + 0x40) != 0) {
+    if (((SdkSpriteRecord *)sdkSpriteIndexedRecord(sample))->rightBorder != 0) {
         points[0].x = sdkSpriteRight(sample, 0);
-        points[0].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[0].y = (f32)-*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
         points[1].x = sdkSpriteRight(sample, 1);
-        points[1].y = (f32)-*(s16 *)(sample + 0x1E);
+        points[1].y = (f32)-*(s16 *)(sample + 0x1E); /* measured: access-site field typing here loses MATCH. */
         points[2].x = sdkSpriteRight(sample, 0);
         points[2].y = sdkSpriteBottom(sample, 0);
         points[3].x = sdkSpriteRight(sample, 1);
@@ -914,7 +910,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
         vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
@@ -927,39 +923,39 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
             points[restoreIndex] = savedPoints[restoreIndex];
         }
     }
-    if (*(s16 *)(sample + 0x16) != 0) {
+    if (((SdkSpriteSample *)sample)->extendY != 0) {
         vertices[0].u.els.screen.x = points[2].x;
         vertices[0].u.els.screen.y = points[2].y;
         vertices[1].u.els.screen.x = points[3].x;
         vertices[1].u.els.screen.y = points[3].y;
         vertices[2].u.els.screen.x = points[2].x;
-        vertices[2].u.els.screen.y = points[2].y + (f32)*(s16 *)(sample + 0x16);
+        vertices[2].u.els.screen.y = points[2].y + (f32)((SdkSpriteSample *)sample)->extendY;
         vertices[3].u.els.screen.x = points[3].x;
-        vertices[3].u.els.screen.y = points[3].y + (f32)*(s16 *)(sample + 0x16);
+        vertices[3].u.els.screen.y = points[3].y + (f32)((SdkSpriteSample *)sample)->extendY;
         vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
         vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
         vertices[2].u.els.u = uv[2].x; vertices[2].u.els.v = uv[2].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
         }
         render[0](4, vertices, 4);
-    } else if (*(s16 *)(sample + 0x14) != 0) {
+    } else if (((SdkSpriteSample *)sample)->extendX != 0) {
         vertices[0].u.els.screen.x = points[1].x;
         vertices[0].u.els.screen.y = points[1].y;
-        vertices[1].u.els.screen.x = (f32)((s32)points[1].x + *(s16 *)(sample + 0x14));
+        vertices[1].u.els.screen.x = (f32)((s32)points[1].x + ((SdkSpriteSample *)sample)->extendX);
         vertices[1].u.els.screen.y = points[1].y;
         vertices[2].u.els.screen.x = points[3].x;
         vertices[2].u.els.screen.y = points[3].y;
-        vertices[3].u.els.screen.x = (f32)((s32)points[3].x + *(s16 *)(sample + 0x14));
+        vertices[3].u.els.screen.x = (f32)((s32)points[3].x + ((SdkSpriteSample *)sample)->extendX);
         vertices[3].u.els.screen.y = points[3].y;
         vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
         vertices[2].u.els.u = uv[3].x; vertices[2].u.els.v = uv[3].y;
         vertices[3].u.els.u = uv[3].x; vertices[3].u.els.v = uv[3].y;
-        if ((*(u32 *)(sdkSpriteTableRecord(sample) + 0x18) & 8) == 0) {
+        if ((((SdkSpriteRecord *)sdkSpriteTableRecord(sample))->flags & 8) == 0) {
             states[0](1, SDK_SPRITE_RASTERS(sample)[rasterIndex]);
         } else {
             states[0](1, NULL);
@@ -982,7 +978,7 @@ u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex)
     ((SdkSpriteSample *)node)->red = 0xFF;
     ((SdkSpriteSample *)node)->green = 0xFF;
     ((SdkSpriteSample *)node)->blue = 0xFF;
-    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->packAddress = packAddress;
     ((SdkSpriteSample *)node)->recordIndex = recordIndex;
     return node;
 }
@@ -1004,7 +1000,7 @@ void sdkSpriteDrawOnce(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 
     ((SdkSpriteSample *)node)->red = 0xFF;
     ((SdkSpriteSample *)node)->green = 0xFF;
     ((SdkSpriteSample *)node)->blue = 0xFF;
-    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->packAddress = packAddress;
     ((SdkSpriteSample *)node)->recordIndex = recordIndex;
     ((SdkSpriteSample *)node)->depth = z;
     ((SdkSpriteSample *)node)->x = x;
@@ -1025,7 +1021,7 @@ void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f
     ((SdkSpriteSample *)node)->red = 0xFF;
     ((SdkSpriteSample *)node)->green = 0xFF;
     ((SdkSpriteSample *)node)->blue = 0xFF;
-    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->packAddress = packAddress;
     ((SdkSpriteSample *)node)->recordIndex = recordIndex;
     ((SdkSpriteSample *)node)->depth = z;
     ((SdkSpriteSample *)node)->x = x;
@@ -1047,7 +1043,7 @@ void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x
     ((SdkSpriteSample *)node)->red = 0xFF;
     ((SdkSpriteSample *)node)->green = 0xFF;
     ((SdkSpriteSample *)node)->blue = 0xFF;
-    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->packAddress = packAddress;
     ((SdkSpriteSample *)node)->recordIndex = recordIndex;
     ((SdkSpriteSample *)node)->depth = z;
     ((SdkSpriteSample *)node)->x = x;
@@ -1066,8 +1062,6 @@ void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x
    the brief's recipes before treating any of it as established. */
 /* Measured nd 9 (object 176 / window 192); the body matches the allocation, field initialization, callback, and result path but retains nine normalized instruction differences. */
 /* Resolve the raster selected by a pack record through a temporary sample. */
-/* The pack/sample/record layouts are proven above; raw indexed accesses
- * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046D5F0
 s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex) {
     s32 raster;
@@ -1081,13 +1075,13 @@ s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex) {
     ((SdkSpriteSample *)sprite)->red = 0xFF;
     ((SdkSpriteSample *)sprite)->green = 0xFF;
     ((SdkSpriteSample *)sprite)->blue = 0xFF;
-    *(u8 **)sprite = pack;
-    *(s32 *)(sprite + 4) = recordIndex;
-    owner = *(u8 **)sprite;
-    output = *(u8 **)(owner + 0x204);
+    ((SdkSpriteSample *)sprite)->packAddress = (u32)(pack);
+    ((SdkSpriteSample *)sprite)->recordIndex = recordIndex;
+    owner = (u8 *)((SdkSpriteSample *)sprite)->packAddress;
+    output = (u8 *)((SdkSpritePack *)owner)->recordsAddress;
     output = (u8 *)sdkAddOffset((u32)(recordIndex << 7), (u32)output);
-    index = *(s32 *)(output + 0x14);
-    raster = *(s32 *)((u8 *)sdkAddOffset((u32)(index << 2), (u32)owner) + 0x104);
+    index = ((SdkSpriteRecord *)output)->rasterIndex;
+    raster = (s32)((SdkSpritePack *)sdkAddOffset((u32)(index << 2), (u32)owner))->rasters[0];
     jtbl_008873EC[0](sprite);
     return raster;
 }
