@@ -15,6 +15,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -24,8 +26,8 @@ typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern void btlUnitSetFlags(u8 *arg0, s32 arg1);
-extern void btlUnitClearFlags(u8 *arg0, s32 arg1);
+extern void btlUnitSetFlags(u8 *value, s32 option);
+extern void btlUnitClearFlags(u8 *value, s32 option);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
@@ -45,10 +47,10 @@ extern u8 D_005F7000[];
 
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void (*D_005F6E20[])(u8 *arg0);
+extern void (*D_005F6E20[])(u8 *value);
 extern u32 iGpffffa0b8;
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlUnitGetSphereWorldCenter(u8 *value, f32 *option);
+extern void btlCameraSetupActionGeometry(u8 *value, u8 *option, f32 *data, f32 rate, u16 flags);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -60,11 +62,11 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 }
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
-extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-extern void btlCameraCopyPose(f32 *arg0, f32 *arg1);
-extern void mdlBlendTranslationRotation(f32 *arg0, f32 *arg1, f32 *arg2, f32 arg3);
-extern u32 btlMainCurveAppendKeyframe(u16 *arg0, f32 *arg1, f32 *arg2);
+extern void btlCameraSetState(s32 state, BtlAction *action, u32 clearUnitFlags);
+extern void btlCameraLookAtQuat(void *value, const void *option, const void *data, const void *flags);
+extern void btlCameraCopyPose(f32 *value, f32 *option);
+extern void mdlBlendTranslationRotation(f32 *value, f32 *option, f32 *data, f32 flags);
+extern u32 btlMainCurveAppendKeyframe(u16 *value, f32 *option, f32 *data);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
@@ -90,7 +92,7 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
+void func_004b1680(s32 value, s16 option, s32 data, s32 flags);
 
 
 
@@ -101,7 +103,8 @@ void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bc980-001bd530 */
 
 extern s32 btlActionGetQueueSecond(void);
-extern void mdlBlendTranslationRotation(f32 *arg0, f32 *arg1, f32 *arg2, f32 fparg0);
+extern void mdlBlendTranslationRotation(f32 *value, f32 *option, f32 *data, f32 fparg0);
+/* Index the action target list; the shared action type still exposes this region as bytes. */
 static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
 {
     return *(u8 **)(action + index * 4 + 0x38);
@@ -126,122 +129,117 @@ struct RwV3d;
 #pragma push
 #pragma pop
 // FUN_001BC980
-s32 btlCameraPlayPoseSequence(u8 *arg0)
+/* Build four curve keyframes between supplied poses, or begin from the current pose. */
+s32 btlCameraPlayPoseSequence(u8 *work)
 {
-    struct C980Vec3 {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
     struct C980Frame {
-        f32 v30[4];
+        f32 interpolatedPose[4];
         u8 gap40[0x10];
-        f32 v50[3];
-        f32 v5C[4];
-        f32 v6C[3];
-        f32 v78[4];
+        f32 firstPosition[3];
+        f32 firstRotation[4];
+        f32 secondPosition[3];
+        f32 secondRotation[4];
         u8 tail[8];
     } frame;
-    s32 temp_17;
-    u8 *temp_3;
-    u8 *temp_3_2;
+    s32 curveAddress;
+    u8 *battle;
+    u8 *battleAfterAppend;
 
-    btlCameraSetState(1, *(BtlAction **)(arg0 + 0), 1);
-    if (*(s32 *)(arg0 + 0x40) != 0) {
-        btlCameraCopyPose(frame.v50, (f32 *)(D_0076449C + 0xC0));
+    btlCameraSetState(1, (BtlAction *)((BtlCameraPoseSequence *)work)->action, 1);
+    if (((BtlCameraPoseSequence *)work)->useCurrentPose != 0) {
+        btlCameraCopyPose(frame.firstPosition, (f32 *)(D_0076449C + 0xC0));
     } else {
-        btlCameraLookAtQuat(frame.v5C, arg0 + 4, arg0 + 0x10, D_0060A0E0);
-        *(struct C980Vec3 *)frame.v50 =
-            *(struct C980Vec3 *)(arg0 + 4);
+        btlCameraLookAtQuat(frame.firstRotation, work + 4, work + 0x10, D_0060A0E0);
+        *(BtlCameraPosition *)frame.firstPosition =
+            ((BtlCameraPoseSequence *)work)->firstPosition;
     }
-    btlCameraLookAtQuat(frame.v78, arg0 + 0x1C, arg0 + 0x28, D_0060A0E0);
-    *(struct C980Vec3 *)frame.v6C =
-        *(struct C980Vec3 *)(arg0 + 0x1C);
-    temp_3 = D_0076449C;
-    temp_17 = (s32)(temp_3 + 0x24);
-    *(u16 *)(temp_3 + 0x24) = 1;
-    *(s16 *)(temp_3 + 0x98) = 0;
-    *(s16 *)(temp_3 + 0x9A) = 0;
-    *(s16 *)(temp_3 + 0x9C) = 0;
-    *(s32 *)(temp_3 + 0xA4) = 0;
-    *(s32 *)(temp_3 + 0xA0) = 0;
-    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v50, frame.v5C);
-    mdlBlendTranslationRotation(frame.v30, frame.v50, frame.v6C, fGpffff82f8);
-    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v30, frame.v30 + 3);
-    mdlBlendTranslationRotation(frame.v30, frame.v50, frame.v6C, fGpffff80c8);
-    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v30, frame.v30 + 3);
-    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v6C, frame.v78);
-    temp_3_2 = D_0076449C;
-    *(f32 *)(temp_3_2 + 0xA8) =
-        (60.0f * (2.0f * *(f32 *)(arg0 + 0x3C))) / 2.0f;
-    *(s32 *)(temp_3_2 + 0xB8) = 0x3F000000;
-    *(u16 *)(temp_3_2 + 0x24) &= 0xFFF5;
-    *(u16 *)(temp_3_2 + 0x24) |= 4;
+    btlCameraLookAtQuat(frame.secondRotation, work + 0x1C, work + 0x28, D_0060A0E0);
+    *(BtlCameraPosition *)frame.secondPosition =
+        ((BtlCameraPoseSequence *)work)->secondPosition;
+    battle = D_0076449C;
+    curveAddress = (s32)(battle + 0x24);
+    ((BtlBattleState *)battle)->camera.curveFlags = 1;
+    ((BtlBattleState *)battle)->camera.curveIndex = 0;
+    ((BtlBattleState *)battle)->camera.curveNext = 0;
+    ((BtlBattleState *)battle)->camera.curveCount = 0;
+    ((BtlBattleState *)battle)->camera.unk80 = 0;
+    ((BtlBattleState *)battle)->camera.unk7C = 0;
+    btlMainCurveAppendKeyframe((u16 *)curveAddress, frame.firstPosition, frame.firstRotation);
+    mdlBlendTranslationRotation(frame.interpolatedPose, frame.firstPosition, frame.secondPosition, fGpffff82f8);
+    btlMainCurveAppendKeyframe((u16 *)curveAddress, frame.interpolatedPose, frame.interpolatedPose + 3);
+    mdlBlendTranslationRotation(frame.interpolatedPose, frame.firstPosition, frame.secondPosition, fGpffff80c8);
+    btlMainCurveAppendKeyframe((u16 *)curveAddress, frame.interpolatedPose, frame.interpolatedPose + 3);
+    btlMainCurveAppendKeyframe((u16 *)curveAddress, frame.secondPosition, frame.secondRotation);
+    battleAfterAppend = D_0076449C;
+    ((BtlBattleState *)battleAfterAppend)->camera.curveDuration =
+        (60.0f * (2.0f * ((BtlCameraPoseSequence *)work)->duration)) / 2.0f;
+    /* Retail stores the IEEE-754 bits for 0.5 directly into curveStep. */
+    *(s32 *)&((BtlBattleState *)battleAfterAppend)->camera.curveStep = 0x3F000000;
+    ((BtlBattleState *)battleAfterAppend)->camera.curveFlags &= 0xFFF5;
+    ((BtlBattleState *)battleAfterAppend)->camera.curveFlags |= 4;
     return 1;
 }
 
 // FUN_001BCB50
-u8 *btlCameraCreatePoseSequencePacket(s32 arg0, u8 *arg1, u8 *arg2, f32 fparg0,
-                  u8 *arg3, u8 *arg4, f32 fparg1, f32 fparg2)
+/* Allocate the 0x44-byte two-pose packet; missing first inputs select the current pose. */
+u8 *btlCameraCreatePoseSequencePacket(s32 action, u8 *firstPosition, u8 *firstFocus, f32 firstValue,
+                  u8 *secondPosition, u8 *secondFocus, f32 secondValue, f32 duration)
 {
-    struct Bcb50Vec3 {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
-    u8 *temp_2;
-    u8 *temp_4;
+    u8 *packet;
+    u8 *work;
 
-    temp_2 = (u8 *)(btlPacketAlloc(0x201, 0x44));
-    *(s32 (**)(u8 *))(temp_2 + 0x6C) =
-        (s32 (*)(u8 *))((s32 (**)(u8 *))(btlCameraPlayPoseSequence));
-    temp_4 = *(u8 **)(temp_2 + 0x78);
-    *(s32 *)(temp_4 + 0) = arg0;
-    *(f32 *)(temp_4 + 0x3C) = fparg2;
-    if ((arg1 != NULL) && (arg2 != NULL)) {
-        *(struct Bcb50Vec3 *)(temp_4 + 4) =
-            *(struct Bcb50Vec3 *)arg1;
-        *(struct Bcb50Vec3 *)(temp_4 + 0x10) =
-            *(struct Bcb50Vec3 *)arg2;
-        *(s32 *)(temp_4 + 0x40) = 0;
+    packet = (u8 *)(btlPacketAlloc(0x201, 0x44));
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlCameraPlayPoseSequence;
+    work = (u8 *)((BtlPacket *)packet)->workData;
+    ((BtlCameraPoseSequence *)work)->action = action;
+    ((BtlCameraPoseSequence *)work)->duration = duration;
+    if ((firstPosition != NULL) && (firstFocus != NULL)) {
+        ((BtlCameraPoseSequence *)work)->firstPosition =
+            *(BtlCameraPosition *)firstPosition;
+        ((BtlCameraPoseSequence *)work)->firstFocus =
+            *(BtlCameraPosition *)firstFocus;
+        ((BtlCameraPoseSequence *)work)->useCurrentPose = 0;
     } else {
-        *(s32 *)(temp_4 + 0x40) = 1;
+        ((BtlCameraPoseSequence *)work)->useCurrentPose = 1;
     }
-    *(struct Bcb50Vec3 *)(temp_4 + 0x1C) =
-        *(struct Bcb50Vec3 *)arg3;
-    *(struct Bcb50Vec3 *)(temp_4 + 0x28) =
-        *(struct Bcb50Vec3 *)arg4;
-    *(f32 *)(temp_4 + 0x34) = fparg0;
-    *(f32 *)(temp_4 + 0x38) = fparg1;
-    return temp_2;
+    ((BtlCameraPoseSequence *)work)->secondPosition =
+        *(BtlCameraPosition *)secondPosition;
+    ((BtlCameraPoseSequence *)work)->secondFocus =
+        *(BtlCameraPosition *)secondFocus;
+    ((BtlCameraPoseSequence *)work)->firstValue = firstValue;
+    ((BtlCameraPoseSequence *)work)->secondValue = secondValue;
+    return packet;
 }
 
 // FUN_001BCC80
-s32 btlCameraRunPacketCommand(u8 *arg0) {
-    func_004b1680(*(s32 *)(arg0 + 0), *(s16 *)(arg0 + 4), *(s32 *)(arg0 + 8),
-                  *(s32 *)(arg0 + 0xC));
+/* Forward the four initialized command-work values to the external camera command handler. */
+s32 btlCameraRunPacketCommand(u8 *work) {
+    func_004b1680(((BtlCameraCommand *)work)->value, ((BtlCameraCommand *)work)->option, ((BtlCameraCommand *)work)->first,
+                  ((BtlCameraCommand *)work)->second);
     return 1;
 }
 
 // FUN_001BCCC0
-u8 *btlCameraCreatePacketCommand(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
-    u8 *temp_2;
-    u8 *temp_3;
+/* Allocate a 0x10-byte camera-command work record and install its update callback. */
+u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second) {
+    u8 *packet;
+    u8 *work;
 
-    temp_2 = (u8 *)(btlPacketAlloc(0x202, 0x10));
-    *(s32 (**)(u8 *))(temp_2 + 0x6C) = (s32 (*)(u8 *))((s32 (**)(u8 *))(btlCameraRunPacketCommand));
-    temp_3 = (u8 *)(*(u8 **)(temp_2 + 0x78));
-    *(s32 *)(temp_3 + 0) = arg0;
-    *(s16 *)(temp_3 + 4) = arg1;
-    *(s32 *)(temp_3 + 8) = arg2;
-    *(s32 *)(temp_3 + 0xC) = arg3;
-    return temp_2;
+    packet = (u8 *)(btlPacketAlloc(0x202, 0x10));
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlCameraRunPacketCommand;
+    work = (u8 *)((u8 *)((BtlPacket *)packet)->workData);
+    ((BtlCameraCommand *)work)->value = value;
+    ((BtlCameraCommand *)work)->option = option;
+    ((BtlCameraCommand *)work)->first = first;
+    ((BtlCameraCommand *)work)->second = second;
+    return packet;
 }
 
 #pragma push
 /* measured: btlCameraSetupActionGeometry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001BCD40
+/* Set visibility/fade flags using action membership and the horizontal camera corridor; mode bits select exclusions. Raw offsets retained: the proven struct rewrite changed whole-file MWCC instructions. */
 void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
 {
     extern void btlUnitSetFlags(BtlUnit *unit, u16 flags);
@@ -387,37 +385,39 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
 /* measured: btlCameraClearAllUnitFlags MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_001BD300
+/* Clear low camera visibility flags on both battle-side unit lists. Raw list-head indexing preserves the side-pair byte stride. */
 void btlCameraClearAllUnitFlags(void)
 {
-    s32 var_16;
+    s32 sideIndex;
     s32 index;
-    u8 *var_17;
+    u8 *unit;
 
-    var_16 = 0;
+    sideIndex = 0;
     goto outer_check;
 outer_body:
-    index = var_16 & 0xFFFF;
-    var_17 = *(u8 **)(iGpffffb3ac + (index * 8) + 0x178);
+    index = sideIndex & 0xFFFF;
+    unit = *(u8 **)(iGpffffb3ac + (index * 8) + 0x178);
     goto inner_check;
 inner_body:
-    btlUnitClearFlags(var_17, 0xF);
-    var_17 = *(u8 **)(var_17 + 0xA6C);
+    btlUnitClearFlags(unit, 0xF);
+    unit = (u8 *)((BtlUnit *)unit)->nextUnit;
 inner_check:
-    if (var_17 != NULL) goto inner_body;
-    var_16 = (var_16 + 1) & 0xFFFF;
+    if (unit != NULL) goto inner_body;
+    sideIndex = (sideIndex + 1) & 0xFFFF;
 outer_check:
-    if ((var_16 & 0xFFFF) < 2) goto outer_body;
+    if ((sideIndex & 0xFFFF) < 2) goto outer_body;
 }
 
 /* measured: closes opt_common_subs for the following translation-unit code. */
 /* measured: closes opt_propagation for the following translation-unit code. */
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
 // FUN_001BD390
+/* Set the near-camera flag when an eligible unit lies within its scaled radius plus 200. Raw indexed list heads and external view-transform payload retain their existing address arithmetic. */
 void btlCameraUpdateUnitInRangeFlags(void)
 {
     extern void btlUnitSetFlags();
-    extern s32 datCalcEnemyHasExtendedFlag(u8 *arg0);
-    extern f32 RwV3dLength(f32 *arg0);
+    extern s32 datCalcEnemyHasExtendedFlag(u8 *value);
+    extern f32 RwV3dLength(f32 *value);
     u8 *current;
     s32 counter;
     u8 *base;
@@ -434,22 +434,22 @@ outer_body:
     current = *(u8 **)(iGpffffb3ac + (index * 8) + 0x178);
     goto inner_check;
 inner_body:
-    ability = *(s32 *)(current + 0xA64);
+    ability = (s32)((BtlUnit *)current)->datUnit;
     if ((ability != 0 && datCalcEnemyHasExtendedFlag((u8 *)ability) != 0) ||
-        (*(s32 *)(current + 0x9C) & 8) != 0) {
+        (((BtlUnit *)current)->flags3 & 8) != 0) {
         btlUnitGetSphereWorldCenter(current, values);
         delta[0] = *(f32 *)(base + 0x30) - values[0];
         delta[1] = *(f32 *)(base + 0x34) - values[1];
         delta[2] = *(f32 *)(base + 0x38) - values[2];
         if (RwV3dLength(delta) <=
             0.0f + 200.0f +
-            *(f32 *)(current + 0x90) * *(f32 *)(current + 0x2C)) {
+            ((BtlUnit *)current)->sphereRadius * ((BtlUnit *)current)->scale) {
             btlUnitSetFlags(current, 1);
         } else {
             btlUnitClearFlags(current, 1);
         }
     }
-    current = *(u8 **)(current + 0xA6C);
+    current = (u8 *)((BtlUnit *)current)->nextUnit;
 inner_check:
     if (current != NULL) goto inner_body;
     counter = (counter + 1) & 0xFFFF;
@@ -461,13 +461,15 @@ outer_check:
 /* measured: btlCameraMarkUnitFramed MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
 // FUN_001BD4F0
-void btlCameraMarkUnitFramed(u8 *arg0) {
-    btlUnitSetFlags(arg0, 0xA);
-    btlUnitClearFlags(arg0, 4);
+/* Mark the unit framed/visible and clear the alternate visibility flag. */
+void btlCameraMarkUnitFramed(u8 *unit) {
+    btlUnitSetFlags(unit, 0xA);
+    btlUnitClearFlags(unit, 4);
 }
 
 // FUN_001BD530
-void btlCameraClearUnitFramed(u32 arg0) {
-    btlUnitClearFlags((u8 *)arg0, 0xA);
+/* Clear the framed/visible camera flags on the supplied unit address. */
+void btlCameraClearUnitFramed(u32 unitAddress) {
+    btlUnitClearFlags((u8 *)unitAddress, 0xA);
 }
 

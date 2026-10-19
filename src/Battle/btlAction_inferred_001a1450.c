@@ -3572,7 +3572,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     extern s32 btlActionHasFormationSlot(u8 *action, u8 *handles);
     extern s32 btlActionMatchesSkill(u8 *actionBytes, s32 value);
     extern s32 btlUnitApplyPacketEffects(u8 *packet);
-    extern s32 func_0022f8b0(u8 *actionBytes, s32 value);
+    extern s32 btlBossSkillRestoresMotionBeforeHits(u8 *actionBytes, s32 value);
     extern s32 btlUnitSkillBlocked(u8 *actionBytes, u8 *value);
     extern s32 btlBossActionBlocked();
     extern s32 btlBossSkillAllowed(u8 *actionBytes);
@@ -4378,7 +4378,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
         }
     } else if ((altCamera == 0) && (side == 1)) {
         restoreMotionSpeed = 1;
-        if ((s32)(func_0022f8b0(actionBytes, skillIndex)) != (s32)(0)) {
+        if ((s32)(btlBossSkillRestoresMotionBeforeHits(actionBytes, skillIndex)) != (s32)(0)) {
             restoreBeforeHits = 1;
             hasCutin = 0;
             enemyLookAtStopPacket = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));

@@ -94,7 +94,7 @@ extern void nmMesWindowReleaseCurrent(void);
 extern void nmMesWindowResetCurrent(void);
 
 extern u8 *D_0076449C;
-extern s32 func_0022bd20(void);
+extern s32 btlEncounterIsBoss(void);
 extern void btlEncounterInitGlobals(void);
 extern s32 btlStatusWindowShowSlot4(u8 *);
 extern u32 btlCountUnitRecords(void);
@@ -468,7 +468,7 @@ s32 btlMainInitUpdate(void) {
     ((BtlBattleState *)b)->encounterRecord = *(s32 *)(off + (s32)b + 0xC84);
     b = D_0076449C;
     ((BtlBattleState *)b)->encounterIndex = ((BtlBattleState *)b)->encounterIndex + 1;
-    if (func_0022bd20() != 0) {
+    if (btlEncounterIsBoss() != 0) {
         btlEncounterInitGlobals();
     }
     return 3;
@@ -495,7 +495,7 @@ s32 btlMainSceneSetUpdate(void)
     extern BtlPacket *btlVoiceCreateIdPacket(u16);
     extern s64 btlPacketEnqueue(u8 *, u32);
     extern u8 *btlSoundCreateWaitPacket(void);
-    extern s32 func_0022bd20(void);
+    extern s32 btlEncounterIsBoss(void);
     extern u8 *btlBossCreateLoadPakPacket(void);
     extern s32 btlBossMapUnitIdToEntryId(void);
     extern s32 btlCurrentUnitId(void);
@@ -529,7 +529,7 @@ got_var:
     *(s8 *)&((BtlPacket *)waitPacket)->dependencyKind = 4;
     *(s64 *)&((BtlPacket *)waitPacket)->dependencyUID = *(s64 *)&((BtlPacket *)voicePacket)->uid;
     btlPacketEnqueue(waitPacket, 1);
-    if (func_0022bd20() != 0) {
+    if (btlEncounterIsBoss() != 0) {
         btlPacketEnqueue(btlBossCreateLoadPakPacket(), 1);
         endBgmEntry = btlBossMapUnitIdToEntryId();
         if (endBgmEntry != -1) {
@@ -1520,7 +1520,7 @@ s32 btlMainActionUpdate(void)
                 btlShuffleSelectMember((u8 *)iGpffffb3ac + 0xCEC, *(s32 *)((u8 *)iGpffffb3ac + 0xCE4), hurt) != 0) {
                 *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 1;
             }
-            if (func_0022bd20() != 0) {
+            if (btlEncounterIsBoss() != 0) {
                 *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 8;
             }
             *(s32 *)((u8 *)iGpffffb3ac + 0xCB8) = btlCurrentUnitId();
