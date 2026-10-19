@@ -1,3 +1,4 @@
+#include "nm_message_record.h"
 #include "btl_action_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
@@ -108,14 +109,14 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
-// Intent: sets string variable `variable` of the window in slot `arg0` to `text`.
+// Intent: sets string variable `variable` of the window in slot `slotIndex` to `text`.
 // FUN_002BBD80
-void nmMesWindowSetSlotString(s8 arg0, s32 variable, void *text) {
-    u8 *p;
+void nmMesWindowSetSlotString(s8 slotIndex, s32 variable, void *text) {
+    u8 *record;
 
-    p = D_00882F40[(s8)arg0];
-    if (p != NULL) {
-        itfMesWindowSetString(*(s32 *)p, variable, text);
+    record = D_00882F40[(s8)slotIndex];
+    if (record != NULL) {
+        itfMesWindowSetString(((NmMesWindowRecord *)record)->handle, variable, text);
     }
 }
 

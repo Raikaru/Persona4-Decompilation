@@ -628,3 +628,6 @@ btlCameraMoveTargetSideUpdate = 0x001C09A0; // type:func  evidence: inferred: Em
 btlCameraMoveHomeUpdate = 0x001C0E40; // type:func  evidence: inferred: Empty update slot of MOVE_HOME state 24 in the camera table at 0x005F74C0.
 btlCameraOverlimitUpdate = 0x001C79E0; // type:func  evidence: inferred: Empty update slot of OVERLIMIT state 32 in the camera table at 0x005F74C0.
 btlCameraAttackScfUpdate = 0x001CB960; // type:func  evidence: inferred: Empty update slot of ATTACK_SCF state 17; initializer btlCameraFrameRotateView builds both camera keys.
+itfMsgWindowCanDraw = 0x0027BEC0; // type:func  evidence: inferred: allows window drawing unless flag 0x80000 gates an active transition in bits 0x300
+timeLimitEntryUpdate = 0x002A2420; // type:func  evidence: inferred: resets the time limit, loads its sprite, creates the display child task and waits for the child to finish
+timeLimitEntryDestroy = 0x002A2600; // type:func  evidence: inferred: releases the time-limit entry sprite and frees the parent entry task work

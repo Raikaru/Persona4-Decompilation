@@ -9,6 +9,6 @@
 s32 itfMesWindowGetAnimAux(s32 handle);
 s32 itfMesWindowGetChoiceCount(s32 handle);
 s32 itfMesWindowGetFlags(s32 handle);
-s32 func_0027bec0(s32 handle);
+s32 itfMsgWindowCanDraw(s32 handle);
 
 #endif

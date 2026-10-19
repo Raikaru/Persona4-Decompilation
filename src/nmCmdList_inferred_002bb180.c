@@ -1,3 +1,4 @@
+#include "nm_message_record.h"
 #include "btl_action_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
@@ -107,16 +108,16 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
-// Intent: returns the result byte of slot `arg0`, or -1 when the slot is empty.
+// Intent: returns the result byte of slot `slotIndex`, or -1 when the slot is empty.
 // FUN_002BB180
-s8 nmMesWindowSlotResult(s64 arg0)
+s8 nmMesWindowSlotResult(s64 slotIndex)
 {
-    u8 *p;
+    u8 *record;
 
-    p = D_00882F40[(s8)arg0];
-    if (p == NULL) {
+    record = D_00882F40[(s8)slotIndex];
+    if (record == NULL) {
         return -1;
     }
-    return *(s8 *)(p + 0xD);
+    return ((NmMesWindowRecord *)record)->result;
 }
 
