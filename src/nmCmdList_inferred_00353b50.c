@@ -144,7 +144,7 @@ static inline u32 datCommunityAddOffset(u32 offset, u32 base)
 
 extern s32 nLineIsIdle(void);
 extern u32 D_0064B1E0[];
-extern void func_004672c0(s32 , s32 );
+extern void sdkWrapStreamCloseCreate(s32 , s32 );
 extern void H_Cdvd_Destroy(u8 *);
 extern void func_003ef3a0(void *);
 extern void memset(void *dst, s32 value, s32 size);
@@ -818,7 +818,7 @@ void datTextSlotRelease(u8 *slot)
 
     handle = ((DatTextSlot *)slot)->resource;
     if (handle != 0) {
-        func_004672c0(handle, ((DatTextSlot *)slot)->request.handle);
+        sdkWrapStreamCloseCreate(handle, ((DatTextSlot *)slot)->request.handle);
         *(s32 *)(slot + 4) = 0;
         *(s32 *)(slot + 8) = 0;
         ((DatTextSlot *)slot)->result.handle = 0;
@@ -1190,7 +1190,7 @@ void datScreenWipeDestroy(u8 *task)
     wipe = ((SdkTask *)task)->work;
     handle = ((DatScreenWipe *)wipe)->textSlot.resource;
     if (handle != 0) {
-        func_004672c0(handle, ((DatScreenWipe *)wipe)->textSlot.request.handle);
+        sdkWrapStreamCloseCreate(handle, ((DatScreenWipe *)wipe)->textSlot.request.handle);
         *(s32 *)(wipe + 0x148) = 0;
         *(s32 *)(wipe + 0x14C) = 0;
         ((DatScreenWipe *)wipe)->textSlot.result.handle = 0;

@@ -8,8 +8,8 @@ void btlShuffleStartOverlay(void);
 extern u16 *kwlnTaskGetWork();
 void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 s32 btlMainGetPhase(void);
-void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
-s32 func_0025cc70(void);
+void shdScriptCategoryTaskCreate(void *arg0, s32 arg1, s32 arg2);
+s32 shdScriptIsCategoryTaskActive(void);
 u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 u32 RpRandom(void);
 extern u16 D_008C024C[];
@@ -398,11 +398,11 @@ s32 btlResultSimpleStepPhase(u8 *arg0) {
             goto L;
         }
         nmMesWindowResetCurrent();
-        func_0025cbc0(arg0, 0, *(s16 *)(sub + 0x6F8));
+        shdScriptCategoryTaskCreate(arg0, 0, *(s16 *)(sub + 0x6F8));
         *(u32 *)(work + 0x38) = 4;
         goto L;
     case 4:
-        if (func_0025cc70() != 0) {
+        if (shdScriptIsCategoryTaskActive() != 0) {
             goto L;
         }
         *(u32 *)(work + 0x38) = 5;

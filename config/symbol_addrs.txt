@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2349 of 13102 symbols carry a recovered name.
+// 2361 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -479,9 +479,9 @@ func_0011e0c0 = 0x0011E0C0; // type:func
 func_0011e230 = 0x0011E230; // type:func
 func_0011e240 = 0x0011E240; // type:func
 func_0011e2b0 = 0x0011E2B0; // type:func
-func_0011e360 = 0x0011E360; // type:func
+shdPersonaDispCtlSetGaugeEnabled = 0x0011E360; // type:func
 func_0011e370 = 0x0011E370; // type:func
-func_0011e390 = 0x0011E390; // type:func
+shdPersonaDispCtlSetDrawOffset = 0x0011E390; // type:func
 func_0011e3c0 = 0x0011E3C0; // type:func
 func_0011e3e0 = 0x0011E3E0; // type:func
 func_0011e400 = 0x0011E400; // type:func
@@ -3566,11 +3566,11 @@ func_0025c560 = 0x0025C560; // type:func
 func_0025c600 = 0x0025C600; // type:func
 func_0025c6d0 = 0x0025C6D0; // type:func
 func_0025c730 = 0x0025C730; // type:func
-func_0025c790 = 0x0025C790; // type:func
-func_0025cb80 = 0x0025CB80; // type:func
-func_0025cbc0 = 0x0025CBC0; // type:func
-func_0025cc70 = 0x0025CC70; // type:func
-func_0025ccb0 = 0x0025CCB0; // type:func
+shdScriptCategoryTaskUpdate = 0x0025C790; // type:func
+shdScriptCategoryTaskDestroy = 0x0025CB80; // type:func
+shdScriptCategoryTaskCreate = 0x0025CBC0; // type:func
+shdScriptIsCategoryTaskActive = 0x0025CC70; // type:func
+shdScriptCommandIncrementCategory = 0x0025CCB0; // type:func
 func_0025cdd0 = 0x0025CDD0; // type:func
 func_0025ce40 = 0x0025CE40; // type:func
 func_0025ce90 = 0x0025CE90; // type:func
@@ -8276,11 +8276,11 @@ memcardWakeBackendThread = 0x00466600; // type:func
 func_00466680 = 0x00466680; // type:func
 filerEnqueueRequest = 0x004667D0; // type:func
 filerTakeCompletedRequest = 0x004669D0; // type:func
-func_00466c60 = 0x00466C60; // type:func
-func_00466e80 = 0x00466E80; // type:func
-func_004671c0 = 0x004671C0; // type:func
-func_00467290 = 0x00467290; // type:func
-func_004672c0 = 0x004672C0; // type:func
+sdkWrapPollRequests = 0x00466C60; // type:func
+sdkWrapWorkerThread = 0x00466E80; // type:func
+sdkWrapStreamCloseUpdate = 0x004671C0; // type:func
+sdkWrapStreamCloseDestroy = 0x00467290; // type:func
+sdkWrapStreamCloseCreate = 0x004672C0; // type:func
 func_004673c0 = 0x004673C0; // type:func
 filerDrawDirectory = 0x00467880; // type:func
 func_00467bd0 = 0x00467BD0; // type:func
