@@ -18,11 +18,11 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_002bdb50(s32 arg0, s8 arg1);
+extern s32 fclShopCreate(s32 arg0, s8 arg1);
 extern void fclClearMoonFlagEntries(void);
 extern s32 shopSystemCreate(s32 arg0);
 extern void fclCombineApplyPackedResult(void);
-extern s32 func_003493b0(u8 *arg0);
+extern s32 fclDebugModelCreate(u8 *arg0);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 #pragma push
 #pragma opt_common_subs on
@@ -70,7 +70,7 @@ s32 seqYajiTaskUpdate(u8 *arg0) {
             temp_3 = *(s32 *)(temp_16 + 0x6C0);
             switch (temp_3) {
             case 0:
-                *(s32 *)(temp_16 + 0x6C8) = func_002bdb50((s32)arg0, 0);
+                *(s32 *)(temp_16 + 0x6C8) = fclShopCreate((s32)arg0, 0);
                 break;
             case 1:
                 *(s32 *)(temp_16 + 0x6C8) = shopSystemCreate((s32)arg0);
@@ -80,7 +80,7 @@ s32 seqYajiTaskUpdate(u8 *arg0) {
                 *(s32 *)(temp_16 + 0x6C8) = fclCombineTaskCreate(arg0);
                 break;
             case 3:
-                *(s32 *)(temp_16 + 0x6C8) = func_003493b0(arg0);
+                *(s32 *)(temp_16 + 0x6C8) = fclDebugModelCreate(arg0);
                 break;
             }
             *(s8 *)(temp_16 + 0) = *(s8 *)(temp_16 + 0) + 1;

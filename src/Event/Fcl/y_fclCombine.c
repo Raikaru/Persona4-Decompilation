@@ -413,7 +413,7 @@ extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32, s32, s32);
 extern void fclCombineCdvdTaskCreate(void);
 extern s32 fclCombineInPreviewState(void);
-extern s32 func_0034a4f0(s32, s32);
+extern s32 fclModelEffectCreate(s32, s32);
 extern u8 *fclSpritePoolCreate(s32, s32);
 extern void fclSpriteReset(s16, s16);
 extern s32 fclCombineGetSpriteList(void);
@@ -472,7 +472,7 @@ s32 fclCombineMenuCreate(u8 *parentTask) {
     cmmDateSelectionRefresh((u8 *)(task));
     *(out + 0x20) = 0;
     *(out + 0xB3) = 0;
-    *(s32 *)(out + 0x254) = func_0034a4f0((s32)parentTask, 0);
+    *(s32 *)(out + 0x254) = fclModelEffectCreate((s32)parentTask, 0);
     {
         s32 partyIndex;
         for (partyIndex = 0; partyIndex < (datPersonaRosterCapacity() & 0xFFFF); partyIndex++) {
