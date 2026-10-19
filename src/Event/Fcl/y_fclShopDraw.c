@@ -73,16 +73,12 @@ typedef struct FclShopWork {
 } FclShopWork;
 typedef char FclShopWorkSize[sizeof(FclShopWork) == 0x1174 ? 1 : -1];
 
-/* measured: taking typed member addresses in these inline slot helpers changes
- * b210 aliasing and loses MATCH in StateUpdate, ScrollThumb and ItemDetail.
- * Their offsets are described by FclShopWork; retain byte-based addresses. */
+/* measured: each remaining slot-helper use below loses MATCH when replaced
+ * individually by its FclShopWork field; the differing-byte counts are at
+ * the call sites. Loaded-file slots no longer need a byte-address helper. */
 static inline s8 *fclShopMesSlot(u8 *work)
 {
     return (s8 *)(work + 0x10);
-}
-static inline void **fclShopLoadedFile(u8 *work)
-{
-    return (void **)(work + 0xF2C);
 }
 /* The loader returns the resource as an EE word handle. */
 static inline s32 *fclShopSpriteResource(u8 *work)
@@ -269,11 +265,12 @@ extern f32 fGpffff852c;
    one Vec2f[3] declared ahead of the sprintf buffers. Declaration order of the
    saved-register locals follows the retail registers. */
 /* Advance shop loading, menu animations, purchase/sale transactions and message slots; return -1 when closing finishes. */
-/* measured: whole task-work typing changes b210's saved field-address
- * temporaries and index/base addu order (the native typed trial was 49728B
- * yet MISMATCH). Access-site fields were isolated by offset; retain the
- * remaining byte addresses for those alias-sensitive accesses. All sprite
- * object fields and the non-sensitive task fields below are typed. */
+/* measured: the earlier native-layout trial was 49728B yet MISMATCH due to
+ * field-address sharing and index/base addu order. The second pass kept
+ * access-site conversions individually; every remaining raw field, indexed
+ * base and slot-helper use below has its own measured differing-byte count.
+ * A fully typed simple-field trial with opt_common_subs off was 51212B and
+ * still MISMATCH, so no additional optimization pragma is retained. */
 // FUN_002BE530
 s32 fclShopStateUpdate(u8 *task)
 {
@@ -598,443 +595,443 @@ s32 fclShopStateUpdate(u8 *task)
     state = ((FclShopWork *)work)->state;
     switch (state) {                             /* switch 1 */
     case 0x9:                                       /* switch 1 */
-        (*fclShopSpriteResource(work)) = sdkSpriteRequestLoad(&D_0063FAA0);
+        (((FclShopWork *)work)->spriteResource.signedWord) = sdkSpriteRequestLoad(&D_0063FAA0);
         func_00440b68(iGpffffa878, D_0063FAC0, 0x147);
-        (*fclShopLoadedFile(work)) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
+        (((FclShopWork *)work)->loadedFile) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
         ((FclShopWork *)work)->state = 0xA;
         /* fallthrough */
     case 0xA:                                       /* switch 1 */
-        if ((hMaestroDecodeIsReady((*fclShopSpriteResource(work))) != 0) && (H_Cdvd_IsFileLoaded((*fclShopLoadedFile(work))) != 0)) {
+        if ((hMaestroDecodeIsReady((*fclShopSpriteResource(work))) != 0) && (H_Cdvd_IsFileLoaded((((FclShopWork *)work)->loadedFile)) != 0)) { /* measured: typing each remaining site here changes 36427 code bytes. */
             ((FclShopWork *)work)->state = 0xB;
             ((FclShopWork *)work)->ready = 1;
             for (index17 = 0; index17 < 0x91; index17++) {
-                (*(s32 *)((u8 *)((work + (index17 * 4))) + 0xC38)) = fclShopItemPanelCreate((s32) task, index17, (*(u32 *)(work + 0xF28)));
+                (((FclShopWork *)work)->panels[(index17)].word) = fclShopItemPanelCreate((s32) task, index17, (((FclShopWork *)work)->spriteResource.word));
             }
-            (*(s32 *)(work + 0xE7C)) = fclShopItemPanelCreate((s32) task, 6, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xE80)) = fclShopItemPanelCreate((s32) task, 0xA, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xE84)) = fclShopItemPanelCreate((s32) task, 0x1D, (*(u32 *)(work + 0xF28)));
+            (((FclShopWork *)work)->panels[0x91].word) = fclShopItemPanelCreate((s32) task, 6, (((FclShopWork *)work)->spriteResource.word));
+            (((FclShopWork *)work)->panels[0x92].word) = fclShopItemPanelCreate((s32) task, 0xA, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36326 code bytes. */
+            (((FclShopWork *)work)->panels[0x93].word) = fclShopItemPanelCreate((s32) task, 0x1D, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36326 code bytes. */
             for (index35 = 0; index35 < 3; index35++) {
-                (*(s32 *)((u8 *)((work + (index35 * 4))) + 0xE88)) = fclShopItemPanelCreate((s32) task, (s16) ((s16) ((index35 + 0x61))), (*(u32 *)(work + 0xF28)));
+                (((FclShopWork *)work)->panels[(index35) + 0x94].word) = fclShopItemPanelCreate((s32) task, (s16) ((s16) ((index35 + 0x61))), (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36329 code bytes. */
             }
             for (index36 = 0; index36 < 4; index36++) {
-                (*(s32 *)((u8 *)((work + (index36 * 4))) + 0xE94)) = fclShopItemPanelCreate((s32) task, (s16) ((s16) ((index36 + 0x19))), (*(u32 *)(work + 0xF28)));
+                (((FclShopWork *)work)->panels[(index36) + 0x97].word) = fclShopItemPanelCreate((s32) task, (s16) ((s16) ((index36 + 0x19))), (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
             }
-            (*(s32 *)(work + 0xEA4)) = fclShopItemPanelCreate((s32) task, 0x1D, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEA8)) = fclShopItemPanelCreate((s32) task, 0x1D, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEAC)) = fclShopItemPanelCreate((s32) task, 0x20, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEB0)) = fclShopItemPanelCreate((s32) task, 0x21, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEB4)) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEB8)) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEBC)) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEC0)) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEC4)) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEC8)) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xED4)) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xED8)) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xECC)) = fclShopItemPanelCreate((s32) task, 5, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEDC)) = fclShopItemPanelCreate((s32) task, 0x2B, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEE0)) = fclShopItemPanelCreate((s32) task, 0x2C, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xED0)) = fclShopItemPanelCreate((s32) task, 0x5F, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF14)) = fclShopItemPanelCreate((s32) task, 0x5F, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEE4)) = fclShopItemPanelCreate((s32) task, 0x65, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEE8)) = fclShopItemPanelCreate((s32) task, 0x66, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEEC)) = fclShopItemPanelCreate((s32) task, 0xA, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEF0)) = fclShopItemPanelCreate((s32) task, 0xA, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEF4)) = fclShopItemPanelCreate((s32) task, 0x12, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEF8)) = fclShopItemPanelCreate((s32) task, 0xE, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEFC)) = fclShopItemPanelCreate((s32) task, 0x13, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF00)) = fclShopItemPanelCreate((s32) task, 0xF, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF04)) = fclShopItemPanelCreate((s32) task, 0x10, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF08)) = fclShopItemPanelCreate((s32) task, 0x8C, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF0C)) = fclShopItemPanelCreate((s32) task, 0x8D, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF10)) = fclShopItemPanelCreate((s32) task, 0x8E, (*(u32 *)(work + 0xF28)));
-            sprite23 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x48));
+            (((FclShopWork *)work)->panels[0x9B].word) = fclShopItemPanelCreate((s32) task, 0x1D, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0x9C].word) = fclShopItemPanelCreate((s32) task, 0x1D, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0x9D].word) = fclShopItemPanelCreate((s32) task, 0x20, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0x9E].word) = fclShopItemPanelCreate((s32) task, 0x21, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0x9F].word) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA0].word) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA1].word) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA2].word) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA3].word) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA4].word) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA7].word) = fclShopItemPanelCreate((s32) task, 3, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA8].word) = fclShopItemPanelCreate((s32) task, 4, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA5].word) = fclShopItemPanelCreate((s32) task, 5, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA9].word) = fclShopItemPanelCreate((s32) task, 0x2B, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xAA].word) = fclShopItemPanelCreate((s32) task, 0x2C, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xA6].word) = fclShopItemPanelCreate((s32) task, 0x5F, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB7].word) = fclShopItemPanelCreate((s32) task, 0x5F, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xAB].word) = fclShopItemPanelCreate((s32) task, 0x65, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xAC].word) = fclShopItemPanelCreate((s32) task, 0x66, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xAD].word) = fclShopItemPanelCreate((s32) task, 0xA, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xAE].word) = fclShopItemPanelCreate((s32) task, 0xA, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xAF].word) = fclShopItemPanelCreate((s32) task, 0x12, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB0].word) = fclShopItemPanelCreate((s32) task, 0xE, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB1].word) = fclShopItemPanelCreate((s32) task, 0x13, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB2].word) = fclShopItemPanelCreate((s32) task, 0xF, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB3].word) = fclShopItemPanelCreate((s32) task, 0x10, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB4].word) = fclShopItemPanelCreate((s32) task, 0x8C, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB5].word) = fclShopItemPanelCreate((s32) task, 0x8D, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            (((FclShopWork *)work)->panels[0xB6].word) = fclShopItemPanelCreate((s32) task, 0x8E, (*(u32 *)(work + 0xF28))); /* measured: typing each remaining site here changes 36332 code bytes. */
+            sprite23 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x48)); /* measured: typing each remaining site here changes 36331 code bytes. */
             pivotX = 632.0f + sdkSpriteScaledWidth(sprite23);
             sdkSpriteFreeNode(sprite23);
-            sprite29 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x47));
+            sprite29 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x47)); /* measured: typing each remaining site here changes 36331 code bytes. */
             pivotY = 136.0f + sdkSpriteScaledHeight(sprite29);
             sdkSpriteFreeNode(sprite29);
             coordinate9 = (f32) 0x1A3;
             ((FclShopWork *)work)->centerX = (f32) (coordinate9 + ((pivotX - coordinate9) / 2.0f));
             ((FclShopWork *)work)->centerY = (f32) (65.0f + ((pivotY - 65.0f) / 2.0f));
-            (*(s8 *)(work + 0xF73)) = 1;
-            (*(s8 *)(work + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit(1, 0)))));
-            (*(s8 *)(work + 9)) = 1;
+            (((FclShopWork *)work)->unitIds[0]) = 1;
+            (((FclShopWork *)work)->unitIcons[0]) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit(1, 0)))));
+            (((FclShopWork *)work)->unitCount) = 1;
             if (datGetFlag(0x30) != 0) {
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 2;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
-                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 2; /* measured: typing each remaining site here changes 2-35365 code bytes. */
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0))))); /* measured: typing each remaining site here changes 2-35365 code bytes. */
+                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1); /* measured: typing each remaining site here changes 35365 code bytes. */
             }
             if (datGetFlag(0x31) != 0) {
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 3;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
-                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 3; /* measured: typing each remaining site here changes 2-35265 code bytes. */
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0))))); /* measured: typing each remaining site here changes 2-35249 code bytes. */
+                (((FclShopWork *)work)->unitCount) = (s8) ((((FclShopWork *)work)->unitCount) + 1);
             }
             if (datGetFlag(0x32) != 0) {
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 4;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
-                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 4; /* measured: typing each remaining site here changes 2-35365 code bytes. */
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0))))); /* measured: typing each remaining site here changes 2-35365 code bytes. */
+                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1); /* measured: typing each remaining site here changes 35365 code bytes. */
             }
             if (datGetFlag(0x33) != 0) {
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 6;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
-                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 6; /* measured: typing each remaining site here changes 2-35099 code bytes. */
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0))))); /* measured: typing each remaining site here changes 2-35083 code bytes. */
+                (((FclShopWork *)work)->unitCount) = (s8) ((((FclShopWork *)work)->unitCount) + 1);
             }
             if (datGetFlag(0x35) != 0) {
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 8;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
-                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 8; /* measured: typing each remaining site here changes 2-35365 code bytes. */
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0))))); /* measured: typing each remaining site here changes 2-35365 code bytes. */
+                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1); /* measured: typing each remaining site here changes 35365 code bytes. */
             }
             if (datGetFlag(0x36) != 0) {
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 7;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
-                (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 7; /* measured: typing each remaining site here changes 2-34933 code bytes. */
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0))))); /* measured: typing each remaining site here changes 2-34917 code bytes. */
+                (((FclShopWork *)work)->unitCount) = (s8) ((((FclShopWork *)work)->unitCount) + 1);
             }
             for (index43 = 0; index43 < 9; index43++) {
-                (*(s16 *)(work + (index43 * 2) + 0xF46)) = (s16) (index43 * 3);
-                (*(s16 *)(work + (index43 * 2) + 0xF58)) = 0;
-                (*(s8 *)((u8 *)((work + index43)) + 0xF6A)) = 0;
+                (*(s16 *)(work + (index43 * 2) + 0xF46)) = (s16) (index43 * 3); /* measured: typing each remaining site here changes 6 code bytes. */
+                (*(s16 *)(work + (index43 * 2) + 0xF58)) = 0; /* measured: typing each remaining site here changes 6 code bytes. */
+                (((FclShopWork *)work)->rowAlpha[(index43)]) = 0;
             }
-            (*(s8 *)(work + 8)) = 0;
+            (((FclShopWork *)work)->unitSelection) = 0;
         }
         break;
     case 0xC:                                       /* switch 1 */
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 34788 code bytes. */
         } else {
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 34788 code bytes. */
             datSetFlag(0x1324, 1);
             ((FclShopWork *)work)->state = 0xD;
         }
         break;
     case 0xD:                                       /* switch 1 */
-        if ((yListCountFor((*(void * *)(work + 0xF18))) > D_00748908[0]) && (datGetFlag(0x1324) == 0)) {
-            (*fclShopMesSlot(work)) = nmMesWindowAcquire((((FclShopMessageFile *)*fclShopLoadedFile(work))->messages));
-            nmMesWindowShowSlotRecordStyle1((*fclShopMesSlot(work)), 0xB);
+        if ((yListCountFor((((FclShopWork *)work)->lists[0])) > D_00748908[0]) && (datGetFlag(0x1324) == 0)) {
+            (((FclShopWork *)work)->messageSlot) = nmMesWindowAcquire((((FclShopMessageFile *)((FclShopWork *)work)->loadedFile)->messages));
+            nmMesWindowShowSlotRecordStyle1((*fclShopMesSlot(work)), 0xB); /* measured: typing each remaining site here changes 34700 code bytes. */
             ((FclShopWork *)work)->state = 0xC;
             return 0;
         }
         if (((s8) (calGetDayEntryForMonthDay((fclCalendarMonth() & 0xFF), (u8)fclCalendarDay() & 0xFF))) == 1) {
             calendarDate = (s16) ((((u8)fclCalendarDay() & 0xFF) + ((fclCalendarMonth() & 0xFF) * 0x64)));
             if ((calendarDate >= 0x190) && (calendarDate < 0x207)) {
-                (*fclShopMesSlot(work)) = fclShopPlaySound(task, 0xC, (((FclShopMessageFile *)*fclShopLoadedFile(work))->messages), 0);
+                (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 0xC, (((FclShopMessageFile *)((FclShopWork *)work)->loadedFile)->messages), 0);
             } else {
-                (*fclShopMesSlot(work)) = fclShopPlaySound(task, 0xD, (((FclShopMessageFile *)*fclShopLoadedFile(work))->messages), 0);
+                (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 0xD, (((FclShopMessageFile *)((FclShopWork *)work)->loadedFile)->messages), 0);
             }
         } else {
-            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 0xC, (((FclShopMessageFile *)*fclShopLoadedFile(work))->messages), 0);
+            (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 0xC, (((FclShopMessageFile *)((FclShopWork *)work)->loadedFile)->messages), 0);
         }
         ((FclShopWork *)work)->state = 0xF;
         break;
     case 0xF:                                       /* switch 1 */
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 34457 code bytes. */
         } else {
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 34457 code bytes. */
             ((FclShopWork *)work)->state = 0xE;
         }
         break;
     case 0xE:                                       /* switch 1 */
-        (*(s8 *)(work + 7)) = 0;
-        positionTable7 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC));
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC44)), 0x41, 126.0f);
+        (((FclShopWork *)work)->category) = 0;
+        positionTable7 = (f32 *)(D_0063F9F0 + ((((FclShopWork *)work)->category) * 0xC));
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x3].pointer), 0x41, 126.0f);
         coordinate16 = positionTable7[0];
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x) = coordinate16;
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x) = coordinate16; /* measured: typing each remaining site here changes 34391 code bytes. */
         coordinate17 = positionTable7[1];
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) = coordinate17;
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-        fclObjStartPosition((*(void * *)(work + 0xC44)), fclMakeVec2(positionTable7[0] - 80.0f, positionTable7[1]), fclMakeVec2(positionTable7[0], positionTable7[1]), 0, 3, (s16) ((s16) (((*(s8 *)(work + 7)) + 1))));
-        fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 3, (s16) (((*(s8 *)(work + 7)) + 1)));
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC48)), 0x41, 127.0f);
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) = coordinate17; /* measured: typing each remaining site here changes 34391 code bytes. */
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 34391 code bytes. */
+        fclObjStartPosition((*(void * *)(work + 0xC44)), fclMakeVec2(positionTable7[0] - 80.0f, positionTable7[1]), fclMakeVec2(positionTable7[0], positionTable7[1]), 0, 3, (s16) ((s16) (((*(s8 *)(work + 7)) + 1)))); /* measured: typing each remaining site here changes 34395-34412 code bytes. */
+        fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 3, (s16) (((*(s8 *)(work + 7)) + 1))); /* measured: typing each remaining site here changes 34395-34412 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x4].pointer), 0x41, 127.0f);
         coordinate18 = positionTable7[0] + positionTable7[2];
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x) = coordinate18;
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x) = coordinate18; /* measured: typing each remaining site here changes 34186 code bytes. */
         coordinate19 = positionTable7[1];
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) = coordinate19;
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-        fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((positionTable7[0] + positionTable7[2]) - 80.0f, positionTable7[1]), fclMakeVec2(positionTable7[0] + positionTable7[2], positionTable7[1]), 0, 3, (s16) ((s16) (((*(s8 *)(work + 7)) + 1))));
-        fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 3, (s16) (((*(s8 *)(work + 7)) + 1)));
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) = coordinate19; /* measured: typing each remaining site here changes 34186 code bytes. */
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 34186 code bytes. */
+        fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((positionTable7[0] + positionTable7[2]) - 80.0f, positionTable7[1]), fclMakeVec2(positionTable7[0] + positionTable7[2], positionTable7[1]), 0, 3, (s16) ((s16) (((*(s8 *)(work + 7)) + 1)))); /* measured: typing each remaining site here changes 34196-34412 code bytes. */
+        fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 3, (s16) (((*(s8 *)(work + 7)) + 1))); /* measured: typing each remaining site here changes 34196-34412 code bytes. */
         fclShopStartSelectionShake(task);
         for (index4 = 0; index4 < 7; index4++) {
             positionTable2 = (f32 *)(D_0063F560 + ((index4 + 0x3A) * 8));
-            fclObjSetAnchorPosition((*(void * *)(work + (index4 * 4) + 0xD20)), 0x56, (f32) (index4 + 0x64));
+            fclObjSetAnchorPosition((*(void * *)(work + (index4 * 4) + 0xD20)), 0x56, (f32) (index4 + 0x64)); /* measured: typing each remaining site here changes 67 code bytes. */
             if (index4 > 0) {
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + (index4 * 4) + 0xD20))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + (index4 * 4) + 0xD20))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF); /* measured: typing each remaining site here changes 62 code bytes. */
             }
-            fclObjStartPosition((*(void * *)(work + ((index4) * 4) + 0xD20)), fclMakeVec2(80.0f + positionTable2[0], positionTable2[1]), fclMakeVec2(positionTable2[0], positionTable2[1]), 0, 3, index4);
-            fclObjStartAlpha((*(void * *)(work + ((index4) * 4) + 0xD20)), 0U, 0xFFU, 0U, 3, index4);
+            fclObjStartPosition((*(void * *)(work + ((index4) * 4) + 0xD20)), fclMakeVec2(80.0f + positionTable2[0], positionTable2[1]), fclMakeVec2(positionTable2[0], positionTable2[1]), 0, 3, index4); /* measured: typing each remaining site here changes 33915 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + ((index4) * 4) + 0xD20)), 0U, 0xFFU, 0U, 3, index4); /* measured: typing each remaining site here changes 33917 code bytes. */
         }
-        ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC3C)), 0x41, 184.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC3C))))->color = fclMakeDrawColor(0x5A, 0, 2, 0xFF);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC38)), 0x56, 182.0f);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC40)), 0x56, 183.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC40))))->color = fclMakeDrawColor(0xFE, 0xBE, 0x1E, 0xFF);
-        sprite14 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(2));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC40))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite14) / 2.0f))));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC40))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite14) / 2.0f))));
+        ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF); /* measured: typing each remaining site here changes 2-34413 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x1].pointer), 0x41, 184.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC3C))))->color = fclMakeDrawColor(0x5A, 0, 2, 0xFF); /* measured: typing each remaining site here changes 33655 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x0].pointer), 0x56, 182.0f);
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x2].pointer), 0x56, 183.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC40))))->color = fclMakeDrawColor(0xFE, 0xBE, 0x1E, 0xFF); /* measured: typing each remaining site here changes 33565 code bytes. */
+        sprite14 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(2));
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC40))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite14) / 2.0f)))); /* measured: typing each remaining site here changes 33567 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC40))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite14) / 2.0f)))); /* measured: typing each remaining site here changes 33567 code bytes. */
         sdkSpriteFreeNode(sprite14);
-        fclObjStartTween((*(void * *)(work + 0xC40)), -90.0f, -90.0f, 0, 0, 0);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
-        sprite15 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite15))));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) ((sdkSpriteScaledHeight(sprite15))));
+        fclObjStartTween((*(void * *)(work + 0xC40)), -90.0f, -90.0f, 0, 0, 0); /* measured: typing each remaining site here changes 33567 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x5].pointer), 0x40, 191.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 33365 code bytes. */
+        sprite15 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5)); /* measured: typing each remaining site here changes 33498 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite15)))); /* measured: typing each remaining site here changes 33367 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) ((sdkSpriteScaledHeight(sprite15)))); /* measured: typing each remaining site here changes 33367 code bytes. */
         sdkSpriteFreeNode(sprite15);
-        fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0U, 0xA0U, 0U, 4, 4);
-        fclObjStartTween((*(void * *)(work + 0xC4C)), 0.0f, fGpffff8520, 0, 4, 4);
-        fclObjStartPosition((*(void * *)(work + 0xC4C)), fclMakeVec2(-240.0f, 400.0f), fclMakeVec2(-240.0f, 310.0f), 0, 4, 4);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->color = fclMakeDrawColor(0xFF, 0xBE, 0x22, 0xFF);
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 110.0f;
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = -50.0f;
-        sprite16 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite16))));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = 0;
-        fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 0);
+        fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0U, 0xA0U, 0U, 4, 4); /* measured: typing each remaining site here changes 33367 code bytes. */
+        fclObjStartTween((*(void * *)(work + 0xC4C)), 0.0f, fGpffff8520, 0, 4, 4); /* measured: typing each remaining site here changes 33367 code bytes. */
+        fclObjStartPosition((*(void * *)(work + 0xC4C)), fclMakeVec2(-240.0f, 400.0f), fclMakeVec2(-240.0f, 310.0f), 0, 4, 4); /* measured: typing each remaining site here changes 33367 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6].pointer), 0x40, 192.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->color = fclMakeDrawColor(0xFF, 0xBE, 0x22, 0xFF); /* measured: typing each remaining site here changes 33087 code bytes. */
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 110.0f; /* measured: typing each remaining site here changes 33087 code bytes. */
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = -50.0f; /* measured: typing each remaining site here changes 33087 code bytes. */
+        sprite16 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 33500 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite16)))); /* measured: typing each remaining site here changes 33088 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = 0; /* measured: typing each remaining site here changes 33088 code bytes. */
+        fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 0); /* measured: typing each remaining site here changes 33088 code bytes. */
         sdkSpriteFreeNode(sprite16);
-        fclObjStartAlpha((*(void * *)(work + 0xC50)), 0U, 0xFFU, 0U, 4, 0);
-        fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
-        (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 180.0f;
-        (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 30.0f;
-        ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->color = fclMakeDrawColor(0xED, 0x81, 3, 0xFF);
-        sprite17 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-        (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite17))));
-        (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = 0;
+        fclObjStartAlpha((*(void * *)(work + 0xC50)), 0U, 0xFFU, 0U, 4, 0); /* measured: typing each remaining site here changes 33088 code bytes. */
+        fclObjSetAnchorPosition((void *) (((FclShopWork *)work)->panels[0x91].word), 0x40, 190.0f);
+        (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 180.0f; /* measured: typing each remaining site here changes 32859 code bytes. */
+        (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 30.0f; /* measured: typing each remaining site here changes 32859 code bytes. */
+        ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->color = fclMakeDrawColor(0xED, 0x81, 3, 0xFF); /* measured: typing each remaining site here changes 32859 code bytes. */
+        sprite17 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 33501 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite17)))); /* measured: typing each remaining site here changes 32860 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = 0; /* measured: typing each remaining site here changes 32860 code bytes. */
         sdkSpriteFreeNode(sprite17);
-        fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), -85.0f, fGpffff8528, 0, 4, 2);
-        fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0U, 0xFFU, 0U, 4, 2);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xDE8)), 0x41, 46.0f);
-        fclObjStartAlpha((*(void * *)(work + 0xDE8)), 0U, 0xFFU, 0U, 6, 0);
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.x) = 198.0f;
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.y) = (f32) 0x151;
-        fclObjSetAnchorPosition((*(void * *)(work + 0xDEC)), 0x41, 146.0f);
-        fclObjStartAlpha((*(void * *)(work + 0xDEC)), 0U, 0xFFU, 0U, 6, 0);
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.x) = 216.0f;
-        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.y) = 368.0f;
-        fclObjSetAnchorPosition((*(void * *)(work + 0xD8C)), 0x3F, 207.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD8C))))->color = fclMakeDrawColor(0xFF, 0xAE, 0, 0xFF);
-        fclObjStartTween((*(void * *)(work + 0xD8C)), 0.0f, 360.0f, 0, 0x708, 0);
-        fclObjChangeFlagBit((*(void * *)(work + 0xD8C)), 6, 0);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xD90)), 0x3D, 209.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD90))))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-        sprite18 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x56));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD90))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite18))));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD90))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite18) / 2.0f))));
+        fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), -85.0f, fGpffff8528, 0, 4, 2); /* measured: typing each remaining site here changes 32860 code bytes. */
+        fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0U, 0xFFU, 0U, 4, 2); /* measured: typing each remaining site here changes 32860 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6C].pointer), 0x41, 46.0f);
+        fclObjStartAlpha((*(void * *)(work + 0xDE8)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 32638 code bytes. */
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.x) = 198.0f; /* measured: typing each remaining site here changes 32638 code bytes. */
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.y) = (f32) 0x151; /* measured: typing each remaining site here changes 32638 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6D].pointer), 0x41, 146.0f);
+        fclObjStartAlpha((*(void * *)(work + 0xDEC)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 32546 code bytes. */
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.x) = 216.0f; /* measured: typing each remaining site here changes 32546 code bytes. */
+        (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.y) = 368.0f; /* measured: typing each remaining site here changes 32546 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x55].pointer), 0x3F, 207.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD8C))))->color = fclMakeDrawColor(0xFF, 0xAE, 0, 0xFF); /* measured: typing each remaining site here changes 32460 code bytes. */
+        fclObjStartTween((*(void * *)(work + 0xD8C)), 0.0f, 360.0f, 0, 0x708, 0); /* measured: typing each remaining site here changes 32460 code bytes. */
+        fclObjChangeFlagBit((*(void * *)(work + 0xD8C)), 6, 0); /* measured: typing each remaining site here changes 32459 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x56].pointer), 0x3D, 209.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD90))))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 32344 code bytes. */
+        sprite18 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x56)); /* measured: typing each remaining site here changes 33502 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD90))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite18)))); /* measured: typing each remaining site here changes 32346 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD90))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite18) / 2.0f)))); /* measured: typing each remaining site here changes 32346 code bytes. */
         sdkSpriteFreeNode(sprite18);
-        fclObjStartTween((*(void * *)(work + 0xD90)), 0.0f, 360.0f, 0, 0x5A0, 0);
-        fclObjChangeFlagBit((*(void * *)(work + 0xD90)), 6, 0);
-        fclObjStartAlpha((*(void * *)(work + 0xD90)), 0U, 0xFFU, 0U, 0xA, 0);
-        fclObjSetAnchorPosition((*(void * *)(work + 0xD94)), 0x3D, 210.0f);
-        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD94))))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-        sprite = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x57));
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD94))))->pivotX) = 0;
-        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD94))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite) / 2.0f))));
+        fclObjStartTween((*(void * *)(work + 0xD90)), 0.0f, 360.0f, 0, 0x5A0, 0); /* measured: typing each remaining site here changes 32346 code bytes. */
+        fclObjChangeFlagBit((*(void * *)(work + 0xD90)), 6, 0); /* measured: typing each remaining site here changes 32345 code bytes. */
+        fclObjStartAlpha((*(void * *)(work + 0xD90)), 0U, 0xFFU, 0U, 0xA, 0); /* measured: typing each remaining site here changes 32346 code bytes. */
+        fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x57].pointer), 0x3D, 210.0f);
+        ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD94))))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 32104 code bytes. */
+        sprite = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x57)); /* measured: typing each remaining site here changes 33504 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD94))))->pivotX) = 0; /* measured: typing each remaining site here changes 32104 code bytes. */
+        (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD94))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite) / 2.0f)))); /* measured: typing each remaining site here changes 32105 code bytes. */
         sdkSpriteFreeNode(sprite);
-        fclObjStartTween((*(void * *)(work + 0xD94)), 0.0f, 360.0f, 0, 0x5A0, 0);
-        fclObjChangeFlagBit((*(void * *)(work + 0xD94)), 6, 0);
-        fclObjStartAlpha((*(void * *)(work + 0xD94)), 0U, 0xFFU, 0U, 0xA, 0);
+        fclObjStartTween((*(void * *)(work + 0xD94)), 0.0f, 360.0f, 0, 0x5A0, 0); /* measured: typing each remaining site here changes 32105 code bytes. */
+        fclObjChangeFlagBit((*(void * *)(work + 0xD94)), 6, 0); /* measured: typing each remaining site here changes 32104 code bytes. */
+        fclObjStartAlpha((*(void * *)(work + 0xD94)), 0U, 0xFFU, 0U, 0xA, 0); /* measured: typing each remaining site here changes 32105 code bytes. */
         for (index37 = 0x59; index37 < 0x60; index37++) {
-            ((FclObject *)fclObjectGetWork((*(void * *)((u8 *)((work + (index37 * 4))) + 0xC38))))->color = fclMakeDrawColor(0xFF, 0xAE, 0, 0xFF);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[(index37)].pointer)))->color = fclMakeDrawColor(0xFF, 0xAE, 0, 0xFF);
         }
         for (index38 = 0x64; index38 < 0x67; index38++) {
-            ((FclObject *)fclObjectGetWork((*(void * *)((u8 *)((work + (index38 * 4))) + 0xC38))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[(index38)].pointer)))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
         }
         ((FclShopWork *)work)->state = 0x10;
         ((FclShopWork *)work)->unkC26 = 1;
         break;
     case 0x10:                                      /* switch 1 */
         if (D_008C027A[0] & 0x4000) {
-            (*(s8 *)(work + 7)) = fclAddClamped((s32) (*(s8 *)(work + 7)), 1, 5, 0, 2);
+            (((FclShopWork *)work)->category) = fclAddClamped((s32) (*(s8 *)(work + 7)), 1, 5, 0, 2); /* measured: typing each remaining site here changes 31683 code bytes. */
             fclShopStartSelectionShake(task);
-            positionTable5 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC));
+            positionTable5 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC)); /* measured: typing each remaining site here changes 31682 code bytes. */
             coordinate20 = positionTable5[0];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x) = coordinate20;
+            (((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x3].pointer)))->anchorPosition.x) = coordinate20;
             coordinate21 = positionTable5[1];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) = coordinate21;
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) = coordinate21; /* measured: typing each remaining site here changes 31631 code bytes. */
             coordinate22 = positionTable5[0] + positionTable5[2];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x) = coordinate22;
+            (((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x4].pointer)))->anchorPosition.x) = coordinate22;
             coordinate23 = positionTable5[1];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) = coordinate23;
-            fclObjStartPosition((*(void * *)(work + 0xC44)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y)), 1, 2, 0);
-            fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y)), 1, 2, 0);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) = coordinate23; /* measured: typing each remaining site here changes 31600 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC44)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 31628-31631 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 31595-31600 code bytes. */
             for (index39 = 0; index39 < 6; index39++) {
-                ((FclObject *)fclObjectGetWork((*(void * *)((u8 *)((work + (index39 * 4))) + 0xD24))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
+                ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[(index39) + 0x3B].pointer)))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
             }
-            ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
+            ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF); /* measured: typing each remaining site here changes 2-31685 code bytes. */
             sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C027A[0] & 0x1000) {
-            (*(s8 *)(work + 7)) = fclSubClamped((s32) (*(s8 *)(work + 7)), 1, 0, 5, 2);
+            (((FclShopWork *)work)->category) = fclSubClamped((s32) (*(s8 *)(work + 7)), 1, 0, 5, 2); /* measured: typing each remaining site here changes 31192 code bytes. */
             fclShopStartSelectionShake(task);
-            positionTable4 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC));
+            positionTable4 = (f32 *)(D_0063F9F0 + ((*(s8 *)(work + 7)) * 0xC)); /* measured: typing each remaining site here changes 31191 code bytes. */
             coordinate10 = positionTable4[0];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x) = coordinate10;
+            (((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x3].pointer)))->anchorPosition.x) = coordinate10;
             coordinate11 = positionTable4[1];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) = coordinate11;
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) = coordinate11; /* measured: typing each remaining site here changes 31140 code bytes. */
             coordinate12 = positionTable4[0] + positionTable4[2];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x) = coordinate12;
+            (((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x4].pointer)))->anchorPosition.x) = coordinate12;
             coordinate13 = positionTable4[1];
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) = coordinate13;
-            fclObjStartPosition((*(void * *)(work + 0xC44)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y)), 1, 2, 0);
-            fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y)), 1, 2, 0);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) = coordinate13; /* measured: typing each remaining site here changes 31109 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC44)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 31137-31140 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC48)), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 31104-31109 code bytes. */
             for (index40 = 0; index40 < 6; index40++) {
-                ((FclObject *)fclObjectGetWork((*(void * *)((u8 *)((work + (index40 * 4))) + 0xD24))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
+                ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[(index40) + 0x3B].pointer)))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
             }
-            ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
+            ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF); /* measured: typing each remaining site here changes 2-31194 code bytes. */
             sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C024E[0] & 0x40) {
-            fclObjStartTween((*(void * *)(work + 0xC44)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->tweenValue), 0.0f, 0, 2, 0);
-            fclObjStartTween((*(void * *)(work + 0xC48)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->tweenValue), 0.0f, 0, 2, 0);
+            fclObjStartTween((((FclShopWork *)work)->panels[0x3].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC44))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 30695 code bytes. */
+            fclObjStartTween((((FclShopWork *)work)->panels[0x4].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC48))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 30660 code bytes. */
             for (index11 = 0; index11 < 2; index11++) {
-                (*(u8 *)(work + ((index11) * 4) + 0xF3E)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index11) * 4) + 0xC44))))->color.c0);
-                (*(u8 *)(work + ((index11) * 4) + 0xF3F)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index11) * 4) + 0xC44))))->color.c1);
-                (*(u8 *)(work + ((index11) * 4) + 0xF40)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index11) * 4) + 0xC44))))->color.c2);
+                (*(u8 *)(work + ((index11) * 4) + 0xF3E)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index11) * 4) + 0xC44))))->color.c0); /* measured: typing each remaining site here changes 20-45 code bytes. */
+                (*(u8 *)(work + ((index11) * 4) + 0xF3F)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index11) * 4) + 0xC44))))->color.c1); /* measured: typing each remaining site here changes 49-30594 code bytes. */
+                (*(u8 *)(work + ((index11) * 4) + 0xF40)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index11) * 4) + 0xC44))))->color.c2); /* measured: typing each remaining site here changes 62-30582 code bytes. */
             }
-            (*(s16 *)(work + 0xF3C)) = 0;
+            (((FclShopWork *)work)->colorFrame) = 0;
             ((FclShopWork *)work)->state = 0x12;
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
             for (index41 = 0; index41 < 7; index41++) {
-                fclObjStartAlpha((*(void * *)((u8 *)((work + (index41 * 4))) + 0xD20)), 0xFFU, 0U, 0U, 5, (s16) ((index41 * 2)));
+                fclObjStartAlpha((((FclShopWork *)work)->panels[(index41) + 0x3A].pointer), 0xFFU, 0U, 0U, 5, (s16) ((index41 * 2)));
             }
-            fclObjStartAlpha((*(void * *)(work + 0xC44)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
-            fclObjStartAlpha((*(void * *)(work + 0xC48)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-            sprite19 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite19) / 2.0f))));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite19) / 2.0f))));
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x3].pointer), 0xFFU, 0U, 0U, 0, (s16) ((((((FclShopWork *)work)->category) * 2) + 2)));
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x4].pointer), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2))); /* measured: typing each remaining site here changes 30422 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x5].pointer), 0x40, 191.0f);
+            sprite19 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(5));
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite19) / 2.0f)))); /* measured: typing each remaining site here changes 30356 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite19) / 2.0f)))); /* measured: typing each remaining site here changes 30356 code bytes. */
             sdkSpriteFreeNode(sprite19);
-            fclObjStartTween((*(void * *)(work + 0xC4C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 5.0f + (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 0, 0xA, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.x) = 14.0f;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.y) = 164.0f;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 320.0f;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = 130.0f;
-            sprite20 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite20) / 2.0f))));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite20) / 2.0f))));
-            fclObjStartTween((*(void * *)(work + 0xC50)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue) - 5.0f, 0, 0xA, 0);
+            fclObjStartTween((*(void * *)(work + 0xC4C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 5.0f + (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 0, 0xA, 0); /* measured: typing each remaining site here changes 30355-30356 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.x) = 14.0f; /* measured: typing each remaining site here changes 30356 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.y) = 164.0f; /* measured: typing each remaining site here changes 30356 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6].pointer), 0x40, 192.0f);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 320.0f; /* measured: typing each remaining site here changes 30127 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = 130.0f; /* measured: typing each remaining site here changes 30127 code bytes. */
+            sprite20 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 30333 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite20) / 2.0f)))); /* measured: typing each remaining site here changes 30129 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite20) / 2.0f)))); /* measured: typing each remaining site here changes 30129 code bytes. */
+            fclObjStartTween((*(void * *)(work + 0xC50)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue) - 5.0f, 0, 0xA, 0); /* measured: typing each remaining site here changes 30128-30129 code bytes. */
             sdkSpriteFreeNode(sprite20);
-            fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
-            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 320.0f;
-            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 187.0f;
-            sprite21 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite21) / 2.0f))));
-            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite21) / 2.0f))));
+            fclObjSetAnchorPosition((void *) (((FclShopWork *)work)->panels[0x91].word), 0x40, 190.0f);
+            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 320.0f; /* measured: typing each remaining site here changes 29902 code bytes. */
+            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 187.0f; /* measured: typing each remaining site here changes 29902 code bytes. */
+            sprite21 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 30335 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite21) / 2.0f)))); /* measured: typing each remaining site here changes 29904 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite21) / 2.0f)))); /* measured: typing each remaining site here changes 29904 code bytes. */
             sdkSpriteFreeNode(sprite21);
-            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue) - 5.0f, 0, 0xA, 0);
+            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue) - 5.0f, 0, 0xA, 0); /* measured: typing each remaining site here changes 29903-29904 code bytes. */
             for (index42 = 0; index42 < 3; index42++) {
-                fclObjStartAlpha((*(void * *)((u8 *)((work + (index42 * 4))) + 0xC38)), 0xFFU, 0U, 0U, 0xA, 0);
+                fclObjStartAlpha((((FclShopWork *)work)->panels[(index42)].pointer), 0xFFU, 0U, 0U, 0xA, 0);
             }
-            (*(s8 *)(work + 7)) = 5;
+            (*(s8 *)(work + 7)) = 5; /* measured: typing each remaining site here changes 30431 code bytes. */
             ((FclShopWork *)work)->state = 0x13;
             sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 0x11:                                      /* switch 1 */
         for (index18 = 0x55; index18 < 0x58; index18++) {
-            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index18 * 4) + 0xC38)), 1))) == 0) {
-                fclObjChangeFlagBit((*(void * *)(work + (index18 * 4) + 0xC38)), 3, 0);
+            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index18 * 4) + 0xC38)), 1))) == 0) { /* measured: typing each remaining site here changes 30 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + (index18 * 4) + 0xC38)), 3, 0); /* measured: typing each remaining site here changes 30 code bytes. */
             }
         }
         for (index19 = 0x59; index19 < 0x60; index19++) {
-            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index19 * 4) + 0xC38)), 1))) == 0) {
-                fclObjChangeFlagBit((*(void * *)(work + (index19 * 4) + 0xC38)), 3, 0);
+            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index19 * 4) + 0xC38)), 1))) == 0) { /* measured: typing each remaining site here changes 30 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + (index19 * 4) + 0xC38)), 3, 0); /* measured: typing each remaining site here changes 30 code bytes. */
             }
         }
-        if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD8C)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD90)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD94)), 1))) == 0)) {
+        if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x55].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x56].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x57].pointer), 1))) == 0)) {
             ((FclShopWork *)work)->state = 0x10;
         }
         break;
     case 0x12:                                      /* switch 1 */
         for (step = 0; ((s16) (step)) < 2; step = (s16) ((step + 1))) {
-            objectWork8 = fclObjectGetWork((*(void * *)(work + (((s16) (step)) * 4) + 0xC44)));
-            red2 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3E));
+            objectWork8 = fclObjectGetWork((*(void * *)(work + (((s16) (step)) * 4) + 0xC44))); /* measured: typing each remaining site here changes 29330 code bytes. */
+            red2 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3E)); /* measured: typing each remaining site here changes 29327 code bytes. */
             channelStart = (f32) red2;
-            (((FclObject *)objectWork8)->color.c0) = (u8) fclEaseInterpolate(1, channelStart, 255.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
-            green3 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3F));
+            (((FclObject *)objectWork8)->color.c0) = (u8) fclEaseInterpolate(1, channelStart, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
+            green3 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3F)); /* measured: typing each remaining site here changes 29184 code bytes. */
             channelStart11 = (f32) green3;
-            (((FclObject *)objectWork8)->color.c1) = (u8) fclEaseInterpolate(1, channelStart11, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
-            blue3 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF40));
+            (((FclObject *)objectWork8)->color.c1) = (u8) fclEaseInterpolate(1, channelStart11, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 29323 code bytes. */
+            blue3 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF40)); /* measured: typing each remaining site here changes 29041 code bytes. */
             channelStart12 = (f32) blue3;
-            (((FclObject *)objectWork8)->color.c2) = (u8) fclEaseInterpolate(1, channelStart12, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            (((FclObject *)objectWork8)->color.c2) = (u8) fclEaseInterpolate(1, channelStart12, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 29323 code bytes. */
         }
-        colorFrame4 = (*(s16 *)(work + 0xF3C));
+        colorFrame4 = (((FclShopWork *)work)->colorFrame);
         if (colorFrame4 < 6) {
-            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame4, 1, 6, 0, 1);
+            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame4, 1, 6, 0, 1); /* measured: typing each remaining site here changes 28868 code bytes. */
         } else {
             for (index20 = 0; index20 < 2; index20++) {
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + ((index20) * 4) + 0xC44))))->color = *(FclDrawColor *)(work + ((index20) * 4) + 0xF3E);
+                ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[(index20) + 0x3].pointer)))->color = ((FclShopWork *)work)->savedColors[(index20)];
             }
             for (index21 = 0; index21 < 7; index21++) {
-                fclObjStartAlpha((*(void * *)((u8 *)((work + (index21 * 4))) + 0xD20)), 0xFFU, 0U, 0U, 5, (s16) ((index21 * 2)));
+                fclObjStartAlpha((((FclShopWork *)work)->panels[(index21) + 0x3A].pointer), 0xFFU, 0U, 0U, 5, (s16) ((index21 * 2)));
             }
-            fclObjStartAlpha((*(void * *)(work + 0xC44)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
-            fclObjStartAlpha((*(void * *)(work + 0xC48)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-            sprite22 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite22) / 2.0f))));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite22) / 2.0f))));
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x3].pointer), 0xFFU, 0U, 0U, 0, (s16) ((((((FclShopWork *)work)->category) * 2) + 2)));
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x4].pointer), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2))); /* measured: typing each remaining site here changes 28687 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x5].pointer), 0x40, 191.0f);
+            sprite22 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(5));
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite22) / 2.0f)))); /* measured: typing each remaining site here changes 28621 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite22) / 2.0f)))); /* measured: typing each remaining site here changes 28621 code bytes. */
             sdkSpriteFreeNode(sprite22);
-            fclObjStartTween((*(void * *)(work + 0xC4C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 5.0f + (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 0, 0xA, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.x) = 14.0f;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.y) = 164.0f;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 320.0f;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = 130.0f;
-            sprite24 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite24) / 2.0f))));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite24) / 2.0f))));
-            fclObjStartTween((*(void * *)(work + 0xC50)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue) - 5.0f, 0, 0xA, 0);
+            fclObjStartTween((*(void * *)(work + 0xC4C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 5.0f + (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 0, 0xA, 0); /* measured: typing each remaining site here changes 28620-28621 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.x) = 14.0f; /* measured: typing each remaining site here changes 28621 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->anchorPosition.y) = 164.0f; /* measured: typing each remaining site here changes 28621 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6].pointer), 0x40, 192.0f);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 320.0f; /* measured: typing each remaining site here changes 28392 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = 130.0f; /* measured: typing each remaining site here changes 28392 code bytes. */
+            sprite24 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 28598 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite24) / 2.0f)))); /* measured: typing each remaining site here changes 28394 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite24) / 2.0f)))); /* measured: typing each remaining site here changes 28394 code bytes. */
+            fclObjStartTween((*(void * *)(work + 0xC50)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue) - 5.0f, 0, 0xA, 0); /* measured: typing each remaining site here changes 28393-28394 code bytes. */
             sdkSpriteFreeNode(sprite24);
-            fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
-            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 320.0f;
-            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 187.0f;
-            sprite25 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite25) / 2.0f))));
-            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite25) / 2.0f))));
+            fclObjSetAnchorPosition((void *) (((FclShopWork *)work)->panels[0x91].word), 0x40, 190.0f);
+            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 320.0f; /* measured: typing each remaining site here changes 28167 code bytes. */
+            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 187.0f; /* measured: typing each remaining site here changes 28167 code bytes. */
+            sprite25 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 28600 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) (((sdkSpriteScaledWidth(sprite25) / 2.0f)))); /* measured: typing each remaining site here changes 28169 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = (s16) ((s16) (((sdkSpriteScaledHeight(sprite25) / 2.0f)))); /* measured: typing each remaining site here changes 28169 code bytes. */
             sdkSpriteFreeNode(sprite25);
-            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue) - 5.0f, 0, 0xA, 0);
-            if ((*(s8 *)(work + 7)) != 5) {
-                pos = fclObjectGetWork((*(void * *)(work + 0xD90)));
-                fclObjStartPosition((*(void * *)(work + 0xD90)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(-262.0f, -56.0f), 0, 0xA, 0);
-                pos = fclObjectGetWork((*(void * *)(work + 0xD94)));
-                fclObjStartPosition((*(void * *)(work + 0xD94)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(-9.0f, -56.0f), 0, 0xA, 0);
-                pos = fclObjectGetWork((*(void * *)(work + 0xD8C)));
-                fclObjStartPosition((*(void * *)(work + 0xD8C)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(312.0f, -141.0f), 0, 0xA, 0);
-                fclObjStartTween((*(void * *)(work + 0xD8C)), 0.0f, 360.0f, 0, 0x708, 0);
-                fclObjChangeFlagBit((*(void * *)(work + 0xD8C)), 6, 0);
+            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue) - 5.0f, 0, 0xA, 0); /* measured: typing each remaining site here changes 28168-28169 code bytes. */
+            if ((*(s8 *)(work + 7)) != 5) { /* measured: typing each remaining site here changes 28694 code bytes. */
+                pos = fclObjectGetWork((((FclShopWork *)work)->panels[0x56].pointer));
+                fclObjStartPosition((*(void * *)(work + 0xD90)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(-262.0f, -56.0f), 0, 0xA, 0); /* measured: typing each remaining site here changes 27927 code bytes. */
+                pos = fclObjectGetWork((((FclShopWork *)work)->panels[0x57].pointer));
+                fclObjStartPosition((*(void * *)(work + 0xD94)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(-9.0f, -56.0f), 0, 0xA, 0); /* measured: typing each remaining site here changes 27862 code bytes. */
+                pos = fclObjectGetWork((((FclShopWork *)work)->panels[0x55].pointer));
+                fclObjStartPosition((*(void * *)(work + 0xD8C)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(312.0f, -141.0f), 0, 0xA, 0); /* measured: typing each remaining site here changes 27797 code bytes. */
+                fclObjStartTween((*(void * *)(work + 0xD8C)), 0.0f, 360.0f, 0, 0x708, 0); /* measured: typing each remaining site here changes 27798 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + 0xD8C)), 6, 0); /* measured: typing each remaining site here changes 27797 code bytes. */
             }
             for (index22 = 0; index22 < 3; index22++) {
-                fclObjStartAlpha((*(void * *)((u8 *)((work + (index22 * 4))) + 0xC38)), 0xFFU, 0U, 0U, 0xA, 0);
+                fclObjStartAlpha((((FclShopWork *)work)->panels[(index22)].pointer), 0xFFU, 0U, 0U, 0xA, 0);
             }
             ((FclShopWork *)work)->state = 0x13;
         }
         break;
     case 0x13:                                      /* switch 1 */
         for (index23 = 0x55; index23 < 0x58; index23++) {
-            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index23 * 4) + 0xC38)), 1))) == 0) {
-                fclObjChangeFlagBit((*(void * *)(work + (index23 * 4) + 0xC38)), 3, 0);
+            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index23 * 4) + 0xC38)), 1))) == 0) { /* measured: typing each remaining site here changes 36 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + (index23 * 4) + 0xC38)), 3, 0); /* measured: typing each remaining site here changes 36 code bytes. */
             }
         }
         for (index24 = 0x59; index24 < 0x60; index24++) {
-            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index24 * 4) + 0xC38)), 1))) == 0) {
-                fclObjChangeFlagBit((*(void * *)(work + (index24 * 4) + 0xC38)), 3, 0);
+            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index24 * 4) + 0xC38)), 1))) == 0) { /* measured: typing each remaining site here changes 36 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + (index24 * 4) + 0xC38)), 3, 0); /* measured: typing each remaining site here changes 36 code bytes. */
             }
         }
-        if ((((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC4C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC50))))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD8C)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD90)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD94)), 1))) == 0) && (((s8) (fclObjHasStatusFlags((void *) (*(s32 *)(work + 0xE7C))))) == 0)) {
-            fclObjStartTween((*(void * *)(work + 0xC4C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 0.0f, 0, 7, 6);
-            pos = fclObjectGetWork((*(void * *)(work + 0xC4C)));
-            fclObjStartPosition((*(void * *)(work + 0xC4C)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(-400.0f, 450.0f), 0, 7, 6);
-            fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0xFFU, 0U, 0U, 7, 6);
-            fclObjStartTween((*(void * *)(work + 0xC50)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), 30.0f + (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), 0, 7, 5);
-            pos = fclObjectGetWork((*(void * *)(work + 0xC50)));
-            fclObjStartPosition((*(void * *)(work + 0xC50)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(700.0f, (f32) 0x2EE), 0, 7, 5);
-            fclObjStartAlpha((*(void * *)(work + 0xC50)), 0xFFU, 0U, 0U, 7, 5);
-            pos = fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)));
-            fclObjStartPosition((void *) (*(s32 *)(work + 0xE7C)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(700.0f, (f32) 0x2EE), 0, 7, 3);
-            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), 30.0f + (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), 0, 7, 3);
-            fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0xFFU, 0U, 0U, 7, 3);
-            category = (*(s8 *)(work + 7));
+        if ((((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x5].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x6].pointer)))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x55].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x56].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x57].pointer), 1))) == 0) && (((s8) (fclObjHasStatusFlags((void *) (((FclShopWork *)work)->panels[0x91].word)))) == 0)) {
+            fclObjStartTween((*(void * *)(work + 0xC4C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->tweenValue), 0.0f, 0, 7, 6); /* measured: typing each remaining site here changes 27458-27459 code bytes. */
+            pos = fclObjectGetWork((*(void * *)(work + 0xC4C))); /* measured: typing each remaining site here changes 27459 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC4C)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(-400.0f, 450.0f), 0, 7, 6); /* measured: typing each remaining site here changes 27458 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0xFFU, 0U, 0U, 7, 6); /* measured: typing each remaining site here changes 27458 code bytes. */
+            fclObjStartTween((*(void * *)(work + 0xC50)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), 30.0f + (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->tweenValue), 0, 7, 5); /* measured: typing each remaining site here changes 27439-27440 code bytes. */
+            pos = fclObjectGetWork((*(void * *)(work + 0xC50))); /* measured: typing each remaining site here changes 27440 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC50)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(700.0f, (f32) 0x2EE), 0, 7, 5); /* measured: typing each remaining site here changes 27439 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + 0xC50)), 0xFFU, 0U, 0U, 7, 5); /* measured: typing each remaining site here changes 27439 code bytes. */
+            pos = fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))); /* measured: typing each remaining site here changes 27352 code bytes. */
+            fclObjStartPosition((void *) (*(s32 *)(work + 0xE7C)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(700.0f, (f32) 0x2EE), 0, 7, 3); /* measured: typing each remaining site here changes 27354 code bytes. */
+            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), 30.0f + (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->tweenValue), 0, 7, 3); /* measured: typing each remaining site here changes 27354-27355 code bytes. */
+            fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0xFFU, 0U, 0U, 7, 3); /* measured: typing each remaining site here changes 27354 code bytes. */
+            category = (((FclShopWork *)work)->category);
             switch (category) {                    /* switch 2 */
             case 0:                                 /* switch 2 */
             case 1:                                 /* switch 2 */
@@ -1043,181 +1040,181 @@ s32 fclShopStateUpdate(u8 *task)
                 break;
             case 3:                                 /* switch 2 */
                 fclShopStartRevealSprites(task);
-                (*(s32 *)(work + 0xC20)) = 0;
-                for (index25 = 1; index25 < yListCountFor((*(void * *)(work + 0xF18))); index25++) {
-                    itemId4 = yListValueAtFor((*(void * *)(work + 0xF18)), (s32) index25);
-                    yListAuxValueAtFor((*(void * *)(work + 0xF18)), (s32) index25);
+                (((FclShopWork *)work)->totalPrice) = 0;
+                for (index25 = 1; index25 < yListCountFor((((FclShopWork *)work)->lists[0])); index25++) {
+                    itemId4 = yListValueAtFor((*(void * *)(work + 0xF18)), (s32) index25); /* measured: typing each remaining site here changes 26699 code bytes. */
+                    yListAuxValueAtFor((*(void * *)(work + 0xF18)), (s32) index25); /* measured: typing each remaining site here changes 26699 code bytes. */
                     widenedItemId = (s16) (itemId4);
                     fclAddClamped(clndGetMoonPhase(widenedItemId) & 0xFF, datItemCount(itemId4) & 0xFF, 0xFF, 0, 1);
-                    price4 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(widenedItemId) / 5U) * (datItemCount(itemId4) & 0xFF));
-                    (*(s32 *)(work + 0xC20)) = price4;
-                    (*(s32 *)(work + 0xC20)) = fclAddClamped(price4, 0, 0x98967F, 0, 1);
+                    price4 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(widenedItemId) / 5U) * (datItemCount(itemId4) & 0xFF)); /* measured: typing each remaining site here changes 26867 code bytes. */
+                    (*(s32 *)(work + 0xC20)) = price4; /* measured: typing each remaining site here changes 26867 code bytes. */
+                    (*(s32 *)(work + 0xC20)) = fclAddClamped(price4, 0, 0x98967F, 0, 1); /* measured: typing each remaining site here changes 26865 code bytes. */
                 }
                 break;
             case 4:                                 /* switch 2 */
-                fclObjChangeFlagBit((*(void * *)(work + 0xDE8)), 0, 1);
-                fclObjChangeFlagBit((*(void * *)(work + 0xDEC)), 0, 1);
-                fclObjStartAlpha((*(void * *)(work + 0xD8C)), 0xFFU, 0U, 0U, 0xA, 0);
-                fclObjStartAlpha((*(void * *)(work + 0xD90)), 0xFFU, 0U, 0U, 0xA, 0);
-                fclObjStartAlpha((*(void * *)(work + 0xD94)), 0xFFU, 0U, 0U, 0xA, 0);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 1);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6D].pointer), 0, 1);
+                fclObjStartAlpha((*(void * *)(work + 0xD8C)), 0xFFU, 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 27423 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xD90)), 0xFFU, 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 27400 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xD94)), 0xFFU, 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 27377 code bytes. */
                 weaponShopTalkCreate(task);
                 ((FclShopWork *)work)->state = 0x35;
                 break;
             case 5:                                 /* switch 2 */
-                fclObjChangeFlagBit((*(void * *)(work + 0xDE8)), 0, 1);
-                fclObjChangeFlagBit((*(void * *)(work + 0xDEC)), 0, 1);
-                fclObjStartAlpha((*(void * *)(work + 0xD8C)), 0xFFU, 0U, 0U, 0xA, 0);
-                fclObjStartAlpha((*(void * *)(work + 0xD90)), 0xFFU, 0U, 0U, 0xA, 0);
-                fclObjStartAlpha((*(void * *)(work + 0xD94)), 0xFFU, 0U, 0U, 0xA, 0);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 1);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6D].pointer), 0, 1);
+                fclObjStartAlpha((*(void * *)(work + 0xD8C)), 0xFFU, 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 27423 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xD90)), 0xFFU, 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 27400 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xD94)), 0xFFU, 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 27377 code bytes. */
                 ((FclShopWork *)work)->state = 0x37;
                 break;
             }
         }
         break;
     case 0x14:                                      /* switch 1 */
-        if (((s8) (fclObjHasStatusFlags((void *) (*(s32 *)(work + 0xED4))))) == 0) {
-            fclObjStartPosition((void *) (*(s32 *)(work + 0xED4)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y)), 1, 4, 0);
-            fclObjStartPosition((void *) (*(s32 *)(work + 0xED8)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y)), 1, 4, 0);
+        if (((s8) (fclObjHasStatusFlags((void *) (((FclShopWork *)work)->panels[0xA7].word)))) == 0) {
+            fclObjStartPosition((void *) (*(s32 *)(work + 0xED4)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y)), 1, 4, 0); /* measured: typing each remaining site here changes 26412 code bytes. */
+            fclObjStartPosition((void *) (((FclShopWork *)work)->panels[0xA8].word), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y)), 1, 4, 0); /* measured: typing each remaining site here changes 26289 code bytes. */
             ((FclShopWork *)work)->state = 0x15;
         }
         /* fallthrough */
     case 0x15:                                      /* switch 1 */
-        if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xD60))))) == 0) {
+        if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x4A].pointer)))) == 0) {
             fclShopDrawItemCompare(task);
         }
-        if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC58))))) == 0) {
-            if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC4C))))) != 0) {
+        if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x8].pointer)))) == 0) {
+            if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x5].pointer)))) != 0) {
                 step = 1;
             }
-            if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC50))))) != 0) {
+            if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x6].pointer)))) != 0) {
                 step = 1;
             }
-            if (((s8) (fclObjHasStatusFlags((void *) (*(s32 *)(work + 0xE7C))))) != 0) {
+            if (((s8) (fclObjHasStatusFlags((void *) (((FclShopWork *)work)->panels[0x91].word)))) != 0) {
                 step = 1;
             }
             if (((FclShopWork *)work)->state == 0x14) {
                 step = 1;
             }
-            for (index12 = 0; index12 < ((*(s8 *)(work + 9))); index12++) {
-                if ((*(s16 *)(work + index12 * 2 + 0xF46)) != 0) {
-                    (*(s16 *)(work + index12 * 2 + 0xF46)) = fclSubClamped((*(s16 *)(work + index12 * 2 + 0xF46)), 1, 0, 0, 1);
+            for (index12 = 0; index12 < ((((FclShopWork *)work)->unitCount)); index12++) {
+                if ((*(s16 *)(work + index12 * 2 + 0xF46)) != 0) { /* measured: typing each remaining site here changes 26017 code bytes. */
+                    (*(s16 *)(work + index12 * 2 + 0xF46)) = fclSubClamped((*(s16 *)(work + index12 * 2 + 0xF46)), 1, 0, 0, 1); /* measured: typing each remaining site here changes 26037-26085 code bytes. */
                     step = 1;
                 } else {
-                    (*(u8 *)(work + index12 + 0xF6A)) = (u8) fclEaseInterpolate(0, 0.0f, 255.0f, (f32) (*(s16 *)(work + (index12 * 2) + 0xF58)), 6.0f);
-                    (*(s16 *)(work + (index12 * 2) + 0xF58)) = fclAddClamped((s32) (*(s16 *)(work + (index12 * 2) + 0xF58)), 1, 6, 0, 1);
-                    textColor = fclPackRgba(0xECU, 0x7FU, 0U, (*(u8 *)(work + index12 + 0xF6A)));
-                    if ((*(s8 *)(work + 8)) == index12) {
-                        textColor = fclPackRgba(0x2DU, 0x2DU, 0x2DU, (*(u8 *)(work + index12 + 0xF6A)));
+                    (*(u8 *)(work + index12 + 0xF6A)) = (u8) fclEaseInterpolate(0, 0.0f, 255.0f, (f32) (*(s16 *)(work + (index12 * 2) + 0xF58)), 6.0f); /* measured: typing each remaining site here changes 25974-25983 code bytes. */
+                    (*(s16 *)(work + (index12 * 2) + 0xF58)) = fclAddClamped((s32) (*(s16 *)(work + (index12 * 2) + 0xF58)), 1, 6, 0, 1); /* measured: typing each remaining site here changes 25862-25878 code bytes. */
+                    textColor = fclPackRgba(0xECU, 0x7FU, 0U, (*(u8 *)(work + index12 + 0xF6A))); /* measured: typing each remaining site here changes 26500 code bytes. */
+                    if ((((FclShopWork *)work)->unitSelection) == index12) {
+                        textColor = fclPackRgba(0x2DU, 0x2DU, 0x2DU, (*(u8 *)(work + index12 + 0xF6A))); /* measured: typing each remaining site here changes 25833 code bytes. */
                     }
-                    fclShopDrawItemText(task, (*(s8 *)(work + index12 + 0xF73)), fclMakeVec2(71.0f,  86.0f + 35.0f * (f32) index12), (void *) textColor);
+                    fclShopDrawItemText(task, (*(s8 *)(work + index12 + 0xF73)), fclMakeVec2(71.0f,  86.0f + 35.0f * (f32) index12), (void *) textColor); /* measured: typing each remaining site here changes 25769 code bytes. */
                 }
             }
             if (((s16) (step)) == 0) {
                 if (D_008C027A[0] & 0x4000) {
-                    (*(s8 *)(work + 8)) = fclAddClamped((s32) (*(s8 *)(work + 8)), 1, (*(s8 *)(work + 9)) - 1, 0, 2);
+                    (((FclShopWork *)work)->unitSelection) = fclAddClamped((s32) (*(s8 *)(work + 8)), 1, (((FclShopWork *)work)->unitCount) - 1, 0, 2); /* measured: typing each remaining site here changes 25680 code bytes. */
                     fclShopDrawSwingCursor(task);
-                    coordinate14 =  78.0f + 35.0f * (f32) (*(s8 *)(work + 8));
-                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) = coordinate14;
-                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) = coordinate14;
-                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED4)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y)), 1, 2, 0);
-                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED8)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y)), 1, 2, 0);
+                    coordinate14 =  78.0f + 35.0f * (f32) (*(s8 *)(work + 8)); /* measured: typing each remaining site here changes 25679 code bytes. */
+                    (((FclObject *)fclObjectGetWork((void *) (((FclShopWork *)work)->panels[0xA8].word)))->anchorPosition.y) = coordinate14;
+                    (((FclObject *)fclObjectGetWork((void *) (((FclShopWork *)work)->panels[0xA7].word)))->anchorPosition.y) = coordinate14;
+                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED4)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 25598 code bytes. */
+                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED8)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 25609 code bytes. */
                     sdkSndStartStream(0, 0, 0, 0);
                 } else if (D_008C027A[0] & 0x1000) {
-                    (*(s8 *)(work + 8)) = fclSubClamped((s32) (*(s8 *)(work + 8)), 1, 0, (*(s8 *)(work + 9)) - 1, 2);
+                    (((FclShopWork *)work)->unitSelection) = fclSubClamped((s32) (*(s8 *)(work + 8)), 1, 0, (((FclShopWork *)work)->unitCount) - 1, 2); /* measured: typing each remaining site here changes 25354 code bytes. */
                     fclShopDrawSwingCursor(task);
-                    coordinate15 =  78.0f + 35.0f * (f32) (*(s8 *)(work + 8));
-                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) = coordinate15;
-                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) = coordinate15;
-                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED4)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y)), 1, 2, 0);
-                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED8)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y)), 1, 2, 0);
+                    coordinate15 =  78.0f + 35.0f * (f32) (*(s8 *)(work + 8)); /* measured: typing each remaining site here changes 25353 code bytes. */
+                    (((FclObject *)fclObjectGetWork((void *) (((FclShopWork *)work)->panels[0xA8].word)))->anchorPosition.y) = coordinate15;
+                    (((FclObject *)fclObjectGetWork((void *) (((FclShopWork *)work)->panels[0xA7].word)))->anchorPosition.y) = coordinate15;
+                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED4)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 25272 code bytes. */
+                    fclObjStartPosition((void *) (*(s32 *)(work + 0xED8)), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y) - 4.0f), fclMakeVec2((((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.x), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->anchorPosition.y)), 1, 2, 0); /* measured: typing each remaining site here changes 25283 code bytes. */
                     sdkSndStartStream(0, 0, 0, 0);
                 } else if (D_008C024E[0] & 0x20) {
                     sdkSndStartStream(0, 0, 0, 2);
                     tbl = (f32 *) D_0063F5A0;
-                    fclObjStartPosition((*(void * *)(work + 0xC58)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xC58)), 0xCCU, 0U, 0U, 2, 0);
+                    fclObjStartPosition((*(void * *)(work + 0xC58)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0); /* measured: typing each remaining site here changes 26150 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xC58)), 0xCCU, 0U, 0U, 2, 0); /* measured: typing each remaining site here changes 26149 code bytes. */
                     tbl = (f32 *) D_0063F5A8;
-                    fclObjStartPosition((*(void * *)(work + 0xC5C)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xC5C)), 0xCCU, 0U, 0U, 2, 0);
+                    fclObjStartPosition((((FclShopWork *)work)->panels[0x9].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
+                    fclObjStartAlpha((*(void * *)(work + 0xC5C)), 0xCCU, 0U, 0U, 2, 0); /* measured: typing each remaining site here changes 24915 code bytes. */
                     tbl = (f32 *) D_0063F7B0;
-                    fclObjStartPosition((*(void * *)(work + 0xD60)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 400.0f + tbl[1]), 2, 4, 0);
+                    fclObjStartPosition((*(void * *)(work + 0xD60)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 400.0f + tbl[1]), 2, 4, 0); /* measured: typing each remaining site here changes 26177 code bytes. */
                     tbl = (f32 *) D_0063F7B8;
-                    fclObjStartPosition((*(void * *)(work + 0xD64)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 400.0f + tbl[1]), 2, 4, 0);
-                    fclObjChangeFlagBit((*(void * *)(work + 0xDE8)), 0, 1);
-                    fclObjChangeFlagBit((*(void * *)(work + 0xDF0)), 0, 1);
-                    fclObjChangeFlagBit((*(void * *)(work + 0xD3C)), 0, 1);
+                    fclObjStartPosition((((FclShopWork *)work)->panels[0x4B].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 400.0f + tbl[1]), 2, 4, 0);
+                    fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 1);
+                    fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6E].pointer), 0, 1);
+                    fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x41].pointer), 0, 1);
                     for (index8 = 0; index8 < 6; index8++) {
                         positionTable6 = (f32 *)(D_0063F560 + ((index8 + 0x43) * 8));
-                        fclObjStartPosition((*(void * *)((u8 *)((work + (index8 * 4))) + 0xD44)), fclMakeVec2(positionTable6[0], positionTable6[1]), fclMakeVec2(positionTable6[0], 700.0f), 2, 5, 0);
+                        fclObjStartPosition((((FclShopWork *)work)->panels[(index8) + 0x43].pointer), fclMakeVec2(positionTable6[0], positionTable6[1]), fclMakeVec2(positionTable6[0], 700.0f), 2, 5, 0);
                     }
-                    fclObjChangeFlagBit((void *) (*(s32 *)(work + 0xED4)), 0, 1);
-                    fclObjChangeFlagBit((void *) (*(s32 *)(work + 0xED8)), 0, 1);
+                    fclObjChangeFlagBit((void *) (((FclShopWork *)work)->panels[0xA7].word), 0, 1);
+                    fclObjChangeFlagBit((void *) (((FclShopWork *)work)->panels[0xA8].word), 0, 1);
                     fclShopLayoutPanels(task);
                     for (index26 = 0; index26 < 7; index26++) {
-                        fclObjChangeFlagBit((*(void * *)((u8 *)((work + (index26 * 4))) + 0xD20)), 0, 0);
+                        fclObjChangeFlagBit((((FclShopWork *)work)->panels[(index26) + 0x3A].pointer), 0, 0);
                     }
-                    fclObjChangeFlagBit((*(void * *)(work + 0xC44)), 0, 0);
-                    fclObjChangeFlagBit((*(void * *)(work + 0xC48)), 0, 0);
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xDE8)), 0x41, 46.0f);
-                    fclObjStartAlpha((*(void * *)(work + 0xDE8)), 0U, 0xFFU, 0U, 6, 0);
-                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.x) = 198.0f;
-                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.y) = (f32) 0x151;
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xDEC)), 0x41, 146.0f);
-                    fclObjStartAlpha((*(void * *)(work + 0xDEC)), 0U, 0xFFU, 0U, 6, 0);
-                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.x) = 216.0f;
-                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.y) = 368.0f;
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-                    sprite26 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
-                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite26))));
-                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) ((sdkSpriteScaledHeight(sprite26))));
+                    fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x3].pointer), 0, 0);
+                    fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x4].pointer), 0, 0);
+                    fclObjSetAnchorPosition((*(void * *)(work + 0xDE8)), 0x41, 46.0f); /* measured: typing each remaining site here changes 24679 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xDE8)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 24680 code bytes. */
+                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.x) = 198.0f; /* measured: typing each remaining site here changes 24680 code bytes. */
+                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.y) = (f32) 0x151; /* measured: typing each remaining site here changes 24680 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6D].pointer), 0x41, 146.0f);
+                    fclObjStartAlpha((*(void * *)(work + 0xDEC)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 24310 code bytes. */
+                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.x) = 216.0f; /* measured: typing each remaining site here changes 24310 code bytes. */
+                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDEC))))->anchorPosition.y) = 368.0f; /* measured: typing each remaining site here changes 24310 code bytes. */
+                    fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f); /* measured: typing each remaining site here changes 26130 code bytes. */
+                    sprite26 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(5));
+                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite26)))); /* measured: typing each remaining site here changes 26131 code bytes. */
+                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) ((sdkSpriteScaledHeight(sprite26)))); /* measured: typing each remaining site here changes 26131 code bytes. */
                     sdkSpriteFreeNode(sprite26);
-                    fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0U, 0xCCU, 0U, 4, 4);
-                    fclObjStartTween((*(void * *)(work + 0xC4C)), 0.0f, fGpffff8520, 0, 4, 4);
-                    fclObjStartPosition((*(void * *)(work + 0xC4C)), fclMakeVec2(-240.0f, 400.0f), fclMakeVec2(-240.0f, 310.0f), 0, 4, 4);
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
-                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 110.0f;
-                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = -50.0f;
-                    sprite27 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite27))));
-                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = 0;
-                    fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 4);
-                    fclObjStartAlpha((*(void * *)(work + 0xC50)), 0U, 0xFFU, 0U, 4, 4);
+                    fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0U, 0xCCU, 0U, 4, 4); /* measured: typing each remaining site here changes 26131 code bytes. */
+                    fclObjStartTween((*(void * *)(work + 0xC4C)), 0.0f, fGpffff8520, 0, 4, 4); /* measured: typing each remaining site here changes 26131 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xC4C)), fclMakeVec2(-240.0f, 400.0f), fclMakeVec2(-240.0f, 310.0f), 0, 4, 4); /* measured: typing each remaining site here changes 26131 code bytes. */
+                    fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f); /* measured: typing each remaining site here changes 26108 code bytes. */
+                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 110.0f; /* measured: typing each remaining site here changes 26109 code bytes. */
+                    (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = -50.0f; /* measured: typing each remaining site here changes 26109 code bytes. */
+                    sprite27 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 24203 code bytes. */
+                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite27)))); /* measured: typing each remaining site here changes 26109 code bytes. */
+                    (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = 0; /* measured: typing each remaining site here changes 26109 code bytes. */
+                    fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 4); /* measured: typing each remaining site here changes 26109 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xC50)), 0U, 0xFFU, 0U, 4, 4); /* measured: typing each remaining site here changes 26109 code bytes. */
                     sdkSpriteFreeNode(sprite27);
-                    fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
-                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 180.0f;
-                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 30.0f;
-                    sprite28 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-                    (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite28))));
-                    (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = 0;
+                    fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f); /* measured: typing each remaining site here changes 26086 code bytes. */
+                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 180.0f; /* measured: typing each remaining site here changes 26087 code bytes. */
+                    (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 30.0f; /* measured: typing each remaining site here changes 26087 code bytes. */
+                    sprite28 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 24204 code bytes. */
+                    (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite28)))); /* measured: typing each remaining site here changes 26088 code bytes. */
+                    (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = 0; /* measured: typing each remaining site here changes 26088 code bytes. */
                     sdkSpriteFreeNode(sprite28);
-                    fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), -85.0f, fGpffff8528, 0, 4, 2);
-                    fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0U, 0xFFU, 0U, 4, 2);
+                    fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), -85.0f, fGpffff8528, 0, 4, 2); /* measured: typing each remaining site here changes 26088 code bytes. */
+                    fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0U, 0xFFU, 0U, 4, 2); /* measured: typing each remaining site here changes 26088 code bytes. */
                     for (index = 0; index < 7; index++) {
                         positionTable = (f32 *)(D_0063F560 + ((index + 0x3A) * 8));
-                        fclObjSetAnchorPosition((*(void * *)(work + (index * 4) + 0xD20)), 0x56, (f32) (index + 0x64));
+                        fclObjSetAnchorPosition((*(void * *)(work + (index * 4) + 0xD20)), 0x56, (f32) (index + 0x64)); /* measured: typing each remaining site here changes 67 code bytes. */
                         if (index > 0) {
-                            ((FclObject *)fclObjectGetWork((*(void * *)(work + (index * 4) + 0xD20))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
+                            ((FclObject *)fclObjectGetWork((*(void * *)(work + (index * 4) + 0xD20))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF); /* measured: typing each remaining site here changes 62 code bytes. */
                         }
-                        fclObjStartPosition((*(void * *)(work + ((index) * 4) + 0xD20)), fclMakeVec2(80.0f + positionTable[0], positionTable[1]), fclMakeVec2(positionTable[0], positionTable[1]), 0, 3, index);
-                        fclObjStartAlpha((*(void * *)(work + ((index) * 4) + 0xD20)), 0U, 0xFFU, 0U, 3, index);
+                        fclObjStartPosition((*(void * *)(work + ((index) * 4) + 0xD20)), fclMakeVec2(80.0f + positionTable[0], positionTable[1]), fclMakeVec2(positionTable[0], positionTable[1]), 0, 3, index); /* measured: typing each remaining site here changes 23583 code bytes. */
+                        fclObjStartAlpha((*(void * *)(work + ((index) * 4) + 0xD20)), 0U, 0xFFU, 0U, 3, index); /* measured: typing each remaining site here changes 23585 code bytes. */
                     }
-                    ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-                    fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7)));
-                    fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7)));
+                    ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(((FclShopWork *)work)->category)])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF); /* measured: typing each remaining site here changes 2 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7))); /* measured: typing each remaining site here changes 23390-24427 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7))); /* measured: typing each remaining site here changes 23390-24414 code bytes. */
                     for (index27 = 0; index27 < 3; index27++) {
-                        fclObjStartAlpha((*(void * *)((u8 *)((work + (index27 * 4))) + 0xC38)), 0U, 0xFFU, 0U, 0xA, 0);
+                        fclObjStartAlpha((((FclShopWork *)work)->panels[(index27)].pointer), 0U, 0xFFU, 0U, 0xA, 0);
                     }
                     fclShopStartSelectionShake(task);
                     ((FclShopWork *)work)->state = 0x11;
                 } else if (D_008C024E[0] & 0x40) {
-                    fclObjStartTween((void *) (*(s32 *)(work + 0xED4)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->tweenValue), 0.0f, 0, 2, 0);
-                    fclObjStartTween((void *) (*(s32 *)(work + 0xED8)), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->tweenValue), 0.0f, 0, 2, 0);
+                    fclObjStartTween((void *) (((FclShopWork *)work)->panels[0xA7].word), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED4))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 23187 code bytes. */
+                    fclObjStartTween((void *) (((FclShopWork *)work)->panels[0xA8].word), (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xED8))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 23152 code bytes. */
                     for (index13 = 0; index13 < 2; index13++) {
-                        (*(u8 *)(work + ((index13) * 4) + 0xF3E)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index13) * 4) + 0xED4))))->color.c0);
-                        (*(u8 *)(work + ((index13) * 4) + 0xF3F)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index13) * 4) + 0xED4))))->color.c1);
-                        (*(u8 *)(work + ((index13) * 4) + 0xF40)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index13) * 4) + 0xED4))))->color.c2);
+                        (*(u8 *)(work + ((index13) * 4) + 0xF3E)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index13) * 4) + 0xED4))))->color.c0); /* measured: typing each remaining site here changes 20-23099 code bytes. */
+                        (*(u8 *)(work + ((index13) * 4) + 0xF3F)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index13) * 4) + 0xED4))))->color.c1); /* measured: typing each remaining site here changes 23086-23095 code bytes. */
+                        (*(u8 *)(work + ((index13) * 4) + 0xF40)) = (u8) (((FclObject *)fclObjectGetWork((*(void * *)(work + ((index13) * 4) + 0xED4))))->color.c2); /* measured: typing each remaining site here changes 23074-23079 code bytes. */
                     }
-                    (*(s16 *)(work + 0xF3C)) = 0;
+                    (((FclShopWork *)work)->colorFrame) = 0;
                     ((FclShopWork *)work)->state = 0x16;
                     sdkSndStartStream(0, 0, 0, 1);
                 }
@@ -1226,149 +1223,149 @@ s32 fclShopStateUpdate(u8 *task)
         break;
     case 0x16:                                      /* switch 1 */
         fclShopDrawItemCompare(task);
-        for (step = 0; ((s16) (step)) < (*(s8 *)(work + 9)); step = (s16) ((step + 1))) {
-            if ((*(s16 *)(work + ((s16) step) * 2 + 0xF46)) != 0) {
-                (*(s16 *)(work + ((s16) step) * 2 + 0xF46)) = fclSubClamped((*(s16 *)(work + ((s16) step) * 2 + 0xF46)), 1, 0, 0, 1);
+        for (step = 0; ((s16) (step)) < (((FclShopWork *)work)->unitCount); step = (s16) ((step + 1))) {
+            if ((*(s16 *)(work + ((s16) step) * 2 + 0xF46)) != 0) { /* measured: typing each remaining site here changes 22961 code bytes. */
+                (*(s16 *)(work + ((s16) step) * 2 + 0xF46)) = fclSubClamped((*(s16 *)(work + ((s16) step) * 2 + 0xF46)), 1, 0, 0, 1); /* measured: typing each remaining site here changes 22981-23023 code bytes. */
             } else {
-                (*(u8 *)(work + ((s16) step) + 0xF6A)) = (u8) fclEaseInterpolate(0, 0.0f, 255.0f, (f32) (*(s16 *)(work + (((s16) step) * 2) + 0xF58)), 6.0f);
-                (*(s16 *)(work + (((s16) step) * 2) + 0xF58)) = fclAddClamped((s32) (*(s16 *)(work + (((s16) step) * 2) + 0xF58)), 1, 6, 0, 1);
-                textColor2 = fclPackRgba(0xECU, 0x7FU, 0U, (*(u8 *)(work + ((s16) step) + 0xF6A)));
-                if ((*(s8 *)(work + 8)) == ((s16) step)) {
-                    textColor2 = fclPackRgba(0x2DU, 0x2DU, 0x2DU, (*(u8 *)(work + ((s16) step) + 0xF6A)));
+                (*(u8 *)(work + ((s16) step) + 0xF6A)) = (u8) fclEaseInterpolate(0, 0.0f, 255.0f, (f32) (*(s16 *)(work + (((s16) step) * 2) + 0xF58)), 6.0f); /* measured: typing each remaining site here changes 22921-22930 code bytes. */
+                (*(s16 *)(work + (((s16) step) * 2) + 0xF58)) = fclAddClamped((s32) (*(s16 *)(work + (((s16) step) * 2) + 0xF58)), 1, 6, 0, 1); /* measured: typing each remaining site here changes 22809-22825 code bytes. */
+                textColor2 = fclPackRgba(0xECU, 0x7FU, 0U, (*(u8 *)(work + ((s16) step) + 0xF6A))); /* measured: typing each remaining site here changes 22807 code bytes. */
+                if ((((FclShopWork *)work)->unitSelection) == ((s16) step)) {
+                    textColor2 = fclPackRgba(0x2DU, 0x2DU, 0x2DU, (*(u8 *)(work + ((s16) step) + 0xF6A))); /* measured: typing each remaining site here changes 22779 code bytes. */
                 }
-                fclShopDrawItemText(task, (*(s8 *)(work + ((s16) step) + 0xF73)), fclMakeVec2(71.0f,  86.0f + 35.0f * (f32) step), (void *) textColor2);
+                fclShopDrawItemText(task, (*(s8 *)(work + ((s16) step) + 0xF73)), fclMakeVec2(71.0f,  86.0f + 35.0f * (f32) step), (void *) textColor2); /* measured: typing each remaining site here changes 22716 code bytes. */
             }
         }
         for (index9 = 0; index9 < 2; index9++) {
-            objectWork9 = fclObjectGetWork((*(void * *)(work + ((index9) * 4) + 0xED4)));
-            red3 = (*(u8 *)(work + ((index9) * 4) + 0xF3E));
+            objectWork9 = fclObjectGetWork((*(void * *)(work + ((index9) * 4) + 0xED4))); /* measured: typing each remaining site here changes 22631 code bytes. */
+            red3 = (*(u8 *)(work + ((index9) * 4) + 0xF3E)); /* measured: typing each remaining site here changes 22628 code bytes. */
             channelStart13 = (f32) red3;
-            (((FclObject *)objectWork9)->color.c0) = (u8) fclEaseInterpolate(1, channelStart13, 255.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
-            green4 = (*(u8 *)(work + ((index9) * 4) + 0xF3F));
+            (((FclObject *)objectWork9)->color.c0) = (u8) fclEaseInterpolate(1, channelStart13, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
+            green4 = (*(u8 *)(work + ((index9) * 4) + 0xF3F)); /* measured: typing each remaining site here changes 22489 code bytes. */
             channelStart14 = (f32) green4;
-            (((FclObject *)objectWork9)->color.c1) = (u8) fclEaseInterpolate(1, channelStart14, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
-            blue4 = (*(u8 *)(work + ((index9) * 4) + 0xF40));
+            (((FclObject *)objectWork9)->color.c1) = (u8) fclEaseInterpolate(1, channelStart14, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 22628 code bytes. */
+            blue4 = (*(u8 *)(work + ((index9) * 4) + 0xF40)); /* measured: typing each remaining site here changes 22346 code bytes. */
             channelStart15 = (f32) blue4;
-            (((FclObject *)objectWork9)->color.c2) = (u8) fclEaseInterpolate(1, channelStart15, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            (((FclObject *)objectWork9)->color.c2) = (u8) fclEaseInterpolate(1, channelStart15, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 22628 code bytes. */
         }
-        colorFrame5 = (*(s16 *)(work + 0xF3C));
+        colorFrame5 = (((FclShopWork *)work)->colorFrame);
         if (colorFrame5 < 6) {
-            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame5, 1, 6, 0, 1);
+            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame5, 1, 6, 0, 1); /* measured: typing each remaining site here changes 22169 code bytes. */
         } else {
             for (index14 = 0; index14 < 2; index14++) {
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + ((index14) * 4) + 0xED4))))->color = *(FclDrawColor *)(work + ((index14) * 4) + 0xF3E);
+                ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[(index14) + 0xA7].pointer)))->color = ((FclShopWork *)work)->savedColors[(index14)];
             }
             tbl = (f32 *) D_0063F7C8;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xD6C)), 0x41, 38.0f);
-            fclObjStartTween((*(void * *)(work + 0xD6C)), -105.0f, 27.0f, 0, 5, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD6C))))->color = fclMakeDrawColor(0x97, 0xF, 0, 0xFF);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x4D].pointer), 0x41, 38.0f);
+            fclObjStartTween((*(void * *)(work + 0xD6C)), -105.0f, 27.0f, 0, 5, 0); /* measured: typing each remaining site here changes 22064 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD6C))))->color = fclMakeDrawColor(0x97, 0xF, 0, 0xFF); /* measured: typing each remaining site here changes 22064 code bytes. */
             panelPivotX = (s16) (((173.0f - tbl[0])));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD6C))))->pivotX) = (s16) panelPivotX;
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD6C))))->pivotX) = (s16) panelPivotX; /* measured: typing each remaining site here changes 22064 code bytes. */
             panelPivotY = (s16) ((((f32) 0x223 - tbl[1])));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD6C))))->pivotY) = (s16) panelPivotY;
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xD6C))))->pivotY) = (s16) panelPivotY; /* measured: typing each remaining site here changes 22065 code bytes. */
             tbl = (f32 *) D_0063F780;
-            fclObjStartPosition((*(void * *)(work + 0xD48)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(-130.0f, tbl[1] - 50.0f), 0, 7, 3);
-            fclObjStartTween((*(void * *)(work + 0xD48)), 0.0f, -20.0f, 0, 7, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x44].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(-130.0f, tbl[1] - 50.0f), 0, 7, 3);
+            fclObjStartTween((*(void * *)(work + 0xD48)), 0.0f, -20.0f, 0, 7, 3); /* measured: typing each remaining site here changes 21872 code bytes. */
             tbl = (f32 *) D_0063F778;
-            fclObjStartPosition((*(void * *)(work + 0xD44)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 200.0f, -130.0f), 0, 7, 3);
-            fclObjStartTween((*(void * *)(work + 0xD44)), 0.0f, 20.0f, 0, 7, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x43].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 200.0f, -130.0f), 0, 7, 3);
+            fclObjStartTween((*(void * *)(work + 0xD44)), 0.0f, 20.0f, 0, 7, 3); /* measured: typing each remaining site here changes 21770 code bytes. */
             tbl = (f32 *) D_0063F788;
-            fclObjStartPosition((*(void * *)(work + 0xD4C)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 40.0f, (f32) 0x226), 0, 7, 3);
-            fclObjStartTween((*(void * *)(work + 0xD4C)), 0.0f, 20.0f, 0, 7, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x45].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 40.0f, (f32) 0x226), 0, 7, 3);
+            fclObjStartTween((*(void * *)(work + 0xD4C)), 0.0f, 20.0f, 0, 7, 3); /* measured: typing each remaining site here changes 21670 code bytes. */
             tbl = (f32 *) D_0063F798;
-            fclObjStartPosition((*(void * *)(work + 0xD54)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(40.0f + tbl[0], (f32) 0x226), 0, 7, 3);
-            fclObjStartTween((*(void * *)(work + 0xD54)), 0.0f, 20.0f, 0, 7, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x47].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(40.0f + tbl[0], (f32) 0x226), 0, 7, 3);
+            fclObjStartTween((*(void * *)(work + 0xD54)), 0.0f, 20.0f, 0, 7, 3); /* measured: typing each remaining site here changes 21565 code bytes. */
             tbl = (f32 *) D_0063F790;
-            fclObjStartPosition((*(void * *)(work + 0xD50)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(40.0f + tbl[0], -150.0f), 0, 7, 3);
-            fclObjStartTween((*(void * *)(work + 0xD50)), 0.0f, 20.0f, 0, 7, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x46].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(40.0f + tbl[0], -150.0f), 0, 7, 3);
+            fclObjStartTween((*(void * *)(work + 0xD50)), 0.0f, 20.0f, 0, 7, 3); /* measured: typing each remaining site here changes 21461 code bytes. */
             tbl = (f32 *) D_0063F7A0;
-            fclObjStartPosition((*(void * *)(work + 0xD58)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(40.0f + tbl[0], -200.0f), 0, 7, 3);
-            fclObjStartTween((*(void * *)(work + 0xD58)), 0.0f, 20.0f, 0, 7, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x48].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(40.0f + tbl[0], -200.0f), 0, 7, 3);
+            fclObjStartTween((*(void * *)(work + 0xD58)), 0.0f, 20.0f, 0, 7, 3); /* measured: typing each remaining site here changes 21363 code bytes. */
             tbl = (f32 *) D_0063F7B0;
-            fclObjStartPosition((*(void * *)(work + 0xD60)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2((f32) 0x29E + tbl[0], tbl[1] - 300.0f), 1, 0xA, 3);
-            fclObjStartTween((*(void * *)(work + 0xD60)), fGpffff852c, 60.0f, 1, 4, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x4A].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2((f32) 0x29E + tbl[0], tbl[1] - 300.0f), 1, 0xA, 3);
+            fclObjStartTween((*(void * *)(work + 0xD60)), fGpffff852c, 60.0f, 1, 4, 3); /* measured: typing each remaining site here changes 21265 code bytes. */
             tbl = (f32 *) D_0063F7B8;
-            fclObjStartPosition((*(void * *)(work + 0xD64)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2((f32) 0x29E + tbl[0], tbl[1] - 300.0f), 1, 4, 3);
-            fclObjStartTween((*(void * *)(work + 0xD64)), fGpffff852c, 60.0f, 1, 4, 3);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x4B].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2((f32) 0x29E + tbl[0], tbl[1] - 300.0f), 1, 4, 3);
+            fclObjStartTween((*(void * *)(work + 0xD64)), fGpffff852c, 60.0f, 1, 4, 3); /* measured: typing each remaining site here changes 21158 code bytes. */
             tbl = (f32 *) D_0063F5A0;
-            fclObjStartPosition((*(void * *)(work + 0xC58)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xC58)), 0xCCU, 0U, 0U, 2, 0);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x8].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
+            fclObjStartAlpha((*(void * *)(work + 0xC58)), 0xCCU, 0U, 0U, 2, 0); /* measured: typing each remaining site here changes 21049 code bytes. */
             tbl = (f32 *) D_0063F5A8;
-            fclObjStartPosition((*(void * *)(work + 0xC5C)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xC5C)), 0xCCU, 0U, 0U, 2, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xD3C)), 0, 1);
-            fclObjChangeFlagBit((void *) (*(s32 *)(work + 0xED4)), 0, 1);
-            fclObjChangeFlagBit((void *) (*(s32 *)(work + 0xED8)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE8)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDF0)), 0, 1);
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x9].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
+            fclObjStartAlpha((*(void * *)(work + 0xC5C)), 0xCCU, 0U, 0U, 2, 0); /* measured: typing each remaining site here changes 20953 code bytes. */
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x41].pointer), 0, 1);
+            fclObjChangeFlagBit((void *) (((FclShopWork *)work)->panels[0xA7].word), 0, 1);
+            fclObjChangeFlagBit((void *) (((FclShopWork *)work)->panels[0xA8].word), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6E].pointer), 0, 1);
             ((FclShopWork *)work)->state = 0x17;
         }
         break;
     case 0x17:                                      /* switch 1 */
-        if (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD6C)), 3))) == 0) {
-            fclObjStartTween((*(void * *)(work + 0xD6C)), 27.0f, -14.0f, 0, 3, 0);
+        if (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x4D].pointer), 3))) == 0) {
+            fclObjStartTween((*(void * *)(work + 0xD6C)), 27.0f, -14.0f, 0, 3, 0); /* measured: typing each remaining site here changes 20764 code bytes. */
             tbl = (f32 *) D_0063F5B8;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC64)), 0x41, 157.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC64)), fclMakeVec2(tbl[0], -300.0f + tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 7, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xC64)), 0U, 0xCCU, 0U, 7, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC64))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
-            fclObjStartTween((*(void * *)(work + 0xC64)), 0.0f, -4.0f, 0, 0, 0);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0xB].pointer), 0x41, 157.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC64)), fclMakeVec2(tbl[0], -300.0f + tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 7, 0); /* measured: typing each remaining site here changes 20705 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + 0xC64)), 0U, 0xCCU, 0U, 7, 0); /* measured: typing each remaining site here changes 20705 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC64))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 20705 code bytes. */
+            fclObjStartTween((*(void * *)(work + 0xC64)), 0.0f, -4.0f, 0, 0, 0); /* measured: typing each remaining site here changes 20709 code bytes. */
             detailPivotX = (s16) (((320.0f - tbl[0])));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC64))))->pivotX) = (s16) detailPivotX;
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC64))))->pivotX) = (s16) detailPivotX; /* measured: typing each remaining site here changes 20709 code bytes. */
             detailPivotY = (s16) (((tbl[1] - 83.0f)));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC64))))->pivotY) = (s16) detailPivotY;
-            fclObjStartRevealScale((*(void * *)(work + 0xC64)), 1.0f, 1.5f, 1.0f, 1.0f, 0, 0, 0);
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC64))))->pivotY) = (s16) detailPivotY; /* measured: typing each remaining site here changes 20710 code bytes. */
+            fclObjStartRevealScale((*(void * *)(work + 0xC64)), 1.0f, 1.5f, 1.0f, 1.0f, 0, 0, 0); /* measured: typing each remaining site here changes 20710 code bytes. */
             ((FclShopWork *)work)->state = 0x18;
         }
         break;
     case 0x18:                                      /* switch 1 */
-        if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC64))))) == 0) {
-            fclObjSetAnchorPosition((*(void * *)(work + 0xE2C)), 0x41, 152.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xE2C)), 0U, 0xCCU, 0U, 5, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE2C))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xE30)), 0x41, 152.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xE30)), 0U, 0xCCU, 0U, 5, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE30))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xD70)), 0x41, 7.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xD70)), 0U, 0xFFU, 0U, 0xA, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD70))))->anchorPosition = fclMakeVec2(46.0f, 294.0f);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xD7C)), 0x41, 8.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xD7C)), 0U, 0xFFU, 0U, 0xA, 0);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xDD8)), 0x41, 45.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xDD8)), 0U, 0xFFU, 0U, 6, 0);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xDE8)), 0x41, 46.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xDE8)), 0U, 0xFFU, 0U, 6, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.x) = (f32) 0x17F;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.y) = 404.0f;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xDF0)), 0x41, 47.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xDF0)), 0U, 0xFFU, 0U, 6, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDF0))))->anchorPosition.x) = 446.0f;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDF0))))->anchorPosition.y) = 404.0f;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xDE4)), 0x41, 47.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xDE4)), 0U, 0xFFU, 0U, 6, 0);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xDE0)), 0x41, 47.0f);
-            objectWork10 = fclObjectGetWork((*(void * *)(work + 0xDE4)));
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE0))))->anchorPosition = ((FclObject *)objectWork10)->anchorPosition;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE0))))->alpha) = 0xFF;
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE0)), 0, 1);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC8C)), 0x41, 139.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xC8C)), 0U, 0xFFU, 0U, 6, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC8C))))->color = fclMakeDrawColor(0xCE, 0x71, 2, 0xFF);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC90)), 0x41, 140.0f);
-            fclObjStartAlpha((*(void * *)(work + 0xC90)), 0U, 0xFFU, 0U, 6, 0);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC90))))->color = fclMakeDrawColor(0xCE, 0x71, 2, 0xFF);
-            (*(s16 *)(work + 4)) = 0;
-            (*(s16 *)(work + 2)) = 0;
-            category2 = (*(s8 *)(work + 7));
+        if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0xB].pointer)))) == 0) {
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x7D].pointer), 0x41, 152.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xE2C)), 0U, 0xCCU, 0U, 5, 0); /* measured: typing each remaining site here changes 20373 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE2C))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 20373 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x7E].pointer), 0x41, 152.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xE30)), 0U, 0xCCU, 0U, 5, 0); /* measured: typing each remaining site here changes 20279 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE30))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 20279 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x4E].pointer), 0x41, 7.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xD70)), 0U, 0xFFU, 0U, 0xA, 0); /* measured: typing each remaining site here changes 20185 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD70))))->anchorPosition = fclMakeVec2(46.0f, 294.0f); /* measured: typing each remaining site here changes 20185 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x51].pointer), 0x41, 8.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xD7C)), 0U, 0xFFU, 0U, 0xA, 0); /* measured: typing each remaining site here changes 20093 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x68].pointer), 0x41, 45.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xDD8)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 20046 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6C].pointer), 0x41, 46.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xDE8)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 19998 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.x) = (f32) 0x17F; /* measured: typing each remaining site here changes 19998 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE8))))->anchorPosition.y) = 404.0f; /* measured: typing each remaining site here changes 19998 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6E].pointer), 0x41, 47.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xDF0)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 19906 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDF0))))->anchorPosition.x) = 446.0f; /* measured: typing each remaining site here changes 19906 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDF0))))->anchorPosition.y) = 404.0f; /* measured: typing each remaining site here changes 19906 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6B].pointer), 0x41, 47.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xDE4)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 19820 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6A].pointer), 0x41, 47.0f);
+            objectWork10 = fclObjectGetWork((*(void * *)(work + 0xDE4))); /* measured: typing each remaining site here changes 19820 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE0))))->anchorPosition = ((FclObject *)objectWork10)->anchorPosition; /* measured: typing each remaining site here changes 19772 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDE0))))->alpha) = 0xFF; /* measured: typing each remaining site here changes 19772 code bytes. */
+            fclObjChangeFlagBit((*(void * *)(work + 0xDE0)), 0, 1); /* measured: typing each remaining site here changes 19772 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x15].pointer), 0x41, 139.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xC8C)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 19697 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC8C))))->color = fclMakeDrawColor(0xCE, 0x71, 2, 0xFF); /* measured: typing each remaining site here changes 19697 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x16].pointer), 0x41, 140.0f);
+            fclObjStartAlpha((*(void * *)(work + 0xC90)), 0U, 0xFFU, 0U, 6, 0); /* measured: typing each remaining site here changes 19603 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC90))))->color = fclMakeDrawColor(0xCE, 0x71, 2, 0xFF); /* measured: typing each remaining site here changes 19603 code bytes. */
+            (((FclShopWork *)work)->scroll) = 0;
+            (((FclShopWork *)work)->cursor) = 0;
+            category2 = (((FclShopWork *)work)->category);
             switch (category2) {                    /* switch 3; irregular */
             case 0:                                 /* switch 3 */
-                yListCreate(1 << ((s16) (((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF7C)) - 0x14))), 1 << ((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF73)) + 4), 2, 2);
+                yListCreate(1 << ((s16) (((*(s8 *)((u8 *)((((FclShopWork *)work)->unitSelection) + (u32)work) + 0xF7C)) - 0x14))), 1 << ((((FclShopWork *)work)->unitIds[(((FclShopWork *)work)->unitSelection)]) + 4), 2, 2); /* measured: typing each remaining site here changes 2 code bytes. */
                 break;
             case 1:                                 /* switch 3 */
-                yListCreate(0x4000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
+                yListCreate(0x4000, 1 << ((*(s8 *)((u8 *)(((((FclShopWork *)work)->unitSelection) + (u32)work)) + 0xF73)) + 4), 2, 2); /* measured: typing each remaining site here changes 2 code bytes. */
                 break;
             case 2:                                 /* switch 3 */
-                yListCreate(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
+                yListCreate(0x8000, 1 << ((*(s8 *)((u8 *)(((((FclShopWork *)work)->unitSelection) + (u32)work)) + 0xF73)) + 4), 2, 2); /* measured: typing each remaining site here changes 2 code bytes. */
                 break;
             }
             ((FclShopWork *)work)->state = 0x1B;
@@ -1376,96 +1373,96 @@ s32 fclShopStateUpdate(u8 *task)
         break;
     case 0x1B:                                      /* switch 1 */
         fclShopDrawItemList(task, 0);
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         break;
     case 0x1C:                                      /* switch 1 */
         fclShopDrawItemList(task, 1);
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         for (index2 = 0; index2 < 2; index2++) {
-            objectWork2 = fclObjectGetWork((*(void * *)(work + 0xDC8)));
-            objectWork4 = fclObjectGetWork((*(void * *)(work + 0xDD0)));
-            red4 = (*(u8 *)(work + ((index2) * 4) + 0xF3E));
+            objectWork2 = fclObjectGetWork((((FclShopWork *)work)->panels[0x64].pointer));
+            objectWork4 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
+            red4 = (*(u8 *)(work + ((index2) * 4) + 0xF3E)); /* measured: typing each remaining site here changes 196 code bytes. */
             channelStart16 = (f32) red4;
-            channelValue12 = fclEaseInterpolate(1, channelStart16, 255.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue12 = fclEaseInterpolate(1, channelStart16, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel140 = (u8) channelValue12;
             (((FclObject *)objectWork4)->color.c0) = redChannel140;
             (((FclObject *)objectWork2)->color.c0) = redChannel140;
-            green5 = (*(u8 *)(work + ((index2) * 4) + 0xF3F));
+            green5 = (*(u8 *)(work + ((index2) * 4) + 0xF3F)); /* measured: typing each remaining site here changes 18880 code bytes. */
             channelStart17 = (f32) green5;
-            channelValue = fclEaseInterpolate(1, channelStart17, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue = fclEaseInterpolate(1, channelStart17, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 19027 code bytes. */
             greenChannel124 = (u8) channelValue;
             (((FclObject *)objectWork4)->color.c1) = greenChannel124;
             (((FclObject *)objectWork2)->color.c1) = greenChannel124;
-            blue5 = (*(u8 *)(work + ((index2) * 4) + 0xF40));
+            blue5 = (*(u8 *)(work + ((index2) * 4) + 0xF40)); /* measured: typing each remaining site here changes 18737 code bytes. */
             channelStart18 = (f32) blue5;
-            channelValue2 = fclEaseInterpolate(1, channelStart18, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue2 = fclEaseInterpolate(1, channelStart18, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 19027 code bytes. */
             blueChannel125 = (u8) channelValue2;
             (((FclObject *)objectWork4)->color.c2) = blueChannel125;
             (((FclObject *)objectWork2)->color.c2) = blueChannel125;
         }
-        colorFrame6 = (*(s16 *)(work + 0xF3C));
+        colorFrame6 = (((FclShopWork *)work)->colorFrame);
         if (colorFrame6 < 6) {
-            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame6, 1, 6, 0, 1);
+            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame6, 1, 6, 0, 1); /* measured: typing each remaining site here changes 18560 code bytes. */
         } else {
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC8))))->color = ((FclShopWork *)work)->savedColors[0];
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->color = ((FclShopWork *)work)->savedColors[1];
-            messageItem.itemId = yListValueAt((*(s16 *)(work + 2)));
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x64].pointer)))->color = ((FclShopWork *)work)->savedColors[0];
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer)))->color = ((FclShopWork *)work)->savedColors[1];
+            messageItem.itemId = yListValueAt((*(s16 *)(work + 2))); /* measured: typing each remaining site here changes 19192 code bytes. */
             messageItem.unk04 = 0;
-            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 1, &messageItem, 1);
+            (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 1, &messageItem, 1);
             ((FclShopWork *)work)->state = 0x1D;
             fclShopStartHeaderBars(task);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 1);
+            fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 1); /* measured: typing each remaining site here changes 18521 code bytes. */
+            fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 1); /* measured: typing each remaining site here changes 18493 code bytes. */
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 1);
         }
         break;
     case 0x1D:                                      /* switch 1 */
         fclShopDrawStats(task);
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        fclShopDrawItemText(task, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU));
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
-        } else if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        fclShopDrawItemText(task, (*(s8 *)((u8 *)(((((FclShopWork *)work)->unitSelection) + (u32)work)) + 0xF73)), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU)); /* measured: typing each remaining site here changes 2 code bytes. */
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 18142 code bytes. */
+        } else if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) { /* measured: typing each remaining site here changes 18142 code bytes. */
             sdkSndStartStream(0, 0, 0, 6);
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-            fclAddMoney(fclGetMoney() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
-            messageItem2.itemId = yListValueAt((*(s16 *)(work + 2)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 18142 code bytes. */
+            fclAddMoney(fclGetMoney() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))))); /* measured: typing each remaining site here changes 18340 code bytes. */
+            messageItem2.itemId = yListValueAt((*(s16 *)(work + 2))); /* measured: typing each remaining site here changes 18340 code bytes. */
             messageItem2.unk04 = 0;
-            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 4, &messageItem2, 1);
+            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 4, &messageItem2, 1); /* measured: typing each remaining site here changes 18142 code bytes. */
             ((FclShopWork *)work)->state = 0x1E;
         } else {
             fclShopStartRowPositions(task);
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 18142 code bytes. */
             ((FclShopWork *)work)->state = 0x1B;
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 0);
         }
         break;
     case 0x1E:                                      /* switch 1 */
         fclShopDrawStats(task);
-        fclShopDrawItemText(task, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU));
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        fclShopDrawItemText(task, (*(s8 *)((u8 *)(((((FclShopWork *)work)->unitSelection) + (u32)work)) + 0xF73)), fclMakeVec2(51.0f, 48.0f), (void *) fclPackRgba(0xFFU, 0xFFU, 0xFFU, 0xFFU)); /* measured: typing each remaining site here changes 2 code bytes. */
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 17751 code bytes. */
         } else {
-            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) { /* measured: typing each remaining site here changes 17751 code bytes. */
                 sdkSndStartStream(0, 0, 0, 7);
-                nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-                messageItem3.itemId = (s32) ((s16) (datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
+                nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 17751 code bytes. */
+                messageItem3.itemId = (s32) ((s16) (datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (((FclShopWork *)work)->category)))); /* measured: typing each remaining site here changes 2-17949 code bytes. */
                 messageItem3.unk04 = 0;
-                (*fclShopMesSlot(work)) = fclShopPlaySound(task, 5, &messageItem3, 1);
+                (*fclShopMesSlot(work)) = fclShopPlaySound(task, 5, &messageItem3, 1); /* measured: typing each remaining site here changes 17750 code bytes. */
                 ((FclShopWork *)work)->state = 0x1F;
             } else {
-                nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-                datItemSetCount(((s16) (yListValueAt((*(s16 *)(work + 2))))), ((datItemCount((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) + 1) & 0xFF);
+                nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 17751 code bytes. */
+                datItemSetCount(((s16) (yListValueAt((*(s16 *)(work + 2))))), ((datItemCount((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) + 1) & 0xFF); /* measured: typing each remaining site here changes 17885 code bytes. */
                 ((FclShopWork *)work)->state = 0x1B;
             }
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 0);
             if (yListCount() > 5) {
-                fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 0);
-                fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 0);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x64].pointer), 0, 0);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x66].pointer), 0, 0);
             }
             fclShopStartRowPositions(task);
         }
@@ -1473,177 +1470,177 @@ s32 fclShopStateUpdate(u8 *task)
     case 0x1F:                                      /* switch 1 */
         fclShopDrawStats(task);
         fclShopDrawItemList(task, 1);
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 17343 code bytes. */
         } else {
-            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
-                fclAddMoney(fclGetMoney() + (datItemPrice(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) { /* measured: typing each remaining site here changes 17343 code bytes. */
+                fclAddMoney(fclGetMoney() + (datItemPrice(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((((FclShopWork *)work)->unitSelection) + (u32)work)) + 0xF73)), (s16) (((FclShopWork *)work)->category))) >> 2)); /* measured: typing each remaining site here changes 2 code bytes. */
                 sdkSndStartStream(0, 0, 0, 6);
             } else {
-                datItemSetCount(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((datItemCount(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((((FclShopWork *)work)->unitSelection) + (u32)work)) + 0xF73)), (s16) (((FclShopWork *)work)->category)), ((datItemCount(datGetEquippedItemByUnit((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF); /* measured: typing each remaining site here changes 2-17251 code bytes. */
             }
-            datAssignEquippedItem((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)), (s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))));
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            datAssignEquippedItem((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)), (s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))); /* measured: typing each remaining site here changes 2-17477 code bytes. */
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 17343 code bytes. */
             ((FclShopWork *)work)->state = 0x1B;
         }
         break;
     case 0x20:                                      /* switch 1 */
         fclShopDrawItemList(task, 1);
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDC8)), 9))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDD0)), 9))) == 0)) {
-            fclObjStartTween((*(void * *)(work + 0xD6C)), -14.0f, 110.0f, 0, 4, 0);
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x64].pointer), 9))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x66].pointer), 9))) == 0)) {
+            fclObjStartTween((((FclShopWork *)work)->panels[0x4D].pointer), -14.0f, 110.0f, 0, 4, 0);
             tbl = (f32 *) D_0063F7D0;
-            fclObjStartUniformRevealScale((*(void * *)(work + 0xD70)), 1.0f, 1.5f, 0, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xD70)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD70))))->alpha), 0U, 0U, 5, 0);
-            sprite2 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x4E));
-            fclObjStartPosition((*(void * *)(work + 0xD70)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 2.5f * (sdkSpriteScaledWidth(sprite2) / 10.0f), tbl[1] - 2.5f * (sdkSpriteScaledHeight(sprite2) / 10.0f)), 0, 5, 0);
+            fclObjStartUniformRevealScale((((FclShopWork *)work)->panels[0x4E].pointer), 1.0f, 1.5f, 0, 5, 0);
+            fclObjStartAlpha((*(void * *)(work + 0xD70)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD70))))->alpha), 0U, 0U, 5, 0); /* measured: typing each remaining site here changes 16906-16907 code bytes. */
+            sprite2 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(0x4E));
+            fclObjStartPosition((*(void * *)(work + 0xD70)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 2.5f * (sdkSpriteScaledWidth(sprite2) / 10.0f), tbl[1] - 2.5f * (sdkSpriteScaledHeight(sprite2) / 10.0f)), 0, 5, 0); /* measured: typing each remaining site here changes 16909 code bytes. */
             sdkSpriteFreeNode(sprite2);
-            fclObjStartAlpha((*(void * *)(work + 0xD7C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD7C))))->alpha), 0U, 0U, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xC8C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC8C))))->alpha), 0U, 0U, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xC90)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC90))))->alpha), 0U, 0U, 5, 0);
-            pos = fclObjectGetWork((*(void * *)(work + 0xDC8)));
-            objectWork12 = (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC8))))->anchorPosition.x) - 1000.0f;
-            fclObjStartPosition((*(void * *)(work + 0xDC8)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(objectWork12, (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC8))))->anchorPosition.y)), 2, 3, 0);
-            pos = fclObjectGetWork((*(void * *)(work + 0xDD0)));
-            objectWork13 = (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition.x) - 1000.0f;
-            fclObjStartPosition((*(void * *)(work + 0xDD0)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(objectWork13, (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition.y)), 2, 3, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE4)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE0)), 0, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xC64)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC64))))->alpha), 0U, 0U, 0xA, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x51].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xD7C))))->alpha), 0U, 0U, 5, 0); /* measured: typing each remaining site here changes 16672 code bytes. */
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x15].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC8C))))->alpha), 0U, 0U, 5, 0); /* measured: typing each remaining site here changes 16639 code bytes. */
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x16].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC90))))->alpha), 0U, 0U, 5, 0); /* measured: typing each remaining site here changes 16606 code bytes. */
+            pos = fclObjectGetWork((*(void * *)(work + 0xDC8))); /* measured: typing each remaining site here changes 16987 code bytes. */
+            objectWork12 = (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC8))))->anchorPosition.x) - 1000.0f; /* measured: typing each remaining site here changes 16987 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xDC8)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(objectWork12, (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC8))))->anchorPosition.y)), 2, 3, 0); /* measured: typing each remaining site here changes 16986-16987 code bytes. */
+            pos = fclObjectGetWork((*(void * *)(work + 0xDD0))); /* measured: typing each remaining site here changes 16965 code bytes. */
+            objectWork13 = (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition.x) - 1000.0f; /* measured: typing each remaining site here changes 16965 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xDD0)), ((FclObject *)pos)->anchorPosition, fclMakeVec2(objectWork13, (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition.y)), 2, 3, 0); /* measured: typing each remaining site here changes 16964-16965 code bytes. */
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6B].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6A].pointer), 0, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0xB].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC64))))->alpha), 0U, 0U, 0xA, 0); /* measured: typing each remaining site here changes 16372 code bytes. */
             tbl = (f32 *) D_0063F5B0;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC60)), 0x41, 109.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC60)), fclMakeVec2(660.0f + tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC60))))->alpha) = 0xCC;
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC60))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0xA].pointer), 0x41, 109.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC60)), fclMakeVec2(660.0f + tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6); /* measured: typing each remaining site here changes 16343 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC60))))->alpha) = 0xCC; /* measured: typing each remaining site here changes 16340 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC60))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 16340 code bytes. */
             tbl = (f32 *) D_0063F5F0;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC80)), 0x41, 109.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC80)), fclMakeVec2(660.0f + tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC80))))->alpha) = 0xCC;
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC80))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x12].pointer), 0x41, 109.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC80)), fclMakeVec2(660.0f + tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6); /* measured: typing each remaining site here changes 16198 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC80))))->alpha) = 0xCC; /* measured: typing each remaining site here changes 16195 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC80))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 16195 code bytes. */
             tbl = (f32 *) D_0063F5D0;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC70)), 0x41, 111.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC70)), fclMakeVec2(660.0f + tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC70))))->alpha) = 0xCC;
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC70))))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
-            fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE80)), 0x41, 109.0f);
-            fclObjStartPosition((void *) (*(s32 *)(work + 0xE80)), fclMakeVec2((f32) -0x266, 242.0f), fclMakeVec2(86.0f, 242.0f), 0, 4, 6);
-            ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE80))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0xE].pointer), 0x41, 111.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC70)), fclMakeVec2(660.0f + tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6); /* measured: typing each remaining site here changes 16053 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC70))))->alpha) = 0xCC; /* measured: typing each remaining site here changes 16050 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC70))))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 16050 code bytes. */
+            fclObjSetAnchorPosition((void *) (((FclShopWork *)work)->panels[0x92].word), 0x41, 109.0f);
+            fclObjStartPosition((void *) (*(s32 *)(work + 0xE80)), fclMakeVec2((f32) -0x266, 242.0f), fclMakeVec2(86.0f, 242.0f), 0, 4, 6); /* measured: typing each remaining site here changes 15907 code bytes. */
+            ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE80))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF); /* measured: typing each remaining site here changes 15907 code bytes. */
             tbl = (f32 *) D_0063F5F8;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC84)), 0x41, 112.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC84)), fclMakeVec2(tbl[0] - 700.0f, tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC84))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x13].pointer), 0x41, 112.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC84)), fclMakeVec2(tbl[0] - 700.0f, tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6); /* measured: typing each remaining site here changes 15763 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC84))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF); /* measured: typing each remaining site here changes 15763 code bytes. */
             tbl = (f32 *) D_0063F5D8;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC74)), 0x41, 113.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC74)), fclMakeVec2(tbl[0] - 700.0f, tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0xF].pointer), 0x41, 113.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC74)), fclMakeVec2(tbl[0] - 700.0f, tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6); /* measured: typing each remaining site here changes 15628 code bytes. */
             tbl = (f32 *) D_0063F5E0;
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC78)), 0x41, 114.0f);
-            fclObjStartPosition((*(void * *)(work + 0xC78)), fclMakeVec2(tbl[0] - 700.0f, tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x10].pointer), 0x41, 114.0f);
+            fclObjStartPosition((*(void * *)(work + 0xC78)), fclMakeVec2(tbl[0] - 700.0f, tbl[1]), fclMakeVec2(tbl[0], tbl[1]), 0, 4, 6); /* measured: typing each remaining site here changes 15541 code bytes. */
             ((FclShopWork *)work)->state = 0x21;
         }
         break;
     case 0x21:                                      /* switch 1 */
         if (fclShopListInputStep(task) == 1) {
-            if ((D_008C0276[0] & 0x1000) && ((*(s8 *)(work + 0x14)) == 0)) {
+            if ((D_008C0276[0] & 0x1000) && ((((FclShopWork *)work)->inputBusy) == 0)) {
                 sdkSndStartStream(0, 0, 0, 0);
-                if ((*(s16 *)(work + 2)) == 0) {
+                if ((((FclShopWork *)work)->cursor) == 0) {
                     lastIndex = yListLastIndex();
-                    (*(s16 *)(work + 2)) = lastIndex;
-                    (*(s16 *)(work + 4)) = fclAddClamped(0, (s32) ((s16) ((s64) lastIndex)), 4, 0, 1);
+                    (*(s16 *)(work + 2)) = lastIndex; /* measured: typing each remaining site here changes 15392 code bytes. */
+                    (((FclShopWork *)work)->scroll) = fclAddClamped(0, (s32) ((s16) ((s64) lastIndex)), 4, 0, 1);
                 } else {
-                    (*(s16 *)(work + 2)) = fclSubClamped((s32) (*(s16 *)(work + 2)), 1, 0, yListCount(), 2);
-                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListCount())), 5, -1);
+                    (*(s16 *)(work + 2)) = fclSubClamped((s32) (*(s16 *)(work + 2)), 1, 0, yListCount(), 2); /* measured: typing each remaining site here changes 15393 code bytes. */
+                    (((FclShopWork *)work)->scroll) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListCount())), 5, -1); /* measured: typing each remaining site here changes 15318-15393 code bytes. */
                 }
-                (*(s8 *)(work + 0x14)) = 1;
+                (*(s8 *)(work + 0x14)) = 1; /* measured: typing each remaining site here changes 15410 code bytes. */
                 return 0;
             }
             if (D_008C027A[0] & 0x1000) {
                 if (yListCount() > 0) {
-                    if ((*(s16 *)(work + 2)) != 0) {
+                    if ((((FclShopWork *)work)->cursor) != 0) {
                         sdkSndStartStream(0, 0, 0, 0);
                     }
-                    (*(s16 *)(work + 2)) = fclSubClamped((s32) (*(s16 *)(work + 2)), 1, 0, 0, 1);
-                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListCount())), 5, -1);
-                    (*(s8 *)(work + 0x14)) = 1;
+                    (*(s16 *)(work + 2)) = fclSubClamped((s32) (*(s16 *)(work + 2)), 1, 0, 0, 1); /* measured: typing each remaining site here changes 15248 code bytes. */
+                    (((FclShopWork *)work)->scroll) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListCount())), 5, -1); /* measured: typing each remaining site here changes 15210-15248 code bytes. */
+                    (((FclShopWork *)work)->inputBusy) = 1;
                     return 0;
                 }
                 goto block_368;
             }
-            if ((D_008C0276[0] & 0x4000) && ((*(s8 *)(work + 0x14)) == 0)) {
+            if ((D_008C0276[0] & 0x4000) && ((((FclShopWork *)work)->inputBusy) == 0)) {
                 sdkSndStartStream(0, 0, 0, 0);
-                lastIndex2 = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, yListLastIndex(), 0, 2);
-                (*(s16 *)(work + 2)) = lastIndex2;
+                lastIndex2 = fclAddClamped((s32) (((FclShopWork *)work)->cursor), 1, yListLastIndex(), 0, 2);
+                (*(s16 *)(work + 2)) = lastIndex2; /* measured: typing each remaining site here changes 15140 code bytes. */
                 if (((s16) ((s64) lastIndex2)) == 0) {
-                    (*(s16 *)(work + 4)) = 0;
+                    (((FclShopWork *)work)->scroll) = 0;
                 } else if (yListLastIndex() >= 5) {
-                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), 5, 1);
+                    (((FclShopWork *)work)->scroll) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), 5, 1); /* measured: typing each remaining site here changes 15083-15141 code bytes. */
                 } else {
-                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), (s32) ((s16) (yListCount())), 1);
+                    (((FclShopWork *)work)->scroll) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), (s32) ((s16) (yListCount())), 1); /* measured: typing each remaining site here changes 15051-15141 code bytes. */
                 }
-                (*(s8 *)(work + 0x14)) = 1;
+                (*(s8 *)(work + 0x14)) = 1; /* measured: typing each remaining site here changes 15158 code bytes. */
                 return 0;
             }
             if (D_008C027A[0] & 0x4000) {
                 if (yListCount() > 0) {
-                    previousCursor = (*(s16 *)(work + 2));
+                    previousCursor = (((FclShopWork *)work)->cursor);
                     if (previousCursor != yListLastIndex()) {
                         sdkSndStartStream(0, 0, 0, 0);
                     }
-                    (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, yListLastIndex(), 0, 1);
+                    (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, yListLastIndex(), 0, 1); /* measured: typing each remaining site here changes 14972 code bytes. */
                     if (yListLastIndex() >= 5) {
-                        (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), 5, 1);
+                        (((FclShopWork *)work)->scroll) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), 5, 1); /* measured: typing each remaining site here changes 14914-14972 code bytes. */
                     } else {
-                        (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), (s32) ((s16) (yListCount())), 1);
+                        (((FclShopWork *)work)->scroll) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), (s32) ((s16) (yListCount())), 1); /* measured: typing each remaining site here changes 14882-14972 code bytes. */
                     }
-                    (*(s8 *)(work + 0x14)) = 1;
+                    (((FclShopWork *)work)->inputBusy) = 1;
                     return 0;
                 }
                 goto block_368;
             }
             if ((D_008C027A[0] & 2) || (D_008C027A[0] & 0x2000)) {
-                previousCursorAfterRepeat = (*(s16 *)(work + 2));
+                previousCursorAfterRepeat = (((FclShopWork *)work)->cursor);
                 if (previousCursorAfterRepeat != yListLastIndex()) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                yListAdvanceCursorScroll((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4));
+                yListAdvanceCursorScroll((s32) (*(s16 *)(work + 2)), (s32) (((FclShopWork *)work)->scroll), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4)); /* measured: typing each remaining site here changes 14807 code bytes. */
             } else if ((D_008C027A[0] & 1) || (D_008C027A[0] & 0x8000)) {
-                if ((*(s16 *)(work + 2)) != 0) {
+                if ((((FclShopWork *)work)->cursor) != 0) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                yListRetreatCursorScroll((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4));
+                yListRetreatCursorScroll((s32) (*(s16 *)(work + 2)), (s32) (((FclShopWork *)work)->scroll), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4)); /* measured: typing each remaining site here changes 14735 code bytes. */
             } else if (D_008C027A[0] & 8) {
-                (*(s16 *)(work + 2)) = 0;
-                (*(s16 *)(work + 4)) = 0;
-                (*(s8 *)(work + 8)) = fclAddClamped((s32) (*(s8 *)(work + 8)), 1, (*(s8 *)(work + 9)) - 1, 0, 2);
-                category3 = (*(s8 *)(work + 7));
+                (((FclShopWork *)work)->cursor) = 0;
+                (((FclShopWork *)work)->scroll) = 0;
+                (((FclShopWork *)work)->unitSelection) = fclAddClamped((s32) (*(s8 *)(work + 8)), 1, (((FclShopWork *)work)->unitCount) - 1, 0, 2); /* measured: typing each remaining site here changes 14674 code bytes. */
+                category3 = (((FclShopWork *)work)->category);
                 switch (category3) {                /* switch 4; irregular */
                 case 0:                             /* switch 4 */
-                    yListRebuild(1 << ((s16) (((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF7C)) - 0x14))), 1 << ((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF73)) + 4), 2, 2);
+                    yListRebuild(1 << ((s16) (((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF7C)) - 0x14))), 1 << ((((FclShopWork *)work)->unitIds[(*(s8 *)(work + 8))]) + 4), 2, 2); /* measured: typing each remaining site here changes 2-14478 code bytes. */
                     break;
                 case 1:                             /* switch 4 */
-                    yListRebuild(0x4000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
+                    yListRebuild(0x4000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2); /* measured: typing each remaining site here changes 2-14674 code bytes. */
                     break;
                 case 2:                             /* switch 4 */
-                    yListRebuild(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
+                    yListRebuild(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2); /* measured: typing each remaining site here changes 2-14674 code bytes. */
                     break;
                 }
                 fclShopSlideInFromLeft(task);
                 fclShopSlideIndicator(task, 0);
                 sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C027A[0] & 4) {
-                (*(s16 *)(work + 2)) = 0;
-                (*(s16 *)(work + 4)) = 0;
-                (*(s8 *)(work + 8)) = fclSubClamped((s32) (*(s8 *)(work + 8)), 1, 0, (*(s8 *)(work + 9)) - 1, 2);
-                category4 = (*(s8 *)(work + 7));
+                (((FclShopWork *)work)->cursor) = 0;
+                (((FclShopWork *)work)->scroll) = 0;
+                (((FclShopWork *)work)->unitSelection) = fclSubClamped((s32) (*(s8 *)(work + 8)), 1, 0, (((FclShopWork *)work)->unitCount) - 1, 2); /* measured: typing each remaining site here changes 14459 code bytes. */
+                category4 = (((FclShopWork *)work)->category);
                 switch (category4) {                /* switch 5; irregular */
                 case 0:                             /* switch 5 */
-                    yListRebuild(1 << ((s16) (((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF7C)) - 0x14))), 1 << ((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF73)) + 4), 2, 2);
+                    yListRebuild(1 << ((s16) (((*(s8 *)((u8 *)((*(s8 *)(work + 8)) + (u32)work) + 0xF7C)) - 0x14))), 1 << ((((FclShopWork *)work)->unitIds[(*(s8 *)(work + 8))]) + 4), 2, 2); /* measured: typing each remaining site here changes 2-14265 code bytes. */
                     break;
                 case 1:                             /* switch 5 */
-                    yListRebuild(0x4000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
+                    yListRebuild(0x4000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2); /* measured: typing each remaining site here changes 2-14459 code bytes. */
                     break;
                 case 2:                             /* switch 5 */
-                    yListRebuild(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2);
+                    yListRebuild(0x8000, 1 << ((*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)) + 4), 2, 2); /* measured: typing each remaining site here changes 2-14459 code bytes. */
                     break;
                 }
                 fclShopSlideInFromLeft(task);
@@ -1652,21 +1649,21 @@ s32 fclShopStateUpdate(u8 *task)
             } else if (D_008C024E[0] & 0x20) {
                 fclShopSlideInFromRight(task);
                 ((FclShopWork *)work)->state = 0x22;
-                fclObjStartTween((*(void * *)(work + 0xE2C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE2C))))->tweenValue), 0.0f, 0, 2, 0);
-                fclObjStartTween((*(void * *)(work + 0xE30)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE30))))->tweenValue), 0.0f, 0, 2, 0);
+                fclObjStartTween((((FclShopWork *)work)->panels[0x7D].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE2C))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 14227 code bytes. */
+                fclObjStartTween((((FclShopWork *)work)->panels[0x7E].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE30))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 14192 code bytes. */
                 sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x80) {
                 fclShopSlideInFromRight(task);
                 ((FclShopWork *)work)->state = 0x22;
-                fclObjStartTween((*(void * *)(work + 0xE2C)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE2C))))->tweenValue), 0.0f, 0, 2, 0);
-                fclObjStartTween((*(void * *)(work + 0xE30)), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE30))))->tweenValue), 0.0f, 0, 2, 0);
+                fclObjStartTween((((FclShopWork *)work)->panels[0x7D].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE2C))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 14113 code bytes. */
+                fclObjStartTween((((FclShopWork *)work)->panels[0x7E].pointer), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE30))))->tweenValue), 0.0f, 0, 2, 0); /* measured: typing each remaining site here changes 14078 code bytes. */
                 sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if (yListCount() > 0) {
-                    if ((datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= fclGetMoney()) && ((datItemCount((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
-                        messageItem4.itemId = yListValueAt((*(s16 *)(work + 2)));
+                    if ((datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))) <= fclGetMoney()) && ((datItemCount((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) { /* measured: typing each remaining site here changes 14006 code bytes. */
+                        messageItem4.itemId = yListValueAt((*(s16 *)(work + 2))); /* measured: typing each remaining site here changes 14006 code bytes. */
                         messageItem4.unk04 = 0;
-                        (*fclShopMesSlot(work)) = fclShopPlaySound(task, 1, &messageItem4, 1);
+                        (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 1, &messageItem4, 1);
                         ((FclShopWork *)work)->state = 0x23;
                         sdkSndStartStream(0, 0, 0, 1);
                     } else {
@@ -1677,43 +1674,43 @@ s32 fclShopStateUpdate(u8 *task)
                 }
             }
 block_368:
-            (*(s8 *)(work + 0x14)) = 0;
+            (((FclShopWork *)work)->inputBusy) = 0;
             break;
         }
         break;
     case 0x22:                                      /* switch 1 */
-        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        fclDrawNumber(fclMakeVec2((f32) 0x24E, 61.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((((FclShopWork *)work)->cursor))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         fclShopDrawItemList(task, 0);
-        if ((((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xD70))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xD7C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC8C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC90))))) == 0)) {
+        if ((((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x4E].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x51].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x15].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x16].pointer)))) == 0)) {
             ((FclShopWork *)work)->state = 0x1B;
         }
         break;
     case 0x23:                                      /* switch 1 */
         fclShopListInputStep(task);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
-        } else if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 13600 code bytes. */
+        } else if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) { /* measured: typing each remaining site here changes 13600 code bytes. */
             sdkSndStartStream(0, 0, 0, 6);
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 13600 code bytes. */
             fclShopSlideInFromRight(task);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDC8)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDD0)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 1);
-            messageItem5.itemId = yListValueAt((*(s16 *)(work + 2)));
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x64].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x66].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 1);
+            messageItem5.itemId = yListValueAt((((FclShopWork *)work)->cursor));
             messageItem5.unk04 = 0;
-            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 4, &messageItem5, 1);
+            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 4, &messageItem5, 1); /* measured: typing each remaining site here changes 13600 code bytes. */
             fclShopStartHeaderBars(task);
-            fclAddMoney(fclGetMoney() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
+            fclAddMoney(fclGetMoney() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))))); /* measured: typing each remaining site here changes 13472 code bytes. */
             ((FclShopWork *)work)->state = 0x1E;
         } else {
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 13600 code bytes. */
             ((FclShopWork *)work)->state = 0x21;
         }
         break;
     case 0x24:                                      /* switch 1 */
-        (*(s16 *)(work + 0x12)) = 1;
-        if (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC64))))) == 0) {
+        (((FclShopWork *)work)->quantity) = 1;
+        if (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0xB].pointer)))) == 0) {
             fclShopDrawBuyList(task, 0);
         }
         break;
@@ -1721,189 +1718,189 @@ block_368:
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
         for (step = 0; ((s16) (step)) < 2; step = (s16) ((step + 1))) {
-            objectWork5 = fclObjectGetWork((*(void * *)(work + 0xDCC)));
-            objectWork11 = fclObjectGetWork((*(void * *)(work + 0xDD0)));
-            red5 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3E));
+            objectWork5 = fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer));
+            objectWork11 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
+            red5 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3E)); /* measured: typing each remaining site here changes 13132 code bytes. */
             channelStart2 = (f32) red5;
-            channelValue3 = fclEaseInterpolate(1, channelStart2, 255.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue3 = fclEaseInterpolate(1, channelStart2, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel126 = (u8) channelValue3;
             (((FclObject *)objectWork11)->color.c0) = redChannel126;
             (((FclObject *)objectWork5)->color.c0) = redChannel126;
-            green6 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3F));
+            green6 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF3F)); /* measured: typing each remaining site here changes 13131 code bytes. */
             channelStart3 = (f32) green6;
-            channelValue4 = fclEaseInterpolate(1, channelStart3, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue4 = fclEaseInterpolate(1, channelStart3, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 13278 code bytes. */
             greenChannel127 = (u8) channelValue4;
             (((FclObject *)objectWork11)->color.c1) = greenChannel127;
             (((FclObject *)objectWork5)->color.c1) = greenChannel127;
-            blue6 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF40));
+            blue6 = (*(u8 *)(work + (((s16) (step)) * 4) + 0xF40)); /* measured: typing each remaining site here changes 12988 code bytes. */
             channelStart4 = (f32) blue6;
-            channelValue5 = fclEaseInterpolate(1, channelStart4, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue5 = fclEaseInterpolate(1, channelStart4, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 13278 code bytes. */
             blueChannel128 = (u8) channelValue5;
             (((FclObject *)objectWork11)->color.c2) = blueChannel128;
             (((FclObject *)objectWork5)->color.c2) = blueChannel128;
         }
-        colorFrame = (*(s16 *)(work + 0xF3C));
+        colorFrame = (((FclShopWork *)work)->colorFrame);
         if (colorFrame < 6) {
-            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame, 1, 6, 0, 1);
+            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame, 1, 6, 0, 1); /* measured: typing each remaining site here changes 12811 code bytes. */
         } else {
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->color = ((FclShopWork *)work)->savedColors[0];
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->color = ((FclShopWork *)work)->savedColors[1];
-            tabIndex6 = (*(s8 *)(work + 0x11));
-            if ((tabIndex6 == 0) && ((*(s16 *)(work + 2)) == 0)) {
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer)))->color = ((FclShopWork *)work)->savedColors[0];
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer)))->color = ((FclShopWork *)work)->savedColors[1];
+            tabIndex6 = (((FclShopWork *)work)->tab);
+            if ((tabIndex6 == 0) && ((((FclShopWork *)work)->cursor) == 0)) {
                 totalSalePrice = 0;
-                for (index15 = 1; index15 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); index15++) {
-                    itemId6 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) index15);
+                for (index15 = 1; index15 < yListCountFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))])); index15++) { /* measured: typing each remaining site here changes 12717 code bytes. */
+                    itemId6 = yListValueAtFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))]), (s32) index15); /* measured: typing each remaining site here changes 12717 code bytes. */
                     totalSalePrice += (datItemPrice(itemId6) / 5U) * (datItemCount(itemId6) & 0xFF);
                 }
                 sprintf(quantityText, iGpffffa880, fclAddClamped(totalSalePrice, 0, 0x98967F, 0, 1));
-                (*fclShopMesSlot(work)) = fclShopPlaySound(task, 6, quantityText, 1);
+                (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 6, quantityText, 1);
                 ((FclShopWork *)work)->state = 0x2E;
-            } else if (yListCountFor((((void**)(work + 0xF18))[tabIndex6])) > 0) {
-                fclObjStartAlpha((*(void * *)(work + 0xDCC)), 0xFFU, 0U, 0U, 5, 0);
-                fclObjStartAlpha((*(void * *)(work + 0xDD0)), 0xFFU, 0U, 0U, 5, 0);
+            } else if (yListCountFor((((void**)(work + 0xF18))[tabIndex6])) > 0) { /* measured: typing each remaining site here changes 2 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xDCC)), 0xFFU, 0U, 0U, 5, 0); /* measured: typing each remaining site here changes 12771 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xDD0)), 0xFFU, 0U, 0U, 5, 0); /* measured: typing each remaining site here changes 12743 code bytes. */
                 if (((FclShopWork *)work)->detailMode == 0) {
-                    sprite3 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2A));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCE0)), 0x56, 16.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE0))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCE0)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCE0)), fclMakeVec2(63.0f, 143.0f + 2.5f * (sdkSpriteScaledHeight(sprite3) / 10.0f)), fclMakeVec2(63.0f, 143.0f), 0, 5, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCE0)), 0U, 0xFFU, 0U, 0, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCE0)), 6.0f, 3);
+                    sprite3 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(0x2A));
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x2A].pointer), 0x56, 16.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE0))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 12416 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCE0)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0); /* measured: typing each remaining site here changes 12417 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCE0)), fclMakeVec2(63.0f, 143.0f + 2.5f * (sdkSpriteScaledHeight(sprite3) / 10.0f)), fclMakeVec2(63.0f, 143.0f), 0, 5, 0); /* measured: typing each remaining site here changes 12417 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCE0)), 0U, 0xFFU, 0U, 0, 0); /* measured: typing each remaining site here changes 12417 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCE0)), 6.0f, 3); /* measured: typing each remaining site here changes 12416 code bytes. */
                     sdkSpriteFreeNode(sprite3);
-                    sprite4 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2C));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCE8)), 0x56, 18.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE8))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCE8)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCE8)), fclMakeVec2((f32) 0x222, 143.0f + 2.5f * (sdkSpriteScaledHeight(sprite4) / 10.0f)), fclMakeVec2((f32) 0x222, 143.0f), 0, 5, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCE8)), 0U, 0xFFU, 0U, 0, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCE8)), 6.0f, 3);
+                    sprite4 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2C)); /* measured: typing each remaining site here changes 12428 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x2C].pointer), 0x56, 18.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE8))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 12135 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCE8)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0); /* measured: typing each remaining site here changes 12136 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCE8)), fclMakeVec2((f32) 0x222, 143.0f + 2.5f * (sdkSpriteScaledHeight(sprite4) / 10.0f)), fclMakeVec2((f32) 0x222, 143.0f), 0, 5, 0); /* measured: typing each remaining site here changes 12136 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCE8)), 0U, 0xFFU, 0U, 0, 0); /* measured: typing each remaining site here changes 12136 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCE8)), 6.0f, 3); /* measured: typing each remaining site here changes 12135 code bytes. */
                     sdkSpriteFreeNode(sprite4);
-                    sprite5 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x27));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCD4)), 0x41, 20.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD4))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCD4)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCD4)), 0U, 0xFFU, 0U, 4, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCD4)), fclMakeVec2(46.0f, 132.0f + 2.0f * (sdkSpriteScaledHeight(sprite5) / 10.0f)), fclMakeVec2(46.0f, 132.0f), 2, 4, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCD4)), 6.0f, 3);
+                    sprite5 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x27)); /* measured: typing each remaining site here changes 12428 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x27].pointer), 0x41, 20.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD4))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 11843 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCD4)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0); /* measured: typing each remaining site here changes 11844 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCD4)), 0U, 0xFFU, 0U, 4, 0); /* measured: typing each remaining site here changes 11844 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCD4)), fclMakeVec2(46.0f, 132.0f + 2.0f * (sdkSpriteScaledHeight(sprite5) / 10.0f)), fclMakeVec2(46.0f, 132.0f), 2, 4, 0); /* measured: typing each remaining site here changes 11844 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCD4)), 6.0f, 3); /* measured: typing each remaining site here changes 11843 code bytes. */
                     sdkSpriteFreeNode(sprite5);
-                    sprite6 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x29));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCDC)), 0x41, 21.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCDC))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCDC)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCDC)), 0U, 0xFFU, 0U, 4, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCDC)), fclMakeVec2((f32) 0x232, 132.0f + 2.0f * (sdkSpriteScaledHeight(sprite6) / 10.0f)), fclMakeVec2((f32) 0x232, 132.0f), 2, 4, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCDC)), 6.0f, 3);
+                    sprite6 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x29)); /* measured: typing each remaining site here changes 12428 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x29].pointer), 0x41, 21.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCDC))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 11560 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCDC)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0); /* measured: typing each remaining site here changes 11561 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCDC)), 0U, 0xFFU, 0U, 4, 0); /* measured: typing each remaining site here changes 11561 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCDC)), fclMakeVec2((f32) 0x232, 132.0f + 2.0f * (sdkSpriteScaledHeight(sprite6) / 10.0f)), fclMakeVec2((f32) 0x232, 132.0f), 2, 4, 0); /* measured: typing each remaining site here changes 11561 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCDC)), 6.0f, 3); /* measured: typing each remaining site here changes 11560 code bytes. */
                     sdkSpriteFreeNode(sprite6);
                 } else {
-                    sprite7 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2B));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCE4)), 0x56, 16.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE4))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCE4)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCE4)), fclMakeVec2(67.0f, 140.0f + 2.5f * (sdkSpriteScaledHeight(sprite7) / 10.0f)), fclMakeVec2(67.0f, 140.0f), 0, 5, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCE4)), 0U, 0xFFU, 0U, 0, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCE4)), 6.0f, 3);
+                    sprite7 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(0x2B));
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x2B].pointer), 0x56, 16.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE4))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 11258 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCE4)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0); /* measured: typing each remaining site here changes 11259 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCE4)), fclMakeVec2(67.0f, 140.0f + 2.5f * (sdkSpriteScaledHeight(sprite7) / 10.0f)), fclMakeVec2(67.0f, 140.0f), 0, 5, 0); /* measured: typing each remaining site here changes 11259 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCE4)), 0U, 0xFFU, 0U, 0, 0); /* measured: typing each remaining site here changes 11259 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCE4)), 6.0f, 3); /* measured: typing each remaining site here changes 11258 code bytes. */
                     sdkSpriteFreeNode(sprite7);
-                    sprite8 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2C));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCE8)), 0x56, 18.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE8))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCE8)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCE8)), fclMakeVec2((f32) 0x22F, 140.0f + 2.5f * (sdkSpriteScaledHeight(sprite8) / 10.0f)), fclMakeVec2((f32) 0x22F, 140.0f), 0, 5, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCE8)), 0U, 0xFFU, 0U, 0, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCE8)), 6.0f, 3);
+                    sprite8 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2C)); /* measured: typing each remaining site here changes 11270 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x2C].pointer), 0x56, 18.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCE8))))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 10977 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCE8)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0); /* measured: typing each remaining site here changes 10978 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCE8)), fclMakeVec2((f32) 0x22F, 140.0f + 2.5f * (sdkSpriteScaledHeight(sprite8) / 10.0f)), fclMakeVec2((f32) 0x22F, 140.0f), 0, 5, 0); /* measured: typing each remaining site here changes 10978 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCE8)), 0U, 0xFFU, 0U, 0, 0); /* measured: typing each remaining site here changes 10978 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCE8)), 6.0f, 3); /* measured: typing each remaining site here changes 10977 code bytes. */
                     sdkSpriteFreeNode(sprite8);
-                    sprite9 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x28));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCD8)), 0x41, 20.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD8))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCD8)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCD8)), 0U, 0xFFU, 0U, 4, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCD8)), fclMakeVec2(48.0f, 127.0f + 2.0f * (sdkSpriteScaledHeight(sprite9) / 10.0f)), fclMakeVec2(48.0f, 127.0f), 2, 4, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCD8)), 6.0f, 3);
+                    sprite9 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x28)); /* measured: typing each remaining site here changes 11271 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x28].pointer), 0x41, 20.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD8))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 10685 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCD8)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0); /* measured: typing each remaining site here changes 10686 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCD8)), 0U, 0xFFU, 0U, 4, 0); /* measured: typing each remaining site here changes 10686 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCD8)), fclMakeVec2(48.0f, 127.0f + 2.0f * (sdkSpriteScaledHeight(sprite9) / 10.0f)), fclMakeVec2(48.0f, 127.0f), 2, 4, 0); /* measured: typing each remaining site here changes 10686 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCD8)), 6.0f, 3); /* measured: typing each remaining site here changes 10685 code bytes. */
                     sdkSpriteFreeNode(sprite9);
-                    sprite10 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x29));
-                    fclObjSetAnchorPosition((*(void * *)(work + 0xCDC)), 0x41, 21.0f);
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCDC))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                    fclObjStartRevealScale((*(void * *)(work + 0xCDC)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
-                    fclObjStartAlpha((*(void * *)(work + 0xCDC)), 0U, 0xFFU, 0U, 4, 0);
-                    fclObjStartPosition((*(void * *)(work + 0xCDC)), fclMakeVec2(584.0f, 127.0f + 2.0f * (sdkSpriteScaledHeight(sprite10) / 10.0f)), fclMakeVec2(584.0f, 127.0f), 2, 4, 0);
-                    fclObjSetHoldTimer((*(void * *)(work + 0xCDC)), 6.0f, 3);
+                    sprite10 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x29)); /* measured: typing each remaining site here changes 11270 code bytes. */
+                    fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x29].pointer), 0x41, 21.0f);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCDC))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 10401 code bytes. */
+                    fclObjStartRevealScale((*(void * *)(work + 0xCDC)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0); /* measured: typing each remaining site here changes 10402 code bytes. */
+                    fclObjStartAlpha((*(void * *)(work + 0xCDC)), 0U, 0xFFU, 0U, 4, 0); /* measured: typing each remaining site here changes 10402 code bytes. */
+                    fclObjStartPosition((*(void * *)(work + 0xCDC)), fclMakeVec2(584.0f, 127.0f + 2.0f * (sdkSpriteScaledHeight(sprite10) / 10.0f)), fclMakeVec2(584.0f, 127.0f), 2, 4, 0); /* measured: typing each remaining site here changes 10402 code bytes. */
+                    fclObjSetHoldTimer((*(void * *)(work + 0xCDC)), 6.0f, 3); /* measured: typing each remaining site here changes 10401 code bytes. */
                     sdkSpriteFreeNode(sprite10);
                 }
                 tbl = (f32 *) D_0063F688;
-                fclObjSetAnchorPosition((*(void * *)(work + 0xCCC)), 0x57, 14.0f);
-                fclObjStartPosition((*(void * *)(work + 0xCCC)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 2);
-                fclObjStartAlpha((*(void * *)(work + 0xCCC)), 0U, 0xFFU, 0U, 0xA, 2);
-                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->mode) = 1;
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->colorLoop) = 1;
+                fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x25].pointer), 0x57, 14.0f);
+                fclObjStartPosition((*(void * *)(work + 0xCCC)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 2); /* measured: typing each remaining site here changes 10131 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xCCC)), 0U, 0xFFU, 0U, 0xA, 2); /* measured: typing each remaining site here changes 10131 code bytes. */
+                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->mode) = 1; /* measured: typing each remaining site here changes 10129 code bytes. */
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 10129 code bytes. */
+                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->colorLoop) = 1; /* measured: typing each remaining site here changes 10133 code bytes. */
                 tbl = (f32 *) D_0063F690;
-                fclObjSetAnchorPosition((*(void * *)(work + 0xCD0)), 0x57, 15.0f);
-                fclObjStartPosition((*(void * *)(work + 0xCD0)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 2);
-                fclObjStartAlpha((*(void * *)(work + 0xCD0)), 0U, 0xFFU, 0U, 0xA, 2);
-                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->mode) = 1;
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->colorLoop) = 1;
-                fclObjSetAnchorPosition((*(void * *)(work + 0xCC8)), 0x57, 15.0f);
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCC8))))->color = fclMakeDrawColor(0xDF, 0x6C, 0, 0xFF);
-                fclObjStartAlpha((*(void * *)(work + 0xCC8)), 0U, 0xFFU, 0U, 4, 2);
+                fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x26].pointer), 0x57, 15.0f);
+                fclObjStartPosition((*(void * *)(work + 0xCD0)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 2); /* measured: typing each remaining site here changes 9946 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xCD0)), 0U, 0xFFU, 0U, 0xA, 2); /* measured: typing each remaining site here changes 9946 code bytes. */
+                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->mode) = 1; /* measured: typing each remaining site here changes 9944 code bytes. */
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 9944 code bytes. */
+                (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->colorLoop) = 1; /* measured: typing each remaining site here changes 9946 code bytes. */
+                fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x24].pointer), 0x57, 15.0f);
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCC8))))->color = fclMakeDrawColor(0xDF, 0x6C, 0, 0xFF); /* measured: typing each remaining site here changes 9760 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + 0xCC8)), 0U, 0xFFU, 0U, 4, 2); /* measured: typing each remaining site here changes 9760 code bytes. */
                 ((FclShopWork *)work)->state = 0x27;
             }
         }
         break;
     case 0x27:                                      /* switch 1 */
-        itemId5 = yListValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2)));
-        tabIndex = yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2))) & 0xFF;
+        itemId5 = yListValueAtFor((((void**)(work + 0xF18))[(((FclShopWork *)work)->tab)]), (s32) (((FclShopWork *)work)->cursor)); /* measured: typing each remaining site here changes 2 code bytes. */
+        tabIndex = yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2))) & 0xFF; /* measured: typing each remaining site here changes 2-9652 code bytes. */
         fclShopDrawBuyList(task, 2);
         fclShopDrawItemDetail(task, itemId5, tabIndex);
         fclShopDrawScrollThumb(task);
         if (D_008C027A[0] & 0x1000) {
-            quantity = (*(s16 *)(work + 0x12));
+            quantity = (((FclShopWork *)work)->quantity);
             if (quantity != (datItemCount(itemId5) & 0xFF)) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 1, datItemCount(itemId5) & 0xFF, 1, 1);
+            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 1, datItemCount(itemId5) & 0xFF, 1, 1); /* measured: typing each remaining site here changes 9555 code bytes. */
             tbl = (f32 *) D_0063F688;
-            fclObjStartPosition((*(void * *)(work + 0xCCC)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->colorLoop) = 1;
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x25].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 0);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->colorLoop) = 1; /* measured: typing each remaining site here changes 9498 code bytes. */
         } else if (D_008C027A[0] & 0x2000) {
-            quantity2 = (*(s16 *)(work + 0x12));
+            quantity2 = (((FclShopWork *)work)->quantity);
             if (quantity2 != (datItemCount(itemId5) & 0xFF)) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 0xA, datItemCount(itemId5) & 0xFF, 1, 1);
+            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 0xA, datItemCount(itemId5) & 0xFF, 1, 1); /* measured: typing each remaining site here changes 9401 code bytes. */
             tbl = (f32 *) D_0063F688;
-            fclObjStartPosition((*(void * *)(work + 0xCCC)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->colorLoop) = 1;
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x25].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 0);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCCC))))->colorLoop) = 1; /* measured: typing each remaining site here changes 9343 code bytes. */
         } else if (D_008C027A[0] & 0x4000) {
-            if ((*(s16 *)(work + 0x12)) != 1) {
+            if ((((FclShopWork *)work)->quantity) != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 1, 1, datItemCount(itemId5) & 0xFF, 1);
+            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 1, 1, datItemCount(itemId5) & 0xFF, 1); /* measured: typing each remaining site here changes 9246 code bytes. */
             tbl = (f32 *) D_0063F690;
-            fclObjStartPosition((*(void * *)(work + 0xCD0)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->colorLoop) = 1;
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x26].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 0);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->colorLoop) = 1; /* measured: typing each remaining site here changes 9196 code bytes. */
         } else if (D_008C027A[0] & 0x8000) {
-            if ((*(s16 *)(work + 0x12)) != 1) {
+            if ((((FclShopWork *)work)->quantity) != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 0xA, 1, datItemCount(itemId5) & 0xFF, 1);
+            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 0xA, 1, datItemCount(itemId5) & 0xFF, 1); /* measured: typing each remaining site here changes 9098 code bytes. */
             tbl = (f32 *) D_0063F690;
-            fclObjStartPosition((*(void * *)(work + 0xCD0)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 0);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->colorLoop) = 1;
+            fclObjStartPosition((((FclShopWork *)work)->panels[0x26].pointer), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 0);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCD0))))->colorLoop) = 1; /* measured: typing each remaining site here changes 9047 code bytes. */
         } else if (D_008C024E[0] & 0x40) {
             messageItem6.itemId = (s32) ((s16) (itemId5));
             messageItem6.unk04 = 0;
-            sprintf(quantityText2, iGpffffa880, (*(s16 *)(work + 0x12)));
-            (*fclShopMesSlot(work)) = fclShopPlaySoundParams(task, 2, &messageItem6, quantityText2, 1);
+            sprintf(quantityText2, iGpffffa880, (((FclShopWork *)work)->quantity));
+            (((FclShopWork *)work)->messageSlot) = fclShopPlaySoundParams(task, 2, &messageItem6, quantityText2, 1);
             ((FclShopWork *)work)->state = 0x28;
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
             sdkSndStartStream(0, 0, 0, 2);
             fclShopStartRevealByMode(task);
-            fclObjStartAlpha((*(void * *)(work + 0xCCC)), 0xFFU, 0U, 0U, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xCD0)), 0xFFU, 0U, 0U, 5, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xCC8)), 0, 1);
-            fclObjStartAlpha((*(void * *)(work + 0xDCC)), 0U, 0xFFU, 0U, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xDD0)), 0U, 0xFFU, 0U, 5, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x25].pointer), 0xFFU, 0U, 0U, 5, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x26].pointer), 0xFFU, 0U, 0U, 5, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x24].pointer), 0, 1);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x65].pointer), 0U, 0xFFU, 0U, 5, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x66].pointer), 0U, 0xFFU, 0U, 5, 0);
             ((FclShopWork *)work)->state = 0x24;
             if (((FclShopWork *)work)->detailMode == 1) {
                 ((FclShopWork *)work)->state = 0x31;
@@ -1912,28 +1909,28 @@ block_368:
         break;
     case 0x28:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
-        itemId3 = yListValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2)));
-        tabIndex3 = (s16) (yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2))));
-        tabIndex2 = yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]));
-        savedCursor = (*(s16 *)(work + 2));
-        savedScroll = (*(s16 *)(work + 4));
+        itemId3 = yListValueAtFor((((void**)(work + 0xF18))[(((FclShopWork *)work)->tab)]), (s32) (((FclShopWork *)work)->cursor)); /* measured: typing each remaining site here changes 2 code bytes. */
+        tabIndex3 = (s16) (yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2)))); /* measured: typing each remaining site here changes 2-8676 code bytes. */
+        tabIndex2 = yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])); /* measured: typing each remaining site here changes 2-8675 code bytes. */
+        savedCursor = (*(s16 *)(work + 2)); /* measured: typing each remaining site here changes 8676 code bytes. */
+        savedScroll = (((FclShopWork *)work)->scroll);
         fclShopDrawItemDetail(task, itemId3, tabIndex3 & 0xFF);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 8582 code bytes. */
         } else {
-            (*(s16 *)(work + 0xC16)) = 0;
-            (*(s16 *)(work + 0xC18)) = 0;
-            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
+            (((FclShopWork *)work)->unlockCount) = 0;
+            (((FclShopWork *)work)->unlockIndex) = 0;
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) { /* measured: typing each remaining site here changes 8582 code bytes. */
                 sdkSndStartStream(0, 0, 0, 6);
                 if (datEntryGetKind(itemId3) == 5) {
                     saleItemId = (s16) (itemId3);
-                    datSetStateTableEntry(saleItemId, fclAddClamped(clndGetMoonPhase(saleItemId) & 0xFF, (s32) (*(s16 *)(work + 0x12)), 0xFF, 0, 1) & 0xFF);
+                    datSetStateTableEntry(saleItemId, fclAddClamped(clndGetMoonPhase(saleItemId) & 0xFF, (s32) (((FclShopWork *)work)->quantity), 0xFF, 0, 1) & 0xFF);
                     for (index28 = 0; index28 < 0x2FF; index28++) {
                         if (!(clndGetMoonPhase(index28) & 0xFF)) {
                             if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateFirst(index28) & 0xFFF00) >> 8), datItemMoonGateFirst(index28) & 0xFF) == 1) {
                                 if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateSecond(index28) & 0xFFF00) >> 8), datItemMoonGateSecond(index28) & 0xFF) == 1) {
-                                    (*(s16 *)((u8 *)((work + ((*(s16 *)(work + 0xC16)) * 2))) + 0x16)) = index28;
-                                    (*(s16 *)(work + 0xC16)) = (s16) ((*(s16 *)(work + 0xC16)) + 1);
+                                    (((FclShopWork *)work)->unlockedItems[(((FclShopWork *)work)->unlockCount)]) = index28;
+                                    (((FclShopWork *)work)->unlockCount) = (s16) ((((FclShopWork *)work)->unlockCount) + 1);
                                 }
                             }
                         }
@@ -1941,60 +1938,60 @@ block_368:
                 }
                 price2 = datItemPrice((s32) itemId3) / 5U;
                 money = fclGetMoney();
-                fclAddMoney(money + ((*(s16 *)(work + 0x12)) * price2));
-                datItemSetCount(itemId3, ((datItemCount(itemId3) & 0xFF) - (*(s16 *)(work + 0x12))) & 0xFF);
-                tabIndex7 = (*(s8 *)(work + 0x11));
+                fclAddMoney(money + ((((FclShopWork *)work)->quantity) * price2));
+                datItemSetCount(itemId3, ((datItemCount(itemId3) & 0xFF) - (*(s16 *)(work + 0x12))) & 0xFF); /* measured: typing each remaining site here changes 8274 code bytes. */
+                tabIndex7 = (*(s8 *)(work + 0x11)); /* measured: typing each remaining site here changes 8681 code bytes. */
                 switch (tabIndex7) {                /* switch 6; irregular */
                 case 0:                             /* switch 6 */
-                    yListRebuildFor((((void**)(work + 0xF18))[tabIndex7]), 0x40000, 0, 4, 0);
-                    (*(s32 *)(work + 0xC20)) = 0;
-                    for (index10 = 1; index10 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); index10++) {
-                        itemId = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) index10);
-                        yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) index10);
+                    yListRebuildFor((((void**)(work + 0xF18))[tabIndex7]), 0x40000, 0, 4, 0); /* measured: typing each remaining site here changes 2 code bytes. */
+                    (((FclShopWork *)work)->totalPrice) = 0;
+                    for (index10 = 1; index10 < yListCountFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))])); index10++) { /* measured: typing each remaining site here changes 9131 code bytes. */
+                        itemId = yListValueAtFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))]), (s32) index10); /* measured: typing each remaining site here changes 9131 code bytes. */
+                        yListAuxValueAtFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))]), (s32) index10); /* measured: typing each remaining site here changes 9131 code bytes. */
                         stockItemId = (s16) (itemId);
                         fclAddClamped((clndGetMoonPhase(stockItemId) & 0xFF), datItemCount(itemId) & 0xFF, 0xFF, 0, 1);
-                        price3 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(stockItemId) / 5U) * (datItemCount(itemId) & 0xFF));
-                        (*(s32 *)(work + 0xC20)) = price3;
-                        (*(s32 *)(work + 0xC20)) = fclAddClamped(price3, 0, 0x98967F, 0, 1);
+                        price3 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(stockItemId) / 5U) * (datItemCount(itemId) & 0xFF)); /* measured: typing each remaining site here changes 9074 code bytes. */
+                        (*(s32 *)(work + 0xC20)) = price3; /* measured: typing each remaining site here changes 9071 code bytes. */
+                        (*(s32 *)(work + 0xC20)) = fclAddClamped(price3, 0, 0x98967F, 0, 1); /* measured: typing each remaining site here changes 9072 code bytes. */
                     }
                     break;
                 case 1:                             /* switch 6 */
-                    yListRebuildFor((((void**)(work + 0xF18))[tabIndex7]), 0xFFFF, 0x1FE0, 1, 0);
+                    yListRebuildFor((((void**)(work + 0xF18))[tabIndex7]), 0xFFFF, 0x1FE0, 1, 0); /* measured: typing each remaining site here changes 2 code bytes. */
                     break;
                 case 2:                             /* switch 6 */
-                    yListRebuildFor((((void**)(work + 0xF18))[tabIndex7]), 0x10000, 0, 1, 0);
+                    yListRebuildFor((((void**)(work + 0xF18))[tabIndex7]), 0x10000, 0, 1, 0); /* measured: typing each remaining site here changes 2 code bytes. */
                     break;
                 }
-                if (tabIndex2 != yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) {
+                if (tabIndex2 != yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) { /* measured: typing each remaining site here changes 2-9130 code bytes. */
                     cursorBeforeSale = (s16) ((s64) savedCursor);
                     if ((cursorBeforeSale - ((s16) ((s64) savedScroll))) > 0) {
                         cursorAfterSale = (s16) (fclSubClamped((s32) cursorBeforeSale, 1, 0, 0, 1));
-                        (*(s16 *)(work + 2)) = 0;
-                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), (s32) ((s16) (cursorAfterSale)), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                        (*(s16 *)(work + 2)) = 0; /* measured: typing each remaining site here changes 9131 code bytes. */
+                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), (s32) ((s16) (cursorAfterSale)), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1); /* measured: typing each remaining site here changes 2-9132 code bytes. */
                     } else {
-                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1); /* measured: typing each remaining site here changes 2-9131 code bytes. */
                     }
-                    (*(s16 *)(work + 4)) = fclAddClamped((s32) (*(s16 *)(work + 4)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                    (*(s16 *)(work + 4)) = fclAddClamped((s32) (*(s16 *)(work + 4)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1); /* measured: typing each remaining site here changes 2-9130 code bytes. */
                 }
-                fclShopUpdateTabs(task, (s8) (s32) (*(s8 *)(work + 0x11)));
+                fclShopUpdateTabs(task, (s8) (s32) (*(s8 *)(work + 0x11))); /* measured: typing each remaining site here changes 9129 code bytes. */
             }
             fclShopStartRevealByMode(task);
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-            fclObjStartAlpha((*(void * *)(work + 0xCCC)), 0xFFU, 0U, 0U, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xCD0)), 0xFFU, 0U, 0U, 5, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xCC8)), 0, 1);
-            fclObjStartAlpha((*(void * *)(work + 0xDCC)), 0U, 0xFFU, 0U, 5, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xDD0)), 0U, 0xFFU, 0U, 5, 0);
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 9052 code bytes. */
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x25].pointer), 0xFFU, 0U, 0U, 5, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x26].pointer), 0xFFU, 0U, 0U, 5, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x24].pointer), 0, 1);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x65].pointer), 0U, 0xFFU, 0U, 5, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x66].pointer), 0U, 0xFFU, 0U, 5, 0);
             ((FclShopWork *)work)->state = 0x24;
             if (((FclShopWork *)work)->detailMode == 1) {
-                if (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) <= D_00748908[(*(s8 *)(work + 0x11))]) {
+                if (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) <= D_00748908[(*(s8 *)(work + 0x11))]) { /* measured: typing each remaining site here changes 2-9130 code bytes. */
                     fclShopHideSelectionSprites(task);
                 } else {
                     ((FclShopWork *)work)->state = 0x31;
                 }
             }
-            if ((*(s16 *)(work + 0xC16)) > 0) {
-                (*(s8 *)(work + 0xC1A)) = 0;
+            if ((*(s16 *)(work + 0xC16)) > 0) { /* measured: typing each remaining site here changes 9058 code bytes. */
+                (((FclShopWork *)work)->cueTimer) = 0;
                 fclShopPlayItemCue(task);
                 ((FclShopWork *)work)->state = 0x29;
             }
@@ -2002,56 +1999,56 @@ block_368:
         break;
     case 0x2E:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 7409 code bytes. */
         } else {
-            (*(s16 *)(work + 0xC16)) = 0;
-            (*(s16 *)(work + 0xC18)) = 0;
-            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) {
-                nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            (((FclShopWork *)work)->unlockCount) = 0;
+            (((FclShopWork *)work)->unlockIndex) = 0;
+            if (nmMesWindowGetSlotState((*fclShopMesSlot(work))) == 0) { /* measured: typing each remaining site here changes 7409 code bytes. */
+                nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 7409 code bytes. */
                 sdkSndStartStream(0, 0, 0, 6);
-                for (index16 = 1; index16 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); index16++) {
-                    itemId2 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) index16);
-                    yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) index16);
+                for (index16 = 1; index16 < yListCountFor((((FclShopWork *)work)->lists[(((FclShopWork *)work)->tab)])); index16++) {
+                    itemId2 = yListValueAtFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))]), (s32) index16); /* measured: typing each remaining site here changes 7185 code bytes. */
+                    yListAuxValueAtFor((((FclShopWork *)work)->lists[(*(s8 *)(work + 0x11))]), (s32) index16); /* measured: typing each remaining site here changes 7185 code bytes. */
                     datSetStateTableEntry(itemId2, fclAddClamped((clndGetMoonPhase(itemId2) & 0xFF), datItemCount(itemId2) & 0xFF, 0xFF, 0, 1) & 0xFF);
                     price = (datItemPrice(itemId2) / 5U) * (datItemCount(itemId2) & 0xFF);
                     money = fclGetMoney();
                     fclAddMoney(money + price);
                     datItemSetCount(itemId2, 0);
                 }
-                (*(s32 *)(work + 0xC20)) = 0;
+                (((FclShopWork *)work)->totalPrice) = 0;
                 for (index29 = 0; index29 < 0x2FF; index29++) {
                     if (!(clndGetMoonPhase(index29) & 0xFF)) {
                         if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateFirst(index29) & 0xFFF00) >> 8), datItemMoonGateFirst(index29) & 0xFF) == 1) {
                             if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateSecond(index29) & 0xFFF00) >> 8), datItemMoonGateSecond(index29) & 0xFF) == 1) {
-                                (*(s16 *)((u8 *)((work + ((*(s16 *)(work + 0xC16)) * 2))) + 0x16)) = index29;
-                                (*(s16 *)(work + 0xC16)) = (s16) ((*(s16 *)(work + 0xC16)) + 1);
+                                (((FclShopWork *)work)->unlockedItems[(((FclShopWork *)work)->unlockCount)]) = index29;
+                                (((FclShopWork *)work)->unlockCount) = (s16) ((((FclShopWork *)work)->unlockCount) + 1);
                             }
                         }
                     }
                 }
-                yListRebuildFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), 0x40000, 0, 4, 0);
-                (*(s32 *)(work + 0xC20)) = 0;
-                (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
-                scrollBeforeSale = (*(s16 *)(work + 4));
-                if (fclSelectBoundedFallback((s32) (*(s16 *)(work + 4)), 5, yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) < scrollBeforeSale) {
-                    (*(s16 *)(work + 4)) = fclSelectBoundedFallback((s32) (*(s16 *)(work + 4)), 5, (s32) ((s16) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))), (s32) ((s16) (yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))));
+                yListRebuildFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), 0x40000, 0, 4, 0); /* measured: typing each remaining site here changes 2-7183 code bytes. */
+                (*(s32 *)(work + 0xC20)) = 0; /* measured: typing each remaining site here changes 7133 code bytes. */
+                (((FclShopWork *)work)->cursor) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1); /* measured: typing each remaining site here changes 2-7183 code bytes. */
+                scrollBeforeSale = (((FclShopWork *)work)->scroll);
+                if (fclSelectBoundedFallback((s32) (*(s16 *)(work + 4)), 5, yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) < scrollBeforeSale) { /* measured: typing each remaining site here changes 2-7170 code bytes. */
+                    (*(s16 *)(work + 4)) = fclSelectBoundedFallback((s32) (*(s16 *)(work + 4)), 5, (s32) ((s16) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))), (s32) ((s16) (yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))))); /* measured: typing each remaining site here changes 2-7186 code bytes. */
                 }
-                fclObjChangeFlagBit((*(void * *)(work + 0xE40)), 0, 1);
-                fclObjChangeFlagBit((*(void * *)(work + 0xE44)), 0, 1);
-                fclObjChangeFlagBit((*(void * *)(work + 0xE48)), 0, 1);
-                fclShopUpdateTabs(task, (s8) (s32) (*(s8 *)(work + 0x11)));
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x82].pointer), 0, 1);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x83].pointer), 0, 1);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x84].pointer), 0, 1);
+                fclShopUpdateTabs(task, (s8) (s32) (*(s8 *)(work + 0x11))); /* measured: typing each remaining site here changes 7187 code bytes. */
                 ((FclShopWork *)work)->state = 0x24;
                 if (((FclShopWork *)work)->detailMode == 1) {
                     fclShopHideSelectionSprites(task);
                 }
-                if ((*(s16 *)(work + 0xC16)) > 0) {
-                    (*(s8 *)(work + 0xC1A)) = 0;
+                if ((*(s16 *)(work + 0xC16)) > 0) { /* measured: typing each remaining site here changes 7388 code bytes. */
+                    (((FclShopWork *)work)->cueTimer) = 0;
                     fclShopPlayItemCue(task);
                     ((FclShopWork *)work)->state = 0x29;
                 }
             } else {
-                nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+                nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 7409 code bytes. */
                 ((FclShopWork *)work)->state = 0x24;
                 if (((FclShopWork *)work)->detailMode == 1) {
                     fclShopHideSelectionSprites(task);
@@ -2062,10 +2059,10 @@ block_368:
     case 0x29:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 6565 code bytes. */
         } else {
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 6565 code bytes. */
             sdkSndStartChannel(2, (const char *) D_0063FAF0);
             ((FclShopWork *)work)->state = 0x2A;
         }
@@ -2073,46 +2070,46 @@ block_368:
     case 0x2A:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
-        (*(s8 *)(work + 0xC1A)) = fclAddClamped((s32) (*(s8 *)(work + 0xC1A)), 1, 0x3C, 0, 1);
-        if ((*(s8 *)(work + 0xC1A)) >= 0x3C) {
-            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 0xA, NULL, 0);
+        (((FclShopWork *)work)->cueTimer) = fclAddClamped((s32) (*(s8 *)(work + 0xC1A)), 1, 0x3C, 0, 1); /* measured: typing each remaining site here changes 29 code bytes. */
+        if ((*(s8 *)(work + 0xC1A)) >= 0x3C) { /* measured: typing each remaining site here changes 6489 code bytes. */
+            (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 0xA, NULL, 0);
             ((FclShopWork *)work)->state = 0x2B;
-            (*(s8 *)(work + 0xC1A)) = 0;
+            (*(s8 *)(work + 0xC1A)) = 0; /* measured: typing each remaining site here changes 32 code bytes. */
         }
         break;
     case 0x2B:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 6396 code bytes. */
         } else {
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-            messageItem7.itemId = (s32) (((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]);
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 6396 code bytes. */
+            messageItem7.itemId = (s32) (((s16 *)(work + 0x16))[(((FclShopWork *)work)->unlockIndex)]); /* measured: typing each remaining site here changes 2 code bytes. */
             messageItem7.unk04 = 0;
-            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 3, &messageItem7, 0);
+            (*fclShopMesSlot(work)) = fclShopPlaySound(task, 3, &messageItem7, 0); /* measured: typing each remaining site here changes 6395 code bytes. */
             ((FclShopWork *)work)->state = 0x2D;
         }
         break;
     case 0x2C:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
-        messageItem8.itemId = (s32) (((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]);
+        messageItem8.itemId = (s32) (((s16 *)(work + 0x16))[(((FclShopWork *)work)->unlockIndex)]); /* measured: typing each remaining site here changes 2 code bytes. */
         messageItem8.unk04 = 0;
-        (*fclShopMesSlot(work)) = fclShopPlaySound(task, 3, &messageItem8, 0);
+        (((FclShopWork *)work)->messageSlot) = fclShopPlaySound(task, 3, &messageItem8, 0);
         ((FclShopWork *)work)->state = 0x2D;
         break;
     case 0x2D:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         fclShopDrawScrollThumb(task);
-        if (nmMesWindowSlotStatus((*fclShopMesSlot(work))) != 0) {
-            nmMesWindowStepSlotRelease((*fclShopMesSlot(work)));
+        if (nmMesWindowSlotStatus((((FclShopWork *)work)->messageSlot)) != 0) {
+            nmMesWindowStepSlotRelease((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 6214 code bytes. */
         } else {
-            itemFlags = clndGetMoonPhase((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]));
-            datSetStateTableEntry((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]), itemFlags | 1);
-            nmMesWindowDestroySlot((*fclShopMesSlot(work)));
-            nextUnlockIndex = (*(s16 *)(work + 0xC18)) + 1;
-            (*(s16 *)(work + 0xC18)) = nextUnlockIndex;
-            if (((s16) ((s64) nextUnlockIndex)) >= (*(s16 *)(work + 0xC16))) {
+            itemFlags = clndGetMoonPhase((((s16 *)(work + 0x16))[(((FclShopWork *)work)->unlockIndex)])); /* measured: typing each remaining site here changes 2 code bytes. */
+            datSetStateTableEntry((((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]), itemFlags | 1); /* measured: typing each remaining site here changes 2-6187 code bytes. */
+            nmMesWindowDestroySlot((*fclShopMesSlot(work))); /* measured: typing each remaining site here changes 6214 code bytes. */
+            nextUnlockIndex = (*(s16 *)(work + 0xC18)) + 1; /* measured: typing each remaining site here changes 6187 code bytes. */
+            (*(s16 *)(work + 0xC18)) = nextUnlockIndex; /* measured: typing each remaining site here changes 6187 code bytes. */
+            if (((s16) ((s64) nextUnlockIndex)) >= (((FclShopWork *)work)->unlockCount)) {
                 ((FclShopWork *)work)->state = 0x24;
                 if (((FclShopWork *)work)->detailMode == 1) {
                     ((FclShopWork *)work)->state = 0x31;
@@ -2126,135 +2123,135 @@ block_368:
     case 0x26:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         for (index5 = 0; index5 < 2; index5++) {
-            objectWork3 = fclObjectGetWork((*(void * *)(work + 0xDCC)));
-            objectWork6 = fclObjectGetWork((*(void * *)(work + 0xDD0)));
-            red6 = (*(u8 *)(work + ((index5) * 4) + 0xF3E));
+            objectWork3 = fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer));
+            objectWork6 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
+            red6 = (*(u8 *)(work + ((index5) * 4) + 0xF3E)); /* measured: typing each remaining site here changes 5862 code bytes. */
             channelStart5 = (f32) red6;
-            channelValue6 = fclEaseInterpolate(1, channelStart5, 255.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue6 = fclEaseInterpolate(1, channelStart5, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel129 = (u8) channelValue6;
             (((FclObject *)objectWork6)->color.c0) = redChannel129;
             (((FclObject *)objectWork3)->color.c0) = redChannel129;
-            green = (*(u8 *)(work + ((index5) * 4) + 0xF3F));
+            green = (*(u8 *)(work + ((index5) * 4) + 0xF3F)); /* measured: typing each remaining site here changes 5865 code bytes. */
             channelStart6 = (f32) green;
-            channelValue7 = fclEaseInterpolate(1, channelStart6, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue7 = fclEaseInterpolate(1, channelStart6, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 6010 code bytes. */
             greenChannel130 = (u8) channelValue7;
             (((FclObject *)objectWork6)->color.c1) = greenChannel130;
             (((FclObject *)objectWork3)->color.c1) = greenChannel130;
-            blue = (*(u8 *)(work + ((index5) * 4) + 0xF40));
+            blue = (*(u8 *)(work + ((index5) * 4) + 0xF40)); /* measured: typing each remaining site here changes 5724 code bytes. */
             channelStart7 = (f32) blue;
-            channelValue8 = fclEaseInterpolate(1, channelStart7, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue8 = fclEaseInterpolate(1, channelStart7, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 6010 code bytes. */
             blueChannel131 = (u8) channelValue8;
             (((FclObject *)objectWork6)->color.c2) = blueChannel131;
             (((FclObject *)objectWork3)->color.c2) = blueChannel131;
         }
-        colorFrame2 = (*(s16 *)(work + 0xF3C));
+        colorFrame2 = (((FclShopWork *)work)->colorFrame);
         if (colorFrame2 < 6) {
-            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame2, 1, 6, 0, 1);
+            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame2, 1, 6, 0, 1); /* measured: typing each remaining site here changes 5541 code bytes. */
         } else {
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->color = ((FclShopWork *)work)->savedColors[0];
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->color = ((FclShopWork *)work)->savedColors[1];
-            position = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->anchorPosition;
-            fclObjStartPosition((*(void * *)(work + 0xDCC)), position, fclMakeVec2(position.x - 1000.0f, position.y), 1, 3, 0);
-            position4[2] = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition;
-            fclObjStartPosition((*(void * *)(work + 0xDD0)), position4[2], fclMakeVec2(position4[2].x - 1000.0f, position4[2].y), 1, 3, 0);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer)))->color = ((FclShopWork *)work)->savedColors[0];
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer)))->color = ((FclShopWork *)work)->savedColors[1];
+            position = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->anchorPosition; /* measured: typing each remaining site here changes 5502 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xDCC)), position, fclMakeVec2(position.x - 1000.0f, position.y), 1, 3, 0); /* measured: typing each remaining site here changes 5502 code bytes. */
+            position4[2] = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition; /* measured: typing each remaining site here changes 5474 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xDD0)), position4[2], fclMakeVec2(position4[2].x - 1000.0f, position4[2].y), 1, 3, 0); /* measured: typing each remaining site here changes 5474 code bytes. */
             ((FclShopWork *)work)->state = 0x2F;
         }
         break;
     case 0x2F:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
         for (index6 = 0; index6 < 2; index6++) {
-            objectWork = fclObjectGetWork((*(void * *)(work + 0xDCC)));
-            objectWork7 = fclObjectGetWork((*(void * *)(work + 0xDD0)));
-            red = (*(u8 *)(work + ((index6) * 4) + 0xF3E));
+            objectWork = fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer));
+            objectWork7 = fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer));
+            red = (*(u8 *)(work + ((index6) * 4) + 0xF3E)); /* measured: typing each remaining site here changes 5102 code bytes. */
             channelStart8 = (f32) red;
-            channelValue9 = fclEaseInterpolate(1, channelStart8, 255.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue9 = fclEaseInterpolate(1, channelStart8, 255.0f, (f32) (((FclShopWork *)work)->colorFrame), 3.0f);
             redChannel132 = (u8) channelValue9;
             (((FclObject *)objectWork7)->color.c0) = redChannel132;
             (((FclObject *)objectWork)->color.c0) = redChannel132;
-            green2 = (*(u8 *)(work + ((index6) * 4) + 0xF3F));
+            green2 = (*(u8 *)(work + ((index6) * 4) + 0xF3F)); /* measured: typing each remaining site here changes 5105 code bytes. */
             channelStart9 = (f32) green2;
-            channelValue10 = fclEaseInterpolate(1, channelStart9, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue10 = fclEaseInterpolate(1, channelStart9, 226.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 5250 code bytes. */
             greenChannel133 = (u8) channelValue10;
             (((FclObject *)objectWork7)->color.c1) = greenChannel133;
             (((FclObject *)objectWork)->color.c1) = greenChannel133;
-            blue2 = (*(u8 *)(work + ((index6) * 4) + 0xF40));
+            blue2 = (*(u8 *)(work + ((index6) * 4) + 0xF40)); /* measured: typing each remaining site here changes 4964 code bytes. */
             channelStart10 = (f32) blue2;
-            channelValue11 = fclEaseInterpolate(1, channelStart10, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f);
+            channelValue11 = fclEaseInterpolate(1, channelStart10, 145.0f, (f32) (*(s16 *)(work + 0xF3C)), 3.0f); /* measured: typing each remaining site here changes 5250 code bytes. */
             blueChannel134 = (u8) channelValue11;
             (((FclObject *)objectWork7)->color.c2) = blueChannel134;
             (((FclObject *)objectWork)->color.c2) = blueChannel134;
         }
-        colorFrame3 = (*(s16 *)(work + 0xF3C));
+        colorFrame3 = (((FclShopWork *)work)->colorFrame);
         if (colorFrame3 < 6) {
-            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame3, 1, 6, 0, 1);
+            (*(s16 *)(work + 0xF3C)) = fclAddClamped((s32) colorFrame3, 1, 6, 0, 1); /* measured: typing each remaining site here changes 4781 code bytes. */
         } else {
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->color = ((FclShopWork *)work)->savedColors[0];
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->color = ((FclShopWork *)work)->savedColors[1];
-            position2 = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->anchorPosition;
-            fclObjStartPosition((*(void * *)(work + 0xDCC)), position2, fclMakeVec2(position2.x - 1000.0f, position2.y), 1, 3, 0);
-            position4[1] = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition;
-            fclObjStartPosition((*(void * *)(work + 0xDD0)), position4[1], fclMakeVec2(position4[1].x - 1000.0f, position4[1].y), 1, 3, 0);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xE50)), 0x41, 109.0f);
-            fclObjStartPosition((*(void * *)(work + 0xE50)), fclMakeVec2((f32) -0x271, 124.0f), fclMakeVec2(75.0f, 124.0f), 0, 4, 5);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE50))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xE54)), 0x41, 112.0f);
-            fclObjStartPosition((*(void * *)(work + 0xE54)), fclMakeVec2((f32) -0x271, (f32) 0x11D), fclMakeVec2(75.0f, (f32) 0x11D), 0, 4, 5);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE54))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xE58)), 0x41, 113.0f);
-            fclObjStartPosition((*(void * *)(work + 0xE58)), fclMakeVec2(-117.0f, 128.0f), fclMakeVec2((f32) 0x247, 128.0f), 0, 4, 5);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xE5C)), 0x41, 114.0f);
-            fclObjStartPosition((*(void * *)(work + 0xE5C)), fclMakeVec2((f32) -0x2FD, 128.0f), fclMakeVec2(-65.0f, 128.0f), 0, 4, 5);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer)))->color = ((FclShopWork *)work)->savedColors[0];
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer)))->color = ((FclShopWork *)work)->savedColors[1];
+            position2 = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->anchorPosition; /* measured: typing each remaining site here changes 4742 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xDCC)), position2, fclMakeVec2(position2.x - 1000.0f, position2.y), 1, 3, 0); /* measured: typing each remaining site here changes 4742 code bytes. */
+            position4[1] = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition; /* measured: typing each remaining site here changes 4714 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xDD0)), position4[1], fclMakeVec2(position4[1].x - 1000.0f, position4[1].y), 1, 3, 0); /* measured: typing each remaining site here changes 4714 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x86].pointer), 0x41, 109.0f);
+            fclObjStartPosition((*(void * *)(work + 0xE50)), fclMakeVec2((f32) -0x271, 124.0f), fclMakeVec2(75.0f, 124.0f), 0, 4, 5); /* measured: typing each remaining site here changes 4546 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE50))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF); /* measured: typing each remaining site here changes 4546 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x87].pointer), 0x41, 112.0f);
+            fclObjStartPosition((*(void * *)(work + 0xE54)), fclMakeVec2((f32) -0x271, (f32) 0x11D), fclMakeVec2(75.0f, (f32) 0x11D), 0, 4, 5); /* measured: typing each remaining site here changes 4400 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xE54))))->color = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF); /* measured: typing each remaining site here changes 4400 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x88].pointer), 0x41, 113.0f);
+            fclObjStartPosition((*(void * *)(work + 0xE58)), fclMakeVec2(-117.0f, 128.0f), fclMakeVec2((f32) 0x247, 128.0f), 0, 4, 5); /* measured: typing each remaining site here changes 4242 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x89].pointer), 0x41, 114.0f);
+            fclObjStartPosition((*(void * *)(work + 0xE5C)), fclMakeVec2((f32) -0x2FD, 128.0f), fclMakeVec2(-65.0f, 128.0f), 0, 4, 5); /* measured: typing each remaining site here changes 4148 code bytes. */
             ((FclShopWork *)work)->detailMode = 1;
             ((FclShopWork *)work)->state = 0x30;
         }
         break;
     case 0x30:                                      /* switch 1 */
         fclShopDrawBuyList(task, 2);
-        if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDCC)), 9))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xDD0)), 9))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE50))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE54))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE58))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xE5C))))) == 0)) {
+        if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x65].pointer), 9))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x66].pointer), 9))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x86].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x87].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x88].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x89].pointer)))) == 0)) {
             for (index30 = 0; index30 < 3; index30++) {
-                fclObjSetAnchorPosition((*(void * *)(work + ((index30) * 4) + 0xDBC)), 0x41, 95.0f);
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + ((index30) * 4) + 0xDBC))))->color = fclMakeDrawColor(0xFF, 0xEF, 0x80, 0xFF);
+                fclObjSetAnchorPosition((*(void * *)(work + ((index30) * 4) + 0xDBC)), 0x41, 95.0f); /* measured: typing each remaining site here changes 49 code bytes. */
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + ((index30) * 4) + 0xDBC))))->color = fclMakeDrawColor(0xFF, 0xEF, 0x80, 0xFF); /* measured: typing each remaining site here changes 49 code bytes. */
             }
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDBC))))->anchorPosition = fclMakeVec2(89.0f, 163.0f);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC0))))->anchorPosition = fclMakeVec2((f32) 0x1D1, 163.0f);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDC4))))->anchorPosition = fclMakeVec2((f32) 0x22E, 163.0f);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xCAC)), 0x56, 91.0f);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCAC))))->anchorPosition = fclMakeVec2((f32) 0x1DF, 167.0f);
-            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCAC))))->color = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
-            fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE84)), 0x56, 91.0f);
-            ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE84))))->color = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
-            ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE84))))->anchorPosition = fclMakeVec2((f32) 0x1DF, 217.0f);
-            if (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) >= 2) {
-                fclObjSetAnchorPosition((*(void * *)(work + 0xC94)), 0x41, 88.0f);
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC94))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC94))))->anchorPosition = fclMakeVec2((f32) 0x247, 136.0f);
-                fclObjSetAnchorPosition((*(void * *)(work + 0xC98)), 0x41, 89.0f);
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC98))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
-                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC98))))->anchorPosition = fclMakeVec2((f32) 0x247, 272.0f);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x61].pointer)))->anchorPosition = fclMakeVec2(89.0f, 163.0f);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x62].pointer)))->anchorPosition = fclMakeVec2((f32) 0x1D1, 163.0f);
+            ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x63].pointer)))->anchorPosition = fclMakeVec2((f32) 0x22E, 163.0f);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x1D].pointer), 0x56, 91.0f);
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCAC))))->anchorPosition = fclMakeVec2((f32) 0x1DF, 167.0f); /* measured: typing each remaining site here changes 3643 code bytes. */
+            ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xCAC))))->color = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF); /* measured: typing each remaining site here changes 3643 code bytes. */
+            fclObjSetAnchorPosition((void *) (((FclShopWork *)work)->panels[0x93].word), 0x56, 91.0f);
+            ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE84))))->color = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF); /* measured: typing each remaining site here changes 3527 code bytes. */
+            ((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE84))))->anchorPosition = fclMakeVec2((f32) 0x1DF, 217.0f); /* measured: typing each remaining site here changes 3527 code bytes. */
+            if (yListCountFor((((void**)(work + 0xF18))[(((FclShopWork *)work)->tab)])) >= 2) { /* measured: typing each remaining site here changes 2 code bytes. */
+                fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x17].pointer), 0x41, 88.0f);
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC94))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 3386 code bytes. */
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC94))))->anchorPosition = fclMakeVec2((f32) 0x247, 136.0f); /* measured: typing each remaining site here changes 3386 code bytes. */
+                fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x18].pointer), 0x41, 89.0f);
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC98))))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 3268 code bytes. */
+                ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC98))))->anchorPosition = fclMakeVec2((f32) 0x247, 272.0f); /* measured: typing each remaining site here changes 3268 code bytes. */
             }
             ((FclShopWork *)work)->state = 0x31;
         }
         break;
     case 0x31:                                      /* switch 1 */
-        fclObjChangeFlagBit((*(void * *)(work + 0xCA0)), 0, 1);
-        fclObjChangeFlagBit((*(void * *)(work + 0xCA8)), 0, 1);
-        fclObjChangeFlagBit((*(void * *)(work + 0xC9C)), 0, 1);
-        fclObjChangeFlagBit((*(void * *)(work + 0xCA4)), 0, 1);
-        fclObjChangeFlagBit((*(void * *)(work + 0xCB8)), 0, 1);
-        fclObjChangeFlagBit((void *) (*(s32 *)(work + 0xEAC)), 0, 1);
+        fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x1A].pointer), 0, 1);
+        fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x1C].pointer), 0, 1);
+        fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x19].pointer), 0, 1);
+        fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x1B].pointer), 0, 1);
+        fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x20].pointer), 0, 1);
+        fclObjChangeFlagBit((void *) (((FclShopWork *)work)->panels[0x9D].word), 0, 1);
         fclShopDrawBuyList(task, 1);
         fclShopDrawScrollThumb(task);
-        if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xE38)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xCC4)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xCC0)), 1))) == 0) && ((D_008C0276[0] & 0x80) || (D_008C0276[0] & 0x20))) {
+        if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x80].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x23].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x22].pointer), 1))) == 0) && ((D_008C0276[0] & 0x80) || (D_008C0276[0] & 0x20))) {
             sdkSndStartStream(0, 1, 0, 4);
             fclShopHideSelectionSprites(task);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE4)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE0)), 0, 1);
-            position3 = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDCC))))->anchorPosition;
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6B].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6A].pointer), 0, 1);
+            position3 = ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x65].pointer)))->anchorPosition;
             tbl = (f32 *) D_0063F888;
-            fclObjStartPosition((*(void * *)(work + 0xDCC)), fclMakeVec2(700.0f + tbl[0], position3.y), fclMakeVec2(tbl[0], position3.y), 1, 3, 2);
-            position4[0] = ((FclObject *)fclObjectGetWork((*(void * *)(work + 0xDD0))))->anchorPosition;
+            fclObjStartPosition((*(void * *)(work + 0xDCC)), fclMakeVec2(700.0f + tbl[0], position3.y), fclMakeVec2(tbl[0], position3.y), 1, 3, 2); /* measured: typing each remaining site here changes 2872 code bytes. */
+            position4[0] = ((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x66].pointer)))->anchorPosition;
             tbl = (f32 *) D_0063F890;
-            fclObjStartPosition((*(void * *)(work + 0xDD0)), fclMakeVec2(700.0f + tbl[0], position4[0].y), fclMakeVec2(tbl[0], position4[0].y), 1, 3, 2);
+            fclObjStartPosition((*(void * *)(work + 0xDD0)), fclMakeVec2(700.0f + tbl[0], position4[0].y), fclMakeVec2(tbl[0], position4[0].y), 1, 3, 2); /* measured: typing each remaining site here changes 2783 code bytes. */
             ((FclShopWork *)work)->state = 0x24;
         }
         break;
@@ -2262,45 +2259,45 @@ block_368:
         ((FclShopWork *)work)->state = 0x24;
         break;
     case 0x33:                                      /* switch 1 */
-        if (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) > 5) {
-            if (yListCountFor((((void**)(work + 0xF18))[tabIndex4 = (*(s8 *)(work + 0x11))])) > D_00748908[tabIndex4]) {
-                if (yListCountFor((((void**)(work + 0xF18))[tabIndex4])) > 5) {
-                    ((FclShopWork *)work)->scrollStep = (f32) (104.0f / (f32) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) - 5));
+        if (yListCountFor((((void**)(work + 0xF18))[(((FclShopWork *)work)->tab)])) > 5) { /* measured: typing each remaining site here changes 2 code bytes. */
+            if (yListCountFor((((void**)(work + 0xF18))[tabIndex4 = (*(s8 *)(work + 0x11))])) > D_00748908[tabIndex4]) { /* measured: typing each remaining site here changes 2-2670 code bytes. */
+                if (yListCountFor((((void**)(work + 0xF18))[tabIndex4])) > 5) { /* measured: typing each remaining site here changes 2 code bytes. */
+                    ((FclShopWork *)work)->scrollStep = (f32) (104.0f / (f32) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) - 5)); /* measured: typing each remaining site here changes 2-2671 code bytes. */
                 }
-                fclDrawEquipSprite(0x36, fclMakeVec2((f32) 0x221,  142.0f + ((FclShopWork *)work)->scrollStep * (f32) ((*(s16 *)(work + 2)) - (*(s16 *)(work + 4)))), 138.0f, fclPackRgba(0xFFU, 0xFEU, 0xC6U, 0x31U), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC8C))))->alpha), 0, D_00794EA0);
+                fclDrawEquipSprite(0x36, fclMakeVec2((f32) 0x221,  142.0f + ((FclShopWork *)work)->scrollStep * (f32) ((((FclShopWork *)work)->cursor) - (((FclShopWork *)work)->scroll))), 138.0f, fclPackRgba(0xFFU, 0xFEU, 0xC6U, 0x31U), (((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x15].pointer)))->alpha), 0, D_00794EA0);
             }
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 0);
         } else {
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 1);
         }
-        fclShopDrawItemRows(task, (*(s8 *)(work + 0x116E)), 80.0f, (f32) 0x352);
-        fclShopDrawItemRows(task, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) -0x352, 80.0f);
-        slideFramesRemaining = fclSubClamped((s32) (*(s16 *)(work + 0x1170)), 1, 0, 0, 1);
-        (*(s16 *)(work + 0x1170)) = slideFramesRemaining;
+        fclShopDrawItemRows(task, (*(s8 *)(work + 0x116E)), 80.0f, (f32) 0x352); /* measured: typing each remaining site here changes 29 code bytes. */
+        fclShopDrawItemRows(task, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) -0x352, 80.0f); /* measured: typing each remaining site here changes 2671 code bytes. */
+        slideFramesRemaining = fclSubClamped((s32) (((FclShopWork *)work)->slideTimer), 1, 0, 0, 1);
+        (*(s16 *)(work + 0x1170)) = slideFramesRemaining; /* measured: typing each remaining site here changes 2287 code bytes. */
         if (((s16) ((s64) slideFramesRemaining)) == 0) {
             ((FclShopWork *)work)->state = 0x24;
         }
         break;
     case 0x34:                                      /* switch 1 */
-        if (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) > 5) {
-            if (yListCountFor((((void**)(work + 0xF18))[tabIndex5 = (*(s8 *)(work + 0x11))])) > D_00748908[tabIndex5]) {
-                if (yListCountFor((((void**)(work + 0xF18))[tabIndex5])) > 5) {
-                    ((FclShopWork *)work)->scrollStep = (f32) (104.0f / (f32) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) - 5));
+        if (yListCountFor((((void**)(work + 0xF18))[(((FclShopWork *)work)->tab)])) > 5) { /* measured: typing each remaining site here changes 2 code bytes. */
+            if (yListCountFor((((void**)(work + 0xF18))[tabIndex5 = (*(s8 *)(work + 0x11))])) > D_00748908[tabIndex5]) { /* measured: typing each remaining site here changes 2-2241 code bytes. */
+                if (yListCountFor((((void**)(work + 0xF18))[tabIndex5])) > 5) { /* measured: typing each remaining site here changes 2 code bytes. */
+                    ((FclShopWork *)work)->scrollStep = (f32) (104.0f / (f32) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])) - 5)); /* measured: typing each remaining site here changes 2-2242 code bytes. */
                 }
-                fclDrawEquipSprite(0x36, fclMakeVec2((f32) 0x221,  142.0f + ((FclShopWork *)work)->scrollStep * (f32) ((*(s16 *)(work + 2)) - (*(s16 *)(work + 4)))), 138.0f, fclPackRgba(0xFFU, 0xFEU, 0xC6U, 0x31U), (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC8C))))->alpha), 0, D_00794EA0);
+                fclDrawEquipSprite(0x36, fclMakeVec2((f32) 0x221,  142.0f + ((FclShopWork *)work)->scrollStep * (f32) ((((FclShopWork *)work)->cursor) - (((FclShopWork *)work)->scroll))), 138.0f, fclPackRgba(0xFFU, 0xFEU, 0xC6U, 0x31U), (((FclObject *)fclObjectGetWork((((FclShopWork *)work)->panels[0x15].pointer)))->alpha), 0, D_00794EA0);
             }
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 0);
         } else {
-            fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 1);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC90)), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x15].pointer), 0, 1);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x16].pointer), 0, 1);
         }
-        fclShopDrawItemRows(task, (*(s8 *)(work + 0x116E)), 80.0f, (f32) -0x352);
-        fclShopDrawItemRows(task, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) 0x352, 80.0f);
-        reverseSlideFramesRemaining = fclSubClamped((s32) (*(s16 *)(work + 0x1170)), 1, 0, 0, 1);
-        (*(s16 *)(work + 0x1170)) = reverseSlideFramesRemaining;
+        fclShopDrawItemRows(task, (*(s8 *)(work + 0x116E)), 80.0f, (f32) -0x352); /* measured: typing each remaining site here changes 29 code bytes. */
+        fclShopDrawItemRows(task, (s8) (s32) (*(s8 *)(work + 0x11)), (f32) 0x352, 80.0f); /* measured: typing each remaining site here changes 2242 code bytes. */
+        reverseSlideFramesRemaining = fclSubClamped((s32) (((FclShopWork *)work)->slideTimer), 1, 0, 0, 1);
+        (*(s16 *)(work + 0x1170)) = reverseSlideFramesRemaining; /* measured: typing each remaining site here changes 1858 code bytes. */
         if (((s16) ((s64) reverseSlideFramesRemaining)) == 0) {
             ((FclShopWork *)work)->state = 0x24;
         }
@@ -2308,79 +2305,79 @@ block_368:
     case 0x35:                                      /* switch 1 */
         if (kwlnTaskGetTaskByName(D_0063FB10) == 0) {
             for (index31 = 0; index31 < 7; index31++) {
-                fclObjChangeFlagBit((*(void * *)((u8 *)((work + (index31 * 4))) + 0xD20)), 0, 0);
+                fclObjChangeFlagBit((((FclShopWork *)work)->panels[(index31) + 0x3A].pointer), 0, 0);
             }
-            fclObjChangeFlagBit((*(void * *)(work + 0xC44)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xC48)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDEC)), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x3].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x4].pointer), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6D].pointer), 0, 0);
             for (index32 = 0; index32 < 3; index32++) {
-                fclObjStartAlpha((*(void * *)((u8 *)((work + (index32 * 4))) + 0xC38)), 0U, 0xFFU, 0U, 0xA, 0);
+                fclObjStartAlpha((((FclShopWork *)work)->panels[(index32)].pointer), 0U, 0xFFU, 0U, 0xA, 0);
             }
-            fclObjStartAlpha((*(void * *)(work + 0xD8C)), 0U, 0xFFU, 0U, 0xA, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xD90)), 0U, 0xFFU, 0U, 0xA, 0);
-            fclObjStartAlpha((*(void * *)(work + 0xD94)), 0U, 0xFFU, 0U, 0xA, 0);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-            sprite11 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite11))));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) ((sdkSpriteScaledHeight(sprite11))));
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x55].pointer), 0U, 0xFFU, 0U, 0xA, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x56].pointer), 0U, 0xFFU, 0U, 0xA, 0);
+            fclObjStartAlpha((((FclShopWork *)work)->panels[0x57].pointer), 0U, 0xFFU, 0U, 0xA, 0);
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x5].pointer), 0x40, 191.0f);
+            sprite11 = sdkSpriteNewNode((u32)((void *) (((FclShopWork *)work)->spriteResource.signedWord)), (u32)(5));
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite11)))); /* measured: typing each remaining site here changes 1564 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC4C))))->pivotY) = (s16) ((s16) ((sdkSpriteScaledHeight(sprite11)))); /* measured: typing each remaining site here changes 1564 code bytes. */
             sdkSpriteFreeNode(sprite11);
-            fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0U, 0xCCU, 0U, 4, 4);
-            fclObjStartTween((*(void * *)(work + 0xC4C)), 0.0f, fGpffff8520, 0, 4, 4);
-            fclObjStartPosition((*(void * *)(work + 0xC4C)), fclMakeVec2(-240.0f, 400.0f), fclMakeVec2(-240.0f, 310.0f), 0, 4, 4);
-            fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 110.0f;
-            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = -50.0f;
-            sprite12 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite12))));
-            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = 0;
-            fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 4);
-            fclObjStartAlpha((*(void * *)(work + 0xC50)), 0U, 0xFFU, 0U, 4, 4);
+            fclObjStartAlpha((*(void * *)(work + 0xC4C)), 0U, 0xCCU, 0U, 4, 4); /* measured: typing each remaining site here changes 1564 code bytes. */
+            fclObjStartTween((*(void * *)(work + 0xC4C)), 0.0f, fGpffff8520, 0, 4, 4); /* measured: typing each remaining site here changes 1564 code bytes. */
+            fclObjStartPosition((*(void * *)(work + 0xC4C)), fclMakeVec2(-240.0f, 400.0f), fclMakeVec2(-240.0f, 310.0f), 0, 4, 4); /* measured: typing each remaining site here changes 1564 code bytes. */
+            fclObjSetAnchorPosition((((FclShopWork *)work)->panels[0x6].pointer), 0x40, 192.0f);
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.x) = 110.0f; /* measured: typing each remaining site here changes 1330 code bytes. */
+            (((FclObject *)fclObjectGetWork((*(void * *)(work + 0xC50))))->anchorPosition.y) = -50.0f; /* measured: typing each remaining site here changes 1330 code bytes. */
+            sprite12 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 1541 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite12)))); /* measured: typing each remaining site here changes 1331 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((*(void * *)(work + 0xC50))))->pivotY) = 0; /* measured: typing each remaining site here changes 1331 code bytes. */
+            fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 4); /* measured: typing each remaining site here changes 1331 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + 0xC50)), 0U, 0xFFU, 0U, 4, 4); /* measured: typing each remaining site here changes 1331 code bytes. */
             sdkSpriteFreeNode(sprite12);
-            fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
-            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 180.0f;
-            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 30.0f;
-            sprite13 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
-            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite13))));
-            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = 0;
+            fclObjSetAnchorPosition((void *) (((FclShopWork *)work)->panels[0x91].word), 0x40, 190.0f);
+            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.x) = 180.0f; /* measured: typing each remaining site here changes 1150 code bytes. */
+            (((FclObject *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->anchorPosition.y) = 30.0f; /* measured: typing each remaining site here changes 1150 code bytes. */
+            sprite13 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6)); /* measured: typing each remaining site here changes 1542 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotX) = (s16) ((s16) ((sdkSpriteScaledWidth(sprite13)))); /* measured: typing each remaining site here changes 1151 code bytes. */
+            (((FclShopItemPanel *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))))->pivotY) = 0; /* measured: typing each remaining site here changes 1151 code bytes. */
             sdkSpriteFreeNode(sprite13);
-            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), -85.0f, fGpffff8528, 0, 4, 2);
-            fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0U, 0xFFU, 0U, 4, 2);
+            fclObjStartTween((void *) (*(s32 *)(work + 0xE7C)), -85.0f, fGpffff8528, 0, 4, 2); /* measured: typing each remaining site here changes 1151 code bytes. */
+            fclObjStartAlpha((void *) (*(s32 *)(work + 0xE7C)), 0U, 0xFFU, 0U, 4, 2); /* measured: typing each remaining site here changes 1151 code bytes. */
             for (index3 = 0; index3 < 7; index3++) {
                 positionTable3 = (f32 *)(D_0063F560 + ((index3 + 0x3A) * 8));
-                fclObjSetAnchorPosition((*(void * *)(work + (index3 * 4) + 0xD20)), 0x56, (f32) (index3 + 0x64));
+                fclObjSetAnchorPosition((*(void * *)(work + (index3 * 4) + 0xD20)), 0x56, (f32) (index3 + 0x64)); /* measured: typing each remaining site here changes 67 code bytes. */
                 if (index3 > 0) {
-                    ((FclObject *)fclObjectGetWork((*(void * *)(work + (index3 * 4) + 0xD20))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
+                    ((FclObject *)fclObjectGetWork((*(void * *)(work + (index3 * 4) + 0xD20))))->color = fclMakeDrawColor(0xED, 0x80, 0, 0xFF); /* measured: typing each remaining site here changes 62 code bytes. */
                 }
-                fclObjStartPosition((*(void * *)(work + ((index3) * 4) + 0xD20)), fclMakeVec2(80.0f + positionTable3[0], positionTable3[1]), fclMakeVec2(positionTable3[0], positionTable3[1]), 0, 3, index3);
-                fclObjStartAlpha((*(void * *)(work + ((index3) * 4) + 0xD20)), 0U, 0xFFU, 0U, 3, index3);
+                fclObjStartPosition((*(void * *)(work + ((index3) * 4) + 0xD20)), fclMakeVec2(80.0f + positionTable3[0], positionTable3[1]), fclMakeVec2(positionTable3[0], positionTable3[1]), 0, 3, index3); /* measured: typing each remaining site here changes 866 code bytes. */
+                fclObjStartAlpha((*(void * *)(work + ((index3) * 4) + 0xD20)), 0U, 0xFFU, 0U, 3, index3); /* measured: typing each remaining site here changes 868 code bytes. */
             }
-            ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-            fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7)));
-            fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7)));
+            ((FclObject *)fclObjectGetWork((((void * *)(work + 0xD24))[(((FclShopWork *)work)->category)])))->color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF); /* measured: typing each remaining site here changes 2 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + 0xC44)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7))); /* measured: typing each remaining site here changes 728-1749 code bytes. */
+            fclObjStartAlpha((*(void * *)(work + 0xC48)), 0U, 0xFFU, 0U, 0, (s64) (*(s8 *)(work + 7))); /* measured: typing each remaining site here changes 728-1736 code bytes. */
             fclShopStartSelectionShake(task);
             fclShopLayoutPanels(task);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDE8)), 0, 0);
-            fclObjChangeFlagBit((*(void * *)(work + 0xDEC)), 0, 0);
+            fclObjChangeFlagBit((((FclShopWork *)work)->panels[0x6C].pointer), 0, 0);
+            fclObjChangeFlagBit((*(void * *)(work + 0xDEC)), 0, 0); /* measured: typing each remaining site here changes 1723 code bytes. */
             ((FclShopWork *)work)->state = 0x36;
         }
         break;
     case 0x36:                                      /* switch 1 */
         for (index33 = 0x55; index33 < 0x58; index33++) {
-            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index33 * 4) + 0xC38)), 1))) == 0) {
-                fclObjChangeFlagBit((*(void * *)(work + (index33 * 4) + 0xC38)), 3, 0);
+            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index33 * 4) + 0xC38)), 1))) == 0) { /* measured: typing each remaining site here changes 30 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + (index33 * 4) + 0xC38)), 3, 0); /* measured: typing each remaining site here changes 30 code bytes. */
             }
         }
         for (index34 = 0x59; index34 < 0x60; index34++) {
-            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index34 * 4) + 0xC38)), 1))) == 0) {
-                fclObjChangeFlagBit((*(void * *)(work + (index34 * 4) + 0xC38)), 3, 0);
+            if (((s8) (fclObjTestFlagBit((*(void * *)(work + (index34 * 4) + 0xC38)), 1))) == 0) { /* measured: typing each remaining site here changes 30 code bytes. */
+                fclObjChangeFlagBit((*(void * *)(work + (index34 * 4) + 0xC38)), 3, 0); /* measured: typing each remaining site here changes 30 code bytes. */
             }
         }
-        if ((((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD8C)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD90)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xD94)), 1))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xC4C)), 2))) == 0) && (((s8) (fclObjTestFlagBit((*(void * *)(work + 0xC50)), 2))) == 0)) {
+        if ((((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x55].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x56].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x57].pointer), 1))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x5].pointer), 2))) == 0) && (((s8) (fclObjTestFlagBit((((FclShopWork *)work)->panels[0x6].pointer), 2))) == 0)) {
             ((FclShopWork *)work)->state = 0x10;
         }
         break;
     case 0x37:                                      /* switch 1 */
-        if ((((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC4C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC50))))) == 0) && (((s8) (fclObjHasStatusFlags((void *) (*(s32 *)(work + 0xE7C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC38))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC3C))))) == 0) && (((s8) (fclObjHasStatusFlags((*(void * *)(work + 0xC40))))) == 0)) {
+        if ((((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x5].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x6].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((void *) (((FclShopWork *)work)->panels[0x91].word)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x0].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x1].pointer)))) == 0) && (((s8) (fclObjHasStatusFlags((((FclShopWork *)work)->panels[0x2].pointer)))) == 0)) {
             return -1;
         }
         break;
@@ -2394,9 +2391,9 @@ void fclShopDrawDestroy(u8 *task) {
     s16 i;
     FclShopWork *work = (FclShopWork*)((struct KwlnTask *)task)->work;
 
-    /* measured: typed unitIds[i] commutes the index/base addu (two words). */
+    /* measured: access-site unitIds indexing matches; native work->unitIds[i] had commuted two addu words. */
     for (i = 0; i < work->unitCount; i++) {
-        datClampUnitHpSp(*(s8 *)((u8 *)work + i + 0xF73));
+        datClampUnitHpSp(((FclShopWork *)work)->unitIds[(i)]);
     }
     if (work->spriteResource.pointer) {
         sdkSpriteRelease(work->spriteResource.pointer);
@@ -2407,7 +2404,7 @@ void fclShopDrawDestroy(u8 *task) {
     }
     yListDestroy();
     /* measured: the integer-address reload keeps the original task/work lifetimes. */
-    jtbl_008873EC[0](*(void **)((s32)task + 0x38));
+    jtbl_008873EC[0](*(void **)((s32)task + 0x38)); /* measured: typing each remaining site here changes 12 code bytes. */
 }
 
 // Creates the shop draw task under arg0: allocates the work block, creates the four value sprites and three list children, and clears the sprite and state fields.
@@ -4436,9 +4433,9 @@ void fclShopSlideInFromRight(void *task) {
     position5 = fclMakeVec2(basePosition->x, basePosition->y);
     position6 = fclMakeVec2(basePosition->x - 740.0f, basePosition->y);
     fclObjStartPosition(work->panels[0xE].pointer, position5, position6, 0, 4, 0);
-    /* measured: typed handle arrays commute the index/base addu (four words). */
+    /* measured: access-site handle indexing matches; native indexed members had commuted four addu words. */
     for (i = 0; i < 3; i++) {
-        fclObjChangeFlagBit(*(void **)((u8 *)work + 0xE88 + i * 4), 0, 1);
+        fclObjChangeFlagBit(((FclShopWork *)work)->panels[(i) + 0x94].pointer, 0, 1);
     }
     fclObjChangeFlagBit(work->panels[0x9B].pointer, 0, 1);
     fclObjChangeFlagBit(work->panels[0x9C].pointer, 0, 1);
@@ -4483,7 +4480,7 @@ void fclShopSlideInFromRight(void *task) {
     position14 = fclMakeVec2(740.0f + basePosition->x, basePosition->y);
     fclObjStartPosition(work->panels[0x10].pointer, position13, position14, 0, 4, 0);
     for (i = 0; i < 3; i++) {
-        fclObjChangeFlagBit(*(void **)((u8 *)work + 0xDBC + i * 4), 0, 1);
+        fclObjChangeFlagBit(((FclShopWork *)work)->panels[(i) + 0x61].pointer, 0, 1);
     }
     fclObjChangeFlagBit(work->panels[0x1D].pointer, 0, 1);
     fclObjChangeFlagBit(work->panels[0x93].pointer, 0, 1);
@@ -4585,7 +4582,7 @@ s8 fclShopUpdateTabs(void *task, s8 selectedTab) {
     /* The F18 handles are read by byte offset: work->field_F18[i] adds
        the index before the base (addu v1, v0, work) and misses by one word. */
     for (i = 0, sel = selectedTab; i < 3; i++) {
-        if (yListCountFor(*(void **)((u8 *)work + 0xF18 + i * 4)) <= D_00748908[i]) {
+        if (yListCountFor(((FclShopWork *)work)->lists[(i)]) <= D_00748908[i]) {
             SHOP_SET_GRAY(colorA[i], 0x2D);
             if (i == 1) {
                 SHOP_SET_GRAY(colorA[i], 0);
@@ -4601,7 +4598,7 @@ s8 fclShopUpdateTabs(void *task, s8 selectedTab) {
             SHOP_SET_RGB(colorB[i], 0xFF, 0xF2, 0x95);
             secondary[i] = primary[i] + 1;
             thirdY[i] = 0x82;
-            if (yListCountFor(*(void **)((u8 *)work + 0xF18 + i * 4)) <= D_00748908[i]) {
+            if (yListCountFor(((FclShopWork *)work)->lists[(i)]) <= D_00748908[i]) {
                 SHOP_SET_GRAY(colorA[i], 0x9C);
                 SHOP_SET_GRAY(colorB[i], 0xFF);
             }
@@ -5375,7 +5372,7 @@ void fclShopHideSelectionSprites(void *task) {
     /* measured: typed panels[i + 0x61] commutes the loop addu (two bytes). */
     for (i = 0; i < 3; i++) {
         s32 byteOffset = (s32)i * 4;
-        fclObjChangeFlagBit(*(void **)((u8 *)work + 0xDBC + byteOffset), 0, 1);
+        fclObjChangeFlagBit(*(void **)((u8 *)work + 0xDBC + byteOffset), 0, 1); /* measured: typing each remaining site here changes 750 code bytes. */
     }
     fclObjChangeFlagBit(work->panels[0x1D].pointer, 0, 1);
     fclObjChangeFlagBit(work->panels[0x93].pointer, 0, 1);
@@ -5742,11 +5739,11 @@ void fclShopDrawItemRows(void *task, s8 tabIndex, f32 x, f32 y) {
 #pragma pop
 
 /* Start the equipment/unit-selection introduction, including row fades, paired cursors and decorative sprite tweens. */
-/* measured: typed task-work reads hoist work+8 across the paired position
- * constructors and change register allocation even at the same 4960B size.
- * Keep this task-work cursor byte-shaped; the sprite work is typed. The
- * integer-shaped initial task reload also prevents a one-instruction CSE
- * with the inlined cursor helper's independent task-work reload. */
+/* measured: native task-work typing hoisted work+8 and changed allocation
+ * at 4960B. Access-site fields now retain only the individually measured
+ * failures annotated below; the original u8 * cursor is unchanged. The
+ * integer-shaped initial reload prevents CSE with the inlined cursor helper.
+ * Full access-site typing with opt_common_subs off was 4988B, still MISMATCH. */
 // FUN_002DA0A0
 void fclShopSlideInFromAbove(void *task) {
     u8 *work;
@@ -5785,160 +5782,160 @@ void fclShopSlideInFromAbove(void *task) {
     Vec2f p22;
     Vec2f p23;
 
-    work = *(u8 **)((u32)task + 0x38);
-    fclObjChangeFlagBit(*(void **)(work + 0xDEC), 0, 1);
+    work = *(u8 **)((u32)task + 0x38); /* measured: typing each remaining site here changes 5 code bytes. */
+    fclObjChangeFlagBit(((FclShopWork *)work)->panels[0x6D].pointer, 0, 1);
 
     basePosition = (Vec2f *)D_0063F5A0;
-    fclObjSetAnchorPosition(*(void **)(work + 0xC58), 0x41, 162.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x8].pointer, 0x41, 162.0f);
     p0 = fclMakeVec2(basePosition->x, basePosition->y - 450.0f);
     p1 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xC58), p0, p1, 0, 4, 0);
-    fclObjStartAlpha(*(void **)(work + 0xC58), 0, 0xCC, 0, 2, 0);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC58)))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
+    fclObjStartPosition(*(void **)(work + 0xC58), p0, p1, 0, 4, 0); /* measured: typing each remaining site here changes 3497 code bytes. */
+    fclObjStartAlpha(*(void **)(work + 0xC58), 0, 0xCC, 0, 2, 0); /* measured: typing each remaining site here changes 3497 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC58)))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 3497 code bytes. */
 
     basePosition = (Vec2f *)D_0063F5A8;
-    fclObjSetAnchorPosition(*(void **)(work + 0xC5C), 0x41, 163.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x9].pointer, 0x41, 163.0f);
     p2 = fclMakeVec2(basePosition->x, basePosition->y - 450.0f);
     p3 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xC5C), p2, p3, 0, 4, 0);
-    fclObjStartAlpha(*(void **)(work + 0xC5C), 0, 0xCC, 0, 2, 0);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC5C)))->color = fclMakeDrawColor(0, 0, 0, 0xFF);
+    fclObjStartPosition(*(void **)(work + 0xC5C), p2, p3, 0, 4, 0); /* measured: typing each remaining site here changes 3332 code bytes. */
+    fclObjStartAlpha(*(void **)(work + 0xC5C), 0, 0xCC, 0, 2, 0); /* measured: typing each remaining site here changes 3332 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC5C)))->color = fclMakeDrawColor(0, 0, 0, 0xFF); /* measured: typing each remaining site here changes 3332 code bytes. */
 
-    for (i = 0; i < *(s8 *)(work + 9); i++) {
-        *(s16 *)(work + i * 2 + 0xF46) = 0;
-        *(s16 *)(work + i * 2 + 0xF58) = 0;
-        *(s8 *)(work + i + 0xF6A) = 0;
+    for (i = 0; i < ((FclShopWork *)work)->unitCount; i++) {
+        ((FclShopWork *)work)->rowDelay[(i)] = 0;
+        ((FclShopWork *)work)->rowFrame[(i)] = 0;
+        ((FclShopWork *)work)->rowAlpha[(i)] = 0;
     }
 
-    fclObjSetAnchorPosition(*(void **)(work + 0xED4), 0x41, 126.0f);
-    row = *(s8 *)(work + 8);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0xA7].pointer, 0x41, 126.0f);
+    row = ((FclShopWork *)work)->unitSelection;
     p4 = fclMakeVec2(47.0f, (78.0f + 35.0f * (f32)(s32)row) - 450.0f);
     p5 = fclMakeVec2(47.0f, 78.0f + 35.0f * (f32)row);
-    fclObjStartPosition(*(void **)(work + 0xED4), p4, p5, 0, 6, ((s16 *)(work + 0xF46))[(s8)row]);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xED4)))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-    fclObjSetAnchorPosition(*(void **)(work + 0xED8), 0x41, 127.0f);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xED8)))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
-    p6 = fclMakeVec2(126.0f, (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f);
-    p7 = fclMakeVec2(126.0f, 78.0f + 35.0f * (f32)*(s8 *)(work + 8));
-    fclObjStartPosition(*(void **)(work + 0xED8), p6, p7, 0, 6, 0);
+    fclObjStartPosition(*(void **)(work + 0xED4), p4, p5, 0, 6, ((s16 *)(work + 0xF46))[(s8)row]); /* measured: typing each remaining site here changes 2-3106 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xED4)))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 3106 code bytes. */
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0xA8].pointer, 0x41, 127.0f);
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xED8)))->color = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF); /* measured: typing each remaining site here changes 2891 code bytes. */
+    p6 = fclMakeVec2(126.0f, (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f); /* measured: typing each remaining site here changes 3084 code bytes. */
+    p7 = fclMakeVec2(126.0f, 78.0f + 35.0f * (f32)*(s8 *)(work + 8)); /* measured: typing each remaining site here changes 3084 code bytes. */
+    fclObjStartPosition(*(void **)(work + 0xED8), p6, p7, 0, 6, 0); /* measured: typing each remaining site here changes 2890 code bytes. */
     shopSwingCursor(task);
 
-    fclObjSetAnchorPosition(*(void **)(work + 0xD3C), 0x41, 128.0f);
-    fclObjStartAlpha(*(void **)(work + 0xD3C), 0, 0xFF, 0, 0xA, 0);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x41].pointer, 0x41, 128.0f);
+    fclObjStartAlpha(*(void **)(work + 0xD3C), 0, 0xFF, 0, 0xA, 0); /* measured: typing each remaining site here changes 2325 code bytes. */
 
     basePosition = (Vec2f *)D_0063F7B0;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD60), 0x41, 78.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x4A].pointer, 0x41, 78.0f);
     p8 = fclMakeVec2(basePosition->x, basePosition->y - (f32)0x226);
     p9 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD60), p8, p9, 2, 4, 0);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD60)))->pivotX = ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD60)))->pivotY = 0;
-    fclObjStartTween(*(void **)(work + 0xD60), -5.0f, fGpffff852c, 2, 2, 2);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD60)))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
+    fclObjStartPosition(*(void **)(work + 0xD60), p8, p9, 2, 4, 0); /* measured: typing each remaining site here changes 2276 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD60)))->pivotX = ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD60)))->pivotY = 0; /* measured: typing each remaining site here changes 2275-2277 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD60), -5.0f, fGpffff852c, 2, 2, 2); /* measured: typing each remaining site here changes 2278 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD60)))->color = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF); /* measured: typing each remaining site here changes 2278 code bytes. */
 
     basePosition = (Vec2f *)D_0063F7B8;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD64), 0x41, 78.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x4B].pointer, 0x41, 78.0f);
     p10 = fclMakeVec2(basePosition->x, basePosition->y - (f32)0x226);
     p11 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD64), p10, p11, 2, 4, 0);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD64)))->pivotX = -50;
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD64)))->pivotY = -219;
-    fclObjStartTween(*(void **)(work + 0xD64), -5.0f, fGpffff852c, 2, 2, 2);
+    fclObjStartPosition(*(void **)(work + 0xD64), p10, p11, 2, 4, 0); /* measured: typing each remaining site here changes 2084 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD64)))->pivotX = -50; /* measured: typing each remaining site here changes 2083 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD64)))->pivotY = -219; /* measured: typing each remaining site here changes 2085 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD64), -5.0f, fGpffff852c, 2, 2, 2); /* measured: typing each remaining site here changes 2085 code bytes. */
 
     basePosition = (Vec2f *)D_0063F8C0;
-    fclObjSetAnchorPosition(*(void **)(work + 0xDE8), 0x41, 46.0f);
-    fclObjStartAlpha(*(void **)(work + 0xDE8), 0, 0xFF, 0, 6, 0);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xDE8)))->anchorPosition.x = basePosition->x;
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xDE8)))->anchorPosition.y = basePosition->y;
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x6C].pointer, 0x41, 46.0f);
+    fclObjStartAlpha(*(void **)(work + 0xDE8), 0, 0xFF, 0, 6, 0); /* measured: typing each remaining site here changes 1939 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xDE8)))->anchorPosition.x = basePosition->x; /* measured: typing each remaining site here changes 1939 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xDE8)))->anchorPosition.y = basePosition->y; /* measured: typing each remaining site here changes 1939 code bytes. */
 
-    fclObjSetAnchorPosition(*(void **)(work + 0xDF0), 0x41, 47.0f);
-    fclObjStartAlpha(*(void **)(work + 0xDF0), 0, 0xFF, 0, 6, 0);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x6E].pointer, 0x41, 47.0f);
+    fclObjStartAlpha(*(void **)(work + 0xDF0), 0, 0xFF, 0, 6, 0); /* measured: typing each remaining site here changes 1862 code bytes. */
 
-    sprite = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x44));
+    sprite = sdkSpriteNewNode((u32)(((FclShopWork *)work)->spriteResource.pointer), (u32)(0x44));
     basePosition = (Vec2f *)D_0063F780;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD48), 0x56, 53.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x44].pointer, 0x56, 53.0f);
     p12 = fclMakeVec2(basePosition->x, -130.0f);
     p13 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD48), p12, p13, 2, 5, 0);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD48)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD48)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite) / 2.0f);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD48)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite) / 2.0f);
-    fclObjSetHoldTimer(*(void **)(work + 0xD48), (f32)D_0063FA44[0], D_0063FA46[0]);
-    fclObjStartTween(*(void **)(work + 0xD48), D_0063FA40[0], 0.0f, 2, D_0063FA46[0] + 5, 0);
+    fclObjStartPosition(*(void **)(work + 0xD48), p12, p13, 2, 5, 0); /* measured: typing each remaining site here changes 1796 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD48)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 1797 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD48)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite) / 2.0f); /* measured: typing each remaining site here changes 1800 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD48)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite) / 2.0f); /* measured: typing each remaining site here changes 1800 code bytes. */
+    fclObjSetHoldTimer(*(void **)(work + 0xD48), (f32)D_0063FA44[0], D_0063FA46[0]); /* measured: typing each remaining site here changes 1799 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD48), D_0063FA40[0], 0.0f, 2, D_0063FA46[0] + 5, 0); /* measured: typing each remaining site here changes 1799 code bytes. */
     sdkSpriteFreeNode(sprite);
 
-    sprite2 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x43));
+    sprite2 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x43)); /* measured: typing each remaining site here changes 1813 code bytes. */
     basePosition = (Vec2f *)D_0063F778;
     spinParameters = (ShopSpinParam *)D_0063FA48;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD44), 0x56, 54.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x43].pointer, 0x56, 54.0f);
     p14 = fclMakeVec2(basePosition->x, -189.0f);
     p15 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD44), p14, p15, 2, 5, 3);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD44)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD44)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite2) / 2.0f);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD44)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite2) / 2.0f);
-    fclObjSetHoldTimer(*(void **)(work + 0xD44), (f32)spinParameters->speed, spinParameters->frames);
-    fclObjStartTween(*(void **)(work + 0xD44), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 3);
+    fclObjStartPosition(*(void **)(work + 0xD44), p14, p15, 2, 5, 3); /* measured: typing each remaining site here changes 1502 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD44)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 1503 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD44)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite2) / 2.0f); /* measured: typing each remaining site here changes 1502 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD44)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite2) / 2.0f); /* measured: typing each remaining site here changes 1501 code bytes. */
+    fclObjSetHoldTimer(*(void **)(work + 0xD44), (f32)spinParameters->speed, spinParameters->frames); /* measured: typing each remaining site here changes 1500 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD44), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 3); /* measured: typing each remaining site here changes 1499 code bytes. */
     sdkSpriteFreeNode(sprite2);
 
-    sprite3 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x45));
+    sprite3 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x45)); /* measured: typing each remaining site here changes 1813 code bytes. */
     basePosition = (Vec2f *)D_0063F788;
     spinParameters = (ShopSpinParam *)D_0063FA48 + 1;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD4C), 0x56, 55.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x45].pointer, 0x56, 55.0f);
     p16 = fclMakeVec2(basePosition->x, -75.0f);
     p17 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD4C), p16, p17, 2, 5, 1);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD4C)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD4C)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite3) / 2.0f);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD4C)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite3) / 2.0f);
-    fclObjSetHoldTimer(*(void **)(work + 0xD4C), (f32)spinParameters->speed, spinParameters->frames);
-    fclObjStartTween(*(void **)(work + 0xD4C), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 1);
+    fclObjStartPosition(*(void **)(work + 0xD4C), p16, p17, 2, 5, 1); /* measured: typing each remaining site here changes 1212 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD4C)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 1213 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD4C)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite3) / 2.0f); /* measured: typing each remaining site here changes 1212 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD4C)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite3) / 2.0f); /* measured: typing each remaining site here changes 1211 code bytes. */
+    fclObjSetHoldTimer(*(void **)(work + 0xD4C), (f32)spinParameters->speed, spinParameters->frames); /* measured: typing each remaining site here changes 1210 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD4C), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 1); /* measured: typing each remaining site here changes 1209 code bytes. */
     sdkSpriteFreeNode(sprite3);
 
-    sprite4 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x46));
+    sprite4 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x46)); /* measured: typing each remaining site here changes 1815 code bytes. */
     basePosition = (Vec2f *)D_0063F790;
     spinParameters = (ShopSpinParam *)D_0063FA48 + 2;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD50), 0x56, 56.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x46].pointer, 0x56, 56.0f);
     p18 = fclMakeVec2(basePosition->x, -165.0f);
     p19 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD50), p18, p19, 2, 5, 4);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD50)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD50)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite4) / 2.0f);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD50)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite4) / 2.0f);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD50)))->tweenValue = 0.0f;
-    fclObjSetHoldTimer(*(void **)(work + 0xD50), (f32)spinParameters->speed, spinParameters->frames);
-    fclObjStartTween(*(void **)(work + 0xD50), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 4);
+    fclObjStartPosition(*(void **)(work + 0xD50), p18, p19, 2, 5, 4); /* measured: typing each remaining site here changes 922 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD50)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 923 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD50)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite4) / 2.0f); /* measured: typing each remaining site here changes 922 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD50)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite4) / 2.0f); /* measured: typing each remaining site here changes 921 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD50)))->tweenValue = 0.0f; /* measured: typing each remaining site here changes 921 code bytes. */
+    fclObjSetHoldTimer(*(void **)(work + 0xD50), (f32)spinParameters->speed, spinParameters->frames); /* measured: typing each remaining site here changes 920 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD50), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 4); /* measured: typing each remaining site here changes 919 code bytes. */
     sdkSpriteFreeNode(sprite4);
 
-    sprite5 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x47));
+    sprite5 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x47)); /* measured: typing each remaining site here changes 1907 code bytes. */
     basePosition = (Vec2f *)D_0063F798;
     spinParameters = (ShopSpinParam *)D_0063FA48 + 3;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD54), 0x56, 57.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x47].pointer, 0x56, 57.0f);
     p20 = fclMakeVec2(basePosition->x, -126.0f);
     p21 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD54), p20, p21, 2, 5, 2);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD54)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD54)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite5) / 2.0f);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD54)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite5) / 2.0f);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD54)))->tweenValue = 0.0f;
-    fclObjSetHoldTimer(*(void **)(work + 0xD54), (f32)spinParameters->speed, spinParameters->frames);
-    fclObjStartTween(*(void **)(work + 0xD54), spinParameters->angle, 0.0f, 1, spinParameters->frames + 5, 2);
+    fclObjStartPosition(*(void **)(work + 0xD54), p20, p21, 2, 5, 2); /* measured: typing each remaining site here changes 618 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD54)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 619 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD54)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite5) / 2.0f); /* measured: typing each remaining site here changes 618 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD54)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite5) / 2.0f); /* measured: typing each remaining site here changes 617 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD54)))->tweenValue = 0.0f; /* measured: typing each remaining site here changes 617 code bytes. */
+    fclObjSetHoldTimer(*(void **)(work + 0xD54), (f32)spinParameters->speed, spinParameters->frames); /* measured: typing each remaining site here changes 616 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD54), spinParameters->angle, 0.0f, 1, spinParameters->frames + 5, 2); /* measured: typing each remaining site here changes 615 code bytes. */
     sdkSpriteFreeNode(sprite5);
 
-    sprite6 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x48));
+    sprite6 = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(0x48)); /* measured: typing each remaining site here changes 1907 code bytes. */
     basePosition = (Vec2f *)D_0063F7A0;
     spinParameters = (ShopSpinParam *)D_0063FA48 + 4;
-    fclObjSetAnchorPosition(*(void **)(work + 0xD58), 0x56, 58.0f);
+    fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x48].pointer, 0x56, 58.0f);
     p22 = fclMakeVec2(basePosition->x, -197.0f);
     p23 = fclMakeVec2(basePosition->x, basePosition->y);
-    fclObjStartPosition(*(void **)(work + 0xD58), p22, p23, 2, 5, 5);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD58)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD58)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite6) / 2.0f);
-    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD58)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite6) / 2.0f);
-    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD58)))->tweenValue = 0.0f;
-    fclObjSetHoldTimer(*(void **)(work + 0xD58), (f32)spinParameters->speed, spinParameters->frames);
-    fclObjStartTween(*(void **)(work + 0xD58), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 5);
+    fclObjStartPosition(*(void **)(work + 0xD58), p22, p23, 2, 5, 5); /* measured: typing each remaining site here changes 316 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD58)))->color = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF); /* measured: typing each remaining site here changes 317 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD58)))->pivotX = (s16)(sdkSpriteScaledWidth(sprite6) / 2.0f); /* measured: typing each remaining site here changes 316 code bytes. */
+    ((FclShopItemPanel *)fclObjectGetWork(*(void **)(work + 0xD58)))->pivotY = (s16)(sdkSpriteScaledHeight(sprite6) / 2.0f); /* measured: typing each remaining site here changes 315 code bytes. */
+    ((FclObject *)fclObjectGetWork(*(void **)(work + 0xD58)))->tweenValue = 0.0f; /* measured: typing each remaining site here changes 315 code bytes. */
+    fclObjSetHoldTimer(*(void **)(work + 0xD58), (f32)spinParameters->speed, spinParameters->frames); /* measured: typing each remaining site here changes 314 code bytes. */
+    fclObjStartTween(*(void **)(work + 0xD58), spinParameters->angle, 0.0f, 2, spinParameters->frames + 5, 5); /* measured: typing each remaining site here changes 313 code bytes. */
     sdkSpriteFreeNode(sprite6);
-    *(s8 *)work = 0x14;
+    ((FclShopWork *)work)->state = 0x14;
 }
 
 /* MATCHED func_002db400: FclDrawColor results stored whole, Vec2f slots
@@ -6331,7 +6328,7 @@ void fclShopStartRevealSprites(void *task) {
     work->tab = 0;
     work->cursor = 0;
     work->scroll = 0;
-    *(s8 *)work = 0x24;
+    ((FclShopWork *)work)->state = 0x24;
 }
 /* Position the three decorative background panels and start the large panel's repeating 360-unit tween. */
 // FUN_002DD230
@@ -6375,13 +6372,13 @@ static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
    func_00106cd0 returns int; call sites that retail narrows (the
    datItemPrice argument here, the func_00106cd0 results in
    func_002d5040/fclShopDrawItemCompare) carry an explicit (s16).  The slot pointer is
-   indexed as ((void **)(work + 0xF18))[kind], which gives retail's
+   indexed as ((FclShopWork *)work)->lists[(kind)], which gives retail's
    `addu idx, idx, work`.  The outer dispatch is a switch written 1, 2, 0
    (retail tests 0, 2, 1); the inner one owns jtbl_007489F0 (cases 20-28). */
 /* Draw the expanded sale-item description, stats and proportional scroll thumb; do nothing outside detail mode. */
-/* measured: access-site and native task-work typing both change field-address
- * sharing (native 4596B versus the 4592B retail window). Keep the remaining
- * task-work offsets byte-based, while using FclObject for every sprite field. */
+/* measured: native task-work typing was 4596B versus the 4592B window.
+ * Individual access-site trials kept every MATCHing field; only the raw
+ * sites annotated with their measured byte differences remain. */
 // FUN_002DD3B0
 void fclShopDrawScrollThumb(void *task) {
     u8 *work;
@@ -6391,34 +6388,34 @@ void fclShopDrawScrollThumb(void *task) {
     f32 y;
 
     work = ((struct KwlnTask *)task)->work;
-    if (*(s8 *)(work + 0xC24) == 0) {
+    if (((FclShopWork *)work)->detailMode == 0) {
         return;
     }
-    if (yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) >= 2) {
-        if (*(s8 *)(work + 0x11) == 0) {
-            if (yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) >= 3) {
-                *(f32 *)(work + 0xC) = 91.0f / (f32)(yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) - 2);
+    if (yListCountFor(((void **)(work + 0xF18))[((FclShopWork *)work)->tab]) >= 2) { /* measured: typing each remaining site here changes 2 code bytes. */
+        if (*(s8 *)(work + 0x11) == 0) { /* measured: typing each remaining site here changes 3297 code bytes. */
+            if (yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) >= 3) { /* measured: typing each remaining site here changes 2-3330 code bytes. */
+                ((FclShopWork *)work)->scrollStep = 91.0f / (f32)(yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) - 2); /* measured: typing each remaining site here changes 2-3374 code bytes. */
             } else {
-                *(f32 *)(work + 0xC) = 91.0f;
+                ((FclShopWork *)work)->scrollStep = 91.0f;
             }
-            y = 146.0f + *(f32 *)(work + 0xC) * (f32)(*(s16 *)(work + 2) - 1);
+            y = 146.0f + *(f32 *)(work + 0xC) * (f32)(((FclShopWork *)work)->cursor - 1); /* measured: typing each remaining site here changes 3253 code bytes. */
         } else {
-            *(f32 *)(work + 0xC) = 91.0f / (f32)(yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) - 1);
-            y = 146.0f + *(f32 *)(work + 0xC) * (f32)*(s16 *)(work + 2);
+            ((FclShopWork *)work)->scrollStep = 91.0f / (f32)(yListCountFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)]) - 1); /* measured: typing each remaining site here changes 2-3317 code bytes. */
+            y = 146.0f + *(f32 *)(work + 0xC) * (f32)((FclShopWork *)work)->cursor; /* measured: typing each remaining site here changes 3168 code bytes. */
         }
-        fclDrawEquipSprite(0x36, fclMakeVec2((f32)0x246, y), 88.0f, fclPackRgba(0xFF, 0xFF, 0x6D, 0x31), ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC94)))->alpha, 0, D_00794EA0);
-        fclObjChangeFlagBit(*(void **)(work + 0xC94), 0, 0);
-        fclObjChangeFlagBit(*(void **)(work + 0xC98), 0, 0);
+        fclDrawEquipSprite(0x36, fclMakeVec2((f32)0x246, y), 88.0f, fclPackRgba(0xFF, 0xFF, 0x6D, 0x31), ((FclObject *)fclObjectGetWork(((FclShopWork *)work)->panels[0x17].pointer))->alpha, 0, D_00794EA0);
+        fclObjChangeFlagBit(*(void **)(work + 0xC94), 0, 0); /* measured: typing each remaining site here changes 3141 code bytes. */
+        fclObjChangeFlagBit(((FclShopWork *)work)->panels[0x18].pointer, 0, 0);
     } else {
-        fclObjChangeFlagBit(*(void **)(work + 0xC94), 0, 1);
-        fclObjChangeFlagBit(*(void **)(work + 0xC98), 0, 1);
+        fclObjChangeFlagBit(((FclShopWork *)work)->panels[0x17].pointer, 0, 1);
+        fclObjChangeFlagBit(((FclShopWork *)work)->panels[0x18].pointer, 0, 1);
     }
-    itemId = yListValueAtFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)], *(s16 *)(work + 2));
+    itemId = yListValueAtFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)], ((FclShopWork *)work)->cursor); /* measured: typing each remaining site here changes 2-3374 code bytes. */
     shopDrawLabel(70.0f, (const char *)((void *)datGetItemNameId(itemId)), fclMakeVec2(129.0f, 134.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     unitProceeds = datItemPrice((s32)itemId) / 5U;
-    fclDrawNumber(fclMakeVec2(486.0f, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, unitProceeds, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9);
+    fclDrawNumber(fclMakeVec2(486.0f, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, unitProceeds, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), ((FclShopWork *)work)->spriteResource.signedWord, 0xA9);
     fclDrawEquipSprite(0x47, fclMakeVec2((f32)0x202, 147.0f), 70.0f, fclPackRgba(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
-    fclDrawNumber(fclMakeVec2((f32)0x221, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, datItemCount(itemId) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9);
+    fclDrawNumber(fclMakeVec2((f32)0x221, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, datItemCount(itemId) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9); /* measured: typing each remaining site here changes 3339 code bytes. */
     if (datItemValue(itemId) == 0) {
         for (dashIndex = 0; dashIndex < 15; dashIndex++) {
             fclDrawEquipSprite(0x3C, fclMakeVec2((f32)(dashIndex * 22 + 111), 178.0f), 86.0f, fclPackRgba(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
@@ -6426,7 +6423,7 @@ void fclShopDrawScrollThumb(void *task) {
     } else {
         fclMesWindowDraw(datItemValue(itemId), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
     }
-    switch (*(s8 *)(work + 0x11)) {
+    switch (*(s8 *)(work + 0x11)) { /* measured: typing each remaining site here changes 3392 code bytes. */
     case 1:
         fclDrawEquipSprite(fclShopStatusFlagToCode((s16)datEntryGetFlags(itemId)) & 0xFFFF, fclMakeVec2(86.0f, 135.0f), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         switch ((s16)fclShopStatusFlagToCode((s16)datEntryGetFlags(itemId))) {
@@ -6438,52 +6435,52 @@ void fclShopDrawScrollThumb(void *task) {
         case 25:
         case 26:
             fclMesWindowDraw((s16)datItemBankOffset(itemId), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
-            fclObjSetAnchorPosition(*(void **)(work + 0xCA0), 0x57, 83.0f);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA0)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA0)))->anchorPosition = fclMakeVec2((f32)0x1E1, 174.0f);
-            fclObjSetAnchorPosition(*(void **)(work + 0xCA8), 0x57, 82.0f);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA8)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA8)))->anchorPosition = fclMakeVec2((f32)0x1E1, 224.0f);
+            fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x1A].pointer, 0x57, 83.0f);
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA0)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF); /* measured: typing each remaining site here changes 2059 code bytes. */
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA0)))->anchorPosition = fclMakeVec2((f32)0x1E1, 174.0f); /* measured: typing each remaining site here changes 2121 code bytes. */
+            fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x1C].pointer, 0x57, 82.0f);
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA8)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF); /* measured: typing each remaining site here changes 1943 code bytes. */
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA8)))->anchorPosition = fclMakeVec2((f32)0x1E1, 224.0f); /* measured: typing each remaining site here changes 2008 code bytes. */
             shopDrawStatAt(datEntryGetPrimaryValue(itemId), datEntryGetPrimaryValue(itemId) & 0xFFFF, fclMakeVec2((f32)0x20E, 202.0f));
             shopDrawStatAt(datEntryGetSecondaryValue(itemId), datEntryGetSecondaryValue(itemId) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
             break;
         case 27:
             fclMesWindowDraw((s16)datItemBankOffset(itemId), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
-            fclObjSetAnchorPosition(*(void **)(work + 0xC9C), 0x57, 81.0f);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC9C)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC9C)))->anchorPosition = fclMakeVec2((f32)0x1E1, 174.0f);
-            fclObjSetAnchorPosition(*(void **)(work + 0xCA4), 0x57, 80.0f);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA4)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA4)))->anchorPosition = fclMakeVec2((f32)0x1E1, 224.0f);
+            fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x19].pointer, 0x57, 81.0f);
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC9C)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF); /* measured: typing each remaining site here changes 1359 code bytes. */
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xC9C)))->anchorPosition = fclMakeVec2((f32)0x1E1, 174.0f); /* measured: typing each remaining site here changes 1444 code bytes. */
+            fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x1B].pointer, 0x57, 80.0f);
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA4)))->color = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF); /* measured: typing each remaining site here changes 1245 code bytes. */
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCA4)))->anchorPosition = fclMakeVec2((f32)0x1E1, 224.0f); /* measured: typing each remaining site here changes 1333 code bytes. */
             shopDrawStatAt(datEntryGetMiddleBandValue(itemId), datEntryGetMiddleBandValue(itemId) & 0xFFFF, fclMakeVec2((f32)0x20E, 202.0f));
             shopDrawStatAt(datEntryGetLastBandValue(itemId), datEntryGetLastBandValue(itemId) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
             break;
         case 28:
             fclMesWindowDraw((s16)datItemBankOffset(itemId), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
-            fclObjSetAnchorPosition(*(void **)(work + 0xCB8), 0x57, 84.0f);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->alpha = 0x7F;
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->anchorPosition = fclMakeVec2(478.0f, 166.0f);
-            fclObjSetAnchorPosition(*(void **)(work + 0xEAC), 0x57, 84.0f);
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->alpha = 0x7F;
-            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->anchorPosition = fclMakeVec2((f32)0x1DD, 216.0f);
+            fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x20].pointer, 0x57, 84.0f);
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->alpha = 0x7F; /* measured: typing each remaining site here changes 663 code bytes. */
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->anchorPosition = fclMakeVec2(478.0f, 166.0f); /* measured: typing each remaining site here changes 663 code bytes. */
+            fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x9D].pointer, 0x57, 84.0f);
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->alpha = 0x7F; /* measured: typing each remaining site here changes 587 code bytes. */
+            ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->anchorPosition = fclMakeVec2((f32)0x1DD, 216.0f); /* measured: typing each remaining site here changes 587 code bytes. */
             break;
         }
         break;
     case 2:
     case 0:
-        if (*(s8 *)(work + 0x11) == 2) {
+        if (*(s8 *)(work + 0x11) == 2) { /* measured: typing each remaining site here changes 3392 code bytes. */
             fclDrawEquipHelpSprite(0x1B, fclMakeVec2(86.0f, 135.0f), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
             fclMesWindowDraw((s16)datItemBankOffset(itemId), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
         } else {
             fclDrawEquipHelpSprite(0x1A, fclMakeVec2(86.0f, 135.0f), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
             fclMesWindowDraw((s16)datItemBankOffset(itemId), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
         }
-        fclObjSetAnchorPosition(*(void **)(work + 0xCB8), 0x56, 84.0f);
-        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->alpha = 0x7F;
-        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->anchorPosition = fclMakeVec2(478.0f, 166.0f);
-        fclObjSetAnchorPosition(*(void **)(work + 0xEAC), 0x56, 84.0f);
-        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->alpha = 0x7F;
-        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->anchorPosition = fclMakeVec2((f32)0x1DD, 216.0f);
+        fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x20].pointer, 0x56, 84.0f);
+        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->alpha = 0x7F; /* measured: typing each remaining site here changes 187 code bytes. */
+        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xCB8)))->anchorPosition = fclMakeVec2(478.0f, 166.0f); /* measured: typing each remaining site here changes 187 code bytes. */
+        fclObjSetAnchorPosition(((FclShopWork *)work)->panels[0x9D].pointer, 0x56, 84.0f);
+        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->alpha = 0x7F; /* measured: typing each remaining site here changes 111 code bytes. */
+        ((FclObject *)fclObjectGetWork(*(void **)(work + 0xEAC)))->anchorPosition = fclMakeVec2((f32)0x1DD, 216.0f); /* measured: typing each remaining site here changes 111 code bytes. */
         break;
     }
 }
@@ -6818,8 +6815,8 @@ void fclShopItemPanelDestroy(u8 *task) {
 /* The loop seeds three adjacent transition states in the shared tween
  * blocks; FclObject exposes their current values, not arrays spanning all
  * endpoints, so retain these interleaved channel writes by byte stride.
- * measured: the resource read must retain its pointer access type; changing
- * it to the stored u32 representation changes constructor scheduling. */
+ * measured: the earlier pointer/u32 resource-read scheduling failure no
+ * longer reproduces: the native resource member and Vec2f table now MATCH. */
 // FUN_002E0300
 /* measured: retail hoists the loop-invariant 0xFF and 1.0f into the preheader. */
 #pragma opt_loop_invariants on
@@ -6827,24 +6824,24 @@ s32 fclShopItemPanelCreate(s32 parent, s16 spriteIndex, u32 spriteResource) {
     s32 childTask;
     s32 resourceIndex;
     FclShopItemPanel *panelWork;
-    u8 *basePosition;
+    Vec2f *basePosition;
     s16 channelIndex;
     void *sprite;
     chkmemAllocSiteTag(&D_0063FAC0, 0x1D6A);
     panelWork = D_008873F4[0](1, 0x104, 0x40000);
     childTask = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, fclShopItemPanelUpdate, fclShopItemPanelDestroy, (u8 *)(panelWork));
-    ((u8 *)panelWork)[0] = 0;
+    panelWork->object.unk00[0] = 0;
     panelWork->object.anchorIndex = spriteIndex;
     panelWork->object.spriteResource = spriteResource;
     resourceIndex = spriteIndex;
-    basePosition = D_0063F560 + resourceIndex * 8;
+    basePosition = (Vec2f *)D_0063F560 + resourceIndex;
     for (channelIndex = 0; channelIndex < 3; channelIndex++) {
-        *(f32 *)((u8 *)panelWork + channelIndex * 8 + 0x1C) = *(f32 *)basePosition;
-        *(f32 *)((u8 *)panelWork + channelIndex * 8 + 0x20) = *(f32 *)(basePosition + 4);
+        *(f32 *)((u8 *)panelWork + channelIndex * 8 + 0x1C) = basePosition->x; /* Interleaved tween channels span distinct FclObject members. */
+        *(f32 *)((u8 *)panelWork + channelIndex * 8 + 0x20) = basePosition->y; /* Interleaved tween channels span distinct FclObject members. */
         ((u8 *)panelWork)[channelIndex + 0x60] = 0xFF;
-        *(f32 *)((u8 *)panelWork + channelIndex * 4 + 0x98) = 1.0f;
-        *(f32 *)((u8 *)panelWork + channelIndex * 4 + 0x8C) = 1.0f;
-        *(s32 *)((u8 *)panelWork + channelIndex * 4 + 0xBC) = 0;
+        *(f32 *)((u8 *)panelWork + channelIndex * 4 + 0x98) = 1.0f; /* Interleaved tween channels span distinct FclObject members. */
+        *(f32 *)((u8 *)panelWork + channelIndex * 4 + 0x8C) = 1.0f; /* Interleaved tween channels span distinct FclObject members. */
+        *(s32 *)((u8 *)panelWork + channelIndex * 4 + 0xBC) = 0; /* Interleaved tween channels span distinct FclObject members. */
         ((u8 *)panelWork)[channelIndex * 4 + 0x73] = 0xFF;
         ((u8 *)panelWork)[channelIndex * 4 + 0x72] = 0xFF;
         ((u8 *)panelWork)[channelIndex * 4 + 0x71] = 0xFF;
@@ -6852,7 +6849,7 @@ s32 fclShopItemPanelCreate(s32 parent, s16 spriteIndex, u32 spriteResource) {
     panelWork->object.anchorValue = 100.0f;
     panelWork->object.anchorMode = 0x55;
     panelWork->object.spriteFlags = 0;
-    sprite = sdkSpriteNewNode((u32)(*(void **)((u8 *)panelWork + 0xF4)), (u32)resourceIndex);
+    sprite = sdkSpriteNewNode((u32)(panelWork->object.spriteResource), (u32)resourceIndex);
     panelWork->pivotX = (s32)(sdkSpriteScaledWidth(sprite) / 2.0f);
     panelWork->pivotY = (s32)(sdkSpriteScaledHeight(sprite) / 2.0f);
     sdkSpriteFreeNode(sprite);
