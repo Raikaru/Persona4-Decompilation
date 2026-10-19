@@ -18,7 +18,7 @@ extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 extern u8 *mdlEffectCreateFromResource();
 extern void mdlEffectDestroy(u8 *a);
 extern void mdlEffectStart(s32 a);
-extern void func_004b1250(void *a, void *b);
+extern void mdlEffectSetChildPositionVec(void *a, void *b);
 extern void mdlEffectSetEulerRotation(u8 *a, f32 b, f32 c, f32 d);
 extern void mdlEffectSetUniformScale(u8 *a, f32 b);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
@@ -132,7 +132,7 @@ void btlShuffleEffUpdate(u8 *arg0) {
             sp68[1] = src[1];
             btlShuffleCalcStepPose(&sp68[0], src[2], &sp58[0]);
             btlShuffleCalcLookAt(sp58, sp58);
-            func_004b1250(*(u8 **)(e + 4), sp58);
+            mdlEffectSetChildPositionVec(*(u8 **)(e + 4), sp58);
             mdlEffectSetEulerRotation(*(u8 **)(e + 4), src[3], src[4], src[5]);
             mdlEffectSetUniformScale(*(u8 **)(e + 4), src[6]);
         }

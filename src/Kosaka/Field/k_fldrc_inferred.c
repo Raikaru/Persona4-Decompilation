@@ -153,7 +153,7 @@ extern s32 D_00762EA0;
 extern s32 mdlEffectCreateFromResource(s32 arg0);
 extern void mdlEffectStart(s32 arg0);
 extern s32 mdlEffectClone(s32 arg0);
-extern void func_004b1250(void *object, f32 *position);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
@@ -738,14 +738,14 @@ loop_done_4:
         temp_19 = p4_e740_add(temp_20, temp_16) + 0x24;
         temp_2 = mdlEffectClone(*(s32 *)(temp_16 + 0x14));
         *(s32 *)temp_19 = temp_2;
-        func_004b1250((void *)temp_2, arg1);
+        mdlEffectSetChildPositionVec((void *)temp_2, arg1);
         *(s32 *)(p4_e740_add(temp_20, temp_16) + 0x44) = 0;
         temp_3 = 1;
         *(s16 *)(p4_e740_add(var_17 * 2, temp_16) + 0x64) = temp_3;
         *(s32 *)(temp_16 + 0x20) = *(s32 *)(temp_16 + 0x20) + 1;
     } else {
         mdlEffectStart(*(s32 *)(temp_16 + 0x14));
-        func_004b1250(*(void **)(temp_16 + 0x14), arg1);
+        mdlEffectSetChildPositionVec(*(void **)(temp_16 + 0x14), arg1);
         *(s32 *)(temp_16 + 0x18) = 0;
         temp_4 = 1;
         *(s32 *)(temp_16 + 0x10) = temp_4;

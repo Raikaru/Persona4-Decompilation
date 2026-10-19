@@ -65,7 +65,7 @@ extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 a
                           void *arg4, s32 arg5);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 TnSlotObject(u16 arg0);
-extern s32 func_00481d80(u16 *arg0);
+extern s32 mdlEffectCreateTrackInstance(u16 *arg0);
 extern s32 TlpCreate(u16 *arg0);
 extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern u8 D_00713408[];
@@ -138,7 +138,7 @@ void *mdlEffectCreateInstance(void *source)
             GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xC8), temp_2_4);
             break;
         case 2:
-            *(s32 *)(temp_2 + 0xD0) = func_00481d80(temp_2_4);
+            *(s32 *)(temp_2 + 0xD0) = mdlEffectCreateTrackInstance(temp_2_4);
             break;
         case 4:
             func_003c42b0(

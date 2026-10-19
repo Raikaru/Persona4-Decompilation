@@ -18,14 +18,14 @@ typedef struct ObjectParticleRecord {
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_00492cd0(void *ptr);
+extern void mdlEffectFreeEmitterAllocation(void *ptr);
 extern void func_003c0700(void *particle);
 extern u8 *func_003c0520(void *ptr);
 extern void kAssertFail(const char *file, s32 line);
 extern char D_00714520[];
 extern void *mdlEffectSetFlag40(void *object, void *data);
-extern void func_00492d10(void *particle);
-extern void func_004ae0a0(void *particle, void *sourceId);
+extern void mdlEffectAdvanceEmitter(void *particle);
+extern void mdlEffectInitDirectionEntry(void *particle, void *sourceId);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *func_00492b20(u16 particle, u32 sourceId, void *sourceData);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -115,7 +115,7 @@ void ObjectParticleFree(u8 *particle)
 
     sourceList = (u32)inst->list;
     if (sourceList != 0) {
-        func_00492cd0((void *)sourceList);
+        mdlEffectFreeEmitterAllocation((void *)sourceList);
     }
     recordAllocation = (u32)inst->recordTable;
     if (recordAllocation != 0) {
@@ -213,7 +213,7 @@ void ObjectParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *sourceData)
 
     sourceList = inst->list;
     if (sourceList != 0) {
-        func_00492cd0(sourceList);
+        mdlEffectFreeEmitterAllocation(sourceList);
     }
     if ((u32)((WaveSpawnParameters *)sourceData)->trailCount != 0) {
         kAssertFail(D_00714520, 0x18B);
@@ -232,7 +232,7 @@ void ObjectParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *sourceData)
     inst->entries = recordCursor;
     recordIndex = 0;
     while (recordIndex < recordCount) {
-        func_004ae0a0(particle, recordCursor);
+        mdlEffectInitDirectionEntry(particle, recordCursor);
         recordIndex++;
         recordCursor += 0x18;
     }
@@ -294,7 +294,7 @@ void ObjectParticleReleaseSource(u8 *particle)
 
     sourceList = (u32)inst->list;
     if (sourceList != 0) {
-        func_00492d00(sourceList);
+        mdlEffectResetEmitterTicks(sourceList);
     }
 }
 
@@ -309,7 +309,7 @@ void ObjectParticleUpdateRecords(u8 *particle)
     u8 *sourceList;
     ObjectParticleInstance *inst = (ObjectParticleInstance *)particle;
 
-    func_00492d10((void *)inst->list);
+    mdlEffectAdvanceEmitter((void *)inst->list);
     sourceList = inst->list;
     recordCount = (s32)((WaveSpawnEmitter *)sourceList)->totalCount;
     if ((recordCount != 0) && (((WaveSpawnEmitter *)sourceList)->ticks != 0)) {
@@ -320,7 +320,7 @@ void ObjectParticleUpdateRecords(u8 *particle)
             entryIndex = 0;
             while (entryIndex < recordCount) {
                 if (((SpawnParticle *)sourceRecord)->age == 0) {
-                    func_004ae0a0(particle, objectRecord);
+                    mdlEffectInitDirectionEntry(particle, objectRecord);
                 }
                 entryIndex++;
                 sourceRecord += 0x20;

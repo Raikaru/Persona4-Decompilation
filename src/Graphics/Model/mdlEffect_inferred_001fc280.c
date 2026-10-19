@@ -122,6 +122,7 @@ extern s32 func_001f0ff0(u32 arg0);
 #pragma pop
 #pragma push
 #pragma pop
+/* Selects the custom white fade and disables the normal radial overlay. */
 // FUN_001FC280
 void hFadeSetCustomWhite(void) {
     iGpffffb469 = 1;

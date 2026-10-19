@@ -163,7 +163,7 @@ void *ObjectParticleCreateFromParent(void *source);
 void *DistortParticleCreateFromSource(void *source);
 void *DistortParticleCreateFromParent(void *source);
 void *func_004b16c0(void *source);
-void *func_004b1950(void *source);
+void *mdlEffectCloneHelperInstance(void *source);
 void *LineNovaCreateKindInstanceFromObject(void *source);
 void *LineNovaCreateInstanceForRecord(void *source);
 void *EffBattleCreate(void *source);

@@ -124,7 +124,7 @@ extern s32 chkmemGetBytes(void);
 extern s32 func_003c0520(s32 arg0);
 extern s32 mdlCloneModelObject(s32 arg0);
 extern s32 mdlEffectClone(s32 arg0);
-extern void func_004b1250(void *effect, f32 *position);
+extern void mdlEffectSetChildPositionVec(void *effect, f32 *position);
 extern RwBool RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
 extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
 extern RwFrame *func_003e9680(RwFrame *frame);
@@ -1741,13 +1741,13 @@ s32 FldResource_TryInstallEntries(u8 *resource)
             if (iGpffffb204 == 0) {
                 if (*(u8 **)(resource + installIndex * 0x18 + 0x134) != NULL) {
                     *(s32 *)(resource + installIndex * 0x18 + 0x130) = mdlEffectCreateFromResource(*(u32 *)(*(u8 **)(resource + installIndex * 0x18 + 0x134) + 0x110));
-                    func_004b1250(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(resource + installIndex * 0x18 + 0x128)) + 0x30));
+                    mdlEffectSetChildPositionVec(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(resource + installIndex * 0x18 + 0x128)) + 0x30));
                     H_Cdvd_Destroy(*(u8 **)(resource + installIndex * 0x18 + 0x134));
                     *(u8 **)(resource + installIndex * 0x18 + 0x134) = NULL;
                 }
             } else if (*(u8 **)(resource + installIndex * 0x18 + 0x134) != NULL) {
                 *(s32 *)(resource + installIndex * 0x18 + 0x130) = mdlEffectCreateFromResource((s32)*(u8 **)(resource + installIndex * 0x18 + 0x134));
-                func_004b1250(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(resource + installIndex * 0x18 + 0x128)) + 0x30));
+                mdlEffectSetChildPositionVec(*(void **)(resource + installIndex * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(resource + installIndex * 0x18 + 0x128)) + 0x30));
                 *(u8 **)(resource + installIndex * 0x18 + 0x134) = NULL;
             }
         }
@@ -2265,7 +2265,7 @@ void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle)
                 stk.trans.x += *(f32 *)(translation + 0);
                 stk.trans.y += *(f32 *)(translation + 4);
                 stk.trans.z += *(f32 *)(translation + 8);
-                func_004b1250(*(void **)(base + 0x130), (f32 *)&stk.trans);
+                mdlEffectSetChildPositionVec(*(void **)(base + 0x130), (f32 *)&stk.trans);
             }
             func_003e0f40((RwMatrix *)mtx2);
         }

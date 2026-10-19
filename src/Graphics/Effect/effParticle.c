@@ -12,16 +12,16 @@ typedef unsigned int ParticleSnapshot __attribute__((mode(TI)));
 void GeometryBlockDestroy(s32 object);
 s32 GeometryCreateAtomicFromResource(s32 object, s32 value);
 
-void func_00481ee0(s32 object);
-s32 func_00481d80(s32 *object);
-extern s32 func_00481e30(s32 object);
+void mdlEffectReleaseTrackInstance(s32 object);
+s32 mdlEffectCreateTrackInstance(s32 *object);
+extern s32 mdlEffectShareTrackInstance(s32 object);
 
 void TlpRelease(s32 object);
 s32 TlpCreate(s32 *object);
 extern s32 TlpAddRef(s32 object);
 
-extern void func_00492d00(s32 objectAddress);
-extern void func_00492cd0(u8 *object);
+extern void mdlEffectResetEmitterTicks(s32 objectAddress);
+extern void mdlEffectFreeEmitterAllocation(u8 *object);
 extern u8 *func_00492b20(u16 object, u32 value, void *data);
 extern s32 TnSlotObject(s32 object);
 typedef struct RpMaterial RpMaterial;
@@ -198,13 +198,13 @@ void ParticleFree(u8 *particle)
         jtbl_008873EC[0](*(void **)(particle + 0x40));
     }
     if (*(s32 *)(particle + 0x44) != 0) {
-        func_00481ee0(*(s32 *)(particle + 0x44));
+        mdlEffectReleaseTrackInstance(*(s32 *)(particle + 0x44));
     }
     if (*(s32 *)(particle + 0x48) != 0) {
         TlpRelease(*(s32 *)(particle + 0x48));
     }
     if (*(u8 *)(particle + 0xE) & 1) {
-        func_00492cd0((u8 *)*(s32 *)(particle + 0x4C));
+        mdlEffectFreeEmitterAllocation((u8 *)*(s32 *)(particle + 0x4C));
     }
     if (*(s32 *)(particle + 0x50) != 0) {
         GeometryBlockDestroy(*(s32 *)(particle + 0x50));
@@ -289,9 +289,9 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
             kAssertFail(D_00713CD0, 0x10E);
         }
         if (*(s32 *)(particle + 0x44) != 0) {
-            func_00481ee0(*(s32 *)(particle + 0x44));
+            mdlEffectReleaseTrackInstance(*(s32 *)(particle + 0x44));
         }
-        *(s32 *)(particle + 0x44) = func_00481e30(*(s32 *)(source + 0x44));
+        *(s32 *)(particle + 0x44) = mdlEffectShareTrackInstance(*(s32 *)(source + 0x44));
         break;
     case 5: {
         u32 count5;
@@ -403,7 +403,7 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
 void ParticleAllocRecords(u8 *particle, s32 source, void *options)
 {
     if (*(u32 *)(particle + 0x4C) != 0) {
-        func_00492cd0((u8 *)*(u32 *)(particle + 0x4C));
+        mdlEffectFreeEmitterAllocation((u8 *)*(u32 *)(particle + 0x4C));
     }
     *(u32 *)(particle + 0x4C) = (u32)func_00492b20(source & 0xFFFF, *(u32 *)(particle + 0), options);
     *(u8 *)(particle + 0xE) |= 1;
@@ -480,9 +480,9 @@ void ParticleSetLinkedGroup(u8 *particle, s32 *source)
     s32 previousHandle = *(s32 *)(particle + 0x44);
 
     if (previousHandle != 0) {
-        func_00481ee0(previousHandle);
+        mdlEffectReleaseTrackInstance(previousHandle);
     }
-    *(s32 *)(particle + 0x44) = func_00481d80(source);
+    *(s32 *)(particle + 0x44) = mdlEffectCreateTrackInstance(source);
 }
 
 // Rebuilds the subtype chain: releases the old chain, then builds count entries from the resource (entry 0 from the resource, the rest linked).
@@ -580,7 +580,7 @@ void ParticleSetAuxResource(u8 *particle, s32 *source)
 void ParticleReleaseRecords(s32 particleAddress)
 {
   if (((EffParticleInstance *)particleAddress)->emitter.handle != 0) {
-    func_00492d00(((EffParticleInstance *)particleAddress)->emitter.handle);
+    mdlEffectResetEmitterTicks(((EffParticleInstance *)particleAddress)->emitter.handle);
   }
   return;
 }

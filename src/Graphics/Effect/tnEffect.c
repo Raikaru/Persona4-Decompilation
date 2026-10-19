@@ -72,7 +72,7 @@ void H_Cdvd_Destroy(void *handle);
 void H_Cdvd_ReadSync(void *handle);
 void sprintf(void *buffer, const void *format, s32 value);
 u8 *func_003ef740(void *path, s32 mode);
-void func_004abb60(void);
+void mdlEffectCacheDisplayRaster(void);
 void func_004a77b0(void);
 void CrossfadeCreateTask(s32 priority);
 
@@ -438,7 +438,7 @@ void TnInitModule(s32 taskPriority)
     D_00922D04[0] = 0;
     D_00922D00[0] = 0;
     D_00922CDC[0] |= 0x20003;
-    func_004abb60();
+    mdlEffectCacheDisplayRaster();
     func_004a77b0();
     CrossfadeCreateTask(taskPriority);
     (s32)kwlnTaskCreate((const void *)(D_007132B8), taskPriority, 0, 0, TnTaskUpdate, 0, (u8 *)(0));

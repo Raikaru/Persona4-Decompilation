@@ -123,11 +123,12 @@ extern s32 hFadeTaskUpdate(u8 *work);
 #pragma pop
 #pragma push
 #pragma pop
+/* Starts the named fade task once, recording the requested fade variant. */
 // FUN_001FC1B0
-void hFadeTaskStart(s16 arg0) {
+void hFadeTaskStart(s16 fadeVariant) {
     if (kwlnTaskGetTaskByName(&D_006251F0) == 0) {
         iGpffffb468 = 2;
-        iGpffffb46e = arg0;
+        iGpffffb46e = fadeVariant;
         iGpffffb469 = 0;
         (s32)kwlnTaskCreate((const void *)(&D_006251F0), 0xC9, 0, 0, hFadeTaskUpdate, 0, (u8 *)((void *)&iGpffffb468));
     }

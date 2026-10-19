@@ -52,7 +52,7 @@ extern void kAssertFail(void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
-extern s32 func_00481d80(u16 *arg0);
+extern s32 mdlEffectCreateTrackInstance(u16 *arg0);
 extern s32 TnSlotObject(u16 arg0);
 extern void func_003c42b0(s32 arg0, s32 arg1);
 extern s32 TlpCreate(u16 *arg0);
@@ -121,7 +121,7 @@ void *func_004b16c0(void *opaqueSource) {
             GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xA4), temp_2_4);
             break;
         case 2:
-            *(s32 *)(temp_2 + 0xAC) = func_00481d80(temp_2_4);
+            *(s32 *)(temp_2 + 0xAC) = mdlEffectCreateTrackInstance(temp_2_4);
             break;
         case 4:
             func_003c42b0(*(s32 *)(*(u8 **)(temp_2 + 0xA4) + 0x14),

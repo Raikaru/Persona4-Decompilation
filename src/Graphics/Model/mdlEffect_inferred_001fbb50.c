@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
@@ -32,7 +33,7 @@ extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
 extern BattleRenderStateFunction D_00887300[];
 extern BattleRenderStateFunction D_00887304[];
-extern void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
+extern void mdlEffectDrawScreenTexture(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
 extern u16 D_0076455C;
 extern u16 D_0076455A;
 extern f32 D_007613E0;
@@ -136,6 +137,7 @@ extern s32 func_001f0ff0(u32 arg0);
    optimization gives both unsigned alpha conversions their retail temporaries.
    The radial draw takes depth before packed color in both owners.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
+/* Advances the fade phases, draws the radial/screen layers, and restores seven render states. */
 // FUN_001FBB50
 #pragma push
 s32 hFadeTaskUpdate(u8 *work) {
@@ -155,9 +157,9 @@ s32 hFadeTaskUpdate(u8 *work) {
     result = 0;
     for (stateIndex = 0; stateIndex < 7; stateIndex++) {
         u32 offset = stateIndex * sizeof(savedStates[0]);
-        D_00887304[0](*(RwRenderState *)((u8 *)D_00625210 + offset), (u8 *)savedStates + offset);
+        D_00887304[0](D_00625210[stateIndex], (u8 *)savedStates + offset);
     }
-    work = *(u8 **)(work + 0x38);
+    work = ((MdlEffectCommand *)work)->parameters;
     {
         u32 state = *work;
         switch (state) {
@@ -213,7 +215,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                 RpSkyRenderStateSet(3, (void *)0x31801);
                 btlPanelDrawCircle(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
                 mdlEffectEmitTagPair();
-                func_001fb480(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
+                mdlEffectDrawScreenTexture(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {
                     *work = 3;
                 }
@@ -224,8 +226,8 @@ s32 hFadeTaskUpdate(u8 *work) {
         }
         case 2: {
             if (iGpffffb469 == 0) {
-                func_001fb480(1.0f, (u8 *)&D_007635C8, 0x44, 0x31801, (u8 *)1);
-                if (*(u16 *)(work + 6) == 1) {
+                mdlEffectDrawScreenTexture(1.0f, (u8 *)&D_007635C8, 0x44, 0x31801, (u8 *)1);
+                if (((MdlEffectFadeParameters *)work)->variant == 1) {
                     layerScale = D_007613E0;
                 } else {
                     layerScale = D_007613E4;
@@ -234,6 +236,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                 {
                     u8 alpha;
 
+                    /* Same variant field; keeping this load raw avoids an extra shared-address addiu. */
                     if (*(u16 *)(work + 6) == 1) {
                         alpha = 6;
                     } else {
@@ -241,9 +244,9 @@ s32 hFadeTaskUpdate(u8 *work) {
                     }
                     colors.screen[3] = alpha;
                 }
-                func_001fb480(layerScale, colors.screen, 0x44, 0x31801, (u8 *)2);
+                mdlEffectDrawScreenTexture(layerScale, colors.screen, 0x44, 0x31801, (u8 *)2);
                 colors.screen[3] = 5;
-                func_001fb480(layerScale, colors.screen, 0x48, 0x31801, (u8 *)2);
+                mdlEffectDrawScreenTexture(layerScale, colors.screen, 0x48, 0x31801, (u8 *)2);
             }
             break;
         }
@@ -262,8 +265,7 @@ s32 hFadeTaskUpdate(u8 *work) {
             u32 k;
 
             for (k = 0; k < 7; k++) {
-                u32 offset = k * sizeof(savedStates[0]);
-                D_00887300[0](*(RwRenderState *)((u8 *)D_00625210 + offset), *(void **)((u8 *)savedStates + offset));
+                D_00887300[0](D_00625210[k], savedStates[k]);
             }
         }
         D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
@@ -274,3 +276,4 @@ s32 hFadeTaskUpdate(u8 *work) {
     return result;
 }
 
+#pragma pop

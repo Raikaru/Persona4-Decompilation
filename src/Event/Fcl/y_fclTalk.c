@@ -147,7 +147,7 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
     }
     *(work + 1) = nmMesWindowAcquire(D_00645240);
     nmMesWindowSetSlotString(*(work + 1), 0, datGetItemNameId(t));
-    temp_2 = func_002be1b0((s16)arg1);
+    temp_2 = datEntryEvaluateFlags((s16)arg1);
     if (temp_2 == 0xE) {
         frFontExCopyString((void *)D_0064A07C[0], sp40, 0x20);
         nmMesWindowSetSlotString(*(work + 1), 1, sp40);
@@ -217,7 +217,7 @@ state_one_32520:
     *(s32 *)(work + 0x1804) = 0;
     for (i = 0; i < 0x600; i++) {
         *(s32 *)(work + (i * 4) + 4) = 0;
-        category = func_002be1b0((s16)i);
+        category = datEntryEvaluateFlags((s16)i);
         if (category != 0x10 && category != 0x11 && category != 0x12) {
             if (work[0x1808] == datItemAvailableMonth((s16)i)) {
                 if (fclShopIsSpecialItem(

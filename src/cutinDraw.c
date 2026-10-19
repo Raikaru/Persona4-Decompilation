@@ -19,7 +19,7 @@ s32 H_Cdvd_LookupRequest();
 u8 *mdlEffectCreateFromResource();
 
 void func_004b11d0();
-void func_004b1250();
+void mdlEffectSetChildPositionVec();
 s32 mdlEffectIsFinished();
 s32 mdlEffectIsActive();
 void mdlEffectUpdate();
@@ -101,7 +101,7 @@ s32 cutinDrawTaskUpdate(u8 *task)
                 sdkSndStartStream(0, 0, 5, 0);
                 *(s32 *)(work + 0x18) = 1;
             }
-            func_004b1250(*(s32 *)(work + 0x24), &position);
+            mdlEffectSetChildPositionVec(*(s32 *)(work + 0x24), &position);
             func_004b1190(*(u8 **)(work + 0x24));
             func_004b11d0(D_005DC974, *(s32 *)(work + 0x24));
             if (mdlEffectIsActive(*(s32 *)(work + 0x24)) != 0) {

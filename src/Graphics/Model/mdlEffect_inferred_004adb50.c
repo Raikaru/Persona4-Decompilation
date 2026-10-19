@@ -84,7 +84,7 @@ extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
 extern void func_004a8250(u8 *arg0, u8 *arg1);
 extern void func_004a8440(u8 *arg0, u8 *arg1);
 extern void func_004a86c0(u8 *arg0, u8 *arg1);
-extern void func_004adfa0(u8 *arg0);
+extern void mdlEffectUpdateAndDrawModelChildren(u8 *arg0);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push

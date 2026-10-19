@@ -35,7 +35,7 @@ extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
 extern f32 fGpffff80f8;
-extern void func_004a8a50(u8 *object, u8 *slot);
+extern void mdlEffectInitRandomQuad(u8 *object, u8 *slot);
 extern void effBlurFilterSpawnSlot(u8 *object, u8 *slot);
 extern void func_004a8890(u8 *object, s32 *slot);
 extern s32 TnUploadStreamTagged(void *ptr);
@@ -308,7 +308,7 @@ void effBlurFilterTickSlotsA(u8 *a, u8 *b) {
         if (slot->unk00.signedValue == 0) {
             float threshold;
             if (!(slot->unk04.scalar <= fGpffff8084)) {
-                func_004a8a50(a, (u8 *)slot);
+                mdlEffectInitRandomQuad(a, (u8 *)slot);
             }
             wave = sinf(slot->unk04.scalar);
             slot->unk18 = 1.0f + parameters->unk18.scalar * wave;
@@ -797,7 +797,7 @@ u8 *effBlurFilterAllocSlots(u8 *object) {
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
-        func_004a8a50(base, item);
+        mdlEffectInitRandomQuad(base, item);
         ((BlurFilterSlot *)item)->unk04.scalar = fGpffff80f8;
     }
     return alloc;

@@ -25,8 +25,8 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_00484790(u8 *arg0);
-extern void func_004847e0(u8 *arg0);
+extern void mdlEffectReleasePrimarySource(u8 *arg0);
+extern void mdlEffectReleaseSecondarySource(u8 *arg0);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
@@ -56,8 +56,8 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484570-004846d0 */
 
-extern void func_00484790(u8 *arg0);
-extern void func_004847e0(u8 *arg0);
+extern void mdlEffectReleasePrimarySource(u8 *arg0);
+extern void mdlEffectReleaseSecondarySource(u8 *arg0);
 // FUN_00484570
 u8 *func_00484570(u8 *arg0)
 {
@@ -111,8 +111,8 @@ void func_004846d0(u8 *arg0) {
             *(s32 (**)(s32))(D_00713490 + (*(u16 *)(base + 4) << 6)),
             *(s32 *)(base + 8));
     }
-    func_00484790(base);
-    func_004847e0(base);
+    mdlEffectReleasePrimarySource(base);
+    mdlEffectReleaseSecondarySource(base);
     (*jtbl_008873EC)(base);
 }
 

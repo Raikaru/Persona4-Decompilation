@@ -8,7 +8,7 @@
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
-extern void func_00481ee0(s32 arg0);
+extern void mdlEffectReleaseTrackInstance(s32 arg0);
 extern void TlpRelease(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
 // FUN_004B18E0
@@ -22,7 +22,7 @@ void func_004b18e0(u8 *arg0)
     }
     h = *(s32 *)(arg0 + 0xAC);
     if (h != 0) {
-        func_00481ee0(h);
+        mdlEffectReleaseTrackInstance(h);
     }
     GeometryBlockDestroy(*(s32 *)(arg0 + 0xA4));
     (*jtbl_008873EC)(arg0);

@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
@@ -32,7 +33,7 @@ extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
 extern BattleRenderStateFunction D_00887300[];
 extern BattleRenderStateFunction D_00887304[];
-extern void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
+extern void mdlEffectDrawScreenTexture(f32 scale, u8 *color, s32 blendMode, s32 testMode, u8 *textureFilter);
 extern u16 D_0076455C;
 extern u16 D_0076455A;
 extern f32 D_007613E0;
@@ -45,7 +46,7 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00624FF0[])(u8 *color, s32 blendMode, s32 testMode);
 
 
 
@@ -97,16 +98,16 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fb480-001fb480 */
 
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlSoundRollStatusCure(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u32 color);
+extern s32 btlSoundRollStatusCure(u8 *color);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *color);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *color);
 extern void btlSoundAdvanceSlotQueue(void);
-extern s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
-extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
+extern s32 btlSoundPickPartnerCallVoice(u8 *color, s32 blendMode);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *color, s32 blendMode);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *color, s32 blendMode);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *color);
+extern s32 btlVoiceIdPacketUpdate(u8 *color);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -160,8 +161,10 @@ extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
 #pragma push
 /* measured: func_001fb480 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Draws a display-buffer textured quad, using a centered scaled rectangle or the full screen. */
+/* Draws the display-buffer texture over the full screen or a centered scaled quad, tinted by RGBA. */
 // FUN_001FB480
-void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
+void mdlEffectDrawScreenTexture(f32 scale, u8 *color, s32 blendMode, s32 testMode, u8 *textureFilter)
 {
     struct {
         u8 packet[0xF0];
@@ -187,15 +190,15 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     u8 *cam;
     u8 *disp;
     extern u8 *RpSkyGetDisplayBufferRaster(void);
-    extern void (*D_00887310[])(u32 arg0, void *arg1, u32 arg2);
+    extern void (*D_00887310[])(u32 color, void *blendMode, u32 testMode);
     extern f32 fGpffff82e8;
     extern f32 fGpffff82ec;
 
     cam = (u8 *)kwlnGetCamera();
     disp = RpSkyGetDisplayBufferRaster();
-    f = (f32)*(s32 *)(disp + 0xC);
+    f = (f32)((MdlEffectRaster *)disp)->width;
     sx = 640.0f / f;
-    g = (f32)*(s32 *)(disp + 0x10);
+    g = (f32)((MdlEffectRaster *)disp)->height;
     sy = 448.0f / g;
     x1 = 640.0f;
     y1 = 448.0f;
@@ -220,54 +223,55 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     base[0](rwRENDERSTATEFOGENABLE, (void *)0);
     base[0](rwRENDERSTATEZTESTENABLE, (void *)0);
     base[0](rwRENDERSTATEZWRITEENABLE, (void *)0);
-    base[0](rwRENDERSTATETEXTUREFILTER, arg3);
+    base[0](rwRENDERSTATETEXTUREFILTER, textureFilter);
     base[0](rwRENDERSTATEVERTEXALPHAENABLE, (void *)1);
     base[0](rwRENDERSTATETEXTURERASTER, disp);
-    RpSkyRenderStateSet(2, (void *)arg1);
-    RpSkyRenderStateSet(3, (void *)arg2);
+    RpSkyRenderStateSet(2, (void *)blendMode);
+    RpSkyRenderStateSet(3, (void *)testMode);
     z = *(f32 *)D_008872FC_abs;
-    inv = 1.0f / *(f32 *)(cam + 0x84);
-    *(f32 *)(work.packet + 0x00) = x0;
-    *(f32 *)(work.packet + 0x04) = y0;
-    *(f32 *)(work.packet + 0x08) = z;
-    *(f32 *)(work.packet + 0x20) = (f32)(u32)arg0[0];
-    *(f32 *)(work.packet + 0x24) = (f32)(u32)arg0[1];
-    *(f32 *)(work.packet + 0x28) = (f32)(u32)arg0[2];
-    *(f32 *)(work.packet + 0x2C) = (f32)(u32)arg0[3];
-    *(f32 *)(work.packet + 0x18) = inv;
-    *(s32 *)(work.packet + 0x10) = 0;
-    *(s32 *)(work.packet + 0x14) = 0;
-    *(f32 *)(work.packet + 0x40) = x0;
-    *(f32 *)(work.packet + 0x44) = y1;
-    *(f32 *)(work.packet + 0x48) = z;
-    *(f32 *)(work.packet + 0x60) = (f32)(u32)arg0[0];
-    *(f32 *)(work.packet + 0x64) = (f32)(u32)arg0[1];
-    *(f32 *)(work.packet + 0x68) = (f32)(u32)arg0[2];
-    *(f32 *)(work.packet + 0x6C) = (f32)(u32)arg0[3];
-    *(f32 *)(work.packet + 0x58) = inv;
-    *(s32 *)(work.packet + 0x50) = 0;
-    *(f32 *)(work.packet + 0x54) = sy;
-    *(f32 *)(work.packet + 0x80) = x1;
-    *(f32 *)(work.packet + 0x84) = y0;
-    *(f32 *)(work.packet + 0x88) = z;
-    *(f32 *)(work.packet + 0xA0) = (f32)(u32)arg0[0];
-    *(f32 *)(work.packet + 0xA4) = (f32)(u32)arg0[1];
-    *(f32 *)(work.packet + 0xA8) = (f32)(u32)arg0[2];
-    *(f32 *)(work.packet + 0xAC) = (f32)(u32)arg0[3];
-    *(f32 *)(work.packet + 0x98) = inv;
-    *(f32 *)(work.packet + 0x90) = sx;
-    *(s32 *)(work.packet + 0x94) = 0;
-    *(f32 *)(work.packet + 0xC0) = x1;
-    *(f32 *)(work.packet + 0xC4) = y1;
-    *(f32 *)(work.packet + 0xC8) = z;
-    *(f32 *)(work.packet + 0xE0) = (f32)(u32)arg0[0];
-    *(f32 *)(work.packet + 0xE4) = (f32)(u32)arg0[1];
-    *(f32 *)(work.packet + 0xE8) = (f32)(u32)arg0[2];
-    *(f32 *)(work.packet + 0xEC) = (f32)(u32)arg0[3];
-    *(f32 *)(work.packet + 0xD8) = inv;
-    *(f32 *)(work.packet + 0xD0) = sx;
-    *(f32 *)(work.packet + 0xD4) = sy;
+    inv = 1.0f / ((MdlEffectCamera *)cam)->farPlane;
+    ((MdlEffectScreenVertex *)work.packet)[0].x = x0;
+    ((MdlEffectScreenVertex *)work.packet)[0].y = y0;
+    ((MdlEffectScreenVertex *)work.packet)[0].z = z;
+    ((MdlEffectScreenVertex *)work.packet)[0].red = (f32)(u32)color[0];
+    ((MdlEffectScreenVertex *)work.packet)[0].green = (f32)(u32)color[1];
+    ((MdlEffectScreenVertex *)work.packet)[0].blue = (f32)(u32)color[2];
+    ((MdlEffectScreenVertex *)work.packet)[0].alpha = (f32)(u32)color[3];
+    ((MdlEffectScreenVertex *)work.packet)[0].reciprocalDepth = inv;
+    ((MdlEffectScreenVertex *)work.packet)[0].u.bits = 0;
+    ((MdlEffectScreenVertex *)work.packet)[0].v.bits = 0;
+    ((MdlEffectScreenVertex *)work.packet)[1].x = x0;
+    ((MdlEffectScreenVertex *)work.packet)[1].y = y1;
+    ((MdlEffectScreenVertex *)work.packet)[1].z = z;
+    ((MdlEffectScreenVertex *)work.packet)[1].red = (f32)(u32)color[0];
+    ((MdlEffectScreenVertex *)work.packet)[1].green = (f32)(u32)color[1];
+    ((MdlEffectScreenVertex *)work.packet)[1].blue = (f32)(u32)color[2];
+    ((MdlEffectScreenVertex *)work.packet)[1].alpha = (f32)(u32)color[3];
+    ((MdlEffectScreenVertex *)work.packet)[1].reciprocalDepth = inv;
+    ((MdlEffectScreenVertex *)work.packet)[1].u.bits = 0;
+    ((MdlEffectScreenVertex *)work.packet)[1].v.value = sy;
+    ((MdlEffectScreenVertex *)work.packet)[2].x = x1;
+    ((MdlEffectScreenVertex *)work.packet)[2].y = y0;
+    ((MdlEffectScreenVertex *)work.packet)[2].z = z;
+    ((MdlEffectScreenVertex *)work.packet)[2].red = (f32)(u32)color[0];
+    ((MdlEffectScreenVertex *)work.packet)[2].green = (f32)(u32)color[1];
+    ((MdlEffectScreenVertex *)work.packet)[2].blue = (f32)(u32)color[2];
+    ((MdlEffectScreenVertex *)work.packet)[2].alpha = (f32)(u32)color[3];
+    ((MdlEffectScreenVertex *)work.packet)[2].reciprocalDepth = inv;
+    ((MdlEffectScreenVertex *)work.packet)[2].u.value = sx;
+    ((MdlEffectScreenVertex *)work.packet)[2].v.bits = 0;
+    ((MdlEffectScreenVertex *)work.packet)[3].x = x1;
+    ((MdlEffectScreenVertex *)work.packet)[3].y = y1;
+    ((MdlEffectScreenVertex *)work.packet)[3].z = z;
+    ((MdlEffectScreenVertex *)work.packet)[3].red = (f32)(u32)color[0];
+    ((MdlEffectScreenVertex *)work.packet)[3].green = (f32)(u32)color[1];
+    ((MdlEffectScreenVertex *)work.packet)[3].blue = (f32)(u32)color[2];
+    ((MdlEffectScreenVertex *)work.packet)[3].alpha = (f32)(u32)color[3];
+    ((MdlEffectScreenVertex *)work.packet)[3].reciprocalDepth = inv;
+    ((MdlEffectScreenVertex *)work.packet)[3].u.value = sx;
+    ((MdlEffectScreenVertex *)work.packet)[3].v.value = sy;
     D_00887310[0](4, work.packet, 4);
     base[0](1, 0);
 }
 
+#pragma pop
