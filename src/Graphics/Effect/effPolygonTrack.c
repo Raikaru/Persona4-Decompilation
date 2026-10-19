@@ -25,8 +25,8 @@ extern char D_00713E30[];
 extern void *ParticleCreateBlock(s32 count);
 extern u8 *GeometryCloneBlock(u8 *geometry);
 extern void ParticleCopyModeFromSource(void *destination, void *source);
-extern u8 *func_00492b20(u16 kind, u32 count, void *parameters);
-extern void func_004941f0(void *ribbons, void *colors);
+extern u8 *mdlEffectAllocateTrackPath(u16 kind, u32 count, void *parameters);
+extern void mdlEffectInterpolateRibbonColors(void *ribbons, void *colors);
 extern u8 *TrackAllocRibbons(u16 count, u16 segments);
 extern void TrackUpdateSlots(u8 *instance);
 extern void TrackCopyState(u8 *destination, u8 *source);
@@ -40,8 +40,8 @@ extern void mdlEffectApplyGeometryMatrix(void *geometry, void *position, void *r
 extern void ParticleProjectVertices(void *particle, f32 scale);
 extern void mdlEffectSetGeometryPairResource(void *ribbons, u32 resource);
 extern void mdlEffectAdvanceEmitter(void *path);
-extern void func_00494740(void *ribbons, u16 index, void *point, f32 width);
-extern void func_004940d0(void *ribbons, u16 index, void *color);
+extern void mdlEffectAdvanceRibbon(void *ribbons, u16 index, void *point, f32 width);
+extern void mdlEffectSetRibbonMaterialColor(void *ribbons, u16 index, void *color);
 extern void mdlEffectCopyOriginAndLockGeometry(void *ribbons);
 extern void mdlEffectUnlockGeometryPair(void *ribbons);
 extern u8 *GeometryCreateStripGridMultiPart(u16 count, u16 segments, void *indices, s32 vertices, s32 flags);
@@ -391,7 +391,7 @@ void TrackLoadRecord(u8 *instance, u16 kind, u8 *record)
         }
         ribbons = TrackAllocRibbons(*(u16 *)(instance + 0), *(u16 *)record);
         *(u8 **)(instance + 0x28) = ribbons;
-        func_004941f0(ribbons, record + 8);
+        mdlEffectInterpolateRibbonColors(ribbons, record + 8);
     }
 }
 
@@ -406,7 +406,7 @@ void TrackRebindPathData(u8 *instance, u16 kind, u8 *parameters)
     if (((EffTrackPathParameters *)parameters)->trailCount != 0) {
         kAssertFail(&D_00713E30, 0x14E);
     }
-    *(u32 *)(instance + 0x30) = (u32)func_00492b20(kind & 0xFFFF, *(u32 *)(instance + 0), parameters);
+    *(u32 *)(instance + 0x30) = (u32)mdlEffectAllocateTrackPath(kind & 0xFFFF, *(u32 *)(instance + 0), parameters);
 }
 
 // Releases the track's sub-object through the sub-object release callback.
@@ -490,8 +490,8 @@ void TrackUpdateSlots(u8 *instance)
         }
         mode = ((EffTrackSample *)sample)->mode;
         if (mode == -2) {
-            func_00494740(ribbons, sampleIndex, D_00922D80, 0.0f);
-            func_004940d0(ribbons, sampleIndex, &iGpffffbb64);
+            mdlEffectAdvanceRibbon(ribbons, sampleIndex, D_00922D80, 0.0f);
+            mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &iGpffffbb64);
             mdlEffectSlotRelease(ribbons, sampleIndex);
             continue;
         }
@@ -502,15 +502,15 @@ void TrackUpdateSlots(u8 *instance)
             goto draw_entry;
         }
 clear_entry:
-        func_00494740(ribbons, sampleIndex, D_00922D80, 0.0f);
-        func_004940d0(ribbons, sampleIndex, &iGpffffbb64);
+        mdlEffectAdvanceRibbon(ribbons, sampleIndex, D_00922D80, 0.0f);
+        mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &iGpffffbb64);
         mdlEffectSlotSetZero(ribbons, sampleIndex);
         continue;
 draw_entry:
         position[0] = ((EffTrackSample *)sample)->position[0];
         position[1] = ((EffTrackSample *)sample)->position[1];
         position[2] = ((EffTrackSample *)sample)->position[2];
-        func_00494740(ribbons, sampleIndex, position, ((EffTrackSample *)sample)->width);
+        mdlEffectAdvanceRibbon(ribbons, sampleIndex, position, ((EffTrackSample *)sample)->width);
         sampleColor = ((EffTrackSample *)sample)->packedColor;
         colorWord = &sampleColor;
         __asm__ volatile(
@@ -552,7 +552,7 @@ draw_entry:
            `"=m"(modulatedColor)` and `sw $2, %0`, and taking the address into a local
            `s32 *slotOut = &modulatedColor;` so the clobber applies.  The cast stays. */
         materialColor = *(volatile s32 *)&modulatedColor;
-        func_004940d0(ribbons, sampleIndex, &materialColor);
+        mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &materialColor);
     }
     mdlEffectUnlockGeometryPair(ribbons);
     if (*(u8 **)(instance + 0x2C) == NULL) {

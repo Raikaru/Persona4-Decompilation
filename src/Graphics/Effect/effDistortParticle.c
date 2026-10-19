@@ -23,7 +23,7 @@ extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
 extern void mdlEffectFreeEmitterAllocation(void *ptr);
-extern u8 *func_00492b20(u32 object, s32 value, u8 *options);
+extern u8 *mdlEffectAllocateTrackPath(u32 object, s32 value, u8 *options);
 extern void mdlEffectAdvanceEmitter(void *ptr);
 extern s32 TnSlotObject(u16 param);
 extern void mdlEffectLoadQuadB(void *object, void *value);
@@ -290,7 +290,7 @@ void DistortParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *parameters) {
     if (*(s32 *)(parameters + 0xC0) != 0) {
         kAssertFail(D_00714550, 0xF4);
     }
-    *(u8 **)(particle + 0x5C) = func_00492b20(sourceId & 0xFFFF, *(s32 *)(particle + 0), parameters);
+    *(u8 **)(particle + 0x5C) = mdlEffectAllocateTrackPath(sourceId & 0xFFFF, *(s32 *)(particle + 0), parameters);
     if (*(u8 **)(particle + 0x68) != NULL) {
         (*jtbl_008873EC)(*(u8 **)(particle + 0x68));
     }

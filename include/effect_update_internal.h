@@ -4,6 +4,6 @@
 #include "type.h"
 
 /* Advance an effect instance and its attached particle/model objects. */
-void func_004b1190(u8 *object);
+void mdlEffectCommitAndAdvance(u8 *object);
 
 #endif

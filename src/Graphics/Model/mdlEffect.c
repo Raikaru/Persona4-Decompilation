@@ -24,7 +24,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern void mdlEffectListReleaseNodes(u32 *value);
 
-extern void func_004b11d0(s32 input, s32 data);
+extern void mdlEffectFlushWithTable(s32 input, s32 data);
 
 extern void mdlEffectStart();
 
@@ -109,7 +109,7 @@ static inline u8 *mdlEffect_camera_matrix(u8 *base)
 
 extern void datEntryDrawGatedByFlag39(s32 a0, s32 a1, s32 a2, s32 a3);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_004abd60(s32 input);
+extern void mdlEffectDestroyModel(s32 input);
 extern void func_00182b40(void);
 extern void FldNoiseEmitPlain();
 /* measured: loop-invariant hoisting keeps the retail stride/base preheader for
@@ -184,7 +184,7 @@ void btlUiReleaseHandle(s32 *handleBlock) {
 
     handle = *handleBlock;
     if (handle != 0) {
-        func_004abd60(handle);
+        mdlEffectDestroyModel(handle);
     }
     jtbl_008873EC[0](handleBlock);
 }
@@ -481,7 +481,7 @@ void mdlEffectListBuildTransforms(u8 **list, u8 *model)
                 *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
             }
             func_004b12e0((u8 *)*(u32 *)(node + 8), (u8 *)out);
-            func_004b1190(*(u8 **)(node + 8));
+            mdlEffectCommitAndAdvance(*(u8 **)(node + 8));
             node = (u8 *)((MdlEffectListNode *)node)->next;
     }
 }
@@ -496,7 +496,7 @@ void mdlEffectListInvokeEach(s32 context, u8 **list)
     while (node != NULL) {
         payload = ((MdlEffectListNode *)node)->handle;
         if (payload != 0) {
-            func_004b11d0(context, payload);
+            mdlEffectFlushWithTable(context, payload);
         }
         node = (u8 *)((MdlEffectListNode *)node)->next;
     }
@@ -2349,7 +2349,7 @@ extern u8 D_00714020[];
 extern u8 D_00714018[];
 extern u8 D_00714144[];
 extern u8 *func_003e9c10(u8 *input, const f32 *translation, s32 combineOp);
-extern void func_004a7c00(u8 *input, s32 data);
+extern void mdlEffectApplyShakeEnvelope(u8 *input, s32 data);
 extern void mdlSetLayerTime(u8 *input, s32 data, f32 options);
 extern f32 fGpffff80f4;
 extern void mdlEffectCopyReferences(u8 *input, u8 *data);
@@ -3163,14 +3163,14 @@ void mdlEffectReleaseSequenceFrame(s32 instance) {
 /* Applies the sequence payload at its current frame and increments the stored frame counter. */
 // FUN_004A7DA0
 void mdlEffectAdvanceSequenceCallback(s32 *instance) {
-    func_004a7c00((u8 *)instance + 4, *instance);
+    mdlEffectApplyShakeEnvelope((u8 *)instance + 4, *instance);
     *instance += 1;
 }
 
 
 // FUN_004A7DF0
 void mdlEffectStepSequenceCallback(s32 *instance) {
-    func_004a7c00((u8 *)instance + 4, *instance);
+    mdlEffectApplyShakeEnvelope((u8 *)instance + 4, *instance);
     *instance += 1;
 }
 
@@ -3518,7 +3518,7 @@ extern s16 D_00922DA4[]; /* sequence selector */
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
 extern void mdlEffectSetChildPositions(void *input, f32 *data);
-extern void func_004b1ad0(u8 *input);
+extern void mdlEffectUpdateScreenSprite(u8 *input);
 extern void func_003efd20(u8 *input, s32 data);
 extern void func_003e9390(s32 input);
 extern void func_003ec330(s32 input);
@@ -3536,7 +3536,7 @@ extern void mdlEffectGetOrientationVec(u8 *input, u32 *data);
 extern void mdlEffectApplyPackedColor(u8 *input, s32 data);
 extern u32 mdlEffectGetPackedColorWord(void *object);
 typedef signed __int128 s128;
-extern void *func_004b16c0(void *opaqueSource);
+extern void *mdlEffectCreateScreenSprite(void *opaqueSource);
 typedef signed __int128 s128;
 typedef signed __int128 s128;
 /* Distort particle setter: stores the position quad into the emitter at instance+0x5C.
@@ -3668,7 +3668,7 @@ void mdlEffectSeqStep(void)
         limit = D_00922DA0[0];
         if ((iGpffffbb94 < limit) || (limit == 0)) {
             frame = iGpffffbb94;
-            func_004a7c00((u8 *)&D_00922DA0[0], frame);
+            mdlEffectApplyShakeEnvelope((u8 *)&D_00922DA0[0], frame);
         } else {
             mdlEffectResetSequenceFrame();
             iGpffffbb98 = 0;
@@ -3689,7 +3689,7 @@ void *mdlEffectCloneHelperInstance(void *opaqueSource) {
     u8 *geometryBlock;
     u8 *colors;
 
-    clone = func_004b16c0(NULL);
+    clone = mdlEffectCreateScreenSprite(NULL);
     ((MdlEffectHelperInstance *)clone)->unk4 = ((MdlEffectHelperInstance *)source)->unk4;
     memcpy(clone + 0xC, source + 0xC, 0x98);
     geometry = ((MdlEffectHelperInstance *)source)->geometry;
@@ -3733,7 +3733,7 @@ void mdlEffectIncrementHelperAge(u8 *instance)
 void mdlEffectAdvanceHelper(u8 *instance)
 {
     ((MdlEffectHelperInstance *)instance)->age = ((MdlEffectHelperInstance *)instance)->age + 1;
-    func_004b1ad0(instance);
+    mdlEffectUpdateScreenSprite(instance);
 }
 
 

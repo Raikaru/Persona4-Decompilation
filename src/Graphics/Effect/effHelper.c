@@ -8,11 +8,11 @@ void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
-u8 *func_004abc50(u8 *base, s32 size);
+u8 *mdlEffectCreateUniqueModel(u8 *base, s32 size);
 s32 mdlLayerIsPresent(s32 res, s32 layerIndex);
 u32 mdlCountIntUserData(s32 res);
 void mdlEffectDestroyWithNodes(u32 arg);
-void func_004abd60(s32 res);
+void mdlEffectDestroyModel(s32 res);
 void *mdlFindOrCreateModelObject(u32 a, u16 b, u32 c);
 void EffModelInit(s32 res);
 
@@ -98,7 +98,7 @@ void *EffHelperCreate(void *source)
         headerBytes = 0;
         break;
     }
-    work->res = (s32)func_004abc50(sourceData + headerBytes, ((EffHelperSource *)source)->dataBytes - headerBytes);
+    work->res = (s32)mdlEffectCreateUniqueModel(sourceData + headerBytes, ((EffHelperSource *)source)->dataBytes - headerBytes);
     if (work->res == 0) {
         kAssertFail(D_007144F8, 0x40);
     }
@@ -142,7 +142,7 @@ void EffHelperFree(EffHlpWork *work)
     u32 entryIndex;
 
     if (work->res != 0) {
-        func_004abd60(work->res);
+        mdlEffectDestroyModel(work->res);
     }
     if (work->listAlloc != NULL) {
         for (entryIndex = 0; entryIndex < work->count; entryIndex++) {
@@ -175,7 +175,7 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
         kAssertFail(D_007144F8, 0x9F);
     }
     if (work->res != 0) {
-        func_004abd60(work->res);
+        mdlEffectDestroyModel(work->res);
     }
     work->res = (s32)mdlFindOrCreateModelObject(((EffHelperModel *)src->res)->modelId,
                                    ((EffHelperModel *)src->res)->modelVariant, 0);

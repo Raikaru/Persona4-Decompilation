@@ -35,6 +35,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 #pragma pop
 /* Kind-11 Sway update. See docs/probe_archive/sway-update-20261005 for
  * the actual-provider domain, source measurements and independent review. */
+/* Spawn and update sway particles with randomized motion, floor bounces, key sampling and optional trails. */
 // FUN_00492100
 #include "sway_particle_internal.h"
 /* measured: b210 -O2 needs independent value propagation and loop-invariant
@@ -44,13 +45,13 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 #pragma opt_propagation off
 /* measured: EffSwayParticleUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void EffSwayParticleUpdate(u8 *arg0)
+void EffSwayParticleUpdate(u8 *emitterBytes)
 {
     extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 value);
-    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void mdlEffectUpdateParticleTrail(u8 *arg0, u8 *arg1);
-    extern f32 sinf(f32 arg0);
+    extern void mdlEffectSampleKeyState(u8 *emitterBytes, u8 *value, s32 count, u_long128 *flags);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitterBytes, u8 *value);
+    extern f32 sinf(f32 emitterBytes);
     extern u_long128 D_00713D40;
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -63,7 +64,7 @@ void EffSwayParticleUpdate(u8 *arg0)
     SpawnParticle *particle;
     SwayParticleState *state;
     SwayParticleParameters *parameters;
-    SwayParticleEmitter *const emitter = (SwayParticleEmitter *)arg0;
+    SwayParticleEmitter *const emitter = (SwayParticleEmitter *)emitterBytes;
     s32 lifetime;
     s32 emissionDuration;
     u8 angleMode;
@@ -78,9 +79,9 @@ void EffSwayParticleUpdate(u8 *arg0)
     s32 spawnBudget;
     u32 index;
     s32 preroll;
-    s32 tmp;
-    f32 ftmp1;
-    f32 ftmp2;
+    s32 countValue;
+    f32 firstValue;
+    f32 secondValue;
     s32 age;
     s32 trailCount;
     s32 trailWidth;
@@ -88,9 +89,9 @@ void EffSwayParticleUpdate(u8 *arg0)
     SpawnParticle *trail;
     s32 trailIndex;
     u32 particleIndex;
-    f32 a;
-    f32 b;
-    f32 c;
+    f32 variation;
+    f32 randomSample;
+    f32 displacement;
     count = emitter->primaryCount;
     flags = emitter->flags;
     particle = emitter->particles;
@@ -118,8 +119,8 @@ void EffSwayParticleUpdate(u8 *arg0)
         preroll = initialPreroll;
         if (!(parameters->emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - parameters->emissionVariation) * effMiscRandFloat(0);
-            ftmp2 = (f32)emitter->primaryCount;
-            spawnBudget = (s32)(ftmp2 * prerollScale);
+            secondValue = (f32)emitter->primaryCount;
+            spawnBudget = (s32)(secondValue * prerollScale);
         } else {
             spawnBudget = (s32)emitter->primaryCount;
         }
@@ -127,18 +128,18 @@ void EffSwayParticleUpdate(u8 *arg0)
     } else {
         preroll = 0;
         if (!(parameters->emissionVariation <= 0.0f)) {
-            ftmp1 = (fGpffff807c - parameters->emissionVariation) * effMiscRandFloat(0);
-            tmp = parameters->emissionRate;
-            ftmp2 = (f32)(u32)tmp;
-            emitter->emissionAccumulator = emitter->emissionAccumulator + ftmp2 * ftmp1;
+            firstValue = (fGpffff807c - parameters->emissionVariation) * effMiscRandFloat(0);
+            countValue = parameters->emissionRate;
+            secondValue = (f32)(u32)countValue;
+            emitter->emissionAccumulator = emitter->emissionAccumulator + secondValue * firstValue;
         } else {
-            tmp = parameters->emissionRate;
-            ftmp1 = (f32)(u32)tmp;
-            emitter->emissionAccumulator = emitter->emissionAccumulator + ftmp1;
+            countValue = parameters->emissionRate;
+            firstValue = (f32)(u32)countValue;
+            emitter->emissionAccumulator = emitter->emissionAccumulator + firstValue;
         }
-        ftmp1 = emitter->emissionAccumulator;
-        ftmp1 = fabsf(ftmp1);
-        spawnBudget = (s32)ftmp1;
+        firstValue = emitter->emissionAccumulator;
+        firstValue = fabsf(firstValue);
+        spawnBudget = (s32)firstValue;
         emitter->emissionAccumulator = emitter->emissionAccumulator - (f32)spawnBudget;
         goto setup_loop;
     }
@@ -157,11 +158,11 @@ main_body:
         goto skip_clear;
     }
     if (emissionDuration != 0) {
-        tmp = -2;
+        countValue = -2;
     } else {
-        tmp = -1;
+        countValue = -1;
     }
-    particle->age = tmp;
+    particle->age = countValue;
     trailCount = emitter->parameters->trailCount;
     trailWidth = emitter->parameters->trailWidth;
     trailSpan = trailCount * trailWidth;
@@ -216,30 +217,30 @@ skip_clear:
     state->swayDirection[0] = direction.lane[0];
     state->swayDirection[1] = direction.lane[1];
     state->swayDirection[2] = direction.lane[2];
-    a = parameters->speedVariation;
-    b = effMiscRandFloat(0);
-    state->speed = parameters->speed * ((one - a) + a * b);
-    a = parameters->bounceVariation;
-    b = effMiscRandFloat(0);
-    b = (one - a) + a * b;
-    state->bounceScale = -parameters->bounce * b;
-    a = parameters->initialAmplitudeVariation;
-    b = effMiscRandFloat(0);
-    initialAmplitude = parameters->initialAmplitude * ((one - a) + a * b);
-    a = parameters->finalAmplitudeVariation;
-    b = effMiscRandFloat(0);
-    ftmp1 = parameters->finalAmplitude * ((one - a) + a * b);
+    variation = parameters->speedVariation;
+    randomSample = effMiscRandFloat(0);
+    state->speed = parameters->speed * ((one - variation) + variation * randomSample);
+    variation = parameters->bounceVariation;
+    randomSample = effMiscRandFloat(0);
+    randomSample = (one - variation) + variation * randomSample;
+    state->bounceScale = -parameters->bounce * randomSample;
+    variation = parameters->initialAmplitudeVariation;
+    randomSample = effMiscRandFloat(0);
+    initialAmplitude = parameters->initialAmplitude * ((one - variation) + variation * randomSample);
+    variation = parameters->finalAmplitudeVariation;
+    randomSample = effMiscRandFloat(0);
+    firstValue = parameters->finalAmplitude * ((one - variation) + variation * randomSample);
     state->amplitude = initialAmplitude;
-    state->amplitudeStep = (ftmp1 - initialAmplitude) / (f32)lifetime;
-    a = parameters->phaseVariation;
-    b = effMiscRandFloat(0);
-    state->phaseStep = parameters->phaseStep * ((one - a) + a * b);
-    b = effMiscRandFloat(0);
-    state->phase = angleRange * b;
+    state->amplitudeStep = (firstValue - initialAmplitude) / (f32)lifetime;
+    variation = parameters->phaseVariation;
+    randomSample = effMiscRandFloat(0);
+    state->phaseStep = parameters->phaseStep * ((one - variation) + variation * randomSample);
+    randomSample = effMiscRandFloat(0);
+    state->phase = angleRange * randomSample;
     state->previousSine = sinf(state->phase);
-    b = effMiscRandFloat(0);
-    c = two * (b - half);
-    spread.lane[0] = parameters->spread * c;
+    randomSample = effMiscRandFloat(0);
+    displacement = two * (randomSample - half);
+    spread.lane[0] = parameters->spread * displacement;
     spread.lane[1] = spread.lane[0];
     spread.lane[2] = spread.lane[0];
     if ((flags & 1) != 0) {
@@ -254,16 +255,16 @@ skip_clear:
         spawnVuAdd10();
     }
     effectVuStore10(&particle->position);
-    a = parameters->sizeVariation;
-    b = effMiscRandFloat(0);
-    state->sizeScale = (one - a) + a * b;
+    variation = parameters->sizeVariation;
+    randomSample = effMiscRandFloat(0);
+    state->sizeScale = (one - variation) + variation * randomSample;
     if (angleMode != 2) {
-        a = parameters->angleVariation;
-        b = effMiscRandFloat(0);
-        state->angleScale = (one - a) + a * b;
+        variation = parameters->angleVariation;
+        randomSample = effMiscRandFloat(0);
+        state->angleScale = (one - variation) + variation * randomSample;
         if (angleMode == 1) {
-            b = effMiscRandFloat(0);
-            state->angleOffset = angleRange * b;
+            randomSample = effMiscRandFloat(0);
+            state->angleOffset = angleRange * randomSample;
             if ((effMiscRand(0) & 1) != 0) {
                 state->angleScale = state->angleScale * reverseAngle;
             }
@@ -302,20 +303,20 @@ else_branch:
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)&particle->position;
     }
-    ftmp1 = sinf(state->phase);
-    ftmp2 = ftmp1 - state->previousSine;
-    c = state->amplitude * ftmp2;
-    particle->position.lane[0] = particle->position.lane[0] + state->swayDirection[0] * c;
-    particle->position.lane[1] = particle->position.lane[1] + state->swayDirection[1] * c;
-    particle->position.lane[2] = particle->position.lane[2] + state->swayDirection[2] * c;
+    firstValue = sinf(state->phase);
+    secondValue = firstValue - state->previousSine;
+    displacement = state->amplitude * secondValue;
+    particle->position.lane[0] = particle->position.lane[0] + state->swayDirection[0] * displacement;
+    particle->position.lane[1] = particle->position.lane[1] + state->swayDirection[1] * displacement;
+    particle->position.lane[2] = particle->position.lane[2] + state->swayDirection[2] * displacement;
     state->speed = state->speed - deceleration;
-    c = state->speed;
-    particle->position.lane[0] = particle->position.lane[0] + state->riseDirection[0] * c;
-    particle->position.lane[1] = particle->position.lane[1] + state->riseDirection[1] * c;
-    particle->position.lane[2] = particle->position.lane[2] + state->riseDirection[2] * c;
+    displacement = state->speed;
+    particle->position.lane[0] = particle->position.lane[0] + state->riseDirection[0] * displacement;
+    particle->position.lane[1] = particle->position.lane[1] + state->riseDirection[1] * displacement;
+    particle->position.lane[2] = particle->position.lane[2] + state->riseDirection[2] * displacement;
     state->phase = state->phase + state->phaseStep;
     state->amplitude = state->amplitude + state->amplitudeStep;
-    state->previousSine = ftmp1;
+    state->previousSine = firstValue;
     if (particle->position.lane[1] < floorHeight) {
         state->bounceScale = state->bounceScale * bounceDecay;
         state->speed = state->speed * state->bounceScale;
@@ -336,4 +337,4 @@ main_check:
         goto main_body;
     }
 }
-
+#pragma pop

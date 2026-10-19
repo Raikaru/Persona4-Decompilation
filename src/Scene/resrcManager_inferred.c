@@ -718,13 +718,13 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1);
     extern void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1);
     extern void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1);
-    extern void func_004b1210(void *arg0, void *arg1);
+    extern void mdlEffectAdvanceAndFlushWithTable(void *arg0, void *arg1);
     extern s32 hMaestroListSetHasEntries(u8 *arg0);
     extern u32 K_Clump_StateFlagIsSet(const u32 *state);
     extern void mdlQueueModelForDraw(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
     extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
-    extern void func_004b11d0(void *arg0, void *arg1);
+    extern void mdlEffectFlushWithTable(void *arg0, void *arg1);
     extern void qsort(void *base, size_t count, size_t size,
                       s32 (*compare)(const void *, const void *));
     extern s32 FldMap_IsCurrentInEitherBand(void);
@@ -790,7 +790,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     }
     while (effectResources != NULL) {
         if (*(s32 *)(effectResources + 0x28) & 2) {
-            func_004b1210(D_005DC7D0, *(void **)(effectResources + 0x144));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC7D0, *(void **)(effectResources + 0x144));
         }
         effectResources = *(u8 **)(effectResources + 0x138);
     }
@@ -940,7 +940,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                             pos.y += 175.0f;
                         }
                         mdlEffectSetChildPositionVec(*(void **)(*characterEntry + attachmentIndex * 4 + 0x140), (f32 *)&pos);
-                        func_004b11d0(D_005DC824, *(void **)(*characterEntry + attachmentIndex * 4 + 0x140));
+                        mdlEffectFlushWithTable(D_005DC824, *(void **)(*characterEntry + attachmentIndex * 4 + 0x140));
                     }
                 }
             }
@@ -1000,7 +1000,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                             pos.y += 175.0f;
                         }
                         mdlEffectSetChildPositionVec(*(void **)(npcResources + attachmentIndex * 4 + 0x140), (f32 *)&pos);
-                        func_004b11d0(D_005DC824, *(void **)(npcResources + attachmentIndex * 4 + 0x140));
+                        mdlEffectFlushWithTable(D_005DC824, *(void **)(npcResources + attachmentIndex * 4 + 0x140));
                     }
                 }
             }
@@ -1035,7 +1035,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                                     pos.y += 175.0f;
                                 }
                                 mdlEffectSetChildPositionVec(*(void **)(resource + attachmentIndex * 4 + 0x140), (f32 *)&pos);
-                                func_004b11d0(D_005DC824, *(void **)(resource + attachmentIndex * 4 + 0x140));
+                                mdlEffectFlushWithTable(D_005DC824, *(void **)(resource + attachmentIndex * 4 + 0x140));
                             }
                         }
                     }

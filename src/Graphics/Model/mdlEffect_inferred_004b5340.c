@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -42,11 +43,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *instance, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 instance, u32 value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -69,27 +70,27 @@ extern void (*jtbl_008873EC[])(void *);
    b210 sink the offset into the load displacement and flip the addu operands
    (nd 40-54). */
 // FUN_004B5340
-void EffBattleDestroy(u8 *arg0) {
+void EffBattleDestroy(u8 *instance) {
     s32 tbl;
     s32 idx;
     void (*fn)(s32);
 
     if (iGpffffbba4() != 0) {
         tbl = (s32)iGpffffbba0 + 8;
-        idx = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        idx = ((MdlEffectBattleInstance *)instance)->kind * 0x1C;
         fn = *(void (**)(s32))(tbl + idx);
         if (fn != NULL) {
-            fn(*(s32 *)(arg0 + 0x30));
+            fn(((MdlEffectBattleInstance *)instance)->work);
         }
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](instance);
 }
 
 // Creates a battle effect from a record: the kind at +0x2C and the texture at +0x38 are read directly, with no relative pointer. When table entry +0xC for the kind is empty, allocates the work block; when the gate passes, runs the entry's setup (result stored at work+0x30) and post callbacks.
 // FUN_004B53C0
 void *EffBattleCreateFromRecord(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
+    u8 *instance = opaqueSource;
     u8 *result;
     u8 *work;
     s32 base;
@@ -100,11 +101,13 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
     void (*post)(u8 *);
     extern u8 *EffBattleAllocWork();
 
-    id = *(s32 *)(arg0 + 0x2C);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    id = *(s32 *)(instance + 0x2C);
     base = (s32)iGpffffbba0;
     off = (base, id * 0x1C);
+    /* The handler entry is byte-indexed by the selected runtime table; its record-specific callback type is not uniform. */
     if (*(s32 *)(off + base + 0xC) == 0) {
-        tex = *(s32 *)(arg0 + 0x38);
+        tex = ((MdlEffectBattleInstance *)instance)->resource;
         off = id & 0xFFFF;
         work = EffBattleAllocWork(off, tex);
         if (iGpffffbba4() != 0) {
@@ -114,7 +117,7 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
             base += off;
             setup4 = *(s32 (**)(s32, s32, s32, s32))base;
             if (setup4 != NULL) {
-                *(s32 *)(work + 0x30) = setup4(tex, 0, 0, 0);
+                ((MdlEffectBattleInstance *)work)->work = setup4(tex, 0, 0, 0);
             }
             base = (s32)iGpffffbba0;
             base += off;
@@ -126,14 +129,15 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
         result = work;
     } else {
         work = EffBattleAllocWork((id = id & 0xFFFF),
-                             (id, *(s32 *)(arg0 + 0x38)));
+                             (id, ((MdlEffectBattleInstance *)instance)->resource));
         {
             s32 idx2;
-            idx2 = *(s32 *)(arg0 + 0x2C) * 0x1C;
-            *(s32 *)(work + 0x30) =
-                (*(s32 (**)(u8 *))((u8 *)(idx2 + (s32)iGpffffbba0 + 0xC)))(arg0);
+            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+            idx2 = *(s32 *)(instance + 0x2C) * 0x1C;
+            ((MdlEffectBattleInstance *)work)->work =
+                (*(s32 (**)(u8 *))((u8 *)(idx2 + (s32)iGpffffbba0 + 0xC)))(instance);
         }
-        off = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        off = ((MdlEffectBattleInstance *)instance)->kind * 0x1C;
         base = (s32)iGpffffbba0;
         post = *(void (**)(u8 *))(base + off);
         if (post != NULL) {
@@ -144,64 +148,68 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
     return result;
 }
 
+/* Run the kind stop callback when enabled and reset the instance age. */
 // FUN_004B5530
-void mdlEffectInstanceStop(u8 *arg0) {
+void mdlEffectInstanceStop(u8 *instance) {
     void (*fn)(u8 *);
 
     if (iGpffffbba4() != 0) {
-        fn = *(void (**)(u8 *))(iGpffffbba0 + 0 + *(s32 *)(arg0 + 0x2C) * 0x1C);
+        fn = *(void (**)(u8 *))(iGpffffbba0 + 0 + ((MdlEffectBattleInstance *)instance)->kind * 0x1C);
         if (fn != NULL) {
-            fn(arg0);
+            fn(instance);
         }
-        *(s32 *)(arg0 + 0x28) = 0;
+        ((MdlEffectBattleInstance *)instance)->age = 0;
     }
 }
 
+/* Run the kind advance callback when enabled, then increment the instance age. */
 // FUN_004B55A0
 /* The handler-table address is built through two named locals on purpose:
    retail adds the sub-table offset to the base, then the 0x1C-strided index,
    then loads at displacement 0. Folding either step into the expression makes
    b210 sink the offset into the load displacement and flip the addu operands
    (nd 40-54). */
-void mdlEffectInstanceAdvance(u8 *arg0) {
+void mdlEffectInstanceAdvance(u8 *instance) {
     s32 tbl;
     s32 idx;
     void (*fn)(u8 *);
 
     if (iGpffffbba4() != 0) {
         tbl = (s32)iGpffffbba0 + 0x10;
-        idx = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        idx = ((MdlEffectBattleInstance *)instance)->kind * 0x1C;
         fn = *(void (**)(u8 *))(tbl + idx);
         if (fn != NULL) {
-            fn(arg0);
+            fn(instance);
         }
-        *(s32 *)(arg0 + 0x28) += 1;
+        ((MdlEffectBattleInstance *)instance)->age += 1;
     }
 }
 
+/* Run the kind update callback when the handler gate is enabled. */
 // FUN_004B5620
 /* The handler-table address is built through two named locals on purpose:
    retail adds the sub-table offset to the base, then the 0x1C-strided index,
    then loads at displacement 0. Folding either step into the expression makes
    b210 sink the offset into the load displacement and flip the addu operands
    (nd 40-54). */
-void mdlEffectInstanceUpdate(u8 *arg0) {
+void mdlEffectInstanceUpdate(u8 *instance) {
     s32 tbl;
     s32 idx;
     void (*fn)(u8 *);
 
     if (iGpffffbba4() != 0) {
         tbl = (s32)iGpffffbba0 + 0x14;
-        idx = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        idx = ((MdlEffectBattleInstance *)instance)->kind * 0x1C;
         fn = *(void (**)(u8 *))(tbl + idx);
         if (fn != NULL) {
-            fn(arg0);
+            fn(instance);
         }
     }
 }
 
+/* Advance and update the instance, checking the handler gate independently for each pass. */
 // FUN_004B5690
-void mdlEffectInstanceAdvanceAndUpdate(u8 *arg0)
+void mdlEffectInstanceAdvanceAndUpdate(u8 *instance)
 {
     s32 tbl1;
     s32 idx1;
@@ -212,19 +220,19 @@ void mdlEffectInstanceAdvanceAndUpdate(u8 *arg0)
 
     if (iGpffffbba4() != 0) {
         tbl1 = (s32)iGpffffbba0 + 0x10;
-        idx1 = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        idx1 = ((MdlEffectBattleInstance *)instance)->kind * 0x1C;
         fn1 = *(void (**)(u8 *))(tbl1 + idx1);
         if (fn1 != NULL) {
-            fn1(arg0);
+            fn1(instance);
         }
-        *(s32 *)(arg0 + 0x28) += 1;
+        ((MdlEffectBattleInstance *)instance)->age += 1;
     }
     if (iGpffffbba4() != 0) {
         tbl2 = (s32)iGpffffbba0 + 0x14;
-        idx2 = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        idx2 = ((MdlEffectBattleInstance *)instance)->kind * 0x1C;
         fn2 = *(void (**)(u8 *))(tbl2 + idx2);
         if (fn2 != NULL) {
-            fn2(arg0);
+            fn2(instance);
         }
     }
 }

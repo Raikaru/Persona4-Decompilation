@@ -61,7 +61,7 @@ s32 DistortParticleProjectRecordsSky(void *effect);
 void ObjectParticleDraw(void *effect);
 void RpSkyRenderStateSet(s32 state, s32 value);
 void mdlEffectSeqStep(void);
-void func_004a7830(void);
+void mdlEffectUpdateShakeFrame(void);
 void *K_Clump_GetLightA(void);
 void *K_Clump_GetLightC(void);
 void func_003c38b0(void *light, void *color);
@@ -73,7 +73,7 @@ void H_Cdvd_ReadSync(void *handle);
 void sprintf(void *buffer, const void *format, s32 value);
 u8 *func_003ef740(void *path, s32 mode);
 void mdlEffectCacheDisplayRaster(void);
-void func_004a77b0(void);
+void mdlEffectInitializeShakeFrame(void);
 void CrossfadeCreateTask(s32 priority);
 
 
@@ -302,7 +302,7 @@ void TnDispatchPairedDraw(void *effect) {
 // FUN_00481980
 s32 TnTaskUpdate(u8 *unusedTask) {
     mdlEffectSeqStep();
-    func_004a7830();
+    mdlEffectUpdateShakeFrame();
     if (D_00922CC0[0] != 0) {
         func_003c38b0(K_Clump_GetLightA(), (void *)D_00922CA0);
         func_003c38b0(K_Clump_GetLightC(), (void *)D_00922CB0);
@@ -439,7 +439,7 @@ void TnInitModule(s32 taskPriority)
     D_00922D00[0] = 0;
     D_00922CDC[0] |= 0x20003;
     mdlEffectCacheDisplayRaster();
-    func_004a77b0();
+    mdlEffectInitializeShakeFrame();
     CrossfadeCreateTask(taskPriority);
     (s32)kwlnTaskCreate((const void *)(D_007132B8), taskPriority, 0, 0, TnTaskUpdate, 0, (u8 *)(0));
 }

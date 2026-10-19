@@ -612,7 +612,7 @@ void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
 s32 FldRc_FileLoadStep(u8 *task) {
     extern s32 H_Cdvd_LookupRequest(u8 *task, s32 *arg1);
 
-    extern void func_004b11d0();
+    extern void mdlEffectFlushWithTable();
     extern void mdlEffectDestroy();
     extern u8 D_005DC7D0[];
     s32 resourceSize;
@@ -659,8 +659,8 @@ block_10:
                 (((FldRcEffectWork *)work)->primaryHidden != 1)) {
                 if ((u32)((FldRcEffectWork *)work)->primaryElapsed <
                     (u32)((FldRcEffectWork *)work)->duration) {
-                    func_004b1190(*(u8 * *)&((FldRcEffectWork *)work)->templateEffect);
-                    func_004b11d0(
+                    mdlEffectCommitAndAdvance(*(u8 * *)&((FldRcEffectWork *)work)->templateEffect);
+                    mdlEffectFlushWithTable(
                         (s32)&D_005DC7D0 +
                         (*(u16 *)&((FldRcEffectWork *)work)->primaryPriority * 0x54),
                         *(s32 *)(work + 0x14));
@@ -682,8 +682,8 @@ loop_body:
                     elapsedSlot = (s32 *)(slotWork + 0x44);
                     if ((u32)((FldRcEffectWork *)slotWork)->elapsed[0] <
                         (u32)((FldRcEffectWork *)work)->duration) {
-                        func_004b1190((u8 *)effect);
-                        func_004b11d0(
+                        mdlEffectCommitAndAdvance((u8 *)effect);
+                        mdlEffectFlushWithTable(
                             (s32)&D_005DC7D0 +
                             (*(u16 *)&((FldRcEffectWork *)work)->priority[slotIndex] *
                              0x54),

@@ -63,7 +63,7 @@ s32 fclSubClamped(s32, s32, s32, s32, s8);
 u8 *mdlEffectCreateFromResource(s32);
 u8 *mdlEffectClone(u8 *);
 
-void func_004b11d0(void *, void *);
+void mdlEffectFlushWithTable(void *, void *);
 void mdlEffectSetChildPositionVec(void *, u8 *);
 void mdlEffectSetEulerRotation(u8 *, f32, f32, f32);
 void mdlEffectSetUniformScale(u8 *, f32);
@@ -1798,11 +1798,11 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
                 }
             }
         }
-        func_004b1190(*(u8 **)(obj + 8));
-        func_004b11d0(&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(u8 **)(obj + 8));
+        mdlEffectCommitAndAdvance(*(u8 **)(obj + 8));
+        mdlEffectFlushWithTable(&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(u8 **)(obj + 8));
         if (*(u8 *)(obj + 0x48) == 1) {
-            func_004b1190(*(u8 **)(obj + 0x44));
-            func_004b11d0(&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(u8 **)(obj + 0x44));
+            mdlEffectCommitAndAdvance(*(u8 **)(obj + 0x44));
+            mdlEffectFlushWithTable(&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(u8 **)(obj + 0x44));
         }
         {
             s32 lim = *(s32 *)(obj + 0x10);

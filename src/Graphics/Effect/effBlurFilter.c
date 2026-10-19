@@ -26,9 +26,9 @@ extern void mdlEffectEmitSlotPacket(void);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 mdlEffectProjectBillboardQuad(u8 *object, void *slot);
-extern void func_004a8250(u8 *object, void *slot);
-extern void func_004a8440(u8 *object, void *slot);
-extern void func_004a86c0(u8 *object, void *slot);
+extern void mdlEffectBuildRectQuad(u8 *object, void *slot);
+extern void mdlEffectBuildOffsetQuad(u8 *object, void *slot);
+extern void mdlEffectBuildDirectRectQuad(u8 *object, void *slot);
 extern void PrimAppendNode(s32 param, void *work);
 extern s32 TnGetOffset38(u16 param);
 extern void *memset(void *dest, s32 value, s32 size);
@@ -37,7 +37,7 @@ extern void func_003ef3a0(void *ptr);
 extern f32 fGpffff80f8;
 extern void mdlEffectInitRandomQuad(u8 *object, u8 *slot);
 extern void effBlurFilterSpawnSlot(u8 *object, u8 *slot);
-extern void func_004a8890(u8 *object, s32 *slot);
+extern void mdlEffectDrawProjectedBillboard(u8 *object, s32 *slot);
 extern s32 TnUploadStreamTagged(void *ptr);
 extern s32 TnSlotObject(u16 param);
 extern u8 D_00714394[];
@@ -762,7 +762,7 @@ void effBlurFilterDrawRefPass(u8 *object) {
         mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
-        func_004a8250(parameters + 4, referenceVertices);
+        mdlEffectBuildRectQuad(parameters + 4, referenceVertices);
         sendPacket = (void (**)(s32, void *, s32, void *, s32))D_00887314;
         (*sendPacket)(3, referenceVertices, 4, D_00714368, 6);
         mdlEffectEmitTagPair();
@@ -923,7 +923,7 @@ void effBlurFilterSubmitZeroTimerSlots(u8 *object) {
         }
         for (i = 0; i < count; i++) {
             if (((BlurFilterSlot *)list)->unk00.signedValue == 0 && ((BlurFilterSlot *)list)->unk0C.byte[3] > 0) {
-                func_004a8890(list + 8, table);
+                mdlEffectDrawProjectedBillboard(list + 8, table);
             }
             list += 0x34;
         }
@@ -1073,7 +1073,7 @@ void effBlurFilterSubmitActiveSlots(u8 *object) {
         count = ((BlurFilterParameters *)base)->unk00.signedValue;
         for (i = 0; i < count; i++) {
             if (!(((BlurFilterSlot *)list)->unk00.scalar < 0.0f) && (((BlurFilterSlot *)list)->unk0C.byte[3] > 0)) {
-                func_004a8890(list + 8, table);
+                mdlEffectDrawProjectedBillboard(list + 8, table);
             }
             list += 0x34;
         }
@@ -1174,7 +1174,7 @@ void effBlurFilterDrawOverlay(u8 *object) {
     base = ((BlurFilterNode *)object)->configuration.bytes + 0xC0;
     if (((BlurFilterConfiguration *)((BlurFilterNode *)object)->configuration.bytes)->unkC0.byte[3] > 0) {
         RpSkyRenderStateGet(3, &savedState);
-        func_004a8440(base, vertices);
+        mdlEffectBuildOffsetQuad(base, vertices);
         setState = (void *)D_00887300;
         (*(void (**)(u32, u32))setState)(1, D_00922D90[0]);
         RpSkyRenderStateSet(3, 0x31001);
@@ -1329,7 +1329,7 @@ void effBlurFilterSubmitZeroTimerSlotsChecked(u8 *object) {
         }
         for (i = 0; i < count; i++) {
             if (((BlurFilterSlot *)list)->unk00.signedValue == 0 && ((BlurFilterSlot *)list)->unk0C.byte[3] > 0) {
-                func_004a8890(list + 8, table);
+                mdlEffectDrawProjectedBillboard(list + 8, table);
             }
             list += 0x34;
         }
@@ -1424,7 +1424,7 @@ void effBlurFilterDrawAux(u8 *object) {
     base = ((BlurFilterNode *)object)->configuration.bytes + 0xC0;
     if (((BlurFilterConfiguration *)((BlurFilterNode *)object)->configuration.bytes)->unkC0.byte[3] > 0) {
         RpSkyRenderStateGet(3, &savedState);
-        func_004a86c0(base, vertices);
+        mdlEffectBuildDirectRectQuad(base, vertices);
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(3, 0x31001);
         D_00887314[0](3, vertices, 4, D_00714368, 6);
@@ -1551,7 +1551,7 @@ void effBlurFilterDrawPassB(u8 *object) {
         mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
-        func_004a86c0(parameters + 0xC, referenceVertices);
+        mdlEffectBuildDirectRectQuad(parameters + 0xC, referenceVertices);
         ((BlurSkyVertex *)referenceVertices)[0].uBits = 0;
         ((BlurSkyVertex *)referenceVertices)[0].vBits = 0;
         ((BlurSkyVertex *)referenceVertices)[1].uBits = 0;
@@ -1564,7 +1564,7 @@ void effBlurFilterDrawPassB(u8 *object) {
         (*(void (**)(s32, void *, s32, void *, s32))drawData)(3, referenceVertices, 4, D_00714368, 6);
         mdlEffectEmitTagPair();
         RpSkyRenderStateSet(2, savedTextureState | 0x10);
-        func_004a86c0(parameters + 0xC, overlayVertices);
+        mdlEffectBuildDirectRectQuad(parameters + 0xC, overlayVertices);
         (*((void (**)(u32, u32))setState))(1, 0);
         RpSkyRenderStateSet(3, 0x31001);
         (*(void (**)(s32, void *, s32, void *, s32))drawData)(3, overlayVertices, 4, D_00714368, 6);

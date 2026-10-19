@@ -1,3 +1,5 @@
+#include "rw_camera_internal.h"
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -22,7 +24,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *instance);
 extern u8 D_0071413C[];
 extern void func_004adb50();
 extern f32 iGpffff8080;
@@ -56,15 +58,15 @@ extern u8 D_00714144[];
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
-extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, u8 *arg2);
+extern s32 mdlCopyIndexedMatrix(u8 *instance, s32 value, u8 *count);
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 instance, s32 value, s32 count, s32 flags,
+                          void *data, s32 options);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
-extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
+extern void mdlSetLayerWeight(void *instance, s32 value, f32 count);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
@@ -80,11 +82,11 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004adb50-004adb50 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
-extern void func_004a8250(u8 *arg0, u8 *arg1);
-extern void func_004a8440(u8 *arg0, u8 *arg1);
-extern void func_004a86c0(u8 *arg0, u8 *arg1);
-extern void mdlEffectUpdateAndDrawModelChildren(u8 *arg0);
+extern s32 mdlEffectProjectBillboardQuad(u8 *instance, u8 *value);
+extern void mdlEffectBuildRectQuad(u8 *instance, u8 *value);
+extern void mdlEffectBuildOffsetQuad(u8 *instance, u8 *value);
+extern void mdlEffectBuildDirectRectQuad(u8 *instance, u8 *value);
+extern void mdlEffectUpdateAndDrawModelChildren(u8 *instance);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
@@ -105,33 +107,33 @@ extern void mdlEffectUpdateAndDrawModelChildren(u8 *arg0);
 // FUN_004ADB50
 /* measured: object 816B/window 816B, nd 0. K&R definition so the unprototyped
    caller func_004adfa0 stays byte-exact. The VU0 colour-pack island and the
-   `color = *(s32 *)&sp134` read are the effModel.c EffModelUpdate idiom - reading
+   `color = *(s32 *)&packedColor` read are the effModel.c EffModelUpdate idiom - reading
    the packed word through its address is what makes b210 reload it into $s5
    right after the island and, with it, rank the saved registers as retail does
-   (n $s4, arg0 $s3, objs $s2, count $s1, total $s0; a plain `color = sp134`
+   (n $s4, instance $s3, objs $s2, count $s1, total $s0; a plain `color = packedColor`
    read left the load floating and flipped the whole ranking). Locals in
    declaration order; the loop is a goto loop with `objs++`; `zero` is a hoisted
    0.0f local ($f20); `t = call / 10.0f; speed = t * field` for the mul.s order. */
-void func_004adb50(arg0)
-u8 *arg0;
+void func_004adb50(instance)
+u8 *instance;
 {
-    extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-    extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-    extern void mdlScale(void *arg0, void *arg1, s32 arg2);
+    extern void mdlEffectBuildBasisRows(void *instance, void *value);
+    extern void mdlApplyModelMatrix(void *instance, void *value, s32 count);
+    extern void mdlScale(void *instance, void *value, s32 count);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-    extern void mdlAdvanceModelFromFlags(void *arg0);
-    extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern f32 mdlEffectSampleScalarKeys(void *arg0, u32 arg1, u32 arg2);
-    extern void mdlEffectSetChildPositions(void *arg0, f32 *arg1);
-    extern void effMiscMatrixToQuatVU(f32 *arg0);
-    extern void mdlEffectSetChildRotations(void *arg0, void *arg1);
-    extern void mdlEffectSetChildScales(void *arg0, f32 arg1);
-    extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
-    extern void mdlEffectCommitTreeFrame(void *arg0);
+    extern void mdlAdvanceModelFromFlags(void *instance);
+    extern s32 mdlEffectSamplePackedColor(u8 *instance, u8 *value, s32 count, s32 flags);
+    extern f32 mdlEffectSampleScalarKeys(void *instance, u32 value, u32 count);
+    extern void mdlEffectSetChildPositions(void *instance, f32 *value);
+    extern void effMiscMatrixToQuatVU(f32 *instance);
+    extern void mdlEffectSetChildRotations(void *instance, void *value);
+    extern void mdlEffectSetChildScales(void *instance, f32 value);
+    extern void mdlEffectApplyPackedColor(u8 *instance, s32 value);
+    extern void mdlEffectCommitTreeFrame(void *instance);
     extern f32 D_00761134;
-    s32 sp13C;
-    s32 sp138;
-    s32 sp134;
+    s32 baseColor;
+    s32 sampledColor;
+    s32 packedColor;
     f32 vec[3];
     f32 pos[4];
     u8 out[0x10];
@@ -142,7 +144,7 @@ u8 *arg0;
     s32 count;
     s32 total;
     u32 i;
-    f32 temp_f0;
+    f32 uniformScale;
     f32 speed;
     s32 color;
     f32 scale;
@@ -150,28 +152,32 @@ u8 *arg0;
     f32 t;
     s32 *pt;
 
-    count = *(s32 *)(arg0 + 0x2C);
-    total = *(s32 *)(arg0 + 0x90);
-    n = *(u32 *)(arg0 + 0x28);
-    objs = *(s32 **)(arg0 + 0x98);
+    count = ((MdlEffectSpriteInstance *)instance)->age;
+    total = ((MdlEffectSpriteInstance *)instance)->duration;
+    n = ((MdlEffectSpriteInstance *)instance)->childCount;
+    objs = ((MdlEffectSpriteInstance *)instance)->children;
     if (count < total || total == 0) {
-        mdlEffectBuildBasisRows(frame, arg0 + 0x10);
-        mdlApplyModelMatrix(*(void **)(arg0 + 0xA0), frame, 0);
-        temp_f0 = *(f32 *)(arg0 + 0x20);
-        vec[2] = temp_f0;
-        vec[1] = temp_f0;
-        vec[0] = temp_f0;
-        mdlScale(*(void **)(arg0 + 0xA0), vec, 2);
-        vec[0] = *(f32 *)(arg0 + 0);
-        vec[1] = *(f32 *)(arg0 + 4);
-        vec[2] = *(f32 *)(arg0 + 8);
-        mdlTranslateMatrix((RwMatrix *)*(void **)(arg0 + 0xA0), (const RwV3d *)vec, 2);
-        mdlSetLayerWeight(*(void **)(arg0 + 0xA0), 0, *(f32 *)(arg0 + 0x94));
-        mdlAdvanceModelFromFlags(*(void **)(arg0 + 0xA0));
-        if (*(s32 *)(arg0 + 0x9C) != 0) {
-            color = mdlEffectSamplePackedColor(arg0 + 0x30, arg0 + 0x54, count, total);
-            sp13C = *(s32 *)(arg0 + 0x24);
-            pt = &sp13C;
+        mdlEffectBuildBasisRows(frame, instance + 0x10);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlApplyModelMatrix(*(void **)(instance + 0xA0), frame, 0);
+        uniformScale = ((MdlEffectSpriteInstance *)instance)->scale;
+        vec[2] = uniformScale;
+        vec[1] = uniformScale;
+        vec[0] = uniformScale;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlScale(*(void **)(instance + 0xA0), vec, 2);
+        vec[0] = ((f32 *)((MdlEffectSpriteInstance *)instance)->position)[0];
+        vec[1] = ((f32 *)((MdlEffectSpriteInstance *)instance)->position)[1];
+        vec[2] = ((f32 *)((MdlEffectSpriteInstance *)instance)->position)[2];
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlTranslateMatrix((RwMatrix *)*(void **)(instance + 0xA0), (const RwV3d *)vec, 2);
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        mdlSetLayerWeight(*(void **)(instance + 0xA0), 0, *(f32 *)&((MdlEffectSpriteInstance *)instance)->unk94);
+        mdlAdvanceModelFromFlags((void *)((MdlEffectSpriteInstance *)instance)->model);
+        if (((MdlEffectSpriteInstance *)instance)->drawable != 0) {
+            color = mdlEffectSamplePackedColor(instance + 0x30, instance + 0x54, count, total);
+            baseColor = ((MdlEffectSpriteInstance *)instance)->packedColor;
+            pt = &baseColor;
             scale = D_00761134;
             __asm__ volatile(
                 "lw $2, 0(%0)          \n"
@@ -187,7 +193,7 @@ u8 *arg0;
                 :
                 : "r"(pt), "f"(scale)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
-            sp138 = color;
+            sampledColor = color;
             __asm__ volatile(
                 "lw $2, 0(%0)          \n"
                 "pextlb $2, $0, $2     \n"
@@ -208,37 +214,40 @@ u8 *arg0;
                 "ppacb $2, $0, $2      \n"
                 "sw $2, 0x134($sp)     \n"
                 :
-                : "r"(&sp138), "f"(scale)
+                : "r"(&sampledColor), "f"(scale)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
-            color = *(s32 *)&sp134;
-            t = mdlEffectSampleScalarKeys(arg0 + 0x64, count, total) / 10.0f;
-            speed = t * *(f32 *)(arg0 + 0x20);
+            color = *(s32 *)&packedColor;
+            t = mdlEffectSampleScalarKeys(instance + 0x64, count, total) / 10.0f;
+            speed = t * ((MdlEffectSpriteInstance *)instance)->scale;
             i = 0;
             zero = 0.0f;
             goto loop_check;
 loop_body:
 
-                if (mdlCopyIndexedMatrix(*(u8 **)(arg0 + 0xA0), i, frame) != 0) {
+                if (mdlCopyIndexedMatrix(((MdlEffectSpriteInstance *)instance)->model, i, frame) != 0) {
+                    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
                     pos[0] = *(f32 *)(frame + 0x30);
+                    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
                     pos[1] = *(f32 *)(frame + 0x34);
+                    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
                     pos[2] = *(f32 *)(frame + 0x38);
                     pos[3] = zero;
                     mdlEffectSetChildPositions((void *)*objs, pos);
-                    mat[0] = *(f32 *)(frame + 0x00);
-                    mat[1] = *(f32 *)(frame + 0x04);
-                    mat[2] = *(f32 *)(frame + 0x08);
+                    mat[0] = ((RwMatrixTag *)frame)->right.x;
+                    mat[1] = ((RwMatrixTag *)frame)->right.y;
+                    mat[2] = ((RwMatrixTag *)frame)->right.z;
                     mat[3] = zero;
-                    mat[4] = *(f32 *)(frame + 0x10);
-                    mat[5] = *(f32 *)(frame + 0x14);
-                    mat[6] = *(f32 *)(frame + 0x18);
+                    mat[4] = ((RwMatrixTag *)frame)->up.x;
+                    mat[5] = ((RwMatrixTag *)frame)->up.y;
+                    mat[6] = ((RwMatrixTag *)frame)->up.z;
                     mat[7] = zero;
-                    mat[8] = *(f32 *)(frame + 0x20);
-                    mat[9] = *(f32 *)(frame + 0x24);
-                    mat[10] = *(f32 *)(frame + 0x28);
+                    mat[8] = ((RwMatrixTag *)frame)->at.x;
+                    mat[9] = ((RwMatrixTag *)frame)->at.y;
+                    mat[10] = ((RwMatrixTag *)frame)->at.z;
                     mat[11] = zero;
-                    mat[12] = *(f32 *)(frame + 0x30);
-                    mat[13] = *(f32 *)(frame + 0x34);
-                    mat[14] = *(f32 *)(frame + 0x38);
+                    mat[12] = ((RwMatrixTag *)frame)->pos.x;
+                    mat[13] = ((RwMatrixTag *)frame)->pos.y;
+                    mat[14] = ((RwMatrixTag *)frame)->pos.z;
                     mat[15] = zero;
                     effMiscMatrixToQuatVU(mat);
                     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(out) : "$vf10", "memory");
@@ -255,6 +264,6 @@ loop_check:
                 }
         }
     }
-    *(s32 *)(arg0 + 0x2C) += 1;
+    ((MdlEffectSpriteInstance *)instance)->age += 1;
 }
 

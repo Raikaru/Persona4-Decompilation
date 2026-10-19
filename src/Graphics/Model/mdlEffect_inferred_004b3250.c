@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -43,11 +44,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *effect, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 effect, u32 value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -59,36 +60,39 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b3250-004b3260 */
 
-extern s32 effCrossfadeCaptureDisplay(u8 *arg0);
+extern s32 effCrossfadeCaptureDisplay(u8 *effect);
 #pragma push
 #pragma pop
 /* measured: close the opt_propagation bracket around func_004b2780. */
 #pragma push
 #pragma pop
+/* Store the global battle-effect value. */
 // FUN_004B3250
-void func_004b3250(s32 arg0)
+void mdlEffectSetGlobalValue(s32 value)
 {
-    iGpffffbb9c = arg0;
+    iGpffffbb9c = value;
 }
 
+/* Apply the global material tint, install the camera-quad callback and bind the owning effect. */
 // FUN_004B3260
-void func_004b3260(u8 *arg0) {
-    u8 *temp_1;
-    u8 *temp_2;
+void mdlEffectPrepareLineNova(u8 *effect) {
+    u8 *work;
+    u8 *geometry;
     u8 *dst;
 
-    temp_1 = *(u8 **)(arg0 + 0x20);
-    temp_2 = *(u8 **)(temp_1 + 4);
+    work = ((MdlEffectLineNovaRecord *)effect)->work;
+    geometry = ((MdlEffectWindWork *)work)->geometry;
     if (iGpffffbb64.c3 != 0xFF) {
-        dst = *(u8 **)(temp_2 + 0x14);
-        *(Code1_004bColor *)(dst + 4) = iGpffffbb64;
+        dst = ((EffGeometryBlock *)geometry)->material;
+        *(Code1_004bColor *)&((RpMaterial *)dst)->color = iGpffffbb64;
     } else {
         iGpffffbb64.c3 = 0xFE;
-        dst = *(u8 **)(temp_2 + 0x14);
-        *(Code1_004bColor *)(dst + 4) = iGpffffbb64;
+        dst = ((EffGeometryBlock *)geometry)->material;
+        *(Code1_004bColor *)&((RpMaterial *)dst)->color = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
-    *(void (**)(void))(temp_2 + 0x20) = LineNovaUpdateCameraQuads;
-    *(u8 **)(temp_2 + 0x28) = arg0;
+    *(void (**)(void))(geometry + 0x20) = LineNovaUpdateCameraQuads;
+    /* The callback-specific owner slot lies beyond the common geometry prefix; its wider callback layout is not recovered here. */
+    *(u8 **)(geometry + 0x28) = effect;
 }
 

@@ -18,7 +18,7 @@ s32 H_Cdvd_IsFileLoaded();
 s32 H_Cdvd_LookupRequest();
 u8 *mdlEffectCreateFromResource();
 
-void func_004b11d0();
+void mdlEffectFlushWithTable();
 void mdlEffectSetChildPositionVec();
 s32 mdlEffectIsFinished();
 s32 mdlEffectIsActive();
@@ -102,8 +102,8 @@ s32 cutinDrawTaskUpdate(u8 *task)
                 *(s32 *)(work + 0x18) = 1;
             }
             mdlEffectSetChildPositionVec(*(s32 *)(work + 0x24), &position);
-            func_004b1190(*(u8 **)(work + 0x24));
-            func_004b11d0(D_005DC974, *(s32 *)(work + 0x24));
+            mdlEffectCommitAndAdvance(*(u8 **)(work + 0x24));
+            mdlEffectFlushWithTable(D_005DC974, *(s32 *)(work + 0x24));
             if (mdlEffectIsActive(*(s32 *)(work + 0x24)) != 0) {
                 *(s32 *)(work + 0xC) = 1;
             }

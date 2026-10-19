@@ -56,7 +56,7 @@ typedef struct ShdEffectParams {
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
 extern u32 kwlnTaskGetWork(void *task);
-extern void func_004b1210(void *a, void *b);
+extern void mdlEffectAdvanceAndFlushWithTable(void *a, void *b);
 extern u32 mdlEffectGetWord84(s32 a);
 extern void mdlEffectDestroy(u8 *a);
 extern u8 *mdlEffectCreateFromResource(s32 a);
@@ -183,7 +183,7 @@ s32 shdEffectTaskUpdate(u8 *task)
     ShdTask *work;
 
     work = (void *)kwlnTaskGetWork(task);
-    func_004b1210((void *)(u32)work->contextHandle, (void *)(u32)work->effectHandle);
+    mdlEffectAdvanceAndFlushWithTable((void *)(u32)work->contextHandle, (void *)(u32)work->effectHandle);
     if (work->frameLimit != 0 && (s32)mdlEffectGetWord84(work->effectHandle) >= work->frameLimit)
     {
         return -1;
