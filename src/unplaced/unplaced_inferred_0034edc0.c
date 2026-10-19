@@ -6,30 +6,73 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
+
+/* Same 0x2C-byte sample allocated by sdkSpriteNewNode in Kernel/sdkSpr.c. */
+typedef struct SdkSpriteSample {
+    u32 packAddress, recordIndex;
+    f32 x, y;
+    u8 alphaSubtract, fade;
+    u8 pad12[2];
+    s16 extendX, extendY;
+    f32 angle;
+    s16 pivotX, pivotY;
+    u16 scaleX, scaleY; /* Q12, 0x1000 is unit scale */
+    f32 depth;
+    u8 red, green, blue, pad2B;
+} SdkSpriteSample;
+
+/* Each nLine layer occupies one 0x40-byte immediate-mode vertex. */
+typedef struct NLineVertex {
+    f32 x, y, z;
+    u8 padC[0xC];
+    f32 reciprocal;
+    u8 pad1C[4];
+    f32 red, green, blue, alpha;
+    u8 pad30[0x10];
+} NLineVertex;
+
+typedef struct NLineLayerWork {
+    u8 pad0[0x790];
+    NLineVertex layers[3];
+    u8 pad850[0x140];
+    s32 layersActive;
+    u8 alpha;
+    u8 pad995[7];
+    f32 offsetX, offsetY;
+} NLineLayerWork;
+
+typedef struct DatCommunityEntry {
+    s16 state, countdown;
+    s32 value, radius, extent;
+} DatCommunityEntry;
+
+typedef struct CmpGridCell {
+    s32 unk0;
+    s32 x, y, width, height;
+} CmpGridCell;
+
+typedef struct DatSmoothTarget {
+    s16 target, bound, countdown, current, stepCountdown;
+} DatSmoothTarget;
 extern s32 (*D_00887300[])(RwRenderState, void *);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
-extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
+extern void sdkSpriteDraw(u8 *sprite, s32 setStates);
 extern void kAssertFail(const void *file, s32 line);
 extern char D_0064B310[];
 extern u32 RpRandom();
-extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
+extern u8 *sdkSpriteNewNode(s32 packAddress, s32 recordIndex);
 extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8224;
 extern void sdkSpriteFreeNode(void *node);
 extern f32 D_0088467C[];
 extern f32 D_008872F8[];
-// struct passed by value to fclCombineSetSprite (64-bit: two floats in $a1-$a2)
-typedef struct {
-    f32 x;
-    f32 y;
-} Svec2f_0034b820;
 
-void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                   u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7,
-                   f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                   u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
+                   f32 angle, s16 pivotX, s16 pivotY);
 /* measured: opt_propagation off caches the D_00887300 base in $s0. */
 // Intent: Set the base render states for nLine drawing [inferred]
 // FUN_0034EDC0
@@ -53,7 +96,7 @@ void nLineSetRenderStateBase(void)
 #pragma opt_propagation on
 // Intent: Draw the three nLine layers, with the middle and right layers faded by the amount [inferred]
 // FUN_0034EE90
-void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
+void nLineDrawLayers(u8 *work, f32 originX, f32 originY, f32 amount)
 {
     f32 alpha;
     f32 x;
@@ -66,27 +109,29 @@ void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     u8 *unit;
     u8 *layers;
 
-    level = (u8)((u8)(*(u8 *)(arg0 + 0x994)));
+    level = (u8)((u8)(((NLineLayerWork *)work)->alpha));
     levelF = (f32)(u32)level;
     alpha = levelF / 255.0f;
-    unit = (u8 *)(arg0);
-    baseX = fparg0;
-    if (!(fparg2 <= 0.0f)) {
+    unit = (u8 *)(work);
+    baseX = originX;
+    if (!(amount <= 0.0f)) {
         delta = D_008872F8[0] - D_0088467C[0];
+        /* Camera +0x80 supplies the divisor; no complete camera layout is established here. */
         invScale = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
         layers = unit + 0x790;
-        *(s32 *)(unit + 0x990) = 1;
-        baseY = 448.0f + fparg1;
+        ((NLineLayerWork *)unit)->layersActive = 1;
+        baseY = 448.0f + originY;
         x = baseX - 208.0f;
+        /* measured: typing these repeated offsets grows nLineDrawLayers from 576 to 596 bytes. */
         x += *(f32 *)(unit + 0x99C);
         nLineSetLayer(layers, x, baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
         baseX = 640.0f + (f32)baseX;
-        alpha = 51.0f * fparg2 * (f32)alpha;
+        alpha = 51.0f * amount * (f32)alpha;
         nLineSetLayer(layers + 0x40, baseX + *(f32 *)(unit + 0x99C), baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, (u8)alpha);
-        nLineSetLayer(layers + 0x80, baseX + *(f32 *)(unit + 0x99C), fparg1 + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
+        nLineSetLayer(layers + 0x80, baseX + *(f32 *)(unit + 0x99C), originY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
         return;
     }
-    *(s32 *)(unit + 0x990) = 0;
+    ((NLineLayerWork *)unit)->layersActive = 0;
 }
 #pragma pop
 
@@ -94,16 +139,16 @@ void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
 #pragma opt_propagation on
 // Intent: Store one nLine layer's position, scale and colour bytes [inferred]
 // FUN_0034F0D0
-void nLineSetLayer(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   f32 fparg3, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
-    *(f32 *)(arg0 + 0) = fparg0;
-    *(f32 *)(arg0 + 4) = fparg1;
-    *(f32 *)(arg0 + 8) = fparg2;
-    *(f32 *)(arg0 + 0x18) = fparg3;
-    *(f32 *)(arg0 + 0x20) = (f32)arg1;
-    *(f32 *)(arg0 + 0x24) = (f32)arg2;
-    *(f32 *)(arg0 + 0x28) = (f32)arg3;
-    *(f32 *)(arg0 + 0x2C) = (f32)arg4;
+void nLineSetLayer(u8 *vertex, f32 x, f32 y, f32 z,
+                   f32 reciprocal, u8 red, u8 green, u8 blue, u8 alpha) {
+    ((NLineVertex *)vertex)->x = x;
+    ((NLineVertex *)vertex)->y = y;
+    ((NLineVertex *)vertex)->z = z;
+    ((NLineVertex *)vertex)->reciprocal = reciprocal;
+    ((NLineVertex *)vertex)->red = (f32)red;
+    ((NLineVertex *)vertex)->green = (f32)green;
+    ((NLineVertex *)vertex)->blue = (f32)blue;
+    ((NLineVertex *)vertex)->alpha = (f32)alpha;
 }
 #pragma pop
 
@@ -136,9 +181,9 @@ void sdkRenderStateSetDefault(void)
 #pragma opt_propagation on
 // Intent: Draw a sprite at a position with the given colour and opacity at unit size, skipping transparent sprites [inferred]
 // FUN_0034F2E0
-void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
-                   u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
-    sdkSpriteDrawSized(arg0, fparg0, fparg1, 0.0f, arg1, arg2, arg3, arg4,
+void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
+                   u8 red, u8 green, u8 blue, u8 alpha) {
+    sdkSpriteDrawSized(sprite, x, y, 0.0f, red, green, blue, alpha,
                   0x1000, 0x1000, 0, 0.0f, 0);
 }
 #pragma pop
@@ -147,32 +192,32 @@ void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
 #pragma opt_propagation on
 // Intent: Set the sprite's position, colour, opacity, size and extra fields, then draw it; a zero opacity or zero size skips the draw [inferred]
 // FUN_0034F320
-void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                   u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0)
+void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                   u16 scaleY, s16 pivotX, f32 angle, s16 pivotY)
 {
-    u8 temp;
+    u8 opacity;
 
-    if (arg0 == NULL)
+    if (sprite == NULL)
         kAssertFail(D_0064B310, 0x6C);
-    temp = arg4 & 0xFF;
-    if ((temp == 0) || ((arg5 & 0xFFFF) == 0) ||
-        ((arg6 & 0xFFFF) == 0))
+    opacity = alpha & 0xFF;
+    if ((opacity == 0) || ((scaleX & 0xFFFF) == 0) ||
+        ((scaleY & 0xFFFF) == 0))
         return;
-    *(f32 *)(arg0 + 8) = fparg0;
-    *(f32 *)(arg0 + 0xC) = fparg1;
-    *(s8 *)(arg0 + 0x28) = arg1;
-    *(s8 *)(arg0 + 0x29) = arg2;
-    *(s8 *)(arg0 + 0x2A) = arg3;
-    *(s8 *)(arg0 + 0x10) = 0;
-    *(s8 *)(arg0 + 0x11) = 0xFF - temp;
-    *(f32 *)(arg0 + 0x24) = fparg2;
-    *(s16 *)(arg0 + 0x20) = arg5;
-    *(s16 *)(arg0 + 0x22) = arg6;
-    *(s16 *)(arg0 + 0x1C) = arg7;
-    *(s16 *)(arg0 + 0x1E) = arg_sp0;
-    *(f32 *)(arg0 + 0x18) = fparg3;
-    sdkSpriteDraw(arg0, 0);
+    ((SdkSpriteSample *)sprite)->x = x;
+    ((SdkSpriteSample *)sprite)->y = y;
+    ((SdkSpriteSample *)sprite)->red = red;
+    ((SdkSpriteSample *)sprite)->green = green;
+    ((SdkSpriteSample *)sprite)->blue = blue;
+    ((SdkSpriteSample *)sprite)->alphaSubtract = 0;
+    ((SdkSpriteSample *)sprite)->fade = 0xFF - opacity;
+    ((SdkSpriteSample *)sprite)->depth = depth;
+    ((SdkSpriteSample *)sprite)->scaleX = scaleX;
+    ((SdkSpriteSample *)sprite)->scaleY = scaleY;
+    ((SdkSpriteSample *)sprite)->pivotX = pivotX;
+    ((SdkSpriteSample *)sprite)->pivotY = pivotY;
+    ((SdkSpriteSample *)sprite)->angle = angle;
+    sdkSpriteDraw(sprite, 0);
 }
 #pragma pop
 
@@ -180,9 +225,9 @@ void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
 #pragma opt_propagation on
 // Intent: Draw one sprite through a temporary node at the given position, with the given colour and opacity [inferred]
 // FUN_0034F460
-void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
-    sdkSpriteDrawOnceScaled(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
+void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
+                   u8 red, u8 green, u8 blue, u8 alpha) {
+    sdkSpriteDrawOnceScaled(packAddress, image, x, y, 0.0f, red, green, blue, alpha,
                   0x1000, 0x1000, 0.0f, 0, 0);
 }
 #pragma pop
@@ -191,18 +236,18 @@ void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
 #pragma opt_propagation on
 // Intent: Draw one sprite through a temporary node: allocate it, draw with the transform arguments, then free it [inferred]
 // FUN_0034F4A0
-void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7,
-                   f32 fparg3, s16 arg_sp0, s16 arg_sp8)
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
+                   f32 angle, s16 pivotX, s16 pivotY)
 {
-    u8 *handle;
+    u8 *sprite;
 
-    if (arg0 == 0)
+    if (packAddress == 0)
         kAssertFail(D_0064B310, 0x94);
-    handle = sdkSpriteNewNode(arg0, arg1);
-    sdkSpriteDrawSized(handle, fparg0, fparg1, fparg2, arg2, arg3, arg4,
-                  arg5, arg6, arg7, arg_sp0, fparg3, arg_sp8);
-    sdkSpriteFreeNode(handle);
+    sprite = sdkSpriteNewNode(packAddress, image);
+    sdkSpriteDrawSized(sprite, x, y, depth, red, green, blue,
+                  alpha, scaleX, scaleY, pivotX, angle, pivotY);
+    sdkSpriteFreeNode(sprite);
 }
 #pragma pop
 
@@ -210,7 +255,7 @@ void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fpa
 #pragma opt_propagation off
 // Intent: Countdown step for a 0x14-byte entry: when the countdown expires, choose a random state of -1 or 0 to 2 by distance and reset the countdown to 2 to 6 [inferred]
 // FUN_0034F5D0
-void datCommunityEntryStep(u8 *arg0)
+void datCommunityEntryStep(u8 *communityEntry)
 {
     u32 remainder;
     s32 extent;
@@ -220,29 +265,30 @@ void datCommunityEntryStep(u8 *arg0)
     s32 span;
     u32 choice;
 
-    if (--*(s16 *)(arg0 + 2) <= 0) {
-        extent = *(s32 *)(arg0 + 12);
+    /* measured: typing countdown retains its address across RpRandom, growing 336 to 348 bytes. */
+    if (--*(s16 *)(communityEntry + 2) <= 0) {
+        extent = ((DatCommunityEntry *)communityEntry)->extent;
         random = RpRandom();
         remainder = random % (u32)(extent / 2 + 1);
-        distance = (s32)(extent - *(s32 *)(arg0 + 4) - remainder);
+        distance = (s32)(extent - ((DatCommunityEntry *)communityEntry)->value - remainder);
         if (distance < 0) distance = 0;
-        half = *(s32 *)(arg0 + 8) / 2;
+        half = ((DatCommunityEntry *)communityEntry)->radius / 2;
         if (distance <= half) {
             span = 20 - half * 2 - distance;
             if (span > 0) {
                 choice = RpRandom() % (u32)span;
                 if (choice < 9U) {
-                    *(s16 *)(arg0 + 0) = (s16)(choice % 3U);
+                    ((DatCommunityEntry *)communityEntry)->state = (s16)(choice % 3U);
                 } else {
-                    *(s16 *)(arg0 + 0) = -1;
+                    ((DatCommunityEntry *)communityEntry)->state = -1;
                 }
             } else {
-                *(s16 *)(arg0 + 0) = (s16)(RpRandom() % 3U);
+                ((DatCommunityEntry *)communityEntry)->state = (s16)(RpRandom() % 3U);
             }
         } else {
-            *(s16 *)(arg0 + 0) = -1;
+            ((DatCommunityEntry *)communityEntry)->state = -1;
         }
-        *(s16 *)(arg0 + 2) = (s16)(RpRandom() % 5U + 2);
+        *(s16 *)(communityEntry + 2) = (s16)(RpRandom() % 5U + 2);
     }
 }
 #pragma pop
@@ -251,29 +297,30 @@ void datCommunityEntryStep(u8 *arg0)
 #pragma opt_propagation on
 // Intent: Fade of a grid cell from its fractions: the product of the two linear interpolations scaled by the third fraction, with range assertions [inferred]
 // FUN_0034F720
-f32 cmpGridCellFade(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
-    if ((fparg0 < 0.0f) || !(fparg0 <= 1.0f)) {
+f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount) {
+    if ((xFraction < 0.0f) || !(xFraction <= 1.0f)) {
         kAssertFail(D_0064B310, 0xD0);
     }
-    if ((fparg1 < 0.0f) || !(fparg1 <= 1.0f)) {
+    if ((yFraction < 0.0f) || !(yFraction <= 1.0f)) {
         kAssertFail(D_0064B310, 0xD1);
     }
-    if ((fparg2 < 0.0f) || !(fparg2 <= 1.0f)) {
+    if ((amount < 0.0f) || !(amount <= 1.0f)) {
         kAssertFail(D_0064B310, 0xD2);
     }
-    if ((*(s32 *)(arg0 + 0xC) - 1) <= 0) {
+    /* measured: typed width/height retain two addresses across assertions (476 versus 464 bytes). */
+    if ((*(s32 *)(cell + 0xC) - 1) <= 0) {
         kAssertFail(D_0064B310, 0xD3);
     }
-    if ((*(s32 *)(arg0 + 0x10) - 1) <= 0) {
+    if ((*(s32 *)(cell + 0x10) - 1) <= 0) {
         kAssertFail(D_0064B310, 0xD4);
     }
-    return fparg2 *
-           ((f32)(*(s32 *)(arg0 + 4)) *
-            ((1.0f - fparg0) / (f32)(*(s32 *)(arg0 + 0xC) - 1)) +
-            fparg0) *
-           ((f32)(*(s32 *)(arg0 + 8)) *
-            ((1.0f - fparg1) / (f32)(*(s32 *)(arg0 + 0x10) - 1)) +
-            fparg1);
+    return amount *
+           ((f32)(((CmpGridCell *)cell)->x) *
+            ((1.0f - xFraction) / (f32)(*(s32 *)(cell + 0xC) - 1)) +
+            xFraction) *
+           ((f32)(((CmpGridCell *)cell)->y) *
+            ((1.0f - yFraction) / (f32)(*(s32 *)(cell + 0x10) - 1)) +
+            yFraction);
 }
 #pragma pop
 
@@ -281,36 +328,38 @@ f32 cmpGridCellFade(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
 #pragma opt_propagation on
 // Intent: Step a 16-bit value one unit toward its target on a timer, re-roll on expiry, and snap when it passes the target [inferred]
 // FUN_0034F8F0
-void datSmoothTargetStep(u8 *arg0)
+void datSmoothTargetStep(u8 *transition)
 {
-  s32 temp_3_2;
-  s32 var_2;
-  *((s16 *) (arg0 + 8)) -= 1;
-  if (*((s16 *) (arg0 + 8)) < 0)
+  s32 difference;
+  s32 magnitude;
+  /* measured: typed current/countdown change reload scheduling (228 versus 224 bytes). */
+  ((DatSmoothTarget *)transition)->stepCountdown -= 1;
+  if (((DatSmoothTarget *)transition)->stepCountdown < 0)
   {
-    temp_3_2 = (short) ((s64) ((*((s16 *) arg0)) - (*((s16 *) (arg0 + 6)))));
-    if (temp_3_2 != 0)
+    difference = (short) ((s64) ((((DatSmoothTarget *)transition)->target) - (*((s16 *) (transition + 6)))));
+    if (difference != 0)
     {
-      if (temp_3_2 < 0)
+      if (difference < 0)
       {
-        var_2 = -temp_3_2;
+        magnitude = -difference;
       }
       else
       {
-        var_2 = temp_3_2;
+        magnitude = difference;
       }
-      *((s16 *) (arg0 + 6)) += (s16) (temp_3_2 / var_2);
+      *((s16 *) (transition + 6)) += (s16) (difference / magnitude);
     }
     RpRandom();
-    temp_3_2 = 8;
-    *((s16 *) (arg0 + temp_3_2)) = 2;
+    /* measured: direct stepCountdown reset grows 224 to 232 bytes; preserve the reused byte offset. */
+    difference = 8;
+    *((s16 *) (transition + difference)) = 2;
   }
-  *((s16 *) (arg0 + 4)) -= 1;
-  if (((*((s16 *) (arg0 + 4))) < 0) || ((*((s16 *) (arg0 + 2))) < (*((s16 *) (arg0 + 6)))))
+  *((s16 *) (transition + 4)) -= 1;
+  if (((*((s16 *) (transition + 4))) < 0) || ((((DatSmoothTarget *)transition)->bound) < (*((s16 *) (transition + 6)))))
   {
-    var_2 = 0;
-    *((s16 *) (arg0 + 2)) = *((s16 *) (arg0 + 6));
-    *((s16 *) (arg0 + 4)) = var_2;
+    magnitude = 0;
+    ((DatSmoothTarget *)transition)->bound = *((s16 *) (transition + 6));
+    *((s16 *) (transition + 4)) = magnitude;
   }
 }
 #pragma pop
@@ -319,907 +368,907 @@ void datSmoothTargetStep(u8 *arg0)
 #pragma opt_propagation on
 // Intent: Draw the footer sprite group at the position with the given alpha, style and resource [inferred]
 // FUN_0034F9D0
-void sdkSpriteDrawFooter(Svec2f_0034b820 unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3) {
-    u8 *temp_2;
-    u8 *temp_2_100;
-    u8 *temp_2_101;
-    u8 *temp_2_102;
-    u8 *temp_2_103;
-    u8 *temp_2_104;
-    u8 *temp_2_105;
-    u8 *temp_2_106;
-    u8 *temp_2_107;
-    u8 *temp_2_108;
-    u8 *temp_2_109;
-    u8 *temp_2_10;
-    u8 *temp_2_110;
-    u8 *temp_2_111;
-    u8 *temp_2_112;
-    u8 *temp_2_113;
-    u8 *temp_2_114;
-    u8 *temp_2_115;
-    u8 *temp_2_116;
-    u8 *temp_2_117;
-    u8 *temp_2_118;
-    u8 *temp_2_119;
-    u8 *temp_2_11;
-    u8 *temp_2_120;
-    u8 *temp_2_121;
-    u8 *temp_2_122;
-    u8 *temp_2_12;
-    u8 *temp_2_13;
-    u8 *temp_2_14;
-    u8 *temp_2_15;
-    u8 *temp_2_16;
-    u8 *temp_2_17;
-    u8 *temp_2_18;
-    u8 *temp_2_19;
-    u8 *temp_2_20;
-    u8 *temp_2_21;
-    u8 *temp_2_22;
-    u8 *temp_2_23;
-    u8 *temp_2_24;
-    u8 *temp_2_25;
-    u8 *temp_2_26;
-    u8 *temp_2_27;
-    u8 *temp_2_28;
-    u8 *temp_2_29;
-    u8 *temp_2_2;
-    u8 *temp_2_30;
-    u8 *temp_2_31;
-    u8 *temp_2_32;
-    u8 *temp_2_33;
-    u8 *temp_2_34;
-    u8 *temp_2_35;
-    u8 *temp_2_36;
-    u8 *temp_2_37;
-    u8 *temp_2_38;
-    u8 *temp_2_39;
-    u8 *temp_2_3;
-    u8 *temp_2_40;
-    u8 *temp_2_41;
-    u8 *temp_2_42;
-    u8 *temp_2_43;
-    u8 *temp_2_44;
-    u8 *temp_2_45;
-    u8 *temp_2_46;
-    u8 *temp_2_47;
-    u8 *temp_2_48;
-    u8 *temp_2_49;
-    u8 *temp_2_4;
-    u8 *temp_2_50;
-    u8 *temp_2_51;
-    u8 *temp_2_52;
-    u8 *temp_2_53;
-    u8 *temp_2_54;
-    u8 *temp_2_55;
-    u8 *temp_2_56;
-    u8 *temp_2_57;
-    u8 *temp_2_58;
-    u8 *temp_2_59;
-    u8 *temp_2_5;
-    u8 *temp_2_60;
-    u8 *temp_2_61;
-    u8 *temp_2_62;
-    u8 *temp_2_63;
-    u8 *temp_2_64;
-    u8 *temp_2_65;
-    u8 *temp_2_66;
-    u8 *temp_2_67;
-    u8 *temp_2_68;
-    u8 *temp_2_69;
-    u8 *temp_2_6;
-    u8 *temp_2_70;
-    u8 *temp_2_71;
-    u8 *temp_2_72;
-    u8 *temp_2_73;
-    u8 *temp_2_74;
-    u8 *temp_2_75;
-    u8 *temp_2_76;
-    u8 *temp_2_77;
-    u8 *temp_2_78;
-    u8 *temp_2_79;
-    u8 *temp_2_7;
-    u8 *temp_2_80;
-    u8 *temp_2_81;
-    u8 *temp_2_82;
-    u8 *temp_2_83;
-    u8 *temp_2_84;
-    u8 *temp_2_85;
-    u8 *temp_2_86;
-    u8 *temp_2_87;
-    u8 *temp_2_88;
-    u8 *temp_2_89;
-    u8 *temp_2_8;
-    u8 *temp_2_90;
-    u8 *temp_2_91;
-    u8 *temp_2_92;
-    u8 *temp_2_93;
-    u8 *temp_2_94;
-    u8 *temp_2_95;
-    u8 *temp_2_96;
-    u8 *temp_2_97;
-    u8 *temp_2_98;
-    u8 *temp_2_99;
-    u8 *temp_2_9;
+void sdkSpriteDrawFooter(FclVec2 unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress) {
+    u8 *footerSprite1;
+    u8 *footerSprite100;
+    u8 *footerSprite101;
+    u8 *footerSprite102;
+    u8 *footerSprite103;
+    u8 *footerSprite104;
+    u8 *footerSprite105;
+    u8 *footerSprite106;
+    u8 *footerSprite107;
+    u8 *footerSprite108;
+    u8 *footerSprite109;
+    u8 *footerSprite10;
+    u8 *footerSprite110;
+    u8 *footerSprite111;
+    u8 *footerSprite112;
+    u8 *footerSprite113;
+    u8 *footerSprite114;
+    u8 *footerSprite115;
+    u8 *footerSprite116;
+    u8 *footerSprite117;
+    u8 *footerSprite118;
+    u8 *footerSprite119;
+    u8 *footerSprite11;
+    u8 *footerSprite120;
+    u8 *footerSprite121;
+    u8 *footerSprite122;
+    u8 *footerSprite12;
+    u8 *footerSprite13;
+    u8 *footerSprite14;
+    u8 *footerSprite15;
+    u8 *footerSprite16;
+    u8 *footerSprite17;
+    u8 *footerSprite18;
+    u8 *footerSprite19;
+    u8 *footerSprite20;
+    u8 *footerSprite21;
+    u8 *footerSprite22;
+    u8 *footerSprite23;
+    u8 *footerSprite24;
+    u8 *footerSprite25;
+    u8 *footerSprite26;
+    u8 *footerSprite27;
+    u8 *footerSprite28;
+    u8 *footerSprite29;
+    u8 *footerSprite2;
+    u8 *footerSprite30;
+    u8 *footerSprite31;
+    u8 *footerSprite32;
+    u8 *footerSprite33;
+    u8 *footerSprite34;
+    u8 *footerSprite35;
+    u8 *footerSprite36;
+    u8 *footerSprite37;
+    u8 *footerSprite38;
+    u8 *footerSprite39;
+    u8 *footerSprite3;
+    u8 *footerSprite40;
+    u8 *footerSprite41;
+    u8 *footerSprite42;
+    u8 *footerSprite43;
+    u8 *footerSprite44;
+    u8 *footerSprite45;
+    u8 *footerSprite46;
+    u8 *footerSprite47;
+    u8 *footerSprite48;
+    u8 *footerSprite49;
+    u8 *footerSprite4;
+    u8 *footerSprite50;
+    u8 *footerSprite51;
+    u8 *footerSprite52;
+    u8 *footerSprite53;
+    u8 *footerSprite54;
+    u8 *footerSprite55;
+    u8 *footerSprite56;
+    u8 *footerSprite57;
+    u8 *footerSprite58;
+    u8 *footerSprite59;
+    u8 *footerSprite5;
+    u8 *footerSprite60;
+    u8 *footerSprite61;
+    u8 *footerSprite62;
+    u8 *footerSprite63;
+    u8 *footerSprite64;
+    u8 *footerSprite65;
+    u8 *footerSprite66;
+    u8 *footerSprite67;
+    u8 *footerSprite68;
+    u8 *footerSprite69;
+    u8 *footerSprite6;
+    u8 *footerSprite70;
+    u8 *footerSprite71;
+    u8 *footerSprite72;
+    u8 *footerSprite73;
+    u8 *footerSprite74;
+    u8 *footerSprite75;
+    u8 *footerSprite76;
+    u8 *footerSprite77;
+    u8 *footerSprite78;
+    u8 *footerSprite79;
+    u8 *footerSprite7;
+    u8 *footerSprite80;
+    u8 *footerSprite81;
+    u8 *footerSprite82;
+    u8 *footerSprite83;
+    u8 *footerSprite84;
+    u8 *footerSprite85;
+    u8 *footerSprite86;
+    u8 *footerSprite87;
+    u8 *footerSprite88;
+    u8 *footerSprite89;
+    u8 *footerSprite8;
+    u8 *footerSprite90;
+    u8 *footerSprite91;
+    u8 *footerSprite92;
+    u8 *footerSprite93;
+    u8 *footerSprite94;
+    u8 *footerSprite95;
+    u8 *footerSprite96;
+    u8 *footerSprite97;
+    u8 *footerSprite98;
+    u8 *footerSprite99;
+    u8 *footerSprite9;
 
-    if (arg3 != 0) {
-        switch (arg2) {
+    if (packAddress != 0) {
+        switch (style) {
         case -1:
             break;
         case 0:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2, 496.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2);
-            if (arg3 == 0) {
+            footerSprite1 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite1, 496.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite1);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_2 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_2, 510.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_2);
-            if (arg3 == 0) {
+            footerSprite2 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite2, 510.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite2);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_3 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_3, (f32) 0x227, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_3);
-            if (arg3 == 0) {
+            footerSprite3 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite3, (f32) 0x227, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite3);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_4 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_4, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_4);
+            footerSprite4 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite4, (f32) 0x235, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite4);
             return;
         case 1:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_5 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_5, (f32) 0x1AD, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_5);
-            if (arg3 == 0) {
+            footerSprite5 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite5, (f32) 0x1AD, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite5);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_6 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_6, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_6);
-            if (arg3 == 0) {
+            footerSprite6 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite6, (f32) 0x1BB, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite6);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_7 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_7, 484.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_7);
-            if (arg3 == 0) {
+            footerSprite7 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite7, 484.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite7);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_8 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_8, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_8);
-            if (arg3 == 0) {
+            footerSprite8 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite8, 498.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite8);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_9 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_9, (f32) 0x216, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_9);
-            if (arg3 == 0) {
+            footerSprite9 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite9, (f32) 0x216, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite9);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_10 = (u8 *)(sdkSpriteNewNode(arg3, 0x11));
-            sdkSpriteDrawSized(temp_2_10, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_10);
+            footerSprite10 = (u8 *)(sdkSpriteNewNode(packAddress, 0x11));
+            sdkSpriteDrawSized(footerSprite10, 548.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite10);
             return;
         case 2:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_11 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_11, (f32) 0x1AD, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_11);
-            if (arg3 == 0) {
+            footerSprite11 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite11, (f32) 0x1AD, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite11);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_12 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_12, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_12);
-            if (arg3 == 0) {
+            footerSprite12 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite12, (f32) 0x1BB, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite12);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_13 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_13, 484.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_13);
-            if (arg3 == 0) {
+            footerSprite13 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite13, 484.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite13);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_14 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_14, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_14);
-            if (arg3 == 0) {
+            footerSprite14 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite14, 498.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite14);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_15 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_15, (f32) 0x216, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_15);
-            if (arg3 == 0) {
+            footerSprite15 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite15, (f32) 0x216, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite15);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_16 = (u8 *)(sdkSpriteNewNode(arg3, 0x12));
-            sdkSpriteDrawSized(temp_2_16, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_16);
+            footerSprite16 = (u8 *)(sdkSpriteNewNode(packAddress, 0x12));
+            sdkSpriteDrawSized(footerSprite16, 548.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite16);
             return;
         case 3:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_17 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_17, (f32) 0x141, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_17);
-            if (arg3 == 0) {
+            footerSprite17 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite17, (f32) 0x141, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite17);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_18 = (u8 *)(sdkSpriteNewNode(arg3, 0x18));
-            sdkSpriteDrawSized(temp_2_18, 374.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_18);
-            if (arg3 == 0) {
+            footerSprite18 = (u8 *)(sdkSpriteNewNode(packAddress, 0x18));
+            sdkSpriteDrawSized(footerSprite18, 374.0f, 406.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite18);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_19 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_19, (f32) 0x1AD, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_19);
-            if (arg3 == 0) {
+            footerSprite19 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite19, (f32) 0x1AD, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite19);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_20 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_20, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_20);
-            if (arg3 == 0) {
+            footerSprite20 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite20, (f32) 0x1BB, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite20);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_21 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_21, 484.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_21);
-            if (arg3 == 0) {
+            footerSprite21 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite21, 484.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite21);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_22 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_22, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_22);
-            if (arg3 == 0) {
+            footerSprite22 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite22, 498.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite22);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_23 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_23, (f32) 0x216, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_23);
-            if (arg3 == 0) {
+            footerSprite23 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite23, (f32) 0x216, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite23);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_24 = (u8 *)(sdkSpriteNewNode(arg3, 0x11));
-            sdkSpriteDrawSized(temp_2_24, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_24);
+            footerSprite24 = (u8 *)(sdkSpriteNewNode(packAddress, 0x11));
+            sdkSpriteDrawSized(footerSprite24, 548.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite24);
             return;
         case 4:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_25 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_25, (f32) 0x141, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_25);
-            if (arg3 == 0) {
+            footerSprite25 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite25, (f32) 0x141, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite25);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_26 = (u8 *)(sdkSpriteNewNode(arg3, 0x18));
-            sdkSpriteDrawSized(temp_2_26, 374.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_26);
-            if (arg3 == 0) {
+            footerSprite26 = (u8 *)(sdkSpriteNewNode(packAddress, 0x18));
+            sdkSpriteDrawSized(footerSprite26, 374.0f, 406.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite26);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_27 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_27, (f32) 0x1AD, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_27);
-            if (arg3 == 0) {
+            footerSprite27 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite27, (f32) 0x1AD, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite27);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_28 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_28, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_28);
-            if (arg3 == 0) {
+            footerSprite28 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite28, (f32) 0x1BB, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite28);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_29 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_29, 484.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_29);
-            if (arg3 == 0) {
+            footerSprite29 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite29, 484.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite29);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_30 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_30, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_30);
-            if (arg3 == 0) {
+            footerSprite30 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite30, 498.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite30);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_31 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_31, (f32) 0x216, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_31);
-            if (arg3 == 0) {
+            footerSprite31 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite31, (f32) 0x216, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite31);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_32 = (u8 *)(sdkSpriteNewNode(arg3, 0x12));
-            sdkSpriteDrawSized(temp_2_32, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_32);
+            footerSprite32 = (u8 *)(sdkSpriteNewNode(packAddress, 0x12));
+            sdkSpriteDrawSized(footerSprite32, 548.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite32);
             return;
         case 5:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_33 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_33, 370.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_33);
-            if (arg3 == 0) {
+            footerSprite33 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite33, 370.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite33);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_34 = (u8 *)(sdkSpriteNewNode(arg3, 0x18));
-            sdkSpriteDrawSized(temp_2_34, 428.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_34);
-            if (arg3 == 0) {
+            footerSprite34 = (u8 *)(sdkSpriteNewNode(packAddress, 0x18));
+            sdkSpriteDrawSized(footerSprite34, 428.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite34);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_35 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_35, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_35);
-            if (arg3 == 0) {
+            footerSprite35 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite35, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite35);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_36 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_36, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_36);
+            footerSprite36 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite36, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite36);
             return;
         case 6:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_37 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_37, 239.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_37);
-            if (arg3 == 0) {
+            footerSprite37 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite37, 239.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite37);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_38 = (u8 *)(sdkSpriteNewNode(arg3, 0x18));
-            sdkSpriteDrawSized(temp_2_38, (f32) 0x129, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_38);
-            if (arg3 == 0) {
+            footerSprite38 = (u8 *)(sdkSpriteNewNode(packAddress, 0x18));
+            sdkSpriteDrawSized(footerSprite38, (f32) 0x129, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite38);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_39 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_39, (f32) 0x1A3, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_39);
-            if (arg3 == 0) {
+            footerSprite39 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite39, (f32) 0x1A3, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite39);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_40 = (u8 *)(sdkSpriteNewNode(arg3, 0x17));
-            sdkSpriteDrawSized(temp_2_40, 438.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_40);
-            if (arg3 == 0) {
+            footerSprite40 = (u8 *)(sdkSpriteNewNode(packAddress, 0x17));
+            sdkSpriteDrawSized(footerSprite40, 438.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite40);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_41 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_41, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_41);
-            if (arg3 == 0) {
+            footerSprite41 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite41, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite41);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_42 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_42, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_42);
+            footerSprite42 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite42, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite42);
             return;
         case 7:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_43 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_43, (f32) 0x1A3, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_43);
-            if (arg3 == 0) {
+            footerSprite43 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite43, (f32) 0x1A3, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite43);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_44 = (u8 *)(sdkSpriteNewNode(arg3, 0x17));
-            sdkSpriteDrawSized(temp_2_44, 438.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_44);
-            if (arg3 == 0) {
+            footerSprite44 = (u8 *)(sdkSpriteNewNode(packAddress, 0x17));
+            sdkSpriteDrawSized(footerSprite44, 438.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite44);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_45 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_45, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_45);
-            if (arg3 == 0) {
+            footerSprite45 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite45, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite45);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_46 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_46, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_46);
+            footerSprite46 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite46, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite46);
             return;
         case 8:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_47 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_47, (f32) 0x15F, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_47);
-            if (arg3 == 0) {
+            footerSprite47 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite47, (f32) 0x15F, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite47);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_48 = (u8 *)(sdkSpriteNewNode(arg3, 0x15));
-            sdkSpriteDrawSized(temp_2_48, (f32) 0x16D, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_48);
-            if (arg3 == 0) {
+            footerSprite48 = (u8 *)(sdkSpriteNewNode(packAddress, 0x15));
+            sdkSpriteDrawSized(footerSprite48, (f32) 0x16D, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite48);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_49 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_49, 420.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_49);
-            if (arg3 == 0) {
+            footerSprite49 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite49, 420.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite49);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_50 = (u8 *)(sdkSpriteNewNode(arg3, 0x14));
-            sdkSpriteDrawSized(temp_2_50, 434.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_50);
-            if (arg3 == 0) {
+            footerSprite50 = (u8 *)(sdkSpriteNewNode(packAddress, 0x14));
+            sdkSpriteDrawSized(footerSprite50, 434.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite50);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_51 = (u8 *)(sdkSpriteNewNode(arg3, 0xC));
-            sdkSpriteDrawSized(temp_2_51, (f32) 0x1ED, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_51);
-            if (arg3 == 0) {
+            footerSprite51 = (u8 *)(sdkSpriteNewNode(packAddress, 0xC));
+            sdkSpriteDrawSized(footerSprite51, (f32) 0x1ED, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite51);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_52 = (u8 *)(sdkSpriteNewNode(arg3, 0x16));
-            sdkSpriteDrawSized(temp_2_52, 508.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_52);
-            if (arg3 == 0) {
+            footerSprite52 = (u8 *)(sdkSpriteNewNode(packAddress, 0x16));
+            sdkSpriteDrawSized(footerSprite52, 508.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite52);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_53 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_53, (f32) 0x227, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_53);
-            if (arg3 == 0) {
+            footerSprite53 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite53, (f32) 0x227, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite53);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_54 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_54, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_54);
+            footerSprite54 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite54, (f32) 0x235, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite54);
             return;
         case 9:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_55 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_55, 144.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_55);
-            if (arg3 == 0) {
+            footerSprite55 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite55, 144.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite55);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_56 = (u8 *)(sdkSpriteNewNode(arg3, 0x13));
-            sdkSpriteDrawSized(temp_2_56, 202.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_56);
-            if (arg3 == 0) {
+            footerSprite56 = (u8 *)(sdkSpriteNewNode(packAddress, 0x13));
+            sdkSpriteDrawSized(footerSprite56, 202.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite56);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_57 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_57, (f32) 0x12F, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_57);
-            if (arg3 == 0) {
+            footerSprite57 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite57, (f32) 0x12F, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite57);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_58 = (u8 *)(sdkSpriteNewNode(arg3, 0x15));
-            sdkSpriteDrawSized(temp_2_58, 322.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_58);
-            if (arg3 == 0) {
+            footerSprite58 = (u8 *)(sdkSpriteNewNode(packAddress, 0x15));
+            sdkSpriteDrawSized(footerSprite58, 322.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite58);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_59 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_59, 430.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_59);
-            if (arg3 == 0) {
+            footerSprite59 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite59, 430.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite59);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_60 = (u8 *)(sdkSpriteNewNode(arg3, 0x1A));
-            sdkSpriteDrawSized(temp_2_60, (f32) 0x1C1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_60);
-            if (arg3 == 0) {
+            footerSprite60 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1A));
+            sdkSpriteDrawSized(footerSprite60, (f32) 0x1C1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite60);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_61 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_61, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_61);
-            if (arg3 == 0) {
+            footerSprite61 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite61, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite61);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_62 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_62, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_62);
+            footerSprite62 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite62, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite62);
             return;
         case 11:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_63 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_63, (f32) 0x11F, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_63);
-            if (arg3 == 0) {
+            footerSprite63 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite63, (f32) 0x11F, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite63);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_64 = (u8 *)(sdkSpriteNewNode(arg3, 0x13));
-            sdkSpriteDrawSized(temp_2_64, (f32) 0x159, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_64);
-            if (arg3 == 0) {
+            footerSprite64 = (u8 *)(sdkSpriteNewNode(packAddress, 0x13));
+            sdkSpriteDrawSized(footerSprite64, (f32) 0x159, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite64);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_65 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_65, 430.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_65);
-            if (arg3 == 0) {
+            footerSprite65 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite65, 430.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite65);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_66 = (u8 *)(sdkSpriteNewNode(arg3, 0x1A));
-            sdkSpriteDrawSized(temp_2_66, (f32) 0x1C1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_66);
-            if (arg3 == 0) {
+            footerSprite66 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1A));
+            sdkSpriteDrawSized(footerSprite66, (f32) 0x1C1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite66);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_67 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_67, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_67);
-            if (arg3 == 0) {
+            footerSprite67 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite67, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite67);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_68 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_68, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_68);
+            footerSprite68 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite68, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite68);
             return;
         case 12:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_69 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_69, 224.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_69);
-            if (arg3 == 0) {
+            footerSprite69 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite69, 224.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite69);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_70 = (u8 *)(sdkSpriteNewNode(arg3, 0x13));
-            sdkSpriteDrawSized(temp_2_70, 282.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_70);
-            if (arg3 == 0) {
+            footerSprite70 = (u8 *)(sdkSpriteNewNode(packAddress, 0x13));
+            sdkSpriteDrawSized(footerSprite70, 282.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite70);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_71 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_71, (f32) 0x16F, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_71);
-            if (arg3 == 0) {
+            footerSprite71 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite71, (f32) 0x16F, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite71);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_72 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_72, (f32) 0x183, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_72);
-            if (arg3 == 0) {
+            footerSprite72 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite72, (f32) 0x183, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite72);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_73 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_73, 430.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_73);
-            if (arg3 == 0) {
+            footerSprite73 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite73, 430.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite73);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_74 = (u8 *)(sdkSpriteNewNode(arg3, 0x1A));
-            sdkSpriteDrawSized(temp_2_74, (f32) 0x1C1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_74);
-            if (arg3 == 0) {
+            footerSprite74 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1A));
+            sdkSpriteDrawSized(footerSprite74, (f32) 0x1C1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite74);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_75 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_75, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_75);
-            if (arg3 == 0) {
+            footerSprite75 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite75, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite75);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_76 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_76, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_76);
+            footerSprite76 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite76, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite76);
             return;
         case 13:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_77 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_77, (f32) 0x12F, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_77);
-            if (arg3 == 0) {
+            footerSprite77 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite77, (f32) 0x12F, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite77);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_78 = (u8 *)(sdkSpriteNewNode(arg3, 0x15));
-            sdkSpriteDrawSized(temp_2_78, 322.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_78);
-            if (arg3 == 0) {
+            footerSprite78 = (u8 *)(sdkSpriteNewNode(packAddress, 0x15));
+            sdkSpriteDrawSized(footerSprite78, 322.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite78);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_79 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_79, 430.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_79);
-            if (arg3 == 0) {
+            footerSprite79 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite79, 430.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite79);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_80 = (u8 *)(sdkSpriteNewNode(arg3, 0x1A));
-            sdkSpriteDrawSized(temp_2_80, (f32) 0x1C1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_80);
-            if (arg3 == 0) {
+            footerSprite80 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1A));
+            sdkSpriteDrawSized(footerSprite80, (f32) 0x1C1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite80);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_81 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_81, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_81);
-            if (arg3 == 0) {
+            footerSprite81 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite81, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite81);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_82 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_82, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_82);
+            footerSprite82 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite82, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite82);
             return;
         case 10:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_83 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_83, 446.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_83);
-            if (arg3 == 0) {
+            footerSprite83 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite83, 446.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite83);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_84 = (u8 *)(sdkSpriteNewNode(arg3, 0x1A));
-            sdkSpriteDrawSized(temp_2_84, (f32) 0x1D1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_84);
-            if (arg3 == 0) {
+            footerSprite84 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1A));
+            sdkSpriteDrawSized(footerSprite84, (f32) 0x1D1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite84);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_85 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_85, (f32) 0x236, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_85);
-            if (arg3 == 0) {
+            footerSprite85 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite85, (f32) 0x236, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite85);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_86 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_86, (f32) 0x249, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_86);
+            footerSprite86 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite86, (f32) 0x249, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite86);
             return;
         case 14:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_87 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_87, 250.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_87);
-            if (arg3 == 0) {
+            footerSprite87 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite87, 250.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite87);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_88 = (u8 *)(sdkSpriteNewNode(arg3, 0x18));
-            sdkSpriteDrawSized(temp_2_88, 308.0f, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_88);
-            if (arg3 == 0) {
+            footerSprite88 = (u8 *)(sdkSpriteNewNode(packAddress, 0x18));
+            sdkSpriteDrawSized(footerSprite88, 308.0f, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite88);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_89 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_89, 430.0f, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_89);
-            if (arg3 == 0) {
+            footerSprite89 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite89, 430.0f, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite89);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_90 = (u8 *)(sdkSpriteNewNode(arg3, 0x1A));
-            sdkSpriteDrawSized(temp_2_90, (f32) 0x1C1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_90);
-            if (arg3 == 0) {
+            footerSprite90 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1A));
+            sdkSpriteDrawSized(footerSprite90, (f32) 0x1C1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite90);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_91 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_91, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_91);
-            if (arg3 == 0) {
+            footerSprite91 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite91, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite91);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_92 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_92, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_92);
+            footerSprite92 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite92, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite92);
             return;
         case 15:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_93 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_93, (f32) 0x227, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_93);
-            if (arg3 == 0) {
+            footerSprite93 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite93, (f32) 0x227, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite93);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_94 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_94, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_94);
+            footerSprite94 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite94, (f32) 0x235, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite94);
             return;
         case 16:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_95 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_95, 482.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_95);
-            if (arg3 == 0) {
+            footerSprite95 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite95, 482.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite95);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_96 = (u8 *)(sdkSpriteNewNode(arg3, 0x19));
-            sdkSpriteDrawSized(temp_2_96, 496.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_96);
-            if (arg3 == 0) {
+            footerSprite96 = (u8 *)(sdkSpriteNewNode(packAddress, 0x19));
+            sdkSpriteDrawSized(footerSprite96, 496.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite96);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_97 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_97, (f32) 0x223, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_97);
-            if (arg3 == 0) {
+            footerSprite97 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite97, (f32) 0x223, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite97);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_98 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_98, (f32) 0x231, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_98);
+            footerSprite98 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite98, (f32) 0x231, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite98);
             return;
         case 17:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_99 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_99, (f32) 0x197, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_99);
-            if (arg3 == 0) {
+            footerSprite99 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite99, (f32) 0x197, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite99);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_100 = (u8 *)(sdkSpriteNewNode(arg3, 0x1B));
-            sdkSpriteDrawSized(temp_2_100, (f32) 0x1D1, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_100);
-            if (arg3 == 0) {
+            footerSprite100 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1B));
+            sdkSpriteDrawSized(footerSprite100, (f32) 0x1D1, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite100);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_101 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_101, (f32) 0x226, 410.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_101);
-            if (arg3 == 0) {
+            footerSprite101 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite101, (f32) 0x226, 410.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite101);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_102 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_102, (f32) 0x239, 412.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_102);
+            footerSprite102 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite102, (f32) 0x239, 412.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite102);
             return;
         case 18:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_103 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_103, 496.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_103);
-            if (arg3 == 0) {
+            footerSprite103 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite103, 496.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite103);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_104 = (u8 *)(sdkSpriteNewNode(arg3, 0x1F));
-            sdkSpriteDrawSized(temp_2_104, 510.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_104);
-            if (arg3 == 0) {
+            footerSprite104 = (u8 *)(sdkSpriteNewNode(packAddress, 0x1F));
+            sdkSpriteDrawSized(footerSprite104, 510.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite104);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_105 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_105, (f32) 0x227, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_105);
-            if (arg3 == 0) {
+            footerSprite105 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite105, (f32) 0x227, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite105);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_106 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_106, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_106);
+            footerSprite106 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite106, (f32) 0x235, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite106);
             return;
         case 19:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_107 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_107, (f32) 0x13B, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_107);
-            if (arg3 == 0) {
+            footerSprite107 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite107, (f32) 0x13B, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite107);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_108 = (u8 *)(sdkSpriteNewNode(arg3, 0x20));
-            sdkSpriteDrawSized(temp_2_108, 366.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_108);
-            if (arg3 == 0) {
+            footerSprite108 = (u8 *)(sdkSpriteNewNode(packAddress, 0x20));
+            sdkSpriteDrawSized(footerSprite108, 366.0f, 406.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite108);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_109 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_109, (f32) 0x1AD, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_109);
-            if (arg3 == 0) {
+            footerSprite109 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite109, (f32) 0x1AD, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite109);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_110 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_110, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_110);
-            if (arg3 == 0) {
+            footerSprite110 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite110, (f32) 0x1BB, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite110);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_111 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_111, 484.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_111);
-            if (arg3 == 0) {
+            footerSprite111 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite111, 484.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite111);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_112 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_112, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_112);
-            if (arg3 == 0) {
+            footerSprite112 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite112, 498.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite112);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_113 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_113, (f32) 0x216, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_113);
-            if (arg3 == 0) {
+            footerSprite113 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite113, (f32) 0x216, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite113);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_114 = (u8 *)(sdkSpriteNewNode(arg3, 0x11));
-            sdkSpriteDrawSized(temp_2_114, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_114);
+            footerSprite114 = (u8 *)(sdkSpriteNewNode(packAddress, 0x11));
+            sdkSpriteDrawSized(footerSprite114, 548.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite114);
             return;
         case 20:
-            if (arg3 == 0) {
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_115 = (u8 *)(sdkSpriteNewNode(arg3, 0xE));
-            sdkSpriteDrawSized(temp_2_115, (f32) 0x13B, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_115);
-            if (arg3 == 0) {
+            footerSprite115 = (u8 *)(sdkSpriteNewNode(packAddress, 0xE));
+            sdkSpriteDrawSized(footerSprite115, (f32) 0x13B, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite115);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_116 = (u8 *)(sdkSpriteNewNode(arg3, 0x20));
-            sdkSpriteDrawSized(temp_2_116, 366.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_116);
-            if (arg3 == 0) {
+            footerSprite116 = (u8 *)(sdkSpriteNewNode(packAddress, 0x20));
+            sdkSpriteDrawSized(footerSprite116, 366.0f, 406.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite116);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_117 = (u8 *)(sdkSpriteNewNode(arg3, 0xA));
-            sdkSpriteDrawSized(temp_2_117, (f32) 0x1AD, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_117);
-            if (arg3 == 0) {
+            footerSprite117 = (u8 *)(sdkSpriteNewNode(packAddress, 0xA));
+            sdkSpriteDrawSized(footerSprite117, (f32) 0x1AD, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite117);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_118 = (u8 *)(sdkSpriteNewNode(arg3, 0xF));
-            sdkSpriteDrawSized(temp_2_118, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_118);
-            if (arg3 == 0) {
+            footerSprite118 = (u8 *)(sdkSpriteNewNode(packAddress, 0xF));
+            sdkSpriteDrawSized(footerSprite118, (f32) 0x1BB, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite118);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_119 = (u8 *)(sdkSpriteNewNode(arg3, 0xB));
-            sdkSpriteDrawSized(temp_2_119, 484.0f, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_119);
-            if (arg3 == 0) {
+            footerSprite119 = (u8 *)(sdkSpriteNewNode(packAddress, 0xB));
+            sdkSpriteDrawSized(footerSprite119, 484.0f, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite119);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_120 = (u8 *)(sdkSpriteNewNode(arg3, 0x10));
-            sdkSpriteDrawSized(temp_2_120, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_120);
-            if (arg3 == 0) {
+            footerSprite120 = (u8 *)(sdkSpriteNewNode(packAddress, 0x10));
+            sdkSpriteDrawSized(footerSprite120, 498.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite120);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_121 = (u8 *)(sdkSpriteNewNode(arg3, 0xD));
-            sdkSpriteDrawSized(temp_2_121, (f32) 0x216, (f32) 0x195, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
-            sdkSpriteFreeNode(temp_2_121);
-            if (arg3 == 0) {
+            footerSprite121 = (u8 *)(sdkSpriteNewNode(packAddress, 0xD));
+            sdkSpriteDrawSized(footerSprite121, (f32) 0x216, (f32) 0x195, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, 0.0f, (s16) 0);
+            sdkSpriteFreeNode(footerSprite121);
+            if (packAddress == 0) {
                 kAssertFail(D_0064B310, 0x94);
             }
-            temp_2_122 = (u8 *)(sdkSpriteNewNode(arg3, 0x12));
-            sdkSpriteDrawSized(temp_2_122, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
-            sdkSpriteFreeNode(temp_2_122);
+            footerSprite122 = (u8 *)(sdkSpriteNewNode(packAddress, 0x12));
+            sdkSpriteDrawSized(footerSprite122, 548.0f, 404.0f, depth, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
+            sdkSpriteFreeNode(footerSprite122);
             return;
         default:
             kAssertFail(D_0064B310, 0x243);
