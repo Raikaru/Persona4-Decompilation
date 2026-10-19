@@ -36,7 +36,9 @@ typedef struct FldEventActor {
     u8 *encounterData;
     u32 model;
     u32 active;
-    u8 unknown58[0x170];
+    u8 unknown58[0x158];
+    u8 *auxiliaryTask; /* +0x1B0: chaser/patrol task; FldSlotBroadcastState writes its pause word. */
+    u8 unknown1b4[0x14];
     u16 kind;
     u8 unknown1ca[0x55E];
     s16 partyId;

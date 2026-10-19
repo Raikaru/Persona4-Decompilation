@@ -12,12 +12,15 @@ typedef struct FldFilterEntry {
 } FldFilterEntry;
 
 /* InitQuads writes four vertices per 0x100-byte quad. Coordinates occupy
- * +0x00..08, reciprocal depth +0x18, and floating RGBA +0x20..2C. */
+ * +0x00..08; fog/map texture coordinates use +0x10/+0x14, reciprocal depth
+ * uses +0x18, and floating RGBA occupies +0x20..2C. */
 typedef struct FldFilterVertex {
     f32 x;
     f32 y;
     f32 z;
-    u8 pad0C[0x0C];
+    u8 pad0C[4];
+    f32 u;
+    f32 v;
     f32 reciprocalDepth;
     u8 pad1C[4];
     f32 red;
