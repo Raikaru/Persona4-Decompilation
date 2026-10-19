@@ -23,7 +23,7 @@ extern u8 D_0064EC70[];
 extern s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3);
 extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
 extern void btlShuffleCardUpdateState(u8 *arg0);
-extern void *func_0036e900(void *arg0);
+extern void *btlShuffleGetParentWork(void *arg0);
 extern void btlShuffleResetSlot(u8 *arg0);
 extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst);
 extern void btlShuffleDrawMoveCard(u8 *ctx, s32 idx, f32 c, f32 d, f32 *a, f32 *b);
@@ -75,7 +75,7 @@ extern s32 datGetFlag(s32 a);
 extern s32 cmmCommunityValueForArcana(s32 a);
 extern s32 FldStepBandFlagSet(void);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
-extern void *func_0036e910(void *a);
+extern void *btlShuffleGetDrawContext(void *a);
 extern s32 btlShuffleDrawSpawn(u8 *parent, s32 cardIndex);
 extern void btlShuffleDrawCardActivateRing(u8 *a);
 extern u32 RpRandom(void);
@@ -439,7 +439,7 @@ s32 btlShuffleResultLayout(u8 *arg0)
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            btlShuffleResetSlot((u8 *)func_0036e900(*(void **)(*(u8 **)arg0 + 0x1F2A8)));
+            btlShuffleResetSlot((u8 *)btlShuffleGetParentWork(*(void **)(*(u8 **)arg0 + 0x1F2A8)));
             return 1;
         }
         break;
@@ -990,7 +990,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
     s32 i;
     u8 *u;
 
-    unit = func_0036e910(arg0);
+    unit = btlShuffleGetDrawContext(arg0);
     *(u8 **)work = unit;
     *(s32 *)(work + 0xC) = arg1;
     *(u16 *)(work + 0x10) = arg2;

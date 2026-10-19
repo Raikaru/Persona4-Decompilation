@@ -10,7 +10,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0064F0F0[];
 extern f32 D_0064F110[];
 extern u8 D_0064F210[];
-extern s32 func_0036e910(void *arg0);
+extern s32 btlShuffleGetDrawContext(void *arg0);
 extern s32 btlShuffleEffStep(u8 *arg0);
 extern void btlShuffleEffRelease(u8 *arg0);
 extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
@@ -71,7 +71,7 @@ u8 *btlShuffleEffSpawn(u8 *arg0) {
     if (ctx == NULL) {
         kAssertFail(&D_0064F210[0], 0x10E);
     }
-    *(s32 *)tbl = (s32)func_0036e910(arg0);
+    *(s32 *)tbl = (s32)btlShuffleGetDrawContext(arg0);
     btlShuffleEffRelease(ctx);
     return ctx;
 }

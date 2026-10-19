@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2446 of 13102 symbols carry a recovered name.
+// 2452 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -5328,8 +5328,8 @@ func_0036e840 = 0x0036E840; // type:func
 func_0036e870 = 0x0036E870; // type:func
 func_0036e8a0 = 0x0036E8A0; // type:func
 func_0036e8d0 = 0x0036E8D0; // type:func
-func_0036e900 = 0x0036E900; // type:func
-func_0036e910 = 0x0036E910; // type:func
+btlShuffleGetParentWork = 0x0036E900; // type:func
+btlShuffleGetDrawContext = 0x0036E910; // type:func
 func_0036e920 = 0x0036E920; // type:func
 func_0036ea00 = 0x0036EA00; // type:func
 func_0036eb50 = 0x0036EB50; // type:func
@@ -5343,12 +5343,12 @@ func_0036fbe0 = 0x0036FBE0; // type:func
 func_0036fd00 = 0x0036FD00; // type:func
 func_0036fed0 = 0x0036FED0; // type:func
 func_00370020 = 0x00370020; // type:func
-func_00370290 = 0x00370290; // type:func
+btlShuffleCalcBuildBezierTangents = 0x00370290; // type:func
 func_00370410 = 0x00370410; // type:func
-func_00370640 = 0x00370640; // type:func
+btlShuffleCalcStepWanderMotion = 0x00370640; // type:func
 func_00370a80 = 0x00370A80; // type:func
-func_00370cd0 = 0x00370CD0; // type:func
-func_00371160 = 0x00371160; // type:func
+btlShuffleCalcStepWanderRotation = 0x00370CD0; // type:func
+btlShuffleCalcRotatePointAroundAxis = 0x00371160; // type:func
 func_00371260 = 0x00371260; // type:func
 func_003713b0 = 0x003713B0; // type:func
 func_00371500 = 0x00371500; // type:func
