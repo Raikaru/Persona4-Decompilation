@@ -853,7 +853,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
     extern char *strcpy(char *dst, const char *src);
     extern s32 strlen(const void *str);
     extern s32 fptodp(f32 value);
-    extern void func_004501f0(s64 arg0, s32 arg1, const void *arg2, ...);
+    extern void sdkDbprtQueueColoredText(s64 arg0, s32 arg1, const void *arg2, ...);
     extern s32 iGpffffb064;
     extern char iGpffffb068;
     extern char iGpffffb06c;
@@ -935,7 +935,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
             }
             }
         } else {
-            func_00450340(*(s64 *)pos, &iGpffffb0a0, node + 8);
+            sdkDbprtQueueText(*(s64 *)pos, &iGpffffb0a0, node + 8);
             switch (*(s32 *)(node + 4)) {
             case 0:
                 break;
@@ -943,7 +943,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
                 s32 v;
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (strlen(node + 0x108) + 1));
                 pos[0] = (f32)(u32)v;
-                func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb0a4, node + 0x108);
+                sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb0a4, node + 0x108);
                 break;
             }
             case 2: {
@@ -951,9 +951,9 @@ void sdkLboxDrawEntries(u8 *arg0) {
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (strlen(&iGpffffb0a8) + 1));
                 pos[0] = (f32)(u32)v;
                 if (*(s32 *)(node + 0x208) == 1) {
-                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb078);
+                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb078);
                 } else {
-                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb080);
+                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb080);
                 }
                 break;
             }
@@ -962,12 +962,12 @@ void sdkLboxDrawEntries(u8 *arg0) {
                     s32 v;
                     v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 9);
                     pos[0] = (f32)v;
-                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb088, *(s32 *)(node + 0x208));
+                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb088, *(s32 *)(node + 0x208));
                 } else {
                     s32 v;
                     v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 11);
                     pos[0] = (f32)v;
-                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb0b0, *(s32 *)(node + 0x208));
+                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb0b0, *(s32 *)(node + 0x208));
                 }
                 break;
             }
@@ -977,7 +977,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 8);
                 pos[0] = (f32)v;
                 r = fptodp(*(f32 *)(node + 0x20C));
-                func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb098, r);
+                sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb098, r);
                 break;
             }
             }

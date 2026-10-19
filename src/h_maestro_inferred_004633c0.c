@@ -103,7 +103,7 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern void func_0044f720(void);
+extern void sdkDbprtDrawGrid(void);
 extern s32 func_003e23e0(void);
 extern void func_003e82e0();
 extern void func_003e5510(s32 value);
@@ -250,7 +250,7 @@ s32 hMaestroUpdateServicesTask(u8 *unusedTask)
     s32 elapsedTicks;
     s32 timerNow;
 
-    func_0044f720();
+    sdkDbprtDrawGrid();
     iGpffffba8c = func_003e23e0();
     func_003e82e0(kwlnGetCamera(), 0, 0);
     /* EE TIMER0 count register; intentionally read and reset as hardware I/O. */

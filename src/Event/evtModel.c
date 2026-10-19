@@ -93,9 +93,9 @@ extern s32 mtMiscResourceValue(u32 id);
 // lint: allow H011 -- measured: u16 prototype regresses func_00292ef0 (andi on wide id args)
 extern void *MT_Scene_GetRes(u32 id);
 
-extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
-extern void func_002e1ef0(void *a);
-extern u8 *func_002e2170(void *a, s32 b, s32 c);
+extern u8 *nmListAllocManager(s32 a, s32 b, s32 c, s32 d);
+extern void nmListDestroyManager(void *a);
+extern u8 *nmListAppendNode(void *a, s32 b, s32 c);
 extern void comuDataRemoveAndReleaseNode(void *a, void *b, void *c);
 extern void RwV3dNormalize(void *a, void *b);
 extern void memcpy(void *dst, void *src, s32 size);
@@ -742,7 +742,7 @@ void evtModelTaskDestroy(u8 *unusedTask) {
             node = next;
         }
     }
-    func_002e1ef0(*list);
+    nmListDestroyManager(*list);
 }
 
 // Destroys the event-model manager task by name, with its child tasks.
@@ -809,7 +809,7 @@ void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed) {
 
     task = kwlnTaskGetTaskByName(D_0063C958);
     if (task == 0) {
-        newQueue = (u8 *)func_002e1db0(4, 0, 0, 0);
+        newQueue = (u8 *)nmListAllocManager(4, 0, 0, 0);
         newWork = ((EvtModelQueue *)newQueue)->work;
         *newWork = newQueue;
         task = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(newWork));
@@ -836,7 +836,7 @@ void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed) {
         }
     }
     queue = (u8 *)*work;
-    queuedEntry = (u8 *)((EvtModelQueueNode *)func_002e2170(queue, ((EvtModelQueue *)queue)->count + 1, 0x4C))->entry;
+    queuedEntry = (u8 *)((EvtModelQueueNode *)nmListAppendNode(queue, ((EvtModelQueue *)queue)->count + 1, 0x4C))->entry;
     memcpy(queuedEntry, &parameters, 0x2C);
     ((EvtModelRec *)queuedEntry)->step = (s32 (*)(u8 **, u8 *))D_0063C930[parameters.motion];
 }
@@ -861,7 +861,7 @@ void evtModelQueueTimedMotion(u16 resourceId, u16 duration, s32 motion, f32 spee
 
     task = kwlnTaskGetTaskByName(D_0063C958);
     if (task == 0) {
-        newQueue = (u8 *)func_002e1db0(4, 0, 0, 0);
+        newQueue = (u8 *)nmListAllocManager(4, 0, 0, 0);
         newWork = ((EvtModelQueue *)newQueue)->work;
         *newWork = newQueue;
         task = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(newWork));
@@ -889,7 +889,7 @@ void evtModelQueueTimedMotion(u16 resourceId, u16 duration, s32 motion, f32 spee
         }
     }
     queue = (u8 *)*work;
-    queuedEntry = (u8 *)((EvtModelQueueNode *)func_002e2170(queue, ((EvtModelQueue *)queue)->count + 1, 0x4C))->entry;
+    queuedEntry = (u8 *)((EvtModelQueueNode *)nmListAppendNode(queue, ((EvtModelQueue *)queue)->count + 1, 0x4C))->entry;
     memcpy(queuedEntry, &parameters, 0x2C);
     ((EvtModelRec *)queuedEntry)->step = (s32 (*)(u8 **, u8 *))D_0063C930[parameters.motion];
 }

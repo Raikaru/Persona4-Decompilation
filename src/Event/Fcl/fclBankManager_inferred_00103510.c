@@ -310,7 +310,7 @@ loop2_check:
             break;
         }
     case 1:
-        func_00450340(iGpffff85c8, (const char *)D_005DD5D0);
+        sdkDbprtQueueText(iGpffff85c8, (const char *)D_005DD5D0);
         *(s32 *)(*(u8 **)(state + 4) + 0) = 0;
         *(s32 *)(*(u8 **)(state + 4) + 4) = 0;
         *(s32 *)(*(u8 **)(state + 8) + 0) = 0;

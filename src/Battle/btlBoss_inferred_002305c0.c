@@ -12,7 +12,7 @@ extern u8 *iGpffffa5f0;
 extern void sdkSndResetChannel(s32 value, s32 option);
 extern u8 *btlPacketAlloc(s32 type, s32 workSize);
 extern void H_Cdvd_Destroy(u8 *ptr);
-extern void func_0045ac90(s32 value, s32 option, s32 data);
+extern void sdkSndStartMonoBuffer(s32 value, s32 option, s32 data);
 extern s32 btlBossLoadEndBgmStep(u8 *work);
 
 extern s32 btlCurrentUnitId(void);
@@ -98,7 +98,7 @@ s32 btlBossStepEndBgmHandle(void)
 
     handle = (u8 *)((BtlBattleState *)iGpffffb3ac)->bossEndBgmHandle;
     if (handle != NULL) {
-        func_0045ac90(2, *(s32 *)(handle + 0x110), *(s32 *)(handle + 0x118));
+        sdkSndStartMonoBuffer(2, *(s32 *)(handle + 0x110), *(s32 *)(handle + 0x118));
     }
     return 1;
 }

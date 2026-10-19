@@ -32,8 +32,8 @@ void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
                    f32 radius, f32 angle, u32 segments, f32 xscale, f32 yscale,
                    s32 mode);
 
-void func_00450dd0(PackedVec2f position, f32 depth, const void *format, ...);
-void func_00450e80(PackedColor4 color, PackedVec2f position, f32 depth,
+void sdkDbprtPrint(PackedVec2f position, f32 depth, const void *format, ...);
+void sdkDbprtPrintColor(PackedColor4 color, PackedVec2f position, f32 depth,
                    const void *format, ...);
 
 #endif

@@ -10,7 +10,7 @@ extern char iGpffffa890[8];
 extern int iGpffffa898;
 
 extern void func_00446e88(u8 *, s32 *);
-extern u8 *func_002e2170(void *, void *, s32);
+extern u8 *nmListAppendNode(void *, void *, s32);
 typedef struct NmlistNode NmlistNode;
 typedef struct NmlistList NmlistList;
 extern NmlistNode *comuDataRemoveAndReleaseNode(NmlistList *, NmlistList *, int *);
@@ -207,7 +207,7 @@ void fclBankQueueRequest(s32 descriptor, s64 flags)
         slot++;
         i++;
     }
-    request = ((FclBankRequestNode *)func_002e2170((void *)iGpffffb588, 0, 0x14))->request;
+    request = ((FclBankRequestNode *)nmListAppendNode((void *)iGpffffb588, 0, 0x14))->request;
     request->descriptor = descriptor;
     request->flags = (s16)(((s16)flags & 0xFF00) | 3);
 }
