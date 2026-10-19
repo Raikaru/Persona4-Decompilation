@@ -38,7 +38,7 @@ static inline EvtSceneRecord *evtSceneRecordAt(MtMiscSceneSource *source, s32 in
     return (EvtSceneRecord *)((u8 *)source->records98 + index * 0x3C);
 }
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
                           s32 arg7);
 extern f32 fGpffff8204;

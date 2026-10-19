@@ -1,3 +1,4 @@
+#include "primitive_queue_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Original translation unit mc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -139,7 +140,7 @@ extern void shdSpriteDrawNumberString(f32, f32, f32, s32, u8, void *, s32, void 
 
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
-extern void func_002a2e10(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
+extern void yTimeDrawIndexedGlyph(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 extern void mcDrawLocationText(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
 extern void mcDrawDateAndLocation(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
 extern u32 RpRandom(void);
@@ -147,134 +148,204 @@ extern s32 D_0063EDB0[];
 extern s32 D_0063EDD0[];
 extern f32 D_00761300;
 
-// FUN_002A2E50
-void mcSetState(u8 *arg0, s32 arg1) {
-    s32 v;
-    s32 t19;
-    u8 *p18;
-    s32 p17;
-    u8 *p;
-    s32 sp6C;
+/* Save-table stride is 0x34; text starts at +0x0C/+0x1E and location at +0x30. */
+typedef struct McSaveRecord {
+    s16 day;
+    s16 unk02;
+    u32 playFrames;
+    u8 level, mode, special, pad0B;
+    u8 firstName[0x12];
+    u8 secondName[0x12];
+    u8 area, room;
+    u8 pad32[2];
+} McSaveRecord;
 
-    *(s32 *)(arg0 + 8) = arg1;
-    *(s32 *)(arg0 + 0xC) = 0;
-    v = *(s32 *)(arg0 + 8);
-    switch (v) {
+typedef struct McCircleEntry {
+    u32 flags;
+    s32 kind;
+    union { f32 value; s32 bits; } x, y;
+    s16 frame, delay;
+} McCircleEntry;
+
+typedef struct McSaveBuffer {
+    s32 size;
+    u8 *data;
+} McSaveBuffer;
+typedef struct McRecordTable {
+    s32 states[16];
+    McSaveRecord records[16];
+} McRecordTable;
+
+
+/* Screen allocation is 0x56C bytes; card operations share its record table. */
+typedef struct McScreenState {
+    s16 phase;
+    s16 interactionPhase;
+    u32 flags;
+    s32 operation;
+    s32 operationState;
+    s32 operationFlags;
+    u8 records[0x380];
+    s32 window;
+    s32 spritePack;
+    s32 saveBuffer;
+    s32 unk3A0;
+    s32 directory;
+    s32 delay;
+    s32 slot;
+    s32 scroll;
+    s32 scrollPosition; /* 16.16 slot coordinate */
+    s32 selectionPulse;
+    s32 iconFade;
+    s32 upperPulse;
+    s32 lowerPulse;
+    s32 upperFade;
+    s32 lowerFade;
+    s32 legendFade;
+    u8 circles[0x190];
+    s32 circlesSeeded;
+    s32 frame;
+} McScreenState;
+typedef char McSaveRecordSizeCheck[sizeof(McSaveRecord) == 0x34 ? 1 : -1];
+typedef char McCircleEntrySizeCheck[sizeof(McCircleEntry) == 0x14 ? 1 : -1];
+typedef char McSaveBufferSizeCheck[sizeof(McSaveBuffer) == 8 ? 1 : -1];
+typedef char McRecordTableSizeCheck[sizeof(McRecordTable) == 0x380 ? 1 : -1];
+typedef char McScreenStateSizeCheck[sizeof(McScreenState) == 0x56C ? 1 : -1];
+
+/* Enter a card operation, resetting its substate and replacing the status dialog. */
+/* McScreenState/McSaveBuffer layouts are proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
+// FUN_002A2E50
+void mcSetState(u8 *work, s32 state) {
+    s32 currentState;
+    s32 slot;
+    u8 *image;
+    s32 imageSize;
+    u8 *buffer;
+    s32 size;
+
+    *(s32 *)(work + 8) = state;
+    *(s32 *)(work + 0xC) = 0;
+    currentState = *(s32 *)(work + 8);
+    switch (currentState) {
     case 0:
-        memset(arg0 + 0x14, 0, 0x380);
-        H_Memcard_SetRecordTable(arg0 + 0x14);
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        memset(work + 0x14, 0, 0x380);
+        H_Memcard_SetRecordTable(work + 0x14);
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
         func_00440b68(&D_0063EB90);
         return;
     case 1:
-        H_Memcard_SetSlot(*(s32 *)(arg0 + 0x3AC));
-        *(s32 *)(arg0 + 0xC) = 0;
+        H_Memcard_SetSlot(*(s32 *)(work + 0x3AC));
+        *(s32 *)(work + 0xC) = 0;
         return;
     case 2:
-        t19 = *(s32 *)(arg0 + 0x3AC);
-        p18 = datSaveBuildImage(0, &sp6C, 0);
-        p17 = sp6C;
+        slot = *(s32 *)(work + 0x3AC);
+        image = datSaveBuildImage(0, &size, 0);
+        imageSize = size;
         chkmemAllocSiteTag(&D_007638F8, 0x16D);
-        p = D_008873F4[0](1, 0x38008, 0x40000);
-        *(s32 *)(p + 4) = (s32)(p + 8);
-        if (p18 != NULL && p17 != 0) {
-            memcpy((void *)*(s32 *)(p + 4), p18, p17);
-            *(s32 *)p = p17;
+        buffer = D_008873F4[0](1, 0x38008, 0x40000);
+        *(s32 *)(buffer + 4) = (s32)(buffer + 8);
+        if (image != NULL && imageSize != 0) {
+            memcpy((void *)*(s32 *)(buffer + 4), image, imageSize);
+            *(s32 *)buffer = imageSize;
         }
-        D_008873EC[0](p18);
-        H_Memcard_BeginLoad(t19, (void *)*(s32 *)(p + 4), *(s32 *)p);
-        *(s32 *)(arg0 + 0x39C) = (s32)p;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        D_008873EC[0](image);
+        H_Memcard_BeginLoad(slot, (void *)*(s32 *)(buffer + 4), *(s32 *)buffer);
+        *(s32 *)(work + 0x39C) = (s32)buffer;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
         func_00440b68(&D_0063EBB0);
-        *(s32 *)(arg0 + 0xC) = 0;
+        *(s32 *)(work + 0xC) = 0;
         return;
     case 3:
         func_00440b68(&D_0063EBD0);
-        *(s32 *)(arg0 + 0xC) = 0x10;
+        *(s32 *)(work + 0xC) = 0x10;
         return;
     }
 }
 
+/* Advance loading and its error dialog; return the screen transition result. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A3070
-s32 mcLoadState(u8 *arg0) {
-    s32 v;
-    s32 r;
-    s32 var_16;
+s32 mcLoadState(u8 *work) {
+    s32 state;
+    s32 result;
+    s32 dialogClosed;
 
-    var_16 = 0;
-    v = *(s32 *)(arg0 + 0xC);
-    switch (v) {
+    dialogClosed = 0;
+    state = *(s32 *)(work + 0xC);
+    switch (state) {
     case 0:
-        switch (r = H_Memcard_LoadStep(v)) {
+        switch (result = H_Memcard_LoadStep(state)) {
         case 100:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
             func_00440b68(&D_0063EBF0);
             return 1;
         case -2:
-            *(s32 *)(arg0 + 0xC) = 1;
+            *(s32 *)(work + 0xC) = 1;
             func_00440b68(&D_0063EC10);
-            memset(arg0 + 0x14, 0, 0x380);
+            memset(work + 0x14, 0, 0x380);
             break;
         case -1:
         case -3:
         case -4:
         case -5:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            func_00440b68(&D_0063EC30, r);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            func_00440b68(&D_0063EC30, result);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         default:
             break;
         }
         break;
     case 0xA:
-        *(s32 *)(arg0 + 0xC) = 0xB;
+        *(s32 *)(work + 0xC) = 0xB;
         H_Memcard_SetAbort();
         /* fallthrough */
     case 0xB:
-        r = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (r != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        result = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (result != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (r != 0) {
-            var_16 = 1;
+        if (result != 0) {
+            dialogClosed = 1;
         }
-        r = H_Memcard_CheckCard();
-        switch (r) {
+        result = H_Memcard_CheckCard();
+        switch (result) {
         case -2:
         case 3:
             return 3;
         }
-        if (var_16 != 0) {
+        if (dialogClosed != 0) {
             return 4;
         }
         break;
     case 1:
-        *(s32 *)(arg0 + 0xC) = 2;
-        *(s32 *)(arg0 + 0x3A8) = 0;
+        *(s32 *)(work + 0xC) = 2;
+        *(s32 *)(work + 0x3A8) = 0;
         /* fallthrough */
     case 2:
-        v = *(s32 *)(arg0 + 0x3A8) + 1;
-        *(s32 *)(arg0 + 0x3A8) = v;
-        if (v >= 0xF) {
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+        state = *(s32 *)(work + 0x3A8) + 1;
+        *(s32 *)(work + 0x3A8) = state;
+        if (state >= 0xF) {
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
             return 1;
         }
@@ -285,69 +356,71 @@ s32 mcLoadState(u8 *arg0) {
 
 
 // Intent: memory-card probe dialog. Runs the card probe (state +0xC = 0); a ready card returns 1, an error opens a dialog and waits for it. The later states wait for a second dialog and return 4 when it closes.
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A32C0
-s32 mcCardProbeStep(u8 *arg0) {
-    s32 v;
-    s32 r;
+s32 mcCardProbeStep(u8 *work) {
+    s32 state;
+    s32 result;
 
-    v = *(s32 *)(arg0 + 0xC);
-    switch (v) {
+    state = *(s32 *)(work + 0xC);
+    switch (state) {
     case 0:
-        switch (r = H_Memcard_ProbeCardStep(v)) {
+        switch (result = H_Memcard_ProbeCardStep(state)) {
         case 100:
             func_00440b68(&D_0063EC50);
             return 1;
         case -6:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 6);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 6);
             func_00440b68(&D_0063EC70);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         case -1:
         case -4:
         case -5:
         case -9:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
             func_00440b68(&D_0063EC30, 0);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         default:
             break;
         }
         break;
     case 0xA:
-        *(s32 *)(arg0 + 0xC) = 0xB;
+        *(s32 *)(work + 0xC) = 0xB;
         /* fallthrough */
     case 0xB:
-        r = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (r != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        result = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (result != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (r != 0) {
-            *(s32 *)(arg0 + 0xC) = 0xC;
+        if (result != 0) {
+            *(s32 *)(work + 0xC) = 0xC;
         }
         break;
     case 0xC:
-        *(s32 *)(arg0 + 0xC) = 0xD;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0xD;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 8);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 8);
         /* fallthrough */
     case 0xD:
-        r = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (r != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        result = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (result != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (r != 0) {
+        if (result != 0) {
             return 4;
         }
         break;
@@ -356,29 +429,32 @@ s32 mcCardProbeStep(u8 *arg0) {
 }
 
 
+/* Advance save-file preparation and confirmation/error dialogs. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A34E0
-s32 mcMemcardStep(u8 *arg0) {
-    s32 var_17;
-    u8 *temp_16;
-    s32 v;
-    s32 t;
-    s32 idx;
+s32 mcMemcardStep(u8 *work) {
+    s32 result;
+    u8 *buffer;
+    s32 state;
+    s32 status;
+    s32 slotOffset;
 
-    v = *(s32 *)(arg0 + 0xC);
-    switch (v) {
+    state = *(s32 *)(work + 0xC);
+    switch (state) {
     case 0:
-        temp_16 = *(u8 **)(arg0 + 0x39C);
-        switch (var_17 = H_Memcard_PrepareSaveFileStep()) {
+        buffer = *(u8 **)(work + 0x39C);
+        switch (result = H_Memcard_PrepareSaveFileStep()) {
         case 100:
-            D_008873EC[0](temp_16);
+            D_008873EC[0](buffer);
             break;
         case 1:
             func_00440b68(&D_0063EB50);
-            var_17 = 1;
+            result = 1;
             break;
         case 2:
             func_00440b68(&D_0063EB70);
-            var_17 = 2;
+            result = 2;
             break;
         case -1:
         case -3:
@@ -388,229 +464,229 @@ s32 mcMemcardStep(u8 *arg0) {
         case -7:
             break;
         }
-        switch (var_17) {
+        switch (result) {
         case 100:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 9);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 9);
             func_00440b68(&D_0063EC90);
-            *(s32 *)(arg0 + 0xC) = 9;
-            if (arg0 == NULL) {
+            *(s32 *)(work + 0xC) = 9;
+            if (work == NULL) {
                 kAssertFail(&D_007638F8, 0xE3);
             }
-            D_00764638 = *(s32 *)(arg0 + 0x3AC);
+            D_00764638 = *(s32 *)(work + 0x3AC);
             break;
         case 1:
-            *(s32 *)(arg0 + 0xC) = 3;
+            *(s32 *)(work + 0xC) = 3;
             break;
         case 2:
             func_00440b68(&D_0063EC10);
-            *(s32 *)(arg0 + 0xC) = 5;
+            *(s32 *)(work + 0xC) = 5;
             break;
         case 4:
             func_00440b68(&D_0063ECB0);
-            *(s32 *)(arg0 + 0x10) &= ~1;
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            *(s32 *)(work + 0x10) &= ~1;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 7);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7);
             break;
         case 5:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 7);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7);
             break;
         case -5:
-            func_00440b68(&D_0063EC30, var_17);
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            func_00440b68(&D_0063EC30, result);
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         case -3:
-            func_00440b68(&D_0063EC30, var_17);
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            func_00440b68(&D_0063EC30, result);
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         case -6:
-            func_00440b68(&D_0063EC30, var_17);
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            func_00440b68(&D_0063EC30, result);
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 6);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 6);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         case -4:
-            idx = *(s32 *)(arg0 + 0x3AC) * 4;
-            *(s32 *)(idx + (s32)arg0 + 0x14) = 2;
+            slotOffset = *(s32 *)(work + 0x3AC) * 4;
+            *(s32 *)(slotOffset + (s32)work + 0x14) = 2;
             /* fallthrough */
         case -7:
-            func_00440b68(&D_0063EC30, var_17);
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            func_00440b68(&D_0063EC30, result);
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         case 0:
             break;
         }
         break;
     case 3:
-        *(s32 *)(arg0 + 0xC) = 4;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 4;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 4);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 4);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 4:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        switch (t) {
+        switch (status) {
         case 1:
-            *(s32 *)(arg0 + 0xC) = 0;
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            *(s32 *)(work + 0xC) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 7);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7);
             H_Memcard_SetSeqMode9();
             break;
         case 2:
-            D_008873EC[0](*(void **)(arg0 + 0x39C));
+            D_008873EC[0](*(void **)(work + 0x39C));
             return 2;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -5:
         case 3:
-            func_00440b68(&D_0063EC30, t);
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            func_00440b68(&D_0063EC30, status);
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         }
         break;
     case 5:
-        *(s32 *)(arg0 + 0xC) = 6;
-        *(s32 *)(arg0 + 0x10) |= 1;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 6;
+        *(s32 *)(work + 0x10) |= 1;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 1);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 1);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        switch (t) {
+        switch (status) {
         case 1:
-            *(s32 *)(arg0 + 0xC) = 0;
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            *(s32 *)(work + 0xC) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 2);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 2);
             H_Memcard_SetSeqMode4();
             break;
         case 2:
             return 2;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -5:
         case 3:
-            func_00440b68(&D_0063EC30, t);
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            func_00440b68(&D_0063EC30, status);
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(arg0 + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0xC) = 0xA;
             break;
         }
         break;
     case 9:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
+        if (status != 0) {
             return 1;
         }
         break;
     case 10:
-        *(s32 *)(arg0 + 0xC) = 0xB;
+        *(s32 *)(work + 0xC) = 0xB;
         H_Memcard_SetAbort();
         /* fallthrough */
     case 11:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
-            *(s32 *)(arg0 + 0xC) = 0xC;
+        if (status != 0) {
+            *(s32 *)(work + 0xC) = 0xC;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -2:
         case 3:
-            *(s32 *)(arg0 + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC;
             break;
         }
         break;
     case 12:
-        *(s32 *)(arg0 + 0xC) = 0xD;
+        *(s32 *)(work + 0xC) = 0xD;
         H_Memcard_SetAbort();
-        if (*(s32 *)(arg0 + 0x10) & 1) {
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+        if (*(s32 *)(work + 0x10) & 1) {
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 3);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 3);
         } else {
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 8);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 8);
         }
-        *(s32 *)(arg0 + 0x10) &= ~1;
-        D_008873EC[0](*(void **)(arg0 + 0x39C));
+        *(s32 *)(work + 0x10) &= ~1;
+        D_008873EC[0](*(void **)(work + 0x39C));
         /* fallthrough */
     case 13:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
+        if (status != 0) {
             return 4;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -2:
         case 3:
             return 4;
@@ -625,203 +701,206 @@ s32 mcMemcardStep(u8 *arg0) {
  * entries, and eight zero alignment bytes. The payload's byte-pointer ABI
  * preserves retail's load/load/count/version/pointer argument schedule.
  * Cache only the deallocator slot address, not its callback or work pointer. */
+/* Read the selected save image, verify its checksum, and apply valid data. */
+/* McScreenState/McSaveBuffer layouts are proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A3D80
 s32 mcSaveState(s32 address) {
-    u8 *arg0 = (u8 *)address;
-    s32 v;
-    s32 t;
-    s32 file;
-    u8 *p;
-    s32 ok;
-    s32 sp4C;
-    s32 sp48;
-    void *ec;
+    u8 *work = (u8 *)address;
+    s32 state;
+    s32 status;
+    s32 slot;
+    u8 *buffer;
+    s32 valid;
+    s32 version;
+    s32 imageSize;
+    void *freeSlot;
     u8 *temporary;
 
-    v = *(s32 *)(arg0 + 0xC);
-    switch (v) {
+    state = *(s32 *)(work + 0xC);
+    switch (state) {
     case 16:
-        *(s32 *)(arg0 + 0xC) = 0x11;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0x11;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xB);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xB);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 17:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        switch (t) {
+        switch (status) {
         case 1:
-            if (*(s32 *)(arg0 + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-                *(s32 *)(arg0 + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) {
+                shdWindowMarkDone(*(s32 *)(work + 0x394));
+                *(s32 *)(work + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xC);
-            *(s32 *)(arg0 + 0xC) = 0x12;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xC);
+            *(s32 *)(work + 0xC) = 0x12;
             break;
         case 2:
             return 2;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case 0:
             break;
         case -5:
         case 3:
-            func_00440b68(D_0063EC30, t);
+            func_00440b68(D_0063EC30, status);
             return 4;
         }
         break;
     case 18:
-        *(s32 *)(arg0 + 0xC) = 0x13;
-        file = *(s32 *)(arg0 + 0x3AC);
+        *(s32 *)(work + 0xC) = 0x13;
+        slot = *(s32 *)(work + 0x3AC);
         chkmemAllocSiteTag(&D_007638F8, 0x16D);
-        p = D_008873F4[0](1, 0x38008, 0x40000);
-        *(u8 **)(p + 4) = p + 8;
-        H_Memcard_BeginSave(file, *(s32 *)(p + 4), (s32)p);
-        *(u8 **)(arg0 + 0x39C) = p;
+        buffer = D_008873F4[0](1, 0x38008, 0x40000);
+        *(u8 **)(buffer + 4) = buffer + 8;
+        H_Memcard_BeginSave(slot, *(s32 *)(buffer + 4), (s32)buffer);
+        *(u8 **)(work + 0x39C) = buffer;
         /* fallthrough */
     case 19:
-        t = H_Memcard_SaveStep();
-        if (t == 0) {
+        status = H_Memcard_SaveStep();
+        if (status == 0) {
             break;
         }
-        if (t == -3 || t == -5) {
+        if (status == -3 || status == -5) {
             goto read_failed;
         }
-        switch (t) {
+        switch (status) {
         case 100:
-            p = *(u8 **)(arg0 + 0x39C);
-            sp4C = 0;
-            temporary = datSaveBuildImage(0, &sp48, 0);
-            ec = D_008873EC;
-            (*(void (**)(void *))ec)(temporary);
-            memcpy(&sp4C, *(void **)(p + 4), 4);
-            if (datSaveVerifyChecksum(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4) == 0) {
-                ok = 0;
+            buffer = *(u8 **)(work + 0x39C);
+            version = 0;
+            temporary = datSaveBuildImage(0, &imageSize, 0);
+            freeSlot = D_008873EC;
+            (*(void (**)(void *))freeSlot)(temporary);
+            memcpy(&version, *(void **)(buffer + 4), 4);
+            if (datSaveVerifyChecksum(version, *(u8 **)(buffer + 4) + 4, *(s32 *)buffer - 4) == 0) {
+                valid = 0;
             } else {
-                datSaveRestoreImage(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4);
-                ok = 1;
+                datSaveRestoreImage(version, *(u8 **)(buffer + 4) + 4, *(s32 *)buffer - 4);
+                valid = 1;
             }
-            (*(void (**)(void *))ec)(*(void **)(arg0 + 0x39C));
-            if (ok != 0) {
+            (*(void (**)(void *))freeSlot)(*(void **)(work + 0x39C));
+            if (valid != 0) {
                 func_00440b68(D_0063ECD0);
-                *(s32 *)(arg0 + 0xC) = 0x14;
-                if (arg0 == NULL) {
+                *(s32 *)(work + 0xC) = 0x14;
+                if (work == NULL) {
                     kAssertFail(&D_007638F8, 0xE3);
                 }
-                D_00764638 = *(s32 *)(arg0 + 0x3AC);
+                D_00764638 = *(s32 *)(work + 0x3AC);
             } else {
                 func_00440b68(D_0063ECF0);
-                *(s32 *)(arg0 + 0xC) = 0x16;
+                *(s32 *)(work + 0xC) = 0x16;
             }
             break;
         case -4:
             func_00440b68(D_0063ED20);
-            *(s32 *)(arg0 + 0xC) = 0xE;
-            D_008873EC[0](*(void **)(arg0 + 0x39C));
+            *(s32 *)(work + 0xC) = 0xE;
+            D_008873EC[0](*(void **)(work + 0x39C));
             break;
         default:
 read_failed:
             func_00440b68(D_0063ED20);
-            *(s32 *)(arg0 + 0xC) = 0xC;
-            D_008873EC[0](*(void **)(arg0 + 0x39C));
+            *(s32 *)(work + 0xC) = 0xC;
+            D_008873EC[0](*(void **)(work + 0x39C));
             break;
         }
         break;
     case 20:
-        *(s32 *)(arg0 + 0xC) = 0x15;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0x15;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xD);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xD);
         /* fallthrough */
     case 21:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
+        if (status != 0) {
             return 1;
         }
         break;
     case 22:
-        *(s32 *)(arg0 + 0xC) = 0x17;
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0x17;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0x14);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x14);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 23:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
-            *(s32 *)(arg0 + 0xC) = 0xC;
+        if (status != 0) {
+            *(s32 *)(work + 0xC) = 0xC;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -2:
         case 3:
-            *(s32 *)(arg0 + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC;
             break;
         }
         break;
     case 12:
-        *(s32 *)(arg0 + 0xC) = 0xD;
+        *(s32 *)(work + 0xC) = 0xD;
         H_Memcard_SetAbort();
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xE);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xE);
         /* fallthrough */
     case 13:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
+        if (status != 0) {
             return 4;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -2:
         case 3:
-            func_00440b68(D_0063EC30, t);
+            func_00440b68(D_0063EC30, status);
             return 4;
         }
         break;
     case 14:
-        *(s32 *)(arg0 + 0xC) = 0xF;
+        *(s32 *)(work + 0xC) = 0xF;
         H_Memcard_SetAbort();
-        if (*(s32 *)(arg0 + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
-            *(s32 *)(arg0 + 0x394) = 0;
+        if (*(s32 *)(work + 0x394) != 0) {
+            shdWindowMarkDone(*(s32 *)(work + 0x394));
+            *(s32 *)(work + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
         /* fallthrough */
     case 15:
-        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
-        if (t != 0) {
-            *(s32 *)(arg0 + 0x394) = 0;
+        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        if (status != 0) {
+            *(s32 *)(work + 0x394) = 0;
         }
-        if (t != 0) {
+        if (status != 0) {
             return 4;
         }
-        t = H_Memcard_CheckCard();
-        switch (t) {
+        status = H_Memcard_CheckCard();
+        switch (status) {
         case -2:
         case 3:
-            func_00440b68(D_0063EC30, t);
+            func_00440b68(D_0063EC30, status);
             return 4;
         }
         break;
@@ -829,57 +908,48 @@ read_failed:
     return 0;
 }
 
-// Intent: refreshes the card status flags from the probe result. Error codes 1-4 set 0x2000/0x1000 and arm a 10-frame timer; the status word sets 0x4000 and 0x8000; always sets 0x80000.
+/* Update selection from list input, arm the movement pulse, and refresh end-of-list flags. */
 // FUN_002A4390
-s32 mcUpdateCardStatus(s32 arg0) {
-    typedef struct {
-        u8 pad[4];
-        u32 flags; /* 0x04 */
-        u8 pad2[0x3A4];
-        s32 f3AC; /* 0x3AC */
-        s32 f3B0; /* 0x3B0 */
-        u8 pad3[4];
-        s32 f3B8; /* 0x3B8 */
-    } McWork;
+s32 mcUpdateCardStatus(s32 workAddress) {
     u8 buf[0x30];
-    McWork *w = (McWork *)arg0;
-    s32 v;
+    McScreenState *work = (McScreenState *)workAddress;
+    s32 inputResult;
 
-    sdkListStateConfigure(buf, 0x10, 0x10, w->f3AC, w->f3B0);
+    sdkListStateConfigure(buf, 0x10, 0x10, work->slot, work->scroll);
     sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
     sdkListStateSetReservedRows(buf, 0);
     sdkListStateSetRefresh(buf, 0);
-    v = sdkListStateHandleInput(buf);
-    switch (v) {
+    inputResult = sdkListStateHandleInput(buf);
+    switch (inputResult) {
     case 1:
     case 3:
-        w->flags |= 0x2000;
-        w->f3B8 = 0xA;
+        work->flags |= 0x2000;
+        work->selectionPulse = 0xA;
         sdkSndStartStream(0, 0, 0, 0);
         break;
     case 2:
     case 4:
-        w->flags |= 0x1000;
-        w->f3B8 = 0xA;
+        work->flags |= 0x1000;
+        work->selectionPulse = 0xA;
         sdkSndStartStream(0, 0, 0, 0);
         break;
     default:
         sdkListStateSetActive(buf, 0);
         break;
     }
-    w->f3AC = sdkListStateGetCursor(buf);
-    w->f3B0 = sdkListStateGetScroll(buf);
-    if (w->f3AC == 0) {
-        w->flags &= ~0x4000;
+    work->slot = sdkListStateGetCursor(buf);
+    work->scroll = sdkListStateGetScroll(buf);
+    if (work->slot == 0) {
+        work->flags &= ~0x4000;
     } else {
-        w->flags |= 0x4000;
+        work->flags |= 0x4000;
     }
-    if (w->f3AC == 0xF) {
-        w->flags &= ~0x8000;
+    if (work->slot == 0xF) {
+        work->flags &= ~0x8000;
     } else {
-        w->flags |= 0x8000;
+        work->flags |= 0x8000;
     }
-    w->flags |= 0x80000;
+    work->flags |= 0x80000;
     return 0;
 }
 
@@ -892,10 +962,13 @@ s32 mcUpdateCardStatus(s32 arg0) {
    result variable -- all nd 9. Register-allocation floor ($v0/$v1 coloring),
    not source-drivable. */
 /* Wave-14 re-test: fresh m2c-sourced body (with the shared block_31 goto
-   restored and func_002a2e50(arg0, n) calls) gives nd 278 — the m2c register
+   restored and func_002a2e50(workAddress, n) calls) gives nd 278 — the m2c register
    allocation is far worse than the recorded nd 9. The m2c body is not a usable
    base; the previous nd-9 body must be reconstructed by hand. Dispatch
    register coloring ($v0 value / $v1 base) remains the known floor. */
+/* Drive card operations and user selection, returning nonzero when the screen exits. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4570
 s32 mcStepState(u8 *work) {
     s32 value;
@@ -1101,68 +1174,71 @@ return_zero:
 return_result:
     return result;
 }
+/* Load screen resources, run card interaction, and enqueue drawing until teardown. */
 // FUN_002A4B10
 s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
-    s32 arg0 = (s32)sdkTaskBytes;
-    u8 *w = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
+    s32 taskAddress = (s32)sdkTaskBytes;
+    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
 
-    switch (*(s16 *)(w + 0)) {
+    switch (((McScreenState *)work)->phase) {
     case 0:
-        *(s16 *)(w + 0) = 3;
+        ((McScreenState *)work)->phase = 3;
         /* fallthrough */
     case 3:
-        *(s16 *)(w + 0) = 4;
-        *(u32 *)(w + 0x398) = sdkSpritePackCreate(D_0063EB20);
+        ((McScreenState *)work)->phase = 4;
+        ((McScreenState *)work)->spritePack = sdkSpritePackCreate(D_0063EB20);
         func_00440b68(&D_00763900, &D_007638F8, 0x47E);
-        *(u32 *)(w + 0x3A4) = H_Cdvd_AcquireDirectory(D_0063ED38, 1);
-        *(u32 *)(w + 0x568) = 0;
-        *(u32 *)(w + 4) |= 0x400;
+        ((McScreenState *)work)->directory = H_Cdvd_AcquireDirectory(D_0063ED38, 1);
+        ((McScreenState *)work)->frame = 0;
+        ((McScreenState *)work)->flags |= 0x400;
         /* fallthrough */
     case 4:
-        if (shdSpriteEnsureLoaded(*(u32 *)(w + 0x398)) == 0) {
+        if (shdSpriteEnsureLoaded(((McScreenState *)work)->spritePack) == 0) {
             break;
         }
-        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(w + 0x3A4)) == 0) {
+        if (H_Cdvd_IsFileLoaded((struct HCdvd *)((McScreenState *)work)->directory) == 0) {
             break;
         }
-        *(s16 *)(w + 0) = 5;
-        *(u32 *)(w + 4) |= 1;
+        ((McScreenState *)work)->phase = 5;
+        ((McScreenState *)work)->flags |= 1;
         break;
     case 5:
-        if (*(u32 *)(w + 4) & 0x400) {
+        if (((McScreenState *)work)->flags & 0x400) {
             break;
         }
         resrcMngSetRenderSuppressed(1);
-        *(s16 *)(w + 0) = 6;
+        ((McScreenState *)work)->phase = 6;
         /* fallthrough */
     case 6:
-        if (mcStepState(w) == 0) {
+        if (mcStepState(work) == 0) {
             break;
         }
         resrcMngSetRenderSuppressed(0);
-        *(s16 *)(w + 0) = 7;
+        ((McScreenState *)work)->phase = 7;
         break;
     case 7:
-        if (*(u32 *)(w + 4) & 0x40000) {
+        if (((McScreenState *)work)->flags & 0x40000) {
             break;
         }
-        *(s16 *)(w + 0) = 8;
+        ((McScreenState *)work)->phase = 8;
         /* fallthrough */
     case 8:
         return -1;
     }
-    mcQueueDrawJob(arg0);
+    mcQueueDrawJob(taskAddress);
     return 0;
 }
 
 /* The teardown callback receives the task, not its work allocation. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4CB0
 void mcIconTaskDestroy(u8 *sdkTaskBytes) {
-    s32 arg0 = (s32)sdkTaskBytes;
-    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
-    s32 p = *(s32 *)(work + 0x3A4);
-    if (p != 0) {
-        H_Cdvd_Destroy((struct HCdvd *)p);
+    s32 taskAddress = (s32)sdkTaskBytes;
+    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
+    s32 directory = *(s32 *)(work + 0x3A4);
+    if (directory != 0) {
+        H_Cdvd_Destroy((struct HCdvd *)directory);
         *(s32 *)(work + 0x3A4) = 0;
     }
     sdkSpritePackDestroy(*(u32 *)(work + 0x398));
@@ -1171,6 +1247,9 @@ void mcIconTaskDestroy(u8 *sdkTaskBytes) {
 
 /* Exact under MWCC b210/O2: three one-field values preserve the two source
    color slots and their shared output slot without synthetic padding. */
+/* Animate the two opening rectangles over twenty frames. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4D10
 s32 mcAnimateTransition(s32 task) {
     typedef struct { f32 value; } ColorValue;
@@ -1220,11 +1299,14 @@ s32 mcAnimateTransition(s32 task) {
  * its own remaining-progress lifetime; wave stays the sine result until the
  * selected-card slide. Keep the pulse multiplication separate from scale. */
 #pragma opt_lifetimes on
+/* Slide and fade the slot list in while interpolating its 16.16 scroll position. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4F20
-s32 mcRunScreenFrame(s32 arg0)
+s32 mcRunScreenFrame(s32 taskAddress)
 {
     extern f32 iGpffff8084;
-    u8 *p;
+    u8 *work;
     s32 alpha;
     s32 row;
     s32 idx;
@@ -1246,24 +1328,24 @@ s32 mcRunScreenFrame(s32 arg0)
     f32 fdiff;
     f32 half;
 
-    p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
-    mcDrawFadedColor(0, 0, 255, p);
-    mcSeedEntryTable(255, p);
-    frame = *(s32 *)(p + 0x568);
+    work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
+    mcDrawFadedColor(0, 0, 255, work);
+    mcSeedEntryTable(255, work);
+    frame = *(s32 *)(work + 0x568);
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
     } else {
         ramp = 1.0f;
     }
     alpha = (s32)(255.0f * ramp);
-    mcDrawGlyph(0, 0, alpha, p);
-    mcAdvanceMeter(0, 0, alpha, p);
-    wave = sinf((D_00761184 * (f32)*(s32 *)(p + 0x568)) / 30.0f);
-    target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
-    if (*(s32 *)(p + 0x3B4) != target) {
-        diff = target - *(s32 *)(p + 0x3B4);
+    mcDrawGlyph(0, 0, alpha, work);
+    mcAdvanceMeter(0, 0, alpha, work);
+    wave = sinf((D_00761184 * (f32)*(s32 *)(work + 0x568)) / 30.0f);
+    target = (s32)((u32)*(s32 *)(work + 0x3AC) << 16);
+    if (*(s32 *)(work + 0x3B4) != target) {
+        diff = target - *(s32 *)(work + 0x3B4);
         if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
-            *(s32 *)(p + 0x3B4) = target;
+            *(s32 *)(work + 0x3B4) = target;
         } else {
             fdiff = (f32)diff;
             if (iGpffff8218 * fdiff < iGpffff821c) {
@@ -1272,10 +1354,10 @@ s32 mcRunScreenFrame(s32 arg0)
             } else {
                 rest = (s32)(iGpffff8218 * fdiff);
             }
-            *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + rest;
+            *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest;
         }
     }
-    base = *(s32 *)(p + 0x3B4) >> 16;
+    base = *(s32 *)(work + 0x3B4) >> 16;
     idx = 0;
     row = (s32)((u32)base << 16);
     {
@@ -1285,41 +1367,41 @@ s32 mcRunScreenFrame(s32 arg0)
     }
     while (idx < 7) {
         slot = base + idx - 3;
-        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
+        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) {
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
             mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
             mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-            diff = row - *(s32 *)(p + 0x3B4);
+            diff = row - *(s32 *)(work + 0x3B4);
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-            mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
-            mcScreenStep(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
+            mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
+            mcScreenStep(x, y, 5.0f, alpha, work + 0x14, slot, 0, work);
         }
         idx++;
     }
-    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
+    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(work + 0x398), 1);
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
-            diff = row - *(s32 *)(p + 0x3B4);
+            diff = row - *(s32 *)(work + 0x3B4);
             x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
                 mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
                 mcSetSkyRenderState(0, 0x83, 0x280, 0x5E, 10.0f);
-                mcScreenStep(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
+                mcScreenStep(x2, y2, 5.0f, alpha, work + 0x14, slot, 1, work);
             }
         }
         idx++;
     }
-    if (*(s32 *)(p + 0x3AC) + 1 != 0) {
+    if (*(s32 *)(work + 0x3AC) + 1 != 0) {
         mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
-        diff = *(s32 *)(p + 0x3B8);
+        diff = *(s32 *)(work + 0x3B8);
         if (diff > 0) {
-            *(s32 *)(p + 0x3B8) = diff - 1;
+            *(s32 *)(work + 0x3B8) = diff - 1;
         }
-        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
+        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f);
         scale = 1.0f + pulse;
         {
             f32 remaining = 1.0f;
@@ -1327,12 +1409,12 @@ s32 mcRunScreenFrame(s32 arg0)
             slide = 400.0f * remaining;
         }
         mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-        mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
+        mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work);
     }
-    frame = *(s32 *)(p + 0x568) + 1;
-    *(s32 *)(p + 0x568) = frame;
+    frame = *(s32 *)(work + 0x568) + 1;
+    *(s32 *)(work + 0x568) = frame;
     if (frame >= 30) {
-        *(s32 *)(p + 0x568) = 0;
+        *(s32 *)(work + 0x568) = 0;
         return 1;
     }
     return 0;
@@ -1351,17 +1433,20 @@ s32 mcRunScreenFrame(s32 arg0)
    phase-5 value that reaches 9f50): one variable with a dominating def plus a
    conditional redefinition ranks with the loop counters and rotates every
    saved register (80 edits with the pragma and a single `alpha`).  Saved
-   registers are retail's alpha->$s0 p->$s1 base->$s2 slot->$s3 idx->$s4 row->$s5
-   only with `opt_lifetimes on` and p, alpha, row, idx, slot, base declared in
+   registers are retail's alpha->$s0 work->$s1 base->$s2 slot->$s3 idx->$s4 row->$s5
+   only with `opt_lifetimes on` and work, alpha, row, idx, slot, base declared in
    that order (77 edits without the pragma, 0 with it).  mcDrawSlotDial is declared (f32, f32, f32, u8, u8 *, s32, s32,
    f32, u8 *): that parameter order reproduces retail's argument emission order. */
 #pragma opt_lifetimes on
+/* Fade screen components out and slide the selected slot offscreen. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A5630
-s32 mcRunScreenExitFrame(s32 arg0)
+s32 mcRunScreenExitFrame(s32 taskAddress)
 {
     extern f32 iGpffff8084;
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    u8 *p;
+    u8 *work;
     s32 alpha;
     s32 row;
     s32 idx;
@@ -1387,8 +1472,8 @@ s32 mcRunScreenExitFrame(s32 arg0)
     f32 fdiff;
     f32 half;
 
-    p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
-    frame = *(s32 *)(p + 0x568);
+    work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
+    frame = *(s32 *)(work + 0x568);
     if (frame > 10) {
         if (frame < 30) {
             ramp1 = (f32)(frame - 10) / 20.0f;
@@ -1398,42 +1483,42 @@ s32 mcRunScreenExitFrame(s32 arg0)
     } else {
         ramp1 = 0.0f;
     }
-    mcDrawFadedColor(0, 0, (s32)(255.0f * (1.0f - ramp1)), p);
-    frame = *(s32 *)(p + 0x568);
+    mcDrawFadedColor(0, 0, (s32)(255.0f * (1.0f - ramp1)), work);
+    frame = *(s32 *)(work + 0x568);
     if (frame < 10) {
         ramp2 = (f32)frame / 10.0f;
     } else {
         ramp2 = 1.0f;
     }
-    mcSeedEntryTable((s32)(255.0f * (1.0f - ramp2)), p);
-    frame = *(s32 *)(p + 0x568);
+    mcSeedEntryTable((s32)(255.0f * (1.0f - ramp2)), work);
+    frame = *(s32 *)(work + 0x568);
     if (frame < 10) {
         ramp3 = (f32)frame / 10.0f;
     } else {
         ramp3 = 1.0f;
     }
     fade = (s32)(255.0f * (1.0f - ramp3));
-    mcDrawGlyph(0, 0, fade, p);
-    mcAdvanceMeter(0, 0, fade, p);
-    frame = *(s32 *)(p + 0x568);
+    mcDrawGlyph(0, 0, fade, work);
+    mcAdvanceMeter(0, 0, fade, work);
+    frame = *(s32 *)(work + 0x568);
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
     } else {
         ramp = 1.0f;
     }
     wave = sinf(D_00761184 * ramp);
-    frame = *(s32 *)(p + 0x568);
+    frame = *(s32 *)(work + 0x568);
     if (frame < 2) {
         alpha = (s32)(255.0f * (1.0f - sinf(D_00761184 * ((f32)frame / 2.0f))));
     } else {
         alpha = 0;
     }
     if (ramp < 1.0f) {
-        target = *(s32 *)(p + 0x3AC) << 16;
-        if (*(s32 *)(p + 0x3B4) != target) {
-            diff = target - *(s32 *)(p + 0x3B4);
+        target = *(s32 *)(work + 0x3AC) << 16;
+        if (*(s32 *)(work + 0x3B4) != target) {
+            diff = target - *(s32 *)(work + 0x3B4);
             if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
-                *(s32 *)(p + 0x3B4) = target;
+                *(s32 *)(work + 0x3B4) = target;
             } else {
                 fdiff = (f32)diff;
                 if (iGpffff8218 * fdiff < iGpffff821c) {
@@ -1442,60 +1527,60 @@ s32 mcRunScreenExitFrame(s32 arg0)
                 } else {
                     rest = (s32)(iGpffff8218 * fdiff);
                 }
-                *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + rest;
+                *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest;
             }
         }
-        base = *(s32 *)(p + 0x3B4) >> 16;
+        base = *(s32 *)(work + 0x3B4) >> 16;
         idx = 0;
         row = base << 16;
         slide = 400.0f * wave;
         while (idx < 7) {
             slot = base + idx - 3;
-            if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
+            if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) {
                 mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
                 mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
                 mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-                diff = row - *(s32 *)(p + 0x3B4);
+                diff = row - *(s32 *)(work + 0x3B4);
                 x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-                mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
-                mcScreenStep(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
+                mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
+                mcScreenStep(x, y, 5.0f, alpha, work + 0x14, slot, 0, work);
             }
             idx++;
         }
-        shdSpriteDrawNowEx(0.0f, 131.0f + 47.0f * wave, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1, 0, 0, 0.0f, 1.0f, 1.0f - wave);
+        shdSpriteDrawNowEx(0.0f, 131.0f + 47.0f * wave, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(work + 0x398), 1, 0, 0, 0.0f, 1.0f, 1.0f - wave);
         idx = 0;
         while (idx < 6) {
             slot = base + idx - 3;
             if (slot >= 0 && slot < 16) {
-                diff = row - *(s32 *)(p + 0x3B4);
+                diff = row - *(s32 *)(work + 0x3B4);
                 x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
                 if (slot == base || slot == base + 1) {
                     mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
                     mcSetSkyRenderState(0, 0x83, 0x280, 0x5E, 10.0f);
-                    mcScreenStep(x2, y2, 5.0f, alpha, p + 0x14, slot, 1, p);
+                    mcScreenStep(x2, y2, 5.0f, alpha, work + 0x14, slot, 1, work);
                 }
             }
             idx++;
         }
-        if (*(s32 *)(p + 0x3AC) + 1 != 0) {
+        if (*(s32 *)(work + 0x3AC) + 1 != 0) {
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
-            diff = *(s32 *)(p + 0x3B8);
+            diff = *(s32 *)(work + 0x3B8);
             if (diff > 0) {
-                *(s32 *)(p + 0x3B8) = diff - 1;
+                *(s32 *)(work + 0x3B8) = diff - 1;
             }
-            pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
+            pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f);
             scale = 1.0f + pulse;
             slide = 350.0f * wave;
             mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-            mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
+            mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work);
         }
     }
-    frame = *(s32 *)(p + 0x568) + 1;
-    *(s32 *)(p + 0x568) = frame;
+    frame = *(s32 *)(work + 0x568) + 1;
+    *(s32 *)(work + 0x568) = frame;
     if (frame >= 30) {
-        *(s32 *)(p + 0x568) = 0;
+        *(s32 *)(work + 0x568) = 0;
         return 1;
     }
     return 0;
@@ -1515,11 +1600,14 @@ static inline s32 mcRowDisplacement(s32 base, s32 position)
  * expose their shared row origin to loop-invariant extraction. Keep pulse
  * separate from scale so multiplication rounds before the addition. */
 #pragma opt_loop_invariants on
+/* Draw the settled slot list and pulse the selection while smoothing scroll. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A5F00
-s32 mcDrawScreenSettled(s32 arg0)
+s32 mcDrawScreenSettled(s32 taskAddress)
 {
     extern f32 iGpffff8084;
-    u8 *p;
+    u8 *work;
     s32 idx;
     s32 slot;
     s32 base;
@@ -1533,16 +1621,16 @@ s32 mcDrawScreenSettled(s32 arg0)
     f32 fdiff;
     f32 half;
 
-    p = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
-    mcDrawFadedColor(0, 0, 255, p);
-    mcSeedEntryTable(255, p);
-    mcDrawGlyph(0, 0, 255, p);
-    mcAdvanceMeter(0, 0, 255, p);
-    target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
-    if (*(s32 *)(p + 0x3B4) != target) {
-        diff = target - *(s32 *)(p + 0x3B4);
+    work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
+    mcDrawFadedColor(0, 0, 255, work);
+    mcSeedEntryTable(255, work);
+    mcDrawGlyph(0, 0, 255, work);
+    mcAdvanceMeter(0, 0, 255, work);
+    target = (s32)((u32)*(s32 *)(work + 0x3AC) << 16);
+    if (*(s32 *)(work + 0x3B4) != target) {
+        diff = target - *(s32 *)(work + 0x3B4);
         if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
-            *(s32 *)(p + 0x3B4) = target;
+            *(s32 *)(work + 0x3B4) = target;
         } else {
             fdiff = (f32)diff;
             if (iGpffff8218 * fdiff < iGpffff821c) {
@@ -1551,171 +1639,176 @@ s32 mcDrawScreenSettled(s32 arg0)
             } else {
                 rest = (s32)(iGpffff8218 * fdiff);
             }
-            *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + rest;
+            *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest;
         }
     }
-    base = *(s32 *)(p + 0x3B4) >> 16;
+    base = *(s32 *)(work + 0x3B4) >> 16;
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
-        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
+        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) {
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
             mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
             mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-            diff = mcRowDisplacement(base, *(s32 *)(p + 0x3B4));
+            diff = mcRowDisplacement(base, *(s32 *)(work + 0x3B4));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-            mcDrawSlotDial(x, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
-            mcScreenStep(x, y, 5.0f, 0xFF, p + 0x14, slot, 0, p);
+            mcDrawSlotDial(x, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
+            mcScreenStep(x, y, 5.0f, 0xFF, work + 0x14, slot, 0, work);
         }
         idx++;
     }
-    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(p + 0x398), 1);
+    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(work + 0x398), 1);
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
-            diff = mcRowDisplacement(base, *(s32 *)(p + 0x3B4));
+            diff = mcRowDisplacement(base, *(s32 *)(work + 0x3B4));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
                 mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
                 mcSetSkyRenderState(0, 0x83, 0x280, 0x5E, 10.0f);
-                mcScreenStep(x, y, 5.0f, 0xFF, p + 0x14, slot, 1, p);
+                mcScreenStep(x, y, 5.0f, 0xFF, work + 0x14, slot, 1, work);
             }
         }
         idx++;
     }
-    if (*(s32 *)(p + 0x3AC) + 1 != 0) {
+    if (*(s32 *)(work + 0x3AC) + 1 != 0) {
         mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
-        diff = *(s32 *)(p + 0x3B8);
+        diff = *(s32 *)(work + 0x3B8);
         if (diff > 0) {
-            *(s32 *)(p + 0x3B8) = diff - 1;
+            *(s32 *)(work + 0x3B8) = diff - 1;
         }
-        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
+        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f);
         scale = 1.0f + pulse;
         mcDrawCircleFan(72.0f, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-        mcDrawSlotDial(19.0f, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
+        mcDrawSlotDial(19.0f, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work);
     }
-    mcDrawCardStatusPulse(5, -5, 0xFF, p);
+    mcDrawCardStatusPulse(5, -5, 0xFF, work);
     return 1;
 }
 #pragma pop
 
+/* Select opening, steady, or closing drawing from the screen flags. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A6510
-s32 mcDrawDispatch(s32 arg0) {
-    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)arg0);
+s32 mcDrawDispatch(s32 taskAddress) {
+    u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
     s32 flags = *(u32 *)(work + 4);
 
     if (!(flags & 1)) {
         return 0;
     }
     if (flags & 0x400) {
-        if (mcAnimateTransition(arg0) != 0) {
+        if (mcAnimateTransition(taskAddress) != 0) {
             *(u32 *)(work + 4) &= ~0x400;
             *(u32 *)(work + 4) |= 0x20000;
         }
         return 0;
     }
     if (flags & 0x20000) {
-        if (mcRunScreenFrame(arg0) != 0) {
+        if (mcRunScreenFrame(taskAddress) != 0) {
             *(u32 *)(work + 4) &= ~0x20000;
         }
         return 0;
     }
     if (flags & 0x40000) {
-        if (mcRunScreenExitFrame(arg0) != 0) {
+        if (mcRunScreenExitFrame(taskAddress) != 0) {
             *(u32 *)(work + 4) &= ~0x40000;
         }
         return 0;
     }
-    mcDrawScreenSettled(arg0);
+    mcDrawScreenSettled(taskAddress);
     return 0;
 }
 
+/* Queue the draw callback with the owning task as its payload. */
 // FUN_002A6680
-void mcQueueDrawJob(s32 arg0) {
+void mcQueueDrawJob(s32 taskAddress) {
     u8 *work = PrimAllocQueueNode();
-    *(void **)(work + 8) = mcDrawDispatchCallback;
-    *(void **)(work + 0x10) = (void *)arg0;
+    ((PrimQueueNode *)work)->callback = mcDrawDispatchCallback;
+    ((PrimQueueNode *)work)->argument.data = (u8 *)taskAddress;
     PrimAppendNode(&D_00796370, work);
 }
 
-// Intent: draws a ring of 40 segments around a centre as a fan (or a 40-point strip when bit 4 of the mode is set), with the colour packed in arg0/arg1.
+// Intent: draws a ring of 40 segments around a centre as a fan (or a 40-point strip when bit 4 of the mode is set), with the colour packed in taskAddress/arg1.
 // FUN_002A66D0
-void mcDrawCircleFan(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
-                   f32 fparg3, f32 fparg4, s32 arg2) {
+void mcDrawCircleFan(f32 centerX, f32 centerY, f32 depth, s32 rgb, s32 alpha,
+                   f32 width, f32 height, s32 flags) {
     typedef struct { f32 a, b; } V2;
     void *setState;
-    V2 arr[0x29];
+    V2 points[0x29];
     u8 colors[0x29][4];
     s32 i;
-    s32 p;
-    s32 m0, m1, m2, m3;
-    f32 f21, f20;
-    f32 x;
+    s32 rgba;
+    s32 red, green, blue, opacity;
+    f32 radiusX, radiusY;
+    f32 angle;
     f32 *slot;
     u8 *col;
 
-    arr[0].a = fparg0;
-    arr[0].b = fparg1;
-    p = (arg0 << 8) | arg1;
-    m0 = (p >> 24) & 0xFF;
-    colors[0][0] = p >> 24;
-    m1 = (p >> 16) & 0xFF;
-    colors[0][1] = p >> 16;
-    m2 = (p >> 8) & 0xFF;
-    colors[0][2] = p >> 8;
-    m3 = p & 0xFF;
-    colors[0][3] = p;
+    points[0].a = centerX;
+    points[0].b = centerY;
+    rgba = (rgb << 8) | alpha;
+    red = (rgba >> 24) & 0xFF;
+    colors[0][0] = rgba >> 24;
+    green = (rgba >> 16) & 0xFF;
+    colors[0][1] = rgba >> 16;
+    blue = (rgba >> 8) & 0xFF;
+    colors[0][2] = rgba >> 8;
+    opacity = rgba & 0xFF;
+    colors[0][3] = rgba;
     i = 1;
-    f21 = fparg3 / 2.0f;
-    f20 = fparg4 / 2.0f;
+    radiusX = width / 2.0f;
+    radiusY = height / 2.0f;
     while (i < 0x28) {
-        x = iGpffff81e0 * (f32)(i - 1) / 39.0f;
-        slot = &arr[i].a;
-        slot[0] = fparg0 + f21 * cosf(x);
-        slot[1] = fparg1 + f20 * -sinf(x);
+        angle = iGpffff81e0 * (f32)(i - 1) / 39.0f;
+        slot = &points[i].a;
+        slot[0] = centerX + radiusX * cosf(angle);
+        slot[1] = centerY + radiusY * -sinf(angle);
         col = &colors[i][0];
-        col[0] = m0;
-        col[1] = m1;
-        col[2] = m2;
-        col[3] = m3;
+        col[0] = red;
+        col[1] = green;
+        col[2] = blue;
+        col[3] = opacity;
         i++;
     }
-    arr[i] = arr[1];
-    colors[i][0] = m0;
-    colors[i][1] = m1;
-    colors[i][2] = m2;
-    colors[i][3] = m3;
+    points[i] = points[1];
+    colors[i][0] = red;
+    colors[i][1] = green;
+    colors[i][2] = blue;
+    colors[i][3] = opacity;
     setState = (void *)D_00887300;
     (*(void (**)(u32, u32))setState)(1, 0);
-    if (arg1 == 0xFF && !(arg2 & 2)) {
+    if (alpha == 0xFF && !(flags & 2)) {
         shdEnableBlendFlag();
     }
-    if (!(arg2 & 4)) {
-        PrimDrawPoints(&colors[0][0], &arr[0].a, fparg2, 0x29, 5, arg2 & 1);
+    if (!(flags & 4)) {
+        PrimDrawPoints(&colors[0][0], &points[0].a, depth, 0x29, 5, flags & 1);
     } else {
-        PrimDrawPoints(&colors[1][0], &arr[1].a, fparg2, 0x28, 2, arg2 & 1);
+        PrimDrawPoints(&colors[1][0], &points[1].a, depth, 0x28, 2, flags & 1);
     }
-    if (arg1 == 0xFF && !(arg2 & 2)) {
+    if (alpha == 0xFF && !(flags & 2)) {
         shdDisableBlendFlag();
     }
 }
 
+/* Draw the rectangular mask with Sky state and paired effect tags. */
 // FUN_002A6960
-void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
+void mcSetSkyRenderState(s32 x, s32 y, s32 width, s32 height, f32 depth) {
     void *setState;
-    f32 sp5C;
-    f32 sp58;
-    Quad4 sp40;
-    Quad4 sp30;
+    f32 color;
+    f32 clearColor;
+    Quad4 rectangle;
+    Quad4 bounds;
     u8 *p;
     s32 n;
     u8 *p2;
     s32 n2;
 
-    p = (u8 *)&sp58;
+    p = (u8 *)&clearColor;
     n = 4;
     if (p != NULL) {
         do {
@@ -1724,8 +1817,8 @@ void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
             n--;
         } while (n != 0);
     }
-    sp5C = sp58;
-    p2 = (u8 *)&sp30;
+    color = clearColor;
+    p2 = (u8 *)&bounds;
     n2 = 0x10;
     if (p2 != NULL) {
         do {
@@ -1734,11 +1827,11 @@ void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
             n2--;
         } while (n2 != 0);
     }
-    sp30.a = arg0;
-    sp30.b = arg1;
-    sp30.c = arg2;
-    sp30.d = arg3;
-    sp40 = sp30;
+    bounds.a = x;
+    bounds.b = y;
+    bounds.c = width;
+    bounds.d = height;
+    rectangle = bounds;
     setState = (void *)D_00887300;
     (*(void (**)(u32, u32))setState)(0xE, 0);
     (*(void (**)(u32, u32))setState)(0xC, 1);
@@ -1750,129 +1843,137 @@ void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    PrimDrawFlatRectangle(&sp5C, &sp40, fparg0, 0);
+    PrimDrawFlatRectangle(&color, &rectangle, depth, 0);
     mdlEffectEmitTagPair();
 }
 
+/* The table layout is McRecordTable; retain offset-first address arithmetic
+ * because typed table indexing changed the measured matching instruction order. */
 // FUN_002A6AF0
-s32 mcCurrentSlotValue(u8 *arg0) {
-    s32 idx = *(s32 *)(arg0 + 0x3AC) * 4;
-    return *(s32 *)(idx + (s32)arg0 + 0x14);
+s32 mcCurrentSlotValue(u8 *work) {
+    s32 idx = ((McScreenState *)work)->slot * 4;
+    return *(s32 *)(idx + (s32)work + 0x14);
 }
 
 // Intent: sets the colour with alpha arg2 and draws it through PrimDrawFlatRectangle only when alpha is nonzero.
 // FUN_002A6B10
-void mcDrawFadedColor(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
+void mcDrawFadedColor(s32 x, s32 y, s32 alpha, void *work) {
     typedef union { f32 f; u8 b[4]; } U4;
     U4 u;
     Qword q;
     U4 *pu = &u;
 
     pu->f = D_00763910;
-    pu->b[3] = (u8)arg2;
+    pu->b[3] = (u8)alpha;
     q = D_0063ED70;
-    if (arg2 != 0) {
+    if (alpha != 0) {
         PrimDrawFlatRectangle(pu, &q, 0.0f, 1);
     }
 }
 
+/* Draw the mode-specific heading glyph when the screen is visible. */
 // FUN_002A6B60
-void mcDrawGlyph(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
-    if (arg2 != 0) {
-        if (*(s32 *)(arg3 + 4) & 2) {
-            shdSpriteDrawNow((f32)(arg0 + 0x1C0), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x3D, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+void mcDrawGlyph(s32 x, s32 y, s32 alpha, u8 *work) {
+    if (alpha != 0) {
+        if (((McScreenState *)work)->flags & 2) {
+            shdSpriteDrawNow((f32)(x + 0x1C0), (f32)(y + 0xC), 0.0f, 0xFFFFFF, alpha & 0xFF, 0x3D, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
         } else {
-            shdSpriteDrawNow((f32)(arg0 + 0x19A), (f32)(arg1 + 0xC), 0.0f, 0xFFFFFF, arg2 & 0xFF, 0x39, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
+            shdSpriteDrawNow((f32)(x + 0x19A), (f32)(y + 0xC), 0.0f, 0xFFFFFF, alpha & 0xFF, 0x39, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
         }
     }
 }
 
+/* Fade the control legends toward the refresh flag and consume that flag. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A6C30
-void mcAdvanceMeter(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
-    s32 v;
-    f32 f;
+void mcAdvanceMeter(s32 x, s32 y, s32 alpha, u8 *work) {
+    s32 frameOrAlpha;
+    f32 opacity;
 
-    if (arg2 != 0) {
-        if (*(s32 *)(arg3 + 4) & 0x80000) {
-            v = *(s32 *)(arg3 + 0x3D0);
-            if (v < 5) {
-                *(s32 *)(arg3 + 0x3D0) = v + 1;
+    if (alpha != 0) {
+        if (*(s32 *)(work + 4) & 0x80000) {
+            frameOrAlpha = *(s32 *)(work + 0x3D0);
+            if (frameOrAlpha < 5) {
+                *(s32 *)(work + 0x3D0) = frameOrAlpha + 1;
             }
         } else {
-            v = *(s32 *)(arg3 + 0x3D0);
-            if (v > 0) {
-                *(s32 *)(arg3 + 0x3D0) = v - 1;
+            frameOrAlpha = *(s32 *)(work + 0x3D0);
+            if (frameOrAlpha > 0) {
+                *(s32 *)(work + 0x3D0) = frameOrAlpha - 1;
             }
         }
-        f = ((f32)*(s32 *)(arg3 + 0x3D0) / 5.0f) * (f32)arg2;
-        v = (s32)f;
-        shdSpriteDrawNow((f32)(arg0 + 0x1F5), (f32)(arg1 + 0x19B), 0.0f, 0xFFFFFF, v, 0x24, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        shdSpriteDrawNow((f32)(arg0 + 0x207), (f32)(arg1 + 0x19D), 0.0f, 0xFFFFFF, v, 0x27, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        shdSpriteDrawNow((f32)(arg0 + 0x22C), (f32)(arg1 + 0x19B), 0.0f, 0xFFFFFF, v, 0x25, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        shdSpriteDrawNow((f32)(arg0 + 0x23E), (f32)(arg1 + 0x19D), 0.0f, 0xFFFFFF, v, 0x28, 0, (u8 *)(*(s32 *)(arg3 + 0x398)), 1);
-        *(s32 *)(arg3 + 4) &= 0xFFF7FFFF;
+        opacity = ((f32)*(s32 *)(work + 0x3D0) / 5.0f) * (f32)alpha;
+        frameOrAlpha = (s32)opacity;
+        shdSpriteDrawNow((f32)(x + 0x1F5), (f32)(y + 0x19B), 0.0f, 0xFFFFFF, frameOrAlpha, 0x24, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow((f32)(x + 0x207), (f32)(y + 0x19D), 0.0f, 0xFFFFFF, frameOrAlpha, 0x27, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow((f32)(x + 0x22C), (f32)(y + 0x19B), 0.0f, 0xFFFFFF, frameOrAlpha, 0x25, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow((f32)(x + 0x23E), (f32)(y + 0x19D), 0.0f, 0xFFFFFF, frameOrAlpha, 0x28, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        *(s32 *)(work + 4) &= 0xFFF7FFFF;
     }
 }
 
 // Intent: draws the card-status pulse overlay (224 lines). Flag 0x4000 selects the pulsing layout; the caller passes (5, -5, 0xFF, screen state).
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A6E30
-void mcDrawCardStatusPulse(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+void mcDrawCardStatusPulse(s32 x, s32 y, s32 alpha, u8 *work) {
     typedef struct { s32 a, b; } I8;
-    f32 f1, f3;
-    f32 f23, f22, f21, f20, f24;
+    f32 remainingOrY, originX;
+    f32 upperPulse, lowerPulse, lowerEaseOrX, upperEaseOrY, upperOffsetX;
     s32 v;
     s32 i;
     I8 *p6;
     I8 *p5;
     s32 n;
     f32 *q;
-    f32 sp70[0xC];
-    u8 spAC[4];
+    f32 points[0xC];
+    u8 color[4];
 
-    if (*(s32 *)(arg3 + 4) & 0x4000) {
-        v = *(s32 *)(arg3 + 0x3C8);
+    if (*(s32 *)(work + 4) & 0x4000) {
+        v = *(s32 *)(work + 0x3C8);
         if (v < 0xA) {
-            *(s32 *)(arg3 + 0x3C8) = v + 1;
+            *(s32 *)(work + 0x3C8) = v + 1;
         }
     } else {
-        v = *(s32 *)(arg3 + 0x3C8);
+        v = *(s32 *)(work + 0x3C8);
         if (v > 0) {
-            *(s32 *)(arg3 + 0x3C8) = v - 1;
+            *(s32 *)(work + 0x3C8) = v - 1;
         }
     }
-    if (*(s32 *)(arg3 + 4) & 0x8000) {
-        v = *(s32 *)(arg3 + 0x3CC);
+    if (*(s32 *)(work + 4) & 0x8000) {
+        v = *(s32 *)(work + 0x3CC);
         if (v < 0xA) {
-            *(s32 *)(arg3 + 0x3CC) = v + 1;
+            *(s32 *)(work + 0x3CC) = v + 1;
         }
     } else {
-        v = *(s32 *)(arg3 + 0x3CC);
+        v = *(s32 *)(work + 0x3CC);
         if (v > 0) {
-            *(s32 *)(arg3 + 0x3CC) = v - 1;
+            *(s32 *)(work + 0x3CC) = v - 1;
         }
     }
-    f20 = sinf(D_00761184 * (f32)*(s32 *)(arg3 + 0x3C8) / 10.0f);
-    f21 = sinf(D_00761184 * (f32)*(s32 *)(arg3 + 0x3CC) / 10.0f);
-    if (*(s32 *)(arg3 + 4) & 0x1000) {
-        *(s32 *)(arg3 + 0x3C0) = 0xA;
-        *(s32 *)(arg3 + 4) &= ~0x1000;
+    upperEaseOrY = sinf(D_00761184 * (f32)*(s32 *)(work + 0x3C8) / 10.0f);
+    lowerEaseOrX = sinf(D_00761184 * (f32)*(s32 *)(work + 0x3CC) / 10.0f);
+    if (*(s32 *)(work + 4) & 0x1000) {
+        *(s32 *)(work + 0x3C0) = 0xA;
+        *(s32 *)(work + 4) &= ~0x1000;
     }
-    if (*(s32 *)(arg3 + 4) & 0x2000) {
-        *(s32 *)(arg3 + 0x3C4) = 0xA;
-        *(s32 *)(arg3 + 4) &= ~0x2000;
+    if (*(s32 *)(work + 4) & 0x2000) {
+        *(s32 *)(work + 0x3C4) = 0xA;
+        *(s32 *)(work + 4) &= ~0x2000;
     }
-    f23 = sinf(D_00761174 * (f32)*(s32 *)(arg3 + 0x3C0) / 10.0f);
-    f22 = sinf(D_00761174 * (f32)*(s32 *)(arg3 + 0x3C4) / 10.0f);
-    v = *(s32 *)(arg3 + 0x3C0);
+    upperPulse = sinf(D_00761174 * (f32)*(s32 *)(work + 0x3C0) / 10.0f);
+    lowerPulse = sinf(D_00761174 * (f32)*(s32 *)(work + 0x3C4) / 10.0f);
+    v = *(s32 *)(work + 0x3C0);
     if (v > 0) {
-        *(s32 *)(arg3 + 0x3C0) = v - 1;
+        *(s32 *)(work + 0x3C0) = v - 1;
     }
-    v = *(s32 *)(arg3 + 0x3C4);
+    v = *(s32 *)(work + 0x3C4);
     if (v > 0) {
-        *(s32 *)(arg3 + 0x3C4) = v - 1;
+        *(s32 *)(work + 0x3C4) = v - 1;
     }
     p6 = (I8 *)D_0063ED80;
-    p5 = (I8 *)sp70;
+    p5 = (I8 *)points;
     n = 6;
     do {
         v = p6->a;
@@ -1883,52 +1984,53 @@ void mcDrawCardStatusPulse(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
         p5->b = i;
         p5++;
     } while (n > 0);
-    f1 = 1.0f - f20;
-    f20 = -70.0f * f1;
-    f24 = -30.0f * f1;
-    mcDrawCircleFan((f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
+    remainingOrY = 1.0f - upperEaseOrY;
+    upperEaseOrY = -70.0f * remainingOrY;
+    upperOffsetX = -30.0f * remainingOrY;
+    mcDrawCircleFan((f32)(x + 0x15) + upperOffsetX, (f32)(y - 4) + upperEaseOrY, 0.0f, 0xFFAE20, alpha, 108.0f, 100.0f, 1);
     i = 0;
-    f3 = (f32)(arg0 + 0xB) + f24;
-    f1 = f20 + ((f32)(arg1 + 0x14) - 3.0f * f23);
+    originX = (f32)(x + 0xB) + upperOffsetX;
+    remainingOrY = upperEaseOrY + ((f32)(y + 0x14) - 3.0f * upperPulse);
     for (; i < 3; i++) {
-        q = sp70 + i * 2;
-        q[0] += f3;
-        q[1] += f1;
+        q = points + i * 2;
+        q[0] += originX;
+        q[1] += remainingOrY;
     }
-    spAC[0] = 0xFF;
-    spAC[1] = 0xF2;
-    spAC[2] = 0x3D;
-    spAC[3] = (u8)arg2;
-    PrimDrawFlatTriangle(spAC, sp70, 1, 0.0f);
-    f1 = 1.0f - f21;
-    f20 = 70.0f * f1;
-    f21 = 30.0f * f1;
-    mcDrawCircleFan((f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 0xFFAE20, arg2, 108.0f, 100.0f, 1);
+    color[0] = 0xFF;
+    color[1] = 0xF2;
+    color[2] = 0x3D;
+    color[3] = (u8)alpha;
+    PrimDrawFlatTriangle(color, points, 1, 0.0f);
+    remainingOrY = 1.0f - lowerEaseOrX;
+    upperEaseOrY = 70.0f * remainingOrY;
+    lowerEaseOrX = 30.0f * remainingOrY;
+    mcDrawCircleFan((f32)(x + 0x95) + lowerEaseOrX, (f32)(y + 0x1D1) + upperEaseOrY, 0.0f, 0xFFAE20, alpha, 108.0f, 100.0f, 1);
     i = 0;
-    f3 = (f32)(arg0 + 0x83) + f21;
-    f1 = f20 + ((f32)(arg1 + 0x1AB) + 3.0f * f22);
+    originX = (f32)(x + 0x83) + lowerEaseOrX;
+    remainingOrY = upperEaseOrY + ((f32)(y + 0x1AB) + 3.0f * lowerPulse);
     for (; i < 3; i++) {
-        q = sp70 + i * 2;
-        q[6] += f3;
-        q[7] += f1;
+        q = points + i * 2;
+        q[6] += originX;
+        q[7] += remainingOrY;
     }
-    spAC[0] = 0xFF;
-    spAC[1] = 0xF2;
-    spAC[2] = 0x3D;
-    spAC[3] = (u8)arg2;
-    PrimDrawFlatTriangle(spAC, &sp70[6], 1, 0.0f);
+    color[0] = 0xFF;
+    color[1] = 0xF2;
+    color[2] = 0x3D;
+    color[3] = (u8)alpha;
+    PrimDrawFlatTriangle(color, &points[6], 1, 0.0f);
 }
 
+/* Claim and clear the first inactive entry in the twenty-entry effect table. */
 // FUN_002A7330
-s32 mcTableClear(u8 *arg0) {
+s32 mcTableClear(u8 *entries) {
     s32 i = 0;
     while (i < 0x14) {
-        if (!(*(u32 *)arg0 & 1)) {
-            memset(arg0, 0, 0x14);
-            *(u32 *)arg0 |= 1;
-            return (s32)arg0;
+        if (!(((McCircleEntry *)entries)->flags & 1)) {
+            memset(entries, 0, 0x14);
+            ((McCircleEntry *)entries)->flags |= 1;
+            return (s32)entries;
         }
-        arg0 += 0x14;
+        entries += 0x14;
         i++;
     }
     return 0;
@@ -1942,11 +2044,14 @@ static inline const s32 *mcTableAt(s32 index, const s32 *base)
 /* 844/848 bytes; eight resolved relocations; four zero alignment bytes.
  * Keep table indices separate from their bases and reload the stored step.
  * Reuse the table-copy word for width before converting it to float. */
+/* Advance a drifting circle, fading its ends and spawning a delayed successor. */
+/* McCircleEntry proves these offsets; retain byte accesses because typed
+ * members changed the measured field-address hoisting and lost MATCH. */
 // FUN_002A73C0
-s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
+s32 mcTableRandomize(s32 screenAddress, u8 *entries, u8 *entry, s32 alpha) {
     typedef struct { s32 a, b; } I8;
-    s32 sp80[8];
-    s32 sp60[8];
+    s32 widths[8];
+    s32 durations[8];
     u8 *work;
     u8 *rec;
     I8 *src;
@@ -1970,10 +2075,10 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     f32 cy;
     u8 *nw;
 
-    work = arg1;
-    rec = arg2;
+    work = entries;
+    rec = entry;
     src = (I8 *)D_0063EDB0;
-    dst = (I8 *)sp80;
+    dst = (I8 *)widths;
     n = 4;
     do {
         v = src->a;
@@ -1985,7 +2090,7 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         dst++;
     } while (n > 0);
     src = (I8 *)D_0063EDD0;
-    dst = (I8 *)sp60;
+    dst = (I8 *)durations;
     n = 4;
     do {
         v = src->a;
@@ -2000,8 +2105,8 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         *(s16 *)(rec + 0x12) -= 1;
         return 0;
     }
-    scale = (s32)((f32)(s32)((u32)arg3 * 255U) / 255.0f);
-    total = *mcTableAt(*(s32 *)(rec + 4), sp60);
+    scale = (s32)((f32)(s32)((u32)alpha * 255U) / 255.0f);
+    total = *mcTableAt(*(s32 *)(rec + 4), durations);
     step = *(s16 *)(rec + 0x10);
     rate = (f32)step / (f32)total;
     if (step < 30) {
@@ -2009,13 +2114,13 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     } else if (total - 30 < step) {
         scale = (s32)((f32)scale * ((f32)(total - step) / 30.0f));
     }
-    v = *mcTableAt(((s32 *)rec)[1], sp80);
+    v = *mcTableAt(((s32 *)rec)[1], widths);
     w = 2.0f * (f32)v;
     fx = *(f32 *)(rec + 8) - 512.0f * rate;
     fy = *(f32 *)(rec + 0xC) + 512.0f * rate;
     mcDrawCircleFan(fx, fy, 0.0f, 0xFFF267, scale, D_00761300 * w, w, 1);
     *(s16 *)(rec + 0x10) += 1;
-    total = *mcTableAt(*(s32 *)(rec + 4), sp60);
+    total = *mcTableAt(*(s32 *)(rec + 4), durations);
     ns = *(s16 *)(rec + 0x10);
     if (ns >= total) {
         *(s16 *)(rec + 0x10) = 0;
@@ -2039,19 +2144,21 @@ s32 mcTableRandomize(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     }
     return 0;
 }
-// Intent: when arg0 is nonzero, re-randomises the 20 table entries and seeds the four fixed entries (ids 0, 1, 2, 4) if the table is empty.
+/* Advance visible circle effects and seed six fixed kinds when the pool is empty. */
+/* McScreenState proves the seed counter; retain pool-relative accesses
+ * because typed screen access changed measured allocation and lost MATCH. */
 // FUN_002A7710
-void mcSeedEntryTable(s32 arg0, u8 *arg1) {
+void mcSeedEntryTable(s32 alpha, u8 *screen) {
     s32 i;
     u8 *work;
     u8 *p;
     u8 *q;
 
-    work = arg1 + 0x3D4;
-    if (arg0 != 0) {
+    work = screen + 0x3D4;
+    if (alpha != 0) {
         p = work;
         for (i = 0; i < 0x14; i++) {
-            if ((*(u32 *)p & 1) && mcTableRandomize((s32)arg1, work, p, arg0) != 0) {
+            if ((((McCircleEntry *)p)->flags & 1) && mcTableRandomize((s32)screen, work, p, alpha) != 0) {
                 memset(p, 0, 0x14);
             }
             p += 0x14;
@@ -2059,45 +2166,45 @@ void mcSeedEntryTable(s32 arg0, u8 *arg1) {
         if (*(u32 *)(work + 0x190) == 0) {
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
-                *(s32 *)(q + 4) = 0;
-                *(f32 *)(q + 8) = (f32)0x329;
-                *(s32 *)(q + 0xC) = 0;
-                *(s16 *)(q + 0x12) = 5;
+                ((McCircleEntry *)q)->kind = 0;
+                ((McCircleEntry *)q)->x.value = (f32)0x329;
+                ((McCircleEntry *)q)->y.bits = 0;
+                ((McCircleEntry *)q)->delay = 5;
             }
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
-                *(s32 *)(q + 4) = 1;
-                *(f32 *)(q + 8) = (f32)0x265;
-                *(s32 *)(q + 0xC) = 0;
-                *(s16 *)(q + 0x12) = 0x64;
+                ((McCircleEntry *)q)->kind = 1;
+                ((McCircleEntry *)q)->x.value = (f32)0x265;
+                ((McCircleEntry *)q)->y.bits = 0;
+                ((McCircleEntry *)q)->delay = 0x64;
             }
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
-                *(s32 *)(q + 4) = 2;
-                *(s32 *)(q + 8) = 0x440E0000;
-                *(s32 *)(q + 0xC) = 0;
-                *(s16 *)(q + 0x12) = 0x96;
+                ((McCircleEntry *)q)->kind = 2;
+                ((McCircleEntry *)q)->x.bits = 0x440E0000;
+                ((McCircleEntry *)q)->y.bits = 0;
+                ((McCircleEntry *)q)->delay = 0x96;
             }
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
-                *(s32 *)(q + 4) = 4;
-                *(s32 *)(q + 8) = 0x43B40000;
-                *(s32 *)(q + 0xC) = 0;
-                *(s16 *)(q + 0x12) = 0x82;
+                ((McCircleEntry *)q)->kind = 4;
+                ((McCircleEntry *)q)->x.bits = 0x43B40000;
+                ((McCircleEntry *)q)->y.bits = 0;
+                ((McCircleEntry *)q)->delay = 0x82;
             }
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
-                *(s32 *)(q + 4) = 6;
-                *(s32 *)(q + 8) = 0x43360000;
-                *(s32 *)(q + 0xC) = 0;
-                *(s16 *)(q + 0x12) = 0x50;
+                ((McCircleEntry *)q)->kind = 6;
+                ((McCircleEntry *)q)->x.bits = 0x43360000;
+                ((McCircleEntry *)q)->y.bits = 0;
+                ((McCircleEntry *)q)->delay = 0x50;
             }
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
-                *(s32 *)(q + 4) = 7;
-                *(s32 *)(q + 8) = 0x42FC0000;
-                *(s32 *)(q + 0xC) = 0;
-                *(s16 *)(q + 0x12) = 0;
+                ((McCircleEntry *)q)->kind = 7;
+                ((McCircleEntry *)q)->x.bits = 0x42FC0000;
+                ((McCircleEntry *)q)->y.bits = 0;
+                ((McCircleEntry *)q)->delay = 0;
             }
             *(s32 *)(work + 0x190) += 1;
         }
@@ -2141,73 +2248,75 @@ static inline u32 mcUnsignedColorRgb(const u32 *rgba)
  * The inset is evaluated as remaining scale, pixel span, then half span.
  * 6100 matching code bytes; the 6112-byte window has a zero alignment tail. */
 // Intent: draws one card-slot dial. Callers loop over the slots; arg3 selects the active variant, which draws the digit glyphs for the slot index and the card status at +0x3AC.
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A7920
-void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
+void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex, s32 active, f32 scale, u8 *work) {
     extern f32 D_00761184;
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    struct { u8 r, g, b, a; } color;
-    Quad4 spD;
-    f32 f23;
-    f32 f22;
-    f32 f21;
-    f32 f20;
-    f32 f29;
-    f32 f28;
-    f32 f30;
-    f32 f30b;
-    f32 f30c;
-    f32 f30d;
+    struct { u8 r, g, b, glyphOrRgb; } color;
+    Quad4 rectangle;
+    f32 borderDepth;
+    f32 centerY;
+    f32 centerX;
+    f32 fillDepth;
+    f32 heightOrY;
+    f32 widthOrX;
+    f32 narrowDigitDepth;
+    f32 wideDigitDepth;
+    f32 inactiveNarrowDepth;
+    f32 inactiveWideDepth;
     f32 ret;
     f32 tmp;
-    s32 v0;
-    s32 v1;
+    s32 dialWidth;
+    s32 dialHeight;
     u8 c0;
     u8 c1;
     u32 col;
     u32 colHi;
-    s32 var;
-    s32 a;
-    u8 *p20;
+    s32 slotNumber;
+    s32 glyphOrRgb;
+    u8 *record;
     u8 *p;
     s32 n;
     void *setState;
     s32 t;
 
-    if (*(s32 *)((u8 *)(arg1) + (arg2 * 4)) == 1) {
-        p20 = (u8 *)(arg1 + (arg2 * 0x34) + 0x40);
+    if (*(s32 *)((u8 *)(records) + (slotIndex * 4)) == 1) {
+        record = (u8 *)(records + (slotIndex * 0x34) + 0x40);
     } else {
-        p20 = NULL;
+        record = NULL;
     }
-    if (arg3 != 0) {
-        if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
-            *(s32 *)(arg4 + 4) |= 0x10000;
+    if (active != 0) {
+        if ((record != NULL) && (((McSaveRecord *)record)->special != 0)) {
+            *(s32 *)(work + 4) |= 0x10000;
         } else {
-            *(s32 *)(arg4 + 4) &= 0xFFFEFFFF;
+            *(s32 *)(work + 4) &= 0xFFFEFFFF;
         }
-        v0 = 0x7E;
-        v1 = 0x76;
-        if (*(s32 *)(arg4 + 4) & 0x10000) {
-            t = *(s32 *)(arg4 + 0x3BC);
+        dialWidth = 0x7E;
+        dialHeight = 0x76;
+        if (*(s32 *)(work + 4) & 0x10000) {
+            t = *(s32 *)(work + 0x3BC);
             if (t < 5) {
-                *(s32 *)(arg4 + 0x3BC) = t + 1;
+                *(s32 *)(work + 0x3BC) = t + 1;
             }
         } else {
-            t = *(s32 *)(arg4 + 0x3BC);
+            t = *(s32 *)(work + 0x3BC);
             if (t > 0) {
-                *(s32 *)(arg4 + 0x3BC) = t - 1;
+                *(s32 *)(work + 0x3BC) = t - 1;
             }
         }
-        ret = sinf((D_00761184 * (f32) *(s32 *)(arg4 + 0x3BC)) / 5.0f);
+        ret = sinf((D_00761184 * (f32) *(s32 *)(work + 0x3BC)) / 5.0f);
         tmp = 0.0f + 1.0f * 233.0f + -76.0f * ret;
         c0 = (u8)tmp;
         colHi = ((c0 & 0xFF) << 0x10) | 0xFF000000;
         tmp = 0.0f + 1.0f * 44.0f + 113.0f * ret;
         c1 = (u8)tmp;
-        col = ((u8)arg0 & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
+        col = ((u8)alpha & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
     } else {
-        col = ((u8)arg0 & 0xFF) | 0xFFAE2000;
-        v0 = 0x6A;
-        v1 = 0x62;
+        col = ((u8)alpha & 0xFF) | 0xFFAE2000;
+        dialWidth = 0x6A;
+        dialHeight = 0x62;
     }
     mdlEffectEmitMaskedTagPair();
     setState = (void *)D_00887300;
@@ -2215,16 +2324,16 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
     (*(void (**)(s32, s32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x5000D);
     RpSkyRenderStateSet(2, 0x44);
-    f29 = (f32) v1 * fparg3;
-    f28 = (f32) v0 * fparg3;
-    f23 = 9.0f + fparg2;
-    f22 = 49.0f + fparg1;
-    f21 = 53.0f + fparg0;
-    mcDrawCircleFan(f21, f22, f23, 0xFFFFFF, 1, 2.0f + f28, 2.0f + f29, 2);
-    mcDrawCircleFan(f21, f22, f23, 0xFFFFFF, arg0, f28, f29, 4);
-    f20 = 10.0f + fparg2;
-    mcDrawCircleFan(f21, f22, f20, 0xFFFFFF, arg0, f28, f29, 2);
-    if (arg3 != 0) {
+    heightOrY = (f32) dialHeight * scale;
+    widthOrX = (f32) dialWidth * scale;
+    borderDepth = 9.0f + depth;
+    centerY = 49.0f + y;
+    centerX = 53.0f + x;
+    mcDrawCircleFan(centerX, centerY, borderDepth, 0xFFFFFF, 1, 2.0f + widthOrX, 2.0f + heightOrY, 2);
+    mcDrawCircleFan(centerX, centerY, borderDepth, 0xFFFFFF, alpha, widthOrX, heightOrY, 4);
+    fillDepth = 10.0f + depth;
+    mcDrawCircleFan(centerX, centerY, fillDepth, 0xFFFFFF, alpha, widthOrX, heightOrY, 2);
+    if (active != 0) {
         (*(void (**)(s32, s32))setState)(7, 2);
         (*(void (**)(s32, s32))setState)(9, 2);
         (*(void (**)(s32, s32))setState)(6, 1);
@@ -2236,101 +2345,101 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
         (*(void (**)(s32, s32))setState)(0xE, 0);
         RpSkyRenderStateSet(3, 0x50009);
         RpSkyRenderStateSet(2, 0x44);
-        var = arg2 + 1;
-        if (var < 0xA) {
-            if (var < 0xA) {
-                shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-            } else if (var < 0x14) {
+        slotNumber = slotIndex + 1;
+        if (slotNumber < 0xA) {
+            if (slotNumber < 0xA) {
+                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            } else if (slotNumber < 0x14) {
                 u32 digitRgb;
-                a = (var == 0xA) ? 0xA : arg2 - 9;
+                glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
                 digitRgb = mcUnsignedColorRgb(&col);
-                f30 = mcPlaneDepth(&fparg2, 9.0f);
-                tmp = 21.0f * fparg3;
-                f29 = mcCoordinate(&fparg1, 49.0f);
-                f29 -= tmp;
-                tmp = 53.0f * fparg3;
-                f28 = mcCoordinate(&fparg0, 53.0f);
-                f28 -= tmp;
-                shdSpriteDrawNowEx(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-                tmp = 40.0f * fparg3;
-                shdSpriteDrawNowEx(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+                narrowDigitDepth = mcPlaneDepth(&depth, 9.0f);
+                tmp = 21.0f * scale;
+                heightOrY = mcCoordinate(&y, 49.0f);
+                heightOrY -= tmp;
+                tmp = 53.0f * scale;
+                widthOrX = mcCoordinate(&x, 53.0f);
+                widthOrX -= tmp;
+                shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+                tmp = 40.0f * scale;
+                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
             }
-        } else if (var < 0xA) {
-            shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-        } else if (var < 0x14) {
+        } else if (slotNumber < 0xA) {
+            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+        } else if (slotNumber < 0x14) {
             u32 digitRgb;
-            a = (var == 0xA) ? 0xA : arg2 - 9;
+            glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
             digitRgb = mcUnsignedColorRgb(&col);
-            f30b = mcPlaneDepth(&fparg2, 9.0f);
-            tmp = 32.0f * fparg3;
-            f29 = mcCoordinate(&fparg1, 49.0f);
-            f29 -= tmp;
-            tmp = 70.0f * fparg3;
-            f28 = mcCoordinate(&fparg0, 53.0f);
-            f28 -= tmp;
-            shdSpriteDrawNowEx(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-            tmp = 40.0f * fparg3;
-            shdSpriteDrawNowEx(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+            wideDigitDepth = mcPlaneDepth(&depth, 9.0f);
+            tmp = 32.0f * scale;
+            heightOrY = mcCoordinate(&y, 49.0f);
+            heightOrY -= tmp;
+            tmp = 70.0f * scale;
+            widthOrX = mcCoordinate(&x, 53.0f);
+            widthOrX -= tmp;
+            shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            tmp = 40.0f * scale;
+            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
-        var = arg2 + 1;
-        if (var < 0xA) {
-            if (var < 0xA) {
-                shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-            } else if (var < 0x14) {
+        slotNumber = slotIndex + 1;
+        if (slotNumber < 0xA) {
+            if (slotNumber < 0xA) {
+                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            } else if (slotNumber < 0x14) {
                 u32 digitRgb;
-                a = (var == 0xA) ? 0xA : arg2 - 9;
+                glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
                 digitRgb = mcUnsignedColorRgb(&col);
-                f30 = mcPlaneDepth(&fparg2, 10.0f);
-                tmp = 21.0f * fparg3;
-                f29 = mcCoordinate(&fparg1, 49.0f);
-                f29 -= tmp;
-                tmp = 53.0f * fparg3;
-                f28 = mcCoordinate(&fparg0, 53.0f);
-                f28 -= tmp;
-                shdSpriteDrawNowEx(f28, f29, f30, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-                tmp = 40.0f * fparg3;
-                shdSpriteDrawNowEx(f28 + tmp, f29, f30, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+                narrowDigitDepth = mcPlaneDepth(&depth, 10.0f);
+                tmp = 21.0f * scale;
+                heightOrY = mcCoordinate(&y, 49.0f);
+                heightOrY -= tmp;
+                tmp = 53.0f * scale;
+                widthOrX = mcCoordinate(&x, 53.0f);
+                widthOrX -= tmp;
+                shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+                tmp = 40.0f * scale;
+                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
             }
-        } else if (var < 0xA) {
-            shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 70.0f * fparg3, 0.0f + 1.0f * f22 - 32.0f * fparg3, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-        } else if (var < 0x14) {
+        } else if (slotNumber < 0xA) {
+            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+        } else if (slotNumber < 0x14) {
             u32 digitRgb;
-            a = (var == 0xA) ? 0xA : arg2 - 9;
+            glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
             digitRgb = mcUnsignedColorRgb(&col);
-            f30b = mcPlaneDepth(&fparg2, 10.0f);
-            tmp = 32.0f * fparg3;
-            f29 = mcCoordinate(&fparg1, 49.0f);
-            f29 -= tmp;
-            tmp = 70.0f * fparg3;
-            f28 = mcCoordinate(&fparg0, 53.0f);
-            f28 -= tmp;
-            shdSpriteDrawNowEx(f28, f29, f30b, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, fparg3, fparg3);
-            tmp = 40.0f * fparg3;
-            shdSpriteDrawNowEx(f28 + tmp, f29, f30b, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, fparg3, fparg3);
+            wideDigitDepth = mcPlaneDepth(&depth, 10.0f);
+            tmp = 32.0f * scale;
+            heightOrY = mcCoordinate(&y, 49.0f);
+            heightOrY -= tmp;
+            tmp = 70.0f * scale;
+            widthOrX = mcCoordinate(&x, 53.0f);
+            widthOrX -= tmp;
+            shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            tmp = 40.0f * scale;
+            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
-        a = mcUnsignedColorRgb(&col);
-        shdSpriteDrawNowEx(0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, a, arg0, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
-        if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+        glyphOrRgb = mcUnsignedColorRgb(&col);
+        shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 51.0f * scale, 0.0f + 1.0f * centerY - 35.0f * scale, borderDepth, glyphOrRgb, alpha, 0x20, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale);
+        if ((record != NULL) && (((McSaveRecord *)record)->special != 0)) {
             u32 iconRgb;
             f32 iconY;
             f32 iconX;
             RpSkyRenderStateSet(3, 0x50009);
             RpSkyRenderStateSet(2, 0x44);
             iconRgb = col >> 8;
-            tmp = 53.0f * fparg3;
-            iconY = mcCoordinate(&fparg1, 49.0f);
+            tmp = 53.0f * scale;
+            iconY = mcCoordinate(&y, 49.0f);
             iconY -= tmp;
-            tmp = 11.0f * fparg3;
-            iconX = mcCoordinate(&fparg0, 53.0f);
+            tmp = 11.0f * scale;
+            iconX = mcCoordinate(&x, 53.0f);
             iconX -= tmp;
-            shdSpriteDrawNowEx(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale);
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            shdSpriteDrawNowEx(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f, fparg3, fparg3);
+            shdSpriteDrawNowEx(iconX, iconY, fillDepth, iconRgb, alpha, 0x3E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale);
         }
     } else {
         (*(void (**)(s32, s32))setState)(7, 2);
@@ -2344,77 +2453,77 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
         (*(void (**)(s32, s32))setState)(0xE, 0);
         RpSkyRenderStateSet(3, 0x50009);
         RpSkyRenderStateSet(2, 0x44);
-        var = arg2 + 1;
-        if (var < 0xA) {
-            if (var < 0xA) {
-                shdSpriteDrawNowEx(14.0f + fparg0, 33.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            } else if (var < 0x14) {
+        slotNumber = slotIndex + 1;
+        if (slotNumber < 0xA) {
+            if (slotNumber < 0xA) {
+                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            } else if (slotNumber < 0x14) {
                 u32 digitRgb;
-                a = (var == 0xA) ? 0xA : arg2 - 9;
+                glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
                 digitRgb = mcUnsignedColorRgb(&col);
-                f30c = mcPlaneDepth(&fparg2, 9.0f);
-                f22 = 33.0f + fparg1;
-                f21 = 14.0f + fparg0;
-                shdSpriteDrawNowEx(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                shdSpriteDrawNowEx(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                inactiveNarrowDepth = mcPlaneDepth(&depth, 9.0f);
+                centerY = 33.0f + y;
+                centerX = 14.0f + x;
+                shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
-        } else if (var < 0xA) {
-            shdSpriteDrawNowEx(fparg0 - 5.0f, 22.0f + fparg1, f23, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-        } else if (var < 0x14) {
+        } else if (slotNumber < 0xA) {
+            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+        } else if (slotNumber < 0x14) {
             u32 digitRgb;
-            a = (var == 0xA) ? 0xA : arg2 - 9;
+            glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
             digitRgb = mcUnsignedColorRgb(&col);
-            f30d = mcPlaneDepth(&fparg2, 9.0f);
-            f22 = 22.0f + fparg1;
-            shdSpriteDrawNowEx(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            inactiveWideDepth = mcPlaneDepth(&depth, 9.0f);
+            centerY = 22.0f + y;
+            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
-        var = arg2 + 1;
-        if (var < 0xA) {
-            if (var < 0xA) {
-                shdSpriteDrawNowEx(14.0f + fparg0, 33.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            } else if (var < 0x14) {
+        slotNumber = slotIndex + 1;
+        if (slotNumber < 0xA) {
+            if (slotNumber < 0xA) {
+                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            } else if (slotNumber < 0x14) {
                 u32 digitRgb;
-                a = (var == 0xA) ? 0xA : arg2 - 9;
+                glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
                 digitRgb = mcUnsignedColorRgb(&col);
-                f30c = mcPlaneDepth(&fparg2, 10.0f);
-                f22 = 33.0f + fparg1;
-                f21 = 14.0f + fparg0;
-                shdSpriteDrawNowEx(f21, f22, f30c, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                shdSpriteDrawNowEx(mcDigitAdvance(f21, 40.0f), f22, f30c, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                inactiveNarrowDepth = mcPlaneDepth(&depth, 10.0f);
+                centerY = 33.0f + y;
+                centerX = 14.0f + x;
+                shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
             }
-        } else if (var < 0xA) {
-            shdSpriteDrawNowEx(fparg0 - 5.0f, 22.0f + fparg1, f20, mcUnsignedColorRgb(&col), arg0, (var == 0 ? 0xA : var) + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-        } else if (var < 0x14) {
+        } else if (slotNumber < 0xA) {
+            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+        } else if (slotNumber < 0x14) {
             u32 digitRgb;
-            a = (var == 0xA) ? 0xA : arg2 - 9;
+            glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
             digitRgb = mcUnsignedColorRgb(&col);
-            f30d = mcPlaneDepth(&fparg2, 10.0f);
-            f22 = 22.0f + fparg1;
-            shdSpriteDrawNowEx(mcCoordinateBefore(&fparg0, 5.0f), f22, f30d, digitRgb, arg0, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&fparg0, 5.0f), 40.0f), f22, f30d, digitRgb, arg0, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            inactiveWideDepth = mcPlaneDepth(&depth, 10.0f);
+            centerY = 22.0f + y;
+            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
         }
-        a = mcUnsignedColorRgb(&col);
-        shdSpriteDrawNow((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, arg0, 0x20, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
-        if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+        glyphOrRgb = mcUnsignedColorRgb(&col);
+        shdSpriteDrawNow((3.0f + ((4.0f + x) - 5.0f)) - 2.0f, 20.0f + y, borderDepth, glyphOrRgb, alpha, 0x20, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
+        if ((record != NULL) && (((McSaveRecord *)record)->special != 0)) {
             u32 iconRgb;
             f32 iconY;
             f32 iconX;
             RpSkyRenderStateSet(3, 0x50009);
             RpSkyRenderStateSet(2, 0x44);
             iconRgb = col >> 8;
-            iconY = 2.0f + fparg1;
-            iconX = 42.0f + fparg0;
-            shdSpriteDrawNow(iconX, iconY, f23, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+            iconY = 2.0f + y;
+            iconX = 42.0f + x;
+            shdSpriteDrawNow(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            shdSpriteDrawNow(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+            shdSpriteDrawNow(iconX, iconY, fillDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
         }
     }
     mdlEffectEmitTagPair();
-    p = (u8 *)(&spD);
+    p = (u8 *)(&rectangle);
     n = 0x10;
     if (p != NULL) {
         do {
@@ -2423,14 +2532,14 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
             n -= 1;
         } while (n != 0);
     }
-    tmp = 1.0f - fparg3;
+    tmp = 1.0f - scale;
     tmp = mcScaleProduct(160.0f, tmp);
     tmp = mcScaleProduct(0.5f, tmp);
-    spD.a = (s32)((fparg0 - 16.0f) + tmp);
-    spD.b = (s32)((fparg1 - 16.0f) + tmp);
-    tmp = 160.0f * fparg3;
-    spD.c = (s32)tmp;
-    spD.d = (s32)tmp;
+    rectangle.a = (s32)((x - 16.0f) + tmp);
+    rectangle.b = (s32)((y - 16.0f) + tmp);
+    tmp = 160.0f * scale;
+    rectangle.c = (s32)tmp;
+    rectangle.d = (s32)tmp;
     setState = (void *)D_00887300;
     (*(void (**)(s32, s32))setState)(0xE, 0);
     (*(void (**)(s32, s32))setState)(0xC, 1);
@@ -2441,9 +2550,9 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
     RpSkyRenderStateSet(2, 0x54);
     color.r = (u8) (col >> 0x18);
     color.g = (s8) (col >> 0x10);
-    color.b = (u8)a;
-    color.a = (u8) col;
-    PrimDrawFlatRectangle(&color, &spD, fparg2, 0);
+    color.b = (u8)glyphOrRgb;
+    color.glyphOrRgb = (u8) col;
+    PrimDrawFlatRectangle(&color, &rectangle, depth, 0);
 }
 
 #pragma pop
@@ -2452,114 +2561,115 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
 #pragma opt_common_subs off
 /* measured: #pragma opt_common_subs off preserves retail's saved-register
    allocation and repeated color shift; plain O2 C is 8 bytes short. */
+/* Draw level, character name, and hours/minutes from a selected save record. */
 // FUN_002A9100
-void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
-                   s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
-    u8 spC0[0x60];
-    s16 *var_6;
-    s16 *var_6_2;
-    s16 *var_6_3;
-    s16 *var_5;
-    s16 *var_5_2;
-    s16 *var_5_3;
-    f32 temp_f21;
-    f32 temp_f24;
-    f32 temp_f23;
-    s16 temp_2_2;
-    s16 temp_2_3;
-    s16 temp_2_4;
-    s16 temp_3_2;
-    s16 temp_3_3;
-    s16 temp_3_4;
-    u8 *temp_17;
-    s32 temp_16_2;
-    s32 temp_19;
-    s32 temp_22;
-    s32 var_4;
-    s32 var_4_2;
-    s32 var_4_3;
-    u32 temp_23;
-    u32 temp_30;
-    u32 temp_3;
-    u8 *temp_handle;
+void mcDrawLocationText(f32 x, f32 y, f32 depth,
+                   s32 rgb, s32 alpha, u8 *records, s32 slotIndex, u8 *work) {
+    u8 textWork[0x60];
+    s16 *levelSource;
+    s16 *hourSource;
+    s16 *minuteSource;
+    s16 *levelDigits;
+    s16 *hourDigits;
+    s16 *minuteDigits;
+    f32 timeY;
+    f32 nameY;
+    f32 nameX;
+    s16 levelRight;
+    s16 hourRight;
+    s16 minuteRight;
+    s16 levelLeft;
+    s16 hourLeft;
+    s16 minuteLeft;
+    u8 *record;
+    s32 timeRgb;
+    s32 nameRgba;
+    s32 levelRgb;
+    s32 levelPairs;
+    s32 hourPairs;
+    s32 minutePairs;
+    u32 hours;
+    u32 minutes;
+    u32 playFrames;
+    u8 *spritePack;
 
-    temp_17 = (u8 *)(arg2 + (arg3 * 0x34) + 0x40);
-    calGetWeekdayOfDay(*(s16 *)temp_17);
-    temp_3 = *(u32 *)(temp_17 + 4);
-    temp_23 = temp_3 / 108000U;
-    temp_30 = (temp_3 / 1800U) % 60U;
-    arg0 = (arg0 << 8) | arg1;
-    temp_22 = arg0 >> 8;
-    shdSpriteDrawNow(10.0f + fparg0, 31.0f + fparg1, fparg2, temp_22, (u8)arg1, 0x18, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    sprintf(spC0 + 0x58, &iGpffffa824, *(u8 *)(temp_17 + 8));
-    temp_handle = *(u8 **)(arg4 + 0x398);
-    var_6 = D_0063EB30;
-    var_5 = (s16 *)(spC0 + 0x40);
-    var_4 = 6;
+    record = (u8 *)(records + (slotIndex * 0x34) + 0x40);
+    calGetWeekdayOfDay(((McSaveRecord *)record)->day);
+    playFrames = ((McSaveRecord *)record)->playFrames;
+    hours = playFrames / 108000U;
+    minutes = (playFrames / 1800U) % 60U;
+    rgb = (rgb << 8) | alpha;
+    levelRgb = rgb >> 8;
+    shdSpriteDrawNow(10.0f + x, 31.0f + y, depth, levelRgb, (u8)alpha, 0x18, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+    sprintf(textWork + 0x58, &iGpffffa824, ((McSaveRecord *)record)->level);
+    spritePack = (u8 *)((McScreenState *)work)->spritePack;
+    levelSource = D_0063EB30;
+    levelDigits = (s16 *)(textWork + 0x40);
+    levelPairs = 6;
     do {
-        temp_3_2 = var_6[0];
-        temp_2_2 = var_6[1];
-        var_6 += 2;
-        var_4 -= 1;
-        var_5[0] = temp_3_2;
-        var_5[1] = temp_2_2;
-        var_5 += 2;
-    } while (var_4 > 0);
-    shdSpriteDrawNumberString(46.0f + fparg0, 26.0f + fparg1, fparg2,
-                  temp_22, (u8)arg1, spC0 + 0x58, 0, spC0 + 0x40,
-                  func_002a2e10, temp_handle);
-    if ((*(s32 *)(arg2 + (arg3 * 4)) == 1) &&
-        (*(u8 *)(temp_17 + 0xA) == 0 ||
-         *(s16 *)temp_17 != 9 ||
-         *(s16 *)(temp_17 + 2) != 5)) {
-        temp_19 = arg0 | arg1;
-        temp_f24 = (24.0f + fparg1) - 6.0f;
-        temp_f23 = 99.0f + fparg0;
+        levelLeft = levelSource[0];
+        levelRight = levelSource[1];
+        levelSource += 2;
+        levelPairs -= 1;
+        levelDigits[0] = levelLeft;
+        levelDigits[1] = levelRight;
+        levelDigits += 2;
+    } while (levelPairs > 0);
+    shdSpriteDrawNumberString(46.0f + x, 26.0f + y, depth,
+                  levelRgb, (u8)alpha, textWork + 0x58, 0, textWork + 0x40,
+                  yTimeDrawIndexedGlyph, spritePack);
+    if ((((McRecordTable *)records)->states[slotIndex] == 1) &&
+        (((McSaveRecord *)record)->special == 0 ||
+         ((McSaveRecord *)record)->day != 9 ||
+         ((McSaveRecord *)record)->unk02 != 5)) {
+        nameRgba = rgb | alpha;
+        nameY = (24.0f + y) - 6.0f;
+        nameX = 99.0f + x;
         frFontExDrawTextWithCharWidth(
-            5.0f + (temp_f23 + (f32)frFontExDrawTextWithCharWidth(
-                temp_f23, temp_f24, fparg2, temp_19, 0, 0,
-                (const char *)(temp_17 + 0x1E), 1, -1)),
-            temp_f24, fparg2, temp_19, 0, 0, (const char *)(temp_17 + 0xC), 0, -1);
+            5.0f + (nameX + (f32)frFontExDrawTextWithCharWidth(
+                nameX, nameY, depth, nameRgba, 0, 0,
+                (const char *)(record + 0x1E), 1, -1)),
+            nameY, depth, nameRgba, 0, 0, (const char *)(record + 0xC), 0, -1);
     }
-    temp_16_2 = arg0 >> 8;
-    shdSpriteDrawNow(16.0f + fparg0, 53.0f + fparg1, fparg2, temp_16_2, (u8)arg1, 0x19, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    sprintf(spC0 + 0x58, &iGpffffa824, (s32)temp_23);
-    temp_handle = *(u8 **)(arg4 + 0x398);
-    var_6_2 = D_0063EB30;
-    var_5_2 = (s16 *)(spC0 + 0x20);
-    var_4_2 = 6;
+    timeRgb = rgb >> 8;
+    shdSpriteDrawNow(16.0f + x, 53.0f + y, depth, timeRgb, (u8)alpha, 0x19, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+    sprintf(textWork + 0x58, &iGpffffa824, (s32)hours);
+    spritePack = (u8 *)((McScreenState *)work)->spritePack;
+    hourSource = D_0063EB30;
+    hourDigits = (s16 *)(textWork + 0x20);
+    hourPairs = 6;
     do {
-        temp_3_3 = var_6_2[0];
-        temp_2_3 = var_6_2[1];
-        var_6_2 += 2;
-        var_4_2 -= 1;
-        var_5_2[0] = temp_3_3;
-        var_5_2[1] = temp_2_3;
-        var_5_2 += 2;
-    } while (var_4_2 > 0);
-    temp_f21 = 48.0f + fparg1;
-    shdSpriteDrawNumberString(36.0f + (109.0f + fparg0), temp_f21, fparg2,
-                  temp_16_2, (u8)arg1, spC0 + 0x58, 2, spC0 + 0x20,
-                  func_002a2e10, temp_handle);
-    shdSpriteDrawNow(177.0f + fparg0, temp_f21, fparg2, temp_16_2, (u8)arg1, 0xB, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    sprintf(spC0 + 0x58, &iGpffffa824, (s32)temp_30);
-    temp_handle = *(u8 **)(arg4 + 0x398);
-    var_6_3 = D_0063EB30;
-    var_5_3 = (s16 *)(spC0 + 0x00);
-    var_4_3 = 6;
+        hourLeft = hourSource[0];
+        hourRight = hourSource[1];
+        hourSource += 2;
+        hourPairs -= 1;
+        hourDigits[0] = hourLeft;
+        hourDigits[1] = hourRight;
+        hourDigits += 2;
+    } while (hourPairs > 0);
+    timeY = 48.0f + y;
+    shdSpriteDrawNumberString(36.0f + (109.0f + x), timeY, depth,
+                  timeRgb, (u8)alpha, textWork + 0x58, 2, textWork + 0x20,
+                  yTimeDrawIndexedGlyph, spritePack);
+    shdSpriteDrawNow(177.0f + x, timeY, depth, timeRgb, (u8)alpha, 0xB, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+    sprintf(textWork + 0x58, &iGpffffa824, (s32)minutes);
+    spritePack = (u8 *)((McScreenState *)work)->spritePack;
+    minuteSource = D_0063EB30;
+    minuteDigits = (s16 *)(textWork + 0x00);
+    minutePairs = 6;
     do {
-        temp_3_4 = var_6_3[0];
-        temp_2_4 = var_6_3[1];
-        var_6_3 += 2;
-        var_4_3 -= 1;
-        var_5_3[0] = temp_3_4;
-        var_5_3[1] = temp_2_4;
-        var_5_3 += 2;
-    } while (var_4_3 > 0);
-    shdSpriteDrawNumberString(24.5f + (205.0f + fparg0), temp_f21, fparg2,
-                  temp_16_2, (u8)arg1, spC0 + 0x58, 2, spC0 + 0x00,
-                  func_002a2e10, temp_handle);
-    shdSpriteDrawNow(250.0f + fparg0, temp_f21, fparg2, temp_16_2, (u8)arg1, 0xC, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        minuteLeft = minuteSource[0];
+        minuteRight = minuteSource[1];
+        minuteSource += 2;
+        minutePairs -= 1;
+        minuteDigits[0] = minuteLeft;
+        minuteDigits[1] = minuteRight;
+        minuteDigits += 2;
+    } while (minutePairs > 0);
+    shdSpriteDrawNumberString(24.5f + (205.0f + x), timeY, depth,
+                  timeRgb, (u8)alpha, textWork + 0x58, 2, textWork + 0x00,
+                  yTimeDrawIndexedGlyph, spritePack);
+    shdSpriteDrawNow(250.0f + x, timeY, depth, timeRgb, (u8)alpha, 0xC, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
 }
 #pragma opt_common_subs on
 
@@ -2595,35 +2705,37 @@ static inline const char *mcLocationName(s32 area, s32 room)
  * color as distinct objects. The color accessor preserves the detail RGB
  * lifetime; opt_lifetimes retains the retail allocation across draw calls. */
 // Intent: draws the date (month and day, formatted with sprintf) and the current location name in the header.
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A95C0
-void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4)
+void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress, s32 slotIndex, u8 *active, u8 *work)
 {
-    u8 tmp128[8];
-    s16 tmp110[12];
-    s16 tmpF0[12];
-    s16 *var_6;
-    s16 *var_6_2;
-    s16 *var_5;
-    s16 *var_5_2;
+    u8 text[8];
+    s16 monthDigits[12];
+    s16 dayDigits[12];
+    s16 *monthSource;
+    s16 *daySource;
+    s16 *monthDestination;
+    s16 *dayDestination;
     s16 t3a;
     s16 t2a;
     s16 t3b;
     s16 t2b;
     s32 month;
     s32 day;
-    s32 var_18;
+    s32 weekday;
     McColorWord colorWord;
-    s32 var_30;
+    s32 holidayColor;
     s32 colMid;
-    s32 temp_17;
-    s32 temp_18;
-    s32 var_4;
-    s32 var_4_2;
+    s32 dateRgb;
+    s32 detailRgb;
+    s32 monthPairs;
+    s32 dayPairs;
     s32 baseSpill;
     f32 tmpY2;
     f32 tmpX2;
-    u8 *temp_2;
-    u8 *temp_16;
+    u8 *recordBase;
+    u8 *record;
     u8 *str;
     u8 *handle;
     u8 *weekdayHandle;
@@ -2636,79 +2748,79 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     u8 *p2;
     s32 n2;
     void *setState;
-    baseSpill = arg1;
-    temp_2 = (u8 *)(arg1 + arg2 * 0x34);
-    temp_16 = temp_2 + 0x40;
-    calSplitDayOfYear(*(s16 *)(temp_2 + 0x40), &month, &day);
-    var_18 = calGetWeekdayOfDay(*(s16 *)temp_16);
-    if (var_18 < 0) {
-        var_18 = 6;
+    baseSpill = recordAddress;
+    recordBase = (u8 *)(recordAddress + slotIndex * 0x34);
+    record = recordBase + 0x40;
+    calSplitDayOfYear(*(s16 *)(recordBase + 0x40), &month, &day);
+    weekday = calGetWeekdayOfDay(((McSaveRecord *)record)->day);
+    if (weekday < 0) {
+        weekday = 6;
     }
-    if (arg3 != NULL) {
-        colorWord.rgba = (arg0 & 0xFF) | 0xFFE92C00;
+    if (active != NULL) {
+        colorWord.rgba = (alpha & 0xFF) | 0xFFE92C00;
     } else {
-        colorWord.rgba = (arg0 & 0xFF) | 0xFFAE2000;
+        colorWord.rgba = (alpha & 0xFF) | 0xFFAE2000;
     }
-    if (arg3 != NULL) {
-        colMid = (arg0 & 0xFF) | 0x52BDFF00;
+    if (active != NULL) {
+        colMid = (alpha & 0xFF) | 0x52BDFF00;
     } else {
-        colMid = (arg0 & 0xFF) | 0x6984A300;
+        colMid = (alpha & 0xFF) | 0x6984A300;
     }
-    if (arg3 != NULL) {
-        var_30 = (arg0 & 0xFF) | 0xFF74AC00;
+    if (active != NULL) {
+        holidayColor = (alpha & 0xFF) | 0xFF74AC00;
     } else {
-        var_30 = (arg0 & 0xFF) | 0xDE6D9D00;
+        holidayColor = (alpha & 0xFF) | 0xDE6D9D00;
     }
-    fparg0 += 107.0f;
-    fparg1 += 17.0f;
-    sprintf(tmp128, &iGpffffa824, month);
-    handle = *(u8 **)(arg4 + 0x398);
-    var_6 = D_0063EB30;
-    var_5 = tmp110;
-    var_4 = 6;
+    x += 107.0f;
+    y += 17.0f;
+    sprintf(text, &iGpffffa824, month);
+    handle = *(u8 **)(work + 0x398);
+    monthSource = D_0063EB30;
+    monthDestination = monthDigits;
+    monthPairs = 6;
     do {
-        t3a = var_6[0];
-        t2a = var_6[1];
-        var_6 += 2;
-        var_4 -= 1;
-        var_5[0] = t3a;
-        var_5[1] = t2a;
-        var_5 += 2;
-    } while (var_4 > 0);
-    temp_17 = colorWord.rgba >> 8;
-    shdSpriteDrawNumberString((fparg0 + 23.0f) - 2.0f, fparg1 - 1.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmp110, func_002a2e10, handle);
-    shdSpriteDrawNow(fparg0 + 45.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x4B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    sprintf(tmp128, &iGpffffa824, day);
-    handle = *(u8 **)(arg4 + 0x398);
-    var_6_2 = D_0063EB30;
-    var_5_2 = tmpF0;
-    var_4_2 = 6;
+        t3a = monthSource[0];
+        t2a = monthSource[1];
+        monthSource += 2;
+        monthPairs -= 1;
+        monthDestination[0] = t3a;
+        monthDestination[1] = t2a;
+        monthDestination += 2;
+    } while (monthPairs > 0);
+    dateRgb = colorWord.rgba >> 8;
+    shdSpriteDrawNumberString((x + 23.0f) - 2.0f, y - 1.0f, depth, dateRgb, (u8)alpha, text, 2, monthDigits, yTimeDrawIndexedGlyph, handle);
+    shdSpriteDrawNow(x + 45.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x4B, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    sprintf(text, &iGpffffa824, day);
+    handle = *(u8 **)(work + 0x398);
+    daySource = D_0063EB30;
+    dayDestination = dayDigits;
+    dayPairs = 6;
     do {
-        t3b = var_6_2[0];
-        t2b = var_6_2[1];
-        var_6_2 += 2;
-        var_4_2 -= 1;
-        var_5_2[0] = t3b;
-        var_5_2[1] = t2b;
-        var_5_2 += 2;
-    } while (var_4_2 > 0);
-    shdSpriteDrawNumberString((fparg0 + 61.0f + 24.0f) - 2.0f, (fparg1 + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
-    shdSpriteDrawNow(fparg0 + 109.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    if ((var_18 == 0) || (calHasDayEntry(*(s16 *)temp_16) != 0)) {
-        weekdayHandle = *(u8 **)(arg4 + 0x398);
-        shdSpriteDrawNow((fparg0 + 129.0f) - (f32)shdSpriteEntryWidth(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
-    } else if (var_18 == 6) {
-        weekdayHandle = *(u8 **)(arg4 + 0x398);
-        shdSpriteDrawNow((fparg0 + 129.0f) - (f32)shdSpriteEntryWidth(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, colMid >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
+        t3b = daySource[0];
+        t2b = daySource[1];
+        daySource += 2;
+        dayPairs -= 1;
+        dayDestination[0] = t3b;
+        dayDestination[1] = t2b;
+        dayDestination += 2;
+    } while (dayPairs > 0);
+    shdSpriteDrawNumberString((x + 61.0f + 24.0f) - 2.0f, (y + 1.0f) - 2.0f, depth, dateRgb, (u8)alpha, text, 2, dayDigits, yTimeDrawIndexedGlyph, handle);
+    shdSpriteDrawNow(x + 109.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x15, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    if ((weekday == 0) || (calHasDayEntry(((McSaveRecord *)record)->day) != 0)) {
+        weekdayHandle = *(u8 **)(work + 0x398);
+        shdSpriteDrawNow((x + 129.0f) - (f32)shdSpriteEntryWidth(0xE, weekday, weekdayHandle) / 2.0f, y - 2.0f, depth, holidayColor >> 8, (u8)alpha, 0xE, weekday, weekdayHandle, 1);
+    } else if (weekday == 6) {
+        weekdayHandle = *(u8 **)(work + 0x398);
+        shdSpriteDrawNow((x + 129.0f) - (f32)shdSpriteEntryWidth(0xE, weekday, weekdayHandle) / 2.0f, y - 2.0f, depth, colMid >> 8, (u8)alpha, 0xE, weekday, weekdayHandle, 1);
     } else {
-        weekdayHandle = *(u8 **)(arg4 + 0x398);
-        shdSpriteDrawNow((fparg0 + 129.0f) - (f32)shdSpriteEntryWidth(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
+        weekdayHandle = *(u8 **)(work + 0x398);
+        shdSpriteDrawNow((x + 129.0f) - (f32)shdSpriteEntryWidth(0xE, weekday, weekdayHandle) / 2.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0xE, weekday, weekdayHandle, 1);
     }
-    shdSpriteDrawNow(fparg0 + 136.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    str = (u8 *)mcLocationName(temp_16[0x30], temp_16[0x31]);
-    frFontExDrawTextWithCharWidth(fparg0 + 151.0f, ((fparg1 - 2.0f) - 6.0f) + 2.0f, fparg2, colorWord.rgba | arg0, 0, 1, (const char *)str, 0, -1);
-    temp_18 = mcColorRgb(&colorWord);
-    mcDrawLocationText(fparg0, fparg1, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
+    shdSpriteDrawNow(x + 136.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x16, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    str = (u8 *)mcLocationName(((McSaveRecord *)record)->area, ((McSaveRecord *)record)->room);
+    frFontExDrawTextWithCharWidth(x + 151.0f, ((y - 2.0f) - 6.0f) + 2.0f, depth, colorWord.rgba | alpha, 0, 1, (const char *)str, 0, -1);
+    detailRgb = mcColorRgb(&colorWord);
+    mcDrawLocationText(x, y, depth, detailRgb, alpha, (u8 *)baseSpill, slotIndex, work);
     p = (u8 *)&single;
     n = 4;
     if (p != NULL) {
@@ -2728,8 +2840,8 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
             n2--;
         } while (n2 != 0);
     }
-    rect.x = (s32)(fparg0 - 16.0f);
-    rect.y = (s32)(fparg1 - 16.0f);
+    rect.x = (s32)(x - 16.0f);
+    rect.y = (s32)(y - 16.0f);
     rect.width = 0x20;
     rect.height = 0x80;
     rectCopy = rect;
@@ -2747,19 +2859,19 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     PrimDrawFlatRectangle(&singleCopy, &rectCopy, 0.0f, 0);
     mdlEffectEmitTagPair();
     mdlEffectEmitMaskedTagPair();
-    tmpY2 = fparg1 + 48.0f;
-    tmpX2 = (f32)0x129 + fparg0;
-    shdSpriteDrawNow(tmpX2, tmpY2, fparg2, temp_18, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    mode = temp_16[9];
+    tmpY2 = y + 48.0f;
+    tmpX2 = (f32)0x129 + x;
+    shdSpriteDrawNow(tmpX2, tmpY2, depth, detailRgb, (u8)alpha, 0x1E, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    mode = ((McSaveRecord *)record)->mode;
     switch (mode) {
     case 0:
-        shdSpriteDrawNow(tmpX2 + 11.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1B, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 11.0f, tmpY2 + 4.0f, depth, dateRgb, (u8)alpha, 0x1B, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
         break;
     case 1:
-        shdSpriteDrawNow(tmpX2 + 17.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1C, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 17.0f, tmpY2 + 4.0f, depth, dateRgb, (u8)alpha, 0x1C, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
         break;
     default:
-        shdSpriteDrawNow(tmpX2 + 21.0f, tmpY2 + 3.0f, fparg2, temp_17, (u8)arg0, 0x1D, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 21.0f, tmpY2 + 3.0f, depth, dateRgb, (u8)alpha, 0x1D, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
         break;
     }
     mdlEffectEmitTagPair();
@@ -2768,93 +2880,95 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     (*(void (**)(u32, u32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x30003);
     RpSkyRenderStateSet(2, 0x54);
-    shdSpriteDrawNow(tmpX2, tmpY2, fparg2, temp_17, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
+    shdSpriteDrawNow(tmpX2, tmpY2, depth, dateRgb, (u8)alpha, 0x1E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
 }
 
 #pragma pop
 
 /* measured: cyclic saved-register rotation in the 5-int/3-float prologue --
-   retail colors arg0->$s0, arg1->$s4, arg2->$s3, arg4->$s2; mwcc b210 always
-   emits arg2->$s0, arg1->$s3, arg0->$s4 (arg4->$s2 stable) regardless of
+   retail colors alpha->$s0, recordAddress->$s4, slotIndex->$s3, work->$s2; mwcc b210 always
+   emits slotIndex->$s0, recordAddress->$s3, alpha->$s4 (work->$s2 stable) regardless of
    signature order (tried FP-first and interleaved signatures, 3 local
    declaration orders, single-expr vs split p, if/else vs ternary color, all
    nd 162-181). Scheduler residuals ride along: the `color >>= 8` lands at
    the call site instead of right after the OR, `add.s` operands are
-   transposed for `fparg0 + const`, and the mcDrawDateAndLocation call materializes
+   transposed for `x + const`, and the mcDrawDateAndLocation call materializes
    int args before float args. The float-param-first signature DID fix the
    FP move order (mov.s f22/f21/f20 before the int moves). Saved-register
    rotation floor. */
 /* Wave-14 re-test: fresh m2c-sourced body with the mcDrawDateAndLocation call arg
    order corrected; the m2c had scrambled the 8-arg call (missing the 4th arg).
-   Retail leaves $7 live as arg3 at 0xA0C0, so the call is
-   mcDrawDateAndLocation(arg0,arg1,arg2,(u8*)arg3,arg4,f0,f1,f2); nd 190 (recorded
+   Retail leaves $7 live as active at 0xA0C0, so the call is
+   mcDrawDateAndLocation(alpha,recordAddress,slotIndex,(u8*)active,work,f0,f1,f2); nd 190 (recorded
    162-181). The call site now matches (the jal relocation aligns) but the
    prologue register rotation (retail's FP store order vs int) dominates.
    Rotation floor persists. */
+/* Draw a valid save summary or the invalid/empty slot label. */
+/* McScreenState layout is proven; byte offsets retain MATCH because b210
+ * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A9F50
-void mcScreenStep(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4) {
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_17_3;
-    s32 temp_3;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    u8 *temp_2;
-    u8 *temp_4;
+void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex, s32 active, u8 *work) {
+    s32 specialRgb;
+    s32 invalidRgb;
+    s32 emptyRgb;
+    s32 status;
+    s32 specialColor;
+    s32 invalidColor;
+    s32 emptyColor;
+    u8 *recordBase;
+    u8 *record;
 
-    temp_2 = arg1 + (arg2 * 0x34);
-    temp_4 = temp_2 + 0x40;
-    temp_3 = *(s32 *)(arg1 + (arg2 * 4));
-    if (temp_3 == 1) {
-        if (*(u8 *)(temp_4 + 0xA) != 0 && *(s16 *)(temp_4 + 0) == 9 && *(s16 *)(temp_4 + 2) == 5) {
-            if (arg3 != 0) {
-                var_2 = (arg0 & 0xFF) | 0xFFE92C00;
+    recordBase = records + (slotIndex * 0x34);
+    record = recordBase + 0x40;
+    status = *(s32 *)(records + (slotIndex * 4));
+    if (status == 1) {
+        if (((McSaveRecord *)record)->special != 0 && ((McSaveRecord *)record)->day == 9 && ((McSaveRecord *)record)->unk02 == 5) {
+            if (active != 0) {
+                specialColor = (alpha & 0xFF) | 0xFFE92C00;
             } else {
-                var_2 = (arg0 & 0xFF) | 0xFFAE2000;
+                specialColor = (alpha & 0xFF) | 0xFFAE2000;
             }
-            temp_17 = var_2 >> 8;
-            shdSpriteDrawNow(5.0f + (113.0f + fparg0), 10.0f + fparg1, fparg2, temp_17, (u8)arg0, 0x43, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-            mcDrawLocationText(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2,
-                          temp_17, arg0, (u8 *)arg1, arg2, arg4);
+            specialRgb = specialColor >> 8;
+            shdSpriteDrawNow(5.0f + (113.0f + x), 10.0f + y, depth, specialRgb, (u8)alpha, 0x43, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+            mcDrawLocationText(mc_add(x, 107.0f), mc_add(y, 17.0f), depth,
+                          specialRgb, alpha, (u8 *)records, slotIndex, work);
             return;
         }
-        mcDrawDateAndLocation(fparg0, fparg1, fparg2, arg0, (s32)arg1, arg2, (u8 *)arg3, arg4);
+        mcDrawDateAndLocation(x, y, depth, alpha, (s32)records, slotIndex, (u8 *)active, work);
         return;
     }
-    if (temp_3 == 2) {
-        if (arg3 != 0) {
-            var_2_2 = (arg0 & 0xFF) | 0xFFE92C00;
+    if (status == 2) {
+        if (active != 0) {
+            invalidColor = (alpha & 0xFF) | 0xFFE92C00;
         } else {
-            var_2_2 = (arg0 & 0xFF) | 0xFFAE2000;
+            invalidColor = (alpha & 0xFF) | 0xFFAE2000;
         }
-        temp_17_2 = var_2_2 >> 8;
-        shdSpriteDrawNow(113.0f + fparg0, 34.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x46, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-        shdSpriteDrawNow(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+        invalidRgb = invalidColor >> 8;
+        shdSpriteDrawNow(113.0f + x, 34.0f + y, depth, invalidRgb, (u8)alpha, 0x46, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow(122.0f + x, 35.0f + y, depth, invalidRgb, (u8)alpha, 0x45, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
         return;
     }
-    if (arg3 != 0) {
-        var_2_3 = (arg0 & 0xFF) | 0xFFE92C00;
+    if (active != 0) {
+        emptyColor = (alpha & 0xFF) | 0xFFE92C00;
     } else {
-        var_2_3 = (arg0 & 0xFF) | 0xFFAE2000;
+        emptyColor = (alpha & 0xFF) | 0xFFAE2000;
     }
-    temp_17_3 = var_2_3 >> 8;
-    shdSpriteDrawNow(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x44, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    shdSpriteDrawNow(184.0f + fparg0, 36.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x45, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
+    emptyRgb = emptyColor >> 8;
+    shdSpriteDrawNow(122.0f + x, 35.0f + y, depth, emptyRgb, (u8)alpha, 0x44, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    shdSpriteDrawNow(184.0f + x, 36.0f + y, depth, emptyRgb, (u8)alpha, 0x45, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
 }
 // FUN_002AA2B0
-void mcIconWorkFree(void *arg0) {
-    typedef struct { u8 pad[0x3A4]; s32 handle; } Work;
-    Work *work = arg0;
-    if (work->handle != 0) {
-        H_Cdvd_Destroy((struct HCdvd *)work->handle);
-        work->handle = 0;
+void mcIconWorkFree(void *allocation) {
+    McScreenState *work = allocation;
+    if (work->directory != 0) {
+        H_Cdvd_Destroy((struct HCdvd *)work->directory);
+        work->directory = 0;
     }
     D_008873EC[0](work);
 }
 // FUN_002AA300
 /* The caller retains the task handle returned by registration. */
-s32 mcIconTaskCreate(u8 *parent, s32 arg1) {
+s32 mcIconTaskCreate(u8 *parent, s32 mode) {
     u8 *work;
 
     D_00764634 = 0;
@@ -2863,12 +2977,12 @@ s32 mcIconTaskCreate(u8 *parent, s32 arg1) {
     if (work == NULL) {
         kAssertFail(&D_007638F8, 0xE8);
     }
-    *(s32 *)(work + 0x3AC) = D_00764638;
-    *(s32 *)(work + 0x3B4) = D_00764638 << 16;
-    *(u16 *)(work + 0) = 0;
-    *(u16 *)(work + 2) = 0;
-    if (arg1 == 1) {
-        *(u32 *)(work + 4) |= 2;
+    ((McScreenState *)work)->slot = D_00764638;
+    ((McScreenState *)work)->scrollPosition = D_00764638 << 16;
+    ((McScreenState *)work)->phase = 0;
+    ((McScreenState *)work)->interactionPhase = 0;
+    if (mode == 1) {
+        ((McScreenState *)work)->flags |= 2;
     }
     return (s32)kwlnTaskCreateChild(parent, (const void *)(&D_00763918), 0xF, 0, 0, mcIconTaskUpdate, mcIconTaskDestroy, work);
 }
