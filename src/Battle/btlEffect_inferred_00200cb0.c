@@ -121,7 +121,7 @@ extern u8 *iGpffffb3ac;
 extern s32 D_00881444_abs[];
 extern void func_0021be70(void *arg0);
 extern void btlEncounterUpdateEntries(void *arg0);
-extern void func_00216e50(void *arg0);
+extern void btlPanelNoOp(void *arg0);
 extern void btlEntryListPrune(void *arg0);
 extern void btlPanelUpdate(void *arg0);
 extern f32 fGpffff8478;
@@ -214,7 +214,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     *(s32 *)(temp_2 + 0x81C) = 0;
     *(s32 *)(temp_2 + 0x820) = 0;
     PrimAppendNode(D_00795020, temp_2 + 0x81C);
-    func_00216e50(temp_2 + 0x84C);
+    btlPanelNoOp(temp_2 + 0x84C);
     *(s32 *)(temp_2 + 0x88C) = 0;
     *(s32 *)(temp_2 + 0x890) = 0;
     PrimAppendNode(D_00795080, temp_2 + 0x88C);

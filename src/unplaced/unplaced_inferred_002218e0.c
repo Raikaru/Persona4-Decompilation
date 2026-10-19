@@ -10,14 +10,15 @@
 #include "btl_cond_internal.h"
 #include "effect_instance_internal.h"
 #include "datPersona_internal.h"
+#include "btl_result_ui_internal.h"
 typedef struct KwlnTask KwlnTask;
 
 extern u32 datGetFlag(s32 bit);
 u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u8 D_006290F0[];
 u32 kwlnTaskGetWork(void *task);
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern s32 datCalcGetLevelById(s32 arg0);
+extern void datSetFlag(s32 work, s32);
+extern s32 datCalcGetLevelById(s32 work);
 // Intent: Report whether a shuffle child task has its cancel-request bit (0x4) set in its flag word [inferred]
 // FUN_002218E0
 s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task)
@@ -41,41 +42,41 @@ s32 btlShuffleTaskIsLoading(KwlnTask *task)
 
 // Intent: Advance the logo stage flags and set the stage byte from the counter. [inferred]
 // FUN_00221970
-s32 btlLogoUnlockStage(u8 *arg0)
+s32 btlLogoUnlockStage(u8 *work)
 {
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_4;
+    s32 level;
+    s32 unlocked;
+    s32 result;
 
-    temp_2 = datCalcGetLevelById(1) & 0xFF;
-    temp_3 = 0;
-    if (temp_2 >= 0x1E) {
+    level = datCalcGetLevelById(1) & 0xFF;
+    unlocked = 0;
+    if (level >= 0x1E) {
         if (datGetFlag(0x1202) == 0) {
-            arg0[0x44] = 0xC;
+            ((BtlLogoWork *)work)->stage = 0xC;
             datSetFlag(0x1202, 1);
             datSetFlag(0x1201, 1);
             datSetFlag(0x1200, 1);
-            temp_3 = 1;
+            unlocked = 1;
             goto exit;
         }
     }
-    if (temp_2 >= 0x19) {
+    if (level >= 0x19) {
         if (datGetFlag(0x1201) == 0) {
-            arg0[0x44] = 0xA;
+            ((BtlLogoWork *)work)->stage = 0xA;
             datSetFlag(0x1201, 1);
             datSetFlag(0x1200, 1);
-            temp_3 = 1;
+            unlocked = 1;
             goto exit;
         }
     }
-    if (temp_2 >= 0x14) {
+    if (level >= 0x14) {
         if (datGetFlag(0x1200) == 0) {
-            arg0[0x44] = 8;
+            ((BtlLogoWork *)work)->stage = 8;
             datSetFlag(0x1200, 1);
-            temp_3 = 1;
+            unlocked = 1;
         }
     }
 exit:
-    temp_4 = temp_3;
-    return temp_4;
+    result = unlocked;
+    return result;
 }
