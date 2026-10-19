@@ -108,7 +108,7 @@ extern s32 func_003e23e0(void);
 extern void func_003e82e0();
 extern void func_003e5510(s32 value);
 extern s32 kwlnGetCamera(void);
-extern void func_00466c60(void);
+extern void sdkWrapPollRequests(void);
 extern void func_0050cd80(void);
 extern void memcardWakeBackendThread(void);
 extern char D_007127D0[];
@@ -265,7 +265,7 @@ s32 hMaestroUpdateServicesTask(u8 *unusedTask)
     *(s32 *)0x10000000 = 0;
     func_003e5510(0);
     memcardWakeBackendThread();
-    func_00466c60();
+    sdkWrapPollRequests();
     func_0050cd80();
     return 0;
 }
