@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2254 of 13102 symbols carry a recovered name.
+// 2259 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -4665,8 +4665,8 @@ func_002cacd0 = 0x002CACD0; // type:func
 func_002caef0 = 0x002CAEF0; // type:func
 func_002cb6a0 = 0x002CB6A0; // type:func
 func_002cb6c0 = 0x002CB6C0; // type:func
-func_002cdf80 = 0x002CDF80; // type:func
-func_002d1590 = 0x002D1590; // type:func
+fclShopDrawSellList = 0x002CDF80; // type:func
+fclShopDrawEquipmentComparison = 0x002D1590; // type:func
 func_002d3ee0 = 0x002D3EE0; // type:func
 func_002d4760 = 0x002D4760; // type:func
 func_002d4f30 = 0x002D4F30; // type:func
@@ -4687,9 +4687,9 @@ func_002de5a0 = 0x002DE5A0; // type:func
 func_002df020 = 0x002DF020; // type:func
 func_002df4c0 = 0x002DF4C0; // type:func
 func_002dfd00 = 0x002DFD00; // type:func
-func_002dfe00 = 0x002DFE00; // type:func
-func_002dfec0 = 0x002DFEC0; // type:func
-func_002dff90 = 0x002DFF90; // type:func
+fclShopShowUnlockMessage = 0x002DFE00; // type:func
+fclShopShowMessage = 0x002DFEC0; // type:func
+fclShopShowMessageWithStrings = 0x002DFF90; // type:func
 func_002e0080 = 0x002E0080; // type:func
 func_002e0100 = 0x002E0100; // type:func
 func_002e02d0 = 0x002E02D0; // type:func
