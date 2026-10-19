@@ -569,8 +569,8 @@ s32 FldResource_StepPartLoad(s32 majorId, s32 minorId) {
     extern s32 NpcTable_RequestSecondaryTable(void);
     extern s32 NpcTable_InstallSecondaryTable(u8 *majorId);
     extern s32 FldStepIndex(void);
-    extern s32 func_0015ac60(s32 majorId);
-    extern s32 func_0015a7c0(s32 majorId);
+    extern s32 fldStepRestoreBoard(s32 majorId);
+    extern s32 fldStepSaveBoard(s32 majorId);
     extern void FldCellCreateGrid(void);
     extern void FldStepRefreshBandResVisibility(void);
     extern void FldBoardGenerate(s32 majorId, s32 minorId, s32 arg2);
@@ -953,9 +953,9 @@ publishResources:
                     *(s32 *)(ordinaryDestination + ordinaryPublishOffset) = ordinaryResource;
                     ordinaryPublishIndex += 1;
                 }
-                if (func_0015ac60(FldStepIndex()) == 0) {
+                if (fldStepRestoreBoard(FldStepIndex()) == 0) {
                     FldBoardGenerate(((FldResourceWork *)iGpffff9db0)->majorId - 0x28, ((FldFrame *)MT_Scene_GetFrameState())->boardParam, 1);
-                    func_0015a7c0(FldStepIndex());
+                    fldStepSaveBoard(FldStepIndex());
                 }
                 FldCellCreateGrid();
                 FldStepRefreshBandResVisibility();
@@ -972,8 +972,8 @@ publishResources:
                     *(s32 *)(specialDestination + specialPublishOffset) = specialResource;
                     specialPublishIndex += 1;
                 }
-                if (func_0015ac60(FldStepIndex()) == 0) {
-                    func_0015a7c0(FldStepIndex());
+                if (fldStepRestoreBoard(FldStepIndex()) == 0) {
+                    fldStepSaveBoard(FldStepIndex());
                 }
                 FldCellCreateGrid();
                 FldStepRefreshBandResVisibility();

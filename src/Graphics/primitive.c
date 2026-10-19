@@ -270,18 +270,30 @@ typedef struct
 
 typedef struct
 {
-    u8 pad0[8];
+    s32 previousFrame;
+    f32 time;
     PrimQuaternion quat;
     f32 values[6];
     f32 value30;
 } PrimInterpData;
 
+/* SDK RtAnimAnimation fields from rw/sky2/rtanim.h. The signed address
+ * member preserves the native integer transport used by stream callbacks. */
+typedef struct RtAnimAnimation {
+    void *interpInfo;
+    s32 numFrames;
+    s32 flags;
+    f32 duration;
+    union { void *pFrames; s32 frameAddress; };
+    void *customData;
+} RtAnimAnimation;
+
 // retail data at 0x00761118 (gp-relative float, P3 name fGpffff8028)
 extern float fGpffff8028;
-extern f32 func_0044b920(f32 param_1); // P3 FUN_0052e9e8 (acosf)
+extern f32 func_0044b920(f32 weight); // P3 FUN_0052e9e8 (acosf)
 extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
 
-extern void PrimInterpSlerp(void* param_2, void* param_3, void* param_4, f32 param_1);
+extern void PrimInterpSlerp(void* destination, void* startFrame, void* endFrame, f32 weight);
 
 extern void* func_003df1a0(void* stream, const void* buf, u32 size); // P3 FUN_004c1750
 extern void* func_003df240(void* stream, const void* buf, u32 size); // P3 FUN_004c17f0
@@ -315,16 +327,17 @@ typedef struct
 extern void PrimInterpToMatrix(void* result, void* frame);
 extern void* func_003df300(void* stream, void* buf, u32 size);
 extern void* func_003df360(void* stream, void* buf, u32 size);
-extern void PrimInterpByTime(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData);
+extern void PrimInterpByTime(void* destination, void* startFrame, void* endFrame, f32 weight, void* customData);
 extern void PrimInterpCompose(void* out, void* first, void* second);
-extern void PrimInterpDelta(void* param_1, void* param_2);
-extern void* PrimDeserializeEntries(void* param_1, void* param_2);
-extern s32 PrimSerializeEntries(const void* param_1, void* param_2);
-extern s32 PrimEntryTableBytes(void* param_1);
+extern void PrimInterpDelta(void* weight, void* destination);
+extern void* PrimDeserializeEntries(void* weight, void* destination);
+extern s32 PrimSerializeEntries(const void* weight, void* destination);
+extern s32 PrimEntryTableBytes(void* weight);
 extern s32 func_003d5000(PrimDesc* desc); // Registers a 0x30-byte RtAnim scheme.
 
 
 
+/* Project a camera-facing square centered at pos, clipping it to the near/far planes. */
 // FUN_0045F0B0
 void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestoreRenderState)
 {
@@ -436,6 +449,7 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
 /* RwMatrixSetIdentity updates identity.flags in place. Retail reads the
  * automatic flags word at 0045f89c with no earlier producer; the C reads the
  * uninitialised field exactly as retail does. */
+/* Draw one colored world-space segment, optionally saving six render states. */
 // FUN_0045F790
 void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState)
 {
@@ -484,6 +498,7 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
 
 
 
+/* Draw the transformed X/Y/Z basis using the unit's fixed axis colors. */
 // FUN_0045FA00
 void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderState)
 {
@@ -600,11 +615,11 @@ void PrimInterpToMatrix(void* result, void* frame)
 
 /* Blends two interpolation frames at weight param_1: the second quaternion is flipped into the first's hemisphere, the quaternion uses slerp weights when the frames are far apart and a linear blend otherwise, and the six values blend linearly. */
 // FUN_00480AA0
-void PrimInterpSlerp(void* param_2, void* param_3, void* param_4, f32 param_1)
+void PrimInterpSlerp(void* destination, void* startFrame, void* endFrame, f32 weight)
 {
-    PrimInterpData* out = (PrimInterpData*)param_2;
-    const PrimInterpData* first = (const PrimInterpData*)param_3;
-    PrimInterpData* second = (PrimInterpData*)param_4;
+    PrimInterpData* out = (PrimInterpData*)destination;
+    const PrimInterpData* first = (const PrimInterpData*)startFrame;
+    PrimInterpData* second = (PrimInterpData*)endFrame;
     f32 dot;
     f32 firstWeight;
     f32 secondWeight;
@@ -624,8 +639,8 @@ void PrimInterpSlerp(void* param_2, void* param_3, void* param_4, f32 param_1)
         second->quat.w = -second->quat.w;
     }
 
-    firstWeight = 1.0f - param_1;
-    secondWeight = param_1;
+    firstWeight = 1.0f - weight;
+    secondWeight = weight;
     if (dot < fGpffff8028)
     {
         angle = func_0044b920(dot);
@@ -651,18 +666,18 @@ void PrimInterpSlerp(void* param_2, void* param_3, void* param_4, f32 param_1)
 
 /* Interpolates two frames at time param_1: the weight is (time - start) / (end - start) on the frames' time fields, then PrimInterpSlerp blends them and the value30 fields are multiplied. */
 // FUN_00480CD0
-void PrimInterpByTime(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData)
+void PrimInterpByTime(void* destination, void* startFrame, void* endFrame, f32 time, void* customData)
 {
-    PrimInterpData* out = (PrimInterpData*)param_2;
-    const PrimInterpData* first = (const PrimInterpData*)param_3;
-    const PrimInterpData* second = (const PrimInterpData*)param_4;
+    PrimInterpData* out = (PrimInterpData*)destination;
+    const PrimInterpData* first = (const PrimInterpData*)startFrame;
+    const PrimInterpData* second = (const PrimInterpData*)endFrame;
     f32 firstTime;
     f32 secondTime;
     f32 t;
 
-    firstTime = *(const f32*)((const u8*)first + 4);
-    secondTime = *(const f32*)((const u8*)second + 4);
-    t = (param_1 - firstTime) / (secondTime - firstTime);
+    firstTime = first->time;
+    secondTime = second->time;
+    t = (time - firstTime) / (secondTime - firstTime);
     PrimInterpSlerp(out, (void*)first, (void*)second, t);
     out->value30 = first->value30 * second->value30;
 }
@@ -671,26 +686,26 @@ void PrimInterpByTime(void* param_2, void* param_3, void* param_4, f32 param_1, 
 
 /* Writes the entry table to the sink: for each 0x34-byte entry, the 0x30-byte body and a 4-byte offset from the table base are written; returns 0 on the first failed write and 1 otherwise. */
 // FUN_00480D50
-s32 PrimSerializeEntries(const void* param_1, void* param_2)
+s32 PrimSerializeEntries(const void* animation, void* stream)
 {
-    int iVar1;
-    void* lVar2;
-    int* piVar3;
-    int iVar4;
-    int iStack_4;
+    s32 frameBase;
+    void* writeResult;
+    s32* frame;
+    s32 frameIndex;
+    s32 previousOffset;
 
-    iVar1 = *(int*)((u8*)param_1 + 0x10);
-    iVar4 = 0;
-    while (iVar4 < *(int*)((u8*)param_1 + 4))
+    frameBase = ((const RtAnimAnimation *)animation)->frameAddress;
+    frameIndex = 0;
+    while (frameIndex < ((const RtAnimAnimation *)animation)->numFrames)
     {
-        piVar3 = (int*)((u8*)iVar1 + iVar4 * 0x34);
-        iStack_4 = *piVar3 - iVar1;
-        lVar2 = func_003df1a0(param_2, piVar3 + 1, 0x30);
-        if ((lVar2 == 0) || ((lVar2 = func_003df240(param_2, &iStack_4, 4), lVar2 == 0)))
+        frame = (s32*)((u8*)frameBase + frameIndex * 0x34);
+        previousOffset = ((PrimInterpData *)frame)->previousFrame - frameBase;
+        writeResult = func_003df1a0(stream, &((PrimInterpData *)frame)->time, 0x30);
+        if ((writeResult == 0) || ((writeResult = func_003df240(stream, &previousOffset, 4), writeResult == 0)))
         {
             return 0;
         }
-        iVar4++;
+        frameIndex++;
     }
     return 1;
 }
@@ -699,33 +714,33 @@ s32 PrimSerializeEntries(const void* param_1, void* param_2)
 
 /* Reads the entry table back from the source: for each entry, reads the 0x30-byte body and the 4-byte offset and rebases the entry pointer onto the table base; returns NULL when a read fails, else arg1. */
 // FUN_00480E20
-void *PrimDeserializeEntries(void *arg0, void *arg1)
+void *PrimDeserializeEntries(void *stream, void *animation)
 {
-    s32 sp6C;
-    s32 *temp_16;
-    s32 temp_17;
-    s32 var_18;
+    s32 previousOffset;
+    s32 *frame;
+    s32 frameBase;
+    s32 frameIndex;
 
-    temp_17 = *(s32 *)((u8 *)arg1 + 0x10);
-    var_18 = 0;
-    while (var_18 < *(s32 *)((u8 *)arg1 + 4))
+    frameBase = ((RtAnimAnimation *)animation)->frameAddress;
+    frameIndex = 0;
+    while (frameIndex < ((RtAnimAnimation *)animation)->numFrames)
     {
-        temp_16 = (s32 *)(temp_17 + var_18 * 0x34);
-        if ((func_003df300(arg0, temp_16 + 1, 0x30) == 0) ||
-            (func_003df360(arg0, &sp6C, 4) == 0))
+        frame = (s32 *)(frameBase + frameIndex * 0x34);
+        if ((func_003df300(stream, &((PrimInterpData *)frame)->time, 0x30) == 0) ||
+            (func_003df360(stream, &previousOffset, 4) == 0))
         {
             return NULL;
         }
-        *temp_16 = temp_17 + sp6C;
-        var_18++;
+        ((PrimInterpData *)frame)->previousFrame = frameBase + previousOffset;
+        frameIndex++;
     }
-    return arg1;
+    return animation;
 }
 /* Returns the byte size of the entry table: its count (+4) times the 0x34-byte entry size. */
 // FUN_00480F00
-s32 PrimEntryTableBytes(void* arg0)
+s32 PrimEntryTableBytes(void* animation)
 {
-    return *(const s32*)((const u8*)arg0 + 4) * 0x34;
+    return ((const RtAnimAnimation *)animation)->numFrames * 0x34;
 }
 /* Stores the difference of two frames in out: the quaternion becomes the product of the inverse of in's quaternion and out's saved quaternion, and in's six values are subtracted from out's. */
 /* A reciprocal does not exist for a zero-norm source quaternion, and the
@@ -734,10 +749,10 @@ s32 PrimEntryTableBytes(void* arg0)
  * producer (no store before the reads at 00480fa0). The C keeps that exact
  * dataflow: `inverse` is read uninitialised on that path, as in retail. */
 // FUN_00480F20
-void PrimInterpDelta(void *param_1, void *param_2)
+void PrimInterpDelta(void *destination, void *source)
 {
-    PrimInterpData *out = (PrimInterpData *)param_1;
-    const PrimInterpData *in = (const PrimInterpData *)param_2;
+    PrimInterpData *out = (PrimInterpData *)destination;
+    const PrimInterpData *in = (const PrimInterpData *)source;
     PrimQuaternion inverse;
     f32 inputY;
     f32 inputX;
@@ -781,15 +796,15 @@ void PrimInterpDelta(void *param_1, void *param_2)
 }
 /* Composes two frames: the quaternion becomes the product of a's and b's quaternions and the six values are summed element-wise. */
 // FUN_004810C0
-void PrimInterpCompose(void *arg0, void *arg1, void *arg2)
+void PrimInterpCompose(void *destination, void *first, void *second)
 {
     PrimInterpData *out;
     const PrimInterpData *a;
     const PrimInterpData *b;
 
-    out = (PrimInterpData *)arg0;
-    a = (const PrimInterpData *)arg1;
-    b = (const PrimInterpData *)arg2;
+    out = (PrimInterpData *)destination;
+    a = (const PrimInterpData *)first;
+    b = (const PrimInterpData *)second;
 
     out->quat.w = a->quat.w * b->quat.w -
                   (a->quat.x * b->quat.x +
@@ -816,7 +831,7 @@ void PrimInterpCompose(void *arg0, void *arg1, void *arg2)
 u32 PrimInterpRegister(void)
 {
     PrimDesc desc;
-    int result;
+    s32 result;
 
     desc.hash = 0x44a07195;
     desc.size1 = 0x34;

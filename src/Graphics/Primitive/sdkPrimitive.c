@@ -3,6 +3,8 @@
 #include "type.h"
 #include "primitive_point_buffer.h"
 #include "primitive_rectangle_packet.h"
+#include "primitive_queue_internal.h"
+#include "rw_camera_internal.h"
 
 typedef struct { u8 c[4]; } PrimColorBytes;
 typedef struct { f32 v[4]; } PrimRectangleFloats;
@@ -32,10 +34,11 @@ extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])();
 extern void (*D_00887304[])();
 extern s32 (*D_00887310[])(s32 primType, void *verts, s32 numVerts);
-extern struct {
+typedef struct PrimRenderState {
     s32 state;
-    s32 val;
-} D_00712490[6];
+    s32 value;
+} PrimRenderState;
+extern PrimRenderState D_00712490[6];
 extern u8 D_007124C0[];
 extern u8 *kwlnGetCamera(void);
 extern f32 sinf(f32 x);
@@ -51,51 +54,51 @@ extern f32 iGpffff81d0;
    source order, and that caller only matches with the float third.  The EABI
    keeps integer and float arguments in separate register files, so this
    spelling is the same ABI and leaves this body byte-exact. */
-void PrimQueueRectangle(const PrimitiveRectangleColor *arg0, const PrimitiveRectangleWords *arg1, f32 fparg0, s32 arg2, void *arg3) {
+void PrimQueueRectangle(const PrimitiveRectangleColor *colors, const PrimitiveRectangleWords *positions, f32 depth, s32 preserveState, void *queue) {
     PrimitiveRectangleWords pos;
     PrimitiveRectanglePacket packet;
-    u8 *temp_2;
-    u8 *temp_2_2;
+    u8 *payload;
+    u8 *queueNode;
 
-    pos.transport = arg1->transport;
-    packet.color = arg0->bytes;
+    pos.transport = positions->transport;
+    packet.color = colors->bytes;
     packet.rectangle.transport = pos.transport;
-    packet.depth = fparg0;
-    packet.saveState = arg2;
+    packet.depth = depth;
+    packet.saveState = preserveState;
     chkmemAllocSiteTag(D_007124C0, 0x101);
-    temp_2 = (u8 *)(*jtbl_008873E8)(0x1C, 0x40000);
-    memcpy(temp_2, &packet, 0x1C);
-    temp_2_2 = (u8 *)(PrimAllocQueueNode());
-    *(void (**)(void *, u8 *))(temp_2_2 + 8) = PrimExecuteRectangle;
-    *(u8 **)(temp_2_2 + 0x10) = temp_2;
-    PrimAppendNode((void *)arg3, temp_2_2);
+    payload = (u8 *)(*jtbl_008873E8)(0x1C, 0x40000);
+    memcpy(payload, &packet, 0x1C);
+    queueNode = (u8 *)(PrimAllocQueueNode());
+    *(void (**)(void *, u8 *))&((PrimQueueNode *)queueNode)->callback = PrimExecuteRectangle;
+    ((PrimQueueNode *)queueNode)->argument.data = payload;
+    PrimAppendNode(queue, queueNode);
 }
 
 
 /* Draws one rectangle from its four float bounds; when the save-state flag is set, the six Pri state slots are saved and the sky render states are set before the draw and restored after. */
 // FUN_0045DB40
-void PrimDrawRectangle(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, f32 fparg3) {
+void PrimDrawRectangle(u8 *colors, u8 *positions, f32 depth, s32 preserveState, s32 offsetX, s32 offsetY, f32 rotation, f32 scaleX, f32 scaleY) {
     struct { s32 saved[6]; u8 pad1[8]; f32 out; u8 pad2[0xFC]; PrimRectangleFloats pos; } work;
     u32 i;
     u32 j;
-    s32 *p;
-    work.pos = *(PrimRectangleFloats *)arg1;
-    if (arg2 != 0) {
+    s32 *renderState;
+    work.pos = *(PrimRectangleFloats *)positions;
+    if (preserveState != 0) {
         for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)((u8 *)work.saved + i * 4));
-            D_00887300[0](p[0], p[1]);
+            renderState = (s32 *)&D_00712490[i];
+            D_00887304[0](((PrimRenderState *)renderState)->state, (void *)((u8 *)work.saved + i * 4));
+            D_00887300[0](((PrimRenderState *)renderState)->state, ((PrimRenderState *)renderState)->value);
         }
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    PrimBuildRotatedRectangle(&work.out, arg0, &work.pos, fparg0, arg3, arg4, fparg1, fparg2, fparg3);
+    PrimBuildRotatedRectangle(&work.out, colors, &work.pos, depth, offsetX, offsetY, rotation, scaleX, scaleY);
     D_00887310[0](4, &work.out, 4);
-    if (arg2 != 0) {
+    if (preserveState != 0) {
         for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], work.saved[j]);
+            renderState = (s32 *)&D_00712490[j];
+            D_00887300[0](((PrimRenderState *)renderState)->state, work.saved[j]);
         }
     }
 }
@@ -124,7 +127,7 @@ void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void 
     f32 negSine;
     u32 i;
 
-    inv = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    inv = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     depth = D_008872F8[0] - depth;
     angle = iGpffff81d0 * rotation;
     sine = sinf(angle);
@@ -158,9 +161,9 @@ void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void 
 /* Draws count points from raw float positions and packed colour bytes: fills PrimVertex rows with the camera-derived inverse term and submits them as primitive arg3, optionally saving render state when arg4 is nonzero. */
 // FUN_0045DFD0
 
-void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4) {
+void PrimDrawPoints(u8 *colors, u8 *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState) {
     s32 saved[6];
-    s32 *p;
+    s32 *renderState;
     PrimVertex *out;
     PrimVertex *vertex;
     u8 *color;
@@ -171,38 +174,38 @@ void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4
     u32 j;
     u32 k;
 
-    if (arg4 != 0) {
+    if (preserveState != 0) {
         for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)((u8 *)saved + i * 4));
-            D_00887300[0](p[0], p[1]);
+            renderState = (s32 *)&D_00712490[i];
+            D_00887304[0](((PrimRenderState *)renderState)->state, (void *)((u8 *)saved + i * 4));
+            D_00887300[0](((PrimRenderState *)renderState)->state, ((PrimRenderState *)renderState)->value);
         }
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
     chkmemAllocSiteTag(D_007124C0, 0x2DA);
-    out = (PrimVertex *)D_008873F4[0](1, arg2 << 6, 0x40000);
-    inv = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
-    z = D_008872F8[0] - fparg0;
-    for (k = 0; k < (u32)arg2; k++) {
-        position = arg1 + k * 8;
+    out = (PrimVertex *)D_008873F4[0](1, count << 6, 0x40000);
+    inv = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
+    z = D_008872F8[0] - depth;
+    for (k = 0; k < (u32)count; k++) {
+        position = positions + k * 8;
         vertex = &out[k];
-        vertex->x = *(f32 *)position;
-        vertex->y = *(f32 *)(position + 4);
+        vertex->x = ((PrimPoint *)position)->v[0];
+        vertex->y = ((PrimPoint *)position)->v[1];
         vertex->z = z;
-        color = arg0 + k * 4;
+        color = colors + k * 4;
         vertex->color[0] = (f32)(u32)color[0];
         vertex->color[1] = (f32)(u32)color[1];
         vertex->color[2] = (f32)(u32)color[2];
         vertex->color[3] = (f32)(u32)color[3];
         vertex->inv = inv;
     }
-    D_00887310[0](arg3, out, arg2);
-    if (arg4 != 0) {
+    D_00887310[0](primitiveType, out, count);
+    if (preserveState != 0) {
         for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], saved[j]);
+            renderState = (s32 *)&D_00712490[j];
+            D_00887300[0](((PrimRenderState *)renderState)->state, saved[j]);
         }
     }
     jtbl_008873EC[0](out);
@@ -224,7 +227,7 @@ typedef struct {
 // FUN_0045E310
 void PrimBatchExecute(void *unused, PrimBatch *work) {
     s32 saved[6];
-    s32 *p;
+    s32 *renderState;
     PrimVertex *out;
     PrimPoint *positions;
     u8 *colors;
@@ -246,9 +249,9 @@ void PrimBatchExecute(void *unused, PrimBatch *work) {
     count = work->count;
     if (enabled != 0) {
         for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)((u8 *)saved + i * 4));
-            D_00887300[0](p[0], p[1]);
+            renderState = (s32 *)&D_00712490[i];
+            D_00887304[0](((PrimRenderState *)renderState)->state, (void *)((u8 *)saved + i * 4));
+            D_00887300[0](((PrimRenderState *)renderState)->state, ((PrimRenderState *)renderState)->value);
         }
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(2, 0x44);
@@ -256,7 +259,7 @@ void PrimBatchExecute(void *unused, PrimBatch *work) {
     }
     chkmemAllocSiteTag(D_007124C0, 0x30D);
     out = (PrimVertex *)jtbl_008873E8[0](count << 6, 0x40000);
-    inv = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    inv = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     z = D_008872F8[0] - scale;
     for (k = 0; k < count; k++) {
         PrimPoint *pos = &positions[k];
@@ -282,8 +285,8 @@ void PrimBatchExecute(void *unused, PrimBatch *work) {
     }
     if (enabled != 0) {
         for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], saved[j]);
+            renderState = (s32 *)&D_00712490[j];
+            D_00887300[0](((PrimRenderState *)renderState)->state, saved[j]);
         }
     }
     table_addr = (u32)jtbl_008873EC;
@@ -295,31 +298,31 @@ void PrimBatchExecute(void *unused, PrimBatch *work) {
 
 /* Draws a transformed batch of arg2 points: allocates a vertex buffer, builds transformed vertices with PrimBuildTransformedVertices, submits them as primitive arg3, and frees the buffer; saves render state when arg4 is nonzero. */
 // FUN_0045E6A0
-void PrimDrawTransformed(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
+void PrimDrawTransformed(const void *colors, const void *positions, f32 depth, u32 count, s32 primitiveType, s32 preserveState, s32 offsetX, s32 offsetY, f32 rotation, f32 scaleX, f32 scaleY) {
     s32 saved[6];
-    s32 *p;
+    s32 *renderState;
     s32 *out;
     u32 i;
     u32 j;
-    if (arg4 != 0) {
+    if (preserveState != 0) {
         for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)((u8 *)saved + i * 4));
-            D_00887300[0](p[0], p[1]);
+            renderState = (s32 *)&D_00712490[i];
+            D_00887304[0](((PrimRenderState *)renderState)->state, (void *)((u8 *)saved + i * 4));
+            D_00887300[0](((PrimRenderState *)renderState)->state, ((PrimRenderState *)renderState)->value);
         }
         D_00887300[0](1, 0);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
     chkmemAllocSiteTag(D_007124C0, 0x355);
-    out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
-    PrimBuildTransformedVertices((PrimVertex *)out, (const u8 *)arg0, arg1,
-                  fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
-    D_00887310[0](arg3, out, arg2);
-    if (arg4 != 0) {
+    out = (s32 *)jtbl_008873E8[0](count << 6, 0x40000);
+    PrimBuildTransformedVertices((PrimVertex *)out, (const u8 *)colors, positions,
+                  depth, count, offsetX, offsetY, rotation, scaleX, scaleY);
+    D_00887310[0](primitiveType, out, count);
+    if (preserveState != 0) {
         for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], saved[j]);
+            renderState = (s32 *)&D_00712490[j];
+            D_00887300[0](((PrimRenderState *)renderState)->state, saved[j]);
         }
     }
     jtbl_008873EC[0](out);
@@ -386,8 +389,8 @@ void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count,
         i++;
     }
     callback = PrimAllocQueueNode();
-    *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
-    *(void **)(callback + 0x10) = work;
+    *(void (**)(void *, PrimBatch *))&((PrimQueueNode *)callback)->callback = PrimBatchExecute;
+    *(void **)&((PrimQueueNode *)callback)->argument.data = work;
     PrimAppendNode(queue, callback);
 }
 
@@ -452,7 +455,7 @@ void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count,
     }
     work->alpha = 1;
     callback = PrimAllocQueueNode();
-    *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
-    *(void **)(callback + 0x10) = work;
+    *(void (**)(void *, PrimBatch *))&((PrimQueueNode *)callback)->callback = PrimBatchExecute;
+    *(void **)&((PrimQueueNode *)callback)->argument.data = work;
     PrimAppendNode(queue, callback);
 }

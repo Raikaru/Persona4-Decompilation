@@ -10,12 +10,144 @@
 #include "field_light_internal.h"
 #include "field_frame_internal.h"
 #include "rw_types_internal.h"
-typedef struct P4_0015_Vec3
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} P4_0015_Vec3;
+#include "field_scene_internal.h"
+#include "scene_resource_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "rw_camera_internal.h"
+typedef struct FldTileAttributePair {
+    union { s16 directions; u8 directionBytes[2]; };
+    s16 attributes;
+} FldTileAttributePair;
+
+/* The template copy is 0x2B halfwords; the three-by-three attributes start
+ * at 0x32 and the five-by-five placement mask starts at 0x18. */
+typedef struct FldTileTemplate {
+    s8 type;
+    u8 width;
+    u8 height;
+    u8 unk03;
+    u8 attributeIds[9];
+    u8 flags[9];
+    s8 maskX;
+    s8 maskY;
+    u8 placementMask[25];
+    u8 unk31;
+    FldTileAttributePair attributes[9];
+} FldTileTemplate;
+
+/* Selection rows have a 12-byte stride: two counts and ten signed template IDs. */
+typedef struct FldTileTemplateSet {
+    u8 count;
+    u8 bandBCount;
+    s8 templates[10];
+} FldTileTemplateSet;
+
+/* Allocated as 0x48 bytes by FldStepTaskCreate. Keep byte-pointer locals
+ * where their address-expression shape is recorded in the matching notes. */
+typedef struct FldStepWork {
+    s32 state;
+    union { s32 stepIndex; u32 unsignedStepIndex; };
+    union { s32 entryValue; u16 entryHalf[2]; };
+    s32 finished;
+    u8 unk10[4];
+    union { s32 fileHandle; u8 *filePointer; };
+    union { s32 rootTask; u8 *rootPointer; };
+    s32 panelTask;
+    union { u8 *entries; s32 entriesAddress; };
+    s32 flags;
+    u8 unk28[4];
+    union { u8 *scriptData; s32 scriptAddress; u32 scriptWord; };
+    s32 scriptSize;
+    u8 unk34[4];
+    s32 modelObject;
+    u8 unk3C[4];
+    s32 preloadTasks[2];
+} FldStepWork;
+
+/* The root-task getters and value-step writer establish these offsets. */
+typedef struct FldRootWork {
+    s32 state;
+    u8 unk04[4];
+    s32 workValue;
+    u8 unk0C[0x0C];
+    u16 fieldId;
+    u16 roomId;
+    u8 unk1C[4];
+    u16 mapState;
+    u8 unk22[0xB6];
+    s16 stepValues[5];
+} FldRootWork;
+
+/* Eight encounter slots occupy 0xB40 bytes; each record pointer is at 0x160. */
+typedef struct FldEncounterSlot {
+    s32 active;
+    u8 unk04[4];
+    s32 mode;
+    u8 unk0C[2];
+    u16 id;
+    u8 unk10[0x150];
+    u8 *record;
+    u8 unk164[4];
+} FldEncounterSlot;
+typedef struct FldSavedCell {
+    u8 occupied, flags, type, kind, shapeX, shapeZ, exits, attributes;
+} FldSavedCell;
+typedef struct FldSavedEncounter {
+    u8 active, mode;
+    u16 id;
+    s32 recordKind;
+} FldSavedEncounter;
+/* The twenty floor grids, reveal masks, encounter rows and count tables
+ * exactly span the 0xF8FC-byte block cleared by FldStepResetTables. */
+typedef struct FldStepSavedTables {
+    u8 visited[20];
+    FldSavedCell grids[20][24][16];
+    u8 revealMasks[20][0x30];
+    FldSavedEncounter encounters[20][8];
+    u8 activeCounts[20];
+    u8 bandValues[20];
+} FldStepSavedTables;
+typedef struct FldUnitVisibilityState {
+    u8 unk00[0x48];
+    s32 active;
+    u8 unk4C[8];
+    u8 *resource;
+} FldUnitVisibilityState;
+/* Later versions append more count/pointer pairs before the record stream. */
+typedef struct FldPointTableHeader {
+    u32 unk00;
+    u32 version;
+    u32 volumeCount;
+    u32 unk0C;
+    u32 pointCount;
+    u32 unk14;
+    u32 secondaryPointCount;
+    u32 unk1C;
+    u32 tertiaryPointCount;
+    u32 unk24;
+    u32 extraPointCount;
+    u32 unk2C;
+    u32 lightCount;
+    u32 unk34;
+    u32 finalPointCount;
+} FldPointTableHeader;
+/* Step records have a 0x10-byte stride; the root-task call consumes this prefix. */
+typedef struct FldStepEntryRecord {
+    u16 fieldId, roomId;
+    s32 value;
+    u8 unk08, unk09;
+    u16 flags;
+    u8 unk0C[4];
+} FldStepEntryRecord;
+/* Field-model resources use the common scene prefix and store a parent
+ * at 0x140 and model at 0x144. The toggle at 0x150 remains unidentified. */
+typedef struct SceneFieldModelResource {
+    SceneUpdateResource base;
+    union { u32 parentAddress; u8 *parent; };
+    union { s32 modelAddress; u8 *model; };
+    u8 unk148[8];
+    union { s32 unk150; u32 unk150Bits; };
+} SceneFieldModelResource;
 
 extern s32 iGpffffb210;
 extern void H_Cdvd_Destroy();
@@ -63,7 +195,7 @@ extern s32 D_007D2510[];
 extern u8 D_007D24F0[];
 extern u8 D_005EFFE0[];
 extern s32 FldLoadTaskUpdate(u8 *arg0);
-extern void func_00156630(u8 *task);
+extern void fldLoadTaskOnDestroy(u8 *task);
 extern s32 H_Cdvd_IsFileLoaded();
 extern void MT_Scene_SetWorkPresentFlag(s32 arg0, s32 arg1);
 extern u8 D_007E31E4[];
@@ -77,13 +209,15 @@ extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
 extern void MT_Scene_ReleaseWork(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
-/* Forces b210's offset-first addu operand order. */
-static inline u32 wg0035_add_offset(u32 offset, u32 base)
+/* Forces b210's offset-first addu operand order. Measured typed cell accesses
+ * otherwise swap the two addu source registers in grid routines.
+ * The CSE-off placement body keeps the equivalent native integer sum inline. */
+static inline u32 fldAddByteOffset(u32 offset, u32 base)
 {
     return offset + base;
 }
 
-static inline u8 *wg0015_add_ptr(u8 *base, s32 offset)
+static inline u8 *fldOffsetPointer(u8 *base, s32 offset)
 {
     return base + offset;
 }
@@ -122,10 +256,10 @@ extern s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2);
 extern void FldCellPlaceShape(u8 *arg0, u16 arg1, u16 arg2, s16 arg3);
 extern void FldCellFloodFill(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 *arg5, s32 *arg6);
-static inline void wg0015_place_special(u8 special_direction, s32 x, s32 y,
+static inline void fldPlaceSpecialShape(u8 specialDirection, s32 x, s32 y,
                                         u8 *tile)
 {
-    FldCellPlaceShape(tile, (u16)x, (u16)y, special_direction);
+    FldCellPlaceShape(tile, (u16)x, (u16)y, specialDirection);
 }
 
 extern s32 kwlnGetCamera(void);
@@ -135,17 +269,17 @@ extern void (*jtbl_008873EC[])(void *);
 #pragma opt_loop_invariants on
 // Intent: Store three values into the task's work block, clear two halfwords, start the step and set the state to 0x11 [inferred]
 // FUN_001560A0
-void MT_Scene_BeginValueStep(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
-    u8 *temp_16;
+void MT_Scene_BeginValueStep(u8 *task, u16 firstValue, u16 secondValue, u16 thirdValue) {
+    u8 *workBlock;
 
-    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
-    *(s16 *)(temp_16 + 0xD8) = arg1;
-    *(s16 *)(temp_16 + 0xDA) = arg2;
-    *(s16 *)(temp_16 + 0xDC) = arg3;
-    *(s16 *)(temp_16 + 0xDE) = 0;
-    *(s16 *)(temp_16 + 0xE0) = 0;
+    workBlock = (u8 *)(((SdkTask *)task)->work);
+    ((FldRootWork *)workBlock)->stepValues[0] = firstValue;
+    ((FldRootWork *)workBlock)->stepValues[1] = secondValue;
+    ((FldRootWork *)workBlock)->stepValues[2] = thirdValue;
+    ((FldRootWork *)workBlock)->stepValues[3] = 0;
+    ((FldRootWork *)workBlock)->stepValues[4] = 0;
     fadeBeginTransition(1, 0);
-    *(s32 *)(temp_16 + 0) = 0x11;
+    ((FldRootWork *)workBlock)->state = 0x11;
 }
 #pragma pop
 
@@ -153,13 +287,13 @@ void MT_Scene_BeginValueStep(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
 #pragma opt_loop_invariants on
 // Intent: Set the work block's value at +0x8 after the subsystem reset call [inferred]
 // FUN_001560F0
-void MT_Scene_SetWorkValue(u8 *arg0, s32 arg1) {
+void MT_Scene_SetWorkValue(u8 *task, s32 value) {
     u8 *p;
 
-    if (arg0 != NULL) {
-        p = *(u8 **)(arg0 + 0x38);
+    if (task != NULL) {
+        p = ((SdkTask *)task)->work;
         func_00440b68(D_005EFF60);
-        *(s32 *)(p + 8) = arg1;
+        ((FldRootWork *)p)->workValue = value;
     }
 }
 #pragma pop
@@ -168,12 +302,12 @@ void MT_Scene_SetWorkValue(u8 *arg0, s32 arg1) {
 #pragma opt_loop_invariants on
 // Intent: Report whether a field-load task has reached its finished state (state 13 or later); a null task is treated as done [inferred]
 // FUN_00156140
-s32 FldLoadTaskIsDone(u8 *arg0)
+s32 FldLoadTaskIsDone(u8 *task)
 {
-    if (arg0 == NULL) {
+    if (task == NULL) {
         return 1;
     }
-    return *(s32 *)(*(u8 **)(arg0 + 0x38)) >= 0xD;
+    return ((FldRootWork *)((SdkTask *)task)->work)->state >= 0xD;
 }
 #pragma pop
 
@@ -181,9 +315,9 @@ s32 FldLoadTaskIsDone(u8 *arg0)
 #pragma opt_loop_invariants on
 // Intent: Return the field id requested by a field-load task [inferred]
 // FUN_00156170
-s32 FldLoadTaskFieldId(u8 *arg0)
+s32 FldLoadTaskFieldId(u8 *task)
 {
-    return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x18);
+    return ((FldRootWork *)((SdkTask *)task)->work)->fieldId;
 }
 #pragma pop
 
@@ -191,9 +325,9 @@ s32 FldLoadTaskFieldId(u8 *arg0)
 #pragma opt_loop_invariants on
 // Intent: Return the room id requested by a field-load task [inferred]
 // FUN_00156180
-s32 FldLoadTaskRoomId(u8 *arg0)
+s32 FldLoadTaskRoomId(u8 *task)
 {
-    return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1A);
+    return ((FldRootWork *)((SdkTask *)task)->work)->roomId;
 }
 #pragma pop
 
@@ -201,9 +335,9 @@ s32 FldLoadTaskRoomId(u8 *arg0)
 #pragma opt_loop_invariants on
 // Intent: Return the map state requested by a field-load task [inferred]
 // FUN_00156190
-s32 FldLoadTaskMapState(u8 *arg0)
+s32 FldLoadTaskMapState(u8 *task)
 {
-    return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
+    return ((FldRootWork *)((SdkTask *)task)->work)->mapState;
 }
 #pragma pop
 
@@ -389,8 +523,9 @@ s32 FldLoadTaskUpdate(u8 *task)
 
 #pragma push
 #pragma opt_loop_invariants on
+/* Registered field-load task destructor; the native callback performs no cleanup. */
 // FUN_00156630
-void func_00156630(u8 *unusedTask)
+void fldLoadTaskOnDestroy(u8 *unusedTask)
 {
 }
 #pragma pop
@@ -400,24 +535,24 @@ void func_00156630(u8 *unusedTask)
 #pragma opt_propagation off
 // Intent: Create a field-load task under the given parent, store its request fields and open the primary file [inferred]
 // FUN_00156640
-s32 FldLoadTaskCreate(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
-                  s32 arg5, s32 arg6, s32 arg7)
+s32 FldLoadTaskCreate(u8 *parent, s32 fieldId, s32 roomId, s16 mapState, s16 environmentState,
+                  s32 mode, s32 storyGroup, s32 storyEntry)
 {
     u8 *base;
-    s32 temp_21;
+    s32 loadTask;
 
     memset(D_007D24F0, 0, 0x20);
     base = D_007D24F0;
-    temp_21 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFFE0), 0xF, 0, 0, FldLoadTaskUpdate, func_00156630, (u8 *)(base));
-    *(u16 *)(base + 8) = arg1;
-    *(u16 *)(base + 0xA) = arg2;
-    *(s16 *)(base + 0xC) = arg3;
-    *(s16 *)(base + 0xE) = arg4;
-    *(s32 *)(base + 4) = arg5;
-    *(s32 *)(base + 0x10) = arg6;
-    *(s32 *)(base + 0x14) = arg7;
-    FldResource_OpenPrimaryFile(arg1, arg2);
-    return temp_21;
+    loadTask = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005EFFE0), 0xF, 0, 0, FldLoadTaskUpdate, fldLoadTaskOnDestroy, (u8 *)(base));
+    ((FldLoadWork *)base)->fieldId = fieldId;
+    ((FldLoadWork *)base)->roomId = roomId;
+    ((FldLoadWork *)base)->mapState = mapState;
+    ((FldLoadWork *)base)->environmentState = environmentState;
+    ((FldLoadWork *)base)->mode = mode;
+    ((FldLoadWork *)base)->storyGroup = storyGroup;
+    ((FldLoadWork *)base)->storyEntry = storyEntry;
+    FldResource_OpenPrimaryFile(fieldId, roomId);
+    return loadTask;
 }
 #pragma pop
 
@@ -426,28 +561,24 @@ s32 FldLoadTaskCreate(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
 #pragma opt_propagation on
 // Intent: Unload the previous field scene for the task's request; a second unload runs for the listed map states [inferred]
 // FUN_00156750
-void FldLoadTaskUnloadScene(u8 *arg0)
+void FldLoadTaskUnloadScene(u8 *task)
 {
     u8 *work;
     u16 value;
 
-    work = *(u8 **)(arg0 + 0x38);
+    work = ((SdkTask *)task)->work;
     FldAuxBufferRelease();
     if ((kwlnGetCurrentWorkValue() != 9) && (kwlnGetCurrentWorkValue() != 0xB) && (kwlnGetCurrentWorkValue() != 0xA)) {
         fieldSceneUnload();
     }
-    value = *(u16 *)(work + 0x18);
+    value = ((FldRootWork *)work)->fieldId;
     if ((((s32)value >= 0x15) && ((s32)value <= 0x1E)) ||
-        ((value == 6) && (value = *(u16 *)(work + 0x1A), value == 1))) {
+        ((value == 6) && (value = ((FldRootWork *)work)->roomId, value == 1))) {
         fieldSceneUnload(value);
     }
 }
 #pragma pop
 
-typedef struct FldTileAttributePair {
-    s16 directions;
-    s16 attributes;
-} FldTileAttributePair;
 
 static inline u32 fldTileRotateNibble(u32 bits, s32 turns)
 {
@@ -493,7 +624,7 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
         for (sourceColumn = 0; sourceColumn < 3; sourceColumn = sourceColumn + 1) {
             attributeId = *(tile + sourceRow * 3 + sourceColumn + 4);
             attribute = D_005F0000 + attributeId * 4;
-            *(FldTileAttributePair *)(tile + sourceRow * 12 + sourceColumn * 4 + 0x32) = *(FldTileAttributePair *)attribute;
+            ((FldTileTemplate *)(tile + sourceRow * 12 + sourceColumn * 4))->attributes[0] = *(FldTileAttributePair *)attribute;
         }
     }
     for (direction = 0; direction < 4; direction = direction + 1) {
@@ -502,53 +633,54 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
             break;
         }
     }
-    width = *(tile + 1);
-    if (width != 1 || *(tile + 2) != 1) {
-        if (width == 2 && *(tile + 2) == 2) {
+    /* measured: typed width reloads grow this rotation from 1264B to 1268B. */
+    width = tile[1];
+    if (width != 1 || ((FldTileTemplate *)tile)->height != 1) {
+        if (width == 2 && ((FldTileTemplate *)tile)->height == 2) {
             for (smallStep = 0; smallStep < turnCount; smallStep = smallStep + 1) {
                 u8 savedFlags;
-                savedSmall = *(FldTileAttributePair *)(tile + 0x32);
-                *(FldTileAttributePair *)(tile + 0x32) =
-                    *(FldTileAttributePair *)(tile + 0x36);
-                *(FldTileAttributePair *)(tile + 0x36) =
-                    *(FldTileAttributePair *)(tile + 0x42);
-                *(FldTileAttributePair *)(tile + 0x42) =
-                    *(FldTileAttributePair *)(tile + 0x3E);
-                *(FldTileAttributePair *)(tile + 0x3E) = savedSmall;
-                savedFlags = *(tile + 0xD);
-                *(tile + 0xD) = *(tile + 0xE);
-                *(tile + 0xE) = *(tile + 0x11);
-                *(tile + 0x11) = *(tile + 0x10);
-                *(tile + 0x10) = savedFlags;
+                savedSmall = ((FldTileTemplate *)tile)->attributes[0];
+                ((FldTileTemplate *)tile)->attributes[0] =
+                    ((FldTileTemplate *)tile)->attributes[1];
+                ((FldTileTemplate *)tile)->attributes[1] =
+                    ((FldTileTemplate *)tile)->attributes[4];
+                ((FldTileTemplate *)tile)->attributes[4] =
+                    ((FldTileTemplate *)tile)->attributes[3];
+                ((FldTileTemplate *)tile)->attributes[3] = savedSmall;
+                savedFlags = ((FldTileTemplate *)tile)->flags[0];
+                ((FldTileTemplate *)tile)->flags[0] = ((FldTileTemplate *)tile)->flags[1];
+                ((FldTileTemplate *)tile)->flags[1] = ((FldTileTemplate *)tile)->flags[4];
+                ((FldTileTemplate *)tile)->flags[4] = ((FldTileTemplate *)tile)->flags[3];
+                ((FldTileTemplate *)tile)->flags[3] = savedFlags;
             }
-        } else if (width == 3 && *(tile + 2) == 3) {
+        } else if (width == 3 && ((FldTileTemplate *)tile)->height == 3) {
             for (largeStep = 0; largeStep < turnCount * 2; largeStep = largeStep + 1) {
                 u8 savedFlags;
-                savedLarge = *(FldTileAttributePair *)(tile + 0x32);
-                *(FldTileAttributePair *)(tile + 0x32) =
-                    *(FldTileAttributePair *)(tile + 0x36);
-                *(FldTileAttributePair *)(tile + 0x36) =
-                    *(FldTileAttributePair *)(tile + 0x3A);
-                *(FldTileAttributePair *)(tile + 0x3A) =
-                    *(FldTileAttributePair *)(tile + 0x46);
-                *(FldTileAttributePair *)(tile + 0x46) =
-                    *(FldTileAttributePair *)(tile + 0x52);
-                *(FldTileAttributePair *)(tile + 0x52) =
-                    *(FldTileAttributePair *)(tile + 0x4E);
-                *(FldTileAttributePair *)(tile + 0x4E) =
-                    *(FldTileAttributePair *)(tile + 0x4A);
-                *(FldTileAttributePair *)(tile + 0x4A) =
-                    *(FldTileAttributePair *)(tile + 0x3E);
-                *(FldTileAttributePair *)(tile + 0x3E) = savedLarge;
-                savedFlags = *(tile + 0xD);
-                *(tile + 0xD) = *(tile + 0xE);
-                *(tile + 0xE) = *(tile + 0xF);
-                *(tile + 0xF) = *(tile + 0x12);
-                *(tile + 0x12) = *(tile + 0x15);
-                *(tile + 0x15) = *(tile + 0x14);
-                *(tile + 0x14) = *(tile + 0x13);
-                *(tile + 0x13) = *(tile + 0x10);
-                *(tile + 0x10) = savedFlags;
+                savedLarge = ((FldTileTemplate *)tile)->attributes[0];
+                ((FldTileTemplate *)tile)->attributes[0] =
+                    ((FldTileTemplate *)tile)->attributes[1];
+                ((FldTileTemplate *)tile)->attributes[1] =
+                    ((FldTileTemplate *)tile)->attributes[2];
+                ((FldTileTemplate *)tile)->attributes[2] =
+                    ((FldTileTemplate *)tile)->attributes[5];
+                ((FldTileTemplate *)tile)->attributes[5] =
+                    ((FldTileTemplate *)tile)->attributes[8];
+                ((FldTileTemplate *)tile)->attributes[8] =
+                    ((FldTileTemplate *)tile)->attributes[7];
+                ((FldTileTemplate *)tile)->attributes[7] =
+                    ((FldTileTemplate *)tile)->attributes[6];
+                ((FldTileTemplate *)tile)->attributes[6] =
+                    ((FldTileTemplate *)tile)->attributes[3];
+                ((FldTileTemplate *)tile)->attributes[3] = savedLarge;
+                savedFlags = ((FldTileTemplate *)tile)->flags[0];
+                ((FldTileTemplate *)tile)->flags[0] = ((FldTileTemplate *)tile)->flags[1];
+                ((FldTileTemplate *)tile)->flags[1] = ((FldTileTemplate *)tile)->flags[2];
+                ((FldTileTemplate *)tile)->flags[2] = ((FldTileTemplate *)tile)->flags[5];
+                ((FldTileTemplate *)tile)->flags[5] = ((FldTileTemplate *)tile)->flags[8];
+                ((FldTileTemplate *)tile)->flags[8] = ((FldTileTemplate *)tile)->flags[7];
+                ((FldTileTemplate *)tile)->flags[7] = ((FldTileTemplate *)tile)->flags[6];
+                ((FldTileTemplate *)tile)->flags[6] = ((FldTileTemplate *)tile)->flags[3];
+                ((FldTileTemplate *)tile)->flags[3] = savedFlags;
             }
         }
     }
@@ -556,39 +688,39 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
     for (attributeRow = 0; attributeRow < 3; attributeRow = attributeRow + 1) {
         for (attributeColumn = 0; attributeColumn < 3; attributeColumn = attributeColumn + 1) {
             cell = tile + attributeRow * 12 + attributeColumn * 4;
-            firstDirections = *(cell + 0x32);
+            firstDirections = ((FldTileTemplate *)cell)->attributes[0].directionBytes[0];
             {
                 u32 low;
                 u32 high;
                 low = fldTileRotateNibble(firstDirections & 0xF, turnCount);
                 high = fldTileRotateNibble((firstDirections & 0xF0) >> 4, turnCount);
-                *(cell + 0x32) = low | (high << 4);
+                ((FldTileTemplate *)cell)->attributes[0].directionBytes[0] = low | (high << 4);
             }
-            secondDirections = *(cell + 0x33);
+            secondDirections = ((FldTileTemplate *)cell)->attributes[0].directionBytes[1];
             {
                 u32 low;
                 u32 high;
                 low = fldTileRotateNibble(secondDirections & 0xF, turnCount);
                 high = fldTileRotateNibble((secondDirections & 0xF0) >> 4, turnCount);
-                *(cell + 0x33) = low | (high << 4);
+                ((FldTileTemplate *)cell)->attributes[0].directionBytes[1] = low | (high << 4);
             }
         }
     }
-    if (*(tile + 1) == 2 && *(tile + 2) == 2) {
+    if (tile[1] == 2 && ((FldTileTemplate *)tile)->height == 2) {
         switch (turnCount) {
         case 0:
             break;
         case 1:
-            *(s8 *)(tile + 0x16) = -2;
-            *(s8 *)(tile + 0x17) = -1;
+            ((FldTileTemplate *)tile)->maskX = -2;
+            ((FldTileTemplate *)tile)->maskY = -1;
             break;
         case 2:
-            *(s8 *)(tile + 0x16) = -1;
-            *(s8 *)(tile + 0x17) = -1;
+            ((FldTileTemplate *)tile)->maskX = -1;
+            ((FldTileTemplate *)tile)->maskY = -1;
             break;
         case 3:
-            *(s8 *)(tile + 0x16) = -1;
-            *(s8 *)(tile + 0x17) = -2;
+            ((FldTileTemplate *)tile)->maskX = -1;
+            ((FldTileTemplate *)tile)->maskY = -2;
             break;
         }
     }
@@ -631,7 +763,7 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
 #pragma opt_propagation on
 // Intent: Search the board for a free placement of the shape that matches its rule, returning 1 with its origin in the out-params when one exists [inferred]
 // FUN_00156CF0
-s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
+s32 FldCellFindPlacement(void *templateData, u32 *outX, u32 *outY)
 {
     u8 *shape;
     u8 *row;
@@ -639,7 +771,7 @@ s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
     FldFrameCell *board;
     s32 x;
     s32 y;
-    s32 saved_y;
+    s32 savedRow;
     s32 by;
     s32 ry;
     s32 bx;
@@ -650,17 +782,18 @@ s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
     s32 c;
     u8 cell;
 
-    shape = (u8 *)arg0;
-    for (i = 0, y = *arg2; i < shape[2]; i++, y--) {
-        for (j = 0, x = *arg1; j < shape[1]; j++, x--) {
+    shape = (u8 *)templateData;
+    /* measured: typed dimension reloads grow placement from 1560B to 1584B. */
+    for (i = 0, y = *outY; i < shape[2]; i++, y--) {
+        for (j = 0, x = *outX; j < shape[1]; j++, x--) {
             for (r = 0; r < 5; r++) {
                 for (c = 0, row = shape + r * 5, ry = y + r; c < 5; c++) {
                     cell = row[c + 0x18];
                     if (cell == 0) {
                         continue;
                     }
-                    bx = *(s8 *)(shape + 0x16) + (x + c);
-                    by = *(s8 *)(shape + 0x17) + ry;
+                    bx = ((FldTileTemplate *)shape)->maskX + (x + c);
+                    by = ((FldTileTemplate *)shape)->maskY + ry;
                     if (cell == 1) {
                         board = &((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx];
                         if (board->occupied != 0) {
@@ -697,61 +830,61 @@ s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
     }
     return 0;
 fits:
-    saved_y = y;
+    savedRow = y;
     for (k = 0; k < shape[2]; k++, y++) {
         for (r = 0, bx = x, rule = shape + k * 0xC; r < shape[1]; r++, bx++) {
-            if (y == 0x16 && (rule[r * 4 + 0x32] & 0x40)) {
+            if (y == 0x16 && (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x40)) {
                 return 0;
             }
-            if (y == 1 && (rule[r * 4 + 0x32] & 0x10)) {
+            if (y == 1 && (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x10)) {
                 return 0;
             }
-            if (bx == 0xE && (rule[r * 4 + 0x32] & 0x80)) {
+            if (bx == 0xE && (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x80)) {
                 return 0;
             }
-            if (bx == 1 && (rule[r * 4 + 0x32] & 0x20)) {
+            if (bx == 1 && (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x20)) {
                 return 0;
             }
             if (((FldFrame *)MT_Scene_GetFrameState())->cells[y - 1][bx].occupied != 0) {
                 if (((FldFrame *)MT_Scene_GetFrameState())->cells[y - 1][bx].exits & 0x40) {
-                    if (!(rule[r * 4 + 0x32] & 0x10)) {
+                    if (!(((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x10)) {
                         return 0;
                     }
-                } else if (rule[r * 4 + 0x32] & 0x10) {
+                } else if (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x10) {
                     return 0;
                 }
             }
             if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx - 1].occupied != 0) {
                 if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx - 1].exits & 0x80) {
-                    if (!(rule[r * 4 + 0x32] & 0x20)) {
+                    if (!(((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x20)) {
                         return 0;
                     }
-                } else if (rule[r * 4 + 0x32] & 0x20) {
+                } else if (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x20) {
                     return 0;
                 }
             }
             if (((FldFrame *)MT_Scene_GetFrameState())->cells[y + 1][bx].occupied != 0) {
                 if (((FldFrame *)MT_Scene_GetFrameState())->cells[y + 1][bx].exits & 0x10) {
-                    if (!(rule[r * 4 + 0x32] & 0x40)) {
+                    if (!(((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x40)) {
                         return 0;
                     }
-                } else if (rule[r * 4 + 0x32] & 0x40) {
+                } else if (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x40) {
                     return 0;
                 }
             }
             if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx + 1].occupied != 0) {
                 if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx + 1].exits & 0x20) {
-                    if (!(rule[r * 4 + 0x32] & 0x80)) {
+                    if (!(((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x80)) {
                         return 0;
                     }
-                } else if (rule[r * 4 + 0x32] & 0x80) {
+                } else if (((FldTileTemplate *)(rule + r * 4))->attributes[0].directionBytes[0] & 0x80) {
                     return 0;
                 }
             }
         }
     }
-    *arg1 = x;
-    *arg2 = saved_y;
+    *outX = x;
+    *outY = savedRow;
     return 1;
 }
 #pragma pop
@@ -773,9 +906,9 @@ void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
     s32 py;
     s32 y;
     s32 x;
-    s32 rowbase;
+    s32 gridRowOffset;
     s32 rowSpan;
-    s32 colofs;
+    s32 gridColumnOffset;
     s8 occupied;
     u8 *flags;
     u8 *rule;
@@ -789,32 +922,32 @@ void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
 
     placed = 0;
     px = x0 & 0xFFFF;
-    if (px + shape[1] - 1 >= 0x10) {
+    if (px + ((FldTileTemplate *)shape)->width - 1 >= 0x10) {
         kAssertFail(D_005F05E8, 0x20B);
     }
     py = y0 & 0xFFFF;
-    if (py + shape[2] - 1 >= 0x18) {
+    if (py + ((FldTileTemplate *)shape)->height - 1 >= 0x18) {
         kAssertFail(D_005F05E8, 0x20C);
     }
-    *((u8 *)MT_Scene_GetFrameState() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
-    for (y = 0; y < shape[2]; y++) {
-        for (x = 0, rowbase = (py + y) << 8, rowSpan = y * 3, flags = shape + rowSpan, rule = shape + rowSpan * 4; x < shape[1]; x++) {
-            colofs = (px + x) * 0x10;
-            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x54) == 0) {
-                row = shape + (y - *(s8 *)(shape + 0x17)) * 5;
-                maskValue = row[(x - *(s8 *)(shape + 0x16)) + 0x18];
+    ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + (y0 << 8) + (x0 * 0x10) + 0x54))->flags = 1;
+    for (y = 0; y < ((FldTileTemplate *)shape)->height; y++) {
+        for (x = 0, gridRowOffset = (py + y) << 8, rowSpan = y * 3, flags = shape + rowSpan, rule = shape + rowSpan * 4; x < ((FldTileTemplate *)shape)->width; x++) {
+            gridColumnOffset = (px + x) * 0x10;
+            if (((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->occupied == 0) {
+                row = shape + (y - ((FldTileTemplate *)shape)->maskY) * 5;
+                maskValue = row[(x - ((FldTileTemplate *)shape)->maskX) + 0x18];
                 occupied = 1;
                 if (maskValue == occupied) {
-                    colofs = (px + x) * 0x10;
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x54) = occupied;
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x55) |= flags[x + 0xD];
+                    gridColumnOffset = (px + x) * 0x10;
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->occupied = occupied;
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->flags |= ((FldTileTemplate *)flags)->flags[x];
                     entry = rule + x * 4;
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5E) = entry[0x32];
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5A) = shape[1];
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5B) = shape[2];
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x58) = *(s8 *)(shape + 0);
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x59) = (u8)kind;
-                    *((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x5F) = entry[0x33];
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->exits = ((FldTileTemplate *)entry)->attributes[0].directionBytes[0];
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->shapeX = ((FldTileTemplate *)shape)->width;
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->shapeZ = ((FldTileTemplate *)shape)->height;
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->type = ((FldTileTemplate *)shape)->type;
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->kind = (u8)kind;
+                    ((FldFrameCell *)((u8 *)(gridRowOffset + (s32)MT_Scene_GetFrameState()) + gridColumnOffset + 0x54))->unk0B = ((FldTileTemplate *)entry)->attributes[0].directionBytes[1];
                     placed = 1;
                 }
             }
@@ -823,12 +956,12 @@ void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
     if (placed == 1) {
         for (r = 0; r < 5; r++) {
             for (c = 0, by = py + r, row = shape + r * 5; c < 5; c++) {
-                if (*(s8 *)(shape + 0x17) + by < 0x18) {
+                if (((FldTileTemplate *)shape)->maskY + by < 0x18) {
                     bx = px + c;
-                    if (*(s8 *)(shape + 0x16) + bx < 0x10) {
-                        if (*((u8 *)MT_Scene_GetFrameState() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) == 0 &&
+                    if (((FldTileTemplate *)shape)->maskX + bx < 0x10) {
+                        if (((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + ((((FldTileTemplate *)shape)->maskY + by) << 8) + ((((FldTileTemplate *)shape)->maskX + bx) * 0x10) + 0x54))->occupied == 0 &&
                             row[c + 0x18] != 0) {
-                            *((u8 *)MT_Scene_GetFrameState() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) = 2;
+                            ((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + ((((FldTileTemplate *)shape)->maskY + by) << 8) + ((((FldTileTemplate *)shape)->maskX + bx) * 0x10) + 0x54))->occupied = 2;
                         }
                     }
                 }
@@ -836,13 +969,13 @@ void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
         }
     }
     iGpffffb230 += 1;
-    if (*(s8 *)(shape + 0) == 2) {
+    if (((FldTileTemplate *)shape)->type == 2) {
         iGpffffb228 += 1;
     }
-    if (*(s8 *)(shape + 0) >= 9) {
+    if (((FldTileTemplate *)shape)->type >= 9) {
         iGpffffb22c += 1;
     }
-    iGpffffb224 += shape[1] * shape[2];
+    iGpffffb224 += ((FldTileTemplate *)shape)->width * ((FldTileTemplate *)shape)->height;
 }
 #pragma pop
 
@@ -854,46 +987,46 @@ void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
 // Intent: Flood-fill outward from a field cell through its neighbours within the depth limit, recording the cells reached [inferred]
 // FUN_00157700
 void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
-                  s32 limit, s32 *found_two, s32 *found_high)
+                  s32 limit, s32 *foundTypeTwo, s32 *foundHighType)
 {
     s32 exits;
-    s32 next_depth;
-    s32 right_depth;
+    s32 nextDepth;
+    s32 rightDepth;
 
     if (depth < limit) {
-        if (((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x54] == 1) {
-            exits = ~incoming & ((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x5E];
-            if (((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 2) {
-                *found_two = 1;
+        if (((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->occupied == 1) {
+            exits = ~incoming & ((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->exits;
+            if (((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->type == 2) {
+                *foundTypeTwo = 1;
             }
-            if (((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] >= 9) {
-                *found_high = 1;
+            if (((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->type >= 9) {
+                *foundHighType = 1;
             }
             if (exits & 1) {
-                FldCellFloodFill(x, y - 1, 4, depth + 1, limit, found_two, found_high);
+                FldCellFloodFill(x, y - 1, 4, depth + 1, limit, foundTypeTwo, foundHighType);
             }
             if (exits & 2) {
-                if ((((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 7 ||
-                     ((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 8) &&
+                if ((((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->type == 7 ||
+                     ((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->type == 8) &&
                     limit == 4) {
-                    next_depth = depth;
+                    nextDepth = depth;
                 } else {
-                    next_depth = depth + 1;
+                    nextDepth = depth + 1;
                 }
-                FldCellFloodFill(x - 1, y, 8, next_depth, limit, found_two, found_high);
+                FldCellFloodFill(x - 1, y, 8, nextDepth, limit, foundTypeTwo, foundHighType);
             }
             if (exits & 4) {
-                FldCellFloodFill(x, y + 1, 1, depth + 1, limit, found_two, found_high);
+                FldCellFloodFill(x, y + 1, 1, depth + 1, limit, foundTypeTwo, foundHighType);
             }
             if (exits & 8) {
-                if ((((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 7 ||
-                     ((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10)[0x58] == 8) &&
+                if ((((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->type == 7 ||
+                     ((FldFrameCell *)(((u8 *)MT_Scene_GetFrameState() + y * 0x100 + x * 0x10) + 0x54))->type == 8) &&
                     limit == 4) {
-                    right_depth = depth;
+                    rightDepth = depth;
                 } else {
-                    right_depth = depth + 1;
+                    rightDepth = depth + 1;
                 }
-                FldCellFloodFill(x + 1, y, 2, right_depth, limit, found_two, found_high);
+                FldCellFloodFill(x + 1, y, 2, rightDepth, limit, foundTypeTwo, foundHighType);
             }
         }
     }
@@ -905,43 +1038,43 @@ void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
 #pragma opt_propagation off
 // Intent: Spread a tile template from a field cell into a neighbouring cell, choosing a direction at random and copying its attributes [inferred]
 // FUN_001579B0
-void FldCellSpreadToNeighbour(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+void FldCellSpreadToNeighbour(s32 column, s32 row, s32 sourceColumn, s32 sourceRow)
 {
     u8 tile[0x56];
     u8 *work;
-    u8 *choice_ptr;
+    u8 *choices;
     s16 *src;
     s16 *dst;
-    s32 copy_count;
-    s32 main_cell_offset;
-    u32 prop_cell_offset;
-    u32 temp_x;
-    u32 temp_y;
-    s32 flag_a;
-    s32 flag_b;
+    s32 remainingHalfwords;
+    s32 sourceCellOffset;
+    u32 cellOffset;
+    u32 candidateColumn;
+    u32 candidateRow;
+    s32 foundTypeTwo;
+    s32 foundHighType;
     s32 mode;
-    s8 template_id;
-    s16 copy_value;
+    s8 templateId;
+    s16 copiedHalfword;
     u32 choice;
     u32 direction;
-    u32 random_value;
+    u32 randomValue;
     u32 attempt;
     u32 found;
-    u32 x_offset;
-    u32 y_offset;
+    u32 columnOffset;
+    u32 rowOffset;
     s32 y;
     s32 x;
     u32 edge;
-    s32 previous_y;
-    s32 next_y;
-    s32 previous_x;
-    s32 next_x;
-    u32 row_offset;
+    s32 previousRow;
+    s32 nextRow;
+    s32 previousColumn;
+    s32 nextColumn;
+    u32 rowByteOffset;
 
     work = (u8 *)MT_Scene_GetFrameState();
-    work = wg0015_add_ptr(work, arg1 << 8);
-    work = wg0015_add_ptr(work, arg0 << 4);
-    if (work[0x54] != 0) {
+    work = fldOffsetPointer(work, row << 8);
+    work = fldOffsetPointer(work, column << 4);
+    if (((FldFrameCell *)(work + 0x54))->occupied != 0) {
         return;
     }
     if (D_00764328 == 1) {
@@ -949,36 +1082,35 @@ void FldCellSpreadToNeighbour(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (arg0 == work[0x46]) {
+    if (column == ((FldFrame *)work)->cellPick[0]) {
         work = (u8 *)MT_Scene_GetFrameState();
-        if (arg1 == work[0x47]) {
+        if (row == ((FldFrame *)work)->cellPick[1]) {
             mode = D_0076432C;
-            template_id = *(s8 *)(D_005F0591 + mode * 0xC +
-                                  D_005F0590[mode * 0xC]);
-            src = (s16 *)(D_005F0080 + template_id * 0x56);
+            templateId = ((s8 *)(D_005F0591 + mode * 0xC))[D_005F0590[mode * 0xC]];
+            src = (s16 *)(D_005F0080 + templateId * 0x56);
             dst = (s16 *)tile;
-            copy_count = 0x2B;
+            remainingHalfwords = 0x2B;
 copy_special:
-            copy_value = *src;
+            copiedHalfword = *src;
             src++;
-            copy_count--;
-            *dst = copy_value;
+            remainingHalfwords--;
+            *dst = copiedHalfword;
             dst++;
-            if (copy_count > 0) {
+            if (remainingHalfwords > 0) {
                 goto copy_special;
             }
             work = (u8 *)MT_Scene_GetFrameState();
-            FldTileRotateAttributes(tile, 1U << work[0x49]);
+            FldTileRotateAttributes(tile, 1U << ((FldFrame *)work)->unk48[1]);
             work = (u8 *)MT_Scene_GetFrameState();
-            wg0015_place_special(work[0x49], arg0, arg1, tile);
+            fldPlaceSpecialShape(((FldFrame *)work)->unk48[1], column, row, tile);
             goto propagate;
         }
     }
 
     D_00764324 = 0;
-    flag_a = 0;
-    flag_b = 0;
-    main_cell_offset = (arg3 << 8) + (arg2 << 4);
+    foundTypeTwo = 0;
+    foundHighType = 0;
+    sourceCellOffset = (sourceRow << 8) + (sourceColumn << 4);
 main_loop:
     D_00764324++;
     if (D_00764324 > 0x32) {
@@ -986,38 +1118,38 @@ main_loop:
         return;
     }
 
-    if ((arg2 == arg0) && (arg3 < arg1)) {
-        FldCellFloodFill(arg0, arg1 - 1, 4, 0, 5, &flag_a, &flag_b);
+    if ((sourceColumn == column) && (sourceRow < row)) {
+        FldCellFloodFill(column, row - 1, 4, 0, 5, &foundTypeTwo, &foundHighType);
     }
-    if ((arg2 < arg0) && (arg3 == arg1)) {
-        FldCellFloodFill(arg0 - 1, arg1, 8, 0, 5, &flag_a, &flag_b);
+    if ((sourceColumn < column) && (sourceRow == row)) {
+        FldCellFloodFill(column - 1, row, 8, 0, 5, &foundTypeTwo, &foundHighType);
     }
-    if ((arg2 == arg0) && (arg1 < arg3)) {
-        FldCellFloodFill(arg0, arg1 + 1, 1, 0, 5, &flag_a, &flag_b);
+    if ((sourceColumn == column) && (row < sourceRow)) {
+        FldCellFloodFill(column, row + 1, 1, 0, 5, &foundTypeTwo, &foundHighType);
     }
-    if ((arg0 < arg2) && (arg3 == arg1)) {
-        FldCellFloodFill(arg0 + 1, arg1, 2, 0, 5, &flag_a, &flag_b);
+    if ((column < sourceColumn) && (sourceRow == row)) {
+        FldCellFloodFill(column + 1, row, 2, 0, 5, &foundTypeTwo, &foundHighType);
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (work[main_cell_offset + 0x58] == 3) {
-        mode = *(s32 *)iGpffff9db0;
+    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 3) {
+        mode = ((FieldSceneState *)iGpffff9db0)->field.value;
         if ((mode == 0x2E) || (mode == 0x42) ||
             (mode == 0x2C) || (mode == 0x40)) {
-            flag_a = 1;
+            foundTypeTwo = 1;
         }
     }
 
-    random_value = RpRandom();
-    if (((random_value % 100) < 0x1E) && (flag_a == 0)) {
+    randomValue = RpRandom();
+    if (((randomValue % 100) < 0x1E) && (foundTypeTwo == 0)) {
         choice = 1;
         direction = RpRandom() & 3;
         goto try_choice;
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (work[main_cell_offset + 0x58] == 2) {
-        mode = *(s32 *)iGpffff9db0;
+    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 2) {
+        mode = ((FieldSceneState *)iGpffff9db0)->field.value;
         if ((mode == 0x2E) || (mode == 0x42) ||
             (mode == 0x2C) || (mode == 0x40)) {
             choice = 0;
@@ -1028,7 +1160,7 @@ main_loop:
 
     if (D_0076432C == 0) {
         work = (u8 *)MT_Scene_GetFrameState();
-        if (work[main_cell_offset + 0x58] == 2) {
+        if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 2) {
             choice = 0;
             direction = RpRandom() & 3;
             goto try_choice;
@@ -1036,92 +1168,92 @@ main_loop:
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (work[main_cell_offset + 0x58] < 9) {
+    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type < 9) {
         goto choose_limited;
     }
     mode = D_0076432C;
 
-    random_value = RpRandom();
-    choice = random_value % (u32)(D_005F0590[mode * 0xC] - 2);
+    randomValue = RpRandom();
+    choice = randomValue % (u32)(D_005F0590[mode * 0xC] - 2);
     if (mode == 0) {
         choice = 0;
     }
     direction = RpRandom() & 3;
-    if (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 6) {
+    if (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 6) {
         goto main_loop;
     }
     goto try_choice;
 
 choose_limited:
     mode = D_0076432C;
-    random_value = RpRandom();
-    choice = random_value % (u32)(D_005F0590[mode * 0xC] - 2);
+    randomValue = RpRandom();
+    choice = randomValue % (u32)(D_005F0590[mode * 0xC] - 2);
     if (mode == 0) {
-        random_value = D_00764314;
+        randomValue = D_00764314;
         work = (u8 *)MT_Scene_GetFrameState();
-        if (random_value < ((u32)work[0x4A] >> 1)) {
+        if (randomValue < ((u32)((FldFrame *)work)->unk48[2] >> 1)) {
             if ((choice == 3) || (choice == 6)) {
                 goto main_loop;
             }
         }
     }
 
-    random_value = RpRandom();
-    if (((random_value % 100) < 0x32) && (flag_b == 0)) {
+    randomValue = RpRandom();
+    if (((randomValue % 100) < 0x32) && (foundHighType == 0)) {
         choice = D_005F0590[D_0076432C * 0xC] - 2;
     }
     direction = RpRandom() & 3;
-    if (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 6) {
+    if (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 6) {
         goto main_loop;
     }
-    if ((choice == 1) && (flag_a == 1)) {
+    if ((choice == 1) && (foundTypeTwo == 1)) {
         goto main_loop;
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((work[main_cell_offset + 0x58] == 3) &&
-        (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 3)) {
+    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 3) &&
+        (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 3)) {
         goto main_loop;
     }
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((work[main_cell_offset + 0x58] == 7) &&
-        (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 7)) {
+    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 7) &&
+        (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 7)) {
         goto main_loop;
     }
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((work[main_cell_offset + 0x58] == 8) &&
-        (*(s8 *)(D_005F0590 + D_0076432C * 0xC + choice + 2) == 8)) {
+    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 8) &&
+        (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 8)) {
         goto main_loop;
     }
 
 try_choice:
     found = 0;
     attempt = 0;
-    choice_ptr = D_005F0590 + choice;
+    choices = D_005F0590 + choice;
     goto attempt_test;
 attempt_body:
     mode = D_0076432C;
-    template_id = *(s8 *)(choice_ptr + mode * 0xC + 2);
-    src = (s16 *)(D_005F0080 + template_id * 0x56);
+    templateId = ((FldTileTemplateSet *)(choices + mode * 0xC))->templates[0];
+    src = (s16 *)(D_005F0080 + templateId * 0x56);
     dst = (s16 *)tile;
-    copy_count = 0x2B;
+    remainingHalfwords = 0x2B;
 copy_candidate:
-    copy_value = *src;
+    copiedHalfword = *src;
     src++;
-    copy_count--;
-    *dst = copy_value;
+    remainingHalfwords--;
+    *dst = copiedHalfword;
     dst++;
-    if (copy_count > 0) {
+    if (remainingHalfwords > 0) {
         goto copy_candidate;
     }
     FldTileRotateAttributes(tile, 1U << direction);
-    temp_x = arg0;
-    temp_y = arg1;
-    if (FldCellFindPlacement(tile, &temp_x, &temp_y) == 1) {
-        FldCellPlaceShape(tile, (u16)temp_x, (u16)temp_y, (s16)direction);
+    candidateColumn = column;
+    candidateRow = row;
+    if (FldCellFindPlacement(tile, &candidateColumn, &candidateRow) == 1) {
+        FldCellPlaceShape(tile, (u16)candidateColumn, (u16)candidateRow, (s16)direction);
         found = 1;
-        arg0 = temp_x;
-        arg1 = temp_y;
+        column = candidateColumn;
+        row = candidateRow;
         goto attempt_done;
     }
     direction++;
@@ -1138,47 +1270,47 @@ attempt_done:
         goto propagate;
     }
     if (choice == 1) {
-        flag_a = 1;
+        foundTypeTwo = 1;
     }
     if (choice < (u32)(D_005F0590[D_0076432C * 0xC] - 2)) {
         goto main_loop;
     }
-    flag_b = 1;
+    foundHighType = 1;
     goto main_loop;
 
 propagate:
-    y_offset = 0;
+    rowOffset = 0;
     goto y_test;
 y_body:
-    x_offset = 0;
-    y = arg1 + y_offset;
-    row_offset = y << 8;
-    previous_y = y - 1;
-    next_y = y + 1;
+    columnOffset = 0;
+    y = row + rowOffset;
+    rowByteOffset = y << 8;
+    previousRow = y - 1;
+    nextRow = y + 1;
     goto x_test;
 x_body:
     edge = 0;
-    x = arg0 + x_offset;
-    prop_cell_offset = row_offset + (x << 4);
-    previous_x = x - 1;
-    next_x = x + 1;
+    x = column + columnOffset;
+    cellOffset = rowByteOffset + (x << 4);
+    previousColumn = x - 1;
+    nextColumn = x + 1;
     goto edge_test;
 edge_body:
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((work[prop_cell_offset + 0x5E] &
+    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)cellOffset, (u32)work) + 0x54))->exits &
          (1U << (edge + 4))) != 0) {
         switch (edge) {
         case 0:
-            FldCellSpreadToNeighbour(x, previous_y, x, y);
+            FldCellSpreadToNeighbour(x, previousRow, x, y);
             break;
         case 1:
-            FldCellSpreadToNeighbour(previous_x, y, x, y);
+            FldCellSpreadToNeighbour(previousColumn, y, x, y);
             break;
         case 2:
-            FldCellSpreadToNeighbour(x, next_y, x, y);
+            FldCellSpreadToNeighbour(x, nextRow, x, y);
             break;
         case 3:
-            FldCellSpreadToNeighbour(next_x, y, x, y);
+            FldCellSpreadToNeighbour(nextColumn, y, x, y);
             break;
         }
     }
@@ -1187,14 +1319,14 @@ edge_test:
     if (edge < 4) {
         goto edge_body;
     }
-    x_offset++;
+    columnOffset++;
 x_test:
-    if (x_offset < tile[1]) {
+    if (columnOffset < ((FldTileTemplate *)tile)->width) {
         goto x_body;
     }
-    y_offset++;
+    rowOffset++;
 y_test:
-    if (y_offset < tile[2]) {
+    if (rowOffset < ((FldTileTemplate *)tile)->height) {
         goto y_body;
     }
 }
@@ -1205,7 +1337,7 @@ y_test:
 #pragma opt_propagation off
 // Intent: Generate the field board: reseed the RNG and fill the board walls and tile states by the given mode [inferred]
 // FUN_001582F0
-void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2)
+void FldBoardGenerate(s32 mode, s32 seed, s32 unused)
 {
     extern void RpRandomSeed(s32 seed);
     extern s32 func_0043c6a0(s32 value);
@@ -1222,23 +1354,23 @@ void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2)
     extern s32 iGpffffb228;
     extern s32 iGpffffb224;
     extern s32 iGpffffb23c;
-    s16 buf[43];
-    u32 u4;
-    u32 u8v;
+    s16 tileHalfwords[43];
+    u32 originColumn;
+    u32 originRow;
     u8 *t;
-    s16 *tab;
+    s16 *templateWords;
     u8 *roomSet;
     s16 *dst;
     s32 n;
     u32 i;
     u32 borderIndex;
-    s32 bestx;
-    s32 besty;
-    u32 maxv;
+    s32 farthestColumn;
+    s32 farthestRow;
+    u32 maximumDistance;
     u32 j;
-    s32 r1;
-    s32 r2;
-    u8 b0;
+    s32 columnDistance;
+    s32 rowDistance;
+    u8 selectedByte;
     u8 r;
     s32 border;
     s32 offset;
@@ -1246,10 +1378,10 @@ void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2)
     s32 startX;
     u32 areaCount;
 
-    if (arg1 == 0) {
+    if (seed == 0) {
         iGpffffb240 = iGpffffb1a0;
     } else {
-        iGpffffb240 = arg1;
+        iGpffffb240 = seed;
     }
     if (iGpffffb214 != 0) {
         iGpffffb240 = iGpffffb214;
@@ -1265,10 +1397,10 @@ void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2)
         iGpffffb228 = 0;
         iGpffffb224 = 0;
         t = (u8 *)MT_Scene_GetFrameState();
-        *(t + 0x44) = 0;
+        ((FldFrame *)t)->spawnColumn = 0;
         t = (u8 *)MT_Scene_GetFrameState();
-        *(t + 0x45) = 0;
-        iGpffffb23c = D_005F05B8[arg0];
+        ((FldFrame *)t)->spawnRow = 0;
+        iGpffffb23c = D_005F05B8[mode];
         t = (u8 *)MT_Scene_GetFrameState();
         memset(t + 0x54, 0, 6144);
         borderIndex = 0;
@@ -1277,7 +1409,7 @@ border_columns_body:
         offset = borderIndex * 0x10;
         border = 2;
         t = (u8 *)MT_Scene_GetFrameState();
-        *(t + offset + 0x54) = border;
+        ((FldFrameCell *)(t + offset + 0x54))->occupied = border;
         t = (u8 *)MT_Scene_GetFrameState();
         *(t + offset + 0x1754) = border;
         borderIndex += 1;
@@ -1291,7 +1423,7 @@ border_rows_body:
         offset = borderIndex * 0x100;
         border = 2;
         t = (u8 *)MT_Scene_GetFrameState();
-        *(t + offset + 0x54) = border;
+        ((FldFrameCell *)(t + offset + 0x54))->occupied = border;
         t = (u8 *)MT_Scene_GetFrameState();
         *(t + offset + 0x144) = border;
         borderIndex += 1;
@@ -1302,70 +1434,70 @@ border_rows_test:
         do {
             r = (RpRandom() % 0xB) + 2;
             t = (u8 *)MT_Scene_GetFrameState();
-            *(t + 0x46) = (u8)r;
-            u4 = r & 0xFF;
+            ((FldFrame *)t)->cellPick[0] = (u8)r;
+            originColumn = r & 0xFF;
             r = (RpRandom() % 0x13) + 2;
             t = (u8 *)MT_Scene_GetFrameState();
-            *(t + 0x47) = (u8)r;
-            u8v = r & 0xFF;
-            b0 = (u8)(RpRandom() & 3);
+            ((FldFrame *)t)->cellPick[1] = (u8)r;
+            originRow = r & 0xFF;
+            selectedByte = (u8)(RpRandom() & 3);
             t = (u8 *)MT_Scene_GetFrameState();
-            *(t + 0x49) = b0;
+            ((FldFrame *)t)->unk48[1] = selectedByte;
             roomSet = D_005F0590 + iGpffffb23c * 12;
-            tab = (s16 *)(D_005F0080 + *(s8 *)(roomSet + roomSet[0] + 1) * 0x56);
-            dst = buf;
+            templateWords = (s16 *)(D_005F0080 + ((s8 *)roomSet)[roomSet[0] + 1] * 0x56);
+            dst = tileHalfwords;
             n = 43;
             do {
-                copyValue = *tab;
-                tab = tab + 1;
+                copyValue = *templateWords;
+                templateWords = templateWords + 1;
                 n = n - 1;
                 *dst = copyValue;
                 dst = dst + 1;
             } while (n > 0);
             t = (u8 *)MT_Scene_GetFrameState();
-            FldTileRotateAttributes(buf, 1U << *(t + 0x49));
-        } while (FldCellFindPlacement(buf, &u4, &u8v) == 0);
-        b0 = (u8)u4;
+            FldTileRotateAttributes(tileHalfwords, 1U << ((FldFrame *)t)->unk48[1]);
+        } while (FldCellFindPlacement(tileHalfwords, &originColumn, &originRow) == 0);
+        selectedByte = (u8)originColumn;
         t = (u8 *)MT_Scene_GetFrameState();
-        *(t + 0x46) = b0;
-        b0 = (u8)u8v;
+        ((FldFrame *)t)->cellPick[0] = selectedByte;
+        selectedByte = (u8)originRow;
         t = (u8 *)MT_Scene_GetFrameState();
-        *(t + 0x47) = b0;
+        ((FldFrame *)t)->cellPick[1] = selectedByte;
         t = (u8 *)MT_Scene_GetFrameState();
-        startX = *(t + 0x46);
+        startX = ((FldFrame *)t)->cellPick[0];
         t = (u8 *)MT_Scene_GetFrameState();
-        FldCellSpreadToNeighbour(startX, *(t + 0x47), 0, 0);
-        maxv = 0;
+        FldCellSpreadToNeighbour(startX, ((FldFrame *)t)->cellPick[1], 0, 0);
+        maximumDistance = 0;
         for (j = 0; j < 0x18; j = j + 1) {
             for (i = 0; i < 0x10; i = i + 1) {
                 offset = i * 0x10;
                 t = (u8 *)MT_Scene_GetFrameState();
-                if (*(t + j * 0x100 + offset + 0x54) == 1) {
+                if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)(j * 0x100), (u32)t) + offset + 0x54))->occupied == 1) {
                     t = (u8 *)MT_Scene_GetFrameState();
-                    if (*(t + j * 0x100 + offset + 0x58) == 5) {
+                    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)(j * 0x100), (u32)t) + offset + 0x54))->type == 5) {
                         t = (u8 *)MT_Scene_GetFrameState();
-                        r1 = func_0043c6a0(*(t + 0x46) - i);
+                        columnDistance = func_0043c6a0(((FldFrame *)t)->cellPick[0] - i);
                         t = (u8 *)MT_Scene_GetFrameState();
-                        r2 = func_0043c6a0(*(t + 0x47) - j);
-                        if (maxv < (u32)(r1 + r2)) {
-                            bestx = i;
-                            besty = j;
-                            maxv = r1 + r2;
+                        rowDistance = func_0043c6a0(((FldFrame *)t)->cellPick[1] - j);
+                        if (maximumDistance < (u32)(columnDistance + rowDistance)) {
+                            farthestColumn = i;
+                            farthestRow = j;
+                            maximumDistance = columnDistance + rowDistance;
                         }
                     }
                 }
             }
         }
-        if (maxv != 0) {
-            b0 = (u8)bestx;
+        if (maximumDistance != 0) {
+            selectedByte = (u8)farthestColumn;
             t = (u8 *)MT_Scene_GetFrameState();
-            *(t + 0x44) = b0;
-            b0 = (u8)besty;
+            ((FldFrame *)t)->spawnColumn = selectedByte;
+            selectedByte = (u8)farthestRow;
             t = (u8 *)MT_Scene_GetFrameState();
-            *(t + 0x45) = b0;
+            ((FldFrame *)t)->spawnRow = selectedByte;
             border = 6;
             t = (u8 *)MT_Scene_GetFrameState();
-            *(t + besty * 0x100 + bestx * 0x10 + 0x58) = border;
+            ((FldFrameCell *)(t + farthestRow * 0x100 + farthestColumn * 0x10 + 0x54))->type = border;
         } else {
             iGpffffb238 = 1;
         }
@@ -1374,7 +1506,7 @@ border_rows_test:
         }
         areaCount = iGpffffb224;
         t = (u8 *)MT_Scene_GetFrameState();
-        if ((areaCount > *(t + 0x4B)) ||
+        if ((areaCount > ((FldFrame *)t)->unk48[3]) ||
             (areaCount = iGpffffb224, t = (u8 *)MT_Scene_GetFrameState(),
              areaCount < (u32)*(t + 0x4A))) {
             iGpffffb238 = 1;
@@ -1394,11 +1526,19 @@ border_rows_test:
  * f32 pointer argument back to SVec3 and copy the complete object. Pass
  * complete SVec3 addresses, never an address of one scalar member. */
 typedef struct FieldSerializedLightRecord {
-    u8 header[4];
+    u16 unk00;
+    u16 unk02;
     FieldRgba8 color;
     SVec3 position;
     f32 parameters[3];
 } FieldSerializedLightRecord;
+
+/* Point groups advance by 0x14; each contains a 12-byte position and yaw. */
+typedef struct FieldSerializedPointRecord {
+    u32 unk00;
+    SVec3 position;
+    f32 angle;
+} FieldSerializedPointRecord;
 
 /* Complete clone and child layouts from the field resource provider. */
 typedef struct {
@@ -1426,6 +1566,8 @@ typedef struct {
     k_fldSubEntry entries[96];
     s32 field_a20;
     RwV3d scale;
+    u8 unkA30[0x10];
+    union { u8 *pointData; s32 pointDataAddress; };
 } k_fldResource;
 
 typedef struct RuntimeVec3 { f32 x; f32 y; f32 z; } RuntimeVec3;
@@ -1437,7 +1579,7 @@ typedef struct RuntimeVec3 { f32 x; f32 y; f32 z; } RuntimeVec3;
 #pragma opt_common_subs off
 // Intent: Create the resources for one field cell from its kind: model, point and field resources in the active band [inferred]
 // FUN_001587D0
-void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
+void FldCellCreateResources(u16 parentId, u32 column, u32 row)
 {
     extern u8 D_005F0590[];
     extern u8 D_005F0591[];
@@ -1497,13 +1639,13 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
   f32 worldCoordinate;
   f32 angle;
   RwV3d worldPosition;
-  SVec3 point_20;
-  SVec3 point_30;
-  SVec3 point_40;
-  SVec3 point_50;
-  SVec3 point_60;
+  SVec3 primaryPoint;
+  SVec3 secondaryPoint;
+  SVec3 tertiaryPoint;
+  SVec3 extraPoint;
+  SVec3 lightPosition;
   u16 placedResourceIds [4];
-  SVec3 point_78;
+  SVec3 finalPoint;
   enum { c10000 = 0x10000, c10001 = 0x10001, c10002 = 0x10002 };
   
   /* These values belong to the placement operation. templateScan first
@@ -1515,8 +1657,8 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
   u32 placementX;
   u32 placementY;
   u32 templateScan;
-  placementX = arg1;
-  placementY = arg2;
+  placementX = column;
+  placementY = row;
   templateIndex = 0xffffffff;
   rowOffset = (placementY & 0xffff) * 0x100;
   gridOffset = (placementX & 0xffff) * 0x10;
@@ -1543,7 +1685,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
     worldPosition.x = worldScale * worldCoordinate + (f32)(s32)(((FldFrameCell *)(grid + templateScan + worldColumnOffset + 0x54))->shapeX - 1) * 600.0f
     ;
     grid = (u8 *)MT_Scene_GetFrameState();
-    worldPosition.y = (f32)(s32)*(s8 *)(grid + templateScan + worldColumnOffset + 0x5d) * 300.0f;
+    worldPosition.y = (f32)(s32)*(s8 *)&((FldFrameCell *)(grid + templateScan + worldColumnOffset + 0x54))->unk08[1] * 300.0f;
     worldScale = 1200.0f;
     worldCoordinate = (f32)(u32)placementY;
     grid = (u8 *)MT_Scene_GetFrameState();
@@ -1553,11 +1695,11 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
       templateCount = D_005F0591[D_0076432C * 0xc];
     }
     templateScan = 0;
-    gridOffset = wg0035_add_offset((u32)rowOffset, (u32)gridOffset);
+    gridOffset = fldAddByteOffset((u32)rowOffset, (u32)gridOffset);
     while (templateScan < templateCount) {
-      templateKind = *(s8 *)(D_005F0590 + D_0076432C * 0xc + templateScan + 2);
+      templateKind = ((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xc + templateScan))->templates[0];
       grid = (u8 *)MT_Scene_GetFrameState();
-      if (templateKind == ((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->type) {
+      if (templateKind == ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->type) {
         templateIndex = templateScan;
         break;
       }
@@ -1572,23 +1714,23 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
     templateOffset = templateIndex * 4;
     grid = (u8 *)MT_Scene_GetFrameState();
     rotation = (u16)((((FldFrameCell *)(grid + cloneRow + cloneColumn + 0x54))->kind + 4) % 4);
-    clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
-    resourceId = (u16)MT_Scene_CreateFldRes(arg0,(s32)clonedModel);
+    clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)((FieldSceneState *)fldAddByteOffset((u32)templateOffset, (u32)iGpffff9db0))->templates[0].address, &worldPosition, rotation);
+    resourceId = (u16)MT_Scene_CreateFldRes(parentId,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
     SceneDraw_SetResVisible((u16)resourceId,1);
     resrcMngResetRenderSlots();
-    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)(((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->shapeZ);
+    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)(((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->shapeZ);
         rowIndex = rowIndex + 1) {
       columnIndex = 0;
       occupiedRowOffset = (checkedY + rowIndex) * 0x100;
-      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)(((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->shapeX);
+      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)(((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->shapeX);
           columnIndex = columnIndex + 1) {
         occupiedColumnOffset = (checkedX + columnIndex) * 0x10;
         grid = (u8 *)MT_Scene_GetFrameState();
-        ((FldFrameCell *)((u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x54))->resourceId = (u16)resourceId;
+        ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x54))->resourceId = (u16)resourceId;
         grid = (u8 *)MT_Scene_GetFrameState();
         {
-          u8 *cell = (u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset;
+          u8 *cell = (u8 *)fldAddByteOffset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset;
           cell[0x5c] = 1;
         }
       }
@@ -1601,28 +1743,28 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
         u8 *unit;
         resourceId = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(10),((k_fldSubEntry *)(child + 0x120))->field_c);
         unit = (u8 *)MT_Scene_GetRes(resourceId);
-        *(u32 *)(unit + 0x140) = (u32)parentUnit;
+        ((SceneFieldModelResource *)unit)->parentAddress = (u32)parentUnit;
         if ((((k_fldSubEntry *)(child + 0x120))->flags & 2) != 0) {
-          *(u32 *)(unit + 0x150) = 1;
+          ((SceneFieldModelResource *)unit)->unk150Bits = 1;
         }
       }
       else if (childType == 1) {
         resourceId = MT_Scene_CreateRes11(MT_Scene_FindFreeResId(0xb),((k_fldSubEntry *)(child + 0x120))->field_10);
         child = (u8 *)MT_Scene_GetRes(resourceId);
-        *(u32 *)(child + 0x140) = (u32)parentUnit;
+        ((SceneFieldModelResource *)child)->parentAddress = (u32)parentUnit;
       }
       SceneDraw_SetResVisible((u16)resourceId,1);
     }
     clonedModel->count2 = 0;
-    if (*(s32 *)(*(s32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28) + 0xa40) != 0) {
+    if (((k_fldResource *)((FieldSceneState *)fldAddByteOffset((u32)templateOffset, (u32)iGpffff9db0))->templates[0].signedAddress)->pointDataAddress != 0) {
       u32 *matrix;
       s32 cornerIndex;
       u8 *data;
       u32 format;
       u32 versionBase;
       matrix = (u32 *)func_003e0f80();
-      data = (u8 *)*(s32 *)(*(s32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28) + 0xa40);
-      format = *(u32 *)(data + 4);
+      data = (u8 *)((k_fldResource *)((FieldSceneState *)fldAddByteOffset((u32)templateOffset, (u32)iGpffff9db0))->templates[0].signedAddress)->pointDataAddress;
+      format = ((FldPointTableHeader *)data)->version;
       versionBase = 0x10000;
       if (format == versionBase) {
         record = data + 0x28;
@@ -1636,12 +1778,12 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
       else {
         record = data + 0x48;
       }
-      for (volumeIndex = 0; volumeIndex < *(u32 *)(data + 8);
+      for (volumeIndex = 0; volumeIndex < ((FldPointTableHeader *)data)->volumeCount;
           volumeIndex = volumeIndex + 1, record = record + 0x20) {
         u8 *volumeUnit;
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           grid = (u8 *)MT_Scene_GetFrameState();
-          if (((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->type == '\x06') {
+          if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->type == '\x06') {
             volumeId = 0x3fe;
           }
           else {
@@ -1649,13 +1791,13 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           }
           volumeUnit = (u8 *)MT_Scene_GetRes((u16)MT_Scene_CreateFldHitLight(volumeId, (f32 *)&((FieldSerializedLightRecord *)record)->position, ((FieldSerializedLightRecord *)record)->parameters[0],
                                  ((FieldSerializedLightRecord *)record)->parameters[1], ((FieldSerializedLightRecord *)record)->parameters[2], ((FieldSerializedLightRecord *)record)->color));
-          Vpad_BuildRotatedQuad((RuntimeVec3 *)(volumeUnit + 0x15c),(const RuntimeVec3 *)(volumeUnit + 0x144),*(f32 *)(volumeUnit + 0x150)
-                        ,*(f32 *)(volumeUnit + 0x154),*(f32 *)(volumeUnit + 0x158));
+          Vpad_BuildRotatedQuad((RuntimeVec3 *)(volumeUnit + 0x15c),(const RuntimeVec3 *)(volumeUnit + 0x144),((SceneQuadResource *)volumeUnit)->width
+                        ,((SceneQuadResource *)volumeUnit)->height,((SceneQuadResource *)volumeUnit)->angle);
           for (cornerIndex = 0; cornerIndex < 4; cornerIndex = cornerIndex + 1) {
             f32 cornerAngle;
             u8 *cornerBase;
             grid = (u8 *)MT_Scene_GetFrameState();
-            cornerAngle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+            cornerAngle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
             matrix[2] = 0;
@@ -1673,17 +1815,17 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
               RwV3d *corner = (RwV3d *)(cornerBase + 0x15c);
               func_003e42a0(corner, corner, matrix);
             }
-            *(f32 *)(cornerBase + 0x15c) = *(f32 *)(cornerBase + 0x15c) + worldPosition.x;
-            *(f32 *)(cornerBase + 0x160) = *(f32 *)(cornerBase + 0x160) + worldPosition.y;
-            *(f32 *)(cornerBase + 0x164) = *(f32 *)(cornerBase + 0x164) + worldPosition.z;
+            ((SceneQuadResource *)cornerBase)->corners[0].x = ((SceneQuadResource *)cornerBase)->corners[0].x + worldPosition.x;
+            ((SceneQuadResource *)cornerBase)->corners[0].y = ((SceneQuadResource *)cornerBase)->corners[0].y + worldPosition.y;
+            ((SceneQuadResource *)cornerBase)->corners[0].z = ((SceneQuadResource *)cornerBase)->corners[0].z + worldPosition.z;
           }
         }
       }
-      for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x10); recordIndex = recordIndex + 1, record = record + 0x14) {
+      for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->pointCount; recordIndex = recordIndex + 1, record = record + 0x14) {
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
-          point_20 = *(SVec3 *)(record + 4);
+          primaryPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1696,24 +1838,24 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           matrix[0xc] = 0;
           matrix[3] = matrix[3] | 0x20003;
           RwMatrixRotate(matrix, D_00756510, angle, 2);
-          { SVec3 *position = &point_20; func_003e42a0(position, position, matrix); }
-          point_20.x = point_20.x + worldPosition.x;
-          point_20.y = point_20.y + worldPosition.y;
-          point_20.z = point_20.z + worldPosition.z;
-          angle = angle + *(f32 *)(record + 0x10);
+          { SVec3 *position = &primaryPoint; func_003e42a0(position, position, matrix); }
+          primaryPoint.x = primaryPoint.x + worldPosition.x;
+          primaryPoint.y = primaryPoint.y + worldPosition.y;
+          primaryPoint.z = primaryPoint.z + worldPosition.z;
+          angle = angle + ((FieldSerializedPointRecord *)record)->angle;
           { f32 f360 = 360.0f;
           for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          MT_Scene_CreatePointRes14(0x3ff,(f32 *)&point_20,angle);
+          MT_Scene_CreatePointRes14(0x3ff,(f32 *)&primaryPoint,angle);
         }
       }
-      for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x18); recordIndex = recordIndex + 1, record = record + 0x14) {
+      for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->secondaryPointCount; recordIndex = recordIndex + 1, record = record + 0x14) {
         if (FldMap_IsCurrentInBandA() == 1) {
-          point_30 = *(SVec3 *)(record + 4);
+          secondaryPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1726,24 +1868,24 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           matrix[0xc] = 0;
           matrix[3] = matrix[3] | 0x20003;
           RwMatrixRotate(matrix, D_00756510, angle, 2);
-          { SVec3 *position = &point_30; func_003e42a0(position, position, matrix); }
-          point_30.x = point_30.x + worldPosition.x;
-          point_30.y = point_30.y + worldPosition.y;
-          point_30.z = point_30.z + worldPosition.z;
-          angle = angle + *(f32 *)(record + 0x10);
+          { SVec3 *position = &secondaryPoint; func_003e42a0(position, position, matrix); }
+          secondaryPoint.x = secondaryPoint.x + worldPosition.x;
+          secondaryPoint.y = secondaryPoint.y + worldPosition.y;
+          secondaryPoint.z = secondaryPoint.z + worldPosition.z;
+          angle = angle + ((FieldSerializedPointRecord *)record)->angle;
           { f32 f360 = 360.0f;
           for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          MT_Scene_CreatePointRes15(MT_Scene_FindFreeResId(0xf),(f32 *)&point_30,angle);
+          MT_Scene_CreatePointRes15(MT_Scene_FindFreeResId(0xf),(f32 *)&secondaryPoint,angle);
         }
       }
-      for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x20); recordIndex = recordIndex + 1, record = record + 0x14) {
+      for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->tertiaryPointCount; recordIndex = recordIndex + 1, record = record + 0x14) {
         if (FldMap_IsCurrentInBandA() == 1) {
-          point_40 = *(SVec3 *)(record + 4);
+          tertiaryPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1756,25 +1898,25 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           matrix[0xc] = 0;
           matrix[3] = matrix[3] | 0x20003;
           RwMatrixRotate(matrix, D_00756510, angle, 2);
-          { SVec3 *position = &point_40; func_003e42a0(position, position, matrix); }
-          point_40.x = point_40.x + worldPosition.x;
-          point_40.y = point_40.y + worldPosition.y;
-          point_40.z = point_40.z + worldPosition.z;
-          angle = angle + *(f32 *)(record + 0x10);
+          { SVec3 *position = &tertiaryPoint; func_003e42a0(position, position, matrix); }
+          tertiaryPoint.x = tertiaryPoint.x + worldPosition.x;
+          tertiaryPoint.y = tertiaryPoint.y + worldPosition.y;
+          tertiaryPoint.z = tertiaryPoint.z + worldPosition.z;
+          angle = angle + ((FieldSerializedPointRecord *)record)->angle;
           { f32 f360 = 360.0f;
           for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          MT_Scene_CreatePointRes16(MT_Scene_FindFreeResId(0x10),(f32 *)&point_40,angle);
+          MT_Scene_CreatePointRes16(MT_Scene_FindFreeResId(0x10),(f32 *)&tertiaryPoint,angle);
         }
       }
-      if (c10000 < *(u32 *)(data + 4)) {
-        for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x28); recordIndex = recordIndex + 1, record = record + 0x14) {
+      if (c10000 < ((FldPointTableHeader *)data)->version) {
+        for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->extraPointCount; recordIndex = recordIndex + 1, record = record + 0x14) {
           if (FldMap_IsCurrentInBandA() == 1) {
-            point_50 = *(SVec3 *)(record + 4);
+            extraPoint = ((FieldSerializedPointRecord *)record)->position;
             grid = (u8 *)MT_Scene_GetFrameState();
-            angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+            angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
             matrix[2] = 0;
@@ -1787,26 +1929,26 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
             matrix[0xc] = 0;
             matrix[3] = matrix[3] | 0x20003;
             RwMatrixRotate(matrix, D_00756510, angle, 2);
-            { SVec3 *position = &point_50; func_003e42a0(position, position, matrix); }
-            point_50.x = point_50.x + worldPosition.x;
-            point_50.y = point_50.y + worldPosition.y;
-            point_50.z = point_50.z + worldPosition.z;
-            angle = angle + *(f32 *)(record + 0x10);
+            { SVec3 *position = &extraPoint; func_003e42a0(position, position, matrix); }
+            extraPoint.x = extraPoint.x + worldPosition.x;
+            extraPoint.y = extraPoint.y + worldPosition.y;
+            extraPoint.z = extraPoint.z + worldPosition.z;
+            angle = angle + ((FieldSerializedPointRecord *)record)->angle;
             { f32 f360 = 360.0f;
             for (; angle > f360;
                 angle = angle - f360) {
             }
             }
-            MT_Scene_CreatePointRes17(MT_Scene_FindFreeResId(0x11),(f32 *)&point_50,angle);
+            MT_Scene_CreatePointRes17(MT_Scene_FindFreeResId(0x11),(f32 *)&extraPoint,angle);
           }
         }
       }
-      if (c10001 < *(u32 *)(data + 4)) {
-        for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x30); recordIndex = recordIndex + 1, record = record + 0x20) {
+      if (c10001 < ((FldPointTableHeader *)data)->version) {
+        for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->lightCount; recordIndex = recordIndex + 1, record = record + 0x20) {
           u8 *lightUnit;
-          point_60 = ((FieldSerializedLightRecord *)record)->position;
+          lightPosition = ((FieldSerializedLightRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1819,29 +1961,29 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           matrix[0xc] = 0;
           matrix[3] = matrix[3] | 0x20003;
           RwMatrixRotate(matrix, D_00756510, angle, 2);
-          { SVec3 *position = &point_60; func_003e42a0(position, position, matrix); }
-          point_60.x = point_60.x + worldPosition.x;
-          point_60.y = point_60.y + worldPosition.y;
-          point_60.z = point_60.z + worldPosition.z;
+          { SVec3 *position = &lightPosition; func_003e42a0(position, position, matrix); }
+          lightPosition.x = lightPosition.x + worldPosition.x;
+          lightPosition.y = lightPosition.y + worldPosition.y;
+          lightPosition.z = lightPosition.z + worldPosition.z;
           angle = angle + ((FieldSerializedLightRecord *)record)->parameters[2];
           { f32 f360 = 360.0f;
           for (; angle > f360; angle = angle - f360)
           {
           }
           }
-          lightUnit = (u8 *)MT_Scene_GetRes((u16)MT_Scene_CreateRes21Light(MT_Scene_FindFreeResId(0x15), (f32 *)&point_60, ((FieldSerializedLightRecord *)record)->parameters[0],
+          lightUnit = (u8 *)MT_Scene_GetRes((u16)MT_Scene_CreateRes21Light(MT_Scene_FindFreeResId(0x15), (f32 *)&lightPosition, ((FieldSerializedLightRecord *)record)->parameters[0],
                                  ((FieldSerializedLightRecord *)record)->parameters[1], angle, ((FieldSerializedLightRecord *)record)->color));
-          *(u32 *)(lightUnit + 0x18c) = (u32)*(u16 *)(record + 2);
+          *(u32 *)&((SceneQuadResource *)lightUnit)->terrain = (u32)((FieldSerializedLightRecord *)record)->unk02;
         }
       }
-      if (c10002 < *(u32 *)(data + 4)) {
-        if (4 < *(u32 *)(data + 0x38)) {
+      if (c10002 < ((FldPointTableHeader *)data)->version) {
+        if (4 < ((FldPointTableHeader *)data)->finalPointCount) {
           kAssertFail(D_005F05E8,0x541);
         }
-        for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x38); recordIndex = recordIndex + 1, record = record + 0x14) {
-          point_78 = *(SVec3 *)(record + 4);
+        for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->finalPointCount; recordIndex = recordIndex + 1, record = record + 0x14) {
+          finalPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1854,11 +1996,11 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           matrix[0xc] = 0;
           matrix[3] = matrix[3] | 0x20003;
           RwMatrixRotate(matrix, D_00756510, angle, 2);
-          { SVec3 *position = &point_78; func_003e42a0(position, position, matrix); }
-          point_78.x = point_78.x + worldPosition.x;
-          point_78.y = point_78.y + worldPosition.y;
-          point_78.z = point_78.z + worldPosition.z;
-          angle = angle + *(f32 *)(record + 0x10);
+          { SVec3 *position = &finalPoint; func_003e42a0(position, position, matrix); }
+          finalPoint.x = finalPoint.x + worldPosition.x;
+          finalPoint.y = finalPoint.y + worldPosition.y;
+          finalPoint.z = finalPoint.z + worldPosition.z;
+          angle = angle + ((FieldSerializedPointRecord *)record)->angle;
           { f32 f360 = 360.0f;
           for (; angle > f360; angle = angle - f360)
           {
@@ -1866,7 +2008,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           }
           resourceSlot = &placedResourceIds[recordIndex];
           *resourceSlot = MT_Scene_FindFreeResId(0x12);
-          MT_Scene_CreatePointRes18(*resourceSlot,(f32 *)&point_78,angle);
+          MT_Scene_CreatePointRes18(*resourceSlot,(f32 *)&finalPoint,angle);
         }
       }
       func_003e0f40(matrix);
@@ -1880,31 +2022,31 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
-// Intent: Create the resources for every cell of the 16 by 16 field grid [inferred]
+// Intent: Create the resources for every cell of the 16 by 24 field grid [inferred]
 // FUN_001599D0
 void FldCellCreateGrid(void)
 {
-    s32 var_18;
-    s32 var_17;
-    s32 var_16;
+    s32 rowIndex;
+    s32 columnIndex;
+    s32 resourceRowBase;
 
-    var_18 = 0;
+    rowIndex = 0;
     goto loop_5_test;
 loop_5_body:
-    var_17 = 0;
-    var_16 = var_18 * 0x10;
+    columnIndex = 0;
+    resourceRowBase = rowIndex * 0x10;
     goto loop_3_test;
 loop_3_body:
-    FldCellCreateResources((u16)(var_17 + var_16),
-                  (u16)var_17, (u16)var_18);
-    var_17 += 1;
+    FldCellCreateResources((u16)(columnIndex + resourceRowBase),
+                  (u16)columnIndex, (u16)rowIndex);
+    columnIndex += 1;
 loop_3_test:
-    if (var_17 < 0x10) {
+    if (columnIndex < 0x10) {
         goto loop_3_body;
     }
-    var_18 += 1;
+    rowIndex += 1;
 loop_5_test:
-    if (var_18 < 0x18) {
+    if (rowIndex < 0x18) {
         goto loop_5_body;
     }
 }
@@ -1923,7 +2065,7 @@ loop_5_test:
    is the same cast form inline (idx loaded first). FldRootCreate's 4th parameter
    is s32 at block scope so the u16 load is a conversion materialised before $a0.
    Zeroing loop: u32 counter for bnez. */
-s32 FldStepTaskUpdate(u8 *arg0)
+s32 FldStepTaskUpdate(u8 *task)
 {
     extern s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
     extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
@@ -1936,40 +2078,42 @@ s32 FldStepTaskUpdate(u8 *arg0)
     extern s32 FldStepCopyLoadedFile(u8 *arg0);
     extern char D_005F0630[];
     extern u8 D_007E3720[];
-    u8 sp60[12];
+    u8 clearedRecord[12];
     u8 *work;
     u8 *rec;
     u8 *p;
     u32 n;
     u8 *base;
 
-    work = *(u8 **)(arg0 + 0x38);
+    /* measured: typed state/flag writes and handle reads emit 764-772B
+     * against the 752B window. Retain those byte aliases; other fields are typed. */
+    work = ((SdkTask *)task)->work;
     FldStepUpdateBandRes();
-    switch (*(s32 *)work) {
+    switch (((FldStepWork *)work)->state) {
     case 0:
-        *(s32 *)(work + 0x14) = FldStepOpenDataFile();
-        *(s32 *)(work + 0x38) = (s32)mdlCreateModelObjectFromData(4, 0xFFFF, D_005F0630, 0);
+        ((FldStepWork *)work)->fileHandle = FldStepOpenDataFile();
+        ((FldStepWork *)work)->modelObject = (s32)mdlCreateModelObjectFromData(4, 0xFFFF, D_005F0630, 0);
         FldStepPreloadBegin();
         *(s32 *)work += 1;
     case 1:
         if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
-            *(s32 *)(work + 0x14) = 0;
-            if (*(s32 *)(work + 0x38) == 0 || mdlPrepareModel(*(s32 *)(work + 0x38)) != 0) {
+            ((FldStepWork *)work)->fileHandle = 0;
+            if (((FldStepWork *)work)->modelObject == 0 || mdlPrepareModel(((FldStepWork *)work)->modelObject) != 0) {
                 if (FldStepPreloadCreateTasks() != 0 && FldStepPreloadFinish() != 0) {
-                    *(u8 **)(work + 0x20) = D_007E3720;
-                    if (*(s32 *)(work + 4) != 0x9F) {
-                        *(s32 *)(work + 0x1C) = cmpPartyPanelTaskCreate(0);
+                    ((FldStepWork *)work)->entries = D_007E3720;
+                    if (((FldStepWork *)work)->stepIndex != 0x9F) {
+                        ((FldStepWork *)work)->panelTask = cmpPartyPanelTaskCreate(0);
                     }
                     *(s32 *)work += 1;
     case 2:
                     *(s32 *)work += 1;
     case 3:
-                    base = *(u8 **)(work + 0x20);
-                    *(s32 *)(work + 0x24) = *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5) | 0x80000000;
-                    rec = (u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)*(u8 **)(work + 0x20);
-                    *(s32 *)(work + 0x18) = FldRootCreate(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
-                                                          *(s32 *)(work + 0x24), *(u8 *)(rec + 8), *(u8 *)(rec + 9),
-                                                          *(s32 *)(rec + 4), -1, -1, -1, -1);
+                    base = ((FldStepWork *)work)->entries;
+                    *(s32 *)(work + 0x24) = ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags | 0x80000000;
+                    rec = (u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)((FldStepWork *)work)->entries;
+                    ((FldStepWork *)work)->rootTask = FldRootCreate(task, ((FldStepEntryRecord *)rec)->fieldId, ((FldStepEntryRecord *)rec)->roomId, ((FldStepWork *)work)->entryHalf[0], 0, 0,
+                                                          ((FldStepWork *)work)->flags, ((FldStepEntryRecord *)rec)->unk08, ((FldStepEntryRecord *)rec)->unk09,
+                                                          ((FldStepEntryRecord *)rec)->value, -1, -1, -1, -1);
                     *(s32 *)(work + 0x24) = 0;
                     *(s32 *)work += 1;
                 }
@@ -1977,7 +2121,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
         }
         break;
     case 4:
-        if (*(s32 *)(work + 0xC) == 1) {
+        if (((FldStepWork *)work)->finished == 1) {
             *(s32 *)work = 0xC;
         }
         break;
@@ -1989,7 +2133,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
         *(s32 *)work += 1;
         break;
     case 10:
-        p = sp60;
+        p = clearedRecord;
         n = 12;
         if (p != NULL) {
             do {
@@ -1998,13 +2142,13 @@ s32 FldStepTaskUpdate(u8 *arg0)
             } while (n != 0);
         }
         if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
-            *(s32 *)(work + 0x14) = 0;
-            base = *(u8 **)(work + 0x20);
-            *(s32 *)(work + 0x24) |= *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5);
-            rec = (u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)*(u8 **)(work + 0x20);
-            *(s32 *)(work + 0x18) = FldRootCreate(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
-                                                  *(s32 *)(work + 0x24), *(u8 *)(rec + 8), *(u8 *)(rec + 9),
-                                                  *(s32 *)(rec + 4), -1, -1, -1, -1);
+            ((FldStepWork *)work)->fileHandle = 0;
+            base = ((FldStepWork *)work)->entries;
+            *(s32 *)(work + 0x24) |= ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags;
+            rec = (u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)((FldStepWork *)work)->entries;
+            ((FldStepWork *)work)->rootTask = FldRootCreate(task, ((FldStepEntryRecord *)rec)->fieldId, ((FldStepEntryRecord *)rec)->roomId, ((FldStepWork *)work)->entryHalf[0], 0, 0,
+                                                  ((FldStepWork *)work)->flags, ((FldStepEntryRecord *)rec)->unk08, ((FldStepEntryRecord *)rec)->unk09,
+                                                  ((FldStepEntryRecord *)rec)->value, -1, -1, -1, -1);
             *(s32 *)(work + 0x24) = 0;
             *(s32 *)work = 4;
         }
@@ -2023,54 +2167,55 @@ s32 FldStepTaskUpdate(u8 *arg0)
 #pragma opt_propagation on
 // Intent: Destroy the step task: clear the step records and run the state destroy hook from the hook table [inferred]
 // FUN_00159D50
-void FldStepTaskDestroy(u8 *arg0)
+void FldStepTaskDestroy(u8 *task)
 {
-    s32 *temp_19;
-    s32 temp_16_2;
-    s32 temp_4;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 var_17;
-    u8 *temp_16;
-    u8 *temp_4_2;
+    s32 *resourceSlot;
+    s32 resourceOffset;
+    s32 panelTask;
+    s32 modelObject;
+    s32 resource;
+    s32 columnIndex;
+    u8 *workBlock;
+    u8 *scriptData;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    /* measured: typed task work loads remove the final reload (nd10); raw retains MATCH in the 320B window. */
+    workBlock = *(u8 **)(task + 0x38);
     if (FldMap_IsCurrentInEitherBand() == 1) {
-        func_0015a7c0(*(s32 *)(temp_16 + 4));
+        fldStepSaveBoard(((FldStepWork *)workBlock)->stepIndex);
     }
-    temp_4 = *(s32 *)(temp_16 + 0x1C);
-    if (temp_4 != 0) {
-        MT_Scene_ReleaseWork(temp_4);
+    panelTask = ((FldStepWork *)workBlock)->panelTask;
+    if (panelTask != 0) {
+        MT_Scene_ReleaseWork(panelTask);
     }
-    temp_4_2 = *(u8 **)(temp_16 + 0x2C);
-    if (temp_4_2 != NULL) {
-        jtbl_008873EC[0](temp_4_2);
+    scriptData = ((FldStepWork *)workBlock)->scriptData;
+    if (scriptData != NULL) {
+        jtbl_008873EC[0](scriptData);
     }
     if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
         FldFrame_SetStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 1);
     }
-    temp_4_3 = *(s32 *)(temp_16 + 0x38);
-    if (temp_4_3 != 0) {
-        mdlDestroyModelObject(temp_4_3);
+    modelObject = ((FldStepWork *)workBlock)->modelObject;
+    if (modelObject != 0) {
+        mdlDestroyModelObject(modelObject);
     }
-    var_17 = 0;
+    columnIndex = 0;
     goto loop_14_test;
 loop_14_body:
-    temp_16_2 = var_17 * 4;
-    temp_19 = (s32 *)((u8 *)D_007E8060 + temp_16_2);
-    temp_4_4 = *temp_19;
-    if (temp_4_4 != 0) {
-        FldResource_Destroy(temp_4_4);
-        *temp_19 = 0;
-        *(s32 *)(iGpffff9db0 + temp_16_2 + 0x28) = 0;
+    resourceOffset = columnIndex * 4;
+    resourceSlot = (s32 *)((u8 *)D_007E8060 + resourceOffset);
+    resource = *resourceSlot;
+    if (resource != 0) {
+        FldResource_Destroy(resource);
+        *resourceSlot = 0;
+        ((FieldSceneState *)(iGpffff9db0 + resourceOffset))->templates[0].signedAddress = 0;
     }
-    var_17++;
+    columnIndex++;
 loop_14_test:
-    if (var_17 < 0x10) {
+    if (columnIndex < 0x10) {
         goto loop_14_body;
     }
-    *(s32 *)iGpffff9db0 = 0;
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    ((FieldSceneState *)iGpffff9db0)->field.value = 0;
+    jtbl_008873EC[0](*(u8 **)(task + 0x38));
 }
 #pragma pop
 
@@ -2079,20 +2224,20 @@ loop_14_test:
 #pragma opt_propagation on
 // Intent: Create the step task under the given parent with its update and destroy callbacks, store its two parameters and clear flag 0xC25 [inferred]
 // FUN_00159E90
-s32 FldStepTaskCreate(s32 arg0, s32 arg1, s32 arg2) {
-    s32 temp_17;
-    u8 *temp_2;
+s32 FldStepTaskCreate(s32 parent, s32 stepIndex, s32 entryValue) {
+    s32 taskResult;
+    u8 *allocation;
 
     chkmemAllocSiteTag(D_005F05E8, 0x718);
-    temp_2 = (u8 *)D_008873F4[0](1, 0x48, 0x40000);
-    if (temp_2 == NULL) {
+    allocation = (u8 *)D_008873F4[0](1, 0x48, 0x40000);
+    if (allocation == NULL) {
         return 0;
     }
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, FldStepTaskUpdate, FldStepTaskDestroy, (u8 *)(temp_2));
-    *(s32 *)(temp_2 + 4) = arg1;
-    *(s32 *)(temp_2 + 8) = arg2;
+    taskResult = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005F0650), 0xF, 0, 0, FldStepTaskUpdate, FldStepTaskDestroy, (u8 *)(allocation));
+    ((FldStepWork *)allocation)->stepIndex = stepIndex;
+    ((FldStepWork *)allocation)->entryValue = entryValue;
     datSetFlag(0xC25, 0);
-    return temp_17;
+    return taskResult;
 }
 #pragma pop
 
@@ -2101,12 +2246,12 @@ s32 FldStepTaskCreate(s32 arg0, s32 arg1, s32 arg2) {
 #pragma opt_propagation on
 // Intent: Advance the step counter by the argument and reset the step state; when the step lands on a different entry, the grid entries are freed [inferred]
 // FUN_00159F70
-void FldStepAdvance(s32 arg0)
+void FldStepAdvance(s32 stepDelta)
 {
     u8 *root;
     u8 *state;
-    s32 arg_offset;
-    s32 base_offset;
+    s32 stepByteDelta;
+    s32 entryOffset;
     s32 base;
     s32 index;
     s32 *entry;
@@ -2114,21 +2259,23 @@ void FldStepAdvance(s32 arg0)
 
     root = D_00764334;
     if (root != NULL) {
-        state = *(u8 **)(root + 0x38);
-        if (arg0 < 0) {
-            *(s32 *)(state + 8) = 0x3FF;
+        state = ((SdkTask *)root)->work;
+        if (stepDelta < 0) {
+            ((FldStepWork *)state)->entryValue = 0x3FF;
         } else {
-            *(s32 *)(state + 8) = 0xFFFF;
+            ((FldStepWork *)state)->entryValue = 0xFFFF;
         }
-        arg_offset = arg0 * 0x10;
-        base_offset = *(s32 *)(state + 4) * 0x10;
-        base = *(s32 *)(state + 0x20);
-        first = (u8 *)(base + base_offset);
-        if (((*(u16 *)first != *(u16 *)(first + arg_offset)) ||
-             (*(u16 *)(base + 2 + base_offset) !=
-              *(u16 *)wg0015_add_ptr((u8 *)(base + 2 + base_offset), arg_offset))) &&
-            (((*(s32 *)(state + 0x24) |= 0x80000000),
-              FldMap_IsCurrentInBandA(base, base_offset, arg_offset) == 1) ||
+        stepByteDelta = stepDelta * 0x10;
+        entryOffset = ((FldStepWork *)state)->stepIndex * 0x10;
+        base = ((FldStepWork *)state)->entriesAddress;
+        first = (u8 *)(base + entryOffset);
+        /* measured: typed roomId loads fold the +2 address adjustment and shrink
+         * this 336B routine to 324B. Keep its two room-halfword cursors byte-based. */
+        if (((((FldStepEntryRecord *)first)->fieldId != ((FldStepEntryRecord *)(first + stepByteDelta))->fieldId) ||
+             (*(u16 *)(base + 2 + entryOffset) !=
+              *(u16 *)fldOffsetPointer((u8 *)(base + 2 + entryOffset), stepByteDelta))) &&
+            (((((FldStepWork *)state)->flags |= 0x80000000),
+              FldMap_IsCurrentInBandA(base, entryOffset, stepByteDelta) == 1) ||
              (FldMap_IsCurrentInBandB() == 1))) {
             index = 0;
             while (index < 0x10) {
@@ -2140,8 +2287,9 @@ void FldStepAdvance(s32 arg0)
                 index += 1;
             }
         }
-        *(s32 *)(state + 4) += arg0;
-        MT_Scene_SetWorkValue(*(u8 **)(state + 0x18), 1);
+        /* measured: typing this final index update grows 336B to 348B; other step fields stay typed. */
+        *(s32 *)(state + 4) += stepDelta;
+        MT_Scene_SetWorkValue(((FldStepWork *)state)->rootPointer, 1);
         *(s32 *)state = 5;
     }
 }
@@ -2161,14 +2309,15 @@ s32 FldStepEntry(void)
     if (work == NULL) {
         return 0;
     }
-    p = *(u8 **)(work + 0x38);
-    return *(s32 *)(p + 0x20) + (*(s32 *)(p + 4) * 0x10);
+    p = ((SdkTask *)work)->work;
+    return ((FldStepWork *)p)->entriesAddress + (((FldStepWork *)p)->stepIndex * 0x10);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
+/* Return the loaded step-script buffer address, or zero without a step task. */
 // FUN_0015A100
 s32 FldStepGetScriptData(void)
 {
@@ -2178,13 +2327,14 @@ s32 FldStepGetScriptData(void)
     if (work == NULL) {
         return 0;
     }
-    return *(s32 *)(*(u8 **)(work + 0x38) + 0x2C);
+    return ((FldStepWork *)((SdkTask *)work)->work)->scriptAddress;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
+/* Return the step-script buffer's byte count, or zero without a step task. */
 // FUN_0015A130
 s32 FldStepGetScriptSize(void)
 {
@@ -2194,7 +2344,7 @@ s32 FldStepGetScriptSize(void)
     if (work == NULL) {
         return 0;
     }
-    return *(s32 *)(*(u8 **)(work + 0x38) + 0x30);
+    return ((FldStepWork *)((SdkTask *)work)->work)->scriptSize;
 }
 #pragma pop
 
@@ -2211,7 +2361,7 @@ s32 FldStepIndex(void)
     if (work == NULL) {
         return 0;
     }
-    return *(s32 *)(*(u8 **)(work + 0x38) + 4);
+    return ((FldStepWork *)((SdkTask *)work)->work)->stepIndex;
 }
 #pragma pop
 
@@ -2231,7 +2381,7 @@ s32 FldStepBandFlagSet(void)
     if (work == NULL) {
         return 0;
     }
-    value = *(u32 *)(*(u8 **)(work + 0x38) + 4);
+    value = ((FldStepWork *)((SdkTask *)work)->work)->unsignedStepIndex;
     if (value < 0x14U) {
         if (datGetFlag(0x11) == 1) {
             result = 1;
@@ -2268,8 +2418,9 @@ s32 FldStepBandFlagSet(void)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
+/* Return the address of the step model-handle slot, or zero without a step task. */
 // FUN_0015A320
-s32 func_0015a320(void)
+s32 fldStepGetModelSlot(void)
 {
     u8 *work;
 
@@ -2277,65 +2428,66 @@ s32 func_0015a320(void)
     if (work == NULL) {
         return 0;
     }
-    return *(s32 *)(work + 0x38) + 0x38;
+    return (s32)&((FldStepWork *)((SdkTask *)work)->work)->modelObject;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
+/* Write the occupied grid cells' bounding-box midpoint in 1200-unit world coordinates. */
 // FUN_0015A350
-void func_0015a350(P4_0015_Vec3 *arg0)
+void fldBoardGetOccupiedCenter(RwV3d *center)
 {
-    P4_0015_Vec3 out;
-    f32 temp_x;
-    f32 temp_z;
+    RwV3d out;
+    f32 minWorldX;
+    f32 minWorldZ;
     s32 y;
     s32 x;
-    s32 min_x;
-    s32 min_y;
-    s32 max_x;
-    s32 max_y;
+    s32 minColumn;
+    s32 minRow;
+    s32 maxColumn;
+    s32 maxRow;
     s32 row;
 
     out.z = 0.0f;
     out.y = 0.0f;
     out.x = 0.0f;
-    min_x = 0x10;
-    min_y = 0x18;
-    max_x = 0;
-    max_y = 0;
+    minColumn = 0x10;
+    minRow = 0x18;
+    maxColumn = 0;
+    maxRow = 0;
     y = 0;
     while (y < 0x18) {
         x = 0;
         row = y << 8;
         while (x < 0x10) {
-            if (*(u8 *)(wg0015_add_ptr(
+            if (((FldFrameCell *)(fldOffsetPointer(
                             (u8 *)(row + (s32)(u8 *)MT_Scene_GetFrameState()),
-                            x << 4) + 0x54) == 1) {
-                if (x <= min_x) {
-                    min_x = x;
+                            x << 4) + 0x54))->occupied == 1) {
+                if (x <= minColumn) {
+                    minColumn = x;
                 }
-                if (y <= min_y) {
-                    min_y = y;
+                if (y <= minRow) {
+                    minRow = y;
                 }
-                if (x >= max_x) {
-                    max_x = x;
+                if (x >= maxColumn) {
+                    maxColumn = x;
                 }
-                if (y >= max_y) {
-                    max_y = y;
+                if (y >= maxRow) {
+                    maxRow = y;
                 }
             }
             x += 1;
         }
         y += 1;
     }
-    temp_x = 1200.0f * (f32)min_x;
-    out.x = temp_x + (((1200.0f * (f32)max_x) - temp_x) / 2.0f);
-    temp_z = 1200.0f * (f32)min_y;
-    out.z = temp_z + (((1200.0f * (f32)max_y) - temp_z) / 2.0f);
-    func_00440b68(D_005F0670, min_x, min_y, max_x, max_y);
-    *arg0 = out;
+    minWorldX = 1200.0f * (f32)minColumn;
+    out.x = minWorldX + (((1200.0f * (f32)maxColumn) - minWorldX) / 2.0f);
+    minWorldZ = 1200.0f * (f32)minRow;
+    out.z = minWorldZ + (((1200.0f * (f32)maxRow) - minWorldZ) / 2.0f);
+    func_00440b68(D_005F0670, minColumn, minRow, maxColumn, maxRow);
+    *center = out;
 }
 #pragma pop
 
@@ -2344,16 +2496,16 @@ void func_0015a350(P4_0015_Vec3 *arg0)
 #pragma opt_propagation on
 // Intent: Set the step's present flag from the argument pointer, using the step work block's sub-block [inferred]
 // FUN_0015A520
-void FldStepSetPresentFlag(s32 arg0)
+void FldStepSetPresentFlag(s32 present)
 {
     u8 *work;
     s32 value;
 
     work = D_00764334;
     if (work != NULL) {
-        value = *(s32 *)(*(u8 **)(work + 0x38) + 0x1C);
+        value = ((FldStepWork *)((SdkTask *)work)->work)->panelTask;
         if (value != 0) {
-            MT_Scene_SetWorkPresentFlag(value, arg0);
+            MT_Scene_SetWorkPresentFlag(value, present);
         }
     }
 }
@@ -2365,25 +2517,25 @@ void FldStepSetPresentFlag(s32 arg0)
 // Intent: Return 0 when the current step value is a band boundary (0 to 5, or 0x14 to 0x8C), otherwise 1 [inferred]
 // FUN_0015A560
 s32 FldStepNotAtBoundary(void) {
-    s32 var_2;
-    s32 var_4;
-    u8 *temp_3;
+    s32 result;
+    s32 stepIndex;
+    u8 *stepTask;
 
-    var_2 = 1;
-    temp_3 = iGpffffb244;
-    if (temp_3 == NULL) {
-        var_4 = 0;
+    result = 1;
+    stepTask = iGpffffb244;
+    if (stepTask == NULL) {
+        stepIndex = 0;
     } else {
-        var_4 = *(s32 *)(*(u8 **)(temp_3 + 0x38) + 4);
+        stepIndex = ((FldStepWork *)((SdkTask *)stepTask)->work)->stepIndex;
     }
-    if ((var_4 == 0) || (var_4 == 1) || (var_4 == 2) ||
-        (var_4 == 3) || (var_4 == 4) || (var_4 == 5) ||
-        (var_4 == 0x14) || (var_4 == 0x28) || (var_4 == 0x3C) ||
-        (var_4 == 0x50) || (var_4 == 0x64) || (var_4 == 0x78) ||
-        (var_4 == 0x8C)) {
-        var_2 = 0;
+    if ((stepIndex == 0) || (stepIndex == 1) || (stepIndex == 2) ||
+        (stepIndex == 3) || (stepIndex == 4) || (stepIndex == 5) ||
+        (stepIndex == 0x14) || (stepIndex == 0x28) || (stepIndex == 0x3C) ||
+        (stepIndex == 0x50) || (stepIndex == 0x64) || (stepIndex == 0x78) ||
+        (stepIndex == 0x8C)) {
+        result = 0;
     }
-    return var_2;
+    return result;
 }
 #pragma pop
 
@@ -2427,10 +2579,9 @@ s32 FldStepTableSize(void)
 #pragma opt_rebuildconditionals off
 // Intent: Look up the step band of the argument in the threshold table and return 1 when the table entry flag is set [inferred]
 // FUN_0015A6B0
-s32 FldStepTableEntryFlag(s32 arg0)
+s32 FldStepTableEntryFlag(s32 stepIndex)
 {
     s16 threshold;
-    s32 offset;
     s32 result;
     s32 index;
 
@@ -2438,13 +2589,12 @@ s32 FldStepTableEntryFlag(s32 arg0)
     index = 0;
     goto load;
 compare:
-    if (arg0 < threshold) {
+    if (stepIndex < threshold) {
         goto done;
     }
     index++;
 load:
-    offset = index * 2;
-    threshold = *(s16 *)((u8 *)D_005F05D0 + offset);
+    threshold = D_005F05D0[index];
     if (threshold >= 0) {
         goto compare;
     }
@@ -2452,7 +2602,7 @@ done:
     if (index == 0) {
         return 0;
     }
-    if (*(u8 *)((u8 *)D_007E31E4 + ((arg0 - (s32)*(s16 *)((u8 *)D_005F05CE + offset)) << 6)) != 0) {
+    if (((FldSavedEncounter (*)[8])D_007E31E4)[stepIndex - (s32)((s16 *)D_005F05CE)[index]][0].active != 0) {
         result = 1;
     }
     return result;
@@ -2465,11 +2615,11 @@ done:
 #pragma opt_rebuildconditionals on
 // Intent: Return the value for the step argument from the second table by its band; 0xFF before the first band [inferred]
 // FUN_0015A740
-u8 FldStepBandValue(s32 arg0) {
+u8 FldStepBandValue(s32 stepIndex) {
     s32 i = 0;
 
     while (D_005F05D0[i] >= 0) {
-        if (arg0 < D_005F05D0[i]) {
+        if (stepIndex < D_005F05D0[i]) {
             break;
         }
         i++;
@@ -2477,7 +2627,7 @@ u8 FldStepBandValue(s32 arg0) {
     if (i == 0) {
         return 0xFF;
     }
-    return D_007E36E4[arg0 - *(s16 *)(D_005F05CE + i * 2)];
+    return D_007E36E4[stepIndex - ((s16 *)D_005F05CE)[i]];
 }
 #pragma pop
 
@@ -2485,105 +2635,105 @@ u8 FldStepBandValue(s32 arg0) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
+/* Save this step's first board snapshot, current reveal mask, and encounter slots. */
 // FUN_0015A7C0
-s32 func_0015a7c0(s32 arg0)
+s32 fldStepSaveBoard(s32 stepIndex)
 {
-    s32 threshold_index;
-    s32 threshold_offset;
+    s32 thresholdIndex;
     s16 threshold;
-    s32 map_index;
-    s32 copy_inner;
-    s32 copy_outer;
-    s32 source_row;
-    s32 source_col;
-    u8 *dest_cell;
-    s32 slot_index;
+    s32 mapIndex;
+    s32 columnIndex;
+    s32 rowIndex;
+    s32 sourceRow;
+    s32 sourceColumn;
+    u8 *destCell;
+    s32 slotIndex;
     u8 *slot;
-    u8 *slot_entry;
+    u8 *slotEntry;
     extern s32 FldUnit_GetActiveCount();
 
-    threshold_index = 0;
+    thresholdIndex = 0;
     goto threshold_test;
 threshold_body:
-    if (arg0 < threshold) {
+    if (stepIndex < threshold) {
         goto threshold_done;
     }
-    threshold_index++;
+    thresholdIndex++;
 threshold_test:
-    threshold_offset = threshold_index * 2;
-    threshold = *(s16 *)((u8 *)D_005F05D0 + threshold_offset);
+    threshold = D_005F05D0[thresholdIndex];
     if (threshold >= 0) {
         goto threshold_body;
     }
 threshold_done:
-    if (threshold_index == 0) {
+    if (thresholdIndex == 0) {
         return 0;
     }
 
-    map_index = arg0 - *(s16 *)(D_005F05CE + threshold_offset);
-    if (map_index >= 0x14) {
+    mapIndex = stepIndex - ((s16 *)D_005F05CE)[thresholdIndex];
+    if (mapIndex >= 0x14) {
         kAssertFail(D_005F05E8, 0x889);
     }
 
-    if (D_007D3E10[map_index] == 0) {
-        D_007D3E10[map_index] = 1;
+    if (D_007D3E10[mapIndex] == 0) {
+        D_007D3E10[mapIndex] = 1;
 
-        copy_outer = 0;
+        rowIndex = 0;
         goto copy_outer_test;
 copy_outer_body:
-        copy_inner = 0;
-        source_row = copy_outer * 0x100;
+        columnIndex = 0;
+        sourceRow = rowIndex * 0x100;
         goto copy_inner_test;
 copy_inner_body:
-        source_col = copy_inner * 0x10;
-        dest_cell = (u8 *)D_007D3E10 + map_index * 0xC00 + (copy_outer * 0x80) + (copy_inner * 8);
-        dest_cell[0x14] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x54);
-        dest_cell[0x15] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x55);
-        dest_cell[0x16] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x58);
-        dest_cell[0x17] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x59);
-        dest_cell[0x18] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5A);
-        dest_cell[0x19] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5B);
-        dest_cell[0x1A] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5E);
-        dest_cell[0x1B] = (u8) * ((u8 *)MT_Scene_GetFrameState() + source_row + source_col + 0x5F);
-        copy_inner++;
+        sourceColumn = columnIndex * 0x10;
+        destCell = (u8 *)D_007D3E10 + mapIndex * 0xC00 + (rowIndex * 0x80) + (columnIndex * 8);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].occupied = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x54);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].flags = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x55);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].type = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x58);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].kind = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x59);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].shapeX = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x5A);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].shapeZ = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x5B);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].exits = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x5E);
+        ((FldStepSavedTables *)destCell)->grids[0][0][0].attributes = (u8) * ((u8 *)MT_Scene_GetFrameState() + sourceRow + sourceColumn + 0x5F);
+        columnIndex++;
 copy_inner_test:
-        if (copy_inner < 0x10) {
+        if (columnIndex < 0x10) {
             goto copy_inner_body;
         }
-        copy_outer++;
+        rowIndex++;
 copy_outer_test:
-        if (copy_outer < 0x18) {
+        if (rowIndex < 0x18) {
             goto copy_outer_body;
         }
         return 1;
     }
 
-    memcpy(D_007D3E10 + map_index * 0x30 + 0xF014, smapRevealTablePtr(), 0x30);
+    memcpy(D_007D3E10 + mapIndex * 0x30 + 0xF014, smapRevealTablePtr(), 0x30);
 
-    slot_index = 0;
+    slotIndex = 0;
     goto slot_test;
 slot_body:
-    slot = D_007E80A0 + slot_index * 0x168;
-    if (*(s32 *)slot == 0) {
-        *(s8 *)(D_007D3E10 + map_index * 0x40 + slot_index * 8 + 0xF3D4) = 0;
+    slot = D_007E80A0 + slotIndex * 0x168;
+    if (((FldEncounterSlot *)slot)->active == 0) {
+        ((FldStepSavedTables *)(D_007D3E10 + mapIndex * 0x40 + slotIndex * 8))->encounters[0][0].active = 0;
     } else {
-        slot_entry = (u8 *)(D_007D3E10 + map_index * 0x40 + slot_index * 8);
-        slot_entry[0xF3D4] = 1;
-        slot_entry[0xF3D5] = (s8)(*(s32 *)(slot + 8) != 0);
-        *(u16 *)(slot_entry + 0xF3D6) = *(u16 *)(slot + 0xE);
-        if ((*(u8 *)(*(u8 **)(slot + 0x160) + 7) & 1) != 0) {
-            *(s32 *)(slot_entry + 0xF3D8) = 1;
+        slotEntry = (u8 *)(D_007D3E10 + mapIndex * 0x40 + slotIndex * 8);
+        ((FldStepSavedTables *)slotEntry)->encounters[0][0].active = 1;
+        ((FldStepSavedTables *)slotEntry)->encounters[0][0].mode = (s8)(((FldEncounterSlot *)slot)->mode != 0);
+        ((FldStepSavedTables *)slotEntry)->encounters[0][0].id = ((FldEncounterSlot *)slot)->id;
+        /* Only serialized byte seven's low flag is used from the encounter record here. */
+        if ((((FldEncounterSlot *)slot)->record[7] & 1) != 0) {
+            ((FldStepSavedTables *)slotEntry)->encounters[0][0].recordKind = 1;
         } else {
-            *(s32 *)(slot_entry + 0xF3D8) = 0;
+            ((FldStepSavedTables *)slotEntry)->encounters[0][0].recordKind = 0;
         }
     }
-    slot_index++;
+    slotIndex++;
 slot_test:
-    if (slot_index < 8) {
+    if (slotIndex < 8) {
         goto slot_body;
     }
 
-    D_007E36E4[map_index] = (u8)FldUnit_GetActiveCount(slot_index, slot_index < 8);
+    D_007E36E4[mapIndex] = (u8)FldUnit_GetActiveCount(slotIndex, slotIndex < 8);
     return 0;
 }
 #pragma pop
@@ -2594,40 +2744,41 @@ slot_test:
 #pragma opt_rebuildconditionals off
 // Intent: Copy one table entry from the frame state's work block into the step table, if the table marks the band as active [inferred]
 // FUN_0015AB20
-s32 FldStepCopyTableEntry(s32 arg0, s32 arg1, s32 arg2) {
-    s16 temp_2;
-    s32 temp_16;
-    s32 temp_5;
-    s32 var_6;
+s32 FldStepCopyTableEntry(s32 stepIndex, s32 column, s32 row) {
+    s16 threshold;
+    s32 mapIndex;
+    s32 thresholdIndex;
     u8 *work;
 
-    var_6 = 0;
+    thresholdIndex = 0;
     goto loop_test;
 loop_body:
-    if (arg0 < temp_2) {
+    if (stepIndex < threshold) {
         goto done;
     }
-    var_6 += 1;
+    thresholdIndex += 1;
 loop_test:
-    temp_5 = var_6 * 2;
-    temp_2 = *(s16 *)((u8 *)D_005F05D0 + temp_5);
-    if (temp_2 >= 0) {
+    threshold = D_005F05D0[thresholdIndex];
+    if (threshold >= 0) {
         goto loop_body;
     }
 done:
-    if (var_6 == 0) {
+    if (thresholdIndex == 0) {
         return 0;
     }
-    temp_16 = arg0 - *(s16 *)(D_005F05CE + temp_5);
-    if (temp_16 >= 0x14) {
-        kAssertFail(D_005F05E8, 0x8E3, var_6);
+    mapIndex = stepIndex - ((s16 *)D_005F05CE)[thresholdIndex];
+    if (mapIndex >= 0x14) {
+        kAssertFail(D_005F05E8, 0x8E3, thresholdIndex);
     }
-    if (*(u8 *)(D_007D3E10 + temp_16) == 1) {
+    if (((FldStepSavedTables *)D_007D3E10)->visited[mapIndex] == 1) {
         work = (u8 *)MT_Scene_GetFrameState();
-        work += arg2 << 8;
-        work += arg1 << 4;
-        *(u8 *)(D_007D3E2B + temp_16 * 0xC00 +
-                (arg2 << 7) + (arg1 << 3)) = ((FldFrameCell *)(work + 0x54))->unk0B;
+        work += row << 8;
+        work += column << 4;
+        /* D_007D3E2B is the first saved-cell attribute byte; retain its linker-visible interior alias. */
+        /* measured: flattening the whole byte index reassociates the address sum
+         * and changes eight instruction words; keep the native row cursor. */
+        ((u8 *)(D_007D3E2B + mapIndex * 0xC00 +
+                (row << 7)))[column << 3] = ((FldFrameCell *)(work + 0x54))->unk0B;
         return 1;
     }
     kAssertFail(D_005F05E8, 0x8ED);
@@ -2639,24 +2790,24 @@ done:
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
+/* Restore a previously visited step's board, reveal mask, and encounter slots. */
 // FUN_0015AC60
-s32 func_0015ac60(s32 arg0)
+s32 fldStepRestoreBoard(s32 stepIndex)
 {
-    s32 threshold_index;
-    s32 threshold_offset;
+    s32 thresholdIndex;
     s16 threshold;
-    s32 map_index;
-    s32 copy_inner;
-    s32 copy_outer;
-    s32 scan_outer;
-    s32 scan_inner;
-    s32 slot_index;
-    s32 dest_row;
-    s32 dest_column;
-    u8 *source_base;
-    u8 *source_row;
-    u8 *source_cell;
-    s32 *slot_source;
+    s32 mapIndex;
+    s32 columnIndex;
+    s32 rowIndex;
+    s32 scanRow;
+    s32 scanColumn;
+    s32 slotIndex;
+    s32 destRow;
+    s32 destColumn;
+    u8 *sourceBase;
+    u8 *sourceRow;
+    u8 *sourceCell;
+    s32 *slotSource;
     u8 *dest;
     u8 value;
     s32 mode;
@@ -2664,168 +2815,167 @@ s32 func_0015ac60(s32 arg0)
     u16 h0;
     u16 h4;
 
-    if (FldMap_IsCurrentInBandA(arg0) != 0) {
-        D_0076432C = D_005F0590[*(s32 *)iGpffff9db0];
+    if (FldMap_IsCurrentInBandA(stepIndex) != 0) {
+        D_0076432C = D_005F0590[((FieldSceneState *)iGpffff9db0)->field.value];
     } else {
-        D_0076432C = D_005F057C[*(s32 *)iGpffff9db0];
+        D_0076432C = D_005F057C[((FieldSceneState *)iGpffff9db0)->field.value];
     }
 
-    threshold_index = 0;
+    thresholdIndex = 0;
     goto threshold_test;
 threshold_body:
-    if (arg0 < threshold) {
+    if (stepIndex < threshold) {
         goto threshold_done;
     }
-    threshold_index++;
+    thresholdIndex++;
 threshold_test:
-    threshold_offset = threshold_index * 2;
-    threshold = *(s16 *)((u8 *)D_005F05D0 + threshold_offset);
+    threshold = D_005F05D0[thresholdIndex];
     if (threshold >= 0) {
         goto threshold_body;
     }
 threshold_done:
-    if (threshold_index == 0) {
+    if (thresholdIndex == 0) {
         return 0;
     }
 
-    map_index = arg0 - *(s16 *)(D_005F05CE + threshold_offset);
-    if (map_index >= 0x14) {
+    mapIndex = stepIndex - ((s16 *)D_005F05CE)[thresholdIndex];
+    if (mapIndex >= 0x14) {
         kAssertFail(D_005F05E8, 0x906);
     }
     memset(D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
     smapClearRevealTable();
-    if (D_007D3E10[map_index] != 1) {
+    if (D_007D3E10[mapIndex] != 1) {
         goto fail;
     }
     if (kwlnGetCurrentWorkValue() == 0xA) {
         goto fail;
     }
 
-    copy_outer = 0;
-    source_base = D_007D3E10 + map_index * 0xC00;
+    rowIndex = 0;
+    sourceBase = D_007D3E10 + mapIndex * 0xC00;
     goto copy_outer_test;
 copy_outer_body:
-    copy_inner = 0;
-    source_row = source_base + copy_outer * 0x80;
-    dest_row = copy_outer * 0x100;
+    columnIndex = 0;
+    sourceRow = sourceBase + rowIndex * 0x80;
+    destRow = rowIndex * 0x100;
     goto copy_inner_test;
 copy_inner_body:
-    source_cell = source_row + copy_inner * 8;
-    dest_column = copy_inner * 0x10;
+    sourceCell = sourceRow + columnIndex * 8;
+    destColumn = columnIndex * 0x10;
 
-    value = source_cell[0x14];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x54) = value;
-    value = source_cell[0x15];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x55) = value;
-    value = source_cell[0x16];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x58) = value;
-    value = source_cell[0x17];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x59) = value;
-    value = source_cell[0x18];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5A) = value;
-    value = source_cell[0x19];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5B) = value;
-    value = source_cell[0x1A];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5E) = value;
-    value = source_cell[0x1B];
-    *((u8 *)MT_Scene_GetFrameState() + dest_row + dest_column + 0x5F) = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].occupied;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->occupied = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].flags;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->flags = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].type;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].kind;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->kind = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].shapeX;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->shapeX = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].shapeZ;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->shapeZ = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].exits;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->exits = value;
+    value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].attributes;
+    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->unk0B = value;
 
-    copy_inner++;
+    columnIndex++;
 copy_inner_test:
-    if (copy_inner < 0x10) {
+    if (columnIndex < 0x10) {
         goto copy_inner_body;
     }
-    copy_outer++;
+    rowIndex++;
 copy_outer_test:
-    if (copy_outer < 0x18) {
+    if (rowIndex < 0x18) {
         goto copy_outer_body;
     }
 
     memcpy(smapRevealTablePtr(),
-                  D_007D3E10 + map_index * 0x30 + 0xF014, 0x30);
+                  D_007D3E10 + mapIndex * 0x30 + 0xF014, 0x30);
 
-    scan_outer = 0;
+    scanRow = 0;
     goto scan_outer_test;
 scan_outer_body:
-    scan_inner = 0;
-    dest_row = scan_outer * 0x100;
+    scanColumn = 0;
+    destRow = scanRow * 0x100;
     goto scan_inner_test;
 scan_inner_body:
-    dest_column = scan_inner * 0x10;
-    if ((((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x54] == 1) &&
-        ((((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x55] & 0xF) != 0)) {
-        if (((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 6) {
-            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x44) = (u8)scan_inner;
-            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x45) = (u8)scan_outer;
+    destColumn = scanColumn * 0x10;
+    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->occupied == 1) &&
+        ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->flags & 0xF) != 0)) {
+        if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 6) {
+            ((FldFrame *)MT_Scene_GetFrameState())->spawnColumn = (u8)scanColumn;
+            ((FldFrame *)MT_Scene_GetFrameState())->spawnRow = (u8)scanRow;
         }
-        if ((((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 0xA) ||
-            (((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 0xC) ||
-            (((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x58] == 0xE)) {
-            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x46) = (u8)scan_inner;
-            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x47) = (u8)scan_outer;
-            value = ((u8 *)MT_Scene_GetFrameState())[dest_row + dest_column + 0x59];
-            *(u8 *)((u8 *)MT_Scene_GetFrameState() + 0x49) = value;
+        if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 0xA) ||
+            (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 0xC) ||
+            (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 0xE)) {
+            ((FldFrame *)MT_Scene_GetFrameState())->cellPick[0] = (u8)scanColumn;
+            ((FldFrame *)MT_Scene_GetFrameState())->cellPick[1] = (u8)scanRow;
+            value = ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->kind;
+            ((FldFrame *)MT_Scene_GetFrameState())->unk48[1] = value;
         }
     }
-    scan_inner++;
+    scanColumn++;
 scan_inner_test:
-    if (scan_inner < 0x10) {
+    if (scanColumn < 0x10) {
         goto scan_inner_body;
     }
-    scan_outer++;
+    scanRow++;
 scan_outer_test:
-    if (scan_outer < 0x18) {
+    if (scanRow < 0x18) {
         goto scan_outer_body;
     }
 
-    slot_index = 0;
-    source_base = D_007D3E10 + map_index * 0x40;
+    slotIndex = 0;
+    sourceBase = D_007D3E10 + mapIndex * 0x40;
     goto slots_test;
 slots_body:
-    slot_source = (s32 *)(source_base + slot_index * 8);
-    if (((u8 *)slot_source)[0xF3D4] != 0) {
-        dest = D_007E80A0 + slot_index * 0x168;
-        *(s32 *)dest = 1;
-        *(u32 *)(dest + 8) = ((u8 *)slot_source)[0xF3D5];
-        *(u16 *)(dest + 0xE) = *(u16 *)((u8 *)slot_source + 0xF3D6);
-        slot_source = (s32 *)((u8 *)slot_source + 0xF3D8);
-        mode = *slot_source;
+    slotSource = (s32 *)(sourceBase + slotIndex * 8);
+    if (((FldStepSavedTables *)slotSource)->encounters[0][0].active != 0) {
+        dest = D_007E80A0 + slotIndex * 0x168;
+        ((FldEncounterSlot *)dest)->active = 1;
+        ((FldEncounterSlot *)dest)->mode = ((FldStepSavedTables *)slotSource)->encounters[0][0].mode;
+        ((FldEncounterSlot *)dest)->id = ((FldStepSavedTables *)slotSource)->encounters[0][0].id;
+        slotSource = (s32 *)((u8 *)slotSource + 0xF3D8);
+        mode = *slotSource;
         if (mode == 0) {
             if (D_00764334 == NULL) {
                 field = 0;
             } else {
-                field = *(s32 *)(*(u8 **)(D_00764334 + 0x38) + 4);
+                field = ((FldStepWork *)((SdkTask *)D_00764334)->work)->stepIndex;
             }
-            h0 = *(u16 *)iGpffff9db0;
-            h4 = *(u16 *)(iGpffff9db0 + 4);
-            *(u8 **)(dest + 0x160) =
+            h0 = ((FieldSceneState *)iGpffff9db0)->field.half[0];
+            h4 = ((FieldSceneState *)iGpffff9db0)->room.half[0];
+            ((FldEncounterSlot *)dest)->record =
                 Encount_FindRecord(h0, h4, field, 0);
         } else if (mode == 1) {
             if (D_00764334 == NULL) {
                 field = 0;
             } else {
-                field = *(s32 *)(*(u8 **)(D_00764334 + 0x38) + 4);
+                field = ((FldStepWork *)((SdkTask *)D_00764334)->work)->stepIndex;
             }
-            h0 = *(u16 *)iGpffff9db0;
-            h4 = *(u16 *)(iGpffff9db0 + 4);
-            *(u8 **)(dest + 0x160) =
+            h0 = ((FieldSceneState *)iGpffff9db0)->field.half[0];
+            h4 = ((FieldSceneState *)iGpffff9db0)->room.half[0];
+            ((FldEncounterSlot *)dest)->record =
                 Encount_FindRecord(h0, h4, field, 1);
         } else {
             if (D_00764334 == NULL) {
                 field = 0;
             } else {
-                field = *(s32 *)(*(u8 **)(D_00764334 + 0x38) + 4);
+                field = ((FldStepWork *)((SdkTask *)D_00764334)->work)->stepIndex;
             }
-            h0 = *(u16 *)iGpffff9db0;
-            h4 = *(u16 *)(iGpffff9db0 + 4);
-            *(u8 **)(dest + 0x160) =
+            h0 = ((FieldSceneState *)iGpffff9db0)->field.half[0];
+            h4 = ((FieldSceneState *)iGpffff9db0)->room.half[0];
+            ((FldEncounterSlot *)dest)->record =
                 Encount_FindRecord(h0, h4, field, 2);
         }
     }
-    slot_index++;
+    slotIndex++;
 slots_test:
-    if (slot_index < 8) {
+    if (slotIndex < 8) {
         goto slots_body;
     }
     return 1;
@@ -2844,8 +2994,8 @@ void FldStepRefreshBandResVisibility(void)
 {
     u8 *entry;
     s32 flag;
-    s32 field_x;
-    s32 field_y;
+    s32 cellColumn;
+    s32 cellRow;
 
     entry = MT_Scene_GetResListHead(0xA);
     if (FldMap_IsCurrentInBandA() == 0) {
@@ -2855,16 +3005,16 @@ void FldStepRefreshBandResVisibility(void)
     }
     while (entry != NULL) {
 body:
-            field_x = (s32)((*(f32 *)(mdlGetMatrix(*(s32 *)(entry + 0x144)) + 0x30) +
+            cellColumn = (s32)((((RwMatrixTag *)mdlGetMatrix(((SceneFieldModelResource *)entry)->modelAddress))->pos.x +
                              600.0f) /
                             1200.0f);
-            field_y = (s32)((*(f32 *)(mdlGetMatrix(*(s32 *)(entry + 0x144)) + 0x38) +
+            /* measured: later typed model-handle reads change scheduling (nd233+) or exceed the 416B window. */
+            cellRow = (s32)((((RwMatrixTag *)mdlGetMatrix(*(s32 *)(entry + 0x144)))->pos.z +
                              600.0f) /
                             1200.0f);
             flag = 0;
-            if ((*(u8 *)((u8 *)MT_Scene_GetFrameState() + (field_y << 8) +
-                         (field_x << 4) + 0x5F) &
-                 0xF0) != 0) {
+            if ((((FldFrameCell *)((u8 *)MT_Scene_GetFrameState() + (cellRow << 8) +
+                         (cellColumn << 4) + 0x54))->unk0B & 0xF0) != 0) {
                 flag = 1;
             }
             if (flag == 1) {
@@ -2876,10 +3026,10 @@ body:
                 if (K_Clump_ClumpHasMatUsrData(
                         mdlGetClump(*(s32 *)(entry + 0x144)),
                         D_005F06A0) != 0) {
-                    *(s32 *)(entry + 0x150) = 0;
+                    ((SceneFieldModelResource *)entry)->unk150 = 0;
                 }
             }
-            entry = *(u8 **)(entry + 0x138);
+            entry = (u8 *)((SceneUpdateResource *)entry)->next;
         }
 }
 #pragma pop
@@ -2897,85 +3047,85 @@ body:
  * claim of portable defined behavior on the omitted-assignment path. */
 // Intent: Flood-fill the cells reachable from a field cell in each direction up to the per-direction limits, setting the visibility of their resources [inferred]
 // FUN_0015B3E0
-void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 arg6, s32 *arg7)
+void FldCellFloodFillDirected(s32 column, s32 row, u8 incoming, u8 limitedDirections, s32 axisMask, s32 depth, u8 limit, s32 *visibleCount)
 {
     extern void SceneDraw_SetResVisible(u16 resTypeId, u32 visible);
-    s32 depth_low;
-    s32 limit_low;
-    u8 north_limit;
-    u8 south_limit;
-    u8 west_limit;
-    s32 east_tmp;
+    s32 depthValue;
+    s32 limitValue;
+    u8 northLimit;
+    u8 southLimit;
+    u8 westLimit;
+    s32 eastLimited;
     /* Retail leaves this unwritten on the limit-extension paths below. */
-    s32 next_depth;
+    s32 nextDepth;
     s32 mode;
     s32 exits;
 
-    limit_low = arg6 & 0xFF;
-    depth_low = arg5 & 0xFF;
-    if (depth_low < limit_low) {
-        if (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].occupied == 1) {
-            SceneDraw_SetResVisible(((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].resourceId, 1);
-            *arg7 += 1;
-            exits = (~arg2 & ((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].exits) & 0xFF;
+    limitValue = limit & 0xFF;
+    depthValue = depth & 0xFF;
+    if (depthValue < limitValue) {
+        if (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].occupied == 1) {
+            SceneDraw_SetResVisible(((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].resourceId, 1);
+            *visibleCount += 1;
+            exits = (~incoming & ((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].exits) & 0xFF;
             if (exits & 1) {
-                north_limit = (arg3 & 1) ? 3 : limit_low;
-                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
-                    next_depth = (u8)arg5;
-                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                northLimit = (limitedDirections & 1) ? 3 : limitValue;
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 2) && (((mode = ((FieldSceneState *)iGpffff9db0)->field.value) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].flags & 0x20)) {
+                    nextDepth = (u8)depth;
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 8)) && (((u8)axisMask & 0xA) != 0) && (depthValue == 0)) {
                     /* 0015B5DC..0015B5E8: no next_depth assignment. */
-                    north_limit += 1;
-                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 1) != 0)) {
-                    next_depth = (u8)arg5;
+                    northLimit += 1;
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 3) && (((u8)axisMask & 1) != 0)) {
+                    nextDepth = (u8)depth;
                 } else {
-                    next_depth = (u8)(depth_low + 1);
+                    nextDepth = (u8)(depthValue + 1);
                 }
-                FldCellFloodFillDirected(arg0, arg1 - 1, 4, 0, arg4, next_depth, north_limit, arg7);
+                FldCellFloodFillDirected(column, row - 1, 4, 0, axisMask, nextDepth, northLimit, visibleCount);
             }
             if (exits & 2) {
-                west_limit = (arg3 & 2) ? 3 : limit_low;
-                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
-                    next_depth = (u8)arg5;
-                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (limit_low == 4)) {
-                    next_depth = (u8)arg5;
-                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 2) != 0)) {
-                    next_depth = (u8)arg5;
+                westLimit = (limitedDirections & 2) ? 3 : limitValue;
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 2) && (((mode = ((FieldSceneState *)iGpffff9db0)->field.value) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].flags & 0x20)) {
+                    nextDepth = (u8)depth;
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 8)) && (limitValue == 4)) {
+                    nextDepth = (u8)depth;
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 3) && (((u8)axisMask & 2) != 0)) {
+                    nextDepth = (u8)depth;
                 } else {
-                    next_depth = (u8)(depth_low + 1);
+                    nextDepth = (u8)(depthValue + 1);
                 }
-                FldCellFloodFillDirected(arg0 - 1, arg1, 8, 0, arg4, next_depth, west_limit, arg7);
+                FldCellFloodFillDirected(column - 1, row, 8, 0, axisMask, nextDepth, westLimit, visibleCount);
             }
             if (exits & 4) {
-                south_limit = (arg3 & 4) ? 3 : limit_low;
-                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
-                    next_depth = (u8)arg5;
-                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (((u8)arg4 & 0xA) != 0) && (depth_low == 0)) {
+                southLimit = (limitedDirections & 4) ? 3 : limitValue;
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 2) && (((mode = ((FieldSceneState *)iGpffff9db0)->field.value) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].flags & 0x20)) {
+                    nextDepth = (u8)depth;
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 8)) && (((u8)axisMask & 0xA) != 0) && (depthValue == 0)) {
                     /* 0015B8C0..0015B8CC: retain the prior next_depth. */
-                    south_limit += 1;
-                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 4) != 0)) {
-                    next_depth = (u8)arg5;
+                    southLimit += 1;
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 3) && (((u8)axisMask & 4) != 0)) {
+                    nextDepth = (u8)depth;
                 } else {
-                    next_depth = (u8)(depth_low + 1);
+                    nextDepth = (u8)(depthValue + 1);
                 }
-                FldCellFloodFillDirected(arg0, arg1 + 1, 1, 0, arg4, next_depth, south_limit, arg7);
+                FldCellFloodFillDirected(column, row + 1, 1, 0, axisMask, nextDepth, southLimit, visibleCount);
             }
             if (exits & 8) {
-                east_tmp = arg3 & 8;
-                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].flags & 0x20)) {
-                    next_depth = (u8)arg5;
-                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 8)) && (limit_low == 4)) {
-                    next_depth = (u8)arg5;
-                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[arg1][arg0].type == 3) && (((u8)arg4 & 8) != 0)) {
-                    next_depth = (u8)arg5;
+                eastLimited = limitedDirections & 8;
+                if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 2) && (((mode = ((FieldSceneState *)iGpffff9db0)->field.value) == 0x2C) || (mode == 0x40)) && (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].flags & 0x20)) {
+                    nextDepth = (u8)depth;
+                } else if (((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 7) || (((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 8)) && (limitValue == 4)) {
+                    nextDepth = (u8)depth;
+                } else if ((((FldFrame *)MT_Scene_GetFrameState())->cells[row][column].type == 3) && (((u8)axisMask & 8) != 0)) {
+                    nextDepth = (u8)depth;
                 } else {
-                    next_depth = (u8)(depth_low + 1);
+                    nextDepth = (u8)(depthValue + 1);
                 }
-                if (east_tmp != 0) {
-                    limit_low = 3;
+                if (eastLimited != 0) {
+                    limitValue = 3;
                 }
-                arg6 = (u8)limit_low;
-                arg0 = arg0 + 1;
-                FldCellFloodFillDirected(arg0, arg1, 2, 0, arg4, next_depth, arg6, arg7);
+                limit = (u8)limitValue;
+                column = column + 1;
+                FldCellFloodFillDirected(column, row, 2, 0, axisMask, nextDepth, limit, visibleCount);
             }
         }
     }
@@ -2990,123 +3140,124 @@ void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s3
 // FUN_0015BAE0
 void FldStepUpdateBandRes(void)
 {
-    u8 *var_19;
-    u8 *temp_s5;
-    u8 *var_18;
-    u8 *var_17;
-    s32 var_16;
-    s32 var_15;
+    u8 *fieldResources;
+    u8 *playerResource;
+    u8 *modelResources;
+    u8 *alternateResources;
+    s32 tileColumn;
+    s32 tileRow;
     f32 angle;
     s32 i;
     s32 j;
     u8 *work;
     u8 *object;
 
-    var_19 = MT_Scene_GetResListHead(0xC);
-    temp_s5 = MT_Scene_GetRes(0x400);
-    var_18 = MT_Scene_GetResListHead(0xA);
-    var_17 = MT_Scene_GetResListHead(0xB);
-    var_16 = 0;
-    var_15 = 0;
+    fieldResources = MT_Scene_GetResListHead(0xC);
+    playerResource = MT_Scene_GetRes(0x400);
+    modelResources = MT_Scene_GetResListHead(0xA);
+    alternateResources = MT_Scene_GetResListHead(0xB);
+    tileColumn = 0;
+    tileRow = 0;
     if (FldMap_IsCurrentInEitherBand() != 0) {
-        if (temp_s5 != NULL) {
-            var_16 = FldFrameTask_GetTileX(*(s32 *)(temp_s5 + 0x220));
-            var_15 = FldFrameTask_GetTileZ(*(s32 *)(temp_s5 + 0x220));
+        if (playerResource != NULL) {
+            tileColumn = FldFrameTask_GetTileX(((ResrcRecord *)playerResource)->handle220);
+            /* measured: typing this second handle read changes scheduling (1780B to 1784B). */
+            tileRow = FldFrameTask_GetTileZ(*(s32 *)(playerResource + 0x220));
             goto clear_test;
 clear_body:
-            *(u32 *)(var_19 + 0x28) &= ~2U;
-            var_19 = *(u8 **)(var_19 + 0x138);
+            ((SceneUpdateResource *)fieldResources)->flags &= ~2U;
+            fieldResources = (u8 *)((SceneUpdateResource *)fieldResources)->next;
 clear_test:
-            if (var_19 != NULL) {
+            if (fieldResources != NULL) {
                 goto clear_body;
             }
             MT_Scene_GetResListHead(0xC);
         } else {
             goto set_test;
 set_body:
-            *(u32 *)(var_19 + 0x28) |= 2;
-            var_19 = *(u8 **)(var_19 + 0x138);
+            ((SceneUpdateResource *)fieldResources)->flags |= 2;
+            fieldResources = (u8 *)((SceneUpdateResource *)fieldResources)->next;
 set_test:
-            if (var_19 != NULL) {
+            if (fieldResources != NULL) {
                 goto set_body;
             }
             MT_Scene_GetResListHead(0xC);
         }
 
         work = (u8 *)kwlnGetCamera();
-        angle = KDraw_MatrixYawDeg(*(u8 **)(work + 4) + 0x10);
+        angle = KDraw_MatrixYawDeg((u8 *)((RwCamera *)work)->object.object.parent + 0x10);
         D_0076430C = 0;
         if ((angle <= 45.0f) && !(angle < -45.0f)) {
             if ((angle <= 25.0f) && !(angle < -25.0f)) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 0xB, 4, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 0xB, 4, 0, 4,
                               &D_0076430C);
             } else if (!(angle < 25.0f)) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 3, 4, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 3, 4, 0, 4,
                               &D_0076430C);
             } else if (angle <= -25.0f) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 9, 4, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 9, 4, 0, 4,
                               &D_0076430C);
             }
         } else if ((angle <= 135.0f) && !(angle <= 45.0f)) {
             if ((angle <= 115.0f) && !(angle < 65.0f)) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 7, 8, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 7, 8, 0, 4,
                               &D_0076430C);
             } else if (!(angle < 115.0f)) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 6, 8, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 6, 8, 0, 4,
                               &D_0076430C);
             } else if (angle <= 65.0f) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 3, 8, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 3, 8, 0, 4,
                               &D_0076430C);
             }
         } else if ((angle <= -45.0f) && !(angle < -135.0f)) {
             if ((angle <= -65.0f) && !(angle < -115.0f)) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 0xD, 2, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 0xD, 2, 0, 4,
                               &D_0076430C);
             } else if (!(angle < -65.0f)) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 9, 2, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 9, 2, 0, 4,
                               &D_0076430C);
             } else if (angle <= -115.0f) {
-                FldCellFloodFillDirected(var_16, var_15, 0, 0xC, 2, 0, 4,
+                FldCellFloodFillDirected(tileColumn, tileRow, 0, 0xC, 2, 0, 4,
                               &D_0076430C);
             }
         } else if ((angle <= -155.0f) || !(angle < 155.0f)) {
-            FldCellFloodFillDirected(var_16, var_15, 0, 0xE, 1, 0, 4,
+            FldCellFloodFillDirected(tileColumn, tileRow, 0, 0xE, 1, 0, 4,
                           &D_0076430C);
         } else if (!(angle < -155.0f) && (angle < 0.0f)) {
-            FldCellFloodFillDirected(var_16, var_15, 0, 0xC, 1, 0, 4,
+            FldCellFloodFillDirected(tileColumn, tileRow, 0, 0xC, 1, 0, 4,
                           &D_0076430C);
         } else if ((angle <= 155.0f) && !(angle <= 0.0f)) {
-            FldCellFloodFillDirected(var_16, var_15, 0, 6, 1, 0, 4,
+            FldCellFloodFillDirected(tileColumn, tileRow, 0, 6, 1, 0, 4,
                           &D_0076430C);
         }
 
         goto list_a_test;
 list_a_body:
-        object = *(u8 **)(var_18 + 0x140);
+        object = ((ResrcRecord *)modelResources)->slotHandle[0];
         if (object != NULL) {
-            if ((*(u32 *)(object + 0x28) & 2) != 0) {
-                *(u32 *)(var_18 + 0x28) |= 2;
+            if ((((SceneUpdateResource *)object)->flags & 2) != 0) {
+                ((SceneUpdateResource *)modelResources)->flags |= 2;
             } else {
-                *(u32 *)(var_18 + 0x28) &= ~2U;
+                ((SceneUpdateResource *)modelResources)->flags &= ~2U;
             }
         }
-        var_18 = *(u8 **)(var_18 + 0x138);
+        modelResources = (u8 *)((SceneUpdateResource *)modelResources)->next;
 list_a_test:
-        if (var_18 != NULL) {
+        if (modelResources != NULL) {
             goto list_a_body;
         }
 
         goto list_b_test;
 list_b_body:
-        object = *(u8 **)(var_17 + 0x140);
-        if ((*(u32 *)(object + 0x28) & 2) != 0) {
-            *(u32 *)(var_17 + 0x28) |= 2;
+        object = ((ResrcRecord *)alternateResources)->slotHandle[0];
+        if ((((SceneUpdateResource *)object)->flags & 2) != 0) {
+            ((SceneUpdateResource *)alternateResources)->flags |= 2;
         } else {
-            *(u32 *)(var_17 + 0x28) &= ~2U;
+            ((SceneUpdateResource *)alternateResources)->flags &= ~2U;
         }
-        var_17 = *(u8 **)(var_17 + 0x138);
+        alternateResources = (u8 *)((SceneUpdateResource *)alternateResources)->next;
 list_b_test:
-        if (var_17 != NULL) {
+        if (alternateResources != NULL) {
             goto list_b_body;
         }
 
@@ -3114,10 +3265,10 @@ list_b_test:
         goto array_a_test;
 array_a_body:
         work = D_007E8C00 + i * 0x750;
-        if (*(s32 *)(work + 0x48) != 0) {
-            object = *(u8 **)(work + 0x54);
+        if (((FldUnitVisibilityState *)work)->active != 0) {
+            object = ((FldUnitVisibilityState *)work)->resource;
             if (object != NULL) {
-                *(u32 *)(object + 0x28) &= ~2U;
+                ((SceneUpdateResource *)object)->flags &= ~2U;
             }
         }
         i++;
@@ -3131,9 +3282,9 @@ array_a_test:
 array_b_body:
         work = (u8 *)D_007E8020[j];
         if (work != NULL) {
-            object = *(u8 **)(work + 0x54);
+            object = ((FldUnitVisibilityState *)work)->resource;
             if (object != NULL) {
-                *(u32 *)(object + 0x28) |= 2;
+                ((SceneUpdateResource *)object)->flags |= 2;
             }
         }
         j++;
@@ -3151,7 +3302,7 @@ array_b_test:
 #pragma opt_rebuildconditionals on
 // Intent: Return the preload file-load task at the given index (0 or 1) from the step work block [inferred]
 // FUN_0015C1E0
-s32 FldStepFileTask(s32 arg0)
+s32 FldStepFileTask(s32 index)
 {
     u8 *work;
     u8 *p;
@@ -3160,9 +3311,9 @@ s32 FldStepFileTask(s32 arg0)
     if (work == NULL) {
         return 0;
     }
-    p = *(u8 **)(work + 0x38);
-    p = (u8 *)wg0035_add_offset((u32)(arg0 * 4), (u32)p);
-    return *(s32 *)(p + 0x40);
+    p = ((SdkTask *)work)->work;
+    p = (u8 *)fldAddByteOffset((u32)(index * 4), (u32)p);
+    return ((FldStepWork *)p)->preloadTasks[0];
 }
 #pragma pop
 
@@ -3176,7 +3327,7 @@ void FldStepPreloadBegin(void) {
     if (D_00764334 == NULL) {
         return;
     }
-    if (*(s32 *)(*(u8 **)(D_00764334 + 0x38) + 0x40) != 0) {
+    if (((FldStepWork *)((SdkTask *)D_00764334)->work)->preloadTasks[0] != 0) {
         return;
     }
     if (iGpffffb218 != 0) {
@@ -3194,7 +3345,7 @@ void FldStepPreloadBegin(void) {
 // Intent: Once the preload file is loaded, create its two file-load tasks; returns 1 when nothing is left to wait for [inferred]
 // FUN_0015C280
 s32 FldStepPreloadCreateTasks(void) {
-    u8 *temp_16;
+    u8 *workBlock;
 
     if (iGpffffb218 == 0) {
         return 1;
@@ -3203,16 +3354,17 @@ s32 FldStepPreloadCreateTasks(void) {
         kAssertFail(D_005F05E8, 0xB58);
         return 1;
     }
-    temp_16 = *(u8 **)(iGpffffb244 + 0x38);
+    workBlock = ((SdkTask *)iGpffffb244)->work;
     if (H_Cdvd_IsFileLoaded(iGpffffb218) == 0) {
         return 0;
     }
-    if (*(s32 *)(temp_16 + 0x40) == 0) {
-        *(s32 *)(temp_16 + 0x40) =
+    /* measured: typing either readiness read grows 224B to 236B; the task stores match typed. */
+    if (*(s32 *)(workBlock + 0x40) == 0) {
+        ((FldStepWork *)workBlock)->preloadTasks[0] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F06E0, 0x1E, iGpffffb218);
     }
-    if (*(s32 *)(temp_16 + 0x44) == 0) {
-        *(s32 *)(temp_16 + 0x44) =
+    if (*(s32 *)(workBlock + 0x44) == 0) {
+        ((FldStepWork *)workBlock)->preloadTasks[1] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F0700, 0x14, iGpffffb218);
     }
     return 1;
@@ -3226,7 +3378,7 @@ s32 FldStepPreloadCreateTasks(void) {
 // Intent: Return 0 while either preload file task is still loading; otherwise destroy the preload handle and return 1 [inferred]
 // FUN_0015C360
 s32 FldStepPreloadFinish(void) {
-    u8 *temp_16;
+    u8 *workBlock;
     s32 i;
 
     if (iGpffffb218 == 0) {
@@ -3236,11 +3388,11 @@ s32 FldStepPreloadFinish(void) {
         kAssertFail(D_005F05E8, 0xB79);
         return 1;
     }
-    temp_16 = *(u8 **)(iGpffffb244 + 0x38);
+    workBlock = ((SdkTask *)iGpffffb244)->work;
     i = 0;
     while (i < 2) {
-        if (*(s32 *)(temp_16 + i * 4 + 0x40) != 0 &&
-            FldRc_FileLoadIsReady(*(s32 *)(temp_16 + i * 4 + 0x40)) == 0) {
+        if (((FldStepWork *)(workBlock + i * 4))->preloadTasks[0] != 0 &&
+            FldRc_FileLoadIsReady(((FldStepWork *)(workBlock + i * 4))->preloadTasks[0]) == 0) {
             return 0;
         }
         i++;
@@ -3266,7 +3418,7 @@ s32 FldStepOpenDataFile(void)
     if (p == NULL) {
         return r;
     }
-    if (*(u32 *)(*(u8 **)(p + 0x38) + 0x2C) == 0) {
+    if (((FldStepWork *)((SdkTask *)p)->work)->scriptWord == 0) {
         func_00440b68(&iGpffff9e28, D_005F05E8, 0xC19);
         r = H_Cdvd_AcquireDirectory(D_005F0720, 0);
     }
@@ -3280,29 +3432,31 @@ s32 FldStepOpenDataFile(void)
 #pragma opt_rebuildconditionals on
 // Intent: Once the handle's file is loaded, copy its data into a new buffer in the step block, destroy the handle and return 1; 0 while loading [inferred]
 // FUN_0015C4B0
-s32 FldStepCopyLoadedFile(u8 *arg0) {
-    u8 *temp_17;
-    u8 *copy_dst;
-    u8 *copy_src;
+s32 FldStepCopyLoadedFile(u8 *handle) {
+    u8 *workBlock;
+    u8 *copyDst;
+    u8 *copySrc;
     s32 size;
     if (iGpffffb244 == NULL) {
         return 1;
     }
-    temp_17 = *(u8 **)(iGpffffb244 + 0x38);
-    if (arg0 == NULL) {
+    workBlock = ((SdkTask *)iGpffffb244)->work;
+    if (handle == NULL) {
         return 1;
     }
     if (H_Cdvd_IsFileLoaded() != 0) {
         chkmemAllocSiteTag(D_005F05E8, 0xC30);
-        size = *(s32 *)(arg0 + 0x118);
-        *(u8 **)(temp_17 + 0x2C) =
+        size = ((HCdvdRequest *)handle)->signedSize;
+        /* measured: typing the allocated-buffer store grows 216B to 228B; retain only its raw alias. */
+        *(u8 **)(workBlock + 0x2C) =
             (u8 *)D_008873F4[0](1, size, 0x40000);
-        *(s32 *)(temp_17 + 0x30) = *(s32 *)(arg0 + 0x118);
-        size = *(s32 *)(arg0 + 0x118);
-        copy_dst = *(u8 **)(temp_17 + 0x2C);
-        copy_src = *(u8 **)(arg0 + 0x110);
-        memcpy(copy_dst, copy_src, size);
-        H_Cdvd_Destroy(arg0);
+        /* measured: typing either post-allocation size reload grows 216B to 228B. */
+        ((FldStepWork *)workBlock)->scriptSize = *(s32 *)(handle + 0x118);
+        size = *(s32 *)(handle + 0x118);
+        copyDst = ((FldStepWork *)workBlock)->scriptData;
+        copySrc = ((HCdvdRequest *)handle)->data;
+        memcpy(copyDst, copySrc, size);
+        H_Cdvd_Destroy(handle);
         return 1;
     }
     return 0;
@@ -3315,12 +3469,12 @@ s32 FldStepCopyLoadedFile(u8 *arg0) {
 #pragma opt_rebuildconditionals on
 // Intent: Format a numbered file path from the argument and open it [inferred]
 // FUN_0015C590
-void FldStepLoadNumberedFile(s32 arg0) {
-    u8 sp10[0x80];
+void FldStepLoadNumberedFile(s32 id) {
+    u8 path[0x80];
 
-    sprintf(sp10, (const char *)D_005F0740, arg0);
+    sprintf(path, (const char *)D_005F0740, id);
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xC49);
-    H_Cdvd_AcquireDirectory(sp10, 0);
+    H_Cdvd_AcquireDirectory(path, 0);
 }
 #pragma pop
 
@@ -3330,9 +3484,9 @@ void FldStepLoadNumberedFile(s32 arg0) {
 #pragma opt_rebuildconditionals on
 // Intent: Return 1 when the id is zero or its file is loaded [inferred]
 // FUN_0015C5F0
-s32 FldStepLoadIdIsDone(s32 arg0)
+s32 FldStepLoadIdIsDone(s32 id)
 {
-    if (arg0 == 0) {
+    if (id == 0) {
         return 1;
     }
     return H_Cdvd_IsFileLoaded() != 0;
@@ -3343,8 +3497,9 @@ s32 FldStepLoadIdIsDone(s32 arg0)
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
+/* Constant-success handle predicate; unlike the neighboring load query it never polls. */
 // FUN_0015C630
-s32 func_0015c630(u8 *arg0)
+s32 fldStepLoadHandleAlwaysReady(u8 *unusedHandle)
 {
     return 1;
 }
@@ -3356,17 +3511,17 @@ s32 func_0015c630(u8 *arg0)
 #pragma opt_rebuildconditionals on
 // Intent: Format a file path from the two ids; return NULL when the file is missing, otherwise open it [inferred]
 // FUN_0015C640
-u8 *FldStepLoadFilePair(s32 arg0, s32 arg1) {
-    u8 spB0[0x80];
-    u8 sp30[0x80];
+u8 *FldStepLoadFilePair(s32 fieldId, s32 roomId) {
+    u8 directory[0x80];
+    u8 path[0x80];
 
-    strcpy(spB0, (const char *)D_005F0760);
-    sprintf(sp30, (const char *)D_005F0770, arg0 & 0xFFFF, arg1 & 0xFFFF);
-    if (H_Cdvd_FileExists(sp30) == 0) {
+    strcpy(directory, (const char *)D_005F0760);
+    sprintf(path, (const char *)D_005F0770, fieldId & 0xFFFF, roomId & 0xFFFF);
+    if (H_Cdvd_FileExists(path) == 0) {
         return NULL;
     }
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xC9E);
-    return (u8 *)H_Cdvd_AcquireDirectory(sp30, 0);
+    return (u8 *)H_Cdvd_AcquireDirectory(path, 0);
 }
 #pragma pop
 
@@ -3376,12 +3531,12 @@ u8 *FldStepLoadFilePair(s32 arg0, s32 arg1) {
 #pragma opt_rebuildconditionals on
 // Intent: Return 1 for a null handle or when its file is loaded [inferred]
 // FUN_0015C6F0
-s32 FldStepLoadHandleIsDone(u8 *arg0)
+s32 FldStepLoadHandleIsDone(u8 *handle)
 {
-    if (arg0 == NULL) {
+    if (handle == NULL) {
         return 1;
     }
-    return H_Cdvd_IsFileLoaded(arg0) != 0;
+    return H_Cdvd_IsFileLoaded(handle) != 0;
 }
 #pragma pop
 
@@ -3391,8 +3546,8 @@ s32 FldStepLoadHandleIsDone(u8 *arg0)
 #pragma opt_rebuildconditionals on
 // Intent: Destroy a file-load handle [inferred]
 // FUN_0015C730
-void FldStepLoadHandleDestroy(u8 *arg0)
+void FldStepLoadHandleDestroy(u8 *handle)
 {
-    H_Cdvd_Destroy(arg0);
+    H_Cdvd_Destroy(handle);
 }
 #pragma pop

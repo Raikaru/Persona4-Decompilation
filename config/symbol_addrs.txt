@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2462 of 13102 symbols carry a recovered name.
+// 2468 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -950,7 +950,7 @@ func_00156170 = 0x00156170; // type:func
 func_00156180 = 0x00156180; // type:func
 func_00156190 = 0x00156190; // type:func
 func_001561a0 = 0x001561A0; // type:func
-func_00156630 = 0x00156630; // type:func
+fldLoadTaskOnDestroy = 0x00156630; // type:func
 func_00156640 = 0x00156640; // type:func
 func_00156750 = 0x00156750; // type:func
 func_00156800 = 0x00156800; // type:func
@@ -970,8 +970,8 @@ func_0015a100 = 0x0015A100; // type:func
 func_0015a130 = 0x0015A130; // type:func
 func_0015a160 = 0x0015A160; // type:func
 func_0015a190 = 0x0015A190; // type:func
-func_0015a320 = 0x0015A320; // type:func
-func_0015a350 = 0x0015A350; // type:func
+fldStepGetModelSlot = 0x0015A320; // type:func
+fldBoardGetOccupiedCenter = 0x0015A350; // type:func
 func_0015a520 = 0x0015A520; // type:func
 func_0015a560 = 0x0015A560; // type:func
 func_0015a630 = 0x0015A630; // type:func
@@ -979,9 +979,9 @@ func_0015a690 = 0x0015A690; // type:func
 func_0015a6a0 = 0x0015A6A0; // type:func
 func_0015a6b0 = 0x0015A6B0; // type:func
 func_0015a740 = 0x0015A740; // type:func
-func_0015a7c0 = 0x0015A7C0; // type:func
+fldStepSaveBoard = 0x0015A7C0; // type:func
 func_0015ab20 = 0x0015AB20; // type:func
-func_0015ac60 = 0x0015AC60; // type:func
+fldStepRestoreBoard = 0x0015AC60; // type:func
 func_0015b240 = 0x0015B240; // type:func
 func_0015b3e0 = 0x0015B3E0; // type:func
 func_0015bae0 = 0x0015BAE0; // type:func
@@ -993,7 +993,7 @@ func_0015c440 = 0x0015C440; // type:func
 func_0015c4b0 = 0x0015C4B0; // type:func
 func_0015c590 = 0x0015C590; // type:func
 func_0015c5f0 = 0x0015C5F0; // type:func
-func_0015c630 = 0x0015C630; // type:func
+fldStepLoadHandleAlwaysReady = 0x0015C630; // type:func
 func_0015c640 = 0x0015C640; // type:func
 func_0015c6f0 = 0x0015C6F0; // type:func
 func_0015c730 = 0x0015C730; // type:func

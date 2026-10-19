@@ -37,7 +37,7 @@ extern u8 D_007EF9B0[];
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern s32 FldStepGetScriptData(void);
 extern s32 FldStepGetScriptSize(void);
-extern void func_0015a7c0(s32);
+extern void fldStepSaveBoard(s32);
 extern s32 scrStartProcedureChecked(s32, s32, s32, s32);
 extern u16 D_008C024E[];
 extern void FldPanel2dSetState(s32, s32);
@@ -158,7 +158,7 @@ s32 FldCampTriggerRun(u8 *task)
             if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
                 FldPanel2dSetState((s32)((FldFrame *)MT_Scene_GetFrameState())->panelTask, 0);
             if (datGetFlag(0x1401) != 0) {
-                func_0015a7c0(FldStepIndex());
+                fldStepSaveBoard(FldStepIndex());
                 datSetFlag(0x1401, 0);
                 scriptData = FldStepGetScriptData();
                 scrStartProcedureChecked(0xF, scriptData, FldStepGetScriptSize(), 5);
@@ -347,7 +347,7 @@ s32 FldStepAreaTriggerRun(u8 *task)
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
-            func_0015a7c0(FldStepIndex());
+            fldStepSaveBoard(FldStepIndex());
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
@@ -411,7 +411,7 @@ s32 FldStepAreaAltTriggerRun(u8 *task)
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
-            func_0015a7c0(FldStepIndex());
+            fldStepSaveBoard(FldStepIndex());
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
