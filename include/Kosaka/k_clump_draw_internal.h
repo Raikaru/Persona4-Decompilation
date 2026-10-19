@@ -10,7 +10,9 @@
 typedef struct KClumpDrawEntry {
     struct RpAtomic *atomic;
     s32 disableVertexAlpha;
-    u8 pad08[0x1C];
+    u8 pad08[0xC];
+    f32 unk14;
+    u8 pad18[0xC];
     struct KClumpDrawEntry *next;
 } KClumpDrawEntry;
 

@@ -1,3 +1,5 @@
+#include "Kosaka/k_misc_work_internal.h"
+#include "kwln_task_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -288,7 +290,7 @@ extern f32 D_008872F8[];
 /* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 /* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 // FUN_0014BD90
-s32 KDraw_IsEffectDone(u8 *arg0) {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38)) == 1;
+s32 KDraw_IsEffectDone(u8 *task) {
+    return ((RmdFadeWork *)((KwlnTask *)task)->work)->state == 1;
 }
 

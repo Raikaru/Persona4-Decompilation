@@ -1,3 +1,4 @@
+#include "effect_mesh_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -259,10 +260,10 @@ u8 *K_ClumpMatColorScale(u8 *material, u8 *data)
         u32 packedColor;
         s32 index;
 
-        packedColor = ((u32)*(u8 *)(material + 7) << 24) |
-                      (*(u8 *)(material + 4) << 16) |
-                      (*(u8 *)(material + 5) << 8) |
-                      *(u8 *)(material + 6);
+        packedColor = ((u32)((RpMaterial *)material)->color.c[3] << 24) |
+                      (((RpMaterial *)material)->color.c[0] << 16) |
+                      (((RpMaterial *)material)->color.c[1] << 8) |
+                      ((RpMaterial *)material)->color.c[2];
 
         index = func_003bcfa0((RpMaterial *)material, (char *)D_00711870_abs, rpINTUSERDATA, 1);
         func_003bd0d0((u8 *)func_003bd000((RpMaterial *)material, index), 0, (s32)packedColor);
@@ -289,7 +290,7 @@ u8 *K_ClumpMatColorScale(u8 *material, u8 *data)
         u32 green;
         u32 blue;
         u32 alpha;
-        Code45RGBA color;
+        EffMeshColor color;
 
         for (j = 0; j < func_003bcfb0((RpMaterial *)material); j++)
         {
@@ -312,27 +313,27 @@ u8 *K_ClumpMatColorScale(u8 *material, u8 *data)
         {
             red = 0xFF;
         }
-        color.red = red;
+        color.c[0] = red;
 
         if (green > 0xFF)
         {
             green = 0xFF;
         }
-        color.green = green;
+        color.c[1] = green;
 
         if (blue > 0xFF)
         {
             blue = 0xFF;
         }
-        color.blue = blue;
+        color.c[2] = blue;
 
         if (alpha > 0xFF)
         {
             alpha = 0xFF;
         }
-        color.alpha = alpha;
+        color.c[3] = alpha;
 
-        *(Code45RGBA *)(material + 4) = color;
+        ((RpMaterial *)material)->color = color;
     }
 
     return material;

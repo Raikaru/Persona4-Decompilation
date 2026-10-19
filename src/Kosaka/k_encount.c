@@ -29,6 +29,39 @@ extern u8 D_005F1260[];
 extern u8 D_005F12C8[];
 extern u8 D_007E80A0[];
 
+/* 10-byte entry of the iGpffffb41c encounter table; `table` selects the
+   0x15C-byte record block in iGpffffb424. */
+typedef struct EncEntry {
+    u16 id;
+    u8 rate2;
+    u8 rate3;
+    u8 rate4;
+    u8 pad5;
+    u16 table;
+    u16 pad8;
+} EncEntry;
+
+/* The record block is 29 twelve-byte weighted records. */
+typedef struct EncRecord {
+    u16 weight, id;
+    u8 pad04[3];
+    u8 flags;
+    u8 pad08[4];
+} EncRecord;
+typedef struct EncActiveSlot {
+    s32 enabled;
+    u8 pad04[4];
+    s32 state;
+    u8 pad0C[0x154];
+    EncRecord *record;
+    u8 pad164[4];
+} EncActiveSlot;
+typedef struct EncWeightedEntry { u16 id, weight; } EncWeightedEntry;
+typedef struct EncWeightedTable {
+    u8 normalRates[2], specialRates[2], rareRates[2], pad06[2];
+    EncWeightedEntry entries[2][30];
+} EncWeightedTable;
+
 /* measured: the operands must travel through this helper's parameters to get
    retail's offset-first `addu $v0,$v0,$a0`; a base local or an m2c chain+base
    callsite spelling is canonicalized back to base-first. Expanded at the use so
@@ -44,17 +77,18 @@ static inline u32 encSlot(u32 offset, u32 base)
    brings the single-use gp base load ahead of the index chain, and the `encSlot`
    helper holds the offset-first addu. Either alone leaves the other wrong.
    The same pair matches the identically shaped FUN_00161B10 below. */
+/* Return encounter-entry flags only when the field and room belong to a supported encounter band. */
 // FUN_00161A70
 /* measured: forces the single-use gp base load ahead of the index chain. */
 #pragma opt_propagation off
-s32 Encount_GetEntryFlags(s32 arg0, s32 arg1, s32 arg2) {
+s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     u8 *base;
 
     result = 0;
-    if ((FldMap_IsInBandA(arg0, arg1) == 1) || (FldMap_IsInBandB(arg0, arg1) == 1)) {
+    if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         base = iGpffffb41c;
-        result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 2);
+        result = ((EncEntry *)encSlot((entryIndex & 0xFFFF) * 10, (u32)base))->rate2;
     }
     return result;
 }
@@ -65,14 +99,14 @@ s32 Encount_GetEntryFlags(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: same recipe as FUN_00161A70 -- the pragma forces the single-use gp
    base load ahead of the index chain. */
 #pragma opt_propagation off
-s32 Encount_GetEntryRate(s32 arg0, s32 arg1, s32 arg2) {
+s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     u8 *base;
 
     result = 0;
-    if ((FldMap_IsInBandA(arg0, arg1) == 1) || (FldMap_IsInBandB(arg0, arg1) == 1)) {
+    if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         base = iGpffffb41c;
-        result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 4);
+        result = ((EncEntry *)encSlot((entryIndex & 0xFFFF) * 10, (u32)base))->rate4;
     }
     return result;
 }
@@ -83,17 +117,17 @@ s32 Encount_GetEntryRate(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: same pair of levers as FUN_00161A70 -- the pragma brings the gp base
    load ahead of the index chain, the helper holds the offset-first addu. */
 #pragma opt_propagation off
-s32 Encount_GetEntryRateOrOverride(s32 arg0, s32 arg1, s32 arg2) {
+s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     s32 idx;
     s32 v;
     u8 *base;
 
     result = 0;
-    if ((FldMap_IsInBandA(arg0, arg1) == 1) || (FldMap_IsInBandB(arg0, arg1) == 1)) {
+    if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         base = iGpffffb41c;
-        idx = arg2 & 0xFFFF;
-        result = *(u8 *)((u8 *)encSlot(idx * 10, (u32)base) + 3);
+        idx = entryIndex & 0xFFFF;
+        result = ((EncEntry *)encSlot(idx * 10, (u32)base))->rate3;
         v = FldStepBandValue(idx) & 0xFF;
         if (v < 0xFF) {
             result = v;
@@ -110,6 +144,7 @@ s32 Encount_GetEntryRateOrOverride(s32 arg0, s32 arg1, s32 arg2) {
    s16 id once into $t2); without it the bases are rematerialised per iteration
    (nd 45). `id == *(u16 *)(q + 2)` keeps retail's bne operand order. */
 #pragma opt_loop_invariants on
+/* Search live encounter slots for an identifier in the tracked identifier table. */
 // FUN_00161BB0
 s32 Encount_IsEncounterActive(s16 id) {
     s32 result;
@@ -123,9 +158,9 @@ s32 Encount_IsEncounterActive(s16 id) {
         if (((s16 *)D_005F1260)[i] == id) {
             for (j = 0; j < 8; j++) {
                 p = D_007E80A0 + j * 0x168;
-                if (*(s32 *)(p + 0) != 0) {
-                    q = *(u8 **)(p + 0x160);
-                    if (q != NULL && *(s32 *)(p + 8) != 1 && id == *(u16 *)(q + 2)) {
+                if (((EncActiveSlot *)p)->enabled != 0) {
+                    q = (u8 *)((EncActiveSlot *)p)->record;
+                    if (q != NULL && ((EncActiveSlot *)p)->state != 1 && id == ((EncRecord *)q)->id) {
                         result = 1;
                         break;
                     }
@@ -137,6 +172,8 @@ s32 Encount_IsEncounterActive(s16 id) {
 }
 /* measured: closes the hoisting scope after Encount_IsEncounterActive. */
 #pragma opt_loop_invariants off
+/* measured: typing the remaining normal-rate array reads loses MATCH; retain the byte-address form while the
+ * weighted entries and category fields stay typed. */
 // FUN_00161630
 /* Choose a category, then draw an encounter from its weighted entries.
  * The three categories occupy entries [0,20), [20,25), and [25,30).
@@ -171,7 +208,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     selected = 0xFFFF;
     multiplier = 1.0f;
     if (FldMap_IsInBandA(field, room) == 1 || FldMap_IsInBandB(field, room) == 1) {
-        tableId = *(u16 *)(iGpffffb41c + (u16)encounter * 10);
+        tableId = ((EncEntry *)iGpffffb41c)[(u16)encounter].id;
     } else {
         return -1;
     }
@@ -190,10 +227,10 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         s32 available = (s32)(u16)level;
         if (available > 0) {
             total += (s32)multiplier *
-                *(u8 *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418)) + 2);
+                ((EncWeightedTable *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418))))->specialRates[0];
         }
         if (available >= 2) {
-            total += *(u8 *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418)) + 4);
+            total += ((EncWeightedTable *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418))))->rareRates[0];
         }
     }
     if (total == 0) {
@@ -208,7 +245,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         first = 0;
         last = 20;
     } else if (draw < normalRate + (s32)multiplier *
-        *(u8 *)((u8 *)encSlot(alternate, encSlot((u32)tableId * 0xF8, (u32)tables)) + 2)) {
+        ((EncWeightedTable *)((u8 *)encSlot(alternate, encSlot((u32)tableId * 0xF8, (u32)tables))))->specialRates[0]) {
         kind = 2;
         first = 20;
         last = 25;
@@ -223,8 +260,8 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     entries = table + alternateOffset;
     for (; index < last; index++) {
         u8 *entry = entries + index * 4;
-        if (*(u16 *)(entry + 8) != 0) {
-            sum += *(u16 *)(entry + 10);
+        if (((EncWeightedTable *)entry)->entries[0][0].id != 0) {
+            sum += ((EncWeightedTable *)entry)->entries[0][0].weight;
         }
     }
     if (sum == 0) {
@@ -236,10 +273,10 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     entries = tables + tableOffset + alternateOffset;
     for (; first < last; first++) {
         s32 offset = first * 4;
-        cumulative += *(u16 *)(entries + offset + 10);
+        cumulative += ((EncWeightedTable *)(entries + offset))->entries[0][0].weight;
         if (draw < cumulative) {
-            selected = *(u16 *)((u8 *)encSlot(offset,
-                encSlot(alternateOffset, encSlot(tableOffset, (u32)tables))) + 8);
+            selected = ((EncWeightedTable *)((u8 *)encSlot(offset,
+                encSlot(alternateOffset, encSlot(tableOffset, (u32)tables)))))->entries[0][0].id;
             break;
         }
     }
@@ -247,18 +284,6 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
 }
 
 #pragma pop
-/* 10-byte entry of the iGpffffb41c encounter table; `table` selects the
-   0x15C-byte record block in iGpffffb424. */
-typedef struct EncEntry {
-    u16 id;
-    u8 rate2;
-    u8 rate3;
-    u8 rate4;
-    u8 pad5;
-    u16 table;
-    u16 pad8;
-} EncEntry;
-
 // FUN_00161C80
 /* Pick a weighted record (0x1D records of 0xC bytes) from the block of the
    given encounter. A record is skipped when its id is in the D_005F1260 list
@@ -293,8 +318,8 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
     for (; i < 0x1D; i++) {
         u8 *rec = base + i * 0xC;
         s16 *pid = (s16 *)(rec + 2);
-        if (*(u16 *)(rec + 2) != 0) {
-            s16 id = *(u16 *)(rec + 2);
+        if (((EncRecord *)rec)->id != 0) {
+            s16 id = ((EncRecord *)rec)->id;
             s32 hit = 0;
             s32 j;
             for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
@@ -309,21 +334,21 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
                 s32 k;
                 for (k = 0; k < 8; k++) {
                     u8 *p = D_007E80A0 + k * 0x168;
-                    if (*(s32 *)(p + 0) != 0) {
-                        u8 *q = *(u8 **)(p + 0x160);
-                        if (q != NULL && *(s32 *)(p + 8) != 1 && fieldId == *(u16 *)(q + 2)) {
+                    if (((EncActiveSlot *)p)->enabled != 0) {
+                        u8 *q = (u8 *)((EncActiveSlot *)p)->record;
+                        if (q != NULL && ((EncActiveSlot *)p)->state != 1 && fieldId == ((EncRecord *)q)->id) {
                             present = 1;
                             break;
                         }
                     }
                 }
                 if (present == 0) {
-                    if (*(u8 *)(rec + 7) & 1) {
+                    if (((EncRecord *)rec)->flags & 1) {
                         if (mode == 1 || mode == 2) {
-                            total += *(u16 *)(rec + 0);
+                            total += ((EncRecord *)rec)->weight;
                         }
                     } else if (mode == 0 || mode == 2) {
-                        total += *(u16 *)(rec + 0);
+                        total += ((EncRecord *)rec)->weight;
                     }
                 }
             }
@@ -349,8 +374,8 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
         for (; n < 0x1D; n++) {
             rec = base + n * 0xC;
             pid = (s16 *)(rec + 2);
-            if (*(u16 *)(rec + 2) != 0) {
-                id = *(u16 *)(rec + 2);
+            if (((EncRecord *)rec)->id != 0) {
+                id = ((EncRecord *)rec)->id;
                 hit = 0;
                 for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
                     if (id == ((s16 *)D_005F1260)[j] && (datItemCount(id) & 0xFF) > 0) {
@@ -364,21 +389,21 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
                     s32 k;
                     for (k = 0; k < 8; k++) {
                         u8 *p = D_007E80A0 + k * 0x168;
-                        if (*(s32 *)(p + 0) != 0) {
-                            u8 *q = *(u8 **)(p + 0x160);
-                            if (q != NULL && *(s32 *)(p + 8) != 1 && fieldId == *(u16 *)(q + 2)) {
+                        if (((EncActiveSlot *)p)->enabled != 0) {
+                            u8 *q = (u8 *)((EncActiveSlot *)p)->record;
+                            if (q != NULL && ((EncActiveSlot *)p)->state != 1 && fieldId == ((EncRecord *)q)->id) {
                                 present = 1;
                                 break;
                             }
                         }
                     }
                     if (present == 0) {
-                        if (*(u8 *)(rec + 7) & 1) {
+                        if (((EncRecord *)rec)->flags & 1) {
                             if (mode == 1 || mode == 2) {
-                                acc += *(u16 *)(rec + 0);
+                                acc += ((EncRecord *)rec)->weight;
                             }
                         } else if (mode == 0 || mode == 2) {
-                            acc += *(u16 *)(rec + 0);
+                            acc += ((EncRecord *)rec)->weight;
                         }
                         if (rnd < acc) {
                             found = rec;

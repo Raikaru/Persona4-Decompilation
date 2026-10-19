@@ -1,3 +1,6 @@
+#include "Kosaka/k_field_state_internal.h"
+#include "mdl_file_internal.h"
+#include "resrc_manager_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "Kosaka/k_command_internal.h"
 #include "mt_scene_internal.h"
@@ -128,62 +131,66 @@ extern s32 iGpffffba48;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 001768e0-00176bc0 */
 
+/* Resolve a party slot to its active field resource and return its resource identifier. */
+/* measured: rebasing the remaining GP-anchored presence/resource loads through FldPartySlot loses MATCH;
+ * preserve the interior symbol anchors. */
 // FUN_001768E0
 s32 Cmd_GetFieldPartyValue(void)
 {
-    s32 temp_4_2;
-    s32 temp_4;
-    s32 var_5;
-    s32 var_18;
-    u16 temp_19;
-    s32 var_17;
-    u16 var_16;
-    s32 var_3;
+    s32 slotOffset;
+    s32 slotAddress;
+    s32 candidatePresent;
+    s32 slotIndex;
+    u16 candidateId;
+    s32 partyIndex;
+    u16 resourceId;
+    s32 selectedPresent;
 
-    var_17 = scrGetParamInt(0);
-    var_16 = 0;
-    if (var_17 != 0) {
-        var_18 = 0;
+    partyIndex = scrGetParamInt(0);
+    resourceId = 0;
+    if (partyIndex != 0) {
+        slotIndex = 0;
         goto loop_8_cond;
 loop_8_body:
-        var_5 = 0;
-        temp_4 = (s32)((u8 *)D_007EF9B0 + (var_18 * 0x750));
-        if (*(s32 *)(temp_4 + 0x48) != 0) {
-            if (*(s32 *)(temp_4 + 0x54) != 0)
-                var_5 = 1;
+        candidatePresent = 0;
+        slotAddress = (s32)((u8 *)D_007EF9B0 + (slotIndex * 0x750));
+        if (((FldPartySlot *)slotAddress)->active != 0) {
+            if ((s32)((FldPartySlot *)slotAddress)->resource != 0)
+                candidatePresent = 1;
         }
-        var_5 = (var_5 != 0);
-        if ((var_5 != 1) ||
-            (temp_19 = *(u16 *)(temp_4 + 0x728),
-             temp_19 != (s16)datGetPartyId(var_17 - 1))) {
-            var_18 += 1;
+        candidatePresent = (candidatePresent != 0);
+        if ((candidatePresent != 1) ||
+            (candidateId = ((FldPartySlot *)slotAddress)->memberId,
+             candidateId != (s16)datGetPartyId(partyIndex - 1))) {
+            slotIndex += 1;
             goto loop_8_cond;
         }
         goto loop_8_found;
 loop_8_cond:
-        if (var_18 < 4)
+        if (slotIndex < 4)
             goto loop_8_body;
 loop_8_found:
         ;
-        if (var_18 >= 4) {
+        if (slotIndex >= 4) {
             scrSetReturnInt(0);
             return 1;
         }
-        var_17 = var_18;
+        partyIndex = slotIndex;
     }
 block_12:
-    var_3 = 0;
-    temp_4_2 = var_17 * 0x750;
-    if ((*(s32 *)((u8 *)D_007EF9F8 + temp_4_2) != 0) &&
-        (*(s32 *)((u8 *)D_007EFA04 + temp_4_2) != 0))
-        var_3 = 1;
-    var_3 = (var_3 != 0);
-    if (var_3 == 1)
-        var_16 = **(u16 **)((u8 *)D_007EFA04 + temp_4_2);
-    scrSetReturnInt(var_16 & 0xFFFF);
+    selectedPresent = 0;
+    slotOffset = partyIndex * 0x750;
+    if ((*(s32 *)((u8 *)D_007EF9F8 + slotOffset) != 0) &&
+        (*(s32 *)((u8 *)D_007EFA04 + slotOffset) != 0))
+        selectedPresent = 1;
+    selectedPresent = (selectedPresent != 0);
+    if (selectedPresent == 1)
+        resourceId = **(u16 **)((u8 *)D_007EFA04 + slotOffset);
+    scrSetReturnInt(resourceId & 0xFFFF);
     return 1;
 }
 
+/* Count the linked NPC resource records and publish the result to the script. */
 // FUN_00176A50
 s32 Cmd_CountResListEntries(void)
 {
@@ -194,66 +201,69 @@ s32 Cmd_CountResListEntries(void)
     count = 0;
     while (node != NULL) {
         count += 1;
-        node = *(u8 **)(node + 0x138);
+        node = (u8 *)((ResrcRecord *)node)->next;
     }
     scrSetReturnInt(count);
     return 1;
 }
 
+/* Find a resource by list index and derive its level from its model identifier. */
 // FUN_00176AB0
 s32 Cmd_GetResListEntryLevel(void)
 {
-    s32 temp_16;
-    s32 var_3;
-    s32 var_4;
-    u16 temp_3;
-    u8 *var_2;
+    s32 targetIndex;
+    s32 resourceIndex;
+    s32 level;
+    u16 modelId;
+    u8 *resource;
 
-    temp_16 = scrGetParamInt(0);
-    var_2 = MT_Scene_GetResListHead(3);
-    var_4 = 0;
-    var_3 = 0;
+    targetIndex = scrGetParamInt(0);
+    resource = MT_Scene_GetResListHead(3);
+    level = 0;
+    resourceIndex = 0;
     goto loop_3_cond;
 loop_3_body:
-    if (temp_16 == var_3)
+    if (targetIndex == resourceIndex)
         goto loop_3_done;
-    var_3 += 1;
-    var_2 = *(u8 **)(var_2 + 0x138);
+    resourceIndex += 1;
+    resource = (u8 *)((ResrcRecord *)resource)->next;
 loop_3_cond:
-    if (var_2 != NULL)
+    if (resource != NULL)
         goto loop_3_body;
 loop_3_done:
-    if (var_2 != NULL) {
-        temp_3 = *(u16 *)(*(u8 **)(var_2 + 0x164) + 0xD6);
-        var_4 = (temp_3 / 50) + 1;
-        if ((s32)temp_3 > 0x1F4)
-            var_4 = 0;
+    if (resource != NULL) {
+        modelId = ((MdlFileModel *)((u8 *)((ResrcRecord *)resource)->modelHandle164))->id;
+        level = (modelId / 50) + 1;
+        if ((s32)modelId > 0x1F4)
+            level = 0;
     }
-    scrSetReturnInt(var_4);
+    scrSetReturnInt(level);
     return 1;
 }
 
+/* Return the active field identifier, or zero when no root field task exists. */
 // FUN_00176B60
 s32 Cmd_GetCurrentFieldMajorId(void) {
-    s32 v;
+    s32 fieldId;
 
-    v = 0;
-    if (*(s32 *)(u8 *)MT_Scene_GetFrameState() != 0) {
-        v = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+    fieldId = 0;
+    if (((FldSceneTasks *)MT_Scene_GetFrameState())->root != 0) {
+        fieldId = FldLoadTaskFieldId((u8 *)((FldSceneTasks *)MT_Scene_GetFrameState())->root) & 0xFFFF;
     }
-    scrSetReturnInt(v);
+    scrSetReturnInt(fieldId);
     return 1;
 }
 
+/* Return the active room identifier, or zero when no root field task exists. */
 // FUN_00176BC0
 s32 Cmd_GetCurrentFieldMinorId(void) {
-    s32 v;
+    s32 roomId;
 
-    v = 0;
-    if (*(s32 *)(u8 *)MT_Scene_GetFrameState() != 0) {
-        v = FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+    roomId = 0;
+    if (((FldSceneTasks *)MT_Scene_GetFrameState())->root != 0) {
+        roomId = FldLoadTaskRoomId((u8 *)((FldSceneTasks *)MT_Scene_GetFrameState())->root) & 0xFFFF;
     }
-    scrSetReturnInt(v);
+    scrSetReturnInt(roomId);
     return 1;
 }
 

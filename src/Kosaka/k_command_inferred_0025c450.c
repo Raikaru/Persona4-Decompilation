@@ -54,27 +54,27 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 // FUN_0025C450
 s32 K_Cmd_DAY_ENTRY_BY_PHASE(void) {
-    s16 temp_16;
+    s16 dateIndex;
 
-    temp_16 = datGetDateIndex();
-    scrSetReturnInt((s32)calGetDayEntryByPhase(temp_16, datGetTimeSlot() & 0xFF));
+    dateIndex = datGetDateIndex();
+    scrSetReturnInt((s32)calGetDayEntryByPhase(dateIndex, datGetTimeSlot() & 0xFF));
     return 1;
 }
 
 // Intent: Common script command CHK_DAYS (p4flow Common 0x0037): checks the current date against month and day [inferred]
 // FUN_0025C4B0
 s32 scrCommonChkDays(void) {
-    s32 sp3C;
-    s32 sp38;
-    s32 temp_16;
-    s32 temp_17;
+    s32 month;
+    s32 day;
+    s32 requestedDay;
+    s32 requestedMonth;
 
-    sp3C = 0;
-    sp38 = 0;
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    calSplitDayOfYear(datGetDateIndex(), &sp3C, &sp38);
-    if ((sp3C == temp_17) && (sp38 == temp_16)) {
+    month = 0;
+    day = 0;
+    requestedMonth = scrGetParamInt(0);
+    requestedDay = scrGetParamInt(1);
+    calSplitDayOfYear(datGetDateIndex(), &month, &day);
+    if ((month == requestedMonth) && (day == requestedDay)) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
@@ -82,33 +82,35 @@ s32 scrCommonChkDays(void) {
     return 1;
 }
 
+/* Stage a month/day and byte-sized time slot, then mark the pending calendar update. */
 // FUN_0025C560
 s32 K_Cmd_DATE_SCHEDULE(void) {
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_16;
+    s32 month;
+    s32 day;
+    s32 timeSlot;
 
-    temp_18 = scrGetParamInt(0);
-    temp_17 = scrGetParamInt(1);
-    temp_16 = scrGetParamInt(2);
-    datSetPendingDateIndex(calDayOfYearFromMonthDay(temp_18, temp_17));
-    datSetPendingTimeSlot(temp_16 & 0xFF);
+    month = scrGetParamInt(0);
+    day = scrGetParamInt(1);
+    timeSlot = scrGetParamInt(2);
+    datSetPendingDateIndex(calDayOfYearFromMonthDay(month, day));
+    datSetPendingTimeSlot(timeSlot & 0xFF);
     datSetPendingFlag(1);
     return 1;
 }
 
+/* Test the current date against script-provided calendar endpoints. */
 // FUN_0025C600
 s32 K_Cmd_DATE_IN_RANGE(void) {
-    s32 temp_19;
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_16;
+    s32 startMonth;
+    s32 startDay;
+    s32 endMonth;
+    s32 endDay;
 
-    temp_19 = scrGetParamInt(0);
-    temp_18 = scrGetParamInt(1);
-    temp_17 = scrGetParamInt(2);
-    temp_16 = scrGetParamInt(3);
-    if (calIsDayInRange(datGetDateIndex(), temp_19, temp_18, temp_17, temp_16) == 1) {
+    startMonth = scrGetParamInt(0);
+    startDay = scrGetParamInt(1);
+    endMonth = scrGetParamInt(2);
+    endDay = scrGetParamInt(3);
+    if (calIsDayInRange(datGetDateIndex(), startMonth, startDay, endMonth, endDay) == 1) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);

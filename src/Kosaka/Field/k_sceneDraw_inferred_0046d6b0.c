@@ -1,3 +1,5 @@
+#include "rw_camera_internal.h"
+#include "kwln_task_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -324,16 +326,38 @@ typedef struct {
     f32 red, green, blue, alpha;
     f32 normalX, normalY, normalZ, alignmentPad;
 } ControllerVertex;
+/* The constructor allocates 0x560 bytes: control data, sixteen border vertices,
+ * then four fill vertices. Each vertex is the 0x40-byte Sky immediate format. */
+typedef struct WindowRect { s32 x, y, width, height; } WindowRect;
+typedef struct WindowColor { u8 r, g, b, a; } WindowColor;
+typedef struct WindowWork {
+    s32 state, enabled;
+    u8 pad08[4];
+    WindowRect rect;
+    WindowColor first, second;
+    u8 pad24[0xC];
+    f32 borderProgress[4];
+    f32 targetAlpha;
+    size_t bufferSize;
+    u8 *buffer, *cursor;
+    u8 pad50[0x10];
+    ControllerVertex borderVertices[16];
+    ControllerVertex fillVertices[4];
+} WindowWork;
+typedef char WindowWorkSize[sizeof(WindowWork) == 0x560 ? 1 : -1];
+
 typedef struct {
     s32 state, flags, theme, enabled, delay, unknown14;
     ControllerRect rectangle;
     s32 columnWidth, rowHeight;
     ControllerVertex vertices[4];
     u8 *window;
-    s32 selectedRow, selectedValue, repeatDelay, visible;
+    s32 selectedRow, firstVisibleRow, visibleRows, visible;
     void *firstEntry, *lastEntry;
     s32 (*update)(s32); s32 updateArgument;
-    u8 unknown154[0x10]; u8 input[0x2C];
+    void (*drawText)(f32 *, void *, void *);
+    s32 (*measureText)(char *);
+    u8 pad15C[8]; u8 input[0x2C];
 } ControllerWork;
 typedef struct ControllerEntry {
     s32 id, type;
@@ -368,12 +392,12 @@ static inline u8 *controller_create_window(u8 *parent,
 #pragma push
 #pragma pop
 // FUN_0046D6B0
-void sdkSetActiveHandle(s32 arg0)
+void sdkSetActiveHandle(s32 handle)
 {
-    if (arg0 == 0) {
+    if (handle == 0) {
         kAssertFail(D_007130E8, 0x37);
     }
-    D_00724130 = arg0;
+    D_00724130 = handle;
 }
 
 // FUN_0046D700
@@ -383,7 +407,7 @@ void kAssertFailMsg(const char *file, s32 line, const char *msg, ...)
 
 // Intent: assert-fail reporter for a failed K_ASSERT-style guard; takes the source file and line. Empty in this build. [inferred]
 // FUN_0046D730
-void kAssertFail(void *arg0, s32 arg1) {}
+void kAssertFail(void *file, s32 line) {}
 
 // FUN_0046D740
 void kAssertFailAt(const void *msg, const void *file, u32 line) {}
@@ -396,175 +420,178 @@ void kAssertFailAt(const void *msg, const void *file, u32 line) {}
 #pragma opt_propagation off
 /* measured: sdkWindowUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
+/* Advance window border/fill animation and submit the five quads when enabled. */
+/* measured: typing the remaining alpha, border-progress, and dimension reads individually loses MATCH;
+ * retain these byte aliases while all vertex fields stay typed. */
 // FUN_0046D750
-s32 sdkWindowUpdate(u8 *arg0) {
+s32 sdkWindowUpdate(u8 *task) {
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 (*D_00887310[])(s32, void *, s32);
-    extern void sdkWindowSetRect(u8 *arg0, u8 *arg1);
-    f32 f2;
-    f32 f1;
-    s32 i;
-    s32 j;
-    s32 k;
+    extern void sdkWindowSetRect(u8 *task, u8 *rectangle);
+    f32 depth;
+    f32 reciprocalDepth;
+    s32 borderIndex;
+    s32 vertexIndex;
+    s32 fillVertexIndex;
     u8 *work;
-    u8 *g;
-    u8 *e;
+    u8 *borderBase;
+    u8 *vertexBase;
     s32 state;
-    WindowRenderStateSet *tbl00;
-    s32 (**tbl10)(s32, void *, s32);
+    WindowRenderStateSet *renderStates;
+    s32 (**drawPrimitive)(s32, void *, s32);
 
-    work = *(u8 **)(arg0 + 0x38);
-    state = *(s32 *)work;
+    work = ((KwlnTask *)task)->work;
+    state = ((WindowWork *)work)->state;
     switch (state) {
     case 0:
-        f2 = *(f32 *)((u8 *)kwlnGetCamera() + 0x80) - 400.0f;
-        f1 = 1.0f / f2;
-        i = 0;
+        depth = ((RwCamera *)((u8 *)kwlnGetCamera()))->nearPlane - 400.0f;
+        reciprocalDepth = 1.0f / depth;
+        borderIndex = 0;
         goto test0o;
 body0o:
-        g = work + (i << 8);
-        *(s32 *)(g + 0x60) = 0;
-        *(s32 *)(g + 0x64) = 0;
-        *(f32 *)(g + 0x68) = f2;
-        *(s32 *)(g + 0xA0) = 0;
-        *(s32 *)(g + 0xA4) = 0;
-        *(f32 *)(g + 0xA8) = f2;
-        *(s32 *)(g + 0xE0) = 0;
-        *(s32 *)(g + 0xE4) = 0;
-        *(f32 *)(g + 0xE8) = f2;
-        *(s32 *)(g + 0x120) = 0;
-        *(s32 *)(g + 0x124) = 0;
-        *(f32 *)(g + 0x128) = f2;
-        *(f32 *)(g + 0x78) = f1;
-        *(f32 *)(g + 0xB8) = f1;
-        *(f32 *)(g + 0xF8) = f1;
-        *(f32 *)(g + 0x138) = f1;
-        j = 0;
+        borderBase = work + (borderIndex << 8);
+        ((WindowWork *)borderBase)->borderVertices[0].x = 0;
+        ((WindowWork *)borderBase)->borderVertices[0].y = 0;
+        ((WindowWork *)borderBase)->borderVertices[0].z = depth;
+        ((WindowWork *)borderBase)->borderVertices[1].x = 0;
+        ((WindowWork *)borderBase)->borderVertices[1].y = 0;
+        ((WindowWork *)borderBase)->borderVertices[1].z = depth;
+        ((WindowWork *)borderBase)->borderVertices[2].x = 0;
+        ((WindowWork *)borderBase)->borderVertices[2].y = 0;
+        ((WindowWork *)borderBase)->borderVertices[2].z = depth;
+        ((WindowWork *)borderBase)->borderVertices[3].x = 0;
+        ((WindowWork *)borderBase)->borderVertices[3].y = 0;
+        ((WindowWork *)borderBase)->borderVertices[3].z = depth;
+        ((WindowWork *)borderBase)->borderVertices[0].reciprocalZ = reciprocalDepth;
+        ((WindowWork *)borderBase)->borderVertices[1].reciprocalZ = reciprocalDepth;
+        ((WindowWork *)borderBase)->borderVertices[2].reciprocalZ = reciprocalDepth;
+        ((WindowWork *)borderBase)->borderVertices[3].reciprocalZ = reciprocalDepth;
+        vertexIndex = 0;
         goto test0i;
 body0i:
-        e = g + (j << 6);
-        *(f32 *)(e + 0x80) = (f32)*(u8 *)(work + 0x1C);
-        *(f32 *)(e + 0x84) = (f32)*(u8 *)(work + 0x1D);
-        *(f32 *)(e + 0x88) = (f32)*(u8 *)(work + 0x1E);
-        *(f32 *)(e + 0x8C) = (f32)*(u8 *)(work + 0x1F);
-        j++;
+        vertexBase = borderBase + (vertexIndex << 6);
+        ((WindowWork *)vertexBase)->borderVertices[0].red = (f32)((WindowWork *)work)->first.r;
+        ((WindowWork *)vertexBase)->borderVertices[0].green = (f32)((WindowWork *)work)->first.g;
+        ((WindowWork *)vertexBase)->borderVertices[0].blue = (f32)((WindowWork *)work)->first.b;
+        ((WindowWork *)vertexBase)->borderVertices[0].alpha = (f32)((WindowWork *)work)->first.a;
+        vertexIndex++;
 test0i:
-        if (j < 4) {
+        if (vertexIndex < 4) {
             goto body0i;
         }
-        i++;
+        borderIndex++;
 test0o:
-        if (i < 4) {
+        if (borderIndex < 4) {
             goto body0o;
         }
-        *(f32 *)(work + 0x460) = (f32)*(s32 *)(work + 0xC);
-        *(f32 *)(work + 0x464) = (f32)*(s32 *)(work + 0x10);
-        *(f32 *)(work + 0x468) = f2;
-        *(f32 *)(work + 0x4A0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
-        *(f32 *)(work + 0x4A4) = (f32)*(s32 *)(work + 0x10);
-        *(f32 *)(work + 0x4A8) = f2;
-        *(f32 *)(work + 0x4E0) = (f32)*(s32 *)(work + 0xC);
-        *(f32 *)(work + 0x4E4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
-        *(f32 *)(work + 0x4E8) = f2;
-        *(f32 *)(work + 0x520) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
-        *(f32 *)(work + 0x524) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
-        *(f32 *)(work + 0x528) = f2;
-        *(f32 *)(work + 0x478) = f1;
-        *(f32 *)(work + 0x4B8) = f1;
-        *(f32 *)(work + 0x4F8) = f1;
-        *(f32 *)(work + 0x538) = f1;
-        k = 0;
+        ((WindowWork *)work)->fillVertices[0].x = (f32)((WindowWork *)work)->rect.x;
+        ((WindowWork *)work)->fillVertices[0].y = (f32)((WindowWork *)work)->rect.y;
+        ((WindowWork *)work)->fillVertices[0].z = depth;
+        ((WindowWork *)work)->fillVertices[1].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width);
+        ((WindowWork *)work)->fillVertices[1].y = (f32)((WindowWork *)work)->rect.y;
+        ((WindowWork *)work)->fillVertices[1].z = depth;
+        ((WindowWork *)work)->fillVertices[2].x = (f32)((WindowWork *)work)->rect.x;
+        ((WindowWork *)work)->fillVertices[2].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height);
+        ((WindowWork *)work)->fillVertices[2].z = depth;
+        ((WindowWork *)work)->fillVertices[3].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width);
+        ((WindowWork *)work)->fillVertices[3].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height);
+        ((WindowWork *)work)->fillVertices[3].z = depth;
+        ((WindowWork *)work)->fillVertices[0].reciprocalZ = reciprocalDepth;
+        ((WindowWork *)work)->fillVertices[1].reciprocalZ = reciprocalDepth;
+        ((WindowWork *)work)->fillVertices[2].reciprocalZ = reciprocalDepth;
+        ((WindowWork *)work)->fillVertices[3].reciprocalZ = reciprocalDepth;
+        fillVertexIndex = 0;
         goto test0k;
 body0k:
-        e = work + (k << 6);
-        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
-        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
-        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
-        *(s32 *)(e + 0x48C) = 0;
-        k++;
+        vertexBase = work + (fillVertexIndex << 6);
+        ((WindowWork *)vertexBase)->fillVertices[0].red = (f32)((WindowWork *)work)->second.r;
+        ((WindowWork *)vertexBase)->fillVertices[0].green = (f32)((WindowWork *)work)->second.g;
+        ((WindowWork *)vertexBase)->fillVertices[0].blue = (f32)((WindowWork *)work)->second.b;
+        ((WindowWork *)vertexBase)->fillVertices[0].alpha = 0;
+        fillVertexIndex++;
 test0k:
-        if (k < 4) {
+        if (fillVertexIndex < 4) {
             goto body0k;
         }
         *(f32 *)(work + 0x40) = (f32)*(u8 *)(work + 0x23);
         *(u8 *)(work + 0x23) = 0;
-        *(s32 *)work = *(s32 *)work + 1;
-        *(u8 *)(work + 0x23) = (u8)(*(f32 *)(work + 0x40));
-        k = 0;
+        ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
+        *(u8 *)(work + 0x23) = (u8)(((WindowWork *)work)->targetAlpha);
+        fillVertexIndex = 0;
         goto test0k2;
 body0k2:
-        e = work + (k << 6);
-        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
-        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
-        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
-        *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
-        k++;
+        vertexBase = work + (fillVertexIndex << 6);
+        ((WindowWork *)vertexBase)->fillVertices[0].red = (f32)((WindowWork *)work)->second.r;
+        ((WindowWork *)vertexBase)->fillVertices[0].green = (f32)((WindowWork *)work)->second.g;
+        ((WindowWork *)vertexBase)->fillVertices[0].blue = (f32)((WindowWork *)work)->second.b;
+        ((WindowWork *)vertexBase)->fillVertices[0].alpha = (f32)((WindowWork *)work)->second.a;
+        fillVertexIndex++;
 test0k2:
-        if (k < 4) {
+        if (fillVertexIndex < 4) {
             goto body0k2;
         }
-        *(s32 *)work = 6;
+        ((WindowWork *)work)->state = 6;
         break;
     case 1:
         if (!(*(f32 *)(work + 0x30) < (f32)*(s32 *)(work + 0x14))) {
-            *(f32 *)(work + 0x30) = (f32)*(s32 *)(work + 0x14);
-            *(s32 *)work = *(s32 *)work + 1;
+            ((WindowWork *)work)->borderProgress[0] = (f32)*(s32 *)(work + 0x14);
+            ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
-        *(f32 *)(work + 0x60) = (f32)*(s32 *)(work + 0xC);
-        *(f32 *)(work + 0x64) = (f32)*(s32 *)(work + 0x10);
-        *(f32 *)(work + 0xA0) = (f32)*(s32 *)(work + 0xC) + *(f32 *)(work + 0x30);
-        *(f32 *)(work + 0xA4) = (f32)*(s32 *)(work + 0x10);
-        *(f32 *)(work + 0xE0) = (f32)*(s32 *)(work + 0xC);
-        *(f32 *)(work + 0xE4) = (f32)(*(s32 *)(work + 0x10) + 2);
-        *(f32 *)(work + 0x120) = (f32)*(s32 *)(work + 0xC) + *(f32 *)(work + 0x30);
-        *(f32 *)(work + 0x124) = (f32)(*(s32 *)(work + 0x10) + 2);
-        *(f32 *)(work + 0x30) = *(f32 *)(work + 0x30) + (f32)*(s32 *)(work + 0x14) / 2.0f;
+        ((WindowWork *)work)->borderVertices[0].x = (f32)((WindowWork *)work)->rect.x;
+        ((WindowWork *)work)->borderVertices[0].y = (f32)((WindowWork *)work)->rect.y;
+        ((WindowWork *)work)->borderVertices[1].x = (f32)((WindowWork *)work)->rect.x + ((WindowWork *)work)->borderProgress[0];
+        ((WindowWork *)work)->borderVertices[1].y = (f32)((WindowWork *)work)->rect.y;
+        ((WindowWork *)work)->borderVertices[2].x = (f32)((WindowWork *)work)->rect.x;
+        ((WindowWork *)work)->borderVertices[2].y = (f32)(((WindowWork *)work)->rect.y + 2);
+        ((WindowWork *)work)->borderVertices[3].x = (f32)((WindowWork *)work)->rect.x + ((WindowWork *)work)->borderProgress[0];
+        ((WindowWork *)work)->borderVertices[3].y = (f32)(((WindowWork *)work)->rect.y + 2);
+        ((WindowWork *)work)->borderProgress[0] = ((WindowWork *)work)->borderProgress[0] + (f32)((WindowWork *)work)->rect.width / 2.0f;
         break;
     case 2:
         if (!(*(f32 *)(work + 0x34) < (f32)*(s32 *)(work + 0x18))) {
-            *(f32 *)(work + 0x34) = (f32)*(s32 *)(work + 0x18);
-            *(s32 *)work = *(s32 *)work + 1;
+            ((WindowWork *)work)->borderProgress[1] = (f32)*(s32 *)(work + 0x18);
+            ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
-        *(f32 *)(work + 0x160) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14) - 2);
-        *(f32 *)(work + 0x164) = (f32)*(s32 *)(work + 0x10);
-        *(f32 *)(work + 0x1A0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
-        *(f32 *)(work + 0x1A4) = (f32)*(s32 *)(work + 0x10);
-        *(f32 *)(work + 0x1E0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14) - 2);
-        *(f32 *)(work + 0x1E4) = (f32)*(s32 *)(work + 0x10) + *(f32 *)(work + 0x34);
-        *(f32 *)(work + 0x220) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
-        *(f32 *)(work + 0x224) = (f32)*(s32 *)(work + 0x10) + *(f32 *)(work + 0x34);
-        *(f32 *)(work + 0x34) = *(f32 *)(work + 0x34) + (f32)*(s32 *)(work + 0x18) / 2.0f;
+        ((WindowWork *)work)->borderVertices[4].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width - 2);
+        ((WindowWork *)work)->borderVertices[4].y = (f32)((WindowWork *)work)->rect.y;
+        ((WindowWork *)work)->borderVertices[5].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width);
+        ((WindowWork *)work)->borderVertices[5].y = (f32)((WindowWork *)work)->rect.y;
+        ((WindowWork *)work)->borderVertices[6].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width - 2);
+        ((WindowWork *)work)->borderVertices[6].y = (f32)((WindowWork *)work)->rect.y + ((WindowWork *)work)->borderProgress[1];
+        ((WindowWork *)work)->borderVertices[7].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width);
+        ((WindowWork *)work)->borderVertices[7].y = (f32)((WindowWork *)work)->rect.y + ((WindowWork *)work)->borderProgress[1];
+        ((WindowWork *)work)->borderProgress[1] = ((WindowWork *)work)->borderProgress[1] + (f32)((WindowWork *)work)->rect.height / 2.0f;
         break;
     case 3:
         if (!(*(f32 *)(work + 0x38) < (f32)*(s32 *)(work + 0x14))) {
-            *(f32 *)(work + 0x38) = (f32)*(s32 *)(work + 0x14);
-            *(s32 *)work = *(s32 *)work + 1;
+            ((WindowWork *)work)->borderProgress[2] = (f32)*(s32 *)(work + 0x14);
+            ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
-        *(f32 *)(work + 0x260) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14)) - *(f32 *)(work + 0x38);
-        *(f32 *)(work + 0x264) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18) - 2);
-        *(f32 *)(work + 0x2A0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
-        *(f32 *)(work + 0x2A4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18) - 2);
-        *(f32 *)(work + 0x2E0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14)) - *(f32 *)(work + 0x38);
-        *(f32 *)(work + 0x2E4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
-        *(f32 *)(work + 0x320) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
-        *(f32 *)(work + 0x324) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
-        *(f32 *)(work + 0x38) = *(f32 *)(work + 0x38) + (f32)*(s32 *)(work + 0x14) / 2.0f;
+        ((WindowWork *)work)->borderVertices[8].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width) - ((WindowWork *)work)->borderProgress[2];
+        ((WindowWork *)work)->borderVertices[8].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height - 2);
+        ((WindowWork *)work)->borderVertices[9].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width);
+        ((WindowWork *)work)->borderVertices[9].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height - 2);
+        ((WindowWork *)work)->borderVertices[10].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width) - ((WindowWork *)work)->borderProgress[2];
+        ((WindowWork *)work)->borderVertices[10].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height);
+        ((WindowWork *)work)->borderVertices[11].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width);
+        ((WindowWork *)work)->borderVertices[11].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height);
+        ((WindowWork *)work)->borderProgress[2] = ((WindowWork *)work)->borderProgress[2] + (f32)((WindowWork *)work)->rect.width / 2.0f;
         break;
     case 4:
         if (!(*(f32 *)(work + 0x3C) < (f32)*(s32 *)(work + 0x18))) {
-            *(f32 *)(work + 0x3C) = (f32)*(s32 *)(work + 0x18);
-            *(s32 *)work = *(s32 *)work + 1;
+            ((WindowWork *)work)->borderProgress[3] = (f32)*(s32 *)(work + 0x18);
+            ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
-        *(f32 *)(work + 0x360) = (f32)*(s32 *)(work + 0xC);
-        *(f32 *)(work + 0x364) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18)) - *(f32 *)(work + 0x3C);
-        *(f32 *)(work + 0x3A0) = (f32)(*(s32 *)(work + 0xC) + 2);
-        *(f32 *)(work + 0x3A4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18)) - *(f32 *)(work + 0x3C);
-        *(f32 *)(work + 0x3E0) = (f32)*(s32 *)(work + 0xC);
-        *(f32 *)(work + 0x3E4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
-        *(f32 *)(work + 0x420) = (f32)(*(s32 *)(work + 0xC) + 2);
-        *(f32 *)(work + 0x424) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
-        *(f32 *)(work + 0x3C) = *(f32 *)(work + 0x3C) + (f32)*(s32 *)(work + 0x18) / 2.0f;
+        ((WindowWork *)work)->borderVertices[12].x = (f32)((WindowWork *)work)->rect.x;
+        ((WindowWork *)work)->borderVertices[12].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height) - ((WindowWork *)work)->borderProgress[3];
+        ((WindowWork *)work)->borderVertices[13].x = (f32)(((WindowWork *)work)->rect.x + 2);
+        ((WindowWork *)work)->borderVertices[13].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height) - ((WindowWork *)work)->borderProgress[3];
+        ((WindowWork *)work)->borderVertices[14].x = (f32)((WindowWork *)work)->rect.x;
+        ((WindowWork *)work)->borderVertices[14].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height);
+        ((WindowWork *)work)->borderVertices[15].x = (f32)(((WindowWork *)work)->rect.x + 2);
+        ((WindowWork *)work)->borderVertices[15].y = (f32)(((WindowWork *)work)->rect.y + ((WindowWork *)work)->rect.height);
+        ((WindowWork *)work)->borderProgress[3] = ((WindowWork *)work)->borderProgress[3] + (f32)((WindowWork *)work)->rect.height / 2.0f;
         break;
     case 5: {
         u8 c;
@@ -576,87 +603,87 @@ test0k2:
             f = fb + *(f32 *)(work + 0x40) / 8.0f;
             *(u8 *)(work + 0x23) = (u8)f;
         } else {
-            *(u8 *)(work + 0x23) = (u8)(*(f32 *)(work + 0x40));
-            *(s32 *)work = *(s32 *)work + 1;
+            ((WindowWork *)work)->second.a = (u8)(*(f32 *)(work + 0x40));
+            ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
-        for (k = 0; k < 4; k++) {
-            e = work + (k << 6);
-            *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
-            *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
-            *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
-            *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
+        for (fillVertexIndex = 0; fillVertexIndex < 4; fillVertexIndex++) {
+            vertexBase = work + (fillVertexIndex << 6);
+            ((WindowWork *)vertexBase)->fillVertices[0].red = (f32)((WindowWork *)work)->second.r;
+            ((WindowWork *)vertexBase)->fillVertices[0].green = (f32)((WindowWork *)work)->second.g;
+            ((WindowWork *)vertexBase)->fillVertices[0].blue = (f32)((WindowWork *)work)->second.b;
+            ((WindowWork *)vertexBase)->fillVertices[0].alpha = (f32)((WindowWork *)work)->second.a;
         }
         break;
     }
     case 6:
-        sdkWindowSetRect(arg0, work + 0xC);
+        sdkWindowSetRect(task, work + 0xC);
         break;
     case 7:
         if (*(u8 *)(work + 0x23) > 0) {
-            *(u8 *)(work + 0x23) = *(u8 *)(work + 0x23) - 1;
+            ((WindowWork *)work)->second.a = ((WindowWork *)work)->second.a - 1;
         }
         if (*(u8 *)(work + 0x1F) > 0) {
-            *(u8 *)(work + 0x1F) = *(u8 *)(work + 0x1F) - 1;
+            ((WindowWork *)work)->first.a = ((WindowWork *)work)->first.a - 1;
         }
-        i = 0;
+        borderIndex = 0;
         goto test7o;
 body7o:
-        j = 0;
-        g = work + (i << 8);
+        vertexIndex = 0;
+        borderBase = work + (borderIndex << 8);
         goto test7i;
 body7i:
-        e = g + (j << 6);
-        *(f32 *)(e + 0x80) = (f32)*(u8 *)(work + 0x1C);
-        *(f32 *)(e + 0x84) = (f32)*(u8 *)(work + 0x1D);
-        *(f32 *)(e + 0x88) = (f32)*(u8 *)(work + 0x1E);
-        *(f32 *)(e + 0x8C) = (f32)*(u8 *)(work + 0x1F);
-        j++;
+        vertexBase = borderBase + (vertexIndex << 6);
+        ((WindowWork *)vertexBase)->borderVertices[0].red = (f32)((WindowWork *)work)->first.r;
+        ((WindowWork *)vertexBase)->borderVertices[0].green = (f32)((WindowWork *)work)->first.g;
+        ((WindowWork *)vertexBase)->borderVertices[0].blue = (f32)((WindowWork *)work)->first.b;
+        ((WindowWork *)vertexBase)->borderVertices[0].alpha = (f32)((WindowWork *)work)->first.a;
+        vertexIndex++;
 test7i:
-        if (j < 4) {
+        if (vertexIndex < 4) {
             goto body7i;
         }
-        i++;
+        borderIndex++;
 test7o:
-        if (i < 4) {
+        if (borderIndex < 4) {
             goto body7o;
         }
-        k = 0;
+        fillVertexIndex = 0;
         goto test7k;
 body7k:
-        e = work + (k << 6);
-        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
-        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
-        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
-        *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
-        k++;
+        vertexBase = work + (fillVertexIndex << 6);
+        ((WindowWork *)vertexBase)->fillVertices[0].red = (f32)((WindowWork *)work)->second.r;
+        ((WindowWork *)vertexBase)->fillVertices[0].green = (f32)((WindowWork *)work)->second.g;
+        ((WindowWork *)vertexBase)->fillVertices[0].blue = (f32)((WindowWork *)work)->second.b;
+        ((WindowWork *)vertexBase)->fillVertices[0].alpha = (f32)((WindowWork *)work)->second.a;
+        fillVertexIndex++;
 test7k:
-        if (k < 4) {
+        if (fillVertexIndex < 4) {
             goto body7k;
         }
         /* Retail tests the same loaded alpha byte twice. */
-        if (*(u8 *)(work + 0x23) == 0 && *(u8 *)(work + 0x23) == 0) {
-            *(s32 *)work = *(s32 *)work + 1;
+        if (((WindowWork *)work)->second.a == 0 && ((WindowWork *)work)->second.a == 0) {
+            ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
         break;
     case 8:
         return -1;
     }
-    if (*(s32 *)(work + 4) == 1) {
+    if (((WindowWork *)work)->enabled == 1) {
         if (func_003e8120((u32)kwlnGetCamera()) != 0) {
-            tbl00 = &((WindowEngineStatePrefix *)ourGlobals)->device.setState;
-            tbl00[0]((RwRenderState)(6), (void *)(1));
-            tbl00[0]((RwRenderState)(8), (void *)(0));
-            tbl00[0]((RwRenderState)(7), (void *)(2));
-            tbl00[0]((RwRenderState)(0xC), (void *)(1));
-            tbl00[0]((RwRenderState)(1), (void *)(0));
+            renderStates = &((WindowEngineStatePrefix *)ourGlobals)->device.setState;
+            renderStates[0]((RwRenderState)(6), (void *)(1));
+            renderStates[0]((RwRenderState)(8), (void *)(0));
+            renderStates[0]((RwRenderState)(7), (void *)(2));
+            renderStates[0]((RwRenderState)(0xC), (void *)(1));
+            renderStates[0]((RwRenderState)(1), (void *)(0));
             RpSkyRenderStateSet(2, (void *)(0x44));
             RpSkyRenderStateSet(3, (void *)(0x717FB));
-            tbl10 = D_00887310;
-            tbl10[0](4, work + 0x460, 4);
-            tbl10[0](4, work + 0x60, 4);
-            tbl10[0](4, work + 0x160, 4);
-            tbl10[0](4, work + 0x260, 4);
-            tbl10[0](4, work + 0x360, 4);
+            drawPrimitive = D_00887310;
+            drawPrimitive[0](4, work + 0x460, 4);
+            drawPrimitive[0](4, work + 0x60, 4);
+            drawPrimitive[0](4, work + 0x160, 4);
+            drawPrimitive[0](4, work + 0x260, 4);
+            drawPrimitive[0](4, work + 0x360, 4);
         }
         func_003e8110((u32)kwlnGetCamera());
     }
@@ -664,18 +691,21 @@ test7k:
 }
 
 #pragma pop
+/* measured: typed task->work changes generated instructions across the free/close callbacks; retain byte-pointer aliasing. */
+/* measured: typing the initial task-work load changes this callback's instructions; its buffer and final
+ * task-work read remain typed. */
 // FUN_0046E7F0
 /* Keep the table address cached without changing the free callback type. */
 #pragma push
 /* measured: sdkWindowDestroy MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void sdkWindowDestroy(u8 *arg0)
+void sdkWindowDestroy(u8 *task)
 {
     void (**tbl)(void *) = jtbl_008873EC;
-    u8 *work = *(u8 **)(arg0 + 0x38);
+    u8 *work = *(u8 **)(task + 0x38);
 
-    tbl[0](*(u8 **)(work + 0x48));
-    tbl[0](*(u8 **)(arg0 + 0x38));
+    tbl[0](((WindowWork *)work)->buffer);
+    tbl[0](((KwlnTask *)task)->work);
 }
 
 #pragma pop
@@ -685,23 +715,13 @@ void sdkWindowDestroy(u8 *arg0)
 #pragma push
 /* measured: sdkWindowCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Allocate a window task and its capture buffer from the requested rectangle and colors. */
 // FUN_0046E850
-u8 *sdkWindowCreate(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
+u8 *sdkWindowCreate(u8 *parent, void *rectangleArgument, void *borderColorArgument, void *fillColorArgument)
 {
-    typedef struct WindowRect { s32 x, y, width, height; } WindowRect;
-    typedef struct WindowColor { u8 r, g, b, a; } WindowColor;
-    typedef struct WindowWork {
-        s32 state, enabled;
-        u8 reserved08[4];
-        WindowRect rect;
-        WindowColor first, second;
-        u8 reserved24[32];
-        size_t buffer_size;
-        u8 *buffer, *cursor;
-    } WindowWork;
-    WindowRect *rect = (WindowRect *)rect_arg;
-    WindowColor *first = (WindowColor *)first_arg;
-    WindowColor *second = (WindowColor *)second_arg;
+    WindowRect *rect = (WindowRect *)rectangleArgument;
+    WindowColor *first = (WindowColor *)borderColorArgument;
+    WindowColor *second = (WindowColor *)fillColorArgument;
     s32 result;
     WindowWork *work;
     u8 *buffer;
@@ -719,7 +739,7 @@ u8 *sdkWindowCreate(u8 *parent, void *rect_arg, void *first_arg, void *second_ar
     work->rect = *rect;
     work->first = *first;
     work->second = *second;
-    size = &work->buffer_size;
+    size = &work->bufferSize;
     *size = (rect->x / 8) * (rect->y / 8) + 32;
     chkmemAllocSiteTag(D_007130F8, 396);
     buffer = allocator[0](1, *size, 0x40000);
@@ -729,10 +749,11 @@ u8 *sdkWindowCreate(u8 *parent, void *rect_arg, void *first_arg, void *second_ar
 }
 
 #pragma pop
+/* Report animation in progress; stable and finished states both return zero. */
 // FUN_0046EA10
-s32 sdkWindowIsOpen(u8 *arg0)
+s32 sdkWindowIsOpen(u8 *task)
 {
-    s32 value = *(s32 *)(*(u8 **)(arg0 + 0x38));
+    s32 value = ((WindowWork *)((KwlnTask *)task)->work)->state;
 
     if ((value == 6) || (value == 8)) {
         return 0;
@@ -741,13 +762,16 @@ s32 sdkWindowIsOpen(u8 *arg0)
 }
 
 // FUN_0046EA50
-void sdkWindowSetCommand(u8 *arg0, s32 arg1)
+void sdkWindowSetCommand(u8 *task, s32 enabled)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
+    ((WindowWork *)((KwlnTask *)task)->work)->enabled = enabled;
 }
 
+/* Update border and fill quad positions only while the window is in its stable state. */
+/* measured: copying rectangle integer members instead of the FInput aggregate loses MATCH; this copy
+ * preserves the original word bits and floating-point load/store class. */
 // FUN_0046EA60
-void sdkWindowSetRect(u8 *arg0, u8 *arg1)
+void sdkWindowSetRect(u8 *task, u8 *rectangle)
 {
     struct FInput {
         f32 f0;
@@ -757,87 +781,83 @@ void sdkWindowSetRect(u8 *arg0, u8 *arg1)
     };
     union Input {
         struct {
-            s32 sp0;
-            s32 sp4;
-            s32 sp8;
-            s32 spC;
+            s32 rectangleLeft;
+            s32 rectangleTop;
+            s32 rectangleWidth;
+            s32 rectangleHeight;
         } i;
         struct FInput f;
     } input;
-#define sp0 input.i.sp0
-#define sp4 input.i.sp4
-#define sp8 input.i.sp8
-#define spC input.i.spC
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f4;
+    f32 topInset;
+    f32 rightInset;
+    f32 bottomInset;
+    f32 leftInset;
+    f32 bottomReal;
+    f32 rightReal;
+    f32 topReal;
+    f32 leftReal;
     s32 bottom;
     s32 sum;
     u8 *record;
 
-    input = *(union Input *)arg1;
-    record = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(record + 0) == 6) {
+    input = *(union Input *)rectangle;
+    record = ((KwlnTask *)task)->work;
+    if (((WindowWork *)record)->state == 6) {
         *(struct FInput *)(record + 0xC) = input.f;
-        temp_f4 = (f32)sp0;
-        *(f32 *)(record + 0x60) = temp_f4;
-        temp_f3 = (f32)sp4;
-        *(f32 *)(record + 0x64) = temp_f3;
-        sum = sp0 + sp8;
-        temp_f2 = (f32)sum;
-        *(f32 *)(record + 0xA0) = temp_f2;
-        *(f32 *)(record + 0xA4) = temp_f3;
-        *(f32 *)(record + 0xE0) = temp_f4;
-        temp_f0 = (f32)(sp4 + 2);
-        *(f32 *)(record + 0xE4) = temp_f0;
-        *(f32 *)(record + 0x120) = temp_f2;
-        *(f32 *)(record + 0x124) = temp_f0;
-        temp_f0_2 = (f32)(sum - 2);
-        *(f32 *)(record + 0x160) = temp_f0_2;
-        *(f32 *)(record + 0x164) = temp_f3;
-        *(f32 *)(record + 0x1A0) = temp_f2;
-        *(f32 *)(record + 0x1A4) = temp_f3;
-        *(f32 *)(record + 0x1E0) = temp_f0_2;
-        bottom = sp4 + spC;
-        temp_f1 = (f32)bottom;
-        *(f32 *)(record + 0x1E4) = temp_f1;
-        *(f32 *)(record + 0x220) = temp_f2;
-        *(f32 *)(record + 0x224) = temp_f1;
-        *(f32 *)(record + 0x260) = temp_f4;
-        temp_f0_3 = (f32)(bottom - 2);
-        *(f32 *)(record + 0x264) = temp_f0_3;
-        *(f32 *)(record + 0x2A0) = temp_f2;
-        *(f32 *)(record + 0x2A4) = temp_f0_3;
-        *(f32 *)(record + 0x2E0) = temp_f4;
-        *(f32 *)(record + 0x2E4) = temp_f1;
-        *(f32 *)(record + 0x320) = temp_f2;
-        *(f32 *)(record + 0x324) = temp_f1;
-        *(f32 *)(record + 0x360) = temp_f4;
-        *(f32 *)(record + 0x364) = temp_f3;
-        temp_f0_4 = (f32)(sp0 + 2);
-        *(f32 *)(record + 0x3A0) = temp_f0_4;
-        *(f32 *)(record + 0x3A4) = temp_f3;
-        *(f32 *)(record + 0x3E0) = temp_f4;
-        *(f32 *)(record + 0x3E4) = temp_f1;
-        *(f32 *)(record + 0x420) = temp_f0_4;
-        *(f32 *)(record + 0x424) = temp_f1;
-        *(f32 *)(record + 0x460) = (f32)*(s32 *)(record + 0xC);
-        *(f32 *)(record + 0x464) = (f32)*(s32 *)(record + 0x10);
-        sum = *(s32 *)(record + 0xC) + *(s32 *)(record + 0x14);
-        *(f32 *)(record + 0x4A0) = (f32)sum;
-        *(f32 *)(record + 0x4A4) = (f32)*(s32 *)(record + 0x10);
-        *(f32 *)(record + 0x4E0) = (f32)*(s32 *)(record + 0xC);
-        sum = *(s32 *)(record + 0x10) + *(s32 *)(record + 0x18);
-        *(f32 *)(record + 0x4E4) = (f32)sum;
-        sum = *(s32 *)(record + 0xC) + *(s32 *)(record + 0x14);
-        *(f32 *)(record + 0x520) = (f32)sum;
-        sum = *(s32 *)(record + 0x10) + *(s32 *)(record + 0x18);
-        *(f32 *)(record + 0x524) = (f32)sum;
+        leftReal = (f32)input.i.rectangleLeft;
+        ((WindowWork *)record)->borderVertices[0].x = leftReal;
+        topReal = (f32)input.i.rectangleTop;
+        ((WindowWork *)record)->borderVertices[0].y = topReal;
+        sum = input.i.rectangleLeft + input.i.rectangleWidth;
+        rightReal = (f32)sum;
+        ((WindowWork *)record)->borderVertices[1].x = rightReal;
+        ((WindowWork *)record)->borderVertices[1].y = topReal;
+        ((WindowWork *)record)->borderVertices[2].x = leftReal;
+        topInset = (f32)(input.i.rectangleTop + 2);
+        ((WindowWork *)record)->borderVertices[2].y = topInset;
+        ((WindowWork *)record)->borderVertices[3].x = rightReal;
+        ((WindowWork *)record)->borderVertices[3].y = topInset;
+        rightInset = (f32)(sum - 2);
+        ((WindowWork *)record)->borderVertices[4].x = rightInset;
+        ((WindowWork *)record)->borderVertices[4].y = topReal;
+        ((WindowWork *)record)->borderVertices[5].x = rightReal;
+        ((WindowWork *)record)->borderVertices[5].y = topReal;
+        ((WindowWork *)record)->borderVertices[6].x = rightInset;
+        bottom = input.i.rectangleTop + input.i.rectangleHeight;
+        bottomReal = (f32)bottom;
+        ((WindowWork *)record)->borderVertices[6].y = bottomReal;
+        ((WindowWork *)record)->borderVertices[7].x = rightReal;
+        ((WindowWork *)record)->borderVertices[7].y = bottomReal;
+        ((WindowWork *)record)->borderVertices[8].x = leftReal;
+        bottomInset = (f32)(bottom - 2);
+        ((WindowWork *)record)->borderVertices[8].y = bottomInset;
+        ((WindowWork *)record)->borderVertices[9].x = rightReal;
+        ((WindowWork *)record)->borderVertices[9].y = bottomInset;
+        ((WindowWork *)record)->borderVertices[10].x = leftReal;
+        ((WindowWork *)record)->borderVertices[10].y = bottomReal;
+        ((WindowWork *)record)->borderVertices[11].x = rightReal;
+        ((WindowWork *)record)->borderVertices[11].y = bottomReal;
+        ((WindowWork *)record)->borderVertices[12].x = leftReal;
+        ((WindowWork *)record)->borderVertices[12].y = topReal;
+        leftInset = (f32)(input.i.rectangleLeft + 2);
+        ((WindowWork *)record)->borderVertices[13].x = leftInset;
+        ((WindowWork *)record)->borderVertices[13].y = topReal;
+        ((WindowWork *)record)->borderVertices[14].x = leftReal;
+        ((WindowWork *)record)->borderVertices[14].y = bottomReal;
+        ((WindowWork *)record)->borderVertices[15].x = leftInset;
+        ((WindowWork *)record)->borderVertices[15].y = bottomReal;
+        ((WindowWork *)record)->fillVertices[0].x = (f32)((WindowWork *)record)->rect.x;
+        ((WindowWork *)record)->fillVertices[0].y = (f32)((WindowWork *)record)->rect.y;
+        sum = ((WindowWork *)record)->rect.x + ((WindowWork *)record)->rect.width;
+        ((WindowWork *)record)->fillVertices[1].x = (f32)sum;
+        ((WindowWork *)record)->fillVertices[1].y = (f32)((WindowWork *)record)->rect.y;
+        ((WindowWork *)record)->fillVertices[2].x = (f32)((WindowWork *)record)->rect.x;
+        sum = ((WindowWork *)record)->rect.y + ((WindowWork *)record)->rect.height;
+        ((WindowWork *)record)->fillVertices[2].y = (f32)sum;
+        sum = ((WindowWork *)record)->rect.x + ((WindowWork *)record)->rect.width;
+        ((WindowWork *)record)->fillVertices[3].x = (f32)sum;
+        sum = ((WindowWork *)record)->rect.y + ((WindowWork *)record)->rect.height;
+        ((WindowWork *)record)->fillVertices[3].y = (f32)sum;
     }
 }
 
@@ -848,12 +868,15 @@ void sdkWindowSetRect(u8 *arg0, u8 *arg1)
    arguments, so `(s32)&iGpffffb0xx` pulled the `addiu` forward.  Declaring
    the parameter `const void *` and dropping the casts restores retail's
    order.  Same lever as func_00196040's out-parameters in code1_001c.c. */
+/* Draw the visible rows, formatting values with either supplied callbacks or the debug printer. */
+/* measured: typing the initial X read or the remaining draw-callback loads individually loses MATCH; other
+ * row, value, and callback fields are typed. */
 // FUN_0046EC70
-void sdkLboxDrawEntries(u8 *arg0) {
+void sdkLboxDrawEntries(u8 *task) {
     extern char *strcpy(char *dst, const char *src);
     extern s32 strlen(const void *str);
     extern s32 fptodp(f32 value);
-    extern void sdkDbprtQueueColoredText(s64 arg0, s32 arg1, const void *arg2, ...);
+    extern void sdkDbprtQueueColoredText(s64 task, s32 mode, const void *textArgument, ...);
     extern s32 iGpffffb064;
     extern char iGpffffb068;
     extern char iGpffffb06c;
@@ -867,124 +890,124 @@ void sdkLboxDrawEntries(u8 *arg0) {
     extern char iGpffffb0a4;
     extern char iGpffffb0a8;
     extern char iGpffffb0b0;
-    u8 *ctx;
-    u8 *node;
-    s32 i;
-    s32 w;
-    char buf[0x108];
-    f32 pos[2];
-    ctx = *(u8 **)(arg0 + 0x38);
-    node = *(u8 **)(ctx + 0x144);
-    pos[0] = (f32)(*(s32 *)(ctx + 0x18) + 2);
-    pos[1] = (f32)(*(s32 *)(ctx + 0x1C) + 2);
-    for (i = 0; node != NULL; i++) {
+    u8 *work;
+    u8 *entry;
+    s32 rowIndex;
+    s32 rightEdge;
+    char text[0x108];
+    f32 position[2];
+    work = ((KwlnTask *)task)->work;
+    entry = (u8 *)((ControllerWork *)work)->firstEntry;
+    position[0] = (f32)(*(s32 *)(work + 0x18) + 2);
+    position[1] = (f32)(((ControllerWork *)work)->rectangle.y + 2);
+    for (rowIndex = 0; entry != NULL; rowIndex++) {
         s32 first;
-        first = *(s32 *)(ctx + 0x138);
-        if (i < first) {
-            node = *(u8 **)(node + 0x228);
+        first = ((ControllerWork *)work)->firstVisibleRow;
+        if (rowIndex < first) {
+            entry = (u8 *)((ControllerEntry *)entry)->next;
             continue;
         }
-        if (i > first + *(s32 *)(ctx + 0x13C) - 1) {
+        if (rowIndex > first + ((ControllerWork *)work)->visibleRows - 1) {
             return;
         }
-        if (*(s32 *)(ctx + 0x154) != 0) {
-            ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb068, node + 8);
-            switch (*(s32 *)(node + 4)) {
+        if ((s32)((ControllerWork *)work)->drawText != 0) {
+            ((ControllerWork *)work)->drawText(position, &iGpffffb068, entry + 8);
+            switch (((ControllerEntry *)entry)->type) {
             case 0:
                 break;
             case 1: {
-                sprintf(buf, &iGpffffb06c, node + 0x108);
-                w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
-                pos[0] = (f32)(*(s32 *)(ctx + 0x28) + (w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf)));
-                ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                sprintf(text, &iGpffffb06c, entry + 0x108);
+                rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
+                position[0] = (f32)(((ControllerWork *)work)->columnWidth + (rightEdge - ((ControllerWork *)work)->measureText(text)));
+                ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
                 break;
             }
             case 2: {
-                strcpy(buf, &iGpffffb070);
-                w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
-                pos[0] = (f32)(*(s32 *)(ctx + 0x28) + (w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf)));
-                if (*(s32 *)(node + 0x208) == 1) {
-                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, &iGpffffb078);
+                strcpy(text, &iGpffffb070);
+                rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
+                position[0] = (f32)(((ControllerWork *)work)->columnWidth + (rightEdge - ((ControllerWork *)work)->measureText(text)));
+                if (((ControllerEntry *)entry)->integerValue == 1) {
+                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, &iGpffffb078);
                 } else {
-                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, &iGpffffb080);
+                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, &iGpffffb080);
                 }
                 break;
             }
             case 3: {
-                if (*(s32 *)(node + 0x218) == 0) {
-                    sprintf(buf, &iGpffffb088, *(s32 *)(node + 0x208));
-                    w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
-                    pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
-                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                if (((ControllerEntry *)entry)->flags == 0) {
+                    sprintf(text, &iGpffffb088, ((ControllerEntry *)entry)->integerValue);
+                    rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
+                    position[0] = (f32)(rightEdge - ((ControllerWork *)work)->measureText(text));
+                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
                 } else {
-                    sprintf(buf, &iGpffffb090, *(s32 *)(node + 0x208));
-                    w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
-                    pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
-                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                    sprintf(text, &iGpffffb090, ((ControllerEntry *)entry)->integerValue);
+                    rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
+                    position[0] = (f32)(rightEdge - ((ControllerWork *)work)->measureText(text));
+                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
                 }
                 break;
             }
             case 4: {
                 s32 v;
-                v = fptodp(*(f32 *)(node + 0x20C));
-                sprintf(buf, &iGpffffb098, v);
-                w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
-                pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
-                ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                v = fptodp(((ControllerEntry *)entry)->realValue);
+                sprintf(text, &iGpffffb098, v);
+                rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
+                position[0] = (f32)(rightEdge - ((ControllerWork *)work)->measureText(text));
+                ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
                 break;
             }
             }
         } else {
-            sdkDbprtQueueText(*(s64 *)pos, &iGpffffb0a0, node + 8);
-            switch (*(s32 *)(node + 4)) {
+            sdkDbprtQueueText(*(s64 *)position, &iGpffffb0a0, entry + 8);
+            switch (((ControllerEntry *)entry)->type) {
             case 0:
                 break;
             case 1: {
                 s32 v;
-                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (strlen(node + 0x108) + 1));
-                pos[0] = (f32)(u32)v;
-                sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb0a4, node + 0x108);
+                v = (((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2) - (((ControllerWork *)work)->columnWidth * (strlen(entry + 0x108) + 1));
+                position[0] = (f32)(u32)v;
+                sdkDbprtQueueColoredText(*(s64 *)position, iGpffffb064, &iGpffffb0a4, entry + 0x108);
                 break;
             }
             case 2: {
                 s32 v;
-                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (strlen(&iGpffffb0a8) + 1));
-                pos[0] = (f32)(u32)v;
-                if (*(s32 *)(node + 0x208) == 1) {
-                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb078);
+                v = (((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2) - (((ControllerWork *)work)->columnWidth * (strlen(&iGpffffb0a8) + 1));
+                position[0] = (f32)(u32)v;
+                if (((ControllerEntry *)entry)->integerValue == 1) {
+                    sdkDbprtQueueColoredText(*(s64 *)position, iGpffffb064, &iGpffffb078);
                 } else {
-                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb080);
+                    sdkDbprtQueueColoredText(*(s64 *)position, iGpffffb064, &iGpffffb080);
                 }
                 break;
             }
             case 3: {
-                if (*(s32 *)(node + 0x218) == 0) {
+                if (((ControllerEntry *)entry)->flags == 0) {
                     s32 v;
-                    v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 9);
-                    pos[0] = (f32)v;
-                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb088, *(s32 *)(node + 0x208));
+                    v = (((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2) - (((ControllerWork *)work)->columnWidth * 9);
+                    position[0] = (f32)v;
+                    sdkDbprtQueueColoredText(*(s64 *)position, iGpffffb064, &iGpffffb088, ((ControllerEntry *)entry)->integerValue);
                 } else {
                     s32 v;
-                    v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 11);
-                    pos[0] = (f32)v;
-                    sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb0b0, *(s32 *)(node + 0x208));
+                    v = (((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2) - (((ControllerWork *)work)->columnWidth * 11);
+                    position[0] = (f32)v;
+                    sdkDbprtQueueColoredText(*(s64 *)position, iGpffffb064, &iGpffffb0b0, ((ControllerEntry *)entry)->integerValue);
                 }
                 break;
             }
             case 4: {
                 s32 v;
                 s32 r;
-                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 8);
-                pos[0] = (f32)v;
-                r = fptodp(*(f32 *)(node + 0x20C));
-                sdkDbprtQueueColoredText(*(s64 *)pos, iGpffffb064, &iGpffffb098, r);
+                v = (((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2) - (((ControllerWork *)work)->columnWidth * 8);
+                position[0] = (f32)v;
+                r = fptodp(((ControllerEntry *)entry)->realValue);
+                sdkDbprtQueueColoredText(*(s64 *)position, iGpffffb064, &iGpffffb098, r);
                 break;
             }
             }
         }
-        pos[0] = (f32)(*(s32 *)(ctx + 0x18) + 2);
-        pos[1] = pos[1] + (f32)*(s32 *)(ctx + 0x2C);
-        node = *(u8 **)(node + 0x228);
+        position[0] = (f32)(((ControllerWork *)work)->rectangle.x + 2);
+        position[1] = position[1] + (f32)((ControllerWork *)work)->rowHeight;
+        entry = (u8 *)((ControllerEntry *)entry)->next;
     }
 }
 
@@ -994,6 +1017,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
 #pragma push
 /* measured: sdkLboxUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Advance list-box creation, drawing, selection, and value editing; dispatch the selected entry callback. */
 // FUN_0046F2B0
 s32 sdkLboxUpdate(u8 *task)
 {
@@ -1060,7 +1084,7 @@ s32 sdkLboxUpdate(u8 *task)
     ControllerEntry *selectedEntry;
     u8 *vertexBase;
 
-    work = *(ControllerWork **)(task + 0x38);
+    work = (ControllerWork *)((KwlnTask *)task)->work;
     modifier = 0;
     state = work->state;
     switch (state) {
@@ -1071,7 +1095,7 @@ s32 sdkLboxUpdate(u8 *task)
     default:
         goto update_callback;
     case 1:
-        depth = *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+        depth = ((RwCamera *)((u8 *)kwlnGetCamera()))->nearPlane;
         reciprocalDepth = 1.0f / depth;
         theme = work->theme;
         switch (theme) {
@@ -1125,18 +1149,18 @@ s32 sdkLboxUpdate(u8 *task)
          * preserves their order while each iteration advances one vertex. */
         for (; vertexIndex < 4; vertexIndex++) {
             vertexBase = (u8 *)work + (vertexIndex << 6);
-            *(f32 *)(vertexBase + 0x30) = 0.0f;
-            *(f32 *)(vertexBase + 0x34) = 0.0f;
-            *(f32 *)(vertexBase + 0x38) = depth;
-            *(f32 *)(vertexBase + 0x48) = reciprocalDepth;
+            ((ControllerWork *)vertexBase)->vertices[0].x = 0.0f;
+            ((ControllerWork *)vertexBase)->vertices[0].y = 0.0f;
+            ((ControllerWork *)vertexBase)->vertices[0].z = depth;
+            ((ControllerWork *)vertexBase)->vertices[0].reciprocalZ = reciprocalDepth;
             redFloat = (f32) red;
-            *(f32 *)(vertexBase + 0x50) = redFloat;
+            ((ControllerWork *)vertexBase)->vertices[0].red = redFloat;
             greenFloat = (f32) green;
-            *(f32 *)(vertexBase + 0x54) = greenFloat;
+            ((ControllerWork *)vertexBase)->vertices[0].green = greenFloat;
             blueFloat = (f32) blue;
-            *(f32 *)(vertexBase + 0x58) = blueFloat;
+            ((ControllerWork *)vertexBase)->vertices[0].blue = blueFloat;
             alphaFloat = (f32) alpha;
-            *(f32 *)(vertexBase + 0x5C) = alphaFloat;
+            ((ControllerWork *)vertexBase)->vertices[0].alpha = alphaFloat;
         }
         work->state = work->state + 1;
         goto update_callback;
@@ -1224,7 +1248,7 @@ s32 sdkLboxUpdate(u8 *task)
                 if (delay > 0) {
                     work->delay = (s32) (delay - 1);
                 } else if (sdkListStateHandleInput(work->input) != 0) {
-                    work->selectedValue = sdkListStateGetScroll(work->input);
+                    work->firstVisibleRow = sdkListStateGetScroll(work->input);
                     work->selectedRow = sdkListStateGetCursor(work->input);
                 } else if (D_008C0252[0] & 0x2000) {
                     incrementEntry = (ControllerEntry *)sdkLboxFindEntry(task, sdkLboxGetSelectedId(task));

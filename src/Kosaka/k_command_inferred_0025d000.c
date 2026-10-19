@@ -49,20 +49,20 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 // Intent: Common script command ADD_PC_MONEY (p4flow Common 0x0050): adds money, clamped to 9,999,999 and at least zero [inferred]
 // FUN_0025D000
 s32 scrCommonAddPcMoney(void) {
-    s32 temp_16;
-    s32 var_4;
-    temp_16 = datGetMoney();
+    s32 currentMoney;
+    s32 newMoney;
+    currentMoney = datGetMoney();
 
-    var_4 = temp_16 + scrGetParamInt(0);
-    if (var_4 <= 0x0098967F) {
+    newMoney = currentMoney + scrGetParamInt(0);
+    if (newMoney <= 0x0098967F) {
         goto block_1;
     }
-    var_4 = 0x0098967FU;
+    newMoney = 0x0098967FU;
 block_1:
-    if (var_4 < 0) {
-        var_4 = 0;
+    if (newMoney < 0) {
+        newMoney = 0;
     }
-    datSetMoney(var_4);
+    datSetMoney(newMoney);
     scrSetReturnInt(datGetMoney());
     return 1;
 }

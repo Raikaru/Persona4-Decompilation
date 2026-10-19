@@ -1,3 +1,4 @@
+#include "Kosaka/k_misc_work_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -24,29 +25,11 @@ typedef struct RwRGBA
     u8 a;
 } RwRGBA;
 
-/* 12 bytes */
-typedef struct DelayMdlFreeWork
-{
-    s32 state;    /* 0x00 */
-    s32 countdown; /* 0x04 */
-    Model* mdl;   /* 0x08 */
-} DelayMdlFreeWork;
-
 /* 4 bytes */
 typedef struct ScrShutdownWork
 {
     KwlnTask* scrTask; /* 0x00 */
 } ScrShutdownWork;
-
-/* 20 bytes */
-typedef struct RmdFadeWork
-{
-    s32 state;           /* 0x00 */
-    Model* mdl;          /* 0x04 */
-    f32 targetAlpha;     /* 0x08 */
-    f32 currentAlpha;    /* 0x0c */
-    s32 framesRemaining; /* 0x10 */
-} RmdFadeWork;
 
 extern void chkmemAllocSiteTag(const void* file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);  /* RwCalloc slot */
@@ -87,24 +70,27 @@ s32 KMisc_CreateDelayMdlFree(Model* mdl, s32 countdown)
     return task;
 }
 
+/* Destroy the recorded script task and its hierarchy, then finish this helper task. */
 // FUN_0014B930
-s32 KMisc_ScrShutdownUpdate(u8 *arg0)
+s32 KMisc_ScrShutdownUpdate(u8 *task)
 {
-    KwlnTask* scrShutdownTask = (KwlnTask*)arg0;
+    KwlnTask* scrShutdownTask = (KwlnTask*)task;
 
     kwlnTaskDestroyWithHierarchy(((ScrShutdownWork*)scrShutdownTask->workData)->scrTask);
 
     return -1;
 }
 
+/* Release the one-shot script-shutdown work after its callback has finished. */
 // FUN_0014B960
-void KMisc_ScrShutdownDestroy(u8 *arg0)
+void KMisc_ScrShutdownDestroy(u8 *task)
 {
-    KwlnTask* scrShutdownTask = (KwlnTask*)arg0;
+    KwlnTask* scrShutdownTask = (KwlnTask*)task;
 
     jtbl_008873EC[0](scrShutdownTask->workData);
 }
 
+/* Create a one-shot helper that destroys the supplied script hierarchy. */
 // FUN_0014B990
 s32 KMisc_CreateScrShutdown(KwlnTask* scrTask)
 {
@@ -124,15 +110,16 @@ s32 KMisc_CreateScrShutdown(KwlnTask* scrTask)
     return task;
 }
 
+/* Interpolate model alpha to its target over the remaining frames, then hold the final alpha. */
 // FUN_0014BA40
-s32 KMisc_RmdFadeUpdate(u8 *arg0)
+s32 KMisc_RmdFadeUpdate(u8 *task)
 {
     RmdFadeWork* work;
     u8* rgba;
     RwRGBA color;
     f32 alpha;
 
-    work = (RmdFadeWork *)((KwlnTask *)arg0)->workData;
+    work = (RmdFadeWork *)((KwlnTask *)task)->workData;
     rgba = mdlGetColor(work->mdl);
     color = *(RwRGBA *)rgba;
     switch (work->state) {
@@ -157,16 +144,18 @@ done:
     return 0;
 }
 
+/* Release the model fade work without changing the model color. */
 // FUN_0014BBB0
-void KMisc_RmdFadeDestroy(u8 *arg0)
+void KMisc_RmdFadeDestroy(u8 *task)
 {
-    KwlnTask* rmdFadeTask = (KwlnTask*)arg0;
+    KwlnTask* rmdFadeTask = (KwlnTask*)task;
 
     jtbl_008873EC[0](rmdFadeTask->workData);
 }
 
+/* Create a model-alpha interpolation task with explicit starting and target alpha. */
 // FUN_0014BBE0
-s32 KMisc_CreateRmdFade(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 KMisc_CreateRmdFade(s32 parent, s32 model, s32 startAlpha, s32 targetAlpha, s32 frames)
 {
     RwRGBA color;
     u8* rgba;
@@ -175,9 +164,9 @@ s32 KMisc_CreateRmdFade(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     s32 task;
     RmdFadeWork* work;
 
-    rgba = mdlGetColor((void*)arg1);
+    rgba = mdlGetColor((void*)model);
     color = *(RwRGBA *)rgba;
-    if (arg1 == 0) {
+    if (model == 0) {
         return 0;
     }
     chkmemAllocSiteTag(D_005EFB28, 0x1C6);
@@ -185,13 +174,13 @@ s32 KMisc_CreateRmdFade(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (work == NULL) {
         return 0;
     }
-    task = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFB80), 0xF, 0, 0, KMisc_RmdFadeUpdate, KMisc_RmdFadeDestroy, (u8 *)((u8*)work));
-    work->mdl = (Model*)arg1;
-    target = (f32)(u32)arg3;
+    task = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005EFB80), 0xF, 0, 0, KMisc_RmdFadeUpdate, KMisc_RmdFadeDestroy, (u8 *)((u8*)work));
+    work->mdl = (Model*)model;
+    target = (f32)(u32)targetAlpha;
     work->targetAlpha = target;
-    work->framesRemaining = arg4;
-    current = (f32)(u32)arg2;
+    work->framesRemaining = frames;
+    current = (f32)(u32)startAlpha;
     work->currentAlpha = current;
-    mdlSetColor((void*)arg1, &color);
+    mdlSetColor((void*)model, &color);
     return task;
 }

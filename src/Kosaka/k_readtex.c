@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 /* Original translation unit k_readtex.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_task_registration.h"
@@ -33,8 +34,9 @@ extern s32 iGpffffa030;
 /* Source unit: src/promoted/k_readtex.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_readtex.c; members 001901d0-00190600 */
 
+/* Load four texture archives, wait for their consumer tasks, then release the archive handles. */
 // FUN_001901D0
-s32 K_ReadTexUpdate(u8 *arg0)
+s32 K_ReadTexUpdate(u8 *task)
 {
     typedef struct {
         s32 state;
@@ -49,7 +51,7 @@ s32 K_ReadTexUpdate(u8 *arg0)
     s32 *slot;
     s32 result;
 
-    state = *(ReadTexState **)(arg0 + 0x38);
+    state = (ReadTexState *)((KwlnTask *)task)->work;
     switch (state->state) {
     case 0:
         handle = func_003ef650(func_003ef6d0(), D_005F6040);
@@ -120,10 +122,11 @@ s32 K_ReadTexUpdate(u8 *arg0)
 }
 
 // FUN_001905D0
-void K_ReadTexDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+void K_ReadTexDestroy(u8 *task) {
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
+/* Allocate the four-archive texture-loading state and create its scheduler task. */
 // FUN_00190600
 void K_ReadTexTaskCreate(void)
 {

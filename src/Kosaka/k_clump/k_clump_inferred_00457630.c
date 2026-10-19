@@ -1,3 +1,4 @@
+#include "rw_atomic_layout_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -243,62 +244,71 @@ static inline s32 fontAtlasColumn(s32 value)
 /* measured: opt_propagation off preserves the retail global-load destination register. */
 /* measured: K_ClumpLookAtBasis MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Build an orthonormal frame from position, target, and an optional reference-up vector. */
+/* RwFrame modelling matrix starts at +0x10 (rw/core/baframe.h). */
+struct RwFrame {
+    u8 pad00[0x10];
+    struct RwMatrixTag modelling;
+};
+
+/* measured: typing the remaining right/forward component accesses individually loses MATCH; the frame,
+ * position, and other matrix components remain typed. */
 // FUN_00457630
-void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp) {
     struct {
         s64 qword;
         f32 value;
     } local;
-    s64 source_qword;
-    f32 source_value;
+    s64 fallbackPair;
+    f32 fallbackZ;
     f32 *fallback;
     u8 *record;
     u8 *basis;
     f32 *refVec;
     u8 *fwd;
     u8 *up;
-    f32 first_a;
-    f32 first_c;
+    f32 forwardY;
+    f32 forwardX;
 
     fallback = (f32 *)&local;
-    source_qword = D_00711858[0];
-    source_value = D_00711860[0];
-    local.qword = source_qword;
-    local.value = source_value;
-    if (arg3 == NULL) {
+    fallbackPair = D_00711858[0];
+    fallbackZ = D_00711860[0];
+    local.qword = fallbackPair;
+    local.value = fallbackZ;
+    if (referenceUp == NULL) {
         refVec = fallback;
     } else {
-        refVec = arg3;
+        refVec = referenceUp;
     }
-    record = *(u8 **)(arg0 + 4);
+    record = (u8 *)((struct RpAtomic *)object)->frame;
     basis = record + 0x10;
-    *(Code45Vec3 *)(record + 0x40) = *(Code45Vec3 *)arg1;
-    *(f32 *)(record + 0x30) = *(f32 *)(arg2 + 0) - *(f32 *)(record + 0x40);
-    *(f32 *)(record + 0x34) = *(f32 *)(arg2 + 4) - *(f32 *)(record + 0x44);
-    *(f32 *)(record + 0x38) = *(f32 *)(arg2 + 8) - *(f32 *)(record + 0x48);
+    ((struct RwFrame *)record)->modelling.pos = *(Code45Vec3 *)position;
+    ((struct RwFrame *)record)->modelling.at.x = ((Code45Vec3 *)target)->x - ((struct RwFrame *)record)->modelling.pos.x;
+    ((struct RwFrame *)record)->modelling.at.y = ((Code45Vec3 *)target)->y - ((struct RwFrame *)record)->modelling.pos.y;
+    ((struct RwFrame *)record)->modelling.at.z = ((Code45Vec3 *)target)->z - ((struct RwFrame *)record)->modelling.pos.z;
     fwd = basis + 0x20;
     RwV3dNormalize((f32 *)fwd, (f32 *)fwd);
-    *(f32 *)(basis + 0) =
+    ((struct RwMatrixTag *)basis)->right.x =
         *(f32 *)(basis + 0x24) * refVec[2] -
         *(f32 *)(basis + 0x28) * refVec[1];
     *(f32 *)(basis + 4) =
         *(f32 *)(basis + 0x28) * refVec[0] -
         *(f32 *)(basis + 0x20) * refVec[2];
-    first_a = *(f32 *)(basis + 0x24);
-    first_c = *(f32 *)(basis + 0x20);
+    forwardY = *(f32 *)(basis + 0x24);
+    forwardX = *(f32 *)(basis + 0x20);
     *(f32 *)(basis + 8) =
-        first_c * refVec[1] -
-        first_a * refVec[0];
+        forwardX * refVec[1] -
+        forwardY * refVec[0];
     RwV3dNormalize((f32 *)basis, (f32 *)basis);
-    *(f32 *)(basis + 0x10) =
-        *(f32 *)(basis + 0x24) * *(f32 *)(basis + 8) -
-        *(f32 *)(basis + 0x28) * *(f32 *)(basis + 4);
-    *(f32 *)(basis + 0x14) =
-        *(f32 *)(basis + 0x28) * *(f32 *)(basis + 0) -
-        *(f32 *)(basis + 0x20) * *(f32 *)(basis + 8);
-    *(f32 *)(basis + 0x18) =
-        *(f32 *)(basis + 0x20) * *(f32 *)(basis + 4) -
-        *(f32 *)(basis + 0x24) * *(f32 *)(basis + 0);
+    ((struct RwMatrixTag *)basis)->up.x =
+        ((struct RwMatrixTag *)basis)->at.y * ((struct RwMatrixTag *)basis)->right.z -
+        ((struct RwMatrixTag *)basis)->at.z * ((struct RwMatrixTag *)basis)->right.y;
+    ((struct RwMatrixTag *)basis)->up.y =
+        ((struct RwMatrixTag *)basis)->at.z * ((struct RwMatrixTag *)basis)->right.x -
+        *(f32 *)(basis + 0x20) * ((struct RwMatrixTag *)basis)->right.z;
+    ((struct RwMatrixTag *)basis)->up.z =
+        ((struct RwMatrixTag *)basis)->at.x * ((struct RwMatrixTag *)basis)->right.y -
+        ((struct RwMatrixTag *)basis)->at.y * ((struct RwMatrixTag *)basis)->right.x;
     up = basis + 0x10;
     RwV3dNormalize((f32 *)up, (f32 *)up);
     RwMatrixUpdate(basis);
