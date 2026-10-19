@@ -1,3 +1,4 @@
+#include "sdktask.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -18,7 +19,18 @@ extern void yTimeLimitTaskDestroy(u8 *arg0);
 extern u8 D_0063E900[];
 extern u8 D_0063E8F0[];
 extern s32 D_00764630;
-extern s32 func_002a2420(u8 *arg0);
+extern s32 timeLimitEntryUpdate(u8 *arg0);
+
+/* timeLimitTaskCreate allocates and clears 0x18 bytes. The entry task owns
+ * the sprite request and waits for the child display task before exiting. */
+typedef struct TimeLimitEntryWork {
+    s32 state;
+    s32 unk04;
+    s32 sprite;
+    s32 unk0C;
+    s32 childTask;
+    s32 unk14;
+} TimeLimitEntryWork;
 
 // FUN_002A2420
 /* Case values decoded from jtbl_007486C0 with tools/jtbl.py: a 0/1/2/3/5/6
@@ -27,50 +39,50 @@ extern s32 func_002a2420(u8 *arg0);
    Two prototypes had to be widened for this: kwlnTaskCreateChild's `init` callback
    returns s32 (retail's func_002a2420 leaves 0 or -1 in $v0 and the window
    manager takes it), and yTimeLimitTaskUpdate is one of those callbacks. */
-s32 func_002a2420(u8 *arg0) {
-    u8 *st;
-    u8 *mem;
-    s32 r;
+s32 timeLimitEntryUpdate(u8 *task) {
+    TimeLimitEntryWork *work;
+    u8 *childWork;
+    s32 childTask;
 
-    st = *(u8 **)(arg0 + 0x38);
-    switch ((u32)*(s32 *)st) {
+    work = (TimeLimitEntryWork *)((SdkTask *)task)->work;
+    switch ((u32)work->state) {
     case 0:
         yTimeLimitReset();
-        *(s32 *)st = 1;
+        work->state = 1;
         hsndQueueSound(0x14, 0x1E);
         break;
     case 1:
-        *(s32 *)(st + 8) = sdkSpriteRequestLoad(D_0063E900);
-        *(s32 *)st = 2;
+        work->sprite = sdkSpriteRequestLoad(D_0063E900);
+        work->state = 2;
         break;
     case 2:
-        if (hMaestroDecodeIsReady(*(s32 *)(st + 8)) != 1) {
+        if (hMaestroDecodeIsReady(work->sprite) != 1) {
             break;
         }
-        D_00764630 = *(s32 *)(st + 8);
+        D_00764630 = work->sprite;
         chkmemAllocSiteTag(D_0063E8E0, 0xA5E);
-        mem = D_008873F4[0](1, 0x1C6C, 0x40000);
-        if (mem == NULL) {
-            r = 0;
+        childWork = D_008873F4[0](1, 0x1C6C, 0x40000);
+        if (childWork == NULL) {
+            childTask = 0;
         } else {
-            memset(mem, 0, 0x1C6C);
-            r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, yTimeLimitTaskUpdate, yTimeLimitTaskDestroy, (u8 *)(mem));
+            memset(childWork, 0, 0x1C6C);
+            childTask = (s32)kwlnTaskCreateChild((void *)(task), (const void *)(D_0063E8F0), 0xF, 0, 0, yTimeLimitTaskUpdate, yTimeLimitTaskDestroy, (u8 *)(childWork));
         }
-        *(s32 *)(st + 0x10) = r;
-        *(s32 *)st = 3;
+        work->childTask = childTask;
+        work->state = 3;
         break;
     case 3:
-        *(s32 *)(st + 0xC) = 0;
-        *(s32 *)st = 5;
+        work->unk0C = 0;
+        work->state = 5;
         break;
     case 5:
-        if (kwlnTaskGetState(*(s32 *)(st + 0x10)) != 3) {
-            if (kwlnTaskGetState(*(s32 *)(st + 0x10)) != 0) {
+        if (kwlnTaskGetState(work->childTask) != 3) {
+            if (kwlnTaskGetState(work->childTask) != 0) {
                 break;
             }
         }
-        *(s32 *)(st + 0x10) = 0;
-        *(s32 *)st = 6;
+        work->childTask = 0;
+        work->state = 6;
         break;
     case 6:
         D_00764630 = 0;
@@ -81,29 +93,30 @@ s32 func_002a2420(u8 *arg0) {
     return 0;
 }
 
+/* Release any loaded time-limit sprite and free the entry task work. */
 // FUN_002A2600
-void func_002a2600(u8 *arg0)
+void timeLimitEntryDestroy(u8 *task)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(b + 0x8) != 0) {
-        sdkSpriteRelease(*(s32 *)(b + 0x8));
-        *(s32 *)(b + 0x8) = 0;
+    TimeLimitEntryWork *work = (TimeLimitEntryWork *)((SdkTask *)task)->work;
+    if (work->sprite != 0) {
+        sdkSpriteRelease(work->sprite);
+        work->sprite = 0;
     }
-    jtbl_008873EC[0](b);
+    jtbl_008873EC[0](work);
 }
 
 // Intent: Create the time limit task as a child of the given parent, with its update and destroy callbacks [inferred]
 // FUN_002A2650
-s32 timeLimitTaskCreate(u8 *arg0)
+s32 timeLimitTaskCreate(u8 *parent)
 {
-    u8 *mem;
+    u8 *work;
 
     chkmemAllocSiteTag(D_0063E8E0, 0xB03);
-    mem = D_008873F4[0](1, 0x18, 0x40000);
-    if (mem == NULL) {
+    work = D_008873F4[0](1, 0x18, 0x40000);
+    if (work == NULL) {
         return 0;
     }
-    memset(mem, 0, 0x18);
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063E918), 0xF, 0, 0, func_002a2420, func_002a2600, (u8 *)(mem));
+    memset(work, 0, 0x18);
+    return (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063E918), 0xF, 0, 0, timeLimitEntryUpdate, timeLimitEntryDestroy, (u8 *)(work));
 }
 

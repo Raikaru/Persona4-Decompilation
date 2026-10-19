@@ -1,3 +1,4 @@
+#include "resrc_manager_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Original translation unit mt_sceneIcon.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -7,6 +8,16 @@ extern s32 H_Cdvd_LookupRequest(s32 arg0, void *arg1);
 extern u8 *mdlEffectCreateFromResource(s32 arg0);
 extern void MT_Scene_SpawnIconTask(s32 arg0);
 extern s32 D_0063B4F0[];
+
+/* Allocated by mtSceneIconSpawnTask (0x10 bytes); resource index and request
+ * result are words, while the scene resource id is a halfword. */
+typedef struct MtSceneIconLoadWork {
+    u32 state;
+    u16 resourceId;
+    u8 pad06[2];
+    u32 iconIndex;
+    s32 request;
+} MtSceneIconLoadWork;
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -46,49 +57,49 @@ void mtSceneIconLoadDirectory(void)
 
 // Scene icon task update: state 0 starts the icon lookup request; state 1 attaches the loaded handle to the icon resource and spawns any previous handle [inferred].
 // FUN_0026D890
-s32 mtSceneIconTaskUpdate(u8 *arg0)
+s32 mtSceneIconTaskUpdate(u8 *unusedTask)
 {
-    u8 sp3C[4];
+    u8 requestInfo[4];
     u8 *handle;
-    u8 *w;
-    u8 *icon;
-    s32 icon_raw;
+    u8 *work;
+    ResrcRecord *icon;
+    s32 resourceAddress;
     s32 kind;
-    s32 prev;
-    u32 idx;
-    s32 res;
+    s32 previousEffect;
+    u32 iconIndex;
+    s32 request;
 
-    w = (u8 *)kwlnTaskGetWork();
-    switch (*(u32 *)w) {
+    work = (u8 *)kwlnTaskGetWork();
+    switch (((MtSceneIconLoadWork *)work)->state) {
     case 0:
-        idx = *(u32 *)(w + 8);
-        if (idx > 0x1AU) {
-            res = 0;
-        } else if (D_0063B4F0[idx] == 0) {
-            res = 0;
+        iconIndex = ((MtSceneIconLoadWork *)work)->iconIndex;
+        if (iconIndex > 0x1AU) {
+            request = 0;
+        } else if (D_0063B4F0[iconIndex] == 0) {
+            request = 0;
         } else {
-            res = H_Cdvd_LookupRequest(D_0063B4F0[idx], &sp3C[0]);
+            request = H_Cdvd_LookupRequest(D_0063B4F0[iconIndex], &requestInfo[0]);
         }
-        *(s32 *)(w + 0xC) = res;
-        *(u32 *)w = 1;
+        ((MtSceneIconLoadWork *)work)->request = request;
+        ((MtSceneIconLoadWork *)work)->state = 1;
         break;
     case 1:
-        handle = mdlEffectCreateFromResource(*(s32 *)(w + 0xC));
-        if ((icon_raw = (s32)MT_Scene_GetRes(*(u16 *)(w + 4))) != 0) {
-            icon = (u8 *)icon_raw;
-            kind = (*(u16 *)icon & 0xFFC00) >> 0xA;
+        handle = mdlEffectCreateFromResource(((MtSceneIconLoadWork *)work)->request);
+        if ((resourceAddress = (s32)MT_Scene_GetRes(((MtSceneIconLoadWork *)work)->resourceId)) != 0) {
+            icon = (ResrcRecord *)resourceAddress;
+            kind = (icon->resTypeId & 0xFFC00) >> 0xA;
             if (kind == 1) {
-                prev = *(s32 *)(icon + 0x140);
-                if (prev != 0) {
-                    MT_Scene_SpawnIconTask(prev);
+                previousEffect = (s32)icon->slotHandle[0];
+                if (previousEffect != 0) {
+                    MT_Scene_SpawnIconTask(previousEffect);
                 }
-                *(u8 **)(icon + 0x140) = handle;
+                icon->slotHandle[0] = handle;
             } else if (kind == 3) {
-                prev = *(s32 *)(icon + 0x140);
-                if (prev != 0) {
-                    MT_Scene_SpawnIconTask(prev);
+                previousEffect = (s32)icon->slotHandle[0];
+                if (previousEffect != 0) {
+                    MT_Scene_SpawnIconTask(previousEffect);
                 }
-                *(u8 **)(icon + 0x140) = handle;
+                icon->slotHandle[0] = handle;
             }
         }
         return -1;
@@ -99,34 +110,34 @@ s32 mtSceneIconTaskUpdate(u8 *arg0)
 // FUN_0026D9F0
 void mtSceneIconTaskDestroy(u8 *unusedTask)
 {
-    int iVar1;
+    int workAddress;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    workAddress = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](workAddress);
 }
 
 // Starts the icon effect for kind 1 or 3 when arg1 is 0xA and the icon handle is set (returns 0); otherwise spawns mtSceneIconTaskUpdate for the resource [inferred].
 // FUN_0026DA30
-s32 mtSceneIconSpawnTask(s32 arg0, s32 arg1)
+s32 mtSceneIconSpawnTask(s32 resourceId, s32 iconIndex)
 {
     u8 *icon;
-    u8 *mem;
+    u8 *work;
     s32 kind;
 
-    if (arg1 == 0xA) {
-        icon = MT_Scene_GetRes(arg0);
+    if (iconIndex == 0xA) {
+        icon = MT_Scene_GetRes(resourceId);
         /* measured: the NULL return is an `else` clause, not an early return, so
            its zero lands after the two kind blocks exactly as retail places it. */
         if (icon != NULL) {
-            kind = (*(u16 *)icon & 0xFFC00) >> 10;
+            kind = (((ResrcRecord *)icon)->resTypeId & 0xFFC00) >> 10;
             if (kind == 1) {
-                if (*(s32 *)(icon + 0x144) != 0) {
-                    mdlEffectStart(*(s32 *)(icon + 0x144));
+                if ((s32)((ResrcRecord *)icon)->slotHandle[1] != 0) {
+                    mdlEffectStart((s32)((ResrcRecord *)icon)->slotHandle[1]);
                     return 0;
                 }
             } else if (kind == 3) {
-                if (*(s32 *)(icon + 0x144) != 0) {
-                    mdlEffectStart(*(s32 *)(icon + 0x144));
+                if ((s32)((ResrcRecord *)icon)->slotHandle[1] != 0) {
+                    mdlEffectStart((s32)((ResrcRecord *)icon)->slotHandle[1]);
                     return 0;
                 }
             }
@@ -135,9 +146,9 @@ s32 mtSceneIconSpawnTask(s32 arg0, s32 arg1)
         }
     }
     chkmemAllocSiteTag(D_0063B558, 0xC1);
-    mem = D_008873F4[0](1, 0x10, 0x40000);
-    *(s16 *)(mem + 4) = arg0;
-    *(s32 *)(mem + 8) = arg1;
-    return (s32)kwlnTaskCreate((const void *)(&iGpffffa700), 0xF, 0, 0, mtSceneIconTaskUpdate, mtSceneIconTaskDestroy, (u8 *)(mem));
+    work = D_008873F4[0](1, 0x10, 0x40000);
+    ((MtSceneIconLoadWork *)work)->resourceId = resourceId;
+    ((MtSceneIconLoadWork *)work)->iconIndex = iconIndex;
+    return (s32)kwlnTaskCreate((const void *)(&iGpffffa700), 0xF, 0, 0, mtSceneIconTaskUpdate, mtSceneIconTaskDestroy, (u8 *)(work));
 }
 
