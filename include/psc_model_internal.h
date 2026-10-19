@@ -35,7 +35,7 @@ typedef struct PscModel
     u8 color[4];
     s32 transitionTime; /* 0x44: 16.16 frame counter */
     s32 unk48;
-    u8 unk4C[0x90];
+    PscLight unk4C[4];  /* Transition quad, uploaded with a 0x24-byte stride. */
     void *unkDC;
     PscLight e0[4];
     union
