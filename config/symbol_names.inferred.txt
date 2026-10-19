@@ -845,3 +845,5 @@ fldBoardGetOccupiedCenter = 0x0015A350; // type:func  evidence: inferred: Bounds
 fldStepSaveBoard = 0x0015A7C0; // type:func  evidence: inferred: Saves a step's first board snapshot and its current reveal mask, encounter slots, and active count into within-band saved tables.
 fldStepRestoreBoard = 0x0015AC60; // type:func  evidence: inferred: Restores a visited step's saved board, reveal mask, and encounter slots; the field-resource loader otherwise generates a new board.
 fldStepLoadHandleAlwaysReady = 0x0015C630; // type:func  evidence: inferred: Ignores its handle argument and always returns one, unlike the adjacent file-load completion query.
+btlShuffleCardGetKind = 0x0036DE60; // type:func  evidence: inferred: Returns the shuffle card model mode used by sequence callers as its card-kind selector.
+btlSoundResetBattleChannels = 0x001F75B0; // type:func  evidence: inferred: Resets voice channels one through three and stops the main stream when battle-audio flag 0x40 is set.
