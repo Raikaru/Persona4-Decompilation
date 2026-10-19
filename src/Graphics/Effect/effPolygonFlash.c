@@ -61,7 +61,8 @@ extern void FlashAgedBoxInitEntries(u8 *, u8 *);
 /* Common flash instance header: the quad-copy allocator reserves 0x50 bytes
  * before its variable parameter payload; all emitters read these same slots. */
 typedef struct FlashEffect {
-    f32 position[4], rotation[4], scale[4];
+    f32 position[4], rotation[4];
+    union { f32 lanes[4]; u_long128 quad; } scale;
     s32 color;
     u32 frame;
     u32 kind;
@@ -72,9 +73,9 @@ typedef struct FlashEffect {
 
 /* The allocation header precedes the variant-sized particle array at +0x10. */
 typedef struct FlashBlock {
-    u8 *particles;
-    u8 *geometry;
-    void *allocation;
+    union { u8 *bytes; u32 word; } particles;
+    union { u8 *bytes; u32 word; void *pointer; } geometry;
+    union { void *pointer; u32 word; } allocation;
     u8 padC[4];
 } FlashBlock;
 
@@ -84,7 +85,7 @@ typedef struct FlashParameters {
     u16 resourceId;
     u8 pad2A[0xA];
     u32 lastFrame;
-    union { s32 signedCount; u16 low; } vertexCount;
+    union { s32 signedCount; u16 low; u32 count; } vertexCount;
     u8 pad3C[8];
     f32 fadeIn, fadeOut;
     s32 life, births;
@@ -108,11 +109,8 @@ typedef struct FlashUvQuad {
 } FlashUvQuad;
 
 /* Particle ages -1/-2 mean awaiting birth/disabled; nonnegative ages are live.
- * Mesh accesses below deliberately retain byte-pointer chains: replacing the
- * block -> atomic (+0x10) -> geometry (+0x18) chain and lock fields with native
- * types regressed all eight emitters and all seven geometry-update routines.
- * The native layouts are recorded in effect_mesh_internal.h; the common
- * instance/parameter fields and material accesses do not have that limitation. */
+ * Access-site trials recovered the native mesh chain without retyping byte cursors.
+ * Only the individually measured raw loads/stores below still differ when typed. */
 // Allocates a rotating-flash block: count * 24 particle bytes, a geometry handle, and an owner link.
 // FUN_0049A900
 void *FlashRotatingAllocBlock(u8 *input, s32 resource)
@@ -129,9 +127,9 @@ void *FlashRotatingAllocBlock(u8 *input, s32 resource)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x91);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 3, 5, D_007133A0, 0x48);
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 3, 5, D_007133A0, 0x48);
     return mem;
 }
 
@@ -142,8 +140,8 @@ void *FlashRotatingAllocBlock(u8 *input, s32 resource)
 // FUN_0049A9E0
 void FlashRotatingFreeBlock(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 
 typedef struct FlashRotatingParticle {
@@ -257,9 +255,11 @@ void FlashRotatingEmitQuads(u8 *effect)
         firstFrame = 0;
         births = config->births;
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
-    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 0xa);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
     direction.lane[1] = 0.0f;
     direction.lane[3] = 0.0f;
     innerWord = config->innerColor & 0x00ffffff;
@@ -408,7 +408,7 @@ void FlashRotatingEmitQuads(u8 *effect)
                     : "r"(255.0f) : "$vf2", "$vf10");
             }
             colors[0] = outerPacked;
-            *(Color4 *)(colors + 1) = *(Color4 *)colors;
+            ((Color4 *)colors)[1] = *(Color4 *)colors;
             effectVuLoad10(&innerColor);
             __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
             {
@@ -442,10 +442,10 @@ void FlashRotatingEmitQuads(u8 *effect)
         }
     }
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) {
-            *(u16 *)(geometry + 0xc) |= 1;
+        if (((EffGeometryBlock *)owner)->kind & 4) {
+            ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
 }
@@ -480,7 +480,7 @@ void FlashRotatingPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -601,15 +601,17 @@ void FlashRotatingUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -639,9 +641,9 @@ void *FlashRadialAllocBlock(u8 *input, s32 resource)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x1E6);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
     return mem;
 }
 
@@ -652,8 +654,8 @@ void *FlashRadialAllocBlock(u8 *input, s32 resource)
 // FUN_0049B640
 void FlashRadialFreeBlock(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 
 /* The inclusive color-fill bound selects retail's assembler-temp branch.
@@ -790,9 +792,11 @@ void FlashRadialEmitQuads(u8 *effect)
         firstFrame = 0;
         births = config->births;
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
-    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 0xa);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
     zero = 0.0f;
     direction.lane[1] = zero;
     direction.lane[3] = zero;
@@ -987,10 +991,10 @@ void FlashRadialEmitQuads(u8 *effect)
         }
     }
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) {
-            *(u16 *)(geometry + 0xc) |= 1;
+        if (((EffGeometryBlock *)owner)->kind & 4) {
+            ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
 }
@@ -1022,7 +1026,7 @@ void FlashRadialPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -1122,15 +1126,17 @@ void FlashRadialUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -1159,9 +1165,9 @@ void *FlashRadialAllocBlockWide(u8 *input, s32 resource)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x351);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
     return mem;
 }
 
@@ -1172,8 +1178,8 @@ void *FlashRadialAllocBlockWide(u8 *input, s32 resource)
 // FUN_0049C380
 void FlashRadialFreeBlockWide(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 
 typedef struct FlashEvolvingRadialParticle {
@@ -1275,9 +1281,11 @@ void FlashEvolvingRadialEmitQuads(u8 *effect)
         firstFrame = 0;
         births = config->births;
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 0xa);
-    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 0xa);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
     zero = 0.0f;
     direction.lane[1] = zero;
     direction.lane[3] = zero;
@@ -1482,10 +1490,10 @@ void FlashEvolvingRadialEmitQuads(u8 *effect)
         }
     }
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) {
-            *(u16 *)(geometry + 0xc) |= 1;
+        if (((EffGeometryBlock *)owner)->kind & 4) {
+            ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
 }
@@ -1517,7 +1525,7 @@ void FlashEvolvingRadialPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -1617,15 +1625,17 @@ void FlashEvolvingRadialUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -1643,8 +1653,7 @@ void FlashEvolvingRadialUpdateGeometry(u8 *input)
  * (14+ differing words); with it the loop matches. */
 // Initialises the evolving radial entries from the config (asserts when the entry array is missing).
 // FUN_0049CFC0
-/* Keep the geometry-owner chain raw: native typed loads shortened this
- * 320-byte initializer to 308 bytes and changed 38 normalized bytes. */
+/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; individual culprits remain below. */
 #pragma opt_loop_invariants on
 void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
 {
@@ -1655,8 +1664,9 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
 
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18), 0xFF0);
-        workCursor = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18) + 0x34);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)((FlashBlock *)input)->geometry.bytes)->atomic)->geometry, 0xFF0);
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        workCursor = *(u8 **)((u8*)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(input + 4))->atomic)->geometry + 0x34);
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0x4BE);
         }
@@ -1684,10 +1694,11 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = *(u8 **)(input + 4);
-        sourceObject = *(u8 **)(*(u8 **)(workCursor + 0x10) + 0x18);
+        sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
-        if (*(u16 *)(workCursor + 0) & 4) {
+        if (((EffGeometryBlock *)workCursor)->kind & 4) {
             ((RpGeometry *)sourceObject)->lockedSinceLastInst |= 1;
         }
     }
@@ -1700,29 +1711,30 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
 // FUN_0049D100
 /* Keep the pointer-bit and halfword-count accesses below: typed replacement
  * changed this constructor's instruction stream despite the proven layout. */
-/* Keep constructor count/pointer-bit stores raw: typed stores grew this window
- * from 304 to 312 bytes. The count's low half is loaded separately for the grid. */
+/* Earlier constructor-wide typing grew 304 -> 312 bytes; access-site trials retain only the culprits below. */
 void *FlashEvolvingRadialAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
 
-    size = *(u32 *)(input + 0x38) * 24;
+    size = ((FlashParameters *)input)->vertexCount.count * 24;
     chkmemAllocSiteTag(D_00713FF0, 0x4A3);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x4A4);
     }
-    *(u32 *)(mem + 0) = (u32)(mem + 0x10);
-    *(u32 *)(mem + 8) = (u32)mem;
-    if (*(u32 *)(input + 0x70) == 0) {
+    ((FlashBlock *)mem)->particles.word = (u32)(mem + 0x10);
+    ((FlashBlock *)mem)->allocation.word = (u32)mem;
+    if (((FlashParameters *)input)->unk70.bits == 0) {
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         *(u32 *)(input + 0x70) = 1;
     }
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(input + 0x38), 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
-        func_003c42b0(*(u8 **)(((FlashBlock *)mem)->geometry + 0x14), (void *)TnSlotObject(0x12));
+        func_003c42b0(((EffGeometryBlock *)((FlashBlock *)mem)->geometry.bytes)->material, (void *)TnSlotObject(0x12));
     } else {
-        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry, resource);
+        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry.bytes, resource);
     }
     FlashEvolvingRadialInitEntries(mem, input);
     return mem;
@@ -1746,12 +1758,13 @@ void *FlashEvolvingRadialAllocFromParent(u8 *input)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x4A4);
     }
-    *(u32 *)(mem + 0) = (u32)(mem + 0x10);
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    if (*(u32 *)(workCursor + 0x70) == 0) {
+    ((FlashBlock *)mem)->particles.word = (u32)(mem + 0x10);
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    if (((FlashParameters *)workCursor)->unk70.bits == 0) {
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         *(u32 *)(workCursor + 0x70) = 1;
     }
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCloneBlock(*(void **)(sourceObject + 4));
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry.pointer);
     FlashEvolvingRadialInitEntries(mem, workCursor);
     return mem;
 }
@@ -1759,8 +1772,8 @@ void *FlashEvolvingRadialAllocFromParent(u8 *input)
 // FUN_0049D310
 void FlashEvolvingRadialFreeBlock(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 // Emits quads from the direction, length and width vectors (no centre) for one evolving radial flash effect.
 // FUN_0049D360
@@ -1790,7 +1803,7 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
         if (lastFrame < frame && lastFrame != 0) return;
         state = ((FlashEffect *)effect)->state;
         particle = *(s32 **)state;
-        owner = ((FlashBlock *)state)->geometry;
+        owner = ((FlashBlock *)state)->geometry.bytes;
         count = ((FlashParameters *)config)->vertexCount.signedCount;
         life = ((FlashParameters *)config)->life;
         if (life == 0) return;
@@ -1802,9 +1815,11 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
             firstFrame = 0;
             births = ((FlashParameters *)config)->births;
         }
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
-        vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-        colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 10);
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
         zero = 0.0f;
         direction.lane[1] = zero;
         direction.lane[3] = zero;
@@ -1987,9 +2002,9 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
             }
         }
         {
-            u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+            u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
             func_003c22f0(geometry);
-            if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+            if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
 #pragma pop
@@ -2020,7 +2035,7 @@ void FlashTexturedPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -2120,15 +2135,17 @@ void FlashTexturedUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -2146,8 +2163,7 @@ void FlashTexturedUpdateGeometry(u8 *input)
  * (14+ differing words); with it the loop matches. */
 // Initialises the textured flash entries from the config: per-entry geometry and offsets.
 // FUN_0049DDD0
-/* Keep the geometry-owner chain raw: native typed loads shortened this
- * 320-byte initializer to 308 bytes and changed 38 normalized bytes. */
+/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; individual culprits remain below. */
 #pragma opt_loop_invariants on
 void FlashTexturedInitEntries(u8 *input, u8 *resource)
 {
@@ -2158,8 +2174,9 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
 
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18), 0xFF0);
-        workCursor = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18) + 0x34);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)((FlashBlock *)input)->geometry.bytes)->atomic)->geometry, 0xFF0);
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        workCursor = *(u8 **)((u8*)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(input + 4))->atomic)->geometry + 0x34);
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0x65A);
         }
@@ -2187,10 +2204,11 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = *(u8 **)(input + 4);
-        sourceObject = *(u8 **)(*(u8 **)(workCursor + 0x10) + 0x18);
+        sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
-        if (*(u16 *)(workCursor + 0) & 4) {
+        if (((EffGeometryBlock *)workCursor)->kind & 4) {
             ((RpGeometry *)sourceObject)->lockedSinceLastInst |= 1;
         }
     }
@@ -2201,26 +2219,27 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
 
 // Allocates a textured flash block (default texture 0x13 when none is given).
 // FUN_0049DF10
-/* Raw count and pointer-bit stores preserve the 288-byte window; typing them
- * produced 292 bytes. The halfword grid count is intentionally a separate load. */
+/* Earlier count/pointer trial: 288 -> 292 bytes; individual raw culprits remain below. */
 void *FlashTexturedAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
 
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     size = *(u32 *)(input + 0x38) * 24;
     chkmemAllocSiteTag(D_00713FF0, 0x643);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x644);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    *(u32 *)(mem + 8) = (u32)mem;
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.word = (u32)mem;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(((FlashParameters *)input)->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
-        func_003c42b0(*(u8 **)(((FlashBlock *)mem)->geometry + 0x14), (void *)TnSlotObject(0x13));
+        func_003c42b0(((EffGeometryBlock *)((FlashBlock *)mem)->geometry.bytes)->material, (void *)TnSlotObject(0x13));
     } else {
-        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry, resource);
+        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry.bytes, resource);
     }
     FlashTexturedInitEntries(mem, input);
     return mem;
@@ -2242,9 +2261,9 @@ void *FlashTexturedAllocFromParent(u8 *input)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x644);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry);
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry.bytes);
     FlashTexturedInitEntries(mem, workCursor);
     return mem;
 }
@@ -2252,8 +2271,8 @@ void *FlashTexturedAllocFromParent(u8 *input)
 // FUN_0049E100
 void FlashTexturedFreeBlock(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 // Emits quads from the direction, length and width vectors (no centre) for one textured flash effect.
 // FUN_0049E150
@@ -2283,7 +2302,7 @@ void FlashTexturedFreeBlock(u8 *input)
         if (lastFrame < frame && lastFrame != 0) return;
         state = ((FlashEffect *)effect)->state;
         particle = *(s32 **)state;
-        owner = ((FlashBlock *)state)->geometry;
+        owner = ((FlashBlock *)state)->geometry.bytes;
         count = ((FlashParameters *)config)->vertexCount.signedCount;
         life = ((FlashParameters *)config)->life;
         if (life == 0) return;
@@ -2303,9 +2322,11 @@ void FlashTexturedFreeBlock(u8 *input)
             firstFrame = 0;
             births = ((FlashParameters *)config)->births;
         }
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
-        vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-        colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 10);
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
         zero = 0.0f;
         direction.lane[1] = zero;
         direction.lane[3] = zero;
@@ -2481,9 +2502,9 @@ void FlashTexturedFreeBlock(u8 *input)
             }
         }
         {
-            u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+            u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
             func_003c22f0(geometry);
-            if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+            if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
         }
     }
 #pragma pop
@@ -2509,7 +2530,7 @@ void FlashCenteredStripPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -2609,15 +2630,17 @@ void FlashCenteredStripUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -2635,8 +2658,7 @@ void FlashCenteredStripUpdateGeometry(u8 *input)
  * (14+ differing words); with it the loop matches. */
 // Initialises the centred-strip entries from the config: per-entry geometry and offsets.
 // FUN_0049EBD0
-/* Keep the geometry-owner chain raw: native typed loads shortened this
- * 320-byte initializer to 308 bytes and changed 38 normalized bytes. */
+/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; individual culprits remain below. */
 #pragma opt_loop_invariants on
 void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
 {
@@ -2647,8 +2669,9 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
 
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18), 0xFF0);
-        workCursor = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18) + 0x34);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)((FlashBlock *)input)->geometry.bytes)->atomic)->geometry, 0xFF0);
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        workCursor = *(u8 **)((u8*)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(input + 4))->atomic)->geometry + 0x34);
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0x803);
         }
@@ -2676,10 +2699,11 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = *(u8 **)(input + 4);
-        sourceObject = *(u8 **)(*(u8 **)(workCursor + 0x10) + 0x18);
+        sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
-        if (*(u16 *)(workCursor + 0) & 4) {
+        if (((EffGeometryBlock *)workCursor)->kind & 4) {
             ((RpGeometry *)sourceObject)->lockedSinceLastInst |= 1;
         }
     }
@@ -2690,26 +2714,27 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
 
 // Allocates a centred-strip flash block: count * 40 entry bytes and a geometry handle.
 // FUN_0049ED10
-/* Raw count and pointer-bit stores preserve the 288-byte window; typing them
- * produced 292 bytes. The halfword grid count is intentionally a separate load. */
+/* Earlier count/pointer trial: 288 -> 292 bytes; individual raw culprits remain below. */
 void *FlashCenteredStripAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
 
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     size = *(u32 *)(input + 0x38) * 40;
     chkmemAllocSiteTag(D_00713FF0, 0x7EC);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x7ED);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    *(u32 *)(mem + 8) = (u32)mem;
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.word = (u32)mem;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(((FlashParameters *)input)->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
-        func_003c42b0(*(u8 **)(((FlashBlock *)mem)->geometry + 0x14), (void *)TnSlotObject(0x12));
+        func_003c42b0(((EffGeometryBlock *)((FlashBlock *)mem)->geometry.bytes)->material, (void *)TnSlotObject(0x12));
     } else {
-        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry, resource);
+        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry.bytes, resource);
     }
     FlashCenteredStripInitEntries(mem, input);
     return mem;
@@ -2731,9 +2756,9 @@ void *FlashCenteredStripAllocFromParent(u8 *input)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x7ED);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry);
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry.bytes);
     FlashCenteredStripInitEntries(mem, workCursor);
     return mem;
 }
@@ -2741,8 +2766,8 @@ void *FlashCenteredStripAllocFromParent(u8 *input)
 // FUN_0049EF00
 void FlashCenteredStripFreeBlock(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 // Emits centred-strip flash quads from the centre, direction and width vectors.
 // FUN_0049EF50
@@ -2772,7 +2797,7 @@ void FlashCenteredStripEmitQuads(u8 *effect)
     if (lastFrame < frame && lastFrame != 0) return;
     state = ((FlashEffect *)effect)->state;
     particle = *(s32 **)state;
-    owner = ((FlashBlock *)state)->geometry;
+    owner = ((FlashBlock *)state)->geometry.bytes;
     count = ((FlashParameters *)config)->vertexCount.signedCount;
     life = ((FlashParameters *)config)->life;
     if (life == 0) return;
@@ -2784,9 +2809,11 @@ void FlashCenteredStripEmitQuads(u8 *effect)
         firstFrame = 0;
         births = ((FlashParameters *)config)->births;
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
-    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 10);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
     zero = 0.0f;
     center.lane[1] = zero;
     center.lane[3] = zero;
@@ -2987,9 +3014,9 @@ particleData[5] = particleData[5] + particleData[6];
         }
     }
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
 #pragma pop
@@ -3020,7 +3047,7 @@ void FlashBoxPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -3120,15 +3147,17 @@ void FlashBoxUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -3156,17 +3185,18 @@ void *FlashBoxAllocBlock(u8 *input)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0x98F);
     }
-    *(u32 *)(mem + 0) = (u32)(mem + 0x10);
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCreateTableGrid(*(u16 *)(input + 0x38), 3, 5, D_007133A0, 0x48);
+    ((FlashBlock *)mem)->particles.word = (u32)(mem + 0x10);
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCreateTableGrid(*(u16 *)(input + 0x38), 3, 5, D_007133A0, 0x48);
     return mem;
 }
 // Frees a box flash block: its geometry handle, then the block itself.
 // FUN_0049FBA0
 void FlashBoxFreeBlock(u8 *input)
 {
-    GeometryBlockDestroy(((FlashBlock *)input)->geometry);
-    jtbl_008873EC[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy(((FlashBlock *)input)->geometry.bytes);
+    jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 // Emits box flash quads from the centre, direction, length and width vectors.
 // FUN_0049FBF0
@@ -3196,7 +3226,7 @@ void FlashBoxEmitQuads(u8 *effect)
     if (lastFrame < frame && lastFrame != 0) return;
     state = ((FlashEffect *)effect)->state;
     particle = *(s32 **)state;
-    owner = ((FlashBlock *)state)->geometry;
+    owner = ((FlashBlock *)state)->geometry.bytes;
     count = ((FlashParameters *)config)->vertexCount.signedCount;
     life = ((FlashParameters *)config)->life;
     if (life == 0) return;
@@ -3208,9 +3238,11 @@ void FlashBoxEmitQuads(u8 *effect)
         firstFrame = 0;
         births = ((FlashParameters *)config)->births;
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
-    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 10);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
     zero = 0.0f;
     center.lane[1] = zero;
     center.lane[3] = zero;
@@ -3434,9 +3466,9 @@ particleData[5] = particleData[5] + particleData[6];
         }
     }
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
 #pragma pop
@@ -3467,7 +3499,7 @@ void FlashAgedBoxPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -3567,15 +3599,17 @@ void FlashAgedBoxUpdateGeometry(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     entry = *(s32 **)state;
-    work = ((FlashBlock *)state)->geometry;
-    count = *(s32 *)(((FlashEffect *)input)->parameters + 0x38);
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(work + 0x10) + 0x18), 2);
-    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
-    memset((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
-    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    work = ((FlashBlock *)state)->geometry.bytes;
+    count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)work)->atomic)->geometry, 2);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry)->morphTarget;
+    memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    model = (u8*)((RpAtomic *)*(u8 **)(work + 0x10))->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
-        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+        ((RpGeometry *)model)->lockedSinceLastInst = ((RpGeometry *)model)->lockedSinceLastInst | 1;
     }
     i = 0;
     value = -1;
@@ -3593,8 +3627,7 @@ void FlashAgedBoxUpdateGeometry(u8 *input)
  * (14+ differing words); with it the loop matches. */
 // Initialises the aged-box entries from the config: per-entry geometry and offsets.
 // FUN_004A08A0
-/* Keep the geometry-owner chain raw: native typed loads shortened this
- * 320-byte initializer to 308 bytes and changed 38 normalized bytes. */
+/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; individual culprits remain below. */
 #pragma opt_loop_invariants on
 void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
 {
@@ -3605,8 +3638,9 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
 
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
-        RpGeometryLock(*(RpGeometry **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18), 0xFF0);
-        workCursor = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(input + 4) + 0x10) + 0x18) + 0x34);
+        RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)((FlashBlock *)input)->geometry.bytes)->atomic)->geometry, 0xFF0);
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
+        workCursor = *(u8 **)((u8*)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(input + 4))->atomic)->geometry + 0x34);
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0xB08);
         }
@@ -3634,10 +3668,11 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
+        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = *(u8 **)(input + 4);
-        sourceObject = *(u8 **)(*(u8 **)(workCursor + 0x10) + 0x18);
+        sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
-        if (*(u16 *)(workCursor + 0) & 4) {
+        if (((EffGeometryBlock *)workCursor)->kind & 4) {
             ((RpGeometry *)sourceObject)->lockedSinceLastInst |= 1;
         }
     }
@@ -3648,26 +3683,27 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
 
 // Allocates an aged-box flash block: count * 32 entry bytes and a geometry handle.
 // FUN_004A09E0
-/* Raw count and pointer-bit stores preserve the 272-byte window; typing them
- * produced 284 bytes. The halfword grid count is intentionally a separate load. */
+/* Earlier count/pointer trial: 272 -> 284 bytes; individual raw culprits remain below. */
 void *FlashAgedBoxAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
 
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     size = *(u32 *)(input + 0x38) * 32;
     chkmemAllocSiteTag(D_00713FF0, 0xAF1);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0xAF2);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    *(u32 *)(mem + 8) = (u32)mem;
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.word = (u32)mem;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(((FlashParameters *)input)->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
-        func_003c42b0(*(u8 **)(((FlashBlock *)mem)->geometry + 0x14), (void *)TnSlotObject(0x13));
+        func_003c42b0(((EffGeometryBlock *)((FlashBlock *)mem)->geometry.bytes)->material, (void *)TnSlotObject(0x13));
     } else {
-        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry, resource);
+        GeometryBlockSetTextureFromHandle(((FlashBlock *)mem)->geometry.bytes, resource);
     }
     FlashAgedBoxInitEntries(mem, input);
     return mem;
@@ -3689,9 +3725,9 @@ void *FlashAgedBoxAllocFromParent(u8 *input)
     if (mem == NULL) {
         kAssertFail(D_00713FF0, 0xAF2);
     }
-    ((FlashBlock *)mem)->particles = mem + 0x10;
-    ((FlashBlock *)mem)->allocation = (void *)mem;
-    ((FlashBlock *)mem)->geometry = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry);
+    ((FlashBlock *)mem)->particles.bytes = mem + 0x10;
+    ((FlashBlock *)mem)->allocation.pointer = (void *)mem;
+    ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry.bytes);
     FlashAgedBoxInitEntries(mem, workCursor);
     return mem;
 }
@@ -3702,8 +3738,8 @@ void *FlashAgedBoxAllocFromParent(u8 *input)
 // Frees an aged-box flash block: its geometry handle, then the block itself.
 // FUN_004A0BB0
 void FlashAgedBoxFreeBlock(u8 *input) {
-    GeometryBlockDestroy((s32)((FlashBlock *)input)->geometry);
-    D_008873ec[0](((FlashBlock *)input)->allocation);
+    GeometryBlockDestroy((s32)((FlashBlock *)input)->geometry.bytes);
+    D_008873ec[0](((FlashBlock *)input)->allocation.pointer);
 }
 
 /* The length scale reaches VF2 as `nop; qmtc2.ni` on a C load of the
@@ -3751,7 +3787,7 @@ void FlashAgedBoxEmitQuads(u8 *effect)
     if (lastFrame < frame && lastFrame != 0) return;
     state = ((FlashEffect *)effect)->state;
     particle = *(FlashInclinedParticle **)state;
-    owner = ((FlashBlock *)state)->geometry;
+    owner = ((FlashBlock *)state)->geometry.bytes;
     count = ((FlashParameters *)config)->vertexCount.signedCount;
     life = ((FlashParameters *)config)->life;
     if (life == 0) return;
@@ -3771,9 +3807,11 @@ void FlashAgedBoxEmitQuads(u8 *effect)
         firstFrame = 0;
         births = ((FlashParameters *)config)->births;
     }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(owner + 0x10) + 0x18), 10);
-    vertices = *(FlashVertex **)(*(u8 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x5c) + 0x14);
-    colors = *(u32 **)(*(u8 **)(*(u8 **)(owner + 0x10) + 0x18) + 0x30);
+    RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry, 10);
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->morphTarget)->vertices;
+    /* measured: this access-site member conversion makes the owning function MISMATCH. */
+    colors = ((RpGeometry *)(u8*)((RpAtomic *)*(u8 **)(owner + 0x10))->geometry)->colors;
     zero = 0.0f;
     direction.lane[1] = zero;
     direction.lane[3] = zero;
@@ -3964,9 +4002,9 @@ void FlashAgedBoxEmitQuads(u8 *effect)
         }
     }
     {
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
+        u8 *geometry = (u8*)((RpAtomic *)((EffGeometryBlock *)owner)->atomic)->geometry;
         func_003c22f0(geometry);
-        if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
+        if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
 #pragma pop
@@ -3993,7 +4031,7 @@ void FlashQuadCopyPackColors(u8 *input)
 
     state = ((FlashEffect *)input)->state;
     config = ((FlashEffect *)input)->parameters;
-    geometryOwner = ((FlashBlock *)state)->geometry;
+    geometryOwner = ((FlashBlock *)state)->geometry.bytes;
     frame = ((FlashEffect *)input)->frame;
     lastFrame = ((FlashParameters *)config)->lastFrame;
     if ((lastFrame >= frame) || (lastFrame == 0))
@@ -4090,6 +4128,7 @@ void *FlashQuadCopyAlloc(s32 input, void *resource)
     }
     kind = input & 0xFFFF;
     /* Dispatch records are interleaved 0x1C-byte tables with separate linker symbols. */
+    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
     parameterSize = *(s32 *)(D_00714028 + kind * 0x1C);
     chkmemAllocSiteTag(D_00713FF0, 0xCD6);
     effect = jtbl_008873E8[0](parameterSize + 0x50, 0x40000);
@@ -4097,14 +4136,14 @@ void *FlashQuadCopyAlloc(s32 input, void *resource)
         kAssertFail(D_00713FF0, 0xCD7);
     }
     /* Integer stores preserve the original pointer-bit initialization shape. */
-    *(u32 *)(effect + 0x40) = (u32)(effect + 0x50);
+    ((FlashEffect *)effect)->parameters = effect + 0x50;
     ((FlashEffect *)effect)->frame = 0;
     ((FlashEffect *)effect)->kind = (u32)kind;
     ((FlashEffect *)effect)->color = -1;
     quadSrc = (u_long128 *)D_00713CE0;
     quad = *quadSrc;
     /* Preserve the native quadword scale copy (lq/sq), not scalar float stores. */
-    *(u_long128 *)(effect + 0x20) = quad;
+    ((FlashEffect *)effect)->scale.quad = quad;
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(effect) : "memory");
     __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(effect) : "memory");
     memcpy(((FlashEffect *)effect)->parameters, resource, (void *)parameterSize);
@@ -4144,7 +4183,9 @@ void *FlashQuadCopyAllocFromParent(void *input)
     instance = FlashQuadCopyAlloc((s32)kindArgument, parameters);
     /* Allocator and initializer are separate linker-symbol columns of a 0x1C-strided table. */
     idx = ((u32)kindArgument & 0xFFFF) * 28;
+    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
     ((FlashEffect *)instance)->state = (u8 *)((void *(*)(void *, void *))(*(void **)(D_00714014 + idx)))(parameters, resource);
+    /* Linker interior alias: this symbol names a column in interleaved 0x1C-byte records. */
     ((void (*)(void *))(*(void **)(D_00714010 + idx)))(instance);
     if (instance == NULL) {
         kAssertFail(D_00713FF0, 0xD18);
