@@ -11,14 +11,18 @@ typedef struct BtlActionParameters
 {
     u16 item;
     u16 resolvedSkill;
-    u8 pad04[0x0C];
+    u16 persona;                 /* action +0x74 */
+    u16 summonIds[3];            /* action +0x76 */
+    u8 pad0C[4];
     u16 drop;
     u8 dropChance;
     u8 pad13[5];
     u8 *followUp;
     u8 *support;
     u8 *supportTarget;
-    u8 pad24[0x3C];
+    u8 pad24[4];
+    u8 *candidates[12];          /* action +0x98 */
+    u64 candidateKey;            /* action +0xC8 */
 } BtlActionParameters;
 
 /* Eight-byte outcome/message region at action + 0xE8, reset and filled by
@@ -46,8 +50,20 @@ typedef struct BtlActionTargetBlock
     u16 targetFlags;              /* 0xDE. Tested with mask 6 */
     s32 reactionFlag;             /* 0xE0. Nonzero marks a reacting target */
     s32 specialHitFlag;           /* 0xE4. Nonzero marks a special hit */
-    u8 unk_e8[0xF0 - 0xE8];
-    LargeBattleHitResult hitRows[25]; /* 0xF0 */
+    union {
+        u8 unk_e8[0xF0 - 0xE8];
+        BtlActionResolutionMessage message;
+    };
+    union {
+        LargeBattleHitResult hitRows[25]; /* 0xF0 */
+        /* Endurance and command selection reuse the final hit row as state work. */
+        struct {
+            u8 padF0[0x300];
+            s16 (*savedCursors)[2];     /* 0x3F0: four {first, selected} pairs */
+            u16 enduranceSkill;         /* 0x3F4 */
+            u8 pad3F6[0x1A];
+        } recovery;
+    };
     u8 unk_410[0x41C - 0x410];
 } BtlActionTargetBlock;
 
@@ -72,18 +88,33 @@ struct BtlAction
     s32 unk_2c;              /* 0x2C */
     BtlUnit *unit;           /* 0x30 */
     u8 unk_34[0x04];         /* 0x34 */
-    u8 unk_38[0x32];         /* 0x38. Target array, reached through the raw offset */
-    u16 unk_6a;              /* 0x6A */
+    union {
+        u8 unk_38[0x32];
+        struct {
+            u8 *targets[12];     /* 0x38 */
+            u8 pad68[2];
+            u16 unk_6a;          /* 0x6A */
+        };
+    };
     u16 unk_6c;              /* 0x6C */
     u16 unk_6e;              /* 0x6E */
-    u8 unk_70[0xD0 - 0x70];  /* 0x70 */
+    union {
+        u8 unk_70[0xD0 - 0x70];
+        BtlActionParameters parameters;
+    };
     u16 unk_d0;              /* 0xD0 */
     u16 unk_d2;              /* 0xD2 */
     u8 unk_d4[0xD8 - 0xD4];  /* 0xD4 */
     BtlActionTargetBlock targetBlock; /* 0xD8. Target hit rows; see BtlActionTargetBlock */
-    s32 unk_41c;             /* 0x41C */
+    union {
+        s32 unk_41c;         /* 0x41C */
+        u16 commandDelay;    /* CommandUpdate uses only the low halfword. */
+    };
     s32 unk_420;             /* 0x420 */
-    s32 unk_424;             /* 0x424 */
+    union {
+        s32 unk_424;         /* 0x424 */
+        u16 pursuitDelay;
+    };
     s32 unk_428;             /* 0x428 */
     s32 unk_42c;             /* 0x42C */
     s16 unk_430;             /* 0x430 */
@@ -93,7 +124,14 @@ struct BtlAction
     s16 unk_43c;             /* 0x43C */
     u8 unk_43e[0x02];        /* 0x43E */
     void *unk_440;           /* 0x440. Callback slot set beside state changes */
-    u8 unk_444[8];           /* 0x444 */
+    union {
+        u8 unk_444[8];
+        struct {
+            BtlAction *target;   /* 0x444 */
+            s16 mode;           /* 0x448 */
+            u8 pad44A[2];
+        } cooperation;
+    };
     BtlAction *previous;     /* 0x44C. Paired with next by create/unlink */
     BtlAction *next;         /* 0x450. Walked as the action list from D_0076449C+0x174 */
 };
@@ -102,6 +140,16 @@ typedef char BtlActionParametersSizeCheck[sizeof(BtlActionParameters) == 0x60 ? 
 typedef char BtlActionResolutionMessageSizeCheck[sizeof(BtlActionResolutionMessage) == 8 ? 1 : -1];
 typedef char BtlActionTargetBlockSizeCheck[sizeof(BtlActionTargetBlock) == 0x344 ? 1 : -1];
 typedef char BtlActionTargetOffsetCheck[(u32)&((BtlAction *)0)->targetBlock == 0xD8 ? 1 : -1];
+typedef char BtlActionTargetsOffsetCheck[(u32)&((BtlAction *)0)->targets == 0x38 ? 1 : -1];
+typedef char BtlActionTargetCountOffsetCheck[(u32)&((BtlAction *)0)->unk_6a == 0x6A ? 1 : -1];
+typedef char BtlActionCandidatesOffsetCheck[
+    (u32)&((BtlAction *)0)->parameters.candidates == 0x98 ? 1 : -1];
+typedef char BtlActionSavedCursorsOffsetCheck[
+    (u32)&((BtlAction *)0)->targetBlock.recovery.savedCursors == 0x3F0 ? 1 : -1];
+typedef char BtlActionEnduranceSkillOffsetCheck[
+    (u32)&((BtlAction *)0)->targetBlock.recovery.enduranceSkill == 0x3F4 ? 1 : -1];
+typedef char BtlActionCommandDelayOffsetCheck[(u32)&((BtlAction *)0)->commandDelay == 0x41C ? 1 : -1];
+typedef char BtlActionCooperationOffsetCheck[(u32)&((BtlAction *)0)->cooperation.target == 0x444 ? 1 : -1];
 typedef char BtlActionNextOffsetCheck[(u32)&((BtlAction *)0)->next == 0x450 ? 1 : -1];
 typedef char BtlActionSizeCheck[sizeof(BtlAction) == 0x458 ? 1 : -1];
 

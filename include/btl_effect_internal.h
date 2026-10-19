@@ -237,7 +237,13 @@ typedef struct BtlBattleState {
     u8 *partyActions[4];          /* 0xC48 */
     u16 partyActionCount;         /* 0xC58 */
     u16 unkC5A;
-    u8 padC5C[4];
+    union {
+        u8 padC5C[4];
+        struct {
+            u16 unkC5C;
+            u16 escapeCount;       /* 0xC5E: incremented for group escapes */
+        };
+    };
     s32 messageWindow;            /* 0xC60 */
     u8 unkC64;
     s8 isFieldEncounter;          /* 0xC65: no explicit setup passed */
@@ -284,6 +290,8 @@ typedef char BtlBattleBossCueOffsetCheck[
     (u32)&((BtlBattleState *)0)->pendingBossCue == 0xC12 ? 1 : -1];
 typedef char BtlBattleCameraOffsetCheck[
     (u32)&((BtlBattleState *)0)->camera == 0x24 ? 1 : -1];
+typedef char BtlBattleEscapeCountOffsetCheck[
+    (u32)&((BtlBattleState *)0)->escapeCount == 0xC5E ? 1 : -1];
 typedef char BtlBattleStateSizeCheck[sizeof(BtlBattleState) == 0xE88 ? 1 : -1];
 
 #endif
