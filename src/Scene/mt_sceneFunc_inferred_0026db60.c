@@ -24,7 +24,7 @@ extern void mtSceneDrawSortedUnits(u8 *arg0);
 extern void MT_Scene_UpdateShake(void);
 extern void MT_Scene_UpdateResource(u8 *arg0);
 extern void MT_Scene_UpdateCameraResource(u8 *arg0);
-extern void func_004b11d0(void *arg0, s32 arg1);
+extern void mdlEffectFlushWithTable(void *arg0, s32 arg1);
 extern char D_005DC824[];
 extern char D_0063B5D8[];
 extern char D_005DC7D0[];
@@ -312,7 +312,7 @@ loop_16_test:
         outputIndex = 0;
         goto loop_19_test;
 loop_19_body:
-        func_004b11d0(D_005DC7D0,
+        mdlEffectFlushWithTable(D_005DC7D0,
                       *(s32 *)&((ResrcRecord *)result[outputIndex])->slotHandle[1]);
         outputIndex += 1;
 loop_19_test:
@@ -343,7 +343,7 @@ loop_body:
             case 0:
                 break;
             case 1:
-                func_004b11d0(D_005DC824, effectHandle);
+                mdlEffectFlushWithTable(D_005DC824, effectHandle);
                 break;
             }
         }

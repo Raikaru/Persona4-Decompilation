@@ -3146,7 +3146,7 @@ void func_0038d310(u8 *arg0)
 void func_0038d330(s32 *raw_arg0)
 {
     extern void mdlEffectDestroy(s32 arg0, u8 *arg1);
-    extern void func_004b1210(void *arg0, s32 arg1);
+    extern void mdlEffectAdvanceAndFlushWithTable(void *arg0, s32 arg1);
     extern u8 D_005DC824[];
     extern u8 D_005DC974[];
     extern u8 D_005DC9C8[];
@@ -3165,7 +3165,7 @@ void func_0038d330(s32 *raw_arg0)
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFE;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 2) {
@@ -3178,7 +3178,7 @@ void func_0038d330(s32 *raw_arg0)
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFD;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 4) {
@@ -3191,7 +3191,7 @@ void func_0038d330(s32 *raw_arg0)
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFB;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 8) {
@@ -3204,7 +3204,7 @@ void func_0038d330(s32 *raw_arg0)
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFF7;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 0x10) {
@@ -3217,7 +3217,7 @@ void func_0038d330(s32 *raw_arg0)
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFEF;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 0x20) {
@@ -3230,17 +3230,17 @@ void func_0038d330(s32 *raw_arg0)
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFDF;
         } else {
-            func_004b1210(D_005DC974, *(s32 *)(timer + 4));
+            mdlEffectAdvanceAndFlushWithTable(D_005DC974, *(s32 *)(timer + 4));
         }
     }
     if (*(u16 *)(arg0 + 4) & 0x40) {
-        func_004b1210(D_005DC9C8, *(s32 *)(arg0 + 0x3C));
+        mdlEffectAdvanceAndFlushWithTable(D_005DC9C8, *(s32 *)(arg0 + 0x3C));
     }
     if (*(u16 *)(arg0 + 4) & 0x80) {
-        func_004b1210(D_005DC9C8, *(s32 *)(arg0 + 0x44));
+        mdlEffectAdvanceAndFlushWithTable(D_005DC9C8, *(s32 *)(arg0 + 0x44));
     }
     if (*(u16 *)(arg0 + 4) & 0x100) {
-        func_004b1210(D_005DC824, *(s32 *)(arg0 + 0x4C));
+        mdlEffectAdvanceAndFlushWithTable(D_005DC824, *(s32 *)(arg0 + 0x4C));
     }
 }
 #pragma pop

@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -22,7 +23,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -35,7 +36,7 @@ extern s32 D_00724C64;
 extern f32 D_00724C78[2];
 extern f32 D_00724C7C;
 extern u8 D_00714350[];
-extern void kAssertFail(u8 *arg0, s32 arg1);
+extern void kAssertFail(u8 *parameters, s32 value);
 extern f32 D_00922D80[];
 extern u32 D_00922D90[];
 extern f32 D_00922D94[];
@@ -63,8 +64,8 @@ extern f32 fGpffff81f4;
 
 extern void memset(void *dst, s32 value, u32 size);
 extern void func_003c22f0();
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 parameters, s32 value, s32 count, s32 flags,
+                          void *data, s32 options);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -92,54 +93,58 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 /* measured: testing loop-invariant hoisting for the retail preheader. */
 /* measured: mdlEffectCreateGridForRecord MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-// Creates a grid-backed object from the 0x40-byte record at arg0, copied to +0x18: allocates the 0x5C object, builds a multi-part grid geometry at +0x58, and sets 0x34 sixteen-byte slots of its table to -1.
+// Creates a grid-backed object from the 0x40-byte record at parameters, copied to +0x18: allocates the 0x5C object, builds a multi-part grid geometry at +0x58, and sets 0x34 sixteen-byte slots of its table to -1.
 // FUN_004A6C00
-u8 *mdlEffectCreateGridForRecord(u8 *arg0)
+u8 *mdlEffectCreateGridForRecord(u8 *parameters)
 {
-    u16 *temp_18;
-    u16 *temp_2_2;
-    u16 *temp_3;
-    u32 var_4;
-    u8 *temp_17;
-    u8 *temp_2;
-    u8 *var_5;
+    u16 *model;
+    u16 *createdGeometry;
+    u16 *geometryWord;
+    u32 colorGroup;
+    u8 *geometry;
+    u8 *instance;
+    u8 *colors;
 
     chkmemAllocSiteTag(D_00714350, 0x78);
-    temp_2 = (u8 *)jtbl_008873E8[0](0x5C, 0x40000);
-    if (temp_2 == NULL) {
+    instance = (u8 *)jtbl_008873E8[0](0x5C, 0x40000);
+    if (instance == NULL) {
         kAssertFail(D_00714350, 0x79);
     }
-    memset(temp_2, 0, 0x5C);
-    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
-    memcpy(temp_2 + 0x18, arg0, 0x40);
-    temp_2_2 = GeometryCreateTableGridMultiPart(0xD, 4, 2, 4, D_00713408, 0x4C);
-    *(u16 **)(temp_2 + 0x58) = temp_2_2;
-    *temp_2_2 = *temp_2_2 & 0xFFFE;
-    temp_3 = *(u16 **)(temp_2 + 0x58);
-    *temp_3 = *temp_3 & 0xFFFB;
+    memset(instance, 0, 0x5C);
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(instance) : "memory");
+    memcpy(instance + 0x18, parameters, 0x40);
+    createdGeometry = GeometryCreateTableGridMultiPart(0xD, 4, 2, 4, D_00713408, 0x4C);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    *(u16 **)(instance + 0x58) = createdGeometry;
+    *createdGeometry = *createdGeometry & 0xFFFE;
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    geometryWord = *(u16 **)(instance + 0x58);
+    *geometryWord = *geometryWord & 0xFFFB;
     RpGeometryLock(
-        *(RpGeometry **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18), 8);
-    var_5 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18) + 0x30);
-    temp_3 = (u16 *)(s32)-1;
-    var_4 = 0;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        ((RpAtomic *)((EffGeometryBlock *)*(u8 **)(instance + 0x58))->atomic)->geometry, 8);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    colors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)((EffGeometryBlock *)*(u8 **)(instance + 0x58))->atomic)->geometry)->colors;
+    geometryWord = (u16 *)(s32)-1;
+    colorGroup = 0;
     goto loop_004a6c00_check;
 loop_004a6c00_body:
-    *(s32 *)(var_5 + 0) = (s32)temp_3;
-    *(s32 *)(var_5 + 4) = (s32)temp_3;
-    *(s32 *)(var_5 + 8) = (s32)temp_3;
-    *(s32 *)(var_5 + 0xC) = (s32)temp_3;
-    var_5 += 0x10;
-    var_4 += 1;
+    ((s32 *)colors)[0] = (s32)geometryWord;
+    ((s32 *)colors)[1] = (s32)geometryWord;
+    ((s32 *)colors)[2] = (s32)geometryWord;
+    ((s32 *)colors)[3] = (s32)geometryWord;
+    colors += 0x10;
+    colorGroup += 1;
 loop_004a6c00_check:
-    if (var_4 < 0x34U) {
+    if (colorGroup < 0x34U) {
         goto loop_004a6c00_body;
     }
-    temp_18 = *(u16 **)(temp_2 + 0x58);
-    temp_17 = *(u8 **)(*(u8 **)((u8 *)temp_18 + 0x10) + 0x18);
-    func_003c22f0(temp_17, var_5);
-    if ((*temp_18 & 4) != 0) {
-        *(u16 *)(temp_17 + 0xC) = *(u16 *)(temp_17 + 0xC) | 1;
+    model = (u16 *)((MdlEffectGridInstance *)instance)->geometry;
+    geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)(u8 *)model)->atomic)->geometry;
+    func_003c22f0(geometry, colors);
+    if ((*model & 4) != 0) {
+        ((RpGeometry *)geometry)->lockedSinceLastInst = ((RpGeometry *)geometry)->lockedSinceLastInst | 1;
     }
-    return temp_2;
+    return instance;
 }
 

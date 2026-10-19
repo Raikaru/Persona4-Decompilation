@@ -27,7 +27,7 @@ extern void DistortParticleProjectRecords();
 extern s32 iGpffffbb98;
 extern s32 iGpffffbb94;
 extern s32 D_00922DA0[];
-extern void func_004a7c00(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyShakeEnvelope(u8 *arg0, s32 arg1);
 extern void mdlEffectResetSequenceFrame(void);
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
@@ -39,7 +39,7 @@ extern void TnSetTableBase(void *arg0);
 extern void mdlEffectFlushTreeFrame(void *arg0);
 extern void mdlEffectAdvanceAndDrawChildren(void *arg0);
 extern void func_004861f0(void *arg0, f32 *arg1);
-extern void func_004b1ad0(u8 *arg0);
+extern void mdlEffectUpdateScreenSprite(u8 *arg0);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -112,7 +112,7 @@ extern u32 mdlEffectGetPackedColorWord(void *object);
 
 typedef signed __int128 s128;
 
-extern void *func_004b16c0(void *opaqueSource);
+extern void *mdlEffectCreateScreenSprite(void *opaqueSource);
 
 /* Screen-space sprite update, the EffSpriteUpdate sibling. It shares the COP2
  * colour pack (the asm writes the packed frame slot, retail reloads it) and

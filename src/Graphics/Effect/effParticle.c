@@ -22,7 +22,7 @@ extern s32 TlpAddRef(s32 object);
 
 extern void mdlEffectResetEmitterTicks(s32 objectAddress);
 extern void mdlEffectFreeEmitterAllocation(u8 *object);
-extern u8 *func_00492b20(u16 object, u32 value, void *data);
+extern u8 *mdlEffectAllocateTrackPath(u16 object, u32 value, void *data);
 extern s32 TnSlotObject(s32 object);
 typedef struct RpMaterial RpMaterial;
 typedef struct RwTexture RwTexture;
@@ -405,7 +405,7 @@ void ParticleAllocRecords(u8 *particle, s32 source, void *options)
     if (*(u32 *)(particle + 0x4C) != 0) {
         mdlEffectFreeEmitterAllocation((u8 *)*(u32 *)(particle + 0x4C));
     }
-    *(u32 *)(particle + 0x4C) = (u32)func_00492b20(source & 0xFFFF, *(u32 *)(particle + 0), options);
+    *(u32 *)(particle + 0x4C) = (u32)mdlEffectAllocateTrackPath(source & 0xFFFF, *(u32 *)(particle + 0), options);
     *(u8 *)(particle + 0xE) |= 1;
 }
 

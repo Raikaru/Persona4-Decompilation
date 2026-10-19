@@ -22,7 +22,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -58,8 +58,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 parameters, s32 entry, s32 elapsed, s32 flags,
+                          void *data, s32 options);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -77,10 +77,10 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004ae2f0-004ae2f0 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
-extern void func_004a8250(u8 *arg0, u8 *arg1);
-extern void func_004a8440(u8 *arg0, u8 *arg1);
-extern void func_004a86c0(u8 *arg0, u8 *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *entry);
+extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *entry);
+extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *entry);
+extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *entry);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
@@ -98,20 +98,22 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
 #pragma push
 #pragma pop
+/* Interpolate the six-color palette by elapsed time and multiply it into the live VU color. */
 // FUN_004AE2F0
-void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
+void mdlEffectMultiplyPaletteColorVU(u8 *parameters, u8 *entry, s32 elapsed)
 {
-    s32 spC;
-    s32 sp8;
-    s32 sp4;
-    s32 temp_hi;
-    s32 temp_lo;
+    s32 nextColor;
+    s32 currentColor;
+    s32 fixedColor;
+    s32 colorIndex;
+    s32 segmentDuration;
     s32 quotient;
     s32 remainder;
-    f32 temp_f1;
+    f32 fraction;
 
-    temp_lo = *(s32 *)(arg0 + 0x38) / 6;
-    if (temp_lo > 0) {
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    segmentDuration = *(s32 *)(parameters + 0x38) / 6;
+    if (segmentDuration > 0) {
         __asm__ volatile(
             ".set noreorder\n"
             "vmove.xyzw $vf12, $vf10\n"
@@ -119,11 +121,12 @@ void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
             :
             :
             : "$vf12", "memory");
-        quotient = arg2 / temp_lo;
-        remainder = arg2 % temp_lo;
-        temp_f1 = (f32)remainder / (f32)temp_lo;
-        temp_hi = (*(s8 *)(arg1 + 0x14) + quotient) % 6;
-        spC = ((s32 *)p4_add_u32(((temp_hi + 1) % 6) * 4, (u32)arg0))[0xF];
+        quotient = elapsed / segmentDuration;
+        remainder = elapsed % segmentDuration;
+        fraction = (f32)remainder / (f32)segmentDuration;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        colorIndex = (*(s8 *)(entry + 0x14) + quotient) % 6;
+        nextColor = ((s32 *)p4_add_u32(((colorIndex + 1) % 6) * 4, (u32)parameters))[0xF];
         __asm__ volatile(
             ".set noreorder\n"
             "lwc1 $f0, -0x7e0c($gp)\n"
@@ -138,9 +141,9 @@ void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
             "vmulx.xyzw $vf11, $vf11, $vf2x\n"
             ".set reorder\n"
             :
-            : "r"(&spC)
+            : "r"(&nextColor)
             : "$2", "$vf2", "$vf11", "memory");
-        sp8 = ((s32 *)p4_add_u32(temp_hi * 4, (u32)arg0))[0xF];
+        currentColor = ((s32 *)p4_add_u32(colorIndex * 4, (u32)parameters))[0xF];
         __asm__ volatile(
             ".set noreorder\n"
             "lw $2, 0(%0)\n"
@@ -154,7 +157,7 @@ void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
             "vmulx.xyzw $vf10, $vf10, $vf2x\n"
             ".set reorder\n"
             :
-            : "r"(&sp8)
+            : "r"(&currentColor)
             : "$2", "$3", "$vf2", "$vf10", "memory");
         __asm__ volatile(
             ".set noreorder\n"
@@ -171,10 +174,11 @@ void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
             "vmul.xyzw $vf10, $vf10, $vf11\n"
             ".set reorder\n"
             :
-            : "f"(1.0f - temp_f1), "f"(temp_f1)
+            : "f"(1.0f - fraction), "f"(fraction)
             : "$3", "$vf2", "$vf10", "$vf11", "$vf12", "memory");
     } else {
-        sp4 = ((s32 *)p4_add_u32(*(s8 *)(arg1 + 0x14) * 4, (u32)arg0))[0xF];
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+        fixedColor = ((s32 *)p4_add_u32(*(s8 *)(entry + 0x14) * 4, (u32)parameters))[0xF];
         __asm__ volatile(
             ".set noreorder\n"
             "lw $3, -0x7e0c($gp)\n"
@@ -189,7 +193,7 @@ void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
             "vmul.xyzw $vf10, $vf10, $vf11\n"
             ".set reorder\n"
             :
-            : "r"(&sp4)
+            : "r"(&fixedColor)
             : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
     }
 }

@@ -1337,7 +1337,7 @@ void MT_Scene_UpdateResource(u8 *resourceData)
         for (i = 0; i < 2; i++) {
             u8 *effect = sceneUpdateAttachedEffect(character, i);
             if (effect != NULL) {
-                func_004b1190(effect);
+                mdlEffectCommitAndAdvance(effect);
             }
         }
     } else if (type == 3) {
@@ -1346,13 +1346,13 @@ void MT_Scene_UpdateResource(u8 *resourceData)
         for (i = 0; i < 2; i++) {
             u8 *effect = sceneUpdateAttachedEffect(character, i);
             if (effect != NULL) {
-                func_004b1190(effect);
+                mdlEffectCommitAndAdvance(effect);
             }
         }
     } else if (type == 6) {
         SceneEffectUpdate *effect = (SceneEffectUpdate *)resource;
         if (effect->effect != NULL) {
-            func_004b1190(effect->effect);
+            mdlEffectCommitAndAdvance(effect->effect);
         }
     }
     }

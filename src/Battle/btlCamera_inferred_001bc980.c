@@ -92,7 +92,7 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-void func_004b1680(s32 value, s16 option, s32 data, s32 flags);
+void mdlEffectSetSequenceRequest(s32 value, s16 option, s32 data, s32 flags);
 
 
 
@@ -214,7 +214,7 @@ u8 *btlCameraCreatePoseSequencePacket(s32 action, u8 *firstPosition, u8 *firstFo
 // FUN_001BCC80
 /* Forward the four initialized command-work values to the external camera command handler. */
 s32 btlCameraRunPacketCommand(u8 *work) {
-    func_004b1680(((BtlCameraCommand *)work)->value, ((BtlCameraCommand *)work)->option, ((BtlCameraCommand *)work)->first,
+    mdlEffectSetSequenceRequest(((BtlCameraCommand *)work)->value, ((BtlCameraCommand *)work)->option, ((BtlCameraCommand *)work)->first,
                   ((BtlCameraCommand *)work)->second);
     return 1;
 }

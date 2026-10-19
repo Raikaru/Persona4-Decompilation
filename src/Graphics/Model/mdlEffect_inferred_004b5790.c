@@ -42,11 +42,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *handlers, s32 context);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 handlers, u32 context);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -66,25 +66,26 @@ extern void AfPackListAppend();
 #pragma pop
 #pragma push
 #pragma pop
-// Installs the battle effect handler table (arg0) and its gate (arg1). Record callers run a table entry only while the gate returns nonzero.
+// Installs the battle effect handler table (handlers) and its gate (context). Record callers run a table entry only while the gate returns nonzero.
 // FUN_004B5790
-void EffBattleSetHandlerTable(u8 *arg0, s32 arg1)
+void EffBattleSetHandlerTable(u8 *handlers, s32 context)
 {
-    iGpffffbba0 = arg0;
-    iGpffffbba4 = (s32 (*)(void))arg1;
+    iGpffffbba0 = handlers;
+    iGpffffbba4 = (s32 (*)(void))context;
 }
 
-// Binds the object's resource, stores arg1 at +0x20 of it, creates the instance, appends it to the list, and starts its sections. Returns the instance.
+// Binds the object's resource, stores context at +0x20 of it, creates the instance, appends it to the list, and starts its sections. Returns the instance.
 // FUN_004B57A0
-u8 *AfPackCreateAndStartInstance(void *object, s32 arg1) {
-    u8 *temp_2;
-    u8 *temp_2_2;
+u8 *AfPackCreateAndStartInstance(void *object, s32 context) {
+    u8 *instance;
+    u8 *resource;
 
-    temp_2_2 = AfPackBindResource(object);
-    *(s32 *)(temp_2_2 + 0x20) = arg1;
-    temp_2 = AfPackCreateInstance(temp_2_2);
-    AfPackListAppend(temp_2);
-    AfPackStartSections(temp_2);
-    return temp_2;
+    resource = AfPackBindResource(object);
+    /* The pack allocates a 0x24-byte header, but its private RuntimeWork type does not expose this final context word. */
+    *(s32 *)(resource + 0x20) = context;
+    instance = AfPackCreateInstance(resource);
+    AfPackListAppend(instance);
+    AfPackStartSections(instance);
+    return instance;
 }
 

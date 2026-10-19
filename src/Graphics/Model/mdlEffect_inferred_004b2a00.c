@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -43,11 +44,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *input, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 input, u32 value);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
@@ -60,7 +61,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b2a00-004b2a00 */
 
-extern s32 effCrossfadeCaptureDisplay(u8 *arg0);
+extern s32 effCrossfadeCaptureDisplay(u8 *input);
 #pragma push
 #pragma pop
 /* measured: close the opt_propagation bracket around func_004b2780. */
@@ -70,9 +71,10 @@ extern s32 effCrossfadeCaptureDisplay(u8 *arg0);
    call reloads its callback. Four PS2 vertices own the complete draw buffer.
    For initialized positive-duration state 3, elapsed is below duration.
    Float operation order is retained. See Crossfade_004b2a00_20260922.md. */
+/* Draw the stored camera raster over the screen with alpha falling from 255 over the fade duration. */
 // FUN_004B2A00
 #pragma push
-void func_004b2a00(u8 *fade) {
+void mdlEffectDrawCameraFade(u8 *fade) {
     BtlShuffleSkyVertex vertices[4];
     u8 *raster;
     s32 opacity;
@@ -92,14 +94,14 @@ void func_004b2a00(u8 *fade) {
     s32 convertedAlpha;
     uintptr_t stateInterface;
 
-    elapsed = *(u16 *)(fade + 4);
+    elapsed = ((MdlEffectFade *)fade)->elapsed;
     alphaFloat = (f32)(u32)elapsed;
-    durationFrames = *(u16 *)(fade + 2);
+    durationFrames = ((MdlEffectFade *)fade)->duration;
     duration = (f32)(u32)durationFrames;
     alphaFloat = 255.0f * (1.0f - (alphaFloat / duration));
     convertedAlpha = (u8)alphaFloat;
     opacity = convertedAlpha & 0xFF;
-    raster = *(u8 **)(*(u8 **)(fade + 12) + 96);
+    raster = (u8 *)((MdlEffectCamera *)((MdlEffectFade *)fade)->camera)->raster;
     RpSkyRenderStateSet(2, (void *)0x44);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     stateInterface = (uintptr_t)D_00887300;
@@ -113,7 +115,7 @@ void func_004b2a00(u8 *fade) {
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)addressMode, (void *)addressMode);
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)4, (void *)3);
     screenDepth = *(f32 *)D_008872FC_abs;
-    reciprocalFar = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 132);
+    reciprocalFar = 1.0f / ((MdlEffectCamera *)((u8 *)(u32)kwlnGetCamera()))->farPlane;
     vertices[0].u.els.scrVertex.x = 0.0f;
     vertices[0].u.els.scrVertex.y = 0.0f;
     vertices[0].u.els.scrVertex.z = screenDepth;
@@ -167,4 +169,4 @@ void func_004b2a00(u8 *fade) {
     D_00887310_abs[0](rwPRIMTYPETRISTRIP, vertices, vertexCount);
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)1, (void *)0);
 }
-
+#pragma pop
