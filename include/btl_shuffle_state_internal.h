@@ -36,13 +36,19 @@ typedef struct BtlShuffleContext {
     u8 *viewTask;
     u8 *cardTask;
     u8 *trailTask;
-    u8 pad1F2A0[0xC];
+    u8 *frontCardTask;
+    u8 *alternateCardTask;
+    s32 parentTask;
     s32 spriteResource;
     s32 backgroundResource;
     s32 backdropResource;
-    u8 pad1F2B8[0x38];
+    /* Loaded by btlShuffleDrawLoadBlob; the final texture slot holds window-message records. */
+    s32 modelBlobs[9];
+    s32 textureBlobs[3];
+    s32 archive;
+    s32 loadPhase;
     u16 elapsed;
-    u8 pad1F2F2[2];
+    u16 pulse;
     u16 flags;
     u8 pad1F2F6[2];
     u32 phase;
