@@ -26,7 +26,8 @@ struct BtlUnit
     RtQuat rot;              /* 0x1C */
     f32 scale;               /* 0x2C */
     RwRGBA cols[5];          /* 0x30 */
-    u8 unk_44[0x08];         /* 0x44 */
+    RwRGBA unk44;            /* 0x44: restored with cols[4] by the boss revival action */
+    RwRGBA unk48;            /* 0x48: restored with cols[4] by the boss revival action */
     u16 unk_4c;              /* 0x4C */
     u8 unk_4e[0x06];         /* 0x4E */
     RwV3d unk_54;            /* 0x54 */
@@ -86,5 +87,10 @@ struct BtlUnit
     BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
     BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */
 };
+
+/* The boss-color padding split must not move any established unit member. */
+typedef char BtlUnitColor44OffsetCheck[(u32)&((BtlUnit *)0)->unk44 == 0x44 ? 1 : -1];
+typedef char BtlUnitColor48OffsetCheck[(u32)&((BtlUnit *)0)->unk48 == 0x48 ? 1 : -1];
+typedef char BtlUnitSizeCheck[sizeof(BtlUnit) == 0xA70 ? 1 : -1];
 
 #endif
