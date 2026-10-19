@@ -57,6 +57,7 @@ struct ResrcRecord
         struct {
             union {
                 void *slotHandle[2]; /* 0x140. [1] is 0x144 in the per-type cases */
+                s32 slotHandleValue[2]; /* Native signed-word API transport, same handles. */
                 f32 fieldOfView;     /* 0x140. Camera-resource interpretation */
             };
             s32 cameraRes[2];       /* 0x148. Camera resources (RESRC_TYPE_20) */
@@ -72,7 +73,10 @@ struct ResrcRecord
     };
     void *modelHandle158;   /* 0x158. Model data (RESRC_TYPE_MODELUNK) */
     u8 unk15C[0x8];
-    void *modelHandle164;   /* 0x164. Model data (RESRC_TYPE_MODELCHAR/NPC) */
+    union {
+        void *modelHandle164; /* 0x164. Model data (RESRC_TYPE_MODELCHAR/NPC) */
+        s32 modelHandle164Value;
+    };
     u8 unk168[0x4];
     void *handle16C;        /* 0x16c. Effect handle (RESRC_TYPE_MODELFLD) */
     u8 unk170[0x30];

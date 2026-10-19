@@ -60,11 +60,16 @@ typedef struct FldEventWork {
     s32 mode;
     s32 state;
     s32 eventPending;
-    u32 unknown0c;
+    s32 unknown0c; /* Selected trigger dispatch index; -1 means none. */
     s32 scriptTask;
-    u32 unknown14;
+    s32 unknown14; /* Interaction prompt request. */
     u8 *resource;
-    u8 unknown1c[0x14];
+    u8 *selectedResource; /* 0x1C: kind-10 model selected by the surface event */
+    u8 *npcResource;      /* 0x20: nearby scripted NPC */
+    s32 interactionCooldown;
+    u32 unknown28;
+    u16 selectedEvent;
+    u16 previousEvent;
     s32 modelFile;
     u32 unknown34;
     s32 attackIndex;
@@ -87,10 +92,21 @@ typedef struct FldEventWork {
     f32 viewFog;
     f32 environmentFog;
     s32 unitState;
-    u32 unknown130;
+    s32 unknown130; /* Selected ambient entry, or zero. */
     s32 motionState;
-    u32 unknown138;
+    union {
+        u32 unknown138;
+        u8 *rotationTask;
+    };
     s32 fieldEffect;
+    /* FldEvent_SpawnTrigger allocates 0x160 bytes; movement and input use this tail. */
+    f32 cameraYaw;        /* 0x140 */
+    s32 movementAnimation;
+    s32 idleFrames;
+    s32 animationDelay;
+    s32 stopFrames;
+    s32 resourcesReady;
+    u8 pad158[8];
 } FldEventWork;
 
 void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *cameraTask);
