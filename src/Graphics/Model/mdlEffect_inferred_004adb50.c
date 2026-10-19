@@ -127,7 +127,7 @@ u8 *arg0;
     extern void mdlEffectSetChildRotations(void *arg0, void *arg1);
     extern void mdlEffectSetChildScales(void *arg0, f32 arg1);
     extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
-    extern void func_00485630(void *arg0);
+    extern void mdlEffectCommitTreeFrame(void *arg0);
     extern f32 D_00761134;
     s32 sp13C;
     s32 sp138;
@@ -245,7 +245,7 @@ loop_body:
                     mdlEffectSetChildRotations((void *)*objs, out);
                     mdlEffectSetChildScales((void *)*objs, speed);
                     mdlEffectApplyPackedColor((void *)*objs, color);
-                    func_00485630((void *)*objs);
+                    mdlEffectCommitTreeFrame((void *)*objs);
                 }
                 i += 1;
                 objs += 1;

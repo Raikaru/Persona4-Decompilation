@@ -505,8 +505,8 @@ s32 btlSoundLoadPoll(s32 *arg0)
     extern s32 mdlEffectIsFinished(s32 arg0);
     extern s32 TnGetTableBase(void);
     extern void TnSetTableBase(void *arg0);
-    extern void func_00485630(s32 arg0);
-    extern void func_00485870(u8 *arg0);
+    extern void mdlEffectCommitTreeFrame(s32 arg0);
+    extern void mdlEffectFlushTreeFrame(u8 *arg0);
     extern void mdlEffectDestroyWithNodes(s32 arg0);
     extern u8 D_005DC8CC[];
     void *temp_17;
@@ -535,8 +535,8 @@ s32 btlSoundLoadPoll(s32 *arg0)
         }
         temp_17 = (void *)TnGetTableBase();
         TnSetTableBase(&D_005DC8CC);
-        func_00485630(*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
-        func_00485870((u8 *)*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
+        mdlEffectCommitTreeFrame(*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
+        mdlEffectFlushTreeFrame((u8 *)*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
         TnSetTableBase(temp_17);
         *arg0 += 1;
         goto block_12;

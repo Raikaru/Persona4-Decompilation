@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -25,10 +26,10 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
+extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
 extern void effMiscQuatMultiplyVU(void);
 extern void effMiscBuildRotationVU(void);
-extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
+extern void mdlEffectSetChildScales(u8 *effect, f32 value);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
@@ -58,9 +59,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00485b20-004865c0 */
 
-extern u_long128 mdlEffectInitParticleState(u8 *arg0);
-extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
-extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
+extern u_long128 mdlEffectInitParticleState(u8 *effect);
+extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
 static inline void model_normalize_packed_color(const u32 *source, f32 scale)
 {
     u32 scaleBits;
@@ -93,50 +94,50 @@ static inline void model_normalize_packed_color(const u32 *source, f32 scale)
 #pragma pop
 // Destroys a node tree: walks the list at +0x8C. For each node without the flag at +0x98 bit 0, runs the kind's +0x10 release callback on its payload and frees the payload's two blocks, then frees the node; finally frees the root.
 // FUN_00485B20
-void mdlEffectDestroyWithNodes(u8 *arg0)
+void mdlEffectDestroyWithNodes(u8 *effect)
 {
-    u8 *var_18;
-    u8 *temp_17;
-    u8 *temp_16;
-    u8 *temp_4;
-    u8 *temp_4_2;
+    u8 *node;
+    u8 *nextNode;
+    u8 *record;
+    u8 *primitive;
+    u8 *secondaryAllocation;
 
-    var_18 = *(u8 **)(arg0 + 0x8C);
+    node = ((MdlEffectNode *)effect)->children;
     goto loop_00485b20_check;
 loop_00485b20_body:
-    temp_17 = *(u8 **)(var_18 + 0xAC);
-    if ((*(s32 *)(var_18 + 0x98) & 1) == 0) {
-        temp_16 = *(u8 **)(var_18 + 0x90);
-        if (*(s32 *)(temp_16 + 8) != 0) {
-            if (*(s32 *)(D_00713480 + (*(u16 *)(temp_16 + 4) << 6) + 0x10) == 0) {
+    nextNode = ((MdlEffectNode *)node)->next;
+    if ((((MdlEffectNode *)node)->sourceFlags & 1) == 0) {
+        record = ((MdlEffectNode *)node)->primitive;
+        if (*(s32 *)(record + 0x8) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            if (*(s32 *)(D_00713480 + (*(u16 *)(record + 0x4) << 6) + 0x10) == 0) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                 kAssertFail(D_00713470, 0x2EB);
             }
-            (*(void (**)(s32))(D_00713480 + (*(u16 *)(temp_16 + 4) << 6) + 0x10))(
-                *(s32 *)(temp_16 + 8));
+            (*(void (**)(s32))(D_00713480 + (((MdlEffectPrimitiveRecord *)record)->kind << 6) + 0x10))(
+                ((MdlEffectPrimitiveRecord *)record)->instance.handle);
         }
-        temp_4 = *(u8 **)(temp_16 + 0x18);
-        if (temp_4 != NULL) {
-            jtbl_008873EC[0](temp_4);
-            *(s32 *)(temp_16 + 0x10) = 0;
-            *(s32 *)(temp_16 + 0x14) = 0;
-            *(u8 **)(temp_16 + 0x18) = NULL;
+        primitive = *(u8 **)(record + 0x18); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (primitive != NULL) {
+            jtbl_008873EC[0](primitive);
+            *(s32 *)&((MdlEffectSource *)record)->parameters = 0;
+            ((MdlEffectSource *)record)->count = 0;
+            ((MdlEffectSource *)record)->allocation.pointer = NULL;
         }
-        temp_4_2 = *(u8 **)(temp_16 + 0x28);
-        if (temp_4_2 != NULL) {
-            jtbl_008873EC[0](temp_4_2);
-            *(s32 *)(temp_16 + 0x20) = 0;
-            *(s32 *)(temp_16 + 0x24) = 0;
-            *(u8 **)(temp_16 + 0x28) = NULL;
+        secondaryAllocation = *(u8 **)(record + 0x28); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (secondaryAllocation != NULL) {
+            jtbl_008873EC[0](secondaryAllocation);
+            *(s32 *)&((MdlEffectSource *)record)->secondaryParameters = 0;
+            ((MdlEffectSource *)record)->secondaryCount = 0;
+            ((MdlEffectSource *)record)->secondaryAllocation.pointer = NULL;
         }
-        jtbl_008873EC[0](temp_16);
+        jtbl_008873EC[0](record);
     }
-    jtbl_008873EC[0](var_18);
-    var_18 = temp_17;
+    jtbl_008873EC[0](node);
+    node = nextNode;
 loop_00485b20_check:
-    if (var_18 != NULL) {
+    if (node != NULL) {
         goto loop_00485b20_body;
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](effect);
 }
 
 /* measured: object 852B/window 864B, nd 0. The allocator table address lives in
@@ -151,9 +152,9 @@ loop_00485b20_check:
    allocations instead of re-materialising the table address at the first use. */
 /* measured: mdlEffectCloneWithNodes MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-u8 *mdlEffectCloneWithNodes(u8 *arg0)
+u8 *mdlEffectCloneWithNodes(u8 *effect)
 {
-    u_long128 sp80;
+    u_long128 identity;
     u8 *clone;
     u8 *node;
     u8 *nodeClone;
@@ -162,7 +163,7 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
     u16 kind;
     void *(**alloc)(u32, u32);
 
-    if (*(u8 **)(arg0 + 0x8C) == NULL) {
+    if (*(u8 **)(effect + 0x8C) == NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         kAssertFail(D_00713470, 0x6B7);
     }
     chkmemAllocSiteTag(D_00713470, 0x546);
@@ -172,14 +173,14 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
         kAssertFail(D_00713470, 0x547);
     }
     memset(clone, 0, 0x90);
-    *(s32 *)(clone + 0x80) = 0;
-    *(s32 *)(clone + 0x84) = 0;
+    *(s32 *)(clone + 0x80) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    *(s32 *)&((MdlEffectTree *)clone)->frame = 0;
     mdlEffectInitParticleState(clone);
-    *(u_long128 *)clone = *(u_long128 *)arg0;
-    *(u_long128 *)(clone + 0x10) = *(u_long128 *)(arg0 + 0x10);
-    *(f32 *)(clone + 0x74) = *(f32 *)(arg0 + 0x74);
-    *(s32 *)(clone + 0x68) = *(s32 *)(arg0 + 0x68);
-    for (node = *(u8 **)(arg0 + 0x8C); node != NULL; node = *(u8 **)(node + 0xAC)) {
+    *(u_long128 *)clone = *(u_long128 *)effect;
+    *(u_long128 *)((MdlEffectState *)clone)->rotation = *(u_long128 *)((MdlEffectState *)effect)->rotation; /* Transfer the complete quadword representation, including the VU W lane. */
+    ((MdlEffectState *)clone)->multiplier = ((MdlEffectState *)effect)->multiplier;
+    ((MdlEffectState *)clone)->flags.signedValue = ((MdlEffectState *)effect)->flags.signedValue;
+    for (node = ((MdlEffectNode *)effect)->children; node != NULL; node = ((MdlEffectNode *)node)->next) {
         chkmemAllocSiteTag(D_00713470, 0x559);
         nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
         if (nodeClone == NULL) {
@@ -187,16 +188,16 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
         }
         memset(nodeClone, 0, 0xC0);
         memset(nodeClone, 0, 0x90);
-        *(s32 *)(nodeClone + 0x84) = 1;
-        *(u8 *)(nodeClone + 0x88) = 8;
-        *(u8 *)(nodeClone + 0x89) = 0;
-        *(u8 *)(nodeClone + 0x8A) = 0;
+        ((MdlEffectNode *)nodeClone)->flags = 1;
+        ((MdlEffectNode *)nodeClone)->attributes[0] = 8;
+        ((MdlEffectNode *)nodeClone)->attributes[1] = 0;
+        ((MdlEffectNode *)nodeClone)->attributes[2] = 0;
         mdlEffectInitParticleState(nodeClone);
-        src = *(u8 **)(node + 0x90);
+        src = ((MdlEffectNode *)node)->primitive;
         if (*(u32 *)src > 0xD2) {
             kAssertFail(D_00713470, 0x318);
         }
-        kind = *(u16 *)(src + 4);
+        kind = ((MdlEffectPrimitiveRecord *)src)->kind;
         chkmemAllocSiteTag(D_00713470, 0x21);
         prim = (u8 *)alloc[0](0x2C, 0x40000);
         if (prim == NULL) {
@@ -204,146 +205,151 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
         }
         memset(prim, 0, 0x2C);
         *(s32 *)prim = 0xD2;
-        *(u16 *)(prim + 4) = kind;
-        *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
-        *(u16 *)(prim + 0x1C) = *(u16 *)(src + 0x1C);
-        if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == NULL) {
+        *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)src)->id;
+        ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)src)->sourceKind;
+        if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6) + 0x14) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
             kAssertFail(D_00713470, 0x321);
         }
-        *(void **)(prim + 8) =
-            (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(src + 8));
-        *(u8 **)(nodeClone + 0x90) = prim;
+        ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
+            (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6) + 0x14))(((MdlEffectPrimitiveRecord *)src)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
+        ((MdlEffectNode *)nodeClone)->primitive = prim;
         mdlEffectCopyRecord(nodeClone, node);
-        *(s32 *)(nodeClone + 0xAC) = 0;
-        if (*(u8 **)(clone + 0x88) != NULL) {
-            *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
-            *(u8 **)(nodeClone + 0xB0) = *(u8 **)(clone + 0x88);
+        *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
+        if (*(u8 **)(clone + 0x88) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
+            ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
         } else {
-            *(u8 **)(clone + 0x8C) = nodeClone;
-            *(u8 **)(nodeClone + 0xB0) = NULL;
+            ((MdlEffectNode *)clone)->children = nodeClone;
+            ((MdlEffectNode *)nodeClone)->previous = NULL;
         }
-        *(u8 **)(clone + 0x88) = nodeClone;
-        *(s32 *)(clone + 0x80) += 1;
+        ((MdlEffectTree *)clone)->lastChild = nodeClone;
+        ((MdlEffectTree *)clone)->childCount += 1;
     }
-    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(&sp80) : "memory");
-    mdlEffectSetChildPositions(clone, (f32 *)&sp80);
-    mdlEffectSetChildRotations(clone, (u8 *)&sp80);
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(&identity) : "memory");
+    mdlEffectSetChildPositions(clone, (f32 *)&identity);
+    mdlEffectSetChildRotations(clone, (u8 *)&identity);
     mdlEffectSetChildScales(clone, 1.0f);
     mdlEffectApplyPackedColor(clone, -1);
     return clone;
 }
 
 /* measured: closes the propagation bracket; the file default is on. */
+/* Start every child primitive and reset the parent frame. */
 // FUN_00485FE0
-void mdlEffectStartChildren(u8 *arg0) {
-    u8 *n = *(u8 **)(arg0 + 0x8C);
+void mdlEffectStartChildren(u8 *effect) {
+    u8 *n = ((MdlEffectNode *)effect)->children;
     u8 *o;
     void (*fn)(s32);
 
     while (n != NULL) {
-        o = *(u8 **)(n + 0x90);
-        fn = *(void (**)(s32))(D_00713480 + (*(u16 *)(o + 4) << 6) + 0x1C);
+        o = ((MdlEffectNode *)n)->primitive;
+        fn = *(void (**)(s32))(D_00713480 + (((MdlEffectPrimitiveRecord *)o)->kind << 6) + 0x1C);
         if (fn != NULL) {
-            fn(*(s32 *)(o + 8));
+            fn(((MdlEffectPrimitiveRecord *)o)->instance.handle);
         }
-        n = *(u8 **)(n + 0xAC);
+        n = ((MdlEffectNode *)n)->next;
     }
-    *(s32 *)(arg0 + 0x84) = 0;
+    *(s32 *)&((MdlEffectTree *)effect)->frame = 0;
 }
 
+/* Return true only when every child with a completion callback reports done. */
 // FUN_00486060
-s32 mdlEffectChildrenAllDone(u8 *arg0) {
-    s32 (*temp_2)(s32);
-    s32 var_2;
-    u8 *temp_4;
-    u8 *var_16;
+s32 mdlEffectChildrenAllDone(u8 *effect) {
+    s32 (*callback)(s32);
+    s32 result;
+    u8 *primitive;
+    u8 *child;
 
-    var_16 = *(u8 **)(arg0 + 0x8C);
+    child = ((MdlEffectNode *)effect)->children;
     goto loop_00486060_check;
 loop_00486060_body:
-    temp_4 = *(u8 **)(var_16 + 0x90);
-    temp_2 = *(s32 (**)(s32))(D_00713480 +
-        (*(u16 *)(temp_4 + 4) << 6) + 0x34);
-    if (temp_2 != NULL) {
-        var_2 = temp_2(*(s32 *)(temp_4 + 8));
+    primitive = ((MdlEffectNode *)child)->primitive;
+    callback = *(s32 (**)(s32))(D_00713480 +
+        (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x34);
+    if (callback != NULL) {
+        result = callback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle);
     } else {
-        var_2 = 1;
+        result = 1;
     }
-    if (var_2 == 0) {
+    if (result == 0) {
         return 0;
     }
-    var_16 = *(u8 **)(var_16 + 0xAC);
+    child = ((MdlEffectNode *)child)->next;
 loop_00486060_check:
-    if (var_16 != NULL) {
+    if (child != NULL) {
         goto loop_00486060_body;
     }
     return 1;
 }
 
+/* Return true when any child activity callback reports active. */
 // FUN_004860F0
-s32 mdlEffectAnyChildActive(u8 *arg0) {
-    s32 (*temp_2)(s32);
-    s32 var_2;
-    u8 *temp_4;
-    u8 *var_16;
+s32 mdlEffectAnyChildActive(u8 *effect) {
+    s32 (*callback)(s32);
+    s32 result;
+    u8 *primitive;
+    u8 *child;
 
-    var_16 = *(u8 **)(arg0 + 0x8C);
+    child = ((MdlEffectNode *)effect)->children;
     goto loop_004860f0_check;
 loop_004860f0_body:
-    temp_4 = *(u8 **)(var_16 + 0x90);
-    temp_2 = *(s32 (**)(s32))(D_00713480 +
-        (*(u16 *)(temp_4 + 4) << 6) + 0x38);
-    if (temp_2 != NULL) {
-        var_2 = temp_2(*(s32 *)(temp_4 + 8));
+    primitive = ((MdlEffectNode *)child)->primitive;
+    callback = *(s32 (**)(s32))(D_00713480 +
+        (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x38);
+    if (callback != NULL) {
+        result = callback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle);
     } else {
-        var_2 = 0;
+        result = 0;
     }
-    if (var_2 != 0) {
+    if (result != 0) {
         return 1;
     }
-    var_16 = *(u8 **)(var_16 + 0xAC);
+    child = ((MdlEffectNode *)child)->next;
 loop_004860f0_check:
-    if (var_16 != NULL) {
+    if (child != NULL) {
         goto loop_004860f0_body;
     }
     return 0;
 }
 
+/* Forward each primitive record to its optional kind-specific update callback. */
 // FUN_00486180
-void mdlEffectUpdateChildren(u8 *arg0)
+void mdlEffectUpdateChildren(u8 *effect)
 {
-    u8 *var_16 = *(u8 **)(arg0 + 0x8C);
+    u8 *child = ((MdlEffectNode *)effect)->children;
 
-    while (var_16 != NULL) {
-        u8 *temp_5 = *(u8 **)(var_16 + 0x90);
-        void (*temp_3)(s32, u8 *) =
-            *(void (**)(s32, u8 *))(D_00713480 + (*(u16 *)(temp_5 + 4) << 6) + 0x3C);
+    while (child != NULL) {
+        u8 *record = ((MdlEffectNode *)child)->primitive;
+        void (*updateCallback)(s32, u8 *) =
+            *(void (**)(s32, u8 *))(D_00713480 + (((MdlEffectPrimitiveRecord *)record)->kind << 6) + 0x3C);
 
-        if (temp_3 != NULL) {
-            temp_3(*(s32 *)(temp_5 + 8), temp_5);
+        if (updateCallback != NULL) {
+            updateCallback(((MdlEffectPrimitiveRecord *)record)->instance.handle, record);
         }
-        var_16 = *(u8 **)(var_16 + 0xAC);
+        child = ((MdlEffectNode *)child)->next;
     }
 }
 
+/* Transform child offsets by the parent rotation and scale, then forward their world positions. */
 // FUN_004861F0
-void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1)
+void mdlEffectSetChildPositions(u8 *effect, f32 *value)
 {
-    u_long128 sp50[4];
-    u_long128 sp40;
-    u_long128 sp30;
-    f32 var_21;
-    f32 var_20;
+    u_long128 transform[4];
+    u_long128 origin;
+    u_long128 position;
+    f32 parentScale;
+    f32 heightOffset;
     s32 flags;
-    u8 *temp_4;
-    s32 (*temp_2)(s32, void *, u8 *);
+    u8 *primitive;
+    s32 (*callback)(s32, void *, u8 *);
 
     __asm__ volatile("lqc2 $vf10, 0($5)" : : : "$vf10", "memory");
-    __asm__ volatile("sqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0x40(%0)" : : "r"(effect) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(effect) : "$vf11", "memory");
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(arg0) : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&origin) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(effect) : "$vf10", "memory");
     effMiscBuildRotationVU();
     __asm__ volatile(
         "sqc2 $vf28, 0(%0)     \n"
@@ -351,15 +357,15 @@ void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1)
         "sqc2 $vf30, 32(%0)    \n"
         "sqc2 $vf31, 48(%0)    \n"
         :
-        : "r"(&sp50)
+        : "r"(&transform)
         : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
-    var_21 = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
-    arg0 = *(u8 **)(arg0 + 0x8C);
-    var_20 = 5.0f;
+    parentScale = ((MdlEffectState *)effect)->scale * ((MdlEffectState *)effect)->multiplier;
+    effect = ((MdlEffectNode *)effect)->children;
+    heightOffset = 5.0f;
     goto loop_004861f0_check;
 loop_004861f0_body:
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
-    flags = *(s32 *)(arg0 + 0x68);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&origin) : "$vf10", "memory");
+    flags = ((MdlEffectState *)effect)->flags.signedValue;
     if ((flags & 4) != 0) {
         __asm__ volatile(
             "mfc1 $2, %0       \n"
@@ -367,10 +373,10 @@ loop_004861f0_body:
             "qmtc2.ni $2, $vf2 \n"
             "vaddx.y $vf10, $vf0, $vf2x \n"
             :
-            : "f"(var_20)
+            : "f"(heightOffset)
             : "$2", "$vf2", "$vf10", "memory");
     }
-    __asm__ volatile("lqc2 $vf11, 0x40(%0)" : : "r"(arg0) : "$vf11", "memory");
+    __asm__ volatile("lqc2 $vf11, 0x40(%0)" : : "r"(effect) : "$vf11", "memory");
     if ((flags & 0x80) != 0) {
         __asm__ volatile(
             "mfc1 $3, %0       \n"
@@ -378,7 +384,7 @@ loop_004861f0_body:
             "qmtc2.ni $3, $vf2 \n"
             "vmulx.xyzw $vf11, $vf11, $vf2x \n"
             :
-            : "f"(var_21)
+            : "f"(parentScale)
             : "$3", "$vf2", "$vf11", "memory");
     }
     __asm__ volatile(
@@ -387,7 +393,7 @@ loop_004861f0_body:
         "lqc2 $vf30, 32(%0)    \n"
         "lqc2 $vf31, 48(%0)    \n"
         :
-        : "r"(&sp50)
+        : "r"(&transform)
         : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
     __asm__ volatile(
         "vmulax.xyzw $ACC, $vf28, $vf11x \n"
@@ -397,29 +403,30 @@ loop_004861f0_body:
         :
         :
         : "$vf10", "$vf11", "ACC", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp30) : "$vf10", "memory");
-    temp_4 = *(u8 **)(arg0 + 0x90);
-    temp_2 = *(s32 (**)(s32, void *, u8 *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
-    if (temp_2 != NULL) {
-        temp_2(*(s32 *)(temp_4 + 8), &sp30, temp_4);
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&position) : "$vf10", "memory");
+    primitive = ((MdlEffectNode *)effect)->primitive;
+    callback = *(s32 (**)(s32, void *, u8 *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x20);
+    if (callback != NULL) {
+        callback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &position, primitive);
     }
-    arg0 = *(u8 **)(arg0 + 0xAC);
+    effect = ((MdlEffectNode *)effect)->next;
 loop_004861f0_check:
-    if (arg0 != NULL) {
+    if (effect != NULL) {
         goto loop_004861f0_body;
     }
 }
 
+/* Compose parent and child rotations, then refresh child positions. */
 // FUN_00486330
-void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1)
+void mdlEffectSetChildRotations(u8 *effect, u8 *value)
 {
     u_long128 scratch[2];
-    u8 *temp_4;
-    u8 *var_16;
-    s32 (*temp_2)(s32, void *);
+    u8 *primitive;
+    u8 *child;
+    s32 (*callback)(s32, void *);
 
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg1) : "$vf10", "memory");
-    __asm__ volatile("sqc2 $vf10, 0x50(%0)" : : "r"(arg0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(value) : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0x50(%0)" : : "r"(effect) : "$vf10", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch + 1) : "$vf10", "memory");
     effMiscBuildRotationVU();
     __asm__ volatile(
@@ -429,67 +436,68 @@ void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1)
         "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
         "sqc2 $vf10, 0(%0)          \n"
         :
-        : "r"(arg0)
+        : "r"(effect)
         : "$vf10", "ACC", "memory");
-    var_16 = *(u8 **)(arg0 + 0x8C);
+    child = ((MdlEffectNode *)effect)->children;
     goto loop_00486330_check;
 loop_00486330_body:
-    __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(var_16) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(child) : "$vf10", "memory");
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(scratch + 1) : "$vf11", "memory");
     effMiscQuatMultiplyVU();
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch) : "$vf10", "memory");
-    temp_4 = *(u8 **)(var_16 + 0x90);
-    temp_2 = *(s32 (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
-    if (temp_2 != NULL) {
-        temp_2(*(s32 *)(temp_4 + 8), scratch);
+    primitive = ((MdlEffectNode *)child)->primitive;
+    callback = *(s32 (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x24);
+    if (callback != NULL) {
+        callback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, scratch);
     }
-    var_16 = *(u8 **)(var_16 + 0xAC);
+    child = ((MdlEffectNode *)child)->next;
 loop_00486330_check:
-    if (var_16 != NULL) {
+    if (child != NULL) {
         goto loop_00486330_body;
     }
-    mdlEffectSetChildPositions(arg0, (f32 *)(arg0 + 0x40));
+    mdlEffectSetChildPositions(effect, (f32 *)(effect + 0x40));
 }
 
+/* Apply scalar or vector child scales and refresh positions that inherit scale. */
 // FUN_00486400
-void mdlEffectSetChildScales(u8 *arg0, f32 arg1)
+void mdlEffectSetChildScales(u8 *effect, f32 value)
 {
-    u_long128 sp50;
-    u_long128 sp40;
-    f32 var_21;
-    f32 var_20;
-    f32 temp_f12;
-    f32 temp_f0;
+    u_long128 transform;
+    u_long128 origin;
+    f32 parentScale;
+    f32 heightOffset;
+    f32 scalarScale;
+    f32 vectorScale;
     s32 flags;
-    u8 *temp_4;
-    u8 *var_16;
-    void (*temp_3)(s32, u8 *, f32);
-    void (*temp_3_2)(s32, void *, u8 *);
-    void (*temp_3_3)(s32, void *, u8 *);
+    u8 *primitive;
+    u8 *child;
+    void (*updateCallback)(s32, u8 *, f32);
+    void (*vectorScaleCallback)(s32, void *, u8 *);
+    void (*positionCallback)(s32, void *, u8 *);
 
-    *(f32 *)(arg0 + 0x60) = arg1;
-    var_21 = arg1 * *(f32 *)(arg0 + 0x74);
-    var_16 = *(u8 **)(arg0 + 0x8C);
-    var_20 = 5.0f;
+    ((MdlEffectState *)effect)->scale = value;
+    parentScale = value * ((MdlEffectState *)effect)->multiplier;
+    child = ((MdlEffectNode *)effect)->children;
+    heightOffset = 5.0f;
     goto loop_00486400_check;
 loop_00486400_body:
-    flags = *(s32 *)(var_16 + 0x68);
+    flags = ((MdlEffectState *)child)->flags.signedValue;
     if ((flags & 0x100) == 0) {
-        temp_f12 = *(f32 *)(var_16 + 0x60);
-        if ((*(s32 *)(var_16 + 0x84) & 1) != 0) {
-            temp_f12 *= var_21;
+        scalarScale = ((MdlEffectState *)child)->scale;
+        if ((((MdlEffectNode *)child)->flags & 1) != 0) {
+            scalarScale *= parentScale;
         }
-        temp_4 = *(u8 **)(var_16 + 0x90);
-        temp_3 = *(void (**)(s32, u8 *, f32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x28);
-        if (temp_3 != NULL) {
-            temp_3(*(s32 *)(temp_4 + 8), temp_4, temp_f12);
+        primitive = ((MdlEffectNode *)child)->primitive;
+        updateCallback = *(void (**)(s32, u8 *, f32))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x28);
+        if (updateCallback != NULL) {
+            updateCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, primitive, scalarScale);
         }
         goto loop_00486400_tail;
     }
-    __asm__ volatile("lqc2 $vf10, 0x20(%0)" : : "r"(var_16) : "$vf10", "memory");
-    temp_f0 = *(f32 *)(var_16 + 0x60);
-    if ((*(s32 *)(var_16 + 0x84) & 1) != 0) {
-        temp_f0 *= var_21;
+    __asm__ volatile("lqc2 $vf10, 0x20(%0)" : : "r"(child) : "$vf10", "memory");
+    vectorScale = ((MdlEffectState *)child)->scale;
+    if ((((MdlEffectNode *)child)->flags & 1) != 0) {
+        vectorScale *= parentScale;
     }
     __asm__ volatile(
         "mfc1 $3, %0       \n"
@@ -497,19 +505,19 @@ loop_00486400_body:
         "qmtc2.ni $3, $vf2 \n"
         "vmulx.xyzw $vf10, $vf10, $vf2x \n"
         :
-        : "f"(temp_f0)
+        : "f"(vectorScale)
         : "$3", "$vf2", "$vf10", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
-    temp_4 = *(u8 **)(var_16 + 0x90);
-    temp_3_2 = *(void (**)(s32, void *, u8 *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x2C);
-    if (temp_3_2 != NULL) {
-        temp_3_2(*(s32 *)(temp_4 + 8), &sp40, temp_4);
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&origin) : "$vf10", "memory");
+    primitive = ((MdlEffectNode *)child)->primitive;
+    vectorScaleCallback = *(void (**)(s32, void *, u8 *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x2C);
+    if (vectorScaleCallback != NULL) {
+        vectorScaleCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &origin, primitive);
     }
 loop_00486400_tail:
-    flags = *(s32 *)(var_16 + 0x68);
+    flags = ((MdlEffectState *)child)->flags.signedValue;
     if ((flags & 0x80) != 0) {
-        __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(effect) : "$vf10", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(effect) : "$vf11", "memory");
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
         if ((flags & 4) != 0) {
             __asm__ volatile(
@@ -518,38 +526,38 @@ loop_00486400_tail:
                 "qmtc2.ni $2, $vf2 \n"
                 "vaddx.y $vf10, $vf0, $vf2x \n"
                 :
-                : "f"(var_20)
+                : "f"(heightOffset)
                 : "$2", "$vf2", "$vf10", "memory");
         }
-        __asm__ volatile("lqc2 $vf11, 0x40(%0)" : : "r"(var_16) : "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf11, 0x40(%0)" : : "r"(child) : "$vf11", "memory");
         __asm__ volatile(
             "mfc1 $3, %0       \n"
             "nop               \n"
             "qmtc2.ni $3, $vf2 \n"
             "vmulx.xyzw $vf11, $vf11, $vf2x \n"
             :
-            : "f"(var_21)
+            : "f"(parentScale)
             : "$3", "$vf2", "$vf11", "memory");
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
-        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp50) : "$vf10", "memory");
-        temp_4 = *(u8 **)(var_16 + 0x90);
-        temp_3_3 = *(void (**)(s32, void *, u8 *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
-        if (temp_3_3 != NULL) {
-            temp_3_3(*(s32 *)(temp_4 + 8), &sp50, temp_4);
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&transform) : "$vf10", "memory");
+        primitive = ((MdlEffectNode *)child)->primitive;
+        positionCallback = *(void (**)(s32, void *, u8 *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x20);
+        if (positionCallback != NULL) {
+            positionCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &transform, primitive);
         }
     }
-    var_16 = *(u8 **)(var_16 + 0xAC);
+    child = ((MdlEffectNode *)child)->next;
 loop_00486400_check:
-    if (var_16 != NULL) {
+    if (child != NULL) {
         goto loop_00486400_body;
     }
 }
 
-// Stores arg1 at +0x64 and normalises it into each child node's packed colour (node +0x64), walking the child list at +0x8C.
+// Stores value at +0x64 and normalises it into each child node's packed colour (node +0x64), walking the child list at +0x8C.
 // FUN_004865C0
 /* measured: 276B/288B, instruction-exact after relocation normalization; 12B zero tail.
  * Only the packed-word/VU bridges are assembly; locals and traversal remain C. */
-void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1)
+void mdlEffectApplyPackedColor(u8 *effect, s32 value)
 {
     u32 baseColor;
     u32 childColor;
@@ -563,18 +571,18 @@ void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1)
     u32 color;
     u32 work;
 
-    *(s32 *)(arg0 + 0x64) = arg1;
-    baseColor = (u32)arg1;
+    ((MdlEffectState *)effect)->packedColor.signedValue = value;
+    baseColor = (u32)value;
     source = &baseColor;
     scale = fGpffff8044;
     model_normalize_packed_color(source, scale);
     __asm__ volatile("sqc2 $vf10, 0(%1)\n"
         : "=m"(parent) : "r"(parent) : "memory");
 
-    node = *(u8 **)(arg0 + 0x8C);
+    node = ((MdlEffectNode *)effect)->children;
     if (node != NULL) {
         while (node != NULL) {
-            childColor = *(u32 *)(node + 0x64);
+            childColor = ((MdlEffectState *)node)->packedColor.value;
             source = &childColor;
             model_normalize_packed_color(source, scale);
             __asm__ volatile(
@@ -594,14 +602,97 @@ void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1)
                 : "+r"(work), "=m"(packedColor)
                 : : "$vf2", "$vf10", "memory");
             color = packedColor;
-            data = *(u8 **)(node + 0x90);
+            data = ((MdlEffectNode *)node)->primitive;
             callback = *(void (**)(s32, u32))(
-                D_00713480 + *(u16 *)(data + 4) * 0x40 + 0x30);
+                D_00713480 + ((MdlEffectPrimitiveRecord *)data)->kind * 0x40 + 0x30);
             if (callback != NULL) {
-                callback(*(s32 *)(data + 8), color);
+                callback(((MdlEffectPrimitiveRecord *)data)->instance.handle, color);
             }
-            node = *(u8 **)(node + 0xAC);
+            node = ((MdlEffectNode *)node)->next;
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
