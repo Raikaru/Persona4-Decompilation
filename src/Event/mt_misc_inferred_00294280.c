@@ -80,7 +80,7 @@ void mtMiscBuildSceneNodes(u8 *arg0)
     extern void *evtNodeAlloc(s32 arg0, s32 arg1);
     extern void evtNodeSetRes(s32 arg0, s32 arg1, s32 arg2);
     extern void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3);
-    extern void func_0028f530(u8 *arg0);
+    extern void evtNpcResourceHook(u8 *arg0);
     extern void func_00440b68(char *fmt, ...);
     extern f64 fptodp(f32 arg0);
     extern void *mdlGetColor(void *arg0);
@@ -152,7 +152,7 @@ void mtMiscBuildSceneNodes(u8 *arg0)
         temp_19 = 0;
         goto loop_6_test;
 loop_6_body:
-        func_0028f530(temp_2_2b);
+        evtNpcResourceHook(temp_2_2b);
         temp_2_3 = (s32)evtNodeAllocWithRes(
             1, arg0, *(u16 *)temp_2_2b, (s32)temp_2_2b);
         ((MtMiscSceneNode *)temp_2_3)->unk_08 = -1;

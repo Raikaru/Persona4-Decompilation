@@ -7,8 +7,9 @@
 #include "fcl_draw_task.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "fr_font_internal.h"
-extern void (*jtbl_008873EC[])(void *arg0);
+extern void (*jtbl_008873EC[])(void *input);
 typedef FclVec2 f2;
 typedef struct {
     u8 c0;
@@ -41,37 +42,50 @@ extern u8 D_0063F560[];
 /* measured: retain pair loads before stores and retail's written load order. */
 #pragma push
 #pragma pop
-// FUN_002E23B0
-s32 func_002e23b0(u8 *arg0)
-{
-    u8 *temp16;
+/* Rebuild requests carry signed kind/order bytes and two word filters. */
+typedef struct ComuListRebuild {
+    s8 pending;
+    s8 kind;
+    u8 pad02[2];
+    s32 filterA;
+    s32 filterB;
+    s8 order;
+} ComuListRebuild;
 
-    temp16 = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)temp16 == 0) {
+// FUN_002E23B0
+/* Consume one pending list-rebuild request and clear its pending byte. */
+s32 comuDataApplyListRebuild(u8 *task)
+{
+    ComuListRebuild *request;
+
+    request = (ComuListRebuild *)((struct KwlnTask *)task)->work;
+    if (request->pending == 0) {
         return 0;
     }
-    yListRebuild(*(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), (s32)*(s8 *)(temp16 + 0xC));
-    *(s8 *)temp16 = 0;
+    yListRebuild(request->filterA, request->filterB, request->kind, (s32)request->order);
+    request->pending = 0;
     return 0;
 }
 
 // FUN_002E2410
-s32 func_002e2410(u8 *arg0)
+/* Rebuild the task-owned list from a pending request and acknowledge it. */
+s32 comuDataApplyOwnedListRebuild(u8 *task)
 {
-    u8 *temp16;
+    ComuListRebuild *request;
 
-    temp16 = *(u8 **)(arg0 + 0x38);
-    if (*(s8 *)temp16 == 0) {
+    request = (ComuListRebuild *)((struct KwlnTask *)task)->work;
+    if (request->pending == 0) {
         return 0;
     }
-    yListRebuildFor(arg0, *(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), *(s8 *)(temp16 + 0xC));
-    *(s8 *)temp16 = 0;
+    yListRebuildFor(task, request->filterA, request->filterB, request->kind, request->order);
+    request->pending = 0;
     return 0;
 }
 
 // FUN_002E2470
-void func_002e2470(u8 *arg0)
+/* Free the list task request block. */
+void comuDataDestroyListRequest(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
 

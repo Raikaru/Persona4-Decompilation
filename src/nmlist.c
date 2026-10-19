@@ -31,7 +31,7 @@ typedef struct NmlistManager {
     u32 size;
 } NmlistManager;
 
-void func_002e22f0(int param_1, int param_2);
+void comuDataClearList(int param_1, int param_2);
 
 // FUN_002E1D00
 u8 *func_002e1d00(s32 arg0) {
@@ -92,7 +92,7 @@ u8 *func_002e1db0(s32 arg0, code arg1, code arg2, code arg3) {
 
 // FUN_002E1EF0
 void func_002e1ef0(u8 *arg0) {
-    func_002e22f0((int)arg0, (int)(arg0 + 4));
+    comuDataClearList((int)arg0, (int)(arg0 + 4));
     if (arg0 == NULL) {
         kAssertFail(&D_0063FC38, 0x49);
     }

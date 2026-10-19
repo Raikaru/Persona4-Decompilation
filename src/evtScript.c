@@ -1,6 +1,8 @@
 #include "model_callbacks_internal.h"
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "primitive_queue_internal.h"
+#include "resrc_manager_internal.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
@@ -32,7 +34,7 @@ extern void MT_Scene_DestroyRes(u32);
 extern void MT_Scene_SetResActiveById(s32, s32);
 // lint: allow H011 -- measured: u16 prototype regresses evtNpcModelTaskUpdate and evtCmdNpcModelLoad (andi on wide id args)
 extern u16 *MT_Scene_GetRes(s32);
-extern s32 mdlPrepareModel(u32 arg0);
+extern s32 mdlPrepareModel(u32 input);
 extern u8 *mdlGetColor(s32);
 extern void evtNodeSetRes(u8 *, s32, u16 *);
 extern s32 evtEnsureEventTask(); /* lint: allow H011 -- caller stores the returned value; the definition is void */
@@ -40,13 +42,13 @@ extern s32 evtGetEventTaskWork();
 extern u8 *evtFindSlotEntry();
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 evtFindTask();
-extern void itfMesWindowApplySlots(s32 arg0);
-extern u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
-                         s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-extern u8 *frFontSplitRun(u8 **arg0, s32 arg1);
-extern s32 frFontNodeWidth(u8 *arg0);
-extern void frFontMoveListToFloat(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void frFontSetGlyphColor(u8 *arg0, s32 arg1);
+extern void itfMesWindowApplySlots(s32 input);
+extern u8 *itfMesWindowBuildEntry(f32 floatInput, f32 secondFloatInput, f32 thirdFloatInput, s32 input,
+                         s32 secondInput, s32 thirdInput, s32 fourthInput, s32 fifthInput, s32 sixthInput);
+extern u8 *frFontSplitRun(u8 **input, s32 secondInput);
+extern s32 frFontNodeWidth(u8 *input);
+extern void frFontMoveListToFloat(u8 *input, f32 floatInput, f32 secondFloatInput);
+extern void frFontSetGlyphColor(u8 *input, s32 secondInput);
 
 /* measured: the operands must travel through this helper's parameters to get
    retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
@@ -57,51 +59,63 @@ static inline u32 evtSlot(u32 offset, u32 base)
     return offset + base;
 }
 
-extern void frFontListKeepOrRelease(u8 *arg0);
-extern f32 sinf(f32 fparg0);
+extern void frFontListKeepOrRelease(u8 *input);
+extern f32 sinf(f32 floatInput);
 extern f32 iGpffff8094;
 /* INCLUDE_ASM fallback below; address taken by evtCmdNpcModelLoad. */
 extern s32 evtNpcModelTaskUpdate(u8 *task);
 /* INCLUDE_ASM fallback below; address stored by evtRestartTaskUpdate. */
-extern void evtRestartTaskDraw(s32 arg0, s32 arg1);
+extern void evtRestartTaskDraw(s32 input, s32 secondInput);
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 // kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+/* The NPC loader allocates two words: model handle followed by event slot. */
+typedef struct EvtNpcLoadWork {
+    s32 model;
+    s32 slot;
+} EvtNpcLoadWork;
+
+typedef struct EvtRestartWork {
+    s32 unk00;
+    s32 frame;
+} EvtRestartWork;
+
 // Intent: NPC model task update: waits for the model, replaces the NPC shadow resource, and copies its colour into the event node; returns -1 when done [inferred]
 // FUN_00298370
 s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
-    s32 temp_2_2;
-    u8 *temp_18;
-    s32 temp_17;
-    u8 *temp_2_4;
-    u8 *temp_2;
+    /* Loader/resource offsets are proven by EvtNpcLoadWork and ResrcRecord; typed access changes MWCC scheduling. */
+    s32 taskOrSlot;
+    u8 *resource;
+    s32 modelOrResource;
+    u8 *eventWorkOrColor;
+    u8 *workOrNode;
 
-    temp_2 = (u8 *)kwlnTaskGetWork();
-    temp_17 = *(s32 *)(temp_2 + 0);
-    if (mdlPrepareModel(temp_17) == 1) {
-        MT_Scene_DestroyRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
-        temp_17 = (s32)(MT_Scene_CreateModelNpcShadowRes((*(s32 *)(temp_2 + 4) + 0x384) & 0xFFFF, 3, temp_17) & 0xFFFF);
-        if (temp_17 == 0) {
+    workOrNode = (u8 *)kwlnTaskGetWork();
+    modelOrResource = *(s32 *)(workOrNode + 0);
+    if (mdlPrepareModel(modelOrResource) == 1) {
+        MT_Scene_DestroyRes((u16)((( *(s32 *)(workOrNode + 4) + 0x384) & 0x3FF) | 0xC00));
+        modelOrResource = (s32)(MT_Scene_CreateModelNpcShadowRes((*(s32 *)(workOrNode + 4) + 0x384) & 0xFFFF, 3, modelOrResource) & 0xFFFF);
+        if (modelOrResource == 0) {
             kAssertFail(D_0063CF80, 0x34);
         }
-        MT_Scene_SetResActiveById(temp_17, 1);
-        temp_18 = (u8 *)MT_Scene_GetRes(temp_17);
-        temp_2_2 = evtEnsureEventTask();
-        if (temp_2_2 == 0) {
+        MT_Scene_SetResActiveById(modelOrResource, 1);
+        resource = (u8 *)MT_Scene_GetRes(modelOrResource);
+        taskOrSlot = evtEnsureEventTask();
+        if (taskOrSlot == 0) {
             kAssertFail(D_0063CF80, 0x39);
         }
-        temp_2_4 = (u8 *)evtGetEventTaskWork(kwlnTaskGetWork(temp_2_2));
-        temp_2_2 = *(s32 *)(temp_2 + 4);
-        temp_2 = (u8 *)evtFindSlotEntry(temp_2_4, temp_2_2);
-        if (temp_2 == NULL) {
+        eventWorkOrColor = (u8 *)evtGetEventTaskWork(kwlnTaskGetWork(taskOrSlot));
+        taskOrSlot = *(s32 *)(workOrNode + 4);
+        workOrNode = (u8 *)evtFindSlotEntry(eventWorkOrColor, taskOrSlot);
+        if (workOrNode == NULL) {
             kAssertFail(D_0063CF80, 0x3D);
         }
-        evtNodeSetRes(temp_2, temp_17, (u16 *)temp_18);
-        temp_2_4 = mdlGetColor(*(s32 *)(temp_18 + 0x164));
-        ((EvtNode *)temp_2)->color = *(EvtColor *)temp_2_4;
+        evtNodeSetRes(workOrNode, modelOrResource, (u16 *)resource);
+        eventWorkOrColor = mdlGetColor(*(s32 *)(resource + 0x164));
+        ((EvtNode *)workOrNode)->color = *(EvtColor *)eventWorkOrColor;
         return -1;
     }
     return 0;
@@ -110,38 +124,39 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
 // FUN_00298510
 void evtNpcModelTaskDestroy(u8 *unusedTask)
 {
-    int iVar1;
+    int work;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    work = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](work);
 }
 // Intent: Event command 0x3000, EVT_NPC_MODEL_LOAD (2 params): group 3 table entry 0x3000 in p4flow Event.json. Activates the NPC model resource when it matches, otherwise creates it [inferred]
 // FUN_00298550
 s32 evtCmdNpcModelLoad(void)
 {
-    s32 v0;
-    s32 v1;
+    s32 slot;
+    s32 modelId;
     u16 id;
-    u8 *p;
+    u8 *resource;
     u8 *work;
 
-    v0 = scrGetParamInt(0);
-    v1 = scrGetParamInt(1);
+    slot = scrGetParamInt(0);
+    modelId = scrGetParamInt(1);
     if (scrGetCmdTimer() == 0) {
-        id = (u16)(((v0 + 0x384) & 0x3FF) | 0xC00);
+        id = (u16)(((slot + 0x384) & 0x3FF) | 0xC00);
+        /* The nested model identity is a kind/id halfword pair at +0xD4/+0xD6; full model layout is unresolved. */
         if (MT_Scene_GetRes(id) != 0) {
-            p = (u8 *)MT_Scene_GetRes(id);
-            if (*(u16 *)(*(s32 *)(p + 0x164) + 0xD4) == 5 &&
-                *(u16 *)(*(s32 *)(p + 0x164) + 0xD6) == v1) {
+            resource = (u8 *)MT_Scene_GetRes(id);
+            if (*(u16 *)(*(s32 *)(resource + 0x164) + 0xD4) == 5 &&
+                *(u16 *)(*(s32 *)(resource + 0x164) + 0xD6) == modelId) {
                 MT_Scene_SetResActiveById(id, 1);
                 return 1;
             }
         }
         chkmemAllocSiteTag(D_0063CF80, 0x4F);
         work = D_008873F4[0](1, 8, 0x40000);
-        *(s32 *)(work + 0) = (s32)mdlFindOrCreateModelObject(5, v1 & 0xFFFF, 0);
-        *(s32 *)(work + 4) = v0;
-        if (*(s32 *)(work + 0) == 0) {
+        ((EvtNpcLoadWork *)work)->model = (s32)mdlFindOrCreateModelObject(5, modelId & 0xFFFF, 0);
+        ((EvtNpcLoadWork *)work)->slot = slot;
+        if (((EvtNpcLoadWork *)work)->model == 0) {
             kAssertFail(D_0063CF80, 0x52);
         }
         (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, evtNpcModelTaskUpdate, evtNpcModelTaskDestroy, (u8 *)(work));
@@ -186,22 +201,23 @@ s32 evtCmdSetEventSlot(void) {
 
 // Intent: Draws one centred window text line: applies the window slots, builds the entry, splits the run and draws it centred at fparg0 [inferred]
 // FUN_002987D0
-void evtDrawCenteredWindowText(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
-                   s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
+/* Font list nodes expose next at +0x24; the remaining glyph-node layout is not established here. */
+void evtDrawCenteredWindowText(f32 x, f32 y, f32 depth, s32 color, s32 alpha,
+                   s32 style, s32 flags, s32 kind, s32 messageManager, s32 entryIndex, s32 lineIndex)
 {
     u8 *node;
     s32 sum;
     u8 *p;
-    u8 *spAC;
+    u8 *remainingText;
 
-    itfMesWindowApplySlots(arg5);
-    spAC = (u8 *)itfMesWindowBuildEntry(fparg0, fparg1, fparg2, (arg0 << 8) | arg1,
-                               arg2, arg3, arg4, arg5, arg6);
-    if (spAC != NULL) {
-        p = (u8 *)frFontSplitRun(&spAC, arg7);
+    itfMesWindowApplySlots(messageManager);
+    remainingText = (u8 *)itfMesWindowBuildEntry(x, y, depth, (color << 8) | alpha,
+                               style, flags, kind, messageManager, entryIndex);
+    if (remainingText != NULL) {
+        p = (u8 *)frFontSplitRun(&remainingText, lineIndex);
         if (p == NULL) {
-            p = spAC;
-            spAC = NULL;
+            p = remainingText;
+            remainingText = NULL;
         }
         node = p;
         sum = 0;
@@ -209,14 +225,14 @@ void evtDrawCenteredWindowText(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32
             sum += frFontNodeWidth(node);
             node = *(u8 **)(node + 0x24);
         }
-        frFontMoveListToFloat(p, fparg0 - (f32)sum / 2.0f, fparg1);
-        frFontSetGlyphColor(p, arg1 | ~0xFF);
-        if (spAC != NULL) {
+        frFontMoveListToFloat(p, x - (f32)sum / 2.0f, y);
+        frFontSetGlyphColor(p, alpha | ~0xFF);
+        if (remainingText != NULL) {
             frFontDrawList(p, 1, 0);
         }
         frFontListKeepOrRelease(p);
-        if (spAC != NULL) {
-            frFontListKeepOrRelease(spAC);
+        if (remainingText != NULL) {
+            frFontListKeepOrRelease(remainingText);
         }
     }
 }
@@ -230,60 +246,61 @@ void evtDrawCenteredWindowText(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32
    interleaved-parameter order (inapplicable: both target inputs are s32). */
 // Intent: Draws one restart label row, alpha-faded by the row's position within each 0x28-step window [inferred]
 // FUN_00298990
-void evtRestartTaskDraw(s32 unused, s32 arg1) {
-    f32 temp_f2;
-    f32 temp_f0;
-    f32 mul_left;
-    f32 mul_right;
-    s32 var_5;
-    s32 temp_16;
-    s32 temp_19;
-    s32 temp_4;
-    s32 temp_5;
-    s32 var_18;
-    u8 *temp_17;
+void evtRestartTaskDraw(s32 unused, s32 task) {
+    f32 phase;
+    f32 exitDelta;
+    f32 elapsedFloat;
+    f32 angleScale;
+    s32 alpha;
+    s32 elapsed;
+    s32 messageManager;
+    s32 frame;
+    s32 rowStart;
+    s32 rowIndex;
+    u8 *work;
 
-    temp_17 = (u8 *)kwlnTaskGetWork(arg1);
-    temp_19 = *(s32 *)((u8 *)evtGetEventTaskWork(kwlnTaskGetWork(evtEnsureEventTask())) + 0x680);
-    var_18 = 0;
-    while (var_18 < 0xF) {
-        temp_5 = var_18 * 0x28;
-        temp_4 = *(s32 *)(temp_17 + 4);
-        if ((temp_5 < temp_4) && (temp_4 < (temp_5 + 0x12C))) {
-            temp_16 = temp_4 - temp_5;
-            if (temp_16 < 0xB4) {
-                var_5 = (s32)(255.0f * sinf((iGpffff8094 * (f32)temp_16) / 180.0f));
-            } else if (temp_16 > 0x10E) {
-                temp_f0 = (f32)(temp_16 - 0x10E);
-                mul_left = temp_f0;
-                mul_right = iGpffff8094;
-                temp_f2 = mul_right;
-                var_5 = (s32)(255.0f * sinf(temp_f2 + ((mul_right * mul_left) / 30.0f)));
+    work = (u8 *)kwlnTaskGetWork(task);
+    /* Message-window +8 is the manager handle; the containing window layout is not recovered here. */
+    messageManager = *(s32 *)((u8 *)evtGetEventTaskWork(kwlnTaskGetWork(evtEnsureEventTask())) + 0x680);
+    rowIndex = 0;
+    while (rowIndex < 0xF) {
+        rowStart = rowIndex * 0x28;
+        frame = ((EvtRestartWork *)work)->frame;
+        if ((rowStart < frame) && (frame < (rowStart + 0x12C))) {
+            elapsed = frame - rowStart;
+            if (elapsed < 0xB4) {
+                alpha = (s32)(255.0f * sinf((iGpffff8094 * (f32)elapsed) / 180.0f));
+            } else if (elapsed > 0x10E) {
+                exitDelta = (f32)(elapsed - 0x10E);
+                elapsedFloat = exitDelta;
+                angleScale = iGpffff8094;
+                phase = angleScale;
+                alpha = (s32)(255.0f * sinf(phase + ((angleScale * elapsedFloat) / 30.0f)));
             } else {
-                var_5 = 255;
+                alpha = 255;
             }
-            evtDrawCenteredWindowText(320.0f, 300.0f - ((230.0f * (f32)temp_16) / 300.0f), 0.0f,
-                          0xFFFFFF, var_5, 0, 0, 0, temp_19, 0, var_18);
+            evtDrawCenteredWindowText(320.0f, 300.0f - ((230.0f * (f32)elapsed) / 300.0f), 0.0f,
+                          0xFFFFFF, alpha, 0, 0, 0, messageManager, 0, rowIndex);
         }
-        var_18 += 1;
+        rowIndex += 1;
     }
 }
 // Intent: Restart task update: advances its counter, sets flag 0x1211 while input is held, and queues the draw callback [inferred]
 // FUN_00298B80
 s32 evtRestartTaskUpdate(u8 *sdkTaskBytes)
 {
-    s32 arg0 = (s32)sdkTaskBytes;
+    s32 taskHandle = (s32)sdkTaskBytes;
     u8 *base;
     u8 *p;
 
     base = (u8 *)kwlnTaskGetWork();
-    *(s32 *)(base + 4) += 1;
+    ((EvtRestartWork *)base)->frame += 1;
     if (D_008C024E[0] & 0x9FF) {
         datSetFlag(0x1211, 1);
     }
     p = (u8 *)PrimAllocQueueNode();
-    *(void **)(p + 8) = (void *)evtRestartTaskDraw;
-    *(s32 *)(p + 0x10) = arg0;
+    ((PrimQueueNode *)p)->callback = (void *)evtRestartTaskDraw;
+    ((PrimQueueNode *)p)->argument.handle = taskHandle;
     PrimAppendNode(D_00795E60, p);
     return 0;
 }
@@ -301,7 +318,7 @@ void evtRestartTaskDestroy(u8 *unusedTask) {
 s32 evtCmdRestartTask(void)
 {
     s32 task;
-    s32 v0;
+    s32 eventTask;
     u8 *work;
 
     datSetFlag(0x1211, 0);
@@ -309,8 +326,8 @@ s32 evtCmdRestartTask(void)
     if (task != 0) {
         kwlnTaskDestroyWithHierarchy((void *)task);
     }
-    v0 = evtEnsureEventTask();
+    eventTask = evtEnsureEventTask();
     chkmemAllocSiteTag(D_0063CF80, 0xF6);
-    (s32)kwlnTaskCreateChild((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, evtRestartTaskUpdate, evtRestartTaskDestroy, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)(eventTask), (const void *)(D_0063CFA0), 0xF, 0, 0, evtRestartTaskUpdate, evtRestartTaskDestroy, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
     return 1;
 }

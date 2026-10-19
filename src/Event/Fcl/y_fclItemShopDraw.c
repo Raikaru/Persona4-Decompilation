@@ -113,7 +113,7 @@ extern s32 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0064A3C0[];
 extern f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern f32 iGpffff8424;
 extern f32 iGpffff851c;
 extern f32 iGpffff84cc;
@@ -1554,7 +1554,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 fclBustupStartSlide(*(void **)(work + j * 4 + 0x40));
             }
             fclBustupStartSlide(*(void **)(work + 0x60));
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
             *(s8 *)(work + 0) = 0xF;
         }
         break;
@@ -1638,7 +1638,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                       0, 0xA, 0);
         fclBustupObjStartTween(*(u8 **)(work + 0x10), -720.0f, 0.0f, 0, 0xA, 0);
         func_0033d3d0(*(void **)(work + 0x10), 0x62);
-        func_00122520(1, 0x1E);
+        fadeBeginTransition(1, 0x1E);
         *(s8 *)(work + 0) = 0x12;
         break;
     case 18:

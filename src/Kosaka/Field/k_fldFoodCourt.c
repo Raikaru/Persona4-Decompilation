@@ -39,7 +39,7 @@ extern s32 scrStartProcedureChecked(s32 , s32 , s32 , s32 );
 extern s32 kwlnTaskIsLinked(s32 );
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
-extern void func_00122640(s32 , s32 );
+extern void fadeBeginReturnTransition(s32 , s32 );
 extern s32 fadeStatus(void);
 
 
@@ -132,7 +132,7 @@ s32 K_FldFoodCourt_Update(u8 *task) {
             if (sndRequestAreaTrack() == 0) {
                 sndPlayAreaCue();
             }
-            func_00122640(1, 0);
+            fadeBeginReturnTransition(1, 0);
             *(s32 *)work += 1;
         }
         else {

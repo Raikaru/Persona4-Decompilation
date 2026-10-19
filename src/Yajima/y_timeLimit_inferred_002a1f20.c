@@ -85,8 +85,8 @@ extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 extern void datSetHeroNameParts(u8 *arg0, u8 *arg1);
-extern void func_00122520(s32 arg0, s32 arg1);
-extern void func_00122640(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
+extern void fadeBeginReturnTransition(s32 arg0, s32 arg1);
 extern void func_0029ebf0(u8 *arg0, s32 arg1);
 extern void func_0029f070(u8 *arg0);
 extern void func_002a12e0(u8 *arg0, s32 arg1);
@@ -192,7 +192,7 @@ s32 yTimeLimitDraw(u8 *arg0) {
     temp_5 = *(s32 *)(temp_16 + 4);
     switch (temp_5) {
     case 0:
-        func_00122640(1, 1);
+        fadeBeginReturnTransition(1, 1);
         var_4 = 0;
         for (; var_4 < 6; var_4++) {
             *(s16 *)(temp_16 + (var_4 * 4) + 0x1C38) = 3;
@@ -272,7 +272,7 @@ clear_done:
                 goto block_37;
             }
             if (*(s32 *)(temp_16 + 0x18) == 0) {
-                func_00122520(1, 0x1E);
+                fadeBeginTransition(1, 0x1E);
             }
             temp_3_2 = *(s32 *)(temp_16 + 0x18);
             if (temp_3_2 >= 0x1E) {

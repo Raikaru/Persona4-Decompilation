@@ -16,8 +16,8 @@ extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
-extern void func_00122520(s32, s32);
-extern void func_00122640(s32, s32);
+extern void fadeBeginTransition(s32, s32);
+extern void fadeBeginReturnTransition(s32, s32);
 extern s32 fadeStatus(void);
 extern s32 titleFileLoadStep(u8 *task);
 extern void titleLoaderDestroy(u8 *task);
@@ -123,13 +123,13 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
     case 4:
         temp_2->state = 5;
         temp_2->counter = 0;
-        func_00122640(0, 0xA);
+        fadeBeginReturnTransition(0, 0xA);
     case 5:
         temp_2_5 = temp_2->counter + 1;
         temp_2->counter = temp_2_5;
         if (temp_2_5 >= 0x46) {
             temp_2->state = 6;
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
         }
         break;
     case 6:
@@ -138,13 +138,13 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         case 7:
             temp_2->state = 8;
             temp_2->counter = 0;
-            func_00122640(0, 0xA);
+            fadeBeginReturnTransition(0, 0xA);
         case 8:
             temp_2_6 = temp_2->counter + 1;
             temp_2->counter = temp_2_6;
             if (temp_2_6 >= 0x46) {
                 temp_2->state = 9;
-                func_00122520(1, 0xA);
+                fadeBeginTransition(1, 0xA);
             }
         }
         break;

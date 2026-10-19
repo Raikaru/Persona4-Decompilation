@@ -127,7 +127,7 @@ extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
 extern void FldPanel2dTaskCreate(void);
 extern s32 FldUnit_IsSettled(s32);
-extern void func_00122640(s32, s32);
+extern void fadeBeginReturnTransition(s32, s32);
 extern s32 fadeStatus(void);
 extern s32 scrStartProcedureChecked(s32, u8 *, s32, s32);
 extern void H_Cdvd_Destroy(u8 *);
@@ -296,7 +296,7 @@ s32 FldRootUpdate(u8 *task)
     case 10:
         if (FldUnit_IsSettled(D_007D2530[0]) == 0) break;
         loadingSpinnerRequestHide();
-        func_00122640(1, 0);
+        fadeBeginReturnTransition(1, 0);
         work->state++;
         /* fallthrough */
     case 11:

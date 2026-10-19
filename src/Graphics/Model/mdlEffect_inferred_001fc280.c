@@ -63,7 +63,7 @@ extern u8 D_00624B22[];
 
 
 
-extern s32 func_00122520(s32 arg0, s32 arg1);
+extern s32 fadeBeginTransition(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
@@ -125,7 +125,7 @@ extern s32 func_001f0ff0(u32 arg0);
 // FUN_001FC280
 void hFadeSetCustomWhite(void) {
     iGpffffb469 = 1;
-    func_00122520(1, 1);
+    fadeBeginTransition(1, 1);
     H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);
 }
 

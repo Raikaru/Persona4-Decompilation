@@ -50,7 +50,7 @@ extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sdkSpriteRequestLoad(void *arg0);
 extern s32 func_0046a750(s32 arg0);
 extern void sdkSpriteRelease(void *arg0);
-extern void func_002e2240(void *arg0, void *arg1, void *arg2);
+extern void comuDataRemoveAndReleaseNode(void *arg0, void *arg1, void *arg2);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -413,7 +413,7 @@ s32 fclMiscUpdateSlots(u8 *manager)
         } else if (func_0046a750(sprite) != 0) {
             *(s32 *)(pendingSlot + 0) = *(s32 *)(pendingSlot + 0) | 2;
             list = *(u8 **)(manager + 0x18);
-            func_002e2240(list, list + 4, pendingNode);
+            comuDataRemoveAndReleaseNode(list, list + 4, pendingNode);
         }
     }
     slot = manager + 0x1C;

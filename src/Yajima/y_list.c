@@ -23,9 +23,9 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 
 
-extern s32 func_002e23b0(u8 *);
-extern s32 func_002e2410(u8 *);
-extern void func_002e2470(u8 *);
+extern s32 comuDataApplyListRebuild(u8 *);
+extern s32 comuDataApplyOwnedListRebuild(u8 *);
+extern void comuDataDestroyListRequest(u8 *);
 extern s32 yListSlotRefresh(u8 *);
 extern void yListDestroy(void);
 extern s8 yListSlotFindFree(void);
@@ -113,7 +113,7 @@ void yListCreate(s32 filterA, s32 filterB, s8 kind, s8 order) {
     }
     chkmemAllocSiteTag(D_0063FC48, 0x67);
     work = D_008873F4[0](1, 0x1810, 0x40000);
-    iGpffffb58c = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(work));
+    iGpffffb58c = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, comuDataApplyListRebuild, comuDataDestroyListRequest, (u8 *)(work));
     ((YListItemWork *)(work))->filterA = filterA;
     ((YListItemWork *)(work))->filterB = filterB;
     ((YListItemWork *)(work))->kind = kind;
@@ -128,7 +128,7 @@ void yListCreateChild(s32 parent, s32 filterA, s32 filterB, s8 kind, s8 order) {
 
     chkmemAllocSiteTag(D_0063FC48, 0x82);
     work = D_008873F4[0](1, 0x1810, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063FC58), 0xF, 0, 0, comuDataApplyOwnedListRebuild, comuDataDestroyListRequest, (u8 *)(work));
     ((YListItemWork *)(work))->filterA = filterA;
     ((YListItemWork *)(work))->filterB = filterB;
     ((YListItemWork *)(work))->kind = kind;

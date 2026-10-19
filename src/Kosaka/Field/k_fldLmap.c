@@ -49,9 +49,9 @@ extern u8 *MT_Scene_GetCameraResFirst();
 extern f32 MT_Scene_GetCameraFov();
 extern s32 sndRequestAreaTrack();
 extern void sndPlayAreaCue();
-extern void func_00122640(s32 a, s32 b);
+extern void fadeBeginReturnTransition(s32 a, s32 b);
 extern s32 fadeStatus();
-extern void func_00122520(s32 a, s32 b);
+extern void fadeBeginTransition(s32 a, s32 b);
 extern s32 kwlnTaskIsLinked(u8 *param);
 extern s32 scrStartProcedureChecked(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
@@ -515,7 +515,7 @@ s32 FldLmapUpdate(u8 *arg0)
         if (sndRequestAreaTrack() == 0) {
             sndPlayAreaCue();
         }
-        func_00122640(1, 0);
+        fadeBeginReturnTransition(1, 0);
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 4:
@@ -651,7 +651,7 @@ s32 FldLmapUpdate(u8 *arg0)
         FldLmapScrollTaskCreate(arg_save, st + 0x90, 0.0f, -230.0f, NULL, NULL, 10, 0);
         FldLmapScrollTaskCreate(arg_save, st + 0x114, 0.0f, -230.0f, NULL, NULL, 10, 0);
         FldLmapScrollTaskCreate(arg_save, st + 0x120, 0.0f, -230.0f, NULL, NULL, 10, 0);
-        func_00122520(1, 0);
+        fadeBeginTransition(1, 0);
         *(s32 *)st = *(s32 *)st + 1;
         break;
     case 9:

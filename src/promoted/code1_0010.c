@@ -91,7 +91,7 @@ extern void func_001028c0(void);
 extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0010d7b0(void);
 extern void tickerStartTask(void);
-extern void func_00122430(s32 arg0);
+extern void fadeCreateController(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
 extern void FldFilterLoadFile(void);
 extern void btlUnitLoadSyncedAssets(void);
