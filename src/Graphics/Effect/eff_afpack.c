@@ -1,5 +1,7 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "effect_mesh_internal.h"
+#include "effect_after_internal.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 
@@ -9,12 +11,13 @@ typedef struct RuntimeListNode
 {
     u32 flags;
     RuntimeWork* work;
-    void* vertices;
-    void* renderObjects;
-    void *commands;
-    void *entries;
+    u8* vertices;
+    u8* renderObjects;
+    u8 *commands;
+    u8 *entries;
     struct RuntimeListNode* previous;
     struct RuntimeListNode* next;
+    u8 color[4]; /* +0x20: default per-instance color; allocation header is 0x24. */
 } RuntimeListNode;
 
 /* Relocation and instance allocation each reserve a 0x24-byte header. */
@@ -37,7 +40,54 @@ typedef struct RuntimeWork {
     u8 * materials; /* +0x14 */
     u8 * timing; /* +0x18 */
     union { s32* signedWords; u8 * bytes; u8 ** byteTable; } commands; /* +0x1C */
+    s32 owner; /* +0x20: compared by AfPackReleaseByOwner */
 } RuntimeWork;
+
+/* Disk headers are fixed prefixes; their command streams have variable length. */
+typedef struct AfPackResourceHeader {
+    s32 kind;
+    s32 flags;
+    u16 sectionCount;
+    u16 parameterCount;
+    u16 materialCount;
+    u8 padE[2];
+} AfPackResourceHeader;
+typedef struct AfPackMaterialRecord {
+    u16 id;
+    u16 flags;
+    u16 textureKind;
+    u16 colorKind;
+} AfPackMaterialRecord;
+typedef struct AfPackSectionRecord {
+    u16 id;
+    u16 parameter;
+    u16 material;
+    u8 pad6[2];
+    s32 start;
+    s32 end;
+    u16 capacity;
+    u16 sectionCount;
+} AfPackSectionRecord;
+typedef struct AfPackSectionRecord64 {
+    AfPackSectionRecord base;
+    union { s32 signedValue; u32 value; } commandBytes;
+} AfPackSectionRecord64;
+typedef struct AfPackSectionRecord65 {
+    AfPackSectionRecord base;
+    u16 mode;
+    u8 pad16[2];
+    f32 width;
+    union { s32 signedValue; u32 value; } commandBytes;
+} AfPackSectionRecord65;
+typedef struct AfPackTiming {
+    s32 start;
+    s32 end;
+} AfPackTiming;
+
+typedef struct AfPackRenderEntry {
+    union { s32 value; u8 *pointer; } atomic;
+    union { s32 value; u8 *pointer; struct RpMaterial *rpMaterial; } material;
+} AfPackRenderEntry;
 
 extern void* D_00764C98; /* render-list owner */
 extern s32 D_00922DB0[];
@@ -97,8 +147,7 @@ extern void func_003c22f0(void* a);
 // FUN_004B6030
 u8 *AfPackBindResource(void *resource)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 1833 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 1833 differing bytes; remaining raw sites are isolated below. */
     extern void memcpy(void *dst, void *src, u32 size);
     u8 *parameterRecords[16];
     u8 *materialRecords[16];
@@ -121,17 +170,19 @@ u8 *AfPackBindResource(void *resource)
     p = resource;
     header = p;
     p += 0x10;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     for (parameterIndex = 0; parameterIndex < *(u16 *)(header + 0xA); parameterIndex++) {
         parameterRecords[parameterIndex] = p;
         p += 0x38;
     }
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     for (recordIndex = 0; recordIndex < *(u16 *)(header + 0xC); recordIndex++) {
         u8 *cur;
 
         materialRecords[recordIndex] = p;
         p += 8;
         cur = materialRecords[recordIndex];
-        switch (*(u16 *)(cur + 4)) {
+        switch (((AfPackMaterialRecord *)cur)->textureKind) {
         case 0:
             p += 4;
             break;
@@ -140,7 +191,7 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
         materialColors[(u32)recordIndex] = p;
-        switch (*(u16 *)(cur + 6)) {
+        switch (((AfPackMaterialRecord *)cur)->colorKind) {
         case 0:
             p += 0x10;
             break;
@@ -149,9 +200,10 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
     }
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     for (recordIndex = 0; recordIndex < *(u16 *)(header + 8); recordIndex++) {
         sectionRecords[recordIndex] = p;
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
             p += 0x18;
             break;
@@ -163,62 +215,79 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
         commandStreams[recordIndex] = p;
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            p += *(s32 *)(sectionRecords[recordIndex] + 0x14);
+            p += ((AfPackSectionRecord64 *)sectionRecords[recordIndex])->commandBytes.signedValue;
             break;
         case 0x65:
-            p += *(s32 *)(sectionRecords[recordIndex] + 0x1C);
+            p += ((AfPackSectionRecord65 *)sectionRecords[recordIndex])->commandBytes.signedValue;
             break;
         }
     }
     size = 0;
     size = size + 0x24;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     size = size + *(u16 *)(header + 8) * 0x18;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     size = size + *(u16 *)(header + 0xA) * 0x34;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     size = size + *(u16 *)(header + 0xC) * 0x18;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     size = size + *(u16 *)(header + 8) * 4;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     for (sizeIndex = 0; sizeIndex < *(u16 *)(header + 8); sizeIndex++) {
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            size += *(s32 *)(sectionRecords[sizeIndex] + 0x14);
+            size += ((AfPackSectionRecord64 *)sectionRecords[sizeIndex])->commandBytes.signedValue;
             break;
         case 0x65:
-            size += *(s32 *)(sectionRecords[sizeIndex] + 0x1C);
+            size += ((AfPackSectionRecord65 *)sectionRecords[sizeIndex])->commandBytes.signedValue;
             break;
         }
     }
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     size += *(u16 *)(header + 8) * 8;
     chkmemAllocSiteTag(D_007146B0, 0x1E4);
     base = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     node = base;
     base = base + 0x24;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     *(u8 **)(node + 0xC) = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(u16 *)(header + 8) * 0x18;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     *(u8 **)(node + 0x10) = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(u16 *)(header + 0xA) * 0x34;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     *(u8 **)(node + 0x14) = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(u16 *)(header + 0xC) * 0x18;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     *(u8 **)(node + 0x1C) = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(u16 *)(header + 8) * 4;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     for (commandIndex = 0; commandIndex < *(u16 *)(header + 8); commandIndex++) {
-        (*(u8 ***)(node + 0x1C))[commandIndex] = base;
-        switch (*(s32 *)header) {
+        (((RuntimeWork *)node)->commands.byteTable)[commandIndex] = base;
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            base += *(s32 *)(sectionRecords[commandIndex] + 0x14);
+            base += ((AfPackSectionRecord64 *)sectionRecords[commandIndex])->commandBytes.signedValue;
             break;
         case 0x65:
-            base += *(s32 *)(sectionRecords[commandIndex] + 0x1C);
+            base += ((AfPackSectionRecord65 *)sectionRecords[commandIndex])->commandBytes.signedValue;
             break;
         }
     }
-    *(u8 **)(node + 0x18) = base;
-    *(s32 *)(node + 0) = *(s32 *)(header + 4);
-    *(u16 *)(node + 4) = *(u16 *)(header + 8);
-    *(u16 *)(node + 6) = *(u16 *)(header + 0xA);
-    *(u16 *)(node + 8) = *(u16 *)(header + 0xC);
-    for (copyParameterIndex = 0; copyParameterIndex < *(u16 *)(header + 0xA); copyParameterIndex++) {
-        f32 *dst = (f32 *)(*(u8 **)(node + 0x10) + copyParameterIndex * 0x34);
+    ((RuntimeWork *)node)->timing = base;
+    ((RuntimeWork *)node)->flags = ((AfPackResourceHeader *)header)->flags;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    ((RuntimeWork *)node)->sectionCount.half = *(u16 *)(header + 8);
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+    ((RuntimeWork *)node)->parameterCount = *(u16 *)(header + 0xA);
+    ((RuntimeWork *)node)->materialCount = ((AfPackResourceHeader *)header)->materialCount;
+    for (copyParameterIndex = 0; copyParameterIndex < ((AfPackResourceHeader *)header)->parameterCount; copyParameterIndex++) {
+        f32 *dst = (f32 *)(((RuntimeWork *)node)->parameters + copyParameterIndex * 0x34);
         f32 *src = (f32 *)parameterRecords[copyParameterIndex];
 
         dst[0] = src[1];
@@ -235,19 +304,20 @@ u8 *AfPackBindResource(void *resource)
         dst[11] = src[12];
         dst[12] = src[13];
     }
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     for (materialIndex = 0; materialIndex < *(u16 *)(header + 0xC); materialIndex++) {
-        u8 *dst = *(u8 **)(node + 0x14) + materialIndex * 0x18;
+        u8 *dst = ((RuntimeWork *)node)->materials + materialIndex * 0x18;
         u8 *src = materialRecords[materialIndex];
         u8 *colors = materialColors[materialIndex];
-        u16 id = *(u16 *)(src + 2);
+        u16 id = ((AfPackMaterialRecord *)src)->flags;
 
-        *(s32 *)dst = id;
+        ((EffAfterMaterial *)dst)->flags = id;
         if ((id & 1) != 0) {
-            *(s32 *)(dst + 4) = D_00764CA8;
+            ((EffAfterMaterial *)dst)->texture = D_00764CA8;
         } else {
-            *(s32 *)(dst + 4) = 0;
+            ((EffAfterMaterial *)dst)->texture = 0;
         }
-        switch (*(u16 *)(src + 6)) {
+        switch (((AfPackMaterialRecord *)src)->colorKind) {
         case 0: {
             s32 k;
 
@@ -267,93 +337,95 @@ u8 *AfPackBindResource(void *resource)
             break;
         }
     }
-    for (sectionIndex = 0; sectionIndex < *(u16 *)(header + 8); sectionIndex++) {
-        u8 *dst = *(u8 **)(node + 0xC) + sectionIndex * 0x18;
+    for (sectionIndex = 0; sectionIndex < ((AfPackResourceHeader *)header)->sectionCount; sectionIndex++) {
+        u8 *dst = ((RuntimeWork *)node)->sections + sectionIndex * 0x18;
         u8 *src = sectionRecords[sectionIndex];
         u32 id;
         s32 j;
         s32 n;
 
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            id = *(u16 *)(src + 2);
+            id = ((AfPackSectionRecord *)src)->parameter;
             break;
         case 0x65:
-            id = *(u16 *)(src + 2);
+            id = ((AfPackSectionRecord *)src)->parameter;
             break;
         }
         j = 0;
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         n = *(u16 *)(header + 0xA);
         for (; j < n; j++) {
             if (id == *(u16 *)parameterRecords[j]) {
                 break;
             }
         }
-        *(u8 **)dst = *(u8 **)(node + 0x10) + j * 0x34;
-        switch (*(s32 *)header) {
+        ((EffAfterConfig *)dst)->param = (EffAfterParam *)(((RuntimeWork *)node)->parameters + j * 0x34);
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            id = *(u16 *)(src + 4);
+            id = ((AfPackSectionRecord *)src)->material;
             break;
         case 0x65:
-            id = *(u16 *)(src + 4);
+            id = ((AfPackSectionRecord *)src)->material;
             break;
         }
         j = 0;
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         n = *(u16 *)(header + 0xC);
         for (; j < n; j++) {
             if (id == *(u16 *)materialRecords[j]) {
                 break;
             }
         }
-        *(u8 **)(dst + 4) = *(u8 **)(node + 0x14) + j * 0x18;
-        switch (*(s32 *)header) {
+        ((EffAfterConfig *)dst)->material = ((RuntimeWork *)node)->materials + j * 0x18;
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            *(s32 *)(dst + 8) = *(u16 *)(src + 0x10);
+            ((EffAfterConfig *)dst)->capacity = ((AfPackSectionRecord *)src)->capacity;
             break;
         case 0x65:
-            *(s32 *)(dst + 8) = *(u16 *)(src + 0x10);
+            ((EffAfterConfig *)dst)->capacity = ((AfPackSectionRecord *)src)->capacity;
             break;
         }
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            *(s32 *)(dst + 0xC) = *(u16 *)(src + 0x12);
+            ((EffAfterConfig *)dst)->sectionCount = ((AfPackSectionRecord *)src)->sectionCount;
             break;
         case 0x65:
-            *(s32 *)(dst + 0xC) = *(u16 *)(src + 0x12);
+            ((EffAfterConfig *)dst)->sectionCount = ((AfPackSectionRecord *)src)->sectionCount;
             break;
         }
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            *(s32 *)(dst + 0x10) = 0;
+            ((EffAfterConfig *)dst)->mode = 0;
             break;
         case 0x65:
-            *(s32 *)(dst + 0x10) = *(u16 *)(src + 0x14);
+            ((EffAfterConfig *)dst)->mode = ((AfPackSectionRecord65 *)src)->mode;
             break;
         }
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            *(f32 *)(dst + 0x14) = 10.0f;
+            ((EffAfterConfig *)dst)->width = 10.0f;
             break;
         case 0x65:
-            *(f32 *)(dst + 0x14) = *(f32 *)(src + 0x18);
+            ((EffAfterConfig *)dst)->width = ((AfPackSectionRecord65 *)src)->width;
             break;
         }
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            *(s32 *)(*(u8 **)(node + 0x18) + sectionIndex * 8) = *(s32 *)(src + 8);
-            *(s32 *)(*(u8 **)(node + 0x18) + sectionIndex * 8 + 4) = *(s32 *)(src + 0xC);
+            ((AfPackTiming *)((RuntimeWork *)node)->timing)[sectionIndex].start = ((AfPackSectionRecord *)src)->start;
+            ((AfPackTiming *)((RuntimeWork *)node)->timing)[sectionIndex].end = ((AfPackSectionRecord *)src)->end;
             break;
         case 0x65:
-            *(s32 *)(*(u8 **)(node + 0x18) + sectionIndex * 8) = *(s32 *)(src + 8);
-            *(s32 *)(*(u8 **)(node + 0x18) + sectionIndex * 8 + 4) = *(s32 *)(src + 0xC);
+            ((AfPackTiming *)((RuntimeWork *)node)->timing)[sectionIndex].start = ((AfPackSectionRecord *)src)->start;
+            ((AfPackTiming *)((RuntimeWork *)node)->timing)[sectionIndex].end = ((AfPackSectionRecord *)src)->end;
             break;
         }
-        switch (*(s32 *)header) {
+        switch (((AfPackResourceHeader *)header)->kind) {
         case 0x64:
-            memcpy((*(u8 ***)(node + 0x1C))[sectionIndex], commandStreams[sectionIndex], *(u32 *)(src + 0x14));
+            memcpy((((RuntimeWork *)node)->commands.byteTable)[sectionIndex], commandStreams[sectionIndex], ((AfPackSectionRecord64 *)src)->commandBytes.value);
             break;
         case 0x65:
-            memcpy((*(u8 ***)(node + 0x1C))[sectionIndex], commandStreams[sectionIndex], *(u32 *)(src + 0x1C));
+            memcpy((((RuntimeWork *)node)->commands.byteTable)[sectionIndex], commandStreams[sectionIndex], ((AfPackSectionRecord65 *)src)->commandBytes.value);
             break;
         }
     }
@@ -364,8 +436,7 @@ u8 *AfPackBindResource(void *resource)
 // FUN_004B6900
 u8* AfPackCreateInstance(u8* resource)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 544 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 544 differing bytes; remaining raw sites are isolated below. */
     u8* node;
     u8* base;
     u8* temp;
@@ -379,58 +450,74 @@ u8* AfPackCreateInstance(u8* resource)
 
     size = 0;
     size += 0x24;
-    size += *(s16*)(resource + 4) * 0x3C;
-    size += *(s16*)(resource + 4) * 8;
-    size += *(s16*)(resource + 4) * 0x20;
-    size += *(s16*)(resource + 4) * 0x18;
+    size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x3C;
+    size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 8;
+    size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x20;
+    size += ((RuntimeWork *)resource)->sectionCount.signedHalf * 0x18;
     chkmemAllocSiteTag(D_007146B0, 0x287);
     node = (u8*)(*jtbl_008873E8)(size, 0x40000);
     base = node + 0x24;
-    *(u8**)(node + 8) = base;
+    ((RuntimeListNode *)node)->vertices = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(s16*)(resource + 4) * 0x3C;
-    *(u8**)(node + 0xC) = base;
+    ((RuntimeListNode *)node)->renderObjects = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(s16*)(resource + 4) * 8;
-    *(u8**)(node + 0x10) = base;
+    ((RuntimeListNode *)node)->commands = base;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     base += *(s16*)(resource + 4) * 0x20;
-    *(u8**)(node + 0x14) = base;
-    *(s32*)node = 0;
-    *(u8**)(node + 4) = resource;
+    ((RuntimeListNode *)node)->entries = base;
+    ((RuntimeListNode *)node)->flags = 0;
+    ((RuntimeListNode *)node)->work = (RuntimeWork *)(resource);
     node[0x20] = 0xFF;
     node[0x21] = 0xFF;
     node[0x22] = 0xFF;
     node[0x23] = 0xFE;
 
     i = 0;
+    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     if (*(s16*)(resource + 4) > 0)
     {
         color.c[0] = 0xFF;
         color.c[1] = 0xFF;
         color.c[2] = 0xFF;
         color.c[3] = 0xFE;
+        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         while (i < *(s16*)(resource + 4))
         {
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             effAfterAllocVectorBuffers(*(u8**)(node + 8) + i * 0x3C,
-                          *(u8**)(resource + 0xC) + i * 0x18);
-            *(s32*)(*(u8**)(node + 0xC) + i * 8 + 4) = func_003c4140();
+                          ((RuntimeWork *)resource)->sections + i * 0x18);
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+            ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.value = func_003c4140();
             {
                 u8* obj;
                 u8* material;
-                obj = *(u8**)(*(u8**)(node + 8) + i * 0x3C);
-                material = *(u8**)(obj + 4);
-                if ((*(s32*)material & 1) != 0)
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                obj = (u8 *)((EffAfterQueue *)*(u8 **)(node + 8))[i].config;
+                material = ((EffAfterConfig *)obj)->material;
+                if ((((EffAfterMaterial *)material)->flags & 1) != 0)
                 {
-                    func_003c42b0(*(u8**)(*(u8**)(node + 0xC) + i * 8 + 4),
-                                  *(u8**)(material + 4));
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                    func_003c42b0(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.pointer,
+                                  (u8 *)((EffAfterMaterial *)material)->texture);
                 }
             }
-            *(Color4*)(*(u8**)(*(u8**)(node + 0xC) + i * 8 + 4) + 4) = color;
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+            *(Color4 *)&((RpMaterial *)(((AfPackRenderEntry *)*(u8 **)(node + 0xC))[i].material.pointer))->color = color;
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             temp = effAfterCreateRibbon(*(u8**)(node + 8) + i * 0x3C,
-                                 *(struct RpMaterial**)(*(u8**)(node + 0xC) + i * 8 + 4));
-            *(s32*)(*(u8**)(node + 0xC) + i * 8) = func_003c00e0();
-            func_003c0210(*(u8**)(*(u8**)(node + 0xC) + i * 8), temp, 0);
-            RpAtomicSetFrame(*(u8**)(*(u8**)(node + 0xC) + i * 8),
+                                 /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                                 ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->material.rpMaterial);
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+            ((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.value = func_003c00e0();
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+            func_003c0210(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.pointer, temp, 0);
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+            RpAtomicSetFrame(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + i*8))->atomic.pointer,
                           (void*)func_003e9320());
             func_003c2a80(temp);
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             effMiscProgressResetWork(*(u8**)(node + 8) + i * 0x3C, temp);
             func_003c22f0(temp);
             i++;
@@ -544,8 +631,7 @@ s32 AfPackTaskUpdate(u8 *unusedTask)
 // Runs the afterimage list once per frame: updates the render entries, reaps nodes with no live entries (freeing their buffers), then draws the remaining entries.
 // FUN_004B6E80
 void AfPackRunList(void) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 483 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 483 differing bytes; remaining raw sites are isolated below. */
     typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
@@ -566,23 +652,23 @@ void AfPackRunList(void) {
     first = (u8 *)D_00764CA0;
     if (first != NULL) {
         while (first != NULL) {
-            flags = *(s32 *)(first + 0);
+            flags = (s32)((RuntimeListNode *)first)->flags;
             if (flags & 8) {
                 Vpad_UpdateRenderEntries(first);
             } else if (flags & 2) {
                 Vpad_UpdateRenderEntries(first);
-                *(s32 *)(first + 0) = *(s32 *)(first + 0) & ~2;
+                ((RuntimeListNode *)first)->flags = (s32)((RuntimeListNode *)first)->flags & ~2;
             }
-            first = *(u8 **)(first + 0x1C);
+            first = (u8 *)((RuntimeListNode *)first)->next;
         }
         node = (u8 *)D_00764CA0;
         while (node != NULL) {
             temp = node;
-            node = *(u8 **)(node + 0x1C);
+            node = (u8 *)((RuntimeListNode *)node)->next;
             bits = 0;
             i = 0;
-            while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
-                bits |= Vpad_HasEntries(*(u8 **)(temp + 0x10) + (i << 5));
+            while (i < ((RuntimeListNode *)temp)->work->sectionCount.signedHalf) {
+                bits |= Vpad_HasEntries(((RuntimeListNode *)temp)->commands + (i << 5));
                 i++;
             }
             if (bits == 0) {
@@ -592,28 +678,35 @@ void AfPackRunList(void) {
                 if (D_00764C9C == NULL) {
                     kAssertFail(D_007146B0, 0x327);
                 }
-                next = *(u8 **)(temp + 0x1C);
+                next = (u8 *)((RuntimeListNode *)temp)->next;
                 if (next != NULL) {
-                    *(u8 **)(next + 0x18) = *(u8 **)(temp + 0x18);
+                    ((RuntimeListNode *)next)->previous = (RuntimeListNode *)((u8 *)((RuntimeListNode *)temp)->previous);
                 }
-                prev = *(u8 **)(temp + 0x18);
+                prev = (u8 *)((RuntimeListNode *)temp)->previous;
                 if (prev != NULL) {
-                    *(u8 **)(prev + 0x1C) = *(u8 **)(temp + 0x1C);
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                    ((RuntimeListNode *)prev)->next = (RuntimeListNode *)(*(u8 **)(temp + 0x1C));
                 }
                 if (temp == (u8 *)D_00764C9C) {
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     D_00764C9C = *(u8 **)(temp + 0x18);
                 }
                 if (temp == (u8 *)D_00764CA0) {
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     D_00764CA0 = (RuntimeListNode *)*(u8 **)(temp + 0x1C);
                 }
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 work = *(u8 **)(temp + 4);
                 i = 0;
-                while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
-                    effAfterFreeVectorBuffers(*(u8 **)(temp + 8) + i * 0x3C);
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                while (i < ((RuntimeWork *)*(u8 **)(temp + 4))->sectionCount.signedHalf) {
+                    effAfterFreeVectorBuffers(((RuntimeListNode *)temp)->vertices + i * 0x3C);
                     off = i * 8;
-                    func_003e9390(*(u8 **)(*(u8 **)(*(u8 **)(temp + 0xC) + off) + 4));
-                    func_003c02e0(*(u8 **)(*(u8 **)(temp + 0xC) + off));
-                    func_003c4220(*(u8 **)(*(u8 **)(temp + 0xC) + off + 4));
+                    func_003e9390((u8 *)((RpAtomic *)(((AfPackRenderEntry *)(((RuntimeListNode *)temp)->renderObjects + off))->atomic.pointer))->frame);
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                    func_003c02e0(((AfPackRenderEntry *)(*(u8 **)(temp + 0xC) + off))->atomic.pointer);
+                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                    func_003c4220(((AfPackRenderEntry *)(*(u8 **)(temp + 0xC) + off))->material.pointer);
                     i++;
                 }
                 table = (void *(**) )DAT_008873ec_abs;
@@ -623,14 +716,14 @@ void AfPackRunList(void) {
         }
         first = (u8 *)D_00764CA0;
         while (first != NULL) {
-            flags = *(s32 *)(first + 0);
+            flags = (s32)((RuntimeListNode *)first)->flags;
             if (flags & 8) {
                 Vpad_DrawEntries(first);
             } else if (flags & 4) {
                 Vpad_DrawEntries(first);
-                *(s32 *)(first + 0) = *(s32 *)(first + 0) & ~4;
+                ((RuntimeListNode *)first)->flags = (s32)((RuntimeListNode *)first)->flags & ~4;
             }
-            first = *(u8 **)(first + 0x1C);
+            first = (u8 *)((RuntimeListNode *)first)->next;
         }
     }
 }
@@ -639,8 +732,7 @@ void AfPackRunList(void) {
 // FUN_004B7140
 void AfPackReleaseByOwner(s32 owner)
 {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 303 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 303 differing bytes; remaining raw sites are isolated below. */
     s32 renderOffset;
     u8* nextNode;
     u8* node;
@@ -654,8 +746,8 @@ void AfPackReleaseByOwner(s32 owner)
     while (nextNode != NULL)
     {
         node = nextNode;
-        nextNode = *(u8**)(nextNode + 0x1C);
-        if (*(s32*)(*(u8**)(node + 4) + 0x20) == owner)
+        nextNode = (u8 *)((RuntimeListNode *)nextNode)->next;
+        if (((RuntimeListNode *)node)->work->owner == owner)
         {
             if (D_00764CA0 == NULL)
             {
@@ -665,33 +757,40 @@ void AfPackReleaseByOwner(s32 owner)
             {
                 kAssertFail(D_007146B0, 0x327);
             }
-            next = *(u8**)(node + 0x1C);
+            next = (u8 *)((RuntimeListNode *)node)->next;
             if (next != NULL)
             {
-                *(u8**)(next + 0x18) = *(u8**)(node + 0x18);
+                ((RuntimeListNode *)next)->previous = (RuntimeListNode *)((u8 *)((RuntimeListNode *)node)->previous);
             }
-            previous = *(u8**)(node + 0x18);
+            previous = (u8 *)((RuntimeListNode *)node)->previous;
             if (previous != NULL)
             {
-                *(u8**)(previous + 0x1C) = *(u8**)(node + 0x1C);
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                ((RuntimeListNode *)previous)->next = (RuntimeListNode *)(*(u8**)(node + 0x1C));
             }
             if (node == (u8*)D_00764C9C)
             {
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 D_00764C9C = *(void**)(node + 0x18);
             }
             if (node == (u8*)D_00764CA0)
             {
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 D_00764CA0 = *(RuntimeListNode**)(node + 0x1C);
             }
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             resource = *(u8**)(node + 4);
             sectionIndex = 0;
-            while (sectionIndex < *(s16*)(*(u8**)(node + 4) + 4))
+            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+            while (sectionIndex < ((RuntimeWork *)*(u8 **)(node + 4))->sectionCount.signedHalf)
             {
-                effAfterFreeVectorBuffers(*(u8**)(node + 8) + sectionIndex * 0x3C);
+                effAfterFreeVectorBuffers(((RuntimeListNode *)node)->vertices + sectionIndex * 0x3C);
                 renderOffset = sectionIndex * 8;
-                func_003e9390(*(void**)(*(u8**)(*(u8**)(node + 0xC) + renderOffset) + 4));
-                func_003c02e0(*(u8**)(*(u8**)(node + 0xC) + renderOffset));
-                func_003c4220(*(void**)(*(u8**)(node + 0xC) + renderOffset + 4));
+                func_003e9390(((RpAtomic *)(((AfPackRenderEntry *)(((RuntimeListNode *)node)->renderObjects + renderOffset))->atomic.pointer))->frame);
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                func_003c02e0(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + renderOffset))->atomic.pointer);
+                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
+                func_003c4220(((AfPackRenderEntry *)(*(u8 **)(node + 0xC) + renderOffset))->material.pointer);
                 sectionIndex++;
             }
             base = (u32)jtbl_008873EC;
