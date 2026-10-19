@@ -28,7 +28,7 @@ extern void func_003e9cb0(s32 , void *, s32 );
 extern void FldCameraAdvanceCurve(s32 , s32 );
 extern void FldFrame_SetViewOffset(s32 , void *);
 extern void FldFrame_SetViewDistance(s32 , f32 );
-extern void func_0016ea30(s32 , f32 );
+extern void fldCameraSetFollowHeight(s32 , f32 );
 extern void FldFrame_SetSlotVector(s32 , s8 , void *);
 extern u8 *FldFrame_GetSlotBuffer(s32 );
 extern void FldCameraUpdateLookAt(s32 );
@@ -61,7 +61,7 @@ void MT_Scene_ApplyCameraParams(void)
             *(f32 *)(cameraResource + 0x15C) = 20.0f;
         }
         FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x15C));
-        func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x160));
+        fldCameraSetFollowHeight(MT_Scene_GetFrameState()[1], *(f32 *)(cameraResource + 0x160));
         slotIndex = 0;
         goto loop_test;
 loop_body:

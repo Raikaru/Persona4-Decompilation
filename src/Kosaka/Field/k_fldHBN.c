@@ -5,6 +5,54 @@
 #include "field_light_internal.h"
 #include "field_transition_internal.h"
 #include "field_frame_internal.h"
+#include "field_scene_internal.h"
+
+/* Versioned HBN headers add one count/unknown-word pair per new record class.
+ * The first record starts at 0x28, 0x30, 0x38 or 0x48 depending on version. */
+typedef struct FldHbnHeader {
+    u32 magic;
+    u32 version;
+    u32 lightCount;
+    u32 unk0c;
+    u32 pointCount;
+    u32 unk14;
+    u32 pointAltCount;
+    u32 unk1c;
+    u32 pointExtraCount;
+    u32 unk24;
+    u32 pointExtendedCount;
+    u32 unk2c;
+    u32 lightExtendedCount;
+    u32 unk34;
+    u32 pointLateCount;
+    u32 unk3c;
+    u32 pointFinalCount;
+    u32 unk44;
+} FldHbnHeader;
+/* SpawnLights advances these packed records by 0x20 and 0x14 respectively. */
+typedef struct FldHbnLight {
+    u16 id;
+    u16 parameter;
+    FieldRgba8 color;
+    f32 point[3];
+    f32 first;
+    f32 second;
+    f32 third;
+} FldHbnLight;
+typedef struct FldHbnPoint {
+    u16 id;
+    u16 unk02;
+    f32 point[3];
+    f32 value;
+} FldHbnPoint;
+/* Completed directory requests expose loaded bytes and their byte count. */
+typedef struct FldHbnRequest {
+    u8 pad00[0x110];
+    u8 *data;
+    u32 unk114;
+    u32 size;
+} FldHbnRequest;
+
 
 extern u8 *MT_Scene_GetFrameState(void);
 extern void FldHbnFreeEntryTable(void);
@@ -35,62 +83,64 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 /* Source unit: src/promoted/k_fldHBN.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldHBN.c; members 0015f8e0-001602a0 */
 
+/* Open field/room HBN data for the selected load source; packed loading uses sentinel handle 1. */
 // FUN_0015F8E0
-u8 *FldHbnOpenData(s32 arg0, s32 arg1)
+u8 *FldHbnOpenData(s32 fieldId, s32 roomId)
 {
-    char spB0[0x80];
-    char sp30[0x80];
+    char directory[0x80];
+    char path[0x80];
 
     if (FldRc_GetLoadSource() == 0)
     {
-        strcpy(&spB0, D_005F1118);
-        sprintf(&sp30, D_005F1130, arg0 & 0xFFFF, arg1 & 0xFFFF);
-        if (H_Cdvd_FileExists(&sp30) == 0)
+        strcpy(&directory, D_005F1118);
+        sprintf(&path, D_005F1130, fieldId & 0xFFFF, roomId & 0xFFFF);
+        if (H_Cdvd_FileExists(&path) == 0)
         {
             return NULL;
         }
         func_00440b68(&iGpffff9ef0, D_005F1108, 0x17D);
-        return H_Cdvd_AcquireDirectory(&sp30, 0);
+        return H_Cdvd_AcquireDirectory(&path, 0);
     }
     return (u8 *)1;
 }
 
+/* Poll HBN loading, copy completed bytes into owned storage, then release a directory request. */
 // FUN_0015F9B0
-s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
+s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId)
 {
-    u32 sp9C;
-    char sp50[0x40];
+    u32 dataSize;
+    char path[0x40];
     u8 *data;
-    u16 *buf;
+    u16 *copy;
 
-    if (arg0 == NULL)
+    if (request == NULL)
     {
         return 1;
     }
-    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0))
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(request) == 0))
     {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0)
     {
-        sp9C = *(u32 *)(arg0 + 0x118);
-        data = (u8 *)*(u32 **)(arg0 + 0x110);
+        dataSize = ((FldHbnRequest *)request)->size;
+        data = ((FldHbnRequest *)request)->data;
     }
     else
     {
-        sprintf(&sp50, D_005F1150, arg2 & 0xFFFF, arg3 & 0xFFFF);
-        data = H_Cdvd_LookupRequest(&sp50, &sp9C);
+        sprintf(&path, D_005F1150, fieldId & 0xFFFF, roomId & 0xFFFF);
+        data = H_Cdvd_LookupRequest(&path, &dataSize);
     }
     if (data != NULL)
     {
         chkmemAllocSiteTag(D_005F1108, 0x1AE);
-        buf = (u16 *)D_008873F4[0](1, (s32)(sp9C), 0x40000);
-        *arg1 = buf;
-        memcpy(buf, data, sp9C);
+        copy = (u16 *)D_008873F4[0](1, (s32)(dataSize), 0x40000);
+        *destination = copy;
+        memcpy(copy, data, dataSize);
     }
     if (FldRc_GetLoadSource() == 0)
     {
-        H_Cdvd_Destroy(arg0);
+        H_Cdvd_Destroy(request);
     }
     return 1;
 }
@@ -98,93 +148,95 @@ s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
 /* 1052/1056 bytes: field colors are four-byte values passed after the
    three floats. Lifetime analysis preserves the separate cursor/counter
    phases. See docs/probe_archive/HBN_0015fb00_color_value_recovery.md. */
+/* Spawn versioned HBN light/point records, filtering reserved IDs according to field band and mode. */
 // FUN_0015FB00
 #pragma push
 /* measured: FldHbnSpawnLights MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
-void FldHbnSpawnLights(u8 *arg0, s32 arg1)
+void FldHbnSpawnLights(u8 *header, s32 mode)
 {
-    extern s32 MT_Scene_CreatePointRes14(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes15(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes16(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes17(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes18(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes19(u16 arg0, f32 *arg1, f32 fparg0);
+    /* Raw accesses retained: the proven request/record layouts above changed whole-file codegen when substituted. */
+    extern s32 MT_Scene_CreatePointRes14(u16 header, f32 *mode, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes15(u16 header, f32 *mode, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes16(u16 header, f32 *mode, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes17(u16 header, f32 *mode, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes18(u16 header, f32 *mode, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes19(u16 header, f32 *mode, f32 fparg0);
     extern s32 FldMap_IsCurrentInBandA(void);
     extern s32 FldMap_IsCurrentInBandB(void);
-    u8 *r13;
-    u32 c1;
-    u8 *r2;
-    u32 c2;
-    u32 c3;
+    u8 *lightCursor;
+    u32 lightIndex;
+    u8 *pointCursor;
+    u32 pointIndex;
+    u32 extraIndex;
 
-    if (arg0 != NULL) {
-        if (*(u32 *)(arg0 + 4) == 0x10000) {
-            r13 = arg0 + 0x28;
-        } else if (*(u32 *)(arg0 + 4) == 0x10001) {
-            r13 = arg0 + 0x30;
-        } else if (*(u32 *)(arg0 + 4) == 0x10002) {
-            r13 = arg0 + 0x38;
+    if (header != NULL) {
+        if (*(u32 *)(header + 4) == 0x10000) {
+            lightCursor = header + 0x28;
+        } else if (*(u32 *)(header + 4) == 0x10001) {
+            lightCursor = header + 0x30;
+        } else if (*(u32 *)(header + 4) == 0x10002) {
+            lightCursor = header + 0x38;
         } else {
-            r13 = arg0 + 0x48;
+            lightCursor = header + 0x48;
         }
-        for (c1 = 0; c1 < *(u32 *)(arg0 + 8);) {
-            if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (arg1 == 1)) && ((arg1 != 1) || (((*(u16 *)r13 & 0x3FF) != 0x3FE) && ((*(u16 *)r13 & 0x3FF) != 0x3FF)))) {
-                MT_Scene_CreateFldHitLight(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C), *(FieldRgba8 *)(r13 + 4));
+        for (lightIndex = 0; lightIndex < *(u32 *)(header + 8);) {
+            if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (mode == 1)) && ((mode != 1) || (((*(u16 *)lightCursor & 0x3FF) != 0x3FE) && ((*(u16 *)lightCursor & 0x3FF) != 0x3FF)))) {
+                MT_Scene_CreateFldHitLight(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 8), *(f32 *)(lightCursor + 0x14), *(f32 *)(lightCursor + 0x18), *(f32 *)(lightCursor + 0x1C), *(FieldRgba8 *)(lightCursor + 4));
             }
-            c1++;
-            r13 += 0x20;
+            lightIndex++;
+            lightCursor += 0x20;
         }
-        r2 = r13;
-        for (c2 = 0; c2 < *(u32 *)(arg0 + 0x10);) {
-            if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (arg1 == 1)) && ((arg1 != 1) || ((*(u16 *)r2 & 0x3FF) != 0x3FF))) {
-                MT_Scene_CreatePointRes14(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+        pointCursor = lightCursor;
+        for (pointIndex = 0; pointIndex < *(u32 *)(header + 0x10);) {
+            if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (mode == 1)) && ((mode != 1) || ((*(u16 *)pointCursor & 0x3FF) != 0x3FF))) {
+                MT_Scene_CreatePointRes14(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
             }
-            c2++;
-            r2 += 0x14;
+            pointIndex++;
+            pointCursor += 0x14;
         }
-        if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (((FldMap_IsCurrentInBandB() == 1) && (arg1 == 1)))) {
-            for (c2 = 0; c2 < *(u32 *)(arg0 + 0x18);) {
-                MT_Scene_CreatePointRes15(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
-                c2++;
-                r2 += 0x14;
+        if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (((FldMap_IsCurrentInBandB() == 1) && (mode == 1)))) {
+            for (pointIndex = 0; pointIndex < *(u32 *)(header + 0x18);) {
+                MT_Scene_CreatePointRes15(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+                pointIndex++;
+                pointCursor += 0x14;
             }
         }
-        if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (arg1 == 1)) {
-            for (c3 = 0; c3 < *(u32 *)(arg0 + 0x20);) {
-                MT_Scene_CreatePointRes16(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
-                c3++;
-                r2 += 0x14;
+        if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (mode == 1)) {
+            for (extraIndex = 0; extraIndex < *(u32 *)(header + 0x20);) {
+                MT_Scene_CreatePointRes16(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+                extraIndex++;
+                pointCursor += 0x14;
             }
-            if (*(u32 *)(arg0 + 4) > 0x10000U) {
-                for (c3 = 0; c3 < *(u32 *)(arg0 + 0x28);) {
-                    MT_Scene_CreatePointRes17(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
-                    c3++;
-                    r2 += 0x14;
+            if (*(u32 *)(header + 4) > 0x10000U) {
+                for (extraIndex = 0; extraIndex < *(u32 *)(header + 0x28);) {
+                    MT_Scene_CreatePointRes17(*(u16 *)pointCursor & 0x3FF, (f32 *)(pointCursor + 4), *(f32 *)(pointCursor + 0x10));
+                    extraIndex++;
+                    pointCursor += 0x14;
                 }
             }
-            if (*(u32 *)(arg0 + 4) > 0x10001U) {
-                r13 = r2;
-                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x30);) {
-                    MT_Scene_CreateRes21Light(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C), *(FieldRgba8 *)(r13 + 4));
+            if (*(u32 *)(header + 4) > 0x10001U) {
+                lightCursor = pointCursor;
+                for (lightIndex = 0; lightIndex < *(u32 *)(header + 0x30);) {
+                    MT_Scene_CreateRes21Light(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 8), *(f32 *)(lightCursor + 0x14), *(f32 *)(lightCursor + 0x18), *(f32 *)(lightCursor + 0x1C), *(FieldRgba8 *)(lightCursor + 4));
                     {
-                        u8 *resource = MT_Scene_GetRes(((*(u16 *)r13 & 0x3FF) | 0x5400) & 0xFFFF);
-                        *(s32 *)(resource + 0x18C) = *(u16 *)(r13 + 2);
+                        u8 *resource = MT_Scene_GetRes(((*(u16 *)lightCursor & 0x3FF) | 0x5400) & 0xFFFF);
+                        *(s32 *)(resource + 0x18C) = *(u16 *)(lightCursor + 2);
                     }
-                    c1++;
-                    r13 += 0x20;
+                    lightIndex++;
+                    lightCursor += 0x20;
                 }
             }
-            if (*(u32 *)(arg0 + 4) > 0x10002U) {
-                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x38);) {
-                    MT_Scene_CreatePointRes18(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 4), *(f32 *)(r13 + 0x10));
-                    c1++;
-                    r13 += 0x14;
+            if (*(u32 *)(header + 4) > 0x10002U) {
+                for (lightIndex = 0; lightIndex < *(u32 *)(header + 0x38);) {
+                    MT_Scene_CreatePointRes18(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 4), *(f32 *)(lightCursor + 0x10));
+                    lightIndex++;
+                    lightCursor += 0x14;
                 }
-                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x40);) {
-                    MT_Scene_CreatePointRes19(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 4), *(f32 *)(r13 + 0x10));
-                    c1++;
-                    r13 += 0x14;
+                for (lightIndex = 0; lightIndex < *(u32 *)(header + 0x40);) {
+                    MT_Scene_CreatePointRes19(*(u16 *)lightCursor & 0x3FF, (f32 *)(lightCursor + 4), *(f32 *)(lightCursor + 0x10));
+                    lightIndex++;
+                    lightCursor += 0x14;
                 }
             }
         }
@@ -193,74 +245,76 @@ void FldHbnSpawnLights(u8 *arg0, s32 arg1)
 
 #pragma pop
 // FUN_0015FF20
-u8 *FldHbnOpenTable(s32 arg0, s32 arg1)
+u8 *FldHbnOpenTable(s32 fieldId, s32 roomId)
 {
-    char spB0[0x80];
-    char sp30[0x80];
+    char directory[0x80];
+    char path[0x80];
     s32 id;
 
-    id = (u16)arg0;
+    id = (u16)fieldId;
     if (id == -1)
     {
         return NULL;
     }
     if (FldRc_GetLoadSource() == 0)
     {
-        strcpy(&spB0, D_005F1118);
-        sprintf(&sp30, D_005F1170, id, arg1 & 0xFFFF);
-        if (H_Cdvd_FileExists(&sp30) == 0)
+        strcpy(&directory, D_005F1118);
+        sprintf(&path, D_005F1170, id, roomId & 0xFFFF);
+        if (H_Cdvd_FileExists(&path) == 0)
         {
             return NULL;
         }
         func_00440b68(&iGpffff9ef0, D_005F1108, 0x27D);
-        return H_Cdvd_AcquireDirectory(&sp30, 0);
+        return H_Cdvd_AcquireDirectory(&path, 0);
     }
     return (u8 *)1;
 }
 
+/* Poll and copy the event table; entries are fixed 44-byte records. */
 // FUN_00160000
-s32 FldHbnLoadEntryTable(u8 *arg0)
+s32 FldHbnLoadEntryTable(u8 *request)
 {
-    u32 sp8C;
-    char sp40[0x40];
+    u32 dataSize;
+    char path[0x40];
     u8 *data;
-    u8 *temp_2;
+    u8 *sceneOrBuffer;
 
-    if (arg0 == NULL)
+    if (request == NULL)
     {
         return 1;
     }
-    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0))
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(request) == 0))
     {
         return 0;
     }
     if (FldRc_GetLoadSource() == 0)
     {
-        sp8C = *(u32 *)(arg0 + 0x118);
-        data = *(u8 **)(arg0 + 0x110);
+        dataSize = ((FldHbnRequest *)request)->size;
+        data = ((FldHbnRequest *)request)->data;
     }
     else
     {
-        temp_2 = (u8 *)iGpffff9db0;
-        sprintf(&sp40, D_005F1190, *(s32 *)(temp_2 + 0), *(s32 *)(temp_2 + 4));
-        data = H_Cdvd_LookupRequest(&sp40, &sp8C);
+        sceneOrBuffer = (u8 *)iGpffff9db0;
+        sprintf(&path, D_005F1190, ((FieldSceneState *)sceneOrBuffer)->field.value, ((FieldSceneState *)sceneOrBuffer)->room.value);
+        data = H_Cdvd_LookupRequest(&path, &dataSize);
     }
     if (data != NULL)
     {
         FldHbnFreeEntryTable();
-        ((FldFrame *)MT_Scene_GetFrameState())->eventCount = sp8C / 44;
+        ((FldFrame *)MT_Scene_GetFrameState())->eventCount = dataSize / 44;
         chkmemAllocSiteTag(D_005F1108, 0x2AD);
-        temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
-        ((FldFrame *)MT_Scene_GetFrameState())->eventTable = temp_2;
-        memcpy(((FldFrame *)MT_Scene_GetFrameState())->eventTable, data, sp8C);
+        sceneOrBuffer = D_008873F4[0](1, (s32)(dataSize), 0x40000);
+        ((FldFrame *)MT_Scene_GetFrameState())->eventTable = sceneOrBuffer;
+        memcpy(((FldFrame *)MT_Scene_GetFrameState())->eventTable, data, dataSize);
     }
     if (FldRc_GetLoadSource() == 0)
     {
-        H_Cdvd_Destroy(arg0);
+        H_Cdvd_Destroy(request);
     }
     return 1;
 }
 
+/* Release the owned event table and reset its count and pointer. */
 // FUN_00160180
 void FldHbnFreeEntryTable(void)
 {
@@ -271,62 +325,65 @@ void FldHbnFreeEntryTable(void)
     }
 }
 
+/* Open the field script resource for directory or packed loading. */
 // FUN_001601E0
-u8 *FldHbnOpenScript(s32 arg0)
+u8 *FldHbnOpenScript(s32 fieldId)
 {
-    char spA0[0x80];
-    char sp20[0x80];
+    char directory[0x80];
+    char path[0x80];
 
     if (FldRc_GetLoadSource() == 0)
     {
-        strcpy(&spA0, D_005F1118);
-        sprintf(&sp20, D_005F11B0, arg0 & 0xFFFF);
-        if (H_Cdvd_FileExists(&sp20) == 0)
+        strcpy(&directory, D_005F1118);
+        sprintf(&path, D_005F11B0, fieldId & 0xFFFF);
+        if (H_Cdvd_FileExists(&path) == 0)
         {
             return NULL;
         }
         func_00440b68(&iGpffff9ef0, D_005F1108, 0x2E0);
-        return H_Cdvd_AcquireDirectory(&sp20, 0);
+        return H_Cdvd_AcquireDirectory(&path, 0);
     }
     return (u8 *)1;
 }
 
+/* Poll and copy the script buffer into frame-owned storage, retaining its exact byte count. */
 // FUN_001602A0
-s32 FldHbnLoadScriptBuffer(u8 *arg0, s32 arg1)
+s32 FldHbnLoadScriptBuffer(u8 *request, s32 fieldId)
 {
-    u32 sp7C;
-    char sp30[0x40];
-    u8 *buf;
+    /* Raw accesses retained: the proven request/record layouts above changed whole-file codegen when substituted. */
+    u32 dataSize;
+    char path[0x40];
+    u8 *copy;
     u8 *data;
 
-    if (arg0 == NULL)
+    if (request == NULL)
     {
         return 1;
     }
     if (FldRc_GetLoadSource() == 0)
     {
-        if (H_Cdvd_IsFileLoaded(arg0) != 0)
+        if (H_Cdvd_IsFileLoaded(request) != 0)
         {
             chkmemAllocSiteTag(D_005F1108, 0x2F9);
-            buf = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-            ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = buf;
-            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = *(u32 *)(arg0 + 0x118);
-            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
-            H_Cdvd_Destroy(arg0);
+            copy = D_008873F4[0](1, (s32)(*(u32 *)(request + 0x118)), 0x40000);
+            ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = copy;
+            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = *(u32 *)(request + 0x118);
+            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, *(void **)(request + 0x110), *(u32 *)(request + 0x118));
+            H_Cdvd_Destroy(request);
             return 1;
         }
     }
     else
     {
-        sprintf(&sp30, D_005F11D0, arg1 & 0xFFFF);
-        data = H_Cdvd_LookupRequest(&sp30, &sp7C);
+        sprintf(&path, D_005F11D0, fieldId & 0xFFFF);
+        data = H_Cdvd_LookupRequest(&path, &dataSize);
         if (data != NULL)
         {
             chkmemAllocSiteTag(D_005F1108, 0x30C);
-            buf = D_008873F4[0](1, (s32)(sp7C), 0x40000);
-            ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = buf;
-            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = sp7C;
-            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, data, sp7C);
+            copy = D_008873F4[0](1, (s32)(dataSize), 0x40000);
+            ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = copy;
+            ((FldFrame *)MT_Scene_GetFrameState())->auxSize = dataSize;
+            memcpy(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer, data, dataSize);
         }
         return 1;
     }
