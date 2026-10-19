@@ -43,7 +43,7 @@ typedef struct
 } FieldColor_0017;
 extern void FldStepResetTables();
 extern s32 mtSceneResListPrepareAll();
-extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
+extern void sequenceRequest(s32 a, void *b, s32 c, s32 d);
 extern s32 kwlnGetCurrentWorkValue(void);
 extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
@@ -270,7 +270,7 @@ s32 K_Cmd_CALL_TV(void) {
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
-    func_001029a0(0x19, NULL, 0, 0);
+    sequenceRequest(0x19, NULL, 0, 0);
     return 1;
 }
 
@@ -284,7 +284,7 @@ s32 K_Cmd_CALL_LMAP(void) {
     sdlSchedulerEnable();
     memset(&sp1C, 0, 4);
     sp1C = scrGetParamInt(0);
-    func_001029a0(0xC, &sp1C, 4, 2);
+    sequenceRequest(0xC, &sp1C, 4, 2);
     return 1;
 }
 
@@ -294,7 +294,7 @@ s32 K_Cmd_CALL_FOOD_COURT(void) {
         return 0;
     }
     sdlSchedulerEnable();
-    func_001029a0(0xD, NULL, 0, 2);
+    sequenceRequest(0xD, NULL, 0, 2);
     return 1;
 }
 
@@ -312,7 +312,7 @@ s32 K_Cmd_CALL_FIELD(void)
     sp10[1] = (s16)scrGetParamInt(1);
     sp10[2] = (s16)scrGetParamInt(2);
     sp10[4] = (s16)scrGetParamInt(3);
-    func_001029a0(9, sp10, 0x1C, 2);
+    sequenceRequest(9, sp10, 0x1C, 2);
     return 1;
 }
 
@@ -331,7 +331,7 @@ s32 K_Cmd_CALL_FIELD_RESET(void)
     sp10[1] = (s16)scrGetParamInt(1);
     sp10[2] = (s16)scrGetParamInt(2);
     sp10[4] = (s16)scrGetParamInt(3);
-    func_001029a0(9, sp10, 0x1C, 2);
+    sequenceRequest(9, sp10, 0x1C, 2);
     return 1;
 }
 
@@ -357,7 +357,7 @@ s32 K_Cmd_CALL_EVENT(void)
     sp30[5] = scrGetParamInt(2);
     temp_3 = iGpffffb300;
     if (temp_3 == 3) {
-        func_001029a0(0xA, sp30, 0x1C, 2);
+        sequenceRequest(0xA, sp30, 0x1C, 2);
     } else if (temp_3 > 0xA) {
         if (kwlnGetCurrentWorkValue() == -1) {
             iGpffffb300 = 0;
@@ -384,7 +384,7 @@ s32 K_Cmd_CALL_DNG_FLOOR_ONLY(void)
     }
     sp18[0] = scrGetParamInt(0);
     sp18[1] = 0xFFFF;
-    func_001029a0(0xB, sp18, 8, 4);
+    sequenceRequest(0xB, sp18, 8, 4);
     return 1;
 }
 
@@ -402,7 +402,7 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
     sdlSchedulerEnable();
     sp18[0] = scrGetParamInt(0);
     sp18[1] = scrGetParamInt(1);
-    func_001029a0(0xB, sp18, 8, 4);
+    sequenceRequest(0xB, sp18, 8, 4);
     return 1;
 }
 

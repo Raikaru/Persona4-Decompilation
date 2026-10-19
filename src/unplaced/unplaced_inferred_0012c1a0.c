@@ -10,7 +10,7 @@
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
 extern void (*jtbl_008873EC[])(void *);
-extern void func_001029a0(s32 , void *, s32 , s32 );
+extern void sequenceRequest(s32 , void *, s32 , s32 );
 extern s32 shdWindowTaskCreate(u8 *, s32 , s32 );
 extern void shdWindowMarkDone(s32 );
 extern s32 shdWindowQueryState(s32 );
@@ -135,7 +135,7 @@ block_20:
 void titleSoundStartDestroy(u8 *task)
 {
     jtbl_008873EC[0](((SdkTask *)task)->work);
-    func_001029a0(1, 0, 0, 5);
+    sequenceRequest(1, 0, 0, 5);
 }
 #pragma pop
 

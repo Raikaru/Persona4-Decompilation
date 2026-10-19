@@ -125,7 +125,7 @@ typedef struct BtlMainMatrix
 extern u_long128 D_00922C60[4];
 extern f32 D_00922CA0[8];
 extern s32 D_00922CC0[];
-extern void func_001ba790(f32* out, f32* first, f32* second, f32 weight);
+extern void mdlBlendTranslationRotation(f32* out, f32* first, f32* second, f32 weight);
 extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
 extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
 extern f32 fGpffff81a4; /* P4 gp -0x7e5c */
@@ -1330,7 +1330,7 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         param_1[0x3b]++;
     }
 
-    func_001ba790(work, param_2, param_3, fGpffff80c0);
+    mdlBlendTranslationRotation(work, param_2, param_3, fGpffff80c0);
     if (param_1[0x3b] < 4)
     {
         index1 = param_1[0x3c];
@@ -1361,7 +1361,7 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         param_1[0x3b]++;
     }
 
-    func_001ba790(work, param_2, param_3, fGpffff80c8);
+    mdlBlendTranslationRotation(work, param_2, param_3, fGpffff80c8);
     if (param_1[0x3b] < 4)
     {
         index = param_1[0x3c];
@@ -1506,7 +1506,7 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
         param_1[0x3b]++;
     }
 
-    func_001ba790(work, param_2, param_3, fGpffff80c8);
+    mdlBlendTranslationRotation(work, param_2, param_3, fGpffff80c8);
     if (param_1[0x3b] < 4)
     {
         index1 = param_1[0x3c];
@@ -1537,7 +1537,7 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
         param_1[0x3b]++;
     }
 
-    func_001ba790(work, param_3, param_4, fGpffff81a4);
+    mdlBlendTranslationRotation(work, param_3, param_4, fGpffff81a4);
     if (param_1[0x3b] < 4)
     {
         index = param_1[0x3c];

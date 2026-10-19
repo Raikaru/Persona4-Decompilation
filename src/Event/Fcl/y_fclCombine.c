@@ -371,7 +371,7 @@ extern void datPersonaRemoveSelectedRosterMember(void);
 extern void datPersonaInitRecord(u8 *, u16 );
 extern s64 fclFuseRollPersona(u16 *, u8 *, s64 );
 /* The item id is an s16; the callee sign-extends its own table index. */
-extern s32 func_00313690(s16 );
+extern s32 datGetSelectorByte(s16 );
 extern u8 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
 extern s8 D_00641A60[];
@@ -6638,7 +6638,7 @@ u16 fclCombinePickCandidateId(FclCombineRecipe recipe, s16 excludedId) {
     u16 selected;
     s64 bound;
 
-    key = (s16)func_00313690(excludedId);
+    key = (s16)datGetSelectorByte(excludedId);
     count = (s16)key;
     i = 0;
     retry = 0;
@@ -6646,7 +6646,7 @@ u16 fclCombinePickCandidateId(FclCombineRecipe recipe, s16 excludedId) {
     bound = excludedId;
     goto scan;
 scan_body:
-    key = (s16)func_00313690((s16)j);
+    key = (s16)datGetSelectorByte((s16)j);
     if (count == (s16)key && bound != j_mask) {
         table[(s16)i] = (s16)j;
         i = (s16)(i + 1);
@@ -9660,7 +9660,7 @@ void fclCombineMenuResultGrowth(u8 *task) {
         do {
             count = datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             p[0x27] = RpRandom() % count;
-        } while ((s16)func_00313690(((s16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]) == 0);
+        } while ((s16)datGetSelectorByte(((s16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]) == 0);
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]));
         *(s16 *)(p + 0x1C) = ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6];
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);

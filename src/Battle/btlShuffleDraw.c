@@ -139,7 +139,7 @@ typedef enum RpSkyRenderState {
     rpSKYRENDERSTATEFORCEENUMSIZEINT = 0x7fffffff
 } RpSkyRenderState;
 extern s32 RpSkyRenderStateSet(RpSkyRenderState state, void *value);
-extern s32 func_0036be00(void);
+extern s32 pscResGetBaseRaster(void);
 struct RxObjSpace3DVertex;
 extern void *func_00410420(struct RxObjSpace3DVertex *vertices, u32 count, BtlShuffleMatrix *matrix, u32 flags);
 extern s32 func_004106a0(BtlShufflePrimitive primitive);
@@ -620,7 +620,7 @@ void btlShuffleDrawCards(u8 *arg0) {
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x20) {
-        (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)func_0036be00());
+        (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)pscResGetBaseRaster());
         func_00410420((struct RxObjSpace3DVertex *)backVertices, 4, (BtlShuffleMatrix *)m, 3);
         func_004106a0(4);
     }

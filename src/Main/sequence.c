@@ -2,6 +2,19 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
+
+/* Allocated as 0x18 bytes; Request copies the optional payload and tracks
+ * the old/current sequence IDs separately during delayed transitions. */
+typedef struct SequenceWork
+{
+    s32 flags;
+    s32 current;
+    s32 previous;
+    s32 delay;
+    s32 unk10;
+    u8 *payload;
+} SequenceWork;
 
 extern void kAssertFail(u8 *file, s32 line);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
@@ -19,7 +32,8 @@ extern u8 *iGpffffb1a8;
 
 
 // FUN_001028C0
-s32 func_001028c0(void)
+/* Create the sequence task with both current and previous sequence IDs initially invalid. */
+s32 sequenceCreate(void)
 {
     u8 *mem;
     s32 handle;
@@ -30,12 +44,14 @@ s32 func_001028c0(void)
     chkmemAllocSiteTag(D_005DCB28, 0x7D);
     mem = D_008873F4[0](1, 0x18, 0x40000);
     handle = (s32)kwlnTaskCreate((const void *)(D_005DCB40), 0xF, 0, 0, FldShadowAnim_Update, FldShadowAnim_Destroy, (u8 *)(mem));
-    *(s32 *)(mem + 4) = -1;
-    *(s32 *)(mem + 8) = -1;
+    ((SequenceWork *)mem)->current = -1;
+    ((SequenceWork *)mem)->previous = -1;
     iGpffffb1a8 = (u8 *)(u32)handle;
 }
 // FUN_001029A0
-void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+/* Typed SequenceWork accesses add address temporaries under b210 (508/496 bytes); retain the proven six-word work layout for MATCH. */
+/* Request a sequence change, stopping the old sequence first. Callback symbols are separately linked interior aliases in a 0x50-byte table; keep their byte-relative function-pointer loads. */
+void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s32 delay)
 {
     u8 *work;
     u8 *work2;
@@ -43,7 +59,7 @@ void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     u8 *temp;
 
     work = *(u8 **)((u8 *)iGpffffb1a8 + 0x38);
-    if (arg0 < 0) {
+    if (sequenceId < 0) {
         kAssertFail(D_005DCB28, 0xFE);
     }
     if ((*(s32 *)work & 1) != 0) {
@@ -59,24 +75,24 @@ void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         *(s32 *)(work2 + 4) = -1;
         *(s32 *)(work2 + 0x10) = 0;
     }
-    *(s32 *)(work + 4) = arg0;
-    if (arg3 != 0) {
+    *(s32 *)(work + 4) = sequenceId;
+    if (delay != 0) {
         *(s32 *)work |= 1;
-        if (arg2 != 0) {
+        if (parameterSize != 0) {
             chkmemAllocSiteTag(D_005DCB28, 0x10A);
-            temp = D_008873F4[0](1, arg2, 0x40000);
+            temp = D_008873F4[0](1, parameterSize, 0x40000);
             *(u8 **)(work + 0x14) = temp;
-            memcpy(temp, (const void *)arg1, arg2);
+            memcpy(temp, (const void *)parameters, parameterSize);
         } else {
             *(u8 **)(work + 0x14) = NULL;
         }
-        *(s32 *)(work + 0xC) = arg3;
+        *(s32 *)(work + 0xC) = delay;
         return;
     }
     *(s32 *)work &= ~1;
     *(s32 *)(work + 0xC) = 0;
     *(u8 **)(work + 0x14) = NULL;
-    (*(void (**)(s32))((u8 *)D_005DCC64 + *(s32 *)(work + 4) * 0x50)) (arg1);
+    (*(void (**)(s32))((u8 *)D_005DCC64 + *(s32 *)(work + 4) * 0x50)) (parameters);
 }
 
 

@@ -23,7 +23,7 @@ extern void FldStepResetTables(void);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern s32 kwlnGetCurrentWorkValue(void);
-extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
+extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
 
 extern s32 FldViewerUpdate(u8 *arg0);
 extern void FldViewerDestroy(u8 *arg0);
@@ -95,7 +95,7 @@ s32 K_Viewer_Update(u8 *task)
             D_00764350 = *sdkLboxGetValuePtr(*(KwlnTask **)&work->listBox, 5);
             request[0] = *sdkLboxGetValuePtr(*(KwlnTask **)&work->listBox, 0);
             request[1] = 0xFFFF;
-            func_001029a0(0xB, request, 8, 0);
+            sequenceRequest(0xB, request, 8, 0);
             sdkLboxSetSelection(work->listBox, 0);
             work->state = 2;
         } else if (D_008C024E[0] & 0x20) {

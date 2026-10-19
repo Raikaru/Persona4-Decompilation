@@ -13,7 +13,7 @@ extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
 extern s128 D_005E5750;
 struct RwMatrixTag;
-extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
+extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
@@ -26,7 +26,7 @@ extern f32 fGpffff8478;
 extern f32 cosf(f32 fparg0);
 extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
 extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void func_002ab550(void *arg0, void *arg1);
+extern void titleVisualDrawTintedModel(void *arg0, void *arg1);
 extern void mdlAdvanceModelFromFlags(void *arg0);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
@@ -82,7 +82,7 @@ extern void calendarSyncFromDate(void);
 extern s32 cldDungeonInStart(s32 arg0);
 extern void fclBankTableInit(void);
 extern void poolFree(s32 arg0);
-extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+extern void sequenceRequest(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 sdkListStateHandleInput(void *arg0);
@@ -259,8 +259,8 @@ static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
 
 static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
 {
-    extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
-    func_002aaf20(x, y, depth, color, width, height, flags, parent);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
+    titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
 }
 static inline f32 titleBlend(f32 delta, f32 blend, f32 value)
 {
@@ -462,8 +462,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void titleSkyApplyBasePreset(void);
-    extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
-    extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
+    extern void titleVisualSubmitSprite(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
+    extern void titleVisualDrawMaskedModel(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
     extern s32 RpSkyRenderStateSet();
     extern s32 RpSkyGetDisplayBufferRaster(void);
     extern s32 func_0043c6a0(s32);
@@ -1648,12 +1648,12 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
                     titleX = titleX + 200.0f * t;
                     titleY = titleY + 250.0f * t;
                 }
-                func_002abb30(titleX + 49.0f * modelScale, titleY - 33.0f * modelScale, 100.0f, 0xFFFF81, 0xFF, modelScale, 1, selectedModel, 0);
-                func_002abb30(titleX + 24.0f * modelScale, titleY - 12.0f * modelScale, 100.0f, 0xFFFFFF, 0xFF, modelScale, 1, selectedModel, 0);
-                func_002abb30(titleX + 9.0f * modelScale, titleY - 5.0f * modelScale, 100.0f, 0xFFC705, 0xFF, modelScale, 1, selectedModel, 0);
-                func_002abb30(titleX, titleY, 100.0f, 0xFFF000, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX + 49.0f * modelScale, titleY - 33.0f * modelScale, 100.0f, 0xFFFF81, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX + 24.0f * modelScale, titleY - 12.0f * modelScale, 100.0f, 0xFFFFFF, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX + 9.0f * modelScale, titleY - 5.0f * modelScale, 100.0f, 0xFFC705, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX, titleY, 100.0f, 0xFFF000, 0xFF, modelScale, 1, selectedModel, 0);
                 mdlAdvanceModelFromFlags(selectedModel);
-                func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, titleTask->sprites, 9, 0);
+                titleVisualSubmitSprite(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, titleTask->sprites, 9, 0);
             }
         }
         closingFadeFrame = (s32)(titleTask->timer);
@@ -1733,7 +1733,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
         fadeFrames = (s32)(titleTask->fadeFrames - 1);
         titleTask->fadeFrames = fadeFrames;
         fadeAlpha = (s32)((f32)(fadeFrames * 0xFF) / (f32)fadeDuration);
-        func_00366c70(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
+        sflDataDrawTexturedQuad(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
                       1, 0, 0, NULL, RpSkyGetDisplayBufferRaster(), fadeUv.pairs);
     }
 }
@@ -2182,7 +2182,7 @@ void titleDrawChildImage(s32 unused, s32 task)
         } else {
             insetImage = 0;
         }
-        func_00366c70(0x77, 0xAA, 0.0f, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0, 0, insetImage, 0);
+        sflDataDrawTexturedQuad(0x77, 0xAA, 0.0f, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0, 0, insetImage, 0);
         return;
     case 7:
     case 8:
@@ -2204,7 +2204,7 @@ void titleDrawChildImage(s32 unused, s32 task)
         } else {
             fullImage = 0;
         }
-        func_00366c70(0, 0, 0.0f, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0, 0, fullImage, 0);
+        sflDataDrawTexturedQuad(0, 0, 0.0f, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0, 0, fullImage, 0);
         /* fall through */
     default:
         return;

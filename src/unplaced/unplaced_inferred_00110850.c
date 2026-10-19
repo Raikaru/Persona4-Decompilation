@@ -376,7 +376,7 @@ s32 calRestoreStateImage(void)
         datSaveRestoreImage(zero, (u8 *)buffer, imageSize);
         calWriteDayFlagMask(dayFlags);
         iGpffffb19c = savedState;
-        func_001029a0(0x1A, 0, 0, 0);
+        sequenceRequest(0x1A, 0, 0, 0);
         restored = 1;
     }
     return restored;
@@ -393,7 +393,7 @@ s32 calRestoreStateImage(void)
 void sdlSchedulerTeardown(void) {
     sdlSchedulerDestroy();
     fadeBeginTransition(1, 1);
-    func_001029a0(0x1B, 0, 0, 8);
+    sequenceRequest(0x1B, 0, 0, 8);
 }
 #pragma pop
 

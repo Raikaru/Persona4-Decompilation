@@ -8,6 +8,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
 #include "field_frame_internal.h"
@@ -22,6 +23,14 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 FldStepNotAtBoundary(void);
 extern u8 D_005F54D8[];
 extern u8 D_005F54E8[];
+/* Supporter work is allocated as 0x14 bytes; creation initializes its timer. */
+typedef struct FldSupporterWork {
+    s32 state;
+    s32 active;
+    s32 timer;
+    s32 frame;
+    u8 pad10[4];
+} FldSupporterWork;
 extern s32 FldSupporterUpdate(u8 *arg0);
 #pragma push
 #pragma opt_loop_invariants off
@@ -30,9 +39,9 @@ extern s32 FldSupporterUpdate(u8 *arg0);
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018DF30
-void FldSupporterDestroy(u8 *arg0)
+void FldSupporterDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 #pragma pop
 
@@ -43,20 +52,21 @@ void FldSupporterDestroy(u8 *arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018DF60
-s32 FldSupporterTaskCreate(s32 arg0)
+/* Create the supporter only away from field-step boundaries. */
+s32 FldSupporterTaskCreate(s32 parent)
 {
-    s32 temp_2;
-    u8 *temp_2_2;
+    s32 taskHandle;
+    u8 *work;
 
     if (FldStepNotAtBoundary() == 0)
         return 0;
     chkmemAllocSiteTag(&D_005F54D8, 0x91);
-    temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
-    if (temp_2_2 == NULL)
+    work = D_008873F4[0](1, 0x14, 0x40000);
+    if (work == NULL)
         return 0;
-    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F54E8), 0xF, 0, 0, FldSupporterUpdate, FldSupporterDestroy, (u8 *)(temp_2_2));
-    *(s32 *)(temp_2_2 + 8) = 0x1E;
-    return temp_2;
+    taskHandle = (s32)kwlnTaskCreateChild((void *)((u8 *)parent), (const void *)(&D_005F54E8), 0xF, 0, 0, FldSupporterUpdate, FldSupporterDestroy, (u8 *)(work));
+    ((FldSupporterWork *)work)->timer = 0x1E;
+    return taskHandle;
 }
 #pragma pop
 
@@ -67,12 +77,13 @@ s32 FldSupporterTaskCreate(s32 arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018E030
-void FldFrameObjSetActive(u8 *arg0, s32 arg1)
+/* Change activity and latch the current global frame for the supporter. */
+void FldFrameObjSetActive(u8 *task, s32 active)
 {
-    if (arg0 != NULL) {
-        u8 *p = *(u8 **)(arg0 + 0x38);
-        *(s32 *)(p + 4) = arg1;
-        *(s32 *)(p + 0xC) = D_0076428C;
+    if (task != NULL) {
+        u8 *work = ((KwlnTask *)task)->work;
+        ((FldSupporterWork *)work)->active = active;
+        ((FldSupporterWork *)work)->frame = D_0076428C;
     }
 }
 #pragma pop

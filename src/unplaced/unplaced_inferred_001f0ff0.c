@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "btl_action_internal.h"
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
@@ -19,10 +20,11 @@
 #pragma opt_loop_invariants off
 #pragma optimization_level 1
 // FUN_001F0FF0
-s32 btlActionHasNoTargetClass(u32 arg0)
+/* Classify the action using its stored skill index; true means no target class. */
+s32 btlActionHasNoTargetClass(u32 action)
 {
     s32 index;
-    index = *(u16 *)(arg0 + 0x6E);
-    return (btlSkillClassifyTargets((u8 *)arg0, 0, index, 0) & 0xFFFF) == 0;
+    index = ((BtlAction *)action)->unk_6e;
+    return (btlSkillClassifyTargets((u8 *)action, 0, index, 0) & 0xFFFF) == 0;
 }
 #pragma pop

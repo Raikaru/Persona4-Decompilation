@@ -15,7 +15,7 @@ extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s8 iGpffffb59c;
 extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
 extern s32 mtSceneResListPrepareAll(void);
-extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+extern void sequenceRequest(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void calendarSetMode(s32 arg0);
 extern u8 D_00644E80[];
 extern u8 D_00644E98[];
@@ -81,7 +81,7 @@ s32 func_00331680(void)
     case 0:
         if (mtSceneResListPrepareAll() != 0) {
             kwlnSetColorRgba(0, 0, 0, 0xFF);
-            func_001029a0(0x16, 0, 0, 2);
+            sequenceRequest(0x16, 0, 0, 2);
             calendarSetMode(0);
             iGpffffb59c += 1;
         }
@@ -113,7 +113,7 @@ s32 fclShopRunSystemScreen(void)
     case 0:
         if (mtSceneResListPrepareAll() != 0) {
             kwlnSetColorRgba(0, 0, 0, 0xFF);
-            func_001029a0(0x17, 0, 0, 2);
+            sequenceRequest(0x17, 0, 0, 2);
             calendarSetMode(0);
             iGpffffb59c += 1;
         }
@@ -145,7 +145,7 @@ s32 fclCombineRunTitleScreen(void)
     case 0:
         if (mtSceneResListPrepareAll() != 0) {
             kwlnSetColorRgba(0, 0, 0, 0xFF);
-            func_001029a0(0x18, 0, 0, 2);
+            sequenceRequest(0x18, 0, 0, 2);
             calendarSetMode(0);
             iGpffffb59c += 1;
         }

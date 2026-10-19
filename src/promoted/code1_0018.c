@@ -360,7 +360,7 @@ extern void FldFrameTask_SetOrientation(unsigned char *, unsigned char *);
 extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern void FldNpcSetPositionLock(unsigned char *, s32);
-extern s32 func_0018bf50(unsigned char *);
+extern s32 fldNpcControlIsBusy(unsigned char *);
 extern s64 cmmResolveCounterpart(s64);
 extern f32 RwV3dLength(const RainVector *vector);
 extern s32 kwlnGetCamera(void);
@@ -596,7 +596,7 @@ s32 FldNpcControlUpdate(u8 *task)
              (((FldActorObject *)work->actor)->pathMode > 0)) {
             canLookAt = 0;
           }
-          value = func_0018bf50(((FldActorObject *)work->actor)->otherTask);
+          value = fldNpcControlIsBusy(((FldActorObject *)work->actor)->otherTask);
           if ((value == 0) && (canLookAt == 1)) {
             actorMatrix = mdlGetMatrix(((void **)D_007EFA00)[0]);
             lookTarget = (RainVector *)lookPosition;

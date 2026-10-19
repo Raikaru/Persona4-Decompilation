@@ -5,6 +5,7 @@
 #include "fr_font_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
+#include "primitive_queue_internal.h"
 typedef struct {
     s32 lo;
     s32 hi;
@@ -94,12 +95,12 @@ extern f32 fGpffff8198;
 #pragma pop
 // Intent: Queues a draw node for a panel object with the shared draw callback pscModelDrawCallback [inferred]
 // FUN_00369470
-void pscModelEnqueueDrawNode(s32 arg0, u8 *arg1) {
+void pscModelEnqueueDrawNode(s32 model, u8 *queue) {
     u8 *p;
 
     p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)pscModelDrawCallback;
-    *(s32 *)(p + 0x10) = arg0;
-    PrimAppendNode(arg1, p);
+    ((PrimQueueNode *)p)->callback = (void *)pscModelDrawCallback;
+    ((PrimQueueNode *)p)->argument.handle = model;
+    PrimAppendNode(queue, p);
 }
 

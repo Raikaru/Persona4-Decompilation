@@ -5,6 +5,7 @@
 #include "fr_font_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
+#include "psc_model_internal.h"
 typedef struct {
     s32 lo;
     s32 hi;
@@ -95,8 +96,8 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 #pragma pop
 // Intent: Copies a 3-vector into the panel's stored vector, which the tile builder reads [inferred]
 // FUN_0036B630
-void pscModelCopyVector(u8 *arg0, RwV3d *arg1)
+void pscModelCopyVector(u8 *mesh, RwV3d *lightPosition)
 {
-    *(RwV3d *)(arg0 + 0x994) = *arg1;
+    *(RwV3d *)&((PscTileMesh *)mesh)->lightPosition = *lightPosition;
 }
 

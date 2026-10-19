@@ -8,6 +8,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
 #include "field_frame_internal.h"
@@ -15,6 +16,23 @@
 #include "field_npc_control_internal.h"
 #include "rw_types_internal.h"
 typedef RwV3d RainVector;
+
+/* Camera move work: two Vec3s, per-frame speeds, frame counters and preset IDs. */
+typedef struct FldLmapCameraWork {
+    s32 state;
+    f32 eye[3];
+    f32 target[3];
+    f32 eyeStep;
+    f32 targetStep;
+    s32 frame;
+    s32 duration;
+    s32 mode;
+    s32 preset;
+} FldLmapCameraWork;
+
+
+
+
 
 #include "scene_event_internal.h"
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
@@ -66,66 +84,68 @@ extern u8 *iGpffff9db0;
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00189600
-void FldLmapCameraMoveTo(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
+/* Move eye and target toward a preset at the requested speed, or snap when speed is zero. */
+void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
 {
+    /* Separate preset/global and matrix aliases retain their measured access widths. */
     struct Vec3 {
         f32 x;
         f32 y;
         f32 z;
     };
-    f32 v32[4];
-    f32 v31[4];
-    f32 temp_f0;
-    f32 temp_f20;
-    s32 temp_16;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *temp_18;
-    u8 *temp_16_2;
-    u8 *temp_17;
+    f32 eyeDirection[4];
+    f32 targetDirection[4];
+    f32 targetDistance;
+    f32 eyeDistance;
+    s32 presetOffset;
+    s32 snapOffset;
+    s32 state;
+    u8 *eye;
+    u8 *target;
+    u8 *work;
 
-    temp_17 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(task + 0x38);
     kwlnGetCamera();
-    temp_4 = *(s32 *)temp_17;
-    if ((temp_4 != 1) || (*(s32 *)(temp_17 + 0x30) != arg2)) {
-        if (fparg0 != 0.0f) {
-            *(s32 *)(temp_17 + 0x2C) = arg1;
-            *(s32 *)(temp_17 + 0x30) = arg2;
-            temp_16 = arg2 * 0x18;
-            v32[0] = *(f32 *)((u8 *)D_005F2190 + temp_16) -
-                     *(f32 *)(temp_17 + 4);
-            v32[1] = *(f32 *)((u8 *)D_005F2194 + temp_16) -
-                     *(f32 *)(temp_17 + 8);
-            v32[2] = *(f32 *)((u8 *)D_005F2198 + temp_16) -
-                     *(f32 *)(temp_17 + 0xC);
-            temp_f20 = RwV3dNormalize((RainVector *)&v32[0], (const RainVector *)&v32[0]);
-            v31[0] = *(f32 *)((u8 *)D_005F219C + temp_16) -
-                     *(f32 *)(temp_17 + 0x10);
-            v31[1] = *(f32 *)((u8 *)D_005F21A0 + temp_16) -
-                     *(f32 *)(temp_17 + 0x14);
-            v31[2] = *(f32 *)((u8 *)D_005F21A4 + temp_16) -
-                     *(f32 *)(temp_17 + 0x18);
-            temp_f0 = RwV3dNormalize((RainVector *)&v31[0], (const RainVector *)&v31[0]);
-            if (!(temp_f20 <= temp_f0)) {
-                *(s32 *)(temp_17 + 0x28) = (s32)(temp_f20 / fparg0) + 1;
+    state = ((FldLmapCameraWork *)work)->state;
+    if ((state != 1) || (((FldLmapCameraWork *)work)->preset != preset)) {
+        if (speed != 0.0f) {
+            ((FldLmapCameraWork *)work)->mode = mode;
+            ((FldLmapCameraWork *)work)->preset = preset;
+            presetOffset = preset * 0x18;
+            eyeDirection[0] = *(f32 *)((u8 *)D_005F2190 + presetOffset) -
+                     ((FldLmapCameraWork *)work)->eye[0];
+            eyeDirection[1] = *(f32 *)((u8 *)D_005F2194 + presetOffset) -
+                     ((FldLmapCameraWork *)work)->eye[1];
+            eyeDirection[2] = *(f32 *)((u8 *)D_005F2198 + presetOffset) -
+                     ((FldLmapCameraWork *)work)->eye[2];
+            eyeDistance = RwV3dNormalize((RainVector *)&eyeDirection[0], (const RainVector *)&eyeDirection[0]);
+            targetDirection[0] = *(f32 *)((u8 *)D_005F219C + presetOffset) -
+                     ((FldLmapCameraWork *)work)->target[0];
+            targetDirection[1] = *(f32 *)((u8 *)D_005F21A0 + presetOffset) -
+                     ((FldLmapCameraWork *)work)->target[1];
+            targetDirection[2] = *(f32 *)((u8 *)D_005F21A4 + presetOffset) -
+                     ((FldLmapCameraWork *)work)->target[2];
+            targetDistance = RwV3dNormalize((RainVector *)&targetDirection[0], (const RainVector *)&targetDirection[0]);
+            if (!(eyeDistance <= targetDistance)) {
+                ((FldLmapCameraWork *)work)->duration = (s32)(eyeDistance / speed) + 1;
             } else {
-                *(s32 *)(temp_17 + 0x28) = (s32)(temp_f0 / fparg0) + 1;
+                ((FldLmapCameraWork *)work)->duration = (s32)(targetDistance / speed) + 1;
             }
-            *(f32 *)(temp_17 + 0x1C) =
-                temp_f20 / (f32)*(s32 *)(temp_17 + 0x28);
-            *(f32 *)(temp_17 + 0x20) =
-                temp_f0 / (f32)*(s32 *)(temp_17 + 0x28);
-            *(s32 *)(temp_17 + 0x24) = 0;
-            *(s32 *)temp_17 = 2;
+            ((FldLmapCameraWork *)work)->eyeStep =
+                eyeDistance / (f32)((FldLmapCameraWork *)work)->duration;
+            ((FldLmapCameraWork *)work)->targetStep =
+                targetDistance / (f32)((FldLmapCameraWork *)work)->duration;
+            ((FldLmapCameraWork *)work)->frame = 0;
+            ((FldLmapCameraWork *)work)->state = 2;
             return;
         }
-        *(s32 *)(temp_17 + 0x30) = arg2;
-        temp_3 = arg2 * 0x18;
-        temp_18 = (u8 *)D_005F2190 + temp_3;
-        *(struct Vec3 *)(temp_17 + 4) = *(struct Vec3 *)temp_18;
-        temp_16_2 = (u8 *)D_005F219C + temp_3;
-        *(struct Vec3 *)(temp_17 + 0x10) = *(struct Vec3 *)temp_16_2;
-        K_ClumpLookAtBasis(((u8 *)(uintptr_t)kwlnGetCamera()), temp_18, temp_16_2, 0);
+        ((FldLmapCameraWork *)work)->preset = preset;
+        snapOffset = preset * 0x18;
+        eye = (u8 *)D_005F2190 + snapOffset;
+        *(struct Vec3 *)(work + 4) = *(struct Vec3 *)eye;
+        target = (u8 *)D_005F219C + snapOffset;
+        *(struct Vec3 *)(work + 0x10) = *(struct Vec3 *)target;
+        K_ClumpLookAtBasis(((u8 *)(uintptr_t)kwlnGetCamera()), eye, target, 0);
     }
 }
 #pragma pop
@@ -138,6 +158,7 @@ void FldLmapCameraMoveTo(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
 #pragma vu0_mmi_reg_binding off
 // FUN_00189870
 #pragma opt_propagation off
+/* Establish the sky/panel render-state preset before queued primitives draw. */
 void FldSkyApplyDefaultPreset(void)
 {
     void (**base)(s32, s32);
@@ -165,102 +186,104 @@ void FldSkyApplyDefaultPreset(void)
  * Preserve integer-to-float conversions and reloads across rendering callbacks.
  * Indexed addresses stay integer-valued until their final pointer conversion. */
 #pragma opt_loop_invariants on
-s32 FldPanel2dUpdate(u8 *arg0)
+/* Animate panel entry and alternating text slots, then queue their quads and labels. */
+s32 FldPanel2dUpdate(u8 *task)
 {
-    u8 *temp_16;
-    u8 *temp_2;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f1;
-    f32 temp_f0;
+    /* Proven work offsets remain raw: typed field access changes MWCC scheduling/aliasing. */
+    u8 *work;
+    u8 *primitive;
+    f32 depth;
+    f32 reciprocalDepth;
+    f32 top;
+    f32 progress;
     s32 i;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_16 + 4) == 1) {
+    work = *(u8 **)(task + 0x38);
+    if (*(s32 *)(work + 4) == 1) {
         return 0;
     }
 
-    switch (*(s32 *)temp_16) {
+    switch (*(s32 *)work) {
     case 0:
-        temp_f2 = D_008872F8[0] - (f32)58980;
-        temp_f3 = 1.0f / temp_f2;
-        *(s32 *)(temp_16 + 8) = 0;
-        *(f32 *)(((*(s32 *)(temp_16 + 8) << 2) + (u32)temp_16 + 0x18)) = 175.0f;
-        *(f32 *)(temp_16 + 0x20) = 0.0f;
-        temp_f1 = (f32)401;
-        *(f32 *)(temp_16 + 0x24) = temp_f1;
-        *(f32 *)(temp_16 + 0x28) = temp_f2;
-        *(f32 *)(temp_16 + 0x60) = 25.0f;
-        *(f32 *)(temp_16 + 0x64) = temp_f1;
-        *(f32 *)(temp_16 + 0x68) = temp_f2;
-        *(f32 *)(temp_16 + 0xA0) = 0.0f;
-        temp_f0 = (f32)427;
-        *(f32 *)(temp_16 + 0xA4) = temp_f0;
-        *(f32 *)(temp_16 + 0xA8) = temp_f2;
-        *(f32 *)(temp_16 + 0xE0) = 25.0f;
-        *(f32 *)(temp_16 + 0xE4) = temp_f0;
-        *(f32 *)(temp_16 + 0xE8) = temp_f2;
-        *(f32 *)(temp_16 + 0x120) = 326.0f;
-        *(f32 *)(temp_16 + 0x124) = temp_f1;
-        *(f32 *)(temp_16 + 0x128) = temp_f2;
-        *(f32 *)(temp_16 + 0x160) = 660.0f;
-        *(f32 *)(temp_16 + 0x164) = temp_f1;
-        *(f32 *)(temp_16 + 0x168) = temp_f2;
-        *(f32 *)(temp_16 + 0x1A0) = 326.0f;
-        *(f32 *)(temp_16 + 0x1A4) = temp_f0;
-        *(f32 *)(temp_16 + 0x1A8) = temp_f2;
-        *(f32 *)(temp_16 + 0x1E0) = 660.0f;
-        *(f32 *)(temp_16 + 0x1E4) = temp_f0;
-        *(f32 *)(temp_16 + 0x1E8) = temp_f2;
+        depth = D_008872F8[0] - (f32)58980;
+        reciprocalDepth = 1.0f / depth;
+        *(s32 *)(work + 8) = 0;
+        *(f32 *)(((*(s32 *)(work + 8) << 2) + (u32)work + 0x18)) = 175.0f;
+        *(f32 *)(work + 0x20) = 0.0f;
+        top = (f32)401;
+        *(f32 *)(work + 0x24) = top;
+        *(f32 *)(work + 0x28) = depth;
+        *(f32 *)(work + 0x60) = 25.0f;
+        *(f32 *)(work + 0x64) = top;
+        *(f32 *)(work + 0x68) = depth;
+        *(f32 *)(work + 0xA0) = 0.0f;
+        progress = (f32)427;
+        *(f32 *)(work + 0xA4) = progress;
+        *(f32 *)(work + 0xA8) = depth;
+        *(f32 *)(work + 0xE0) = 25.0f;
+        *(f32 *)(work + 0xE4) = progress;
+        *(f32 *)(work + 0xE8) = depth;
+        *(f32 *)(work + 0x120) = 326.0f;
+        *(f32 *)(work + 0x124) = top;
+        *(f32 *)(work + 0x128) = depth;
+        *(f32 *)(work + 0x160) = 660.0f;
+        *(f32 *)(work + 0x164) = top;
+        *(f32 *)(work + 0x168) = depth;
+        *(f32 *)(work + 0x1A0) = 326.0f;
+        *(f32 *)(work + 0x1A4) = progress;
+        *(f32 *)(work + 0x1A8) = depth;
+        *(f32 *)(work + 0x1E0) = 660.0f;
+        *(f32 *)(work + 0x1E4) = progress;
+        *(f32 *)(work + 0x1E8) = depth;
         for (i = 0; i < 4; i++) {
-            temp_2 = temp_16 + (i << 6);
-            *(f32 *)(temp_2 + 0x38) = temp_f3;
-            *(f32 *)(temp_2 + 0x138) = temp_f3;
-            *(f32 *)(temp_2 + 0x40) = 255.0f;
-            *(f32 *)(temp_2 + 0x44) = 0.0f;
-            *(f32 *)(temp_2 + 0x48) = 0.0f;
-            *(f32 *)(temp_2 + 0x4C) = 0.0f;
-            *(f32 *)(temp_2 + 0x140) = 255.0f;
-            *(f32 *)(temp_2 + 0x144) = 0.0f;
-            *(f32 *)(temp_2 + 0x148) = 0.0f;
-            *(f32 *)(temp_2 + 0x14C) = 0.0f;
+            primitive = work + (i << 6);
+            *(f32 *)(primitive + 0x38) = reciprocalDepth;
+            *(f32 *)(primitive + 0x138) = reciprocalDepth;
+            *(f32 *)(primitive + 0x40) = 255.0f;
+            *(f32 *)(primitive + 0x44) = 0.0f;
+            *(f32 *)(primitive + 0x48) = 0.0f;
+            *(f32 *)(primitive + 0x4C) = 0.0f;
+            *(f32 *)(primitive + 0x140) = 255.0f;
+            *(f32 *)(primitive + 0x144) = 0.0f;
+            *(f32 *)(primitive + 0x148) = 0.0f;
+            *(f32 *)(primitive + 0x14C) = 0.0f;
         }
-        *(s32 *)temp_16 += 1;
+        *(s32 *)work += 1;
         break;
     case 1:
-        *(f32 *)(temp_16 + 0x22C) = sinf((D_00761184 * (f32)*(s32 *)(temp_16 + 0x220)) / 10.0f);
-        if (*(s32 *)(temp_16 + 0x220) < 10) {
-            *(s32 *)(temp_16 + 0x220) += 1;
+        *(f32 *)(work + 0x22C) = sinf((D_00761184 * (f32)*(s32 *)(work + 0x220)) / 10.0f);
+        if (*(s32 *)(work + 0x220) < 10) {
+            *(s32 *)(work + 0x220) += 1;
         } else {
-            *(s32 *)temp_16 += 1;
+            *(s32 *)work += 1;
         }
-        *(f32 *)(temp_16 + 0x224) = (-300.0f + 0.0f) + 316.0f * *(f32 *)(temp_16 + 0x22C);
-        *(f32 *)(temp_16 + 0x228) = ((f32)371 + 0.0f) + 30.0f * *(f32 *)(temp_16 + 0x22C);
+        *(f32 *)(work + 0x224) = (-300.0f + 0.0f) + 316.0f * *(f32 *)(work + 0x22C);
+        *(f32 *)(work + 0x228) = ((f32)371 + 0.0f) + 30.0f * *(f32 *)(work + 0x22C);
         /* fallthrough */
     case 2:
-        func_00366380((s32)*(f32 *)(temp_16 + 0x224), (s32)*(f32 *)(temp_16 + 0x228), (f32)59000, 301, 26, 0xFAFF20, 255, 1, 150, 13, D_00794C60, -5.0f, 1.0f, 1.0f);
-        func_00366380(25, 401, (f32)59000, 301, 26, 0x191919, 255, 1, 150, 13, D_00794C60, 0.0f, 1.0f, *(f32 *)(temp_16 + 0x22C));
-        if (!(*(f32 *)(temp_16 + 0x22C) < 1.0f)) {
-            if (*(s32 *)((((!(u32)*(s32 *)(temp_16 + 8)) << 2) + (u32)temp_16 + 0x10)) != 0) {
-                temp_f0 = sinf((D_00761184 * (f32)*(s32 *)(temp_16 + 0xC)) / 10.0f);
-                *(f32 *)(((*(s32 *)(temp_16 + 8) << 2) + (u32)temp_16 + 0x18)) = 175.0f + 336.0f * temp_f0;
-                *(f32 *)((((!(u32)*(s32 *)(temp_16 + 8)) << 2) + (u32)temp_16 + 0x18)) = -161.0f + 336.0f * temp_f0;
-                if (*(s32 *)(temp_16 + 0xC) < 10) {
-                    *(s32 *)(temp_16 + 0xC) += 1;
+        sflDataDrawNarrowRoundedFrame((s32)*(f32 *)(work + 0x224), (s32)*(f32 *)(work + 0x228), (f32)59000, 301, 26, 0xFAFF20, 255, 1, 150, 13, D_00794C60, -5.0f, 1.0f, 1.0f);
+        sflDataDrawNarrowRoundedFrame(25, 401, (f32)59000, 301, 26, 0x191919, 255, 1, 150, 13, D_00794C60, 0.0f, 1.0f, *(f32 *)(work + 0x22C));
+        if (!(*(f32 *)(work + 0x22C) < 1.0f)) {
+            if (*(s32 *)((((!(u32)*(s32 *)(work + 8)) << 2) + (u32)work + 0x10)) != 0) {
+                progress = sinf((D_00761184 * (f32)*(s32 *)(work + 0xC)) / 10.0f);
+                *(f32 *)(((*(s32 *)(work + 8) << 2) + (u32)work + 0x18)) = 175.0f + 336.0f * progress;
+                *(f32 *)((((!(u32)*(s32 *)(work + 8)) << 2) + (u32)work + 0x18)) = -161.0f + 336.0f * progress;
+                if (*(s32 *)(work + 0xC) < 10) {
+                    *(s32 *)(work + 0xC) += 1;
                 } else {
-                    *(s32 *)(((*(s32 *)(temp_16 + 8) << 2) + (u32)temp_16 + 0x10)) = 0;
-                    *(s32 *)(temp_16 + 8) = !(u32)*(s32 *)(temp_16 + 8);
+                    *(s32 *)(((*(s32 *)(work + 8) << 2) + (u32)work + 0x10)) = 0;
+                    *(s32 *)(work + 8) = !(u32)*(s32 *)(work + 8);
                 }
             }
-            temp_2 = PrimQueueDrawPrimitive(D_00794C60, 4, temp_16 + 0x20, 4);
-            *(void (**)(void))(temp_2 + 8) = FldSkyApplyDefaultPreset;
-            *(s32 *)(temp_2 + 0x10) = 0;
-            PrimQueueDrawPrimitive(D_00794C60, 4, temp_16 + 0x120, 4);
-            if (*(const char **)(temp_16 + 0x10) != NULL) {
-                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(temp_16 + 0x18), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x10), 8, 0, D_00794C60, -1);
+            primitive = PrimQueueDrawPrimitive(D_00794C60, 4, work + 0x20, 4);
+            *(void (**)(void))(primitive + 8) = FldSkyApplyDefaultPreset;
+            *(s32 *)(primitive + 0x10) = 0;
+            PrimQueueDrawPrimitive(D_00794C60, 4, work + 0x120, 4);
+            if (*(const char **)(work + 0x10) != NULL) {
+                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(work + 0x18), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(work + 0x10), 8, 0, D_00794C60, -1);
             }
-            if (*(const char **)(temp_16 + 0x14) != NULL) {
-                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(temp_16 + 0x1C), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x14), 8, 0, D_00794C60, -1);
+            if (*(const char **)(work + 0x14) != NULL) {
+                frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(work + 0x1C), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(work + 0x14), 8, 0, D_00794C60, -1);
             }
         }
         break;
@@ -279,9 +302,10 @@ s32 FldPanel2dUpdate(u8 *arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00189E90
-void FldPanel2dDestroy(u8 *arg0)
+void FldPanel2dDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    /* Keep the allocator-facing void** work load distinct from typed field aliases. */
+    jtbl_008873EC[0](*(void **)(task + 0x38));
 }
 #pragma pop
 
@@ -292,21 +316,22 @@ void FldPanel2dDestroy(u8 *arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00189EC0
+/* Lazily allocate the panel task and initialize its text from the current area. */
 void FldPanel2dTaskCreate(void)
 {
-    u8 *temp_16;
-    u8 *temp_2;
-    s32 var_16;
+    u8 *parent;
+    u8 *work;
+    s32 taskHandle;
     if (((FldFrame *)MT_Scene_GetFrameState())->panelTask == 0) {
-        temp_16 = *(u8 **)MT_Scene_GetFrameState();
+        parent = *(u8 **)MT_Scene_GetFrameState();
         chkmemAllocSiteTag(&D_005F5320, 0x17C);
-        temp_2 = D_008873F4[0](1, 0x230, 0x40000);
-        if (temp_2 == NULL) {
-            var_16 = 0;
+        work = D_008873F4[0](1, 0x230, 0x40000);
+        if (work == NULL) {
+            taskHandle = 0;
         } else {
-            var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, FldPanel2dUpdate, FldPanel2dDestroy, (u8 *)(temp_2));
+            taskHandle = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(&D_005F5330), 0xF, 0, 0, FldPanel2dUpdate, FldPanel2dDestroy, (u8 *)(work));
         }
-        ((FldFrame *)MT_Scene_GetFrameState())->panelTask = (u8 *)var_16;
+        ((FldFrame *)MT_Scene_GetFrameState())->panelTask = (u8 *)taskHandle;
         FldPanel2dSelectEntry(-1);
     }
 }
@@ -319,6 +344,7 @@ void FldPanel2dTaskCreate(void)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_00189FA0
+/* Destroy the frame-owned panel hierarchy; return whether one was present. */
 s32 FldPanel2dRelease(void) {
     if (((FldFrame *)MT_Scene_GetFrameState())->panelTask == 0) {
         return 0;
@@ -336,9 +362,9 @@ s32 FldPanel2dRelease(void) {
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018A000
-void FldPanel2dSetState(u8 *arg0, s32 arg1)
+void FldPanel2dSetState(u8 *task, s32 hidden)
 {
-    ((FldPanel2dWork *)*(u8 **)(arg0 + 0x38))->hidden = arg1;
+    ((FldPanel2dWork *)((KwlnTask *)task)->work)->hidden = hidden;
 }
 #pragma pop
 
@@ -349,50 +375,52 @@ void FldPanel2dSetState(u8 *arg0, s32 arg1)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018A010
-void FldPanel2dSelectEntry(s32 arg0)
+/* Stage explicit or area-selected text in the inactive slot and restart its slide. */
+void FldPanel2dSelectEntry(s32 entryIndex)
 {
     extern u8 D_005F2210[];
     extern u8 D_005F4090[];
     extern u8 D_005F51E0[];
     s32 mode;
-    s32 *save;
+    s32 *location;
     s32 *entry;
     s32 index;
-    u8 *base;
-    u8 *work;
+    u8 *text;
+    /* Integer-indexed panel/frame addresses preserve the measured reload ordering. */
+    u8 *panel;
     s32 slot;
-    u8 *p;
+    u8 *selectedText;
 
     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) == 0) {
         return;
     }
-    if (arg0 == -1) {
+    if (entryIndex == -1) {
         mode = FldStepIndex();
         if (mode == 0) {
             index = 0;
-            save = (s32 *)iGpffff9db0;
-            if (*save >= 0x28) {
-                p = NULL;
+            location = (s32 *)iGpffff9db0;
+            if (*location >= 0x28) {
+                selectedText = NULL;
             } else {
-                entry = (s32 *)(D_005F51E0 + *save * 4);
+                entry = (s32 *)(D_005F51E0 + *location * 4);
                 if (*entry != 0) {
-                    index = *(u16 *)((u8 *)*entry + *(save + 1) * 2);
+                    index = *(u16 *)((u8 *)*entry + *(location + 1) * 2);
                 }
-                p = D_005F2210 + index * 0x1A;
+                selectedText = D_005F2210 + index * 0x1A;
             }
         } else {
-            p = D_005F4090 + mode * 0x1B;
+            selectedText = D_005F4090 + mode * 0x1B;
         }
-        base = p;
+        text = selectedText;
     } else {
-        base = D_005F2210 + arg0 * 0x1A;
+        text = D_005F2210 + entryIndex * 0x1A;
     }
-    work = *(u8 **)(*(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x30) + 0x38);
-    slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
-    *(u8 **)(slot + (s32)work + 0x10) = base;
-    slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
-    *(s32 *)(slot + (s32)work + 0x18) = (s32)0xC3210000;
-    *(s32 *)(work + 0xC) = 0;
+    panel = *(u8 **)(*(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x30) + 0x38);
+    slot = ((*(s32 *)(panel + 8) != 0) ^ 1) * 4;
+    *(u8 **)(slot + (s32)panel + 0x10) = text;
+    slot = ((*(s32 *)(panel + 8) != 0) ^ 1) * 4;
+    *(s32 *)(slot + (s32)panel + 0x18) = (s32)0xC3210000;
+    *(s32 *)(panel + 0xC) = 0;
 }
 #pragma pop
 
@@ -403,23 +431,24 @@ void FldPanel2dSelectEntry(s32 arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018A170
-s32 FldRcAtomicFrustumTest(s32 arg0, s32 *arg1)
+/* Mark and stop traversal at an atomic whose bounding sphere reaches the camera frustum. */
+s32 FldRcAtomicFrustumTest(s32 atomic, s32 *visible)
 {
-    u8 *temp_16;
+    u8 *camera;
 
     func_003bfae0();
-    temp_16 = ((u8 *)(uintptr_t)kwlnGetCamera());
-    if (RwCameraFrustumTestSphere(temp_16, func_003bfae0(arg0)) != 0) {
-        *arg1 = 1;
+    camera = ((u8 *)(uintptr_t)kwlnGetCamera());
+    if (RwCameraFrustumTestSphere(camera, func_003bfae0(atomic)) != 0) {
+        *visible = 1;
         return 0;
     }
-    return arg0;
+    return atomic;
 }
 #pragma pop
 
 extern unsigned int D_007EFA00[];
 extern void FldNpcSetPositionLock(unsigned char *, s32);
-extern s32 func_0018bf50(unsigned char *);
+extern s32 fldNpcControlIsBusy(unsigned char *);
 extern s32 kwlnGetCamera(void);
 extern s16 mdlGetLayerAnimation(s32, s32);
 #pragma push
@@ -429,13 +458,15 @@ extern s16 mdlGetLayerAnimation(s32, s32);
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018BAD0
-void FldNpcControlDestroy(u8 *arg0) {
-    s32 h = ((FldNpcControlWork *)*(u8 **)(arg0 + 0x38))->handle;
+/* Release the auxiliary handle and the NPC control allocation. */
+void FldNpcControlDestroy(u8 *task) {
+    s32 handle = ((FldNpcControlWork *)((KwlnTask *)task)->work)->handle;
 
-    if (h != 0) {
-        func_003e0f40(h);
+    if (handle != 0) {
+        func_003e0f40(handle);
     }
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    /* Keep the allocator-facing void** work load distinct from typed field aliases. */
+    jtbl_008873EC[0](*(void **)(task + 0x38));
 }
 #pragma pop
 
@@ -446,19 +477,21 @@ void FldNpcControlDestroy(u8 *arg0) {
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018BB20
-s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1)
+/* Create NPC control work and capture the current camera height. */
+s32 FldNpcControlTaskCreate(s32 parent, s32 actor)
 {
-    s32 temp_17;
-    u8 *temp_2;
+    s32 taskHandle;
+    u8 *work;
 
     chkmemAllocSiteTag(&D_005F5340, 0x2E6);
-    temp_2 = D_008873F4[0](1, 0x58, 0x40000);
-    if (temp_2 == NULL)
+    work = D_008873F4[0](1, 0x58, 0x40000);
+    if (work == NULL)
         return 0;
-    temp_17 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, FldNpcControlUpdate, FldNpcControlDestroy, (u8 *)(temp_2));
-    ((FldNpcControlWork *)temp_2)->actor = arg1;
-    ((FldNpcControlWork *)temp_2)->cameraHeight = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
-    return temp_17;
+    taskHandle = (s32)kwlnTaskCreateChild((void *)((u8 *)parent), (const void *)(&D_005F5350), 0xF, 0, 0, FldNpcControlUpdate, FldNpcControlDestroy, (u8 *)(work));
+    ((FldNpcControlWork *)work)->actor = actor;
+    /* Camera is returned as an opaque handle here; preserve the observed float at +80. */
+    ((FldNpcControlWork *)work)->cameraHeight = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
+    return taskHandle;
 }
 #pragma pop
 
@@ -469,15 +502,15 @@ s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018BBF0
-s32 FldNpcControlReady(u8 *arg0)
+s32 FldNpcControlReady(u8 *task)
 {
-    u32 value;
+    u32 state;
 
-    if (arg0 == NULL) {
+    if (task == NULL) {
         return 1;
     }
-    value = ((FldNpcControlWork *)*(u8 **)(arg0 + 0x38))->state;
-    return value >= 4;
+    state = ((FldNpcControlWork *)((KwlnTask *)task)->work)->state;
+    return state >= 4;
 }
 #pragma pop
 
@@ -495,67 +528,70 @@ s32 FldNpcControlReady(u8 *arg0)
 #pragma optimization_level 1
 #pragma push
 #pragma opt_common_subs on
-void FldNpcControlFacePlayer(u8 *arg0)
+/* Compare normalized actor/player headings; select a turn animation when outside tolerance. */
+void FldNpcControlFacePlayer(u8 *task)
 {
+    /* Proven work offsets remain raw: typed field access changes MWCC scheduling/aliasing. */
+    /* Separate preset/global and matrix aliases retain their measured access widths. */
     struct Vec3 {
         f32 x;
         f32 y;
         f32 z;
     };
-    f32 *temp_4;
-    f32 *temp_4_2;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f20_3;
-    f32 guard38;
-    f32 guard44;
-    f32 guard30;
-    f32 guard3c;
-    f32 guard34;
-    f32 guard40;
-    u8 *temp_16;
-    u8 *temp_2;
+    f32 *originalHeading;
+    f32 *playerHeading;
+    f32 actorX;
+    f32 actorY;
+    f32 actorZ;
+    f32 originalZ;
+    f32 desiredZ;
+    f32 originalX;
+    f32 desiredX;
+    f32 originalY;
+    f32 desiredY;
+    u8 *work;
+    u8 *matrix;
     void *target;
     s32 zero;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_2 = mdlGetMatrix(*(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164));
-    temp_4 = (f32 *)(temp_16 + 0x30);
-    *(struct Vec3 *)temp_4 = *(struct Vec3 *)(temp_2 + 0x20);
-    RwV3dNormalize((RainVector *)temp_4, (const RainVector *)temp_4);
-    temp_f20 = *(f32 *)(mdlGetMatrix(
-        *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164)) + 0x30);
-    *(f32 *)(temp_16 + 0x3C) = *(f32 *)(mdlGetMatrix(
-        D_007EFA00[0]) + 0x30) - temp_f20;
-    temp_f20_2 = *(f32 *)(mdlGetMatrix(
-        *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164)) + 0x34);
-    *(f32 *)(temp_16 + 0x40) = *(f32 *)(mdlGetMatrix(
-        D_007EFA00[0]) + 0x34) - temp_f20_2;
-    temp_f20_3 = *(f32 *)(mdlGetMatrix(
-        *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164)) + 0x38);
-    *(f32 *)(temp_16 + 0x44) = *(f32 *)(mdlGetMatrix(
-        D_007EFA00[0]) + 0x38) - temp_f20_3;
-    temp_4_2 = (f32 *)(temp_16 + 0x3C);
-    RwV3dNormalize((RainVector *)temp_4_2, (const RainVector *)temp_4_2);
-    guard38 = *(f32 *)(temp_16 + 0x38);
-    guard44 = *(f32 *)(temp_16 + 0x44);
-    guard30 = *(f32 *)(temp_16 + 0x30);
-    guard3c = *(f32 *)(temp_16 + 0x3C);
-    guard34 = *(f32 *)(temp_16 + 0x34);
-    guard40 = *(f32 *)(temp_16 + 0x40);
-    if ((guard30 * guard3c + guard34 * guard40) +
-        guard38 * guard44 <
+    work = *(u8 **)(task + 0x38);
+    matrix = mdlGetMatrix(*(u32 *)(*(u8 **)(work + 0xC) + 0x164));
+    originalHeading = (f32 *)(work + 0x30);
+    *(struct Vec3 *)originalHeading = *(struct Vec3 *)(matrix + 0x20);
+    RwV3dNormalize((RainVector *)originalHeading, (const RainVector *)originalHeading);
+    actorX = *(f32 *)(mdlGetMatrix(
+        *(u32 *)(*(u8 **)(work + 0xC) + 0x164)) + 0x30);
+    *(f32 *)(work + 0x3C) = *(f32 *)(mdlGetMatrix(
+        D_007EFA00[0]) + 0x30) - actorX;
+    actorY = *(f32 *)(mdlGetMatrix(
+        *(u32 *)(*(u8 **)(work + 0xC) + 0x164)) + 0x34);
+    *(f32 *)(work + 0x40) = *(f32 *)(mdlGetMatrix(
+        D_007EFA00[0]) + 0x34) - actorY;
+    actorZ = *(f32 *)(mdlGetMatrix(
+        *(u32 *)(*(u8 **)(work + 0xC) + 0x164)) + 0x38);
+    *(f32 *)(work + 0x44) = *(f32 *)(mdlGetMatrix(
+        D_007EFA00[0]) + 0x38) - actorZ;
+    playerHeading = (f32 *)(work + 0x3C);
+    RwV3dNormalize((RainVector *)playerHeading, (const RainVector *)playerHeading);
+    originalZ = *(f32 *)(work + 0x38);
+    desiredZ = *(f32 *)(work + 0x44);
+    originalX = *(f32 *)(work + 0x30);
+    desiredX = *(f32 *)(work + 0x3C);
+    originalY = *(f32 *)(work + 0x34);
+    desiredY = *(f32 *)(work + 0x40);
+    if ((originalX * desiredX + originalY * desiredY) +
+        originalZ * desiredZ <
         fGpffff8218) {
-        *(s32 *)(temp_16 + 0x2C) =
-            (s16)mdlGetLayerAnimation(*(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164), 0);
-        target = *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164);
+        *(s32 *)(work + 0x2C) =
+            (s16)mdlGetLayerAnimation(*(u32 *)(*(u8 **)(work + 0xC) + 0x164), 0);
+        target = *(void **)(*(u8 **)(work + 0xC) + 0x164);
         zero = 0;
         mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
-        *(s32 *)temp_16 = 5;
+        *(s32 *)work = 5;
         return;
     }
-    mdlDispatchAnimIfPresent(*(void **)(*(u8 **)(temp_16 + 0xC) + 0x164), 0, 3, 8, 0);
-    *(s32 *)temp_16 = 7;
+    mdlDispatchAnimIfPresent(*(void **)(*(u8 **)(work + 0xC) + 0x164), 0, 3, 8, 0);
+    *(s32 *)work = 7;
 }
 #pragma pop
 #pragma pop
@@ -571,42 +607,44 @@ void FldNpcControlFacePlayer(u8 *arg0)
 // FUN_0018BDD0
 #pragma push
 #pragma opt_common_subs on
-void FldNpcControlTurnBack(u8 *arg0)
+/* Restore the saved heading, using the turn animation only when outside tolerance. */
+void FldNpcControlTurnBack(u8 *task)
 {
+    /* Aggregate heading copies and actor model pointers retain their measured access widths. */
     struct Direction {
         f32 x;
         f32 y;
         f32 z;
     };
-    u8 *temp_16;
+    u8 *work;
     u8 *target;
-    f32 guard38;
-    f32 guard44;
-    f32 guard30;
-    f32 guard3c;
-    f32 guard34;
-    f32 guard40;
+    f32 originalZ;
+    f32 desiredZ;
+    f32 originalX;
+    f32 desiredX;
+    f32 originalY;
+    f32 desiredY;
     s32 zero;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    guard38 = *(f32 *)(temp_16 + 0x38);
-    guard44 = *(f32 *)(temp_16 + 0x44);
-    guard30 = *(f32 *)(temp_16 + 0x30);
-    guard3c = *(f32 *)(temp_16 + 0x3C);
-    guard34 = *(f32 *)(temp_16 + 0x34);
-    guard40 = *(f32 *)(temp_16 + 0x40);
-    if ((guard30 * guard3c + guard34 * guard40) + guard38 * guard44 <
+    work = *(u8 **)(task + 0x38);
+    originalZ = *(f32 *)(work + 0x38);
+    desiredZ = ((FldNpcControlWork *)work)->headingZ;
+    originalX = *(f32 *)(work + 0x30);
+    desiredX = ((FldNpcControlWork *)work)->headingX;
+    originalY = *(f32 *)(work + 0x34);
+    desiredY = ((FldNpcControlWork *)work)->headingY;
+    if ((originalX * desiredX + originalY * desiredY) + originalZ * desiredZ <
         fGpffff8218) {
-        *(struct Direction *)(temp_16 + 0x3C) = *(struct Direction *)(temp_16 + 0x30);
-        target = *(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164);
+        *(struct Direction *)(work + 0x3C) = *(struct Direction *)(work + 0x30);
+        target = *(u8 **)(*(u8 **)(work + 0xC) + 0x164);
         zero = 0;
         mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
-        *(s32 *)temp_16 = 6;
+        *(s32 *)work = 6;
         return;
     }
-    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164),
+    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0xC) + 0x164),
                   0, 0, 8, 1);
-    *(s32 *)temp_16 = 4;
+    *(s32 *)work = 4;
 }
 #pragma pop
 #pragma pop
@@ -618,14 +656,16 @@ void FldNpcControlTurnBack(u8 *arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018BED0
-void FldNpcSetPositionLock(u8 *arg0, s32 arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+/* Forward the lock to the NPC resource list and its requested position slot. */
+void FldNpcSetPositionLock(u8 *task, s32 locked) {
+    /* Typed work access changes codegen; +50/+54 select the actor resource and position slot. */
+    u8 *work = *(u8 **)(task + 0x38);
 
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(work + 0x50) * 4 + 0x34) == 0) {
         return;
     }
-    FldRc_SetPositionSlotLock(*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(p + 0x50) * 4 + 0x34),
-                  *(s32 *)(p + 0x54), arg1);
+    FldRc_SetPositionSlotLock(*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(work + 0x50) * 4 + 0x34),
+                  *(s32 *)(work + 0x54), locked);
 }
 #pragma pop
 
@@ -636,24 +676,26 @@ void FldNpcSetPositionLock(u8 *arg0, s32 arg1) {
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018BF50
-s32 func_0018bf50(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
-    s32 r = 0;
-    s32 v = *(s32 *)p;
-    if (v == 5) {
+/* Report turn states or the actor state-3 pause as busy. */
+s32 fldNpcControlIsBusy(u8 *task) {
+    /* Keep +24 signed (the shared work type is unsigned); actor state uses the partial +220 layout. */
+    u8 *work = *(u8 **)(task + 0x38);
+    s32 busy = 0;
+    s32 state = *(s32 *)work;
+    if (state == 5) {
         goto set;
     }
-    if (v != 6) {
+    if (state != 6) {
         goto rest;
     }
 set:
-    r = 1;
+    busy = 1;
 rest:
-    if (*(u16 *)(*(u8 **)(p + 0xC) + 0x220) == 3) {
-        if (*(s32 *)(p + 0x24) > 0) {
-            r = 1;
+    if (*(u16 *)(*(u8 **)(work + 0xC) + 0x220) == 3) {
+        if (*(s32 *)(work + 0x24) > 0) {
+            busy = 1;
         }
     }
-    return r;
+    return busy;
 }
 #pragma pop

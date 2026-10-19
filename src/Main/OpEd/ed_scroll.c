@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "ed_staff_internal.h"
+#include "ed_scroll_internal.h"
 
 extern void frFontListKeepOrRelease(u32 resource);
 
@@ -76,16 +77,16 @@ void edScrollStart(void)
         kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
-    work[0x484] = 0;
-    work[0x485] = 0;
-    work[0x486] = 0x43e00000;
-    work[0x487] = 0x43e00000;
-    work[0x481] = 0;
-    work[0x482] = 0;
-    work[0x483] = 0;
+    ((EdScrollWork *)work)->unk1210 = 0;
+    ((EdScrollWork *)work)->unk1214 = 0;
+    *(u32 *)&((EdScrollWork *)work)->unk1218 = 0x43e00000;
+    *(u32 *)&((EdScrollWork *)work)->nextY = 0x43e00000;
+    ((EdScrollWork *)work)->phaseFrame = 0;
+    ((EdScrollWork *)work)->textIndex = 0;
+    ((EdScrollWork *)work)->streamOffset = 0;
     edScrollLayoutRecords();
-    work[0] |= 1;
-    work[0x489] = 0;
+    ((EdScrollWork *)work)->flags |= 1;
+    ((EdScrollWork *)work)->phase = 0;
 }
 
 // Intent: Report whether the roll is active [inferred]
@@ -100,6 +101,8 @@ u32 edScrollIsActive(void)
 
 // Intent: Per-frame roll step: run the hold and scroll phases, parse stream commands into new text records and drift them up [inferred]
 // FUN_0038DF60
+/* Typed staff-roll members change b210 address materialization; retain byte/word
+ * accesses to ed_scroll_internal.h layouts to keep the retail instructions. */
 void edScrollStep(void)
 {
     u32 *work;
@@ -242,6 +245,7 @@ void edScrollStep(void)
 
 // Intent: Colour and draw each active record's glyph lists while the roll is active [inferred]
 // FUN_0038E4B0
+/* The glyph handle pointer is a field-address transport into EdScrollRecord.glyphs (eight-byte pairs), not an independent allocation. */
 void edScrollDrawLines(void)
 {
     s32 i;
@@ -254,10 +258,10 @@ void edScrollDrawLines(void)
         kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
-    if ((~work[0] & 1) != 0) {
+    if ((~((EdScrollWork *)work)->flags & 1) != 0) {
         return;
     }
-    color = *(EdColor *)((u8 *)work + 0x122c);
+    color = *(EdColor *)((EdScrollWork *)work)->color;
     for (i = 0, packed = (u32)color.r << 24 | (u32)color.g << 16 |
                          (u32)color.b << 8 | (u32)color.a;
          i < 0x20; i++) {
@@ -266,7 +270,7 @@ void edScrollDrawLines(void)
         if ((~elem[1] & 1) == 0) {
             for (j = 0; j < (s32)record[0x21]; j++) {
                 u32 *handlePtr = (u32 *)((u8 *)record + j * 8 + 8);
-                frFontSetGlyphColor(*(u32 *)((u8 *)record + j * 8 + 8), packed);
+                frFontSetGlyphColor(((EdScrollRecord *)record)->glyphs[j].handle, packed);
                 frFontDrawList((void *)*handlePtr, 1, 0);
             }
         }
@@ -307,7 +311,7 @@ void edScrollFreeRecord(u32* record)
     s32 i;
 
     for (i = 0; i < (s32)record[0x21]; i++) {
-        frFontListKeepOrRelease(*(u32*)((u8*)record + i * 8 + 8));
+        frFontListKeepOrRelease(((EdScrollRecord *)record)->glyphs[i].handle);
     }
     record[0] &= ~1u;
 }
@@ -331,7 +335,7 @@ void edScrollLayoutRecords(void)
         record = elem + 1;
         if ((~elem[1] & 1) == 0) {
             pos[0] = 57.0f;
-            pos[1] = *(f32 *)((u8 *)record + 0x8c);
+            pos[1] = ((EdScrollRecord *)record)->y;
             edScrollMoveRecord(record, pos);
             edScrollSetRecordColor(record, (const u8 *)((u8 *)work + 0x122c));
         }
@@ -397,8 +401,8 @@ void edScrollLayoutText(u32 *work, char *text, s32 align)
                 {
                     u32 handle = (u32)frFontCreateTextList((u8 *)token, (s8)style, (s8)mode, 0, NULL);
                     frFontExSetScale(handle, 0.0f);
-                    *(u32 *)((u8 *)work + count * 8 + 8) = handle;
-                    *(f32 *)((u8 *)work + 4 + count * 8) = width;
+                    ((EdScrollRecord *)work)->glyphs[count].handle = handle;
+                    ((EdScrollRecord *)work)->glyphs[count].x = width;
                     count++;
                     start += tokenLength;
                     width += (f32)frFontNodeWidth(handle);
@@ -438,16 +442,17 @@ void edScrollLayoutText(u32 *work, char *text, s32 align)
     }
     frFontClearFlagBits(1);
     frFontSetFlagBits(2);
-    work[0x84 / 4] = count;
+    ((EdScrollRecord *)work)->count = count;
 }
 
 // Intent: Move a record's glyph lists to its row and reset their scale [inferred]
 // FUN_0038EAE0
+/* The float cursor addresses an EdScrollGlyph pair; its second word is a handle, so keep the bit-preserving word reinterpretation for the font ABI. */
 void edScrollMoveRecord(u32* work, const f32* pos)
 {
     s32 i;
 
-    for (i = 0; i < (s32)work[0x84 / 4]; i++) {
+    for (i = 0; i < (s32)((EdScrollRecord *)work)->count; i++) {
         f32* entry = (f32*)((u8*)work + i * 8 + 4);
         frFontMoveListTo(*(u32*)(entry + 1), (s32)((pos[0] + entry[0]) * 16.0f),
                       (s32)(pos[1] * 8.0f));
@@ -464,13 +469,14 @@ void edScrollSetRecordColor(u32* work, const u8* color)
 
     packed = (u32)color[0] << 24 | (u32)color[1] << 16 |
              (u32)color[2] << 8 | (u32)color[3];
-    for (i = 0; i < (s32)work[0x84 / 4]; i++) {
-        frFontSetGlyphColor(*(u32*)((u8*)work + i * 8 + 8), packed);
+    for (i = 0; i < (s32)((EdScrollRecord *)work)->count; i++) {
+        frFontSetGlyphColor(((EdScrollRecord *)work)->glyphs[i].handle, packed);
     }
 }
 
 // Intent: Return the stream command byte at the current read offset [inferred]
 // FUN_0038EC50
+/* The parameter header returns a byte-stream base address; no object layout applies to its command bytes. */
 u32 edScrollStreamCommand(void)
 {
     u32 *work;
@@ -483,11 +489,12 @@ u32 edScrollStreamCommand(void)
     work = D_007246A0;
     stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
-    return *(u8 *)(uintptr_t)(base + work[0x120c / 4]);
+    return *(u8 *)(uintptr_t)(base + ((EdScrollWork *)work)->streamOffset);
 }
 
 // Intent: Return the byte after the current stream command, used as its operand [inferred]
 // FUN_0038ECC0
+/* The parameter header returns a byte stream; the operand is the next raw byte rather than a struct field. */
 s32 edScrollStreamOperand(void)
 {
     u32 *work;
@@ -500,11 +507,13 @@ s32 edScrollStreamOperand(void)
     work = D_007246A0;
     stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
-    return *(u8 *)(uintptr_t)(work[0x120c / 4] + base + 1);
+    return *(u8 *)(uintptr_t)(((EdScrollWork *)work)->streamOffset + base + 1);
 }
 
 // Intent: Advance the stream read offset by the length of the current command [inferred]
 // FUN_0038ED30
+/* Typed staff-roll members change b210 address materialization; retain byte/word
+ * accesses to ed_scroll_internal.h layouts to keep the retail instructions. */
 void edScrollStreamAdvance(void)
 {
     u32 *work;

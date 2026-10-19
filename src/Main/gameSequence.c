@@ -19,12 +19,12 @@ extern void taskReleaseSlotModel(u8 *task);
 // FUN_00124240
 void gameSequenceStart(void)
 {
-    s32 temp_2;
+    s32 work;
 
     func_0046a2d0(D_005E51C0, 0x178);
-    temp_2 = H_Calloc(1, 0x10);
-    if (temp_2 != 0) {
-        (s32)kwlnTaskCreate((const void *)(D_005E51D0), 0x100, 0, 0, clndSceneUpdate, taskReleaseSlotModel, (u8 *)(temp_2));
+    work = H_Calloc(1, 0x10);
+    if (work != 0) {
+        (s32)kwlnTaskCreate((const void *)(D_005E51D0), 0x100, 0, 0, clndSceneUpdate, taskReleaseSlotModel, (u8 *)(work));
         calendarResetPending();
     }
 }
@@ -40,11 +40,11 @@ s32 gameSequenceIsRunning(void)
 // FUN_001242F0
 void gameSequenceStop(void)
 {
-    s32 temp_2;
+    s32 task;
 
-    temp_2 = kwlnTaskGetTaskByName(D_005E51D0);
-    if (temp_2 == 0) {
+    task = kwlnTaskGetTaskByName(D_005E51D0);
+    if (task == 0) {
         kAssertFail(D_005E51C0, 0x1CC);
     }
-    kwlnTaskDestroyWithHierarchy(temp_2);
+    kwlnTaskDestroyWithHierarchy(task);
 }

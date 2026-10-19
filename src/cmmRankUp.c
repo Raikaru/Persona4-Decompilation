@@ -112,7 +112,7 @@ extern void PrimDrawRectangle(u8 *color, u8 *rectangle, f32 depth,
                           s32 saveState, s32 centerX, s32 centerY,
                           f32 rotation, f32 scaleX, f32 scaleY);
 
-extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s16 centerX, s16 centerY,
                           struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 
@@ -527,11 +527,11 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
         (*(void (**)(u32, u32))work)(0xE, 0);
         RpSkyRenderStateSet(3, 0x7000D);
         RpSkyRenderStateSet(2, 0x48);
-        func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height, (u32)state.color >> 8,
+        sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, state.width, state.height, (u32)state.color >> 8,
                       state.color & 0xFF, 0, (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, texture,
                       uvBlock.coordinates);
     } else {
-        func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height, (u32)state.color >> 8,
+        sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, state.width, state.height, (u32)state.color >> 8,
                       state.color & 0xFF, 1, (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, texture,
                       uvBlock.coordinates);
     }
@@ -676,20 +676,20 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
                 destination++;
             } while (count > 0);
         }
-        func_00366c70((s32)state.x, (s32)state.y, 0.0f, 115, 144, 0xFFFFFF,
+        sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, 115, 144, 0xFFFFFF,
             *(u8 *)&state.color, 1, 57, 72, &effectMatrix, overlay, overlayUv.coordinates);
         if (is10) {
-            func_00366c70((s32)state.x, (s32)state.y, 0.0f, 109, 137, 0x7F7F7F,
+            sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, 109, 137, 0x7F7F7F,
                 255, 1, 55, 69, &matrix, overlay, overlayUv.coordinates);
         } else {
-            func_00366c70((s32)state.x, (s32)state.y, 0.0f, 109, 137, 0xFF9C35,
+            sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, 109, 137, 0xFF9C35,
                 255, 1, 55, 69, &matrix, overlay, overlayUv.coordinates);
         }
     }
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
         (u32)state.color >> 8, (u32)state.color & 255, 3,
         (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
         (u32)state.color >> 8, (u32)state.color & 255, 5,
         (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureB, uv.coordinates);
     renderState = (u8 *)D_00887300;
@@ -708,10 +708,10 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
     }
     pulse = sinf(D_007612CC + D_007612D0 * (f32)context->pulse120.ticks / 120.0f);
     pulse = (1.0f + pulse) / 2.0f;
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
         (u32)state.color >> 8, (s32)(0.8f * (f32)((u32)state.color & 255) * pulse), 2,
         (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f, state.width, state.height,
         (u32)state.color >> 8, (s32)(0.8f * (f32)((u32)state.color & 255) * pulse), 4,
         (s16)(state.width >> 1), (s16)(state.height >> 1), &matrix, textureB, uv.coordinates);
 
@@ -1957,12 +1957,12 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
     growth = 0.25f * effect;
     cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], interpolation);
     RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f,
                   state.width, state.height, (u32)state.color >> 8,
                   (s32)((f32)((u32)state.color & 0xFF) * opacity), 3,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f,
                   state.width, state.height, (u32)state.color >> 8,
                   (s32)((f32)((u32)state.color & 0xFF) * opacity), 5,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
@@ -1981,7 +1981,7 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
         u32 packed = (u32)state.color;
         opacity = 1.0f + growth;
         center = 0.5f * growth;
-        func_00366c70((s32)((0.0f + state.x) - (f32)width * center),
+        sflDataDrawTexturedQuad((s32)((0.0f + state.x) - (f32)width * center),
                       (s32)((0.0f + state.y) - (f32)height * center), 0.0f,
                       (s32)((f32)width * opacity), (s32)((f32)height * opacity),
                       packed >> 8,
@@ -1989,7 +1989,7 @@ void cmmRankUpDrawFadedExpansion(f32 unusedX, f32 unusedY, f32 unusedZ,
                       (s16)(width >> 1), (s16)(height >> 1),
                       &matrix, textureA, uv.coordinates);
     }
-    func_00366c70((s32)((0.0f + state.x) - (f32)state.width * center),
+    sflDataDrawTexturedQuad((s32)((0.0f + state.x) - (f32)state.width * center),
                   (s32)((0.0f + state.y) - (f32)state.height * center), 0.0f,
                   (s32)((f32)state.width * opacity), (s32)((f32)state.height * opacity),
                   (u32)state.color >> 8,
@@ -2051,12 +2051,12 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
     growth = 0.25f * effect;
     cmmRankUpLerpState(&state, &keys.states[0], &keys.states[1], interpolation);
     RwMatrixRotate(&matrix, &state.axis, state.angle, 0);
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f,
                   state.width, state.height, (u32)state.color >> 8,
                   (s32)((f32)((u32)state.color & 0xFF) * opacity), 3,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
                   &matrix, textureA, uv.coordinates);
-    func_00366c70((s32)state.x, (s32)state.y, 0.0f,
+    sflDataDrawTexturedQuad((s32)state.x, (s32)state.y, 0.0f,
                   state.width, state.height, (u32)state.color >> 8,
                   (s32)((f32)((u32)state.color & 0xFF) * opacity), 5,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
@@ -2075,7 +2075,7 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
         u32 packed = (u32)state.color;
         opacity = 1.0f + growth;
         center = 0.5f * growth;
-        func_00366c70((s32)((0.0f + state.x) - (f32)width * center),
+        sflDataDrawTexturedQuad((s32)((0.0f + state.x) - (f32)width * center),
                       (s32)((0.0f + state.y) - (f32)height * center), 0.0f,
                       (s32)((f32)width * opacity), (s32)((f32)height * opacity),
                       packed >> 8,
@@ -2083,7 +2083,7 @@ void cmmRankUpDrawFadedExpansionPass2(f32 unusedX, f32 unusedY, f32 unusedZ,
                       (s16)(width >> 1), (s16)(height >> 1),
                       &matrix, textureA, uv.coordinates);
     }
-    func_00366c70((s32)((0.0f + state.x) - (f32)state.width * center),
+    sflDataDrawTexturedQuad((s32)((0.0f + state.x) - (f32)state.width * center),
                   (s32)((0.0f + state.y) - (f32)state.height * center), 0.0f,
                   (s32)((f32)state.width * opacity), (s32)((f32)state.height * opacity),
                   (u32)state.color >> 8,
@@ -2223,7 +2223,7 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     RpSkyRenderStateSet(2, 0x44);
     PrimDrawRectangle((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 0,
                   45.0f, 1.0f, 1.0f);
-    func_00366c70((s32)(state.x + deltaX), (s32)(state.y + deltaY), 5.0f,
+    sflDataDrawTexturedQuad((s32)(state.x + deltaX), (s32)(state.y + deltaY), 5.0f,
                   state.width, state.height, (u32)state.color >> 8,
                   (s32)((f32)((u32)state.color & 0xFF) * opacity), 1,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
@@ -2274,7 +2274,7 @@ void cmmRankUpDrawWipeRect(f32 unusedX, f32 unusedY, f32 unusedZ,
     RpSkyRenderStateSet(2, 0x44);
     PrimDrawRectangle((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 200,
                   45.0f, 1.0f, 1.0f);
-    func_00366c70((s32)(state.x - deltaX), (s32)(state.y - deltaY), 5.0f,
+    sflDataDrawTexturedQuad((s32)(state.x - deltaX), (s32)(state.y - deltaY), 5.0f,
                   state.width, state.height, (u32)state.color >> 8,
                   (s32)((f32)((u32)state.color & 0xFF) * opacity), 1,
                   (s16)(state.width >> 1), (s16)(state.height >> 1),
@@ -2347,7 +2347,7 @@ static inline void rankUpDrawSpriteState(const RankUpSpriteState *state, RankUpM
 {
     s32 height = state->height;
     s32 width = state->width;
-    func_00366c70((s32)state->x, (s32)state->y, 0.0f, width, height,
+    sflDataDrawTexturedQuad((s32)state->x, (s32)state->y, 0.0f, width, height,
                   (u32)state->color >> 8,
                   (s32)((f32)((u32)state->color & 0xFF) * opacity), 0,
                   (s16)(width >> 1), (s16)(height >> 1), matrix, texture, uv);
@@ -2964,7 +2964,7 @@ s32 cmmRankUpRender(u8 *task) {
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
             RpSkyRenderStateSet(3, 0x31003);
             RpSkyRenderStateSet(2, 0x48);
-            func_00366c70((s32)enteringSprite.x, (s32)enteringSprite.y, 0, enteringSprite.width, enteringSprite.height, (u32)enteringSprite.color >> 8,
+            sflDataDrawTexturedQuad((s32)enteringSprite.x, (s32)enteringSprite.y, 0, enteringSprite.width, enteringSprite.height, (u32)enteringSprite.color >> 8,
                           (s32)( ((f32)((u32)enteringSprite.color & 0xFF) * ((f32)(s32)(255.0f * spritePhase) / 255.0f))), 0,
                           (s16)(enteringSprite.width >> 1), (s16)(enteringSprite.height >> 1), &enteringMatrix,
                           spriteTexture, (f32 (*)[2])((void *)&enteringUv));
@@ -2996,7 +2996,7 @@ s32 cmmRankUpRender(u8 *task) {
             (*(void (**)(u32, u32))renderStateTable)(8, 1);
             RpSkyRenderStateSet(3, 0x31003);
             RpSkyRenderStateSet(2, 0x48);
-            func_00366c70((s32)leavingSprite.x, (s32)leavingSprite.y, 0, leavingSprite.width, leavingSprite.height, (u32)leavingSprite.color >> 8,
+            sflDataDrawTexturedQuad((s32)leavingSprite.x, (s32)leavingSprite.y, 0, leavingSprite.width, leavingSprite.height, (u32)leavingSprite.color >> 8,
                           (s32)( ((f32)((u32)leavingSprite.color & 0xFF) * ((f32)(s32)spriteExitAlpha / 255.0f))), 0, (s16)(leavingSprite.width >> 1),
                           (s16)(leavingSprite.height >> 1), &leavingMatrix, spriteTexture,
                           (f32 (*)[2])((void *)&leavingUv));
