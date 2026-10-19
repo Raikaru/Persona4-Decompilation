@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2452 of 13102 symbols carry a recovered name.
+// 2459 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -8440,10 +8440,10 @@ func_00479ca0 = 0x00479CA0; // type:func
 func_00479d10 = 0x00479D10; // type:func
 func_00479dd0 = 0x00479DD0; // type:func
 func_00479e60 = 0x00479E60; // type:func
-func_00479f60 = 0x00479F60; // type:func
-func_0047a000 = 0x0047A000; // type:func
-func_0047a080 = 0x0047A080; // type:func
-func_0047a0e0 = 0x0047A0E0; // type:func
+mdlGetLayerDuration = 0x00479F60; // type:func
+mdlGetLayerAnimationDuration = 0x0047A000; // type:func
+mdlGetLayerFrame = 0x0047A080; // type:func
+mdlSetLayerSpeed = 0x0047A0E0; // type:func
 func_0047a120 = 0x0047A120; // type:func
 func_0047a150 = 0x0047A150; // type:func
 func_0047a180 = 0x0047A180; // type:func
@@ -8471,14 +8471,14 @@ func_0047a890 = 0x0047A890; // type:func
 func_0047a8a0 = 0x0047A8A0; // type:func
 func_0047a8b0 = 0x0047A8B0; // type:func
 func_0047a900 = 0x0047A900; // type:func
-func_0047a950 = 0x0047A950; // type:func
-func_0047a980 = 0x0047A980; // type:func
+mdlSetLookAtRotationOffsets = 0x0047A950; // type:func
+mdlGetLookAtRotation = 0x0047A980; // type:func
 func_0047a990 = 0x0047A990; // type:func
 func_0047a9b0 = 0x0047A9B0; // type:func
 func_0047a9d0 = 0x0047A9D0; // type:func
 func_0047a9f0 = 0x0047A9F0; // type:func
 func_0047aa00 = 0x0047AA00; // type:func
-func_0047aa10 = 0x0047AA10; // type:func
+mdlSetLookAtScale = 0x0047AA10; // type:func
 func_0047aa30 = 0x0047AA30; // type:func
 func_0047aaa0 = 0x0047AAA0; // type:func
 func_0047ab90 = 0x0047AB90; // type:func
