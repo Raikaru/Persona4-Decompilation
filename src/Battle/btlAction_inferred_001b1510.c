@@ -4,6 +4,7 @@
 #include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "model_callbacks_internal.h"
+#include "model_battle_internal.h"
 #include "btl_camera_palette_internal.h"
 #include "effect_geometry_internal.h"
 #include "btl_motion_internal.h"
@@ -215,6 +216,18 @@ extern u8 *btlActionFindByUnit(s32);
 #pragma pop
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b1510-001b5e40 */
+/* Access-site layouts preserve the original byte-pointer locals. Raw-site
+ * measurements quote the whole-owner verifier's object size and differing-byte
+ * count (nd = normalized_diff); each remaining access was tested separately. */
+/* ENCOUNT rows are 0x18 bytes: flags, two halfword result fields,
+ * five enemy IDs and three remaining halfwords. No local copy is made. */
+typedef struct BattleOpeningEncounter {
+    u32 flags;
+    u16 field04;
+    u16 field06;
+    u16 enemyIds[5];
+    u16 field12[3];
+} BattleOpeningEncounter;
 
 /* Fade-out's phase-specific word at +0xC is distinct from WIN's delay pair. */
 typedef struct BtlMainFadeOutWork {
@@ -461,11 +474,11 @@ void btlMainInitInit(void) {
 // FUN_001B1940
 /* Select the next encounter descriptor and initialize encounter globals when required. */
 s32 btlMainInitUpdate(void) {
-    /* Typed encounter indexing changed codegen (100B trial); C84 is the four-byte encounter-pointer array. */
+    /* Historical indexed-layout trial: 100B; the remaining slot read is measured separately below. */
     u8 *b = D_0076449C;
     s32 off = ((BtlBattleState *)b)->encounterIndex << 2;
 
-    ((BtlBattleState *)b)->encounterRecord = *(s32 *)(off + (s32)b + 0xC84);
+    ((BtlBattleState *)b)->encounterRecord = *(s32 *)(off + (s32)b + 0xC84) /* measured: BtlBattleState.encounter.enemyUnits typing gives 120B, nd 83. */;
     b = D_0076449C;
     ((BtlBattleState *)b)->encounterIndex = ((BtlBattleState *)b)->encounterIndex + 1;
     if (btlEncounterIsBoss() != 0) {
@@ -561,7 +574,7 @@ void btlMainContinuousInit(void)
 /* Wait for enemy actions to finish before selecting and preparing the next encounter wave. */
 s32 btlMainContinuousUpdate(void)
 {
-    /* Typed encounter indexing changed one instruction (564B trial); retain the C84 four-byte slot calculation. */
+    /* Historical indexed-layout trial: 564B; the remaining slot read is measured separately below. */
     extern u8 *btlTargetCreateTargetPacket(u8 *, s32, s32, s32, s32);
     extern void btlDamageSetSource(u8 *, s32);
     extern void btlSelectionClearTargetFlag(s32);
@@ -597,7 +610,7 @@ first_check:
     *(u16 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->endState = 0;
     work = (u8 *)iGpffffb3ac;
     ((BtlBattleState *)work)->encounterRecord =
-        *(s32 *)(((((BtlBattleState *)work)->encounterIndex << 2) + (s32)work) + 0xC84);
+        *(s32 *)(((((BtlBattleState *)work)->encounterIndex << 2) + (s32)work) + 0xC84) /* measured: BtlBattleState.encounterIndex typing gives 564B, nd 1. */;
     work = (u8 *)iGpffffb3ac;
     ((BtlBattleState *)work)->encounterIndex = ((BtlBattleState *)work)->encounterIndex + 1;
     btlActionResetActiveState();
@@ -641,7 +654,7 @@ done:
 // FUN_001B1D70
 /* Create party/enemy actions, reuse loaded models, and select the initial side and queue order. */
 void btlMainUnitCreateInit(void) {
-    /* Typed action/unit/packet fields changed MWCC codegen (1576B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 1576B; remaining exceptions are measured per access below. */
     extern s32 iGpffffb414;
     extern u8 *btlActionCreateWork(s32, u16, u16 *);
     extern u32 datCalcClearBadStatus(s32, u32);
@@ -678,122 +691,122 @@ void btlMainUnitCreateInit(void) {
     s32 modelFlags;
 
     previousLoadUID = 0;
-    if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0) {
+    if ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) == 0) {
         i = 0;
         while (i < 4) {
-            recordOrModel = *(s32 *)((u32)D_0076449C + i * 4 + 0xC74);
+            recordOrModel = *(s32 *)((u32)D_0076449C + i * 4 + 0xC74) /* measured: BtlBattleState.encounter.partyUnits typing gives 1548B, nd 7. */;
             if (recordOrModel == 0)
                 break;
-            dataOrModel = *(u8 **)(recordOrModel + 4);
-            id = *(u16 *)(dataOrModel + 2);
+            dataOrModel = *(u8* *)&((DatUnitPc *)recordOrModel)->base.unit;
+            id = ((DatUnit *)dataOrModel)->id;
             actionOrPacket = btlActionCreateWork(0, id, (u16 *)dataOrModel);
-            unit = *(u8 **)(actionOrPacket + 0x30);
-            datCalcClearBadStatus(*(s32 *)(unit + 0xA64), 0xFFF7FFFF);
-            *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFDF;
-            *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFF7;
-            *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFEF;
-            recordOrModel = (s32)mdlFindModelObject((u16)(*(u8 *)(unit + 0xA2) + 1), id, 0);
-            *(s32 *)(unit + 0xA00) = recordOrModel;
+            unit = *(u8* *)&((BtlAction *)actionOrPacket)->unit;
+            datCalcClearBadStatus(*(s32 *)&((BtlUnit *)unit)->datUnit, 0xFFF7FFFF);
+            ((DatUnit *)*(u8 **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1560B, nd 1075. */)->flags &= 0xFFDF;
+            ((DatUnit *)*(u8 **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1560B, nd 1075. */)->flags &= 0xFFF7;
+            ((DatUnit *)*(u8 **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1560B, nd 1075. */)->flags &= 0xFFEF;
+            recordOrModel = (s32)mdlFindModelObject((u16)(((BtlUnit *)unit)->genus + 1), id, 0);
+            *(s32 *)&((BtlUnit *)unit)->layerHandle = recordOrModel;
             if (recordOrModel == 0) {
                 actionOrPacket = btlUnitCreateModelLoadPacket(unit, id, 0x36);
                 *actionOrPacket = 4;
-                *(s64 *)(actionOrPacket + 8) = previousLoadUID;
+                *(s64 *)&((BtlPacket *)actionOrPacket)->dependencyUID = previousLoadUID;
                 btlPacketEnqueue(actionOrPacket, 1);
-                previousLoadUID = *(s64 *)(actionOrPacket + 0x58);
+                previousLoadUID = *(s64 *)&((BtlPacket *)actionOrPacket)->uid;
             } else {
-                modelFlags = *(s32 *)(unit + 0x98) | 2;
-                *(s32 *)(unit + 0x98) = modelFlags;
-                *(s32 *)(unit + 0x98) = modelFlags | 8;
-                *(u16 *)(unit + 0x9FE) = MT_Scene_CreateModelCharRes(id, *(void **)(unit + 0xA00));
-                SceneDraw_SetDirectionalOnly(*(u16 *)(unit + 0x9FE), 1);
+                modelFlags = *(s32 *)&((BtlUnit *)unit)->flags2 | 2;
+                *(s32 *)&((BtlUnit *)unit)->flags2 = modelFlags;
+                *(s32 *)&((BtlUnit *)unit)->flags2 = modelFlags | 8;
+                ((BtlUnit *)unit)->sceneDrawId = MT_Scene_CreateModelCharRes(id, *(void **)(unit + 0xA00) /* measured: BtlUnit.layerHandle typing gives 1552B, nd 987. */);
+                SceneDraw_SetDirectionalOnly(*(u16 *)(unit + 0x9FE) /* measured: BtlUnit.sceneDrawId typing gives 1560B, nd 1092. */, 1);
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
                 btlUnitSetMotion(unit, ((BtlUnit *)unit)->restMotion, 0, ((BtlUnit *)unit)->restRate, ((BtlUnit *)unit)->restOption);
                 btlUnitSetRandomAnimFrame(unit);
-                dataOrModel = *(u8 **)(unit + 0xA00);
-                if (*(s32 *)(dataOrModel + 0x2D0) == 0) {
+                dataOrModel = *(u8 **)(unit + 0xA00) /* measured: BtlUnit.layerHandle typing gives 1560B, nd 1089. */;
+                if (*(s32 *)&((Model *)dataOrModel)->motion.object == 0) {
                     mdlRunDataCallback(dataOrModel);
                 }
                 btlUnitApplyModelState(unit, 4);
                 btlUnitShowModel(unit);
-                *(s32 *)(*(u8 **)(unit + 0xA00) + 0xD8) |= 0x400;
-                mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(unit + 0xA00)));
+                ((MdlFileModel *)((BtlUnit *)unit)->layerHandle)->flags |= 0x400;
+                mdlClumpSetEnvMapState(mdlGetClump(((BtlUnit *)unit)->layerHandle));
             }
             i++;
         }
-        *(u8 *)(D_0076449C + 0xC64) = (u8)i;
+        ((BtlBattleState *)D_0076449C)->unkC64 = (u8)i;
     }
-    list = *(u8 **)(*(u8 **)(D_0076449C + 0xC68) + 4);
+    list = *(u8* *)&((DatUnitEc *)*(u8* *)&((BtlBattleState *)D_0076449C)->encounterRecord)->base.unit;
     unitIndex = 0;
     while (unitIndex < 6) {
-        if (*(u16 *)(list + 2) != 0 && datCalcIsDead((s32)list, 0) == 0) {
-            btlActionCreateWork(1, *(s16 *)(list + 2), (u16 *)list);
+        if (((DatUnit *)list)->id != 0 && datCalcIsDead((s32)list, 0) == 0) {
+            btlActionCreateWork(1, *(s16 *)(list + 2) /* measured: DatUnit.id typing gives 1552B, nd 731. */, (u16 *)list);
         }
         unitIndex++;
         list += 0x30;
     }
-    if ((*(u32 *)(D_0076449C + 0xC) & 0x100) != 0) {
-        entry = (u32 *)((u8 *)iGpffffb414 + (u32)*(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18);
+    if ((((BtlBattleState *)D_0076449C)->flags & 0x100) != 0) {
+        entry = (u32 *)((u8 *)iGpffffb414 + (u32)((DatUnitEc *)*(u8* *)&((BtlBattleState *)D_0076449C)->encounterRecord)->encountId * 0x18);
         if ((*entry & 0x20) != 0) {
             if ((*entry & 0x10) == 0) {
-                *(u16 *)(D_0076449C + 0x1A) = 0;
+                ((BtlBattleState *)D_0076449C)->openingSide = 0;
             }
             btlBossCollectTargets((u8 *)0);
         } else {
-            *(u16 *)(D_0076449C + 0x1A) = btlUnitGetMoveStateCode();
-            switch (*(u16 *)(D_0076449C + 0x1A)) {
+            ((BtlBattleState *)D_0076449C)->openingSide = btlUnitGetMoveStateCode();
+            switch (((BtlBattleState *)D_0076449C)->openingSide) {
             case 0:
                 btlActionQueueSortByRank(1);
                 btlActionQueueRequeueLeadingEnemies(1);
-                if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) != 0) {
-                    btlActionQueueMoveToFront(*(s32 *)(D_0076449C + 0x170));
+                if ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) != 0) {
+                    btlActionQueueMoveToFront(*(s32 *)&((BtlBattleState *)D_0076449C)->selectedAction);
                 }
                 break;
             case 1:
                 btlActionQueueSortByRank(0);
                 btlActionQueueSortKeepingKind(0);
-                btlActionQueueMoveToFront(*(s32 *)(D_0076449C + 0x170));
-                *(u16 *)(D_0076449C + 0x290) |= 2;
+                btlActionQueueMoveToFront(*(s32 *)&((BtlBattleState *)D_0076449C)->selectedAction);
+                ((BtlBattleState *)D_0076449C)->queueFlags |= 2;
                 if ((*entry & 0x200) == 0) {
-                    *(u32 *)(D_0076449C + 0xC) |= 0x100000;
+                    ((BtlBattleState *)D_0076449C)->flags |= 0x100000;
                 }
                 break;
             case 2:
                 btlActionQueueSortByRank(0);
                 btlActionQueueSortKeepingKind(1);
                 btlActionQueueRequeueLeadingEnemies(1);
-                *(u16 *)(D_0076449C + 0x290) |= 4;
+                ((BtlBattleState *)D_0076449C)->queueFlags |= 4;
                 if ((*entry & 0x200) == 0) {
-                    *(u32 *)(D_0076449C + 0xC) |= 0x100000;
+                    ((BtlBattleState *)D_0076449C)->flags |= 0x100000;
                 }
                 break;
             }
         }
-        if (((*(u16 *)(D_0076449C + 0xC70) & 8) != 0) && ((*entry & 0x100) == 0) &&
-            ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0)) {
+        if (((*(u16 *)&((BtlBattleState *)D_0076449C)->encounter.unk00 & 8) != 0) && ((*entry & 0x100) == 0) &&
+            ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) == 0)) {
             firstStatusElement = (s16)datCalcStatusElement(-1, 4);
             secondStatusElement = (s16)datCalcStatusElement(-1, 2);
-            for (enemyUnit = *(u8 **)(D_0076449C + 0x180); enemyUnit != NULL; enemyUnit = *(u8 **)(enemyUnit + 0xA6C)) {
-                if (*(u8 **)(enemyUnit + 0xA64) != NULL) {
-                    if ((datCalcGetAffinity(*(u8 **)(enemyUnit + 0xA64), secondStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
-                        datCalcSetBadStatus(*(s32 *)(enemyUnit + 0xA64), 2);
+            for (enemyUnit = ((BtlBattleState *)D_0076449C)->unitLists[2]; enemyUnit != NULL; enemyUnit = *(u8* *)&((BtlUnit *)enemyUnit)->nextUnit) {
+                if (*(u8* *)&((BtlUnit *)enemyUnit)->datUnit != NULL) {
+                    if ((datCalcGetAffinity(*(u8* *)&((BtlUnit *)enemyUnit)->datUnit, secondStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
+                        datCalcSetBadStatus(*(s32 *)(enemyUnit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1552B, nd 295. */, 2);
                     }
-                    if ((datCalcGetAffinity(*(u8 **)(enemyUnit + 0xA64), firstStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
-                        datCalcSetBadStatus(*(s32 *)(enemyUnit + 0xA64), 4);
+                    if ((datCalcGetAffinity(*(u8 **)(enemyUnit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1552B, nd 296. */, firstStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
+                        datCalcSetBadStatus(*(s32 *)(enemyUnit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1552B, nd 295. */, 4);
                     }
                 }
             }
         }
     }
-    if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0) {
+    if ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) == 0) {
         btlCameraAssignFormationSlots(1, 0);
         return;
     }
     btlCameraAssignFormationSlots(0, 0);
     position[1] = 0.0f;
-    for (enemyUnit = *(u8 **)(D_0076449C + 0x180); enemyUnit != NULL; enemyUnit = *(u8 **)(enemyUnit + 0xA6C)) {
-        position[0] = (f32)(*(s16 *)(enemyUnit + 0x94) * 0x19 - 0x6D6);
-        position[2] = (f32)(*(s16 *)(enemyUnit + 0x96) * 0x19 - 0x6D6);
+    for (enemyUnit = ((BtlBattleState *)D_0076449C)->unitLists[2]; enemyUnit != NULL; enemyUnit = *(u8* *)&((BtlUnit *)enemyUnit)->nextUnit) {
+        position[0] = (f32)(((BtlUnit *)enemyUnit)->unk_94 * 0x19 - 0x6D6);
+        position[2] = (f32)(((BtlUnit *)enemyUnit)->unk_96 * 0x19 - 0x6D6);
         btlUnitSetPos(enemyUnit, position);
     }
 }
@@ -813,7 +826,7 @@ void btlMainUnitCreateInit(void) {
 // FUN_001B2380
 s32 btlMainUnitCreateUpdate(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (4184B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 4184B; remaining exceptions are measured per access below. */
     extern void btlSoundPlayRetailSelectTrack(void);
     extern void btlShuffleStart(s32 task);
     extern s32 iGpffffb414;
@@ -836,15 +849,6 @@ s32 btlMainUnitCreateUpdate(void)
     extern f32 fGpffff8128;
     extern f32 fGpffff8170;
     extern f32 fGpffff82cc;
-    /* ENCOUNT rows are 0x18 bytes: flags, two halfword result fields,
-     * five enemy IDs and three remaining halfwords. No local copy is made. */
-    typedef struct BattleOpeningEncounter {
-        u32 flags;
-        u16 field04;
-        u16 field06;
-        u16 enemyIds[5];
-        u16 field12[3];
-    } BattleOpeningEncounter;
     u8 *action;
     u32 hasSkill213;
     u32 hasSkill214;
@@ -885,27 +889,27 @@ s32 btlMainUnitCreateUpdate(void)
        * The separate resource/history review proves this caller boundary;
        * arbitrary fabricated special/empty-row states are outside it. */
       btlSoundPlayRetailSelectTrack();
-      formation = (BattleOpeningEncounter *)((u32)iGpffffb414 + (u32)*(u16 *)(*(s32 *)(D_0076449C + 0xc68) + 8) * 0x18);
+      formation = (BattleOpeningEncounter *)((u32)iGpffffb414 + (u32)((DatUnitEc *)((BtlBattleState *)D_0076449C)->encounterRecord)->encountId * 0x18);
       action = (u8 *)btlActionGetQueueFront();
-      if ((((action == 0) || (*(u8 *)(*(s32 *)(action + 0x30) + 0xa2) == 1)) ||
-          (value = datCalcIsDead(*(u32 *)(*(s32 *)(action + 0x30) + 0xa64),0), value == 1)) ||
-         (value = datCalcChkBadStatus(*(u32 *)(*(s32 *)(action + 0x30) + 0xa64),0x100000), value == 1
+      if ((((action == 0) || (((BtlUnit *)*(s32 *)&((BtlAction *)action)->unit)->genus == 1)) ||
+          (value = datCalcIsDead(*(u32 *)&((BtlUnit *)*(s32 *)&((BtlAction *)action)->unit)->datUnit,0), value == 1)) ||
+         (value = datCalcChkBadStatus(*(u32 *)&((BtlUnit *)*(s32 *)(action + 0x30) /* measured: BtlAction.unit typing gives 4160B, nd 3034. */)->datUnit,0x100000), value == 1
          )) {
-        action = *(u8 **)(D_0076449C + 0x170);
+        action = ((BtlBattleState *)D_0076449C)->selectedAction;
       }
-      btlUnitGetGridSphereCenter((BtlUnit *)*(void **)(action + 0x30), &groupCenter);
+      btlUnitGetGridSphereCenter((BtlUnit *)*(void* *)&((BtlAction *)action)->unit, &groupCenter);
       for (group = 0; (s32)(group & 0xffff) < 2; group = (group + 1) & 0xffff) {
-        if (((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) || ((group & 0xffff) != 0)) {
-          for (nodeOrPacket = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); nodeOrPacket != NULL;
-              nodeOrPacket = *(u8 **)(nodeOrPacket + 0xa6c)) {
+        if (((((BtlBattleState *)D_0076449C)->flags & 0x20000000) == 0) || ((group & 0xffff) != 0)) {
+          for (nodeOrPacket = ((BtlBattleState *)D_0076449C)->unitLists[(u16)group * 2]; nodeOrPacket != NULL;
+              nodeOrPacket = *(u8* *)&((BtlUnit *)nodeOrPacket)->nextUnit) {
             btlTargetAddRadiusNode(nodeOrPacket,NULL);
             if ((group & 0xffff) == 0) {
               btlUnitGetAnchorPose(nodeOrPacket,NULL,(f32 *)&rotation,NULL);
             }
             else {
-              position.x = (f32)(*(s16 *)(nodeOrPacket + 0x94) * 0x19 - 0x6d6);
-              position.y = *(f32 *)(nodeOrPacket + 8);
-              position.z = (f32)(*(s16 *)(nodeOrPacket + 0x96) * 0x19 - 0x6d6);
+              position.x = (f32)(((BtlUnit *)nodeOrPacket)->unk_94 * 0x19 - 0x6d6);
+              position.y = ((BtlUnit *)nodeOrPacket)->pos.y;
+              position.z = (f32)(((BtlUnit *)nodeOrPacket)->unk_96 * 0x19 - 0x6d6);
               btlTargetBlendVectors((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
             }
             btlUnitSetRot((BtlUnit *)nodeOrPacket, &rotation);
@@ -914,35 +918,35 @@ s32 btlMainUnitCreateUpdate(void)
       }
       btlUnitGetGroupBounds(2,0,&groupCenter,NULL,NULL,1);
       spacingIncrement = 0.0f;
-      for (unit = *(u8 **)(D_0076449C + 0x178); unit != NULL;
-          unit = *(u8 **)(unit + 0xa6c)) {
+      for (unit = ((BtlBattleState *)D_0076449C)->unitLists[0]; unit != NULL;
+          unit = *(u8* *)&((BtlUnit *)unit)->nextUnit) {
         btlUnitShowModel(unit);
-        value = datCalcIsDead(*(u32 *)(unit + 0xa64),0);
+        value = datCalcIsDead(*(u32 *)&((BtlUnit *)unit)->datUnit,0);
         if (value != 0) {
-          datCalcSetBadStatus(*(s32 *)(unit + 0xa64),0x80000);
-          datCalcSetHp(*(u32 *)(unit + 0xa64),0);
-          *(u32 *)(unit + 0x9c) |= 1;
+          datCalcSetBadStatus(*(s32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2689. */,0x80000);
+          datCalcSetHp(*(u32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2690. */,0);
+          ((BtlUnit *)unit)->flags3 |= 1;
           btlUnitUpdateStatusMotion(unit,0);
           btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagSetPacket((BtlUnit *)unit),1);
           btlPacketEnqueue((u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x13, 0, 1.0f, 2),1);
           btlPacketEnqueue((u8 *)btlUnitCreateModelFramePacket((BtlUnit *)unit,
               btlUnitMotionModelFrames(unit,0x13,1.0f)),1);
           btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagClearPacket((BtlUnit *)unit),1);
-          if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) != 0) {
-            position.x = (f32)(*(s16 *)(unit + 0x94) * 0x19 - 0x6d6);
-            position.z = (f32)(*(s16 *)(unit + 0x96) * 0x19 - 0x6d6);
+          if ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) != 0) {
+            position.x = (f32)(((BtlUnit *)unit)->unk_94 * 0x19 - 0x6d6);
+            position.z = (f32)(((BtlUnit *)unit)->unk_96 * 0x19 - 0x6d6);
             btlUnitSetPos((BtlUnit *)unit, &position);
           }
         } else {
           btlUnitGetAnchorPose(unit,(u8 *)&position,NULL,(f32 *)&targetDirection);
           btlUnitGetGroupBounds(2,0,&groupCenter,NULL,NULL,1);
-          if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) {
-            mode = *(u16 *)(D_0076449C + 0x1a);
+          if ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) == 0) {
+            mode = ((BtlBattleState *)D_0076449C)->openingSide;
             switch (mode) {
             case 2:
             {
               if ((formation->flags & 0x200) != 0) goto normal_opening;
-              if (*(u8 **)(*(s32 *)(D_0076449C + 0x170) + 0x30) != unit) {
+              if (*(u8* *)&((BtlAction *)*(s32 *)&((BtlBattleState *)D_0076449C)->selectedAction)->unit != unit) {
                 offset.x = groupCenter.x - position.x;
                 offset.z = groupCenter.z - position.z;
                 offset.y = 0.0f;
@@ -963,7 +967,7 @@ s32 btlMainUnitCreateUpdate(void)
                   offset.y = position.y;
                   btlUnitSetPos((BtlUnit *)unit, &offset);
                 }
-                btlPacketEnqueue((u8 *)btlUnitCreateRotateTowardUnitPacket((BtlUnit *)unit, (BtlUnit *)*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30), 2),1);
+                btlPacketEnqueue((u8 *)btlUnitCreateRotateTowardUnitPacket((BtlUnit *)unit, (BtlUnit *)*(u8* *)&((BtlAction *)((BtlBattleState *)D_0076449C)->selectedAction)->unit, 2),1);
               } else {
                 offset.x = position.x - groupCenter.x;
                 offset.z = position.z - groupCenter.z;
@@ -985,15 +989,15 @@ s32 btlMainUnitCreateUpdate(void)
               } else {
                 value = 0;
               }
-              *(s16 *)(nodeOrPacket + 0x4a) = value;
+              *(s16 *)&((BtlPacket *)nodeOrPacket)->duration = value;
               btlPacketEnqueue(nodeOrPacket,1);
               movePacket = (u8 *)btlUnitCreateMovePacket((BtlUnit *)unit, &position, fGpffff82cc, 8);
               *movePacket = 4;
-              *(u64 *)(movePacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+              ((BtlPacket *)movePacket)->dependencyUID = ((BtlPacket *)nodeOrPacket)->uid;
               btlPacketEnqueue(movePacket,1);
               rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);
               *rotatePacket = 4;
-              *(u64 *)(rotatePacket + 8) = *(u64 *)(movePacket + 0x58);
+              ((BtlPacket *)rotatePacket)->dependencyUID = ((BtlPacket *)movePacket)->uid;
               btlPacketEnqueue(rotatePacket,1);
             }
             goto unit_done;
@@ -1005,8 +1009,8 @@ s32 btlMainUnitCreateUpdate(void)
             }
 normal_opening:
             {
-              if ((D_0076449C[0xc64] != 1) && ((*(u32 *)(D_0076449C + 0x10) & 1) == 0)) {
-                nodeOrPacket = *(u8 **)(action + 0x30);
+              if ((D_0076449C[0xc64] != 1) && ((((BtlBattleState *)D_0076449C)->battleFlags & 1) == 0)) {
+                nodeOrPacket = *(u8 **)(action + 0x30) /* measured: BtlAction.unit typing gives 4160B, nd 2970. */;
                 if (nodeOrPacket == unit) {
                   distance = 500.0f;
                   if (nodeOrPacket != unit) {
@@ -1064,24 +1068,24 @@ normal_opening:
                 btlPacketEnqueue(nodeOrPacket,1);
                 rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);
                 *rotatePacket = 4;
-                *(u64 *)(rotatePacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+                ((BtlPacket *)rotatePacket)->dependencyUID = ((BtlPacket *)nodeOrPacket)->uid;
                 btlPacketEnqueue(rotatePacket,1);
-                value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0xfffff);
+                value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2691. */,0xfffff);
                 if (((value == 0) &&
-                    (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64)), value == 0)) &&
-                   ((*(u8 **)(action + 0x30) != unit ||
-                    (unitClassOrFrames = datCalcUnitClass(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
+                    (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2693. */), value == 0)) &&
+                   ((*(u8 **)(action + 0x30) /* measured: BtlAction.unit typing gives 4160B, nd 2970. */ != unit ||
+                    (unitClassOrFrames = datCalcUnitClass(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2692. */), unitClassOrFrames == 4)))) {
                   recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
                   *recoveryPacket = 4;
-                  *(u64 *)(recoveryPacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
-                  *(u16 *)(recoveryPacket + 0x48) = 4;
+                  ((BtlPacket *)recoveryPacket)->dependencyUID = *(u64 *)(nodeOrPacket + 0x58) /* measured: BtlPacket.uid typing gives 4160B, nd 1211. */;
+                  ((BtlPacket *)recoveryPacket)->delay = 4;
                   btlPacketEnqueue(recoveryPacket,1);
                 }
               }
             }
           }
           else {
-            value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0x180001);
+            value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2689. */,0x180001);
             if (value != 0) {
               btlTargetBlendVectors((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
               btlPacketEnqueue(btlUnitCreateOverridePacket(unit,(u8 *)&position,(u8 *)&rotation,0),0);
@@ -1104,17 +1108,17 @@ normal_opening:
               btlPacketEnqueue(nodeOrPacket,0);
               rotatePacket = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)unit, &targetDirection, 0);
               *rotatePacket = 4;
-              *(u64 *)(rotatePacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
+              ((BtlPacket *)rotatePacket)->dependencyUID = ((BtlPacket *)nodeOrPacket)->uid;
               btlPacketEnqueue(rotatePacket,1);
-              value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64),0xfffff);
+              value = datCalcChkBadStatus(*(u32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2691. */,0xfffff);
               if (((value == 0) &&
-                  (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64)), value == 0)) &&
-                 ((*(u8 **)(action + 0x30) != unit ||
-                  (unitClassOrFrames = datCalcUnitClass(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
+                  (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2693. */), value == 0)) &&
+                 ((*(u8 **)(action + 0x30) /* measured: BtlAction.unit typing gives 4160B, nd 2970. */ != unit ||
+                  (unitClassOrFrames = datCalcUnitClass(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2692. */), unitClassOrFrames == 4)))) {
                 recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
                 *recoveryPacket = 4;
-                *(u64 *)(recoveryPacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
-                *(u16 *)(recoveryPacket + 0x48) = 4;
+                ((BtlPacket *)recoveryPacket)->dependencyUID = *(u64 *)(nodeOrPacket + 0x58) /* measured: BtlPacket.uid typing gives 4160B, nd 796. */;
+                ((BtlPacket *)recoveryPacket)->delay = 4;
                 btlPacketEnqueue(recoveryPacket,1);
               }
             }
@@ -1127,56 +1131,56 @@ unit_done:
         hasSkill213 = 0;
         hasSkill214 = 0;
         hasSkill215 = 0;
-        for (unit = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); unit != 0;
-            unit = *(u8 **)(unit + 0xa6c)) {
-          if (*(u8 **)(unit + 0xa64) != NULL) {
-            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x213);
+        for (unit = ((BtlBattleState *)D_0076449C)->unitLists[(u16)group * 2]; unit != 0;
+            unit = *(u8* *)&((BtlUnit *)unit)->nextUnit) {
+          if (*(u8* *)&((BtlUnit *)unit)->datUnit != NULL) {
+            hasSkill = datCalcHasSkill(*(u8* *)&((BtlUnit *)unit)->datUnit,0x213);
             if (hasSkill != 0) {
               hasSkill213 = 1;
             }
-            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x214);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4168B, nd 3087. */,0x214);
             if (hasSkill != 0) {
               hasSkill214 = 1;
             }
-            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x215);
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4168B, nd 3087. */,0x215);
             if (hasSkill != 0) {
               hasSkill215 = 1;
             }
           }
         }
-        for (unit = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); unit != 0;
-            unit = *(u8 **)(unit + 0xa6c)) {
-          if (*(u8 **)(unit + 0xa64) != NULL) {
-            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x202);
-            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x53) != 0)
+        for (unit = ((BtlBattleState *)D_0076449C)->unitLists[(u16)group * 2]; unit != 0;
+            unit = *(u8* *)&((BtlUnit *)unit)->nextUnit) {
+          if (*(u8* *)&((BtlUnit *)unit)->datUnit != NULL) {
+            hasSkill = datCalcHasSkill(*(u8* *)&((BtlUnit *)unit)->datUnit,0x202);
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x53) != 0)
                 ) || (hasSkill214 == 1)) {
-              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64),5,1);
+              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,5,1);
             }
-            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x203);
-            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x54) != 0)
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 507. */,0x203);
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x54) != 0)
                 ) || (hasSkill213 == 1)) {
-              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64),0x40,1);
+              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x40,1);
             }
-            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x204);
-            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x55) != 0)
+            hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 507. */,0x204);
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x55) != 0)
                 ) || (hasSkill215 == 1)) {
-              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64),0x110,1);
+              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64) /* measured: BtlUnit.datUnit typing gives 4160B, nd 507. */,0x110,1);
             }
-            **(u16 **)(unit + 0xa64) = **(u16 **)(unit + 0xa64) & 0xf3ff;
+            **(u16* *)&((BtlUnit *)unit)->datUnit = **(u16* *)&((BtlUnit *)unit)->datUnit & 0xf3ff;
           }
         }
       }
       if ((formation->field04 != 0) && (formation->field06 > 0)) {
-        *(s16 *)(D_0076449C + 0xcd0) = formation->field04;
-        *(u16 *)(D_0076449C + 0xcd2) = formation->field06;
-        *(u32 *)(D_0076449C + 0xcdc) = 1;
+        ((BtlBattleState *)D_0076449C)->unkCD0 = formation->field04;
+        ((BtlBattleState *)D_0076449C)->unkCD2 = formation->field06;
+        ((BtlBattleState *)D_0076449C)->unkCDC = 1;
       }
       btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 2),0);
-      if ((*(u32 *)(D_0076449C + 0xc) & 0x100000) != 0) {
-        btlShuffleStart(*(s32 *)(D_0076449C + 0xdd4));
-        *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) & 0xffefffff;
+      if ((((BtlBattleState *)D_0076449C)->flags & 0x100000) != 0) {
+        btlShuffleStart(((BtlBattleState *)D_0076449C)->uiTask);
+        ((BtlBattleState *)D_0076449C)->flags = ((BtlBattleState *)D_0076449C)->flags & 0xffefffff;
       }
-      if ((*(u32 *)(D_0076449C + 0x10) & 1) == 0) {
+      if ((((BtlBattleState *)D_0076449C)->battleFlags & 1) == 0) {
         value = btlCurrentUnitId();
         switch (value) {
         case 0x20b:
@@ -1187,12 +1191,12 @@ unit_done:
         btlFadeStartImmediate();
         value = btlTargetCanControlDamagePhase();
         if (value == 1) {
-          *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) | 0x2000;
-          btlDamageSetSource(*(u8 **)(D_0076449C + 0xdd4),1);
+          ((BtlBattleState *)D_0076449C)->flags = ((BtlBattleState *)D_0076449C)->flags | 0x2000;
+          btlDamageSetSource(*(u8* *)&((BtlBattleState *)D_0076449C)->uiTask,1);
         }
         else {
           u8 *battle = D_0076449C;
-          *(u32 *)(battle + 0xc) = *(u32 *)(battle + 0xc) & 0xffffdfff;
+          ((BtlBattleState *)battle)->flags = ((BtlBattleState *)battle)->flags & 0xffffdfff;
           btlTargetEndDamagePhase();
         }
       }
@@ -1214,7 +1218,7 @@ unit_done:
 /* Chain enemy model loads and entry effects, followed by panel and voice playback packets. */
 void btlMainUnitLoadInit(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (748B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 748B; remaining exceptions are measured per access below. */
     extern u8 *btlUnitCreateModelLoadPacket(u8 *, u16, s16);
     extern u8 *btlEffectCreateFormationPacket(s32, s32, s32, s64, s32);
     extern u8 *btlEffectCreateLoadPacket(void);
@@ -1243,63 +1247,63 @@ void btlMainUnitLoadInit(void)
     previousUnitUID = 0;
     previousMotionUID = 0;
     unitCount = 0;
-    unit = *(u8 **)(D_0076449C + 0x180);
+    unit = ((BtlBattleState *)D_0076449C)->unitLists[2];
     cursor = unit;
     while (cursor != NULL) {
         unitCount++;
-        cursor = *(u8 **)(cursor + 0xA6C);
+        cursor = *(u8* *)&((BtlUnit *)cursor)->nextUnit;
     }
     groupMode = (unitCount < 4) + 1;
     while (unit != NULL) {
-        unitPacket = btlUnitCreateModelLoadPacket(unit, *(u16 *)(unit + 0xA4), 0x3E);
-        *(s8 *)(unitPacket + 0) = 4;
-        *(s64 *)(unitPacket + 8) = previousUnitUID;
+        unitPacket = btlUnitCreateModelLoadPacket(unit, ((BtlUnit *)unit)->charId, 0x3E);
+        *(s8 *)&((BtlPacket *)unitPacket)->dependencyKind = 4;
+        *(s64 *)&((BtlPacket *)unitPacket)->dependencyUID = previousUnitUID;
         btlPacketEnqueue(unitPacket, 1);
-        previousUnitUID = *(s64 *)(unitPacket + 0x58);
-        if (!(*(s32 *)(D_0076449C + 0x10) & 1)) {
+        previousUnitUID = *(s64 *)&((BtlPacket *)unitPacket)->uid;
+        if (!(*(s32 *)&((BtlBattleState *)D_0076449C)->battleFlags & 1)) {
             motionPacket = btlEffectCreateFormationPacket(iGpffffb450, (s32)unit, 0, 0, 0);
             motionMode = 4;
-            *(s8 *)(motionPacket + 0) = 4;
-            *(s64 *)(motionPacket + 8) = *(s64 *)(unitPacket + 0x58);
+            *(s8 *)&((BtlPacket *)motionPacket)->dependencyKind = 4;
+            *(s64 *)&((BtlPacket *)motionPacket)->dependencyUID = *(s64 *)(unitPacket + 0x58) /* measured: BtlPacket.uid typing gives 756B, nd 522. */;
             if (first == 1) {
-                *(s16 *)(motionPacket + 0x48) = 1;
+                *(s16 *)&((BtlPacket *)motionPacket)->delay = 1;
             } else {
-                *(s8 *)(motionPacket + 0x10) = 5;
-                *(s64 *)(motionPacket + 0x18) = previousMotionUID;
+                *(s8 *)&((BtlPacket *)motionPacket)->dependencyKind2 = 5;
+                *(s64 *)&((BtlPacket *)motionPacket)->dependencyUID2 = previousMotionUID;
                 if (groupMode) {
                     motionMode = 8;
                 }
-                *(s16 *)(motionPacket + 0x48) = motionMode;
+                *(s16 *)&((BtlPacket *)motionPacket)->delay = motionMode;
             }
             btlPacketEnqueue(motionPacket, 2);
-            previousMotionUID = *(s64 *)(motionPacket + 0x58);
+            previousMotionUID = *(s64 *)&((BtlPacket *)motionPacket)->uid;
             followupPacket = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFFFF, 0xC, 0, 3, 1);
-            *(s8 *)(followupPacket + 0) = 4;
-            *(s64 *)(followupPacket + 8) = *(s64 *)(unitPacket + 0x58);
-            *(s8 *)(followupPacket + 0x10) = 5;
-            *(s64 *)(followupPacket + 0x18) = previousMotionUID;
-            *(s16 *)(followupPacket + 0x48) = 0x1D;
+            *(s8 *)&((BtlPacket *)followupPacket)->dependencyKind = 4;
+            *(s64 *)&((BtlPacket *)followupPacket)->dependencyUID = *(s64 *)(unitPacket + 0x58) /* measured: BtlPacket.uid typing gives 756B, nd 522. */;
+            *(s8 *)&((BtlPacket *)followupPacket)->dependencyKind2 = 5;
+            *(s64 *)&((BtlPacket *)followupPacket)->dependencyUID2 = previousMotionUID;
+            *(s16 *)&((BtlPacket *)followupPacket)->delay = 0x1D;
             btlPacketEnqueue(followupPacket, 1);
         } else {
             simplePacket = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFFFF, 0, 0, 3, 1);
-            *(s8 *)(simplePacket + 0) = 4;
-            *(s64 *)(simplePacket + 8) = *(s64 *)(unitPacket + 0x58);
-            *(s16 *)(simplePacket + 0x48) = 2;
+            *(s8 *)&((BtlPacket *)simplePacket)->dependencyKind = 4;
+            *(s64 *)&((BtlPacket *)simplePacket)->dependencyUID = *(s64 *)(unitPacket + 0x58) /* measured: BtlPacket.uid typing gives 748B, nd 409. */;
+            *(s16 *)&((BtlPacket *)simplePacket)->delay = 2;
             btlPacketEnqueue(simplePacket, 1);
-            previousMotionUID = *(s64 *)(simplePacket + 0x58);
+            previousMotionUID = *(s64 *)&((BtlPacket *)simplePacket)->uid;
         }
         first = 0;
-        unit = *(u8 **)(unit + 0xA6C);
+        unit = *(u8* *)&((BtlUnit *)unit)->nextUnit;
     }
-    flags = *(s32 *)(D_0076449C + 0xC);
+    flags = *(s32 *)&((BtlBattleState *)D_0076449C)->flags;
     if (!(flags & 0x20000000)) {
         effectPacket = btlEffectCreateLoadPacket();
-        *(s8 *)(effectPacket + 0) = 4;
-        *(s64 *)(effectPacket + 8) = previousUnitUID;
+        *(s8 *)&((BtlPacket *)effectPacket)->dependencyKind = 4;
+        *(s64 *)&((BtlPacket *)effectPacket)->dependencyUID = previousUnitUID;
         btlPacketEnqueue(effectPacket, 1);
-        panelPacket = func_00202b60(*(s32 *)(D_0076449C + 0xDD4));
-        *(s8 *)(panelPacket + 0) = 4;
-        *(s64 *)(panelPacket + 8) = *(s64 *)(effectPacket + 0x58);
+        panelPacket = func_00202b60(((BtlBattleState *)D_0076449C)->uiTask);
+        *(s8 *)&((BtlPacket *)panelPacket)->dependencyKind = 4;
+        *(s64 *)&((BtlPacket *)panelPacket)->dependencyUID = *(s64 *)&((BtlPacket *)effectPacket)->uid;
         btlPacketEnqueue(panelPacket, 1);
         if (datGetFlag(0x38) != 0) {
             finishMode = 1;
@@ -1307,8 +1311,8 @@ void btlMainUnitLoadInit(void)
             finishMode = 0;
         }
         finishPacket = btlSoundCreateLoadPlaybackPacket((u16)finishMode);
-        *(s8 *)(finishPacket + 0) = 4;
-        *(s64 *)(finishPacket + 8) = *(s64 *)(panelPacket + 0x58);
+        *(s8 *)&((BtlPacket *)finishPacket)->dependencyKind = 4;
+        *(s64 *)&((BtlPacket *)finishPacket)->dependencyUID = *(s64 *)&((BtlPacket *)panelPacket)->uid;
         btlPacketEnqueue(finishPacket, 1);
     }
 }
@@ -1453,7 +1457,7 @@ void btlMainActionInit(void)
 /* Handle battle-end state, collect result data and select revival, victory or defeat processing. */
 s32 btlMainActionUpdate(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (1284B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 1284B; remaining exceptions are measured per access below. */
     extern s32 iGpffffb414;
     extern s32 iGpffffb410;
     u16 state;
@@ -1467,97 +1471,97 @@ s32 btlMainActionUpdate(void)
     s16 diff;
     s16 rank;
 
-    if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x80) != 0) {
+    if ((*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x80) != 0) {
         btlActionDisableQueue();
-        btlEncounterEntrySetRetracted(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
-        btlDamageSetSource(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 0);
-        state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
+        btlEncounterEntrySetRetracted(*(u8* *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->uiTask);
+        btlDamageSetSource(*(u8* *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->uiTask, 0);
+        state = *(u16 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->endState;
         switch (state) {
         case 1:
         case 3:
             if (state == 3) {
                 memset((u8 *)iGpffffb3ac + 0xCAC, 0, 0x58);
-                *(s32 *)((u8 *)iGpffffb3ac + 0xC) &= 0xDFFFFFFF;
+                *(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags &= 0xDFFFFFFF;
             } else {
-                u16 id = *(u16 *)((u8 *)iGpffffb3ac + 0xC6C);
+                u16 id = ((BtlBattleState *)(u8 *)iGpffffb3ac)->encounterIndex;
 
                 if (id < 3 && ((s32 *)(D_0076449C + 0xC84))[id] != 0) {
-                    *(s32 *)((u8 *)iGpffffb3ac + 0xC) |= 0x20000000;
+                    *(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags |= 0x20000000;
                     return 11;
                 }
-                *(s32 *)((u8 *)iGpffffb3ac + 0xC) &= 0xDFFFFFFF;
+                *(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags &= 0xDFFFFFFF;
             }
             pick = (u8 *)btlActionGetActiveOrQueueFront();
             hurt = 0;
             if (pick != NULL) {
-                switch (*(u16 *)(pick + 0x6E)) {
+                switch (((BtlAction *)pick)->unk_6e) {
                 case 0x100:
                 case 0x101:
                 case 0x102:
-                    *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 2;
+                    ((BtlBattleState *)(u8 *)iGpffffb3ac)->resultFlags |= 2;
                     hurt = 1;
                     break;
                 }
             }
             total = 0;
             alive = 0;
-            for (unit = *(u8 **)((u8 *)iGpffffb3ac + 0x17C); unit != NULL; unit = *(u8 **)(unit + 0xA68)) {
-                if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
+            for (unit = ((BtlBattleState *)(u8 *)iGpffffb3ac)->unitLists[1]; unit != NULL; unit = *(u8* *)&((BtlUnit *)unit)->prevUnit) {
+                if (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) != 0) {
                     total++;
                 } else {
-                    *(u16 *)((u8 *)iGpffffb3ac + alive * 2 + 0xCBE) = *(u16 *)(*(u8 **)(unit + 0xA64) + 2);
+                    ((BtlBattleState *)(u8 *)iGpffffb3ac)->survivingPartyIds[alive] = ((DatUnit *)*(u8 **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1280B, nd 938. */)->id;
                     alive++;
                     total++;
                 }
             }
-            *(s32 *)((u8 *)iGpffffb3ac + 0xCCC) = total;
-            *(s32 *)((u8 *)iGpffffb3ac + 0xCC8) = alive;
-            *(s32 *)((u8 *)iGpffffb3ac + 0xCE8) = *(u16 *)((u8 *)iGpffffb3ac + 0xC5A);
-            if (*(u16 *)((u8 *)iGpffffb3ac + 0xC5A) > 0) {
-                *(s32 *)((u8 *)iGpffffb3ac + 0xCE4) /= *(u16 *)((u8 *)iGpffffb3ac + 0xC5A);
+            ((BtlBattleState *)(u8 *)iGpffffb3ac)->partyUnitCount = total;
+            ((BtlBattleState *)(u8 *)iGpffffb3ac)->survivingPartyCount = alive;
+            ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkCE8 = ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkC5A;
+            if (((BtlBattleState *)(u8 *)iGpffffb3ac)->unkC5A > 0) {
+                ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkCE4 /= ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkC5A;
             }
-            if (*(u16 *)((u8 *)iGpffffb3ac + 0x1C) != 3 && btlEncountRollChance(pick) != 0 &&
-                btlShuffleSelectMember((u8 *)iGpffffb3ac + 0xCEC, *(s32 *)((u8 *)iGpffffb3ac + 0xCE4), hurt) != 0) {
-                *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 1;
+            if (*(u16 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->endState != 3 && btlEncountRollChance(pick) != 0 &&
+                btlShuffleSelectMember((u8 *)iGpffffb3ac + 0xCEC, ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkCE4, hurt) != 0) {
+                ((BtlBattleState *)(u8 *)iGpffffb3ac)->resultFlags |= 1;
             }
             if (btlEncounterIsBoss() != 0) {
-                *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 8;
+                ((BtlBattleState *)(u8 *)iGpffffb3ac)->resultFlags |= 8;
             }
-            *(s32 *)((u8 *)iGpffffb3ac + 0xCB8) = btlCurrentUnitId();
-            if (*(s32 *)((u8 *)iGpffffb414 + btlCurrentUnitId() * 0x18) & 0x2000) {
-                rank = datCalcGetLevel(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
-                diff = *(s16 *)((u8 *)iGpffffb3ac + 0xCE0) - rank;
+            ((BtlBattleState *)(u8 *)iGpffffb3ac)->resultEncounterId = btlCurrentUnitId();
+            if (*(s32 *)&((BattleOpeningEncounter *)(u8 *)iGpffffb414)[btlCurrentUnitId()].flags & 0x2000) {
+                rank = datCalcGetLevel(*(s32 *)&((BtlUnit *)*(u8* *)&((BtlAction *)((BtlBattleState *)(u8 *)iGpffffb3ac)->selectedAction)->unit)->datUnit) & 0xFF;
+                diff = ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkCE0 - rank;
                 if (diff < 0) {
                     diff = 0;
                 } else if (diff > 5) {
                     diff = 5;
                 }
-                *(u16 *)((u8 *)iGpffffb3ac + 0xCBC) = *(u8 *)((u8 *)iGpffffb410 + diff);
+                ((BtlBattleState *)(u8 *)iGpffffb3ac)->unkCBC = ((u8 *)iGpffffb410)[diff];
             }
-            for (member = *(u8 **)((u8 *)iGpffffb3ac + 0x17C); member != NULL; member = *(u8 **)(member + 0xA68)) {
-                if (*(s32 *)(member + 0xA64) != 0) {
-                    status = datCalcGetBadStatus(*(s32 *)(member + 0xA64));
-                    datCalcClearBadStatus(*(s32 *)(member + 0xA64), 0xFFF7FFFF);
+            for (member = ((BtlBattleState *)(u8 *)iGpffffb3ac)->unitLists[1]; member != NULL; member = *(u8* *)&((BtlUnit *)member)->prevUnit) {
+                if (*(s32 *)&((BtlUnit *)member)->datUnit != 0) {
+                    status = datCalcGetBadStatus(*(s32 *)&((BtlUnit *)member)->datUnit);
+                    datCalcClearBadStatus(*(s32 *)(member + 0xA64) /* measured: BtlUnit.datUnit typing gives 1272B, nd 283. */, 0xFFF7FFFF);
                     if ((status & 0x100000) == 0) {
                         btlUnitUpdateStatusMotion(member, 6);
                     }
                 }
             }
-            if ((*(u16 *)((u8 *)iGpffffb3ac + 0xCAC) & 1) != 0 &&
-                (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x20000000) == 0) {
-                btlEncounterStart(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
+            if ((((BtlBattleState *)(u8 *)iGpffffb3ac)->resultFlags & 1) != 0 &&
+                (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x20000000) == 0) {
+                btlEncounterStart(*(u8* *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->uiTask);
             }
-            *(s32 *)((u8 *)iGpffffb3ac + 0xDD0) =
-                btlShuffleCreate(*(s32 *)((u8 *)iGpffffb3ac + 0xDC8), (u8 *)iGpffffb3ac + 0xCAC);
-            btlShuffleCancel(*(s32 *)((u8 *)iGpffffb3ac + 0xDD0));
-            state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
+            ((BtlBattleState *)(u8 *)iGpffffb3ac)->shuffleTask =
+                btlShuffleCreate(((BtlBattleState *)(u8 *)iGpffffb3ac)->cutinTaskParent, (u8 *)iGpffffb3ac + 0xCAC);
+            btlShuffleCancel(((BtlBattleState *)(u8 *)iGpffffb3ac)->shuffleTask);
+            state = *(u16 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->endState;
             if (state == 1) {
-                return (*(s32 *)((u8 *)iGpffffb3ac + 0x10) & 2) ? 12 : 11;
+                return (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->battleFlags & 2) ? 12 : 11;
             }
             /* fallthrough */
         case 2:
             if (state == 2) {
-                if (*(s32 *)((u8 *)iGpffffb3ac + 0x10) & 0x20000000) {
+                if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->battleFlags & 0x20000000) {
                     return 12;
                 }
                 return btlIsLeaderStandardUnit((u8 *)iGpffffb3ac) ? 9 : 13;
@@ -1612,7 +1616,7 @@ s32 btlMainRevivalMesUpdate(void)
 /* Queue the party revival formation, HP/SP restoration and dependent camera/display sequence. */
 void btlMainRevivalInit(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (1508B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 1508B; remaining exceptions are measured per access below. */
     union {
         u8 bytes[0x20];
         s32 words[8];
@@ -1634,112 +1638,112 @@ void btlMainRevivalInit(void)
     s32 id;
     u32 target;
 
-    action = *(u8 **)(iGpffffb3ac + 0x170);
+    action = ((BtlBattleState *)iGpffffb3ac)->selectedAction;
     last = 0;
     form = btlFormationAllocWork(0);
     btlFormationFormatName(0x13D, formation);
     packet = (u8 *)btlFormationCreateNamedPacket(form, formation, 0);
-    *(s64 *)(packet + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)packet)->actionUID = *(s64 *)action;
     btlPacketEnqueue(packet, 1);
     sePacket = btlSoundCreateSkillSEPacket(0x13D, 0);
     *sePacket = 4;
-    *(s64 *)(sePacket + 8) = *(s64 *)(packet + 0x58);
-    *(s64 *)(sePacket + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)sePacket)->dependencyUID = *(s64 *)&((BtlPacket *)packet)->uid;
+    *(s64 *)&((BtlPacket *)sePacket)->actionUID = *(s64 *)action;
     btlPacketEnqueue(sePacket, 1);
     btlMainSkillColorPairDefaults(0x13D, &camA, &camB);
     next = btlMainCreateColorLerpPacket(camA, camB, 0x10);
-    *(s64 *)(next + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
     btlPacketEnqueue(next, 1);
     id = btlMainSkillColorDefault(0x13D);
     btlMainSkillColorPairDefaultsAlt(0x13D, &camA, &camB);
     next = (u8 *)btlMainCreateColorWorkPacket(id, camA, camB, 0x10, 0);
-    *(s64 *)(next + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
     btlPacketEnqueue(next, 1);
     next = btlMainCreateTintPacket(btlMainSkillTintDefault(0x13D), 0x10);
-    *(s64 *)(next + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
     btlPacketEnqueue(next, 1);
-    target = *(u32 *)(action + 0x30);
+    target = *(u32 *)&((BtlAction *)action)->unit;
     packet = (u8 *)btlFormationCreatePacket(form, target, target, 0, 0);
     *packet = 4;
-    *(s64 *)(packet + 8) = *(s64 *)(sePacket + 0x58);
-    *(s64 *)(packet + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)packet)->dependencyUID = *(s64 *)&((BtlPacket *)sePacket)->uid;
+    *(s64 *)&((BtlPacket *)packet)->actionUID = *(s64 *)action;
     btlPacketEnqueue(packet, 2);
     next = (u8 *)btlSoundCreateCueQueuePacket(0);
     *next = 5;
-    *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
+    *(s64 *)&((BtlPacket *)next)->dependencyUID = *(s64 *)&((BtlPacket *)packet)->uid;
     btlPacketEnqueue(next, 1);
-    for (unit = *(u8 **)(iGpffffb3ac + 0x178); unit != NULL; unit = *(u8 **)(unit + 0xA6C)) {
+    for (unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[0]; unit != NULL; unit = *(u8* *)&((BtlUnit *)unit)->nextUnit) {
         unitAction = btlActionFindByUnit((s32)unit);
         btlTargetClearResultBuffer(result.bytes);
-        maxHp = datCalcMaxHp(*(DatUnit **)(unit + 0xA64));
-        maxSp = datCalcMaxSp(*(DatUnit **)(unit + 0xA64));
-        result.words[0] = maxHp - datCalcGetHp(*(s32 *)(unit + 0xA64));
-        result.words[1] = maxSp - datCalcGetSp(*(s32 *)(unit + 0xA64));
-        if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
+        maxHp = datCalcMaxHp(((BtlUnit *)unit)->datUnit);
+        maxSp = datCalcMaxSp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1492B, nd 686. */);
+        result.words[0] = maxHp - datCalcGetHp(*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1500B, nd 1043. */);
+        result.words[1] = maxSp - datCalcGetSp(*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1500B, nd 1043. */);
+        if (datCalcIsDead(*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 1500B, nd 1046. */, 0) != 0) {
             result.words[3] = 0x80000;
         }
         next = btlPacketCreateHpRatio(unit);
-        *(s64 *)(next + 0x60) = *(s64 *)action;
+        *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
         btlPacketEnqueue(next, 1);
         packet = (u8 *)btlFormationCreatePacket(form, (u32)unit, (u32)unit, 1, 0);
         packet[0] = 4;
-        *(s64 *)(packet + 8) = *(s64 *)(sePacket + 0x58);
+        *(s64 *)&((BtlPacket *)packet)->dependencyUID = *(s64 *)(sePacket + 0x58) /* measured: BtlPacket.uid typing gives 1492B, nd 772. */;
         packet[0x10] = 4;
-        *(s64 *)(packet + 0x18) = last;
-        *(s64 *)(packet + 0x60) = *(s64 *)action;
+        *(s64 *)&((BtlPacket *)packet)->dependencyUID2 = last;
+        *(s64 *)&((BtlPacket *)packet)->actionUID = *(s64 *)action;
         btlPacketEnqueue(packet, 2);
         next = (u8 *)btlSoundCreateCueQueuePacket(1);
         *next = 5;
-        *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
+        *(s64 *)&((BtlPacket *)next)->dependencyUID = *(s64 *)&((BtlPacket *)packet)->uid;
         btlPacketEnqueue(next, 1);
         camera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(unitAction), (u16)(0x1B));
         camera[0] = 5;
-        *(s64 *)(camera + 8) = *(s64 *)(packet + 0x58);
+        *(s64 *)&((BtlPacket *)camera)->dependencyUID = *(s64 *)(packet + 0x58) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
         camera[0x20] = 0xB;
-        *(s64 *)(camera + 0x28) = *(s64 *)(packet + 0x58);
-        *(s16 *)(camera + 0x4A) = 0x12;
-        *(s64 *)(camera + 0x60) = *(s64 *)action;
+        *(s64 *)&((BtlPacket *)camera)->dependencyUID3 = *(s64 *)(packet + 0x58) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+        *(s16 *)&((BtlPacket *)camera)->duration = 0x12;
+        *(s64 *)&((BtlPacket *)camera)->actionUID = *(s64 *)action;
         btlPacketEnqueue(camera, 0);
-        last = *(s64 *)(camera + 0x58);
-        if ((result.words[3] & 0x80000) != 0 && (*(s32 *)(unit + 0x9C) & 0x200) != 0) {
+        last = *(s64 *)&((BtlPacket *)camera)->uid;
+        if ((result.words[3] & 0x80000) != 0 && (*(s32 *)&((BtlUnit *)unit)->flags3 & 0x200) != 0) {
             next = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(unit), (s16)(0x14), (u16)(0), 1.0f, (u16)(0));
             *next = 0xB;
-            *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
-            *(s64 *)(next + 0x60) = *(s64 *)action;
+            *(s64 *)&((BtlPacket *)next)->dependencyUID = *(s64 *)(packet + 0x58) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+            *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
             btlPacketEnqueue(next, 1);
         }
         unitAction = (u8 *)btlTargetCreateDataPacket((s32)unitAction, (s32)unitAction, result.bytes, 1, 1);
         *unitAction = 0xB;
-        *(s64 *)(unitAction + 8) = *(s64 *)(packet + 0x58);
-        *(s64 *)(unitAction + 0x60) = *(s64 *)action;
+        *(s64 *)&((BtlPacket *)unitAction)->dependencyUID = *(s64 *)(packet + 0x58) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+        *(s64 *)&((BtlPacket *)unitAction)->actionUID = *(s64 *)action;
         btlPacketEnqueue(unitAction, 1);
         if (result.words[0] != 0) {
             next = btlPacketCreateUnitCounter((s32)unit, 0, 0);
             *next = 4;
-            *(s64 *)(next + 8) = *(s64 *)(unitAction + 0x58);
+            *(s64 *)&((BtlPacket *)next)->dependencyUID = *(s64 *)&((BtlPacket *)unitAction)->uid;
             next[0x47] &= 0xDF;
             btlPacketEnqueue(next, 3);
         }
         next = btlPacketCreateHitDisplay((s32)unit, (s32)unit, -1, 0, 0, 0, 1, result.bytes, 0);
         *next = 4;
-        *(s64 *)(next + 8) = *(s64 *)(unitAction + 0x58);
+        *(s64 *)&((BtlPacket *)next)->dependencyUID = *(s64 *)&((BtlPacket *)unitAction)->uid;
         next[0x47] &= 0xDF;
         btlPacketEnqueue(next, 3);
     }
     next = btlCreateTimingPacket(0x10);
     *next = 4;
-    *(s64 *)(next + 8) = last;
-    *(s64 *)(next + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)next)->dependencyUID = last;
+    *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
     btlPacketEnqueue(next, 1);
     next = btlMainCreateFadePacket(0x10, 0);
     *next = 4;
-    *(s64 *)(next + 8) = last;
-    *(s64 *)(next + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)next)->dependencyUID = last;
+    *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
     btlPacketEnqueue(next, 1);
     next = btlMainCreateColorFadePacket(0x10);
     *next = 4;
-    *(s64 *)(next + 8) = last;
-    *(s64 *)(next + 0x60) = *(s64 *)action;
+    *(s64 *)&((BtlPacket *)next)->dependencyUID = last;
+    *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
     btlPacketEnqueue(next, 1);
     btlFormationSetPlacement(form);
 }
@@ -1826,7 +1830,7 @@ s32 btlMainIsNotWinPhase(s32 *phase)
  * See docs/Battle_camera_sequence_20261005.md for the finite source/native scope. */
 // FUN_001B4880
 void btlMainWinInit(u8 *phaseWork) {
-    /* Typed action/unit/packet fields changed MWCC codegen (2704B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 2704B; remaining exceptions are measured per access below. */
     extern void btlTargetEndDamagePhase(void);
     extern void btlDamageSetSource(u8 *phaseWork, s32);
     extern void btlTargetResetCommandRecord(u8 *phaseWork);
@@ -1864,24 +1868,24 @@ void btlMainWinInit(u8 *phaseWork) {
     s32 color;
     work = (BtlCameraSequenceWork *)phaseWork;
     base = (u8 *)btlActionGetActiveOrQueueFront();
-    if ((base == 0) || (*(u8 *)(*(u8 **)(base + 0x30) + 0xA2) == 1)) {
-        base = *(u8 **)(iGpffffb3ac + 0x170);
+    if ((base == 0) || (((BtlUnit *)*(u8* *)&((BtlAction *)base)->unit)->genus == 1)) {
+        base = ((BtlBattleState *)iGpffffb3ac)->selectedAction;
     }
     livingCount = 0;
-    livingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+    livingUnit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
     while (livingUnit != 0) {
-        if (((*(u32 *)(livingUnit + 0x9C) & 8) != 0) && (datCalcIsDead(*(s32 *)(livingUnit + 0xA64), 0) == 0)) {
+        if (((((BtlUnit *)livingUnit)->flags3 & 8) != 0) && (datCalcIsDead(*(s32 *)&((BtlUnit *)livingUnit)->datUnit, 0) == 0)) {
             livingCount = (livingCount + 1) & 0xFFFF;
         }
-        livingUnit = *(u8 **)(livingUnit + 0xA68);
+        livingUnit = *(u8* *)&((BtlUnit *)livingUnit)->prevUnit;
     }
-    if (((livingCount & 0xFFFF) > 1) && ((*(u16 *)(iGpffffb3ac + 0xCAC) & 3) != 0)) {
+    if (((livingCount & 0xFFFF) > 1) && ((((BtlBattleState *)iGpffffb3ac)->resultFlags & 3) != 0)) {
         work->singleUnit = 0;
     } else {
         work->singleUnit = 1;
     }
-    animationFrames = btlUnitMotionModelFrames(*(u8 **)(base + 0x30), 0x15, 1.0f);
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0) {
+    animationFrames = btlUnitMotionModelFrames(*(u8* *)&((BtlAction *)base)->unit, 0x15, 1.0f);
+    if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) != 0) {
         if (animationFrames > 0x28) {
             if (animationFrames > 8) {
                 remainingAnimationFrames = animationFrames - 8;
@@ -1902,65 +1906,65 @@ void btlMainWinInit(u8 *phaseWork) {
         work->duration = work->animationFrames;
     } else {
         btlTargetEndDamagePhase();
-        *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & 0xFFFFDFFF;
-        btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
+        *(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags = *(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0xFFFFDFFF;
+        btlDamageSetSource(*(u8* *)&((BtlBattleState *)iGpffffb3ac)->uiTask, 0);
         work->animationFrames = animationFrames;
         work->duration = 0x14;
     }
     work->delay = 0xC;
     work->interrupted = 0;
     btlTargetResetCommandRecord(base + 0x38);
-    *(u8 **) (base + 0x38) = base;
-    *(u16 *)(base + 0x6A) = 1;
+    ((BtlAction *)base)->targets[0] = base;
+    ((BtlAction *)base)->unk_6a = 1;
     {
-        u8 *actionNode = *(u8 **)(iGpffffb3ac + 0x174);
+        u8 *actionNode = ((BtlBattleState *)iGpffffb3ac)->actions;
         while (actionNode != 0) {
-            if ((*(u16 *)(actionNode + 0x1A) & 1) != 0) {
-                unit = *(u8 **)(actionNode + 0x30);
-                if ((*(u8 *)(unit + 0xA2) == 1) && (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0)) {
-                    pkt = btlUnitCreateResourceFreePacket(*(u8 **)(actionNode + 0x30));
-                    *(s64 *)(pkt + 0x60) = *(s64 *)base;
-                    *(u16 *)(pkt + 0x48) = work->delay;
+            if ((((BtlAction *)actionNode)->unk_1a & 1) != 0) {
+                unit = *(u8* *)&((BtlAction *)actionNode)->unit;
+                if ((((BtlUnit *)unit)->genus == 1) && (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) != 0)) {
+                    pkt = btlUnitCreateResourceFreePacket(*(u8 **)(actionNode + 0x30) /* measured: BtlAction.unit typing gives 2692B, nd 1590. */);
+                    *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
+                    ((BtlPacket *)pkt)->delay = work->delay;
                     btlPacketEnqueue(pkt, 0);
                 }
             }
-            actionNode = *(u8 **)(actionNode + 0x450);
+            actionNode = *(u8* *)&((BtlAction *)actionNode)->next;
         }
     }
-    pkt = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(base + 0x30), 0x15, 0, 1.0f, 2);
-    *(u16 *)(pkt + 0x48) = work->delay;
-    *(s64 *)(pkt + 0x60) = *(s64 *)base;
+    pkt = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(base + 0x30) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */, 0x15, 0, 1.0f, 2);
+    ((BtlPacket *)pkt)->delay = work->delay;
+    *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
     btlPacketEnqueue(pkt, 0);
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
+    if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) == 0) {
         u8 *const callbackPacket = func_00194c90(btlMainIsNotWinPhase, phaseWork);
         btlPacketEnqueue(callbackPacket, 1);
         {
-            u8 *const transitionPacket = btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xDC0), *(s32 *)(base + 0x30), 0, *(s64 *)(callbackPacket + 0x58), 0x34100);
+            u8 *const transitionPacket = btlEffectCreateFormationPacket(*(s32 *)&((BtlBattleState *)iGpffffb3ac)->formations[47], *(s32 *)(base + 0x30) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */, 0, *(s64 *)&((BtlPacket *)callbackPacket)->uid, 0x34100);
             s32 transitionDelay;
             if (work->delay > 2) {
                 transitionDelay = work->delay - 2;
             } else {
                 transitionDelay = 0;
             }
-            *(s16 *)(transitionPacket + 0x48) = transitionDelay;
-            *(s16 *)(transitionPacket + 0x4A) = 6;
-            *(s64 *)(transitionPacket + 0x60) = *(s64 *)base;
+            *(s16 *)&((BtlPacket *)transitionPacket)->delay = transitionDelay;
+            *(s16 *)&((BtlPacket *)transitionPacket)->duration = 6;
+            *(s64 *)&((BtlPacket *)transitionPacket)->actionUID = *(s64 *)base;
             btlPacketEnqueue(transitionPacket, 2);
         }
         if (work->singleUnit == 1) {
-            unit = *(u8 **)(base + 0x30);
-            rotation.value = *(BtlCameraSequenceRotation *)(unit + 0x1C);
+            unit = *(u8 **)(base + 0x30) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */;
+            rotation.value = *(BtlCameraSequenceRotation *)&((BtlUnit *)unit)->rot;
         } else {
             rotation = *(struct CameraRotation *)D_0060A110;
         }
         func_003dc740((struct RtQuat *)&rotation, (const struct RwV3d *)D_0060A0E0, 180.0f, 2);
         pkt = btlQuatMatrixPacketCreate((f32 *)&rotation, 0);
-        *(s16 *)(pkt + 0x48) = work->delay + 1;
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        *(s16 *)&((BtlPacket *)pkt)->delay = work->delay + 1;
+        *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);
         pkt = (u8 *)btlMainCreateColorWorkPacket((s32)0xFF808080U, (s32)0xFF88C3FFU, (s32)0xFFCFFCF6U, 0, 0);
-        *(s16 *)(pkt + 0x48) = work->delay + 1;
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        *(s16 *)&((BtlPacket *)pkt)->delay = work->delay + 1;
+        *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);
         palette = (u8 *)kwlnGetColorBytes();
         ambientRed = (1.0f / 255.0f) * (f32)palette[0];
@@ -1972,76 +1976,76 @@ void btlMainWinInit(u8 *phaseWork) {
         ambientAlpha = (1.0f / 255.0f) * (f32)palette[3];
         color = btlCameraBlendAmbient(ambientRed, ambientGreen, ambientBlue, ambientAlpha);
         pkt = btlColorBlendPacketCreate(color, 0);
-        *(u16 *)(pkt + 0x48) = work->delay;
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        ((BtlPacket *)pkt)->delay = work->delay;
+        *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);
     }
     if (work->singleUnit == 0) {
         u8 *const dependencyPacket = btlFormationCreateActionPacket(base);
         u8 *pkt2;
         u8 *node;
-        *(u16 *)(dependencyPacket + 0x48) = work->delay;
-        *(s64 *)(dependencyPacket + 0x60) = *(s64 *)base;
+        ((BtlPacket *)dependencyPacket)->delay = work->delay;
+        *(s64 *)&((BtlPacket *)dependencyPacket)->actionUID = *(s64 *)base;
         btlPacketEnqueue(dependencyPacket, 0);
-        if (((*(u16 *)(iGpffffb3ac + 0xCAC) & 1) == 0) && ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0)) {
+        if (((((BtlBattleState *)iGpffffb3ac)->resultFlags & 1) == 0) && ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) == 0)) {
             pkt = (u8 *)func_001f99c0((BtlAction *)base, 4, 0, 0, 0);
-            *(u16 *)(pkt + 0x48) = work->delay;
-            *(s64 *)(pkt + 0x60) = *(s64 *)base;
+            ((BtlPacket *)pkt)->delay = work->delay;
+            *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
             btlPacketEnqueue(pkt, 1);
         }
-        node = *(u8 **)(iGpffffb3ac + 0x17C);
+        node = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
         while (node != 0) {
-            if ((*(u32 *)(node + 0x9C) & 8) != 0) {
-                if (datCalcIsDead(*(s32 *)(node + 0xA64), 0) != 0) {
+            if ((((BtlUnit *)node)->flags3 & 8) != 0) {
+                if (datCalcIsDead(*(s32 *)&((BtlUnit *)node)->datUnit, 0) != 0) {
                     u8 *deadPacket = (u8 *)btlUnitCreateHidePacket((BtlUnit *)node);
-                    *(u8 *)(deadPacket + 0) = 4;
-                    *(s64 *)(deadPacket + 8) = *(s64 *)(dependencyPacket + 0x58);
-                    *(s64 *)(deadPacket + 0x60) = *(s64 *)base;
+                    ((BtlPacket *)deadPacket)->dependencyKind = 4;
+                    *(s64 *)&((BtlPacket *)deadPacket)->dependencyUID = *(s64 *)&((BtlPacket *)dependencyPacket)->uid;
+                    *(s64 *)&((BtlPacket *)deadPacket)->actionUID = *(s64 *)base;
                     btlPacketEnqueue(deadPacket, 0);
-                } else if (*(u8 **)(base + 0x30) != node) {
+                } else if (*(u8 **)(base + 0x30) /* measured: BtlAction.unit typing gives 2700B, nd 1890. */ != node) {
                     pkt2 = (u8 *)btlUnitCreateMovePacket((BtlUnit *)node, NULL, fGpffff82cc, 0x18);
-                    *(u8 *)(pkt2 + 0) = 4;
-                    *(s64 *)(pkt2 + 8) = *(s64 *)(dependencyPacket + 0x58);
-                    *(s64 *)(pkt2 + 0x60) = *(s64 *)base;
+                    ((BtlPacket *)pkt2)->dependencyKind = 4;
+                    *(s64 *)&((BtlPacket *)pkt2)->dependencyUID = *(s64 *)&((BtlPacket *)dependencyPacket)->uid;
+                    *(s64 *)&((BtlPacket *)pkt2)->actionUID = *(s64 *)base;
                     btlPacketEnqueue(pkt2, 0);
                     pkt3 = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)node, 0x15, 0, 1.0f, 2);
-                    *(u8 *)(pkt3 + 0) = 4;
-                    *(s64 *)(pkt3 + 8) = *(s64 *)(pkt2 + 0x58);
-                    *(s64 *)(pkt3 + 0x60) = *(s64 *)base;
+                    ((BtlPacket *)pkt3)->dependencyKind = 4;
+                    *(s64 *)&((BtlPacket *)pkt3)->dependencyUID = *(s64 *)&((BtlPacket *)pkt2)->uid;
+                    *(s64 *)&((BtlPacket *)pkt3)->actionUID = *(s64 *)base;
                     btlPacketEnqueue(pkt3, 0);
                 }
             }
-            node = *(u8 **)(node + 0xA68);
+            node = *(u8* *)&((BtlUnit *)node)->prevUnit;
         }
         pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)base, 0x26);
-        *(u16 *)(pkt + 0x48) = work->delay;
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        ((BtlPacket *)pkt)->delay = work->delay;
+        *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
         btlPacketEnqueue(pkt, 0);
         return;
     }
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
+    if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) == 0) {
         pkt = (u8 *)btlTargetCreateTargetPacket((u32)base, 0xF, 0, 0, 3);
-        *(u16 *)(pkt + 0x48) = work->delay;
+        ((BtlPacket *)pkt)->delay = work->delay;
         btlPacketEnqueue(pkt, 1);
         pkt = (u8 *)func_001f99c0((BtlAction *)base, 4, 0, 0, 0);
-        *(u16 *)(pkt + 0x48) = work->delay;
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        ((BtlPacket *)pkt)->delay = work->delay;
+        *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);
     }
     {
-        u8 *singleUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+        u8 *singleUnit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
         while (singleUnit != 0) {
-            if (((*(u32 *)(singleUnit + 0x9C) & 8) != 0) && (*(u8 **)(base + 0x30) != singleUnit)) {
+            if (((((BtlUnit *)singleUnit)->flags3 & 8) != 0) && (*(u8 **)(base + 0x30) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */ != singleUnit)) {
                 pkt = (u8 *)btlUnitCreateHidePacket((BtlUnit *)singleUnit);
-                *(u16 *)(pkt + 0x48) = work->delay;
-                *(s64 *)(pkt + 0x60) = *(s64 *)base;
+                ((BtlPacket *)pkt)->delay = work->delay;
+                *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
                 btlPacketEnqueue(pkt, 0);
             }
-            singleUnit = *(u8 **)(singleUnit + 0xA68);
+            singleUnit = *(u8* *)&((BtlUnit *)singleUnit)->prevUnit;
         }
         pkt = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)base, 0x25);
-        *(u16 *)(pkt + 0x48) = work->delay;
-        *(s64 *)(pkt + 0x60) = *(s64 *)base;
+        ((BtlPacket *)pkt)->delay = work->delay;
+        *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
         btlPacketEnqueue(pkt, 0);
     }
 }
@@ -2050,57 +2054,57 @@ void btlMainWinInit(u8 *phaseWork) {
 /* Wait for the victory sequence and optional shuffle intro, allowing the configured input skip. */
 s32 btlMainWinUpdate(u8 *phaseWork)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (512B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 512B; remaining exceptions are measured per access below. */
     u8 *p;
     u16 limit;
     s32 hit;
 
     p = phaseWork;
-    if ((*(s32 *)(p + 8) > (*(u16 *)(p + 0xC) + *(u16 *)(p + 0xE))) &&
-        (*(s32 *)(p + 0x14) == 0) &&
-        ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) &&
+    if ((((BtlCameraSequenceWork *)p)->frame > (((BtlCameraSequenceWork *)p)->delay + ((BtlCameraSequenceWork *)p)->duration)) &&
+        (((BtlCameraSequenceWork *)p)->interrupted == 0) &&
+        ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) == 0) &&
         ((D_008C024C[0] & 0x10) != 0 ||
          (D_008C024E[0] & 0x40) != 0)) {
         u8 *work;
 
         work = (u8 *)btlTargetCreateEmptyPacket();
-        *(u16 *)(work + 0x4A) = 0xC;
+        ((BtlPacket *)work)->duration = 0xC;
         btlPacketEnqueue(work, 1);
         btlSoundStopBank3();
-        *(s32 *)(p + 0x14) = 1;
+        *(s32 *)(p + 0x14) /* measured: BtlCameraSequenceWork.interrupted typing gives 488B, nd 344. */ = 1;
     }
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0 &&
-        (*(s32 *)(p + 8) == *(u16 *)(p + 0x12))) {
-        btlDamageStartFlash(*(s32 *)(iGpffffb3ac + 0xDD4));
+    if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) != 0 &&
+        (*(s32 *)(p + 8) /* measured: BtlCameraSequenceWork.frame typing gives 488B, nd 346. */ == ((BtlCameraSequenceWork *)p)->soundFrame)) {
+        btlDamageStartFlash(((BtlBattleState *)iGpffffb3ac)->uiTask);
     }
-    if ((*(u16 *)(iGpffffb3ac + 0xCAC) & 1) == 0) {
+    if ((((BtlBattleState *)iGpffffb3ac)->resultFlags & 1) == 0) {
         goto after_cac;
     }
-    limit = *(u16 *)(p + 0xC);
-    hit = *(s32 *)(p + 8) < limit;
+    limit = *(u16 *)(p + 0xC) /* measured: BtlCameraSequenceWork.delay typing gives 488B, nd 345. */;
+    hit = *(s32 *)(p + 8) /* measured: BtlCameraSequenceWork.frame typing gives 492B, nd 329. */ < limit;
     if (hit != 0) {
         goto after_cac;
     }
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0) {
+    if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) != 0) {
         goto after_cac;
     }
-    if (*(s32 *)(p + 8) == limit) {
-        btlEncounterSetReady(*(s32 *)(iGpffffb3ac + 0xDD4));
+    if (*(s32 *)(p + 8) /* measured: BtlCameraSequenceWork.frame typing gives 492B, nd 329. */ == limit) {
+        btlEncounterSetReady(((BtlBattleState *)iGpffffb3ac)->uiTask);
         return 0;
     }
-    if (btlEncounterIsIntroDone(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
+    if (btlEncounterIsIntroDone(((BtlBattleState *)iGpffffb3ac)->uiTask) == 0) {
         return 0;
     }
 after_cac:
     if ((u32)btlCountUnitRecords() < 3) {
-        if (*(s32 *)(p + 0x14) == 0) {
-            hit = *(s32 *)(p + 8);
-            hit = hit < (*(u16 *)(p + 0xC) + *(u16 *)(p + 0x10));
+        if (((BtlCameraSequenceWork *)p)->interrupted == 0) {
+            hit = *(s32 *)(p + 8) /* measured: BtlCameraSequenceWork.frame typing gives 488B, nd 346. */;
+            hit = hit < (*(u16 *)(p + 0xC) /* measured: BtlCameraSequenceWork.delay typing gives 488B, nd 345. */ + ((BtlCameraSequenceWork *)p)->animationFrames);
             if (hit != 0) {
                 goto return_zero;
             }
         }
-        if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
+        if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) == 0) {
             return 0xE;
         }
         return 4;
@@ -2200,14 +2204,14 @@ done:
 /* Wait for shuffle, encounter UI and fade completion before entering final cleanup. */
 s32 btlMainFadeOutUpdate(u8 *phaseWork)
 {
-    /* Typed phase-word access changed codegen (380B trial); +0xC is the signed finish-request word. */
+    /* Historical whole-layout trial: 380B; finish-request exceptions are measured per access below. */
     if (*(u16 *)&((BtlBattleState *)iGpffffb3ac)->endState == 2) {
         goto state_two;
     }
     if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x400) == 0) {
         goto no_four_hundred;
     }
-    if (*(s32 *)(phaseWork + 0xC) != 0) {
+    if (((BtlMainFadeOutWork *)phaseWork)->finishRequested != 0) {
         goto check_status;
     }
     if (btlShuffleIsCanceled(((BtlBattleState *)iGpffffb3ac)->shuffleTask) != 0) {
@@ -2221,9 +2225,9 @@ s32 btlMainFadeOutUpdate(u8 *phaseWork)
     }
     btlEncounterSetFinish(((BtlBattleState *)iGpffffb3ac)->uiTask);
 set_status:
-    *(s32 *)(phaseWork + 0xC) = 1;
+    *(s32 *)(phaseWork + 0xC) /* measured: BtlMainFadeOutWork.finishRequested typing gives 392B, nd 271. */ = 1;
 check_status:
-    if (*(s32 *)(phaseWork + 0xC) != 1) {
+    if (*(s32 *)(phaseWork + 0xC) /* measured: BtlMainFadeOutWork.finishRequested typing gives 392B, nd 272. */ != 1) {
         goto return_zero;
     }
     if ((((BtlBattleState *)iGpffffb3ac)->resultFlags & 1) == 0) {
@@ -2266,7 +2270,7 @@ return_zero:
 // FUN_001B5970
 void btlMainEndInit(void)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (972B trial); retain the proven byte offsets for MATCH. */
+    /* Historical whole-layout trial: 972B; remaining exceptions are measured per access below. */
     s32 restorePartySp;
     s32 restorePartyHp;
     s32 persona;
@@ -2279,62 +2283,62 @@ void btlMainEndInit(void)
     u8 *action;
     u8 *unit;
 
-    if (*(u16 *)(D_0076449C + 0x1C) == 1) {
+    if (*(u16 *)&((BtlBattleState *)D_0076449C)->endState == 1) {
         if (datGetFlag(0x38) != 0) personaId = 5; else personaId = 8;
         persona = (s32)datPersonaGetRecord(personaId & 0xFFFF);
         restorePartyHp = datPersonaFindSkillSlot((u8 *)persona, 0x10E) != -1;
         restorePartySp = datPersonaFindSkillSlot((u8 *)persona, 0x10F) != -1;
-        unit = *(u8 **)(D_0076449C + 0x178);
+        unit = ((BtlBattleState *)D_0076449C)->unitLists[0];
         goto loop_16_check;
 loop_16:
-        if ((*(s32 *)(unit + 0xA64) != 0) &&
-            (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) == 0)) {
-            if (datCalcHasSkill((u8 *)*(s32 *)(unit + 0xA64), 0x224) != 0) {
-                datCalcSetHp(*(s32 *)(unit + 0xA64), datCalcMaxHp(*(DatUnit **)(unit + 0xA64)));
-                datCalcSetSp(*(s32 *)(unit + 0xA64), datCalcMaxSp(*(DatUnit **)(unit + 0xA64)));
-            } else if (datCalcHasSkill((u8 *)*(s32 *)(unit + 0xA64), 0x223) != 0) {
-                datCalcAddHp((DatUnit *)*(s32 *)(unit + 0xA64), ((datCalcMaxHp(*(DatUnit **)(unit + 0xA64)) & 0xFFFF) * 100) / 1250);
-                datCalcAddSp((DatUnit *)*(s32 *)(unit + 0xA64), ((datCalcMaxSp(*(DatUnit **)(unit + 0xA64)) & 0xFFFF) * 100) / 1250);
+        if ((*(s32 *)&((BtlUnit *)unit)->datUnit != 0) &&
+            (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) == 0)) {
+            if (datCalcHasSkill((u8 *)*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, 0x224) != 0) {
+                datCalcSetHp(*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, datCalcMaxHp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */));
+                datCalcSetSp(*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, datCalcMaxSp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */));
+            } else if (datCalcHasSkill((u8 *)*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, 0x223) != 0) {
+                datCalcAddHp((DatUnit *)*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxHp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 1250);
+                datCalcAddSp((DatUnit *)*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxSp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 1250);
             }
-            if (restorePartyHp != 0) datCalcAddHp((DatUnit *)*(s32 *)(unit + 0xA64), ((datCalcMaxHp(*(DatUnit **)(unit + 0xA64)) & 0xFFFF) * 100) / 2000);
-            if (restorePartySp != 0) datCalcAddSp((DatUnit *)*(s32 *)(unit + 0xA64), ((datCalcMaxSp(*(DatUnit **)(unit + 0xA64)) & 0xFFFF) * 100) / 2000);
+            if (restorePartyHp != 0) datCalcAddHp((DatUnit *)*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxHp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 2000);
+            if (restorePartySp != 0) datCalcAddSp((DatUnit *)*(s32 *)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxSp(*(DatUnit **)(unit + 0xA64) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 2000);
         }
-        unit = *(u8 **)(unit + 0xA6C);
+        unit = *(u8* *)&((BtlUnit *)unit)->nextUnit;
 loop_16_check:
         if (unit != NULL) goto loop_16;
     }
     btlCameraSuppressEncounterCallback();
-    btlPanelReset(*(s32 *)(D_0076449C + 0xDD4));
-    buffUnit = *(u8 **)(D_0076449C + 0x178);
+    btlPanelReset(((BtlBattleState *)D_0076449C)->uiTask);
+    buffUnit = ((BtlBattleState *)D_0076449C)->unitLists[0];
     goto loop_21_check;
 loop_21:
-    unitData = *(s32 *)(buffUnit + 0xA64);
+    unitData = *(s32 *)&((BtlUnit *)buffUnit)->datUnit;
     if (unitData != 0) datCalcClearAllBuffs((u8 *)unitData);
-    buffUnit = *(u8 **)(buffUnit + 0xA6C);
+    buffUnit = *(u8* *)&((BtlUnit *)buffUnit)->nextUnit;
 loop_21_check:
     if (buffUnit != NULL) goto loop_21;
     if (datGetFlag(0x3D) == 0) {
         for (unitId = 1; unitId < 0xB; ++unitId)
-            *(s8 *)(datUnitGetRecord(unitId) + 0x10) = 0;
+            ((DatUnit *)datUnitGetRecord(unitId))->aiTactic = 0;
     }
-    action = *(u8 **)(D_0076449C + 0x174);
+    action = ((BtlBattleState *)D_0076449C)->actions;
     goto loop_30_check;
 loop_30:
-    if (*(u16 *)(action + 0xC) != 0x24) btlActionSetState((BtlAction *)action, 0x24);
-    action = *(u8 **)(action + 0x450);
+    if (((BtlAction *)action)->currState != 0x24) btlActionSetState((BtlAction *)action, 0x24);
+    action = *(u8* *)&((BtlAction *)action)->next;
 loop_30_check:
     if (action != NULL) goto loop_30;
     btlUnitRecordCommitPending();
     battle = D_0076449C;
-    if ((*(s32 *)(battle + 0x10) & 0x20000000) &&
-        datCalcIsDead(*(s32 *)(*(u8 **)(((BtlBattleState *)battle)->selectedAction + 0x30) + 0xA64), 0) != 0) {
-        datCalcSetHp(*(s32 *)(*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30) + 0xA64), 1);
-        datCalcClearBadStatus(*(s32 *)(*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30) + 0xA64), 0x80000);
+    if ((*(s32 *)&((BtlBattleState *)battle)->battleFlags & 0x20000000) &&
+        datCalcIsDead(*(s32 *)&((BtlUnit *)*(u8* *)&((BtlAction *)((BtlBattleState *)battle)->selectedAction)->unit)->datUnit, 0) != 0) {
+        datCalcSetHp(*(s32 *)&((BtlUnit *)*(u8* *)&((BtlAction *)((BtlBattleState *)D_0076449C)->selectedAction)->unit)->datUnit, 1);
+        datCalcClearBadStatus(*(s32 *)&((BtlUnit *)*(u8* *)&((BtlAction *)((BtlBattleState *)D_0076449C)->selectedAction)->unit)->datUnit, 0x80000);
     }
-    uiTask = *(s32 *)(D_0076449C + 0xDD4);
+    uiTask = ((BtlBattleState *)D_0076449C)->uiTask;
     if (uiTask != 0) {
         kwlnTaskDestroyWithHierarchy((KwlnTask *)uiTask);
-        *(s32 *)(D_0076449C + 0xDD4) = 0;
+        ((BtlBattleState *)D_0076449C)->uiTask = 0;
     }
 }
 
