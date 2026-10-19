@@ -167,7 +167,7 @@ void kAssertFailAt(const void *msg, const void *file, u32 line);
 void kAssertFailMsg(char* file, s32 line, char* msg, s32 value);
 void memset(void* dst, s32 value, s32 size);
 void memcpy(void* dst, void* src, s32 size);
-void func_0046a2d0(char* file, s32 line);
+void poolSetAllocationSite(char* file, s32 line);
 u8* poolAlloc(s32 size);
 void poolFree(void* ptr);
 u32 kwlnTaskGetWork(void* task);
@@ -594,7 +594,7 @@ s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIn
     u8* text;
     s32 task;
 
-    func_0046a2d0(D_0063E3D0, 0x275);
+    poolSetAllocationSite(D_0063E3D0, 0x275);
     text = poolAlloc(size);
     memset(text, 0, size);
     memcpy(text, (void*)source, size);

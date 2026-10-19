@@ -3,7 +3,7 @@
 #include "type.h"
 #include "sdk_task_registration.h"
 
-extern void func_0046a2d0(const void *file, u32 line);
+extern void poolSetAllocationSite(const void *file, u32 line);
 extern s32 H_Calloc(s32, s32);
 
 extern void kAssertFail(const void *file, u32 line);
@@ -21,7 +21,7 @@ void gameSequenceStart(void)
 {
     s32 work;
 
-    func_0046a2d0(D_005E51C0, 0x178);
+    poolSetAllocationSite(D_005E51C0, 0x178);
     work = H_Calloc(1, 0x10);
     if (work != 0) {
         (s32)kwlnTaskCreate((const void *)(D_005E51D0), 0x100, 0, 0, clndSceneUpdate, taskReleaseSlotModel, (u8 *)(work));
