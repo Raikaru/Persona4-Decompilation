@@ -4,12 +4,18 @@
 #include "type.h"
 
 /* PrimAllocQueueNode callers install a draw callback at +8 and its payload
- * at +0x10 before PrimAppendNode links the packet. Other fields are opaque. */
+ * at +0x10. Field draw commands also install the closing callback at +0x0C. */
 typedef struct PrimQueueNode {
     u8 pad00[8];
     void *callback;
-    u8 pad0C[4];
+    void *endCallback;
     union { s32 handle; u8 *data; } argument;
 } PrimQueueNode;
+
+/* The world/clump queue constructors return commands with a second context. */
+typedef struct PrimQueueDrawNode {
+    PrimQueueNode begin;
+    union { s32 handle; u8 *data; } endArgument; /* 0x14 */
+} PrimQueueDrawNode;
 
 #endif
