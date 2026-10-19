@@ -25,8 +25,8 @@ extern u8 *H_Cdvd_GetArchiveEntry(u8 *archive, s32 index, s32 *size);
 extern u8 *shdPersonaLevelUpCreate(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
 extern u32 datCalcRandomBelow(u32 max);
 extern void btlSoundStopBank3(void);
-extern void func_001f9a50(s32 arg0, s32 arg1);
-extern void func_001f9a90(void);
+extern void btlVoicePlayIdCue(s32 arg0, s32 arg1);
+extern void btlVoiceFadeOut(void);
 extern void btlSoundPlayIndexed(s32 arg0);
 extern s32 nmMesWindowResetCurrent(void);
 extern u32 shdPersonaLevelUpIsDone(u8 *task);
@@ -190,11 +190,11 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
             if (*(s16 *)(friendResultAddress((u32)*(s32 *)(work + 56) * 2, (u32)awards) + 0x69A) == 5) {
                 s16 t = (s16)(datCalcRandomBelow(3) + 468);
                 btlSoundStopBank3();
-                func_001f9a50((u16)t, 3);
+                btlVoicePlayIdCue((u16)t, 3);
             } else {
                 s32 stmp = btlResultFriendPsCheck(*(s16 *)(friendResultAddress((u32)*(s32 *)(work + 56) * 2, (u32)awards) + 0x69A)) + 125;
                 s16 u = (s16)(stmp + datCalcRandomBelow(3));
-                func_001f9a90();
+                btlVoiceFadeOut();
                 btlSoundPlayIndexed((u16)u);
             }
             *(u16 *)work = *(u16 *)work | 2;

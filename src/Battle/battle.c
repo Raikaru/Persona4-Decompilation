@@ -21,7 +21,7 @@ extern void btlUnitUpdateAll(void);
 extern void btlSoundStepMessagePhase(void);
 extern void func_001f9be0(void);
 extern void btlSoundAdvanceSlotQueue(void);
-extern void func_001eb8d0(void);
+extern void btlTargetUpdateDamagePhaseInput(void);
 extern void btlDestroyTask(void);
 extern s32 kwlnGetCamera(void);
 extern s32 func_003e8120(s32 arg0);
@@ -101,7 +101,7 @@ s32 btlUpdateTask(u8 *unusedTask)
         func_001f9be0();
         btlSoundAdvanceSlotQueue();
         btlPacketStepSide(1);
-        func_001eb8d0();
+        btlTargetUpdateDamagePhaseInput();
     } else {
         btlDestroyTask();
     }

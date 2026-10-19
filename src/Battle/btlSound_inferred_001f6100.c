@@ -102,7 +102,7 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-extern s32 func_001f0950(s32 input, s32 value);
+extern s32 btlTargetTestUnitFlag(s32 input, s32 value);
 
 
 
@@ -270,7 +270,7 @@ s32 btlSoundPickResistVoice(u8 *unit)
             break;
         }
         if ((((BtlUnit *)unit)->genus != 1) ||
-            ((flags = (u16)code, func_001f0950(((BtlUnit *)unit)->charId, flags)) != 0)) {
+            ((flags = (u16)code, btlTargetTestUnitFlag(((BtlUnit *)unit)->charId, flags)) != 0)) {
             flags = datCalcGetAffinity(*(u8 **)&((BtlUnit *)unit)->datUnit, code);
             if ((flags & 0x08000000) != 0) {
                 values[count++] =

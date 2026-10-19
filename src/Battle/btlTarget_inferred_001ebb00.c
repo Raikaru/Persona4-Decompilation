@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,29 +8,12 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
-typedef signed __int128 s128;
-typedef struct P4Vec4_001EC2B0 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4Vec4_001EC2B0;
-typedef struct P4Vec4Holder_001EC2B0 {
-    P4Vec4_001EC2B0 quat;
-} P4Vec4Holder_001EC2B0;
-typedef struct P4RouteSlerp_001EF110 {
-    P4Vec4_001EC2B0 first;
-    P4Vec4_001EC2B0 second;
-    f32 angle;
-    s32 mode;
-} P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -42,7 +26,7 @@ extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 D_00724504;
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32);
 
 
 extern f32 fGpffff8048;
@@ -56,7 +40,7 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32);
 
 
 
@@ -79,10 +63,10 @@ extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern u8 D_00609E40[];
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern u8 *btlFormationGetRecord(s32 arg0);
-extern s32 scrFindPrcdIdxByName(s32 arg0, s32 arg1);
-extern s32 btlTargetSpawnActionProc(u8 *arg0);
+extern u8 *btlPacketAlloc(s32, s32);
+extern u8 *btlFormationGetRecord(s32);
+extern s32 scrFindPrcdIdxByName(s32, s32);
+extern s32 btlTargetSpawnActionProc(u8 *);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
@@ -105,38 +89,42 @@ extern s32 btlAiSetGlobal(void);
 /* measured: opt_propagation off probe for e320 GP-load order. */
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 // FUN_001EBB00
-u8 *func_001ebb00(s32 arg0, s32 arg1, u8 *arg2) {
+/* Resolve a named procedure in the selected script and create a one-shot action task packet. */
+u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName) {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 kind;
-    u8 *temp_16;
-    u8 *temp_2;
+    u8 *work;
+    u8 *packet;
 
-    temp_2 = btlPacketAlloc(0xD00, 0x10);
-    *(u8 *)(temp_2 + 0x47) &= 0xEE;
-    *(s32 *)(temp_2 + 0x6C) = (s32)btlTargetSpawnActionProc;
-    temp_16 = *(u8 **)(temp_2 + 0x78);
-    kind = arg1 & 0xFFFF;
+    packet = btlPacketAlloc(0xD00, 0x10);
+    ((BtlPacket *)packet)->flags &= 0xEE;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlTargetSpawnActionProc;
+    work = (u8 *)(((BtlPacket *)packet)->workData);
+    kind = scriptKind & 0xFFFF;
     switch (kind) {
     case 1:
-        *(s32 *)(temp_16 + 0xC) = (s32)iGpffffb428;
+        ((BtlTargetProcedure *)work)->script = (s32)iGpffffb428;
         break;
     case 2:
-        *(s32 *)(temp_16 + 0xC) = (s32)iGpffffb42c;
+        ((BtlTargetProcedure *)work)->script = (s32)iGpffffb42c;
         break;
     case 3:
-        *(s32 *)(temp_16 + 0xC) = (s32)btlFormationGetRecord(0);
+        ((BtlTargetProcedure *)work)->script = (s32)btlFormationGetRecord(0);
         break;
     }
-    *(s32 *)(temp_16 + 0x0) = arg0;
-    *(s32 *)(temp_16 + 0x4) = scrFindPrcdIdxByName(*(s32 *)(temp_16 + 0xC), (s32)arg2);
-    *(s32 *)(temp_16 + 0x8) = 0;
-    return temp_2;
+    ((BtlTargetProcedure *)work)->action = action;
+    ((BtlTargetProcedure *)work)->procedure = scrFindPrcdIdxByName(((BtlTargetProcedure *)work)->script, (s32)procedureName);
+    ((BtlTargetProcedure *)work)->started = 0;
+    return packet;
 }
 
 // FUN_001EBC00
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: func_001ebc00 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-void func_001ebc00(u8 *action, u8 *command)
+/* Pick a usable skill from the supported set; fall back to the default attack when none qualify. */
+void btlAiChooseUsableAttackSkill(u8 *action, u8 *command)
 {
     u16 choices[8];
     u16 *skills;
@@ -145,7 +133,7 @@ void func_001ebc00(u8 *action, u8 *command)
     u32 skill;
     u32 available;
 
-    skills = (u16 *)datCalcSkillList(*(DatUnit **)(*(u8 **)(action + 0x30) + 0xA64));
+    skills = (u16 *)datCalcSkillList(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit);
     count = 0;
     index = 0;
     while ((index & 0xFFFF) < 8) {
@@ -249,7 +237,7 @@ void func_001ebc00(u8 *action, u8 *command)
             case 0xAB:
             case 0xAC:
             case 0xAD:
-                if (datCalcThresholdTrigger(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill) == 0) {
+                if (datCalcThresholdTrigger((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit), skill) == 0) {
                     choices[count & 0xFFFF] = skill;
                     count = (count + 1) & 0xFFFF;
                 }
@@ -260,11 +248,11 @@ void func_001ebc00(u8 *action, u8 *command)
     }
     available = count & 0xFFFF;
     if (available == 0) {
-        *(u16 *)(command + 0x34) = 1;
-        *(u16 *)(command + 0x36) = datCalcDefaultSkillId(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
+        ((BtlTargetRecord *)command)->kind = 1;
+        ((BtlTargetRecord *)command)->command = datCalcDefaultSkillId((u8 *)(((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->datUnit));
     } else {
-        *(u16 *)(command + 0x34) = 2;
-        *(u16 *)(command + 0x36) = choices[datCalcRandomBelow(available)];
+        ((BtlTargetRecord *)command)->kind = 2;
+        ((BtlTargetRecord *)command)->command = choices[datCalcRandomBelow(available)];
     }
 }
 

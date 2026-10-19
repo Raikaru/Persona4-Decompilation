@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -42,7 +43,7 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00624FF0[])(u8 *, s32, s32);
 
 
 
@@ -86,8 +87,11 @@ extern u8 D_00624FA0[];
 #pragma push
 #pragma pop
 // FUN_001F0A50
-s32 btlActionAnyTargetHitRowFlagged(u8 *arg0)
+/* Report whether any selected target has hit-row flag 4. */
+s32 btlActionAnyTargetHitRowFlagged(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 i;
     s32 j;
     s32 n;
@@ -95,15 +99,15 @@ s32 btlActionAnyTargetHitRowFlagged(u8 *arg0)
     u8 *target;
 
     i = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    n = ((BtlAction *)action)->unk_6a;
     goto outer_test;
 outer:
-    target = *(u8 **)(arg0 + ((u16)i * 4) + 0x38);
+    target = *(u8 **)(action + ((u16)i * 4) + 0x38);
     j = 0;
-    innerCount = *(u8 *)(target + 0xD9);
+    innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
     goto inner_test;
 inner:
-    if ((*(u16 *)(target + ((u16)j << 5) + 0x10E) & 4) != 0) {
+    if ((((BtlAction *)target)->targetBlock.hitRows[(u16)j].flags & 4) != 0) {
         return 1;
     }
     j = (j + 1) & 0xFFFF;
@@ -124,8 +128,11 @@ outer_test:
 /* measured: func_001f0af0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001F0AF0
-s32 btlActionAnyTargetHitRowStatus(u8 *arg0)
+/* Report whether any selected target has hit-row status bit 0x100000. */
+s32 btlActionAnyTargetHitRowStatus(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 i;
     s32 j;
     s32 n;
@@ -134,16 +141,16 @@ s32 btlActionAnyTargetHitRowStatus(u8 *arg0)
     u8 *target;
 
     i = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    n = ((BtlAction *)action)->unk_6a;
     mask = 0x100000;
     goto outer_test;
 outer:
-    target = *(u8 **)(arg0 + ((u16)i * 4) + 0x38);
+    target = *(u8 **)(action + ((u16)i * 4) + 0x38);
     j = 0;
-    innerCount = *(u8 *)(target + 0xD9);
+    innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
     goto inner_test;
 inner:
-    if ((*(s32 *)(target + ((u16)j << 5) + 0xF8) & mask) != 0) {
+    if (((s32)(((BtlAction *)target)->targetBlock.hitRows[(u16)j].addedStatus) & mask) != 0) {
         return 1;
     }
     j = (j + 1) & 0xFFFF;
@@ -165,15 +172,18 @@ outer_test:
    the counter separately for the index and for the loop bound, and writing
    both as `i & 0xFFFF` lets b210 common-subexpression them into one andi
    (nd 57, one word short). */
-s32 btlActionAnyTargetSpecialHit(u8 *arg0) {
+/* Report whether any selected target records a special hit. */
+s32 btlActionAnyTargetSpecialHit(u8 *action) {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 i;
     s32 n;
 
     i = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    n = ((BtlAction *)action)->unk_6a;
     goto test;
 loop:
-    if (*(s32 *)(*(u8 **)(arg0 + ((u16)i * 4) + 0x38) + 0xE4) != 0) {
+    if (*(s32 *)(*(u8 **)(action + ((u16)i * 4) + 0x38) + 0xE4) != 0) {
         return 1;
     }
     i = (i + 1) & 0xFFFF;
@@ -188,15 +198,18 @@ test:
 /* Mask spelling as in func_001f0b90: `(u16)i` for the index and
    `i & 0xFFFF` for the bound, so b210 does not fold retail's two andi
    instructions into one. */
-s32 btlActionAnyTargetFlagged(u8 *arg0) {
+/* Report whether any selected target has critical/weak hit flags. */
+s32 btlActionAnyTargetFlagged(u8 *action) {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 i;
     s32 n;
 
     i = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    n = ((BtlAction *)action)->unk_6a;
     goto test;
 loop:
-    if ((*(u16 *)(*(u8 **)(arg0 + ((u16)i * 4) + 0x38) + 0xDE) & 6) != 0) {
+    if ((*(u16 *)(*(u8 **)(action + ((u16)i * 4) + 0x38) + 0xDE) & 6) != 0) {
         return 1;
     }
     i = (i + 1) & 0xFFFF;
@@ -209,8 +222,11 @@ test:
 
 /* measured: loop-invariant probe for func_001f0c50's shared true value. */
 // FUN_001F0C50
-s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0)
+/* Require same-genus non-self targets and detect positive HP/SP or status-clear changes. */
+s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 result;
     s32 i;
     s32 n;
@@ -221,18 +237,18 @@ s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0)
 
     result = 0;
     i = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    n = ((BtlAction *)action)->unk_6a;
     one = 0x10000 >> 16;
     while ((i & 0xFFFF) < n) {
-        target = *(u8 **)(arg0 + ((u16)i << 2) + 0x38);
-        if (target != arg0) {
-            if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) !=
-                *(u8 *)(*(u8 **)(target + 0x30) + 0xA2)) {
+        target = *(u8 **)(action + ((u16)i << 2) + 0x38);
+        if (target != action) {
+            if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus !=
+                ((BtlUnit *)((u8 *)(((BtlAction *)target)->unit)))->genus) {
                 return 0;
             }
             if (result == 0) {
                 j = 0;
-                innerCount = *(u8 *)(target + 0xD9);
+                innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
                 while ((j & 0xFFFF) < innerCount) {
                     if (*(s32 *)(target + ((u16)j << 5) + 0xF0) > 0) {
                         result = one;
@@ -256,8 +272,11 @@ s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0)
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
    place the retail `lui` in the preheader. */
 // FUN_001F0D30
-s32 func_001f0d30(u8 *arg0)
+/* Report whether any target hit row clears status bit 0x80000. */
+s32 btlActionAnyTargetClearsDeathStatus(u8 *action)
 {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 i;
     s32 j;
     s32 n;
@@ -266,16 +285,16 @@ s32 func_001f0d30(u8 *arg0)
     u8 *target;
 
     i = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    n = ((BtlAction *)action)->unk_6a;
     mask = 0x80000;
     goto outer_test;
 outer:
-    target = *(u8 **)(arg0 + ((u16)i * 4) + 0x38);
+    target = *(u8 **)(action + ((u16)i * 4) + 0x38);
     j = 0;
-    innerCount = *(u8 *)(target + 0xD9);
+    innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
     goto inner_test;
 inner:
-    if ((*(s32 *)(target + ((u16)j << 5) + 0xFC) & mask) != 0) {
+    if (((s32)(((BtlAction *)target)->targetBlock.hitRows[(u16)j].removedStatus) & mask) != 0) {
         return 1;
     }
     j = (j + 1) & 0xFFFF;
@@ -294,29 +313,33 @@ outer_test:
 /* measured: closes the invariant-hoist bracket for func_001f0d30. */
 /* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
 // FUN_001F0DD0
-s32 func_001f0dd0(u8 *arg0, s32 arg1)
+/* Test target result rows for a negative HP change or status result, with mode-specific exclusions. */
+s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode)
 {
+    /* Raw layout: The target control halfword at +0xDC remains inside the shared target-block opaque prefix. */
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     s32 result;
     s32 one;
-    s32 i_one;
-    s32 j_one;
+    s32 targetIndex;
+    s32 rowIndex;
     s32 n;
     u8 *target;
     s32 innerCount;
     u8 *entry;
-    s32 i_zero;
-    s32 j_zero;
+    s32 otherTargetIndex;
+    s32 otherRowIndex;
 
     result = 0;
-    if (arg1 == 0) {
+    if (mode == 0) {
         goto path_zero;
     }
-i_one = 0;
-n = *(u16 *)(arg0 + 0x6A);
+targetIndex = 0;
+n = ((BtlAction *)action)->unk_6a;
 one = 1;
-while ((i_one & 0xFFFF) < n) {
-    target = *(u8 **)(arg0 + ((u16)i_one * 4) + 0x38);
-    if (*(s32 *)(target + 0xE4) != 0) {
+while ((targetIndex & 0xFFFF) < n) {
+    target = *(u8 **)(action + ((u16)targetIndex * 4) + 0x38);
+    if (((BtlAction *)target)->targetBlock.specialHitFlag != 0) {
         result = 0;
         goto done;
     }
@@ -325,57 +348,57 @@ while ((i_one & 0xFFFF) < n) {
         goto done;
     }
     if (result == 0) {
-        innerCount = *(u8 *)(target + 0xD9);
-        j_one = 0;
+        innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
+        rowIndex = 0;
         goto inner_test_one;
 inner_one:
-        if (*(s32 *)(target + ((u16)j_one << 5) + 0xF0) < 0) {
+        if (((BtlAction *)target)->targetBlock.hitRows[(u16)rowIndex].hpDelta < 0) {
             result = one;
             goto outer_step_one;
         }
-        j_one = (j_one + 1) & 0xFFFF;
+        rowIndex = (rowIndex + 1) & 0xFFFF;
 inner_test_one:
-        if ((j_one & 0xFFFF) < innerCount) {
+        if ((rowIndex & 0xFFFF) < innerCount) {
             goto inner_one;
         }
     }
 outer_step_one:
-    i_one = (i_one + 1) & 0xFFFF;
+    targetIndex = (targetIndex + 1) & 0xFFFF;
 }
 goto done;
 
 path_zero:
-    i_zero = 0;
-    n = *(u16 *)(arg0 + 0x6A);
+    otherTargetIndex = 0;
+    n = ((BtlAction *)action)->unk_6a;
     goto outer_test_zero;
 outer_zero:
-    target = *(u8 **)(arg0 + ((u16)i_zero * 4) + 0x38);
+    target = *(u8 **)(action + ((u16)otherTargetIndex * 4) + 0x38);
     if ((*(u16 *)(target + 0xDC) & 0x106) != 0) {
         result = 1;
         goto done;
     }
-    innerCount = *(u8 *)(target + 0xD9);
-    j_zero = 0;
+    innerCount = ((BtlAction *)target)->targetBlock.hitRowCount;
+    otherRowIndex = 0;
     goto inner_test_zero;
 inner_zero:
-    entry = target + ((u16)j_zero << 5);
-    if (*(s32 *)(entry + 0xF0) == 0) {
-        if (*(s32 *)(entry + 0xF8) != 0) {
+    entry = target + ((u16)otherRowIndex << 5);
+    if (((BtlAction *)entry)->targetBlock.hitRows[0].hpDelta == 0) {
+        if ((s32)(((BtlAction *)entry)->targetBlock.hitRows[0].addedStatus) != 0) {
             result = 1;
             goto done;
         }
-    } else if (*(s32 *)(entry + 0xF0) < 0) {
+    } else if (((BtlAction *)entry)->targetBlock.hitRows[0].hpDelta < 0) {
         result = 1;
         goto done;
     }
-    j_zero = (j_zero + 1) & 0xFFFF;
+    otherRowIndex = (otherRowIndex + 1) & 0xFFFF;
 inner_test_zero:
-    if ((j_zero & 0xFFFF) < innerCount) {
+    if ((otherRowIndex & 0xFFFF) < innerCount) {
         goto inner_zero;
     }
-    i_zero = (i_zero + 1) & 0xFFFF;
+    otherTargetIndex = (otherTargetIndex + 1) & 0xFFFF;
 outer_test_zero:
-    if ((i_zero & 0xFFFF) < n) {
+    if ((otherTargetIndex & 0xFFFF) < n) {
         goto outer_zero;
     }
 done:
@@ -384,19 +407,23 @@ done:
 
 /* measured: close opt_loop_invariants after func_001f0dd0. */
 // FUN_001F0F70
-u32 func_001f0f70(u8 *arg0)
+/* Report a special-hit target or target flags 0x500. */
+u32 btlActionAnyTargetHasSpecialResult(u8 *action)
 {
+    /* Raw layout: The target control halfword at +0xDC remains inside the shared target-block opaque prefix. */
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     u8 *target;
     s32 targetCount;
     s32 targetIndex;
 
     targetIndex = 0;
-    targetCount = *(u16 *)(arg0 + 0x6A);
+    targetCount = ((BtlAction *)action)->unk_6a;
     for (; (u16)targetIndex < targetCount;
          targetIndex = (u16)(targetIndex + 1))
     {
-        target = *(u8 **)(arg0 + 0x38 + (u32)(u16)targetIndex * 4);
-        if (*(s32 *)(target + 0xE4) != 0) {
+        target = *(u8 **)(action + 0x38 + (u32)(u16)targetIndex * 4);
+        if (((BtlAction *)target)->targetBlock.specialHitFlag != 0) {
             return 1;
         }
         if ((*(u16 *)(target + 0xDC) & 0x500) != 0) {

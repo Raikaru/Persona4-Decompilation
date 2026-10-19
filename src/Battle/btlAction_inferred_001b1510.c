@@ -137,8 +137,8 @@ extern void loadingSpinnerRequestShow(void);
 extern void hFadeSetCustomWhite(void);
 s64 btlPacketEnqueue(u8 *, u32);
 extern s32 btlShuffleIsIdle(s32 task);
-extern void func_001eb7f0(void);
-extern s32 func_001eb860(void);
+extern void btlTargetEndDamagePhase(void);
+extern s32 btlTargetCanControlDamagePhase(void);
 extern s32 btlTaskSlotLinkedSlot0(void);
 extern s32 btlStatusWindowShowSlot1(u8 *);
 extern s32 btlTaskSlotLinkedSlot1(void);
@@ -567,7 +567,7 @@ s32 btlMainContinuousUpdate(void)
     extern void btlSelectionClearTargetFlag(s32);
     extern void btlEncounterEntryClearRetracted(s32 task);
     extern void btlEncounterEntryClearEmphasis(s32 task);
-    extern void func_001eb7f0(void);
+    extern void btlTargetEndDamagePhase(void);
     u8 *node;
     s32 state;
     u8 *unit;
@@ -623,11 +623,11 @@ second_check:
     if (next != NULL) goto second_body;
     btlEncounterEntryClearEmphasis(((BtlBattleState *)(u8 *)iGpffffb3ac)->uiTask);
     btlEncounterEntryClearRetracted(((BtlBattleState *)(u8 *)iGpffffb3ac)->uiTask);
-    if (func_001eb860() == 1) {
+    if (btlTargetCanControlDamagePhase() == 1) {
         work = (u8 *)iGpffffb3ac;
         *(s32 *)&((BtlBattleState *)work)->flags |= 0x2000;
         btlDamageSetSource(*(u8 * *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->uiTask, 1);
-        func_001eb7f0();
+        btlTargetEndDamagePhase();
     }
     return 5;
 done:
@@ -1185,7 +1185,7 @@ unit_done:
           break;
         }
         btlFadeStartImmediate();
-        value = func_001eb860();
+        value = btlTargetCanControlDamagePhase();
         if (value == 1) {
           *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) | 0x2000;
           btlDamageSetSource(*(u8 **)(D_0076449C + 0xdd4),1);
@@ -1193,7 +1193,7 @@ unit_done:
         else {
           u8 *battle = D_0076449C;
           *(u32 *)(battle + 0xc) = *(u32 *)(battle + 0xc) & 0xffffdfff;
-          func_001eb7f0();
+          btlTargetEndDamagePhase();
         }
       }
       nextState = 6;
@@ -1418,14 +1418,14 @@ loop:
 check:
         if (unit != NULL) goto loop;
     }
-    if (func_001eb860() == 1) {
+    if (btlTargetCanControlDamagePhase() == 1) {
         damageBattle = D_0076449C;
         *(s32 *)&((BtlBattleState *)damageBattle)->flags |= 0x2000;
         btlDamageSetSource(*(u8 * *)&((BtlBattleState *)D_0076449C)->uiTask, 1);
     } else {
         quietBattle = D_0076449C;
         *(s32 *)&((BtlBattleState *)quietBattle)->flags &= ~0x2000;
-        func_001eb7f0();
+        btlTargetEndDamagePhase();
     }
     btlActionEnableQueue();
     readyBattle = D_0076449C;
@@ -1760,7 +1760,7 @@ s32 btlMainRevivalUpdate(void)
         if (btlCheckBattleEnd() == 0) {
             resumedBattle = D_0076449C;
             *(s32 *)&((BtlBattleState *)resumedBattle)->flags &= ~0x80;
-            if (func_001eb860() == 1) {
+            if (btlTargetCanControlDamagePhase() == 1) {
                 btlDamageSetSource(*(u8 * *)&((BtlBattleState *)D_0076449C)->uiTask, 1);
             }
             btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)(actionUID), (u16)(0x24)), 0);
@@ -1827,9 +1827,9 @@ s32 btlMainIsNotWinPhase(s32 *phase)
 // FUN_001B4880
 void btlMainWinInit(u8 *phaseWork) {
     /* Typed action/unit/packet fields changed MWCC codegen (2704B trial); retain the proven byte offsets for MATCH. */
-    extern void func_001eb7f0(void);
+    extern void btlTargetEndDamagePhase(void);
     extern void btlDamageSetSource(u8 *phaseWork, s32);
-    extern void func_001eb3b0(u8 *phaseWork);
+    extern void btlTargetResetCommandRecord(u8 *phaseWork);
     extern u8 *btlUnitCreateResourceFreePacket(u8 *phaseWork);
     extern u8 *func_00194c90(void *phaseWork, void *);
     extern u8 *btlEffectCreateFormationPacket(s32 phaseWork, s32, s32, s64, s32);
@@ -1901,7 +1901,7 @@ void btlMainWinInit(u8 *phaseWork) {
         }
         work->duration = work->animationFrames;
     } else {
-        func_001eb7f0();
+        btlTargetEndDamagePhase();
         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & 0xFFFFDFFF;
         btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
         work->animationFrames = animationFrames;
@@ -1909,7 +1909,7 @@ void btlMainWinInit(u8 *phaseWork) {
     }
     work->delay = 0xC;
     work->interrupted = 0;
-    func_001eb3b0(base + 0x38);
+    btlTargetResetCommandRecord(base + 0x38);
     *(u8 **) (base + 0x38) = base;
     *(u16 *)(base + 0x6A) = 1;
     {

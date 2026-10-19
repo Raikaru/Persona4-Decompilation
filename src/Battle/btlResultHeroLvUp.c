@@ -28,8 +28,8 @@ u32 datCalcIsDeadById(s16 param);
 s32 datGetFlag(s32 id);
 void btlSoundPlayIndexed(u16 param);
 void btlSoundStopBank3(void);
-void func_001f9a50(u16 param, s32 mode);
-void func_001f9a90(void);
+void btlVoicePlayIdCue(u16 param, s32 mode);
+void btlVoiceFadeOut(void);
 extern u32 datCalcRandomBelow(u32 max);
 void kAssertFail(const char* file, s32 line);
 extern char D_00629660[];
@@ -106,7 +106,7 @@ void btlResultHeroLvUpInit(void)
         {
             s16 sound = (s16)(val + 0x80 + datCalcRandomBelow(3));
 
-            func_001f9a90();
+            btlVoiceFadeOut();
             btlSoundPlayIndexed((u16)sound);
         }
         return;
@@ -131,7 +131,7 @@ void btlResultHeroLvUpInit(void)
         s16 sound = (s16)(val + datCalcRandomBelow(3));
 
         btlSoundStopBank3();
-        func_001f9a50((u16)sound, 3);
+        btlVoicePlayIdCue((u16)sound, 3);
     }
 }
 

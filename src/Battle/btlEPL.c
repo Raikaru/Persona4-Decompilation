@@ -33,7 +33,7 @@ extern s32 mdlCopyIndexedMatrix(void *input, s32 value, void *options);
 extern void RwMatrixScale(void *input, f32 *value, s32 options);
 extern void RwMatrixMultiply(void *input, void *value, void *options);
 extern void RtQuatConvertFromMatrix(void *input, void *value);
-extern void func_001ec350(void *input, void *value);
+extern void btlTargetNormalizeVector(void *input, void *value);
 extern u32 mdlCountIntUserData(u32 input);
 extern void btlUnitClearModelState(void *input, s32 value);
 extern void btlUnitSetModelAnimFrame(void *input, s32 value);
@@ -1441,7 +1441,7 @@ void btlEplApplyScaleEffect(u8 *effect) {
                             RwMatrixScale(inverseScaleMatrix, scaleVector, 0);
                             RwMatrixMultiply(unitMatrix, basisMatrix, inverseScaleMatrix);
                             RtQuatConvertFromMatrix(rotation, unitMatrix);
-                            func_001ec350(rotation, rotation);
+                            btlTargetNormalizeVector(rotation, rotation);
                             btlUnitSetRot(node, rotation);
                         }
                         node = node->next;

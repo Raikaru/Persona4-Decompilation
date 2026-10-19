@@ -5,17 +5,44 @@
 #include "btl_unit_internal.h"
 #include "btl_hit_result_internal.h"
 
+/* The choice/follow-up region begins at action + 0x70. Its enclosing
+ * unk_70 storage remains opaque to consumers that use other parts of it. */
+typedef struct BtlActionParameters
+{
+    u16 item;
+    u16 resolvedSkill;
+    u8 pad04[0x0C];
+    u16 drop;
+    u8 dropChance;
+    u8 pad13[5];
+    u8 *followUp;
+    u8 *support;
+    u8 *supportTarget;
+    u8 pad24[0x3C];
+} BtlActionParameters;
+
+/* Eight-byte outcome/message region at action + 0xE8, reset and filled by
+ * btlTargetResolveSelectedSkill. */
+typedef struct BtlActionResolutionMessage
+{
+    s32 blocked;
+    u16 messageCode;
+    s16 unk06;
+} BtlActionResolutionMessage;
+
 /* Typed prefix of the retail BtlAction. Offsets through `unit` agree with the
    P4 battle TUs; later fields are named where code uses them as a role, and
    otherwise kept as unk_XX until evidence appears. */
-/* Target block at BtlAction+0xD8, 0x44 bytes. Offsets are from the action;
+/* Target block at BtlAction+0xD8, 0x344 bytes. Offsets are from the action;
  * the rows are the hit records, counted by hitRowCount (u8, 0xD9). The row
  * capacity is 25 (0xF0 + 25*0x20 = 0x410, inside the 0x41C end). */
 typedef struct BtlActionTargetBlock
 {
     u8 unk_d8;
     u8 hitRowCount;               /* 0xD9 */
-    u8 unk_da[0xDE - 0xDA];
+    u8 hitRepeatCount;           /* 0xDA. Secondary repetition count from skill resolution */
+    u8 resultFlags;              /* 0xDB. Bit 0 critical, bit 1 other outcomes */
+    u16 hitOutcome;              /* 0xDC. datCalcResolveSkillHit result */
     u16 targetFlags;              /* 0xDE. Tested with mask 6 */
     s32 reactionFlag;             /* 0xE0. Nonzero marks a reacting target */
     s32 specialHitFlag;           /* 0xE4. Nonzero marks a special hit */
@@ -70,6 +97,14 @@ struct BtlAction
     BtlAction *previous;     /* 0x44C. Paired with next by create/unlink */
     BtlAction *next;         /* 0x450. Walked as the action list from D_0076449C+0x174 */
 };
+/* Padding splits must preserve the shared retail layout. */
+typedef char BtlActionParametersSizeCheck[sizeof(BtlActionParameters) == 0x60 ? 1 : -1];
+typedef char BtlActionResolutionMessageSizeCheck[sizeof(BtlActionResolutionMessage) == 8 ? 1 : -1];
+typedef char BtlActionTargetBlockSizeCheck[sizeof(BtlActionTargetBlock) == 0x344 ? 1 : -1];
+typedef char BtlActionTargetOffsetCheck[(u32)&((BtlAction *)0)->targetBlock == 0xD8 ? 1 : -1];
+typedef char BtlActionNextOffsetCheck[(u32)&((BtlAction *)0)->next == 0x450 ? 1 : -1];
+typedef char BtlActionSizeCheck[sizeof(BtlAction) == 0x458 ? 1 : -1];
+
 /* BtlAction.flags (+0x18). Bit 0 is the callback-pending bit (btlActionSetCallbackPending).
    btlTargetApplyHpSpChange sets the HIT/DOWN bits from the target-state work word
    (+0x2A, the packet's targetFlags) and the target status word (BTL_STATUS_DOWN). */

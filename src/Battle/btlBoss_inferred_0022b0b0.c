@@ -62,7 +62,7 @@ extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
 extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
-extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
+extern u8 *btlTargetCreateProcedurePacket(s32 action, s32 kind, u8 *name);
 extern u8 *btlPacketAllocZeroed(void *callback, void *data);
 extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
 extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 duration);
@@ -273,7 +273,7 @@ void btlActionRunFormationSequence(u8 *action)
     btlFormationCopyRecord(closingFormation, (u32)btlFormationGetRecord(0xD));
     *(u32 *)(DAT_0076449c + 0xC) |= 0x80000;
 
-    anchor = func_001ebb00((s32)action, 3, D_00635560);
+    anchor = btlTargetCreateProcedurePacket((s32)action, 3, D_00635560);
     *(u64 *)(anchor + 0x60) = *(u64 *)action;
     btlPacketEnqueue(anchor, 1);
 
@@ -359,7 +359,7 @@ void btlActionRunFormationSequence(u8 *action)
     *(u64 *)(wait0 + 0x60) = *(u64 *)action;
     btlPacketEnqueue(wait0, 1);
 
-    anchor = func_001ebb00((s32)action, 3, D_00635580);
+    anchor = btlTargetCreateProcedurePacket((s32)action, 3, D_00635580);
     anchor[0] = 4;
     *(u64 *)(anchor + 8) = *(u64 *)(wait0 + 0x58);
     *(u16 *)(anchor + 0x48) = 2;

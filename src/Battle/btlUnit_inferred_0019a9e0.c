@@ -1,3 +1,4 @@
+#include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -10,19 +11,6 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
-typedef RwV3d P4_95730_Vec3;
-typedef struct P4_95730_Vec4 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4_95730_Vec4;
-typedef struct P4_95730_Bytes4 {
-    u8 x;
-    u8 y;
-    u8 z;
-    u8 w;
-} P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
 
 extern f32 fGpffff8474;
@@ -61,7 +49,7 @@ extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCe
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
-extern P4_95730_Vec3 D_0060A0D0;
+extern RwV3d D_0060A0D0;
 extern f32 fGpffff82d0;
 extern f32 fGpffff811c;
 extern f32 fGpffff8198;
@@ -71,47 +59,47 @@ extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern P4_95730_Vec3 D_0060A100;
-extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
+extern RwV3d D_0060A100;
+extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *p4_unit_00195530(s32 offset, u8 *base)
+static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (s32)base);
 }
-static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
+static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
 {
     return base + offset;
 }
-static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
+static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
 {
     return (s32 *)((s32)base + offset);
 }
-static inline s32 p4_base_add_00194590(s32 offset, s32 base)
+static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
 {
     return offset + base;
 }
-static inline u8 p4_one_00194470(void)
+static inline u8 btlUnitOne(void)
 {
     return 1;
 }
-static inline s64 p4_sign16_001991c0(s16 value)
+static inline s64 btlUnitExtendSignedHalfword(s16 value)
 {
     return value;
 }
-static inline s32 p4_table_001951f0(s32 modeOffset, s32 charOffset,
+static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
                                     s32 base)
 {
     return modeOffset + charOffset + base;
 }
-static inline f32 p4_add_0019a680(f32 left, f32 right)
+static inline f32 btlUnitAddProgress(f32 left, f32 right)
 {
     return left + right;
 }
-static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
+static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
 {
     u8 *address;
     u8 *stored;
@@ -119,17 +107,18 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
     stored = value;
     address = base;
     address = (u8 *)((u32)(index << 3) + (u32)(address, address));
+    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
     *(u8 **)(address + offset) = stored;
 }
 
-extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
-static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
+extern void mdlSetLayerTime(void *data, s32 value, f32 option);
+static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
 {
-    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(data, value, option, rate, flags);
 }
-static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
+static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
 {
-    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
+    scrStartProcedureChecked(data, value, option, rate);
 }
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -141,12 +130,12 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 data, s32 value);
 extern s32 iGpffffb444;
 
-static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
+static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
-    btlUnitInitChild(arg0, arg1);
+    btlUnitInitChild(data, value);
 }
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -178,27 +167,28 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019A9E0
-void btlUnitHoldPendingModelFrame(u8 *arg0)
+void btlUnitHoldPendingModelFrame(u8 *packetWork)
 {
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
+    ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
 // FUN_0019AA00
-s32 btlUnitModelFramePacketUpdate(u8 *arg0)
+/* Set layer zero to the packet frame when the unit owns a model. */
+s32 btlUnitModelFramePacketUpdate(u8 *packetWork)
 {
     s16 frame;
-    u8 *temp_3;
+    u8 *unit;
 
-    frame = *(s16 *)(arg0 + 4);
-    temp_3 = *(u8 **)arg0;
-    if ((*(s32 *)(temp_3 + 0x98) & 2) != 0)
-        mdlSetLayerTime(*(u8 **)(temp_3 + 0xA00), 0, (f32)frame);
+    frame = ((BtlUnitFramePacket *)packetWork)->frame;
+    unit = ((BtlUnitFramePacket *)packetWork)->unit;
+    if ((((BtlUnit *)unit)->flags2 & 2) != 0)
+        mdlSetLayerTime(((BtlUnit *)unit)->layerHandle, 0, (f32)frame);
     return 1;
 }
 
 // FUN_0019AA50
-void btlUnitReleasePendingModelFrame(u8 *arg0)
+void btlUnitReleasePendingModelFrame(u8 *packetWork)
 {
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
+    ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 

@@ -51,13 +51,13 @@ extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-s32 func_001eb860(void);
+s32 btlTargetCanControlDamagePhase(void);
 s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 u32 btlCountUnitRecordsById(u32 arg0);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 s16 btlCameraSelectFormationIndex(void);
-void func_001eb7f0(void);
+void btlTargetEndDamagePhase(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 s32 btlStatusWindowShowSlot2(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -148,11 +148,11 @@ void btlActionStartInit(BtlAction *action) {
     if (((BtlBattleState *)iGpffffb3ac)->flags & 0x80000) {
         canAct = 0;
     }
-    if (func_001eb860() == 1) {
+    if (btlTargetCanControlDamagePhase() == 1) {
         ((BtlBattleState *)iGpffffb3ac)->flags |= 0x2000;
     } else {
         ((BtlBattleState *)iGpffffb3ac)->flags &= ~0x2000;
-        func_001eb7f0();
+        btlTargetEndDamagePhase();
     }
     if ((s32)action->unk_28 > 0) {
         if (!(((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x20)) {

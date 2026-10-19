@@ -1,3 +1,4 @@
+#include "btl_unit_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
@@ -9,21 +10,8 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_unit_internal.h"
-typedef RwV3d P4_95730_Vec3;
-typedef struct P4_95730_Vec4 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4_95730_Vec4;
-typedef struct P4_95730_Bytes4 {
-    u8 x;
-    u8 y;
-    u8 z;
-    u8 w;
-} P4_95730_Bytes4;
 
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void (*D_00887300[])(s32 data, s32 value);
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
@@ -50,7 +38,7 @@ extern u8 D_005F65D0[];
 extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
 
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *data, s32 value);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
@@ -59,10 +47,10 @@ extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 data, u32 value);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
-extern P4_95730_Vec3 D_0060A0D0;
+extern RwV3d D_0060A0D0;
 extern f32 fGpffff82d0;
 extern f32 fGpffff811c;
 extern f32 fGpffff8198;
@@ -72,47 +60,47 @@ extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern P4_95730_Vec3 D_0060A100;
-extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
+extern RwV3d D_0060A100;
+extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *p4_unit_00195530(s32 offset, u8 *base)
+static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (s32)base);
 }
-static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
+static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
 {
     return base + offset;
 }
-static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
+static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
 {
     return (s32 *)((s32)base + offset);
 }
-static inline s32 p4_base_add_00194590(s32 offset, s32 base)
+static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
 {
     return offset + base;
 }
-static inline u8 p4_one_00194470(void)
+static inline u8 btlUnitOne(void)
 {
     return 1;
 }
-static inline s64 p4_sign16_001991c0(s16 value)
+static inline s64 btlUnitExtendSignedHalfword(s16 value)
 {
     return value;
 }
-static inline s32 p4_table_001951f0(s32 modeOffset, s32 charOffset,
+static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
                                     s32 base)
 {
     return modeOffset + charOffset + base;
 }
-static inline f32 p4_add_0019a680(f32 left, f32 right)
+static inline f32 btlUnitAddProgress(f32 left, f32 right)
 {
     return left + right;
 }
-static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
+static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
 {
     u8 *address;
     u8 *stored;
@@ -120,16 +108,17 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
     stored = value;
     address = base;
     address = (u8 *)((u32)(index << 3) + (u32)(address, address));
+    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
     *(u8 **)(address + offset) = stored;
 }
 
-static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
+static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
 {
-    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(data, value, option, rate, flags);
 }
-static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
+static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
 {
-    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
+    scrStartProcedureChecked(data, value, option, rate);
 }
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -141,16 +130,16 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 data, s32 value);
 extern s32 iGpffffb444;
-extern s32 datCalcIsLowHp(u8 *arg0);
-extern s32 datCalcIsGuarding(s32 arg0);
+extern s32 datCalcIsLowHp(u8 *data);
+extern s32 datCalcIsGuarding(s32 data);
 
-static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
+static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
-    btlUnitInitChild(arg0, arg1);
+    btlUnitInitChild(data, value);
 }
-extern void (*jtbl_008873EC[])(void *arg0);
+extern void (*jtbl_008873EC[])(void *data);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -180,107 +169,111 @@ extern u8 D_00794150[];
    `||` condition produces.  The case labels are written 0 then 1 because
    the compare chain is emitted in reverse label order. */
 // FUN_00198DD0
+/* measured: remaining model/data-unit reloads change MATCH to MISMATCH at the individually tested call sites. */
+/* Choose the rest motion from status/HP/guard/death state; replace playback only when already at rest. */
 #pragma push
-void btlUnitUpdateStatusMotion(u8 *arg0, u16 arg1)
+void btlUnitUpdateStatusMotion(u8 *unit, u16 frame)
 {
-    s16 var_18;
+    s16 restMotion;
     s64 value;
-    u16 var_17;
-    u16 var_16;
-    s32 same;
-    s32 flag;
-    s32 r;
-    s16 temp;
+    u16 motionOption;
+    u16 nextMotion;
+    s32 atRest;
+    s32 available;
+    s32 keyEmpty;
+    s16 motionId;
     extern s32 mdlIsLayerKeyEmpty(u8 *a, u32 b, s16 c);
     extern s32 datCalcChkBadStatus();
 
-    var_18 = 0;
-    if (datCalcIsLowHp(*(u8 **)(arg0 + 0xA64)) != 0) {
-        if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-            temp = (s16)(btlUnitGetMotionId(arg0, 0x12) & 0xFFFF);
-            if (mdlLayerHasAnimation(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
-                flag = 0;
+    restMotion = 0;
+    if (datCalcIsLowHp((u8 *)((BtlUnit *)unit)->datUnit) != 0) {
+        if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
+            motionId = (s16)(btlUnitGetMotionId(unit, 0x12) & 0xFFFF);
+            if (mdlLayerHasAnimation(((BtlUnit *)unit)->layerHandle, 0, motionId) == 0) {
+                available = 0;
             } else {
-                r = mdlIsLayerKeyEmpty(*(u8 **)(arg0 + 0xA00), 0, temp);
-                if (r == 1) {
-                    flag = 0;
+                keyEmpty = mdlIsLayerKeyEmpty(*(u8 **)(unit + 0xA00), 0, motionId);
+                if (keyEmpty == 1) {
+                    available = 0;
                 } else {
-                    flag = 1;
+                    available = 1;
                 }
             }
         } else {
-            flag = 0;
+            available = 0;
         }
-        if (flag != 0) {
-            var_18 = 0x12;
+        if (available != 0) {
+            restMotion = 0x12;
         }
     }
-    if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0xFFFFF) != 0) {
-        var_18 = 3;
+    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0xFFFFF) != 0) {
+        restMotion = 3;
     }
-    if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100000) != 0) {
-        var_18 = 0xA;
+    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000) != 0) {
+        restMotion = 0xA;
     }
-    if (datCalcIsGuarding(*(s32 *)(arg0 + 0xA64)) != 0) {
-        var_18 = 0x18;
+    if (datCalcIsGuarding(*(s32 *)(unit + 0xA64)) != 0) {
+        restMotion = 0x18;
     }
-    if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100) != 0) {
-        var_18 = 0;
+    if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) != 0) {
+        restMotion = 0;
     }
-    if ((datCalcIsDead(*(u8 **)(arg0 + 0xA64), 0) != 0) && ((*(s32 *)(arg0 + 0x9C) & 0x20) != 0)) {
-        if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-            temp = (s16)(btlUnitGetMotionId(arg0, 0x13) & 0xFFFF);
-            if (mdlLayerHasAnimation(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
-                flag = 0;
+    if ((datCalcIsDead(*(u8 **)(unit + 0xA64), 0) != 0) && ((((BtlUnit *)unit)->flags3 & 0x20) != 0)) {
+        if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
+            motionId = (s16)(btlUnitGetMotionId(unit, 0x13) & 0xFFFF);
+            if (mdlLayerHasAnimation(((BtlUnit *)unit)->layerHandle, 0, motionId) == 0) {
+                available = 0;
             } else {
-                r = mdlIsLayerKeyEmpty(*(u8 **)(arg0 + 0xA00), 0, temp);
-                if (r == 1) {
-                    flag = 0;
+                keyEmpty = mdlIsLayerKeyEmpty(*(u8 **)(unit + 0xA00), 0, motionId);
+                if (keyEmpty == 1) {
+                    available = 0;
                 } else {
-                    flag = 1;
+                    available = 1;
                 }
             }
         } else {
-            flag = 0;
+            available = 0;
         }
-        if (flag != 0) {
-            var_18 = 0x13;
+        if (available != 0) {
+            restMotion = 0x13;
         }
     }
-    value = (s64)var_18;
+    value = (s64)restMotion;
     if (value != 0x13) {
-        var_17 = 1;
-        var_16 = *(u16 *)(arg0 + 0x9EE);
+        motionOption = 1;
+        nextMotion = *(u16 *)&((BtlUnitRestMotion *)(unit + 0x9EC))->nextMotion;
     } else {
-        var_17 = 2;
-        var_16 = 0;
+        motionOption = 2;
+        nextMotion = 0;
     }
     {
         u8 kind;
-        s16 ref;
+        s16 currentMotion;
 
-        kind = *(u8 *)(arg0 + 0xA2);
+        kind = ((BtlUnit *)unit)->genus;
         switch (kind) {
         case 0:
         case 1:
-            if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-                ref = *(s16 *)(arg0 + 0x9DA);
+            if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
+                currentMotion = ((BtlUnit *)unit)->currentMotion;
             } else {
-                ref = 0;
+                currentMotion = 0;
             }
-            same = (s32)(*(s16 *)(arg0 + 0x9EC) == (s16)ref);
+            atRest = (s32)(((BtlUnit *)unit)->restMotion == (s16)currentMotion);
             break;
         default:
-            same = 0;
+            atRest = 0;
             break;
         }
     }
-    if ((same != 0) && ((s64)(*(s16 *)(arg0 + 0x9EC)) != value)) {
-        btlUnitSetMotion(arg0, var_18, arg1, 1.0f, var_17);
+    if ((atRest != 0) && ((s64)(((BtlUnit *)unit)->restMotion) != value)) {
+        btlUnitSetMotion(unit, restMotion, frame, 1.0f, motionOption);
     }
-    *(s16 *)(arg0 + 0x9EC) = var_18;
-    *(u16 *)(arg0 + 0x9EE) = var_16;
-    *(f32 *)(arg0 + 0x9F0) = 1.0f;
-    *(s8 *)(arg0 + 0x9F4) = var_17;
+    ((BtlUnit *)unit)->restMotion = restMotion;
+    *(u16 *)&((BtlUnitRestMotion *)(unit + 0x9EC))->nextMotion = nextMotion;
+    ((BtlUnit *)unit)->restRate = 1.0f;
+    ((BtlUnit *)unit)->restOption = motionOption;
 }
 
+
+#pragma pop

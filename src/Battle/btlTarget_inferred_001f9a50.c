@@ -1,3 +1,4 @@
+#include "btl_voice_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +14,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -61,7 +50,7 @@ extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
+extern s32 sdkSndFadeOutChannelFrames(s16 channel, s16 mode, s32 frames);
 
 extern s32 sdkSndStartIndexedSource(s32 arg0, s32 arg1, s32 arg2);
 
@@ -142,29 +131,33 @@ extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
 /* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
 /* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
+/* Play a cue from the bank selected by the voice-id packet. */
 // FUN_001F9A50
-void func_001f9a50(s32 arg0, s32 arg1) {
-    s32 f = *(u16 *)((u8 *)iGpffffb3ac + 0xB3A);
-    sdkSndStartIndexedSource((u16)f, (u16)arg1, (u16)arg0);
+void btlVoicePlayIdCue(s32 context, s32 value) {
+    s32 f = ((BtlVoicePlayback *)((u8 *)iGpffffb3ac + 0xB2C))->idBank;
+    sdkSndStartIndexedSource((u16)f, (u16)value, (u16)context);
 }
 
+/* Fade sound channel 1 over eight frames. */
 // FUN_001F9A90
-void func_001f9a90(void) {
+void btlVoiceFadeOut(void) {
     sdkSndFadeOutChannelFrames(1, 0, 8);
 }
 
 /* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
 /* measured: btlVoiceIdPacketUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Select the voice-id bank once and wait for the result/playback-completion condition. */
+/* measured: typing the final state-word store changed MATCH; retain that one raw access. */
 // FUN_001F9AC0
-s32 btlVoiceIdPacketUpdate(u8 *arg0)
+s32 btlVoiceIdPacketUpdate(u8 *context)
 {
     s32 value;
     s32 code;
     s32 flag;
 
-    if (*(s32 *)(arg0 + 4) == 0) {
-        if (*(u16 *)(arg0 + 8) == 0) {
+    if (((BtlVoiceIdWork *)context)->state == 0) {
+        if (((BtlVoiceIdWork *)context)->voiceId == 0) {
             value = 0x6C;
         } else {
             value = 0x69;
@@ -172,21 +165,21 @@ s32 btlVoiceIdPacketUpdate(u8 *arg0)
         code = value & 0xFFFF;
         switch (code) {
         case 0x6C:
-            *(s16 *)(iGpffffb3ac + 0xB3A) = 5;
+            ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idBank = 5;
             break;
         case 0x69:
-            *(s16 *)(iGpffffb3ac + 0xB3A) = 4;
+            ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idBank = 4;
             break;
         default:
             break;
         }
-        *(s32 *)(arg0 + 0) = 0;
-        *(s32 *)(arg0 + 4) = 1;
+        ((BtlVoiceIdWork *)context)->result = 0;
+        *(s32 *)(context + 4) = 1;
     }
-    if (*(s32 *)(arg0 + 0) == 0) {
+    if (((BtlVoiceIdWork *)context)->result == 0) {
         goto return_one_a;
     }
-    flag = (*(u16 *)(iGpffffb3ac + 0xB38) & 1) != 0;
+    flag = (((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idFlags & 1) != 0;
     if (flag == 0) {
         goto return_zero;
     }

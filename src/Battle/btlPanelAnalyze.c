@@ -535,7 +535,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
     u16 datCalcMaxHp(void *);
     u16 datCalcMaxSp(void *);
     u8 *datCalcGetIdRecord(s32);
-    s32 func_001f0950(s32, s32);
+    s32 btlTargetTestUnitFlag(s32, s32);
     u32 kwlnTaskGetWork(u8 *);
     int frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s32, s32, const void *, s32, s32);
     PanelQuad quads[3];
@@ -671,7 +671,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             y24 = (0.0f + yBase) + affinityFade * 24.0f;
             while (affinityIndex < 7) {
                 affinity = &D_00628FB8[affinityIndex];
-                if (func_001f0950((s32)enemyIndex & 0xFFFF, (s32)*affinity) != 0) {
+                if (btlTargetTestUnitFlag((s32)enemyIndex & 0xFFFF, (s32)*affinity) != 0) {
                     btlUiDrawSpriteFaded(work, 13, affinityIndex + 0x2E, iconX, yBase, 0x24, 0x4C, 0, 0xFF);
                     btlPanelAddStatusEntry(work, *(s32 *)(unit + 0xA64), (s64)*affinity, iconX - 2.0f, y22);
                 } else {

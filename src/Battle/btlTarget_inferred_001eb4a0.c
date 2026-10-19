@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,29 +8,12 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
-typedef signed __int128 s128;
-typedef struct P4Vec4_001EC2B0 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4Vec4_001EC2B0;
-typedef struct P4Vec4Holder_001EC2B0 {
-    P4Vec4_001EC2B0 quat;
-} P4Vec4Holder_001EC2B0;
-typedef struct P4RouteSlerp_001EF110 {
-    P4Vec4_001EC2B0 first;
-    P4Vec4_001EC2B0 second;
-    f32 angle;
-    s32 mode;
-} P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -40,13 +24,13 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
-extern s32 func_001eb860(void);
+extern s32 btlTargetCanControlDamagePhase(void);
 extern void btlDamageEndPhase(s32 task);
 extern s32 btlCurrentUnitId(void);
 extern s32 D_00724504;
-extern void func_001eb7f0(void);
-extern s32 func_001eb860(void);
-extern u32 datCalcRandomBelow(u32 arg0);
+extern void btlTargetEndDamagePhase(void);
+extern s32 btlTargetCanControlDamagePhase(void);
+extern u32 datCalcRandomBelow(u32);
 
 
 extern f32 fGpffff8048;
@@ -60,11 +44,11 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32);
 
 
 
-extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
+extern void btlAICommandSetActionCode(u8 *, u8 *, u16);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -111,11 +95,14 @@ extern s32 btlCurrentUnitId(void);
    0x001eb5c0; the table-entry scan preserves the retail register-width masks. */
 /* The action caller forwards the 32-bit unit-status word. This selector
  * consumes its low20 bits; higher bits have no role in table selection. */
-void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
+/* Select a weighted status-dependent AI command and dispatch its packed target condition. */
+void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
+    /* measured: typed forms of the retained raw accesses changed code generation;
+     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
     extern s32 datGetMoney();
-    extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
-    extern s32 datCalcRandomBelow(u32 arg0);
-    extern void memset(void *arg0, s32 arg1, s32 arg2);
+    extern void btlAICommandSetActionCode(u8 *action, u8 *command, u16);
+    extern s32 datCalcRandomBelow(u32 action);
+    extern void memset(void *action, s32 command, s32);
     extern void *D_006098BC[];
     extern void *D_00609934[];
     extern u8 D_00609E50[];
@@ -141,23 +128,23 @@ void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
     u8 *unit;
     s32 (*callback)(u8 *, s64);
 
-    *(u16 *)(arg1 + 0x32) = 0;
-    *(u16 *)(arg1 + 0x36) = 0;
-    *(u16 *)(arg1 + 0x38) = 0;
-    *(u16 *)(arg1 + 0x34) = 0;
-    *(u32 *)(arg1 + 0x50) = 0;
-    *(u32 *)(arg1 + 0x54) = 0;
-    *(u32 *)(arg1 + 0x58) = 0;
-    memset(arg1 + 0x3E, 0, 6);
+    ((BtlTargetRecord *)command)->count = 0;
+    ((BtlTargetRecord *)command)->command = 0;
+    ((BtlTargetRecord *)command)->skill = 0;
+    ((BtlTargetRecord *)command)->kind = 0;
+    ((BtlTargetRecord *)command)->unk50 = 0;
+    ((BtlTargetRecord *)command)->unk54 = 0;
+    ((BtlTargetRecord *)command)->unk58 = 0;
+    memset(command + 0x3E, 0, 6);
     table = NULL;
     entry = NULL;
     mode = ((u64)status << 44) >> 44;
     switch (mode) {
     case 0x10:
-        unit = *(u8 **)(arg0 + 0x30);
-        if (*(u8 *)(unit + 0xA2) == 1) {
-            if ((*(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 0xA4) * 0x3C) & 0x2000) == 0 &&
-                (*(u16 *)(arg0 + 0x1A) & 0x4000) == 0) {
+        unit = (u8 *)(((BtlAction *)action)->unit);
+        if (((BtlUnit *)unit)->genus == 1) {
+            if ((((BtlSoundEnemyStatusRow *)iGpffffb3c4)[((BtlUnit *)unit)->charId ].flags & 0x2000) == 0 &&
+                (((BtlAction *)action)->unk_1a & 0x4000) == 0) {
                 state = 0;
             } else {
                 state = 2;
@@ -167,19 +154,19 @@ void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status) {
         } else {
             state = 2;
         }
-        if (((s32 (*)(u8 *, s32))D_006098BC[0])(arg0, 1) != 0)
+        if (((s32 (*)(u8 *, s32))D_006098BC[0])(action, 1) != 0)
             state++;
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0)
+        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0)
             table = D_00609E50;
         else
             table = D_00609EF0;
         break;
     case 4:
-        unitData = *(u8 **)(arg0 + 0x30);
-        if (*(u8 *)(unitData + 0xA2) == 0 && *(u16 *)(unitData + 0xA4) == 1) {
+        unitData = (u8 *)(((BtlAction *)action)->unit);
+        if (((BtlUnit *)unitData)->genus == 0 && ((BtlUnit *)unitData)->charId == 1) {
             state = 1;
         } else {
-            state = (u16)(((s32 (*)(u8 *, s32))D_00609934[0])(arg0, 0) != 1);
+            state = (u16)(((s32 (*)(u8 *, s32))D_00609934[0])(action, 0) != 1);
         }
         table = D_00609F90;
         break;
@@ -216,41 +203,43 @@ eb4a0_sum_test:
             }
         }
     }
-    btlAICommandSetActionCode(arg0, arg1, *(u16 *)(entry + 2));
-    actionWord = *(u32 *)(entry + 4);
+    btlAICommandSetActionCode(action, command, ((BtlAiWeightedCommand *)entry)->command);
+    actionWord = ((BtlAiWeightedCommand *)entry)->targetCondition;
     callback = *(s32 (**)(u8 *, s64))((u8 *)D_00609CE0 +
                                       (((actionWord & 0xFF000000) >> 24) * 8));
-    if (callback(arg0, (s64)((u64)actionWord << 40 >> 40)) == 0)
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(arg0, 0);
+    if (callback(action, (s64)((u64)actionWord << 40 >> 40)) == 0)
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
 }
 
 // FUN_001EB7F0
-void func_001eb7f0(void) {
-    s32 temp_4;
-    u8 *temp_3;
-    u8 *temp_5;
+/* Leave damage phase when battle flag 0x1000 is set and restore stream playback. */
+void btlTargetEndDamagePhase(void) {
+    s32 flags;
+    u8 *battle;
+    u8 *flagAddress;
 
-    temp_3 = iGpffffb3ac;
-    temp_5 = temp_3 + 0xC;
-    temp_4 = *(s32 *)(temp_3 + 0xC);
-    if (temp_4 & 0x1000) {
-        *(s32 *)temp_5 = temp_4 & ~0x1000;
-        btlDamageEndPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
+    battle = iGpffffb3ac;
+    flagAddress = battle + 0xC;
+    flags = (s32)(((BtlBattleState *)battle)->flags);
+    if (flags & 0x1000) {
+        *(s32 *)flagAddress = flags & ~0x1000;
+        btlDamageEndPhase(((BtlBattleState *)iGpffffb3ac)->uiTask);
         sdkSndStartStream(1, 0xF, 2, 0x13);
     }
 }
 
 // FUN_001EB860
-s32 func_001eb860(void) {
-    u8 *temp_3;
+/* Disable the damage-phase controls for flag 0x80 and encounter 0x215. */
+s32 btlTargetCanControlDamagePhase(void) {
+    u8 *battle;
     s32 result;
 
-    temp_3 = iGpffffb3ac;
-    if (*(s32 *)(temp_3 + 0xC) & 0x80) {
+    battle = iGpffffb3ac;
+    if ((s32)(((BtlBattleState *)battle)->flags) & 0x80) {
         result = 0;
         goto done;
     }
-    if (*(s32 *)(temp_3 + 0xC68) != 0) {
+    if (((BtlBattleState *)battle)->encounterRecord != 0) {
         if (btlCurrentUnitId() == 0x215) {
             result = 0;
             goto done;
@@ -262,42 +251,43 @@ done:
 }
 
 // FUN_001EB8D0
-void func_001eb8d0(void) {
+/* Toggle damage phase from input bits 0x10/0x20 when the battle permits it. */
+void btlTargetUpdateDamagePhaseInput(void) {
     extern void btlDamageBeginPhase(s32 task);
     extern void btlDamageEndPhase(s32 task);
     extern u16 D_008C024E[];
     s32 flags;
-    s32 temp_5;
-    s32 var_3;
-    u8 *temp_3;
-    u8 *temp_4;
-    u8 *temp_6;
+    s32 phaseActive;
+    s32 enabled;
+    u8 *battle;
+    u8 *initialBattle;
+    u8 *flagAddress;
 
-    temp_4 = iGpffffb3ac;
-    if (*(s32 *)(temp_4 + 0xC) & 0x80) {
-        var_3 = 0;
-    } else if ((*(s32 *)(temp_4 + 0xC68) != 0) &&
+    initialBattle = iGpffffb3ac;
+    if ((s32)(((BtlBattleState *)initialBattle)->flags) & 0x80) {
+        enabled = 0;
+    } else if ((((BtlBattleState *)initialBattle)->encounterRecord != 0) &&
                (btlCurrentUnitId() == 0x215)) {
-        var_3 = 0;
+        enabled = 0;
     } else {
-        var_3 = 1;
+        enabled = 1;
     }
-    if ((var_3 != 0) &&
-        (temp_3 = iGpffffb3ac,
-         temp_6 = temp_3 + 0xC,
-         flags = *(s32 *)(temp_3 + 0xC),
+    if ((enabled != 0) &&
+        (battle = iGpffffb3ac,
+         flagAddress = battle + 0xC,
+         flags = (s32)(((BtlBattleState *)battle)->flags),
          ((flags & 0x2000) != 0))) {
-        temp_5 = flags & 0x1000;
-        if (temp_5 != 0) {
+        phaseActive = flags & 0x1000;
+        if (phaseActive != 0) {
             if (((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20)) &&
-                (temp_5 != 0)) {
-                *(s32 *)temp_6 = *(s32 *)temp_6 & ~0x1000;
-                btlDamageEndPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
+                (phaseActive != 0)) {
+                *(s32 *)flagAddress = *(s32 *)flagAddress & ~0x1000;
+                btlDamageEndPhase(((BtlBattleState *)iGpffffb3ac)->uiTask);
                 sdkSndStartStream(1, 0xF, 2, 0x13);
             }
-        } else if ((D_008C024E[0] & 0x10) && (temp_5 == 0)) {
-            *(s32 *)temp_6 = flags | 0x1000;
-            btlDamageBeginPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
+        } else if ((D_008C024E[0] & 0x10) && (phaseActive == 0)) {
+            *(s32 *)flagAddress = flags | 0x1000;
+            btlDamageBeginPhase(((BtlBattleState *)iGpffffb3ac)->uiTask);
             sdkSndStartStream(1, 0xF, 2, 0x12);
         }
     }

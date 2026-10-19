@@ -61,7 +61,7 @@ static inline s32 func_001a_fix_var(s32 value)
 }
 
 void btlTargetResolveSelectedSkill(u8 *);
-void func_001eb3b0(u8 *);
+void btlTargetResetCommandRecord(u8 *);
 
 
 BtlPacket *btlFormationCreateSlotPacket(u16, u16);
@@ -93,7 +93,7 @@ extern BtlPacket *btlFormationCreateEventPacket(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 u8 *btlSoundLoadPacketNew(const void *data);
-s32 func_001eb860(void);
+s32 btlTargetCanControlDamagePhase(void);
 u8 *btlSoundLoadTaskStart(void);
 u8 *btlSoundReleaseTaskStart(void);
 extern void btlDamageSetSource(u8 *, s32);
@@ -584,7 +584,7 @@ void btlActionRoundupMesInit(u8 *action)
     flags = flags & 0xFFBFFFFF;
     *(u32 *)(iGpffffb3ac + 12) = flags;
     *(u16 *)(iGpffffb3ac + 24) = 0;
-    if (func_001eb860() == 1) {
+    if (btlTargetCanControlDamagePhase() == 1) {
         flags = *(u32 *)(iGpffffb3ac + 12);
         flags = flags & ~0x2000;
         *(u32 *)(iGpffffb3ac + 12) = flags;
@@ -694,7 +694,7 @@ void btlActionRoundupMesUpdate(u8 *action)
         *(u64 *)(packet2 + 0x60) = *(u64 *)action;
         btlPacketEnqueue(packet2, 1);
         *(u16 *)(action + 0x18) &= 0xFFF7;
-        if (func_001eb860() == 1) {
+        if (btlTargetCanControlDamagePhase() == 1) {
             *(s32 *)(D_0076449C + 0xC) |= 0x2000;
             btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
         }
@@ -726,7 +726,7 @@ void btlActionRoundupInit(u8 *action)
     s32 slotCount;
     u8 *slot;
 
-    func_001eb3b0(action + 0x38);
+    btlTargetResetCommandRecord(action + 0x38);
     btlSkillClassifyTargets(action, action + 0x98, 0x100, 0);
     unitIndex = 0;
     goto loop_2_test;

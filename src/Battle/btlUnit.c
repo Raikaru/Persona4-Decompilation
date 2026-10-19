@@ -1,7 +1,21 @@
+#include "btl_unit_packet_internal.h"
+#include "mdl_file_internal.h"
+#include "btl_target_internal.h"
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
 #include "btl_motion_internal.h"
 #include "type.h"
 #include "model_callbacks_internal.h"
 #include "btl_unit_internal.h"
+
+/* Two filter words occupy separate sixteen-byte scratch slots in the
+ * group-bounds frame; keep the original 0x20-byte extent. */
+typedef struct BtlUnitBoundsFilters {
+    s32 useGrid;
+    u8 pad04[12];
+    s32 excludeDead;
+    u8 pad14[12];
+} BtlUnitBoundsFilters;
 
 extern u16 btlFindFreeCharResId(void);
 
@@ -78,7 +92,8 @@ struct BtlUnitPacketPair
 {
     BtlUnit* first;
     BtlUnit* second;
-    u8 _pad08[8];
+    u32 flags;
+    s32 timer;
 };
 
 typedef struct BtlUnitPacketUnitAtC BtlUnitPacketUnitAtC;
@@ -105,18 +120,7 @@ struct BtlUnitStateWork
     u8 _padA3[9];
     u8 value;
 };
-typedef u32 (*BtlPacketFunc)(void* work);
 
-typedef struct BtlPacket BtlPacket;
-struct BtlPacket
-{
-    u8 _pad00[0x68];
-    BtlPacketFunc initFunc;
-    BtlPacketFunc updateFunc;
-    BtlPacketFunc destroyFunc;
-    u8 _pad74[4];
-    void* workData;
-};
 
 typedef struct BtlUnitPacketMoveToUnit BtlUnitPacketMoveToUnit;
 struct BtlUnitPacketMoveToUnit
@@ -158,8 +162,9 @@ void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* work);
 u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* work);
 void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* work);
 
+/* Transform animation bounds toward another unit and translate the center to world coordinates. */
 // FUN_00195B60
-void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *arg0, s32 arg1, u8 *arg2)
+void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *context, s32 value, u8 *option)
 {
     struct Btl95Work {
         RwV3d rotation;
@@ -174,25 +179,26 @@ void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *arg0, s32 arg1, u8 *arg2)
     f32 centerX;
     RwV3d *out;
 
-    btlTargetBlendVectors(&work.rotation, (RwV3d *)(arg0 + 4), (RwV3d *)((u8 *)arg1 + 4));
-    bounds = (BtlUnitAnimBounds *)btlUnitGetRecordPtr(arg0, 0xA);
+    btlTargetBlendVectors(&work.rotation, (RwV3d *)(context + 4), (RwV3d *)((u8 *)value + 4));
+    bounds = (BtlUnitAnimBounds *)btlUnitGetRecordPtr(context, 0xA);
     centerY = (f32)bounds->centerY;
     centerZ = (f32)bounds->centerZ;
     centerX = (f32)bounds->centerX;
-    work.scaled.x = centerX * *(f32 *)(arg0 + 0x2C);
-    work.scaled.y = centerY * *(f32 *)(arg0 + 0x2C);
-    work.scaled.z = centerZ * *(f32 *)(arg0 + 0x2C);
+    work.scaled.x = centerX * ((BtlUnit *)context)->scale;
+    work.scaled.y = centerY * ((BtlUnit *)context)->scale;
+    work.scaled.z = centerZ * ((BtlUnit *)context)->scale;
     RtQuatTransformVectors(&work.transformed, &work.scaled, 1, &work.rotation);
-    out = (RwV3d *)arg2;
-    out->x = work.transformed.x + *(f32 *)(arg0 + 4);
-    out->y = work.transformed.y + *(f32 *)(arg0 + 8);
-    out->z = work.transformed.z + *(f32 *)(arg0 + 0xC);
+    out = (RwV3d *)option;
+    out->x = work.transformed.x + ((BtlUnit *)context)->pos.x;
+    out->y = work.transformed.y + ((BtlUnit *)context)->pos.y;
+    out->z = work.transformed.z + ((BtlUnit *)context)->pos.z;
 }
 /* measured: plain-C aggregate reconstruction reproduces every retail
    instruction; the object is 324B against the 336B window, with three retail
    trailing nop words left as window padding. */
+/* Use the attached model center when available, otherwise transform the unit sphere center. */
 // FUN_00195D50
-void btlUnitGetAttachedSphereCenter(u8 *arg0, u8 *arg1)
+void btlUnitGetAttachedSphereCenter(u8 *context, u8 *value)
 {
     struct Btl95DWork {
         RwV3d secondOut;
@@ -206,32 +212,34 @@ void btlUnitGetAttachedSphereCenter(u8 *arg0, u8 *arg1)
     } work;
     RwV3d *out;
 
-    out = (RwV3d *)arg1;
-    if ((*(s32 *)(arg0 + 0x98) & 2) == 0)
+    out = (RwV3d *)value;
+    if ((((BtlUnit *)context)->flags2 & 2) == 0)
     {
-        work.firstScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
-        work.firstScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
-        work.firstScaled.z = *(f32 *)(arg0 + 0x88) * *(f32 *)(arg0 + 0x2C);
+        work.firstScaled.x = ((BtlUnit *)context)->sphereCenter.x * ((BtlUnit *)context)->scale;
+        work.firstScaled.y = ((BtlUnit *)context)->sphereCenter.y * ((BtlUnit *)context)->scale;
+        work.firstScaled.z = ((BtlUnit *)context)->sphereCenter.z * ((BtlUnit *)context)->scale;
         RtQuatTransformVectors(&work.firstOut, &work.firstScaled, 1,
-                      (RwV3d *)(arg0 + 0x1C));
-        out->x = work.firstOut.x + *(f32 *)(arg0 + 4);
-        out->y = work.firstOut.y + *(f32 *)(arg0 + 8);
-        out->z = work.firstOut.z + *(f32 *)(arg0 + 0xC);
+                      (RwV3d *)(context + 0x1C));
+        out->x = work.firstOut.x + ((BtlUnit *)context)->pos.x;
+        out->y = work.firstOut.y + ((BtlUnit *)context)->pos.y;
+        out->z = work.firstOut.z + ((BtlUnit *)context)->pos.z;
         return;
     }
-    if (mdlComputeIndexedAttachMatrix(*(void **)(arg0 + 0xA00), 0, arg1) == 0)
+    if (mdlComputeIndexedAttachMatrix((void *)((BtlUnit *)context)->layerHandle, 0, value) == 0)
     {
-        work.secondScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
-        work.secondScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
-        work.secondScaled.z = *(f32 *)(arg0 + 0x88) * *(f32 *)(arg0 + 0x2C);
+        work.secondScaled.x = ((BtlUnit *)context)->sphereCenter.x * ((BtlUnit *)context)->scale;
+        work.secondScaled.y = ((BtlUnit *)context)->sphereCenter.y * ((BtlUnit *)context)->scale;
+        work.secondScaled.z = ((BtlUnit *)context)->sphereCenter.z * ((BtlUnit *)context)->scale;
         RtQuatTransformVectors(&work.secondOut, &work.secondScaled, 1,
-                      (RwV3d *)(arg0 + 0x1C));
-        out->x = work.secondOut.x + *(f32 *)(arg0 + 4);
-        out->y = work.secondOut.y + *(f32 *)(arg0 + 8);
-        out->z = work.secondOut.z + *(f32 *)(arg0 + 0xC);
+                      (RwV3d *)(context + 0x1C));
+        out->x = work.secondOut.x + ((BtlUnit *)context)->pos.x;
+        out->y = work.secondOut.y + ((BtlUnit *)context)->pos.y;
+        out->z = work.secondOut.z + ((BtlUnit *)context)->pos.z;
     }
 }
 
+/* Compute a filtered group center, vertical extents, and enclosing horizontal radius. */
+/* measured: remaining scale/record/filter reloads changed MATCH under per-access typing; typed fields are used everywhere else. */
 // FUN_00196040
 f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                   f32 *outTop, f32 *outBottom, u32 options)
@@ -262,60 +270,60 @@ f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
     group = 0;
     mask = groupFlags & 0xFFFF;
     optionFlags = options & 0xFFFF;
-    *(s32 *)(filters + 0x10) = optionFlags & 2;
-    *(s32 *)(filters + 0x00) = optionFlags & 1;
+    ((BtlUnitBoundsFilters *)filters)->excludeDead = optionFlags & 2;
+    ((BtlUnitBoundsFilters *)filters)->useGrid = optionFlags & 1;
     while (group < 4)
     {
         if (mask & (1 << group))
         {
             firstUnit =
-                *(u8 **)(iGpffffb3ac + (group * 8) + 0x178);
+                ((BtlBattleState *)iGpffffb3ac)->unitLists[group * 2];
             while (firstUnit != 0)
             {
-                u32 flags = *(u32 *)(firstUnit + 0x9C);
+                u32 flags = ((BtlUnit *)firstUnit)->flags3;
 
                 if ((flags & 8) &&
                     !(flags & excludedFlags) &&
                     (!*(s32 *)(filters + 0x10) ||
                      group != 0 ||
-                     (datCalcIsDead(*(void **)(firstUnit + 0xA64), 0) == 0 &&
+                     (datCalcIsDead((void *)((BtlUnit *)firstUnit)->datUnit, 0) == 0 &&
                       datCalcChkBadStatus(*(s32 *)(firstUnit + 0xA64), 0x100117) == 0)))
                 {
                     f32 x;
                     f32 y;
                     f32 z;
                     f32 extent;
-                    if (!*(s32 *)(filters + 0x00))
+                    if (!((BtlUnitBoundsFilters *)filters)->useGrid)
                     {
                         firstScaled.x =
-                            *(f32 *)(firstUnit + 0x80) *
-                                *(f32 *)(firstUnit + 0x2C);
+                            ((BtlUnit *)firstUnit)->sphereCenter.x *
+                                ((BtlUnit *)firstUnit)->scale;
                         firstScaled.y =
-                            *(f32 *)(firstUnit + 0x84) *
-                                *(f32 *)(firstUnit + 0x2C);
+                            ((BtlUnit *)firstUnit)->sphereCenter.y *
+                                ((BtlUnit *)firstUnit)->scale;
                         firstScaled.z =
-                            *(f32 *)(firstUnit + 0x88) *
-                                *(f32 *)(firstUnit + 0x2C);
+                            ((BtlUnit *)firstUnit)->sphereCenter.z *
+                                ((BtlUnit *)firstUnit)->scale;
                         RtQuatTransformVectors(&firstRotated, &firstScaled, 1,
                                       (RwV3d *)(firstUnit + 0x1C));
-                        x = firstRotated.x + *(f32 *)(firstUnit + 4);
-                        y = firstRotated.y + *(f32 *)(firstUnit + 8);
-                        z = firstRotated.z + *(f32 *)(firstUnit + 0xC);
+                        x = firstRotated.x + ((BtlUnit *)firstUnit)->pos.x;
+                        y = firstRotated.y + ((BtlUnit *)firstUnit)->pos.y;
+                        z = firstRotated.z + ((BtlUnit *)firstUnit)->pos.z;
                     }
                     else
                     {
-                        x = (f32)(25 * *(s16 *)(firstUnit + 0x94) - 1750);
-                        y = *(f32 *)(firstUnit + 8) +
-                            *(f32 *)(firstUnit + 0x84) *
-                                *(f32 *)(firstUnit + 0x2C);
-                        z = (f32)(25 * *(s16 *)(firstUnit + 0x96) - 1750);
+                        x = (f32)(25 * ((BtlUnit *)firstUnit)->unk_94 - 1750);
+                        y = ((BtlUnit *)firstUnit)->pos.y +
+                            ((BtlUnit *)firstUnit)->sphereCenter.y *
+                                ((BtlUnit *)firstUnit)->scale;
+                        z = (f32)(25 * ((BtlUnit *)firstUnit)->unk_96 - 1750);
                     }
                     sum.x += x;
                     sum.y += y;
                     sum.z += z;
                     extent = y +
                              0.5f *
-                                 (*(f32 *)(firstUnit + 0x8C) *
+                                 (((BtlUnit *)firstUnit)->unk_8c *
                                   *(f32 *)(firstUnit + 0x2C));
                     if (top < extent)
                         top = extent;
@@ -324,7 +332,7 @@ f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                     singleUnit = firstUnit;
                     count += 1;
                 }
-                firstUnit = *(u8 **)(firstUnit + 0xA6C);
+                firstUnit = (u8 *)((BtlUnit *)firstUnit)->nextUnit;
             }
         }
         group += 1;
@@ -336,10 +344,10 @@ f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
     {
         f32 extent;
         center = sum;
-        radius = *(f32 *)(singleUnit + 0x90) *
+        radius = ((BtlUnit *)singleUnit)->sphereRadius *
                  *(f32 *)(singleUnit + 0x2C);
         extent = 0.5f *
-                 (*(f32 *)(singleUnit + 0x8C) *
+                 (((BtlUnit *)singleUnit)->unk_8c *
                   *(f32 *)(singleUnit + 0x2C));
         if (extent > radius)
             radius = extent;
@@ -365,50 +373,50 @@ f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
             if (mask & (1 << secondGroup))
             {
                 u8 *unit;
-                unit = *(u8 **)(iGpffffb3ac + (secondGroup * 8) + 0x178);
+                unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[secondGroup * 2];
                 while (unit != 0)
                 {
-                    u32 flags = *(u32 *)(unit + 0x9C);
+                    u32 flags = ((BtlUnit *)unit)->flags3;
 
                     if ((flags & 8) &&
                         !(flags & excludedFlags) &&
                         (!*(s32 *)(filters + 0x10) ||
                          secondGroup != 0 ||
-                         (datCalcIsDead(*(void **)(unit + 0xA64), 0) == 0 &&
+                         (datCalcIsDead((void *)((BtlUnit *)unit)->datUnit, 0) == 0 &&
                           datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100117) == 0)))
                     {
                         f32 x;
                         f32 z;
                         f32 extent;
-                        if (!*(s32 *)(filters + 0x00))
+                        if (!((BtlUnitBoundsFilters *)filters)->useGrid)
                         {
                             secondScaled.x =
-                                *(f32 *)(unit + 0x80) * *(f32 *)(unit + 0x2C);
+                                ((BtlUnit *)unit)->sphereCenter.x * ((BtlUnit *)unit)->scale;
                             secondScaled.y =
-                                *(f32 *)(unit + 0x84) * *(f32 *)(unit + 0x2C);
+                                ((BtlUnit *)unit)->sphereCenter.y * ((BtlUnit *)unit)->scale;
                             secondScaled.z =
-                                *(f32 *)(unit + 0x88) * *(f32 *)(unit + 0x2C);
+                                ((BtlUnit *)unit)->sphereCenter.z * ((BtlUnit *)unit)->scale;
                             RtQuatTransformVectors(&secondRotated, &secondScaled, 1,
                                           (RwV3d *)(unit + 0x1C));
-                            x = secondRotated.x + *(f32 *)(unit + 4);
-                            z = secondRotated.z + *(f32 *)(unit + 0xC);
+                            x = secondRotated.x + ((BtlUnit *)unit)->pos.x;
+                            z = secondRotated.z + ((BtlUnit *)unit)->pos.z;
                         }
                         else
                         {
-                            x = (f32)(25 * *(s16 *)(unit + 0x94) - 1750);
-                            z = (f32)(25 * *(s16 *)(unit + 0x96) - 1750);
+                            x = (f32)(25 * ((BtlUnit *)unit)->unk_94 - 1750);
+                            z = (f32)(25 * ((BtlUnit *)unit)->unk_96 - 1750);
                         }
                         delta.x = x - center.x;
                         delta.y = centerY - centerY;
                         delta.z = z - centerZ;
                         extent = RwV3dLength(&delta);
-                        extent += *(f32 *)(unit + 0x90) *
-                                  *(f32 *)(unit + 0x2C);
+                        extent += ((BtlUnit *)unit)->sphereRadius *
+                                  ((BtlUnit *)unit)->scale;
                         if (extent > radius)
                             radius = extent;
                         count += 1;
                     }
-                    unit = *(u8 **)(unit + 0xA6C);
+                    unit = (u8 *)((BtlUnit *)unit)->nextUnit;
                 }
             }
             secondGroup += 1;
@@ -422,8 +430,10 @@ f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
         *outBottom = bottom;
     return radius;
 }
+/* Advance the XZ route and rotate toward the next point, respecting stopping distance and rotation locks. */
+/* measured: remaining movement-state accesses changed MATCH when typed. The shared unit prefix still leaves +0xCC and the later facing/turn-speed span opaque. */
 // FUN_00196610
-u32 btlUnitUpdateFollowPath(u8 *arg0)
+u32 btlUnitUpdateFollowPath(u8 *context)
 {
     struct Btl966XZ
     {
@@ -457,22 +467,22 @@ u32 btlUnitUpdateFollowPath(u8 *arg0)
     f32 turn;
     f32 angle;
 
-    if ((*(u16 *)(arg0 + 0xC8) & 1) &&
-        (*(u16 *)(arg0 + 0xC8) & 0x10))
+    if ((((BtlUnit *)context)->movementFlags & 1) &&
+        (((BtlUnit *)context)->movementFlags & 0x10))
     {
-        entry = arg0 + 0xEC;
-        index = *(u16 *)(arg0 + 0x4EE);
-        count = *(u16 *)(arg0 + 0x4EC);
+        entry = context + 0xEC;
+        index = ((BtlTargetRoute *)(context + 0xEC))->cursor;
+        count = ((BtlTargetRoute *)(context + 0xEC))->count;
         lastDistance = 0.0f;
-        pathLength = *(f32 *)(arg0 + 0xCC);
-        frame.currentX = *(f32 *)(arg0 + 4);
-        frame.currentZ = *(f32 *)(arg0 + 0xC);
+        pathLength = *(f32 *)(context + 0xCC);
+        frame.currentX = ((BtlUnit *)context)->pos.x;
+        frame.currentZ = ((BtlUnit *)context)->pos.z;
         while (index < count - 1)
         {
             pathLength -= lastDistance;
             point = entry + (index * 8) + 8;
-            frame.deltaX = *(f32 *)(point + 0) - frame.currentX;
-            frame.deltaZ = *(f32 *)(point + 4) - frame.currentZ;
+            frame.deltaX = ((BtlTargetPoint *)point)[0].x - frame.currentX;
+            frame.deltaZ = ((BtlTargetPoint *)point)[0].z - frame.currentZ;
             lastDistance = func_003e41e0(&frame.deltaX, &frame.deltaX);
             if (lastDistance < pathLength)
             {
@@ -485,7 +495,7 @@ u32 btlUnitUpdateFollowPath(u8 *arg0)
                 break;
             }
         }
-        if (*(u32 *)(arg0 + 0xC4) & 1)
+        if (((BtlUnit *)context)->stateFlags & 1)
             index = count - 1;
         if (index < count - 1)
         {
@@ -496,23 +506,23 @@ u32 btlUnitUpdateFollowPath(u8 *arg0)
             nextZ = currentZ + frame.nextDeltaZ;
             pointOffset = count * 8;
             point = (u8 *)(pointOffset + (u32)entry);
-            frame.nextDeltaX = frame.currentX - *(f32 *)(point - 8);
-            frame.nextDeltaZ = currentZ - *(f32 *)(point - 4);
+            frame.nextDeltaX = frame.currentX - ((BtlTargetPoint *)point)[-1].x;
+            frame.nextDeltaZ = currentZ - ((BtlTargetPoint *)point)[-1].z;
             lastDistance = RwV2dLength(&frame.nextDeltaX);
-            if (lastDistance < *(f32 *)(arg0 + 0xE8))
+            if (lastDistance < ((BtlUnit *)context)->stoppingDistance)
             {
                 lastDistance = (lastDistance + pathLength) -
-                               *(f32 *)(arg0 + 0xE8);
+                               ((BtlUnit *)context)->stoppingDistance;
                 frame.nextDeltaX = frame.deltaX * lastDistance;
                 frame.nextDeltaZ = frame.deltaZ * lastDistance;
                 nextX = frame.currentX + frame.nextDeltaX;
                 nextZ = currentZ + frame.nextDeltaZ;
-                *(u32 *)(arg0 + 0xC4) &= ~1;
-                *(u16 *)(arg0 + 0xC8) &= 0xFFFE;
-                *(u16 *)(arg0 + 0xC8) &= 0xFFEF;
+                *(u32 *)(context + 0xC4) &= ~1;
+                *(u16 *)(context + 0xC8) &= 0xFFFE;
+                *(u16 *)(context + 0xC8) &= 0xFFEF;
             }
             finalPos.x = nextX;
-            finalPos.y = *(f32 *)(arg0 + 8);
+            finalPos.y = ((BtlUnit *)context)->pos.y;
             finalPos.z = nextZ;
             frame.currentX = nextX + frame.deltaX;
             frame.currentZ = nextZ + frame.deltaZ;
@@ -523,46 +533,46 @@ u32 btlUnitUpdateFollowPath(u8 *arg0)
         else
         {
             point = entry + (index * 8);
-            finalPos.x = *(f32 *)(point + 0);
-            finalPos.y = *(f32 *)(arg0 + 8);
-            finalPos.z = *(f32 *)(point + 4);
+            finalPos.x = ((BtlTargetPoint *)point)[0].x;
+            finalPos.y = ((BtlUnit *)context)->pos.y;
+            finalPos.z = ((BtlTargetPoint *)point)[0].z;
             targetPos = finalPos;
-            *(u32 *)(arg0 + 0xC4) &= ~1;
-            *(u16 *)(arg0 + 0xC8) &= 0xFFFE;
-            *(u16 *)(arg0 + 0xC8) &= 0xFFEF;
+            *(u32 *)(context + 0xC4) &= ~1;
+            *(u16 *)(context + 0xC8) &= 0xFFFE;
+            *(u16 *)(context + 0xC8) &= 0xFFEF;
         }
-        *(RwV3d *)(arg0 + 4) = finalPos;
-        *(u32 *)(arg0 + 0x98) |= 4;
+        *(RwV3d *)(context + 4) = finalPos;
+        ((BtlUnit *)context)->flags2 |= 4;
         *(u16 *)(entry + 0x402) = index;
-        if (!(*(u32 *)(arg0 + 0xC4) & 0x100))
+        if (!(*(u32 *)(context + 0xC4) & 0x100))
         {
-            *(RwV3d *)(arg0 + 0xD0) = targetPos;
+            *(RwV3d *)(context + 0xD0) = targetPos;
         }
         else
         {
-            *(RwV3d *)(arg0 + 0xD0) = *(RwV3d *)(arg0 + 0x4F8);
+            *(RwV3d *)(context + 0xD0) = *(RwV3d *)(context + 0x4F8);
         }
-        *(u16 *)(arg0 + 0xC8) |= 2;
+        *(u16 *)(context + 0xC8) |= 2;
     }
-    if (*(u16 *)(arg0 + 0xC8) & 2)
+    if (*(u16 *)(context + 0xC8) & 2)
     {
-        targetPos.x = *(f32 *)(arg0 + 0xD0) - *(f32 *)(arg0 + 4);
-        targetPos.z = *(f32 *)(arg0 + 0xD8) - *(f32 *)(arg0 + 0xC);
+        targetPos.x = *(f32 *)(context + 0xD0) - ((BtlUnit *)context)->pos.x;
+        targetPos.z = *(f32 *)(context + 0xD8) - ((BtlUnit *)context)->pos.z;
         if (((targetPos.x != 0.0f) ||
              (targetPos.z != 0.0f)) &&
-            !(*(u32 *)(arg0 + 0x9C) & 0x2000))
+            !(((BtlUnit *)context)->flags3 & 0x2000))
         {
             turn = fGpffff8048 *
                    func_0044b950(targetPos.x, targetPos.z);
             RtQuatTransformVectors(&targetPos, &D_0060A0F0, 1,
-                          (RwV3d *)(arg0 + 0x1C));
+                          (RwV3d *)(context + 0x1C));
             angle = fGpffff8048 *
                     func_0044b950(targetPos.x, targetPos.z);
             nextZ = turn - angle;
             lastDistance =
                 dptofp(func_0044b310(fptodp(nextZ)));
             if ((lastDistance > D_007614c0) &&
-                !(*(u32 *)(arg0 + 0xC4) & 2))
+                !(((BtlUnit *)context)->stateFlags & 2))
             {
                 if (lastDistance > 180.0f)
                 {
@@ -574,31 +584,32 @@ u32 btlUnitUpdateFollowPath(u8 *arg0)
                         nextZ = angle;
                     }
                 }
-                nextZ /= *(f32 *)(arg0 + 0x4F4);
-                frame.rotation = *(RtQuat *)(arg0 + 0x1C);
+                nextZ /= *(f32 *)(context + 0x4F4);
+                frame.rotation = ((BtlUnit *)context)->rot;
                 func_003dc740(&frame.rotation, D_0060A0E0, 2, nextZ);
             }
             else
             {
                 angle = turn;
                 func_003dc740(&frame.rotation, D_0060A0E0, 0, angle);
-                *(u32 *)(arg0 + 0xC4) &= ~2;
-                *(u16 *)(arg0 + 0xC8) &= 0xFFFD;
+                ((BtlUnit *)context)->stateFlags &= ~2;
+                *(u16 *)(context + 0xC8) &= 0xFFFD;
             }
-            if (!(*(u32 *)(arg0 + 0x9C) & 0x2000))
+            if (!(*(u32 *)(context + 0x9C) & 0x2000))
             {
-                *(RtQuat *)(arg0 + 0x1C) = frame.rotation;
-                *(u32 *)(arg0 + 0x98) |= 4;
+                ((BtlUnit *)context)->rot = frame.rotation;
+                ((BtlUnit *)context)->flags2 |= 4;
             }
         }
         else
         {
-            *(u32 *)(arg0 + 0xC4) &= ~2;
-            *(u16 *)(arg0 + 0xC8) &= 0xFFFD;
+            ((BtlUnit *)context)->stateFlags &= ~2;
+            *(u16 *)(context + 0xC8) &= 0xFFFD;
         }
     }
     return 0;
 }
+/* Initialize a move destination relative to another unit, then run the normal move-packet update. */
 // FUN_001974F0
 u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* packet)
 {
@@ -830,8 +841,10 @@ struct BtlUnitPacketAnim
 /* measured: plain-C reconstruction matches the 640B retail window with
    normalized_diff 0; a named u8 boolean plus zero-guard reproduces retail's
    sltu/bnez tail layout. */
+/* Face or follow another unit, optionally using its grid-space sphere center. */
+/* measured: remaining unit/packet reloads changed MATCH when typed; the quaternion copy and later facing point keep their existing raw aggregate shape. */
 // FUN_00198050
-s32 btlUnitRotateTowardUnitPacketUpdate(u8 *arg0)
+s32 btlUnitRotateTowardUnitPacketUpdate(u8 *packetData)
 {
     struct Btl980Rot {
         f32 x;
@@ -845,77 +858,77 @@ s32 btlUnitRotateTowardUnitPacketUpdate(u8 *arg0)
         f32 transformedPad;
         RwV3d scaled;
     } work;
-    u8 *temp_17;
-    u8 *temp_16;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    s32 temp_3;
-    u8 temp_4;
-    f32 var_f12;
-    f32 var_f13;
+    u8 *unit;
+    u8 *gridTarget;
+    u8 *positionTarget;
+    u8 *followTarget;
+    s32 flags;
+    u8 turnPending;
+    f32 deltaX;
+    f32 deltaZ;
 
-    temp_17 = *(u8 **)(arg0 + 0);
-    if (*(s32 *)(arg0 + 0xC) == 0)
+    unit = (u8 *)((BtlUnitPacketPair *)packetData)->first;
+    if (((BtlUnitPacketPair *)packetData)->timer == 0)
     {
-        temp_3 = *(s32 *)(arg0 + 8);
-        if ((temp_3 & 2) != 0)
+        flags = ((BtlUnitPacketPair *)packetData)->flags;
+        if ((flags & 2) != 0)
         {
-            if ((temp_3 & 0x20) != 0)
+            if ((flags & 0x20) != 0)
             {
-                temp_16 = *(u8 **)(arg0 + 4);
-                work.scaled.x = *(f32 *)(temp_16 + 0x80) * *(f32 *)(temp_16 + 0x2C);
-                work.scaled.y = *(f32 *)(temp_16 + 0x84) * *(f32 *)(temp_16 + 0x2C);
-                work.scaled.z = *(f32 *)(temp_16 + 0x88) * *(f32 *)(temp_16 + 0x2C);
+                gridTarget = (u8 *)((BtlUnitPacketPair *)packetData)->second;
+                work.scaled.x = ((BtlUnit *)gridTarget)->sphereCenter.x * ((BtlUnit *)gridTarget)->scale;
+                work.scaled.y = ((BtlUnit *)gridTarget)->sphereCenter.y * ((BtlUnit *)gridTarget)->scale;
+                work.scaled.z = ((BtlUnit *)gridTarget)->sphereCenter.z * ((BtlUnit *)gridTarget)->scale;
                 RtQuatTransformVectors(&work.transformed, &work.scaled, 1,
-                              (void *)(temp_16 + 0x1C));
-                var_f12 = work.transformed.x
-                    + (f32)((*(s16 *)(temp_16 + 0x94) * 0x19) - 0x6D6)
-                    - *(f32 *)(temp_17 + 4);
-                var_f13 = work.transformed.z
-                    + (f32)((*(s16 *)(temp_16 + 0x96) * 0x19) - 0x6D6)
-                    - *(f32 *)(temp_17 + 0xC);
+                              (void *)(gridTarget + 0x1C));
+                deltaX = work.transformed.x
+                    + (f32)((((BtlUnit *)gridTarget)->unk_94 * 0x19) - 0x6D6)
+                    - ((BtlUnit *)unit)->pos.x;
+                deltaZ = work.transformed.z
+                    + (f32)((((BtlUnit *)gridTarget)->unk_96 * 0x19) - 0x6D6)
+                    - ((BtlUnit *)unit)->pos.z;
             }
             else
             {
-                temp_2 = *(u8 **)(arg0 + 4);
-                var_f12 = *(f32 *)(temp_2 + 4) - *(f32 *)(temp_17 + 4);
-                var_f13 = *(f32 *)(temp_2 + 0xC) - *(f32 *)(temp_17 + 0xC);
+                positionTarget = (u8 *)((BtlUnitPacketPair *)packetData)->second;
+                deltaX = ((BtlUnit *)positionTarget)->pos.x - ((BtlUnit *)unit)->pos.x;
+                deltaZ = ((BtlUnit *)positionTarget)->pos.z - ((BtlUnit *)unit)->pos.z;
             }
-            if ((var_f12 != 0.0f) || (var_f13 != 0.0f))
+            if ((deltaX != 0.0f) || (deltaZ != 0.0f))
             {
                 func_003dc740(&work.rotation, D_0060A0E0, 0,
-                              fGpffff8048 * func_0044b950(var_f12, var_f13));
-                if ((*(s32 *)(temp_17 + 0x9C) & 0x2000) == 0)
+                              fGpffff8048 * func_0044b950(deltaX, deltaZ));
+                if ((((BtlUnit *)unit)->flags3 & 0x2000) == 0)
                 {
-                    *(struct Btl980Rot *)(temp_17 + 0x1C) = work.rotation;
-                    *(s32 *)(temp_17 + 0x98) |= 4;
+                    *(struct Btl980Rot *)(unit + 0x1C) = work.rotation;
+                    ((BtlUnit *)unit)->flags2 |= 4;
                 }
             }
-            *(s32 *)(temp_17 + 0xC4) &= ~2;
-            *(u16 *)(temp_17 + 0xC8) &= 0xFFFD;
-            btlUnitRequestLookAt(temp_17);
+            ((BtlUnit *)unit)->stateFlags &= ~2;
+            ((BtlUnit *)unit)->movementFlags &= 0xFFFD;
+            btlUnitRequestLookAt(unit);
         }
         else
         {
-            if ((temp_3 & 0x20) != 0)
+            if ((flags & 0x20) != 0)
             {
-                btlUnitGetAnchorPose(*(u8 **)(arg0 + 4), temp_17 + 0xD0, 0, NULL);
+                btlUnitGetAnchorPose((u8 *)((BtlUnitPacketPair *)packetData)->second, unit + 0xD0, 0, NULL);
             }
             else
             {
-                temp_2_2 = *(u8 **)(arg0 + 4);
-                *(RwV3d *)(temp_17 + 0xD0) = *(RwV3d *)(temp_2_2 + 4);
+                followTarget = (u8 *)((BtlUnitPacketPair *)packetData)->second;
+                *(RwV3d *)(unit + 0xD0) = *(RwV3d *)(followTarget + 4);
             }
-            *(s32 *)(temp_17 + 0xC4) |= *(s32 *)(arg0 + 8);
-            *(u16 *)(temp_17 + 0xC8) |= 2;
+            *(s32 *)(unit + 0xC4) |= *(s32 *)(packetData + 8);
+            ((BtlUnit *)unit)->movementFlags |= 2;
         }
     }
-    temp_4 = ((*(u16 *)(temp_17 + 0xC8) & 2) != 0) ? 1 : 0;
-    if (temp_4 == 0)
+    turnPending = ((((BtlUnit *)unit)->movementFlags & 2) != 0) ? 1 : 0;
+    if (turnPending == 0)
     {
         return 1;
     }
-    *(s32 *)(arg0 + 0xC) += 1;
+    *(s32 *)(packetData + 0xC) += 1;
     return 0;
 }
 BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
@@ -974,48 +987,50 @@ void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* work);
 u32 btlUnitSetLookAtRanges(void* work);
 void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* work);
 
+/* Retain the unit and reuse or start loading the requested model resource. */
+/* measured: remaining flag/unit reloads changed MATCH when typed; resource handle +0x0C lies in the shared model-load work padding. */
 // FUN_0019ACD0
-void btlUnitModelLoadPacketInit(u8 *arg0)
+void btlUnitModelLoadPacketInit(u8 *packetData)
 {
-    u8 sp30[0x80];
+    u8 modelPath[0x80];
     u8 *p;
     u8 *obj;
     s32 flags;
     u16 coord;
     u8 *made;
 
-    p = *(u8 **)arg0;
-    *(u16 *)(p + 0xA0) = *(u16 *)(p + 0xA0) + 1;
-    if (!(*(u16 *)(arg0 + 8) & 0x200)) {
-        obj = *(u8 **)(p + 0xA00);
+    p = *(u8 **)packetData;
+    ((BtlUnit *)p)->pendingPacketCount = ((BtlUnit *)p)->pendingPacketCount + 1;
+    if (!((u16)((BtlUnitModelLoadPacket *)packetData)->motion & 0x200)) {
+        obj = ((BtlUnit *)p)->layerHandle;
         if (obj != NULL) {
-            coord = *(u16 *)(arg0 + 4);
-            if (coord == *(u16 *)(obj + 0xD4)) {
-                coord = *(u16 *)(arg0 + 6);
-                if (coord == *(u16 *)(obj + 0xD6)) {
+            coord = (u16)((BtlUnitModelLoadPacket *)packetData)->genus;
+            if (coord == ((MdlFileModel *)obj)->type) {
+                coord = (u16)((BtlUnitModelLoadPacket *)packetData)->modelId;
+                if (coord == ((MdlFileModel *)obj)->id) {
                     return;
                 }
             }
             mdlDestroyModelObject(obj);
             *(u8 **)(p + 0xA00) = NULL;
         }
-        made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
+        made = mdlFindModelObject((u16)((BtlUnitModelLoadPacket *)packetData)->genus, (u16)((BtlUnitModelLoadPacket *)packetData)->modelId, 0);
         if (made != 0) {
             *(u8 **)(p + 0xA00) = (u8 *)mdlCloneModelObject(made);
-            flags = *(s32 *)(p + 0x98) | 2;
-            *(s32 *)(p + 0x98) = flags;
-            *(s32 *)(p + 0x98) = flags | 1;
+            flags = ((BtlUnit *)p)->flags2 | 2;
+            ((BtlUnit *)p)->flags2 = flags;
+            ((BtlUnit *)p)->flags2 = flags | 1;
             return;
         }
     }
-    if (!(*(u16 *)(arg0 + 8) & 0x10)) {
-        mdlBuildModelPath(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)&sp30[0]);
+    if (!(*(u16 *)(packetData + 8) & 0x10)) {
+        mdlBuildModelPath((u16)((BtlUnitModelLoadPacket *)packetData)->genus, (u16)((BtlUnitModelLoadPacket *)packetData)->modelId, (char *)&modelPath[0]);
         func_00440b68(&iGpffffa0b0, D_005F6D00, 0xD98);
-        *(s32 *)(arg0 + 0xC) = H_Cdvd_AcquireDirectory(&sp30[0], 0);
-        *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) | 1;
+        *(s32 *)(packetData + 0xC) = H_Cdvd_AcquireDirectory(&modelPath[0], 0);
+        ((BtlUnit *)p)->flags2 = ((BtlUnit *)p)->flags2 | 1;
     }
-    if (!(*(u16 *)(arg0 + 8) & 0x200)) {
-        *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) & ~2;
+    if (!(*(u16 *)(packetData + 8) & 0x200)) {
+        ((BtlUnit *)p)->flags2 = ((BtlUnit *)p)->flags2 & ~2;
     }
 }
 static inline u8 *btlUnitOffsetAdd(u32 offset, u8 *base)
@@ -1030,142 +1045,145 @@ static inline u8 *btlUnitOffsetAdd(u32 offset, u8 *base)
    at the merge; the percentage scale goes through a `speed` local set to
    1.0f, which keeps retail's `mul.s` by one; the character table offset goes
    through the offset-first add helper; both tail switches are switches. */
+/* Finish model loading, apply resource/material state, initialize motion, and publish the unit transform. */
+/* measured: remaining packet-field substitutions changed MATCH. Resource handle +0x0C, persona material flags, and model color bytes lie in opaque shared spans. */
 // FUN_0019AE20
-s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
+/* The constructor names +0x08 motion; these callbacks interpret that halfword as model flags. */
+s32 btlUnitModelMotionPacketUpdate(u8 *packetData) {
     extern f32 mdlGetLayerKeyTime(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
     extern void mdlSetLayerTime(void *a, s32 b, f32 c);
     extern u32 datCalcRandomBelow(u32 a);
-    u8 *t17;
+    u8 *unitData;
     BtlUnit *unit;
-    u8 *t4;
+    u8 *model;
     u8 *made;
-    s32 t2;
-    u16 v2;
+    s32 modelFlags;
+    u16 motion;
     f32 speed;
-    s16 v2_2;
-    s16 s5;
-    f32 f0;
-    s16 t16;
-    u16 t16_flags;
-    s32 t16_sts;
-    s32 t3_8;
-    u8 t3;
-    u8 sp80[128];
+    s16 frameCount;
+    s16 motionId;
+    f32 keyTime;
+    s16 randomFrame;
+    u16 resourceFlags;
+    s32 childFlags;
+    s32 hasMotion;
+    u8 genus;
+    u8 modelPath[128];
     struct { RwV3d right; u32 flags; RwV3d up; u32 pad1; RwV3d at; u32 pad2; RwV3d pos; u32 pad3; } mat;
-    f32 sp100[3];
+    f32 transformVector[3];
 
-    t17 = *(u8 **)arg0;
-    unit = (BtlUnit *)t17;
+    unitData = *(u8 **)packetData;
+    unit = (BtlUnit *)unitData;
     if ((unit->flags2 & 1) == 0) {
-        made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
+        made = mdlFindModelObject((u16)((BtlUnitModelLoadPacket *)packetData)->genus, (u16)((BtlUnitModelLoadPacket *)packetData)->modelId, 0);
         if (made != 0) {
             unit->layerHandle = (u8 *)mdlCloneModelObject(made);
         } else {
-            mdlBuildModelPath(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)sp80);
+            mdlBuildModelPath(*(u16 *)(packetData + 4), *(u16 *)(packetData + 6), (char *)modelPath);
             func_00440b68(&iGpffffa0b0, D_005F6D00, 0xDC9);
-            *(s32 *)(arg0 + 0xC) = H_Cdvd_AcquireDirectory(sp80, 0);
+            *(s32 *)(packetData + 0xC) = H_Cdvd_AcquireDirectory(modelPath, 0);
             unit->flags2 |= 1;
         }
     }
-    t4 = unit->layerHandle;
-    if (t4 == NULL) {
-        if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 0xC)) != 0) {
-            t4 = mdlCreateModelObjectFromResource(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(void **)(arg0 + 0xC), 0);
-            unit->layerHandle = t4;
-            mdlAppBindSecondaryText((void *)t4);
-            if (*(u16 *)(arg0 + 4) == 1) {
+    model = unit->layerHandle;
+    if (model == NULL) {
+        if (H_Cdvd_IsFileLoaded(*(s32 *)(packetData + 0xC)) != 0) {
+            model = mdlCreateModelObjectFromResource((u16)((BtlUnitModelLoadPacket *)packetData)->genus, (u16)((BtlUnitModelLoadPacket *)packetData)->modelId, *(void **)(packetData + 0xC), 0);
+            unit->layerHandle = model;
+            mdlAppBindSecondaryText((void *)model);
+            if (*(u16 *)(packetData + 4) == 1) {
                 mdlRunSetupCallback(unit->layerHandle);
             }
         }
-    } else if (mdlPrepareModel(t4) != 0) {
-        if (*(u16 *)(arg0 + 8) & 4) {
-            t3 = unit->genus;
-            switch (t3) {
+    } else if (mdlPrepareModel(model) != 0) {
+        if ((u16)((BtlUnitModelLoadPacket *)packetData)->motion & 4) {
+            genus = unit->genus;
+            switch (genus) {
             case 0: {
                 unit->sceneDrawId = MT_Scene_CreateModelCharRes(unit->charId, unit->layerHandle);
                 SceneDraw_SetDirectionalOnly(unit->sceneDrawId, 1);
-                *(u32 *)(unit->layerHandle + 0xD8) |= 0x400;
+                ((MdlFileModel *)unit->layerHandle)->flags |= 0x400;
                 mdlClumpSetEnvMapState(mdlGetClump(unit->layerHandle));
             } break;
             case 1: {
                 unit->sceneDrawId = MT_Scene_CreateModelCharRes(btlFindFreeCharResId(), unit->layerHandle);
                 SceneDraw_SetDirectionalOnly(unit->sceneDrawId, 1);
-                t16_flags = *(u16 *)(btlUnitOffsetAdd(unit->charId * 0xE8, iGpffffb3cc) + 0x18);
-                if (t16_flags & 2) {
-                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x200;
+                resourceFlags = *(u16 *)(btlUnitOffsetAdd(unit->charId * 0xE8, iGpffffb3cc) + 0x18);
+                if (resourceFlags & 2) {
+                    ((MdlFileModel *)unit->layerHandle)->flags |= 0x200;
                 }
-                if (t16_flags & 8) {
-                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x400;
+                if (resourceFlags & 8) {
+                    ((MdlFileModel *)unit->layerHandle)->flags |= 0x400;
                 }
-                if (t16_flags & 0x10) {
-                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x800;
+                if (resourceFlags & 0x10) {
+                    ((MdlFileModel *)unit->layerHandle)->flags |= 0x800;
                 }
             } break;
             case 2: {
-                *(u32 *)(unit->layerHandle + 0xD8) &= ~0x100;
-                t16_sts = datGetPersonaFlagClass(unit->charId) & 0xFFFF;
-                if (t16_sts & 2) {
-                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x200;
-                } else if (t16_sts & 4) {
-                    btlUnitClearModelState(t17, 2);
-                    *(u16 *)(arg0 + 8) &= ~1;
+                ((MdlFileModel *)unit->layerHandle)->flags &= ~0x100;
+                childFlags = datGetPersonaFlagClass(unit->charId) & 0xFFFF;
+                if (childFlags & 2) {
+                    ((MdlFileModel *)unit->layerHandle)->flags |= 0x200;
+                } else if (childFlags & 4) {
+                    btlUnitClearModelState(unitData, 2);
+                    *(u16 *)(packetData + 8) &= ~1;
                 }
-                if (t16_sts & 8) {
-                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x400;
+                if (childFlags & 8) {
+                    ((MdlFileModel *)unit->layerHandle)->flags |= 0x400;
                 }
                 unit->sceneDrawId = MT_Scene_CreateModelUnkRes(unit->charId, unit->layerHandle);
             } break;
             }
         }
-        t2 = unit->flags2 & ~1;
-        unit->flags2 = t2;
-        unit->flags2 = t2 | 2;
-        btlUnitApplyModelState(t17, 4);
-        if (*(u16 *)(arg0 + 8) & 8) {
+        modelFlags = unit->flags2 & ~1;
+        unit->flags2 = modelFlags;
+        unit->flags2 = modelFlags | 2;
+        btlUnitApplyModelState(unitData, 4);
+        if (*(u16 *)(packetData + 8) & 8) {
             unit->cols[0].alpha = 0;
         }
-        if (*(u16 *)(arg0 + 8) & 1) {
-            btlUnitApplyModelState(t17, 2);
+        if (*(u16 *)(packetData + 8) & 1) {
+            btlUnitApplyModelState(unitData, 2);
         }
-        if (*(u16 *)(arg0 + 8) & 2) {
-            btlUnitApplyModelState(t17, 1);
+        if (*(u16 *)(packetData + 8) & 2) {
+            btlUnitApplyModelState(unitData, 1);
         }
-        if (*(u16 *)(arg0 + 8) & 0x100) {
+        if (*(u16 *)(packetData + 8) & 0x100) {
             *(u8 *)(unit->layerHandle + 0x280) = 0;
             *(u8 *)(unit->layerHandle + 0x281) = 0;
             *(u8 *)(unit->layerHandle + 0x282) = 0;
         }
-        if (*(u16 *)(arg0 + 8) & 0x40) {
-            btlTargetAddRadiusNode(t17, 0);
+        if (*(u16 *)(packetData + 8) & 0x40) {
+            btlTargetAddRadiusNode(unitData, 0);
         }
-        if (*(u16 *)(arg0 + 8) & 0x20) {
-            btlUnitUpdateStatusMotion(t17, 0);
-            btlUnitSetMotion(t17, unit->restMotion, 0, unit->restRate, unit->restOption);
-            t3_8 = unit->flags2 & 2;
-            v2 = (u16)((t3_8 != 0) ? unit->currentMotion : 0);
-            if (t3_8 == 0) {
-                v2_2 = 0;
+        if (*(u16 *)(packetData + 8) & 0x20) {
+            btlUnitUpdateStatusMotion(unitData, 0);
+            btlUnitSetMotion(unitData, unit->restMotion, 0, unit->restRate, unit->restOption);
+            hasMotion = unit->flags2 & 2;
+            motion = (u16)((hasMotion != 0) ? unit->currentMotion : 0);
+            if (hasMotion == 0) {
+                frameCount = 0;
             } else {
                 speed = 1.0f;
-                s5 = btlUnitGetMotionId(t17, v2);
-                f0 = mdlGetLayerKeyTime(unit->layerHandle, 0, s5);
-                if (s5 < unit->motionCount) {
-                    v2_2 = (s16)(s32)(f0 / (speed * ((f32)(unit->motionRates)[s5].rate / 100.0f)));
+                motionId = btlUnitGetMotionId(unitData, motion);
+                keyTime = mdlGetLayerKeyTime(unit->layerHandle, 0, motionId);
+                if (motionId < unit->motionCount) {
+                    frameCount = (s16)(s32)(keyTime / (speed * ((f32)(unit->motionRates)[motionId].rate / 100.0f)));
                 } else {
-                    v2_2 = (s16)(s32)f0;
+                    frameCount = (s16)(s32)keyTime;
                 }
             }
-            t16 = datCalcRandomBelow((u32)v2_2);
+            randomFrame = datCalcRandomBelow((u32)frameCount);
             if (unit->flags2 & 2) {
-                mdlSetLayerTime(unit->layerHandle, 0, (f32)t16);
+                mdlSetLayerTime(unit->layerHandle, 0, (f32)randomFrame);
             }
         }
-        if (*(s32 *)(arg0 + 0xC) != 0) {
-            H_Cdvd_Destroy(*(s32 *)(arg0 + 0xC));
+        if (*(s32 *)(packetData + 0xC) != 0) {
+            H_Cdvd_Destroy(*(s32 *)(packetData + 0xC));
         }
-        t3 = unit->genus;
-        switch (t3) {
+        genus = unit->genus;
+        switch (genus) {
         case 0:
         case 1: {
             f32 x = unit->rot.imag.x;
@@ -1199,12 +1217,12 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             mat.pos.z = 0;
             mat.flags = 3;
             mdlApplyModelMatrix(unit->layerHandle, &mat, 0);
-            sp100[0] = sp100[1] = sp100[2] = unit->scale;
-            mdlScale(unit->layerHandle, sp100, 2);
-            sp100[0] = unit->pos.x + unit->posOffset.x;
-            sp100[1] = unit->pos.y + unit->posOffset.y;
-            sp100[2] = unit->pos.z + unit->posOffset.z;
-            mdlTranslateMatrix(unit->layerHandle, sp100, 2);
+            transformVector[0] = transformVector[1] = transformVector[2] = unit->scale;
+            mdlScale(unit->layerHandle, transformVector, 2);
+            transformVector[0] = unit->pos.x + unit->posOffset.x;
+            transformVector[1] = unit->pos.y + unit->posOffset.y;
+            transformVector[2] = unit->pos.z + unit->posOffset.z;
+            mdlTranslateMatrix(unit->layerHandle, transformVector, 2);
             mdlUpdateModelMatrix(unit->layerHandle);
             mdlPrepareItemSlots(unit->layerHandle);
         } break;
@@ -1214,22 +1232,22 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
     return 0;
 }
 // FUN_0019BCB0
-s32 btlUnitShowPacketUpdate(u8 *arg0) {
-    btlUnitShowModel(*(u8 **)arg0);
+s32 btlUnitShowPacketUpdate(u8 *context) {
+    btlUnitShowModel(*(u8 **)context);
     return 1;
 }
 // FUN_0019BD80
-s32 btlUnitHidePacketUpdate(u8 *arg0) {
-    btlUnitHideModel(*(u8 **)arg0);
+s32 btlUnitHidePacketUpdate(u8 *context) {
+    btlUnitHideModel(*(u8 **)context);
     return 1;
 }
 // FUN_0019E130
-void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* arg0) {
+void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* context) {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) - 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount - 1;
     }
 }
 // FUN_0019E150
@@ -1290,6 +1308,7 @@ void btlUnitClearFlags(BtlUnit* unit, u16 flags)
     unit->flags &= ~flags;
     unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
 }
+/* Apply the requested position, rotation, and color overrides and mark the unit dirty. */
 // FUN_00195630
 u32 btlUnitOverridePacketUpdate(BtlUnitPacketPosRotCol* packet)
 {
@@ -1320,6 +1339,7 @@ u32 btlUnitOverridePacketUpdate(BtlUnitPacketPosRotCol* packet)
     return 1;
 }
 
+/* Scale and rotate the local sphere center into world space. */
 // FUN_00195850
 void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
 {
@@ -1342,6 +1362,7 @@ void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
  * cell, -0x6d6 origin) instead of pos.x/pos.z. The two formulas are
  * near-duplicates; the battle target/group and camera callers want the grid
  * position. */
+/* Transform the sphere center using grid coordinates instead of the world XZ position. */
 // FUN_001958F0
 void btlUnitGetGridSphereCenter(BtlUnit* unit, RwV3d* dst)
 {
@@ -1359,8 +1380,9 @@ void btlUnitGetGridSphereCenter(BtlUnit* unit, RwV3d* dst)
     dst->z = rotatedCenter.z + (unit->unk_96 * 25 - 0x6d6);
 }
 
+/* Compute the grid sphere center with a rotation facing another unit. */
 // FUN_00195C50
-void btlUnitGetGridSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
+void btlUnitGetGridSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* outPosition)
 {
     RtQuat rotation;
     RwV3d scaled;
@@ -1371,9 +1393,9 @@ void btlUnitGetGridSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
     RtQuatTransformVectors(&transformed, &scaled, 1, &rotation);
-    param_3->x = transformed.x + (unit->unk_94 * 25 - 0x6d6);
-    param_3->y = transformed.y + unit->pos.y;
-    param_3->z = transformed.z + (unit->unk_96 * 25 - 0x6d6);
+    outPosition->x = transformed.x + (unit->unk_94 * 25 - 0x6d6);
+    outPosition->y = transformed.y + unit->pos.y;
+    outPosition->z = transformed.z + (unit->unk_96 * 25 - 0x6d6);
 }
 
 // FUN_00196B50
@@ -1382,6 +1404,7 @@ u32 btlUnitIsMoving(BtlUnit* unit)
     return (unit->movementFlags & 0x1) != 0;
 }
 
+/* Allocate the move packet work and install its lifecycle callbacks. */
 // FUN_001973F0
 BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 speed, u32 flags)
 {
@@ -1412,18 +1435,21 @@ BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 sp
     return packet;
 }
 
+/* Retain the referenced unit or units for the lifetime of this packet. */
 // FUN_001974D0
 void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* packet)
 {
     packet->unit->pendingPacketCount++;
 }
 
+/* Release the unit references held by this packet. */
 // FUN_001979C0
 void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* packet)
 {
     packet->unit->pendingPacketCount--;
 }
 
+/* Retain the referenced unit or units for the lifetime of this packet. */
 // FUN_00198020
 void btlUnitHoldPendingPair(BtlUnitPacketPair* packet)
 {
@@ -1431,6 +1457,7 @@ void btlUnitHoldPendingPair(BtlUnitPacketPair* packet)
     packet->second->pendingPacketCount++;
 }
 
+/* Release the unit references held by this packet. */
 // FUN_001982D0
 void btlUnitReleasePendingPair(BtlUnitPacketPair* packet)
 {
@@ -1438,12 +1465,14 @@ void btlUnitReleasePendingPair(BtlUnitPacketPair* packet)
     packet->second->pendingPacketCount--;
 }
 
+/* Retain the referenced unit or units for the lifetime of this packet. */
 // FUN_0019A350
 void btlUnitHoldPendingUnit(BtlUnitPacketUnitAtC* packet)
 {
     packet->unit->pendingPacketCount++;
 }
 
+/* Release the unit references held by this packet. */
 // FUN_0019A5C0
 void btlUnitReleasePendingUnit(BtlUnitPacketUnitAtC* packet)
 {
@@ -1465,16 +1494,18 @@ void btlUnitSetChildValue(BtlUnitStateWork* work, u16 value)
     }
 }
 
+/* Retain the referenced unit or units for the lifetime of this packet. */
 // FUN_0019DF00
-void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* arg0) {
+void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* context) {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount + 1;
     }
 }
 
+/* Retain the referenced unit or units for the lifetime of this packet. */
 // FUN_0019E1F0
 void btlUnitHoldPendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
 {
@@ -1485,6 +1516,8 @@ void btlUnitHoldPendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
     packet->second->pendingPacketCount++;
 }
 
+/* Configure look-at ranges and target ids for one unit or the requested party/enemy lists. */
+/* measured: remaining packet/model-state reloads changed MATCH when typed; retain the raw loads across model callbacks. */
 // FUN_0019E220
 u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
 {
@@ -1505,16 +1538,16 @@ u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
     u8* secondTarget;
     u8* singleTarget;
 
-    if ((*(u16 *)(packet + 8) & 3) != 0)
+    if ((((BtlUnitPacketTwoUnits *)packet)->flags & 3) != 0)
     {
-        if ((*(u16 *)(packet + 8) & 1) != 0)
+        if ((((BtlUnitPacketTwoUnits *)packet)->flags & 1) != 0)
         {
-            firstCurrent = (u8 *)*(BtlUnit **)(iGpffffb3ac + 0x17c);
+            firstCurrent = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
             while (firstCurrent != NULL)
             {
-                if ((*(u32 *)(firstCurrent + 0x9c) & 8) != 0)
+                if ((((BtlUnit *)firstCurrent)->flags3 & 8) != 0)
                 {
-                    firstTarget = *(u8 **)(packet + 4);
+                    firstTarget = (u8 *)((BtlUnitPacketTwoUnits *)packet)->second;
                     if (&firstHigh != NULL)
                     {
                         firstHigh = 70.0f;
@@ -1530,31 +1563,31 @@ u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
                         f32 lowArg;
                         lowArg = firstLow;
                         highArg = firstHigh;
-                        if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
+                        if ((((BtlUnit *)firstCurrent)->flags2 & 2) != 0)
                         {
-                            mdlLookAtSetupSetRange(*(void **)(firstCurrent + 0xa00), highArg, lowArg);
+                            mdlLookAtSetupSetRange((void *)((BtlUnit *)firstCurrent)->layerHandle, highArg, lowArg);
                         }
                     }
                     if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
                     {
-                        mdlSetBlendWeight(*(void **)(firstCurrent + 0xa00), 0.25f);
+                        mdlSetBlendWeight((void *)((BtlUnit *)firstCurrent)->layerHandle, 0.25f);
                     }
-                    *(u16 *)(firstCurrent + 0xb0) = 2;
-                    *(u32 *)(firstCurrent + 0xb4) =
-                        *(u32 *)(firstTarget + 0xa8);
+                    ((BtlUnit *)firstCurrent)->lookAtMode = 2;
+                    ((BtlUnit *)firstCurrent)->lookAtTargetId =
+                        ((BtlUnit *)firstTarget)->id;
                     btlUnitApplyModelState(firstCurrent, 3);
             }
-                firstCurrent = (u8 *)*(BtlUnit **)(firstCurrent + 0xa68);
+                firstCurrent = (u8 *)((BtlUnit *)firstCurrent)->prevUnit;
         }
         }
         if ((*(u16 *)(packet + 8) & 2) != 0)
         {
-            secondCurrent = (u8 *)*(BtlUnit **)(iGpffffb3ac + 0x184);
+            secondCurrent = ((BtlBattleState *)iGpffffb3ac)->unitLists[3];
             while (secondCurrent != NULL)
             {
-                if ((*(u32 *)(secondCurrent + 0x9c) & 8) != 0)
+                if ((((BtlUnit *)secondCurrent)->flags3 & 8) != 0)
                 {
-                    secondTarget = *(u8 **)(packet + 4);
+                    secondTarget = (u8 *)((BtlUnitPacketTwoUnits *)packet)->second;
                     if (&secondHigh != NULL)
                     {
                         secondHigh = 70.0f;
@@ -1570,28 +1603,28 @@ u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
                         f32 lowArg;
                         lowArg = secondLow;
                         highArg = secondHigh;
-                        if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
+                        if ((((BtlUnit *)secondCurrent)->flags2 & 2) != 0)
                         {
-                            mdlLookAtSetupSetRange(*(void **)(secondCurrent + 0xa00), highArg, lowArg);
+                            mdlLookAtSetupSetRange((void *)((BtlUnit *)secondCurrent)->layerHandle, highArg, lowArg);
                         }
                     }
                     if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
                     {
-                        mdlSetBlendWeight(*(void **)(secondCurrent + 0xa00), 0.25f);
+                        mdlSetBlendWeight((void *)((BtlUnit *)secondCurrent)->layerHandle, 0.25f);
                     }
-                    *(u16 *)(secondCurrent + 0xb0) = 2;
-                    *(u32 *)(secondCurrent + 0xb4) =
-                        *(u32 *)(secondTarget + 0xa8);
+                    ((BtlUnit *)secondCurrent)->lookAtMode = 2;
+                    ((BtlUnit *)secondCurrent)->lookAtTargetId =
+                        ((BtlUnit *)secondTarget)->id;
                     btlUnitApplyModelState(secondCurrent, 3);
                 }
-                secondCurrent = (u8 *)*(BtlUnit **)(secondCurrent + 0xa68);
+                secondCurrent = (u8 *)((BtlUnit *)secondCurrent)->prevUnit;
             }
         }
     }
     else
     {
-        singleTarget = *(u8 **)(packet + 4);
-        singleCurrent = *(u8 **)(packet + 0);
+        singleTarget = (u8 *)((BtlUnitPacketTwoUnits *)packet)->second;
+        singleCurrent = (u8 *)((BtlUnitPacketTwoUnits *)packet)->first;
         if (&singleHigh != NULL)
         {
             singleHigh = 70.0f;
@@ -1607,22 +1640,23 @@ u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
             f32 lowArg;
             lowArg = singleLow;
             highArg = singleHigh;
-            if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
+            if ((((BtlUnit *)singleCurrent)->flags2 & 2) != 0)
             {
-                mdlLookAtSetupSetRange(*(void **)(singleCurrent + 0xa00), highArg, lowArg);
+                mdlLookAtSetupSetRange((void *)((BtlUnit *)singleCurrent)->layerHandle, highArg, lowArg);
             }
         }
         if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
         {
-            mdlSetBlendWeight(*(void **)(singleCurrent + 0xa00), 0.25f);
+            mdlSetBlendWeight((void *)((BtlUnit *)singleCurrent)->layerHandle, 0.25f);
         }
-        *(u16 *)(singleCurrent + 0xb0) = 2;
-        *(u32 *)(singleCurrent + 0xb4) =
-            *(u32 *)(singleTarget + 0xa8);
+        ((BtlUnit *)singleCurrent)->lookAtMode = 2;
+        ((BtlUnit *)singleCurrent)->lookAtTargetId =
+            ((BtlUnit *)singleTarget)->id;
         btlUnitApplyModelState(singleCurrent, 3);
     }
     return 1;
 }
+/* Release the unit references held by this packet. */
 // FUN_0019E520
 void btlUnitReleasePendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
 {
@@ -1648,28 +1682,31 @@ struct BtlUnitPacket00284900
 
 s16 btlUnitGetMotionState(BtlUnit* unit);
 u16 datCalcRandomBelow(u32 max);
-void btlUnitSetModelAnimFrame(BtlUnit* unit, s32 param_2);
+void btlUnitSetModelAnimFrame(BtlUnit* unit, s32 outPosition);
 extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 
+/* Retain the referenced unit or units for the lifetime of this packet. */
 // FUN_0019E830
-void btlUnitHoldPendingLookAt(u8 *arg0) {
+void btlUnitHoldPendingLookAt(u8 *context) {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount + 1;
     }
 }
+/* Release the unit references held by this packet. */
 // FUN_0019E9D0
-void btlUnitReleasePendingLookAt(u8 *arg0) {
+void btlUnitReleasePendingLookAt(u8 *context) {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL) {
-        *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) - 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount - 1;
     }
 }
+/* Face a world-space target unless rotation is locked, then refresh look-at state. */
 // FUN_00195590
 void btlUnitFaceTarget(BtlUnit* unit, const RwV3d* target)
 {
@@ -1684,8 +1721,9 @@ void btlUnitFaceTarget(BtlUnit* unit, const RwV3d* target)
     btlUnitRequestLookAt(unit);
 }
 
+/* Transform the animation-table bounds center into world space. */
 // FUN_001959D0
-void btlUnitGetAnimBoundsWorldCenter(BtlUnit* unit, RwV3d* param_2)
+void btlUnitGetAnimBoundsWorldCenter(BtlUnit* unit, RwV3d* outPosition)
 {
     const BtlUnitAnimBounds* bounds;
     RwV3d scaled;
@@ -1702,13 +1740,14 @@ void btlUnitGetAnimBoundsWorldCenter(BtlUnit* unit, RwV3d* param_2)
     scaled.y = centerY * unit->scale;
     scaled.z = centerZ * unit->scale;
     RtQuatTransformVectors(&transformed, &scaled, 1, &unit->rot);
-    param_2->x = transformed.x + unit->pos.x;
-    param_2->y = transformed.y + unit->pos.y;
-    param_2->z = transformed.z + unit->pos.z;
+    outPosition->x = transformed.x + unit->pos.x;
+    outPosition->y = transformed.y + unit->pos.y;
+    outPosition->z = transformed.z + unit->pos.z;
 }
 
+/* Transform the sphere center using a rotation facing the target unit. */
 // FUN_00195AA0
-void btlUnitGetSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
+void btlUnitGetSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* outPosition)
 {
     RtQuat rotation;
     RwV3d scaled;
@@ -1719,13 +1758,14 @@ void btlUnitGetSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* p
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
     RtQuatTransformVectors(&transformed, &scaled, 1, &rotation);
-    param_3->x = transformed.x + unit->pos.x;
-    param_3->y = transformed.y + unit->pos.y;
-    param_3->z = transformed.z + unit->pos.z;
+    outPosition->x = transformed.x + unit->pos.x;
+    outPosition->y = transformed.y + unit->pos.y;
+    outPosition->z = transformed.z + unit->pos.z;
 }
 
+/* Return the world sphere center with the HUD vertical offset. */
 // FUN_00195EA0
-void btlUnitGetHudAnchor(BtlUnit* unit, RwV3d* param_2)
+void btlUnitGetHudAnchor(BtlUnit* unit, RwV3d* outPosition)
 {
     RwV3d scaled;
     RwV3d transformed;
@@ -1734,14 +1774,15 @@ void btlUnitGetHudAnchor(BtlUnit* unit, RwV3d* param_2)
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
     RtQuatTransformVectors(&transformed, &scaled, 1, &unit->rot);
-    param_2->x = transformed.x + unit->pos.x;
-    param_2->y = transformed.y + unit->pos.y;
-    param_2->z = transformed.z + unit->pos.z;
-    param_2->y += unit->unk_8c * unit->scale * DAT_007613f8;
+    outPosition->x = transformed.x + unit->pos.x;
+    outPosition->y = transformed.y + unit->pos.y;
+    outPosition->z = transformed.z + unit->pos.z;
+    outPosition->y += unit->unk_8c * unit->scale * DAT_007613f8;
 }
 
+/* Return the world sphere center with a quarter-height status-marker offset. */
 // FUN_00195F70
-void btlUnitGetStatusMarkerPoint(BtlUnit* unit, RwV3d* param_2)
+void btlUnitGetStatusMarkerPoint(BtlUnit* unit, RwV3d* outPosition)
 {
     RwV3d scaled;
     RwV3d transformed;
@@ -1750,12 +1791,13 @@ void btlUnitGetStatusMarkerPoint(BtlUnit* unit, RwV3d* param_2)
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
     RtQuatTransformVectors(&transformed, &scaled, 1, &unit->rot);
-    param_2->x = transformed.x + unit->pos.x;
-    param_2->y = transformed.y + unit->pos.y;
-    param_2->z = transformed.z + unit->pos.z;
-    param_2->y += unit->unk_8c * unit->scale * 0.25f;
+    outPosition->x = transformed.x + unit->pos.x;
+    outPosition->y = transformed.y + unit->pos.y;
+    outPosition->z = transformed.z + unit->pos.z;
+    outPosition->y += unit->unk_8c * unit->scale * 0.25f;
 }
 
+/* Set the model to a random frame within the current motion. */
 // FUN_001987A0
 void btlUnitSetRandomAnimFrame(BtlUnit* unit)
 {
@@ -1767,6 +1809,7 @@ void btlUnitSetRandomAnimFrame(BtlUnit* unit)
     btlUnitSetModelAnimFrame(unit, animation);
 }
 
+/* Advance the temporary arc displacement and restore/offset the saved position unless movement is locked. */
 // FUN_0019A370
 u32 btlUnitPacketArcOffsetUpdate(void* work)
 {

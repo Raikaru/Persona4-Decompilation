@@ -67,7 +67,8 @@ struct BtlUnit
     s8 restOption;                /* 0x9F4 */
     u8 unk_9f5[0x09F8 - 0x09F5];
     BtlMotionRate *motionRates;   /* 0x9F8 */
-    u8 unk_9fc[0x09FE - 0x09FC];
+    s8 cameraSlot;               /* 0x9FC. Negative means no camera slot; teardown clears a nonnegative slot */
+    u8 pad9FD;
     u16 sceneDrawId;              /* 0x9FE. Scene draw id from MT_Scene_CreateModelCharRes, passed to SceneDraw_SetDirectionalOnly */
     u8 *layerHandle;              /* 0xA00. Model object passed to the mdl layer helpers */
     u8 unk_a04[0x0A0C - 0x0A04];

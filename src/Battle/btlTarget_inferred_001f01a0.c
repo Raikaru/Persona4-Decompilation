@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -37,13 +38,13 @@ extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern s32 datCalcEnemyHasTableFlag(s32 arg0);
+extern s32 datCalcEnemyHasTableFlag(s32);
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00624FF0[])(u8 *, s32, s32);
 
 
 
@@ -85,17 +86,18 @@ extern u8 D_00624FA0[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f01a0-001f0260 */
 
 // FUN_001F01A0
-s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1)
+/* Select the party status-message code, with a target-dependent variant for unit three. */
+s32 btlTargetGetStatusEffectMsgCode(u8 *action, u8 *target)
 {
-    u16 temp_2;
+    u16 unitId;
 
-    temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-    switch (temp_2) {
+    unitId = ((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->charId;
+    switch (unitId) {
     case 2:
         return 0x104;
     case 3:
-        if ((arg1 != NULL) &&
-            (datCalcEnemyHasTableFlag(*(s32 *)(*(u8 **)(arg1 + 0x30) + 0xA64)) != 0)) {
+        if ((target != NULL) &&
+            (datCalcEnemyHasTableFlag((s32)(((BtlUnit *)((u8 *)(((BtlAction *)target)->unit)))->datUnit)) != 0)) {
             return 0x10A;
         }
         return 0x105;
@@ -113,8 +115,9 @@ s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1)
 }
 
 // FUN_001F0260
-s64 func_001f0260(s32 arg0) {
-    switch (arg0) {                                 /* irregular */
+/* Map supported skill IDs to their effect codes; unsupported IDs return zero. */
+s64 btlTargetSkillEffectCode(s32 skill) {
+    switch (skill) {                                 /* irregular */
     case 0xDA:
     case 0xDB:
         return 0x40;

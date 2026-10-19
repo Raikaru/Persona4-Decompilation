@@ -3060,7 +3060,7 @@ void btlMessageInstallWindow(s32 task, u8 *window)
     panel = hud + 0x84C;
     ((BtlHudWork *)hud)->message.result = -1;
     ((BtlHudWork *)hud)->message.choiceFrame = 0;
-    ((BtlMessagePanel *)panel)->choiceWindow = itfMesWindowInstall(func_001f3b80(0xCB));
+    ((BtlMessagePanel *)panel)->choiceWindow = itfMesWindowInstall(btlTargetGetMessageRecord(0xCB));
     ((BtlMessagePanel *)panel)->choiceRecord = 0;
     ((BtlMessagePanel *)panel)->choiceStarted = 0;
     ((BtlMessagePanel *)panel)->inputDelay = 8;

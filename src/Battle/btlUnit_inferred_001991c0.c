@@ -1,3 +1,4 @@
+#include "btl_unit_packet_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -10,19 +11,6 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
-typedef RwV3d P4_95730_Vec3;
-typedef struct P4_95730_Vec4 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4_95730_Vec4;
-typedef struct P4_95730_Bytes4 {
-    u8 x;
-    u8 y;
-    u8 z;
-    u8 w;
-} P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
 
 extern f32 fGpffff8474;
@@ -30,7 +18,7 @@ extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
+extern s32 datCalcSkillElement(u8 *data, u16 value);
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
@@ -62,7 +50,7 @@ extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCe
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
-extern P4_95730_Vec3 D_0060A0D0;
+extern RwV3d D_0060A0D0;
 extern f32 fGpffff82d0;
 extern f32 fGpffff811c;
 extern f32 fGpffff8198;
@@ -72,47 +60,47 @@ extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
-extern P4_95730_Vec3 D_0060A100;
-extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
+extern RwV3d D_0060A100;
+extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *p4_unit_00195530(s32 offset, u8 *base)
+static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
 {
     return (u8 *)(offset + (s32)base);
 }
-static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
+static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
 {
     return base + offset;
 }
-static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
+static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
 {
     return (s32 *)((s32)base + offset);
 }
-static inline s32 p4_base_add_00194590(s32 offset, s32 base)
+static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
 {
     return offset + base;
 }
-static inline u8 p4_one_00194470(void)
+static inline u8 btlUnitOne(void)
 {
     return 1;
 }
-static inline s64 p4_sign16_001991c0(s16 value)
+static inline s64 btlUnitExtendSignedHalfword(s16 value)
 {
     return value;
 }
-static inline s32 p4_table_001951f0(s32 modeOffset, s32 charOffset,
+static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
                                     s32 base)
 {
     return modeOffset + charOffset + base;
 }
-static inline f32 p4_add_0019a680(f32 left, f32 right)
+static inline f32 btlUnitAddProgress(f32 left, f32 right)
 {
     return left + right;
 }
-static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
+static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
 {
     u8 *address;
     u8 *stored;
@@ -120,18 +108,19 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
     stored = value;
     address = base;
     address = (u8 *)((u32)(index << 3) + (u32)(address, address));
+    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
     *(u8 **)(address + offset) = stored;
 }
 
-extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-extern void mdlSetLayerTime(void *arg0, s32 arg1, f32 arg2);
-static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
+extern f32 mdlGetLayerWeight(s32 data, s32 value);
+extern void mdlSetLayerTime(void *data, s32 value, f32 option);
+static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
 {
-    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(data, value, option, rate, flags);
 }
-static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
+static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
 {
-    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
+    scrStartProcedureChecked(data, value, option, rate);
 }
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -143,12 +132,12 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 data, s32 value);
 extern s32 iGpffffb444;
 
-static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
+static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
-    btlUnitInitChild(arg0, arg1);
+    btlUnitInitChild(data, value);
 }
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -174,20 +163,22 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off is scoped to func_001990d0. */
 /* measured: closes opt_propagation around func_001990d0. */
 // FUN_001991C0
-s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0)
+/* measured: typing the initial genus load or the remaining table-pointer load changes MATCH to MISMATCH. */
+/* Return motion-table frames divided by the requested and per-motion playback rates. */
+s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 rate)
 {
     u8 *table;
     s32 offset;
     s64 result;
     s64 value;
-    s32 final_result;
+    s32 motionId;
     u8 type;
     u8 *entry;
 
-    type = *(u8 *)(arg0 + 0xA2);
+    type = ((BtlUnit *)unit)->genus;
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
+        result = btlUnitExtendSignedHalfword(btlFormationLookupSlot(unit, motion));
         switch (result) {
         case -1:
             goto compute;
@@ -197,13 +188,13 @@ s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0)
     case 0:
     case 2:
 compute:
-        type = *(u8 *)(arg0 + 0xA2);
+        type = *(u8 *)(unit + 0xA2);
         table = D_005F6CA0 + (type * 0x1E);
-        value = p4_sign16_001991c0(
-            *(u8 *)(table + (offset = arg1 & 0xFFFF)));
-        if ((*(s32 *)(arg0 + 0xC4) & 0x100) &&
+        value = btlUnitExtendSignedHalfword(
+            table[offset = motion & 0xFFFF]);
+        if ((((BtlUnit *)unit)->stateFlags & 0x100) &&
             (type == 0) &&
-            (*(u16 *)(arg0 + 0xA4) == 1) &&
+            (((BtlUnit *)unit)->charId == 1) &&
             (offset == 1)) {
             value = 0x1C;
         }
@@ -213,20 +204,22 @@ compute:
         goto finish;
     }
 value_done:
-    result = p4_sign16_001991c0(value);
+    result = btlUnitExtendSignedHalfword(value);
 finish:
-    final_result = (s32)(s16)result;
-    if (final_result < *(u16 *)(arg0 + 0x9E4)) {
-        entry = (u8 *)p4_base_add_00194590(
-            (s32)final_result * 10, (s32)*(u8 **)(arg0 + 0x9F8));
-        return (s64)(s32)((f32)*(s16 *)(entry + 0) /
-            (fparg0 * ((f32)*(s16 *)(entry + 2) / 100.0f)));
+    motionId = (s32)(s16)result;
+    if (motionId < ((BtlUnit *)unit)->motionCount) {
+        entry = (u8 *)btlUnitAddBaseToOffset(
+            (s32)motionId * 10, (s32)*(u8 **)(unit + 0x9F8));
+        return (s64)(s32)((f32)((BtlMotionRate *)entry)->unk0 /
+            (rate * ((f32)((BtlMotionRate *)entry)->rate / 100.0f)));
     }
     return 0;
 }
 
 // FUN_00199350
-s16 btlUnitMotionFollowFrames(u8 *arg0, u16 arg1, f32 fparg0)
+/* measured: typing the initial genus load or the remaining table-pointer load changes MATCH to MISMATCH. */
+/* Return the scaled follow-up interval; a negative table interval yields zero. */
+s16 btlUnitMotionFollowFrames(u8 *unit, u16 motion, f32 rate)
 {
     u8 *table;
     s32 offset;
@@ -236,10 +229,10 @@ s16 btlUnitMotionFollowFrames(u8 *arg0, u16 arg1, f32 fparg0)
     u8 *entry;
     s16 numerator;
 
-    type = *(u8 *)(arg0 + 0xA2);
+    type = ((BtlUnit *)unit)->genus;
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
+        result = btlUnitExtendSignedHalfword(btlFormationLookupSlot(unit, motion));
         switch (result) {
         case -1:
             goto compute;
@@ -249,13 +242,13 @@ s16 btlUnitMotionFollowFrames(u8 *arg0, u16 arg1, f32 fparg0)
     case 0:
     case 2:
 compute:
-        type = *(u8 *)(arg0 + 0xA2);
+        type = *(u8 *)(unit + 0xA2);
         table = D_005F6CA0 + (type * 0x1E);
-        value = p4_sign16_001991c0(
-            *(u8 *)(table + (offset = arg1 & 0xFFFF)));
-        if ((*(s32 *)(arg0 + 0xC4) & 0x100) &&
+        value = btlUnitExtendSignedHalfword(
+            table[offset = motion & 0xFFFF]);
+        if ((((BtlUnit *)unit)->stateFlags & 0x100) &&
             (type == 0) &&
-            (*(u16 *)(arg0 + 0xA4) == 1) &&
+            (((BtlUnit *)unit)->charId == 1) &&
             (offset == 1)) {
             value = 0x1C;
         }
@@ -265,45 +258,47 @@ compute:
         goto finish;
     }
 value_done:
-    result = p4_sign16_001991c0(value);
+    result = btlUnitExtendSignedHalfword(value);
 finish:
 {
-    s32 final_result;
-    final_result = (s32)(s16)result;
-    if (final_result < *(u16 *)(arg0 + 0x9E4)) {
-        entry = (u8 *)p4_base_add_00194590(
-            (s32)final_result * 10, (s32)*(u8 **)(arg0 + 0x9F8));
-        numerator = *(s16 *)(entry + 4);
+    s32 motionId;
+    motionId = (s32)(s16)result;
+    if (motionId < ((BtlUnit *)unit)->motionCount) {
+        entry = (u8 *)btlUnitAddBaseToOffset(
+            (s32)motionId * 10, (s32)*(u8 **)(unit + 0x9F8));
+        numerator = ((BtlMotionRate *)entry)->unk4;
         if (numerator < 0) {
             return 0;
         }
         return (s64)(s32)((f32)numerator /
-            (fparg0 * ((f32)*(s16 *)(entry + 2) / 100.0f)));
+            (rate * ((f32)((BtlMotionRate *)entry)->rate / 100.0f)));
     }
 }
 return 0;
 }
 
 // FUN_00199500
-s16 btlUnitMotionModelFrames(u8 *arg0, u16 arg1, f32 fparg0)
+/* measured: typing the initial genus load changes MATCH to MISMATCH; the later genus access is typed. */
+/* Read model animation length and scale it by the available motion-table playback rate. */
+s16 btlUnitMotionModelFrames(u8 *unit, u16 motion, f32 rate)
 {
-    extern f32 mdlGetLayerKeyTime(s32 arg0, s32 arg1, s64 arg2);
+    extern f32 mdlGetLayerKeyTime(s32 unit, s32 motion, s64 rate);
     u8 *table;
     s32 offset;
     s64 result;
     s64 value;
-    s32 final_result;
-    f32 temp_f0;
+    s32 motionId;
+    f32 modelFrames;
     u8 type;
     u8 *entry;
 
-    if (!(*(s32 *)(arg0 + 0x98) & 2)) {
+    if (!(((BtlUnit *)unit)->flags2 & 2)) {
         return 0;
     }
-    type = *(u8 *)(arg0 + 0xA2);
+    type = ((BtlUnit *)unit)->genus;
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
+        result = btlUnitExtendSignedHalfword(btlFormationLookupSlot(unit, motion));
         switch (result) {
         case -1:
             goto compute;
@@ -313,13 +308,13 @@ s16 btlUnitMotionModelFrames(u8 *arg0, u16 arg1, f32 fparg0)
     case 0:
     case 2:
 compute:
-        type = *(u8 *)(arg0 + 0xA2);
+        type = *(u8 *)(unit + 0xA2);
         table = D_005F6CA0 + (type * 0x1E);
-        value = p4_sign16_001991c0(
-            *(u8 *)(table + (offset = arg1 & 0xFFFF)));
-        if ((*(s32 *)(arg0 + 0xC4) & 0x100) &&
+        value = btlUnitExtendSignedHalfword(
+            table[offset = motion & 0xFFFF]);
+        if ((((BtlUnit *)unit)->stateFlags & 0x100) &&
             (type == 0) &&
-            (*(u16 *)(arg0 + 0xA4) == 1) &&
+            (((BtlUnit *)unit)->charId == 1) &&
             (offset == 1)) {
             value = 0x1C;
         }
@@ -329,37 +324,39 @@ compute:
         goto finish;
     }
 value_done:
-    result = p4_sign16_001991c0(value);
+    result = btlUnitExtendSignedHalfword(value);
 finish:
-    temp_f0 = mdlGetLayerKeyTime(*(s32 *)(arg0 + 0xA00), 0, result);
-    final_result = (s32)(s16)result;
-    if (final_result < *(u16 *)(arg0 + 0x9E4)) {
-        entry = (u8 *)p4_base_add_00194590(
-            final_result * 10, (s32)*(u8 **)(arg0 + 0x9F8));
-        return (s64)(s32)(temp_f0 /
-            (fparg0 * ((f32)*(s16 *)(entry + 2) / 100.0f)));
+    modelFrames = mdlGetLayerKeyTime((s32)((BtlUnit *)unit)->layerHandle, 0, result);
+    motionId = (s32)(s16)result;
+    if (motionId < ((BtlUnit *)unit)->motionCount) {
+        entry = (u8 *)btlUnitAddBaseToOffset(
+            motionId * 10, (s32)(u8 *)((BtlUnit *)unit)->motionRates);
+        return (s64)(s32)(modelFrames /
+            (rate * ((f32)((BtlMotionRate *)entry)->rate / 100.0f)));
     }
-    return (s64)(s32)temp_f0;
+    return (s64)(s32)modelFrames;
 }
 
 // FUN_001996D0
-s16 btlUnitGetMotionTableFrames(u8 *arg0, u16 arg1)
+/* measured: typing the initial genus load changes MATCH to MISMATCH; the later genus access is typed. */
+/* Resolve the final halfword of a motion row, defaulting to six when unavailable. */
+s16 btlUnitGetMotionTableFrames(u8 *unit, u16 motion)
 {
     u8 *table;
     s32 offset;
     s64 result;
     s64 value;
-    s32 final_result;
+    s32 motionId;
     u8 type;
     u8 *entry;
 
-    if (!(*(s32 *)(arg0 + 0x98) & 2)) {
+    if (!(((BtlUnit *)unit)->flags2 & 2)) {
         return 6;
     }
-    type = *(u8 *)(arg0 + 0xA2);
+    type = ((BtlUnit *)unit)->genus;
     switch (type) {
     case 1:
-        result = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
+        result = btlUnitExtendSignedHalfword(btlFormationLookupSlot(unit, motion));
         switch (result) {
         case -1:
             goto compute;
@@ -369,13 +366,13 @@ s16 btlUnitGetMotionTableFrames(u8 *arg0, u16 arg1)
     case 0:
     case 2:
 compute:
-        type = *(u8 *)(arg0 + 0xA2);
+        type = *(u8 *)(unit + 0xA2);
         table = D_005F6CA0 + (type * 0x1E);
-        value = p4_sign16_001991c0(
-            *(u8 *)(table + (offset = arg1 & 0xFFFF)));
-        if ((*(s32 *)(arg0 + 0xC4) & 0x100) &&
+        value = btlUnitExtendSignedHalfword(
+            table[offset = motion & 0xFFFF]);
+        if ((((BtlUnit *)unit)->stateFlags & 0x100) &&
             (type == 0) &&
-            (*(u16 *)(arg0 + 0xA4) == 1) &&
+            (((BtlUnit *)unit)->charId == 1) &&
             (offset == 1)) {
             value = 0x1C;
         }
@@ -385,35 +382,37 @@ compute:
         goto finish;
     }
 value_done:
-    result = p4_sign16_001991c0(value);
+    result = btlUnitExtendSignedHalfword(value);
 finish:
-    final_result = (s32)(s16)result;
-    if (final_result < *(u16 *)(arg0 + 0x9E4)) {
-        entry = (u8 *)p4_base_add_00194590(
-            final_result * 10, (s32)*(u8 **)(arg0 + 0x9F8));
-        return *(s16 *)(entry + 8);
+    motionId = (s32)(s16)result;
+    if (motionId < ((BtlUnit *)unit)->motionCount) {
+        entry = (u8 *)btlUnitAddBaseToOffset(
+            motionId * 10, (s32)(u8 *)((BtlUnit *)unit)->motionRates);
+        return ((BtlMotionRate *)entry)->unk8;
     }
     return 6;
 }
 
 // FUN_00199830
-s64 btlUnitModelAnimFrame(u8 *arg0) {
-    if (*(s32 *)(arg0 + 0x98) & 2) {
-        return (s64)(s16)(s32)mdlGetLayerWeight(*(s32 *)(arg0 + 0xA00), 0);
+s64 btlUnitModelAnimFrame(u8 *unit) {
+    if (((BtlUnit *)unit)->flags2 & 2) {
+        return (s64)(s16)(s32)mdlGetLayerWeight((s32)((BtlUnit *)unit)->layerHandle, 0);
     }
     return 0;
 }
 
 // FUN_00199890
-void btlUnitSetModelAnimFrame(u8 *arg0, s32 arg1)
+void btlUnitSetModelAnimFrame(u8 *unit, s32 frame)
 {
-    if ((*(s32 *)(arg0 + 0x98) & 2) != 0)
-        mdlSetLayerTime(*(u8 **)(arg0 + 0xA00), 0, (f32)arg1);
+    if ((((BtlUnit *)unit)->flags2 & 2) != 0)
+        mdlSetLayerTime(((BtlUnit *)unit)->layerHandle, 0, (f32)frame);
 }
 
 /* measured: opt_propagation off is scoped to func_001998e0. */
 // FUN_001998E0
-s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1)
+/* The 0xE8-stride formation records lack a complete shared layout; keep the signed class-value access at +0x1A. */
+/* Classify the requested motion and read the formation-specific class value when applicable. */
+s32 btlUnitMotionClassValue(u8 *unit, s32 motion)
 {
     s32 index;
     s32 result;
@@ -424,9 +423,9 @@ s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1)
     s32 base;
     s32 finalResult;
 
-    kind = *(u8 *)(arg0 + 0xA2);
+    kind = ((BtlUnit *)unit)->genus;
     if (kind == 1) {
-        index = arg1 & 0xFFFF;
+        index = motion & 0xFFFF;
         switch (index) {
         case 4:
         case 5:
@@ -438,7 +437,7 @@ s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1)
             goto result_invalid_001998e0;
         }
     } else {
-        index = arg1 & 0xFFFF;
+        index = motion & 0xFFFF;
         switch (index) {
         case 5:
             result = 0;
@@ -459,12 +458,12 @@ classification_done_001998e0:
         return 1;
     }
     if (kind == 1) {
-        id = *(u16 *)(arg0 + 0xA4);
+        id = ((BtlUnit *)unit)->charId;
         offset = id * 0xE8;
         base = (s32)iGpffffb3cc;
         offset = offset + base;
         index = (s16)result;
-        finalResult = *(s16 *)((u8 *)p4_base_add_00194590(
+        finalResult = *(s16 *)((u8 *)btlUnitAddBaseToOffset(
             index * 4, offset) + 0x1A);
         goto function_done_001998e0;
     }
@@ -479,56 +478,58 @@ function_done_001998e0:
 /* measured: func_001999f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001999F0
-s16 btlUnitMotionHitFrames(u8 *arg0, u16 arg1, f32 fparg0, s64 arg2)
+/* measured: remaining genus/table spelling changes lose MATCH; mixed 0xE8/0x14C formation hit records remain partial. */
+/* Resolve the hit interval for a motion class and ordinal, then apply playback-rate scaling. */
+s16 btlUnitMotionHitFrames(u8 *unit, u16 motion, f32 rate, s64 hitOrdinal)
 {
     u16 index;
-    s16 class_result;
+    s16 motionClass;
     u8 type;
     s64 value;
-    s64 raw_value;
+    s64 mappedMotion;
     s32 numerator;
     s16 denominator;
     s32 offset;
     s32 base;
-    u16 array_index;
+    u16 tableIndex;
 
-    type = *(u8 *)(arg0 + 0xA2);
+    type = ((BtlUnit *)unit)->genus;
     if (type == 1) {
-        index = arg1 & 0xFFFF;
+        index = motion & 0xFFFF;
         switch (index) {
         case 4:
         case 5:
         case 6:
         case 7:
-            class_result = p4_sign16_001991c0(0);
+            motionClass = btlUnitExtendSignedHalfword(0);
             goto classification_done_001999f0;
         default:
             goto result_invalid_001999f0;
         }
     } else {
-        index = arg1 & 0xFFFF;
+        index = motion & 0xFFFF;
         switch (index) {
         case 5:
-            class_result = p4_sign16_001991c0(0);
+            motionClass = btlUnitExtendSignedHalfword(0);
             goto classification_done_001999f0;
         case 6:
         case 7:
-            class_result = p4_sign16_001991c0(1);
+            motionClass = btlUnitExtendSignedHalfword(1);
             goto classification_done_001999f0;
         default:
             goto result_invalid_001999f0;
         }
     }
 result_invalid_001999f0:
-    class_result = p4_sign16_001991c0(-1);
+    motionClass = btlUnitExtendSignedHalfword(-1);
 classification_done_001999f0:
-    if (class_result == -1) {
+    if (motionClass == -1) {
         return 0;
     }
     switch (type) {
     case 1:
         {
-            value = p4_sign16_001991c0(btlFormationLookupSlot(arg0, arg1));
+            value = btlUnitExtendSignedHalfword(btlFormationLookupSlot(unit, motion));
         }
         switch (value) {
         case -1:
@@ -539,14 +540,14 @@ classification_done_001999f0:
     case 0:
     case 2:
 lookup_001999f0:
-        type = *(u8 *)(arg0 + 0xA2);
-        raw_value = p4_sign16_001991c0(
-            *(u8 *)((u8 *)D_005F6CA0 + type * 0x1E + (u16)arg1));
-        if ((*(s32 *)(arg0 + 0xC4) & 0x100) &&
+        type = *(u8 *)(unit + 0xA2);
+        mappedMotion = btlUnitExtendSignedHalfword(
+            *(u8 *)((u8 *)D_005F6CA0 + type * 0x1E + (u16)motion));
+        if ((((BtlUnit *)unit)->stateFlags & 0x100) &&
             (type == 0) &&
-            (*(u16 *)(arg0 + 0xA4) == 1) &&
+            (((BtlUnit *)unit)->charId == 1) &&
             (index == 1)) {
-            raw_value = p4_sign16_001991c0(0x1C);
+            mappedMotion = btlUnitExtendSignedHalfword(0x1C);
         }
         goto value_done_001999f0;
     default:
@@ -554,76 +555,78 @@ lookup_001999f0:
         goto finish_001999f0;
     }
 value_done_001999f0:
-    value = p4_sign16_001991c0(raw_value);
+    value = btlUnitExtendSignedHalfword(mappedMotion);
 finish_001999f0:
-    if (*(u8 *)(arg0 + 0xA2) == 1) {
+    if (*(u8 *)(unit + 0xA2) == 1) {
         {
             s64 product;
-            offset = *(u16 *)(arg0 + 0xA4) * 0xE8;
+            offset = ((BtlUnit *)unit)->charId * 0xE8;
             base = (s32)iGpffffb3cc;
-            offset = p4_base_add_00194590(offset, base);
-            offset = p4_base_add_00194590(
-                (s32)(s16)class_result * 4, offset);
+            offset = btlUnitAddBaseToOffset(offset, base);
+            offset = btlUnitAddBaseToOffset(
+                (s32)(s16)motionClass * 4, offset);
             numerator = *(s16 *)((u8 *)offset + 0x1C);
-            product = (s64)(s16)(numerator * (s16)arg2);
+            product = (s64)(s16)(numerator * (s16)hitOrdinal);
             /* Retail normalizes the requested motion again at this lookup,
              * independently of the earlier classification/override mapping. */
             numerator = (s32)product +
-                        *(s16 *)((u8 *)(*(s32 *)(arg0 + 0x9F8) +
-                                        (s32)((u32)arg1 % 0x10000U) * 0xA));
+                        *(s16 *)((u8 *)(*(s32 *)(unit + 0x9F8) +
+                                        (s32)((u32)motion % 0x10000U) * 0xA));
             product = (s64)(s16)numerator;
             numerator = (s32)product;
         }
     } else {
-        offset = *(u16 *)(arg0 + 0xA4) * 0x14C;
+        offset = ((BtlUnit *)unit)->charId * 0x14C;
         base = (s32)iGpffffb3c0;
-        offset = p4_base_add_00194590(offset, base);
-        offset = p4_base_add_00194590(
-            (s32)class_result * 0x12, offset);
-        offset = p4_base_add_00194590(
-            (s32)(u16)arg2 * 2, offset);
+        offset = btlUnitAddBaseToOffset(offset, base);
+        offset = btlUnitAddBaseToOffset(
+            (s32)motionClass * 0x12, offset);
+        offset = btlUnitAddBaseToOffset(
+            (s32)(u16)hitOrdinal * 2, offset);
         numerator = *(s16 *)((u8 *)(offset + 0x1A));
     }
-    base = *(s32 *)(arg0 + 0x9F8);
-    denominator = *(s16 *)((u8 *)(p4_base_add_00194590(
+    base = (s32)((BtlUnit *)unit)->motionRates;
+    denominator = *(s16 *)((u8 *)(btlUnitAddBaseToOffset(
         (s16)value * 0xA, base) + 2));
     return (s16)(s32)((f32)numerator /
-                      (fparg0 * ((f32)denominator / 100.0f)));
+                      (rate * ((f32)denominator / 100.0f)));
 }
 
 /* Measured: 336B/336B, nd 0. Keep the full-width ID for the predicate;
    scoped propagation preserves the staged unsigned table offset. */
 // FUN_00199D00
+/* Skill flag rows are four bytes with flags at +2; their full layout is unresolved, so retain the halfword table read. */
+/* Select the opening mode from skill flags, battle state, or the calculated skill element. */
 #pragma push
-s32 btlUnitOpeningMotionMode(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
+s32 btlUnitOpeningMotionMode(s32 unused, u8 *unit, s16 skill, s32 openingMode)
 {
-    s32 temp_16;
+    s32 skillId;
     u32 offset;
-    u16 temp_3;
-    s64 raw_3;
-    s16 narrowed_3;
+    u16 skillFlags;
+    s64 skillElement;
+    s16 element;
 
-    temp_16 = (s64)(s16)arg2;
-    if (temp_16 == -1 || temp_16 >= 0x1B8)
+    skillId = (s64)(s16)skill;
+    if (skillId == -1 || skillId >= 0x1B8)
         return 1;
-    if (btlTargetIsEntryActive(arg2) != 0) {
-        offset = (u32)temp_16 << 2;
-        temp_3 = *(u16 *)((u32)iGpffffb3bc + 2U + offset);
-        if ((temp_3 & 0x200) == 0) {
-            if ((arg3 == 0) || ((temp_3 & 1) == 0)) {
+    if (btlTargetIsEntryActive(skill) != 0) {
+        offset = (u32)skillId << 2;
+        skillFlags = *(u16 *)((u32)iGpffffb3bc + 2U + offset);
+        if ((skillFlags & 0x200) == 0) {
+            if ((openingMode == 0) || ((skillFlags & 1) == 0)) {
                 return 1;
             }
             return 2;
         }
         if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0 &&
-            arg3 == 0) {
+            openingMode == 0) {
             return 1;
         }
         return 0;
     }
-    raw_3 = datCalcSkillElement(*(u8 **)(arg1 + 0xA64), (u16)arg2);
-    narrowed_3 = (s16)raw_3;
-    switch (narrowed_3) {
+    skillElement = datCalcSkillElement((u8 *)((BtlUnit *)unit)->datUnit, (u16)skill);
+    element = (s16)skillElement;
+    switch (element) {
     case 0x10:
     case 0x11:
         return 1;
@@ -634,12 +637,13 @@ s32 btlUnitOpeningMotionMode(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
 
 #pragma pop
 // FUN_00199E50
-void btlUnitHoldPendingAnim(u8 *arg0)
+void btlUnitHoldPendingAnim(u8 *packetWork)
 {
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
+    ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
 // FUN_00199E70
+/* Apply a valid packet motion request; values outside the thirty-motion domain are ignored. */
 u32 btlUnitPlayMotionPacketUpdate(void *workData)
 {
     u8 *packet = (u8 *)workData;
@@ -648,20 +652,20 @@ u32 btlUnitPlayMotionPacketUpdate(void *workData)
     f32 rate;
     u16 option;
 
-    motion = *(s16 *)(packet + 4);
+    motion = ((BtlUnitMotionPacket *)packet)->motion;
     if (motion >= 0 && motion < 0x1E) {
-        workData = *(u8 **)packet;
-        frame = *(u16 *)(packet + 6);
-        rate = *(f32 *)(packet + 8);
-        option = *(u16 *)(packet + 0xC);
+        workData = ((BtlUnitMotionPacket *)packet)->unit;
+        frame = ((BtlUnitMotionPacket *)packet)->frame;
+        rate = ((BtlUnitMotionPacket *)packet)->rate;
+        option = ((BtlUnitMotionPacket *)packet)->option;
         btlUnitSetMotion((u8 *)workData, motion, frame, rate, option);
     }
     return 1;
 }
 
 // FUN_00199EC0
-void btlUnitReleasePendingAnim(u8 *arg0)
+void btlUnitReleasePendingAnim(u8 *packetWork)
 {
-    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
+    ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + -1;
 }
 

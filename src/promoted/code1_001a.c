@@ -66,7 +66,7 @@ static inline s32 func_001a_fix_var(s32 value)
 void btlSoundBumpStatusCounters(void);
 
 void btlTargetResolveSelectedSkill(u8 *arg0);
-void func_001eb3b0(u8 *arg0);
+void btlTargetResetCommandRecord(u8 *arg0);
 extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void btlEffectSelectNearestEntry(void *arg0, void *arg1);
 
@@ -82,7 +82,7 @@ extern void btlDamageStart(u8 *arg0, u8 *arg1);
 
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
-extern void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status);
+extern void btlAiSelectStatusCommand(u8 *arg0, u8 *arg1, u32 status);
 extern s32 btlSoundSelectCureableStatuses(u8 *arg0);
 extern s32 btlSoundIsStatusCounterHigh(u8 *arg0);
 extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
@@ -90,8 +90,8 @@ extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
 extern void btlSoundCancelPlayback(void);
 extern s32 btlSoundPickResistVoice(u8 *arg0);
 extern void btlSoundStopBank3(void);
-extern void func_001f9a50(s32 arg0, s32 arg1);
-extern void func_001f9a90(void);
+extern void btlVoicePlayIdCue(s32 arg0, s32 arg1);
+extern void btlVoiceFadeOut(void);
 extern void btlEncounterEntryClearMessageFade(s32 arg0);
 extern void btlEncounterEntrySetMessageFade(s32 arg0);
 extern void btlMessageSetup(u8 *arg0, u8 *arg1);
@@ -152,7 +152,7 @@ u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcGetElementAffinity(u8 *unit, s32 element);
 u8 *btlSoundLoadPacketNew(const void *data);
-s32 func_001eb860(void);
+s32 btlTargetCanControlDamagePhase(void);
 extern void btlMessageInstallWindow(s32 task, u8 *arg1);
 u8 *btlSoundLoadTaskStart(void);
 extern s32 btlMessageIsActiveAlt2(s32 task);
@@ -186,7 +186,7 @@ extern s32 btlMessageIsActive(s32 task);
 extern s32 btlMessageGetResult(s32 task);
 extern void btlMessageReset(s32 task);
 s16 btlCameraSelectFormationIndex(void);
-void func_001eb7f0(void);
+void btlTargetEndDamagePhase(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 s32 btlStatusWindowShowSlot2(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);

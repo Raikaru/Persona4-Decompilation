@@ -37,7 +37,7 @@ extern u32 datGetFlag(s32 context);
 extern void memset(void *destination, s32 value, u32 size);
 extern void btlSelectionSetRepeat(u8 *context, s16 *value);
 extern u32 datGetItemNameId(s16 context);
-extern s32 func_001eb860(void);
+extern s32 btlTargetCanControlDamagePhase(void);
 
 static inline u8 *btlSelectionAddByteOffset(u32 offset, u8 *base)
 {
@@ -2272,7 +2272,7 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
 s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 func_001f0620(u8 *context, s64 value);
+    extern s32 btlTargetCheckCommandAvailability(u8 *context, s64 value);
     extern s32 btlActionRunTargetCallback(s32 context, u16 value, s32 option, s32 flags, s32 extra);
     extern s32 datCalcDefaultSkillId(u8 *unit);
     extern u8 *shdPersonaTaskCreate(s32 context, s32 value, s32 option, s32 flags, s32 extra);
@@ -2322,7 +2322,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     ((BtlSelection *)selection)->selected = 3;
     ((BtlSelection *)selection)->first = 0;
     } else if (input == 4) {
-    if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
+    if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) {
         return 1;
     }
     sdkSndStartStream(0, 0, 0, 3);
@@ -2341,7 +2341,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     } else if (input == 2) {
     switch (((BtlSelection *)selection)->selected) {
     case 3:
-        if (func_001f0620(((BtlPanelWork *)work)->action, 1) == 0) {
+        if (btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, 1) == 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
@@ -2350,7 +2350,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             datCalcDefaultSkillId((u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit);
         break;
     case 4:
-        if (func_001f0620(*(u8 **)(work + 0x178), 2) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 2) == 0) {
             if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) {
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x90);
             }
@@ -2367,7 +2367,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 6:
-        if (func_001f0620(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) {
             if ((s16)((BtlPanelWork *)work)->itemCount == 0) {
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x92);
             }
@@ -2383,7 +2383,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 1:
-        if (func_001f0620(*(u8 **)(work + 0x178), 4) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 4) == 0) {
             if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x93);
             }
@@ -2407,7 +2407,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 5:
-        if (func_001f0620(*(u8 **)(work + 0x178), 5) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 5) == 0) {
             if (datCalcChkBadStatus((DatUnit *)((BtlAction *)*(u8 **)(work + 0x178))->unit->datUnit, 8) != 0) {
                 btlUiSelectEffect((s32)(u32)(u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit, 0x91);
             } else {
@@ -2430,7 +2430,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlPanelWork *)work)->flags = ((BtlPanelWork *)work)->flags & ~4;
         return 3;
     case 7:
-        if (func_001f0620(*(u8 **)(work + 0x178), 6) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 6) == 0) {
             btlActionRunTargetCallback((s32)(u32)((BtlPanelWork *)work)->action, 5, 0, 0, 2);
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
@@ -2439,7 +2439,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = 0;
         break;
     case 2:
-        if (func_001f0620(((BtlPanelWork *)work)->action, 7) == 0) {
+        if (btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, 7) == 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
@@ -2447,7 +2447,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         ((BtlAction *)((BtlPanelWork *)work)->action)->unk_6e = 0;
         break;
     case 0:
-        if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
+        if (btlTargetCheckCommandAvailability(*(u8 **)(work + 0x178), 0xA) == 0) {
             sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
@@ -2476,8 +2476,8 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 func_001f0620(u8 *selection, s64 work);
-    extern s32 func_001eb860(void);
+    extern s32 btlTargetCheckCommandAvailability(u8 *selection, s64 work);
+    extern s32 btlTargetCanControlDamagePhase(void);
     extern f64 fptodp(f32 value);
     extern f64 func_0044b310(f64 value);
     extern s16 D_00626BD0[];
@@ -2607,7 +2607,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
             row = 0;
             for (; row < 8; row++, command++) {
                 u8 tone;
-                available = func_001f0620(((BtlPanelWork *)work)->action, D_00626BD0[command]);
+                available = btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, D_00626BD0[command]);
                 if (available != 0 && (command != 6 || (s16)((BtlPanelWork *)work)->itemCount > 0)) {
                     tone = 0x1B;
                 } else {
@@ -2626,7 +2626,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
                 u8 red;
                 u8 green;
                 u8 blue;
-                available = func_001f0620(((BtlPanelWork *)work)->action, D_00626BD0[selectedCommand]);
+                available = btlTargetCheckCommandAvailability(((BtlPanelWork *)work)->action, D_00626BD0[selectedCommand]);
                 if (available != 0 && (selectedCommand != 6 || (s16)((BtlPanelWork *)work)->itemCount > 0)) {
                     red = 0xFE;
                     green = 0xFF;
@@ -2645,7 +2645,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
             btlPanelDrawStrip(3, translationX, offsetY, 110.0f, (completeProgress - circle.progress) * 45.0f, 0);
             renderer->setState(6, 0);
         }
-        if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
+        if (circle.progress >= completeProgress && menuFlags == 0 && btlTargetCanControlDamagePhase() != 0) {
             btlUiDrawSpriteFaded(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
             btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 110.0f, 383.0f);
             btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -2694,7 +2694,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
                 btlUiDrawSpriteEntry(glyphs, 9, 0x32, 215.0f - translationX, 412.0f - offsetY);
                 btlUiDrawSpriteEntry(glyphs, 9, 0x33, 193.0f - translationX, 412.0f - offsetY);
                 btlUiDrawSpriteEntry(glyphs, 9, 0x33, 413.0f - translationX, 412.0f - offsetY);
-                if (circle.progress >= completeProgress && menuFlags == 0 && func_001eb860() != 0) {
+                if (circle.progress >= completeProgress && menuFlags == 0 && btlTargetCanControlDamagePhase() != 0) {
                     btlUiDrawSpriteFaded(glyphs, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                     btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 110.0f, 383.0f);
                     btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -2889,7 +2889,7 @@ void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRe
     if (slideFrame < 4) {
         ((BtlPanelWork *)state)->slideFrame = slideFrame + 1;
     }
-    if (func_001eb860() != 0) {
+    if (btlTargetCanControlDamagePhase() != 0) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
         btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
         btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -3063,7 +3063,7 @@ void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRen
     if (slideFrame < 4) {
         ((BtlPanelWork *)state)->slideFrame = slideFrame + 1;
     }
-    if (func_001eb860() != 0) {
+    if (btlTargetCanControlDamagePhase() != 0) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
         btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
         btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -3225,7 +3225,7 @@ void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer)
     btlUiDrawSpriteFaded(glyphs, 9, 0x35, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
     btlUiSetAlpha(glyphs, 0.0f);
-    if (func_001eb860() != 0) {
+    if (btlTargetCanControlDamagePhase() != 0) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
         btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
         btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -3697,7 +3697,7 @@ void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer)
     btlUiDrawSpriteFaded(glyphs, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))originOrRenderer)[0](6, 0);
     btlUiSetAlpha(glyphs, 0.0f);
-    if (func_001eb860() != 0) {
+    if (btlTargetCanControlDamagePhase() != 0) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
         btlUiDrawSpriteEntry(glyphs, 9, 0x1C, 100.0f, (f32)0x19B);
         btlUiDrawSpriteFaded(glyphs, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
@@ -3993,7 +3993,7 @@ extern s32 datCalcSkillElement(u8 *context, u16 value);
 extern s32 datCalcElementBit(s16 context);
 extern s8 datCalcGetBuffStatus(u8 *context, s32 value);
 extern s32 datCalcGetElementAffinity(u8 *context, s32 value);
-extern s32 func_001f0950(s32 context, s32 value);
+extern s32 btlTargetTestUnitFlag(s32 context, s32 value);
 extern void btlSelectionSetRowState(u8 *context, s16 value);
 extern void btlSelectionSetRowIdle(u8 *context);
 
@@ -4084,7 +4084,7 @@ loop_body:
             affinity = datCalcGetElementAffinity(*(u8 **)(unit + 0xA64), element);
             lookupId = (u16)element;
             character = ((BtlUnit *)unit)->charId;
-            if (func_001f0950(character, lookupId) != 0) {
+            if (btlTargetTestUnitFlag(character, lookupId) != 0) {
                 if ((affinity & 0x02000000) != 0) {
                     rowState = 1;
                 } else if ((affinity & 0x05000000) != 0) {
