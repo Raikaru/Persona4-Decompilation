@@ -12,6 +12,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
+#include "btl_sound_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
@@ -42,13 +43,13 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00624FF0[])(u8 *input, s32 value, s32 option);
 
 
 
 extern u8 D_0060AB08[];
 extern s16 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s32 arg0);
+extern s32 calGetDayWindowFlags(s32 input);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
 extern u8 D_0061F000[];
@@ -96,10 +97,10 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f7650-001f7b40 */
 
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlSoundRollStatusCure(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u32 input);
+extern s32 btlSoundRollStatusCure(u8 *input);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *input);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *input);
 extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
@@ -130,59 +131,60 @@ extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
 /* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
 /* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
+/* Select the character voice bank for the calendar window or supported enemy character ID. */
 // FUN_001F7650
-u8 *btlSoundGetCharacterBank(u8 *arg0)
+u8 *btlSoundGetCharacterBank(u8 *unit)
 {
-    u8 *var_2;
-    u32 temp_3;
+    u8 *bank;
+    u32 characterId;
 
-    if (*(u8 *)(arg0 + 0xA2) == 0) {
+    if (((BtlUnit *)unit)->genus == 0) {
         if (calGetDayWindowFlags((s16)datGetDateIndex()) & 1) {
-            var_2 = D_0060AC00 + (*(u16 *)(arg0 + 0xA4) * 0xA20);
+            bank = D_0060AC00 + (((BtlUnit *)unit)->charId * 0xA20);
         } else {
-            var_2 = D_0060AC00 + (*(u16 *)(arg0 + 0xA4) * 0xA20) + 0x6F60;
+            bank = D_0060AC00 + (((BtlUnit *)unit)->charId * 0xA20) + 0x6F60;
         }
-        return var_2;
+        return bank;
     }
-    temp_3 = *(u16 *)(arg0 + 0xA4);
-    if ((s32)temp_3 < 0x100) {
+    characterId = ((BtlUnit *)unit)->charId;
+    if ((s32)characterId < 0x100) {
         return NULL;
     }
-    if ((s32)temp_3 <= 0x112) {
+    if ((s32)characterId <= 0x112) {
         goto dispatch;
     }
     return NULL;
 dispatch:
-    if (temp_3 == 0x214) {
+    if (characterId == 0x214) {
         goto return_214;
-    } else if (temp_3 == 0x112) {
+    } else if (characterId == 0x112) {
         goto return_group;
-    } else if (temp_3 == 0x10E) {
+    } else if (characterId == 0x10E) {
         goto return_group;
-    } else if (temp_3 == 0x10B) {
+    } else if (characterId == 0x10B) {
         goto return_group;
-    } else if (temp_3 == 0x10A) {
+    } else if (characterId == 0x10A) {
         goto return_group;
-    } else if (temp_3 == 0x109) {
+    } else if (characterId == 0x109) {
         goto return_group;
-    } else if (temp_3 == 0x108) {
+    } else if (characterId == 0x108) {
         goto return_group;
-    } else if (temp_3 == 0x107) {
+    } else if (characterId == 0x107) {
         goto return_group;
-    } else if (temp_3 == 0x106) {
+    } else if (characterId == 0x106) {
         goto return_group;
-    } else if (temp_3 == 0x105) {
+    } else if (characterId == 0x105) {
         goto return_group;
-    } else if (temp_3 == 0x104) {
+    } else if (characterId == 0x104) {
         goto return_group;
-    } else if (temp_3 == 0x103) {
+    } else if (characterId == 0x103) {
         goto return_group;
-    } else if (temp_3 == 0x102) {
+    } else if (characterId == 0x102) {
         goto return_group;
-    } else if (temp_3 == 0x101) {
+    } else if (characterId == 0x101) {
         goto return_group;
     } else {
-        switch (temp_3) {
+        switch (characterId) {
         case 0x100:
             goto return_group;
         default:
@@ -190,140 +192,144 @@ dispatch:
         }
     }
 return_group:
-    return D_00618AC0 + ((temp_3 - 0x100) * 0xA20);
+    return D_00618AC0 + ((characterId - 0x100) * 0xA20);
 return_214:
     return D_0061F000;
 return_null:
-    var_2 = NULL;
-    return var_2;
+    bank = NULL;
+    return bank;
 }
 
+/* Resolve primary persona voice slots, suppressing the unsupported special action. */
 // FUN_001F7830
-void btlSoundGetPrimaryVoiceSlots(u8 *arg0, s32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
+void btlSoundGetPrimaryVoiceSlots(u8 *unit, s32 actionKind, s32 special, s16 *bankOut, s16 *slotOut)
 {
-    s32 temp_5;
+    s32 personaId;
 
-    if (*(u8 *)(arg0 + 0xA2) == 0) {
-        temp_5 = (s32)datCalcPrimaryPersonaId(*(u8 **)(arg0 + 0xA64)) & 0xFFFF;
-        switch (*(u16 *)(arg0 + 0xA4)) {
+    if (((BtlUnit *)unit)->genus == 0) {
+        personaId = (s32)datCalcPrimaryPersonaId(*(u8 **)&((BtlUnit *)unit)->datUnit) & 0xFFFF;
+        switch (((BtlUnit *)unit)->charId) {
         case 7:
-            if (arg2 != 0) {
-                if (arg1 == 3) {
-                    *arg3 = -1;
-                    *arg4 = -1;
+            if (special != 0) {
+                if (actionKind == 3) {
+                    *bankOut = -1;
+                    *slotOut = -1;
                     goto done;
                 }
             }
         default:
-            *arg3 = 0;
-            *arg4 = *(s16 *)(D_00624B20 + (temp_5 * 4));
+            *bankOut = 0;
+            *slotOut = ((BtlSoundPersonaVoice *)(D_00624B20 + personaId * 4))->primary;
             goto done;
         }
     }
-    *arg3 = -1;
-    *arg4 = -1;
+    *bankOut = -1;
+    *slotOut = -1;
 done:
     ;
 }
 
+/* Resolve secondary voice slots with character-specific special-action overrides. */
 // FUN_001F7910
-void btlSoundGetSecondaryVoiceSlots(u8 *arg0, u32 arg1, s32 arg2, s16 *arg3, s16 *arg4)
+void btlSoundGetSecondaryVoiceSlots(u8 *unit, u32 actionKind, s32 special, s16 *bankOut, s16 *slotOut)
 {
-    s32 temp_5;
-    u16 temp_4;
+    s32 personaId;
+    u16 characterId;
 
-    if (*(u8 *)(arg0 + 0xA2) == 0) {
-        temp_5 = (s32)datCalcPrimaryPersonaId(*(u8 **)(arg0 + 0xA64)) & 0xFFFF;
-        *arg3 = 0;
-        temp_4 = *(u16 *)(arg0 + 0xA4);
-        switch (temp_4) {
+    if (((BtlUnit *)unit)->genus == 0) {
+        personaId = (s32)datCalcPrimaryPersonaId(*(u8 **)&((BtlUnit *)unit)->datUnit) & 0xFFFF;
+        *bankOut = 0;
+        characterId = ((BtlUnit *)unit)->charId;
+        switch (characterId) {
         case 4:
-            if ((arg2 != 0) && (arg1 < 2U)) {
-                *arg4 = 4;
+            if ((special != 0) && (actionKind < 2U)) {
+                *slotOut = 4;
                 return;
             }
-            *arg4 = *(s16 *)(D_00624B22 + (temp_5 * 4));
+            *slotOut = ((BtlSoundPersonaVoice *)(D_00624B22 - 2 + personaId * 4))->secondary;
             return;
         case 6:
-            if ((arg2 != 0) && ((u32)(arg1 - 1) < 2U)) {
-                *arg4 = 4;
+            if ((special != 0) && ((u32)(actionKind - 1) < 2U)) {
+                *slotOut = 4;
                 return;
             }
-            *arg4 = *(s16 *)(D_00624B22 + (temp_5 * 4));
+            *slotOut = ((BtlSoundPersonaVoice *)(D_00624B22 - 2 + personaId * 4))->secondary;
             return;
         case 7:
-            if ((arg2 != 0) && (arg1 == 3)) {
-                *arg4 = 4;
+            if ((special != 0) && (actionKind == 3)) {
+                *slotOut = 4;
                 return;
             }
-            *arg4 = *(s16 *)(D_00624B22 + (temp_5 * 4));
+            *slotOut = ((BtlSoundPersonaVoice *)(D_00624B22 - 2 + personaId * 4))->secondary;
             return;
         default:
-            *arg4 = *(s16 *)(D_00624B22 + (temp_5 * 4));
+            *slotOut = ((BtlSoundPersonaVoice *)(D_00624B22 - 2 + personaId * 4))->secondary;
             return;
         }
     }
-    *arg3 = 0;
-    switch (*(u16 *)(arg0 + 0xA4)) {
+    *bankOut = 0;
+    switch (((BtlUnit *)unit)->charId) {
     case 0x109:
-        *arg4 = 8;
+        *slotOut = 8;
         break;
     default:
-        *arg4 = 0;
+        *slotOut = 0;
         break;
     }
 }
 
+/* Stop the cached voice channel when either requested selector has changed. */
 // FUN_001F7AD0
-void btlSoundRefreshSlotChannel(u8 *arg0)
+void btlSoundRefreshSlotChannel(u8 *work)
 {
-    u16 temp_7;
-    u8 *temp_6;
+    u16 channel;
+    u8 *slotBase;
     u32 offset;
 
-    temp_7 = *(u16 *)arg0;
-    offset = temp_7 * 6;
-    temp_6 = (u8 *)(offset + (u32)iGpffffb3ac);
-    if ((*(s16 *)(temp_6 + 0xACC) != *(u16 *)(arg0 + 2)) ||
-        (*(s16 *)(temp_6 + 0xACE) != *(u16 *)(arg0 + 4))) {
-        sdkSndStopStream(1, (s16)temp_7);
+    channel = ((BtlSoundCueWork *)work)->channel;
+    offset = channel * 6;
+    slotBase = (u8 *)(offset + (u32)iGpffffb3ac);
+    if ((((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].cue != ((BtlSoundCueWork *)work)->cue) ||
+        (((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].variant != ((BtlSoundCueWork *)work)->variant)) {
+        sdkSndStopStream(1, (s16)channel);
     }
 }
 
+/* Start a changed voice cue, cache its selectors and reset the expiry timer. */
 // FUN_001F7B40
-s32 btlSoundSetSlotChannel(u8 *arg0)
+s32 btlSoundSetSlotChannel(u8 *work)
 {
-    u16 temp_4;
-    u16 temp_6;
-    u8 *temp_3;
+    u16 channel;
+    u16 cue;
+    u8 *slotBase;
     u32 offset;
 
-    temp_6 = *(u16 *)(arg0 + 2);
-    temp_4 = *(u16 *)arg0;
-    offset = temp_4 * 6;
-    temp_3 = (u8 *)(offset + (u32)iGpffffb3ac);
-    if ((*(s16 *)(temp_3 + 0xACC) != temp_6) ||
-        (*(s16 *)(temp_3 + 0xACE) != *(u16 *)(arg0 + 4))) {
-        sdkSndStartStream(1, (s16)temp_4, (s16)temp_6,
-                      (s16)*(u16 *)(arg0 + 4));
-        temp_6 = *(u16 *)(arg0 + 2);
-        temp_3 = iGpffffb3ac;
-        offset = (u32)temp_3;
-        temp_4 = *(u16 *)arg0;
-        offset = addOffsetFirst(temp_4 * 6, offset);
-        *(u16 *)((u8 *)offset + 0xACC) = temp_6;
-        temp_6 = *(u16 *)(arg0 + 4);
-        temp_3 = iGpffffb3ac;
-        offset = (u32)temp_3;
-        temp_4 = *(u16 *)arg0;
-        offset = addOffsetFirst(temp_4 * 6, offset);
-        *(u16 *)((u8 *)offset + 0xACE) = temp_6;
-        temp_3 = iGpffffb3ac;
-        offset = (u32)temp_3;
-        temp_4 = *(u16 *)arg0;
-        offset = addOffsetFirst(temp_4 * 6, offset);
-        *(u8 *)((u8 *)offset + 0xAD0) = 0;
+    /* measured: typing this request reload grows SetSlotChannel from 224 to 232 bytes; later cache accesses are typed. */
+    cue = *(u16 *)(work + 2);
+    channel = ((BtlSoundCueWork *)work)->channel;
+    offset = channel * 6;
+    slotBase = (u8 *)(offset + (u32)iGpffffb3ac);
+    if ((((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].cue != cue) ||
+        (((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].variant != ((BtlSoundCueWork *)work)->variant)) {
+        sdkSndStartStream(1, (s16)channel, (s16)cue,
+                      (s16)*(u16 *)(work + 4));
+        cue = ((BtlSoundCueWork *)work)->cue;
+        slotBase = iGpffffb3ac;
+        offset = (u32)slotBase;
+        channel = ((BtlSoundCueWork *)work)->channel;
+        offset = addOffsetFirst(channel * 6, offset);
+        *(u16 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].cue = cue;
+        cue = ((BtlSoundCueWork *)work)->variant;
+        slotBase = iGpffffb3ac;
+        offset = (u32)slotBase;
+        channel = ((BtlSoundCueWork *)work)->channel;
+        offset = addOffsetFirst(channel * 6, offset);
+        *(u16 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].variant = cue;
+        slotBase = iGpffffb3ac;
+        offset = (u32)slotBase;
+        channel = ((BtlSoundCueWork *)work)->channel;
+        offset = addOffsetFirst(channel * 6, offset);
+        *(u8 *)&((BtlSoundQueue *)((u8 *)offset + 0xAC8))->channels[0].frame = 0;
     }
     return 1;
 }
-
