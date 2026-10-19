@@ -185,7 +185,7 @@ typedef struct McScreenState {
     s32 operation;
     s32 operationState;
     s32 operationFlags;
-    u8 records[0x380];
+    McRecordTable records;
     s32 window;
     s32 spritePack;
     s32 saveBuffer;
@@ -202,7 +202,7 @@ typedef struct McScreenState {
     s32 upperFade;
     s32 lowerFade;
     s32 legendFade;
-    u8 circles[0x190];
+    McCircleEntry circles[20];
     s32 circlesSeeded;
     s32 frame;
 } McScreenState;
@@ -213,8 +213,6 @@ typedef char McRecordTableSizeCheck[sizeof(McRecordTable) == 0x380 ? 1 : -1];
 typedef char McScreenStateSizeCheck[sizeof(McScreenState) == 0x56C ? 1 : -1];
 
 /* Enter a card operation, resetting its substate and replacing the status dialog. */
-/* McScreenState/McSaveBuffer layouts are proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A2E50
 void mcSetState(u8 *work, s32 state) {
     s32 currentState;
@@ -224,56 +222,54 @@ void mcSetState(u8 *work, s32 state) {
     u8 *buffer;
     s32 size;
 
-    *(s32 *)(work + 8) = state;
-    *(s32 *)(work + 0xC) = 0;
-    currentState = *(s32 *)(work + 8);
+    ((McScreenState *)work)->operation = state;
+    ((McScreenState *)work)->operationState = 0;
+    currentState = ((McScreenState *)work)->operation;
     switch (currentState) {
     case 0:
         memset(work + 0x14, 0, 0x380);
         H_Memcard_SetRecordTable(work + 0x14);
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xF); /* measured: access-site field typing here loses MATCH. */
         func_00440b68(&D_0063EB90);
         return;
     case 1:
-        H_Memcard_SetSlot(*(s32 *)(work + 0x3AC));
-        *(s32 *)(work + 0xC) = 0;
+        H_Memcard_SetSlot(((McScreenState *)work)->slot);
+        *(s32 *)(work + 0xC) = 0; /* measured: access-site field typing here loses MATCH. */
         return;
     case 2:
-        slot = *(s32 *)(work + 0x3AC);
+        slot = ((McScreenState *)work)->slot;
         image = datSaveBuildImage(0, &size, 0);
         imageSize = size;
         chkmemAllocSiteTag(&D_007638F8, 0x16D);
         buffer = D_008873F4[0](1, 0x38008, 0x40000);
-        *(s32 *)(buffer + 4) = (s32)(buffer + 8);
+        ((McSaveBuffer *)buffer)->data = buffer + 8;
         if (image != NULL && imageSize != 0) {
-            memcpy((void *)*(s32 *)(buffer + 4), image, imageSize);
-            *(s32 *)buffer = imageSize;
+            memcpy((void *)*(s32 *)(buffer + 4), image, imageSize); /* measured: access-site field typing here loses MATCH. */
+            ((McSaveBuffer *)buffer)->size = imageSize;
         }
         D_008873EC[0](image);
-        H_Memcard_BeginLoad(slot, (void *)*(s32 *)(buffer + 4), *(s32 *)buffer);
-        *(s32 *)(work + 0x39C) = (s32)buffer;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        H_Memcard_BeginLoad(slot, (void *)*(s32 *)(buffer + 4), ((McSaveBuffer *)buffer)->size); /* measured: access-site field typing here loses MATCH. */
+        ((McScreenState *)work)->saveBuffer = (s32)buffer;
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xF); /* measured: access-site field typing here loses MATCH. */
         func_00440b68(&D_0063EBB0);
-        *(s32 *)(work + 0xC) = 0;
+        *(s32 *)(work + 0xC) = 0; /* measured: access-site field typing here loses MATCH. */
         return;
     case 3:
         func_00440b68(&D_0063EBD0);
-        *(s32 *)(work + 0xC) = 0x10;
+        *(s32 *)(work + 0xC) = 0x10; /* measured: access-site field typing here loses MATCH. */
         return;
     }
 }
 
 /* Advance loading and its error dialog; return the screen transition result. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A3070
 s32 mcLoadState(u8 *work) {
     s32 state;
@@ -281,19 +277,19 @@ s32 mcLoadState(u8 *work) {
     s32 dialogClosed;
 
     dialogClosed = 0;
-    state = *(s32 *)(work + 0xC);
+    state = ((McScreenState *)work)->operationState;
     switch (state) {
     case 0:
         switch (result = H_Memcard_LoadStep(state)) {
         case 100:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
             func_00440b68(&D_0063EBF0);
             return 1;
         case -2:
-            *(s32 *)(work + 0xC) = 1;
+            *(s32 *)(work + 0xC) = 1; /* measured: access-site field typing here loses MATCH. */
             func_00440b68(&D_0063EC10);
             memset(work + 0x14, 0, 0x380);
             break;
@@ -301,26 +297,26 @@ s32 mcLoadState(u8 *work) {
         case -3:
         case -4:
         case -5:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0); /* measured: access-site field typing here loses MATCH. */
             func_00440b68(&D_0063EC30, result);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         default:
             break;
         }
         break;
     case 0xA:
-        *(s32 *)(work + 0xC) = 0xB;
+        *(s32 *)(work + 0xC) = 0xB; /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 0xB:
-        result = shdWindowQueryState(*(s32 *)(work + 0x394));
+        result = shdWindowQueryState(((McScreenState *)work)->window);
         if (result != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (result != 0) {
             dialogClosed = 1;
@@ -336,16 +332,16 @@ s32 mcLoadState(u8 *work) {
         }
         break;
     case 1:
-        *(s32 *)(work + 0xC) = 2;
-        *(s32 *)(work + 0x3A8) = 0;
+        *(s32 *)(work + 0xC) = 2; /* measured: access-site field typing here loses MATCH. */
+        ((McScreenState *)work)->delay = 0;
         /* fallthrough */
     case 2:
-        state = *(s32 *)(work + 0x3A8) + 1;
-        *(s32 *)(work + 0x3A8) = state;
+        state = ((McScreenState *)work)->delay + 1;
+        ((McScreenState *)work)->delay = state;
         if (state >= 0xF) {
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
             return 1;
         }
@@ -356,14 +352,12 @@ s32 mcLoadState(u8 *work) {
 
 
 // Intent: memory-card probe dialog. Runs the card probe (state +0xC = 0); a ready card returns 1, an error opens a dialog and waits for it. The later states wait for a second dialog and return 4 when it closes.
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A32C0
 s32 mcCardProbeStep(u8 *work) {
     s32 state;
     s32 result;
 
-    state = *(s32 *)(work + 0xC);
+    state = ((McScreenState *)work)->operationState;
     switch (state) {
     case 0:
         switch (result = H_Memcard_ProbeCardStep(state)) {
@@ -371,54 +365,54 @@ s32 mcCardProbeStep(u8 *work) {
             func_00440b68(&D_0063EC50);
             return 1;
         case -6:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 6);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 6); /* measured: access-site field typing here loses MATCH. */
             func_00440b68(&D_0063EC70);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         case -1:
         case -4:
         case -5:
         case -9:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0); /* measured: access-site field typing here loses MATCH. */
             func_00440b68(&D_0063EC30, 0);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         default:
             break;
         }
         break;
     case 0xA:
-        *(s32 *)(work + 0xC) = 0xB;
+        *(s32 *)(work + 0xC) = 0xB; /* measured: access-site field typing here loses MATCH. */
         /* fallthrough */
     case 0xB:
-        result = shdWindowQueryState(*(s32 *)(work + 0x394));
+        result = shdWindowQueryState(((McScreenState *)work)->window);
         if (result != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (result != 0) {
-            *(s32 *)(work + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC; /* measured: access-site field typing here loses MATCH. */
         }
         break;
     case 0xC:
-        *(s32 *)(work + 0xC) = 0xD;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0xD; /* measured: access-site field typing here loses MATCH. */
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 8);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 8); /* measured: access-site field typing here loses MATCH. */
         /* fallthrough */
     case 0xD:
-        result = shdWindowQueryState(*(s32 *)(work + 0x394));
+        result = shdWindowQueryState(((McScreenState *)work)->window);
         if (result != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (result != 0) {
             return 4;
@@ -430,8 +424,6 @@ s32 mcCardProbeStep(u8 *work) {
 
 
 /* Advance save-file preparation and confirmation/error dialogs. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A34E0
 s32 mcMemcardStep(u8 *work) {
     s32 result;
@@ -440,10 +432,10 @@ s32 mcMemcardStep(u8 *work) {
     s32 status;
     s32 slotOffset;
 
-    state = *(s32 *)(work + 0xC);
+    state = ((McScreenState *)work)->operationState;
     switch (state) {
     case 0:
-        buffer = *(u8 **)(work + 0x39C);
+        buffer = (u8 *)((McScreenState *)work)->saveBuffer;
         switch (result = H_Memcard_PrepareSaveFileStep()) {
         case 100:
             D_008873EC[0](buffer);
@@ -466,111 +458,111 @@ s32 mcMemcardStep(u8 *work) {
         }
         switch (result) {
         case 100:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 9);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 9); /* measured: access-site field typing here loses MATCH. */
             func_00440b68(&D_0063EC90);
-            *(s32 *)(work + 0xC) = 9;
+            *(s32 *)(work + 0xC) = 9; /* measured: access-site field typing here loses MATCH. */
             if (work == NULL) {
                 kAssertFail(&D_007638F8, 0xE3);
             }
-            D_00764638 = *(s32 *)(work + 0x3AC);
+            D_00764638 = ((McScreenState *)work)->slot;
             break;
         case 1:
-            *(s32 *)(work + 0xC) = 3;
+            *(s32 *)(work + 0xC) = 3; /* measured: access-site field typing here loses MATCH. */
             break;
         case 2:
             func_00440b68(&D_0063EC10);
-            *(s32 *)(work + 0xC) = 5;
+            *(s32 *)(work + 0xC) = 5; /* measured: access-site field typing here loses MATCH. */
             break;
         case 4:
             func_00440b68(&D_0063ECB0);
-            *(s32 *)(work + 0x10) &= ~1;
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            ((McScreenState *)work)->operationFlags &= ~1;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7); /* measured: access-site field typing here loses MATCH. */
             break;
         case 5:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7); /* measured: access-site field typing here loses MATCH. */
             break;
         case -5:
             func_00440b68(&D_0063EC30, result);
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         case -3:
             func_00440b68(&D_0063EC30, result);
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         case -6:
             func_00440b68(&D_0063EC30, result);
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 6);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 6); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         case -4:
-            slotOffset = *(s32 *)(work + 0x3AC) * 4;
-            *(s32 *)(slotOffset + (s32)work + 0x14) = 2;
+            slotOffset = ((McScreenState *)work)->slot * 4;
+            ((McScreenState *)(slotOffset + (s32)work))->records.states[0] = 2;
             /* fallthrough */
         case -7:
             func_00440b68(&D_0063EC30, result);
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x16); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         case 0:
             break;
         }
         break;
     case 3:
-        *(s32 *)(work + 0xC) = 4;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 4; /* measured: access-site field typing here loses MATCH. */
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 4);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 4); /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 4:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         switch (status) {
         case 1:
-            *(s32 *)(work + 0xC) = 0;
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0xC) = 0; /* measured: access-site field typing here loses MATCH. */
+            if (*(s32 *)(work + 0x394) != 0) { /* measured: access-site field typing here loses MATCH. */
+                shdWindowMarkDone(*(s32 *)(work + 0x394)); /* measured: access-site field typing here loses MATCH. */
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 7); /* measured: access-site field typing here loses MATCH. */
             H_Memcard_SetSeqMode9();
             break;
         case 2:
-            D_008873EC[0](*(void **)(work + 0x39C));
+            D_008873EC[0]((void *)((McScreenState *)work)->saveBuffer);
             return 2;
         }
         status = H_Memcard_CheckCard();
@@ -578,38 +570,38 @@ s32 mcMemcardStep(u8 *work) {
         case -5:
         case 3:
             func_00440b68(&D_0063EC30, status);
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) { /* measured: access-site field typing here loses MATCH. */
+                shdWindowMarkDone(*(s32 *)(work + 0x394)); /* measured: access-site field typing here loses MATCH. */
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         }
         break;
     case 5:
-        *(s32 *)(work + 0xC) = 6;
-        *(s32 *)(work + 0x10) |= 1;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 6; /* measured: access-site field typing here loses MATCH. */
+        ((McScreenState *)work)->operationFlags |= 1;
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 1);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 1); /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         switch (status) {
         case 1:
-            *(s32 *)(work + 0xC) = 0;
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0xC) = 0; /* measured: access-site field typing here loses MATCH. */
+            if (*(s32 *)(work + 0x394) != 0) { /* measured: access-site field typing here loses MATCH. */
+                shdWindowMarkDone(*(s32 *)(work + 0x394)); /* measured: access-site field typing here loses MATCH. */
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 2);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 2); /* measured: access-site field typing here loses MATCH. */
             H_Memcard_SetSeqMode4();
             break;
         case 2:
@@ -620,67 +612,67 @@ s32 mcMemcardStep(u8 *work) {
         case -5:
         case 3:
             func_00440b68(&D_0063EC30, status);
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) { /* measured: access-site field typing here loses MATCH. */
+                shdWindowMarkDone(*(s32 *)(work + 0x394)); /* measured: access-site field typing here loses MATCH. */
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0);
-            *(s32 *)(work + 0xC) = 0xA;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0xA; /* measured: access-site field typing here loses MATCH. */
             break;
         }
         break;
     case 9:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
             return 1;
         }
         break;
     case 10:
-        *(s32 *)(work + 0xC) = 0xB;
+        *(s32 *)(work + 0xC) = 0xB; /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 11:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
-            *(s32 *)(work + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC; /* measured: access-site field typing here loses MATCH. */
         }
         status = H_Memcard_CheckCard();
         switch (status) {
         case -2:
         case 3:
-            *(s32 *)(work + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC; /* measured: access-site field typing here loses MATCH. */
             break;
         }
         break;
     case 12:
-        *(s32 *)(work + 0xC) = 0xD;
+        *(s32 *)(work + 0xC) = 0xD; /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
-        if (*(s32 *)(work + 0x10) & 1) {
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+        if (((McScreenState *)work)->operationFlags & 1) {
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 3);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 3); /* measured: access-site field typing here loses MATCH. */
         } else {
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (((McScreenState *)work)->window != 0) {
+                shdWindowMarkDone(((McScreenState *)work)->window);
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 8);
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 8); /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x10) &= ~1;
-        D_008873EC[0](*(void **)(work + 0x39C));
+        *(s32 *)(work + 0x10) &= ~1; /* measured: access-site field typing here loses MATCH. */
+        D_008873EC[0]((void *)((McScreenState *)work)->saveBuffer);
         /* fallthrough */
     case 13:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
             return 4;
@@ -702,8 +694,6 @@ s32 mcMemcardStep(u8 *work) {
  * preserves retail's load/load/count/version/pointer argument schedule.
  * Cache only the deallocator slot address, not its callback or work pointer. */
 /* Read the selected save image, verify its checksum, and apply valid data. */
-/* McScreenState/McSaveBuffer layouts are proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A3D80
 s32 mcSaveState(s32 address) {
     u8 *work = (u8 *)address;
@@ -717,30 +707,30 @@ s32 mcSaveState(s32 address) {
     void *freeSlot;
     u8 *temporary;
 
-    state = *(s32 *)(work + 0xC);
+    state = ((McScreenState *)work)->operationState;
     switch (state) {
     case 16:
-        *(s32 *)(work + 0xC) = 0x11;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0x11; /* measured: access-site field typing here loses MATCH. */
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xB);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xB); /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 17:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         switch (status) {
         case 1:
-            if (*(s32 *)(work + 0x394) != 0) {
-                shdWindowMarkDone(*(s32 *)(work + 0x394));
-                *(s32 *)(work + 0x394) = 0;
+            if (*(s32 *)(work + 0x394) != 0) { /* measured: access-site field typing here loses MATCH. */
+                shdWindowMarkDone(*(s32 *)(work + 0x394)); /* measured: access-site field typing here loses MATCH. */
+                *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
             }
-            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xC);
-            *(s32 *)(work + 0xC) = 0x12;
+            *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xC); /* measured: access-site field typing here loses MATCH. */
+            *(s32 *)(work + 0xC) = 0x12; /* measured: access-site field typing here loses MATCH. */
             break;
         case 2:
             return 2;
@@ -756,13 +746,13 @@ s32 mcSaveState(s32 address) {
         }
         break;
     case 18:
-        *(s32 *)(work + 0xC) = 0x13;
-        slot = *(s32 *)(work + 0x3AC);
+        *(s32 *)(work + 0xC) = 0x13; /* measured: access-site field typing here loses MATCH. */
+        slot = ((McScreenState *)work)->slot;
         chkmemAllocSiteTag(&D_007638F8, 0x16D);
         buffer = D_008873F4[0](1, 0x38008, 0x40000);
-        *(u8 **)(buffer + 4) = buffer + 8;
-        H_Memcard_BeginSave(slot, *(s32 *)(buffer + 4), (s32)buffer);
-        *(u8 **)(work + 0x39C) = buffer;
+        ((McSaveBuffer *)buffer)->data = buffer + 8;
+        H_Memcard_BeginSave(slot, *(s32 *)(buffer + 4), (s32)buffer); /* measured: access-site field typing here loses MATCH. */
+        ((McScreenState *)work)->saveBuffer = (s32)(buffer);
         /* fallthrough */
     case 19:
         status = H_Memcard_SaveStep();
@@ -774,99 +764,99 @@ s32 mcSaveState(s32 address) {
         }
         switch (status) {
         case 100:
-            buffer = *(u8 **)(work + 0x39C);
+            buffer = (u8 *)((McScreenState *)work)->saveBuffer;
             version = 0;
             temporary = datSaveBuildImage(0, &imageSize, 0);
             freeSlot = D_008873EC;
             (*(void (**)(void *))freeSlot)(temporary);
-            memcpy(&version, *(void **)(buffer + 4), 4);
-            if (datSaveVerifyChecksum(version, *(u8 **)(buffer + 4) + 4, *(s32 *)buffer - 4) == 0) {
+            memcpy(&version, ((McSaveBuffer *)buffer)->data, 4);
+            if (datSaveVerifyChecksum(version, *(u8 **)(buffer + 4) + 4, ((McSaveBuffer *)buffer)->size - 4) == 0) { /* measured: access-site field typing here loses MATCH. */
                 valid = 0;
             } else {
-                datSaveRestoreImage(version, *(u8 **)(buffer + 4) + 4, *(s32 *)buffer - 4);
+                datSaveRestoreImage(version, *(u8 **)(buffer + 4) + 4, ((McSaveBuffer *)buffer)->size - 4); /* measured: access-site field typing here loses MATCH. */
                 valid = 1;
             }
-            (*(void (**)(void *))freeSlot)(*(void **)(work + 0x39C));
+            (*(void (**)(void *))freeSlot)(*(void **)(work + 0x39C)); /* measured: access-site field typing here loses MATCH. */
             if (valid != 0) {
                 func_00440b68(D_0063ECD0);
-                *(s32 *)(work + 0xC) = 0x14;
+                *(s32 *)(work + 0xC) = 0x14; /* measured: access-site field typing here loses MATCH. */
                 if (work == NULL) {
                     kAssertFail(&D_007638F8, 0xE3);
                 }
-                D_00764638 = *(s32 *)(work + 0x3AC);
+                D_00764638 = ((McScreenState *)work)->slot;
             } else {
                 func_00440b68(D_0063ECF0);
-                *(s32 *)(work + 0xC) = 0x16;
+                *(s32 *)(work + 0xC) = 0x16; /* measured: access-site field typing here loses MATCH. */
             }
             break;
         case -4:
             func_00440b68(D_0063ED20);
-            *(s32 *)(work + 0xC) = 0xE;
-            D_008873EC[0](*(void **)(work + 0x39C));
+            *(s32 *)(work + 0xC) = 0xE; /* measured: access-site field typing here loses MATCH. */
+            D_008873EC[0]((void *)((McScreenState *)work)->saveBuffer);
             break;
         default:
 read_failed:
             func_00440b68(D_0063ED20);
-            *(s32 *)(work + 0xC) = 0xC;
-            D_008873EC[0](*(void **)(work + 0x39C));
+            *(s32 *)(work + 0xC) = 0xC; /* measured: access-site field typing here loses MATCH. */
+            D_008873EC[0]((void *)((McScreenState *)work)->saveBuffer);
             break;
         }
         break;
     case 20:
-        *(s32 *)(work + 0xC) = 0x15;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0x15; /* measured: access-site field typing here loses MATCH. */
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xD);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xD); /* measured: access-site field typing here loses MATCH. */
         /* fallthrough */
     case 21:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
             return 1;
         }
         break;
     case 22:
-        *(s32 *)(work + 0xC) = 0x17;
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        *(s32 *)(work + 0xC) = 0x17; /* measured: access-site field typing here loses MATCH. */
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x14);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x14); /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 23:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
-            *(s32 *)(work + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC; /* measured: access-site field typing here loses MATCH. */
         }
         status = H_Memcard_CheckCard();
         switch (status) {
         case -2:
         case 3:
-            *(s32 *)(work + 0xC) = 0xC;
+            *(s32 *)(work + 0xC) = 0xC; /* measured: access-site field typing here loses MATCH. */
             break;
         }
         break;
     case 12:
-        *(s32 *)(work + 0xC) = 0xD;
+        *(s32 *)(work + 0xC) = 0xD; /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xE);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0xE); /* measured: access-site field typing here loses MATCH. */
         /* fallthrough */
     case 13:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
             return 4;
@@ -880,18 +870,18 @@ read_failed:
         }
         break;
     case 14:
-        *(s32 *)(work + 0xC) = 0xF;
+        *(s32 *)(work + 0xC) = 0xF; /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
-        if (*(s32 *)(work + 0x394) != 0) {
-            shdWindowMarkDone(*(s32 *)(work + 0x394));
-            *(s32 *)(work + 0x394) = 0;
+        if (((McScreenState *)work)->window != 0) {
+            shdWindowMarkDone(((McScreenState *)work)->window);
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
-        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
+        *(s32 *)(work + 0x394) = shdWindowTaskCreate(0, 0, 0x16); /* measured: access-site field typing here loses MATCH. */
         /* fallthrough */
     case 15:
-        status = shdWindowQueryState(*(s32 *)(work + 0x394));
+        status = shdWindowQueryState(((McScreenState *)work)->window);
         if (status != 0) {
-            *(s32 *)(work + 0x394) = 0;
+            *(s32 *)(work + 0x394) = 0; /* measured: access-site field typing here loses MATCH. */
         }
         if (status != 0) {
             return 4;
@@ -967,29 +957,27 @@ s32 mcUpdateCardStatus(s32 workAddress) {
    base; the previous nd-9 body must be reconstructed by hand. Dispatch
    register coloring ($v0 value / $v1 base) remains the known floor. */
 /* Drive card operations and user selection, returning nonzero when the screen exits. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4570
 s32 mcStepState(u8 *work) {
     s32 value;
     s32 result;
 
     result = 0;
-    switch (*(s16 *)(work + 2)) {
+    switch (((McScreenState *)work)->interactionPhase) {
     case 1:
-        *(u32 *)(work + 4) |= 0x40000;
+        ((McScreenState *)work)->flags |= 0x40000;
         result = 1;
         goto return_result;
     case 0:
-        *(s16 *)(work + 2) = 2;
+        *(s16 *)(work + 2) = 2; /* measured: access-site field typing here loses MATCH. */
         goto return_zero;
     case 2:
-        *(s16 *)(work + 2) = 3;
+        *(s16 *)(work + 2) = 3; /* measured: access-site field typing here loses MATCH. */
         mcSetState(work, 0);
         /* fallthrough */
     case 3:
         result = 0;
-        value = *(s32 *)(work + 8);
+        value = ((McScreenState *)work)->operation;
         switch (value) {
         case 0:
             result = mcLoadState(work);
@@ -1008,39 +996,39 @@ s32 mcStepState(u8 *work) {
         }
         switch (result) {
         case 1:
-            *(s16 *)(work + 2) = 4;
+            *(s16 *)(work + 2) = 4; /* measured: access-site field typing here loses MATCH. */
             break;
         case 3:
-            *(s16 *)(work + 2) = 2;
+            *(s16 *)(work + 2) = 2; /* measured: access-site field typing here loses MATCH. */
             break;
         case 4:
-            *(s16 *)(work + 2) = 1;
+            *(s16 *)(work + 2) = 1; /* measured: access-site field typing here loses MATCH. */
             break;
         default:
             break;
         }
         goto return_zero;
     case 4:
-        *(s16 *)(work + 2) = 5;
+        *(s16 *)(work + 2) = 5; /* measured: access-site field typing here loses MATCH. */
         /* fallthrough */
     case 5:
-        *(s16 *)(work + 2) = 6;
+        *(s16 *)(work + 2) = 6; /* measured: access-site field typing here loses MATCH. */
         H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
         mcUpdateCardStatus((s32)work);
         if (D_008C024E[0] & 0x40) {
-            if (*(u32 *)(work + 4) & 2) {
-                *(s16 *)(work + 2) = 7;
+            if (((McScreenState *)work)->flags & 2) {
+                *(s16 *)(work + 2) = 7; /* measured: access-site field typing here loses MATCH. */
                 sdkSndStartStream(0, 0, 0, 1);
             } else if (mcCurrentSlotValue(work) == 1) {
-                *(s16 *)(work + 2) = 0xC;
+                *(s16 *)(work + 2) = 0xC; /* measured: access-site field typing here loses MATCH. */
                 sdkSndStartStream(0, 0, 0, 1);
             } else {
                 sdkSndStartStream(0, 0, 0, 8);
             }
         } else if (D_008C024E[0] & 0x20) {
-            *(s16 *)(work + 2) = 1;
+            *(s16 *)(work + 2) = 1; /* measured: access-site field typing here loses MATCH. */
             sdkSndStartStream(0, 0, 0, 2);
             goto return_zero;
         }
@@ -1053,17 +1041,17 @@ s32 mcStepState(u8 *work) {
         case 3:
         case -4:
         case -5:
-            *(s16 *)(work + 2) = 2;
+            *(s16 *)(work + 2) = 2; /* measured: access-site field typing here loses MATCH. */
             break;
         }
         goto return_zero;
     case 7:
-        *(s16 *)(work + 2) = 8;
+        *(s16 *)(work + 2) = 8; /* measured: access-site field typing here loses MATCH. */
         mcSetState(work, 1);
         /* fallthrough */
     case 8:
         result = 0;
-        value = *(s32 *)(work + 8);
+        value = ((McScreenState *)work)->operation;
         switch (value) {
         case 0:
             result = mcLoadState(work);
@@ -1082,20 +1070,20 @@ s32 mcStepState(u8 *work) {
         }
         switch (result) {
         case 1:
-            *(s16 *)(work + 2) = 9;
+            *(s16 *)(work + 2) = 9; /* measured: access-site field typing here loses MATCH. */
             break;
         case 4:
-            *(s16 *)(work + 2) = 2;
+            *(s16 *)(work + 2) = 2; /* measured: access-site field typing here loses MATCH. */
             break;
         }
         goto return_zero;
     case 9:
-        *(s16 *)(work + 2) = 0xB;
+        *(s16 *)(work + 2) = 0xB; /* measured: access-site field typing here loses MATCH. */
         mcSetState(work, 2);
         /* fallthrough */
     case 0xB:
         result = 0;
-        value = *(s32 *)(work + 8);
+        value = ((McScreenState *)work)->operation;
         switch (value) {
         case 0:
             result = mcLoadState(work);
@@ -1115,26 +1103,26 @@ s32 mcStepState(u8 *work) {
         switch (result) {
         case 1:
             D_00764634 = 1;
-            *(s16 *)(work + 2) = 1;
-            *(u32 *)(work + 4) |= 8;
+            *(s16 *)(work + 2) = 1; /* measured: access-site field typing here loses MATCH. */
+            ((McScreenState *)work)->flags |= 8;
             break;
         case 2:
-            *(s16 *)(work + 2) = 5;
+            *(s16 *)(work + 2) = 5; /* measured: access-site field typing here loses MATCH. */
             break;
         case 4:
-            *(s16 *)(work + 2) = 2;
+            *(s16 *)(work + 2) = 2; /* measured: access-site field typing here loses MATCH. */
             break;
         default:
             break;
         }
         goto return_zero;
     case 0xC:
-        *(s16 *)(work + 2) = 0xD;
+        *(s16 *)(work + 2) = 0xD; /* measured: access-site field typing here loses MATCH. */
         mcSetState(work, 3);
         /* fallthrough */
     case 0xD:
         result = 0;
-        value = *(s32 *)(work + 8);
+        value = ((McScreenState *)work)->operation;
         switch (value) {
         case 0:
             result = mcLoadState(work);
@@ -1154,13 +1142,13 @@ s32 mcStepState(u8 *work) {
         switch (result) {
         case 1:
             D_00764634 = 1;
-            *(s16 *)(work + 2) = 1;
+            *(s16 *)(work + 2) = 1; /* measured: access-site field typing here loses MATCH. */
             break;
         case 2:
-            *(s16 *)(work + 2) = 5;
+            *(s16 *)(work + 2) = 5; /* measured: access-site field typing here loses MATCH. */
             break;
         case 4:
-            *(s16 *)(work + 2) = 2;
+            *(s16 *)(work + 2) = 2; /* measured: access-site field typing here loses MATCH. */
             break;
         default:
             break;
@@ -1230,26 +1218,22 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
 }
 
 /* The teardown callback receives the task, not its work allocation. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4CB0
 void mcIconTaskDestroy(u8 *sdkTaskBytes) {
     s32 taskAddress = (s32)sdkTaskBytes;
     u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
-    s32 directory = *(s32 *)(work + 0x3A4);
+    s32 directory = ((McScreenState *)work)->directory;
     if (directory != 0) {
         H_Cdvd_Destroy((struct HCdvd *)directory);
-        *(s32 *)(work + 0x3A4) = 0;
+        *(s32 *)(work + 0x3A4) = 0; /* measured: access-site field typing here loses MATCH. */
     }
-    sdkSpritePackDestroy(*(u32 *)(work + 0x398));
+    sdkSpritePackDestroy(((McScreenState *)work)->spritePack);
     mcIconWorkFree(work);
 }
 
 /* Exact under MWCC b210/O2: three one-field values preserve the two source
    color slots and their shared output slot without synthetic padding. */
 /* Animate the two opening rectangles over twenty frames. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4D10
 s32 mcAnimateTransition(s32 task) {
     typedef struct { f32 value; } ColorValue;
@@ -1264,7 +1248,7 @@ s32 mcAnimateTransition(s32 task) {
     McRect second;
 
     work = (u8 *)kwlnTaskGetWork((void *)task);
-    frame = *(s32 *)(work + 0x568);
+    frame = ((McScreenState *)work)->frame;
     if (frame > 20) frame = 20;
     eased = sinf((D_00761184 * (f32)frame) / 20.0f);
     firstColor.value = iGpffffa818;
@@ -1274,7 +1258,7 @@ s32 mcAnimateTransition(s32 task) {
     first.height = (s32)(448.0f * eased);
     rectangle = first;
     PrimDrawFlatRectangle(&outputColor.value, &rectangle, 0.0f, 1);
-    frame = *(s32 *)(work + 0x568);
+    frame = *(s32 *)(work + 0x568); /* measured: access-site field typing here loses MATCH. */
     if (frame > 5) {
         frame -= 5;
         if (frame > 15) frame = 15;
@@ -1287,9 +1271,9 @@ s32 mcAnimateTransition(s32 task) {
         rectangle = second;
         PrimDrawFlatRectangle(&outputColor.value, &rectangle, 0.0f, 1);
     }
-    frame = ++*(s32 *)(work + 0x568);
+    frame = ++*(s32 *)(work + 0x568); /* measured: access-site field typing here loses MATCH. */
     if (frame >= 20) {
-        *(s32 *)(work + 0x568) = 0;
+        *(s32 *)(work + 0x568) = 0; /* measured: access-site field typing here loses MATCH. */
         return 1;
     }
     return 0;
@@ -1300,8 +1284,6 @@ s32 mcAnimateTransition(s32 task) {
  * selected-card slide. Keep the pulse multiplication separate from scale. */
 #pragma opt_lifetimes on
 /* Slide and fade the slot list in while interpolating its 16.16 scroll position. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A4F20
 s32 mcRunScreenFrame(s32 taskAddress)
 {
@@ -1331,7 +1313,7 @@ s32 mcRunScreenFrame(s32 taskAddress)
     work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
     mcDrawFadedColor(0, 0, 255, work);
     mcSeedEntryTable(255, work);
-    frame = *(s32 *)(work + 0x568);
+    frame = ((McScreenState *)work)->frame;
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
     } else {
@@ -1340,12 +1322,12 @@ s32 mcRunScreenFrame(s32 taskAddress)
     alpha = (s32)(255.0f * ramp);
     mcDrawGlyph(0, 0, alpha, work);
     mcAdvanceMeter(0, 0, alpha, work);
-    wave = sinf((D_00761184 * (f32)*(s32 *)(work + 0x568)) / 30.0f);
-    target = (s32)((u32)*(s32 *)(work + 0x3AC) << 16);
-    if (*(s32 *)(work + 0x3B4) != target) {
-        diff = target - *(s32 *)(work + 0x3B4);
+    wave = sinf((D_00761184 * (f32)*(s32 *)(work + 0x568)) / 30.0f); /* measured: access-site field typing here loses MATCH. */
+    target = (s32)((u32)((McScreenState *)work)->slot << 16);
+    if (((McScreenState *)work)->scrollPosition != target) {
+        diff = target - ((McScreenState *)work)->scrollPosition;
         if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
-            *(s32 *)(work + 0x3B4) = target;
+            *(s32 *)(work + 0x3B4) = target; /* measured: access-site field typing here loses MATCH. */
         } else {
             fdiff = (f32)diff;
             if (iGpffff8218 * fdiff < iGpffff821c) {
@@ -1354,10 +1336,10 @@ s32 mcRunScreenFrame(s32 taskAddress)
             } else {
                 rest = (s32)(iGpffff8218 * fdiff);
             }
-            *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest;
+            *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest; /* measured: access-site field typing here loses MATCH. */
         }
     }
-    base = *(s32 *)(work + 0x3B4) >> 16;
+    base = *(s32 *)(work + 0x3B4) >> 16; /* measured: access-site field typing here loses MATCH. */
     idx = 0;
     row = (s32)((u32)base << 16);
     {
@@ -1367,11 +1349,11 @@ s32 mcRunScreenFrame(s32 taskAddress)
     }
     while (idx < 7) {
         slot = base + idx - 3;
-        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) {
+        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) { /* measured: access-site field typing here loses MATCH. */
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
             mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
             mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-            diff = row - *(s32 *)(work + 0x3B4);
+            diff = row - *(s32 *)(work + 0x3B4); /* measured: access-site field typing here loses MATCH. */
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
@@ -1379,12 +1361,12 @@ s32 mcRunScreenFrame(s32 taskAddress)
         }
         idx++;
     }
-    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(work + 0x398), 1);
+    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)((McScreenState *)work)->spritePack, 1);
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
-            diff = row - *(s32 *)(work + 0x3B4);
+            diff = row - *(s32 *)(work + 0x3B4); /* measured: access-site field typing here loses MATCH. */
             x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
@@ -1395,13 +1377,13 @@ s32 mcRunScreenFrame(s32 taskAddress)
         }
         idx++;
     }
-    if (*(s32 *)(work + 0x3AC) + 1 != 0) {
+    if (*(s32 *)(work + 0x3AC) + 1 != 0) { /* measured: access-site field typing here loses MATCH. */
         mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
-        diff = *(s32 *)(work + 0x3B8);
+        diff = ((McScreenState *)work)->selectionPulse;
         if (diff > 0) {
-            *(s32 *)(work + 0x3B8) = diff - 1;
+            *(s32 *)(work + 0x3B8) = diff - 1; /* measured: access-site field typing here loses MATCH. */
         }
-        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f);
+        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f); /* measured: access-site field typing here loses MATCH. */
         scale = 1.0f + pulse;
         {
             f32 remaining = 1.0f;
@@ -1409,12 +1391,12 @@ s32 mcRunScreenFrame(s32 taskAddress)
             slide = 400.0f * remaining;
         }
         mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-        mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work);
+        mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work); /* measured: access-site field typing here loses MATCH. */
     }
-    frame = *(s32 *)(work + 0x568) + 1;
-    *(s32 *)(work + 0x568) = frame;
+    frame = *(s32 *)(work + 0x568) + 1; /* measured: access-site field typing here loses MATCH. */
+    *(s32 *)(work + 0x568) = frame; /* measured: access-site field typing here loses MATCH. */
     if (frame >= 30) {
-        *(s32 *)(work + 0x568) = 0;
+        *(s32 *)(work + 0x568) = 0; /* measured: access-site field typing here loses MATCH. */
         return 1;
     }
     return 0;
@@ -1439,8 +1421,6 @@ s32 mcRunScreenFrame(s32 taskAddress)
    f32, u8 *): that parameter order reproduces retail's argument emission order. */
 #pragma opt_lifetimes on
 /* Fade screen components out and slide the selected slot offscreen. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A5630
 s32 mcRunScreenExitFrame(s32 taskAddress)
 {
@@ -1473,7 +1453,7 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
     f32 half;
 
     work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
-    frame = *(s32 *)(work + 0x568);
+    frame = ((McScreenState *)work)->frame;
     if (frame > 10) {
         if (frame < 30) {
             ramp1 = (f32)(frame - 10) / 20.0f;
@@ -1484,14 +1464,14 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
         ramp1 = 0.0f;
     }
     mcDrawFadedColor(0, 0, (s32)(255.0f * (1.0f - ramp1)), work);
-    frame = *(s32 *)(work + 0x568);
+    frame = *(s32 *)(work + 0x568); /* measured: access-site field typing here loses MATCH. */
     if (frame < 10) {
         ramp2 = (f32)frame / 10.0f;
     } else {
         ramp2 = 1.0f;
     }
     mcSeedEntryTable((s32)(255.0f * (1.0f - ramp2)), work);
-    frame = *(s32 *)(work + 0x568);
+    frame = *(s32 *)(work + 0x568); /* measured: access-site field typing here loses MATCH. */
     if (frame < 10) {
         ramp3 = (f32)frame / 10.0f;
     } else {
@@ -1500,25 +1480,25 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
     fade = (s32)(255.0f * (1.0f - ramp3));
     mcDrawGlyph(0, 0, fade, work);
     mcAdvanceMeter(0, 0, fade, work);
-    frame = *(s32 *)(work + 0x568);
+    frame = *(s32 *)(work + 0x568); /* measured: access-site field typing here loses MATCH. */
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
     } else {
         ramp = 1.0f;
     }
     wave = sinf(D_00761184 * ramp);
-    frame = *(s32 *)(work + 0x568);
+    frame = *(s32 *)(work + 0x568); /* measured: access-site field typing here loses MATCH. */
     if (frame < 2) {
         alpha = (s32)(255.0f * (1.0f - sinf(D_00761184 * ((f32)frame / 2.0f))));
     } else {
         alpha = 0;
     }
     if (ramp < 1.0f) {
-        target = *(s32 *)(work + 0x3AC) << 16;
-        if (*(s32 *)(work + 0x3B4) != target) {
-            diff = target - *(s32 *)(work + 0x3B4);
+        target = ((McScreenState *)work)->slot << 16;
+        if (((McScreenState *)work)->scrollPosition != target) {
+            diff = target - ((McScreenState *)work)->scrollPosition;
             if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
-                *(s32 *)(work + 0x3B4) = target;
+                *(s32 *)(work + 0x3B4) = target; /* measured: access-site field typing here loses MATCH. */
             } else {
                 fdiff = (f32)diff;
                 if (iGpffff8218 * fdiff < iGpffff821c) {
@@ -1527,20 +1507,20 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
                 } else {
                     rest = (s32)(iGpffff8218 * fdiff);
                 }
-                *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest;
+                *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest; /* measured: access-site field typing here loses MATCH. */
             }
         }
-        base = *(s32 *)(work + 0x3B4) >> 16;
+        base = *(s32 *)(work + 0x3B4) >> 16; /* measured: access-site field typing here loses MATCH. */
         idx = 0;
         row = base << 16;
         slide = 400.0f * wave;
         while (idx < 7) {
             slot = base + idx - 3;
-            if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) {
+            if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) { /* measured: access-site field typing here loses MATCH. */
                 mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
                 mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
                 mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-                diff = row - *(s32 *)(work + 0x3B4);
+                diff = row - *(s32 *)(work + 0x3B4); /* measured: access-site field typing here loses MATCH. */
                 x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
                 mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
@@ -1548,12 +1528,12 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
             }
             idx++;
         }
-        shdSpriteDrawNowEx(0.0f, 131.0f + 47.0f * wave, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(work + 0x398), 1, 0, 0, 0.0f, 1.0f, 1.0f - wave);
+        shdSpriteDrawNowEx(0.0f, 131.0f + 47.0f * wave, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)((McScreenState *)work)->spritePack, 1, 0, 0, 0.0f, 1.0f, 1.0f - wave);
         idx = 0;
         while (idx < 6) {
             slot = base + idx - 3;
             if (slot >= 0 && slot < 16) {
-                diff = row - *(s32 *)(work + 0x3B4);
+                diff = row - *(s32 *)(work + 0x3B4); /* measured: access-site field typing here loses MATCH. */
                 x2 = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y2 = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
                 if (slot == base || slot == base + 1) {
@@ -1564,23 +1544,23 @@ s32 mcRunScreenExitFrame(s32 taskAddress)
             }
             idx++;
         }
-        if (*(s32 *)(work + 0x3AC) + 1 != 0) {
+        if (*(s32 *)(work + 0x3AC) + 1 != 0) { /* measured: access-site field typing here loses MATCH. */
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
-            diff = *(s32 *)(work + 0x3B8);
+            diff = ((McScreenState *)work)->selectionPulse;
             if (diff > 0) {
-                *(s32 *)(work + 0x3B8) = diff - 1;
+                *(s32 *)(work + 0x3B8) = diff - 1; /* measured: access-site field typing here loses MATCH. */
             }
-            pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f);
+            pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f); /* measured: access-site field typing here loses MATCH. */
             scale = 1.0f + pulse;
             slide = 350.0f * wave;
             mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-            mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work);
+            mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work); /* measured: access-site field typing here loses MATCH. */
         }
     }
-    frame = *(s32 *)(work + 0x568) + 1;
-    *(s32 *)(work + 0x568) = frame;
+    frame = *(s32 *)(work + 0x568) + 1; /* measured: access-site field typing here loses MATCH. */
+    *(s32 *)(work + 0x568) = frame; /* measured: access-site field typing here loses MATCH. */
     if (frame >= 30) {
-        *(s32 *)(work + 0x568) = 0;
+        *(s32 *)(work + 0x568) = 0; /* measured: access-site field typing here loses MATCH. */
         return 1;
     }
     return 0;
@@ -1601,8 +1581,6 @@ static inline s32 mcRowDisplacement(s32 base, s32 position)
  * separate from scale so multiplication rounds before the addition. */
 #pragma opt_loop_invariants on
 /* Draw the settled slot list and pulse the selection while smoothing scroll. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A5F00
 s32 mcDrawScreenSettled(s32 taskAddress)
 {
@@ -1626,11 +1604,11 @@ s32 mcDrawScreenSettled(s32 taskAddress)
     mcSeedEntryTable(255, work);
     mcDrawGlyph(0, 0, 255, work);
     mcAdvanceMeter(0, 0, 255, work);
-    target = (s32)((u32)*(s32 *)(work + 0x3AC) << 16);
-    if (*(s32 *)(work + 0x3B4) != target) {
-        diff = target - *(s32 *)(work + 0x3B4);
+    target = (s32)((u32)((McScreenState *)work)->slot << 16);
+    if (((McScreenState *)work)->scrollPosition != target) {
+        diff = target - ((McScreenState *)work)->scrollPosition;
         if ((f32)func_0043c6a0(diff) <= iGpffff8214 * (f32)target) {
-            *(s32 *)(work + 0x3B4) = target;
+            *(s32 *)(work + 0x3B4) = target; /* measured: access-site field typing here loses MATCH. */
         } else {
             fdiff = (f32)diff;
             if (iGpffff8218 * fdiff < iGpffff821c) {
@@ -1639,18 +1617,18 @@ s32 mcDrawScreenSettled(s32 taskAddress)
             } else {
                 rest = (s32)(iGpffff8218 * fdiff);
             }
-            *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest;
+            *(s32 *)(work + 0x3B4) = *(s32 *)(work + 0x3B4) + rest; /* measured: access-site field typing here loses MATCH. */
         }
     }
-    base = *(s32 *)(work + 0x3B4) >> 16;
+    base = *(s32 *)(work + 0x3B4) >> 16; /* measured: access-site field typing here loses MATCH. */
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
-        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) {
+        if (slot >= 0 && slot < 16 && ((idx != 0 && idx != 6) || (u16)*(s32 *)(work + 0x3B4) != 0)) { /* measured: access-site field typing here loses MATCH. */
             mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 5.0f);
             mcSetSkyRenderState(0, 0, 0x280, 0x2D, 0.0f);
             mcSetSkyRenderState(0, 0x195, 0x280, 0x30, 0.0f);
-            diff = mcRowDisplacement(base, *(s32 *)(work + 0x3B4));
+            diff = mcRowDisplacement(base, *(s32 *)(work + 0x3B4)); /* measured: access-site field typing here loses MATCH. */
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             mcDrawSlotDial(x, y, 0.0f, 0xFF, work + 0x14, slot, 0, 1.0f, work);
@@ -1658,12 +1636,12 @@ s32 mcDrawScreenSettled(s32 taskAddress)
         }
         idx++;
     }
-    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)*(s32 *)(work + 0x398), 1);
+    shdSpriteDrawNow(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, (u8 *)((McScreenState *)work)->spritePack, 1);
     idx = 0;
     while (idx < 7) {
         slot = base + idx - 3;
         if (slot >= 0 && slot < 16) {
-            diff = mcRowDisplacement(base, *(s32 *)(work + 0x3B4));
+            diff = mcRowDisplacement(base, *(s32 *)(work + 0x3B4)); /* measured: access-site field typing here loses MATCH. */
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
             if (slot == base || slot == base + 1) {
@@ -1674,16 +1652,16 @@ s32 mcDrawScreenSettled(s32 taskAddress)
         }
         idx++;
     }
-    if (*(s32 *)(work + 0x3AC) + 1 != 0) {
+    if (*(s32 *)(work + 0x3AC) + 1 != 0) { /* measured: access-site field typing here loses MATCH. */
         mcSetSkyRenderState(0, 0, 0x280, 0x1C0, 0.0f);
-        diff = *(s32 *)(work + 0x3B8);
+        diff = ((McScreenState *)work)->selectionPulse;
         if (diff > 0) {
-            *(s32 *)(work + 0x3B8) = diff - 1;
+            *(s32 *)(work + 0x3B8) = diff - 1; /* measured: access-site field typing here loses MATCH. */
         }
-        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f);
+        pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(work + 0x3B8) / 10.0f); /* measured: access-site field typing here loses MATCH. */
         scale = 1.0f + pulse;
         mcDrawCircleFan(72.0f, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-        mcDrawSlotDial(19.0f, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work);
+        mcDrawSlotDial(19.0f, 130.0f, 0.0f, 0xFF, work + 0x14, *(s32 *)(work + 0x3AC), 1, scale, work); /* measured: access-site field typing here loses MATCH. */
     }
     mcDrawCardStatusPulse(5, -5, 0xFF, work);
     return 1;
@@ -1691,32 +1669,30 @@ s32 mcDrawScreenSettled(s32 taskAddress)
 #pragma pop
 
 /* Select opening, steady, or closing drawing from the screen flags. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A6510
 s32 mcDrawDispatch(s32 taskAddress) {
     u8 *work = (u8 *)(uintptr_t)kwlnTaskGetWork((void *)(uintptr_t)(u32)taskAddress);
-    s32 flags = *(u32 *)(work + 4);
+    s32 flags = ((McScreenState *)work)->flags;
 
     if (!(flags & 1)) {
         return 0;
     }
     if (flags & 0x400) {
         if (mcAnimateTransition(taskAddress) != 0) {
-            *(u32 *)(work + 4) &= ~0x400;
-            *(u32 *)(work + 4) |= 0x20000;
+            *(u32 *)(work + 4) &= ~0x400; /* measured: access-site field typing here loses MATCH. */
+            *(u32 *)(work + 4) |= 0x20000; /* measured: access-site field typing here loses MATCH. */
         }
         return 0;
     }
     if (flags & 0x20000) {
         if (mcRunScreenFrame(taskAddress) != 0) {
-            *(u32 *)(work + 4) &= ~0x20000;
+            *(u32 *)(work + 4) &= ~0x20000; /* measured: access-site field typing here loses MATCH. */
         }
         return 0;
     }
     if (flags & 0x40000) {
         if (mcRunScreenExitFrame(taskAddress) != 0) {
-            *(u32 *)(work + 4) &= ~0x40000;
+            *(u32 *)(work + 4) &= ~0x40000; /* measured: access-site field typing here loses MATCH. */
         }
         return 0;
     }
@@ -1847,12 +1823,11 @@ void mcSetSkyRenderState(s32 x, s32 y, s32 width, s32 height, f32 depth) {
     mdlEffectEmitTagPair();
 }
 
-/* The table layout is McRecordTable; retain offset-first address arithmetic
- * because typed table indexing changed the measured matching instruction order. */
+/* The state-table access keeps the measured offset-first address addition. */
 // FUN_002A6AF0
 s32 mcCurrentSlotValue(u8 *work) {
     s32 idx = ((McScreenState *)work)->slot * 4;
-    return *(s32 *)(idx + (s32)work + 0x14);
+    return ((McScreenState *)(idx + (s32)work))->records.states[0];
 }
 
 // Intent: sets the colour with alpha arg2 and draws it through PrimDrawFlatRectangle only when alpha is nonzero.
@@ -1884,38 +1859,41 @@ void mcDrawGlyph(s32 x, s32 y, s32 alpha, u8 *work) {
 }
 
 /* Fade the control legends toward the refresh flag and consume that flag. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
+#pragma push
+/* measured: the fully typed body is MISMATCH with CSE on, MATCH with opt_common_subs off. */
+#pragma opt_common_subs off
 // FUN_002A6C30
 void mcAdvanceMeter(s32 x, s32 y, s32 alpha, u8 *work) {
     s32 frameOrAlpha;
     f32 opacity;
 
     if (alpha != 0) {
-        if (*(s32 *)(work + 4) & 0x80000) {
-            frameOrAlpha = *(s32 *)(work + 0x3D0);
+        if (((McScreenState *)work)->flags & 0x80000) {
+            frameOrAlpha = ((McScreenState *)work)->legendFade;
             if (frameOrAlpha < 5) {
-                *(s32 *)(work + 0x3D0) = frameOrAlpha + 1;
+                ((McScreenState *)work)->legendFade = frameOrAlpha + 1;
             }
         } else {
-            frameOrAlpha = *(s32 *)(work + 0x3D0);
+            frameOrAlpha = ((McScreenState *)work)->legendFade;
             if (frameOrAlpha > 0) {
-                *(s32 *)(work + 0x3D0) = frameOrAlpha - 1;
+                ((McScreenState *)work)->legendFade = frameOrAlpha - 1;
             }
         }
-        opacity = ((f32)*(s32 *)(work + 0x3D0) / 5.0f) * (f32)alpha;
+        opacity = ((f32)((McScreenState *)work)->legendFade / 5.0f) * (f32)alpha;
         frameOrAlpha = (s32)opacity;
-        shdSpriteDrawNow((f32)(x + 0x1F5), (f32)(y + 0x19B), 0.0f, 0xFFFFFF, frameOrAlpha, 0x24, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
-        shdSpriteDrawNow((f32)(x + 0x207), (f32)(y + 0x19D), 0.0f, 0xFFFFFF, frameOrAlpha, 0x27, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
-        shdSpriteDrawNow((f32)(x + 0x22C), (f32)(y + 0x19B), 0.0f, 0xFFFFFF, frameOrAlpha, 0x25, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
-        shdSpriteDrawNow((f32)(x + 0x23E), (f32)(y + 0x19D), 0.0f, 0xFFFFFF, frameOrAlpha, 0x28, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
-        *(s32 *)(work + 4) &= 0xFFF7FFFF;
+        shdSpriteDrawNow((f32)(x + 0x1F5), (f32)(y + 0x19B), 0.0f, 0xFFFFFF, frameOrAlpha, 0x24, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+        shdSpriteDrawNow((f32)(x + 0x207), (f32)(y + 0x19D), 0.0f, 0xFFFFFF, frameOrAlpha, 0x27, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+        shdSpriteDrawNow((f32)(x + 0x22C), (f32)(y + 0x19B), 0.0f, 0xFFFFFF, frameOrAlpha, 0x25, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+        shdSpriteDrawNow((f32)(x + 0x23E), (f32)(y + 0x19D), 0.0f, 0xFFFFFF, frameOrAlpha, 0x28, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+        ((McScreenState *)work)->flags &= 0xFFF7FFFF;
     }
 }
+#pragma pop
 
 // Intent: draws the card-status pulse overlay (224 lines). Flag 0x4000 selects the pulsing layout; the caller passes (5, -5, 0xFF, screen state).
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
+#pragma push
+/* measured: the fully typed body is MISMATCH with CSE on, MATCH with opt_common_subs off. */
+#pragma opt_common_subs off
 // FUN_002A6E30
 void mcDrawCardStatusPulse(s32 x, s32 y, s32 alpha, u8 *work) {
     typedef struct { s32 a, b; } I8;
@@ -1930,47 +1908,47 @@ void mcDrawCardStatusPulse(s32 x, s32 y, s32 alpha, u8 *work) {
     f32 points[0xC];
     u8 color[4];
 
-    if (*(s32 *)(work + 4) & 0x4000) {
-        v = *(s32 *)(work + 0x3C8);
+    if (((McScreenState *)work)->flags & 0x4000) {
+        v = ((McScreenState *)work)->upperFade;
         if (v < 0xA) {
-            *(s32 *)(work + 0x3C8) = v + 1;
+            ((McScreenState *)work)->upperFade = v + 1;
         }
     } else {
-        v = *(s32 *)(work + 0x3C8);
+        v = ((McScreenState *)work)->upperFade;
         if (v > 0) {
-            *(s32 *)(work + 0x3C8) = v - 1;
+            ((McScreenState *)work)->upperFade = v - 1;
         }
     }
-    if (*(s32 *)(work + 4) & 0x8000) {
-        v = *(s32 *)(work + 0x3CC);
+    if (((McScreenState *)work)->flags & 0x8000) {
+        v = ((McScreenState *)work)->lowerFade;
         if (v < 0xA) {
-            *(s32 *)(work + 0x3CC) = v + 1;
+            ((McScreenState *)work)->lowerFade = v + 1;
         }
     } else {
-        v = *(s32 *)(work + 0x3CC);
+        v = ((McScreenState *)work)->lowerFade;
         if (v > 0) {
-            *(s32 *)(work + 0x3CC) = v - 1;
+            ((McScreenState *)work)->lowerFade = v - 1;
         }
     }
-    upperEaseOrY = sinf(D_00761184 * (f32)*(s32 *)(work + 0x3C8) / 10.0f);
-    lowerEaseOrX = sinf(D_00761184 * (f32)*(s32 *)(work + 0x3CC) / 10.0f);
-    if (*(s32 *)(work + 4) & 0x1000) {
-        *(s32 *)(work + 0x3C0) = 0xA;
-        *(s32 *)(work + 4) &= ~0x1000;
+    upperEaseOrY = sinf(D_00761184 * (f32)((McScreenState *)work)->upperFade / 10.0f);
+    lowerEaseOrX = sinf(D_00761184 * (f32)((McScreenState *)work)->lowerFade / 10.0f);
+    if (((McScreenState *)work)->flags & 0x1000) {
+        ((McScreenState *)work)->upperPulse = 0xA;
+        ((McScreenState *)work)->flags &= ~0x1000;
     }
-    if (*(s32 *)(work + 4) & 0x2000) {
-        *(s32 *)(work + 0x3C4) = 0xA;
-        *(s32 *)(work + 4) &= ~0x2000;
+    if (((McScreenState *)work)->flags & 0x2000) {
+        ((McScreenState *)work)->lowerPulse = 0xA;
+        ((McScreenState *)work)->flags &= ~0x2000;
     }
-    upperPulse = sinf(D_00761174 * (f32)*(s32 *)(work + 0x3C0) / 10.0f);
-    lowerPulse = sinf(D_00761174 * (f32)*(s32 *)(work + 0x3C4) / 10.0f);
-    v = *(s32 *)(work + 0x3C0);
+    upperPulse = sinf(D_00761174 * (f32)((McScreenState *)work)->upperPulse / 10.0f);
+    lowerPulse = sinf(D_00761174 * (f32)((McScreenState *)work)->lowerPulse / 10.0f);
+    v = ((McScreenState *)work)->upperPulse;
     if (v > 0) {
-        *(s32 *)(work + 0x3C0) = v - 1;
+        ((McScreenState *)work)->upperPulse = v - 1;
     }
-    v = *(s32 *)(work + 0x3C4);
+    v = ((McScreenState *)work)->lowerPulse;
     if (v > 0) {
-        *(s32 *)(work + 0x3C4) = v - 1;
+        ((McScreenState *)work)->lowerPulse = v - 1;
     }
     p6 = (I8 *)D_0063ED80;
     p5 = (I8 *)points;
@@ -2019,6 +1997,7 @@ void mcDrawCardStatusPulse(s32 x, s32 y, s32 alpha, u8 *work) {
     color[3] = (u8)alpha;
     PrimDrawFlatTriangle(color, &points[6], 1, 0.0f);
 }
+#pragma pop
 
 /* Claim and clear the first inactive entry in the twenty-entry effect table. */
 // FUN_002A7330
@@ -2045,8 +2024,6 @@ static inline const s32 *mcTableAt(s32 index, const s32 *base)
  * Keep table indices separate from their bases and reload the stored step.
  * Reuse the table-copy word for width before converting it to float. */
 /* Advance a drifting circle, fading its ends and spawning a delayed successor. */
-/* McCircleEntry proves these offsets; retain byte accesses because typed
- * members changed the measured field-address hoisting and lost MATCH. */
 // FUN_002A73C0
 s32 mcTableRandomize(s32 screenAddress, u8 *entries, u8 *entry, s32 alpha) {
     typedef struct { s32 a, b; } I8;
@@ -2101,13 +2078,13 @@ s32 mcTableRandomize(s32 screenAddress, u8 *entries, u8 *entry, s32 alpha) {
         dst->b = i;
         dst++;
     } while (n > 0);
-    if (*(s16 *)(rec + 0x12) > 0) {
-        *(s16 *)(rec + 0x12) -= 1;
+    if (((McCircleEntry *)rec)->delay > 0) {
+        *(s16 *)(rec + 0x12) -= 1; /* measured: access-site field typing here loses MATCH. */
         return 0;
     }
     scale = (s32)((f32)(s32)((u32)alpha * 255U) / 255.0f);
-    total = *mcTableAt(*(s32 *)(rec + 4), durations);
-    step = *(s16 *)(rec + 0x10);
+    total = *mcTableAt(((McCircleEntry *)rec)->kind, durations);
+    step = ((McCircleEntry *)rec)->frame;
     rate = (f32)step / (f32)total;
     if (step < 30) {
         scale = (s32)(((f32)step / 30.0f) * (f32)scale);
@@ -2116,14 +2093,14 @@ s32 mcTableRandomize(s32 screenAddress, u8 *entries, u8 *entry, s32 alpha) {
     }
     v = *mcTableAt(((s32 *)rec)[1], widths);
     w = 2.0f * (f32)v;
-    fx = *(f32 *)(rec + 8) - 512.0f * rate;
-    fy = *(f32 *)(rec + 0xC) + 512.0f * rate;
+    fx = ((McCircleEntry *)rec)->x.value - 512.0f * rate;
+    fy = ((McCircleEntry *)rec)->y.value + 512.0f * rate;
     mcDrawCircleFan(fx, fy, 0.0f, 0xFFF267, scale, D_00761300 * w, w, 1);
-    *(s16 *)(rec + 0x10) += 1;
-    total = *mcTableAt(*(s32 *)(rec + 4), durations);
-    ns = *(s16 *)(rec + 0x10);
+    *(s16 *)(rec + 0x10) += 1; /* measured: access-site field typing here loses MATCH. */
+    total = *mcTableAt(*(s32 *)(rec + 4), durations); /* measured: access-site field typing here loses MATCH. */
+    ns = *(s16 *)(rec + 0x10); /* measured: access-site field typing here loses MATCH. */
     if (ns >= total) {
-        *(s16 *)(rec + 0x10) = 0;
+        *(s16 *)(rec + 0x10) = 0; /* measured: access-site field typing here loses MATCH. */
         return 1;
     }
     if ((s32)ns == (total >> 2) * 3) {
@@ -2131,22 +2108,20 @@ s32 mcTableRandomize(s32 screenAddress, u8 *entries, u8 *entry, s32 alpha) {
         rf = (f32)r;
         rf = 10.0f * (rf / 2147483648.0f);
         tail = (s32)(u32)rf + 30;
-        idx = *(s32 *)(rec + 4);
-        cy = *(f32 *)(rec + 0xC);
-        cx = *(f32 *)(rec + 8);
+        idx = *(s32 *)(rec + 4); /* measured: access-site field typing here loses MATCH. */
+        cy = *(f32 *)(rec + 0xC); /* measured: access-site field typing here loses MATCH. */
+        cx = *(f32 *)(rec + 8); /* measured: access-site field typing here loses MATCH. */
         nw = (u8 *)mcTableClear(work);
         if (nw != 0) {
-            *(s32 *)(nw + 4) = idx;
-            *(f32 *)(nw + 8) = cx;
-            *(f32 *)(nw + 0xC) = cy;
-            *(s16 *)(nw + 0x12) = (s16)tail;
+            ((McCircleEntry *)nw)->kind = idx;
+            ((McCircleEntry *)nw)->x.value = cx;
+            ((McCircleEntry *)nw)->y.value = cy;
+            ((McCircleEntry *)nw)->delay = (s16)tail;
         }
     }
     return 0;
 }
 /* Advance visible circle effects and seed six fixed kinds when the pool is empty. */
-/* McScreenState proves the seed counter; retain pool-relative accesses
- * because typed screen access changed measured allocation and lost MATCH. */
 // FUN_002A7710
 void mcSeedEntryTable(s32 alpha, u8 *screen) {
     s32 i;
@@ -2163,7 +2138,7 @@ void mcSeedEntryTable(s32 alpha, u8 *screen) {
             }
             p += 0x14;
         }
-        if (*(u32 *)(work + 0x190) == 0) {
+        if (*(u32 *)(work + 0x190) == 0) { /* measured: access-site field typing here loses MATCH. */
             q = (u8 *)mcTableClear(work);
             if (q != NULL) {
                 ((McCircleEntry *)q)->kind = 0;
@@ -2206,7 +2181,7 @@ void mcSeedEntryTable(s32 alpha, u8 *screen) {
                 ((McCircleEntry *)q)->y.bits = 0;
                 ((McCircleEntry *)q)->delay = 0;
             }
-            *(s32 *)(work + 0x190) += 1;
+            *(s32 *)(work + 0x190) += 1; /* measured: access-site field typing here loses MATCH. */
         }
     }
 }
@@ -2248,8 +2223,6 @@ static inline u32 mcUnsignedColorRgb(const u32 *rgba)
  * The inset is evaluated as remaining scale, pixel span, then half span.
  * 6100 matching code bytes; the 6112-byte window has a zero alignment tail. */
 // Intent: draws one card-slot dial. Callers loop over the slots; arg3 selects the active variant, which draws the digit glyphs for the slot index and the card status at +0x3AC.
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A7920
 void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex, s32 active, f32 scale, u8 *work) {
     extern f32 D_00761184;
@@ -2282,31 +2255,31 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
     void *setState;
     s32 t;
 
-    if (*(s32 *)((u8 *)(records) + (slotIndex * 4)) == 1) {
+    if (((McRecordTable *)records)->states[slotIndex] == 1) {
         record = (u8 *)(records + (slotIndex * 0x34) + 0x40);
     } else {
         record = NULL;
     }
     if (active != 0) {
         if ((record != NULL) && (((McSaveRecord *)record)->special != 0)) {
-            *(s32 *)(work + 4) |= 0x10000;
+            ((McScreenState *)work)->flags |= 0x10000;
         } else {
-            *(s32 *)(work + 4) &= 0xFFFEFFFF;
+            ((McScreenState *)work)->flags &= 0xFFFEFFFF;
         }
         dialWidth = 0x7E;
         dialHeight = 0x76;
-        if (*(s32 *)(work + 4) & 0x10000) {
-            t = *(s32 *)(work + 0x3BC);
+        if (*(s32 *)(work + 4) & 0x10000) { /* measured: access-site field typing here loses MATCH. */
+            t = ((McScreenState *)work)->iconFade;
             if (t < 5) {
-                *(s32 *)(work + 0x3BC) = t + 1;
+                *(s32 *)(work + 0x3BC) = t + 1; /* measured: access-site field typing here loses MATCH. */
             }
         } else {
-            t = *(s32 *)(work + 0x3BC);
+            t = ((McScreenState *)work)->iconFade;
             if (t > 0) {
-                *(s32 *)(work + 0x3BC) = t - 1;
+                *(s32 *)(work + 0x3BC) = t - 1; /* measured: access-site field typing here loses MATCH. */
             }
         }
-        ret = sinf((D_00761184 * (f32) *(s32 *)(work + 0x3BC)) / 5.0f);
+        ret = sinf((D_00761184 * (f32) *(s32 *)(work + 0x3BC)) / 5.0f); /* measured: access-site field typing here loses MATCH. */
         tmp = 0.0f + 1.0f * 233.0f + -76.0f * ret;
         c0 = (u8)tmp;
         colHi = ((c0 & 0xFF) << 0x10) | 0xFF000000;
@@ -2348,7 +2321,7 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
@@ -2360,12 +2333,12 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
                 tmp = 53.0f * scale;
                 widthOrX = mcCoordinate(&x, 53.0f);
                 widthOrX -= tmp;
-                shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
                 tmp = 40.0f * scale;
-                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale); /* measured: access-site field typing here loses MATCH. */
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
@@ -2377,16 +2350,16 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
             tmp = 70.0f * scale;
             widthOrX = mcCoordinate(&x, 53.0f);
             widthOrX -= tmp;
-            shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             tmp = 40.0f * scale;
-            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale); /* measured: access-site field typing here loses MATCH. */
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 53.0f * scale, 0.0f + 1.0f * centerY - 21.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
@@ -2398,12 +2371,12 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
                 tmp = 53.0f * scale;
                 widthOrX = mcCoordinate(&x, 53.0f);
                 widthOrX -= tmp;
-                shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(widthOrX, heightOrY, narrowDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
                 tmp = 40.0f * scale;
-                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+                shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, narrowDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale); /* measured: access-site field typing here loses MATCH. */
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 70.0f * scale, 0.0f + 1.0f * centerY - 32.0f * scale, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
@@ -2415,14 +2388,14 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
             tmp = 70.0f * scale;
             widthOrX = mcCoordinate(&x, 53.0f);
             widthOrX -= tmp;
-            shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(widthOrX, heightOrY, wideDigitDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, scale, scale);
             tmp = 40.0f * scale;
-            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale);
+            shdSpriteDrawNowEx(widthOrX + tmp, heightOrY, wideDigitDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, (s16)mcSpriteOrigin(0.0f, tmp), 0, 30.0f, scale, scale); /* measured: access-site field typing here loses MATCH. */
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         glyphOrRgb = mcUnsignedColorRgb(&col);
-        shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 51.0f * scale, 0.0f + 1.0f * centerY - 35.0f * scale, borderDepth, glyphOrRgb, alpha, 0x20, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale);
+        shdSpriteDrawNowEx(0.0f + 1.0f * centerX - 51.0f * scale, 0.0f + 1.0f * centerY - 35.0f * scale, borderDepth, glyphOrRgb, alpha, 0x20, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 0.0f, scale, scale);
         if ((record != NULL) && (((McSaveRecord *)record)->special != 0)) {
             u32 iconRgb;
             f32 iconY;
@@ -2436,10 +2409,10 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
             tmp = 11.0f * scale;
             iconX = mcCoordinate(&x, 53.0f);
             iconX -= tmp;
-            shdSpriteDrawNowEx(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale);
+            shdSpriteDrawNowEx(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale); /* measured: access-site field typing here loses MATCH. */
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            shdSpriteDrawNowEx(iconX, iconY, fillDepth, iconRgb, alpha, 0x3E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale);
+            shdSpriteDrawNowEx(iconX, iconY, fillDepth, iconRgb, alpha, 0x3E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 0.0f, scale, scale); /* measured: access-site field typing here loses MATCH. */
         }
     } else {
         (*(void (**)(s32, s32))setState)(7, 2);
@@ -2456,7 +2429,7 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
@@ -2464,26 +2437,26 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
                 inactiveNarrowDepth = mcPlaneDepth(&depth, 9.0f);
                 centerY = 33.0f + y;
                 centerX = 14.0f + x;
-                shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f); /* measured: access-site field typing here loses MATCH. */
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, borderDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
             digitRgb = mcUnsignedColorRgb(&col);
             inactiveWideDepth = mcPlaneDepth(&depth, 9.0f);
             centerY = 22.0f + y;
-            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f); /* measured: access-site field typing here loses MATCH. */
         }
         RpSkyRenderStateSet(3, 0x50805);
         RpSkyRenderStateSet(2, 0x44);
         slotNumber = slotIndex + 1;
         if (slotNumber < 0xA) {
             if (slotNumber < 0xA) {
-                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(14.0f + x, 33.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
             } else if (slotNumber < 0x14) {
                 u32 digitRgb;
                 glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
@@ -2491,22 +2464,22 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
                 inactiveNarrowDepth = mcPlaneDepth(&depth, 10.0f);
                 centerY = 33.0f + y;
                 centerX = 14.0f + x;
-                shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(centerX, centerY, inactiveNarrowDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(mcDigitAdvance(centerX, 40.0f), centerY, inactiveNarrowDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f); /* measured: access-site field typing here loses MATCH. */
             }
         } else if (slotNumber < 0xA) {
-            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(x - 5.0f, 22.0f + y, fillDepth, mcUnsignedColorRgb(&col), alpha, (slotNumber == 0 ? 0xA : slotNumber) + 0x2D, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
         } else if (slotNumber < 0x14) {
             u32 digitRgb;
             glyphOrRgb = (slotNumber == 0xA) ? 0xA : slotIndex - 9;
             digitRgb = mcUnsignedColorRgb(&col);
             inactiveWideDepth = mcPlaneDepth(&depth, 10.0f);
             centerY = 22.0f + y;
-            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, *(u8 **)(work + 0x398), 0, 0, 0, 30.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcCoordinateBefore(&x, 5.0f), centerY, inactiveWideDepth, digitRgb, alpha, 0x2E, 0, (u8 *)((McScreenState *)work)->spritePack, 0, 0, 0, 30.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(mcDigitAdvance(mcCoordinateBefore(&x, 5.0f), 40.0f), centerY, inactiveWideDepth, digitRgb, alpha, glyphOrRgb + 0x2D, 0, *(u8 **)(work + 0x398), 0, -0x28, 0, 30.0f, 1.0f, 1.0f); /* measured: access-site field typing here loses MATCH. */
         }
         glyphOrRgb = mcUnsignedColorRgb(&col);
-        shdSpriteDrawNow((3.0f + ((4.0f + x) - 5.0f)) - 2.0f, 20.0f + y, borderDepth, glyphOrRgb, alpha, 0x20, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
+        shdSpriteDrawNow((3.0f + ((4.0f + x) - 5.0f)) - 2.0f, 20.0f + y, borderDepth, glyphOrRgb, alpha, 0x20, 0, (u8 *)(((McScreenState *)work)->spritePack), 0);
         if ((record != NULL) && (((McSaveRecord *)record)->special != 0)) {
             u32 iconRgb;
             f32 iconY;
@@ -2516,10 +2489,10 @@ void mcDrawSlotDial(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotInd
             iconRgb = col >> 8;
             iconY = 2.0f + y;
             iconX = 42.0f + x;
-            shdSpriteDrawNow(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
+            shdSpriteDrawNow(iconX, iconY, borderDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0); /* measured: access-site field typing here loses MATCH. */
             RpSkyRenderStateSet(3, 0x50805);
             RpSkyRenderStateSet(2, 0x44);
-            shdSpriteDrawNow(iconX, iconY, fillDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
+            shdSpriteDrawNow(iconX, iconY, fillDepth, iconRgb, alpha, 0x3E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0); /* measured: access-site field typing here loses MATCH. */
         }
     }
     mdlEffectEmitTagPair();
@@ -2705,8 +2678,6 @@ static inline const char *mcLocationName(s32 area, s32 room)
  * color as distinct objects. The color accessor preserves the detail RGB
  * lifetime; opt_lifetimes retains the retail allocation across draw calls. */
 // Intent: draws the date (month and day, formatted with sprintf) and the current location name in the header.
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
 // FUN_002A95C0
 void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress, s32 slotIndex, u8 *active, u8 *work)
 {
@@ -2751,7 +2722,7 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
     baseSpill = recordAddress;
     recordBase = (u8 *)(recordAddress + slotIndex * 0x34);
     record = recordBase + 0x40;
-    calSplitDayOfYear(*(s16 *)(recordBase + 0x40), &month, &day);
+    calSplitDayOfYear(((McSaveRecord *)(recordBase + 0x40))->day, &month, &day);
     weekday = calGetWeekdayOfDay(((McSaveRecord *)record)->day);
     if (weekday < 0) {
         weekday = 6;
@@ -2774,7 +2745,7 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
     x += 107.0f;
     y += 17.0f;
     sprintf(text, &iGpffffa824, month);
-    handle = *(u8 **)(work + 0x398);
+    handle = *(u8 **)(work + 0x398); /* measured: access-site field typing here loses MATCH. */
     monthSource = D_0063EB30;
     monthDestination = monthDigits;
     monthPairs = 6;
@@ -2789,9 +2760,9 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
     } while (monthPairs > 0);
     dateRgb = colorWord.rgba >> 8;
     shdSpriteDrawNumberString((x + 23.0f) - 2.0f, y - 1.0f, depth, dateRgb, (u8)alpha, text, 2, monthDigits, yTimeDrawIndexedGlyph, handle);
-    shdSpriteDrawNow(x + 45.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x4B, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    shdSpriteDrawNow(x + 45.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x4B, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
     sprintf(text, &iGpffffa824, day);
-    handle = *(u8 **)(work + 0x398);
+    handle = *(u8 **)(work + 0x398); /* measured: access-site field typing here loses MATCH. */
     daySource = D_0063EB30;
     dayDestination = dayDigits;
     dayPairs = 6;
@@ -2805,18 +2776,18 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
         dayDestination += 2;
     } while (dayPairs > 0);
     shdSpriteDrawNumberString((x + 61.0f + 24.0f) - 2.0f, (y + 1.0f) - 2.0f, depth, dateRgb, (u8)alpha, text, 2, dayDigits, yTimeDrawIndexedGlyph, handle);
-    shdSpriteDrawNow(x + 109.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x15, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    shdSpriteDrawNow(x + 109.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x15, 0, (u8 *)(*(s32 *)(work + 0x398)), 1); /* measured: access-site field typing here loses MATCH. */
     if ((weekday == 0) || (calHasDayEntry(((McSaveRecord *)record)->day) != 0)) {
-        weekdayHandle = *(u8 **)(work + 0x398);
+        weekdayHandle = *(u8 **)(work + 0x398); /* measured: access-site field typing here loses MATCH. */
         shdSpriteDrawNow((x + 129.0f) - (f32)shdSpriteEntryWidth(0xE, weekday, weekdayHandle) / 2.0f, y - 2.0f, depth, holidayColor >> 8, (u8)alpha, 0xE, weekday, weekdayHandle, 1);
     } else if (weekday == 6) {
-        weekdayHandle = *(u8 **)(work + 0x398);
+        weekdayHandle = *(u8 **)(work + 0x398); /* measured: access-site field typing here loses MATCH. */
         shdSpriteDrawNow((x + 129.0f) - (f32)shdSpriteEntryWidth(0xE, weekday, weekdayHandle) / 2.0f, y - 2.0f, depth, colMid >> 8, (u8)alpha, 0xE, weekday, weekdayHandle, 1);
     } else {
-        weekdayHandle = *(u8 **)(work + 0x398);
+        weekdayHandle = *(u8 **)(work + 0x398); /* measured: access-site field typing here loses MATCH. */
         shdSpriteDrawNow((x + 129.0f) - (f32)shdSpriteEntryWidth(0xE, weekday, weekdayHandle) / 2.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0xE, weekday, weekdayHandle, 1);
     }
-    shdSpriteDrawNow(x + 136.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x16, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    shdSpriteDrawNow(x + 136.0f, y - 2.0f, depth, dateRgb, (u8)alpha, 0x16, 0, (u8 *)(*(s32 *)(work + 0x398)), 1); /* measured: access-site field typing here loses MATCH. */
     str = (u8 *)mcLocationName(((McSaveRecord *)record)->area, ((McSaveRecord *)record)->room);
     frFontExDrawTextWithCharWidth(x + 151.0f, ((y - 2.0f) - 6.0f) + 2.0f, depth, colorWord.rgba | alpha, 0, 1, (const char *)str, 0, -1);
     detailRgb = mcColorRgb(&colorWord);
@@ -2861,17 +2832,17 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
     mdlEffectEmitMaskedTagPair();
     tmpY2 = y + 48.0f;
     tmpX2 = (f32)0x129 + x;
-    shdSpriteDrawNow(tmpX2, tmpY2, depth, detailRgb, (u8)alpha, 0x1E, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    shdSpriteDrawNow(tmpX2, tmpY2, depth, detailRgb, (u8)alpha, 0x1E, 0, (u8 *)(*(s32 *)(work + 0x398)), 1); /* measured: access-site field typing here loses MATCH. */
     mode = ((McSaveRecord *)record)->mode;
     switch (mode) {
     case 0:
-        shdSpriteDrawNow(tmpX2 + 11.0f, tmpY2 + 4.0f, depth, dateRgb, (u8)alpha, 0x1B, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 11.0f, tmpY2 + 4.0f, depth, dateRgb, (u8)alpha, 0x1B, 0, (u8 *)(*(s32 *)(work + 0x398)), 1); /* measured: access-site field typing here loses MATCH. */
         break;
     case 1:
-        shdSpriteDrawNow(tmpX2 + 17.0f, tmpY2 + 4.0f, depth, dateRgb, (u8)alpha, 0x1C, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 17.0f, tmpY2 + 4.0f, depth, dateRgb, (u8)alpha, 0x1C, 0, (u8 *)(*(s32 *)(work + 0x398)), 1); /* measured: access-site field typing here loses MATCH. */
         break;
     default:
-        shdSpriteDrawNow(tmpX2 + 21.0f, tmpY2 + 3.0f, depth, dateRgb, (u8)alpha, 0x1D, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow(tmpX2 + 21.0f, tmpY2 + 3.0f, depth, dateRgb, (u8)alpha, 0x1D, 0, (u8 *)(*(s32 *)(work + 0x398)), 1); /* measured: access-site field typing here loses MATCH. */
         break;
     }
     mdlEffectEmitTagPair();
@@ -2880,7 +2851,7 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
     (*(void (**)(u32, u32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x30003);
     RpSkyRenderStateSet(2, 0x54);
-    shdSpriteDrawNow(tmpX2, tmpY2, depth, dateRgb, (u8)alpha, 0x1E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0);
+    shdSpriteDrawNow(tmpX2, tmpY2, depth, dateRgb, (u8)alpha, 0x1E, 0, (u8 *)(*(s32 *)(work + 0x398)), 0); /* measured: access-site field typing here loses MATCH. */
 }
 
 #pragma pop
@@ -2904,8 +2875,9 @@ void mcDrawDateAndLocation(f32 x, f32 y, f32 depth, s32 alpha, s32 recordAddress
    prologue register rotation (retail's FP store order vs int) dominates.
    Rotation floor persists. */
 /* Draw a valid save summary or the invalid/empty slot label. */
-/* McScreenState layout is proven; byte offsets retain MATCH because b210
- * hoists typed field addresses and changes allocation/scheduling here. */
+#pragma push
+/* measured: the fully typed body is MISMATCH with CSE on, MATCH with opt_common_subs off. */
+#pragma opt_common_subs off
 // FUN_002A9F50
 void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex, s32 active, u8 *work) {
     s32 specialRgb;
@@ -2920,7 +2892,7 @@ void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex
 
     recordBase = records + (slotIndex * 0x34);
     record = recordBase + 0x40;
-    status = *(s32 *)(records + (slotIndex * 4));
+    status = ((McRecordTable *)records)->states[slotIndex];
     if (status == 1) {
         if (((McSaveRecord *)record)->special != 0 && ((McSaveRecord *)record)->day == 9 && ((McSaveRecord *)record)->unk02 == 5) {
             if (active != 0) {
@@ -2929,7 +2901,7 @@ void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex
                 specialColor = (alpha & 0xFF) | 0xFFAE2000;
             }
             specialRgb = specialColor >> 8;
-            shdSpriteDrawNow(5.0f + (113.0f + x), 10.0f + y, depth, specialRgb, (u8)alpha, 0x43, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+            shdSpriteDrawNow(5.0f + (113.0f + x), 10.0f + y, depth, specialRgb, (u8)alpha, 0x43, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
             mcDrawLocationText(mc_add(x, 107.0f), mc_add(y, 17.0f), depth,
                           specialRgb, alpha, (u8 *)records, slotIndex, work);
             return;
@@ -2944,8 +2916,8 @@ void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex
             invalidColor = (alpha & 0xFF) | 0xFFAE2000;
         }
         invalidRgb = invalidColor >> 8;
-        shdSpriteDrawNow(113.0f + x, 34.0f + y, depth, invalidRgb, (u8)alpha, 0x46, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
-        shdSpriteDrawNow(122.0f + x, 35.0f + y, depth, invalidRgb, (u8)alpha, 0x45, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+        shdSpriteDrawNow(113.0f + x, 34.0f + y, depth, invalidRgb, (u8)alpha, 0x46, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+        shdSpriteDrawNow(122.0f + x, 35.0f + y, depth, invalidRgb, (u8)alpha, 0x45, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
         return;
     }
     if (active != 0) {
@@ -2954,9 +2926,10 @@ void mcScreenStep(f32 x, f32 y, f32 depth, s32 alpha, u8 *records, s32 slotIndex
         emptyColor = (alpha & 0xFF) | 0xFFAE2000;
     }
     emptyRgb = emptyColor >> 8;
-    shdSpriteDrawNow(122.0f + x, 35.0f + y, depth, emptyRgb, (u8)alpha, 0x44, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
-    shdSpriteDrawNow(184.0f + x, 36.0f + y, depth, emptyRgb, (u8)alpha, 0x45, 0, (u8 *)(*(s32 *)(work + 0x398)), 1);
+    shdSpriteDrawNow(122.0f + x, 35.0f + y, depth, emptyRgb, (u8)alpha, 0x44, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
+    shdSpriteDrawNow(184.0f + x, 36.0f + y, depth, emptyRgb, (u8)alpha, 0x45, 0, (u8 *)(((McScreenState *)work)->spritePack), 1);
 }
+#pragma pop
 // FUN_002AA2B0
 void mcIconWorkFree(void *allocation) {
     McScreenState *work = allocation;
