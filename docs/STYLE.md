@@ -35,10 +35,35 @@ equivalence.
   `param_1`/`uVar3` names and address arithmetic are starting points, not
   finished source. Once field offsets are proven, replace pointer casts with
   typed struct access and name fields from evidence.
-- **Better unnamed than wrong.** If a name cannot be supported by behavior
-  and call relationships, keep the neutral decompiler name. Do not name from
-  a constant alone, and do not present a descriptive name as an original
-  Atlus symbol.
+- **No decompiler residue in matched code.** Parameters and locals carry
+  names from what the code does with them (`unit`, `slotIndex`, `elapsed`),
+  never `param_N`, `argN`, `temp_N`, `var_N`, `uVarN`, `spXX` or register
+  names. A value whose role is unclear still gets an honest neutral name
+  (`value`, `entry`, `flags`). Struct fields without a proven meaning are
+  `unkXX` (hex offset) inside a correctly sized type; padding is `padXX`.
+- **Name types and headers after what they describe.** A partial layout of a
+  real object is still that object with `unk`/`pad` spans, not a `*View`
+  overlay. Extend the existing type (split its padding, keep offsets and
+  `sizeof`) instead of adding a second definition of the same object.
+- **Function names follow the Atlus convention:** a lowercase module prefix
+  plus CamelCase (`btlUnitSetTarget`, `fldShadowCreateCaster`), one prefix per
+  unit, no numbers. Names come from `config/symbol_names*.txt`, never from
+  editing `func_` spellings by hand. A name that rests only on behaviour goes
+  in `config/symbol_names.inferred.txt` with `evidence: inferred: <behaviour>`;
+  it is a description, not an Atlus symbol, and yields to `p3:`, `file:` or
+  `string:` evidence.
+- **Better unnamed than wrong.** If a function name cannot be supported by
+  behavior and call relationships, keep its `func_` address name. Do not name
+  from a constant alone.
+- **Type raw offsets access by access.** MWCC b210 treats every `u8 *` access
+  as a possible alias of every other, so typed fields can let it cache or CSE
+  loads differently. When a whole-layout rewrite moves instructions, type one
+  function and then one access at a time; usually one or two accesses cause
+  the difference. Try the access-site form `((Foo *)work)->field` with the
+  original `u8 *` local before retyping the local. Leave only the measured
+  culprits raw, each with a comment naming the effect. A scoped optimization
+  pragma is acceptable only when the typed body matches with it and not
+  without, recorded as a measurement (H003).
 - **Use the project types** from `include/type.h`: `u8`/`s8`, `u16`/`s16`,
   `u32`/`s32`, `u64`/`s64`, `f32`, `f64`. `bool` is not used in this
   codebase; predicates return `u8`/`u32`/`s32` as the ABI requires.
