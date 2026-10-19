@@ -43,7 +43,7 @@ void memcpy(void *dst, const void *src, u32 size);
 void memset(void *dst, s32 value, u32 size);
 s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
 u8 *sdkSpriteRequestLoad(const char *name);
-u32 func_0046a750(s16 *param);
+u32 hMaestroDecodeIsReady(s16 *param);
 f32 sdkSpriteEntryWidth(void *ptr, s32 index);
 s32 sdkSpriteSlotHandle(u8 *ptr, s32 index);
 void kAssertFail(const void *file, s32 line);
@@ -134,7 +134,7 @@ s32 shdSpriteEnsureLoaded(u8 *pack)
 {
     s32 H_Cdvd_LookupRequest(s32, s32 *);
     u8 *sdkSpriteRequestLoad(const char *);
-    u32 func_0046a750(s16 *);
+    u32 hMaestroDecodeIsReady(s16 *);
     s32 requestState;
     s32 index;
     s32 offset;
@@ -164,7 +164,7 @@ s32 shdSpriteEnsureLoaded(u8 *pack)
                             (*(u8 **)(pack + 4)) + index * 4)));
             }
         } else {
-            if (func_0046a750(
+            if (hMaestroDecodeIsReady(
                     (s16 *)*(u8 **)(result + index * 4)) == 0) {
                 goto fail;
             }

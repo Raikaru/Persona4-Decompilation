@@ -72,7 +72,7 @@ extern u8 *D_00724C08;
 extern u8 D_007130E8[];
 extern s32 D_00724130;
 
-extern s32 func_004633f0(u8 *task);
+extern s32 hMaestroUpdateServicesTask(u8 *task);
 struct MovieNativeWork;
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
@@ -106,7 +106,7 @@ extern f32 iGpffffbb24;
 extern void func_0044f720(void);
 extern s32 func_003e23e0(void);
 extern void func_003e82e0();
-extern void func_003e5510(s32 arg0);
+extern void func_003e5510(s32 value);
 extern s32 kwlnGetCamera(void);
 extern void func_00466c60(void);
 extern void func_0050cd80(void);
@@ -236,13 +236,14 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_004633C0
-void func_004633c0(void *arg0, void *arg1)
+void hMaestroUpdateClumpObjects(void *clump, void *context)
 {
-    RpClumpForAllAtomics(arg0, K_Clump_UpdateObjectCb, arg1);
+    RpClumpForAllAtomics(clump, K_Clump_UpdateObjectCb, context);
 }
 
+/* Run the per-frame services, sample/reset TIMER0, and publish elapsed timing. */
 // FUN_004633F0
-s32 func_004633f0(u8 *unusedTask)
+s32 hMaestroUpdateServicesTask(u8 *unusedTask)
 {
     f32 timerNowF;
     f32 elapsedF;
@@ -252,6 +253,7 @@ s32 func_004633f0(u8 *unusedTask)
     func_0044f720();
     iGpffffba8c = func_003e23e0();
     func_003e82e0(kwlnGetCamera(), 0, 0);
+    /* EE TIMER0 count register; intentionally read and reset as hardware I/O. */
     timerNow = *(s32 *)0x10000000;
     iGpffffb198 = timerNow;
     elapsedTicks = timerNow - iGpffffb194;
@@ -268,8 +270,9 @@ s32 func_004633f0(u8 *unusedTask)
     return 0;
 }
 
+/* Register the per-frame service task at priority 0x12C. */
 // FUN_00463520
-void func_00463520(void) {
-    kwlnTaskCreate((const void *)(D_00712670), 0x12C, 0, 0, func_004633f0, 0, (u8 *)(0));
+void hMaestroCreateServicesTask(void) {
+    kwlnTaskCreate((const void *)(D_00712670), 0x12C, 0, 0, hMaestroUpdateServicesTask, 0, (u8 *)(0));
 }
 

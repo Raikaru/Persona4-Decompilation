@@ -46,7 +46,7 @@ extern void kAssertFail(const char *file, s32 line);
 extern void mdlEffectSetEulerRotation(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
-extern void func_00462bf0(void *arg0);
+extern void hMaestroFreeListSet(void *arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void mdlEffectDestroy(s32 arg0);
 extern void func_003bbb60(void *arg0);
@@ -1792,7 +1792,7 @@ void FldResource_Destroy(u8 *resource)
             func_003c9d40((void *)((FldResource *)resource)->secondaryObject);
         }
     } else {
-        func_00462bf0((void *)((FldResource *)resource)->primaryDrawObject);
+        hMaestroFreeListSet((void *)((FldResource *)resource)->primaryDrawObject);
         if (((FldResource *)resource)->primaryObject != 0) {
             func_003c0700((void *)((FldResource *)resource)->primaryObject);
         }
@@ -1805,7 +1805,7 @@ void FldResource_Destroy(u8 *resource)
     }
     for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
         clumpCursor = resource + clumpIndex * 4;
-        func_00462bf0((void *)*(s32 *)(clumpCursor + 0x9C));
+        hMaestroFreeListSet((void *)*(s32 *)(clumpCursor + 0x9C));
         func_003c0700((void *)*(s32 *)(clumpCursor + 0x1C));
     }
     for (entryIndex = 0; entryIndex < ((FldResource *)resource)->entryCount; entryIndex++) {

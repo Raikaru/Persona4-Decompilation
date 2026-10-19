@@ -14,7 +14,7 @@ extern u32 K_Clump_MatUsrDataHasData(void *material, const char *name);
 extern void memset(void *dst, s32 value, u32 size);
 extern s32 func_003c21e0(void *arg0, s32 (*cb)(s32, void *), void *arg2);
 extern void func_00462780(u8 *arg0, u32 arg1, u8 *arg2, s32 arg3);
-extern void func_00462bf0(void *arg0);
+extern void hMaestroFreeListSet(void *arg0);
 extern s32 func_00462960(s32 arg0, void *arg1);
 
 
@@ -146,7 +146,7 @@ void *func_00462ae0(void *arg0) {
     var_16 = D_008873F4[0](1, 0x2C, 0x40000);
     RpClumpForAllAtomics(arg0, func_00462a60, var_16);
     if ((*(s32 *)((u8 *)var_16 + 4) == 0) && ((*(u32 *)((u8 *)var_16 + 0) == 0) || ((*(s32 *)((u8 *)var_16 + 0x10) == 0) && (*(s32 *)((u8 *)var_16 + 0xC) == 0) && (*(s32 *)((u8 *)var_16 + 0x14) == 0) && (*(s32 *)((u8 *)var_16 + 0x24) == 0) && (*(s32 *)((u8 *)var_16 + 0x28) == 0) && (*(s32 *)((u8 *)var_16 + 0x18) == 0) && (*(s32 *)((u8 *)var_16 + 0x1C) == 0) && (*(s32 *)((u8 *)var_16 + 0x20) == 0)))) {
-        func_00462bf0(var_16);
+        hMaestroFreeListSet(var_16);
         var_16 = NULL;
     }
     return var_16;

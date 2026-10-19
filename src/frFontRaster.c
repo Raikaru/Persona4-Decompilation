@@ -1,18 +1,48 @@
 #include "include_asm.h"
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "fr_font_objects.h"
+#include "rw_camera_internal.h"
+
+/* The constructor allocates a 0x18-byte header followed by 0x21C-byte entries.
+ * Each entry ends with its 0x200-byte packed glyph bitmap. */
+typedef struct FrFontRasterEntry FrFontRasterEntry;
+typedef union FrFontRasterLink {
+    u32 bits;
+    s32 value;
+    u32 *words;
+} FrFontRasterLink;
+struct FrFontRasterEntry {
+    u32 flags;
+    u32 key;
+    s16 palette;
+    union { s16 value; u16 bits; } age;
+    FrFontRasterLink bitmap;
+    u32 references;
+    u32 texture;
+    FrFontRasterLink next;
+    u8 pixels[0x200];
+};
+typedef struct FrFontRasterCache {
+    s32 count;
+    s32 entries;
+    FrFontRasterLink activeHead;
+    FrFontRasterLink activeTail;
+    FrFontRasterLink freeHead;
+    FrFontRasterLink freeTail;
+} FrFontRasterCache;
+
 
 /* Ported from P3FES frFontRaster.c (verified MATCH there), adapted to P4
  * addresses, assert lines, and callee names. */
 typedef int (*code)();
 
 /* Defined below in this file; called at line 347, above its definition. */
-extern void frFontRasterUploadGlyph(int param_1, u8 *param_2, int param_3);
+extern void frFontRasterUploadGlyph(int entryAddress, u8 *bitmap, int palette);
 
 extern u8 *D_007645b8;
-#define iGpffffb954 D_007645b8
-#define piGpffffb954 ((int *)D_007645b8)
-#define uGpffffb954 (*(u32 *)D_007645b8)
+#define frFontRasterCacheBytes D_007645b8
+#define frFontRasterCacheWords ((int *)D_007645b8)
 
 /* Data in the P4 image (absolute, outside the gp window). */
 extern char D_0063bc88[]; /* "frFontRaster.c" */
@@ -43,8 +73,8 @@ extern int func_003ec6a0(u32 tex, s32, s32);
 extern void func_003ec2a0(u32 tex);
 extern u32 func_003ec3d0(u32 tex, s32);
 extern void func_003ec2e0(u32 tex);
-extern u8 *frFontAcquireGlyph(u8 *param_1, u32 param_2);
-extern s32 frFontFreeListInsert(u8 *param_1);
+extern u8 *frFontAcquireGlyph(u8 *glyph, u32 palette);
+extern s32 frFontFreeListInsert(u8 *slot);
 
 // Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
 // donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)
@@ -57,6 +87,8 @@ extern s32 frFontFreeListInsert(u8 *param_1);
    next-node pointer in $a1 as retail. */
 #pragma opt_loop_invariants on
 /* Creates the glyph cache: count entries, each with a 0x200-byte raster buffer. */
+/* measured: the remaining word-index accesses preserve b210 codegen;
+ * individual member substitutions gave normalized_diff 6, 147. */
 // FUN_00275A60
 void frFontRasterCreateCache(s32 count)
 {
@@ -68,32 +100,32 @@ void frFontRasterCreateCache(s32 count)
     s32 *current;
 
     size = count * 0x21c + 0x18;
-    if (piGpffffb954 != NULL) {
+    if (frFontRasterCacheWords != NULL) {
         kAssertFail(D_0063bc88, 0x26);
     }
     chkmemAllocSiteTag(D_0063bc88, 0x27);
     memory = D_008873e8_abs[0](size, 0x40000);
-    piGpffffb954 = (s32 *)memory;
+    frFontRasterCacheWords = (s32 *)memory;
     memset((void *)memory, 0, (u32)size);
-    *piGpffffb954 = count;
-    piGpffffb954[1] = (s32)(piGpffffb954 + 6);
-    node = (s32 *)piGpffffb954[1];
-    node[3] = (s32)(node + 7);
-    piGpffffb954[4] = (s32)node;
+    ((FrFontRasterCache *)frFontRasterCacheBytes)->count = count;
+    ((FrFontRasterCache *)frFontRasterCacheBytes)->entries = (s32)(frFontRasterCacheWords + 6);
+    node = (s32 *)((FrFontRasterCache *)frFontRasterCacheBytes)->entries;
+    ((FrFontRasterEntry *)node)->bitmap.value = (s32)(node + 7);
+    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.value = (s32)node;
     for (i = 0; i < count - 1; i++) {
-        node[6] = (s32)(node[3] + 0x200);
+        ((FrFontRasterEntry *)node)->next.value = (s32)(((FrFontRasterEntry *)node)->bitmap.value + 0x200);
         node = (s32 *)node[6];
         node[3] = (s32)(node + 7);
     }
-    piGpffffb954[5] = (s32)node;
-    current = (s32 *)piGpffffb954[4];
+    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value = (s32)node;
+    current = (s32 *)((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.value;
     while (current != NULL) {
         block = func_003ec590(0x20, 0x20, 4, 0x4504);
-        current[5] = block;
+        ((FrFontRasterEntry *)current)->texture = block;
         if (block == 0) {
             func_00440b68(D_0063bca0);
         } else {
-            current = (s32 *)current[6];
+            current = (s32 *)((FrFontRasterEntry *)current)->next.value;
         }
     }
 }
@@ -104,68 +136,70 @@ void frFontRasterCreateCache(s32 count)
 // FUN_00275BD0
 void frFontRasterDestroyCache(void)
 {
-    D_008873ec_abs[0](iGpffffb954);
-    iGpffffb954 = (u8 *)0x0;
+    D_008873ec_abs[0](frFontRasterCacheBytes);
+    frFontRasterCacheBytes = (u8 *)0x0;
 }
 
 /* Ages every cache entry and moves the expired ones to the free list (LRU eviction). */
+/* measured: the remaining word-index accesses preserve b210 codegen;
+ * individual member substitutions gave normalized_diff 72, 135, 136, 211. */
 // FUN_00275C00
 void frFontRasterEvictExpired(void)
 {
-    u32 *puVar1;
-    u32 *puVar2;
-    u32 *puVar3;
+    u32 *nextEntry;
+    u32 *previousEntry;
+    u32 *currentEntry;
 
-    puVar2 = (u32 *)0x0;
-    puVar1 = *(u32 **)(iGpffffb954 + 8);
-    while (puVar3 = puVar1, puVar3 != (u32 *)0x0) {
-        if (((*puVar3 & 1) == 0) || (puVar3[4] == 0)) {
-            *(short *)((int)puVar3 + 10) =
-                *(short *)((int)puVar3 + 10) + -1;
+    previousEntry = (u32 *)0x0;
+    nextEntry = ((FrFontRasterCache *)frFontRasterCacheBytes)->activeHead.words;
+    while (currentEntry = nextEntry, currentEntry != (u32 *)0x0) {
+        if (((((FrFontRasterEntry *)currentEntry)->flags & 1) == 0) || (((FrFontRasterEntry *)currentEntry)->references == 0)) {
+            ((FrFontRasterEntry *)currentEntry)->age.value =
+                ((FrFontRasterEntry *)currentEntry)->age.value + -1;
         }
-        if (*(short *)((int)puVar3 + 10) < 0) {
-            if (puVar2 == (u32 *)0x0) {
-                *(u32 *)(iGpffffb954 + 8) = puVar3[6];
-                if (*(int *)(iGpffffb954 + 8) == 0) {
-                    *(int *)(iGpffffb954 + 0xc) = 0;
+        if (((FrFontRasterEntry *)currentEntry)->age.value < 0) {
+            if (previousEntry == (u32 *)0x0) {
+                ((FrFontRasterCache *)frFontRasterCacheBytes)->activeHead.bits = ((FrFontRasterEntry *)currentEntry)->next.bits;
+                if (((FrFontRasterCache *)frFontRasterCacheBytes)->activeHead.value == 0) {
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->activeTail.value = 0;
                 }
-                if (*(int *)(iGpffffb954 + 0x14) != 0) {
-                    *(u32 **)(*(int *)(iGpffffb954 + 0x14) + 0x18) = puVar3;
-                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                if (((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value != 0) {
+                    ((FrFontRasterEntry *)((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value)->next.words = currentEntry;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.words = currentEntry;
                 } else {
-                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
-                    *(u32 **)(iGpffffb954 + 0x10) = puVar3;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.words = currentEntry;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.words = currentEntry;
                 }
-                puVar3[6] = 0;
-                puVar2 = (u32 *)0x0;
-                puVar1 = *(u32 **)(iGpffffb954 + 8);
-            } else if (puVar3[6] == 0) {
-                *(u32 **)(iGpffffb954 + 0xc) = puVar2;
-                puVar2[6] = 0;
-                if (*(int *)(iGpffffb954 + 0x14) != 0) {
-                    *(u32 **)(*(int *)(iGpffffb954 + 0x14) + 0x18) = puVar3;
-                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                currentEntry[6] = 0;
+                previousEntry = (u32 *)0x0;
+                nextEntry = ((FrFontRasterCache *)frFontRasterCacheBytes)->activeHead.words;
+            } else if (((FrFontRasterEntry *)currentEntry)->next.bits == 0) {
+                ((FrFontRasterCache *)frFontRasterCacheBytes)->activeTail.words = previousEntry;
+                ((FrFontRasterEntry *)previousEntry)->next.bits = 0;
+                if (((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value != 0) {
+                    ((FrFontRasterEntry *)((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value)->next.words = currentEntry;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.words = currentEntry;
                 } else {
-                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
-                    *(u32 **)(iGpffffb954 + 0x10) = puVar3;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.words = currentEntry;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.words = currentEntry;
                 }
-                puVar3[6] = 0;
-                puVar1 = (u32 *)0x0;
+                currentEntry[6] = 0;
+                nextEntry = (u32 *)0x0;
             } else {
-                puVar2[6] = puVar3[6];
-                if (*(int *)(iGpffffb954 + 0x14) != 0) {
-                    *(u32 **)(*(int *)(iGpffffb954 + 0x14) + 0x18) = puVar3;
-                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                ((FrFontRasterEntry *)previousEntry)->next.bits = ((FrFontRasterEntry *)currentEntry)->next.bits;
+                if (((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value != 0) {
+                    ((FrFontRasterEntry *)((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.value)->next.words = currentEntry;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.words = currentEntry;
                 } else {
-                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
-                    *(u32 **)(iGpffffb954 + 0x10) = puVar3;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.words = currentEntry;
+                    ((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.words = currentEntry;
                 }
-                puVar3[6] = 0;
-                puVar1 = (u32 *)puVar2[6];
+                currentEntry[6] = 0;
+                nextEntry = (u32 *)previousEntry[6];
             }
         } else {
-            puVar2 = puVar3;
-            puVar1 = (u32 *)puVar3[6];
+            previousEntry = currentEntry;
+            nextEntry = (u32 *)((FrFontRasterEntry *)currentEntry)->next.bits;
         }
     }
 }
@@ -181,6 +215,11 @@ extern s32 D_00881750;
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 /* Builds the quad for one glyph at (x, y) with the given palette and colour, and submits it. */
+/* Keep byte-addressed fields here: the typed cache rewrite changed retail register
+ * allocation/reloads. Cache entries are 0x21C bytes (palette +8, texture +0x14);
+ * glyph +0x1C selects its 16-byte raster record (references +4, cache entry +0xC). */
+/* measured: individual typed rewrites of the remaining raw accesses give
+ * normalized_diff 462, 476, 512, 530; retain their original address/alias expressions. */
 // FUN_00275D80
 s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
                   s32 palette, u32 width, u32 height, u32 rgba)
@@ -207,7 +246,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
 
     originX = (f32)x / 16.0f;
     originY = (f32)y / 8.0f;
-    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+    reciprocal = 1.0f / ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     opacity = rgba & 0xFF;
     {
         u8 *sourceBytes = D_0063BCC0;
@@ -217,11 +256,11 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
         s32 word1;
         do {
             word0 = *(s32 *)sourceBytes;
-            word1 = *(s32 *)(sourceBytes + 4);
+            word1 = ((s32 *)sourceBytes)[1];
             sourceBytes += 8;
             pairs -= 1;
             *(s32 *)destinationBytes = word0;
-            *(s32 *)(destinationBytes + 4) = word1;
+            ((s32 *)destinationBytes)[1] = word1;
             destinationBytes += 8;
         } while (pairs > 0);
     }
@@ -253,26 +292,26 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
     if (*(u8 **)(glyph + 0x1C) == NULL) {
         kAssertFail(&D_0063BC88, 0x9B);
     }
-    raster = *(u8 **)(*(u8 **)(glyph + 0x1C) + 0x0C);
-    if (*(s16 *)(raster + 8) != palette) {
-        replacement = frFontAcquireGlyph(glyph, *(u32 *)(raster + 4));
-        *(u16 *)((*(u8 **)(glyph + 0x1C)) + 4) -= 1;
+    raster = (u8 *)((FrFontGlyphRaster *)*(u8 **)(glyph + 0x1C))->cacheEntry;
+    if (((FrFontRasterEntry *)raster)->palette != palette) {
+        replacement = frFontAcquireGlyph(glyph, ((FrFontRasterEntry *)raster)->key);
+        ((FrFontGlyphRaster *)*(u8 **)(glyph + 0x1C))->references -= 1;
         {
             u8 *previous = *(u8 **)(glyph + 0x1C);
-            if ((previous != NULL) && (*(u16 *)(previous + 4) == 0)) {
-                u8 *previousRaster = *(u8 **)(previous + 0x0C);
+            if ((previous != NULL) && (((FrFontGlyphRaster *)previous)->references == 0)) {
+                u8 *previousRaster = (u8 *)((FrFontGlyphRaster *)previous)->cacheEntry;
                 if (previousRaster != NULL) {
-                    *(s32 *)(previousRaster + 0) &= ~1;
-                    *(s32 *)(previousRaster + 0x10) = 0;
+                    ((FrFontRasterEntry *)previousRaster)->flags &= ~1;
+                    ((FrFontRasterEntry *)previousRaster)->references = 0;
                 }
-                frFontFreeListInsert(*(u8 **)(previous + 8));
+                frFontFreeListInsert((u8 *)((FrFontGlyphRaster *)previous)->slot);
                 DAT_00881750_abs[0] -= 1;
             }
         }
-        *(u8 **)(glyph + 0x1C) = replacement;
-        raster = *(u8 **)(replacement + 0x0C);
+        ((FrFontGlyphData *)glyph)->raster = (s32)replacement;
+        raster = (u8 *)((FrFontGlyphRaster *)replacement)->cacheEntry;
     }
-    *(s32 *)(raster + 0) |= 1;
+    ((FrFontRasterEntry *)raster)->flags |= 1;
     if (opacity == 0) {
         return 0;
     }
@@ -304,7 +343,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
         vertex[1] = *(position + 1);
         vertexIndex += 1;
     }
-    D_00887300[0](1, *(u32 *)(raster + 0x14));
+    D_00887300[0](1, ((FrFontRasterEntry *)raster)->texture);
     D_00887310[0](4, vertices, 4);
     return 0;
 }
@@ -316,28 +355,28 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
 u8 *frFontRasterFindEntry();
 u8 *frFontRasterAllocEntry();
 
-/* Finds the entry for (arg0, arg2); on a miss, takes a free entry and loads 0x200 bytes from arg1. */
+/* Finds the entry for (value, count); on a miss, takes a free entry and loads 0x200 bytes from index. */
 // FUN_002761F0
-u8 *frFontFindOrLoadEntry(s32 arg0, u8 *arg1, s32 arg2)
+u8 *frFontFindOrLoadEntry(s32 key, u8 *bitmap, s32 palette)
 {
-    u8 *var_2;
+    u8 *entry;
 
-    var_2 = frFontRasterFindEntry(arg0, arg2);
-    if (var_2 == NULL) {
-        var_2 = frFontRasterAllocEntry(arg0, arg1, arg2);
-        if (var_2 == NULL)
-            var_2 = NULL;
+    entry = frFontRasterFindEntry(key, palette);
+    if (entry == NULL) {
+        entry = frFontRasterAllocEntry(key, bitmap, palette);
+        if (entry == NULL)
+            entry = NULL;
     }
-    return var_2;
+    return entry;
 }
 
 /* Looks up a cache entry through the donor finder; returns 0 when absent. */
 // FUN_00276260
-u32 frFontRasterLookup(u32 param_1, int param_2)
+u32 frFontRasterLookup(u32 key, int palette)
 {
     u32 result;
 
-    result = FUN_003b3e00_typed(param_1, param_2);
+    result = FUN_003b3e00_typed(key, palette);
     if (result == 0) {
         result = 0;
     }
@@ -349,28 +388,28 @@ u32 frFontRasterLookup(u32 param_1, int param_2)
 // the donor's exact loop layout: test entry!=0 first, then walk entry[6].
 
 extern u8 *D_007645b8;
-#define iGpffffb954 D_007645b8
+#define frFontRasterCacheBytes D_007645b8
 
 /* Finds a cached entry by key and palette, marks it used, and returns it (0 if none). */
 // FUN_00276290
-u8 *frFontRasterFindEntry(u32 param_1, int param_2)
+u8 *frFontRasterFindEntry(u32 key, int palette)
 {
     u32 *entry;
 
-    entry = *(u32 **)(iGpffffb954 + 8);
+    entry = ((FrFontRasterCache *)frFontRasterCacheBytes)->activeHead.words;
     goto check;
 body:
-    if (entry[1] != param_1) {
+    if (((FrFontRasterEntry *)entry)->key != key) {
         goto next;
     }
-    if (*(s16 *)((u8 *)entry + 8) != param_2) {
+    if (((FrFontRasterEntry *)entry)->palette != palette) {
         goto next;
     }
-    *(u16 *)((u8 *)entry + 10) = 1;
-    entry[0] |= 1;
+    ((FrFontRasterEntry *)entry)->age.bits = 1;
+    ((FrFontRasterEntry *)entry)->flags |= 1;
     goto done;
 next:
-    entry = (u32 *)entry[6];
+    entry = (u32 *)((FrFontRasterEntry *)entry)->next.bits;
 check:
     if (entry != 0) {
         goto body;
@@ -381,115 +420,122 @@ done:
 }
 
 /* Takes a free entry, stores the key and a copy of the raster source, and returns it (0 if none free). */
+/* measured: the remaining word-index accesses preserve b210 codegen;
+ * individual member substitutions gave normalized_diff 143. */
 // FUN_002762F0
-u8 *frFontRasterAllocEntry(u32 param_1, u8 *param_2, u32 param_3)
+u8 *frFontRasterAllocEntry(u32 key, u8 *bitmap, u32 palette)
 {
-    u32 *puVar1;
+    u32 *entry;
 
-    if (param_2 == 0) {
+    if (bitmap == 0) {
         kAssertFail(D_0063bc88, 0x128);
     }
-    puVar1 = *(u32 **)(iGpffffb954 + 0x10);
-    if (puVar1 != (u32 *)0x0) {
-        *(u32 *)(iGpffffb954 + 0x10) = puVar1[6];
-        if (*(int *)(iGpffffb954 + 0x10) == 0) {
-            *(u32 *)(iGpffffb954 + 0x14) = 0;
+    entry = ((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.words;
+    if (entry != (u32 *)0x0) {
+        ((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.bits = ((FrFontRasterEntry *)entry)->next.bits;
+        if (((FrFontRasterCache *)frFontRasterCacheBytes)->freeHead.value == 0) {
+            ((FrFontRasterCache *)frFontRasterCacheBytes)->freeTail.bits = 0;
         }
-        puVar1[6] = 0;
-        if (*(int *)(iGpffffb954 + 0xc) != 0) {
-            *(u32 *)(*(int *)(iGpffffb954 + 0xc) + 0x18) = (u32)puVar1;
-            *(u32 *)(iGpffffb954 + 0xc) = (u32)puVar1;
+        entry[6] = 0;
+        if (((FrFontRasterCache *)frFontRasterCacheBytes)->activeTail.value != 0) {
+            ((FrFontRasterEntry *)((FrFontRasterCache *)frFontRasterCacheBytes)->activeTail.value)->next.bits = (u32)entry;
+            ((FrFontRasterCache *)frFontRasterCacheBytes)->activeTail.bits = (u32)entry;
         } else {
-            *(u32 *)(iGpffffb954 + 0xc) = (u32)puVar1;
-            *(u32 *)(iGpffffb954 + 8) = (u32)puVar1;
+            ((FrFontRasterCache *)frFontRasterCacheBytes)->activeTail.bits = (u32)entry;
+            ((FrFontRasterCache *)frFontRasterCacheBytes)->activeHead.bits = (u32)entry;
         }
-        puVar1[4] = 0;
+        ((FrFontRasterEntry *)entry)->references = 0;
     }
-    if (puVar1 == (u32 *)0x0) {
+    if (entry == (u32 *)0x0) {
         return 0;
     }
-    frFontRasterUploadGlyph((int)puVar1, (u8 *)param_2, param_3);
-    puVar1[1] = param_1;
-    *(u16 *)((int)puVar1 + 10) = 1;
-    *puVar1 = *puVar1 | 1;
-    memcpy(puVar1[3], param_2, 0x200);
-    puVar1[4] = 0;
-    return (u8 *)puVar1;
+    frFontRasterUploadGlyph((int)entry, (u8 *)bitmap, palette);
+    ((FrFontRasterEntry *)entry)->key = key;
+    ((FrFontRasterEntry *)entry)->age.bits = 1;
+    ((FrFontRasterEntry *)entry)->flags = ((FrFontRasterEntry *)entry)->flags | 1;
+    memcpy(((FrFontRasterEntry *)entry)->bitmap.bits, bitmap, 0x200);
+    ((FrFontRasterEntry *)entry)->references = 0;
+    return (u8 *)entry;
 }
 
-/* Unpacks a 4-bit 32x32 glyph source into the entry's texture buffer and copies in palette param_3. */
+/* Unpacks a 4-bit 32x32 glyph source into the texture buffer and copies the palette. */
+/* Keep byte-addressed fields here: the typed cache rewrite changed retail register
+ * allocation/reloads. Cache entries are 0x21C bytes (palette +8, texture +0x14);
+ * glyph +0x1C selects its 16-byte raster record (references +4, cache entry +0xC). */
+/* measured: individual typed rewrites of the remaining raw accesses give
+ * normalized_diff 391, 392; retain their original address/alias expressions. */
 // FUN_00276420
-void frFontRasterUploadGlyph(int param_1, u8 *param_2, int param_3)
+void frFontRasterUploadGlyph(int entryAddress, u8 *bitmap, int palette)
 {
-    short uVar1;
-    short uVar2;
-    u32 lVar3;
-    short *puVar8;
-    u32 uVar7;
-    u16 *puVar6;
-    u32 uVar5;
-    int iVar4;
+    short firstIndex;
+    short secondIndex;
+    u32 paletteAddress;
+    short *indexSource;
+    u32 column;
+    u16 *indexRow;
+    u32 row;
+    int textureAddress;
     u32 base;
     u32 outer16;
     u32 inner16;
     u32 rowOffset;
     u8 rawByte;
-    int uVar10;
-    int uVar9;
+    int shiftedPixel;
+    int pixelIndex;
     u8 *src;
-    u8 *pbVar11;
-    u16 auStack_100[128];
+    u8 *destination;
+    u16 swizzleTable[128];
 
-    if (param_2 == (u8 *)0x0) {
+    if (bitmap == (u8 *)0x0) {
         func_00440b68(D_0063bde0);
         kAssertFail(D_0063bc88, 0x17e);
         return;
     }
-    puVar8 = (short *)D_0063bce0;
-    puVar6 = auStack_100;
-    iVar4 = 0x40;
+    indexSource = (short *)D_0063bce0;
+    indexRow = swizzleTable;
+    textureAddress = 0x40;
     do {
-        uVar1 = *puVar8;
-        uVar2 = puVar8[1];
-        puVar8 = puVar8 + 2;
-        iVar4 = iVar4 + -1;
-        *puVar6 = uVar1;
-        puVar6[1] = uVar2;
-        puVar6 = puVar6 + 2;
-    } while (0 < iVar4);
-    src = param_2;
-    iVar4 = func_003ec6a0(*(u32 *)(param_1 + 0x14), 0, 9);
-    for (uVar5 = 0; (int)uVar5 < 0x20; uVar5 = uVar5 + 1) {
-        uVar7 = 0;
-        outer16 = uVar5 & 0xffff;
-        puVar6 = auStack_100 + ((int)(outer16 & 7) >> 2) * 0x40 + (outer16 & 3) * 0x10;
+        firstIndex = *indexSource;
+        secondIndex = indexSource[1];
+        indexSource = indexSource + 2;
+        textureAddress = textureAddress + -1;
+        *indexRow = firstIndex;
+        indexRow[1] = secondIndex;
+        indexRow = indexRow + 2;
+    } while (0 < textureAddress);
+    src = bitmap;
+    textureAddress = func_003ec6a0(((FrFontRasterEntry *)entryAddress)->texture, 0, 9);
+    for (row = 0; (int)row < 0x20; row = row + 1) {
+        column = 0;
+        outer16 = row & 0xffff;
+        indexRow = swizzleTable + ((int)(outer16 & 7) >> 2) * 0x40 + (outer16 & 3) * 0x10;
         base = ((int)outer16 >> 2) * 0x80;
-        while ((int)uVar7 < 0x20) {
-            inner16 = uVar7 & 0xffff;
-            uVar9 = (u32)puVar6[inner16 & 0xf];
+        while ((int)column < 0x20) {
+            inner16 = column & 0xffff;
+            pixelIndex = (u32)indexRow[inner16 & 0xf];
             rowOffset = ((int)inner16 >> 4) * 0x20;
             rowOffset += base;
-            uVar9 = (uVar9 + (rowOffset & 0xffffU)) & 0xffff;
-            pbVar11 = (u8 *)(iVar4 + ((int)uVar9 >> 1));
-            uVar10 = *src >> ((uVar7 & 1) << 2);
-            rawByte = uVar10 & 0xf;
-            if ((uVar9 & 1) == 0) {
-                *pbVar11 = rawByte;
+            pixelIndex = (pixelIndex + (rowOffset & 0xffffU)) & 0xffff;
+            destination = (u8 *)(textureAddress + ((int)pixelIndex >> 1));
+            shiftedPixel = *src >> ((column & 1) << 2);
+            rawByte = shiftedPixel & 0xf;
+            if ((pixelIndex & 1) == 0) {
+                *destination = rawByte;
             } else {
-                *pbVar11 = *pbVar11 | (u8)((rawByte << 4) & 0xf0);
+                *destination = *destination | (u8)((rawByte << 4) & 0xf0);
             }
-            if ((uVar7 & 1) != 0) {
+            if ((column & 1) != 0) {
                 src = src + 1;
             }
-            uVar7 = uVar7 + 1;
+            column = column + 1;
         }
     }
-    func_003ec2a0(*(u32 *)(param_1 + 0x14));
-    lVar3 = func_003ec3d0(*(u32 *)(param_1 + 0x14), 1);
-    if (lVar3 == 0) {
+    func_003ec2a0(*(u32 *)(entryAddress + 0x14));
+    paletteAddress = func_003ec3d0(*(u32 *)(entryAddress + 0x14), 1);
+    if (paletteAddress == 0) {
         kAssertFail(D_0063bc88, 0x1b1);
     }
-    memcpy(lVar3, (u32)D_0063b5f0 + param_3 * 0x40, 0x40);
-    func_003ec2e0(*(u32 *)(param_1 + 0x14));
-    *(short *)(param_1 + 8) = (short)param_3;
+    memcpy(paletteAddress, (u32)D_0063b5f0 + palette * 0x40, 0x40);
+    func_003ec2e0(*(u32 *)(entryAddress + 0x14));
+    ((FrFontRasterEntry *)entryAddress)->palette = (short)palette;
 }

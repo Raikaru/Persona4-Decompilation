@@ -38,7 +38,7 @@ void kAssertFail(const void *file, s32 line);
 s32 resourceFindByName(u32 param);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *H_Cdvd_GetArchiveEntry(u8 *param, s32 a, s32 *b);
-s32 func_0046a750(s32 param);
+s32 hMaestroDecodeIsReady(s32 param);
 void btlResultSimpleDraw(u8 *arg0, u8 *work);
 void btlResultSimpleTaskDestroy(u8 *task);
 void sdkSpriteDrawAt(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
@@ -307,7 +307,7 @@ s32 btlResultSimpleLoadAssets(BtlResultWork *work)
         var_16 = 0;
         while (var_18_2 < 3) {
             temp_4_2 = *(s32 *)(arg0 + var_18_2 * 4 + 0x400);
-            if (temp_4_2 != 0 && func_0046a750(temp_4_2) != 0) {
+            if (temp_4_2 != 0 && hMaestroDecodeIsReady(temp_4_2) != 0) {
                 var_16 += 1;
             }
             var_18_2 += 1;

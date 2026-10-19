@@ -224,85 +224,106 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
+/* The destructor walks nine independent lists; every node links at +0x24.
+ * Their individual payloads are not inspected by these two entry points. */
+typedef union HMaestroListLink {
+    s32 value;
+    u8 *node;
+} HMaestroListLink;
+typedef struct HMaestroListNode {
+    u8 pad00[0x24];
+    s32 next;
+} HMaestroListNode;
+typedef struct HMaestroListSet {
+    s32 active;
+    s32 unk04;
+    HMaestroListLink lists[9];
+} HMaestroListSet;
+/* Free every node in each list, then free the containing list set.
+ * Keep raw head accesses: typed union heads merge reloads across free and lose MATCH.
+ * The nine heads are +8..+0x28 and each node links at +0x24. */
+/* measured: individual typed rewrites of the remaining raw accesses give
+ * normalized_diff 45, 78, 110, 143, 176, 209, 242, 275, 308, 355, 356, 358, 359, 360, 361, 362, 363, 364; retain their original address/alias expressions. */
 // FUN_00462BF0
-void func_00462bf0(u8 *arg0)
+void hMaestroFreeListSet(u8 *listSet)
 {
     u8 *current;
     s32 next;
 
-    if (arg0 == NULL) {
+    if (listSet == NULL) {
         return;
     }
-    while (*(s32 *)(arg0 + 8) != 0) {
-        current = *(u8 **)(arg0 + 8);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[0].value != 0) {
+        current = *(u8 **)(listSet + 8);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 8) = next;
+        *(s32 *)(listSet + 8) = next;
     }
-    while (*(s32 *)(arg0 + 0x18) != 0) {
-        current = *(u8 **)(arg0 + 0x18);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[4].value != 0) {
+        current = *(u8 **)(listSet + 0x18);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x18) = next;
+        *(s32 *)(listSet + 0x18) = next;
     }
-    while (*(s32 *)(arg0 + 0x1C) != 0) {
-        current = *(u8 **)(arg0 + 0x1C);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[5].value != 0) {
+        current = *(u8 **)(listSet + 0x1C);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x1C) = next;
+        *(s32 *)(listSet + 0x1C) = next;
     }
-    while (*(s32 *)(arg0 + 0xC) != 0) {
-        current = *(u8 **)(arg0 + 0xC);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[1].value != 0) {
+        current = *(u8 **)(listSet + 0xC);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0xC) = next;
+        *(s32 *)(listSet + 0xC) = next;
     }
-    while (*(s32 *)(arg0 + 0x10) != 0) {
-        current = *(u8 **)(arg0 + 0x10);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[2].value != 0) {
+        current = *(u8 **)(listSet + 0x10);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x10) = next;
+        *(s32 *)(listSet + 0x10) = next;
     }
-    while (*(s32 *)(arg0 + 0x20) != 0) {
-        current = *(u8 **)(arg0 + 0x20);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[6].value != 0) {
+        current = *(u8 **)(listSet + 0x20);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x20) = next;
+        *(s32 *)(listSet + 0x20) = next;
     }
-    while (*(s32 *)(arg0 + 0x14) != 0) {
-        current = *(u8 **)(arg0 + 0x14);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[3].value != 0) {
+        current = *(u8 **)(listSet + 0x14);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x14) = next;
+        *(s32 *)(listSet + 0x14) = next;
     }
-    while (*(s32 *)(arg0 + 0x24) != 0) {
-        current = *(u8 **)(arg0 + 0x24);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[7].value != 0) {
+        current = *(u8 **)(listSet + 0x24);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x24) = next;
+        *(s32 *)(listSet + 0x24) = next;
     }
-    while (*(s32 *)(arg0 + 0x28) != 0) {
-        current = *(u8 **)(arg0 + 0x28);
-        next = *(s32 *)(current + 0x24);
+    while (((HMaestroListSet *)listSet)->lists[8].value != 0) {
+        current = *(u8 **)(listSet + 0x28);
+        next = ((HMaestroListNode *)current)->next;
         jtbl_008873EC[0](current);
-        *(s32 *)(arg0 + 0x28) = next;
+        *(s32 *)(listSet + 0x28) = next;
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](listSet);
 }
 
+/* Report whether an active set contains any of the seven tested list kinds. */
 // FUN_00462DF0
-s32 func_00462df0(u8 *arg0) {
-    if (arg0 == NULL) {
+s32 hMaestroListSetHasEntries(u8 *listSet) {
+    if (listSet == NULL) {
         return 0;
     }
-    if ((*(s32 *)(arg0 + 0) == 0) ||
-        ((*(s32 *)(arg0 + 0x10) == 0) &&
-         (*(s32 *)(arg0 + 0xC) == 0) &&
-         (*(s32 *)(arg0 + 0x14) == 0) &&
-         (*(s32 *)(arg0 + 0x18) == 0) &&
-         (*(s32 *)(arg0 + 0x1C) == 0) &&
-         (*(s32 *)(arg0 + 0x24) == 0) &&
-         (*(s32 *)(arg0 + 0x28) == 0))) {
+    if ((((HMaestroListSet *)listSet)->active == 0) ||
+        ((((HMaestroListSet *)listSet)->lists[2].value == 0) &&
+         (((HMaestroListSet *)listSet)->lists[1].value == 0) &&
+         (((HMaestroListSet *)listSet)->lists[3].value == 0) &&
+         (((HMaestroListSet *)listSet)->lists[4].value == 0) &&
+         (((HMaestroListSet *)listSet)->lists[5].value == 0) &&
+         (((HMaestroListSet *)listSet)->lists[7].value == 0) &&
+         (((HMaestroListSet *)listSet)->lists[8].value == 0))) {
         return 0;
     }
     return 1;

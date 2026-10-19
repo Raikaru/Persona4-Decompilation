@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "itf_mes_objects.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
@@ -33,44 +34,46 @@ extern s8 D_0063BAB0[];
 /* measured: opt_propagation off probe for 00270a80 addu order */
 /* measured: close opt_propagation off probe for 00270a80 */
 // Intent: Moves the window's selection cursor one step (wrapping) in the given direction [inferred]
+/* measured: individual typed rewrites of the remaining raw accesses give
+ * normalized_diff 131; retain their original address/alias expressions. */
 // FUN_0027B100
-void itfMesWindowMoveSelection(u8 *arg0, s32 arg1) {
-    s32 temp_2;
-    s32 var_6;
-    u32 var_5;
-    s32 var_3;
+void itfMesWindowMoveSelection(u8 *selection, s32 direction) {
+    s32 oldCursor;
+    s32 remaining;
+    u32 hiddenMask;
+    s32 entryIndex;
 
-    temp_2 = (s32)*(s16 *)(arg0 + 0xE);
-    if (arg1 < 0) {
-        var_6 = temp_2 - 1;
-        if (var_6 < 0) {
-            var_6 = (s32)*(s16 *)(arg0 + 0x12) - 1;
+    oldCursor = (s32)((ItfMesSelection *)selection)->cursor;
+    if (direction < 0) {
+        remaining = oldCursor - 1;
+        if (remaining < 0) {
+            remaining = (s32)((ItfMesSelection *)selection)->count - 1;
         }
     } else {
-        var_6 = temp_2 + 1;
-        if (var_6 >= (s32)*(s16 *)(arg0 + 0x12)) {
-            var_6 = 0;
+        remaining = oldCursor + 1;
+        if (remaining >= (s32)((ItfMesSelection *)selection)->count) {
+            remaining = 0;
         }
     }
-    *(s16 *)(arg0 + 0xE) = (s16)var_6;
-    var_5 = *(u32 *)(arg0 + 8);
-    var_3 = 0;
+    *(s16 *)(selection + 0xE) = (s16)remaining;
+    hiddenMask = ((ItfMesSelection *)selection)->hiddenMask.bits;
+    entryIndex = 0;
     goto loop_test;
 loop_body:
-    if ((var_5 & 1) == 0) {
-        var_6 -= 1;
-        if (var_6 < 0) {
+    if ((hiddenMask & 1) == 0) {
+        remaining -= 1;
+        if (remaining < 0) {
             goto loop_exit;
         }
     }
-    var_3 += 1;
-    var_5 >>= 1;
+    entryIndex += 1;
+    hiddenMask >>= 1;
 loop_test:
-    if (var_3 < 0x20) {
+    if (entryIndex < 0x20) {
         goto loop_body;
     }
 loop_exit:
-    *(s16 *)(arg0 + 0x10) = (s16)var_3;
+    ((ItfMesSelection *)selection)->selected = (s16)entryIndex;
     sdkSndStartStream(0, 0, 0, 0);
 }
 

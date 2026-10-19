@@ -63,7 +63,7 @@ extern void H_Cdvd_Destroy(u8* input);
 extern u8* H_Cdvd_AcquireDirectory(void* input, s32 secondInput);
 extern s32 H_Cdvd_IsFileLoaded(u8* input);
 extern s32 H_Cdvd_LookupRequest(void* input, u32* secondInput);
-extern s32 func_0046a750(s32 input);
+extern s32 hMaestroDecodeIsReady(s32 input);
 extern void func_00440b68(void* input, void* secondInput, u32 thirdInput);
 extern u8* cmmItemInfoRecord(s32 input);
 extern void cmmAdvanceReverseProgress(s32 input);
@@ -990,7 +990,7 @@ s32 cmmScriptLoadStep(u8 *task)
             t->data = (s32)sdkSpriteAdoptBlob((u32)loadId);
         }
     case 4:
-        if (func_0046a750(t->data) != 0) {
+        if (hMaestroDecodeIsReady(t->data) != 0) {
             t->state = 5;
         }
         break;

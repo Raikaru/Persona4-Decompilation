@@ -21,7 +21,7 @@ extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern s32 H_Cdvd_LookupRequest(u8 *param, s32 *out);
-extern s32 func_0046a750(s32 param);
+extern s32 hMaestroDecodeIsReady(s32 param);
 extern void sdkSpriteRelease(void *ptr);
 
 extern void func_003e0f40(u8 *param);

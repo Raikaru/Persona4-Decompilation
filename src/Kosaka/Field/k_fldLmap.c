@@ -93,7 +93,7 @@ extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern s32 H_Cdvd_LookupRequest(u8 *param, s32 *out);
-extern s32 func_0046a750(s32 param);
+extern s32 hMaestroDecodeIsReady(s32 param);
 extern void sdkSpriteRelease(void *ptr);
 
 extern void func_003e0f40(u8 *param);
@@ -257,7 +257,7 @@ s32 FldLmapLoadUpdate(u8 *task)
         }
         break;
     case 2:
-        if ((func_0046a750(*(s32 *)(*(u8 **)(work + 8) + 0x38)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(work + 8) + 0x3C)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(work + 8) + 0x40)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(work + 8) + 0x44)) != 0) && (func_0046a750(*(s32 *)(*(u8 **)(work + 8) + 0x48)) != 0)) {
+        if ((hMaestroDecodeIsReady(*(s32 *)(*(u8 **)(work + 8) + 0x38)) != 0) && (hMaestroDecodeIsReady(*(s32 *)(*(u8 **)(work + 8) + 0x3C)) != 0) && (hMaestroDecodeIsReady(*(s32 *)(*(u8 **)(work + 8) + 0x40)) != 0) && (hMaestroDecodeIsReady(*(s32 *)(*(u8 **)(work + 8) + 0x44)) != 0) && (hMaestroDecodeIsReady(*(s32 *)(*(u8 **)(work + 8) + 0x48)) != 0)) {
             *(s32 *)work = *(s32 *)work + 1;
         }
         break;
@@ -553,19 +553,19 @@ s32 FldLmapUpdate(u8 *task)
     }
     /* fallthrough */
     case 3:
-        if (func_0046a750(*(s32 *)(work + 0x24)) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + 0x24)) == 0) {
             break;
         }
-        if (func_0046a750(*(s32 *)(work + 0x2C)) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + 0x2C)) == 0) {
             break;
         }
-        if (func_0046a750(*(s32 *)(work + 0x30)) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + 0x30)) == 0) {
             break;
         }
-        if (func_0046a750(*(s32 *)(work + 0x28)) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + 0x28)) == 0) {
             break;
         }
-        if (func_0046a750(*(s32 *)(work + 0x34)) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + 0x34)) == 0) {
             break;
         }
         if (kwlnTaskIsLinked(*(u8 **)(work + 0x160)) == 1) {

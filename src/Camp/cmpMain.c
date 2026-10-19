@@ -23,7 +23,7 @@ u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 void H_Cdvd_Destroy(u8 *ptr);
 s32 sdkSpriteCreateFromName(u32 param);
-s32 func_0046a750(s32 param);
+s32 hMaestroDecodeIsReady(s32 param);
 
 /* Camp-family helpers declared locally; the retail TUs are separate objects. */
 void titleSlotTableInit(u8 *);
@@ -571,7 +571,7 @@ state1:
 
 state2:
     for (readyIndex = 0; readyIndex < 6; readyIndex++) {
-        if (func_0046a750(*(s32 *)(work + readyIndex * 4 + 0x1C)) != 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + readyIndex * 4 + 0x1C)) != 0) {
         } else {
             result = 0;
             goto done;

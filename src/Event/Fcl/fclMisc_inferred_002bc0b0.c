@@ -48,7 +48,7 @@ extern void sprintf();
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sdkSpriteRequestLoad(void *arg0);
-extern s32 func_0046a750(s32 arg0);
+extern s32 hMaestroDecodeIsReady(s32 arg0);
 extern void sdkSpriteRelease(void *arg0);
 extern void comuDataRemoveAndReleaseNode(void *arg0, void *arg1, void *arg2);
 extern char D_0063F340[];
@@ -410,7 +410,7 @@ s32 fclMiscUpdateSlots(u8 *manager)
                 sprintf(path, &D_0063F380, *(s32 *)(pendingSlot + 4));
             }
             *(s32 *)(pendingSlot + 8) = sdkSpriteRequestLoad(path);
-        } else if (func_0046a750(sprite) != 0) {
+        } else if (hMaestroDecodeIsReady(sprite) != 0) {
             *(s32 *)(pendingSlot + 0) = *(s32 *)(pendingSlot + 0) | 2;
             list = *(u8 **)(manager + 0x18);
             comuDataRemoveAndReleaseNode(list, list + 4, pendingNode);
@@ -424,7 +424,7 @@ loop_20:
     if (flags & 4) {
         loadedSprite = *(s32 *)(slot + 8);
         if (loadedSprite != 0) {
-            if (func_0046a750(loadedSprite) != 0) {
+            if (hMaestroDecodeIsReady(loadedSprite) != 0) {
                 retiringFlags = *(s32 *)slot & ~4;
                 *(s32 *)slot = retiringFlags;
                 *(s32 *)slot = retiringFlags & ~2;

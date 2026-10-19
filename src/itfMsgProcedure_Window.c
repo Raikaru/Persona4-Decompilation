@@ -13,7 +13,7 @@ extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern void kAssertFail(const void *file, u32 line);
 extern s32 shdSpriteEnsureLoaded(void *arg);
 extern void sdkSpritePackDestroy(u32 arg);
-extern void func_0046a750(void *arg);
+extern void hMaestroDecodeIsReady(void *arg);
 extern s32 H_Cdvd_LookupRequest(char *str, void *out);
 
 extern s32 sdkSpritePackCreate(char *str);
@@ -54,8 +54,8 @@ extern void frFontSetGlyphAux(void *arg0, s32 arg1);
 extern void frFontReplaceGlyphAux(void *arg0, s32 a1, s32 a2);
 extern void frFontSetListFlag(void *arg0, s32 arg1);
 extern void frFontSetNodeId(void *arg0, s32 arg1);
-extern s32 func_0027b6e0(void *arg0, s32 arg1);
-extern void func_0027b750(void *arg0, s32 a1, s32 a2);
+extern s32 itfMesWindowGetProcedureParam(void *arg0, s32 arg1);
+extern void itfMesWindowSetProcedureParam(void *arg0, s32 a1, s32 a2);
 extern void msgCalendarDraw(u8 *arg0, u8 *arg1);
 extern u32 D_00882080[];
 extern s16 D_00882084[];
@@ -260,10 +260,10 @@ s32 msgWinUpdateEntries(u8 *unusedTask)
     s32 i;
 
     if (D_007245C8 != 0) {
-        func_0046a750((void *)D_007245C8);
+        hMaestroDecodeIsReady((void *)D_007245C8);
     }
     if (D_007245CC != 0) {
-        func_0046a750((void *)D_007245CC);
+        hMaestroDecodeIsReady((void *)D_007245CC);
     }
     for (i = 0; i < 8; i++) {
         if ((D_008820B0[i].field0 & 1) != 0) {
@@ -748,10 +748,10 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         break;
     case 9: {
         s32 lvl;
-        lvl = func_0027b6e0((void *)arg0, 0);
-        func_0027b750((void *)arg0, 0, 0x2D0);
-        func_0027b750((void *)arg0, 1, ((5 - lvl) * 0x1E + 0x89) * 8);
-        func_0027b750((void *)arg0, 2, 0xF0);
+        lvl = itfMesWindowGetProcedureParam((void *)arg0, 0);
+        itfMesWindowSetProcedureParam((void *)arg0, 0, 0x2D0);
+        itfMesWindowSetProcedureParam((void *)arg0, 1, ((5 - lvl) * 0x1E + 0x89) * 8);
+        itfMesWindowSetProcedureParam((void *)arg0, 2, 0xF0);
         ret = 1;
         break;
     }
@@ -773,7 +773,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
             }
             D_00882006[0]++;
             f = sinf(iGpffff8094 * (float)D_00882006[0] / 6.0f);
-            lvl2 = func_00279010((s32)arg0);
+            lvl2 = itfMesWindowGetChoiceCount((s32)arg0);
             v = (5 - lvl2) * 0x1E + 0x87;
             *(MsgProcWindowCopy16 *)w5.points = *(MsgProcWindowCopy16 *)D_0063C080;
             ftmp = (float)(5 - lvl2) * 30.0f;
@@ -821,7 +821,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
             }
             if (tmp != 0) {
                 a = itfMesWindowGetAnimAux((s32)arg0);
-                b = (s16)func_00279010((s32)arg0);
+                b = (s16)itfMesWindowGetChoiceCount((s32)arg0);
                 v0 = (5 - b) * 0x1E + 0x87;
                 *(MsgProcWindowCopy16 *)w6.points = *(MsgProcWindowCopy16 *)D_0063C080;
                 ftmp = 30.0f * (float)(5 - b);
@@ -866,7 +866,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         void *t;
         if ((t = (void *)itfMesWindowGetFontList((void *)arg0)) != (void *)0) {
             itfMesWindowGetAnimAux((s32)arg0);
-            func_00279010((s32)arg0);
+            itfMesWindowGetChoiceCount((s32)arg0);
             frFontSetGlyphAux(t, 0);
             frFontSetGlyphColor(t, 0x1B1B1BFF);
         }
@@ -883,7 +883,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 }
                 D_00882006[0]++;
                 a2 = itfMesWindowGetAnimAux((s32)arg0);
-                b2 = (s16)func_00279010((s32)arg0);
+                b2 = (s16)itfMesWindowGetChoiceCount((s32)arg0);
                 v0 = (b2 - (a2 + 1)) * 0x1E + 0x6D;
                 v1 = a2 * 0x1E;
                 if (v1 < v0) {
@@ -1216,7 +1216,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         memset(D_00882020, 0, 0x18);
         break;
     case 2:
-        D_0088202A[0] = (s16)func_0027b6e0((void *)arg0, 0);
+        D_0088202A[0] = (s16)itfMesWindowGetProcedureParam((void *)arg0, 0);
         break;
     case 4:
         if (D_0088202A[0] != 0) {
@@ -1685,7 +1685,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         }
         break;
     case 9:
-        tmp = func_0027b6e0((void *)arg0, 0);
+        tmp = itfMesWindowGetProcedureParam((void *)arg0, 0);
         if (tmp == 5) {
             handle = 0x550;
             tmp2 = 0xF0;
@@ -1695,9 +1695,9 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             handle = (tmp2 >> 1) * 8 + 0x550;
             tmp2 = tmp2 * 8;
         }
-        func_0027b750((void *)arg0, 0, 0x460);
-        func_0027b750((void *)arg0, 1, handle);
-        func_0027b750((void *)arg0, 2, tmp2);
+        itfMesWindowSetProcedureParam((void *)arg0, 0, 0x460);
+        itfMesWindowSetProcedureParam((void *)arg0, 1, handle);
+        itfMesWindowSetProcedureParam((void *)arg0, 2, tmp2);
         ret = 1;
         break;
     case 11:
@@ -1712,7 +1712,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             msgWinCopyRectangle((u8 *)&rectangle, (const u8 *)&background);
             PrimQueueRectangle(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
             tmp = itfMesWindowGetAnimAux((s32)arg0);
-            tmp2 = func_00279010((s32)arg0);
+            tmp2 = itfMesWindowGetChoiceCount((s32)arg0);
             if ((s16)tmp2 == 5) {
                 j = tmp * 0xF0 + 0x550;
             } else {
@@ -2091,10 +2091,10 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
         break;
     case 9: {
         s32 tmp;
-        tmp = func_0027b6e0(arg0, 0);
-        func_0027b750(arg0, 0, 0x3A0);
-        func_0027b750(arg0, 1, ((4 - tmp) * 0x1E + 0xD5) * 8);
-        func_0027b750(arg0, 2, 0xF0);
+        tmp = itfMesWindowGetProcedureParam(arg0, 0);
+        itfMesWindowSetProcedureParam(arg0, 0, 0x3A0);
+        itfMesWindowSetProcedureParam(arg0, 1, ((4 - tmp) * 0x1E + 0xD5) * 8);
+        itfMesWindowSetProcedureParam(arg0, 2, 0xF0);
         ret = 1;
         break;
     }
@@ -2125,7 +2125,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
         float f;
         if (func_0027bec0((s32)arg0) != 0) {
             v77070 = itfMesWindowGetAnimAux((s32)arg0);
-            v79010 = (s16)func_00279010((s32)arg0);
+            v79010 = (s16)itfMesWindowGetChoiceCount((s32)arg0);
             if (v77070 == -1) {
                 v77070 = 0;
             }
@@ -2167,7 +2167,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
             tmp = msgWinReady();
             if (tmp != 0) {
                 v77070 = itfMesWindowGetAnimAux((s32)arg0);
-                v79010 = (s16)func_00279010((s32)arg0);
+                v79010 = (s16)itfMesWindowGetChoiceCount((s32)arg0);
                 i1 = (4 - v79010) * 0x1E;
                 backgroundY = i1 + 0xCE;
                 sflDataDrawNarrowRoundedFrame(-5, backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
@@ -2202,7 +2202,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
         s32 need;
         if ((closingSelection = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
             itfMesWindowGetAnimAux((s32)arg0);
-            func_00279010((s32)arg0);
+            itfMesWindowGetChoiceCount((s32)arg0);
             frFontSetGlyphAux(closingSelection, 5);
         }
         if (func_0027bec0((s32)arg0) != 0) {
@@ -2214,7 +2214,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                 }
                 D_00882066[0]++;
                 v77070 = itfMesWindowGetAnimAux((s32)arg0);
-                v79010 = (s16)func_00279010((s32)arg0);
+                v79010 = (s16)itfMesWindowGetChoiceCount((s32)arg0);
                 i1 = ((s32)v79010 - (v77070 + 1)) * 0x1E + 0x3B;
                 i2 = v77070 * 0x1E;
                 if (i2 < i1) {
@@ -2841,7 +2841,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
         }
         break;
     case 9:
-        t = func_0027b6e0(arg0, 0);
+        t = itfMesWindowGetProcedureParam(arg0, 0);
         if (t == 5) {
             w1 = 0x550;
             w2 = 0xF0;
@@ -2850,9 +2850,9 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
             w1 = (q >> 1) * 8 + 0x550;
             w2 = q << 3;
         }
-        func_0027b750(arg0, 0, 0x460);
-        func_0027b750(arg0, 1, w1);
-        func_0027b750(arg0, 2, w2);
+        itfMesWindowSetProcedureParam(arg0, 0, 0x460);
+        itfMesWindowSetProcedureParam(arg0, 1, w1);
+        itfMesWindowSetProcedureParam(arg0, 2, w2);
         ret = 1;
         break;
     case 11:

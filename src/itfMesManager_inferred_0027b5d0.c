@@ -1,5 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+#include "itf_mes_objects.h"
+#include "primitive_queue_internal.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
@@ -16,15 +18,15 @@ static inline u32 add_retail_ptr(u32 offset, u32 base) {
 }
 
 extern u16 D_008817E8[];
-extern void itfMesFlushPendingCallback(s32 arg0);
+extern void itfMesFlushPendingCallback(s32 value);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowQueueCallback(s32 arg0);
+extern void itfMesWindowQueueCallback(s32 value);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *value, u8 *index);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b5d0-0027b5d0 */
 
@@ -40,13 +42,13 @@ extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 /* measured: opt_loop_invariants off */
 // Intent: Queues the window task's deferred callback with the task argument [inferred]
 // FUN_0027B5D0
-void itfMesWindowQueueCallback(s32 arg0)
+void itfMesWindowQueueCallback(s32 taskAddress)
 {
-    u8 *temp_2;
+    u8 *node;
 
-    temp_2 = PrimAllocQueueNode();
-    *(void (**)(s32))(temp_2 + 8) = itfMesFlushPendingCallback;
-    *(s32 *)(temp_2 + 0x10) = arg0;
-    PrimAppendNode(D_007964C0, temp_2);
+    node = PrimAllocQueueNode();
+    *(void (**)(s32))&((PrimQueueNode *)node)->callback = itfMesFlushPendingCallback;
+    ((PrimQueueNode *)node)->argument.handle = taskAddress;
+    PrimAppendNode(D_007964C0, node);
 }
 

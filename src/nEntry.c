@@ -11,7 +11,7 @@ extern u8 D_0063E918[];
 extern void yTimeLimitReset(void);
 extern void hsndQueueSound(s32 arg0, s32 arg1);
 extern s32 sdkSpriteRequestLoad(u8 *name);
-extern s32 func_0046a750(s32 handle);
+extern s32 hMaestroDecodeIsReady(s32 handle);
 extern s32 kwlnTaskGetState(s32 handle);
 extern s32 yTimeLimitTaskUpdate(u8 *arg0);
 extern void yTimeLimitTaskDestroy(u8 *arg0);
@@ -44,7 +44,7 @@ s32 func_002a2420(u8 *arg0) {
         *(s32 *)st = 2;
         break;
     case 2:
-        if (func_0046a750(*(s32 *)(st + 8)) != 1) {
+        if (hMaestroDecodeIsReady(*(s32 *)(st + 8)) != 1) {
             break;
         }
         D_00764630 = *(s32 *)(st + 8);

@@ -6291,7 +6291,7 @@ s32 fclCombineCdvdTaskUpdate(u8 *task) {
         *(u32 *)(work + 0x40) = filerEnqueueRequest(0, D_00644E10, 0, 0, 0, 0, 0, 0, 0, 0);
         *(s8 *)(work + 0) = (s8)(*(s8 *)(work + 0) + 1);
     case 1:
-        if (func_0046a750(*(u32 *)(work + 4)) != 0 && func_0046a750(*(u32 *)(work + 8)) != 0) {
+        if (hMaestroDecodeIsReady(*(u32 *)(work + 4)) != 0 && hMaestroDecodeIsReady(*(u32 *)(work + 8)) != 0) {
             *(u32 *)(work + 0x24) = filerTakeCompletedRequest(*(u32 *)(work + 0x34), &firstLoaded, 0);
             if (firstLoaded != 0) {
                 H_Cdvd_Destroy((u8 *)*(u32 *)(work + 0xC));
