@@ -719,7 +719,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1);
     extern void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1);
     extern void func_004b1210(void *arg0, void *arg1);
-    extern s32 func_00462df0(u8 *arg0);
+    extern s32 hMaestroListSetHasEntries(u8 *arg0);
     extern u32 K_Clump_StateFlagIsSet(const u32 *state);
     extern void mdlQueueModelForDraw(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
@@ -844,7 +844,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 if (attachedModel != NULL && (*(s32 *)(fieldModels + 0x28) & 0x20000000)) {
                     mdlQueueModelForDraw(D_00794300, attachedModel);
                 }
-            } else if (func_00462df0(*(u8 **)(*(u8 **)(fieldModels + 0x144) + 0xE0)) == 1) {
+            } else if (hMaestroListSetHasEntries(*(u8 **)(*(u8 **)(fieldModels + 0x144) + 0xE0)) == 1) {
                 if (alternateQueues != 0) {
                     mdlQueueModelForDraw(D_00793F40, *(u8 **)(fieldModels + 0x144));
                 } else {

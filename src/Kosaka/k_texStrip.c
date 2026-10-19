@@ -16,7 +16,7 @@ extern void func_003ef610(s32 value);
 extern void func_003ef5b0(s32 value, s32 other);
 
 extern s32 func_00468170(void *value, const char *other);
-extern s32 func_004680f0(s32 value, void *other);
+extern s32 sdkFilerPollResult(s32 value, void *other);
 extern void K_Clump_LogCodeCounts(void *value);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern char D_005F6168[];
@@ -765,7 +765,7 @@ s32 K_TexStripCodeLogUpdate(u8 *task)
         work->state = work->state + 1;
         break;
     case 1:
-        if (func_004680f0(work->filerTask, path) == 1)
+        if (sdkFilerPollResult(work->filerTask, path) == 1)
         {
             if (path[0] == 0)
             {

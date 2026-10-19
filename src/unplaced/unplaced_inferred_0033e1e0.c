@@ -27,7 +27,7 @@ extern s32 fclPackRgba(u8, u8, u8, u8);
 extern f32 fclEaseInterpolate(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s16 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
-extern s32 func_0046a750(s32 arg0, s32 arg1);
+extern s32 hMaestroDecodeIsReady(s32 arg0, s32 arg1);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
 #pragma push
@@ -41,7 +41,7 @@ s32 fclBustupUpdate(u8 *arg0)
     p = *(u8 **)(arg0 + 0x38);
     switch (*(s8 *)p) {
     case 0:
-        if (func_0046a750(*(s32 *)(p + 4), 3) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(p + 4), 3) == 0) {
             return 0;
         }
         *(s8 *)p = 1;

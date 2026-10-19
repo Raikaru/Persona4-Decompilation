@@ -188,7 +188,7 @@ u32 strlen(void* arg0);
 extern s32 scrLoadScriptStep(u8* task);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
 s32 H_Cdvd_AcquireDirectory(void* arg0, s32 arg1);
-s32 func_004680f0(u8* task, s8* text);
+s32 sdkFilerPollResult(u8* task, s8* text);
 void strcpy(void* arg0, void* arg1);
 s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
 void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
@@ -821,7 +821,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
     char *prefix;
 
     task = *(ScrTaskData **)(sdkTask + 0x38);
-    if (func_004680f0(task->unk_04, (s8 *)task->text) == 1) {
+    if (sdkFilerPollResult(task->unk_04, (s8 *)task->text) == 1) {
         switch (task->state) {
         case 0:
             selectionText = (s8 *)task->text;

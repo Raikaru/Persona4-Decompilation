@@ -152,7 +152,7 @@ extern void fclCombineDrawMoney(u8 *, u8 *);
 extern s32 sdkSpriteRequestLoad(void *);
 extern void func_00440b68(void *, void *, s32);
 extern void *H_Cdvd_AcquireDirectory(void *, s32);
-extern s32 func_0046a750(s32);
+extern s32 hMaestroDecodeIsReady(s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
 extern u8 *fclItemShopPanelCreate(void *, s32, s32);
 extern s32 fadeStatus(void);
@@ -264,7 +264,7 @@ s32 fclItemShopUpdate(u8 *shopTask) {
         *(s8 *)(work + 0) = 1;
         /* fallthrough */
     case 1:
-        if (func_0046a750(*(s32 *)(work + 0xC)) == 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(work + 0xC)) == 0) {
             break;
         }
         if (H_Cdvd_IsFileLoaded(*(void **)(work + 0x428)) == 0) {

@@ -19,7 +19,7 @@ s32 H_Cdvd_IsFileLoaded(u8* ptr);
 s32 datGetFlag(s32 id);
 s32 btlUnitFindInSideById(s32 a, s32 b);
 s32 sdkSpriteCreateFromName(u32 param);
-s32 func_0046a750(s32 param);
+s32 hMaestroDecodeIsReady(s32 param);
 s32 resourceFindByName(u32 param);
 extern u8* kwlnTaskGetWork(s32 param);
 extern char iGpffffa578;
@@ -86,7 +86,7 @@ s32 btlPanelIsEnabled(void* param)
                 } else if (idx < 0xC) {
                     recs->resources[idx] = sdkSpriteCreateFromName(D_00626720[idx]);
                 }
-            } else if (func_0046a750(recs->resources[panel->index]) != 0) {
+            } else if (hMaestroDecodeIsReady(recs->resources[panel->index]) != 0) {
                 if (++panel->index == 0xC) {
                     H_Cdvd_Destroy(panel->records);
                     panel->records = NULL;
