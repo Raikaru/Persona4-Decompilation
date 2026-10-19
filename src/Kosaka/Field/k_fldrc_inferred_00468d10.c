@@ -5,6 +5,9 @@
 #include "sdk_task_registration.h"
 #include "sdk_lbox_internal.h"
 #include "type.h"
+#include "primitive_queue_internal.h"
+#include "mdl_effect_internal.h"
+#include "kwln_task_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -76,9 +79,28 @@ struct Data_00712508 {
 
 extern struct Data_00712508 D_00712508[] __attribute__((aligned(8)));
 extern u8 *PrimAllocQueueNode(void);
+/* Ten archive requests are driven in parallel; completed payloads are
+ * registered through the entry array at 0x38. */
+typedef struct FldArchiveLoadNode {
+    u8 pad00[4];
+    struct FldArchiveLoadNode *next;
+    u8 *archive;
+    s32 state;
+    s32 requests[10];
+    s32 *entries;
+    s32 firstEntry;
+    s32 endEntry;
+    s32 cursor;
+} FldArchiveLoadNode;
+
+/* Pool metadata precedes the allocation region, in native eight-byte records. */
+typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
+
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
+/* Advance queued archive requests ten slots at a time and register their loaded archive entries. */
+/* measured: remaining raw state/entry/request accesses changed codegen even individually (8..488 differing bytes); the archive path remains a byte stream from its native header. */
 // FUN_00468D10
 void movieLoadStep(void)
 {
@@ -99,13 +121,13 @@ void movieLoadStep(void)
 
     node = (u8 *)D_00922930;
     do {
-        state = *(s32 *)(node + 0xC);
+        state = ((FldArchiveLoadNode *)node)->state;
         switch (state) {
         case 0:
-            node = *(u8 **)(node + 4);
+            node = *(u8 * *)&((FldArchiveLoadNode *)node)->next;
             break;
         case 1:
-            *(s32 *)(node + 0x44) = 0;
+            ((FldArchiveLoadNode *)node)->cursor = 0;
             for (phase = 0; phase < 10; phase++) {
                 if (func_00468bf0(node, phase) == 0) {
                     break;
@@ -116,8 +138,8 @@ void movieLoadStep(void)
         case 2:
             phase = 1;
             for (slot = 0; slot < 10; slot++) {
-                if (*(s32 *)(node + 0x10 + slot * 4) != 0) {
-                    if (func_004c9820(*(ADXF *)(node + 0x10 + slot * 4)) == 3) {
+                if (((FldArchiveLoadNode *)node)->requests[slot] != 0) {
+                    if (func_004c9820(*(ADXF *)&((FldArchiveLoadNode *)node)->requests[slot]) == 3) {
                         func_004c8a60(*(ADXF *)(node + 0x10 + slot * 4));
                         *(s32 *)(node + 0x10 + slot * 4) = 0;
                         if (func_00468bf0(node, slot) == 1) {
@@ -139,7 +161,7 @@ void movieLoadStep(void)
             memset(path, 0, 0x100);
             backslash = 0x5C;
             for (character = 0; character < 0x100; character++) {
-                value = *(s8 *)(*(u8 **)(node + 8) + character + 0x118);
+                value = *(s8 *)(((FldArchiveLoadNode *)node)->archive + character + 0x118);
                 if (value != 0) {
                     path[character] = value;
                 } else {
@@ -153,38 +175,21 @@ void movieLoadStep(void)
                 }
             }
             for (phase = 0;
-                 phase < *(s32 *)(node + 0x40) - *(s32 *)(node + 0x3C);
+                 phase < ((FldArchiveLoadNode *)node)->endEntry - ((FldArchiveLoadNode *)node)->firstEntry;
                  phase++) {
                 if ((*(s32 **)(node + 0x38))[phase] != 0) {
                     H_Cdvd_RegisterArchiveEntries((u8 *)path,
                                   (u8 *)(*(s32 **)(node + 0x38))[phase], 1);
-                    (*(s32 **)(node + 0x38))[phase] += 0x100;
+                    (((FldArchiveLoadNode *)node)->entries)[phase] += 0x100;
                 }
             }
             *(s32 *)(node + 0xC) = 4;
             break;
         case 4:
-            node = *(u8 **)(node + 4);
+            node = *(u8 * *)&((FldArchiveLoadNode *)node)->next;
             break;
         }
     } while (node != NULL);
-}
-#pragma pop
-
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants reset
-// FUN_00468FA0
-s32 mwPlayerUpdate(u8 *arg0) {
-    u8 *ctx;
-    u8 *task;
-
-    ctx = *(u8 **)(arg0 + 0x38);
-    task = PrimAllocQueueNode();
-    *(void **)(task + 8) = (void *)movieNativeTaskUpdate;
-    *(u8 **)(task + 0x10) = ctx;
-    PrimAppendNode(*(char **)(ctx + 0x218), task);
-    return 0;
 }
 #pragma pop
 
@@ -242,7 +247,7 @@ typedef union MovieVertexOverlay {
 typedef struct MovieSdkVertex { MovieVertexOverlay u; } MovieSdkVertex;
 
 typedef struct MovieNativeWork {
-    void *task;                    /* 0x000 */
+    void *queueNode;                    /* 0x000 */
     void *player;                  /* 0x004 */
     MWSFD_CRPRM parameters;         /* 0x008 */
     s32 playerStatus;              /* 0x038 */
@@ -288,16 +293,36 @@ typedef struct MovieEnginePrefix {
     MovieDevicePrefix device;
 } MovieEnginePrefix;
 
+#pragma push
+#pragma opt_propagation on
+#pragma opt_loop_invariants reset
+/* Queue the movie renderer with the task work and its configured primitive-list name. */
+// FUN_00468FA0
+s32 mwPlayerUpdate(u8 *owner) {
+    u8 *work;
+    u8 *queueNode;
+
+    work = ((KwlnTask *)owner)->work;
+    queueNode = PrimAllocQueueNode();
+    ((PrimQueueNode *)queueNode)->callback = (void *)movieNativeTaskUpdate;
+    ((PrimQueueNode *)queueNode)->argument.data = work;
+    PrimAppendNode(*(char * *)&((MovieNativeWork *)work)->path, queueNode);
+    return 0;
+}
+#pragma pop
+
 extern u32 ourGlobals[4096];
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
+/* Raw movie-table reads preserve separately linked interior labels and the native 0x28-byte definition stride; rebasing them would change symbol/addend provenance. The primitive-list header is opaque here. */
+/* Advance native movie playback, copy decoded frames, apply fades and submit the display quad. */
 // FUN_00468FF0
-void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
-    extern s32 func_003d5fb0(u8 *arg0);
-    extern s32 func_003d6010(u8 *arg0);
-    extern s32 func_003df860(const struct RwSList *arg0);
+void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
+    extern s32 func_003d5fb0(u8 *context);
+    extern s32 func_003d6010(u8 *context);
+    extern s32 func_003df860(const struct RwSList *context);
     extern RwBool RwRasterDestroy(RwRaster *raster);
     extern RwRaster *RwRasterCreate(s32 width, s32 height, s32 depth, s32 flags);
     extern RwBool RpSkyTexCacheRasterLock(RwRaster *raster, RwBool locked);
@@ -305,20 +330,20 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     extern s32 sceDmaSync(u32 *channel, s32 mode, s32 timeout);
     extern void *memcpy(void *dst, const void *src, size_t size);
     extern void *memset(void *dst, s32 val, size_t size);
-    extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
-    extern void chkmemSetLock(s32 arg0);
+    extern void chkmemAllocSiteTag(void *context, s32 arg1);
+    extern void chkmemSetLock(s32 context);
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
     extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
     extern s32 kwlnGetCamera(void);
-    extern void kAssertFail(void *arg0, s32 arg1);
-    extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *arg0);
-    extern s32 func_00509268(u8 *arg0);
-    extern void func_005097e8(s32 arg0);
-    extern void mwPlySetFrmSync(s32 arg0, s32 arg1);
-    extern void mwPlyGetCurFrm(void *arg0, void *arg1);
-    extern void mwPlyRelCurFrm(s32 arg0);
-    extern s32 func_0050d4d0(s32 arg0);
-    extern void mwPlyReleaseLp(s32 arg0);
+    extern void kAssertFail(void *context, s32 arg1);
+    extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *context);
+    extern s32 func_00509268(u8 *context);
+    extern void func_005097e8(s32 context);
+    extern void mwPlySetFrmSync(s32 context, s32 arg1);
+    extern void mwPlyGetCurFrm(void *context, void *arg1);
+    extern void mwPlyRelCurFrm(s32 context);
+    extern s32 func_0050d4d0(s32 context);
+    extern void mwPlyReleaseLp(s32 context);
     extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
     extern void gsUploadRasterTiles(RwRaster *raster, u32 owner, s32 t0, s32 t1);
     extern s32 iGpffffbaf0;
@@ -346,18 +371,18 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     extern u16 D_008C024E[];
 
     MovieNativeFrame frame;
-    s32 spFC;
+    s32 savedRenderState;
     union { f32 xy[2]; s64 packed; } debugPosition;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f20;
-    f32 temp_f2;
+    f32 letterboxBottom;
+    f32 uMax;
+    f32 vMax;
+    f32 initialReciprocalZ;
+    f32 reciprocalZ;
     struct { f32 x, y; } screenExtent;
-    f32 var_f0;
-    f32 var_f0_2;
+    f32 fadeInOpacity;
+    f32 fadeOutOpacity;
     s16 rasterKind;
-    s32 temp_3_5;
+    s32 value;
     s32 movieId;
     s16 fadeOutLength;
     s32 state;
@@ -390,7 +415,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     u32 imageA;
     u32 imageAddr;
     MWSFD_CRPRM *parameters;
-    (void)arg0;
+    (void)context;
 
     state = work->state;
     switch (state) {                               /* switch 1 */
@@ -407,7 +432,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     default:                                        /* switch 1 */
         goto movieComplete;
     case 2:                                         /* switch 1 */
-        temp_f20 = 1.0f / (*(f32 *)((u8 *)kwlnGetCamera() + (0x80)));
+        initialReciprocalZ = 1.0f / (((MdlEffectCamera *)kwlnGetCamera())->nearPlane);
         if (++work->startupTicks == 1) {
             work->ownsList = 1;
         }
@@ -483,7 +508,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
             vertexIndex = 0;
             for (; vertexIndex < 4; vertexIndex++) {
                 work->vertices[vertexIndex].u.els.scrVertex.z = ((MovieEnginePrefix *)ourGlobals)->device.zBufferNear;
-                work->vertices[vertexIndex].u.els.recipZ = temp_f20;
+                work->vertices[vertexIndex].u.els.recipZ = initialReciprocalZ;
                 if ((*(s32 *)(D_00712C50 + (work->movieIndex * 0x28) + (0x1C))) != 0) {
                     work->vertices[vertexIndex].u.els.color.red = 255.0f;
                     work->vertices[vertexIndex].u.els.color.green = 255.0f;
@@ -500,9 +525,9 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
                     work->state = 3;
                 }
             }
-            screenExtent.x = (f32)(*(s32 *)((u8 *)(*(u8 **)((u8 *)kwlnGetCamera() + (0x60))) + (0xC)));
-            screenExtent.y = (f32)(*(s32 *)((u8 *)(*(u8 **)((u8 *)kwlnGetCamera() + (0x60))) + (0x10)));
-            temp_f2 = 1.0f / (*(f32 *)((u8 *)kwlnGetCamera() + (0x80)));
+            screenExtent.x = (f32)(((MdlEffectRaster *)(u32)((MdlEffectCamera *)kwlnGetCamera())->raster)->width);
+            screenExtent.y = (f32)(((MdlEffectRaster *)(u32)((MdlEffectCamera *)kwlnGetCamera())->raster)->height);
+            reciprocalZ = 1.0f / (((MdlEffectCamera *)kwlnGetCamera())->nearPlane);
             if ((*(s16 *)(D_00712C50 + (work->movieIndex * 0x28))) == 0) {
                 work->vertices[0].u.els.scrVertex.x = 0;
                 work->vertices[1].u.els.scrVertex.x = 0;
@@ -520,10 +545,10 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
                 work->vertices[3].u.els.scrVertex.x = screenExtent.x;
                 c40 = 40.0f;
                 work->vertices[0].u.els.scrVertex.y = c40;
-                temp_f0 = screenExtent.y - c40;
-                work->vertices[1].u.els.scrVertex.y = temp_f0;
+                letterboxBottom = screenExtent.y - c40;
+                work->vertices[1].u.els.scrVertex.y = letterboxBottom;
                 work->vertices[2].u.els.scrVertex.y = c40;
-                work->vertices[3].u.els.scrVertex.y = temp_f0;
+                work->vertices[3].u.els.scrVertex.y = letterboxBottom;
             }
             work->vertices[0].u.els.scrVertex.z = ((MovieEnginePrefix *)ourGlobals)->device.zBufferNear;
             work->vertices[1].u.els.scrVertex.z = ((MovieEnginePrefix *)ourGlobals)->device.zBufferNear;
@@ -543,18 +568,18 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
             }
             work->vertices[0].u.els.u = 0;
             work->vertices[1].u.els.u = 0;
-            temp_f0_2 = (f32) neededWidth / (f32) textureWidth;
-            work->vertices[2].u.els.u = temp_f0_2;
-            work->vertices[3].u.els.u = temp_f0_2;
+            uMax = (f32) neededWidth / (f32) textureWidth;
+            work->vertices[2].u.els.u = uMax;
+            work->vertices[3].u.els.u = uMax;
             work->vertices[0].u.els.v = 0;
-            temp_f0_3 = (f32) neededHeight / (f32) textureHeight;
-            work->vertices[1].u.els.v = temp_f0_3;
+            vMax = (f32) neededHeight / (f32) textureHeight;
+            work->vertices[1].u.els.v = vMax;
             work->vertices[2].u.els.v = 0;
-            work->vertices[3].u.els.v = temp_f0_3;
-            work->vertices[0].u.els.recipZ = temp_f2;
-            work->vertices[1].u.els.recipZ = temp_f2;
-            work->vertices[2].u.els.recipZ = temp_f2;
-            work->vertices[3].u.els.recipZ = temp_f2;
+            work->vertices[3].u.els.v = vMax;
+            work->vertices[0].u.els.recipZ = reciprocalZ;
+            work->vertices[1].u.els.recipZ = reciprocalZ;
+            work->vertices[2].u.els.recipZ = reciprocalZ;
+            work->vertices[3].u.els.recipZ = reciprocalZ;
             }
             goto movieComplete;
         }
@@ -631,8 +656,8 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
                     work->vertices[fadeInVertex].u.els.color.red = 255.0f;
                     work->vertices[fadeInVertex].u.els.color.green = 255.0f;
                     work->vertices[fadeInVertex].u.els.color.blue = 255.0f;
-                    var_f0 = (f32)fadeInAlpha;
-                    work->vertices[fadeInVertex].u.els.color.alpha = var_f0;
+                    fadeInOpacity = (f32)fadeInAlpha;
+                    work->vertices[fadeInVertex].u.els.color.alpha = fadeInOpacity;
                 }
             }
             if (work->state == 5) {
@@ -649,8 +674,8 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
                     work->vertices[fadeOutVertex].u.els.color.red = 255.0f;
                     work->vertices[fadeOutVertex].u.els.color.green = 255.0f;
                     work->vertices[fadeOutVertex].u.els.color.blue = 255.0f;
-                    var_f0_2 = (f32)(u32)fadeOutAlpha;
-                    work->vertices[fadeOutVertex].u.els.color.alpha = var_f0_2;
+                    fadeOutOpacity = (f32)(u32)fadeOutAlpha;
+                    work->vertices[fadeOutVertex].u.els.color.alpha = fadeOutOpacity;
                 }
             }
         }
@@ -660,7 +685,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
             work->state = 6;
             goto movieComplete;
         }
-        ((MovieEnginePrefix *)ourGlobals)->device.getState((RwRenderState)(0xE), (void *)(&spFC));
+        ((MovieEnginePrefix *)ourGlobals)->device.getState((RwRenderState)(0xE), (void *)(&savedRenderState));
         ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(0));
         RpSkyTexCacheRasterLock(work->raster, 1);
         imageAddr = iGpffffbae8;
@@ -680,7 +705,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
             D_00887310[0](4, (void *)work->vertices, 4);
         }
         RpSkyTexCacheRasterLock(work->raster, 0);
-        ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(spFC));
+        ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0xE), (void *)(savedRenderState));
         goto movieComplete;
     case 6:                                          /* switch 1 */
         if (work->field1f4 != 0) {
@@ -808,36 +833,38 @@ movieComplete:
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Release decoder, image and raster resources, then return movie work to its allocation pool. */
+/* measured: remaining raw player reads/resource clears changed codegen individually (41..186 differing bytes); keep byte-pointer aliasing across release calls. */
 // FUN_0046A020
-void mwPlayerTaskDestroy(u8 *arg0)
+void mwPlayerTaskDestroy(u8 *task)
 {
     u8 *work;
 
-    work = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(work + 4) != 0) {
-        if (*(s32 *)(work + 0xD8) != 0) {
-            mwPlyReleaseLp(*(s32 *)(work + 4));
+    work = ((KwlnTask *)task)->work;
+    if (*(s32 *)&((MovieNativeWork *)work)->player != 0) {
+        if (((MovieNativeWork *)work)->usesLoopPlayer != 0) {
+            mwPlyReleaseLp(*(s32 *)&((MovieNativeWork *)work)->player);
         }
         func_005097e8(*(s32 *)(work + 4));
         *(s32 *)(work + 4) = 0;
     }
-    if (*(s32 *)(work + 0x1E0) != 0) {
-        jtbl_008873EC[0]((void *)*(s32 *)(work + 0x1E0));
+    if (*(s32 *)&((MovieNativeWork *)work)->decoderWorkAddress != 0) {
+        jtbl_008873EC[0]((void *)*(s32 *)&((MovieNativeWork *)work)->decoderWorkAddress);
         *(s32 *)(work + 0x1E0) = 0;
     }
-    if (*(s32 *)(work + 0x200) != 0) {
-        jtbl_008873EC[0]((void *)*(s32 *)(work + 0x200));
+    if (*(s32 *)&((MovieNativeWork *)work)->imageBuffer != 0) {
+        jtbl_008873EC[0]((void *)*(s32 *)&((MovieNativeWork *)work)->imageBuffer);
         *(s32 *)(work + 0x200) = 0;
         iGpffffbae8 = 0;
     }
-    if (*(s32 *)(work + 0xD0) != 0) {
-        RwRasterDestroy(*(RwRaster **)(work + 0xD0));
+    if (*(s32 *)&((MovieNativeWork *)work)->raster != 0) {
+        RwRasterDestroy(((MovieNativeWork *)work)->raster);
         *(s32 *)(work + 0xD0) = 0;
     }
-    if (*(s32 *)(work + 0x1F4) == 0) {
+    if (((MovieNativeWork *)work)->field1f4 == 0) {
         iGpffffbaec = 0;
     }
-    if (*(s32 *)(work + 0x1FC) != 0) {
+    if (((MovieNativeWork *)work)->ownsList != 0) {
         *(s32 *)(work + 0x1FC) = 0;
         func_003d5fb0(D_0070B610);
     }
@@ -848,8 +875,9 @@ void mwPlayerTaskDestroy(u8 *arg0)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Allocate movie work and create a playback task with the requested movie and queue name. */
 // FUN_0046A110
-s32 mwPlayerCreate(s32 arg0, s16 arg1, s32 arg2) {
+s32 mwPlayerCreate(s32 parent, s16 movieIndex, s32 queueName) {
     s32 result;
     u8 *work;
 
@@ -857,13 +885,13 @@ s32 mwPlayerCreate(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, mwPlayerUpdate, mwPlayerTaskDestroy, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, mwPlayerUpdate, mwPlayerTaskDestroy, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
-    *(s32 *)(work + 0x1F4) = 1;
-    *(s16 *)(work + 0x1EA) = arg1;
-    *(s32 *)(work + 0x218) = arg2;
+    ((MovieNativeWork *)work)->field1f4 = 1;
+    ((MovieNativeWork *)work)->movieIndex = movieIndex;
+    *(s32 *)&((MovieNativeWork *)work)->path = queueName;
     iGpffffbaf8 = 0;
     return result;
 }
@@ -882,8 +910,9 @@ s32 mwPlayerGetTaskName(void)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Create a playback task with explicit primitive-list ownership reset. */
 // FUN_0046A1F0
-s32 mwPlayerCreateReset(s32 arg0, s16 arg1, s32 arg2) {
+s32 mwPlayerCreateReset(s32 parent, s16 movieIndex, s32 queueName) {
     s32 result;
     u8 *work;
 
@@ -891,14 +920,14 @@ s32 mwPlayerCreateReset(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, mwPlayerUpdate, mwPlayerTaskDestroy, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, mwPlayerUpdate, mwPlayerTaskDestroy, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
-    *(s32 *)(work + 0x1F4) = 1;
-    *(s16 *)(work + 0x1EA) = arg1;
-    *(s32 *)(work + 0x1FC) = 0;
-    *(s32 *)(work + 0x218) = arg2;
+    ((MovieNativeWork *)work)->field1f4 = 1;
+    ((MovieNativeWork *)work)->movieIndex = movieIndex;
+    ((MovieNativeWork *)work)->ownsList = 0;
+    *(s32 *)&((MovieNativeWork *)work)->path = queueName;
     iGpffffbaf8 = 0;
     return result;
 }
@@ -917,28 +946,30 @@ s32 mwPlayerGetCurrent(void)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Record the allocation file and line used by pool failure diagnostics. */
 // FUN_0046A2D0
-void func_0046a2d0(s32 arg0, s32 arg1)
+void poolSetAllocationSite(s32 allocationFile, s32 allocationLine)
 {
-    D_00724BEC = arg0;
-    D_00724BF0 = arg1;
+    D_00724BEC = allocationFile;
+    D_00724BF0 = allocationLine;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Initialize the fixed 500-entry allocation metadata table at the supplied buffer. */
 // FUN_0046A2E0
-void initEntryTable(u8 *arg0, s32 arg1) {
+void initEntryTable(u8 *buffer, s32 size) {
     u32 i;
 
-    D_00724C04 = arg0;
-    D_00724C00 = arg0 + arg1;
+    D_00724C04 = buffer;
+    D_00724C00 = buffer + size;
     D_00724BFC = 0x1F4;
     i = 0;
     while (i < D_00724BFC) {
-        *(s32 *)(arg0 + i * 8) = 0;
-        *(s32 *)(arg0 + i * 8 + 4) = 0;
+        *(s32 *)&((MoviePoolEntry *)buffer)[i].address = 0;
+        *(s32 *)&((MoviePoolEntry *)buffer)[i].size = 0;
         i++;
     }
     D_00724BF8 = 0;
@@ -949,20 +980,21 @@ void initEntryTable(u8 *arg0, s32 arg1) {
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Free external allocations normally or clear the matching in-pool allocation record. */
 // FUN_0046A340
-void poolFree(u32 arg0) {
+void poolFree(u32 address) {
     s32 flag;
     u32 count;
     u32 index;
     u8 *table;
     u8 *entry;
 
-    if (arg0 < iGpffffbb14) {
-        (*jtbl_008873EC)((void *)arg0);
+    if (address < iGpffffbb14) {
+        (*jtbl_008873EC)((void *)address);
         return;
     }
-    if (iGpffffbb10 < arg0) {
-        (*jtbl_008873EC)((void *)arg0);
+    if (iGpffffbb10 < address) {
+        (*jtbl_008873EC)((void *)address);
         return;
     }
     flag = func_0042ba20();
@@ -972,11 +1004,11 @@ void poolFree(u32 arg0) {
     goto loop_test;
 loop_body:
     entry = table + (index * 8);
-    if (arg0 == *(s32 *)(entry + 0)) {
+    if (address == *(s32 *)&((MoviePoolEntry *)entry)->address) {
         count = iGpffffbb04;
-        iGpffffbb04 = count - *(s32 *)(entry + 4);
-        *(s32 *)(entry + 0) = 0;
-        *(s32 *)(entry + 4) = 0;
+        iGpffffbb04 = count - *(s32 *)&((MoviePoolEntry *)entry)->size;
+        *(s32 *)&((MoviePoolEntry *)entry)->address = 0;
+        *(s32 *)&((MoviePoolEntry *)entry)->size = 0;
         goto loop_done;
     }
     index += 1;
@@ -1014,9 +1046,9 @@ static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
     count = iGpffffbb0c;
     for (; i < count; i++) {
         entry = table + i * 8;
-        length = *(u32 *)(entry + 4);
+        length = ((MoviePoolEntry *)entry)->size;
         if (length != 0) {
-            base = *(u32 *)entry;
+            base = ((MoviePoolEntry *)entry)->address;
             finish = base + length;
             if (candidate == base) {
                 return finish;
@@ -1037,8 +1069,9 @@ static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Allocate aligned pool storage by skipping occupied intervals and claiming an empty metadata entry. */
 // FUN_0046A430
-u8 *poolAlloc(s32 arg0)
+u8 *poolAlloc(s32 requestedSize)
 {
     s32 lock;
     u32 candidate;
@@ -1046,11 +1079,11 @@ u8 *poolAlloc(s32 arg0)
     u32 finish;
     u32 i;
     u8 *entry;
-    u32 *entry_length;
-    char *task_name;
+    u32 *entryLength;
+    char *taskName;
 
     lock = func_0042ba20();
-    size = ((u32)arg0 + 0xF) & ~0xF;
+    size = ((u32)requestedSize + 0xF) & ~0xF;
     candidate = iGpffffbb14 + iGpffffbb0c * 8;
 retry:
     finish = sdkMallocFindOverlap(candidate, size);
@@ -1058,20 +1091,20 @@ retry:
         i = 0;
         while (i < iGpffffbb0c) {
             entry = (u8 *)iGpffffbb14 + i * 8;
-            entry_length = (u32 *)(entry + 4);
-            if (*entry_length == 0) {
-                *(u32 *)entry = finish;
-                *entry_length = size;
+            entryLength = &((MoviePoolEntry *)entry)->size;
+            if (*entryLength == 0) {
+                ((MoviePoolEntry *)entry)->address = finish;
+                *entryLength = size;
                 iGpffffbb04 += size;
                 goto allocated;
             }
             i++;
         }
         func_00440b68(D_00756758);
-        task_name = kwlnTaskGetCurrent();
+        taskName = kwlnTaskGetCurrent();
         kAssertFailMsg((const char *)D_00756748, 0xB2,
                       (const char *)D_00756730, iGpffffbb04, size,
-                      task_name, D_00724BEC, D_00724BF0);
+                      taskName, D_00724BEC, D_00724BF0);
         kAssertFail(D_00756720, 0xB3);
 allocated:
         if (lock != 0) {
@@ -1079,10 +1112,10 @@ allocated:
         }
         if (finish + size >= iGpffffbb10) {
             func_00440b68(D_00713078);
-            task_name = kwlnTaskGetCurrent();
+            taskName = kwlnTaskGetCurrent();
             kAssertFailMsg((const char *)D_00713088, 0xEC,
                           (const char *)D_007130A0, iGpffffbb04, size,
-                          task_name, D_00724BEC, D_00724BF0);
+                          taskName, D_00724BEC, D_00724BF0);
         }
         return (u8 *)finish;
     }
@@ -1090,10 +1123,10 @@ allocated:
     if (candidate + size >= iGpffffbb10) {
         kwlnTaskDumpAll();
         func_00440b68(D_00713078);
-        task_name = kwlnTaskGetCurrent();
+        taskName = kwlnTaskGetCurrent();
         kAssertFailMsg((const char *)D_00713088, 0xFA,
                       (const char *)D_007130A0, iGpffffbb04, size,
-                      task_name, D_00724BEC, D_00724BF0);
+                      taskName, D_00724BEC, D_00724BF0);
         kAssertFail(D_00713088, 0xFB);
     }
     goto retry;

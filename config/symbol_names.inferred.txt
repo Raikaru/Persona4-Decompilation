@@ -636,3 +636,4 @@ fclShopDrawEquipmentComparison = 0x002D1590; // type:func  evidence: inferred: D
 fclShopShowUnlockMessage = 0x002DFE00; // type:func  evidence: inferred: Extracts the next unlocked item id and shows message record 8 for special items or record 7 otherwise.
 fclShopShowMessage = 0x002DFEC0; // type:func  evidence: inferred: Acquires a message-window slot, sets optional string parameters and the record, optionally requests refresh, and returns the slot.
 fclShopShowMessageWithStrings = 0x002DFF90; // type:func  evidence: inferred: Acquires a message-window slot, supplies two string parameter sets and the record, optionally requests refresh, and returns the slot.
+poolSetAllocationSite = 0x0046A2D0; // type:func  evidence: inferred: Store the file and line values reported by poolAlloc allocation-failure diagnostics.

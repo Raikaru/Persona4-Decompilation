@@ -9,6 +9,8 @@
 #include "fcl_draw_task.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
+#include "kwln_task_internal.h"
 #include "fr_font_internal.h"
 #include "fcl_object_internal.h"
 #include "datPersona_internal.h"
@@ -21,66 +23,83 @@ extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
 extern void sdkSndFadeOutChannelFrames(s16 arg0, s32 arg1, s32 arg2);
 extern s32 datItemMoonGateFirst(s16 arg0);
 extern s32 datItemMoonGateSecond(s16 arg0);
+/* List indices are halfwords; the count follows the 48 ID slots. */
+typedef struct FclItemIdList {
+    s16 ids[0x30];
+    s16 count;
+} FclItemIdList;
+
+/* shopSystemCreate allocates 0x18 bytes and drives the byte state at 0. */
+typedef struct ShopSystemWork {
+    s8 state;
+    u8 pad01[3];
+    s32 shopTask;
+    u8 unk08[0x10];
+} ShopSystemWork;
+
+/* Append an item ID only when it is absent from the 48-entry list. */
 // FUN_002E6F90
 #pragma opt_loop_invariants on
-s32 fclListAddUnique(u8 *arg0, s32 arg1) {
+s32 fclListAddUnique(u8 *list, s32 itemId) {
     s32 i = 0;
-    s16 val = (s16)arg1;
-    s16 n = *(s16 *)(arg0 + 0x60);
+    s16 item = (s16)itemId;
+    s16 count = ((FclItemIdList *)list)->count;
 
-    while ((s16)i < n) {
-        if (*(s16 *)(arg0 + (s16)i * 2) == val) {
+    while ((s16)i < count) {
+        if (((FclItemIdList *)list)->ids[(s16)i] == item) {
             return 0;
         }
         i = (s16)(i + 1);
     }
-    *(s16 *)(arg0 + n * 2) = arg1;
-    *(s16 *)(arg0 + 0x60) = *(s16 *)(arg0 + 0x60) + 1;
+    ((FclItemIdList *)list)->ids[count] = itemId;
+    ((FclItemIdList *)list)->count = ((FclItemIdList *)list)->count + 1;
     return 1;
 }
 
 #pragma push
 #pragma opt_loop_invariants on
+/* Mark the requested ID empty, compact retained IDs, and decrement the stored count. */
+/* measured: typing the remaining count reads/store changed 10..95 bytes; retain count reloads while compacting the ID array. */
 // FUN_002E7010
-s32 fclListRemoveId(u8 *arg0, s16 arg1)
+s32 fclListRemoveId(u8 *list, s16 itemId)
 {
-    u8 v2;
-    s16 i;
-    s16 v4;
-    s16 v5;
-    s16 v7;
-    s16 j;
-    s16 v9;
-    u8 v10;
-    s16 k;
-    s16 minus_one;
-    s16 temp[0x30];
+    u8 retainedCount;
+    s16 clearIndex;
+    s16 removeIndex;
+    s16 removedId;
+    s16 value;
+    s16 readIndex;
+    s16 retainedId;
+    u8 writeIndex;
+    s16 copyIndex;
+    s16 emptyId;
+    s16 retainedIds[0x30];
 
-    v2 = 0;
-    minus_one = -1;
-    for (i = 0; i < 0x30; i++) {
-        temp[i] = minus_one;
+    retainedCount = 0;
+    emptyId = -1;
+    for (clearIndex = 0; clearIndex < 0x30; clearIndex++) {
+        retainedIds[clearIndex] = emptyId;
     }
-    minus_one = -1;
-    for (v4 = 0, v5 = arg1; v4 < *(s16 *)(arg0 + 0x60); v4++) {
-        if (v5 == *(s16 *)(arg0 + v4 * 2)) {
-            *(s16 *)(arg0 + v4 * 2) = minus_one;
+    emptyId = -1;
+    for (removeIndex = 0, removedId = itemId; removeIndex < *(s16 *)(list + 0x60); removeIndex++) {
+        if (removedId == ((FclItemIdList *)list)->ids[removeIndex]) {
+            ((FclItemIdList *)list)->ids[removeIndex] = emptyId;
         }
     }
-    for (j = 0; j < *(s16 *)(arg0 + 0x60); j++) {
-        v9 = *(s16 *)(arg0 + j * 2);
-        if (v9 != minus_one) {
-            temp[v2++] = v9;
+    for (readIndex = 0; readIndex < *(s16 *)(list + 0x60); readIndex++) {
+        retainedId = ((FclItemIdList *)list)->ids[readIndex];
+        if (retainedId != emptyId) {
+            retainedIds[retainedCount++] = retainedId;
         }
     }
-    v10 = 0;
-    minus_one = -1;
-    for (k = (s16)0; *(s16 *)(arg0 + 0x60) > k; k++) {
-        if (temp[k] != minus_one) {
-            *(s16 *)(arg0 + v10++ * 2) = temp[k];
+    writeIndex = 0;
+    emptyId = -1;
+    for (copyIndex = (s16)0; ((FclItemIdList *)list)->count > copyIndex; copyIndex++) {
+        if (retainedIds[copyIndex] != emptyId) {
+            ((FclItemIdList *)list)->ids[writeIndex++] = retainedIds[copyIndex];
         }
     }
-    *(s16 *)(arg0 + 0x60) = *(s16 *)(arg0 + 0x60) - 1;
+    *(s16 *)(list + 0x60) = ((FclItemIdList *)list)->count - 1;
     return 1;
 }
 #pragma pop
@@ -88,13 +107,14 @@ s32 fclListRemoveId(u8 *arg0, s16 arg1)
 #pragma push
 #pragma opt_loop_invariants off
 // FUN_002E7190
-void fclFreeWorkBlock(u8 *arg0) {
-    jtbl_008873EC[0](arg0);
+void fclFreeWorkBlock(u8 *work) {
+    jtbl_008873EC[0](work);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
+/* Unlock eligible moon-phase items and report whether any unlocked item exists. */
 // FUN_002E71C0
 s32 fclUnlockMoonPhaseItems(void)
 {
@@ -131,73 +151,75 @@ loop_test:
 
 #pragma push
 #pragma opt_loop_invariants off
+/* Drive shop scene loading, fades, shop task creation and eventual scene unloading. */
+/* measured: typing the two remaining shop-task writes changed 136/338 bytes; retain the raw work accesses across shop creation. */
 // FUN_002E72C0
-s32 shopSystemUpdate(u8 *arg0)
+s32 shopSystemUpdate(u8 *task)
 {
-    void fieldSceneLoad(s32 arg0, s32 arg1);
-    s32 fadeBeginTransition(s32 arg0, s32 arg1);
-    s32 fadeBeginReturnTransition(s32 arg0, s32 arg1);
+    void fieldSceneLoad(s32 task, s32 arg1);
+    s32 fadeBeginTransition(s32 task, s32 arg1);
+    s32 fadeBeginReturnTransition(s32 task, s32 arg1);
     s32 fadeStatus(void);
     s32 fieldSceneLoadStep(void);
     void fieldSceneUnload(void);
     s32 MT_Scene_GetCameraResFirst(void);
     f32 MT_Scene_GetCameraFov(void);
     s32 mtSceneResListPrepareAll(void);
-    s32 fclItemShopCreate(u8 *arg0);
-    u8 *func_003e9cb0(u8 *arg0, ...);
-    s32 kwlnTaskGetTaskByName(s8 *arg0);
+    s32 fclItemShopCreate(u8 *task);
+    u8 *func_003e9cb0(u8 *task, ...);
+    s32 kwlnTaskGetTaskByName(s8 *task);
     u8 *kwlnGetCamera(void);
-    void K_View_SetFov(void *arg0, f32 arg1);
-    s32 sdkSndPlayCue(s16 arg0, ...);
+    void K_View_SetFov(void *task, f32 arg1);
+    s32 sdkSndPlayCue(s16 task, ...);
     extern s8 D_0063FC68[];
     s8 state;
     u8 *work;
     u8 *view;
 
-    work = *(u8 **)(arg0 + 0x38);
-    state = *(s8 *)work;
+    work = ((KwlnTask *)task)->work;
+    state = ((ShopSystemWork *)work)->state;
     switch (state) {
     case 1:
         fieldSceneLoad(8, 6);
-        *(s8 *)work = 2;
+        ((ShopSystemWork *)work)->state = 2;
         /* fallthrough */
     case 2:
         if ((fieldSceneLoadStep() != 0) && (mtSceneResListPrepareAll() != 0)) {
             view = kwlnGetCamera();
             K_View_SetFov(view, MT_Scene_GetCameraFov());
             view = kwlnGetCamera();
-            func_003e9cb0(*(u8 **)(view + 4), MT_Scene_GetCameraResFirst(), 0);
-            *(s8 *)work = 3;
+            func_003e9cb0(((MdlEffectCamera *)view)->frame, MT_Scene_GetCameraResFirst(), 0);
+            ((ShopSystemWork *)work)->state = 3;
             sdkSndPlayCue((s16)0x15, 1);
         }
         goto block_24;
     case 3:
         fadeBeginReturnTransition(1, 0);
-        *(s8 *)work = 4;
+        ((ShopSystemWork *)work)->state = 4;
         /* fallthrough */
     case 4:
         if (fadeStatus() != 0) {
-            if (*(s32 *)(work + 4) != 0) {
+            if (((ShopSystemWork *)work)->shopTask != 0) {
                 *(s32 *)(work + 4) = 0;
             }
-            *(s32 *)(work + 4) = fclItemShopCreate(arg0);
-            *(s8 *)work = 0x22;
+            *(s32 *)(work + 4) = fclItemShopCreate(task);
+            ((ShopSystemWork *)work)->state = 0x22;
         }
         goto block_24;
     case 5:
         fadeBeginTransition(1, 0);
-        *(s8 *)work = 6;
+        ((ShopSystemWork *)work)->state = 6;
         /* fallthrough */
     case 6:
         if (fadeStatus() != 0) {
             fieldSceneUnload();
-            *(s8 *)work = 0x23;
+            ((ShopSystemWork *)work)->state = 0x23;
         }
         goto block_24;
     case 34:
         if (kwlnTaskGetTaskByName(D_0063FC68) == 0) {
             fieldSceneUnload();
-            *(s8 *)work = 0x23;
+            ((ShopSystemWork *)work)->state = 0x23;
         }
         goto block_24;
     case 35:
@@ -212,16 +234,17 @@ block_24:
 #pragma push
 #pragma opt_loop_invariants off
 // FUN_002E74E0
-void shopSystemDestroy(u8 *arg0)
+void shopSystemDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
+/* Create the shop controller and black background, then initialize item availability flags. */
 // FUN_002E7510
-s32 shopSystemCreate(s32 arg0)
+s32 shopSystemCreate(s32 parent)
 {
     s32 result;
     u8 *work;
@@ -229,12 +252,12 @@ s32 shopSystemCreate(s32 arg0)
 
     chkmemAllocSiteTag(D_0063FC80, 0x11A);
     work = D_008873F4[0](1, 0x18, 0x40000);
-    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, shopSystemUpdate, shopSystemDestroy, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, shopSystemUpdate, shopSystemDestroy, (u8 *)(work));
     iGpffffb590 = NULL;
     iGpffffb590 = (u8 *)fclSpriteSpawnChild(result, fclMakeVec2(0, 0));
     fclSpriteSetPositionBounds(iGpffffb590, fclMakeVec2(0, 0), fclMakeBoundsPacket(640.0f, 448.0f));
     fclSpriteSetCornerColors(iGpffffb590, fclMakeDrawColor(0, 0, 0, 0xFF));
-    *work = 1;
+    ((ShopSystemWork *)work)->state = 1;
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
 
     for (i = 0; i < 0x2FF; i++) {

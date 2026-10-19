@@ -21,10 +21,15 @@ extern u32 strcat();
 extern void* FldResource_Create(char* path);
 extern void func_003c21e0();
 extern void func_003ca270(void *object, void *callback, void *userdata);
-extern s32 kwlnTaskDestroyWithHierarchy(void *arg0);
+extern s32 kwlnTaskDestroyWithHierarchy(void *object);
 extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
 extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 struct RpGeometry;
+/* RpAtomic prefix: geometry is the pointer at 0x18 consumed by the material iterator. */
+typedef struct FldRcAtomic {
+    u8 pad00[0x18];
+    struct RpGeometry *geometry;
+} FldRcAtomic;
 struct RpMaterial;
 extern struct RpMaterial *FldRcMaterialSetMipmapTex(struct RpMaterial *material, void *data);
 extern u8 *iGpffffb590;
@@ -32,6 +37,7 @@ extern void *RpClumpForAllAtomics(void *object, KClumpCallback callback, void *d
 
 
 
+/* Build the field resource path from the current root and the two numeric IDs. */
 // FUN_00150890
 void* FldRc_CreateResource(s16 majorId, s16 minorId)
 {
@@ -53,13 +59,15 @@ void* FldRc_CreateResource(s16 majorId, s16 minorId)
     strcat(path, (const char*)&gp0xffff9e08 - 0x61f8);
     return FldResource_Create(path);
 }
+/* Visit every material in the atomic geometry and assign its mipmap texture. */
 // FUN_0018C680
 void *FldRc_ReplaceGeometryTextures(void *object, void *data)
 {
-    u8 *arg0 = object;
-    func_003c21e0(*(struct RpGeometry **)(arg0 + 0x18), FldRcMaterialSetMipmapTex, data);
+    u8 *atomic = object;
+    func_003c21e0(((FldRcAtomic *)atomic)->geometry, FldRcMaterialSetMipmapTex, data);
     return object;
 }
+/* Destroy the cached field-resource task and clear its cache pointer. */
 // FUN_002E7870
 void FldRc_ReleaseCachedObject(void) {
     u8 *g = iGpffffb590;
@@ -71,36 +79,37 @@ void FldRc_ReleaseCachedObject(void) {
 }
 /* Measured callback-wrapper idiom: preserve the object in s0, move userdata to a2, and call the shared iterator with the object field and callback. */
 // FUN_00458C40
-void *FldRc_ScaleGeometryColors(void *object, void *arg1)
+void *FldRc_ScaleGeometryColors(void *object, void *scale)
 {
-    u8 *arg0 = object;
-    func_003c21e0(*(s32 *)(arg0 + 0x18), K_ClumpMatColorScale, arg1);
+    u8 *atomic = object;
+    func_003c21e0((s32)((FldRcAtomic *)atomic)->geometry, K_ClumpMatColorScale, scale);
     return object;
 }
 // FUN_00458C80
-void FldRc_ScaleClumpColors(void *arg0, void *arg1)
+void FldRc_ScaleClumpColors(void *object, void *scale)
 {
-    RpClumpForAllAtomics(arg0, FldRc_ScaleGeometryColors, arg1);
+    RpClumpForAllAtomics(object, FldRc_ScaleGeometryColors, scale);
 }
 // FUN_00458CB0
-void FldRc_ScaleObjectColors(void *arg0, void *arg1)
+void FldRc_ScaleObjectColors(void *object, void *scale)
 {
-    func_003ca270(arg0, K_ClumpMatColorScale, arg1);
+    func_003ca270(object, K_ClumpMatColorScale, scale);
 }
+/* Apply the supplied material-property vector to every material in the atomic geometry. */
 // FUN_00458F00
-void *FldRc_SetGeometryVector(void *object, void *arg1)
+void *FldRc_SetGeometryVector(void *object, void *scale)
 {
-    u8 *arg0 = object;
-    func_003c21e0(*(s32 *)(arg0 + 0x18), K_ClumpMatPropScale, arg1);
+    u8 *atomic = object;
+    func_003c21e0((s32)((FldRcAtomic *)atomic)->geometry, K_ClumpMatPropScale, scale);
     return object;
 }
 // FUN_00458F40
-void FldRc_SetClumpVector(void *arg0, void *arg1)
+void FldRc_SetClumpVector(void *object, void *scale)
 {
-    RpClumpForAllAtomics(arg0, FldRc_SetGeometryVector, arg1);
+    RpClumpForAllAtomics(object, FldRc_SetGeometryVector, scale);
 }
 // FUN_00458F70
-void FldRc_SetObjectVector(void *arg0, void *arg1)
+void FldRc_SetObjectVector(void *object, void *scale)
 {
-    func_003ca270(arg0, K_ClumpMatPropScale, arg1);
+    func_003ca270(object, K_ClumpMatPropScale, scale);
 }
