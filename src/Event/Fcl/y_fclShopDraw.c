@@ -333,7 +333,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern void fclShopDrawScrollThumb(void *);
     extern s8 fclObjHasStatusFlags(void *);
     extern s32 sdkSndStartStream(s16, s16, s16, s16);
-    extern s32 func_0046a750(s32);
+    extern s32 hMaestroDecodeIsReady(s32);
     extern u8 D_0063FAA0[];
     extern u8 D_0063FAD0[];
     extern u8 D_00795FE0[];
@@ -884,7 +884,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         (*(s8 *)(work + 0)) = 0xA;
         /* fallthrough */
     case 0xA:                                       /* switch 1 */
-        if ((func_0046a750((*fclShopSpriteResource(work))) != 0) && (H_Cdvd_IsFileLoaded((*fclShopLoadedFile(work))) != 0)) {
+        if ((hMaestroDecodeIsReady((*fclShopSpriteResource(work))) != 0) && (H_Cdvd_IsFileLoaded((*fclShopLoadedFile(work))) != 0)) {
             (*(s8 *)(work + 0)) = 0xB;
             (*(s8 *)(work + 0xF30)) = 1;
             for (var_16 = 0; var_16 < 0x91; var_16++) {

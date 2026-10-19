@@ -143,7 +143,7 @@ extern void sdkSndInit(void);
 extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
 extern void func_0045b430(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
-extern void func_00463520(void);
+extern void hMaestroCreateServicesTask(void);
 extern void func_00466680(void);
 extern void sdkSetActiveHandle(s32 arg0);
 extern void mdlResetModelTable(s32 arg0);
@@ -307,7 +307,7 @@ void kwlnInitSubsystems(void)
     cldSchedulerInit();
     mainDrawStartClearOt();
     mainDrawStartFrame();
-    func_00463520();
+    hMaestroCreateServicesTask();
     sequenceCreate();
     FldFilterLoadFile();
     loadingSpinnerTaskCreate();

@@ -30,7 +30,7 @@ typedef struct HSfdDecodeSlot
 extern HSfdDecodeSlot sSfdDecodeSlots_abs[];
 
 // FUN_0046A750
-u32 func_0046a750(s16* param_1)
+u32 hMaestroDecodeIsReady(s16* state)
 {
-    return *param_1 == 5;
+    return *state == 5;
 }

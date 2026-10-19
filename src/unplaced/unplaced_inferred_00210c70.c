@@ -34,7 +34,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void PrimAppendNode(void *arg0, void *arg1);
 extern u8 D_00796340[];
-extern s32 func_0046a750(s32 arg0);
+extern s32 hMaestroDecodeIsReady(s32 arg0);
 extern u8 *iGpffffb3c4;
 extern s32 sdkSpriteRequestLoad(void *arg0);
 extern u8 D_00626C30[];
@@ -1137,7 +1137,7 @@ s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
     case 0:
         goto block_14;
     case 1:
-        if (func_0046a750(*(s32 *)(temp_2 + 4)) != 0) {
+        if (hMaestroDecodeIsReady(*(s32 *)(temp_2 + 4)) != 0) {
             *(s16 *)(temp_2 + 0) = 2;
         }
         goto block_14;

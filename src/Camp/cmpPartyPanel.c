@@ -25,7 +25,7 @@ u8* kwlnGetCamera(void);
 s16 datBuildPartyIdList(s16* dst);
 u8 *sdkSpriteRequestLoad(const char *name);
 s32 sprintf(char *dst, const char *format, ...);
-u32 func_0046a750(s16 *node);
+u32 hMaestroDecodeIsReady(s16 *node);
 void PrimAppendNode(u8 *list, u8 *node);
 extern u8 D_0064E2A0[];
 extern u8 D_0064E2C0[];
@@ -312,7 +312,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
         break;
     }
     case 1:
-        if (func_0046a750((s16 *)work->sprite) == 0) {
+        if (hMaestroDecodeIsReady((s16 *)work->sprite) == 0) {
             break;
         }
         work->state = 2;
@@ -321,7 +321,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
         s32 i = 0;
         ready = 0;
         for (; i < work->count; i++) {
-            if (func_0046a750((s16 *)work->rows[i].sprite) != 0) {
+            if (hMaestroDecodeIsReady((s16 *)work->rows[i].sprite) != 0) {
                 work->rows[i].ready = 1;
                 ready++;
             }

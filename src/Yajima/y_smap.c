@@ -64,7 +64,7 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void PrimAppendNode(void *param, void *work);
 extern void func_00440b68();
 extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
-extern s32 func_0046a750(s32 param);
+extern s32 hMaestroDecodeIsReady(s32 param);
 extern s32 sdkSpriteRequestLoad(const u8 *name);
 extern void sdkSpriteFreeNode(void *node);
 extern void kAssertFail(void *msg, s32 id);
@@ -215,7 +215,7 @@ s32 smapLoadStep(u8 *task) {
         *(s8 *)(work + 4) += 1;
         break;
     case 1:
-        if (func_0046a750(D_00764640) != 0 && func_0046a750(D_00764644) != 0) {
+        if (hMaestroDecodeIsReady(D_00764640) != 0 && hMaestroDecodeIsReady(D_00764644) != 0) {
             *(s8 *)(work + 4) += 1;
         }
         break;

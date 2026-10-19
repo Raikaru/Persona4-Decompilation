@@ -58,7 +58,7 @@ void cldDayChangeDrawPolygon(s32 value, s32 option1, f32 floatValue, u32 option2
 s32 sprintf(char *buf, const char *fmt, ...);
 u8 *H_Cdvd_LookupRequest(void *value, u32 *option1);
 u8 *sdkSpriteRequestLoad(const char *name);
-s32 func_0046a750(s32 param);
+s32 hMaestroDecodeIsReady(s32 param);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern u8 D_006376F0[];
 void PrimDrawFlatRectangle(u8 *value, f32 *option1, f32 floatValue, s32 option2);
@@ -129,7 +129,7 @@ s32 cldDayChangeUpdateState(u8 *task) {
         }
         break;
     case 3:
-        if (func_0046a750(work->sprites) != 0) {
+        if (hMaestroDecodeIsReady(work->sprites) != 0) {
             work->state = 4;
             work->flags |= 4;
         }

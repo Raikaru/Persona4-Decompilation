@@ -210,7 +210,7 @@ void evtMessageWindowUpdate(int *object)
     case 4:
       windowState = itfMesWindowGetAnim(windowOrResultSlot);
       if (windowState < 0) {
-        result = func_00278260(windowOrResultSlot);
+        result = itfMesWindowGetCursor(windowOrResultSlot);
         windowOrResultSlot = object[6];
         if ((windowOrResultSlot >= 0) && (windowOrResultSlot < 10)) {
           evtResultSet(windowOrResultSlot, result);

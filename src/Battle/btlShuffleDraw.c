@@ -93,7 +93,7 @@ extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
 extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
 extern void pscResBuildMiscCardW00(u8 *data);
-extern u32 func_0046a750(s16 *sprite);
+extern u32 hMaestroDecodeIsReady(s16 *sprite);
 extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
 extern void btlShuffleDrawTrail(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, u8 *arg3);
 extern f32 btlShuffleDrawWaveScale(u8 *arg0, s32 arg1);
@@ -330,7 +330,7 @@ s32 btlShuffleDrawLoadBlob(u8 *work)
         s32 val;
         for (spriteIndex = 0; spriteIndex < 3; spriteIndex++) {
             val = *(s32 *)(work + spriteIndex * 4 + 0x1F2AC);
-            if ((val != 0) && (func_0046a750(*(s16 **)(work + spriteIndex * 4 + 0x1F2AC)) == 0)) {
+            if ((val != 0) && (hMaestroDecodeIsReady(*(s16 **)(work + spriteIndex * 4 + 0x1F2AC)) == 0)) {
                 return 0;
             }
         }

@@ -46,7 +46,7 @@ extern u8* func_003e9700(u8* a);
 extern void func_003d5840(void* a, void* b);
 extern u8* func_003d5790(s32 numNodes, s32 maxInterpKeyFrameSize);
 extern s32 func_003d5e40(u8* a, f32 b);
-extern void func_004633c0(void* clump, void* hierarchy);
+extern void hMaestroUpdateClumpObjects(void* clump, void* hierarchy);
 
 typedef struct RtAnimAnimation RtAnimAnimation;
 
@@ -1694,7 +1694,7 @@ void mdlAttachSlotHierarchy(u8 *arg0, u8 *arg1, s32 arg2)
     RpClumpForAllAtomics(arg1, mdlSetAtomicHierarchy, selected);
     if (arg2 != 0)
         RpClumpForAllAtomics(arg1, mdlSetupAtomicMatFX, *frame);
-    func_004633c0(arg1, model->hierarchy);
+    hMaestroUpdateClumpObjects(arg1, model->hierarchy);
     model->hierarchy->flags |= 0x3000;
     if (model->source != 0 && model->source->animation != 0) {
         model->first = (RtAnimInterpolator *)func_003d5790(
@@ -4648,7 +4648,7 @@ void mdlDestroyModelObject(u8* param_1)
         }
     }
     if (*(void**)(param_1 + 0xE0) != 0) {
-        func_00462bf0(*(void**)(param_1 + 0xE0));
+        hMaestroFreeListSet(*(void**)(param_1 + 0xE0));
     }
     for (i = 0; i < 5; i++) {
         if ((*(u8*)(param_1 + i * 0xC + 0x28C) & 1) != 0 &&
