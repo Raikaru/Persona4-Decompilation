@@ -114,7 +114,10 @@ Each function belongs to one source file and retains its
 from the denominator, or split a real translation unit to obtain an isolated
 match.
 
-For evidence-backed name changes, edit `config/symbol_names*.txt`, then run:
+For evidence-backed name changes, edit `config/symbol_names*.txt`. A name
+supported only by the function's behaviour goes in
+`config/symbol_names.inferred.txt` as `evidence: inferred: <behaviour>`
+(see [the source rules](docs/STYLE.md#naming-and-types)). Then run:
 
 ```sh
 make reconcile
