@@ -166,7 +166,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern void func_004b1250(void *object, f32 *position);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
@@ -939,7 +939,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*characterEntry + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(void **)(*characterEntry + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                        mdlEffectSetChildPositionVec(*(void **)(*characterEntry + attachmentIndex * 4 + 0x140), (f32 *)&pos);
                         func_004b11d0(D_005DC824, *(void **)(*characterEntry + attachmentIndex * 4 + 0x140));
                     }
                 }
@@ -999,7 +999,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(npcResources + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(void **)(npcResources + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                        mdlEffectSetChildPositionVec(*(void **)(npcResources + attachmentIndex * 4 + 0x140), (f32 *)&pos);
                         func_004b11d0(D_005DC824, *(void **)(npcResources + attachmentIndex * 4 + 0x140));
                     }
                 }
@@ -1034,7 +1034,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                                     pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(resource + 0x164)) + 0x30);
                                     pos.y += 175.0f;
                                 }
-                                func_004b1250(*(void **)(resource + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                                mdlEffectSetChildPositionVec(*(void **)(resource + attachmentIndex * 4 + 0x140), (f32 *)&pos);
                                 func_004b11d0(D_005DC824, *(void **)(resource + attachmentIndex * 4 + 0x140));
                             }
                         }
@@ -1118,7 +1118,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*(u8 **)entryCursor + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(void **)(*(u8 **)entryCursor + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                        mdlEffectSetChildPositionVec(*(void **)(*(u8 **)entryCursor + attachmentIndex * 4 + 0x140), (f32 *)&pos);
                     }
                 }
             }
@@ -1140,7 +1140,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                             pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(translucentNpcs[sortedIndex] + 0x164)) + 0x30);
                             pos.y += 175.0f;
                         }
-                        func_004b1250(*(void **)(translucentNpcs[sortedIndex] + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                        mdlEffectSetChildPositionVec(*(void **)(translucentNpcs[sortedIndex] + attachmentIndex * 4 + 0x140), (f32 *)&pos);
                     }
                 }
             }

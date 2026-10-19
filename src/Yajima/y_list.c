@@ -365,7 +365,7 @@ void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
         for (i = 0; i < 0x600; i++) {
             accepted = yListAcceptsItem(iGpffffb58c, i);
             if (accepted == 1) {
-                category = (s16)func_002be1b0(i);
+                category = (s16)datEntryEvaluateFlags(i);
                 if ((category != 0x10) && (category != 0x11) && (category != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
                         value = (s32)(datItemMoonGateFirst(i) & 0xFFF00) >> 8;
@@ -536,7 +536,7 @@ void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
         for (i = 0; i < 0x600; i++) {
             accepted = yListAcceptsItem(task, i);
             if (accepted == 1) {
-                category = (s16)func_002be1b0(i);
+                category = (s16)datEntryEvaluateFlags(i);
                 if ((category != 0x10) && (category != 0x11) && (category != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
                         value = (s32)(datItemMoonGateFirst(i) & 0xFFF00) >> 8;

@@ -911,7 +911,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
     void *memset(void *, s32, size_t);
     void datEntryDrawGatedByFlag39(s32, s32, s32, s32);
     void hFadeTaskStart(s16);
-    s32 func_001fc270(void);
+    s32 mdlEffectReturnSuccess(void);
     s32 FldSupporterTaskCreate(s32);
     void datSetUnitHp(s16, s16);
     void datCalcClearBadStatusById(s16, u32);
@@ -1229,7 +1229,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
             }
             goto running;
         case 5:
-            if (func_001fc270() != 0) {
+            if (mdlEffectReturnSuccess() != 0) {
                 work->viewColor = *(FldEventColor *)kwlnGetColorRgb();
                 work->environmentColor.r = iGpffffba4c;
                 work->environmentColor.g = iGpffffba50;

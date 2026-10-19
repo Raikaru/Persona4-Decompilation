@@ -9,8 +9,8 @@
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
 extern void func_004b1a00(u8 *arg0, u8 *arg1);
-extern s32 func_00481e30(s32 arg0);
-extern void func_00481ee0(s32 arg0);
+extern s32 mdlEffectShareTrackInstance(s32 arg0);
+extern void mdlEffectReleaseTrackInstance(s32 arg0);
 extern void TlpRelease(s32 arg0);
 extern s32 TlpAddRef(s32 arg0);
 // FUN_004B1A00
@@ -21,9 +21,9 @@ void func_004b1a00(u8 *arg0, u8 *arg1) {
     if (*(s32 *)(arg1 + 0xAC) != 0) {
         temp_4 = *(s32 *)(arg0 + 0xAC);
         if (temp_4 != 0) {
-            func_00481ee0(temp_4);
+            mdlEffectReleaseTrackInstance(temp_4);
         }
-        *(s32 *)(arg0 + 0xAC) = func_00481e30(*(s32 *)(arg1 + 0xAC));
+        *(s32 *)(arg0 + 0xAC) = mdlEffectShareTrackInstance(*(s32 *)(arg1 + 0xAC));
         return;
     }
     if (*(s32 *)(arg1 + 0xA8) != 0) {

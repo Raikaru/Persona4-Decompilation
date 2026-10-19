@@ -120,8 +120,10 @@ extern s32 func_001f0ff0(u32 arg0);
 #pragma pop
 #pragma push
 #pragma pop
+/* Constant success result; no state is inspected or changed. */
+/* Returns the constant success value 1 without changing state. */
 // FUN_001FC270
-s32 func_001fc270(void)
+s32 mdlEffectReturnSuccess(void)
 {
     return 1;
 }

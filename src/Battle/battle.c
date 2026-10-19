@@ -34,7 +34,7 @@ extern void func_003e8110(s32 arg0);
 extern u8 D_007940C0[];
 extern u8 D_00794120[];
 
-extern u32 func_001fc270(void);
+extern u32 mdlEffectReturnSuccess(void);
 
 typedef BtlBattleState Battle;
 
@@ -145,7 +145,7 @@ u32 btlScriptHasCmdTimer(void)
 {
     if (scrGetCmdTimer() > 0)
     {
-        return func_001fc270() != 0;
+        return mdlEffectReturnSuccess() != 0;
     }
 
     return 0;

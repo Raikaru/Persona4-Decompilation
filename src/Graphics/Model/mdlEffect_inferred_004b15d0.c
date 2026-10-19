@@ -18,7 +18,7 @@ extern s32 (*iGpffffbba4)(void);
 extern s32 iGpffffbb98;
 extern s32 iGpffffbb94;
 extern s32 D_00922DA0[];
-extern void func_004a7a50(void);
+extern void mdlEffectResetSequenceFrame(void);
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
@@ -62,7 +62,7 @@ extern void (*jtbl_008873EC[])(void *);
 // FUN_004B15D0
 void mdlEffectSeqStop(void)
 {
-    func_004a7a50();
+    mdlEffectResetSequenceFrame();
     iGpffffbb98 = 0;
 }
 

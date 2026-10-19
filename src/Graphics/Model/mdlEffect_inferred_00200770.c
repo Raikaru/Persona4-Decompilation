@@ -4,6 +4,8 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
+#include "btl_unit_internal.h"
 #include "btl_packet_create_internal.h"
 typedef struct BtlPacket BtlPacket;
 #include "btl_skill_internal.h"
@@ -93,7 +95,7 @@ extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
-extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
+extern void btlCameraSetState(s32 state, BtlAction *action, u32 flags);
 extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
 extern u8 *btlActionFindByUnit(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
@@ -117,7 +119,7 @@ extern u8 D_006253B0[];
 
 // Intent: advance the battle model curve and update the model matrix from the curve state. [inferred]
 // FUN_00200770
-void btlUiUpdateModelCurve(u8 *arg0)
+void btlUiUpdateModelCurve(u8 *command)
 {
     typedef struct {
         f32 x;
@@ -125,67 +127,68 @@ void btlUiUpdateModelCurve(u8 *arg0)
         f32 z;
     } Vec3;
     typedef struct {
-        Vec3 sp40;
-        Vec3 sp4C;
+        Vec3 anchorPosition;
+        Vec3 anchorRotation;
         u8 pad18[8];
-        u8 sp60[0x10];
-        u8 sp70[0x20];
-        u8 sp90[0x40];
-        u8 spD0[0x10];
-        u8 spE0[0x40];
-        Vec3 sp120;
+        u8 firstMatrix[0x10];
+        u8 basisScratch[0x20];
+        u8 secondMatrix[0x40];
+        u8 rotationScratch[0x10];
+        u8 modelMatrix[0x40];
+        Vec3 scaleOrPosition;
     } Frame;
-    extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
+    extern void btlCameraSetupActionGeometry(u8 *model, u8 *target, f32 *position, f32 command, u16 flags);
     extern u16 btlCameraGetState(void);
-    extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-    extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-    extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
+    extern void mdlEffectBuildBasisRows(void *command, void *model);
+    extern void mdlApplyModelMatrix(void *command, void *model, s32 target);
+    extern void mdlScale(void *command, f32 *model, s32 target);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-    extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-    extern void mdlAdvanceModelFromFlags(void *arg0);
-    extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
-    extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-    extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
+    extern void mdlSetLayerWeight(void *command, s32 model, f32 target);
+    extern void mdlAdvanceModelFromFlags(void *command);
+    extern s32 mdlCopyIndexedMatrix(void *command, s32 model, void *target);
+    extern void btlCameraLookAtQuat(void *command, const void *model, const void *target, const void *position);
+    extern void btlMainCurveReset(u16 *command, f32 *model);
     extern u8 *iGpffffb474;
     Frame frame;
-    u8 *temp_17;
-    u8 *temp_16;
-    u32 temp_4;
-    u32 temp_3;
-    f32 temp_f0;
+    u8 *modelReference;
+    u8 *parameters;
+    u32 elapsedFrame;
+    u32 duration;
+    f32 scale;
 
-    temp_17 = *(u8 **)(arg0 + 0x30);
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_4 = *(u32 *)(arg0 + 0x28);
-    temp_3 = *(u32 *)(temp_16 + 0x2C);
-    if ((temp_3 >= temp_4) || (temp_3 == 0)) {
-        if (temp_4 == 0) {
-            if (*(u16 *)(temp_16 + 0x38) == 0) {
+    modelReference = ((MdlEffectCommand *)command)->object;
+    parameters = ((MdlEffectCommand *)command)->parameters;
+    elapsedFrame = ((MdlEffectCommand *)command)->counter;
+    duration = ((MdlEffectModelCurve *)parameters)->duration;
+    if ((duration >= elapsedFrame) || (duration == 0)) {
+        if (elapsedFrame == 0) {
+            if (((MdlEffectModelCurve *)parameters)->cameraMode == 0) {
                 btlCameraSetState(1, NULL, 1);
                 btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 0x100);
             } else {
                 btlCameraSetState(1, NULL, 0);
             }
         }
-        if (((btlCameraGetState() & 0xFFFF) == 1) && (*(s32 *)temp_17 != 0)) {
-            mdlEffectBuildBasisRows(frame.spE0, arg0 + 0x10);
-            mdlApplyModelMatrix(*(u8 **)temp_17, frame.spE0, 0);
-            temp_f0 = *(f32 *)(arg0 + 0x20) * *(f32 *)(temp_16 + 0x34);
-            frame.sp120.z = temp_f0;
-            frame.sp120.y = temp_f0;
-            frame.sp120.x = temp_f0;
-            mdlScale(*(u8 **)temp_17, &frame.sp120.x, 2);
-            frame.sp120.x = *(f32 *)(arg0 + 0);
-            frame.sp120.y = *(f32 *)(arg0 + 4);
-            frame.sp120.z = *(f32 *)(arg0 + 8);
-            mdlTranslateMatrix((RwMatrix *)*(u8 **)temp_17, (const RwV3d *)&frame.sp120, 2);
-            mdlSetLayerWeight(*(u8 **)temp_17, 0, *(f32 *)(temp_16 + 0x30));
-            mdlAdvanceModelFromFlags(*(u8 **)temp_17);
-            mdlCopyIndexedMatrix(*(u8 **)temp_17, *(u16 *)(temp_17 + 4), frame.sp60);
-            mdlCopyIndexedMatrix(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
-            frame.sp40 = *(Vec3 *)frame.sp90;
-            btlCameraLookAtQuat(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
-            btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.sp40));
+        if (((btlCameraGetState() & 0xFFFF) == 1) && (*(s32 *)modelReference != 0)) {
+            mdlEffectBuildBasisRows(frame.modelMatrix, command + 0x10);
+            mdlApplyModelMatrix(*(u8 **)modelReference, frame.modelMatrix, 0);
+            scale = ((MdlEffectCommand *)command)->scale * ((MdlEffectModelCurve *)parameters)->scale;
+            frame.scaleOrPosition.z = scale;
+            frame.scaleOrPosition.y = scale;
+            frame.scaleOrPosition.x = scale;
+            mdlScale(*(u8 **)modelReference, &frame.scaleOrPosition.x, 2);
+            frame.scaleOrPosition.x = ((MdlEffectCommand *)command)->position[0];
+            frame.scaleOrPosition.y = ((MdlEffectCommand *)command)->position[1];
+            frame.scaleOrPosition.z = ((MdlEffectCommand *)command)->position[2];
+            mdlTranslateMatrix((RwMatrix *)*(u8 **)modelReference, (const RwV3d *)&frame.scaleOrPosition, 2);
+            mdlSetLayerWeight(*(u8 **)modelReference, 0, ((MdlEffectModelCurve *)parameters)->layerWeight);
+            mdlAdvanceModelFromFlags(*(u8 **)modelReference);
+            mdlCopyIndexedMatrix(*(u8 **)modelReference, ((MdlEffectModelReference *)modelReference)->matrixIndex, frame.firstMatrix);
+            /* measured: typing this second index load changes instruction bytes; +4 is matrixIndex. */
+            mdlCopyIndexedMatrix(*(u8 **)modelReference, *(u16 *)(modelReference + 4) + 1, frame.secondMatrix + 0x10);
+            frame.anchorPosition = *(Vec3 *)frame.secondMatrix;
+            btlCameraLookAtQuat(&frame.anchorRotation, frame.secondMatrix, frame.rotationScratch, frame.basisScratch);
+            btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.anchorPosition));
         }
     }
 }
@@ -193,60 +196,61 @@ void btlUiUpdateModelCurve(u8 *arg0)
 // Intent: reset the overlay scale field to its default value. [inferred]
 // FUN_00200960
 void btlUiResetOverlayScale(void) {
-    *(f32 *)(D_0076449C + 0xDC) = fGpffff8184;
+    ((MdlEffectUiState *)D_0076449C)->overlayScale = fGpffff8184;
 }
 
 /* measured: clean-C body is byte-exact in the current TU (object/window 208B, normalized_diff 0). */
 // Intent: set the overlay scale from the progress ratio of the current and total counters. [inferred]
 // FUN_00200980
-void btlUiUpdateOverlayScale(u8 *arg0)
+void btlUiUpdateOverlayScale(u8 *command)
 {
-    s32 temp_3;
-    s32 temp_5;
-    u8 *temp_6;
-    f32 var_f1;
-    f32 var_f0;
-    f32 temp_f2;
+    s32 frame;
+    s32 duration;
+    u8 *parameters;
+    f32 progress;
+    f32 scaleDelta;
+    f32 startScale;
 
-    temp_6 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)(arg0 + 0x28);
-    temp_5 = *(s32 *)(temp_6 + 0);
-    if ((temp_5 == 0) || ((u32)temp_5 < (u32)temp_3)) return;
-    temp_f2 = *(f32 *)(temp_6 + 4);
-    var_f1 = (f32)(u32)temp_3;
-    var_f0 = (f32)(u32)temp_5;
-    var_f1 /= var_f0;
-    var_f0 = *(f32 *)(temp_6 + 8) - temp_f2;
-    var_f0 = func_0020_mul(var_f1, var_f0);
-    var_f1 = var_f0 + temp_f2;
-    *(f32 *)(D_0076449C + 0xDC) = fGpffff81a8 * var_f1;
+    parameters = ((MdlEffectCommand *)command)->parameters;
+    frame = ((MdlEffectCommand *)command)->counter;
+    duration = ((MdlEffectOverlayScale *)parameters)->duration;
+    if ((duration == 0) || ((u32)duration < (u32)frame)) return;
+    startScale = ((MdlEffectOverlayScale *)parameters)->startScale;
+    progress = (f32)(u32)frame;
+    scaleDelta = (f32)(u32)duration;
+    progress /= scaleDelta;
+    scaleDelta = ((MdlEffectOverlayScale *)parameters)->endScale - startScale;
+    scaleDelta = func_0020_mul(progress, scaleDelta);
+    progress = scaleDelta + startScale;
+    ((MdlEffectUiState *)D_0076449C)->overlayScale = fGpffff81a8 * progress;
 }
 
+/* Empty callback; it does not inspect or change state. */
 // FUN_00200A50
-void func_00200a50(void)
+void btlUiNoOperation(void)
 {
 }
 
 // Intent: re-apply position and rotation to the living units of both sides. [inferred]
 // FUN_00200A60
-void btlUiRefreshUnitPositions(u8 *arg0)
+void btlUiRefreshUnitPositions(u8 *command)
 {
-    u8 sp40[0x10];
-    u8 sp30[0x10];
-    s32 temp_4;
-    s32 temp_4_2;
-    u32 var_16;
-    u8 *temp_16;
-    u8 *var_17;
+    u8 position[0x10];
+    u8 rotation[0x10];
+    s32 cameraMode;
+    s32 datUnit;
+    u32 sideIndex;
+    u8 *parameters;
+    u8 *unit;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(arg0 + 0x28) != 0) {
-        goto done;
+    parameters = ((MdlEffectCommand *)command)->parameters;
+    if (((MdlEffectCommand *)command)->counter != 0) {
+        return;
     }
     btlCameraSetState(1, NULL, 1);
     btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 0x100);
-    temp_4 = *(s32 *)(temp_16 + 0);
-    switch (temp_4) {
+    cameraMode = ((MdlEffectUnitRefresh *)parameters)->cameraMode;
+    switch (cameraMode) {
     case 0:
         btlCameraSetState(0x2C, NULL, 1);
         break;
@@ -260,39 +264,30 @@ void btlUiRefreshUnitPositions(u8 *arg0)
         btlCameraSetState(6, (BtlAction *)btlActionFindByUnit(D_00881444_abs[0]), 1);
         break;
     }
-    if (*(u8 *)(temp_16 + 4) == 0) {
-        goto done;
+    if (((MdlEffectUnitRefresh *)parameters)->refreshUnits == 0) {
+        return;
     }
-    var_16 = 0;
-    goto loop_19_test;
-loop_19_body:
-    var_17 = *(u8 **)(iGpffffb3ac + var_16 * 8 + 0x178);
-    goto loop_17_test;
-loop_17_body:
-    temp_4_2 = *(s32 *)(var_17 + 0xA64);
-    if ((temp_4_2 != 0) && (datCalcIsDead(temp_4_2, 0) == 0)) {
-        btlUnitGetAnchorPose(var_17, sp40, sp30, NULL);
-        btlUnitSetPos(var_17, sp40);
-        btlUnitSetRot(var_17, sp30);
-        btlUnitUpdateStatusMotion(var_17, 0);
-        btlUnitSetMotion(var_17, *(s16 *)(var_17 + 0x9EC), 0, *(f32 *)(var_17 + 0x9F0), *(s8 *)(var_17 + 0x9F4));
+    sideIndex = 0;
+    while (sideIndex < 2U) {
+        unit = ((MdlEffectBattleState *)iGpffffb3ac)->sides[sideIndex].head;
+        while (unit != NULL) {
+            datUnit = (s32)((BtlUnit *)unit)->datUnit;
+            if ((datUnit != 0) && (datCalcIsDead(datUnit, 0) == 0)) {
+                btlUnitGetAnchorPose(unit, position, rotation, NULL);
+                btlUnitSetPos(unit, position);
+                btlUnitSetRot(unit, rotation);
+                btlUnitUpdateStatusMotion(unit, 0);
+                btlUnitSetMotion(unit, ((BtlUnit *)unit)->restMotion, 0, ((BtlUnit *)unit)->restRate, ((BtlUnit *)unit)->restOption);
+            }
+            unit = (u8 *)((BtlUnit *)unit)->nextUnit;
+        }
+        sideIndex += 1;
     }
-    var_17 = *(u8 **)(var_17 + 0xA6C);
-loop_17_test:
-    if (var_17 != NULL) {
-        goto loop_17_body;
-    }
-    var_16 += 1;
-loop_19_test:
-    if (var_16 < 2U) {
-        goto loop_19_body;
-    }
-done:
-    ;
 }
 
+/* Stops controller rumble through datStopPadRumble. */
 // FUN_00200C50
-void func_00200c50(void)
+void btlUiStopPadRumble(void)
 {
     datStopPadRumble();
 }

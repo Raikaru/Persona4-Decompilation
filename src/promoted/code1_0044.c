@@ -47,7 +47,7 @@ s32 chkmemAllocate(u32);
 void chkmemFree(u8 *);
 s32 chkmemReallocate(void *, u32);
 s32 chkmemAllocZeroed(s32, s32);
-s32 func_0044f4d0(void);
+s32 chkmemGetCurrentTaskOwner(void);
 s32 func_00446108();
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -321,12 +321,13 @@ f32 __ieee754_sqrtf(f32 arg0);
 #pragma pop
 
 // Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
+/* Supplies the current task identifier to the memory-pool owner callback; zero means no task. */
 // FUN_0044F4D0
-s32 func_0044f4d0(void) {
-    s32 temp;
-    temp = kwlnTaskGetCurrent();
-    if (temp != 0) {
-        return temp;
+s32 chkmemGetCurrentTaskOwner(void) {
+    s32 currentTask;
+    currentTask = kwlnTaskGetCurrent();
+    if (currentTask != 0) {
+        return currentTask;
     }
     return 0;
 }

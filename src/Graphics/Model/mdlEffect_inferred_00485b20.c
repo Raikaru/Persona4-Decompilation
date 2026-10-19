@@ -58,7 +58,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00485b20-004865c0 */
 
-extern u_long128 func_00484b30(u8 *arg0);
+extern u_long128 mdlEffectInitParticleState(u8 *arg0);
 extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 static inline void model_normalize_packed_color(const u32 *source, f32 scale)
@@ -174,7 +174,7 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
     memset(clone, 0, 0x90);
     *(s32 *)(clone + 0x80) = 0;
     *(s32 *)(clone + 0x84) = 0;
-    func_00484b30(clone);
+    mdlEffectInitParticleState(clone);
     *(u_long128 *)clone = *(u_long128 *)arg0;
     *(u_long128 *)(clone + 0x10) = *(u_long128 *)(arg0 + 0x10);
     *(f32 *)(clone + 0x74) = *(f32 *)(arg0 + 0x74);
@@ -191,7 +191,7 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
         *(u8 *)(nodeClone + 0x88) = 8;
         *(u8 *)(nodeClone + 0x89) = 0;
         *(u8 *)(nodeClone + 0x8A) = 0;
-        func_00484b30(nodeClone);
+        mdlEffectInitParticleState(nodeClone);
         src = *(u8 **)(node + 0x90);
         if (*(u32 *)src > 0xD2) {
             kAssertFail(D_00713470, 0x318);

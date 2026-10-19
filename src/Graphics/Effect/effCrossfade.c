@@ -45,8 +45,8 @@ extern void kAssertFail(const char *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
 extern void func_004b2a00(u8 *object);
-extern s32 func_004b2780(u8 *object);
-extern void func_004b2e00(u8 *object);
+extern s32 effCrossfadeCaptureDisplay(u8 *object);
+extern void mdlEffectReleaseCameraTexture(u8 *object);
 extern s32 CrossfadeUpdate(u8 *object);
 extern void CrossfadeAdvance(u8 *object, u8 *value);
 extern u8 *func_003e84a0(void);
@@ -93,7 +93,7 @@ s32 CrossfadeUpdate(u8 *task) {
         work->frame = 0;
         /* fallthrough */
     case 2:
-        if (func_004b2780((u8 *)work) == 0) {
+        if (effCrossfadeCaptureDisplay((u8 *)work) == 0) {
             return 0;
         }
         work->state = 3;
@@ -108,7 +108,7 @@ s32 CrossfadeUpdate(u8 *task) {
     default:
         break;
     case 4:
-        func_004b2e00((u8 *)work);
+        mdlEffectReleaseCameraTexture((u8 *)work);
         work->state = 0;
         break;
     }
