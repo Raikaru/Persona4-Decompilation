@@ -1305,7 +1305,7 @@ extern void sprintf(void *dst, const char *fmt, ...);
 extern u8 *FldStepLoadFilePair(s32 arg0, s32 arg1);
 extern s32 FldStepLoadHandleIsDone(u8 *arg0);
 extern void FldStepLoadHandleDestroy(u8 *arg0);
-extern s32 func_0015c630(u8 *arg0);
+extern s32 fldStepLoadHandleAlwaysReady(u8 *arg0);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void FldTileRotateAttributes(void *arg0, u32 mask);
 typedef struct {

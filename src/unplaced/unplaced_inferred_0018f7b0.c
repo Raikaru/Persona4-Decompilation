@@ -98,7 +98,7 @@ extern void sprintf(void *dst, const char *fmt, ...);
 extern u8 *FldStepLoadFilePair(s32 firstId, s32 secondId);
 extern s32 FldStepLoadHandleIsDone(u8 *work);
 extern void FldStepLoadHandleDestroy(u8 *work);
-extern s32 func_0015c630(u8 *work);
+extern s32 fldStepLoadHandleAlwaysReady(u8 *work);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void FldTileRotateAttributes(void *shape, u32 mask);
 typedef struct {
@@ -222,7 +222,7 @@ s32 K_MapEditTask(u8 *task)
         } else if (D_008C0240[0].trigger & 0x20) {
             FldMapTestCellsClear(work, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4));
         } else if (D_008C0240[1].trigger & 0x40) {
-            func_0015c630(work + 0x28);
+            fldStepLoadHandleAlwaysReady(work + 0x28);
         }
         board = boardColor;
         FldRc_QueueScreenQuad(D_007966D0, work + 0x1870, 80.0f, 6.0f, 0.0f, 288.0f, 432.0f,
