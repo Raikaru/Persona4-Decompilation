@@ -4,6 +4,16 @@
 #include "type.h"
 #include "rw_geometry_internal.h"
 
+typedef struct EffMeshColor {
+    u8 c[4];
+} EffMeshColor;
+
+/* Native RpMaterial prefix: texture pointer followed by four color bytes. */
+typedef struct RpMaterial {
+    void *texture;
+    EffMeshColor color;
+} RpMaterial;
+
 /* Native RenderWare prefixes from rw/sky2/rpworld.h. The SDK header itself
  * requires unavailable system headers; retain only the fields used by effects. */
 typedef struct RpMorphTarget {

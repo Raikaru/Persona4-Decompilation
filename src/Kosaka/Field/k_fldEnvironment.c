@@ -55,7 +55,7 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern void FldCameraAdvanceCurve();
 extern void FldFrame_SetViewOffset(s32 , void *);
 extern void FldFrame_SetViewDistance(s32 , f32 );
-extern void func_0016ea30(s32 , f32 );
+extern void fldCameraSetFollowHeight(s32 , f32 );
 extern void FldFrame_SetSlotVector(s32 , s32 , void *);
 extern u8 *FldFrame_GetSlotBuffer(s32 );
 extern void FldCameraUpdateLookAt(s32 );
@@ -731,7 +731,7 @@ s32 FldCamReadRecord(u8 *file, u8 *cameraMatrixOut, u8 *slotMatrixOut, f32 *fovO
         FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(u16 *)(data + 0x50));
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], data + 0x54);
         FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x60));
-        func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x64));
+        fldCameraSetFollowHeight(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x64));
         for (i = 0; i < 0x20; i++) {
             id = *(s8 *)(data + 0x68 + i);
             if (id <= -1) {

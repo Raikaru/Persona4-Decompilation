@@ -7,9 +7,66 @@
 #include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "field_frame_internal.h"
+#include "field_scene_internal.h"
+#include "scene_resource_internal.h"
 #include "Kosaka/k_model_internal.h"
 
 typedef struct RwMatrix RwMatrix;
+
+/* FldCameraTaskCreate allocates 0x2d8 bytes; curve setup bounds keys at 32.
+ * Snapshot capture/apply establish the vector and distance fields below. */
+typedef struct FldCameraData {
+    s32 state;
+    s32 flags;
+    s32 mode;
+    s32 targetFrame;
+    s32 parentFrame;
+    RwV3d offset;
+    f32 radius;
+    f32 height;
+    s32 unk28;
+    s32 refreshCount;
+    s32 unk30;
+    s32 keyCount;
+    f32 segmentLength[32];
+    f32 pathTime;
+    f32 maximumTime;
+    f32 minimumTime;
+    RwV3d pathPosition;
+    RwV3d pathDirection;
+    u8 paddc[0x0c];
+    s8 slotValid[32];
+    RwV3d slotVector[32];
+    s32 targetResource;
+    f32 desiredDistance;
+    f32 minimumDistance;
+    f32 currentDistance;
+    s32 faded;
+    RwV3d anchor;
+    s32 fadeTask;
+    f32 remainingYaw;
+    RwV3d wallNormal;
+    s32 slotBuffer;
+    s32 matrix;
+    s32 cachedMatrix;
+    s32 cylinderTask;
+    s32 pathGroup;
+    s32 pathSphere;
+    s32 projectionSphere;
+} FldCameraData;
+typedef struct FldCameraTask {
+    u8 pad00[0x38];
+    u8 *data;
+} FldCameraTask;
+typedef struct FldCameraRotation {
+    s32 state;
+    s32 duration;
+    s32 elapsed;
+    f32 initialAngle;
+    f32 angle;
+    f32 previousSine;
+} FldCameraRotation;
+
 
 extern s32 iGpffff9ef8;
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
@@ -114,47 +171,37 @@ extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
 
 
-typedef struct F8060Frame
-{
-    RwV3d sp50;
-    RwV3d sp5c;
-    u8 pad68[8];
-    RwV3d sp70;
-    u8 pad7c[4];
-    RwV3d sp80;
-    u8 pad8c[4];
-    RwV3d sp90;
-} F8060Frame;
+
 
 extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
                          u16 arg2);
 
 
-typedef struct E8E0Frame
+typedef struct FldCameraAngleScratch
 {
-    s64 sp30;
-    f32 sp38;
+    s64 axisXY;
+    f32 axisZ;
     u8 pad3c[4];
-    u8 sp40[12];
+    u8 zeroPosition[12];
     u8 pad4c[4];
-    RwV3d sp50;
-} E8E0Frame;
-typedef struct EEE0Frame
+    RwV3d position;
+} FldCameraAngleScratch;
+typedef struct FldCameraRotationScratch
 {
-    s64 sp40;
-    f32 sp48;
+    s64 stepAxisXY;
+    f32 stepAxisZ;
     u8 pad4c[4];
-    u8 sp50[12];
+    u8 stepZero[12];
     u8 pad5c[4];
-    RwV3d sp60;
+    RwV3d stepPosition;
     u8 pad6c[4];
-    s64 sp70;
-    f32 sp78;
+    s64 initialAxisXY;
+    f32 initialAxisZ;
     u8 pad7c[4];
-    u8 sp80[12];
+    u8 initialZero[12];
     u8 pad8c[4];
-    RwV3d sp90;
-} EEE0Frame;
+    RwV3d initialPosition;
+} FldCameraRotationScratch;
 extern f32 sinf(f32 arg0);
 extern f32 iGpffff8094;
 
@@ -164,23 +211,23 @@ extern void RwMatrixOptimize(u8 *arg0, RwV3d *arg1);
 
 typedef signed __int128 s128;
 
-typedef struct F630Frame
+typedef struct FldCameraSnapshotScratch
 {
     u8 work[0x40];
-    f32 sp80;
-    s16 sp84;
+    f32 fov;
+    s16 mode;
     u8 pad86[2];
-    f32 sp88;
-    f32 sp8c;
-    f32 sp90;
-    f32 sp94;
-    f32 sp98;
-    f32 sp9c;
-    f32 spa0;
-    f32 spa4;
-    f32 spa8;
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
+    f32 radius;
+    f32 height;
+    f32 distance;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
     u32 reserved6c; /* Cleared and copied with the seven-quadword snapshot. */
-} __attribute__((aligned(16))) F630Frame;
+} __attribute__((aligned(16))) FldCameraSnapshotScratch;
 static inline f32 code1_0016_cvt(s32 value) {
     return (f32)value;
 }
@@ -246,9 +293,11 @@ extern f32 sqrtf(f32 x);
 /* Four real ray/intersection pairs keep each enumeration's callback state.
  * The resource selector shares the existing field selector's output contract.
  * Measured: 1324 retail instruction bytes and four zero alignment bytes. */
+/* Find the nearest field-world ray hit, checking neighboring grid cells before fallback models. */
 // FUN_0016B8A0
 s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
 {
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
     typedef struct FldRayLine
     {
         RwV3d point[2];
@@ -266,7 +315,7 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
         f32 nearest;
         void *obj;
     } FldRayContext;
-    extern u8 *MT_Scene_GetResListHead(s32 arg0);
+    extern u8 *MT_Scene_GetResListHead(s32 task);
     extern s32 FldMap_IsCurrentInEitherBand(void);
     extern s32* MT_Scene_GetFrameState(void);
     extern void *FldFrame_RaycastWorldLocal(void *collisionWorld, void *ray);
@@ -303,7 +352,7 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
     if (object == NULL) {
         return 0;
     }
-    if ((*(u32 *)object & 1) != 0) {
+    if ((((FldRaySelectionResource *)object)->flags & 1) != 0) {
         goto query_complete;
     }
     selectedWorld = 0;
@@ -316,17 +365,17 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
             s32 *zOffset = offsets + 1;
             void *table;
             table = ((u8*)MT_Scene_GetFrameState());
-            if (*(u8 *)((u8 *)table + ((fieldZ + *zOffset) * 256) + 16 * (fieldX + offsets[0]) + 0x54) != 1) {
+            if (FldFrameCellAt((u8 *)table, fieldZ + *zOffset, fieldX + offsets[0])->occupied != 1) {
                 goto next_cell;
             }
             offsets = &D_005F1670[2U * neighbor];
             table = ((u8*)MT_Scene_GetFrameState());
-            storedKey = *(u16 *)((u8 *)table + ((fieldZ + *zOffset) * 256) + 16 * (fieldX + offsets[0]) + 0x56);
+            storedKey = FldFrameCellAt((u8 *)table, fieldZ + *zOffset, fieldX + offsets[0])->resourceId;
             modelNode = MT_Scene_GetResListHead(0xA);
             key = storedKey;
             while (modelNode != NULL) {
                 u16 *modelId = *(u16 **)(modelNode + 0x140);
-                if (modelId != NULL && *modelId == key && (*(s32 *)(modelNode + 0x28) & 2) != 0 && *(s32 *)(modelNode + 0x150) == 1) {
+                if (modelId != NULL && *modelId == key && (((SceneUpdateResource *)modelNode)->flags & 2) != 0 && *(s32 *)(modelNode + 0x150) == 1) {
                     selectedWorld = mdlGetClump(*(void **)(modelNode + 0x144));
                     modelRay.dst = hitPointDst;
                     modelRay.hit = 0;
@@ -344,19 +393,19 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
                         break;
                     }
                 }
-                modelNode = *(u8 **)(modelNode + 0x138);
+                modelNode = (u8 *)((SceneUpdateResource *)modelNode)->next;
             }
             if (result == 1) {
                 goto query_complete;
             }
             entry = MT_Scene_GetResListHead(0xC);
             while (entry != NULL) {
-                if (*(u16 *)entry == key) {
+                if (((SceneUpdateResource *)entry)->id == key) {
                     u8 *resource = *(u8 **)(entry + 0x1A0);
                     fldRaySelectWorld((const FldRaySelectionResource *)resource, &selectedWorld);
                     break;
                 }
-                entry = *(u8 **)(entry + 0x138);
+                entry = (u8 *)((SceneUpdateResource *)entry)->next;
             }
             resourceRay.dst = hitPointDst;
             resourceRay.hit = 0;
@@ -379,8 +428,8 @@ next_cell:
         goto query_complete;
     } else {
         u8 *root = *(u8 **)(iGpffff9db0 + 0x28);
-        void *preferredWorld = *(void **)(root + 0x14);
-        collisionWorld = preferredWorld != NULL ? preferredWorld : *(void **)(root + 0x8);
+        void *preferredWorld = ((FldRaySelectionResource *)root)->preferred;
+        collisionWorld = preferredWorld != NULL ? preferredWorld : ((FldRaySelectionResource *)root)->fallback;
         worldRay.dst = hitPointDst;
         worldRay.hit = 0;
         worldRay.nearest = fGpffff82b4;
@@ -398,7 +447,7 @@ next_cell:
         }
         node = MT_Scene_GetResListHead(0xA);
         while (node != NULL) {
-            if ((*(s32 *)(node + 0x28) & 2) != 0 && *(s32 *)(node + 0x150) == 1) {
+            if ((((SceneUpdateResource *)node)->flags & 2) != 0 && *(s32 *)(node + 0x150) == 1) {
                 void *modelWorld = mdlGetClump(*(void **)(node + 0x144));
                 fallbackRay.dst = hitPointDst;
                 fallbackRay.hit = 0;
@@ -416,7 +465,7 @@ next_cell:
                     break;
                 }
             }
-            node = *(u8 **)(node + 0x138);
+            node = (u8 *)((SceneUpdateResource *)node)->next;
         }
     }
 query_complete:
@@ -444,41 +493,41 @@ extern u8 D_007F1720[];
 extern void func_003bb5b0(u8 *path, s32 mode, f32 time, void *out, void *rot);
 extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combineOp);
 extern u8 *func_003e0670(u8 *dst, u8 *src);
-extern float D_00756510[]; /* 0x756510 */
-extern float D_00756514[]; /* 0x756514 */
-extern float D_00756518[]; /* 0x756518 */
+extern f32 D_00756510[]; /* 0x756510 */
+extern f32 D_00756514[]; /* 0x756514 */
+extern f32 D_00756518[]; /* 0x756518 */
 extern u16 D_008C024C[];
 extern u8 D_008C025E[];
-extern float fGpffff84e4; /* 0xffff84e4 */
-extern float fGpffff84e8; /* 0xffff84e8 */
-extern unsigned int uGpffff9f2c; /* 0xffff9f2c */
+extern f32 fGpffff84e4; /* 0xffff84e4 */
+extern f32 fGpffff84e8; /* 0xffff84e8 */
+extern u32 uGpffff9f2c; /* 0xffff9f2c */
 
 extern u8 *FldCameraGetRecord(u8 *);
-extern int KMisc_CreateRmdFade(int, int, int, int, int);
-extern int KDraw_IsEffectDone(unsigned char *);
+extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
+extern s32 KDraw_IsEffectDone(u8 *);
 extern void KDraw_SetGroupFlags(u8 *, u32);
 extern void KDraw_SetSphereFlags(u8 *, u32);
-extern void KDraw_SetSphereCenter(unsigned char *, unsigned char *);
+extern void KDraw_SetSphereCenter(u8 *, u8 *);
 extern void KDraw_SetCylinderFlags(u8 *, u32);
-extern void KDraw_SetCylinderCenter(unsigned char *, unsigned char *);
-extern void KDraw_SetCylinderRadius(unsigned char *, float);
-extern void KDraw_SetCylinderHeight(unsigned char *, float);
+extern void KDraw_SetCylinderCenter(u8 *, u8 *);
+extern void KDraw_SetCylinderRadius(u8 *, f32);
+extern void KDraw_SetCylinderHeight(u8 *, f32);
 extern s32 FldFrame_CollideSphereSelected(const RwV3d *, f32, RwV3d *, RwV3d *);
 extern void FldCameraSetDistance(u8 *, f32);
-extern float FldEvent_GetMoveStep(void);
-extern float RwV3dLength(float *);
-extern void kAssertFail(void *, int);
+extern f32 FldEvent_GetMoveStep(void);
+extern f32 RwV3dLength(f32 *);
+extern void kAssertFail(void *, s32);
 extern void mdlSetAlphaBlend(void *);
 extern void mdlClearAlphaBlend(void *);
 
 
 
-extern float D_00756500[];
-extern float D_00756510[];
-extern float D_00756520[];
+extern f32 D_00756500[];
+extern f32 D_00756510[];
+extern f32 D_00756520[];
 /* measured: scope the 39 -> 0 camera reconstruction to this function. */
 #pragma push
-/* measured: O3 early copy coalescing retains the declared float webs. */
+/* measured: O3 early copy coalescing retains the declared f32 webs. */
 /* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 3
 /* measured: the O3 profile preserves retail's unscheduled delay slots. */
@@ -499,1210 +548,1211 @@ extern float D_00756520[];
 /* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* measured: pullout off keeps the 55.0f and phase constants at their retail uses. */
-s32 FldCameraTaskUpdate(u8 *param_1)
+s32 FldCameraTaskUpdate(u8 *task)
 
 {
-  extern int kwlnTaskDestroyWithHierarchy(void *);
-  typedef struct { float x, y, z; } FldTriVec;
+    /* Raw frame/resource tails and indexed key snapshots retain byte-pointer APIs; named payload fields use the proven layout above. */
+  extern s32 kwlnTaskDestroyWithHierarchy(void *);
+  typedef struct { f32 x, y, z; } FldTriVec;
   typedef struct { u32 w[16]; } FldMtx64;
-  extern float fabsf(float);
-  typedef struct { float x, y, z; } FldCopyVec;
-  typedef struct { float x, y, z; } FldCamVec;
+  extern f32 fabsf(f32);
+  typedef struct { f32 x, y, z; } FldCopyVec;
+  typedef struct { f32 x, y, z; } FldCamVec;
   typedef struct {
     u8 prefix[0x28c];
     f32 desiredDistance, minimumDistance, currentDistance;
-  } FldCameraDistanceView;
+  } FldCameraDistances;
   typedef struct RwMatrixTolerance { f32 Normal, Orthogonal, Identity; } RwMatrixTolerance;
   extern s32 RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
   extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
-  extern f32 sqrtf(f32 arg0);
-  float stk10[3];
+  extern f32 sqrtf(f32 task);
+  f32 projectedPoint[3];
   typedef union { f32 value; u8 bytes[4]; } FldCameraColour;
   FldCameraColour fadeColour;
-  FldCopyVec sv20;
-  FldCopyVec cpv0;
-  float stk40[3];
-  float stk50[3];
-  FldCopyVec sv60;
-  float stk70[3];
-  FldCopyVec sv80;
-  float stk90[3];
-  float stkA0[3];
+  FldCopyVec followTarget;
+  FldCopyVec followPosition;
+  f32 followCorrection[3];
+  f32 followCameraPosition[3];
+  FldCopyVec pathTarget;
+  f32 pathProjectionDelta[3];
+  FldCopyVec pathBasis;
+  f32 pathTargetDelta[3];
+  f32 pathTargetDirection[3];
   RwMatrixTolerance tolerance3;
-  float stkC0[3];
-  float stkD0[3];
+  f32 pathCameraPosition[3];
+  f32 pathLookDirection[3];
   RwMatrixTolerance tolerance4;
-  FldCopyVec stkF0;
-  FldCopyVec sv100;
-  float stk110[3];
-  float stk120[3];
-  float stk130[3];
-  FldCopyVec cpv5;
-  float stk150[3];
-  float stk160[3];
-  float stk170[3];
-  float stk180[3];
-  float stk190[3];
-  float stk1A0[3];
-  float stk1B0[3];
-  float stk1C0[3];
-  FldCopyVec sv1d0;
-  float stk1E0[3];
-  FldCamVec cv0;
-  FldCopyVec sv200;
-  FldCamVec stk210;
-  float stk220[3];
-  FldCamVec stk230;
-  float stk240[3];
-  float stk250[3];
-  float stk260[3];
-  float stk270[3];
-  float stk280[3];
-  float stk290[3];
+  FldCopyVec orbitTarget;
+  FldCopyVec orbitPosition;
+  f32 orbitCorrection[3];
+  f32 orbitPush[3];
+  f32 orbitRayHit[3];
+  FldCopyVec orbitFramePosition;
+  f32 orbitCameraPosition[3];
+  f32 wallNormal[3];
+  f32 wallHit[3];
+  f32 wallTangent[3];
+  f32 cameraRight[3];
+  f32 cameraForward[3];
+  f32 collisionTangent[3];
+  f32 collisionForward[3];
+  FldCopyVec collisionPosition;
+  f32 wallDelta[3];
+  FldCamVec chaseTarget;
+  FldCopyVec chasePosition;
+  FldCamVec chaseOffset;
+  f32 chaseCorrection[3];
+  FldCamVec chaseHit;
+  f32 chaseCameraPosition[3];
+  f32 helperPosition[3];
+  f32 followTargetPosition[3];
+  f32 pathTargetPosition[3];
+  f32 orbitTargetPosition[3];
+  f32 chaseTargetPosition[3];
   FldCopyVec segment[2];
   FldCamVec chaseSegment[2];
     /* Retail returns zero at 0016E1D0, 0016BE18, 0016BE34. */
   u8 *frameMatrix;
-  unsigned char *pbVar7;
-  float *pfVar8;
-  unsigned char *pbVar9;
-  unsigned char * pbVar9_s2;
-  unsigned char * pbVar9_s3;
-  unsigned int * puVar10_s7;
-  unsigned int temp_v5;
-  int temp_v6;
-  int temp_v7;
-  int temp_v8;
-  float temp_v9;
-  float temp_v12_s7;
-  float temp_v10;
-  float temp_v11;
+  u8 *targetPositionBytes;
+  f32 *recordCoordinates;
+  u8 *camera;
+  u8 * nearWallCamera;
+  u8 * resumingCamera;
+  u32 * helperRecord;
+  u32 flags;
+  s32 result;
+  s32 keyIndex;
+  s32 objectHandle;
+  f32 correctionAmount;
+  f32 collisionDistance;
+  f32 rotationY;
+  f32 distance;
   s32 moved;
-  float temp_v11_s4;
-  float temp_v14_s6;
-  float temp_v11_s6;
-  float temp_v11_s7;
-  float cameraPositionZ;
-  float temp_v11_s8;
-  float targetX7, targetY7, targetZ7, deltaX7, deltaZ7;
-  float horizontalLength7, horizontalZero7, horizontalRadius7;
-  float verticalHeight7, verticalRadius7, verticalAmount7, correctionZero7;
-  float *correctionVector7;
-  float temp_v11_s20;
-  float temp_v12;
-  float temp_v12_s1;
-  float temp_v12_s2;
-  float temp_v12_s4;
-  float temp_v9_s4;
-  float temp_v12_s10;
-  float temp_v12_s11;
-  float temp_v12_s13;
-  float temp_v13;
-  float temp_v14;
-  float temp_v14_s2;
-  float temp_v14_s3;
-  float temp_v14_s4;
-  float temp_v14_s5;
-  float temp_v11_s5;
-  float temp_v14_s7;
-  float temp_v14_s8;
-  float temp_v14_s11;
-  unsigned char *pbVar9_a;
-  float *pfVar8_a;
-  float targetX0, targetY0, targetZ0;
-  float deltaX0, deltaZ0;
-  float horizontalLength0, horizontalZero0, horizontalRadius0;
-  float verticalHeight0, verticalRadius0, verticalAmount0, correctionZero0;
-  float *correctionVector0;
-  float temp_v11_a;
-  float temp_v12_a;
-  int temp_v4_a;
-  s32 moved_a;
-  unsigned char *pbVar9_b;
-  float pathDirectionDot;
-  float temp_v11_b;
-  float targetX34, targetY34, targetZ34;
-  float basisY34, basisZ34, projectionZero34;
-  float originX34, originZ34, originY34;
-  float projectionScale34, closestX34, closestY34, closestZ34;
-  float pathRadius34;
-  float temp_v12_b;
-  float temp_v14_b;
-  int count_b;
-  int k_b;
-  int node3_b;
-  int node4_b;
-  int temp_v8_b;
-  unsigned char *pbVar9_c;
-  float *pfVar8_c;
-  float temp_v11_c;
-  float temp_v12_c;
-  float targetX6, targetY6, targetZ6, deltaX6, deltaZ6;
-  float horizontalLength6, horizontalZero6, horizontalRadius6;
-  float verticalHeight6, verticalRadius6, correctionZero6;
-  float *correctionVector6;
-  float temp_v14_c;
-  int temp_v4_c;
-  int followFrame;
-  unsigned int temp_v5_c;
-  int temp_v6_c;
-  int temp_v8_c;
-  s32 moved_c;
-  unsigned char *pbVar9_d;
-  float *pfVar8_d;
-  float temp_v11_d;
-  float chaseTargetY, chaseTargetZ;
-  float temp_v14_d;
-  int temp_v4_d;
-  unsigned int temp_v5_d;
-  int temp_v6_d;
-  int temp_v8_d;
-  s32 moved_d;
-  signed char lo;
-  int temp_v4_b;
-  signed char hi;
-  float resumeDistance;
-  int pathLengthOffset;
+  f32 stickOrMoveAmount;
+  f32 upAxisZ;
+  f32 wallSideDot;
+  f32 distanceLimit;
+  f32 cameraPositionZ;
+  f32 wallPushDistance;
+  f32 targetX7, targetY7, targetZ7, deltaX7, deltaZ7;
+  f32 horizontalLength7, horizontalZero7, horizontalRadius7;
+  f32 verticalHeight7, verticalRadius7, verticalAmount7, correctionZero7;
+  f32 *correctionVector7;
+  f32 chaseHorizontalCorrection;
+  f32 deltaY;
+  f32 verticalDelta;
+  f32 timeCorrection;
+  f32 orbitPositionY;
+  f32 upAxisX;
+  f32 distanceRatio;
+  f32 wallRatio;
+  f32 chaseDeltaY;
+  f32 rotationX;
+  f32 length;
+  f32 orbitHorizontalCorrection;
+  f32 verticalCorrection;
+  f32 orbitHitDistance;
+  f32 remainingYaw;
+  f32 upAxisY;
+  f32 wallYaw;
+  f32 forwardWallDistance;
+  f32 chaseDistanceLimit;
+  u8 *lookAtCamera;
+  f32 *followRecord;
+  f32 targetX0, targetY0, targetZ0;
+  f32 deltaX0, deltaZ0;
+  f32 horizontalLength0, horizontalZero0, horizontalRadius0;
+  f32 verticalHeight0, verticalRadius0, verticalAmount0, correctionZero0;
+  f32 *correctionVector0;
+  f32 followHorizontalCorrection;
+  f32 followDeltaY;
+  s32 followCameraHandle;
+  s32 followMoved;
+  u8 *pathCamera;
+  f32 pathDirectionDot;
+  f32 keyTimeStep;
+  f32 targetX34, targetY34, targetZ34;
+  f32 basisY34, basisZ34, projectionZero34;
+  f32 originX34, originZ34, originY34;
+  f32 projectionScale34, closestX34, closestY34, closestZ34;
+  f32 pathRadius34;
+  f32 rotationZ;
+  f32 pathDistance;
+  s32 segmentCount;
+  s32 firstValidKey;
+  s32 rotationFrame;
+  s32 lookAtFrame;
+  s32 pathHandle;
+  u8 *orbitCamera;
+  f32 *orbitRecord;
+  f32 orbitMoveAmount;
+  f32 orbitDeltaY;
+  f32 targetX6, targetY6, targetZ6, deltaX6, deltaZ6;
+  f32 horizontalLength6, horizontalZero6, horizontalRadius6;
+  f32 verticalHeight6, verticalRadius6, correctionZero6;
+  f32 *correctionVector6;
+  f32 currentOrbitDistance;
+  s32 orbitHandleOrResult;
+  s32 followFrame;
+  u32 orbitParentMatrix;
+  s32 orbitRayResult;
+  s32 orbitMatrixOrResult;
+  s32 orbitMoved;
+  u8 *chaseCamera;
+  f32 *chaseRecord;
+  f32 chaseDistance;
+  f32 chaseTargetY, chaseTargetZ;
+  f32 chaseMoveAmount;
+  s32 chaseFrameHandle;
+  u32 chaseParentMatrix;
+  s32 chaseRayResult;
+  s32 chaseMatrixHandle;
+  s32 chaseMoved;
+  s8 lo;
+  s32 pathSegment;
+  s8 hi;
+  f32 resumeDistance;
+  s32 pathLengthOffset;
   s32 pathMode34;
-  int loPositionOffset;
-  int hiPositionOffset;
+  s32 loPositionOffset;
+  s32 hiPositionOffset;
   s32 refreshCount;
   s32 attachmentMode;
   u8 *detachedFrame;
-  int *piVar1;
-  piVar1 = *(int **)((int)param_1 + 0x38);
-  if (piVar1[0xa2] == 0) {
+  s32 *cameraData;
+  cameraData = *(s32 **)((s32)task + 0x38);
+  if (((FldCameraData *)cameraData)->targetResource == 0) {
     return 0;
   }
-  if ((piVar1[1] & 1U) != 0) {
+  if ((((FldCameraData *)cameraData)->flags & 1U) != 0) {
     return 0;
   }
   {
 
-    refreshCount = piVar1[0xb];
+    refreshCount = ((FldCameraData *)cameraData)->refreshCount;
     if (refreshCount < 0x80) {
-      piVar1[0xb] = refreshCount + 1;
+      ((FldCameraData *)cameraData)->refreshCount = refreshCount + 1;
     }
     else {
-      piVar1[0xb] = 0;
+      ((FldCameraData *)cameraData)->refreshCount = 0;
       frameMatrix = *(u8 **)(kwlnGetCamera() + 4);
-      func_003e0670((u8 *)piVar1[0xb1],frameMatrix + 0x10);
+      func_003e0670((u8 *)((FldCameraData *)cameraData)->cachedMatrix,frameMatrix + 0x10);
       frameMatrix = *(u8 **)(kwlnGetCamera() + 4);
-      *(FldMtx64 *)(frameMatrix + 0x10) = *(FldMtx64 *)(piVar1[0xb1]);
+      *(FldMtx64 *)(frameMatrix + 0x10) = *(FldMtx64 *)(((FldCameraData *)cameraData)->cachedMatrix);
     }
-    switch (*piVar1) {
+    switch (((FldCameraData *)cameraData)->state) {
     case 0:
     {
-      switch(piVar1[2]) {
+      switch(((FldCameraData *)cameraData)->mode) {
       case 0:
       case 2:
       case 5:
-        FldFrameTask_GetPosition((unsigned char *)&stk260[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        sv20 = *(FldCopyVec *)stk260;
-        pfVar8_a = (float *)FldCameraGetRecord(param_1);
-        cpv0 = *(FldCopyVec *)(pfVar8_a);
-        moved_a = 0;
-        attachmentMode = piVar1[2];
+        FldFrameTask_GetPosition((u8 *)&followTargetPosition[0],*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x220));
+        followTarget = *(FldCopyVec *)followTargetPosition;
+        followRecord = (f32 *)FldCameraGetRecord(task);
+        followPosition = *(FldCopyVec *)(followRecord);
+        followMoved = 0;
+        attachmentMode = ((FldCameraData *)cameraData)->mode;
         if ((attachmentMode == 0) || (attachmentMode == 5)) {
-          temp_v4_a = (int)kwlnGetCamera();
-          if (*(int *)(*(int *)(temp_v4_a + 4) + 4) == piVar1[4]) {
-            temp_v4_a = (int)kwlnGetCamera();
-            func_003e99a0((void *)*(unsigned int *)(temp_v4_a + 4));
-            func_003e9830(piVar1[4],piVar1[3]);
-            temp_v4_a = (int)kwlnGetCamera();
-            func_003e9830(piVar1[3],*(int *)(temp_v4_a + 4));
+          followCameraHandle = (s32)kwlnGetCamera();
+          if (*(s32 *)(*(s32 *)(followCameraHandle + 4) + 4) == ((FldCameraData *)cameraData)->parentFrame) {
+            followCameraHandle = (s32)kwlnGetCamera();
+            func_003e99a0((void *)*(u32 *)(followCameraHandle + 4));
+            func_003e9830(((FldCameraData *)cameraData)->parentFrame,((FldCameraData *)cameraData)->targetFrame);
+            followCameraHandle = (s32)kwlnGetCamera();
+            func_003e9830(((FldCameraData *)cameraData)->targetFrame,*(s32 *)(followCameraHandle + 4));
           }
         }
         else {
-          temp_v4_a = (int)kwlnGetCamera();
-          if (*(int *)(*(int *)(temp_v4_a + 4) + 4) != 0) {
-            temp_v4_a = (int)kwlnGetCamera();
-            func_003e99a0((void *)*(unsigned int *)(temp_v4_a + 4));
+          followCameraHandle = (s32)kwlnGetCamera();
+          if (*(s32 *)(*(s32 *)(followCameraHandle + 4) + 4) != 0) {
+            followCameraHandle = (s32)kwlnGetCamera();
+            func_003e99a0((void *)*(u32 *)(followCameraHandle + 4));
           }
-          detachedFrame = (u8 *)piVar1[3];
-          if (*(int *)(detachedFrame + 4) != 0) {
+          detachedFrame = (u8 *)((FldCameraData *)cameraData)->targetFrame;
+          if (*(s32 *)(detachedFrame + 4) != 0) {
             func_003e99a0(detachedFrame);
           }
-          temp_v4_a = (int)kwlnGetCamera();
-          func_003e9830(piVar1[4],*(int *)(temp_v4_a + 4));
+          followCameraHandle = (s32)kwlnGetCamera();
+          func_003e9830(((FldCameraData *)cameraData)->parentFrame,*(s32 *)(followCameraHandle + 4));
         }
-        targetX0 = (sv20.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
-        targetY0 = (sv20.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
-        targetZ0 = (sv20.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
-        deltaX0 = targetX0 - cpv0.x;
-        stk40[0] = deltaX0;
-        temp_v12_a = targetY0 - cpv0.y;
-        stk40[1] = temp_v12_a;
-        deltaZ0 = targetZ0 - cpv0.z;
-        stk40[2] = deltaZ0;
+        targetX0 = (followTarget.x += ((FldCameraData *)cameraData)->offset.x);
+        targetY0 = (followTarget.y += ((FldCameraData *)cameraData)->offset.y);
+        targetZ0 = (followTarget.z += ((FldCameraData *)cameraData)->offset.z);
+        deltaX0 = targetX0 - followPosition.x;
+        followCorrection[0] = deltaX0;
+        followDeltaY = targetY0 - followPosition.y;
+        followCorrection[1] = followDeltaY;
+        deltaZ0 = targetZ0 - followPosition.z;
+        followCorrection[2] = deltaZ0;
         {
-          const float squaredZ0 = deltaZ0 * deltaZ0;
+          const f32 squaredZ0 = deltaZ0 * deltaZ0;
           horizontalZero0 = 0.0f;
           horizontalLength0 = sqrtf(deltaX0 * deltaX0 + squaredZ0);
         }
-        horizontalRadius0 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        horizontalRadius0 = ((FldCameraData *)cameraData)->radius;
         if (!(horizontalLength0 <= horizontalRadius0)) {
-          temp_v11_a = horizontalLength0 - horizontalRadius0;
-          stk40[1] = horizontalZero0;
-          correctionVector0 = &stk40[0];
+          followHorizontalCorrection = horizontalLength0 - horizontalRadius0;
+          followCorrection[1] = horizontalZero0;
+          correctionVector0 = &followCorrection[0];
           RwV3dNormalize((RwV3d *)correctionVector0,(const RwV3d *)correctionVector0);
-          stk40[0] = stk40[0] * temp_v11_a;
-          stk40[1] = stk40[1] * temp_v11_a;
-          stk40[2] = stk40[2] * temp_v11_a;
-          func_003e9c10((u8 *)piVar1[3],&stk40[0],2);
-          moved_a = 1;
+          followCorrection[0] = followCorrection[0] * followHorizontalCorrection;
+          followCorrection[1] = followCorrection[1] * followHorizontalCorrection;
+          followCorrection[2] = followCorrection[2] * followHorizontalCorrection;
+          func_003e9c10((u8 *)((FldCameraData *)cameraData)->targetFrame,&followCorrection[0],2);
+          followMoved = 1;
         }
-        stk40[1] = temp_v12_a;
-        if (temp_v12_a < 0.0f) {
-          temp_v12_a = temp_v12_a * -1.0f;
+        followCorrection[1] = followDeltaY;
+        if (followDeltaY < 0.0f) {
+          followDeltaY = followDeltaY * -1.0f;
         }
-        verticalHeight0 = *(float *)((u8 *)(u32)piVar1 + 0x24);
+        verticalHeight0 = ((FldCameraData *)cameraData)->height;
         verticalRadius0 = verticalHeight0 / 2.0f;
-        if (!(temp_v12_a <= verticalRadius0)) {
-          verticalAmount0 = temp_v12_a - verticalRadius0;
+        if (!(followDeltaY <= verticalRadius0)) {
+          verticalAmount0 = followDeltaY - verticalRadius0;
           correctionZero0 = 0.0f;
-          stk40[0] = 0.0f;
-          stk40[2] = 0.0f;
-          if (stk40[1] < correctionZero0) {
-            stk40[1] = -verticalAmount0;
+          followCorrection[0] = 0.0f;
+          followCorrection[2] = 0.0f;
+          if (followCorrection[1] < correctionZero0) {
+            followCorrection[1] = -verticalAmount0;
           }
           else {
-            stk40[1] = verticalAmount0;
+            followCorrection[1] = verticalAmount0;
           }
-          func_003e9c10((u8 *)piVar1[3],&stk40[0],2);
-          moved_a = 1;
+          func_003e9c10((u8 *)((FldCameraData *)cameraData)->targetFrame,&followCorrection[0],2);
+          followMoved = 1;
         }
-        if ((moved_a == 1) && (piVar1[2] == 2)) {
-          temp_v4_a = *(int *)(kwlnGetCamera() + 4);
-          *(FldCopyVec *)stk50 = *(FldCopyVec *)(temp_v4_a + 0x40);
-          pbVar9_a = (unsigned char *)kwlnGetCamera();
-          pbVar7 = (unsigned char *)FldCameraGetRecord(param_1);
-          K_ClumpLookAtBasis(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,0);
+        if ((followMoved == 1) && (((FldCameraData *)cameraData)->mode == 2)) {
+          followCameraHandle = *(s32 *)(kwlnGetCamera() + 4);
+          *(FldCopyVec *)followCameraPosition = *(FldCopyVec *)(followCameraHandle + 0x40);
+          lookAtCamera = (u8 *)kwlnGetCamera();
+          targetPositionBytes = (u8 *)FldCameraGetRecord(task);
+          K_ClumpLookAtBasis(lookAtCamera,(u8 *)((s32 *)&followCameraPosition[0]),targetPositionBytes,0);
         }
         goto LAB_0016e0c0;
       case 3:
       case 4:
-        FldFrameTask_GetPosition((unsigned char *)&stk270[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        sv60 = *(FldCopyVec *)stk270;
-        count_b = piVar1[0xd] - 1;
-        temp_v11_b = 1.0f / (float)count_b;
-        if (*(int *)(*(int *)(iGpffff9db0 + 0x28) + 0xa20) == 0) goto LAB_0016e0c0;
-        for (k_b = 0; k_b < count_b; k_b++) {
-          if (*(char *)((int)piVar1 + k_b + 0xe8) != '\0') break;
+        FldFrameTask_GetPosition((u8 *)&pathTargetPosition[0],*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x220));
+        pathTarget = *(FldCopyVec *)pathTargetPosition;
+        segmentCount = ((FldCameraData *)cameraData)->keyCount - 1;
+        keyTimeStep = 1.0f / (f32)segmentCount;
+        if (*(s32 *)(*(s32 *)(iGpffff9db0 + 0x28) + 0xa20) == 0) goto LAB_0016e0c0;
+        for (firstValidKey = 0; firstValidKey < segmentCount; firstValidKey++) {
+          if (*(char *)((s32)cameraData + firstValidKey + 0xe8) != '\0') break;
         }
-        if (k_b >= count_b) goto LAB_0016e0c0;
+        if (firstValidKey >= segmentCount) goto LAB_0016e0c0;
         /* Retail caches Y/Z across the path calls, but reloads X below. */
-        targetX34 = (sv60.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
-        targetY34 = (sv60.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
-        targetZ34 = (sv60.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
-        stk90[0] = targetX34 - *(float *)&piVar1[0x31];
-        stk90[1] = targetY34 - ((float *)piVar1)[0x32];
-        stk90[2] = targetZ34 - ((float *)piVar1)[0x33];
-        RwV3dNormalize((RwV3d *)&stkA0[0],(const RwV3d *)&stk90[0]);
-        sv80 = *(FldCopyVec *)((u8 *)(u32)piVar1 + 0xd0);
-        basisY34 = sv80.y;
-        basisZ34 = sv80.z;
+        targetX34 = (pathTarget.x += ((FldCameraData *)cameraData)->offset.x);
+        targetY34 = (pathTarget.y += ((FldCameraData *)cameraData)->offset.y);
+        targetZ34 = (pathTarget.z += ((FldCameraData *)cameraData)->offset.z);
+        pathTargetDelta[0] = targetX34 - ((FldCameraData *)cameraData)->pathPosition.x;
+        pathTargetDelta[1] = targetY34 - ((FldCameraData *)cameraData)->pathPosition.y;
+        pathTargetDelta[2] = targetZ34 - ((FldCameraData *)cameraData)->pathPosition.z;
+        RwV3dNormalize((RwV3d *)&pathTargetDirection[0],(const RwV3d *)&pathTargetDelta[0]);
+        pathBasis = *(FldCopyVec *)((u8 *)(u32)cameraData + 0xd0);
+        basisY34 = pathBasis.y;
+        basisZ34 = pathBasis.z;
         {
-          const float directionZ = stkA0[2];
-          float basisX34;
-          float directionX, directionY;
-          basisX34 = sv80.x;
-          directionX = stkA0[0];
-          directionY = stkA0[1];
+          const f32 directionZ = pathTargetDirection[2];
+          f32 basisX34;
+          f32 directionX, directionY;
+          basisX34 = pathBasis.x;
+          directionX = pathTargetDirection[0];
+          directionY = pathTargetDirection[1];
           {
-            const float yProduct = basisY34 * directionY;
+            const f32 yProduct = basisY34 * directionY;
             projectionZero34 = 0.0f;
             pathDirectionDot = basisX34 * directionX + yProduct + basisZ34 * directionZ;
           }
-          originX34 = *(float *)((u8 *)(u32)piVar1 + 0xc4);
-          originZ34 = *(float *)((u8 *)(u32)piVar1 + 0xcc);
-          originY34 = *(float *)((u8 *)(u32)piVar1 + 0xc8);
-          projectionScale34 = (originX34 * basisX34 - sv60.x * basisX34 + originY34 * basisY34 - targetY34 * basisY34 +
+          originX34 = ((FldCameraData *)cameraData)->pathPosition.x;
+          originZ34 = ((FldCameraData *)cameraData)->pathPosition.z;
+          originY34 = ((FldCameraData *)cameraData)->pathPosition.y;
+          projectionScale34 = (originX34 * basisX34 - pathTarget.x * basisX34 + originY34 * basisY34 - targetY34 * basisY34 +
                                originZ34 * basisZ34 - targetZ34 * basisZ34) /
                               -(basisX34 * basisX34 + basisY34 * basisY34 + basisZ34 * basisZ34);
           {
-            const float affineOrigin = projectionZero34 + originX34;
-            const float scaledDirection = basisX34 * projectionScale34;
-            closestX34 = (stk10[0] = affineOrigin + scaledDirection);
+            const f32 affineOrigin = projectionZero34 + originX34;
+            const f32 scaledDirection = basisX34 * projectionScale34;
+            closestX34 = (projectedPoint[0] = affineOrigin + scaledDirection);
           }
           {
-            const float affineOrigin = projectionZero34 + originY34;
-            const float scaledDirection = basisY34 * projectionScale34;
-            closestY34 = (stk10[1] = affineOrigin + scaledDirection);
+            const f32 affineOrigin = projectionZero34 + originY34;
+            const f32 scaledDirection = basisY34 * projectionScale34;
+            closestY34 = (projectedPoint[1] = affineOrigin + scaledDirection);
           }
           {
-            const float affineOrigin = projectionZero34 + originZ34;
-            const float scaledDirection = basisZ34 * projectionScale34;
-            closestZ34 = (stk10[2] = affineOrigin + scaledDirection);
+            const f32 affineOrigin = projectionZero34 + originZ34;
+            const f32 scaledDirection = basisZ34 * projectionScale34;
+            closestZ34 = (projectedPoint[2] = affineOrigin + scaledDirection);
           }
-          stk70[0] = originX34 - closestX34;
-          stk70[1] = originY34 - closestY34;
-          stk70[2] = originZ34 - closestZ34;
+          pathProjectionDelta[0] = originX34 - closestX34;
+          pathProjectionDelta[1] = originY34 - closestY34;
+          pathProjectionDelta[2] = originZ34 - closestZ34;
         }
-        temp_v14_b = RwV3dLength(&stk70[0]);
+        pathDistance = RwV3dLength(&pathProjectionDelta[0]);
         {
-          float acc = temp_v11_b;
-          int last;
+          f32 acc = keyTimeStep;
+          s32 last;
 
-          temp_v4_b = 0;
-          last = piVar1[0xd] - 1;
-          for (; temp_v4_b < last; temp_v4_b++) {
-            if (!(acc <= *(float *)((u8 *)(u32)piVar1 + 0xb8))) break;
-            acc = acc + temp_v11_b;
+          pathSegment = 0;
+          last = ((FldCameraData *)cameraData)->keyCount - 1;
+          for (; pathSegment < last; pathSegment++) {
+            if (!(acc <= ((FldCameraData *)cameraData)->pathTime)) break;
+            acc = acc + keyTimeStep;
           }
-          if (temp_v4_b >= last) {
+          if (pathSegment >= last) {
             kAssertFail(D_005F1698,0x15b);
           }
         }
-        pathRadius34 = *(float *)((u8 *)(u32)piVar1 + 0x20);
-        if (pathRadius34 < temp_v14_b) {
-          float lengthRatio;
-          pathLengthOffset = temp_v4_b * 4;
-          lengthRatio = (temp_v14_b - pathRadius34) / *(float *)(pathLengthOffset + (u32)piVar1 + 0x38);
-          temp_v12_s2 = lengthRatio * temp_v11_b;
+        pathRadius34 = ((FldCameraData *)cameraData)->radius;
+        if (pathRadius34 < pathDistance) {
+          f32 lengthRatio;
+          pathLengthOffset = pathSegment * 4;
+          lengthRatio = (pathDistance - pathRadius34) / *(f32 *)(pathLengthOffset + (u32)cameraData + 0x38);
+          timeCorrection = lengthRatio * keyTimeStep;
           if (!(pathDirectionDot <= 0.0f)) {
-            ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x2e] + temp_v12_s2;
+            ((FldCameraData *)cameraData)->pathTime = ((FldCameraData *)cameraData)->pathTime + timeCorrection;
           }
           else if (pathDirectionDot < -0.0f) {
-            ((float *)piVar1)[0x2e] = ((float *)piVar1)[0x2e] - temp_v12_s2;
+            ((FldCameraData *)cameraData)->pathTime = ((FldCameraData *)cameraData)->pathTime - timeCorrection;
           }
           {
-            float pathTime;
-            float maximumTime = ((float *)piVar1)[0x2f];
-            pathTime = *(float *)((u8 *)(u32)piVar1 + 0xb8);
+            f32 pathTime;
+            f32 maximumTime = ((FldCameraData *)cameraData)->maximumTime;
+            pathTime = ((FldCameraData *)cameraData)->pathTime;
             if (!(pathTime < maximumTime)) {
-              ((float *)piVar1)[0x2e] = maximumTime;
+              ((FldCameraData *)cameraData)->pathTime = maximumTime;
             }
             else {
-              const float minimumTime = ((float *)piVar1)[0x30];
+              const f32 minimumTime = ((FldCameraData *)cameraData)->minimumTime;
               if (pathTime <= minimumTime) {
-                ((float *)piVar1)[0x2e] = minimumTime;
+                ((FldCameraData *)cameraData)->pathTime = minimumTime;
               }
             }
           }
-          func_003bb5b0(*(u8 **)(*(int *)(iGpffff9db0 + 0x28) + 0xa20),10,((float *)piVar1)[0x2e],
-                       piVar1 + 0x31,piVar1 + 0x34);
+          func_003bb5b0(*(u8 **)(*(s32 *)(iGpffff9db0 + 0x28) + 0xa20),10,((FldCameraData *)cameraData)->pathTime,
+                       cameraData + 0x31,cameraData + 0x34);
           {
-            float *pathDirection = ((float *)piVar1) + 0x34;
+            f32 *pathDirection = ((f32 *)cameraData) + 0x34;
             RwV3dNormalize((RwV3d *)pathDirection,(const RwV3d *)pathDirection);
           }
         }
-        pathMode34 = piVar1[2];
+        pathMode34 = ((FldCameraData *)cameraData)->mode;
         if (pathMode34 == 3) {
-          int last;
-          int keyCount, penultimateKey, nextKey;
+          s32 last;
+          s32 keyCount, penultimateKey, nextKey;
 
-          node3_b = *(int *)(kwlnGetCamera() + 4);
-          temp_v7 = temp_v4_b;
-          while (0 < temp_v7) {
-            if (*(char *)((int)piVar1 + temp_v7 + 0xe8) != '\0') {
-              lo = temp_v7;
+          rotationFrame = *(s32 *)(kwlnGetCamera() + 4);
+          keyIndex = pathSegment;
+          while (0 < keyIndex) {
+            if (*(char *)((s32)cameraData + keyIndex + 0xe8) != '\0') {
+              lo = keyIndex;
               break;
             }
-            temp_v7 = temp_v7 - 1;
+            keyIndex = keyIndex - 1;
           }
-          if (temp_v7 < 1) {
+          if (keyIndex < 1) {
             kAssertFail(D_005F1698,0x187);
           }
-          keyCount = piVar1[0xd];
+          keyCount = ((FldCameraData *)cameraData)->keyCount;
           penultimateKey = keyCount - 2;
-          nextKey = temp_v4_b + 1;
+          nextKey = pathSegment + 1;
           if (penultimateKey < nextKey) {
-            temp_v7 = penultimateKey;
+            keyIndex = penultimateKey;
           }
           else {
-            temp_v7 = nextKey;
+            keyIndex = nextKey;
           }
           last = keyCount;
           last--;
-          for (; temp_v7 < last; temp_v7++) {
-            if (*(char *)((int)piVar1 + temp_v7 + 0xe8) != '\0') {
-              hi = temp_v7;
+          for (; keyIndex < last; keyIndex++) {
+            if (*(char *)((s32)cameraData + keyIndex + 0xe8) != '\0') {
+              hi = keyIndex;
               break;
             }
           }
-          if (temp_v7 >= last) {
+          if (keyIndex >= last) {
             kAssertFail(D_005F1698,0x193);
           }
           {
             s32 lowIndex, highIndex;
-            float span, loX, dx, loY, dy, loZ, dz, lowCoordinate;
-            float interpolationZero, interpolationFraction;
-            float *loData, *hiData;
+            f32 span, loX, dx, loY, dy, loZ, dz, lowCoordinate;
+            f32 interpolationZero, interpolationFraction;
+            f32 *loData, *hiData;
             lowIndex = (s32)lo;
             highIndex = (s32)hi;
-            span = temp_v11_b * (float)(highIndex - lowIndex);
+            span = keyTimeStep * (f32)(highIndex - lowIndex);
             loPositionOffset = lowIndex * 12;
-            loData = (float *)(loPositionOffset + (u32)piVar1);
+            loData = (f32 *)(loPositionOffset + (u32)cameraData);
             loX = loData[0x42];
             hiPositionOffset = highIndex * 12;
-            hiData = (float *)(hiPositionOffset + (u32)piVar1);
+            hiData = (f32 *)(hiPositionOffset + (u32)cameraData);
             dx = hiData[0x42] - loX;
             loY = loData[0x43];
             dy = hiData[0x43] - loY;
             loZ = loData[0x44];
             dz = hiData[0x44] - loZ;
-            lowCoordinate = (float)lo;
+            lowCoordinate = (f32)lo;
             {
-              const float pathTime = ((float *)piVar1)[0x2e];
+              const f32 pathTime = ((FldCameraData *)cameraData)->pathTime;
               interpolationZero = 0.0f;
               {
-                const float seededTime = interpolationZero + pathTime;
-                const float lowTime = temp_v11_b * lowCoordinate;
+                const f32 seededTime = interpolationZero + pathTime;
+                const f32 lowTime = keyTimeStep * lowCoordinate;
                 interpolationFraction = (seededTime - lowTime) / span;
               }
             }
             {
-              const float affineOrigin = interpolationZero + loX;
-              const float scaledDelta = dx * interpolationFraction;
-              temp_v13 = affineOrigin + scaledDelta;
+              const f32 affineOrigin = interpolationZero + loX;
+              const f32 scaledDelta = dx * interpolationFraction;
+              rotationX = affineOrigin + scaledDelta;
             }
             {
-              const float affineOrigin = interpolationZero + loY;
-              const float scaledDelta = dy * interpolationFraction;
-              temp_v10 = affineOrigin + scaledDelta;
+              const f32 affineOrigin = interpolationZero + loY;
+              const f32 scaledDelta = dy * interpolationFraction;
+              rotationY = affineOrigin + scaledDelta;
             }
             {
-              const float affineOrigin = interpolationZero + loZ;
-              const float scaledDelta = dz * interpolationFraction;
-              temp_v12_b = affineOrigin + scaledDelta;
+              const f32 affineOrigin = interpolationZero + loZ;
+              const f32 scaledDelta = dz * interpolationFraction;
+              rotationZ = affineOrigin + scaledDelta;
             }
           }
           {
             u32 identityOne = 0x3f800000;
-            *(unsigned int *)(piVar1[0xb0] + 0x28) = identityOne;
-            *(unsigned int *)(piVar1[0xb0] + 0x14) = identityOne;
-            *(unsigned int *)piVar1[0xb0] = identityOne;
+            *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x28) = identityOne;
+            *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x14) = identityOne;
+            *(u32 *)((FldCameraData *)cameraData)->matrix = identityOne;
           }
-          *(unsigned int *)(piVar1[0xb0] + 0x10) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 8) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 4) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0x24) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0x20) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0x18) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0x38) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0x34) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0x30) = 0;
-          *(unsigned int *)(piVar1[0xb0] + 0xc) = *(unsigned int *)(piVar1[0xb0] + 0xc) | 0x20003;
-          RwMatrixRotate((RwMatrix *)piVar1[0xb0],(const RwV3d *)D_00756500,temp_v13,2);
-          RwMatrixRotate((RwMatrix *)piVar1[0xb0],(const RwV3d *)D_00756510,temp_v10,2);
-          RwMatrixRotate((RwMatrix *)piVar1[0xb0],(const RwV3d *)D_00756520,temp_v12_b,2);
-          func_003e9cb0((void *)node3_b,(void *)piVar1[0xb0],0);
-          *(FldCopyVec *)(node3_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x10) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 8) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 4) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x24) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x20) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x18) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x38) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x34) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0x30) = 0;
+          *(u32 *)(((FldCameraData *)cameraData)->matrix + 0xc) = *(u32 *)(((FldCameraData *)cameraData)->matrix + 0xc) | 0x20003;
+          RwMatrixRotate((RwMatrix *)((FldCameraData *)cameraData)->matrix,(const RwV3d *)D_00756500,rotationX,2);
+          RwMatrixRotate((RwMatrix *)((FldCameraData *)cameraData)->matrix,(const RwV3d *)D_00756510,rotationY,2);
+          RwMatrixRotate((RwMatrix *)((FldCameraData *)cameraData)->matrix,(const RwV3d *)D_00756520,rotationZ,2);
+          func_003e9cb0((void *)rotationFrame,(void *)((FldCameraData *)cameraData)->matrix,0);
+          *(FldCopyVec *)(rotationFrame + 0x40) = *(FldCopyVec *)((u8 *)cameraData + 0xc4);
           RwEngineGetMatrixTolerances(&tolerance3);
-          RwMatrixOptimize((RwMatrix *)(node3_b + 0x10),&tolerance3);
-          func_003e9680((u8 *)node3_b);
+          RwMatrixOptimize((RwMatrix *)(rotationFrame + 0x10),&tolerance3);
+          func_003e9680((u8 *)rotationFrame);
         }
         else if (pathMode34 == 4) {
 
-          node4_b = *(int *)(kwlnGetCamera() + 4);
-          *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(node4_b + 0x40);
+          lookAtFrame = *(s32 *)(kwlnGetCamera() + 4);
+          *(FldTriVec *)&pathCameraPosition[0] = *(FldTriVec *)(lookAtFrame + 0x40);
           {
-            u8 *frame = (u8 *)piVar1[3];
-            stkD0[0] = sv60.x - *(float *)(frame + 0x40);
-            stkD0[1] = targetY34 - *(float *)(frame + 0x44);
-            stkD0[2] = targetZ34 - *(float *)(frame + 0x48);
+            u8 *frame = (u8 *)((FldCameraData *)cameraData)->targetFrame;
+            pathLookDirection[0] = pathTarget.x - *(f32 *)(frame + 0x40);
+            pathLookDirection[1] = targetY34 - *(f32 *)(frame + 0x44);
+            pathLookDirection[2] = targetZ34 - *(f32 *)(frame + 0x48);
           }
-          pbVar9_b = (unsigned char *)kwlnGetCamera();
-          K_ClumpLookAtBasis(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],0);
-          *(FldCopyVec *)(node4_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
+          pathCamera = (u8 *)kwlnGetCamera();
+          K_ClumpLookAtBasis(pathCamera,(u8 *)((s32 *)&pathCameraPosition[0]),(u8 *)&pathLookDirection[0],0);
+          *(FldCopyVec *)(lookAtFrame + 0x40) = *(FldCopyVec *)((u8 *)cameraData + 0xc4);
           RwEngineGetMatrixTolerances(&tolerance4);
-          RwMatrixOptimize((RwMatrix *)(node4_b + 0x10),&tolerance4);
-          func_003e9680((u8 *)node4_b);
+          RwMatrixOptimize((RwMatrix *)(lookAtFrame + 0x10),&tolerance4);
+          func_003e9680((u8 *)lookAtFrame);
         }
         goto LAB_0016e0c0;
       case 6:
-        FldFrameTask_GetPosition((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        *(FldTriVec *)&stkF0.x = *(FldTriVec *)&stk280[0];
-        pfVar8_c = (float *)FldCameraGetRecord(param_1);
-        sv100 = *(FldCopyVec *)pfVar8_c;
-        temp_v11_s4 = (float)D_008C025E[0] - 128.0f;
-        temp_v4_c = (int)kwlnGetCamera();
-        if (*(int *)(*(int *)(temp_v4_c + 4) + 4) == piVar1[4]) {
-          temp_v4_c = (int)kwlnGetCamera();
-          func_003e99a0((void *)*(unsigned int *)(temp_v4_c + 4));
-          func_003e9830(piVar1[4],piVar1[3]);
-          temp_v4_c = (int)kwlnGetCamera();
-          func_003e9830(piVar1[3],*(int *)(temp_v4_c + 4));
+        FldFrameTask_GetPosition((u8 *)&orbitTargetPosition[0],*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x220));
+        *(FldTriVec *)&orbitTarget.x = *(FldTriVec *)&orbitTargetPosition[0];
+        orbitRecord = (f32 *)FldCameraGetRecord(task);
+        orbitPosition = *(FldCopyVec *)orbitRecord;
+        stickOrMoveAmount = (f32)D_008C025E[0] - 128.0f;
+        orbitHandleOrResult = (s32)kwlnGetCamera();
+        if (*(s32 *)(*(s32 *)(orbitHandleOrResult + 4) + 4) == ((FldCameraData *)cameraData)->parentFrame) {
+          orbitHandleOrResult = (s32)kwlnGetCamera();
+          func_003e99a0((void *)*(u32 *)(orbitHandleOrResult + 4));
+          func_003e9830(((FldCameraData *)cameraData)->parentFrame,((FldCameraData *)cameraData)->targetFrame);
+          orbitHandleOrResult = (s32)kwlnGetCamera();
+          func_003e9830(((FldCameraData *)cameraData)->targetFrame,*(s32 *)(orbitHandleOrResult + 4));
         }
-        targetX6 = (stkF0.x += ((float *)piVar1)[0x5]);
-        targetY6 = (stkF0.y += ((float *)piVar1)[0x6]);
-        targetZ6 = (stkF0.z += ((float *)piVar1)[0x7]);
-        deltaX6 = targetX6 - sv100.x;
-        stk110[0] = deltaX6;
-        temp_v12_s4 = sv100.y;
-        stk110[1] = targetY6 - temp_v12_s4;
-        deltaZ6 = targetZ6 - sv100.z;
-        stk110[2] = deltaZ6;
+        targetX6 = (orbitTarget.x += ((FldCameraData *)cameraData)->offset.x);
+        targetY6 = (orbitTarget.y += ((FldCameraData *)cameraData)->offset.y);
+        targetZ6 = (orbitTarget.z += ((FldCameraData *)cameraData)->offset.z);
+        deltaX6 = targetX6 - orbitPosition.x;
+        orbitCorrection[0] = deltaX6;
+        orbitPositionY = orbitPosition.y;
+        orbitCorrection[1] = targetY6 - orbitPositionY;
+        deltaZ6 = targetZ6 - orbitPosition.z;
+        orbitCorrection[2] = deltaZ6;
         {
-          const float squaredZ6 = deltaZ6 * deltaZ6;
+          const f32 squaredZ6 = deltaZ6 * deltaZ6;
           horizontalZero6 = 0.0f;
           horizontalLength6 = sqrtf(deltaX6 * deltaX6 + squaredZ6);
         }
-        horizontalRadius6 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        horizontalRadius6 = ((FldCameraData *)cameraData)->radius;
         if (!(horizontalLength6 <= horizontalRadius6)) {
-          temp_v14_s2 = horizontalLength6 - horizontalRadius6;
-          stk110[1] = horizontalZero6;
-          correctionVector6 = &stk110[0];
+          orbitHorizontalCorrection = horizontalLength6 - horizontalRadius6;
+          orbitCorrection[1] = horizontalZero6;
+          correctionVector6 = &orbitCorrection[0];
           RwV3dNormalize((RwV3d *)correctionVector6,(const RwV3d *)correctionVector6);
-          stk110[0] = stk110[0] * temp_v14_s2;
-          stk110[1] = stk110[1] * temp_v14_s2;
-          stk110[2] = stk110[2] * temp_v14_s2;
-          func_003e9c10((u8 *)piVar1[3],&stk110[0],2);
+          orbitCorrection[0] = orbitCorrection[0] * orbitHorizontalCorrection;
+          orbitCorrection[1] = orbitCorrection[1] * orbitHorizontalCorrection;
+          orbitCorrection[2] = orbitCorrection[2] * orbitHorizontalCorrection;
+          func_003e9c10((u8 *)((FldCameraData *)cameraData)->targetFrame,&orbitCorrection[0],2);
         }
-        temp_v12_c = stkF0.y - temp_v12_s4;
-        stk110[1] = temp_v12_c;
-        if (temp_v12_c < 0.0f) {
-          temp_v12_c = temp_v12_c * -1.0f;
+        orbitDeltaY = orbitTarget.y - orbitPositionY;
+        orbitCorrection[1] = orbitDeltaY;
+        if (orbitDeltaY < 0.0f) {
+          orbitDeltaY = orbitDeltaY * -1.0f;
         }
-        verticalHeight6 = *(float *)((u8 *)(u32)piVar1 + 0x24);
+        verticalHeight6 = ((FldCameraData *)cameraData)->height;
         verticalRadius6 = verticalHeight6 / 2.0f;
-        if (!(temp_v12_c <= verticalRadius6)) {
-          temp_v12_c = temp_v12_c - verticalRadius6;
+        if (!(orbitDeltaY <= verticalRadius6)) {
+          orbitDeltaY = orbitDeltaY - verticalRadius6;
           correctionZero6 = 0.0f;
-          stk110[0] = 0.0f;
-          stk110[2] = 0.0f;
-          if (stk110[1] < correctionZero6) {
-            stk110[1] = -temp_v12_c;
+          orbitCorrection[0] = 0.0f;
+          orbitCorrection[2] = 0.0f;
+          if (orbitCorrection[1] < correctionZero6) {
+            orbitCorrection[1] = -orbitDeltaY;
           }
           else {
-            stk110[1] = temp_v12_c;
+            orbitCorrection[1] = orbitDeltaY;
           }
-          func_003e9c10((u8 *)piVar1[3],&stk110[0],2);
+          func_003e9c10((u8 *)((FldCameraData *)cameraData)->targetFrame,&orbitCorrection[0],2);
         }
-        followFrame = *(int *)(kwlnGetCamera() + 4);
-        temp_v5_c = (unsigned int)func_003e9700(*(unsigned int *)(followFrame + 4));
-        moved_c = 0;
-        temp_v12_s7 = *(float *)&piVar1[0xa3];
-        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
+        followFrame = *(s32 *)(kwlnGetCamera() + 4);
+        orbitParentMatrix = (u32)func_003e9700(*(u32 *)(followFrame + 4));
+        orbitMoved = 0;
+        collisionDistance = ((FldCameraData *)cameraData)->desiredDistance;
+        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)((followFrame + 0x10));
         {
-          float negativeX, negativeY, negativeZ, followDistance;
-          float *pushVector;
-          temp_v8_c = piVar1[0xb0];
-          pushVector = &stk120[0];
-          *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
+          f32 negativeX, negativeY, negativeZ, followDistance;
+          f32 *pushVector;
+          orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+          pushVector = &orbitPush[0];
+          *(FldCopyVec *)orbitPush = *(FldCopyVec *)(orbitMatrixOrResult + 0x20);
           RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
-          negativeX = (stk120[0] = -stk120[0]);
-          negativeY = (stk120[1] = -stk120[1]);
-          negativeZ = (stk120[2] = -stk120[2]);
-          followDistance = 55.0f + ((FldCameraDistanceView *)piVar1)->desiredDistance;
-          stk120[0] = negativeX * followDistance;
-          stk120[1] = negativeY * followDistance;
-          stk120[2] = negativeZ * followDistance;
+          negativeX = (orbitPush[0] = -orbitPush[0]);
+          negativeY = (orbitPush[1] = -orbitPush[1]);
+          negativeZ = (orbitPush[2] = -orbitPush[2]);
+          followDistance = 55.0f + ((FldCameraData *)cameraData)->desiredDistance;
+          orbitPush[0] = negativeX * followDistance;
+          orbitPush[1] = negativeY * followDistance;
+          orbitPush[2] = negativeZ * followDistance;
         }
-        RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
-        func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-        segment[0] = stkF0;
-        temp_v8_c = piVar1[0xb0];
-        segment[1] = *(FldCopyVec *)(temp_v8_c + 0x30);
-        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
-        temp_v6_c = FldFrame_RaycastField((const RwV3d *)segment,(RwV3d *)&stk130[0]);
-        if (temp_v6_c == 1) {
-          stk130[0] = stk130[0] - segment[0].x;
-          stk130[1] = stk130[1] - segment[0].y;
-          stk130[2] = stk130[2] - segment[0].z;
-          temp_v14_s4 = RwV3dLength(&stk130[0]);
-          if (!(temp_v14_s4 <= 0.0f)) {
+        RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&orbitPush[0],0);
+        func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)orbitParentMatrix,2);
+        segment[0] = orbitTarget;
+        orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+        segment[1] = *(FldCopyVec *)(orbitMatrixOrResult + 0x30);
+        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)((followFrame + 0x10));
+        orbitRayResult = FldFrame_RaycastField((const RwV3d *)segment,(RwV3d *)&orbitRayHit[0]);
+        if (orbitRayResult == 1) {
+          orbitRayHit[0] = orbitRayHit[0] - segment[0].x;
+          orbitRayHit[1] = orbitRayHit[1] - segment[0].y;
+          orbitRayHit[2] = orbitRayHit[2] - segment[0].z;
+          orbitHitDistance = RwV3dLength(&orbitRayHit[0]);
+          if (!(orbitHitDistance <= 0.0f)) {
             {
-              float negativeX, negativeY, negativeZ;
-              float *pushVector;
-              temp_v8_c = piVar1[0xb0];
-              pushVector = &stk120[0];
-              *(FldCopyVec *)stk120 = *(FldCopyVec *)(temp_v8_c + 0x20);
+              f32 negativeX, negativeY, negativeZ;
+              f32 *pushVector;
+              orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+              pushVector = &orbitPush[0];
+              *(FldCopyVec *)orbitPush = *(FldCopyVec *)(orbitMatrixOrResult + 0x20);
               RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
-              negativeX = (stk120[0] = -stk120[0]);
-              negativeY = (stk120[1] = -stk120[1]);
-              negativeZ = (stk120[2] = -stk120[2]);
-              stk120[0] = negativeX * temp_v14_s4;
-              stk120[1] = negativeY * temp_v14_s4;
-              stk120[2] = negativeZ * temp_v14_s4;
+              negativeX = (orbitPush[0] = -orbitPush[0]);
+              negativeY = (orbitPush[1] = -orbitPush[1]);
+              negativeZ = (orbitPush[2] = -orbitPush[2]);
+              orbitPush[0] = negativeX * orbitHitDistance;
+              orbitPush[1] = negativeY * orbitHitDistance;
+              orbitPush[2] = negativeZ * orbitHitDistance;
             }
-            RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
-            temp_v8_c = piVar1[0xb0];
-            *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-            temp_v12_s7 = temp_v14_s4;
-            moved_c = 1;
+            RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&orbitPush[0],0);
+            orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+            *(FldCopyVec *)orbitCameraPosition = *(FldCopyVec *)(orbitMatrixOrResult + 0x30);
+            collisionDistance = orbitHitDistance;
+            orbitMoved = 1;
           }
         }
-        if ((((D_008C024C[0] & 0xf) != 0) || (temp_v11_s4 < -48.0f)) || (!(temp_v11_s4 <= 48.0f))) {
-          piVar1[0xab] = 0;
+        if ((((D_008C024C[0] & 0xf) != 0) || (stickOrMoveAmount < -48.0f)) || (!(stickOrMoveAmount <= 48.0f))) {
+          ((FldCameraData *)cameraData)->remainingYaw = 0;
         }
         {
-          float yawEntryZero;
-          temp_v14_s5 = *(float *)&piVar1[0xab];
+          f32 yawEntryZero;
+          remainingYaw = ((FldCameraData *)cameraData)->remainingYaw;
           yawEntryZero = 0.0f;
-          if (!(yawEntryZero == temp_v14_s5)) {
-            float clampZero;
-            temp_v9 = 3.0f;
-            if (temp_v14_s5 < yawEntryZero) {
-              temp_v9 = temp_v9 * -1.0f;
+          if (!(yawEntryZero == remainingYaw)) {
+            f32 clampZero;
+            correctionAmount = 3.0f;
+            if (remainingYaw < yawEntryZero) {
+              correctionAmount = correctionAmount * -1.0f;
             }
             clampZero = 0.0f;
-            if (temp_v9 < clampZero) {
-              const float remaining = temp_v14_s5 - temp_v9;
+            if (correctionAmount < clampZero) {
+              const f32 remaining = remainingYaw - correctionAmount;
               if (!(remaining <= clampZero)) {
-                temp_v9 = temp_v9 + remaining;
+                correctionAmount = correctionAmount + remaining;
               }
             }
             else {
-              const float remaining = temp_v14_s5 - temp_v9;
+              const f32 remaining = remainingYaw - correctionAmount;
               if (remaining < clampZero) {
-                temp_v9 = temp_v9 + remaining;
+                correctionAmount = correctionAmount + remaining;
               }
             }
-            temp_v8_c = (int)MT_Scene_GetFrameState();
-            FldCameraSetDistance(*(unsigned char **)(temp_v8_c + 4),temp_v9);
-            *(float *)((u8 *)(u32)piVar1 + 0x2ac) = (*(float *)((u8 *)(u32)piVar1 + 0x2ac) - temp_v9);
+            orbitMatrixOrResult = (s32)MT_Scene_GetFrameState();
+            FldCameraSetDistance(*(u8 **)(orbitMatrixOrResult + 4),correctionAmount);
+            ((FldCameraData *)cameraData)->remainingYaw = (((FldCameraData *)cameraData)->remainingYaw - correctionAmount);
             {
-              float completionZero = 0.0f;
-              if (completionZero == temp_v9) {
-                ((float *)piVar1)[0xab] = completionZero;
+              f32 completionZero = 0.0f;
+              if (completionZero == correctionAmount) {
+                ((FldCameraData *)cameraData)->remainingYaw = completionZero;
               }
             }
           }
         }
         {
-          float wallZero, wallNormalX;
-          wallNormalX = ((float *)piVar1)[0xac];
+          f32 wallZero, wallNormalX;
+          wallNormalX = ((FldCameraData *)cameraData)->wallNormal.x;
           wallZero = 0.0f;
-          if ((((wallZero != wallNormalX || wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b4)) ||
-               (wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b8))) &&
-              ((*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c) && ((D_008C024C[0] & 0xf) == 0)))) &&
-             ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FldEvent_GetMoveStep(), temp_v11_s4 > 0.0f)))))) {
+          if ((((wallZero != wallNormalX || wallZero != ((FldCameraData *)cameraData)->wallNormal.y) ||
+               (wallZero != ((FldCameraData *)cameraData)->wallNormal.z)) &&
+              ((((FldCameraData *)cameraData)->currentDistance < ((FldCameraData *)cameraData)->desiredDistance && ((D_008C024C[0] & 0xf) == 0)))) &&
+             ((!(stickOrMoveAmount < -48.0f) && ((stickOrMoveAmount <= 48.0f && (stickOrMoveAmount = FldEvent_GetMoveStep(), stickOrMoveAmount > 0.0f)))))) {
             {
-              float forwardZ, forwardY, forwardX;
-              float *forwardVector;
-              temp_v8_c = (int)func_003e9700((s32)followFrame);
-              forwardVector = &stk1A0[0];
-              *(FldCopyVec *)stk1A0 = *(FldCopyVec *)(temp_v8_c + 0x20);
-              stk1A0[1] = 0.0f;
+              f32 forwardZ, forwardY, forwardX;
+              f32 *forwardVector;
+              orbitMatrixOrResult = (s32)func_003e9700((s32)followFrame);
+              forwardVector = &cameraForward[0];
+              *(FldCopyVec *)cameraForward = *(FldCopyVec *)(orbitMatrixOrResult + 0x20);
+              cameraForward[1] = 0.0f;
               RwV3dNormalize((RwV3d *)forwardVector,(const RwV3d *)forwardVector);
-              temp_v11_s5 = D_00756514[0];
-              forwardZ = stk1A0[2];
-              temp_v14_s6 = D_00756518[0];
-              forwardY = stk1A0[1];
-              stk190[0] = forwardY * temp_v14_s6 - forwardZ * temp_v11_s5;
-              forwardX = stk1A0[0];
-              temp_v9_s4 = D_00756510[0];
-              stk190[1] = forwardZ * temp_v9_s4 - forwardX * temp_v14_s6;
-              stk190[2] = forwardX * temp_v11_s5 - forwardY * temp_v9_s4;
+              upAxisY = D_00756514[0];
+              forwardZ = cameraForward[2];
+              upAxisZ = D_00756518[0];
+              forwardY = cameraForward[1];
+              cameraRight[0] = forwardY * upAxisZ - forwardZ * upAxisY;
+              forwardX = cameraForward[0];
+              upAxisX = D_00756510[0];
+              cameraRight[1] = forwardZ * upAxisX - forwardX * upAxisZ;
+              cameraRight[2] = forwardX * upAxisY - forwardY * upAxisX;
               {
-                float *rightVector = &stk190[0];
+                f32 *rightVector = &cameraRight[0];
                 RwV3dNormalize((RwV3d *)rightVector,(const RwV3d *)rightVector);
               }
             }
             {
-              float normalZ, normalY, normalX;
-              normalZ = *(float *)((u8 *)(u32)piVar1 + 0x2b8);
-              normalY = *(float *)((u8 *)(u32)piVar1 + 0x2b4);
-              stk180[0] = normalY * temp_v14_s6 - normalZ * temp_v11_s5;
-              normalX = *(float *)((u8 *)(u32)piVar1 + 0x2b0);
-              stk180[1] = normalZ * temp_v9_s4 - normalX * temp_v14_s6;
-              stk180[2] = normalX * temp_v11_s5 - normalY * temp_v9_s4;
+              f32 normalZ, normalY, normalX;
+              normalZ = ((FldCameraData *)cameraData)->wallNormal.z;
+              normalY = ((FldCameraData *)cameraData)->wallNormal.y;
+              wallTangent[0] = normalY * upAxisZ - normalZ * upAxisY;
+              normalX = ((FldCameraData *)cameraData)->wallNormal.x;
+              wallTangent[1] = normalZ * upAxisX - normalX * upAxisZ;
+              wallTangent[2] = normalX * upAxisY - normalY * upAxisX;
               {
-                float *tangentVector = &stk180[0];
+                f32 *tangentVector = &wallTangent[0];
                 RwV3dNormalize((RwV3d *)tangentVector,(const RwV3d *)tangentVector);
               }
             }
             {
-              float forwardY, forwardX, forwardZ;
-              float normalX, normalZ, normalY, facingZero, facingDot;
-              forwardY = stk1A0[1];
-              forwardX = stk1A0[0];
-              normalX = stk180[0];
-              forwardZ = stk1A0[2];
-              normalZ = stk180[2];
-              normalY = stk180[1];
+              f32 forwardY, forwardX, forwardZ;
+              f32 normalX, normalZ, normalY, facingZero, facingDot;
+              forwardY = cameraForward[1];
+              forwardX = cameraForward[0];
+              normalX = wallTangent[0];
+              forwardZ = cameraForward[2];
+              normalZ = wallTangent[2];
+              normalY = wallTangent[1];
               {
-                const float yProduct = normalY * forwardY;
+                const f32 yProduct = normalY * forwardY;
                 facingZero = 0.0f;
                 facingDot = normalX * forwardX + yProduct + normalZ * forwardZ;
               }
               if (facingDot < facingZero) {
-                stk180[0] = -normalX;
-                stk180[1] = -normalY;
-                stk180[2] = -normalZ;
+                wallTangent[0] = -normalX;
+                wallTangent[1] = -normalY;
+                wallTangent[2] = -normalZ;
               }
               {
-                float reloadedZ = stk180[2];
-                float reloadedX = stk180[0];
-                float reloadedY = stk180[1];
-                float alignment = reloadedX * forwardX + reloadedY * forwardY + reloadedZ * forwardZ;
-                temp_v14_s7 = 180.0f * (1.0f - alignment);
+                f32 reloadedZ = wallTangent[2];
+                f32 reloadedX = wallTangent[0];
+                f32 reloadedY = wallTangent[1];
+                f32 alignment = reloadedX * forwardX + reloadedY * forwardY + reloadedZ * forwardZ;
+                wallYaw = 180.0f * (1.0f - alignment);
               }
             }
-            temp_v11_s6 = *(float *)&piVar1[0xac] * stk190[0] +
-                     ((float *)piVar1)[0xad] * stk190[1] + ((float *)piVar1)[0xae] * stk190[2];
-            if (temp_v11_s6 < fGpffff84e4) {
-              *(float *)((u8 *)(u32)piVar1 + 0x2ac) = -temp_v14_s7;
+            wallSideDot = ((FldCameraData *)cameraData)->wallNormal.x * cameraRight[0] +
+                     ((FldCameraData *)cameraData)->wallNormal.y * cameraRight[1] + ((FldCameraData *)cameraData)->wallNormal.z * cameraRight[2];
+            if (wallSideDot < fGpffff84e4) {
+              ((FldCameraData *)cameraData)->remainingYaw = -wallYaw;
             }
-            else if (!(temp_v11_s6 <= fGpffff84e8)) {
-              *(float *)((u8 *)(u32)piVar1 + 0x2ac) = temp_v14_s7;
+            else if (!(wallSideDot <= fGpffff84e8)) {
+              ((FldCameraData *)cameraData)->remainingYaw = wallYaw;
             }
           }
         }
-        piVar1[0xac] = 0;
-        piVar1[0xad] = 0;
-        piVar1[0xae] = 0;
-        func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-        temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
-        if (temp_v8_c == 1) {
-          *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
+        ((FldCameraData *)cameraData)->wallNormal.x = 0;
+        ((FldCameraData *)cameraData)->wallNormal.y = 0;
+        ((FldCameraData *)cameraData)->wallNormal.z = 0;
+        func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)orbitParentMatrix,2);
+        orbitMatrixOrResult = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)((FldCameraData *)cameraData)->matrix + 0x30),55.0f,(RwV3d *)&wallNormal[0],(RwV3d *)&wallHit[0]);
+        if (orbitMatrixOrResult == 1) {
+          *(FldCopyVec *)&((FldCameraData *)cameraData)->wallNormal.x = *(FldCopyVec *)&wallNormal;
           {
-            float upY, normalZ, upZ, normalY, normalX, upX;
+            f32 upY, normalZ, upZ, normalY, normalX, upX;
             upY = D_00756514[0];
-            normalZ = stk160[2];
+            normalZ = wallNormal[2];
             upZ = D_00756518[0];
-            normalY = stk160[1];
-            stk1B0[0] = normalY * upZ - normalZ * upY;
-            normalX = stk160[0];
+            normalY = wallNormal[1];
+            collisionTangent[0] = normalY * upZ - normalZ * upY;
+            normalX = wallNormal[0];
             upX = D_00756510[0];
-            stk1B0[1] = normalZ * upX - normalX * upZ;
-            stk1B0[2] = normalX * upY - normalY * upX;
+            collisionTangent[1] = normalZ * upX - normalX * upZ;
+            collisionTangent[2] = normalX * upY - normalY * upX;
             {
-              float *tangentVector = &stk1B0[0];
+              f32 *tangentVector = &collisionTangent[0];
               RwV3dNormalize((RwV3d *)tangentVector,(const RwV3d *)tangentVector);
             }
           }
           {
-            float *forwardVector;
-            temp_v8_c = piVar1[0xb0];
-            forwardVector = &stk1C0[0];
-            *(FldCopyVec *)stk1C0 = *(FldCopyVec *)(temp_v8_c + 0x20);
+            f32 *forwardVector;
+            orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+            forwardVector = &collisionForward[0];
+            *(FldCopyVec *)collisionForward = *(FldCopyVec *)(orbitMatrixOrResult + 0x20);
             RwV3dNormalize((RwV3d *)forwardVector,(const RwV3d *)forwardVector);
           }
           {
-            float targetX, targetY, targetZ;
-            float tangentY, tangentX, tangentZ;
-            float hitX, hitY, hitZ, projectionZero, projectionScale;
-            FldFrameTask_GetPosition((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
-            targetX = (stkF0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
-            targetY = (stkF0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
-            targetZ = (stkF0.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
-            temp_v8_c = piVar1[0xb0];
-            sv1d0 = *(FldCopyVec *)(temp_v8_c + 0x30);
-            tangentY = stk1B0[1];
-            tangentX = stk1B0[0];
-            tangentZ = stk1B0[2];
-            hitX = stk170[0];
-            hitY = stk170[1];
-            hitZ = stk170[2];
+            f32 targetX, targetY, targetZ;
+            f32 tangentY, tangentX, tangentZ;
+            f32 hitX, hitY, hitZ, projectionZero, projectionScale;
+            FldFrameTask_GetPosition((u8 *)&orbitTarget.x,*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x220));
+            targetX = (orbitTarget.x += ((FldCameraData *)cameraData)->offset.x);
+            targetY = (orbitTarget.y += ((FldCameraData *)cameraData)->offset.y);
+            targetZ = (orbitTarget.z += ((FldCameraData *)cameraData)->offset.z);
+            orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+            collisionPosition = *(FldCopyVec *)(orbitMatrixOrResult + 0x30);
+            tangentY = collisionTangent[1];
+            tangentX = collisionTangent[0];
+            tangentZ = collisionTangent[2];
+            hitX = wallHit[0];
+            hitY = wallHit[1];
+            hitZ = wallHit[2];
             {
-              const float numeratorStart = hitX * tangentX;
+              const f32 numeratorStart = hitX * tangentX;
               projectionZero = 0.0f;
               projectionScale = (numeratorStart - targetX * tangentX + hitY * tangentY - targetY * tangentY +
                                  hitZ * tangentZ - targetZ * tangentZ) /
                                -(tangentX * tangentX + tangentY * tangentY + tangentZ * tangentZ);
             }
             {
-              const float affineOrigin = projectionZero + hitX;
-              const float scaledDirection = tangentX * projectionScale;
-              stk10[0] = affineOrigin + scaledDirection;
+              const f32 affineOrigin = projectionZero + hitX;
+              const f32 scaledDirection = tangentX * projectionScale;
+              projectedPoint[0] = affineOrigin + scaledDirection;
             }
             {
-              const float affineOrigin = projectionZero + hitY;
-              const float scaledDirection = tangentY * projectionScale;
-              stk10[1] = affineOrigin + scaledDirection;
+              const f32 affineOrigin = projectionZero + hitY;
+              const f32 scaledDirection = tangentY * projectionScale;
+              projectedPoint[1] = affineOrigin + scaledDirection;
             }
             {
-              const float affineOrigin = projectionZero + hitZ;
-              const float scaledDirection = tangentZ * projectionScale;
-              stk10[2] = affineOrigin + scaledDirection;
+              const f32 affineOrigin = projectionZero + hitZ;
+              const f32 scaledDirection = tangentZ * projectionScale;
+              projectedPoint[2] = affineOrigin + scaledDirection;
             }
-            stk1E0[0] = sv1d0.x - hitX;
-            stk1E0[1] = sv1d0.y - hitY;
+            wallDelta[0] = collisionPosition.x - hitX;
+            wallDelta[1] = collisionPosition.y - hitY;
             /* Retail keeps camera Z across both vector-length calls. */
-            cameraPositionZ = sv1d0.z;
-            stk1E0[2] = cameraPositionZ - hitZ;
-            temp_v11_s8 = RwV3dLength(&stk1E0[0]);
+            cameraPositionZ = collisionPosition.z;
+            wallDelta[2] = cameraPositionZ - hitZ;
+            wallPushDistance = RwV3dLength(&wallDelta[0]);
           }
-          stk1E0[0] = stkF0.x - stk10[0];
-          stk1E0[1] = stkF0.y - stk10[1];
-          stk1E0[2] = stkF0.z - stk10[2];
-          temp_v9 = RwV3dLength(&stk1E0[0]);
-          temp_v14_s8 = (stkF0.z - cameraPositionZ) / stk1C0[2];
-          temp_v11_s8 = (55.0f - temp_v11_s8) / ((temp_v9 - temp_v11_s8) / temp_v14_s8);
-          if (temp_v14_s8 < 0.0f) {
-            temp_v14_s8 = temp_v14_s8 * -1.0f;
+          wallDelta[0] = orbitTarget.x - projectedPoint[0];
+          wallDelta[1] = orbitTarget.y - projectedPoint[1];
+          wallDelta[2] = orbitTarget.z - projectedPoint[2];
+          correctionAmount = RwV3dLength(&wallDelta[0]);
+          forwardWallDistance = (orbitTarget.z - cameraPositionZ) / collisionForward[2];
+          wallPushDistance = (55.0f - wallPushDistance) / ((correctionAmount - wallPushDistance) / forwardWallDistance);
+          if (forwardWallDistance < 0.0f) {
+            forwardWallDistance = forwardWallDistance * -1.0f;
           }
-          if (temp_v11_s8 < 0.0f) {
-            temp_v11_s8 = temp_v11_s8 * -1.0f;
+          if (wallPushDistance < 0.0f) {
+            wallPushDistance = wallPushDistance * -1.0f;
           }
-          if (temp_v12_s7 <= 0.0f) {
-            temp_v12_s7 = *(float *)((u8 *)(u32)piVar1 + 0x28c);
+          if (collisionDistance <= 0.0f) {
+            collisionDistance = ((FldCameraData *)cameraData)->desiredDistance;
           }
           {
-            float wallRatio = fabsf((temp_v14_s8 - temp_v11_s8) / temp_v14_s8);
+            f32 wallRatio = fabsf((forwardWallDistance - wallPushDistance) / forwardWallDistance);
             {
-              float maximumRatio = 1.0f;
+              f32 maximumRatio = 1.0f;
               if (!(wallRatio <= maximumRatio)) {
                 wallRatio = maximumRatio;
               }
             }
             {
-              float normalThreshold, absoluteX;
-              absoluteX = fabsf(stk160[0]);
+              f32 normalThreshold, absoluteX;
+              absoluteX = fabsf(wallNormal[0]);
               normalThreshold = 0.2f;
-              if (!(absoluteX <= normalThreshold) && !(fabsf(stk160[2]) <= normalThreshold)) {
+              if (!(absoluteX <= normalThreshold) && !(fabsf(wallNormal[2]) <= normalThreshold)) {
                 wallRatio = wallRatio * 0.5f;
               }
             }
-            temp_v12_s7 = temp_v12_s7 * wallRatio;
+            collisionDistance = collisionDistance * wallRatio;
           }
-          moved_c = 1;
+          orbitMoved = 1;
         }
-        if (moved_c == 1) {
-          if (temp_v12_s7 < ((float *)piVar1)[0xa5]) {
-            *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
+        if (orbitMoved == 1) {
+          if (collisionDistance < ((FldCameraData *)cameraData)->currentDistance) {
+            *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)((followFrame + 0x10));
             {
-              float negativeX, negativeY, negativeZ;
-              float *pushVector;
-              temp_v8_c = piVar1[0xb0];
-              pushVector = &stk120[0];
-              *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
+              f32 negativeX, negativeY, negativeZ;
+              f32 *pushVector;
+              orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+              pushVector = &orbitPush[0];
+              *(FldCamVec *)orbitPush = *(FldCamVec *)(orbitMatrixOrResult + 0x20);
               RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
-              negativeX = (stk120[0] = -stk120[0]);
-              negativeY = (stk120[1] = -stk120[1]);
-              negativeZ = (stk120[2] = -stk120[2]);
-              stk120[0] = negativeX * temp_v12_s7;
-              stk120[1] = negativeY * temp_v12_s7;
-              stk120[2] = negativeZ * temp_v12_s7;
+              negativeX = (orbitPush[0] = -orbitPush[0]);
+              negativeY = (orbitPush[1] = -orbitPush[1]);
+              negativeZ = (orbitPush[2] = -orbitPush[2]);
+              orbitPush[0] = negativeX * collisionDistance;
+              orbitPush[1] = negativeY * collisionDistance;
+              orbitPush[2] = negativeZ * collisionDistance;
             }
-            RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
-            temp_v8_c = piVar1[0xb0];
-            *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-            pbVar9_s2 = (unsigned char *)kwlnGetCamera();
-            K_ClumpLookAtBasis(pbVar9_s2,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
-            *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v12_s7;
+            RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&orbitPush[0],0);
+            orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+            *(FldCopyVec *)orbitCameraPosition = *(FldCopyVec *)(orbitMatrixOrResult + 0x30);
+            nearWallCamera = (u8 *)kwlnGetCamera();
+            K_ClumpLookAtBasis(nearWallCamera,(u8 *)((s32 *)&orbitCameraPosition[0]),D_007F1710,0);
+            ((FldCameraData *)cameraData)->currentDistance = collisionDistance;
           }
-          else if ((0.0f == *(float *)((u8 *)(u32)piVar1 + 0x2ac)) && ((piVar1[1] & 2U) == 0)) {
+          else if ((0.0f == ((FldCameraData *)cameraData)->remainingYaw) && ((((FldCameraData *)cameraData)->flags & 2U) == 0)) {
             {
-              float maximumStep;
-              if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
-                temp_v11_c = 15.0f;
+              f32 maximumStep;
+              if (0.0f == (orbitMoveAmount = ((maximumStep = 15.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
+                orbitMoveAmount = 15.0f;
               }
             }
-            temp_v14_c = ((FldCameraDistanceView *)piVar1)->currentDistance;
-            if (temp_v12_s7 <= temp_v14_c + temp_v11_c) {
-              temp_v11_c = temp_v12_s7 - temp_v14_c;
+            currentOrbitDistance = ((FldCameraData *)cameraData)->currentDistance;
+            if (collisionDistance <= currentOrbitDistance + orbitMoveAmount) {
+              orbitMoveAmount = collisionDistance - currentOrbitDistance;
             }
-            *(float *)((u8 *)(u32)piVar1 + 0x294) = *(float *)((u8 *)(u32)piVar1 + 0x294) + temp_v11_c;
-            if (!(*(float *)((u8 *)(u32)piVar1 + 0x294) < temp_v12_s7)) {
-              *(float *)&piVar1[0xa5] = temp_v12_s7;
+            ((FldCameraData *)cameraData)->currentDistance = ((FldCameraData *)cameraData)->currentDistance + orbitMoveAmount;
+            if (!(((FldCameraData *)cameraData)->currentDistance < collisionDistance)) {
+              ((FldCameraData *)cameraData)->currentDistance = collisionDistance;
             }
-            resumeDistance = *(float *)((u8 *)(u32)piVar1 + 0x28c);
-            if (*(float *)&piVar1[0xa5] < resumeDistance) {
-              *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
+            resumeDistance = ((FldCameraData *)cameraData)->desiredDistance;
+            if (((FldCameraData *)cameraData)->currentDistance < resumeDistance) {
+              *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)((followFrame + 0x10));
               {
-                float negativeX, negativeY, negativeZ, followDistance;
-                float *pushVector;
-                temp_v8_c = piVar1[0xb0];
-                pushVector = &stk120[0];
-                *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
+                f32 negativeX, negativeY, negativeZ, followDistance;
+                f32 *pushVector;
+                orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+                pushVector = &orbitPush[0];
+                *(FldCamVec *)orbitPush = *(FldCamVec *)(orbitMatrixOrResult + 0x20);
                 RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
-                negativeX = (stk120[0] = -stk120[0]);
-                negativeY = (stk120[1] = -stk120[1]);
-                negativeZ = (stk120[2] = -stk120[2]);
-                followDistance = *(float *)&piVar1[0xa5];
-                stk120[0] = negativeX * followDistance;
-                stk120[1] = negativeY * followDistance;
-                stk120[2] = negativeZ * followDistance;
+                negativeX = (orbitPush[0] = -orbitPush[0]);
+                negativeY = (orbitPush[1] = -orbitPush[1]);
+                negativeZ = (orbitPush[2] = -orbitPush[2]);
+                followDistance = ((FldCameraData *)cameraData)->currentDistance;
+                orbitPush[0] = negativeX * followDistance;
+                orbitPush[1] = negativeY * followDistance;
+                orbitPush[2] = negativeZ * followDistance;
               }
-              RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
-              temp_v8_c = piVar1[0xb0];
-              *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-              func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-              temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
-              if (temp_v8_c == 0) {
-                *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
-                pbVar9_s3 = (unsigned char *)kwlnGetCamera();
-                K_ClumpLookAtBasis(pbVar9_s3,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
+              RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&orbitPush[0],0);
+              orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+              *(FldCopyVec *)orbitCameraPosition = *(FldCopyVec *)(orbitMatrixOrResult + 0x30);
+              func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)orbitParentMatrix,2);
+              orbitMatrixOrResult = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)((FldCameraData *)cameraData)->matrix + 0x30),55.0f,(RwV3d *)&wallNormal[0],(RwV3d *)&wallHit[0]);
+              if (orbitMatrixOrResult == 0) {
+                *(FldCopyVec *)&((FldCameraData *)cameraData)->wallNormal.x = *(FldCopyVec *)&wallNormal;
+                resumingCamera = (u8 *)kwlnGetCamera();
+                K_ClumpLookAtBasis(resumingCamera,(u8 *)((s32 *)&orbitCameraPosition[0]),D_007F1710,0);
               }
               else {
-                *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
+                ((FldCameraData *)cameraData)->currentDistance = (((FldCameraData *)cameraData)->currentDistance - orbitMoveAmount);
               }
             }
             else {
-              *(float *)&piVar1[0xa5] = resumeDistance;
+              ((FldCameraData *)cameraData)->currentDistance = resumeDistance;
             }
           }
         }
-        else if (((*(float *)((u8 *)(u32)piVar1 + 0x2ac) == 0.0f) && ((piVar1[1] & 2U) == 0)) &&
-                (*(float *)&piVar1[0xa5] < ((float *)piVar1)[0xa3])) {
+        else if (((((FldCameraData *)cameraData)->remainingYaw == 0.0f) && ((((FldCameraData *)cameraData)->flags & 2U) == 0)) &&
+                (((FldCameraData *)cameraData)->currentDistance < ((FldCameraData *)cameraData)->desiredDistance)) {
           {
-            float maximumStep;
-            if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
-              temp_v11_c = 15.0f;
+            f32 maximumStep;
+            if (0.0f == (orbitMoveAmount = ((maximumStep = 15.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
+              orbitMoveAmount = 15.0f;
             }
           }
           {
-            float currentDistance, desiredDistance;
-            currentDistance = ((FldCameraDistanceView *)piVar1)->currentDistance;
-            desiredDistance = *(float *)&piVar1[0xa3];
-            if (desiredDistance <= currentDistance + temp_v11_c) {
-              temp_v11_c = desiredDistance - currentDistance;
+            f32 currentDistance, desiredDistance;
+            currentDistance = ((FldCameraData *)cameraData)->currentDistance;
+            desiredDistance = ((FldCameraData *)cameraData)->desiredDistance;
+            if (desiredDistance <= currentDistance + orbitMoveAmount) {
+              orbitMoveAmount = desiredDistance - currentDistance;
             }
           }
-          *(float *)((u8 *)(u32)piVar1 + 0x294) = *(float *)((u8 *)(u32)piVar1 + 0x294) + temp_v11_c;
+          ((FldCameraData *)cameraData)->currentDistance = ((FldCameraData *)cameraData)->currentDistance + orbitMoveAmount;
           {
-            float desiredDistance, currentDistance;
-            desiredDistance = ((FldCameraDistanceView *)piVar1)->desiredDistance;
-            currentDistance = ((FldCameraDistanceView *)piVar1)->currentDistance;
+            f32 desiredDistance, currentDistance;
+            desiredDistance = ((FldCameraData *)cameraData)->desiredDistance;
+            currentDistance = ((FldCameraData *)cameraData)->currentDistance;
             if (!(currentDistance < desiredDistance)) {
-              ((float *)piVar1)[0xa5] = desiredDistance;
+              ((FldCameraData *)cameraData)->currentDistance = desiredDistance;
             }
           }
           {
-            float negativeX, negativeY, negativeZ, followDistance;
-            float *pushVector;
-            temp_v8_c = piVar1[0xb0];
-            pushVector = &stk120[0];
-            *(FldCamVec *)stk120 = *(FldCamVec *)(temp_v8_c + 0x20);
+            f32 negativeX, negativeY, negativeZ, followDistance;
+            f32 *pushVector;
+            orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+            pushVector = &orbitPush[0];
+            *(FldCamVec *)orbitPush = *(FldCamVec *)(orbitMatrixOrResult + 0x20);
             RwV3dNormalize((RwV3d *)pushVector,(const RwV3d *)pushVector);
-            negativeX = (stk120[0] = -stk120[0]);
-            negativeY = (stk120[1] = -stk120[1]);
-            negativeZ = (stk120[2] = -stk120[2]);
-            followDistance = ((float *)piVar1)[0xa5];
-            stk120[0] = negativeX * followDistance;
-            stk120[1] = negativeY * followDistance;
-            stk120[2] = negativeZ * followDistance;
+            negativeX = (orbitPush[0] = -orbitPush[0]);
+            negativeY = (orbitPush[1] = -orbitPush[1]);
+            negativeZ = (orbitPush[2] = -orbitPush[2]);
+            followDistance = ((FldCameraData *)cameraData)->currentDistance;
+            orbitPush[0] = negativeX * followDistance;
+            orbitPush[1] = negativeY * followDistance;
+            orbitPush[2] = negativeZ * followDistance;
           }
-          RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
-          temp_v8_c = piVar1[0xb0];
-          *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-          func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
-          temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
-          if (temp_v8_c == 0) {
-            pbVar9_c = (unsigned char *)kwlnGetCamera();
-            K_ClumpLookAtBasis(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
+          RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&orbitPush[0],0);
+          orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
+          *(FldCopyVec *)orbitCameraPosition = *(FldCopyVec *)(orbitMatrixOrResult + 0x30);
+          func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)orbitParentMatrix,2);
+          orbitMatrixOrResult = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)((FldCameraData *)cameraData)->matrix + 0x30),55.0f,(RwV3d *)&wallNormal[0],(RwV3d *)&wallHit[0]);
+          if (orbitMatrixOrResult == 0) {
+            orbitCamera = (u8 *)kwlnGetCamera();
+            K_ClumpLookAtBasis(orbitCamera,(u8 *)((s32 *)&orbitCameraPosition[0]),D_007F1710,0);
           }
           else {
-            *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
-            *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
+            ((FldCameraData *)cameraData)->currentDistance = (((FldCameraData *)cameraData)->currentDistance - orbitMoveAmount);
+            *(FldCopyVec *)&((FldCameraData *)cameraData)->wallNormal.x = *(FldCopyVec *)&wallNormal;
           }
         }
-        FldFrameTask_GetPosition((unsigned char *)&stkF0.x,*(unsigned char **)(piVar1[0xa2] + 0x220));
-        stkF0.y = stkF0.y + 180.0f;
-        temp_v4_c = (int)func_003e9700((s32)followFrame);
-        cpv5 = *(FldCopyVec *)(temp_v4_c + 0x30);
-        stk110[0] = stkF0.x - cpv5.x;
-        stk110[1] = stkF0.y - cpv5.y;
-        stk110[2] = stkF0.z - cpv5.z;
-        temp_v11_c = RwV3dLength(&stk110[0]);
+        FldFrameTask_GetPosition((u8 *)&orbitTarget.x,*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x220));
+        orbitTarget.y = orbitTarget.y + 180.0f;
+        orbitHandleOrResult = (s32)func_003e9700((s32)followFrame);
+        orbitFramePosition = *(FldCopyVec *)(orbitHandleOrResult + 0x30);
+        orbitCorrection[0] = orbitTarget.x - orbitFramePosition.x;
+        orbitCorrection[1] = orbitTarget.y - orbitFramePosition.y;
+        orbitCorrection[2] = orbitTarget.z - orbitFramePosition.z;
+        orbitMoveAmount = RwV3dLength(&orbitCorrection[0]);
         {
-          unsigned char *fadeTask = (unsigned char *)piVar1[0xaa];
-          if (fadeTask != (unsigned char *)0x0 &&
-              (temp_v4_c = KDraw_IsEffectDone(fadeTask), temp_v4_c == 1)) {
-            mdlClearAlphaBlend(*(unsigned char **)(piVar1[0xa2] + 0x164));
-            kwlnTaskDestroyWithHierarchy((void *)piVar1[0xaa]);
-            piVar1[0xaa] = 0;
+          u8 *fadeTask = (u8 *)((FldCameraData *)cameraData)->fadeTask;
+          if (fadeTask != (u8 *)0x0 &&
+              (orbitHandleOrResult = KDraw_IsEffectDone(fadeTask), orbitHandleOrResult == 1)) {
+            mdlClearAlphaBlend(*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x164));
+            kwlnTaskDestroyWithHierarchy((void *)((FldCameraData *)cameraData)->fadeTask);
+            ((FldCameraData *)cameraData)->fadeTask = 0;
           }
         }
         fadeColour = *(const FldCameraColour *)&uGpffff9f2c;
-        if (temp_v11_c <= 55.0f + ((float *)piVar1)[0xa4]) {
-          if (piVar1[0xaa] != 0) {
-            mdlClearAlphaBlend(*(unsigned char **)(piVar1[0xa2] + 0x164));
-            kwlnTaskDestroyWithHierarchy((void *)piVar1[0xaa]);
-            piVar1[0xaa] = 0;
+        if (orbitMoveAmount <= 55.0f + ((FldCameraData *)cameraData)->minimumDistance) {
+          if (((FldCameraData *)cameraData)->fadeTask != 0) {
+            mdlClearAlphaBlend(*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x164));
+            kwlnTaskDestroyWithHierarchy((void *)((FldCameraData *)cameraData)->fadeTask);
+            ((FldCameraData *)cameraData)->fadeTask = 0;
           }
-          mdlSetColor((void *)*(unsigned int *)(piVar1[0xa2] + 0x164),((int *)&fadeColour));
-          piVar1[0xa6] = 1;
+          mdlSetColor((void *)*(u32 *)(((FldCameraData *)cameraData)->targetResource + 0x164),((s32 *)&fadeColour));
+          ((FldCameraData *)cameraData)->faded = 1;
         }
-        if (piVar1[0xa6] != 1) goto LAB_0016e0c0;
-        if (temp_v11_c <= 55.0f + *(float *)((u8 *)(u32)piVar1 + 0x290)) goto LAB_0016e0c0;
-        mdlSetAlphaBlend(*(unsigned char **)(piVar1[0xa2] + 0x164));
-        temp_v4_c = KMisc_CreateRmdFade((int)param_1,*(int *)(piVar1[0xa2] + 0x164),0,0xff,10);
-        piVar1[0xaa] = temp_v4_c;
-        piVar1[0xa6] = 0;
+        if (((FldCameraData *)cameraData)->faded != 1) goto LAB_0016e0c0;
+        if (orbitMoveAmount <= 55.0f + ((FldCameraData *)cameraData)->minimumDistance) goto LAB_0016e0c0;
+        mdlSetAlphaBlend(*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x164));
+        orbitHandleOrResult = KMisc_CreateRmdFade((s32)task,*(s32 *)(((FldCameraData *)cameraData)->targetResource + 0x164),0,0xff,10);
+        ((FldCameraData *)cameraData)->fadeTask = orbitHandleOrResult;
+        ((FldCameraData *)cameraData)->faded = 0;
         goto LAB_0016e0c0;
       case 7:
-        FldFrameTask_GetPosition((unsigned char *)&stk290[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
-        cv0 = *(FldCamVec *)(stk290);
-        pfVar8_d = (float *)FldCameraGetRecord(param_1);
-        sv200 = *(FldCopyVec *)pfVar8_d;
-        temp_v4_d = (int)kwlnGetCamera();
-        if (*(int *)(*(int *)(temp_v4_d + 4) + 4) == piVar1[4]) {
-          temp_v4_d = (int)kwlnGetCamera();
-          func_003e99a0((void *)*(unsigned int *)(temp_v4_d + 4));
-          func_003e9830(piVar1[4],piVar1[3]);
-          temp_v4_d = (int)kwlnGetCamera();
-          func_003e9830(piVar1[3],*(int *)(temp_v4_d + 4));
+        FldFrameTask_GetPosition((u8 *)&chaseTargetPosition[0],*(u8 **)(((FldCameraData *)cameraData)->targetResource + 0x220));
+        chaseTarget = *(FldCamVec *)(chaseTargetPosition);
+        chaseRecord = (f32 *)FldCameraGetRecord(task);
+        chasePosition = *(FldCopyVec *)chaseRecord;
+        chaseFrameHandle = (s32)kwlnGetCamera();
+        if (*(s32 *)(*(s32 *)(chaseFrameHandle + 4) + 4) == ((FldCameraData *)cameraData)->parentFrame) {
+          chaseFrameHandle = (s32)kwlnGetCamera();
+          func_003e99a0((void *)*(u32 *)(chaseFrameHandle + 4));
+          func_003e9830(((FldCameraData *)cameraData)->parentFrame,((FldCameraData *)cameraData)->targetFrame);
+          chaseFrameHandle = (s32)kwlnGetCamera();
+          func_003e9830(((FldCameraData *)cameraData)->targetFrame,*(s32 *)(chaseFrameHandle + 4));
         }
-        targetX7 = (cv0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
-        targetY7 = (cv0.y += *(float *)((u8 *)(u32)piVar1 + 0x18));
-        targetZ7 = (cv0.z += *(float *)((u8 *)(u32)piVar1 + 0x1c));
-        deltaX7 = targetX7 - sv200.x;
-        stk220[0] = deltaX7;
-        temp_v12_s13 = targetY7 - sv200.y;
-        stk220[1] = temp_v12_s13;
-        deltaZ7 = targetZ7 - sv200.z;
-        stk220[2] = deltaZ7;
+        targetX7 = (chaseTarget.x += ((FldCameraData *)cameraData)->offset.x);
+        targetY7 = (chaseTarget.y += ((FldCameraData *)cameraData)->offset.y);
+        targetZ7 = (chaseTarget.z += ((FldCameraData *)cameraData)->offset.z);
+        deltaX7 = targetX7 - chasePosition.x;
+        chaseCorrection[0] = deltaX7;
+        chaseDeltaY = targetY7 - chasePosition.y;
+        chaseCorrection[1] = chaseDeltaY;
+        deltaZ7 = targetZ7 - chasePosition.z;
+        chaseCorrection[2] = deltaZ7;
         {
-          const float squaredZ7 = deltaZ7 * deltaZ7;
+          const f32 squaredZ7 = deltaZ7 * deltaZ7;
           horizontalZero7 = 0.0f;
           horizontalLength7 = sqrtf(deltaX7 * deltaX7 + squaredZ7);
         }
-        horizontalRadius7 = *(float *)((u8 *)(u32)piVar1 + 0x20);
+        horizontalRadius7 = ((FldCameraData *)cameraData)->radius;
         if (!(horizontalLength7 <= horizontalRadius7)) {
-          temp_v11_s20 = horizontalLength7 - horizontalRadius7;
-          stk220[1] = horizontalZero7;
-          correctionVector7 = &stk220[0];
+          chaseHorizontalCorrection = horizontalLength7 - horizontalRadius7;
+          chaseCorrection[1] = horizontalZero7;
+          correctionVector7 = &chaseCorrection[0];
           RwV3dNormalize((RwV3d *)correctionVector7,(const RwV3d *)correctionVector7);
-          stk220[0] = stk220[0] * temp_v11_s20;
-          stk220[1] = stk220[1] * temp_v11_s20;
-          stk220[2] = stk220[2] * temp_v11_s20;
-          func_003e9c10((u8 *)piVar1[3],&stk220[0],2);
+          chaseCorrection[0] = chaseCorrection[0] * chaseHorizontalCorrection;
+          chaseCorrection[1] = chaseCorrection[1] * chaseHorizontalCorrection;
+          chaseCorrection[2] = chaseCorrection[2] * chaseHorizontalCorrection;
+          func_003e9c10((u8 *)((FldCameraData *)cameraData)->targetFrame,&chaseCorrection[0],2);
         }
-        stk220[1] = temp_v12_s13;
-        if (temp_v12_s13 < 0.0f) {
-          temp_v12_s13 = temp_v12_s13 * -1.0f;
+        chaseCorrection[1] = chaseDeltaY;
+        if (chaseDeltaY < 0.0f) {
+          chaseDeltaY = chaseDeltaY * -1.0f;
         }
-        verticalHeight7 = *(float *)((u8 *)(u32)piVar1 + 0x24);
+        verticalHeight7 = ((FldCameraData *)cameraData)->height;
         verticalRadius7 = verticalHeight7 / 2.0f;
-        if (!(temp_v12_s13 <= verticalRadius7)) {
-          verticalAmount7 = temp_v12_s13 - verticalRadius7;
+        if (!(chaseDeltaY <= verticalRadius7)) {
+          verticalAmount7 = chaseDeltaY - verticalRadius7;
           correctionZero7 = 0.0f;
-          stk220[0] = 0.0f;
-          stk220[2] = 0.0f;
-          if (stk220[1] < correctionZero7) {
-            stk220[1] = -verticalAmount7;
+          chaseCorrection[0] = 0.0f;
+          chaseCorrection[2] = 0.0f;
+          if (chaseCorrection[1] < correctionZero7) {
+            chaseCorrection[1] = -verticalAmount7;
           }
           else {
-            stk220[1] = verticalAmount7;
+            chaseCorrection[1] = verticalAmount7;
           }
-          func_003e9c10((u8 *)piVar1[3],&stk220[0],2);
+          func_003e9c10((u8 *)((FldCameraData *)cameraData)->targetFrame,&chaseCorrection[0],2);
         }
-        temp_v4_d = *(int *)(kwlnGetCamera() + 4);
-        temp_v5_d = (unsigned int)func_003e9700(*(unsigned int *)(temp_v4_d + 4));
-        moved_d = 0;
-        temp_v11_d = ((float *)piVar1)[0xa3];
-        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
-        func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_d,2);
+        chaseFrameHandle = *(s32 *)(kwlnGetCamera() + 4);
+        chaseParentMatrix = (u32)func_003e9700(*(u32 *)(chaseFrameHandle + 4));
+        chaseMoved = 0;
+        chaseDistance = ((FldCameraData *)cameraData)->desiredDistance;
+        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)((chaseFrameHandle + 0x10));
+        func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)chaseParentMatrix,2);
         /* Retail retains these Y/Z snapshots across camera calls; X is reloaded. */
-        chaseTargetY = (cv0.y += *(float *)((u8 *)(u32)piVar1 + 0x2a0));
-        temp_v8_d = piVar1[0xb0];
-        stk210.x = *(float *)(temp_v8_d + 0x30) - cv0.x;
-        stk210.y = *(float *)(temp_v8_d + 0x34) - chaseTargetY;
-        chaseTargetZ = cv0.z;
-        stk210.z = *(float *)(temp_v8_d + 0x38) - chaseTargetZ;
+        chaseTargetY = (chaseTarget.y += ((FldCameraData *)cameraData)->anchor.y);
+        chaseMatrixHandle = ((FldCameraData *)cameraData)->matrix;
+        chaseOffset.x = *(f32 *)(chaseMatrixHandle + 0x30) - chaseTarget.x;
+        chaseOffset.y = *(f32 *)(chaseMatrixHandle + 0x34) - chaseTargetY;
+        chaseTargetZ = chaseTarget.z;
+        chaseOffset.z = *(f32 *)(chaseMatrixHandle + 0x38) - chaseTargetZ;
         {
-          float scaledX, scaledY, scaledZ, chaseScale, directionX;
-          float *chaseDirection = &stk210.x;
+          f32 scaledX, scaledY, scaledZ, chaseScale, directionX;
+          f32 *chaseDirection = &chaseOffset.x;
           RwV3dNormalize((RwV3d *)chaseDirection,(const RwV3d *)chaseDirection);
-          directionX = stk210.x;
-          chaseScale = *(float *)&piVar1[0xa3];
-          scaledX = (stk210.x = directionX * chaseScale);
-          scaledY = (stk210.y = stk210.y * chaseScale);
-          scaledZ = (stk210.z = stk210.z * chaseScale);
-          chaseSegment[0] = cv0;
-          temp_v8_d = piVar1[0xb0];
-          chaseSegment[1] = *(FldCamVec *)(temp_v8_d + 0x30);
+          directionX = chaseOffset.x;
+          chaseScale = ((FldCameraData *)cameraData)->desiredDistance;
+          scaledX = (chaseOffset.x = directionX * chaseScale);
+          scaledY = (chaseOffset.y = chaseOffset.y * chaseScale);
+          scaledZ = (chaseOffset.z = chaseOffset.z * chaseScale);
+          chaseSegment[0] = chaseTarget;
+          chaseMatrixHandle = ((FldCameraData *)cameraData)->matrix;
+          chaseSegment[1] = *(FldCamVec *)(chaseMatrixHandle + 0x30);
           chaseSegment[1].x = chaseSegment[1].x + scaledX;
           chaseSegment[1].y = chaseSegment[1].y + scaledY;
           chaseSegment[1].z = chaseSegment[1].z + scaledZ;
         }
-        *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
-        temp_v6_d = FldFrame_RaycastField((const RwV3d *)chaseSegment,(RwV3d *)&stk230.x);
-        if (temp_v6_d == 1) {
-          stk230.x = stk230.x - chaseSegment[0].x;
-          stk230.y = stk230.y - chaseSegment[0].y;
-          stk230.z = stk230.z - chaseSegment[0].z;
+        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)((chaseFrameHandle + 0x10));
+        chaseRayResult = FldFrame_RaycastField((const RwV3d *)chaseSegment,(RwV3d *)&chaseHit.x);
+        if (chaseRayResult == 1) {
+          chaseHit.x = chaseHit.x - chaseSegment[0].x;
+          chaseHit.y = chaseHit.y - chaseSegment[0].y;
+          chaseHit.z = chaseHit.z - chaseSegment[0].z;
           {
-            float *hitVector = &stk230.x;
-            temp_v14_d = RwV3dNormalize((RwV3d *)hitVector,(const RwV3d *)hitVector);
+            f32 *hitVector = &chaseHit.x;
+            chaseMoveAmount = RwV3dNormalize((RwV3d *)hitVector,(const RwV3d *)hitVector);
           }
-          if (!(temp_v14_d <= 0.0f)) {
+          if (!(chaseMoveAmount <= 0.0f)) {
             {
-              float *chaseDirection = &stk210.x;
-              stk210 = stk230;
+              f32 *chaseDirection = &chaseOffset.x;
+              chaseOffset = chaseHit;
               RwV3dNormalize((RwV3d *)chaseDirection,(const RwV3d *)chaseDirection);
             }
-            stk210.x = stk210.x * temp_v14_d;
-            stk210.y = stk210.y * temp_v14_d;
-            stk210.z = stk210.z * temp_v14_d;
-            RwMatrixTranslate((void *)piVar1[0xb0],&stk210.x,0);
-            *(float *)(piVar1[0xb0] + 0x34) = ((float *)piVar1)[0xa8];
-            temp_v4_d = piVar1[0xb0];
-            *(FldCopyVec *)stk240 = *(FldCopyVec *)(temp_v4_d + 0x30);
-            temp_v11_d = temp_v14_d;
-            moved_d = 1;
+            chaseOffset.x = chaseOffset.x * chaseMoveAmount;
+            chaseOffset.y = chaseOffset.y * chaseMoveAmount;
+            chaseOffset.z = chaseOffset.z * chaseMoveAmount;
+            RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&chaseOffset.x,0);
+            *(f32 *)(((FldCameraData *)cameraData)->matrix + 0x34) = ((FldCameraData *)cameraData)->anchor.y;
+            chaseFrameHandle = ((FldCameraData *)cameraData)->matrix;
+            *(FldCopyVec *)chaseCameraPosition = *(FldCopyVec *)(chaseFrameHandle + 0x30);
+            chaseDistance = chaseMoveAmount;
+            chaseMoved = 1;
           }
         }
-        if (moved_d == 1) {
-          if (temp_v11_d < ((float *)piVar1)[0xa5]) {
-            pbVar9_d = (unsigned char *)kwlnGetCamera();
-            K_ClumpLookAtBasis(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
-            *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v11_d;
+        if (chaseMoved == 1) {
+          if (chaseDistance < ((FldCameraData *)cameraData)->currentDistance) {
+            chaseCamera = (u8 *)kwlnGetCamera();
+            K_ClumpLookAtBasis(chaseCamera,(u8 *)((s32 *)&chaseCameraPosition[0]),D_007F1720,0);
+            ((FldCameraData *)cameraData)->currentDistance = chaseDistance;
           }
         }
-        else if (!(temp_v11_d <= *(float *)((u8 *)(u32)piVar1 + 0x294))) {
+        else if (!(chaseDistance <= ((FldCameraData *)cameraData)->currentDistance)) {
           {
-            float maximumStep;
-            if (0.0f == (temp_v14_d = ((maximumStep = 20.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
-              temp_v14_d = 20.0f;
+            f32 maximumStep;
+            if (0.0f == (chaseMoveAmount = ((maximumStep = 20.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
+              chaseMoveAmount = 20.0f;
             }
           }
-          *(float *)((u8 *)(u32)piVar1 + 0x294) = *(float *)((u8 *)(u32)piVar1 + 0x294) + temp_v14_d;
+          ((FldCameraData *)cameraData)->currentDistance = ((FldCameraData *)cameraData)->currentDistance + chaseMoveAmount;
           {
-            float desiredDistance, currentDistance;
-            desiredDistance = ((FldCameraDistanceView *)piVar1)->desiredDistance;
-            currentDistance = ((FldCameraDistanceView *)piVar1)->currentDistance;
+            f32 desiredDistance, currentDistance;
+            desiredDistance = ((FldCameraData *)cameraData)->desiredDistance;
+            currentDistance = ((FldCameraData *)cameraData)->currentDistance;
             if (!(currentDistance <= desiredDistance)) {
-              ((float *)piVar1)[0xa5] = desiredDistance;
+              ((FldCameraData *)cameraData)->currentDistance = desiredDistance;
             }
           }
-          func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_d,2);
-          temp_v4_d = piVar1[0xb0];
-          stk210.x = *(float *)(temp_v4_d + 0x30) - cv0.x;
-          stk210.y = *(float *)(temp_v4_d + 0x34) - chaseTargetY;
-          stk210.z = *(float *)(temp_v4_d + 0x38) - chaseTargetZ;
+          func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)chaseParentMatrix,2);
+          chaseFrameHandle = ((FldCameraData *)cameraData)->matrix;
+          chaseOffset.x = *(f32 *)(chaseFrameHandle + 0x30) - chaseTarget.x;
+          chaseOffset.y = *(f32 *)(chaseFrameHandle + 0x34) - chaseTargetY;
+          chaseOffset.z = *(f32 *)(chaseFrameHandle + 0x38) - chaseTargetZ;
           {
-            float chaseScale, directionX;
-            float *chaseDirection = &stk210.x;
+            f32 chaseScale, directionX;
+            f32 *chaseDirection = &chaseOffset.x;
             RwV3dNormalize((RwV3d *)chaseDirection,(const RwV3d *)chaseDirection);
-            directionX = stk210.x;
-            chaseScale = ((float *)piVar1)[0xa5];
-            stk210.x = directionX * chaseScale;
-            stk210.y = stk210.y * chaseScale;
-            stk210.z = stk210.z * chaseScale;
+            directionX = chaseOffset.x;
+            chaseScale = ((FldCameraData *)cameraData)->currentDistance;
+            chaseOffset.x = directionX * chaseScale;
+            chaseOffset.y = chaseOffset.y * chaseScale;
+            chaseOffset.z = chaseOffset.z * chaseScale;
           }
-          RwMatrixTranslate((void *)piVar1[0xb0],&stk210.x,0);
-          *(FldCopyVec *)stk240 = *(FldCopyVec *)(piVar1[0xb0] + 0x30);
-          stk240[1] = ((float *)piVar1)[0xa8];
-          pbVar9_d = (unsigned char *)kwlnGetCamera();
-          K_ClumpLookAtBasis(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
+          RwMatrixTranslate((void *)((FldCameraData *)cameraData)->matrix,&chaseOffset.x,0);
+          *(FldCopyVec *)chaseCameraPosition = *(FldCopyVec *)(((FldCameraData *)cameraData)->matrix + 0x30);
+          chaseCameraPosition[1] = ((FldCameraData *)cameraData)->anchor.y;
+          chaseCamera = (u8 *)kwlnGetCamera();
+          K_ClumpLookAtBasis(chaseCamera,(u8 *)((s32 *)&chaseCameraPosition[0]),D_007F1720,0);
         }
         goto LAB_0016e0c0;
       default:
 LAB_0016e0c0:
-        KDraw_SetCylinderFlags((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-        puVar10_s7 = (unsigned int *)FldCameraGetRecord(param_1);
+        KDraw_SetCylinderFlags((u8 *)((FldCameraData *)cameraData)->cylinderTask,(u32)((((FldCameraData *)cameraData)->flags & 0x80000000U) != 0));
+        helperRecord = (u32 *)FldCameraGetRecord(task);
         {
-          unsigned char *targetPosition = (unsigned char *)&stk250[0];
-          *(FldCopyVec *)stk250 = *(FldCopyVec *)puVar10_s7;
-          KDraw_SetCylinderCenter((unsigned char *)piVar1[0xb2],targetPosition);
+          u8 *targetPosition = (u8 *)&helperPosition[0];
+          *(FldCopyVec *)helperPosition = *(FldCopyVec *)helperRecord;
+          KDraw_SetCylinderCenter((u8 *)((FldCameraData *)cameraData)->cylinderTask,targetPosition);
         }
-        KDraw_SetCylinderRadius((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x20));
-        KDraw_SetCylinderHeight((unsigned char *)piVar1[0xb2],*(float *)((u8 *)(u32)piVar1 + 0x24));
-        if (*(int *)(*(int *)(iGpffff9db0 + 0x28) + 0xa20) != 0) {
+        KDraw_SetCylinderRadius((u8 *)((FldCameraData *)cameraData)->cylinderTask,((FldCameraData *)cameraData)->radius);
+        KDraw_SetCylinderHeight((u8 *)((FldCameraData *)cameraData)->cylinderTask,((FldCameraData *)cameraData)->height);
+        if (*(s32 *)(*(s32 *)(iGpffff9db0 + 0x28) + 0xa20) != 0) {
           {
-            unsigned char *cameraHelper = (unsigned char *)piVar1[0xb3];
-            if (cameraHelper != (unsigned char *)0x0) {
-              KDraw_SetGroupFlags(cameraHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
+            u8 *cameraHelper = (u8 *)((FldCameraData *)cameraData)->pathGroup;
+            if (cameraHelper != (u8 *)0x0) {
+              KDraw_SetGroupFlags(cameraHelper,(u32)((((FldCameraData *)cameraData)->flags & 0x80000000U) != 0));
             }
           }
           {
-            unsigned char *pathHelper = (unsigned char *)piVar1[0xb4];
-            if (pathHelper != (unsigned char *)0x0) {
-              KDraw_SetSphereFlags(pathHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-              KDraw_SetSphereCenter((unsigned char *)piVar1[0xb4],(unsigned char *)(piVar1 + 0x31));
+            u8 *pathHelper = (u8 *)((FldCameraData *)cameraData)->pathSphere;
+            if (pathHelper != (u8 *)0x0) {
+              KDraw_SetSphereFlags(pathHelper,(u32)((((FldCameraData *)cameraData)->flags & 0x80000000U) != 0));
+              KDraw_SetSphereCenter((u8 *)((FldCameraData *)cameraData)->pathSphere,(u8 *)(cameraData + 0x31));
             }
           }
           {
-            unsigned char *projectionHelper = (unsigned char *)piVar1[0xb5];
-            if (projectionHelper != (unsigned char *)0x0) {
-              KDraw_SetSphereFlags(projectionHelper,(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-              KDraw_SetSphereCenter((unsigned char *)piVar1[0xb5],(unsigned char *)&stk10[0]);
+            u8 *projectionHelper = (u8 *)((FldCameraData *)cameraData)->projectionSphere;
+            if (projectionHelper != (u8 *)0x0) {
+              KDraw_SetSphereFlags(projectionHelper,(u32)((((FldCameraData *)cameraData)->flags & 0x80000000U) != 0));
+              KDraw_SetSphereCenter((u8 *)((FldCameraData *)cameraData)->projectionSphere,(u8 *)&projectedPoint[0]);
             }
           }
         }
@@ -1719,149 +1769,156 @@ LAB_0016e0c0:
 
 /* measured: restore the surrounding translation-unit settings. */
 #pragma pop
+/* Detach camera frames, restore the parent hierarchy and release the three matrix buffers. */
+/* Raw payload/frame accesses retained: typed fields changed whole-file codegen. */
 // FUN_0016E210
-void FldCameraTaskDestroy(u8 *arg0) {
-    u8 *temp_16;
+void FldCameraTaskDestroy(u8 *task) {
+    u8 *cameraData;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
+    cameraData = *(u8 **)(task + 0x38);
     if (*(s32 *)(*(u8 **)(kwlnGetCamera() + 4) + 4) != 0) {
         func_003e99a0(*(void **)(kwlnGetCamera() + 4));
     }
-    if (*(s32 *)(*(u8 **)(temp_16 + 0xC) + 4) != 0) {
-        func_003e99a0(*(void **)(temp_16 + 0xC));
+    if (*(s32 *)(*(u8 **)(cameraData + 0xC) + 4) != 0) {
+        func_003e99a0(*(void **)(cameraData + 0xC));
     }
-    func_003e9390(*(void **)(temp_16 + 0xC));
-    func_003e9830(*(s32 *)(temp_16 + 0x10), *(s32 *)(kwlnGetCamera() + 4));
-    func_003e0f40(*(s32 *)(temp_16 + 0x2BC));
-    func_003e0f40(*(s32 *)(temp_16 + 0x2C0));
-    func_003e0f40(*(s32 *)(temp_16 + 0x2C4));
-    (*DAT_008873EC)(*(void **)(arg0 + 0x38));
+    func_003e9390(*(void **)(cameraData + 0xC));
+    func_003e9830(*(s32 *)(cameraData + 0x10), *(s32 *)(kwlnGetCamera() + 4));
+    func_003e0f40(*(s32 *)(cameraData + 0x2BC));
+    func_003e0f40(*(s32 *)(cameraData + 0x2C0));
+    func_003e0f40(*(s32 *)(cameraData + 0x2C4));
+    (*DAT_008873EC)(*(void **)(task + 0x38));
 }
 
 /* measured: opt_common_subs off preserves the retail per-call table address
    materialization and five-register frame in FldCameraTaskCreate. */
+/* Allocate the 0x2d8 camera payload, its frame/matrix buffers and optional path debug helpers. */
 // FUN_0016E2E0
 #pragma push
 /* measured: FldCameraTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-s32 FldCameraTaskCreate(s32 arg0)
+s32 FldCameraTaskCreate(s32 parentTask)
 {
-    s32 temp_18;
-    s32 temp_5;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_19;
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    s32 taskHandle;
+    s32 pathHandle;
+    u8 *cameraData;
+    u8 *targetFrame;
+    u8 *parentFrame;
+    u8 *slot;
+    u8 *otherSlot;
+    u8 *groupSlot;
 
     chkmemAllocSiteTag(D_005F1698, 0x4CE);
-    temp_2 = (u8 *)D_008873F4[0](1, 0x2D8, 0x40000);
-    if (temp_2 == NULL) {
+    cameraData = (u8 *)D_008873F4[0](1, 0x2D8, 0x40000);
+    if (cameraData == NULL) {
         return 0;
     }
-    temp_18 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16B0), 0x11, 0, 0, FldCameraTaskUpdate, FldCameraTaskDestroy, (u8 *)(temp_2));
-    temp_16 = temp_2 + 0xC;
-    temp_2_2 = (u8 *)func_003e9320();
-    *(u8 **)(temp_16 + 0) = temp_2_2;
-    if (temp_2_2 == NULL) {
-        kwlnTaskDestroyWithHierarchy(temp_18);
+    taskHandle = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005F16B0), 0x11, 0, 0, FldCameraTaskUpdate, FldCameraTaskDestroy, (u8 *)(cameraData));
+    slot = cameraData + 0xC;
+    targetFrame = (u8 *)func_003e9320();
+    *(u8 **)(slot + 0) = targetFrame;
+    if (targetFrame == NULL) {
+        kwlnTaskDestroyWithHierarchy(taskHandle);
         return 0;
     }
-    func_003e9df0(temp_2_2);
-    temp_16 = temp_2 + 0x10;
-    temp_2_3 = *(u8 **)(*(u8 **)(kwlnGetCamera() + 4) + 4);
-    *(u8 **)(temp_16 + 0) = temp_2_3;
-    if (temp_2_3 != NULL) {
+    func_003e9df0(targetFrame);
+    slot = cameraData + 0x10;
+    parentFrame = *(u8 **)(*(u8 **)(kwlnGetCamera() + 4) + 4);
+    *(u8 **)(slot + 0) = parentFrame;
+    if (parentFrame != NULL) {
         func_003e99a0(*(void **)(kwlnGetCamera() + 4));
-        temp_17 = temp_2 + 0xC;
-        func_003e9830(*(s32 *)(temp_16 + 0),
-                      *(s32 *)(temp_17 + 0));
-        func_003e9830(*(s32 *)(temp_17 + 0),
+        otherSlot = cameraData + 0xC;
+        func_003e9830(*(s32 *)(slot + 0),
+                      *(s32 *)(otherSlot + 0));
+        func_003e9830(*(s32 *)(otherSlot + 0),
                       *(s32 *)(kwlnGetCamera() + 4));
     } else {
         kAssertFail(D_005F1698, 0x4F6);
     }
-    *(s32 *)(temp_2 + 0x2BC) = func_003e0f80();
-    *(s32 *)(temp_2 + 0x2C0) = func_003e0f80();
-    *(s32 *)(temp_2 + 0x2C4) = func_003e0f80();
-    *(s32 *)(temp_2 + 0x2C8) = KDraw_CreateCylinderTask(temp_18, D_007948D0);
-    temp_5 = *(s32 *)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20);
-    if (temp_5 != 0) {
-        temp_19 = temp_2 + 0x2CC;
-        *(s32 *)(temp_19 + 0) = KDraw_CreateGroupTask(temp_18, temp_5,
+    ((FldCameraData *)cameraData)->slotBuffer = func_003e0f80();
+    ((FldCameraData *)cameraData)->matrix = func_003e0f80();
+    ((FldCameraData *)cameraData)->cachedMatrix = func_003e0f80();
+    ((FldCameraData *)cameraData)->cylinderTask = KDraw_CreateCylinderTask(taskHandle, D_007948D0);
+    pathHandle = *(s32 *)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20);
+    if (pathHandle != 0) {
+        groupSlot = cameraData + 0x2CC;
+        *(s32 *)(groupSlot + 0) = KDraw_CreateGroupTask(taskHandle, pathHandle,
                                               D_007948D0);
-        temp_17 = temp_2 + 0x2D0;
-        *(s32 *)(temp_17 + 0) = KDraw_CreateSphereTask(temp_18,
+        otherSlot = cameraData + 0x2D0;
+        *(s32 *)(otherSlot + 0) = KDraw_CreateSphereTask(taskHandle,
                                               D_007948D0);
-        temp_16 = temp_2 + 0x2D4;
-        *(s32 *)(temp_16 + 0) = KDraw_CreateSphereTask(temp_18,
+        slot = cameraData + 0x2D4;
+        *(s32 *)(slot + 0) = KDraw_CreateSphereTask(taskHandle,
                                               D_007948D0);
-        KDraw_SetGroupColor(*(void **)(temp_19 + 0),
+        KDraw_SetGroupColor(*(void **)(groupSlot + 0),
                       (u8 *)&iGpffff9f00 + 0x30);
-        KDraw_SetSphereColor(*(void **)(temp_17 + 0),
+        KDraw_SetSphereColor(*(void **)(otherSlot + 0),
                       (u8 *)&iGpffff9f00 + 0x30);
-        KDraw_SetSphereColor(*(void **)(temp_16 + 0),
+        KDraw_SetSphereColor(*(void **)(slot + 0),
                       (u8 *)&iGpffff9f00 + 0x34);
     }
-    return temp_18;
+    return taskHandle;
 }
 
 #pragma pop
 // FUN_0016E540
-void FldFrame_SetStateFlags(u8 *arg0, s32 arg1)
+void FldFrame_SetStateFlags(u8 *task, s32 value)
 {
-    u8 *temp_0 = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(temp_0 + 4) = *(s32 *)(temp_0 + 4) | arg1;
+    u8 *cameraData = ((FldCameraTask *)task)->data;
+    ((FldCameraData *)cameraData)->flags = ((FldCameraData *)cameraData)->flags | value;
 }
 
 // FUN_0016E560
-void FldFrame_ClearStateFlags(u8 *arg0, s32 arg1)
+void FldFrame_ClearStateFlags(u8 *task, s32 value)
 {
-    u8 *temp_0 = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(temp_0 + 4) = *(s32 *)(temp_0 + 4) & ~arg1;
+    u8 *cameraData = ((FldCameraTask *)task)->data;
+    ((FldCameraData *)cameraData)->flags = ((FldCameraData *)cameraData)->flags & ~value;
 }
 
 // FUN_0016E580
-s32 FldFrame_GetStatus(u8 *arg0)
+s32 FldFrame_GetStatus(u8 *task)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x8);
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    return ((FldCameraData *)((FldCameraTask *)task)->data)->mode;
 }
 
+/* Switch camera mode; initialize curve segment lengths or snapshot chase/orbit distance. */
 // FUN_0016E590
 /* measured: object 804B/window 816B, nd 0. The 3/4 test is two separate compares
    (goto body / goto skip; `== 3 || == 4` folds to sltiu). The count guard is
-   `> 0x20` for the $at slti form. Locals in stack order: diff, prev, cur, then
+   `> 0x20` for the $at slti form. Locals in stack order: difference, previousPoint, currentPoint, then
    the two 64-byte matrix copies (case 6 at sp+0x70, case 7 at sp+0x30), each a
-   two-word copy loop from func_00457120()->frame + 0x10; `prev = cur` is the
+   two-word copy loop from func_00457120()->frame + 0x10; `previousPoint = currentPoint` is the
    RwV3d struct copy (ld/sd + lwc1/swc1). */
-void FldCameraAdvanceCurve(u8 *arg0, s32 arg1)
+void FldCameraAdvanceCurve(u8 *task, s32 mode)
 {
-    extern s32 func_003bb330(u8 *arg0);
-    extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
-    extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *dst, void *aux);
-    extern f32 RwV3dLength(void *arg0);
-    extern void kAssertFail(const void *arg0, s32 arg1);
-    RwV3d diff;
-    RwV3d prev;
-    RwV3d cur;
-    u8 mat6[0x40];
-    u8 mat7[0x40];
+    /* Raw payload/frame accesses retained: typed fields changed whole-file codegen. */
+    extern s32 func_003bb330(u8 *task);
+    extern void func_003bb3a0(u8 *task, s32 mode, void *arg2);
+    extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *copyDestination, void *aux);
+    extern f32 RwV3dLength(void *task);
+    extern void kAssertFail(const void *task, s32 mode);
+    RwV3d difference;
+    RwV3d previousPoint;
+    RwV3d currentPoint;
+    u8 orbitMatrix[0x40];
+    u8 chaseMatrix[0x40];
     u8 *work;
     s32 i;
-    f32 t;
-    u8 *src;
-    u8 *dst;
-    s32 n;
-    s32 t1;
-    s32 t2;
+    f32 timeOrDistance;
+    u8 *copySource;
+    u8 *copyDestination;
+    s32 copyRemaining;
+    s32 firstWord;
+    s32 secondWord;
 
-    work = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(work + 8) = arg1;
-    if (arg1 == 3) {
+    work = *(u8 **)(task + 0x38);
+    *(s32 *)(work + 8) = mode;
+    if (mode == 3) {
         goto body;
     }
-    if (arg1 != 4) {
+    if (mode != 4) {
         goto skip;
     }
 body:
@@ -1872,18 +1929,18 @@ body:
             if (*(s32 *)(work + 0x34) > 0x20) {
                 kAssertFail(D_005F1698, 0x557);
             }
-            func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0, &prev);
+            func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0, &previousPoint);
             for (i = 1; i < *(s32 *)(work + 0x34); i++) {
-                func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), i, &cur);
-                diff.x = cur.x - prev.x;
-                diff.y = cur.y - prev.y;
-                diff.z = cur.z - prev.z;
-                *(f32 *)(work + i * 4 + 0x34) = RwV3dLength(&diff);
-                prev = cur;
+                func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), i, &currentPoint);
+                difference.x = currentPoint.x - previousPoint.x;
+                difference.y = currentPoint.y - previousPoint.y;
+                difference.z = currentPoint.z - previousPoint.z;
+                *(f32 *)(work + i * 4 + 0x34) = RwV3dLength(&difference);
+                previousPoint = currentPoint;
             }
-            t = 1.0f / (f32)(*(s32 *)(work + 0x34) - 1);
-            *(f32 *)(work + 0xBC) = 1.0f - t;
-            *(f32 *)(work + 0xC0) = t;
+            timeOrDistance = 1.0f / (f32)(*(s32 *)(work + 0x34) - 1);
+            *(f32 *)(work + 0xBC) = 1.0f - timeOrDistance;
+            *(f32 *)(work + 0xC0) = timeOrDistance;
             *(f32 *)(work + 0xB8) = 0.5f;
             func_003bb5b0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0xA, *(f32 *)(work + 0xB8), work + 0xC4, work + 0xD0);
             RwV3dNormalize((RwV3d *)(work + 0xD0), (const RwV3d *)(work + 0xD0));
@@ -1898,211 +1955,222 @@ body:
     }
 skip:
     if (*(s32 *)(work + 8) == 6) {
-        src = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
-        dst = mat6;
-        n = 8;
+        copySource = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
+        copyDestination = orbitMatrix;
+        copyRemaining = 8;
         do {
-            t1 = *(s32 *)src;
-            t2 = *(s32 *)(src + 4);
-            src += 8;
-            n -= 1;
-            *(s32 *)dst = t1;
-            *(s32 *)(dst + 4) = t2;
-            dst += 8;
-        } while (n > 0);
-        t = RwV3dLength(mat6 + 0x30);
-        *(f32 *)(work + 0x28C) = t;
-        *(f32 *)(work + 0x294) = t;
-        *(RwV3d *)(work + 0x29C) = *(RwV3d *)(mat6 + 0x30);
+            firstWord = *(s32 *)copySource;
+            secondWord = *(s32 *)(copySource + 4);
+            copySource += 8;
+            copyRemaining -= 1;
+            *(s32 *)copyDestination = firstWord;
+            *(s32 *)(copyDestination + 4) = secondWord;
+            copyDestination += 8;
+        } while (copyRemaining > 0);
+        timeOrDistance = RwV3dLength(orbitMatrix + 0x30);
+        *(f32 *)(work + 0x28C) = timeOrDistance;
+        *(f32 *)(work + 0x294) = timeOrDistance;
+        *(RwV3d *)(work + 0x29C) = *(RwV3d *)(orbitMatrix + 0x30);
     } else if (*(s32 *)(work + 8) == 7) {
-        src = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
-        dst = mat7;
-        n = 8;
+        copySource = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
+        copyDestination = chaseMatrix;
+        copyRemaining = 8;
         do {
-            t1 = *(s32 *)src;
-            t2 = *(s32 *)(src + 4);
-            src += 8;
-            n -= 1;
-            *(s32 *)dst = t1;
-            *(s32 *)(dst + 4) = t2;
-            dst += 8;
-        } while (n > 0);
-        *(RwV3d *)(work + 0x29C) = *(RwV3d *)(mat7 + 0x30);
-        *(f32 *)(mat7 + 0x34) = 0.0f;
-        t = RwV3dLength(mat7 + 0x30);
-        *(f32 *)(work + 0x28C) = t;
-        *(f32 *)(work + 0x294) = t;
+            firstWord = *(s32 *)copySource;
+            secondWord = *(s32 *)(copySource + 4);
+            copySource += 8;
+            copyRemaining -= 1;
+            *(s32 *)copyDestination = firstWord;
+            *(s32 *)(copyDestination + 4) = secondWord;
+            copyDestination += 8;
+        } while (copyRemaining > 0);
+        *(RwV3d *)(work + 0x29C) = *(RwV3d *)(chaseMatrix + 0x30);
+        *(f32 *)(chaseMatrix + 0x34) = 0.0f;
+        timeOrDistance = RwV3dLength(chaseMatrix + 0x30);
+        *(f32 *)(work + 0x28C) = timeOrDistance;
+        *(f32 *)(work + 0x294) = timeOrDistance;
     }
     *(f32 *)(work + 0x290) = *(f32 *)(kwlnGetCamera() + 0x80);
 }
 
 // FUN_0016E8C0
-u8 *FldCameraGetRecord(u8 *arg0)
+u8 *FldCameraGetRecord(u8 *task)
 {
-    return *(u8 **)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40;
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    return *(u8 **)(((FldCameraTask *)task)->data + 0xC) + 0x40;
 }
 
 /* measured: opt_propagation off preserves the retail early a1 pointer
    materialization in FldCameraSetDistance. */
 /* measured: FldCameraSetDistance MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Apply an angular camera adjustment in modes 0, 6 and 7 while looking at the zero target. */
 // FUN_0016E8E0
-void FldCameraSetDistance(u8 *arg0, f32 fparg0)
+void FldCameraSetDistance(u8 *task, f32 angle)
 {
-    E8E0Frame sp;
-    void *temp_2;
-    s64 temp_5;
-    f32 temp_f0;
-    f32 temp_f1;
-    u8 *var_3;
-    s32 temp_4;
-    s32 var_2;
-    u8 *temp_16;
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    FldCameraAngleScratch rotation;
+    void *axis;
+    s64 axisXY;
+    f32 axisZ;
+    f32 rotationAngle;
+    u8 *clearCursor;
+    s32 mode;
+    s32 clearRemaining;
+    u8 *cameraFrame;
 
-    temp_4 = *(s32 *)(*(u8 **)(arg0 + 0x38) + 8);
-    if (temp_4 == 0) {
+    mode = *(s32 *)(((FldCameraTask *)task)->data + 8);
+    if (mode == 0) {
         goto process;
     }
-    if (temp_4 == 6) {
+    if (mode == 6) {
         goto process;
     }
-    if (temp_4 != 7) {
+    if (mode != 7) {
         goto done;
     }
 process:
-    temp_16 = *(u8 **)(kwlnGetCamera(temp_4) + 4);
-    sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-    var_3 = &sp.sp40[0];
-    var_2 = 0xC;
-    if (var_3 != NULL) {
+    cameraFrame = *(u8 **)(kwlnGetCamera(mode) + 4);
+    rotation.position = *(RwV3d *)(cameraFrame + 0x40);
+    clearCursor = &rotation.zeroPosition[0];
+    clearRemaining = 0xC;
+    if (clearCursor != NULL) {
         do {
-            *var_3 = 0;
-            var_3 += 1;
-            var_2 -= 1;
-        } while (var_2 != 0);
+            *clearCursor = 0;
+            clearCursor += 1;
+            clearRemaining -= 1;
+        } while (clearRemaining != 0);
     }
-    temp_2 = &sp.sp30;
-    temp_5 = *(s64 *)D_005F16C8;
-    temp_f0 = *(f32 *)D_005F16D0;
-    sp.sp30 = temp_5;
-    sp.sp38 = temp_f0;
-    temp_f1 = fparg0;
-    func_003e9d50(temp_16, temp_2, temp_f1, 2);
-    sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-    K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp50, &sp.sp40[0], 0);
+    axis = &rotation.axisXY;
+    axisXY = *(s64 *)D_005F16C8;
+    axisZ = *(f32 *)D_005F16D0;
+    rotation.axisXY = axisXY;
+    rotation.axisZ = axisZ;
+    rotationAngle = angle;
+    func_003e9d50(cameraFrame, axis, rotationAngle, 2);
+    rotation.position = *(RwV3d *)(cameraFrame + 0x40);
+    K_ClumpLookAtBasis(kwlnGetCamera(), &rotation.position, &rotation.zeroPosition[0], 0);
 done:
     ;
 }
 
 /* measured: closes opt_propagation off for FldCameraSetDistance. */
 // FUN_0016E9F0
-void FldFrame_SetViewOffset(u8 *arg0, u8 *arg1)
+void FldFrame_SetViewOffset(u8 *task, u8 *value)
 {
-    u8 *temp_3;
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    u8 *cameraData;
 
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    *(RwV3d *)(temp_3 + 0x14) = *(RwV3d *)(arg1 + 0x00);
+    cameraData = ((FldCameraTask *)task)->data;
+    ((FldCameraData *)cameraData)->offset = *(RwV3d *)value;
 }
 
 // FUN_0016EA20
-void FldFrame_SetViewDistance(u8 *arg0, f32 arg1)
+void FldFrame_SetViewDistance(u8 *task, f32 value)
 {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x20) = arg1;
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    ((FldCameraData *)((FldCameraTask *)task)->data)->radius = value;
 }
 
 // FUN_0016EA30
-void func_0016ea30(u8 *arg0, f32 arg1)
+void fldCameraSetFollowHeight(u8 *task, f32 value)
 {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x24) = arg1;
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    ((FldCameraData *)((FldCameraTask *)task)->data)->height = value;
 }
 
+/* Bind only type-1 scene resources as the camera follow target. */
 // FUN_0016EA40
-void FldFrame_BindTypedRes(u8 *arg0, u16 arg1)
+void FldFrame_BindTypedRes(u8 *task, u16 resourceKey)
 {
-    u8 *temp_16;
+    u8 *cameraData;
     s32 type;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    type = (arg1 & 0xFFC00) >> 10;
+    cameraData = ((FldCameraTask *)task)->data;
+    type = (resourceKey & 0xFFC00) >> 10;
     if (type == 1)
-        *(u8 **)(temp_16 + 0x288) = MT_Scene_GetRes(arg1);
+        ((FldCameraData *)cameraData)->targetResource = (s32)MT_Scene_GetRes(resourceKey);
 }
 
+/* Mark a signed-byte camera key slot valid and copy its three-component vector. */
 // FUN_0016EAA0
 /* The scaled offset is named in an s32 local and the base added TO it so the
    final addu comes out `index + base` as retail has it; folding the multiply
    into the pointer expression emits `base + index` (nd 1). The three floats
    are one RwV3d assignment because retail loads all three before storing
    any. */
-void FldFrame_SetSlotVector(u8 *arg0, s32 arg1, RwV3d *arg2) {
+void FldFrame_SetSlotVector(u8 *task, s32 slotIndex, RwV3d *vector) {
     u8 *base;
-    s32 i;
-    s32 off;
+    s32 index;
+    s32 offset;
 
-    base = *(u8 **)(arg0 + 0x38);
-    i = (s8)arg1;
-    base[i + 0xE8] = 1;
-    off = i * 12;
-    *(RwV3d *)(off + (s32)base + 0x108) = *arg2;
+    base = ((FldCameraTask *)task)->data;
+    index = (s8)slotIndex;
+    base[index + 0xE8] = 1;
+    offset = index * 12;
+    *(RwV3d *)(offset + (s32)base + 0x108) = *vector;
 }
 
 // FUN_0016EAF0
-s32 FldFrame_GetSlotBuffer(u8 *arg0)
+s32 FldFrame_GetSlotBuffer(u8 *task)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x2BC);
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
+    return ((FldCameraData *)((FldCameraTask *)task)->data)->slotBuffer;
 }
 
 /* measured: opt_propagation off preserves global initialization ordering in FldCameraUpdateLookAt. */
+/* Rebuild look-at orientation for follow modes or the mode-2 target frame. */
 // FUN_0016EB00
-void FldCameraUpdateLookAt(u8 *arg0)
+void FldCameraUpdateLookAt(u8 *task)
 {
-    E8E0Frame sp;
-    u8 *temp_16;
-    u8 *temp_16_2;
-    u8 *temp_2;
-    u8 *var_3;
-    u8 *temp_17;
-    s32 temp_4;
-    s32 var_2;
-    s64 temp_5;
-    f32 temp_f0;
-    u32 temp_3;
+    /* Raw payload/frame accesses retained: typed fields changed whole-file codegen. */
+    FldCameraAngleScratch rotation;
+    u8 *cameraFrame;
+    u8 *targetPosition;
+    u8 *frameOrAxis;
+    u8 *clearCursor;
+    u8 *lookAtFrame;
+    s32 previousMode;
+    s32 clearRemaining;
+    s64 axisXY;
+    f32 axisZ;
+    u32 mode;
 
-    temp_3 = *(u32 *)(*(u8 **)(arg0 + 0x38) + 8);
-    switch (temp_3) {
+    mode = *(u32 *)(*(u8 **)(task + 0x38) + 8);
+    switch (mode) {
     case 0:
     case 5:
     case 6:
-        temp_2 = ((u8*)MT_Scene_GetFrameState());
-        if ((*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 0) ||
-            (*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 6) ||
-            (*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 7)) {
-            temp_16 = *(u8 **)(kwlnGetCamera() + 4);
-            sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-            var_3 = &sp.sp40[0];
-            var_2 = 0xC;
-            if (var_3 != NULL) {
+        frameOrAxis = ((u8*)MT_Scene_GetFrameState());
+        if ((*(s32 *)(*(u8 **)(*(u8 **)(frameOrAxis + 4) + 0x38) + 8) == 0) ||
+            (*(s32 *)(*(u8 **)(*(u8 **)(frameOrAxis + 4) + 0x38) + 8) == 6) ||
+            (*(s32 *)(*(u8 **)(*(u8 **)(frameOrAxis + 4) + 0x38) + 8) == 7)) {
+            cameraFrame = *(u8 **)(kwlnGetCamera() + 4);
+            rotation.position = *(RwV3d *)(cameraFrame + 0x40);
+            clearCursor = &rotation.zeroPosition[0];
+            clearRemaining = 0xC;
+            if (clearCursor != NULL) {
                 do {
-                    *var_3 = 0;
-                    var_3 += 1;
-                    var_2 -= 1;
-                } while (var_2 != 0);
+                    *clearCursor = 0;
+                    clearCursor += 1;
+                    clearRemaining -= 1;
+                } while (clearRemaining != 0);
             }
-            temp_2 = (u8 *)&sp.sp30;
-            temp_5 = *(s64 *)D_005F16C8;
-            temp_f0 = *(f32 *)D_005F16D0;
-            sp.sp30 = temp_5;
-            sp.sp38 = temp_f0;
-            func_003e9d50(temp_16, temp_2, 0.0f, 2);
-            sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-            K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp50, &sp.sp40[0], 0);
+            frameOrAxis = (u8 *)&rotation.axisXY;
+            axisXY = *(s64 *)D_005F16C8;
+            axisZ = *(f32 *)D_005F16D0;
+            rotation.axisXY = axisXY;
+            rotation.axisZ = axisZ;
+            func_003e9d50(cameraFrame, frameOrAxis, 0.0f, 2);
+            rotation.position = *(RwV3d *)(cameraFrame + 0x40);
+            K_ClumpLookAtBasis(kwlnGetCamera(), &rotation.position, &rotation.zeroPosition[0], 0);
         }
         break;
     case 2:
-        temp_17 = *(u8 **)(kwlnGetCamera() + 4);
-        temp_16_2 = (u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40);
-        temp_2 = kwlnGetCamera();
-        K_ClumpLookAtBasis(temp_2, temp_17 + 0x40, temp_16_2, 0);
+        lookAtFrame = *(u8 **)(kwlnGetCamera() + 4);
+        targetPosition = (u8 *)(*(s32 *)(*(u8 **)(task + 0x38) + 0xC) + 0x40);
+        frameOrAxis = kwlnGetCamera();
+        K_ClumpLookAtBasis(frameOrAxis, lookAtFrame + 0x40, targetPosition, 0);
         break;
     case 1:
     case 3:
@@ -2113,173 +2181,177 @@ void FldCameraUpdateLookAt(u8 *arg0)
 }
 
 /* measured: restore opt_propagation after FldCameraUpdateLookAt. */
+/* Reposition the mode-6 orbit camera along its normalized negative forward axis. */
 // FUN_0016EC90
-void FldCameraUpdateOrbit(u8 *arg0)
+void FldCameraUpdateOrbit(u8 *task)
 {
-    f32 sp50[3];
-    f32 sp40[3];
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f4;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_4;
-    u8 *var_6;
-    u8 *var_5;
-    s32 var_4;
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_18;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
+    /* Raw payload/frame accesses retained: typed fields changed whole-file codegen. */
+    f32 cameraPosition[3];
+    f32 push[3];
+    f32 distance;
+    f32 negativeZ;
+    f32 negativeY;
+    f32 negativeX;
+    s32 secondWord;
+    s32 firstWord;
+    s32 mode;
+    u8 *copySource;
+    u8 *copyDestination;
+    s32 copyRemaining;
+    u8 *cameraData;
+    u8 *parentMatrix;
+    u8 *cameraFrame;
+    u8 *sourceMatrix;
+    u8 *positionMatrix;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_4 = *(s32 *)(temp_16 + 8);
-    if (temp_4 == 6) {
-        temp_18 = *(u8 **)(kwlnGetCamera() + 4);
-        temp_17 = func_003e9700(*(s32 *)(temp_18 + 4));
-        var_6 = temp_18 + 0x10;
-        var_5 = *(u8 **)(temp_16 + 0x2C0);
-        var_4 = 8;
+    cameraData = *(u8 **)(task + 0x38);
+    mode = *(s32 *)(cameraData + 8);
+    if (mode == 6) {
+        cameraFrame = *(u8 **)(kwlnGetCamera() + 4);
+        parentMatrix = func_003e9700(*(s32 *)(cameraFrame + 4));
+        copySource = cameraFrame + 0x10;
+        copyDestination = *(u8 **)(cameraData + 0x2C0);
+        copyRemaining = 8;
         do {
-            temp_3 = *(s32 *)(var_6 + 0);
-            temp_2 = *(s32 *)(var_6 + 4);
-            var_6 += 8;
-            var_4 -= 1;
-            *(s32 *)(var_5 + 0) = temp_3;
-            *(s32 *)(var_5 + 4) = temp_2;
-            var_5 += 8;
-        } while (var_4 > 0);
-        temp_2_2 = *(u8 **)(temp_16 + 0x2C0);
-        *(RwV3d *)&sp40[0] = *(RwV3d *)(temp_2_2 + 0x20);
-        RwV3dNormalize((RwV3d *)&sp40[0], (const RwV3d *)&sp40[0]);
-        temp_f4 = -sp40[0];
-        sp40[0] = temp_f4;
-        temp_f3 = -sp40[1];
-        sp40[1] = temp_f3;
-        temp_f2 = -sp40[2];
-        sp40[2] = temp_f2;
-        temp_f1 = *(f32 *)(temp_16 + 0x28C);
-        sp40[0] = temp_f4 * temp_f1;
-        sp40[1] = temp_f3 * temp_f1;
-        sp40[2] = temp_f2 * temp_f1;
-        *(f32 *)(temp_16 + 0x294) = temp_f1;
-        RwMatrixTranslate(*(u8 **)(temp_16 + 0x2C0), &sp40[0], 0);
-        temp_2_3 = *(u8 **)(temp_16 + 0x2C0);
-        *(RwV3d *)&sp50[0] = *(RwV3d *)(temp_2_3 + 0x30);
-        func_003e0e20(*(u8 **)(temp_16 + 0x2C0), temp_17, 2);
-        K_ClumpLookAtBasis(kwlnGetCamera(), &sp50[0], &D_007F1730[0], 0);
+            firstWord = *(s32 *)(copySource + 0);
+            secondWord = *(s32 *)(copySource + 4);
+            copySource += 8;
+            copyRemaining -= 1;
+            *(s32 *)(copyDestination + 0) = firstWord;
+            *(s32 *)(copyDestination + 4) = secondWord;
+            copyDestination += 8;
+        } while (copyRemaining > 0);
+        sourceMatrix = *(u8 **)(cameraData + 0x2C0);
+        *(RwV3d *)&push[0] = *(RwV3d *)(sourceMatrix + 0x20);
+        RwV3dNormalize((RwV3d *)&push[0], (const RwV3d *)&push[0]);
+        negativeX = -push[0];
+        push[0] = negativeX;
+        negativeY = -push[1];
+        push[1] = negativeY;
+        negativeZ = -push[2];
+        push[2] = negativeZ;
+        distance = *(f32 *)(cameraData + 0x28C);
+        push[0] = negativeX * distance;
+        push[1] = negativeY * distance;
+        push[2] = negativeZ * distance;
+        *(f32 *)(cameraData + 0x294) = distance;
+        RwMatrixTranslate(*(u8 **)(cameraData + 0x2C0), &push[0], 0);
+        positionMatrix = *(u8 **)(cameraData + 0x2C0);
+        *(RwV3d *)&cameraPosition[0] = *(RwV3d *)(positionMatrix + 0x30);
+        func_003e0e20(*(u8 **)(cameraData + 0x2C0), parentMatrix, 2);
+        K_ClumpLookAtBasis(kwlnGetCamera(), &cameraPosition[0], &D_007F1730[0], 0);
     }
 }
 
 /* measured: opt_propagation off probe for retail pre-call address order. */
+/* Apply an initial camera angle followed by sine-eased incremental rotation until duration expires. */
 // FUN_0016EE00
-s32 FldFrame_RotateTaskUpdate(u8 *arg0)
+s32 FldFrame_RotateTaskUpdate(u8 *task)
 {
-    EEE0Frame sp;
-    void *temp_2;
-    void *temp_2_2;
-    s64 temp_5;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f20_2;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 temp_3_4;
-    u8 *var_3;
-    u8 *var_3_2;
-    s32 var_2;
-    s32 var_2_2;
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_17_2;
+    /* Raw rotation payload accesses retained: typed fields changed whole-file codegen. */
+    FldCameraRotationScratch rotation;
+    void *initialAxis;
+    void *stepAxis;
+    s64 axisXY;
+    f32 axisZ;
+    f32 angle;
+    f32 initialAngle;
+    f32 sine;
+    f32 stepAngle;
+    s32 state;
+    s32 initialMode;
+    s32 elapsed;
+    s32 stepMode;
+    u8 *clearInitial;
+    u8 *clearStep;
+    s32 initialRemaining;
+    s32 stepRemaining;
+    u8 *rotationData;
+    u8 *initialFrame;
+    u8 *stepFrame;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)(temp_16 + 0);
-    switch (temp_3) {
+    rotationData = ((FldCameraTask *)task)->data;
+    state = *(s32 *)(rotationData + 0);
+    switch (state) {
     case 0:
-        temp_f20 = *(f32 *)(temp_16 + 0xC);
-        temp_3_2 = *(s32 *)(*(u8 **)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask + 0x38) + 8);
-        if (temp_3_2 == 0)
+        initialAngle = *(f32 *)(rotationData + 0xC);
+        initialMode = *(s32 *)(*(u8 **)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask + 0x38) + 8);
+        if (initialMode == 0)
             goto process0;
-        if (temp_3_2 == 6)
+        if (initialMode == 6)
             goto process0;
-        if (temp_3_2 != 7)
+        if (initialMode != 7)
             goto skip_process0;
 process0:
-        temp_17 = *(u8 **)(kwlnGetCamera() + 4);
-        sp.sp90 = *(RwV3d *)(temp_17 + 0x40);
-        var_3 = &sp.sp80[0];
-        var_2 = 0xC;
-        if (var_3 != NULL) {
+        initialFrame = *(u8 **)(kwlnGetCamera() + 4);
+        rotation.initialPosition = *(RwV3d *)(initialFrame + 0x40);
+        clearInitial = &rotation.initialZero[0];
+        initialRemaining = 0xC;
+        if (clearInitial != NULL) {
             do {
-                *var_3 = 0;
-                var_3 += 1;
-                var_2 -= 1;
-            } while (var_2 != 0);
+                *clearInitial = 0;
+                clearInitial += 1;
+                initialRemaining -= 1;
+            } while (initialRemaining != 0);
         }
-        temp_2 = &sp.sp70;
-        temp_5 = *(s64 *)D_005F16C8;
-        temp_f0 = *(f32 *)D_005F16D0;
-        sp.sp70 = temp_5;
-        sp.sp78 = temp_f0;
-        temp_f1 = temp_f20;
-        func_003e9d50(temp_17, temp_2, temp_f1, 2);
-        sp.sp90 = *(RwV3d *)(temp_17 + 0x40);
-        K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp90, &sp.sp80[0], 0);
+        initialAxis = &rotation.initialAxisXY;
+        axisXY = *(s64 *)D_005F16C8;
+        axisZ = *(f32 *)D_005F16D0;
+        rotation.initialAxisXY = axisXY;
+        rotation.initialAxisZ = axisZ;
+        angle = initialAngle;
+        func_003e9d50(initialFrame, initialAxis, angle, 2);
+        rotation.initialPosition = *(RwV3d *)(initialFrame + 0x40);
+        K_ClumpLookAtBasis(kwlnGetCamera(), &rotation.initialPosition, &rotation.initialZero[0], 0);
 skip_process0:
-        *(s32 *)(temp_16 + 0) += 1;
+        *(s32 *)(rotationData + 0) += 1;
         /* fallthrough */
     case 1:
-        temp_3_3 = *(s32 *)(temp_16 + 8);
-        if (temp_3_3 < *(s32 *)(temp_16 + 4)) {
-            *(s32 *)(temp_16 + 8) = temp_3_3 + 1;
-            temp_f21 = sinf((iGpffff8094 *
-                                      (f32)*(s32 *)(temp_16 + 8)) /
-                                     (f32)*(s32 *)(temp_16 + 4));
+        elapsed = *(s32 *)(rotationData + 8);
+        if (elapsed < *(s32 *)(rotationData + 4)) {
+            *(s32 *)(rotationData + 8) = elapsed + 1;
+            sine = sinf((iGpffff8094 *
+                                      (f32)*(s32 *)(rotationData + 8)) /
+                                     (f32)*(s32 *)(rotationData + 4));
             if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
-                temp_f20_2 = *(f32 *)(temp_16 + 0x10) *
-                             (temp_f21 - *(f32 *)(temp_16 + 0x14));
-                temp_3_4 = *(s32 *)(*(u8 **)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask +
+                stepAngle = *(f32 *)(rotationData + 0x10) *
+                             (sine - *(f32 *)(rotationData + 0x14));
+                stepMode = *(s32 *)(*(u8 **)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask +
                                              0x38) + 8);
-                if (temp_3_4 == 0)
+                if (stepMode == 0)
                     goto process1;
-                if (temp_3_4 == 6)
+                if (stepMode == 6)
                     goto process1;
-                if (temp_3_4 != 7)
+                if (stepMode != 7)
                     goto skip_process1;
 process1:
-                temp_17_2 = *(u8 **)(kwlnGetCamera() + 4);
-                sp.sp60 = *(RwV3d *)(temp_17_2 + 0x40);
-                var_3_2 = &sp.sp50[0];
-                var_2_2 = 0xC;
-                if (var_3_2 != NULL) {
+                stepFrame = *(u8 **)(kwlnGetCamera() + 4);
+                rotation.stepPosition = *(RwV3d *)(stepFrame + 0x40);
+                clearStep = &rotation.stepZero[0];
+                stepRemaining = 0xC;
+                if (clearStep != NULL) {
                     do {
-                        *var_3_2 = 0;
-                        var_3_2 += 1;
-                        var_2_2 -= 1;
-                    } while (var_2_2 != 0);
+                        *clearStep = 0;
+                        clearStep += 1;
+                        stepRemaining -= 1;
+                    } while (stepRemaining != 0);
                 }
-                temp_2_2 = &sp.sp40;
-                temp_5 = *(s64 *)D_005F16C8;
-                temp_f0 = *(f32 *)D_005F16D0;
-                sp.sp40 = temp_5;
-                sp.sp48 = temp_f0;
-                temp_f1 = temp_f20_2;
-                func_003e9d50(temp_17_2, temp_2_2, temp_f1, 2);
-                sp.sp60 = *(RwV3d *)(temp_17_2 + 0x40);
-                K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp60,
-                              &sp.sp50[0], 0);
+                stepAxis = &rotation.stepAxisXY;
+                axisXY = *(s64 *)D_005F16C8;
+                axisZ = *(f32 *)D_005F16D0;
+                rotation.stepAxisXY = axisXY;
+                rotation.stepAxisZ = axisZ;
+                angle = stepAngle;
+                func_003e9d50(stepFrame, stepAxis, angle, 2);
+                rotation.stepPosition = *(RwV3d *)(stepFrame + 0x40);
+                K_ClumpLookAtBasis(kwlnGetCamera(), &rotation.stepPosition,
+                              &rotation.stepZero[0], 0);
 skip_process1:
                 ;
             }
-            *(f32 *)(temp_16 + 0x14) = temp_f21;
+            *(f32 *)(rotationData + 0x14) = sine;
         } else {
-            *(s32 *)(temp_16 + 0) += 1;
+            *(s32 *)(rotationData + 0) += 1;
         }
         goto done;
     case 2:
@@ -2294,66 +2366,68 @@ done:
 /* measured: FldFrame_RotateTaskCreate, FldFrameRotateTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0016F100
-void FldFrame_RotateTaskDestroy(u8 *arg0)
+void FldFrame_RotateTaskDestroy(u8 *task)
 {
-    (*DAT_008873EC)(*(void **)(arg0 + 0x38));
+    (*DAT_008873EC)(((FldCameraTask *)task)->data);
 }
 
 /* measured: opt_loop_invariants on reproduces FldFrame_RotateTaskCreate's retail loop schedule. */
 /* measured: FldFrame_RotateTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Create a timed rotation toward the player yaw, optionally adding a relative angle. */
 // FUN_0016F130
-u8 *FldFrame_RotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
+u8 *FldFrame_RotateTaskCreate(u8 *parentTask, s32 duration, s32 relativeAngle)
 {
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
     u8 *result;
-    u8 *temp_2;
-    f32 temp_f20;
-    f32 temp_f0;
-    f32 temp_f4;
-    f32 temp_f3;
-    f32 temp_f2;
+    u8 *rotationData;
+    f32 targetYaw;
+    f32 cameraYaw;
+    f32 directAngle;
+    f32 wrappedAngle;
+    f32 fullTurn;
 
     result = NULL;
     if (*(s32 *)D_007EF9F8 != 0) {
         chkmemAllocSiteTag(D_005F1698, 0x71C);
-        temp_2 = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
-        if (temp_2 == NULL) {
+        rotationData = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
+        if (rotationData == NULL) {
             return NULL;
         }
-            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, FldFrame_RotateTaskUpdate, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
-            *(s32 *)(temp_2 + 4) = arg1;
-            temp_f20 = KDraw_MatrixYawDeg(
+            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005F16E0), 0xF, 0, 0, FldFrame_RotateTaskUpdate, FldFrame_RotateTaskDestroy, (u8 *)(rotationData));
+            ((FldCameraRotation *)rotationData)->duration = duration;
+            targetYaw = KDraw_MatrixYawDeg(
                 mdlGetMatrix(*(s32 *)D_007EFA00));
-            if (temp_f20 < 0.0f) {
-                temp_f20 += 360.0f;
+            if (targetYaw < 0.0f) {
+                targetYaw += 360.0f;
             }
-            temp_f0 = KDraw_MatrixYawDeg(
+            cameraYaw = KDraw_MatrixYawDeg(
                 func_003e9700(*(s32 *)(kwlnGetCamera() + 4)));
-            if (temp_f0 < 0.0f) {
-                temp_f0 += 360.0f;
+            if (cameraYaw < 0.0f) {
+                cameraYaw += 360.0f;
             }
-            if (arg2 != -1) {
-                temp_f20 += (f32)arg2;
-                for (; temp_f20 > 360.0f; temp_f20 -= 360.0f) {
+            if (relativeAngle != -1) {
+                targetYaw += (f32)relativeAngle;
+                for (; targetYaw > 360.0f; targetYaw -= 360.0f) {
                 }
             }
-            temp_f4 = temp_f20 - temp_f0;
-            if (temp_f0 > 180.0f) {
-                temp_f3 = (360.0f - temp_f0) + temp_f20;
+            directAngle = targetYaw - cameraYaw;
+            if (cameraYaw > 180.0f) {
+                wrappedAngle = (360.0f - cameraYaw) + targetYaw;
             } else {
-                temp_f3 = -((360.0f - temp_f20) + temp_f0);
+                wrappedAngle = -((360.0f - targetYaw) + cameraYaw);
             }
-            temp_f2 = 360.0f;
-            while (temp_f4 > temp_f2) {
-                temp_f4 -= temp_f2;
+            fullTurn = 360.0f;
+            while (directAngle > fullTurn) {
+                directAngle -= fullTurn;
             }
-            while (temp_f3 > temp_f2) {
-                temp_f3 -= temp_f2;
+            while (wrappedAngle > fullTurn) {
+                wrappedAngle -= fullTurn;
             }
-            if (fabsf(temp_f4) < fabsf(temp_f3)) {
-                *(f32 *)(temp_2 + 0x10) = temp_f4;
+            if (fabsf(directAngle) < fabsf(wrappedAngle)) {
+                ((FldCameraRotation *)rotationData)->angle = directAngle;
             } else {
-                *(f32 *)(temp_2 + 0x10) = temp_f3;
+                ((FldCameraRotation *)rotationData)->angle = wrappedAngle;
             }
     }
     return result;
@@ -2363,54 +2437,56 @@ u8 *FldFrame_RotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
 /* measured: opt_loop_invariants on reproduces FldFrameRotateTaskCreate's loop schedule
    and FPU register allocation. */
 #pragma push
+/* Create a timed rotation toward an absolute yaw using the shorter angular difference. */
 // FUN_0016F3B0
-u8 *FldFrameRotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
+u8 *FldFrameRotateTaskCreate(u8 *parentTask, s32 duration, s32 absoluteAngle)
 {
+    /* Raw frame/resource tail accesses remain at the byte-pointer API boundary; complete layouts are not established here. */
     u8 *result;
-    u8 *temp_2;
-    f32 temp_f0;
-    f32 temp_f4;
-    f32 temp_f3;
-    f32 temp_f2;
+    u8 *rotationData;
+    f32 cameraYaw;
+    f32 targetYaw;
+    f32 directAngle;
+    f32 wrappedAngle;
 
     result = NULL;
     if (*(s32 *)D_007EF9F8 != 0) {
         chkmemAllocSiteTag(D_005F1698, 0x774);
-        temp_2 = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
-        if (temp_2 == NULL) {
+        rotationData = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
+        if (rotationData == NULL) {
             return NULL;
         }
-        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, FldFrame_RotateTaskUpdate, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
-        *(s32 *)(temp_2 + 4) = arg1;
+        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005F16E0), 0xF, 0, 0, FldFrame_RotateTaskUpdate, FldFrame_RotateTaskDestroy, (u8 *)(rotationData));
+        ((FldCameraRotation *)rotationData)->duration = duration;
         KDraw_MatrixYawDeg(mdlGetMatrix(*(s32 *)D_007EFA00));
-        temp_f0 = KDraw_MatrixYawDeg(
+        cameraYaw = KDraw_MatrixYawDeg(
             func_003e9700(*(s32 *)(kwlnGetCamera() + 4)));
-        if (temp_f0 < 0.0f) {
-            temp_f0 += 360.0f;
+        if (cameraYaw < 0.0f) {
+            cameraYaw += 360.0f;
         }
-        temp_f4 = (f32)arg2;
-        while (temp_f4 > 360.0f) {
-            temp_f4 -= 360.0f;
+        targetYaw = (f32)absoluteAngle;
+        while (targetYaw > 360.0f) {
+            targetYaw -= 360.0f;
         }
-        while (temp_f4 < -360.0f) {
-            temp_f4 += 360.0f;
+        while (targetYaw < -360.0f) {
+            targetYaw += 360.0f;
         }
-        temp_f3 = temp_f4 - temp_f0;
-        if (temp_f0 > 180.0f) {
-            temp_f2 = (360.0f - temp_f0) + temp_f4;
+        directAngle = targetYaw - cameraYaw;
+        if (cameraYaw > 180.0f) {
+            wrappedAngle = (360.0f - cameraYaw) + targetYaw;
         } else {
-            temp_f2 = -((360.0f - temp_f4) + temp_f0);
+            wrappedAngle = -((360.0f - targetYaw) + cameraYaw);
         }
-        while (temp_f3 > 360.0f) {
-            temp_f3 -= 360.0f;
+        while (directAngle > 360.0f) {
+            directAngle -= 360.0f;
         }
-        while (temp_f2 > 360.0f) {
-            temp_f2 -= 360.0f;
+        while (wrappedAngle > 360.0f) {
+            wrappedAngle -= 360.0f;
         }
-        if (fabsf(temp_f3) < fabsf(temp_f2)) {
-            *(f32 *)(temp_2 + 0x10) = temp_f3;
+        if (fabsf(directAngle) < fabsf(wrappedAngle)) {
+            ((FldCameraRotation *)rotationData)->angle = directAngle;
         } else {
-            *(f32 *)(temp_2 + 0x10) = temp_f2;
+            ((FldCameraRotation *)rotationData)->angle = wrappedAngle;
         }
     }
     return result;
@@ -2419,70 +2495,72 @@ u8 *FldFrameRotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
 #pragma pop
 /* measured: FldEventSnapshotCapture compiles to object 276B against the 288B retail
    window (normalized_diff 0; trailing zero padding is normalized). */
+/* Capture camera matrix, FOV, mode and follow parameters as a seven-quadword snapshot. */
 // FUN_0016F630
 /* measured: optimization_level 1 reproduces FldEventSnapshotCapture register allocation. */
 /* measured: FldEventSnapshotCapture MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
-void FldEventSnapshotCapture(FldEventSnapshot *arg0, u8 *arg1)
+void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *task)
 {
-    F630Frame sp;
-    s128 *var_17;
-    s128 *var_5_2;
-    u8 *temp_16;
-    u8 *var_7;
-    u8 *var_6;
-    u8 *temp_18;
-    s32 var_4;
-    s32 var_5;
-    f32 temp_f2;
-    f32 temp_f1;
-    f32 temp_f0;
-    s128 temp_3_2;
+    /* Raw copy cursors retain the measured two-word matrix and aligned quadword snapshot transfer order. */
+    FldCameraSnapshotScratch snapshot;
+    s128 *copyDestination;
+    s128 *copySource;
+    u8 *cameraData;
+    u8 *matrixSource;
+    u8 *matrixDestination;
+    u8 *cameraFrame;
+    s32 quadwordsRemaining;
+    s32 wordPairsRemaining;
+    f32 componentX;
+    f32 componentY;
+    f32 componentZ;
+    s128 quadword;
 
-    var_17 = (s128 *)arg0;
-    temp_16 = *(u8 **)(arg1 + 0x38);
-    temp_18 = *(u8 **)(kwlnGetCamera() + 4);
-    memset(&sp, 0, sizeof(sp));
-    sp.sp80 = K_View_GetFov(kwlnGetCamera());
-    var_7 = (u8 *)(temp_18 + 0x10);
-    var_6 = &sp.work[0];
-    var_5 = 8;
+    copyDestination = (s128 *)destination;
+    cameraData = ((FldCameraTask *)task)->data;
+    cameraFrame = *(u8 **)(kwlnGetCamera() + 4);
+    memset(&snapshot, 0, sizeof(snapshot));
+    snapshot.fov = K_View_GetFov(kwlnGetCamera());
+    matrixSource = (u8 *)(cameraFrame + 0x10);
+    matrixDestination = &snapshot.work[0];
+    wordPairsRemaining = 8;
     do {
-        s32 temp_4;
-        s32 temp_3;
-        temp_4 = *(s32 *)(var_7 + 0);
-        temp_3 = *(s32 *)(var_7 + 4);
-        var_7 += 8;
-        var_5 -= 1;
-        *(s32 *)(var_6 + 0) = temp_4;
-        *(s32 *)(var_6 + 4) = temp_3;
-        var_6 += 8;
-    } while (var_5 > 0);
-    sp.sp84 = (s16)*(s32 *)(temp_16 + 8);
-    temp_f2 = *(f32 *)(temp_16 + 0x14);
-    temp_f1 = *(f32 *)(temp_16 + 0x18);
-    temp_f0 = *(f32 *)(temp_16 + 0x1C);
-    sp.sp88 = temp_f2;
-    sp.sp8c = temp_f1;
-    sp.sp90 = temp_f0;
-    sp.sp94 = *(f32 *)(temp_16 + 0x20);
-    sp.sp98 = *(f32 *)(temp_16 + 0x24);
-    sp.sp9c = *(f32 *)(temp_16 + 0x28C);
-    temp_f2 = *(f32 *)(temp_16 + 0x29C);
-    temp_f1 = *(f32 *)(temp_16 + 0x2A0);
-    temp_f0 = *(f32 *)(temp_16 + 0x2A4);
-    sp.spa0 = temp_f2;
-    sp.spa4 = temp_f1;
-    sp.spa8 = temp_f0;
-    var_5_2 = (s128 *)&sp;
-    var_4 = 7;
+        s32 firstWord;
+        s32 secondWord;
+        firstWord = *(s32 *)(matrixSource + 0);
+        secondWord = *(s32 *)(matrixSource + 4);
+        matrixSource += 8;
+        wordPairsRemaining -= 1;
+        *(s32 *)(matrixDestination + 0) = firstWord;
+        *(s32 *)(matrixDestination + 4) = secondWord;
+        matrixDestination += 8;
+    } while (wordPairsRemaining > 0);
+    snapshot.mode = (s16)((FldCameraData *)cameraData)->mode;
+    componentX = ((FldCameraData *)cameraData)->offset.x;
+    componentY = ((FldCameraData *)cameraData)->offset.y;
+    componentZ = ((FldCameraData *)cameraData)->offset.z;
+    snapshot.offsetX = componentX;
+    snapshot.offsetY = componentY;
+    snapshot.offsetZ = componentZ;
+    snapshot.radius = ((FldCameraData *)cameraData)->radius;
+    snapshot.height = ((FldCameraData *)cameraData)->height;
+    snapshot.distance = ((FldCameraData *)cameraData)->desiredDistance;
+    componentX = ((FldCameraData *)cameraData)->anchor.x;
+    componentY = ((FldCameraData *)cameraData)->anchor.y;
+    componentZ = ((FldCameraData *)cameraData)->anchor.z;
+    snapshot.targetX = componentX;
+    snapshot.targetY = componentY;
+    snapshot.targetZ = componentZ;
+    copySource = (s128 *)&snapshot;
+    quadwordsRemaining = 7;
     do {
-        temp_3_2 = *var_5_2;
-        var_5_2 = (s128 *)((u8 *)var_5_2 + 0x10);
-        var_4 -= 1;
-        *var_17 = temp_3_2;
-        var_17 = (s128 *)((u8 *)var_17 + 0x10);
-    } while (var_4 > 0);
+        quadword = *copySource;
+        copySource = (s128 *)((u8 *)copySource + 0x10);
+        quadwordsRemaining -= 1;
+        *copyDestination = quadword;
+        copyDestination = (s128 *)((u8 *)copyDestination + 0x10);
+    } while (quadwordsRemaining > 0);
 }
 
 /* measured: restore baseline optimization level after FldEventSnapshotCapture. */
@@ -2490,27 +2568,29 @@ void FldEventSnapshotCapture(FldEventSnapshot *arg0, u8 *arg1)
 #pragma optimization_level 2
 /* measured: FldCameraApplyRecord compiles to object 348B against the 352B retail
    window (normalized_diff 0; pointer-typed hoist fixes final-call setup). */
+/* Restore camera matrix/FOV and follow parameters, then rebuild mode-specific orientation. */
 // FUN_0016F750
-void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
+void FldCameraApplyRecord(u8 *task, u8 *record)
 {
-    u8 *temp_16;
-    u8 *temp_3;
-    u32 temp_3_2;
-    u16 temp_18;
+    /* Raw payload/frame accesses retained: typed fields changed whole-file codegen. */
+    u8 *cameraData;
+    u8 *frameOrCamera;
+    u32 mode;
+    u16 recordMode;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    K_View_SetFov(kwlnGetCamera(), *(f32 *)(arg1 + 0x40));
-    func_003e9cb0(*(void **)(kwlnGetCamera() + 4), arg1, 0);
-    temp_18 = *(u16 *)(arg1 + 0x44);
-    FldCameraAdvanceCurve(arg0, temp_18);
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    *(RwV3d *)(temp_3 + 0x14) = *(RwV3d *)(arg1 + 0x48);
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x20) = *(f32 *)(arg1 + 0x54);
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x24) = *(f32 *)(arg1 + 0x58);
-    *(f32 *)(temp_16 + 0x28C) = *(f32 *)(arg1 + 0x5C);
-    *(RwV3d *)(temp_16 + 0x29C) = *(RwV3d *)(arg1 + 0x60);
-    temp_3_2 = (u32)(*(u32 *)(*(u8 **)(arg0 + 0x38) + 8));
-    switch (temp_3_2) {
+    cameraData = *(u8 **)(task + 0x38);
+    K_View_SetFov(kwlnGetCamera(), *(f32 *)(record + 0x40));
+    func_003e9cb0(*(void **)(kwlnGetCamera() + 4), record, 0);
+    recordMode = *(u16 *)(record + 0x44);
+    FldCameraAdvanceCurve(task, recordMode);
+    frameOrCamera = *(u8 **)(task + 0x38);
+    *(RwV3d *)(frameOrCamera + 0x14) = *(RwV3d *)(record + 0x48);
+    *(f32 *)(*(u8 **)(task + 0x38) + 0x20) = *(f32 *)(record + 0x54);
+    *(f32 *)(*(u8 **)(task + 0x38) + 0x24) = *(f32 *)(record + 0x58);
+    *(f32 *)(cameraData + 0x28C) = *(f32 *)(record + 0x5C);
+    *(RwV3d *)(cameraData + 0x29C) = *(RwV3d *)(record + 0x60);
+    mode = (u32)(*(u32 *)(*(u8 **)(task + 0x38) + 8));
+    switch (mode) {
     case 0:
     case 5:
     case 6:
@@ -2518,15 +2598,15 @@ void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
         return;
     case 2:
     {
-        s32 temp_16_2_case;
-        u8 *temp_16_2_arg;
-        s32 temp_17_case;
-        temp_16_2_case = *(s32 *)(kwlnGetCamera() + 4);
-        temp_17_case = (s32)(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40);
-        temp_16_2_arg = (u8 *)temp_16_2_case + 0x40;
-        temp_3 = kwlnGetCamera();
-        K_ClumpLookAtBasis(temp_3, (void *)temp_16_2_arg,
-                      (void *)temp_17_case, 0);
+        s32 cameraFrame;
+        u8 *cameraPosition;
+        s32 targetPosition;
+        cameraFrame = *(s32 *)(kwlnGetCamera() + 4);
+        targetPosition = (s32)(*(u8 **)(*(u8 **)(task + 0x38) + 0xC) + 0x40);
+        cameraPosition = (u8 *)cameraFrame + 0x40;
+        frameOrCamera = kwlnGetCamera();
+        K_ClumpLookAtBasis(frameOrCamera, (void *)cameraPosition,
+                      (void *)targetPosition, 0);
     }
         return;
     case 1:
@@ -2537,10 +2617,12 @@ void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
     }
 }
 
+/* Compute a 0..360-degree stick heading with a 48-unit deadzone and D-pad overrides. */
 // FUN_0016F8B0
 // MATCH: 1100B/1104B, 13 resolved relocations, four zero tail bytes.
-f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
+f32 FldEvent_GetStickHeading(s32 padIndex, s32 stickIndex)
 {
+    /* Raw button load addresses the selected 0x4a-byte pad record through an interior global alias. */
     RwV3d normalized;
     RwV3d input;
     u8 *clear;
@@ -2548,8 +2630,8 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
     u32 offset;
     u16 buttons;
     f32 result;
-    f32 comp_z;
-    f32 comp_x;
+    f32 componentZ;
+    f32 componentX;
 
     clear = (u8 *)&input;
     remaining = sizeof(input);
@@ -2561,8 +2643,8 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
         } while (remaining != 0);
     }
     result = 0.0f;
-    if (arg1 == 0) {
-        offset = (u32)arg0 * 0x4A;
+    if (stickIndex == 0) {
+        offset = (u32)padIndex * 0x4A;
         input.z = (f32)(u32)D_008C025D[offset] - 128.0f;
         buttons = *(u16 *)((u8 *)D_008C024C + offset);
         if (buttons & 0x1000) {
@@ -2575,7 +2657,7 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
             input.z = 0.0f;
         }
 
-        input.x = (f32)(u32)D_008C025C[arg0 * 0x4A] - 128.0f;
+        input.x = (f32)(u32)D_008C025C[padIndex * 0x4A] - 128.0f;
         if (buttons & 0x8000) {
             input.x = -128.0f;
         } else if (buttons & 0x2000) {
@@ -2586,7 +2668,7 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
             input.x = 0.0f;
         }
     } else {
-        offset = (u32)arg0 * 0x4A;
+        offset = (u32)padIndex * 0x4A;
         input.z = (f32)(u32)D_008C025F[offset] - 128.0f;
         if (!(input.z < -48.0f) && (input.z <= 48.0f)) {
             input.z = 0.0f;
@@ -2600,10 +2682,10 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
     if ((input.z < -48.0f) || !(input.z <= 48.0f) ||
         (input.x < -48.0f) || !(input.x <= 48.0f)) {
         RwV3dNormalize(&normalized, &input);
-        comp_z = normalized.z;
-        comp_x = normalized.x;
-        result = func_0044b920(comp_z /
-                              sqrtf(comp_x * comp_x + comp_z * comp_z));
+        componentZ = normalized.z;
+        componentX = normalized.x;
+        result = func_0044b920(componentZ /
+                              sqrtf(componentX * componentX + componentZ * componentZ));
         result *= fGpffff8300;
         if (normalized.x < 0.0f) {
             result = 360.0f - result;
@@ -2616,16 +2698,17 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
     return result;
 }
 
+/* Select the character idle animation from room, step, day-event and flag state. */
 // FUN_0016FD00
-s32 FldCharacterAnimSelect(s32 arg0)
+s32 FldCharacterAnimSelect(s32 characterType)
 {
-    u8 *temp_2;
-    u8 *temp_4;
+    u8 *scene;
+    u8 *currentScene;
 
-    switch (arg0) {
+    switch (characterType) {
     case 1:
-        temp_2 = iGpffff9db0;
-        if (FldRoomIsListed(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1) {
+        scene = iGpffff9db0;
+        if (FldRoomIsListed(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]) == 1) {
             if (FldDayEventActive() == 1) {
                 return 9;
             }
@@ -2638,9 +2721,9 @@ ret0_a:
 ret1_a:
             return 1;
         }
-        temp_4 = iGpffff9db0;
-        if ((*(s32 *)(temp_4 + 0) == 0x44) &&
-            (*(s32 *)(temp_4 + 4) == 1)) {
+        currentScene = iGpffff9db0;
+        if ((((FieldSceneState *)currentScene)->field.value == 0x44) &&
+            (((FieldSceneState *)currentScene)->room.value == 1)) {
             if (datGetFlag(0xC01, 1) != 0) {
                 goto ret0_b;
             }
@@ -2672,16 +2755,17 @@ ret1_c:
     }
 }
 
+/* Choose the primary movement animation, with room and day-event variants. */
 // FUN_0016FE80
-s32 FldMoveAnimPrimary(s32 arg0)
+s32 FldMoveAnimPrimary(s32 characterType)
 {
     s32 result;
-    u8 *temp;
+    u8 *scene;
 
-    switch (arg0) {
+    switch (characterType) {
     case 1:
-        temp = iGpffff9db0;
-        if (FldRoomIsListed(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
+        scene = iGpffff9db0;
+        if (FldRoomIsListed(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]) == 1) {
             result = 3;
             if (FldDayEventActive() == 1) {
                 result = 0xA;
@@ -2689,9 +2773,9 @@ s32 FldMoveAnimPrimary(s32 arg0)
                 result--;
             }
         } else {
-            temp = iGpffff9db0;
-            if ((*(s32 *)(temp + 0) == 0x44) &&
-                (*(s32 *)(temp + 4) == 1)) {
+            scene = iGpffff9db0;
+            if ((((FieldSceneState *)scene)->field.value == 0x44) &&
+                (((FieldSceneState *)scene)->room.value == 1)) {
                 result = 3;
                 if (datGetFlag(0xC01, 1) != 0) {
                     result--;
@@ -2715,16 +2799,17 @@ s32 FldMoveAnimPrimary(s32 arg0)
     return result;
 }
 
+/* Choose the secondary movement animation, with room and day-event variants. */
 // FUN_0016FFD0
-s32 FldMoveAnimSecondary(s32 arg0)
+s32 FldMoveAnimSecondary(s32 characterType)
 {
     s32 result;
-    u8 *temp;
+    u8 *scene;
 
-    switch (arg0) {
+    switch (characterType) {
     case 1:
-        temp = iGpffff9db0;
-        if (FldRoomIsListed(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
+        scene = iGpffff9db0;
+        if (FldRoomIsListed(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]) == 1) {
             result = 5;
             if (FldDayEventActive() == 1) {
                 result = 0xB;
@@ -2732,9 +2817,9 @@ s32 FldMoveAnimSecondary(s32 arg0)
                 result--;
             }
         } else {
-            temp = iGpffff9db0;
-            if ((*(s32 *)(temp + 0) == 0x44) &&
-                (*(s32 *)(temp + 4) == 1)) {
+            scene = iGpffff9db0;
+            if ((((FieldSceneState *)scene)->field.value == 0x44) &&
+                (((FieldSceneState *)scene)->room.value == 1)) {
                 result = 5;
                 if (datGetFlag(0xC01, 1) != 0) {
                     result--;

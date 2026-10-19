@@ -42,11 +42,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *progress, s32 input);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 progress, u32 input);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -59,162 +59,193 @@ extern void (*jtbl_008873EC[])(void *);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004bc4d0-004bccf0 */
 
 typedef struct {
-    s32 a;
-    s32 b;
-    s32 c;
-    f32 d;
-} Code1_004bBccf0Temp;
+    s32 centerXBits;
+    s32 centerYBits;
+    s32 centerZBits;
+    f32 radius;
+} EffMiscBounds;
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
+typedef struct EffMiscProgressSource {
+    u8 pad0[4];
+    u8 *colorTable;
+    u8 pad8[4];
+    s32 segmentCount;
+} EffMiscProgressSource;
+
+/* Progress state: offsets are shared by start/reset/advance and color fading. */
+typedef struct EffMiscProgress {
+    u8 *source;
+    s32 flags;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0x18];
+    s32 unk28;
+    f32 elapsed;
+    f32 start;
+    f32 duration;
+    s16 kind;
+} EffMiscProgress;
+
+/* Start the fade at the current elapsed value; bit zero enables fading. */
 // FUN_004BC4D0
-void effMiscProgressStart(u8 *arg0, f32 arg1)
+void effMiscProgressStart(u8 *progress, f32 duration)
 {
-    *(s32 *)(arg0 + 0x28) = 0;
-    *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x2c);
-    *(f32 *)(arg0 + 0x34) = arg1;
-    *(s32 *)(arg0 + 4) |= 1;
+    ((EffMiscProgress *)progress)->unk28 = 0;
+    ((EffMiscProgress *)progress)->start = ((EffMiscProgress *)progress)->elapsed;
+    ((EffMiscProgress *)progress)->duration = duration;
+    ((EffMiscProgress *)progress)->flags |= 1;
 }
 
+/* Clear fade flags, elapsed bits and both work selectors. */
 // FUN_004BC500
-void effMiscProgressReset(u8 *arg0)
+void effMiscProgressReset(u8 *progress)
 {
-    *(s32 *)(arg0 + 4) = 0;
-    *(s32 *)(arg0 + 0x2c) = 0;
-    *(s32 *)(arg0 + 8) = 0;
-    *(s32 *)(arg0 + 0xc) = 0;
+    ((EffMiscProgress *)progress)->flags = 0;
+    /* Reset the elapsed float through its original integer bit store. */
+    *(s32 *)(progress + 0x2c) = 0;
+    ((EffMiscProgress *)progress)->unk8 = 0;
+    ((EffMiscProgress *)progress)->unkC = 0;
 }
 
 // FUN_004BC520
-void effMiscProgressAdvance(u8 *arg0, f32 *arg1)
+void effMiscProgressAdvance(u8 *progress, f32 *elapsedStep)
 {
-    *(f32 *)(arg0 + 0x2c) += *arg1;
+    ((EffMiscProgress *)progress)->elapsed += *elapsedStep;
 }
 
 /* measured: opt_propagation off with `arg1 = arg1 << 3;` as its own statement keeps the
    shift ahead of the table loads (retail sll/lw/lw/addu); with propagation on the shift
    is folded into the address expression and emitted after the loads. */
+/* Interpolate two byte colors, optionally attenuating by the remaining fade. */
 // FUN_004BC540
 /* measured: func_004bc540 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void effMiscProgressBlendColor(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2)
+void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeight, u8 *output)
 {
-    u8 *temp_5;
+    u8 *colorPair;
     struct {
-        u8 *sp8;
-        u8 *spC;
+        u8 *firstColor;
+        u8 *secondColor;
     } stack;
-    u8 *var_7;
-    s32 var_3;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f4;
+    u8 *clearCursor;
+    s32 bytesRemaining;
+    f32 firstWeight;
+    f32 fade;
+    f32 channel;
+    f32 duration;
 
-    var_7 = (u8 *)&stack;
-    var_3 = 8;
-    if (var_7 != NULL) {
+    clearCursor = (u8 *)&stack;
+    bytesRemaining = 8;
+    if (clearCursor != NULL) {
         do {
-            *var_7 = 0;
-            var_7++;
-            var_3--;
-        } while (var_3 != 0);
+            *clearCursor = 0;
+            clearCursor++;
+            bytesRemaining--;
+        } while (bytesRemaining != 0);
     }
-    arg1 = arg1 << 3;
-    temp_5 = *(u8 **)(*(u8 **)(arg0 + 0) + 4) + arg1;
-    stack.sp8 = temp_5 + 8;
-    stack.spC = temp_5 + 0xC;
-    temp_f1 = 1.0f - fparg0;
+    keyIndex = keyIndex << 3;
+    /* Each color key occupies two adjacent four-byte RGBA entries. */
+    colorPair = ((EffMiscProgressSource *)((EffMiscProgress *)progress)->source)->colorTable + keyIndex;
+    stack.firstColor = colorPair + 8;
+    stack.secondColor = colorPair + 0xC;
+    firstWeight = 1.0f - secondWeight;
 
-    if (*(s32 *)(arg0 + 4) & 1) {
-        temp_f4 = *(f32 *)(arg0 + 0x34);
-        if (temp_f4 > 0.0f) {
-            temp_f2 = 1.0f - ((*(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x30)) / temp_f4);
-            if (temp_f2 < 0.0f) {
-                temp_f2 = 0.0f;
+    if (((EffMiscProgress *)progress)->flags & 1) {
+        duration = ((EffMiscProgress *)progress)->duration;
+        if (duration > 0.0f) {
+            fade = 1.0f - ((((EffMiscProgress *)progress)->elapsed - ((EffMiscProgress *)progress)->start) / duration);
+            if (fade < 0.0f) {
+                fade = 0.0f;
             }
-        } else if (temp_f4 == 0.0f) {
-            if (*(f32 *)(arg0 + 0x2C) < *(f32 *)(arg0 + 0x30)) {
+        } else if (duration == 0.0f) {
+            if (((EffMiscProgress *)progress)->elapsed < ((EffMiscProgress *)progress)->start) {
                 goto set_one;
             }
-            temp_f2 = 0.0f;
+            fade = 0.0f;
             goto set_progress;
         set_one:
-            temp_f2 = 1.0f;
+            fade = 1.0f;
         set_progress:
             ;
         }
-        temp_f3 = temp_f2 * (fparg0 * (f32)stack.spC[0] + temp_f1 * (f32)stack.sp8[0]);
-        arg2[0] = (u8)temp_f3;
-        temp_f3 = temp_f2 * (fparg0 * (f32)stack.spC[1] + temp_f1 * (f32)stack.sp8[1]);
-        arg2[1] = (u8)temp_f3;
-        temp_f3 = temp_f2 * (fparg0 * (f32)stack.spC[2] + temp_f1 * (f32)stack.sp8[2]);
-        arg2[2] = (u8)temp_f3;
-        temp_f3 = temp_f2 * (fparg0 * (f32)stack.spC[3] + temp_f1 * (f32)stack.sp8[3]);
-        arg2[3] = (u8)temp_f3;
+        channel = fade * (secondWeight * (f32)stack.secondColor[0] + firstWeight * (f32)stack.firstColor[0]);
+        output[0] = (u8)channel;
+        channel = fade * (secondWeight * (f32)stack.secondColor[1] + firstWeight * (f32)stack.firstColor[1]);
+        output[1] = (u8)channel;
+        channel = fade * (secondWeight * (f32)stack.secondColor[2] + firstWeight * (f32)stack.firstColor[2]);
+        output[2] = (u8)channel;
+        channel = fade * (secondWeight * (f32)stack.secondColor[3] + firstWeight * (f32)stack.firstColor[3]);
+        output[3] = (u8)channel;
         return;
     }
-    temp_f3 = fparg0 * (f32)stack.spC[0] + temp_f1 * (f32)stack.sp8[0];
-    arg2[0] = (u8)temp_f3;
-    temp_f3 = fparg0 * (f32)stack.spC[1] + temp_f1 * (f32)stack.sp8[1];
-    arg2[1] = (u8)temp_f3;
-    temp_f3 = fparg0 * (f32)stack.spC[2] + temp_f1 * (f32)stack.sp8[2];
-    arg2[2] = (u8)temp_f3;
-    temp_f3 = fparg0 * (f32)stack.spC[3] + temp_f1 * (f32)stack.sp8[3];
-    arg2[3] = (u8)temp_f3;
+    channel = secondWeight * (f32)stack.secondColor[0] + firstWeight * (f32)stack.firstColor[0];
+    output[0] = (u8)channel;
+    channel = secondWeight * (f32)stack.secondColor[1] + firstWeight * (f32)stack.firstColor[1];
+    output[1] = (u8)channel;
+    channel = secondWeight * (f32)stack.secondColor[2] + firstWeight * (f32)stack.firstColor[2];
+    output[2] = (u8)channel;
+    channel = secondWeight * (f32)stack.secondColor[3] + firstWeight * (f32)stack.firstColor[3];
+    output[3] = (u8)channel;
 }
 
 /* measured: restore propagation for the rest of the unit. */
+/* Clear geometry colors and positions; kind selects the generated vertex count.
+ * The two traversals clear colors and XYZ independently, then reset the bounds. */
+/* Geometry offsets and position bit stores stay raw: native typed access
+ * shortened this function to 312 bytes versus retail's matching 320-byte shape. */
 // FUN_004BCCF0
-void effMiscProgressResetWork(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3)
+void effMiscProgressResetWork(u8 *progress, u8 *geometry, u8 *unusedSource, s32 vertexCount)
 {
-    Code1_004bBccf0Temp temp;
-    s16 temp_6;
-    u8 *var_6_2;
-    s32 var_6;
-    s32 var_7;
-    u8 *temp_3;
-    u8 *var_4;
-    s32 var_4_2;
+    EffMiscBounds bounds;
+    s16 kind;
+    u8 *positionCursor;
+    s32 colorIndex;
+    s32 workCount;
+    u8 *morphTarget;
+    u8 *colorCursor;
+    s32 positionIndex;
 
-    var_7 = arg3;
-    temp_6 = *(s16 *)(arg0 + 0x38);
-    switch (temp_6) {
+    workCount = vertexCount;
+    kind = ((EffMiscProgress *)progress)->kind;
+    switch (kind) {
     case 0:
-        var_7 = (*(s32 *)(*(u8 **)(arg0 + 0) + 0xC) * 2) + 1;
+        workCount = (*(s32 *)(*(u8 **)(progress + 0) + 0xC) * 2) + 1;
         break;
     case 1:
-        var_7 = (*(s32 *)(*(u8 **)(arg0 + 0) + 0xC) * 3) + 6;
+        workCount = (*(s32 *)(*(u8 **)(progress + 0) + 0xC) * 3) + 6;
         break;
     case 2:
-        var_7 = (*(s32 *)(*(u8 **)(arg0 + 0) + 0xC) * 3) + 6;
+        workCount = (*(s32 *)(*(u8 **)(progress + 0) + 0xC) * 3) + 6;
         break;
     }
-    var_4 = *(u8 **)(arg1 + 0x30);
-    var_6 = 0;
-    while (var_6 < var_7) {
-        *(u8 *)(var_4 + 0) = 0;
-        *(u8 *)(var_4 + 1) = 0;
-        *(u8 *)(var_4 + 2) = 0;
-        *(u8 *)(var_4 + 3) = 0;
-        var_6 += 1;
-        var_4 += 4;
+    colorCursor = *(u8 **)(geometry + 0x30);
+    colorIndex = 0;
+    while (colorIndex < workCount) {
+        colorCursor[0] = 0;
+        colorCursor[1] = 0;
+        colorCursor[2] = 0;
+        colorCursor[3] = 0;
+        colorIndex += 1;
+        colorCursor += 4;
     }
-    var_6_2 = *(u8 **)(*(u8 **)(arg1 + 0x5C) + 0x14);
-    var_4_2 = 0;
-    while (var_4_2 < var_7) {
-        *(s32 *)(var_6_2 + 0) = 0;
-        *(s32 *)(var_6_2 + 4) = 0;
-        *(s32 *)(var_6_2 + 8) = 0;
-        var_4_2 += 1;
-        var_6_2 += 0xC;
+    positionCursor = *(u8 **)(*(u8 **)(geometry + 0x5C) + 0x14);
+    positionIndex = 0;
+    while (positionIndex < workCount) {
+        *(s32 *)(positionCursor + 0) = 0;
+        *(s32 *)(positionCursor + 4) = 0;
+        *(s32 *)(positionCursor + 8) = 0;
+        positionIndex += 1;
+        positionCursor += 0xC;
     }
-    temp.a = 0;
-    temp.b = 0;
-    temp.c = 0;
-    temp.d = (f32)1000000000;
-    temp_3 = *(u8 **)(arg1 + 0x5C);
-    *(Code1_004bBccf0Temp *)(temp_3 + 4) = temp;
+    bounds.centerXBits = 0;
+    bounds.centerYBits = 0;
+    bounds.centerZBits = 0;
+    bounds.radius = (f32)1000000000;
+    morphTarget = *(u8 **)(geometry + 0x5C);
+    /* Bounding-sphere XYZ are cleared with the original integer bit stores. */
+    *(EffMiscBounds *)(morphTarget + 4) = bounds;
 }
 

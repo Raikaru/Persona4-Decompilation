@@ -23,10 +23,10 @@ extern s32 D_0074613C;
  * saving $ra, 3161 already-MATCHED and 4690 unmatched functions use sd, while
  * exactly one function in the image uses sq $ra. */
 
-typedef void (*Code1B9Callback)(s32 arg0, s32 arg1, void *arg2);
+typedef void (*Code1B9Callback)(s32 first, s32 second, void *data);
 typedef struct {
     Code1B9Callback callback;
-    s32 arg1;
+    s32 second;
     s32 count;
 } Code1B9Work;
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
@@ -35,7 +35,7 @@ typedef struct {
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0052.c; members 0052d9a0-0052d9a0 */
 
 extern s32 *func_00528c30(void);
-extern void func_0052c870(s32 arg0);
+extern void func_0052c870(s32 first);
 typedef struct {
     s64 total;
     s64 min;
@@ -63,12 +63,13 @@ typedef struct {
  * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 /* measured: closes the schedule-on segment-return bracket through func_0052c870; explicit schedule off restores the following code's baseline state. */
+/* Accumulate one signed 64-bit sample and update the extrema and sample count. */
 // FUN_0052D9A0
-void RunningStatAdd(RunningStat *acc, s64 value)
+void RunningStatAdd(RunningStat *stats, s64 value)
 {
-    acc->total += value;
-    acc->min = (value < acc->min) ? value : acc->min;
-    acc->max = (acc->max < value) ? value : acc->max;
-    acc->count++;
+    stats->total += value;
+    stats->min = (value < stats->min) ? value : stats->min;
+    stats->max = (stats->max < value) ? value : stats->max;
+    stats->count++;
 }
 
