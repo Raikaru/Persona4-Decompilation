@@ -7,6 +7,40 @@
 typedef struct {
     f32 c[3];
 } EffAfterVec;
+/* Ribbon sample queue shared by the sample writer and the offset builder. */
+typedef struct {
+    f32 mid[3];
+    f32 headMid;
+    f32 headNext;
+    f32 tailMid;
+    f32 tailPrev;
+    f32 width[2];
+    f32 alpha[2];
+    f32 lengthScale; /* +0x2C: scales accumulated section lengths */
+} EffAfterParam;
+
+typedef struct {
+    EffAfterParam *param;
+    u8 *material;
+    s32 capacity;
+    s32 sectionCount; /* +0xC: ribbon subdivision count */
+    s32 mode;
+    f32 width;
+} EffAfterConfig;
+
+typedef struct EffAfterQueue {
+    EffAfterConfig *config;
+    u32 flags;
+    s32 count;
+    s32 writeIndex;
+    EffAfterVec *positions;
+    EffAfterVec *normals;
+    EffAfterVec *positionOffsets[2];
+    EffAfterVec *normalOffsets[2];
+    u8 pad28[0x10];
+    s16 mode; /* +0x38: copied from the section configuration */
+} EffAfterQueue;
+
 static inline u8 *effAfterWorkFieldPtr(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
@@ -15,48 +49,32 @@ static inline u8 *effAfterWorkFieldPtr(u32 offset, u8 *base)
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007146E0[];
-typedef struct RuntimeWork
-{
-    u32 flags;
-    u32 requestFlags;
-    u32 completedFlags;
-    u32 state;
-    u32 phase;
-    u32 selection;
-} RuntimeWork;
 typedef struct RuntimeCommandWork
 {
     u32 flags;
     u16* cursor;
-    u8 reserved08[8];
-    RuntimeWork* target;
+    u16* start;
+    u32 unkC;
+    EffAfterQueue* target;
     u32 elapsed;
     u16 delay;
     u16 reserved1a;
     u32 duration;
 } RuntimeCommandWork;
-typedef struct RuntimeResetWork
-{
-    u32 flags;
-    u32 value;
-    u32 completedFlags;
-    u32 reserved;
-    void* work;
-} RuntimeResetWork;
-extern void effMiscProgressStart(u8 *arg0, f32 arg1);
+extern void effMiscProgressStart(u8 *work, f32 duration);
 extern void effMiscProgressReset(void* work);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
-extern f32 Vpad_GetSegmentLength(void *arg0, s32 arg1);
-extern s32 effAfterHistoryIndex(const RuntimeWork *work, s32 index);
-extern f32 effAfterSectionTurnFactor(u8 *arg0, s32 arg1);
-extern f32 effAfterSideSegmentLength(u8 *arg0, s32 arg1, s32 arg2);
+extern f32 Vpad_GetSegmentLength(void *work, s32 section);
+extern s32 effAfterHistoryIndex(const EffAfterQueue *work, s32 index);
+extern f32 effAfterSectionTurnFactor(u8 *work, s32 section);
+extern f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side);
 extern void effAfterQueueSectionOffsets(struct EffAfterQueue *queue, s32 section);
-extern void effAfterFrameNormal(u8 *arg0, s32 arg1, EffAfterVec *arg2);
-extern void effAfterSideAxis(u8 *arg0, s32 arg1, s32 arg2, EffAfterVec *arg3);
+extern void effAfterFrameNormal(u8 *work, s32 section, EffAfterVec *output);
+extern void effAfterSideAxis(u8 *work, s32 section, s32 side, EffAfterVec *output);
 struct RpGeometry;
 struct RpTriangle { u16 vertIndex[3]; u16 matIndex; };
 struct RpMaterial;
@@ -68,6 +86,8 @@ extern void effMiscProgressBlendColor(u8 *work, s32 side, f32 t, u8 *out);
 /* Finds the section containing `distance` along the path and the fraction of that section it reaches. */
 // FUN_004B7460
 void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction) {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 697 differing bytes). Offsets remain as observed. */
     EffAfterVec leadingDelta;
     EffAfterVec trailingDelta;
     u8 *vectorBase;
@@ -102,8 +122,8 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     while (currentSection < *(s32 *)(data + 8) - 1) {
         cumulative = 0.0f;
         for (leadingIndex = 0; leadingIndex < currentSection + 1; leadingIndex++) {
-            firstIndex = effAfterHistoryIndex((const RuntimeWork *)data, leadingIndex);
-            nextIndex = effAfterHistoryIndex((const RuntimeWork *)data, leadingIndex + 1);
+            firstIndex = effAfterHistoryIndex((const EffAfterQueue *)data, leadingIndex);
+            nextIndex = effAfterHistoryIndex((const EffAfterQueue *)data, leadingIndex + 1);
             sectionLength = 0.0f;
             vectorBase = (u8 *)*(s32 *)(data + 0x10);
             firstOffset = firstIndex * 0xC;
@@ -137,8 +157,8 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     } else {
         previous = 0.0f;
         for (trailingIndex = 0; trailingIndex < currentSection; trailingIndex++) {
-            firstIndex = effAfterHistoryIndex((const RuntimeWork *)data, trailingIndex);
-            nextIndex = effAfterHistoryIndex((const RuntimeWork *)data, trailingIndex + 1);
+            firstIndex = effAfterHistoryIndex((const EffAfterQueue *)data, trailingIndex);
+            nextIndex = effAfterHistoryIndex((const EffAfterQueue *)data, trailingIndex + 1);
             sectionLength = 0.0f;
             vectorBase = (u8 *)*(s32 *)(data + 0x10);
             firstOffset = firstIndex * 0xC;
@@ -170,16 +190,16 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     }
     *fraction = (targetDistance - previous) / sectionLength;
 }
-// Returns the ring index that is index steps behind the newest sample, wrapped by completedFlags when it goes negative.
+// Returns the ring index that is index steps behind the newest sample, wrapping by the current sample count.
 // FUN_004B7800
-s32 effAfterHistoryIndex(const RuntimeWork* work, s32 index)
+s32 effAfterHistoryIndex(const EffAfterQueue* work, s32 index)
 {
     s32 result;
 
-    result = (s32)work->state - 1 - index;
+    result = (s32)work->writeIndex - 1 - index;
     if (result < 0)
     {
-        result += (s32)work->completedFlags;
+        result += (s32)work->count;
     }
     return result;
 }
@@ -438,8 +458,10 @@ typedef RwV3d AfterVector3;
 // FUN_004B8350
 #pragma push
 #pragma opt_loop_invariants on
-u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
+u8 *effAfterCreateRibbon(u8 *work, struct RpMaterial *material)
 {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 2017 differing bytes). Offsets remain as observed. */
     typedef struct RwSphere {
         AfterVector3 center;
         f32 radius;
@@ -465,33 +487,33 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
     f32 denom;
 
     flags = 0x4A;
-    if ((**(u32 **)(*(s32 *)arg0 + 4) & 1) != 0) {
+    if ((**(u32 **)(*(s32 *)work + 4) & 1) != 0) {
         flags |= 4;
     }
     nIdx = 0;
     nVtx = 0;
-    switch (*(s16 *)(arg0 + 0x38)) {
+    switch (*(s16 *)(work + 0x38)) {
     case 0:
-        n = *(s32 *)(*(u8 **)arg0 + 0xC);
+        n = *(s32 *)(*(u8 **)work + 0xC);
         nIdx = (n - 1) * 2 + 1;
         nVtx = n * 2 + 1;
         break;
     case 1:
-        n = *(s32 *)(*(u8 **)arg0 + 0xC);
+        n = *(s32 *)(*(u8 **)work + 0xC);
         nIdx = n * 4 + 4;
         nVtx = n * 3 + 6;
         break;
     case 2:
-        n = *(s32 *)(*(u8 **)arg0 + 0xC);
+        n = *(s32 *)(*(u8 **)work + 0xC);
         nIdx = n * 4 + 4;
         nVtx = n * 3 + 6;
         break;
     }
     obj = (u8 *)func_003c2630(nVtx, nIdx, flags);
     idx = *(struct RpTriangle **)(obj + 0x2C);
-    switch (*(s16 *)(arg0 + 0x38)) {
+    switch (*(s16 *)(work + 0x38)) {
     case 0:
-        for (i = 0; i < *(s32 *)(*(u8 **)arg0 + 0xC) - 1; i++) {
+        for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC) - 1; i++) {
             s32 next;
             s32 mid;
 
@@ -514,7 +536,7 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
             func_003c2130((const struct RpGeometry *)obj, (struct RpTriangle *)(firstStripTriangle + 1), 2, 4, 1);
             firstStripTriangle += 2;
             stripVertex = 2;
-            for (stripIndex = 0; stripIndex < *(s32 *)(*(u8 **)arg0 + 0xC); stripIndex++) {
+            for (stripIndex = 0; stripIndex < *(s32 *)(*(u8 **)work + 0xC); stripIndex++) {
                 s32 base;
                 s32 next;
                 s32 a;
@@ -551,7 +573,7 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
             func_003c2130((const struct RpGeometry *)obj, (struct RpTriangle *)(secondStripTriangle + 1), 2, 4, 1);
             secondStripTriangle += 2;
             stripVertex = 2;
-            for (stripIndex = 0; stripIndex < *(s32 *)(*(u8 **)arg0 + 0xC); stripIndex++) {
+            for (stripIndex = 0; stripIndex < *(s32 *)(*(u8 **)work + 0xC); stripIndex++) {
                 s32 base;
                 s32 next;
                 s32 a;
@@ -584,31 +606,31 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
         s32 attributeIndex;
         materialTriangle = *(struct RpTriangle **)(obj + 0x2C);
         for (attributeIndex = 0; attributeIndex < nIdx;) {
-            func_003c2150((struct RpGeometry *)obj, (struct RpTriangle *)materialTriangle, arg1);
+            func_003c2150((struct RpGeometry *)obj, (struct RpTriangle *)materialTriangle, material);
             attributeIndex++;
             materialTriangle++;
         }
-        switch (*(s16 *)(arg0 + 0x38)) {
+        switch (*(s16 *)(work + 0x38)) {
         case 0:
             col = *(u8 **)(obj + 0x30);
-            for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
+            for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)work + 0xC);) {
                 if (attributeIndex == 0) {
-                    t = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
+                    t = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                 } else {
-                    t = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
+                    t = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                 }
-                effMiscProgressBlendColor(arg0, 0, t, col);
+                effMiscProgressBlendColor(work, 0, t, col);
                 attributeIndex++;
                 col += 8;
             }
-            effMiscProgressBlendColor(arg0, 0, 1.0f, col);
+            effMiscProgressBlendColor(work, 0, 1.0f, col);
             {
                 s32 rightIndex;
                 u8 *rightColor;
                 rightColor = *(u8 **)(obj + 0x30) + 4;
-                for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
-                    t = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
-                    effMiscProgressBlendColor(arg0, 1, t, rightColor);
+                for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)work + 0xC);) {
+                    t = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
+                    effMiscProgressBlendColor(work, 1, t, rightColor);
                     rightIndex++;
                     rightColor += 8;
                 }
@@ -647,19 +669,19 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
             }
             break;
         }
-        cfg = *(u8 **)arg0;
+        cfg = *(u8 **)work;
         if ((**(u32 **)(cfg + 4) & 1) != 0) {
-            switch (*(s16 *)(arg0 + 0x38)) {
+            switch (*(s16 *)(work + 0x38)) {
             case 0:
                 uv = *(AfterTexCoord **)(obj + 0x34);
-                for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
-                    if (*(s32 *)(*(u8 **)arg0 + 0xC) - 1 <= 0) {
+                for (attributeIndex = 0; attributeIndex < *(s32 *)(*(u8 **)work + 0xC);) {
+                    if (*(s32 *)(*(u8 **)work + 0xC) - 1 <= 0) {
                         kAssertFail(D_007146E0, 0x226);
                     }
                     if (attributeIndex == 0) {
-                        uv[0].u = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
+                        uv[0].u = (f32)attributeIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                     } else {
-                        uv[0].u = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
+                        uv[0].u = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                     }
                     uv[0].v = 0.0f;
                     attributeIndex++;
@@ -671,11 +693,11 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
                     s32 rightIndex;
                     AfterTexCoord *rightUV;
                     rightUV = *(AfterTexCoord **)(obj + 0x34) + 1;
-                    for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
-                        if (*(s32 *)(*(u8 **)arg0 + 0xC) - 1 <= 0) {
+                    for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)work + 0xC);) {
+                        if (*(s32 *)(*(u8 **)work + 0xC) - 1 <= 0) {
                             kAssertFail(D_007146E0, 0x234);
                         }
-                        rightUV[0].u = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
+                        rightUV[0].u = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
                         rightUV[0].v = 1.0f;
                         rightIndex++;
                         rightUV += 2;
@@ -712,7 +734,7 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
                     h = 0.5f / denom;
                     q = uv + 3;
                     k = 0;
-                    while (k < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                    while (k < *(s32 *)(*(u8 **)work + 0xC)) {
                         q[0].u = h;
                         q[0].v = 0.0f;
                         q[1].u = h;
@@ -726,7 +748,7 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
                         AfterTexCoord *center;
                         center = uv + 5;
                         centerIndex = 0;
-                        while (centerIndex < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                        while (centerIndex < *(s32 *)(*(u8 **)work + 0xC)) {
                             center[0].u = u;
                             center[0].v = 0.5f;
                             centerIndex++;
@@ -766,7 +788,7 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
                     h = 0.5f / denom;
                     q = uv + 3;
                     k = 0;
-                    while (k < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                    while (k < *(s32 *)(*(u8 **)work + 0xC)) {
                         q[0].u = h;
                         q[0].v = 0.0f;
                         q[1].u = h;
@@ -780,7 +802,7 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
                         AfterTexCoord *center;
                         center = uv + 5;
                         centerIndex = 0;
-                        while (centerIndex < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                        while (centerIndex < *(s32 *)(*(u8 **)work + 0xC)) {
                             center[0].u = u;
                             center[0].v = 0.5f;
                             centerIndex++;
@@ -801,39 +823,41 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
     return obj;
 }
 #pragma pop
-/* Allocates the per-section vector buffers sized from arg1's count and stores their pointers in arg0. */
+/* Allocates six capacity-sized vector arrays in one block and initializes the section's sample ring. */
 // FUN_004B8DF0
-void effAfterAllocVectorBuffers(u8 *arg0, u8 *arg1) {
+void effAfterAllocVectorBuffers(u8 *work, u8 *config) {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 215 differing bytes). Offsets remain as observed. */
     u8 *p;
     u8 *q;
     s32 size;
 
     size = 0;
-    size += (*(s32 *)(arg1 + 8) * 3 << 3);
-    size += (*(s32 *)(arg1 + 8) * 3 << 4);
+    size += (*(s32 *)(config + 8) * 3 << 3);
+    size += (*(s32 *)(config + 8) * 3 << 4);
     chkmemAllocSiteTag(D_007146E0, 0x2A5);
     p = (u8 *)(*jtbl_008873E8)(size, 0x40000);
-    *(void **)(arg0 + 0x10) = p;
-    q = p + *(s32 *)(arg1 + 8) * 0xC;
-    *(void **)(arg0 + 0x14) = q;
-    q = q + *(s32 *)(arg1 + 8) * 0xC;
-    *(void **)(arg0 + 0x18) = q;
-    q = q + *(s32 *)(arg1 + 8) * 0xC;
-    *(void **)(arg0 + 0x1C) = q;
-    q = q + *(s32 *)(arg1 + 8) * 0xC;
-    *(void **)(arg0 + 0x20) = q;
-    *(void **)(arg0 + 0x24) = q + *(s32 *)(arg1 + 8) * 0xC;
-    *(s32 *)(arg0 + 4) = 0;
-    *(void **)(arg0 + 0) = arg1;
-    *(s32 *)(arg0 + 8) = 0;
-    *(s32 *)(arg0 + 0xC) = 0;
-    *(s16 *)(arg0 + 0x38) = *(s32 *)(arg1 + 0x10);
+    *(void **)(work + 0x10) = p;
+    q = p + *(s32 *)(config + 8) * 0xC;
+    *(void **)(work + 0x14) = q;
+    q = q + *(s32 *)(config + 8) * 0xC;
+    *(void **)(work + 0x18) = q;
+    q = q + *(s32 *)(config + 8) * 0xC;
+    *(void **)(work + 0x1C) = q;
+    q = q + *(s32 *)(config + 8) * 0xC;
+    *(void **)(work + 0x20) = q;
+    *(void **)(work + 0x24) = q + *(s32 *)(config + 8) * 0xC;
+    *(s32 *)(work + 4) = 0;
+    *(void **)(work + 0) = config;
+    *(s32 *)(work + 8) = 0;
+    *(s32 *)(work + 0xC) = 0;
+    *(s16 *)(work + 0x38) = *(s32 *)(config + 0x10);
 }
 
-/* Frees the vector buffer at arg0+0x10. */
+/* Frees the vector buffer at work+0x10. */
 // FUN_004B8F10
-void effAfterFreeVectorBuffers(void *arg0) {
-    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x10));
+void effAfterFreeVectorBuffers(void *work) {
+    jtbl_008873EC[0]((void *)((EffAfterQueue *)work)->positions);
 }
 
 /* measured: 7728B mesh-builder. Retail asm has 63 mula/madda/madd/msub FPU
@@ -880,38 +904,40 @@ typedef struct {
 void effAfterRebuildTrailMesh(u8 *work, void **pp)
 
 {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 2093 differing bytes). Offsets remain as observed. */
 /* irregular: 5 native warning(s); review required */
-  s16 temp_v0;
-  u8 *pbVar2;
-  f32 *pfVar3;
-  u64 *puVar4;
-  f32 *pfVar5;
-  f32 *pfVar6;
-  s32 temp_v1;
-  s32 temp_v2;
-  s32 temp_v3;
-  u32 *puVar10;
-  s32 temp_v4;
-  u8 *pbVar12;
-  u32 *puVar13;
-  s32 temp_v5;
-  u32 temp_v6;
-  f32 *unaff_s3_lo;
-  f32 *pfVar16;
-  f32 *pfVar17;
-  f32 temp_v7;
-  f32 temp_v8;
-  f32 temp_v9;
-  f32 temp_v10;
-  f32 temp_v11;
-  s32 iStack_d0;
+  s16 mode;
+  u8 *byteCursor;
+  f32 *cameraPosition;
+  u64 *wideCursor;
+  f32 *controlEnd;
+  f32 *controlStart;
+  s32 index;
+  s32 firstOffset;
+  s32 secondIndex;
+  u32 *colorWords;
+  s32 sampleIndex;
+  u8 *colorBytes;
+  u32 *vertexWords;
+  s32 countOrAddress;
+  u32 cachedSection;
+  f32 *outputVertex;
+  f32 *vectorCursor;
+  f32 *vertexBase;
+  f32 blend;
+  f32 weight;
+  f32 sampleFraction;
+  f32 sampleStep;
+  f32 halfWidth;
+  s32 savedIndex;
   f32 fraction;
   u32 section;
-  EffAfterVec v188;
+  EffAfterVec toCamera;
   EffAfterVec cur;
   EffAfterVec prev;
-  EffAfterVec v158;
-  EffAfterVec v148;
+  EffAfterVec tangent;
+  EffAfterVec sideOffset;
   EffAfterVec first;
   EffAfterVec last;
   EffAfterSphere bound;
@@ -955,37 +981,37 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 1:
     {
-      pbVar12 = *(u8 **)(*(u8 **)pp + 0x30);
-      effMiscProgressBlendColor(work,0,0.0f,pbVar12);
-      effMiscProgressBlendColor(work,1,0.0f,pbVar12 + 4);
-      pbVar12[8] = (u8)((s32)((u32)pbVar12[0] + (u32)pbVar12[4]) >> 1);
-      pbVar12[9] = (u8)((s32)((u32)pbVar12[1] + (u32)pbVar12[5]) >> 1);
-      pbVar12[10] = (u8)((s32)((u32)pbVar12[2] + (u32)pbVar12[6]) >> 1);
-      pbVar12[0xb] = (u8)((s32)((u32)pbVar12[3] + (u32)pbVar12[7]) >> 1);
-      temp_v1 = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      effMiscProgressBlendColor(work,0,1.0f,pbVar12 + (temp_v1 - 3) * 4);
-      effMiscProgressBlendColor(work,1,1.0f,pbVar12 + (temp_v1 - 2) * 4);
-      pbVar2 = effAfterWorkFieldPtr(temp_v1 * 4, pbVar12);
-      pbVar2[-4] = (u8)((s32)((u32)pbVar2[-0xc] + (u32)pbVar2[-8]) >> 1);
-      pbVar2[-3] = (u8)((s32)((u32)pbVar2[-0xb] + (u32)pbVar2[-7]) >> 1);
-      pbVar2[-2] = (u8)((s32)((u32)pbVar2[-10] + (u32)pbVar2[-6]) >> 1);
-      pbVar2[-1] = (u8)((s32)((u32)pbVar2[-9] + (u32)pbVar2[-5]) >> 1);
-      temp_v7 = 0.5f + (f32)*(s32 *)(*(u8 **)work + 0xC);
-      temp_v10 = 1.0f / temp_v7;
-      puVar10 = (u32 *)(pbVar12 + 0xc);
-      temp_v9 = 0.5f / temp_v7;
-      for (temp_v5 = 0; temp_v5 < *(s32 *)(*(u8 **)work + 0xC);) {
-        effMiscProgressBlendColor(work,0,temp_v9,(u8 *)puVar10++);
-        effMiscProgressBlendColor(work,1,temp_v9,(u8 *)puVar10++);
-        puVar10++;
-        temp_v5++;
-        temp_v9 += temp_v10;
+      colorBytes = *(u8 **)(*(u8 **)pp + 0x30);
+      effMiscProgressBlendColor(work,0,0.0f,colorBytes);
+      effMiscProgressBlendColor(work,1,0.0f,colorBytes + 4);
+      colorBytes[8] = (u8)((s32)((u32)colorBytes[0] + (u32)colorBytes[4]) >> 1);
+      colorBytes[9] = (u8)((s32)((u32)colorBytes[1] + (u32)colorBytes[5]) >> 1);
+      colorBytes[10] = (u8)((s32)((u32)colorBytes[2] + (u32)colorBytes[6]) >> 1);
+      colorBytes[0xb] = (u8)((s32)((u32)colorBytes[3] + (u32)colorBytes[7]) >> 1);
+      index = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
+      effMiscProgressBlendColor(work,0,1.0f,colorBytes + (index - 3) * 4);
+      effMiscProgressBlendColor(work,1,1.0f,colorBytes + (index - 2) * 4);
+      byteCursor = effAfterWorkFieldPtr(index * 4, colorBytes);
+      byteCursor[-4] = (u8)((s32)((u32)byteCursor[-0xc] + (u32)byteCursor[-8]) >> 1);
+      byteCursor[-3] = (u8)((s32)((u32)byteCursor[-0xb] + (u32)byteCursor[-7]) >> 1);
+      byteCursor[-2] = (u8)((s32)((u32)byteCursor[-10] + (u32)byteCursor[-6]) >> 1);
+      byteCursor[-1] = (u8)((s32)((u32)byteCursor[-9] + (u32)byteCursor[-5]) >> 1);
+      blend = 0.5f + (f32)*(s32 *)(*(u8 **)work + 0xC);
+      sampleStep = 1.0f / blend;
+      colorWords = (u32 *)(colorBytes + 0xc);
+      sampleFraction = 0.5f / blend;
+      for (countOrAddress = 0; countOrAddress < *(s32 *)(*(u8 **)work + 0xC);) {
+        effMiscProgressBlendColor(work,0,sampleFraction,(u8 *)colorWords++);
+        effMiscProgressBlendColor(work,1,sampleFraction,(u8 *)colorWords++);
+        colorWords++;
+        countOrAddress++;
+        sampleFraction += sampleStep;
       }
       {
         s32 j;
         u8 *c;
 
-        c = pbVar12 + 0x14;
+        c = colorBytes + 0x14;
         for (j = 0; j < *(s32 *)(*(u8 **)work + 0xC);) {
           c[0] = (u8)((s32)((u32)c[8] + ((u32)c[4] + ((u32)c[-8] + (u32)c[-4]))) >> 2);
           c[1] = (u8)((s32)((u32)c[9] + ((u32)c[5] + ((u32)c[-7] + (u32)c[-3]))) >> 2);
@@ -1045,54 +1071,54 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     switch (*(s16 *)(work + 0x38)) {
     case 0:
     {
-      puVar13 = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
-      puVar10 = puVar13 + *(s32 *)(*(u8 **)pp + 0x14) * 3;
-      for (temp_v5 = 0; temp_v5 < *(s32 *)(*(u8 **)work + 0xC) + 1;) {
-        if (puVar10 == puVar13) {
+      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      colorWords = vertexWords + *(s32 *)(*(u8 **)pp + 0x14) * 3;
+      for (countOrAddress = 0; countOrAddress < *(s32 *)(*(u8 **)work + 0xC) + 1;) {
+        if (colorWords == vertexWords) {
           kAssertFail(D_007146E0,0x43c);
         }
-        puVar13[0] = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        temp_v5++;
-        puVar13 += 6;
+        vertexWords[0] = 0;
+        vertexWords[1] = 0;
+        vertexWords[2] = 0;
+        countOrAddress++;
+        vertexWords += 6;
       }
-      puVar13 = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14) + 0xc);
-      for (temp_v5 = 0; temp_v5 < *(s32 *)(*(u8 **)work + 0xC);) {
-        if (puVar10 == puVar13) {
+      vertexWords = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14) + 0xc);
+      for (countOrAddress = 0; countOrAddress < *(s32 *)(*(u8 **)work + 0xC);) {
+        if (colorWords == vertexWords) {
           kAssertFail(D_007146E0,0x446);
         }
-        puVar13[0] = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        temp_v5++;
-        puVar13 += 6;
+        vertexWords[0] = 0;
+        vertexWords[1] = 0;
+        vertexWords[2] = 0;
+        countOrAddress++;
+        vertexWords += 6;
       }
     }
     break;
     case 1:
     {
-      temp_v5 = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      puVar13 = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
-      for (temp_v1 = 0; temp_v1 < temp_v5;) {
-        puVar13[0] = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        temp_v1++;
-        puVar13 += 3;
+      countOrAddress = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
+      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      for (index = 0; index < countOrAddress;) {
+        vertexWords[0] = 0;
+        vertexWords[1] = 0;
+        vertexWords[2] = 0;
+        index++;
+        vertexWords += 3;
       }
     }
     break;
     case 2:
     {
-      temp_v5 = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      puVar13 = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
-      for (temp_v1 = 0; temp_v1 < temp_v5;) {
-        puVar13[0] = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        temp_v1++;
-        puVar13 += 3;
+      countOrAddress = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
+      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      for (index = 0; index < countOrAddress;) {
+        vertexWords[0] = 0;
+        vertexWords[1] = 0;
+        vertexWords[2] = 0;
+        index++;
+        vertexWords += 3;
       }
     }
     }
@@ -1201,41 +1227,41 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     break;
     case 1:
     {
-      temp_v5 = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
-      puVar13 = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
-      for (temp_v1 = 0; temp_v1 < temp_v5;) {
-        puVar13[0] = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        temp_v1++;
-        puVar13 += 3;
+      countOrAddress = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
+      vertexWords = *(u32 **)(*(u8 **)(*(u8 **)pp + 0x5c) + 0x14);
+      for (index = 0; index < countOrAddress;) {
+        vertexWords[0] = 0;
+        vertexWords[1] = 0;
+        vertexWords[2] = 0;
+        index++;
+        vertexWords += 3;
       }
-      pfVar17 = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      temp_v5 = *(s32 *)((work) + 0xc) - 1;
-      if (temp_v5 < 0) {
-        temp_v5 = temp_v5 + *(s32 *)((work) + 8);
+      vertexBase = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
+      countOrAddress = *(s32 *)((work) + 0xc) - 1;
+      if (countOrAddress < 0) {
+        countOrAddress = countOrAddress + *(s32 *)((work) + 8);
       }
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + temp_v5 * 0xc);
-      *(EffAfterVec *)pfVar17 = *(EffAfterVec *)pfVar16;
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x14, work)) + temp_v5 * 0xc);
-      *(EffAfterVec *)&pfVar17[3] = *(EffAfterVec *)pfVar16;
-      pfVar17[6] = *pfVar17 + pfVar17[3];
-      pfVar17[7] = pfVar17[1] + pfVar17[4];
-      pfVar17[8] = pfVar17[2] + pfVar17[5];
-      pfVar17[6] = pfVar17[6] * 0.5f;
-      pfVar17[7] = pfVar17[7] * 0.5f;
-      pfVar17[8] = pfVar17[8] * 0.5f;
-      temp_v5 = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
-      temp_v1 = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)((work) + 8);
+      vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + countOrAddress * 0xc);
+      *(EffAfterVec *)vertexBase = *(EffAfterVec *)vectorCursor;
+      vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x14, work)) + countOrAddress * 0xc);
+      *(EffAfterVec *)&vertexBase[3] = *(EffAfterVec *)vectorCursor;
+      vertexBase[6] = *vertexBase + vertexBase[3];
+      vertexBase[7] = vertexBase[1] + vertexBase[4];
+      vertexBase[8] = vertexBase[2] + vertexBase[5];
+      vertexBase[6] = vertexBase[6] * 0.5f;
+      vertexBase[7] = vertexBase[7] * 0.5f;
+      vertexBase[8] = vertexBase[8] * 0.5f;
+      countOrAddress = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
+      index = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
+      if (index < 0) {
+        index = index + *(s32 *)((work) + 8);
       }
 {
         f32 *row;
         u32 srcOff;
 
-        srcOff = temp_v1 * 0xc;
-        *(EffAfterVec *)((row = (f32 *)effAfterWorkFieldPtr((u32)(temp_v5 * 3) * 4, (u8 *)pfVar17)) - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + srcOff);
+        srcOff = index * 0xc;
+        *(EffAfterVec *)((row = (f32 *)effAfterWorkFieldPtr((u32)(countOrAddress * 3) * 4, (u8 *)vertexBase)) - 9) = *(EffAfterVec *)(*(u8 **)(work + 0x10) + srcOff);
       *(EffAfterVec *)(row - 6) = *(EffAfterVec *)(*(u8 **)(work + 0x14) + srcOff);
       row[-3] = row[-9] + row[-6];
       row[-2] = row[-8] + row[-5];
@@ -1244,255 +1270,255 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       row[-2] = row[-2] * 0.5f;
       row[-1] = row[-1] * 0.5f;
       }
-      temp_v5 = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      temp_v7 = (f32)*(s32 *)((*(u8 **)work) + 0xc) + 0.5f;
-      temp_v10 = 1.0f / temp_v7;
-      for (temp_v1 = 0; temp_v1 < 2; temp_v1 = temp_v1 + 1) {
-        switch (temp_v1) {
+      countOrAddress = *(s32 *)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
+      blend = (f32)*(s32 *)((*(u8 **)work) + 0xc) + 0.5f;
+      sampleStep = 1.0f / blend;
+      for (index = 0; index < 2; index = index + 1) {
+        switch (index) {
         case 0:
-          unaff_s3_lo = (f32 *)(temp_v5 + 0x24);
+          outputVertex = (f32 *)(countOrAddress + 0x24);
           break;
         case 1:
-          unaff_s3_lo = (f32 *)(temp_v5 + 0x30);
+          outputVertex = (f32 *)(countOrAddress + 0x30);
           break;
         }
-        temp_v9 = 0.5f / temp_v7;
-        temp_v6 = 0xffffffff;
-        for (temp_v4 = 0; temp_v4 < *(s32 *)((*(u8 **)work) + 0xc);) {
-          effAfterSectionFraction(work,temp_v9,&section,&fraction);
-          if (section != temp_v6) {
-            temp_v6 = section;
-            temp_v2 = (*(s32 *)((work) + 0xc) - 1) - section;
-            if (temp_v2 < 0) {
-              temp_v2 = temp_v2 + *(s32 *)((work) + 8);
+        sampleFraction = 0.5f / blend;
+        cachedSection = 0xffffffff;
+        for (sampleIndex = 0; sampleIndex < *(s32 *)((*(u8 **)work) + 0xc);) {
+          effAfterSectionFraction(work,sampleFraction,&section,&fraction);
+          if (section != cachedSection) {
+            cachedSection = section;
+            firstOffset = (*(s32 *)((work) + 0xc) - 1) - section;
+            if (firstOffset < 0) {
+              firstOffset = firstOffset + *(s32 *)((work) + 8);
             }
-            temp_v3 = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
-            if (temp_v3 < 0) {
-              temp_v3 = temp_v3 + *(s32 *)((work) + 8);
+            secondIndex = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
+            if (secondIndex < 0) {
+              secondIndex = secondIndex + *(s32 *)((work) + 8);
             }
-            temp_v2 = temp_v2 * 0xc;
-            pfVar16 = (f32 *)(*(u8 **)(((work) + temp_v1 * 4 + 0x10)) + temp_v2);
-            ctrl[0] = *(EffAfterVec *)pfVar16;
-            pfVar17 = (f32 *)(*(u8 **)(((work) + temp_v1 * 8 + 0x18)) + temp_v2);
-            ctrl[1].c[0] = *pfVar16 - *pfVar17;
-            ctrl[1].c[1] = pfVar16[1] - pfVar17[1];
-            ctrl[1].c[2] = pfVar16[2] - pfVar17[2];
-            pfVar16 = (f32 *)(*(u8 **)(((work) + temp_v1 * 8 + 0x1c)) + temp_v2);
-            pfVar17 = (f32 *)(*(u8 **)(((work) + temp_v1 * 4 + 0x10)) + temp_v3 * 0xc);
-            ctrl[2].c[0] = *pfVar17 + *pfVar16;
-            ctrl[2].c[1] = pfVar17[1] + pfVar16[1];
-            ctrl[2].c[2] = pfVar17[2] + pfVar16[2];
-            ctrl[3] = *(EffAfterVec *)pfVar17;
+            firstOffset = firstOffset * 0xc;
+            vectorCursor = (f32 *)(*(u8 **)(((work) + index * 4 + 0x10)) + firstOffset);
+            ctrl[0] = *(EffAfterVec *)vectorCursor;
+            vertexBase = (f32 *)(*(u8 **)(((work) + index * 8 + 0x18)) + firstOffset);
+            ctrl[1].c[0] = *vectorCursor - *vertexBase;
+            ctrl[1].c[1] = vectorCursor[1] - vertexBase[1];
+            ctrl[1].c[2] = vectorCursor[2] - vertexBase[2];
+            vectorCursor = (f32 *)(*(u8 **)(((work) + index * 8 + 0x1c)) + firstOffset);
+            vertexBase = (f32 *)(*(u8 **)(((work) + index * 4 + 0x10)) + secondIndex * 0xc);
+            ctrl[2].c[0] = *vertexBase + *vectorCursor;
+            ctrl[2].c[1] = vertexBase[1] + vectorCursor[1];
+            ctrl[2].c[2] = vertexBase[2] + vectorCursor[2];
+            ctrl[3] = *(EffAfterVec *)vertexBase;
           }
-          temp_v8 = 1.0f - fraction;
-          *unaff_s3_lo = ctrl[0].c[0] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[0] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v8 + ctrl[3].c[0] * fraction * fraction * fraction;
-          unaff_s3_lo[1] =
-               ctrl[0].c[1] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[1] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v8 + ctrl[3].c[1] * fraction * fraction * fraction;
-          unaff_s3_lo[2] =
-               ctrl[0].c[2] * temp_v8 * temp_v8 * temp_v8 + 3.0f * ctrl[1].c[2] * fraction * temp_v8 * temp_v8 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v8 + ctrl[3].c[2] * fraction * fraction * fraction;
-          temp_v9 = temp_v9 + temp_v10;
-          temp_v4++;
-          unaff_s3_lo = unaff_s3_lo + 9;
+          weight = 1.0f - fraction;
+          *outputVertex = ctrl[0].c[0] * weight * weight * weight + 3.0f * ctrl[1].c[0] * fraction * weight * weight + 3.0f * ctrl[2].c[0] * fraction * fraction * weight + ctrl[3].c[0] * fraction * fraction * fraction;
+          outputVertex[1] =
+               ctrl[0].c[1] * weight * weight * weight + 3.0f * ctrl[1].c[1] * fraction * weight * weight + 3.0f * ctrl[2].c[1] * fraction * fraction * weight + ctrl[3].c[1] * fraction * fraction * fraction;
+          outputVertex[2] =
+               ctrl[0].c[2] * weight * weight * weight + 3.0f * ctrl[1].c[2] * fraction * weight * weight + 3.0f * ctrl[2].c[2] * fraction * fraction * weight + ctrl[3].c[2] * fraction * fraction * fraction;
+          sampleFraction = sampleFraction + sampleStep;
+          sampleIndex++;
+          outputVertex = outputVertex + 9;
         }
-        unaff_s3_lo = (f32 *)(temp_v5 + 0x3c);
-        for (temp_v4 = 0; temp_v4 < *(s32 *)((*(u8 **)work) + 0xc);) {
-          *unaff_s3_lo = unaff_s3_lo[-6] + unaff_s3_lo[-3];
-          unaff_s3_lo[1] = unaff_s3_lo[-5] + unaff_s3_lo[-2];
-          unaff_s3_lo[2] = unaff_s3_lo[-4] + unaff_s3_lo[-1];
-          *unaff_s3_lo = *unaff_s3_lo + unaff_s3_lo[3];
-          unaff_s3_lo[1] = unaff_s3_lo[1] + unaff_s3_lo[4];
-          unaff_s3_lo[2] = unaff_s3_lo[2] + unaff_s3_lo[5];
-          *unaff_s3_lo = *unaff_s3_lo + unaff_s3_lo[6];
-          unaff_s3_lo[1] = unaff_s3_lo[1] + unaff_s3_lo[7];
-          unaff_s3_lo[2] = unaff_s3_lo[2] + unaff_s3_lo[8];
-          *unaff_s3_lo = *unaff_s3_lo * 0.25f;
-          unaff_s3_lo[1] = unaff_s3_lo[1] * 0.25f;
-          unaff_s3_lo[2] = unaff_s3_lo[2] * 0.25f;
-          temp_v4++;
-          unaff_s3_lo = unaff_s3_lo + 9;
+        outputVertex = (f32 *)(countOrAddress + 0x3c);
+        for (sampleIndex = 0; sampleIndex < *(s32 *)((*(u8 **)work) + 0xc);) {
+          *outputVertex = outputVertex[-6] + outputVertex[-3];
+          outputVertex[1] = outputVertex[-5] + outputVertex[-2];
+          outputVertex[2] = outputVertex[-4] + outputVertex[-1];
+          *outputVertex = *outputVertex + outputVertex[3];
+          outputVertex[1] = outputVertex[1] + outputVertex[4];
+          outputVertex[2] = outputVertex[2] + outputVertex[5];
+          *outputVertex = *outputVertex + outputVertex[6];
+          outputVertex[1] = outputVertex[1] + outputVertex[7];
+          outputVertex[2] = outputVertex[2] + outputVertex[8];
+          *outputVertex = *outputVertex * 0.25f;
+          outputVertex[1] = outputVertex[1] * 0.25f;
+          outputVertex[2] = outputVertex[2] * 0.25f;
+          sampleIndex++;
+          outputVertex = outputVertex + 9;
         }
       }
     }
     break;
     case 2:
     {
-      temp_v11 = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
-      temp_v5 = kwlnGetCamera();
-      temp_v5 = *(s32 *)(((u8 *)temp_v5) + 4);
-      pfVar3 = (f32 *)(temp_v5 + 0x40);
-      pfVar17 = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
-      temp_v8 = 0.5f + (f32)*(s32 *)((*(u8 **)work) + 0xc);
-      temp_v9 = 1.0f / temp_v8;
-      temp_v8 = 0.5f / temp_v8;
-      temp_v6 = 0xffffffff;
-      pfVar16 = pfVar17 + 9;
-      temp_v1 = *(s32 *)((work) + 0xc) - 1;
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)((work) + 8);
+      halfWidth = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
+      countOrAddress = kwlnGetCamera();
+      countOrAddress = *(s32 *)(((u8 *)countOrAddress) + 4);
+      cameraPosition = (f32 *)(countOrAddress + 0x40);
+      vertexBase = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);
+      weight = 0.5f + (f32)*(s32 *)((*(u8 **)work) + 0xc);
+      sampleFraction = 1.0f / weight;
+      weight = 0.5f / weight;
+      cachedSection = 0xffffffff;
+      vectorCursor = vertexBase + 9;
+      index = *(s32 *)((work) + 0xc) - 1;
+      if (index < 0) {
+        index = index + *(s32 *)((work) + 8);
       }
-      prev = *(EffAfterVec *)(*(u8 **)(work + 0x10) + temp_v1 * 0xc);
-      for (temp_v1 = 0; temp_v1 < *(s32 *)((*(u8 **)work) + 0xc);) {
-        effAfterSectionFraction(work,temp_v8,&section,&fraction);
-        if (section != temp_v6) {
-          temp_v6 = section;
-          temp_v4 = (*(s32 *)((work) + 0xc) - 1) - section;
-          if (temp_v4 < 0) {
-            temp_v4 = temp_v4 + *(s32 *)((work) + 8);
+      prev = *(EffAfterVec *)(*(u8 **)(work + 0x10) + index * 0xc);
+      for (index = 0; index < *(s32 *)((*(u8 **)work) + 0xc);) {
+        effAfterSectionFraction(work,weight,&section,&fraction);
+        if (section != cachedSection) {
+          cachedSection = section;
+          sampleIndex = (*(s32 *)((work) + 0xc) - 1) - section;
+          if (sampleIndex < 0) {
+            sampleIndex = sampleIndex + *(s32 *)((work) + 8);
           }
-          temp_v3 = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
-          if (temp_v3 < 0) {
-            temp_v3 = temp_v3 + *(s32 *)((work) + 8);
+          secondIndex = (*(s32 *)((work) + 0xc) - 1) - (section + 1);
+          if (secondIndex < 0) {
+            secondIndex = secondIndex + *(s32 *)((work) + 8);
           }
-          temp_v4 = temp_v4 * 0xc;
-          pbVar2 = *(u8 **)(work + 0x10);
-          pfVar6 = (f32 *)(pbVar2 + temp_v4);
-          ctrl[0] = *(EffAfterVec *)pfVar6;
-          pfVar5 = (f32 *)(((u8 *)*(u8 **)((u8 *)(work) + 0x18)) + temp_v4);
-          ctrl[1].c[0] = *pfVar6 - *pfVar5;
-          ctrl[1].c[1] = pfVar6[1] - pfVar5[1];
-          ctrl[1].c[2] = pfVar6[2] - pfVar5[2];
-          pfVar6 = (f32 *)(((u8 *)*(u8 **)((u8 *)(work) + 0x1c)) + temp_v4);
-          pfVar5 = (f32 *)(pbVar2 + temp_v3 * 0xc);
-          ctrl[2].c[0] = *pfVar5 + *pfVar6;
-          ctrl[2].c[1] = pfVar5[1] + pfVar6[1];
-          ctrl[2].c[2] = pfVar5[2] + pfVar6[2];
-          ctrl[3] = *(EffAfterVec *)pfVar5;
+          sampleIndex = sampleIndex * 0xc;
+          byteCursor = *(u8 **)(work + 0x10);
+          controlStart = (f32 *)(byteCursor + sampleIndex);
+          ctrl[0] = *(EffAfterVec *)controlStart;
+          controlEnd = (f32 *)(((u8 *)*(u8 **)((u8 *)(work) + 0x18)) + sampleIndex);
+          ctrl[1].c[0] = *controlStart - *controlEnd;
+          ctrl[1].c[1] = controlStart[1] - controlEnd[1];
+          ctrl[1].c[2] = controlStart[2] - controlEnd[2];
+          controlStart = (f32 *)(((u8 *)*(u8 **)((u8 *)(work) + 0x1c)) + sampleIndex);
+          controlEnd = (f32 *)(byteCursor + secondIndex * 0xc);
+          ctrl[2].c[0] = *controlEnd + *controlStart;
+          ctrl[2].c[1] = controlEnd[1] + controlStart[1];
+          ctrl[2].c[2] = controlEnd[2] + controlStart[2];
+          ctrl[3] = *(EffAfterVec *)controlEnd;
         }
-        temp_v7 = 1.0f - fraction;
-        cur.c[0] = ctrl[0].c[0] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[0] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[0] * fraction * fraction * temp_v7 + ctrl[3].c[0] * fraction * fraction * fraction;
-        cur.c[1] = ctrl[0].c[1] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[1] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[1] * fraction * fraction * temp_v7 + ctrl[3].c[1] * fraction * fraction * fraction;
-        cur.c[2] = ctrl[0].c[2] * temp_v7 * temp_v7 * temp_v7 + 3.0f * ctrl[1].c[2] * fraction * temp_v7 * temp_v7 + 3.0f * ctrl[2].c[2] * fraction * fraction * temp_v7 + ctrl[3].c[2] * fraction * fraction * fraction;
-        if (temp_v1 == 0) {
+        blend = 1.0f - fraction;
+        cur.c[0] = ctrl[0].c[0] * blend * blend * blend + 3.0f * ctrl[1].c[0] * fraction * blend * blend + 3.0f * ctrl[2].c[0] * fraction * fraction * blend + ctrl[3].c[0] * fraction * fraction * fraction;
+        cur.c[1] = ctrl[0].c[1] * blend * blend * blend + 3.0f * ctrl[1].c[1] * fraction * blend * blend + 3.0f * ctrl[2].c[1] * fraction * fraction * blend + ctrl[3].c[1] * fraction * fraction * fraction;
+        cur.c[2] = ctrl[0].c[2] * blend * blend * blend + 3.0f * ctrl[1].c[2] * fraction * blend * blend + 3.0f * ctrl[2].c[2] * fraction * fraction * blend + ctrl[3].c[2] * fraction * fraction * fraction;
+        if (index == 0) {
           first = cur;
         }
-        v188.c[0] = *pfVar3 - cur.c[0];
-        v188.c[1] = pfVar3[1] - cur.c[1];
-        v188.c[2] = pfVar3[2] - cur.c[2];
-        RwV3dNormalize(&v188.c[0],&v188.c[0]);
-        v158.c[0] = prev.c[0] - cur.c[0];
-        v158.c[1] = prev.c[1] - cur.c[1];
-        v158.c[2] = prev.c[2] - cur.c[2];
-        RwV3dNormalize(&v158.c[0],&v158.c[0]);
-        v148.c[0] = v188.c[1] * v158.c[2] - v188.c[2] * v158.c[1];
-        v148.c[1] = v188.c[2] * v158.c[0] - v188.c[0] * v158.c[2];
-        v148.c[2] = v188.c[0] * v158.c[1] - v188.c[1] * v158.c[0];
-        RwV3dNormalize(&v148.c[0],&v148.c[0]);
-        temp_v7 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
-        if (temp_v7 < 0.0f) {
-          temp_v7 = temp_v7 * -1.0f;
+        toCamera.c[0] = *cameraPosition - cur.c[0];
+        toCamera.c[1] = cameraPosition[1] - cur.c[1];
+        toCamera.c[2] = cameraPosition[2] - cur.c[2];
+        RwV3dNormalize(&toCamera.c[0],&toCamera.c[0]);
+        tangent.c[0] = prev.c[0] - cur.c[0];
+        tangent.c[1] = prev.c[1] - cur.c[1];
+        tangent.c[2] = prev.c[2] - cur.c[2];
+        RwV3dNormalize(&tangent.c[0],&tangent.c[0]);
+        sideOffset.c[0] = toCamera.c[1] * tangent.c[2] - toCamera.c[2] * tangent.c[1];
+        sideOffset.c[1] = toCamera.c[2] * tangent.c[0] - toCamera.c[0] * tangent.c[2];
+        sideOffset.c[2] = toCamera.c[0] * tangent.c[1] - toCamera.c[1] * tangent.c[0];
+        RwV3dNormalize(&sideOffset.c[0],&sideOffset.c[0]);
+        blend = toCamera.c[0] * tangent.c[0] + toCamera.c[1] * tangent.c[1] + toCamera.c[2] * tangent.c[2];
+        if (blend < 0.0f) {
+          blend = blend * -1.0f;
         }
-        temp_v7 = temp_v7 * (temp_v7 * temp_v7);
-        temp_v7 = temp_v11 * (1.0f - temp_v7);
-        v148.c[0] = v148.c[0] * temp_v7;
-        v148.c[1] = v148.c[1] * temp_v7;
-        v148.c[2] = v148.c[2] * temp_v7;
-        pfVar16[0] = cur.c[0] + v148.c[0];
-        pfVar16[1] = cur.c[1] + v148.c[1];
-        pfVar16[2] = cur.c[2] + v148.c[2];
-        pfVar16[3] = cur.c[0] - v148.c[0];
-        pfVar16[4] = cur.c[1] - v148.c[1];
-        pfVar16[5] = cur.c[2] - v148.c[2];
-        pfVar16 += 9;
+        blend = blend * (blend * blend);
+        blend = halfWidth * (1.0f - blend);
+        sideOffset.c[0] = sideOffset.c[0] * blend;
+        sideOffset.c[1] = sideOffset.c[1] * blend;
+        sideOffset.c[2] = sideOffset.c[2] * blend;
+        vectorCursor[0] = cur.c[0] + sideOffset.c[0];
+        vectorCursor[1] = cur.c[1] + sideOffset.c[1];
+        vectorCursor[2] = cur.c[2] + sideOffset.c[2];
+        vectorCursor[3] = cur.c[0] - sideOffset.c[0];
+        vectorCursor[4] = cur.c[1] - sideOffset.c[1];
+        vectorCursor[5] = cur.c[2] - sideOffset.c[2];
+        vectorCursor += 9;
         prev = cur;
-        temp_v8 = temp_v8 + temp_v9;
-        temp_v1++;
+        weight = weight + sampleFraction;
+        index++;
       }
-      temp_v4 = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
-      pfVar16 = pfVar17 + (temp_v4 - 3) * 3;
-      temp_v1 = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)((work) + 8);
+      sampleIndex = *(s32 *)((*(u8 **)work) + 0xc) * 3 + 6;
+      vectorCursor = vertexBase + (sampleIndex - 3) * 3;
+      index = *(s32 *)((work) + 0xc) - *(s32 *)((work) + 8);
+      if (index < 0) {
+        index = index + *(s32 *)((work) + 8);
       }
-      pfVar5 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + temp_v1 * 0xc);
-      cur = *(EffAfterVec *)pfVar5;
-      v188.c[0] = *pfVar3 - cur.c[0];
-      v188.c[1] = pfVar3[1] - cur.c[1];
-      v188.c[2] = pfVar3[2] - cur.c[2];
-      RwV3dNormalize(&v188.c[0],&v188.c[0]);
-      v158.c[0] = prev.c[0] - cur.c[0];
-      v158.c[1] = prev.c[1] - cur.c[1];
-      v158.c[2] = prev.c[2] - cur.c[2];
-      RwV3dNormalize(&v158.c[0],&v158.c[0]);
-      v148.c[0] = v188.c[1] * v158.c[2] - v188.c[2] * v158.c[1];
-      v148.c[1] = v188.c[2] * v158.c[0] - v188.c[0] * v158.c[2];
-      v148.c[2] = v188.c[0] * v158.c[1] - v188.c[1] * v158.c[0];
-      RwV3dNormalize(&v148.c[0],&v148.c[0]);
-      temp_v8 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
-      if (temp_v8 < 0.0f) {
-        temp_v8 = temp_v8 * -1.0f;
+      controlEnd = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + index * 0xc);
+      cur = *(EffAfterVec *)controlEnd;
+      toCamera.c[0] = *cameraPosition - cur.c[0];
+      toCamera.c[1] = cameraPosition[1] - cur.c[1];
+      toCamera.c[2] = cameraPosition[2] - cur.c[2];
+      RwV3dNormalize(&toCamera.c[0],&toCamera.c[0]);
+      tangent.c[0] = prev.c[0] - cur.c[0];
+      tangent.c[1] = prev.c[1] - cur.c[1];
+      tangent.c[2] = prev.c[2] - cur.c[2];
+      RwV3dNormalize(&tangent.c[0],&tangent.c[0]);
+      sideOffset.c[0] = toCamera.c[1] * tangent.c[2] - toCamera.c[2] * tangent.c[1];
+      sideOffset.c[1] = toCamera.c[2] * tangent.c[0] - toCamera.c[0] * tangent.c[2];
+      sideOffset.c[2] = toCamera.c[0] * tangent.c[1] - toCamera.c[1] * tangent.c[0];
+      RwV3dNormalize(&sideOffset.c[0],&sideOffset.c[0]);
+      weight = toCamera.c[0] * tangent.c[0] + toCamera.c[1] * tangent.c[1] + toCamera.c[2] * tangent.c[2];
+      if (weight < 0.0f) {
+        weight = weight * -1.0f;
       }
-      temp_v8 = temp_v8 * (temp_v8 * temp_v8);
-      temp_v8 = temp_v11 * (1.0f - temp_v8);
-      v148.c[0] = v148.c[0] * temp_v8;
-      v148.c[1] = v148.c[1] * temp_v8;
-      v148.c[2] = v148.c[2] * temp_v8;
-      *pfVar16 = cur.c[0] + v148.c[0];
-      pfVar16[1] = cur.c[1] + v148.c[1];
-      pfVar16[2] = cur.c[2] + v148.c[2];
-      pfVar16[3] = cur.c[0] - v148.c[0];
-      pfVar16[4] = cur.c[1] - v148.c[1];
-      pfVar16[5] = cur.c[2] - v148.c[2];
-      pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 9] + pfVar17[temp_v4 * 3 - 6];
-      pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 8] + pfVar17[temp_v4 * 3 - 5];
-      pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 7] + pfVar17[temp_v4 * 3 - 4];
-      pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 3] * 0.5f;
-      pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 2] * 0.5f;
-      pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 1] * 0.5f;
-      temp_v1 = *(s32 *)((work) + 0xc) - 1;
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)((work) + 8);
+      weight = weight * (weight * weight);
+      weight = halfWidth * (1.0f - weight);
+      sideOffset.c[0] = sideOffset.c[0] * weight;
+      sideOffset.c[1] = sideOffset.c[1] * weight;
+      sideOffset.c[2] = sideOffset.c[2] * weight;
+      *vectorCursor = cur.c[0] + sideOffset.c[0];
+      vectorCursor[1] = cur.c[1] + sideOffset.c[1];
+      vectorCursor[2] = cur.c[2] + sideOffset.c[2];
+      vectorCursor[3] = cur.c[0] - sideOffset.c[0];
+      vectorCursor[4] = cur.c[1] - sideOffset.c[1];
+      vectorCursor[5] = cur.c[2] - sideOffset.c[2];
+      vertexBase[sampleIndex * 3 - 3] = vertexBase[sampleIndex * 3 - 9] + vertexBase[sampleIndex * 3 - 6];
+      vertexBase[sampleIndex * 3 - 2] = vertexBase[sampleIndex * 3 - 8] + vertexBase[sampleIndex * 3 - 5];
+      vertexBase[sampleIndex * 3 - 1] = vertexBase[sampleIndex * 3 - 7] + vertexBase[sampleIndex * 3 - 4];
+      vertexBase[sampleIndex * 3 - 3] = vertexBase[sampleIndex * 3 - 3] * 0.5f;
+      vertexBase[sampleIndex * 3 - 2] = vertexBase[sampleIndex * 3 - 2] * 0.5f;
+      vertexBase[sampleIndex * 3 - 1] = vertexBase[sampleIndex * 3 - 1] * 0.5f;
+      index = *(s32 *)((work) + 0xc) - 1;
+      if (index < 0) {
+        index = index + *(s32 *)((work) + 8);
       }
-      pfVar16 = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + temp_v1 * 0xc);
-      last = *(EffAfterVec *)pfVar16;
-      v188.c[0] = *pfVar3 - last.c[0];
-      v188.c[1] = pfVar3[1] - last.c[1];
-      v188.c[2] = pfVar3[2] - last.c[2];
-      RwV3dNormalize(&v188.c[0],&v188.c[0]);
-      v158.c[0] = last.c[0] - first.c[0];
-      v158.c[1] = last.c[1] - first.c[1];
-      v158.c[2] = last.c[2] - first.c[2];
-      RwV3dNormalize(&v158.c[0],&v158.c[0]);
-      v148.c[0] = v188.c[1] * v158.c[2] - v188.c[2] * v158.c[1];
-      v148.c[1] = v188.c[2] * v158.c[0] - v188.c[0] * v158.c[2];
-      v148.c[2] = v188.c[0] * v158.c[1] - v188.c[1] * v158.c[0];
-      RwV3dNormalize(&v148.c[0],&v148.c[0]);
-      temp_v8 = v188.c[0] * v158.c[0] + v188.c[1] * v158.c[1] + v188.c[2] * v158.c[2];
-      if (temp_v8 < 0.0f) {
-        temp_v8 = temp_v8 * -1.0f;
+      vectorCursor = (f32 *)(((u8 *)*(u8 **)effAfterWorkFieldPtr(0x10, work)) + index * 0xc);
+      last = *(EffAfterVec *)vectorCursor;
+      toCamera.c[0] = *cameraPosition - last.c[0];
+      toCamera.c[1] = cameraPosition[1] - last.c[1];
+      toCamera.c[2] = cameraPosition[2] - last.c[2];
+      RwV3dNormalize(&toCamera.c[0],&toCamera.c[0]);
+      tangent.c[0] = last.c[0] - first.c[0];
+      tangent.c[1] = last.c[1] - first.c[1];
+      tangent.c[2] = last.c[2] - first.c[2];
+      RwV3dNormalize(&tangent.c[0],&tangent.c[0]);
+      sideOffset.c[0] = toCamera.c[1] * tangent.c[2] - toCamera.c[2] * tangent.c[1];
+      sideOffset.c[1] = toCamera.c[2] * tangent.c[0] - toCamera.c[0] * tangent.c[2];
+      sideOffset.c[2] = toCamera.c[0] * tangent.c[1] - toCamera.c[1] * tangent.c[0];
+      RwV3dNormalize(&sideOffset.c[0],&sideOffset.c[0]);
+      weight = toCamera.c[0] * tangent.c[0] + toCamera.c[1] * tangent.c[1] + toCamera.c[2] * tangent.c[2];
+      if (weight < 0.0f) {
+        weight = weight * -1.0f;
       }
-      temp_v8 = temp_v8 * (temp_v8 * temp_v8);
-      temp_v11 = temp_v11 * (1.0f - temp_v8);
-      v148.c[0] = v148.c[0] * temp_v11;
-      v148.c[1] = v148.c[1] * temp_v11;
-      v148.c[2] = v148.c[2] * temp_v11;
-      *pfVar17 = last.c[0] + v148.c[0];
-      pfVar17[1] = last.c[1] + v148.c[1];
-      pfVar17[2] = last.c[2] + v148.c[2];
-      pfVar17[3] = last.c[0] - v148.c[0];
-      pfVar17[4] = last.c[1] - v148.c[1];
-      pfVar17[5] = last.c[2] - v148.c[2];
-      pfVar17[6] = *pfVar17 + pfVar17[3];
-      pfVar17[7] = pfVar17[1] + pfVar17[4];
-      pfVar17[8] = pfVar17[2] + pfVar17[5];
-      pfVar17[6] = pfVar17[6] * 0.5f;
-      pfVar17[7] = pfVar17[7] * 0.5f;
-      pfVar17[8] = pfVar17[8] * 0.5f;
-      pfVar17 = pfVar17 + 0xf;
-      for (temp_v5 = 0; temp_v5 < *(s32 *)((*(u8 **)work) + 0xc);) {
-        *pfVar17 = pfVar17[-6] + pfVar17[-3];
-        pfVar17[1] = pfVar17[-5] + pfVar17[-2];
-        pfVar17[2] = pfVar17[-4] + pfVar17[-1];
-        *pfVar17 = *pfVar17 + pfVar17[3];
-        pfVar17[1] = pfVar17[1] + pfVar17[4];
-        pfVar17[2] = pfVar17[2] + pfVar17[5];
-        *pfVar17 = *pfVar17 + pfVar17[6];
-        pfVar17[1] = pfVar17[1] + pfVar17[7];
-        pfVar17[2] = pfVar17[2] + pfVar17[8];
-        *pfVar17 = *pfVar17 * 0.25f;
-        pfVar17[1] = pfVar17[1] * 0.25f;
-        pfVar17[2] = pfVar17[2] * 0.25f;
-        temp_v5++;
-        pfVar17 = pfVar17 + 9;
+      weight = weight * (weight * weight);
+      halfWidth = halfWidth * (1.0f - weight);
+      sideOffset.c[0] = sideOffset.c[0] * halfWidth;
+      sideOffset.c[1] = sideOffset.c[1] * halfWidth;
+      sideOffset.c[2] = sideOffset.c[2] * halfWidth;
+      *vertexBase = last.c[0] + sideOffset.c[0];
+      vertexBase[1] = last.c[1] + sideOffset.c[1];
+      vertexBase[2] = last.c[2] + sideOffset.c[2];
+      vertexBase[3] = last.c[0] - sideOffset.c[0];
+      vertexBase[4] = last.c[1] - sideOffset.c[1];
+      vertexBase[5] = last.c[2] - sideOffset.c[2];
+      vertexBase[6] = *vertexBase + vertexBase[3];
+      vertexBase[7] = vertexBase[1] + vertexBase[4];
+      vertexBase[8] = vertexBase[2] + vertexBase[5];
+      vertexBase[6] = vertexBase[6] * 0.5f;
+      vertexBase[7] = vertexBase[7] * 0.5f;
+      vertexBase[8] = vertexBase[8] * 0.5f;
+      vertexBase = vertexBase + 0xf;
+      for (countOrAddress = 0; countOrAddress < *(s32 *)((*(u8 **)work) + 0xc);) {
+        *vertexBase = vertexBase[-6] + vertexBase[-3];
+        vertexBase[1] = vertexBase[-5] + vertexBase[-2];
+        vertexBase[2] = vertexBase[-4] + vertexBase[-1];
+        *vertexBase = *vertexBase + vertexBase[3];
+        vertexBase[1] = vertexBase[1] + vertexBase[4];
+        vertexBase[2] = vertexBase[2] + vertexBase[5];
+        *vertexBase = *vertexBase + vertexBase[6];
+        vertexBase[1] = vertexBase[1] + vertexBase[7];
+        vertexBase[2] = vertexBase[2] + vertexBase[8];
+        *vertexBase = *vertexBase * 0.25f;
+        vertexBase[1] = vertexBase[1] * 0.25f;
+        vertexBase[2] = vertexBase[2] * 0.25f;
+        countOrAddress++;
+        vertexBase = vertexBase + 9;
       }
     }
     }
@@ -1509,34 +1535,6 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
 
 #pragma pop
 
-
-/* Ribbon sample queue shared by the sample writer and the offset builder. */
-typedef struct {
-    f32 mid[3];
-    f32 headMid;
-    f32 headNext;
-    f32 tailMid;
-    f32 tailPrev;
-    f32 width[2];
-    f32 alpha[2];
-} EffAfterParam;
-
-typedef struct {
-    EffAfterParam *param;
-    s32 unk4;
-    s32 capacity;
-} EffAfterConfig;
-
-typedef struct EffAfterQueue {
-    EffAfterConfig *config;
-    u32 reserved;
-    s32 count;
-    s32 writeIndex;
-    EffAfterVec *positions;
-    EffAfterVec *normals;
-    EffAfterVec *positionOffsets[2];
-    EffAfterVec *normalOffsets[2];
-} EffAfterQueue;
 
 // Pushes one position and normal into the sample ring, overwriting the oldest when full, then refreshes section 0 (and section 1 once three samples are queued).
 // FUN_004BAD70
@@ -1568,13 +1566,13 @@ void effAfterQueuePush(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
         break;
     }
 }
-// Resets the work's value to its completedFlags, clears its flags and calls func_004bc500 on the work block.
+// Rewinds the command cursor, clears execution flags and resets the target section's progress work.
 // FUN_004BAEA0
-void effAfterResetCommand(RuntimeResetWork* work)
+void effAfterResetCommand(RuntimeCommandWork* work)
 {
-    work->value = work->completedFlags;
+    work->cursor = work->start;
     work->flags = 0;
-    effMiscProgressReset(work->work);
+    effMiscProgressReset(work->target);
 }
 // Runs the command stream at work->cursor until opcode 0; opcode 1 reads a 32-bit duration from two halfwords.
 // FUN_004BAED0
@@ -1583,9 +1581,10 @@ void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
     u16* cursor;
     u32 duration;
     u16* durationParts;
-    RuntimeWork* target;
+    EffAfterQueue* target;
     s32 stop;
 
+    /* Operands are packed halfwords: use a word load only at aligned positions. */
     cursor = work->cursor;
     stop = 0;
     do
@@ -1643,8 +1642,8 @@ void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
             break;
         case 0x102:
             target = work->target;
-            target->completedFlags = 0;
-            target->state = 0;
+            target->count = 0;
+            target->writeIndex = 0;
             cursor++;
             break;
         case 0x200:
@@ -2126,7 +2125,7 @@ void effAfterQueueSectionOffsets(EffAfterQueue *queue, s32 section)
 #pragma optimization_level 1
 // Length of the segment between two adjacent samples of ring arg2 at section arg1, read through effAfterWorkFieldPtr.
 // FUN_004BC1E0
-f32 effAfterSideSegmentLength(u8 *arg0, s32 arg1, s32 arg2)
+f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side)
 {
     f32 v[3];
     s32 i;
@@ -2137,26 +2136,27 @@ f32 effAfterSideSegmentLength(u8 *arg0, s32 arg1, s32 arg2)
     f32 c;
     f32 t;
 
-    if (arg1 == *(s32 *)(arg0 + 8) - 1) {
+    if (section == ((EffAfterQueue *)work)->count - 1) {
         kAssertFail(D_007146E0, 0x6F8);
     }
-    i = -2 - arg1 + *(s32 *)(arg0 + 0xC);
+    i = -2 - section + ((EffAfterQueue *)work)->writeIndex;
     if (i < 0) {
-        i += *(s32 *)(arg0 + 8);
+        i += ((EffAfterQueue *)work)->count;
     }
-    p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(arg2 * 4, arg0) + 0x10) + i * 0xC);
+    /* The helper preserves offset-first table addressing; a typed rewrite changes the add order. */
+    p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(side * 4, work) + 0x10) + i * 0xC);
     a = p[0];
     b = p[1];
     c = p[2];
     v[0] = a;
     v[1] = b;
     v[2] = c;
-    i = *(s32 *)(arg0 + 0xC) - 1 - arg1;
+    i = ((EffAfterQueue *)work)->writeIndex - 1 - section;
     if (i < 0) {
-        i += *(s32 *)(arg0 + 8);
+        i += ((EffAfterQueue *)work)->count;
     }
     offset = i * 0xC;
-    p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(arg2 * 4, arg0) + 0x10) + offset);
+    p = (f32 *)(*(u8 **)(effAfterWorkFieldPtr(side * 4, work) + 0x10) + offset);
     t = p[0];
     v[0] -= t;
     t = p[1];
@@ -2169,7 +2169,9 @@ f32 effAfterSideSegmentLength(u8 *arg0, s32 arg1, s32 arg2)
 
 // Turn factor of a section: (1 - dot) / 2 of the normalised edge vectors at the section's two ends; 0 for a straight run, 1 for a reversal.
 // FUN_004BC310
-f32 effAfterSectionTurnFactor(u8 *arg0, s32 arg1) {
+f32 effAfterSectionTurnFactor(u8 *work, s32 section) {
+    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
+     * (owner comparison: 369 differing bytes). Offsets remain as observed. */
     EffAfterVec v1;
     EffAfterVec v2;
     EffAfterVec *q;
@@ -2179,29 +2181,29 @@ f32 effAfterSectionTurnFactor(u8 *arg0, s32 arg1) {
     s32 j;
     u8 *p;
 
-    if (arg1 == *(s32 *)(arg0 + 8) - 1) {
+    if (section == *(s32 *)(work + 8) - 1) {
         kAssertFail(D_007146E0, 0x709);
     }
-    i = (*(s32 *)(arg0 + 0xC) - 1) - arg1;
+    i = (*(s32 *)(work + 0xC) - 1) - section;
     if (i < 0) {
-        i += *(s32 *)(arg0 + 8);
+        i += *(s32 *)(work + 8);
     }
-    p = (u8 *)(*(s32 *)(arg0 + 0x14) + i * 0xC);
+    p = (u8 *)(*(s32 *)(work + 0x14) + i * 0xC);
     v1 = *(EffAfterVec *)p;
-    p = (u8 *)(*(s32 *)(arg0 + 0x10) + i * 0xC);
+    p = (u8 *)(*(s32 *)(work + 0x10) + i * 0xC);
     q = (EffAfterVec *)p;
     t = q->c[0];
     v1.c[0] -= t;
     v1.c[1] -= q->c[1];
     v1.c[2] -= q->c[2];
     RwV3dNormalize(&v1.c[0], &v1.c[0]);
-    j = (-2 - arg1) + *(s32 *)(arg0 + 0xC);
+    j = (-2 - section) + *(s32 *)(work + 0xC);
     if (j < 0) {
-        j += *(s32 *)(arg0 + 8);
+        j += *(s32 *)(work + 8);
     }
-    p = (u8 *)(*(s32 *)(arg0 + 0x14) + j * 0xC);
+    p = (u8 *)(*(s32 *)(work + 0x14) + j * 0xC);
     v2 = *(EffAfterVec *)p;
-    p = (u8 *)(*(s32 *)(arg0 + 0x10) + j * 0xC);
+    p = (u8 *)(*(s32 *)(work + 0x10) + j * 0xC);
     q = (EffAfterVec *)p;
     t = q->c[0];
     v2.c[0] -= t;

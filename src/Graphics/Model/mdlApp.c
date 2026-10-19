@@ -14,11 +14,11 @@ typedef struct MdlAppObj
 typedef struct MdlAppBc
 {
     u32 unk0;
-    s32 unk4;
+    s32 slot;
     u8  pad8[0x12 - 0x08];
-    u16 unk12;       /* 0x12 */
-    s32 unk14;       /* 0x14 */
-    s32 unk18;       /* 0x18 */
+    u16 flags;       /* 0x12: bit 0 loaded, bit 1 primary read requested */
+    s32 primaryRead; /* 0x14 */
+    s32 secondaryRead; /* 0x18 */
 } MdlAppBc;
 
 extern s32 mdlSeIsLoaded(u32 id, u16 subId);
@@ -59,7 +59,7 @@ s32 mdlAppBindObjectRecord(MdlAppObj *obj)
 
     if (mdlSeIsLoaded(id, subId) != 0)
         return 1;
-    if (*bcp != 0 && (*(u16 *)((u8 *)*bcp + 0x12) & 1))
+    if (*bcp != 0 && (((MdlAppBc *)*bcp)->flags & 1))
         return 1;
     switch (id & 0xFFFF)
     {
@@ -73,18 +73,18 @@ s32 mdlAppBindObjectRecord(MdlAppObj *obj)
         else
             sprintf(buf, D_00635860, &D_007636e0, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x10F);
-        *(s32 *)((u8 *)*bcp + 0x14) = H_Cdvd_AcquireDirectory(buf, 0);
-        *(u16 *)((u8 *)*bcp + 0x12) |= 2;
+        ((MdlAppBc *)*bcp)->primaryRead = H_Cdvd_AcquireDirectory(buf, 0);
+        ((MdlAppBc *)*bcp)->flags |= 2;
         break;
     case 2:
         if (*bcp == 0)
             *bcp = mdlSeCreateRecord(id, subId, 2);
         mdlAppBindSecondaryText(obj);
-        *(s32 *)((u8 *)*bcp + 0x04) = mdlSeAcquireSlot(id, subId);
+        ((MdlAppBc *)*bcp)->slot = mdlSeAcquireSlot(id, subId);
         sprintf(buf, D_00635890, D_00635678, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x12F);
-        *(s32 *)((u8 *)*bcp + 0x14) = H_Cdvd_AcquireDirectory(buf, 1);
-        *(u16 *)((u8 *)*bcp + 0x12) |= 2;
+        ((MdlAppBc *)*bcp)->primaryRead = H_Cdvd_AcquireDirectory(buf, 1);
+        ((MdlAppBc *)*bcp)->flags |= 2;
         break;
     default:
         return 0;
@@ -105,7 +105,7 @@ void mdlAppBindSecondaryText(MdlAppObj *obj)
     if (mdlSeIsLoaded(id, subId) != 0)
         return;
     bc = *bcp;
-    if (bc != 0 && (*(u16 *)((u8 *)bc + 0x12) & 1))
+    if (bc != 0 && (((MdlAppBc *)bc)->flags & 1))
         return;
     switch (id & 0xFFFF)
     {
@@ -132,10 +132,10 @@ void mdlAppBindSecondaryText(MdlAppObj *obj)
         case 0x112:
             sprintf(buf, D_006358B0, D_00635678, subId & 0xFFFF);
             func_00440b68(&D_007636e8, D_00635878, 0x16E);
-            *(s32 *)((u8 *)*bcp + 0x18) = H_Cdvd_AcquireDirectory(buf, 0);
+            ((MdlAppBc *)*bcp)->secondaryRead = H_Cdvd_AcquireDirectory(buf, 0);
             break;
         default:
-            *(s32 *)((u8 *)*bcp + 0x18) = 0;
+            ((MdlAppBc *)*bcp)->secondaryRead = 0;
             break;
         }
         break;

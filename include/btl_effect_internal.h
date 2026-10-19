@@ -2,6 +2,8 @@
 #define BTL_EFFECT_INTERNAL_H
 
 #include "type.h"
+#include "btl_boss_internal.h"
+#include "btl_camera_internal.h"
 
 /* Allocated as 0x24 bytes by btlEffectAllocNodePool and CreatePlacementEntry.
  * Reset/release and fade update agree on the resource slots and list links. */
@@ -136,7 +138,7 @@ typedef struct BtlBattleState {
     s16 endState;                 /* 0x1C: 1 victory, 2 defeat, 3 no party */
     u8 pad1E[2];
     s32 protagonistTurns;         /* 0x20 */
-    u8 pad24[0x170 - 0x24];
+    BtlCamera camera;              /* 0x24..0x16F */
     u8 *selectedAction;            /* 0x170 */
     u8 *actions;                   /* 0x174 */
     u8 *unitLists[8];              /* 0x178: head/tail pairs */
@@ -170,9 +172,18 @@ typedef struct BtlBattleState {
     u8 padB8C[4];
     u32 bossPakHandle;            /* 0xB90: boss resource directory */
     u32 bossEndBgmHandle;         /* 0xB94: end-BGM resource directory */
-    u8 padB98[0xC12 - 0xB98];
+    BtlBossWork boss;             /* 0xB98 */
+    s8 bossCuePrefix[2];          /* 0xC10: signed formation-slot overrides */
     s8 pendingBossCue;            /* 0xC12: reset to -1 for selected bosses */
-    u8 padC13[0xC48 - 0xC13];
+    s8 bossCueTail[0x1B];         /* 0xC13..0xC2D */
+    u8 padC2E[2];
+    u8 *bossSlotTable;            /* 0xC30 */
+    s16 bossPhase;                /* 0xC34 */
+    u8 padC36[2];
+    s32 bossMotionCountdown;      /* 0xC38 */
+    s32 bossCameraCountdown;      /* 0xC3C */
+    s32 bossRecordVariant;        /* 0xC40 */
+    s32 unkC44;
     u8 *partyActions[4];          /* 0xC48 */
     u16 partyActionCount;         /* 0xC58 */
     u16 unkC5A;
@@ -216,5 +227,13 @@ typedef struct BtlBattleState {
     f32 skyScroll;               /* 0xE80 */
     u8 padE84[4];
 } BtlBattleState;
+/* The embedded work must not move any of the established battle fields. */
+typedef char BtlBattleBossOffsetCheck[
+    (u32)&((BtlBattleState *)0)->boss == 0xB98 ? 1 : -1];
+typedef char BtlBattleBossCueOffsetCheck[
+    (u32)&((BtlBattleState *)0)->pendingBossCue == 0xC12 ? 1 : -1];
+typedef char BtlBattleCameraOffsetCheck[
+    (u32)&((BtlBattleState *)0)->camera == 0x24 ? 1 : -1];
+typedef char BtlBattleStateSizeCheck[sizeof(BtlBattleState) == 0xE88 ? 1 : -1];
 
 #endif
