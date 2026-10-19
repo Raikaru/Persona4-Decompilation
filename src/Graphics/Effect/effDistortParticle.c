@@ -22,9 +22,9 @@ extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
-extern void func_00492cd0(void *ptr);
+extern void mdlEffectFreeEmitterAllocation(void *ptr);
 extern u8 *func_00492b20(u32 object, s32 value, u8 *options);
-extern void func_00492d10(void *ptr);
+extern void mdlEffectAdvanceEmitter(void *ptr);
 extern s32 TnSlotObject(u16 param);
 extern void mdlEffectLoadQuadB(void *object, void *value);
 extern void mdlEffectLoadQuadA(void *object, void *value);
@@ -206,7 +206,7 @@ void DistortParticleFree(u8 *particle) {
     }
     allocation = inst->list;
     if (allocation != NULL) {
-        func_00492cd0(allocation);
+        mdlEffectFreeEmitterAllocation(allocation);
     }
     allocation = inst->table;
     if (allocation != NULL) {
@@ -285,7 +285,7 @@ void DistortParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *parameters) {
     u8 *records;
 
     if (*(u8 **)(particle + 0x5C) != NULL) {
-        func_00492cd0(*(u8 **)(particle + 0x5C));
+        mdlEffectFreeEmitterAllocation(*(u8 **)(particle + 0x5C));
     }
     if (*(s32 *)(parameters + 0xC0) != 0) {
         kAssertFail(D_00714550, 0xF4);
@@ -320,7 +320,7 @@ void DistortParticleReleaseSource(u8 *particle)
 
     sourceList = (u32)inst->list;
     if (sourceList != 0) {
-        func_00492d00(sourceList);
+        mdlEffectResetEmitterTicks(sourceList);
     }
 }
 
@@ -629,7 +629,7 @@ void DistortParticleUpdateRecords(u8 *particle) {
     s32 recordIndex;
     u8 *sourceList;
 
-    func_00492d10(*(u8 **)(particle + 0x5C));
+    mdlEffectAdvanceEmitter(*(u8 **)(particle + 0x5C));
     sourceList = *(u8 **)(particle + 0x5C);
     recordCount = *(s32 *)(sourceList + 8);
     if ((recordCount != 0) && (*(s32 *)(sourceList + 0x10) != 0)) {

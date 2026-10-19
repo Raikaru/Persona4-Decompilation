@@ -58,7 +58,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484bb0-00485870 */
 
-extern u_long128 func_00484b30(u8 *arg0);
+extern u_long128 mdlEffectInitParticleState(u8 *arg0);
 extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
 extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
 extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
@@ -138,7 +138,7 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
         memset(clone, 0, 0x90);
         *(s32 *)(clone + 0x80) = 0;
         *(s32 *)(clone + 0x84) = 0;
-        func_00484b30(clone);
+        mdlEffectInitParticleState(clone);
         /* Retail initializes both vectors from the first input quad. */
         *(u_long128 *)clone = *(u_long128 *)input;
         *(u_long128 *)(clone + 0x10) = *(u_long128 *)input;
@@ -158,7 +158,7 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                 *(u8 *)(nodeClone + 0x88) = 8;
                 *(u8 *)(nodeClone + 0x89) = 0;
                 *(u8 *)(nodeClone + 0x8A) = 0;
-                func_00484b30(nodeClone);
+                mdlEffectInitParticleState(nodeClone);
                 if ((*(s32 *)(node + 0x98) & 1) == 0) {
                     linkedSource = *(u8 **)(node + 0x90);
                     if (*(u32 *)linkedSource > 0xD2) {
@@ -241,7 +241,7 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
             *(u8 *)(nodeClone + 0x88) = 8;
             *(u8 *)(nodeClone + 0x89) = 0;
             *(u8 *)(nodeClone + 0x8A) = 0;
-            func_00484b30(nodeClone);
+            mdlEffectInitParticleState(nodeClone);
             tmp = *(s32 *)(cur + 0x98);
             if ((tmp & 1) == 0) {
                 indexedSource = input + *(s32 *)(cur + 0x90);

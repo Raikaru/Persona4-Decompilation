@@ -10,7 +10,7 @@
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
-extern void func_004b1250(void *model, f32 *position);
+extern void mdlEffectSetChildPositionVec(void *model, f32 *position);
 extern s32 sdkSndStartChannel(s16 channel, const char *name);
 extern s32 sdkSndStartStream(s16 channel, s16 stream, s16 thirdInput, s16 fourthInput);
 extern void kAssertFail(void *file, s32 line);
@@ -1098,29 +1098,29 @@ s32 cmmScriptSpawnHandle(s32 slotIndex) {
     switch (slotIndex) {
     case 0:
         firstEffect = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AA0, &resourceSize), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(firstEffect)), (f32 *)((void*)&pos));
+        mdlEffectSetChildPositionVec((void *)(u32)(func_0025ff60(firstEffect)), (f32 *)((void*)&pos));
         *handleSlot = firstEffect;
         break;
     case 1:
         secondEffect = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AC0, &resourceSize), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(secondEffect)), (f32 *)((void*)&pos));
+        mdlEffectSetChildPositionVec((void *)(u32)(func_0025ff60(secondEffect)), (f32 *)((void*)&pos));
         *handleSlot = secondEffect;
         break;
     case 2:
         thirdEffect = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AE0, &resourceSize), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(thirdEffect)), (f32 *)((void*)&pos));
+        mdlEffectSetChildPositionVec((void *)(u32)(func_0025ff60(thirdEffect)), (f32 *)((void*)&pos));
         *handleSlot = thirdEffect;
         break;
     case 3:
         fourthEffect = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B00, &resourceSize), 0, &D_005DC7D0);
         fourthModel = func_0025ff60(fourthEffect);
         (*(f32*)((u8*)&pos + 4)) -= 10.0f;
-        func_004b1250((void *)(u32)(fourthModel), (f32 *)((void*)&pos));
+        mdlEffectSetChildPositionVec((void *)(u32)(fourthModel), (f32 *)((void*)&pos));
         *handleSlot = fourthEffect;
         break;
     case 4:
         fifthEffect = shdEffectTaskCreate(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B20, &resourceSize), 0, &D_005DC7D0);
-        func_004b1250((void *)(u32)(func_0025ff60(fifthEffect)), (f32 *)((void*)&pos));
+        mdlEffectSetChildPositionVec((void *)(u32)(func_0025ff60(fifthEffect)), (f32 *)((void*)&pos));
         *handleSlot = fifthEffect;
         break;
     }
@@ -1903,7 +1903,7 @@ s32 cmmScriptStepFishingRound(u8 *work)
             *(f32 *)(pos + 4) = -55.0f - (20.0f * value);
             color[3] = (u8)(255.0f * (1.0f - value));
             mdlEffectSetPackedColor(resource, color);
-            func_004b1250((void *)(u32)(resource), (f32 *)(pos));
+            mdlEffectSetChildPositionVec((void *)(u32)(resource), (f32 *)(pos));
         }
         if (state <= *(s16 *)(entry + 4)) {
             signal = 1;
@@ -2130,7 +2130,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
     } else {
         model = 0;
     }
-    func_004b1250((void *)(u32)model, result.value);
+    mdlEffectSetChildPositionVec((void *)(u32)model, result.value);
     if ((D_008C024E[0] & 0x20) != 0) {
         datEntryDrawGatedByFlag39(3, 0x79, 3, 0);
         *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;

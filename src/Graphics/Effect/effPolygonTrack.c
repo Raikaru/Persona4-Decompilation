@@ -7,9 +7,9 @@
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void ParticleFree(void *particle);
-extern void func_00494680(void *ribbons);
-extern void func_00492cd0(u8 *path);
-extern void func_00492d00(s32 path);
+extern void mdlEffectDestroyGeometryPair(void *ribbons);
+extern void mdlEffectFreeEmitterAllocation(u8 *path);
+extern void mdlEffectResetEmitterTicks(s32 path);
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
@@ -38,12 +38,12 @@ extern void mdlEffectLoadQuadA(void *path, u32 *position);
 /* lint-allow: arity kept at four arguments. The definition in mdlEffect.c takes one; a one-argument call here moved the codegen of both TrackRefresh call pairs (verify MISMATCH 2). */
 extern void mdlEffectApplyGeometryMatrix(void *geometry, void *position, void *rotation, f32 scale);
 extern void ParticleProjectVertices(void *particle, f32 scale);
-extern void func_00495090(void *ribbons, u32 resource);
-extern void func_00492d10(void *path);
+extern void mdlEffectSetGeometryPairResource(void *ribbons, u32 resource);
+extern void mdlEffectAdvanceEmitter(void *path);
 extern void func_00494740(void *ribbons, u16 index, void *point, f32 width);
 extern void func_004940d0(void *ribbons, u16 index, void *color);
 extern void mdlEffectCopyOriginAndLockGeometry(void *ribbons);
-extern void func_00494ff0(void *ribbons);
+extern void mdlEffectUnlockGeometryPair(void *ribbons);
 extern u8 *GeometryCreateStripGridMultiPart(u16 count, u16 segments, void *indices, s32 vertices, s32 flags);
 extern u8 *GeometryCreateTableGridMultiPart(u16 count, s32 copies, s32 triangles, s32 vertices, void *indices, s32 flags);
 extern void ParticleSetMaterialSlot(u8 *particle, s32 count, s32 mode);
@@ -245,11 +245,11 @@ void TrackFreeInstance(u8 *instance)
     }
     ribbons = ((EffTrackInstance *)instance)->ribbons.value;
     if (ribbons != 0) {
-        func_00494680((void *)ribbons);
+        mdlEffectDestroyGeometryPair((void *)ribbons);
     }
     path = ((EffTrackInstance *)instance)->path.bytes;
     if (path != NULL) {
-        func_00492cd0(path);
+        mdlEffectFreeEmitterAllocation(path);
     }
     jtbl_008873EC[0](instance);
 }
@@ -387,7 +387,7 @@ void TrackLoadRecord(u8 *instance, u16 kind, u8 *record)
     memcpy(instance + 0xC, record, 0x1C);
     if (*(u32 *)(instance + 0) != 0) {
         if (*(u32 *)(instance + 0x28) != 0) {
-            func_00494680((void *)*(u32 *)(instance + 0x28));
+            mdlEffectDestroyGeometryPair((void *)*(u32 *)(instance + 0x28));
         }
         ribbons = TrackAllocRibbons(*(u16 *)(instance + 0), *(u16 *)record);
         *(u8 **)(instance + 0x28) = ribbons;
@@ -401,7 +401,7 @@ void TrackRebindPathData(u8 *instance, u16 kind, u8 *parameters)
 {
     /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 94). */
     if (*(u32 *)(instance + 0x30) != 0) {
-        func_00492cd0((u8 *)*(u32 *)(instance + 0x30));
+        mdlEffectFreeEmitterAllocation((u8 *)*(u32 *)(instance + 0x30));
     }
     if (((EffTrackPathParameters *)parameters)->trailCount != 0) {
         kAssertFail(&D_00713E30, 0x14E);
@@ -417,7 +417,7 @@ void TrackReleaseSubobject(u8 *instance)
 
     path = ((EffTrackInstance *)instance)->path.value;
     if (path != 0) {
-        func_00492d00(path);
+        mdlEffectResetEmitterTicks(path);
     }
 }
 
@@ -461,7 +461,7 @@ void TrackUpdateSlots(u8 *instance)
     if (*(s32 *)instance == 0) {
         return;
     }
-    func_00492d10(*(void **)(instance + 0x30));
+    mdlEffectAdvanceEmitter(*(void **)(instance + 0x30));
     path = *(u8 **)(instance + 0x30);
     baseColor = *(s32 *)(instance + 4);
     colorWord = &baseColor;
@@ -554,7 +554,7 @@ draw_entry:
         materialColor = *(volatile s32 *)&modulatedColor;
         func_004940d0(ribbons, sampleIndex, &materialColor);
     }
-    func_00494ff0(ribbons);
+    mdlEffectUnlockGeometryPair(ribbons);
     if (*(u8 **)(instance + 0x2C) == NULL) {
         return;
     }
@@ -588,7 +588,7 @@ void TrackApplyWidth(u8 *instance)
             if (*(u32 *)(instance + 0x2C) != 0) {
                 ParticleProjectVertices(*(u8 **)(instance + 0x2C), *(f32 *)(instance + 0x24) / 10.0f);
             }
-            func_00495090(ribbons, ((EffTrackPathParameters *)parameters)->unk54);
+            mdlEffectSetGeometryPairResource(ribbons, ((EffTrackPathParameters *)parameters)->unk54);
         }
     }
 }
@@ -618,7 +618,7 @@ void TrackRefresh(u8 *instance)
             if (*(u32 *)(instance + 0x2C) != 0) {
                 ParticleProjectVertices(*(u8 **)(instance + 0x2C), *(f32 *)(instance + 0x24) / 10.0f);
             }
-            func_00495090(ribbons, ((EffTrackPathParameters *)parameters)->unk54);
+            mdlEffectSetGeometryPairResource(ribbons, ((EffTrackPathParameters *)parameters)->unk54);
         }
     }
 }

@@ -163,7 +163,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 D_00762EA0;
 
 extern s32 mdlEffectCreateFromResource(s32 arg0);
-extern void func_004b1250(void *object, f32 *position);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
@@ -299,7 +299,7 @@ s32 MT_Scene_CreateObjectRes(u16 resourceId, s32 model, s8 drawMode) {
     initialPosition[0] = 100.0f;
     initialPosition[1] = 0.0f;
     initialPosition[2] = 0.0f;
-    func_004b1250(*(void **)(resource + 0x144), initialPosition);
+    mdlEffectSetChildPositionVec(*(void **)(resource + 0x144), initialPosition);
     mdlEffectSetUniformScale(*(s32 *)(resource + 0x144), 1.5f);
     return resourceTypeId;
 }

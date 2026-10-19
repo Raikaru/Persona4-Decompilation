@@ -23,7 +23,7 @@ extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
 extern void TnSetTableBase(void *arg0);
 extern void func_00485870(void *arg0);
-extern void func_00485ae0(void *arg0);
+extern void mdlEffectAdvanceAndDrawChildren(void *arg0);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -76,6 +76,6 @@ void func_004b1210(void *arg0, void *arg1)
     if (arg0 != NULL) {
         TnSetTableBase(arg0);
     }
-    func_00485ae0(arg1);
+    mdlEffectAdvanceAndDrawChildren(arg1);
 }
 
