@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 1935 of 13102 symbols carry a recovered name.
+// 1946 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -4350,13 +4350,13 @@ func_0029ef90 = 0x0029EF90; // type:func
 func_0029f070 = 0x0029F070; // type:func
 func_0029f790 = 0x0029F790; // type:func
 func_0029fbb0 = 0x0029FBB0; // type:func
-func_002a02f0 = 0x002A02F0; // type:func
-func_002a03b0 = 0x002A03B0; // type:func
-func_002a12e0 = 0x002A12E0; // type:func
-func_002a1a10 = 0x002A1A10; // type:func
-func_002a1b20 = 0x002A1B20; // type:func
-func_002a1bd0 = 0x002A1BD0; // type:func
-func_002a1c80 = 0x002A1C80; // type:func
+yTimeNameDrawSelections = 0x002A02F0; // type:func
+yTimeNameDrawKeyboard = 0x002A03B0; // type:func
+yTimeNameDrawReveal = 0x002A12E0; // type:func
+yTimeNameConfirm = 0x002A1A10; // type:func
+yTimeNameRevealBackground = 0x002A1B20; // type:func
+yTimeNameRevealOrigin = 0x002A1BD0; // type:func
+yTimeNameRevealRows = 0x002A1C80; // type:func
 func_002a1ef0 = 0x002A1EF0; // type:func
 func_002a1f20 = 0x002A1F20; // type:func
 func_002a1fa0 = 0x002A1FA0; // type:func
@@ -4368,13 +4368,13 @@ func_002a2650 = 0x002A2650; // type:func
 func_002a2710 = 0x002A2710; // type:func
 func_002a2740 = 0x002A2740; // type:func
 func_002a2780 = 0x002A2780; // type:func
-func_002a27c0 = 0x002A27C0; // type:func
+yTimeTrackAppendKey = 0x002A27C0; // type:func
 func_002a2980 = 0x002A2980; // type:func
 func_002a2c10 = 0x002A2C10; // type:func
 func_002a2c70 = 0x002A2C70; // type:func
 func_002a2ca0 = 0x002A2CA0; // type:func
 func_002a2cd0 = 0x002A2CD0; // type:func
-func_002a2e10 = 0x002A2E10; // type:func
+yTimeDrawIndexedGlyph = 0x002A2E10; // type:func
 func_002a2e50 = 0x002A2E50; // type:func
 func_002a3070 = 0x002A3070; // type:func
 func_002a32c0 = 0x002A32C0; // type:func
@@ -4451,7 +4451,7 @@ func_002b0b10 = 0x002B0B10; // type:func
 func_002b10a0 = 0x002B10A0; // type:func
 func_002b10d0 = 0x002B10D0; // type:func
 func_002b10e0 = 0x002B10E0; // type:func
-func_002b10f0 = 0x002B10F0; // type:func
+smapSetCellMode = 0x002B10F0; // type:func
 func_002b1100 = 0x002B1100; // type:func
 func_002b11c0 = 0x002B11C0; // type:func
 func_002b1210 = 0x002B1210; // type:func
@@ -8027,7 +8027,7 @@ func_00452550 = 0x00452550; // type:func
 func_00452560 = 0x00452560; // type:func
 func_00452570 = 0x00452570; // type:func
 func_00452600 = 0x00452600; // type:func
-func_004526a0 = 0x004526A0; // type:func
+kwlnTaskDetachChildren = 0x004526A0; // type:func
 func_004526e0 = 0x004526E0; // type:func
 func_004526f0 = 0x004526F0; // type:func
 func_00452730 = 0x00452730; // type:func

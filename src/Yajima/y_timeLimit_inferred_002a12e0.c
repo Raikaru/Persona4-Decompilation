@@ -3,6 +3,8 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+#include "name_entry_internal.h"
+#include "kwln_task_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
@@ -22,7 +24,7 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
 extern s32 yTimeTrackIsIdle(u8 *arg0);
 extern f32 yTimeTrackProgress(u8 *arg0);
@@ -31,13 +33,7 @@ extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, 
 extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-typedef struct P4_002aabf0_Work {
-    f32 values[4];
-    s32 pad80;
-    s32 sp84;
-    s32 sp88;
-    u8 colors[4];
-} P4_002aabf0_Work;
+
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
 extern u8 D_0063EEA0[];
@@ -46,21 +42,9 @@ extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
-typedef struct P4_002aa450_Pair {
-    s64 bits;
-    f32 value;
-} P4_002aa450_Pair;
-typedef struct P4_002aa450_Work {
-    u8 matrix[0x40];
-    P4_002aa450_Pair pair4;
-    P4_002aa450_Pair pair3;
-    P4_002aa450_Pair pair2;
-    P4_002aa450_Pair pair1;
-    P4_002aa450_Pair pair0;
-} P4_002aa450_Work;
-static inline f32 p4_002aa450_mul(f32 left, f32 right) {
-    return left * right;
-}
+
+
+
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -85,38 +69,15 @@ extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
-extern void func_002a12e0(u8 *arg0, s32 arg1);
+extern void yTimeNameDrawReveal(u8 *arg0, s32 arg1);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a12e0-002a12e0 */
 
-extern void func_002a02f0(u8 *arg0, s32 arg1);
-typedef struct NameTweenEntry {
-    f32 startX, startY, endX, endY, stepX, stepY, rate;
-    s8 delay, hold;
-    s16 duration;
-} NameTweenEntry;
-typedef struct NameTweenState {
-    NameTweenEntry entries[4];
-    s32 current, count, frame;
-    u32 flags;
-    s32 timer, total;
-} NameTweenState;
-typedef struct NameEntrySelectionTweens {
-    NameTweenState slide, pulse;
-} NameEntrySelectionTweens;
-typedef struct NameEntryRenderWork {
-    /* 0x0000 */ u8 stateBeforeBackground[0x178];
-    /* 0x0178 */ NameTweenState background;
-    /* 0x0210 */ NameTweenState rowOrigin;
-    /* 0x02a8 */ NameTweenState modeTransition;
-    /* 0x0340 */ NameTweenState cells[24];
-    /* 0x1180 */ NameTweenState rows[6];
-    /* 0x1510 */ NameEntrySelectionTweens selection[6];
-    /* 0x1c30 */ s32 selectionState[2];
-    /* 0x1c38 */ s16 selectionStatus[6][2];
-    /* 0x1c50 */ s32 selectionFlash[6];
-    /* 0x1c68 */ s32 backgroundFrame;
-} NameEntryRenderWork;
+extern void yTimeNameDrawSelections(u8 *arg0, s32 arg1);
+
+
+
+
 #pragma push
 /* measured: func_002a12e0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
@@ -126,29 +87,30 @@ typedef struct NameEntryRenderWork {
  * calls. The grid index is reused by the later, disjoint glyph loop.
  * 1828 matching code bytes; the 1840-byte window has twelve zero tail bytes. */
 // FUN_002A12E0
-void func_002a12e0(u8 *arg0, s32 arg1) {
-    NameEntryRenderWork *work;
-    f32 stack[2];
+/* Draw the staged name-entry reveal: rotating background, selection slots, cell fades, then sliding glyph rows. */
+void yTimeNameDrawReveal(u8 *task, s32 stage) {
+    NameEntryWork *work;
+    f32 position[2];
     f32 glyphX;
     f32 glyphY;
     f32 rowY;
     f32 cellY;
     f32 cellRowY;
     f32 cellProgress;
-    s32 i;
-    s32 j;
-    s32 cnt;
-    s32 q;
+    s32 cellIndex;
+    s32 rowIndex;
+    s32 backgroundFrame;
+    s32 glyphGroup;
     s16 character;
 
-    work = *(NameEntryRenderWork **)(arg0 + 0x38);
-    if ((arg1 >= 0) && (yTimeTrackIsIdle((u8 *)&work->background) == 0)) {
+    work = (NameEntryWork *)((KwlnTask *)task)->work;
+    if ((stage >= 0) && (yTimeTrackIsIdle((u8 *)&work->background) == 0)) {
         u8 alpha;
         alpha = (u8)(255.0f * yTimeTrackProgress((u8 *)&work->background));
         sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
-        cnt = work->backgroundFrame + 1;
-        work->backgroundFrame = cnt;
-        if (cnt > 0x5A0) {
+        backgroundFrame = work->backgroundFrame + 1;
+        work->backgroundFrame = backgroundFrame;
+        if (backgroundFrame > 0x5A0) {
             work->backgroundFrame = 0;
         }
         sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
@@ -158,58 +120,58 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
         sdkSpriteDrawNowUnscaled(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
     }
-    if (arg1 > 0) {
-        func_002a02f0(arg0, 1);
+    if (stage > 0) {
+        yTimeNameDrawSelections(task, 1);
         if (yTimeTrackIsIdle((u8 *)&work->rowOrigin) == 0) {
-            yTimeTrackCurrentKey((u8 *)&work->rowOrigin, stack);
+            yTimeTrackCurrentKey((u8 *)&work->rowOrigin, position);
             yTimeTrackProgress((u8 *)&work->rowOrigin);
         }
     }
-    if (arg1 >= 2) {
-        for (i = 0; i < 0x18; i++) {
+    if (stage >= 2) {
+        for (cellIndex = 0; cellIndex < 0x18; cellIndex++) {
             NameTweenState *cellTween;
             u8 alpha2;
-            cellTween = &work->cells[i];
+            cellTween = &work->cells[cellIndex];
             if (yTimeTrackIsIdle((u8 *)cellTween) == 0) {
                 cellProgress = yTimeTrackProgress((u8 *)cellTween);
-                cellRowY = (f32)((i % 6) * 0x19 + 0xE3);
+                cellRowY = (f32)((cellIndex % 6) * 0x19 + 0xE3);
                 cellY = cellRowY;
                 alpha2 = (u8)(255.0f * cellProgress);
-                sdkSpriteDrawNowUnscaled((f32)((i / 6) * 0x94 + 0x19), cellY, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
-                if (i == 0) {
-                    sdkSpriteDrawNowUnscaled(18.0f, stack[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
+                sdkSpriteDrawNowUnscaled((f32)((cellIndex / 6) * 0x94 + 0x19), cellY, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
+                if (cellIndex == 0) {
+                    sdkSpriteDrawNowUnscaled(18.0f, position[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
                 }
-                if (i == 5) {
-                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1C, iGpffffb540,
+                if (cellIndex == 5) {
+                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + position[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1C, iGpffffb540,
                         1);
                 }
-                if (i == 0x12) {
-                    sdkSpriteDrawNowUnscaled((f32)0x24A, stack[1], 0.0f, 0x4972FF, alpha2, 0x1D, iGpffffb540, 1);
+                if (cellIndex == 0x12) {
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, position[1], 0.0f, 0x4972FF, alpha2, 0x1D, iGpffffb540, 1);
                 }
-                if (i == 0x17) {
-                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1E,
+                if (cellIndex == 0x17) {
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + position[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1E,
                         iGpffffb540, 1);
                 }
             }
         }
     }
-    if (arg1 >= 2) {
-        for (j = 0; j < 6; j++) {
-            if (yTimeTrackIsIdle((u8 *)&work->rows[j]) == 0) {
+    if (stage >= 2) {
+        for (rowIndex = 0; rowIndex < 6; rowIndex++) {
+            if (yTimeTrackIsIdle((u8 *)&work->rows[rowIndex]) == 0) {
                 {
                     s32 yBase;
                     u8 *rowBase;
-                    i = 0;
-                    rowBase = D_007485D0 + (j * 0x28);
-                    yBase = (j * 25) + 0xE5;
-                    for (; i < 0x14; i++) {
-                        character = *(s16 *)(rowBase + (i * 2));
+                    cellIndex = 0;
+                    rowBase = D_007485D0 + (rowIndex * 0x28);
+                    yBase = (rowIndex * 25) + 0xE5;
+                    for (; cellIndex < 0x14; cellIndex++) {
+                        character = ((s16 *)rowBase)[cellIndex];
                         if (character >= 0) {
                             s32 tex;
                             tex = character + 0x20;
-                            glyphX = (f32)((i % 5) * 0x1B);
-                            q = i / 5;
-                            switch (q) {
+                            glyphX = (f32)((cellIndex % 5) * 0x1B);
+                            glyphGroup = cellIndex / 5;
+                            switch (glyphGroup) {
                             case 0:
                                 glyphX += 30.0f;
                                 break;
@@ -225,9 +187,9 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                             }
                             rowY = (f32)yBase;
                             glyphY = rowY;
-                            yTimeTrackProgress((u8 *)&work->rows[j]);
-                            yTimeTrackCurrentKey((u8 *)&work->rows[j], stack);
-                            sdkSpriteDrawNowUnscaled(glyphX, glyphY + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex,
+                            yTimeTrackProgress((u8 *)&work->rows[rowIndex]);
+                            yTimeTrackCurrentKey((u8 *)&work->rows[rowIndex], position);
+                            sdkSpriteDrawNowUnscaled(glyphX, glyphY + (f32)(s32)position[1], 0.0f, 0x2D2D2D, 0xFF, tex,
                                 iGpffffb540, 1);
                         }
                     }
@@ -236,4 +198,5 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         }
     }
 }
+#pragma pop
 

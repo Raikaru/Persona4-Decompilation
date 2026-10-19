@@ -43,10 +43,10 @@ u32 smapRevealTablePtr(void) {
 #pragma opt_loop_invariants off
 // Intent: Test one SMAP reveal bit: bit index arg0 in row arg1 [inferred]
 // FUN_002AC3C0
-s64 smapRevealTestBit(s32 arg0, s32 arg1) {
-    s32 temp;
+s64 smapRevealTestBit(s32 column, s32 row) {
+    s32 bitIndex;
 
-    temp = arg0 & 0xff;
-    return (s8)(((1 << temp) & 0xffff & D_00764658[arg1 & 0xff]) >> temp);
+    bitIndex = column & 0xff;
+    return (s8)(((1 << bitIndex) & 0xffff & D_00764658[row & 0xff]) >> bitIndex);
 }
 #pragma pop

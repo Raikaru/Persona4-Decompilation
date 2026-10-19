@@ -96,7 +96,54 @@ extern f32 fGpffff81c0, fGpffff81c4, fGpffff81c8, fGpffff81cc;
 
 /* The loader allocates and copies 0x80 bytes for every sprite record and
  * owns a fixed 32-entry raster array at +0x104 in its 0x240-byte container. */
-typedef u8 SdkSpriteRecord[0x80];
+typedef struct SdkSpriteRecord {
+    u8 pad00[0x14];
+    s32 rasterIndex;
+    u32 flags;
+    u8 pad1C[0x10];
+    u32 renderFlags;
+    u8 pad30[4];
+    s32 topBorder, bottomBorder, leftBorder, rightBorder;
+    s32 originX, originY;
+    u8 pad4C[8];
+    s32 left, top, right, bottom;
+    u32 colors[4];
+    s16 widthOverride, heightOverride;
+    u8 pad78[8];
+} SdkSpriteRecord;
+
+typedef struct SdkSpriteSample {
+    u32 packAddress;
+    u32 recordIndex;
+    f32 x, y;
+    u8 alphaSubtract, fade;
+    u8 pad12[2];
+    s16 extendX, extendY;
+    f32 angle;
+    s16 pivotX, pivotY;
+    u16 scaleX, scaleY; /* unsigned Q12; zero means unscaled */
+    f32 depth;
+    u8 red, green, blue, pad2B;
+} SdkSpriteSample;
+
+typedef struct SdkSpritePack {
+    s16 state;
+    char name[0x102];
+    u32 rasters[32];
+    u32 rasterRequests[32];
+    u32 recordsAddress;
+    u32 directoryAddress;
+    u32 blobAddress;
+    u32 cursor;
+    s16 rasterIndex, recordCount;
+    u8 pad218[0x14];
+    u16 rasterCount, spriteCount;
+    u8 pad230[8];
+    u8 *next, *prev;
+} SdkSpritePack;
+typedef char SdkSpriteRecordSizeCheck[sizeof(SdkSpriteRecord) == 0x80 ? 1 : -1];
+typedef char SdkSpriteSampleSizeCheck[sizeof(SdkSpriteSample) == 0x2C ? 1 : -1];
+typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
 /* Keep the same address-word view used by the attachment transformer. */
 #define SDK_SPRITE_RECORD(sample) \
     ((u8 *)((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord) + \
@@ -210,57 +257,60 @@ static inline void sdkSpritePositionQuad(SdkSpriteVertex vertex[4], const RwV2d 
 }
 
 
+/* Advance pack loading through header, raster requests, and sprite-record copies. */
+/* Proven pack/sample layouts are above; byte-offset accesses retain MATCH:
+ * typed members changed field-address hoisting and saved-register allocation. */
 // FUN_0046AB90
-void sdkSpriteLoadStep(u8 *arg0)
+void sdkSpriteLoadStep(u8 *pack)
 {
-    u8 temp[8];
-    u8 temp2[8];
+    u8 rasterEntry[8];
+    u8 spriteEntry[8];
     s32 i;
     s32 complete;
     s16 state;
 
-    state = *(s16 *)arg0;
+    state = *(s16 *)pack;
     switch (state) {
     case 0:
         func_00440b68(&iGpffffb038, D_007130C8, 0xB3);
-        *(u32 *)(arg0 + 0x208) = (u32)H_Cdvd_AcquireDirectory(arg0 + 2, 0);
-        *(s16 *)arg0 = 1;
+        *(u32 *)(pack + 0x208) = (u32)H_Cdvd_AcquireDirectory(pack + 2, 0);
+        *(s16 *)pack = 1;
         break;
     case 1:
-        if (*(u32 *)(arg0 + 0x208) != 0) {
-            if (H_Cdvd_IsFileLoaded((struct HCdvd *)*(u32 *)(arg0 + 0x208)) != 1) {
+        if (*(u32 *)(pack + 0x208) != 0) {
+            if (H_Cdvd_IsFileLoaded((struct HCdvd *)*(u32 *)(pack + 0x208)) != 1) {
                 break;
             }
-            *(u32 *)(arg0 + 0x20C) =
-                *(u32 *)(*(u8 **)(arg0 + 0x208) + 0x110);
+            *(u32 *)(pack + 0x20C) =
+                *(u32 *)(*(u8 **)(pack + 0x208) + 0x110);
         }
-        memcpy(arg0 + 0x218, (void *)*(u32 *)(arg0 + 0x20C), 0x20);
-        *(u32 *)(arg0 + 0x210) += 0x20;
-        *(s16 *)arg0 = 2;
-        *(s16 *)(arg0 + 0x214) = 0;
-        if (*(u16 *)(arg0 + 0x22C) == 0) {
-            *(s16 *)arg0 = 4;
+        memcpy(pack + 0x218, (void *)*(u32 *)(pack + 0x20C), 0x20);
+        *(u32 *)(pack + 0x210) += 0x20;
+        *(s16 *)pack = 2;
+        *(s16 *)(pack + 0x214) = 0;
+        if (*(u16 *)(pack + 0x22C) == 0) {
+            *(s16 *)pack = 4;
             break;
         }
     case 2:
         do {
-            memcpy(temp, (void *)(*(u32 *)(arg0 + 0x20C) +
-                                          *(u32 *)(arg0 + 0x210)), 8);
-            *(u32 *)(arg0 + 0x210) += 8;
-            *(u32 *)(arg0 + (*(s16 *)(arg0 + 0x214) << 2) + 0x184) =
+            memcpy(rasterEntry, (void *)(*(u32 *)(pack + 0x20C) +
+                                          *(u32 *)(pack + 0x210)), 8);
+            *(u32 *)(pack + 0x210) += 8;
+            *(u32 *)(pack + (*(s16 *)(pack + 0x214) << 2) + 0x184) =
                 filerEnqueueRequest(9, 0, 0, 0, 0,
-                              *(u32 *)(arg0 + 0x20C) + *(u32 *)(temp + 4),
+                              *(u32 *)(pack + 0x20C) + *(u32 *)(rasterEntry + 4),
                               0, 0, 0, 0);
-            *(u32 *)(arg0 + (*(s16 *)(arg0 + 0x214) << 2) + 0x104) = 0;
-            *(s16 *)(arg0 + 0x214) += 1;
-        } while (*(u16 *)(arg0 + 0x22C) !=
-                 *(s16 *)(arg0 + 0x214));
-        *(s16 *)arg0 = 3;
+            *(u32 *)(pack + (*(s16 *)(pack + 0x214) << 2) + 0x104) = 0;
+            *(s16 *)(pack + 0x214) += 1;
+        } while (*(u16 *)(pack + 0x22C) !=
+                 *(s16 *)(pack + 0x214));
+        *(s16 *)pack = 3;
         break;
     case 3:
         complete = 1;
-        for (i = 0; i < *(u16 *)(arg0 + 0x22C); i++) {
-            u8 *entry = arg0 + (i << 2);
+        for (i = 0; i < *(u16 *)(pack + 0x22C); i++) {
+            u8 *entry = pack + (i << 2);
             u32 *slot = (u32 *)(entry + 0x104);
 
             if (*slot == 0) {
@@ -275,31 +325,34 @@ void sdkSpriteLoadStep(u8 *arg0)
         if (complete == 0) {
             break;
         }
-        *(s16 *)arg0 = 4;
+        *(s16 *)pack = 4;
     case 4:
         chkmemAllocSiteTag(D_007130C8, 0xFD);
-        *(u32 *)(arg0 + 0x204) =
-            (u32)D_008873F4[0](*(u16 *)(arg0 + 0x22E), 0x80, 0x40000);
-        for (i = 0; i < *(u16 *)(arg0 + 0x22E); i++) {
-            memcpy(temp2, (void *)(*(u32 *)(arg0 + 0x20C) +
-                                            *(u32 *)(arg0 + 0x210)), 8);
-            *(u32 *)(arg0 + 0x210) += 8;
-            memcpy((u8 *)(*(u32 *)(arg0 + 0x204) + (i << 7)),
-                          (void *)(*(u32 *)(arg0 + 0x20C) + *(u32 *)(temp2 + 4)),
+        *(u32 *)(pack + 0x204) =
+            (u32)D_008873F4[0](*(u16 *)(pack + 0x22E), 0x80, 0x40000);
+        for (i = 0; i < *(u16 *)(pack + 0x22E); i++) {
+            memcpy(spriteEntry, (void *)(*(u32 *)(pack + 0x20C) +
+                                            *(u32 *)(pack + 0x210)), 8);
+            *(u32 *)(pack + 0x210) += 8;
+            memcpy((u8 *)(*(u32 *)(pack + 0x204) + (i << 7)),
+                          (void *)(*(u32 *)(pack + 0x20C) + *(u32 *)(spriteEntry + 4)),
                           0x80);
         }
-        if (*(u32 *)(arg0 + 0x208) != 0) {
-            H_Cdvd_Destroy((struct HCdvd *)*(u32 *)(arg0 + 0x208));
+        if (*(u32 *)(pack + 0x208) != 0) {
+            H_Cdvd_Destroy((struct HCdvd *)*(u32 *)(pack + 0x208));
         }
-        *(u32 *)(arg0 + 0x208) = 0;
-        *(s16 *)(arg0 + 0x216) = *(u16 *)(arg0 + 0x22E);
-        *(s16 *)arg0 = 5;
+        *(u32 *)(pack + 0x208) = 0;
+        *(s16 *)(pack + 0x216) = *(u16 *)(pack + 0x22E);
+        *(s16 *)pack = 5;
         break;
     case 5:
         break;
     }
 }
 
+/* Queue a named sprite pack for asynchronous directory loading. */
+/* SdkSpritePack proves these links; retain byte accesses because typed
+ * link expressions changed the measured matching instruction allocation. */
 // FUN_0046AEA0
 u8 *sdkSpriteRequestLoad(const char *name)
 {
@@ -326,8 +379,11 @@ loop:
     return node;
 }
 
+/* Queue an already available sprite blob for raster and record loading. */
+/* SdkSpritePack proves these links; retain byte accesses because typed
+ * link expressions changed the measured matching instruction allocation. */
 // FUN_0046AF60
-u8 *sdkSpriteAdoptBlob(u32 arg0)
+u8 *sdkSpriteAdoptBlob(u32 blobAddress)
 {
     u8 *node;
     u8 *last;
@@ -335,7 +391,7 @@ u8 *sdkSpriteAdoptBlob(u32 arg0)
     chkmemAllocSiteTag(D_007130C8, 0x12D);
     node = D_008873F4[0](1, 0x240, 0x40000);
     *(s16 *)node = 1;
-    *(u32 *)(node + 0x20C) = arg0;
+    ((SdkSpritePack *)node)->blobAddress = blobAddress;
     if (iGpffffbb18 == NULL) {
         iGpffffbb18 = node;
     } else {
@@ -352,6 +408,9 @@ loop:
     return node;
 }
 
+/* Resolve a registered blob by name and append its sprite-pack loader. */
+/* SdkSpritePack proves these links; retain byte accesses because typed
+ * link expressions changed the measured matching instruction allocation. */
 // FUN_0046B000
 u8 *sdkSpriteCreateFromName(const char *name)
 {
@@ -363,7 +422,7 @@ u8 *sdkSpriteCreateFromName(const char *name)
     node = D_008873F4[0](1, 0x240, 0x40000);
     *(s16 *)node = 1;
     strcpy(node + 2, name);
-    *(u32 *)(node + 0x20C) = (u32)H_Cdvd_LookupRequest((void *)name, &out);
+    ((SdkSpritePack *)node)->blobAddress = (u32)H_Cdvd_LookupRequest((void *)name, &out);
     if (iGpffffbb18 == NULL) {
         iGpffffbb18 = node;
     } else {
@@ -380,6 +439,9 @@ loop:
     return node;
 }
 
+/* Unlink a pack and release its rasters, pending directory, and copied records. */
+/* Proven pack/sample layouts are above; byte-offset accesses retain MATCH:
+ * typed members changed field-address hoisting and saved-register allocation. */
 // FUN_0046B0D0
 void sdkSpriteRelease(u8 *node)
 {
@@ -422,6 +484,8 @@ void sdkSpriteRelease(u8 *node)
    Donor struct fields map onto P4 offsets: output at 0x204, overrideX at 0x74,
    right/left at 0x5c/0x54. The `sdkAddOffset` inline carries the offset-first
    operand order retail emits (addu $v0,$a1,$a0). */
+/* The pack/sample/record layouts are proven above; raw indexed accesses
+ * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046B1F0
 f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
 {
@@ -441,8 +505,11 @@ f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
     }
     return (f32)value;
 }
+/* Return the width with optional signed override and unsigned Q12 scaling. */
+/* The pack/sample/record layouts are proven above; raw indexed accesses
+ * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046B260
-f32 sdkSpriteScaledWidth(u8 *param_1)
+f32 sdkSpriteScaledWidth(u8 *sprite)
 {
     u32 value;
     u32 offset;
@@ -450,9 +517,9 @@ f32 sdkSpriteScaledWidth(u8 *param_1)
     u8 *overrideBase;
     u8 *sample;
 
-    sample = param_1;
+    sample = sprite;
 
-    offset = *(u32 *)(sample + 0x4) * 0x80;
+    offset = ((SdkSpriteSample *)sample)->recordIndex * 0x80;
     output = *(u8 **)(*(u8 **)(sample + 0x0) + 0x204);
     value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5c) -
             *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
@@ -461,14 +528,17 @@ f32 sdkSpriteScaledWidth(u8 *param_1)
     {
         value = *(s16 *)(overrideBase + offset);
     }
-    if (*(u16 *)(sample + 0x20) != 0)
+    if (((SdkSpriteSample *)sample)->scaleX != 0)
     {
-        value = (s32)(((u32)value * *(u16 *)(sample + 0x20)) >> 12);
+        value = (s32)(((u32)value * ((SdkSpriteSample *)sample)->scaleX) >> 12);
     }
     return (f32)value;
 }
+/* Return the height with optional signed override and unsigned Q12 scaling. */
+/* The pack/sample/record layouts are proven above; raw indexed accesses
+ * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046B2F0
-f32 sdkSpriteScaledHeight(u8 *param_1)
+f32 sdkSpriteScaledHeight(u8 *sprite)
 {
     u32 value;
     u32 offset;
@@ -476,9 +546,9 @@ f32 sdkSpriteScaledHeight(u8 *param_1)
     u8 *overrideBase;
     u8 *sample;
 
-    sample = (u8 *)param_1;
+    sample = (u8 *)sprite;
 
-    offset = *(u32 *)(sample + 0x4) * 0x80;
+    offset = ((SdkSpriteSample *)sample)->recordIndex * 0x80;
     output = *(u8 **)(*(u8 **)(sample + 0x0) + 0x204);
     value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
             *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
@@ -487,9 +557,9 @@ f32 sdkSpriteScaledHeight(u8 *param_1)
     {
         value = *(s16 *)(overrideBase + offset);
     }
-    if (*(u16 *)(sample + 0x22) != 0)
+    if (((SdkSpriteSample *)sample)->scaleY != 0)
     {
-        value = (s32)(((u32)value * *(u16 *)(sample + 0x22)) >> 12);
+        value = (s32)(((u32)value * ((SdkSpriteSample *)sample)->scaleY) >> 12);
     }
     return (f32)value;
 }
@@ -515,6 +585,8 @@ static inline u8 *sdkSpriteTableRecord(u8 *sample)
  * retail leaves unwritten (commented at each site). Each colour arm forms one
  * record pointer that the flags test reuses; the redundant alpha mask
  * reproduces retail's second andi before the fade load. */
+/* Proven pack/sample layouts are above; byte-offset accesses retain MATCH:
+ * typed members changed field-address hoisting and saved-register allocation. */
 // FUN_0046B380
 void sdkSpriteDraw(u8 *sample, s32 setStates)
 {
@@ -899,18 +971,19 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
 #undef SDK_SPRITE_RECORD
 #undef SDK_SPRITE_RASTERS
 
+/* Allocate a sprite sample with full RGB modulation and the requested record. */
 // FUN_0046D200
-u8 *sdkSpriteNewNode(u32 arg0, u32 arg1)
+u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex)
 {
     u8 *node;
 
     chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
-    *(u8 *)(node + 0x28) = 0xFF;
-    *(u8 *)(node + 0x29) = 0xFF;
-    *(u8 *)(node + 0x2A) = 0xFF;
-    *(u32 *)node = arg0;
-    *(u32 *)(node + 4) = arg1;
+    ((SdkSpriteSample *)node)->red = 0xFF;
+    ((SdkSpriteSample *)node)->green = 0xFF;
+    ((SdkSpriteSample *)node)->blue = 0xFF;
+    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->recordIndex = recordIndex;
     return node;
 }
 
@@ -920,67 +993,70 @@ void sdkSpriteFreeNode(void *node)
     jtbl_008873EC[0](node);
 }
 
+/* Draw and release a temporary sample with position, depth, and alpha subtraction. */
 // FUN_0046D2B0
-void sdkSpriteDrawOnce(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z, s32 arg3)
+void sdkSpriteDrawOnce(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, f32 z, s32 setStates)
 {
     u8 *node;
 
     chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
-    *(u8 *)(node + 0x28) = 0xFF;
-    *(u8 *)(node + 0x29) = 0xFF;
-    *(u8 *)(node + 0x2A) = 0xFF;
-    *(u32 *)node = arg0;
-    *(u32 *)(node + 4) = arg1;
-    *(f32 *)(node + 0x24) = z;
-    *(f32 *)(node + 8) = x;
-    *(f32 *)(node + 0xC) = y;
-    *(u8 *)(node + 0x10) = arg2;
-    sdkSpriteDraw(node, arg3);
+    ((SdkSpriteSample *)node)->red = 0xFF;
+    ((SdkSpriteSample *)node)->green = 0xFF;
+    ((SdkSpriteSample *)node)->blue = 0xFF;
+    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->recordIndex = recordIndex;
+    ((SdkSpriteSample *)node)->depth = z;
+    ((SdkSpriteSample *)node)->x = x;
+    ((SdkSpriteSample *)node)->y = y;
+    ((SdkSpriteSample *)node)->alphaSubtract = alphaSubtract;
+    sdkSpriteDraw(node, setStates);
     jtbl_008873EC[0](node);
 }
 
+/* Draw a temporary sample with both subtractive and multiplicative alpha fading. */
 // FUN_0046D3B0
-void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, f32 z, s32 arg4)
+void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 fade, f32 z, s32 setStates)
 {
     u8 *node;
 
     chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
-    *(u8 *)(node + 0x28) = 0xFF;
-    *(u8 *)(node + 0x29) = 0xFF;
-    *(u8 *)(node + 0x2A) = 0xFF;
-    *(u32 *)node = arg0;
-    *(u32 *)(node + 4) = arg1;
-    *(f32 *)(node + 0x24) = z;
-    *(f32 *)(node + 8) = x;
-    *(f32 *)(node + 0xC) = y;
-    *(u8 *)(node + 0x10) = arg2;
-    *(u8 *)(node + 0x11) = arg3;
-    sdkSpriteDraw(node, arg4);
+    ((SdkSpriteSample *)node)->red = 0xFF;
+    ((SdkSpriteSample *)node)->green = 0xFF;
+    ((SdkSpriteSample *)node)->blue = 0xFF;
+    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->recordIndex = recordIndex;
+    ((SdkSpriteSample *)node)->depth = z;
+    ((SdkSpriteSample *)node)->x = x;
+    ((SdkSpriteSample *)node)->y = y;
+    ((SdkSpriteSample *)node)->alphaSubtract = alphaSubtract;
+    ((SdkSpriteSample *)node)->fade = fade;
+    sdkSpriteDraw(node, setStates);
     jtbl_008873EC[0](node);
 }
 
+/* Draw a temporary sample with caller RGB modulation, then release it. */
 // FUN_0046D4C0
-void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6)
+void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates)
 {
     u8 *node;
 
     chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
-    *(u8 *)(node + 0x28) = 0xFF;
-    *(u8 *)(node + 0x29) = 0xFF;
-    *(u8 *)(node + 0x2A) = 0xFF;
-    *(u32 *)node = arg0;
-    *(u32 *)(node + 4) = arg1;
-    *(f32 *)(node + 0x24) = z;
-    *(f32 *)(node + 8) = x;
-    *(f32 *)(node + 0xC) = y;
-    *(u8 *)(node + 0x10) = arg2;
-    *(u8 *)(node + 0x28) = arg3;
-    *(u8 *)(node + 0x29) = arg4;
-    *(u8 *)(node + 0x2A) = arg5;
-    sdkSpriteDraw(node, arg6);
+    ((SdkSpriteSample *)node)->red = 0xFF;
+    ((SdkSpriteSample *)node)->green = 0xFF;
+    ((SdkSpriteSample *)node)->blue = 0xFF;
+    *(u32 *)node = packAddress;
+    ((SdkSpriteSample *)node)->recordIndex = recordIndex;
+    ((SdkSpriteSample *)node)->depth = z;
+    ((SdkSpriteSample *)node)->x = x;
+    ((SdkSpriteSample *)node)->y = y;
+    ((SdkSpriteSample *)node)->alphaSubtract = alphaSubtract;
+    ((SdkSpriteSample *)node)->red = red;
+    ((SdkSpriteSample *)node)->green = green;
+    ((SdkSpriteSample *)node)->blue = blue;
+    sdkSpriteDraw(node, setStates);
     jtbl_008873EC[0](node);
 }
 
@@ -989,28 +1065,31 @@ void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 ar
    adaptation rather than a settled floor -- re-attempt from the m2c draft with
    the brief's recipes before treating any of it as established. */
 /* Measured nd 9 (object 176 / window 192); the body matches the allocation, field initialization, callback, and result path but retains nine normalized instruction differences. */
+/* Resolve the raster selected by a pack record through a temporary sample. */
+/* The pack/sample/record layouts are proven above; raw indexed accesses
+ * retain MATCH where typed fields changed measured address/load ordering. */
 // FUN_0046D5F0
-s32 sdkSpriteSlotHandle(u8 *arg0, s32 arg1) {
-    s32 temp_16;
-    u8 *temp_2;
-    u8 *temp_5;
+s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex) {
+    s32 raster;
+    u8 *sprite;
+    u8 *owner;
     u8 *output;
     s32 index;
 
     chkmemAllocSiteTag(D_007130C8, 0x3AF);
-    temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
-    *(u8 *)(temp_2 + 0x28) = 0xFF;
-    *(u8 *)(temp_2 + 0x29) = 0xFF;
-    *(u8 *)(temp_2 + 0x2A) = 0xFF;
-    *(u8 **)temp_2 = arg0;
-    *(s32 *)(temp_2 + 4) = arg1;
-    temp_5 = *(u8 **)temp_2;
-    output = *(u8 **)(temp_5 + 0x204);
-    output = (u8 *)sdkAddOffset((u32)(arg1 << 7), (u32)output);
+    sprite = D_008873F4[0](1, 0x2C, 0x40000);
+    ((SdkSpriteSample *)sprite)->red = 0xFF;
+    ((SdkSpriteSample *)sprite)->green = 0xFF;
+    ((SdkSpriteSample *)sprite)->blue = 0xFF;
+    *(u8 **)sprite = pack;
+    *(s32 *)(sprite + 4) = recordIndex;
+    owner = *(u8 **)sprite;
+    output = *(u8 **)(owner + 0x204);
+    output = (u8 *)sdkAddOffset((u32)(recordIndex << 7), (u32)output);
     index = *(s32 *)(output + 0x14);
-    temp_16 = *(s32 *)((u8 *)sdkAddOffset((u32)(index << 2), (u32)temp_5) + 0x104);
-    jtbl_008873EC[0](temp_2);
-    return temp_16;
+    raster = *(s32 *)((u8 *)sdkAddOffset((u32)(index << 2), (u32)owner) + 0x104);
+    jtbl_008873EC[0](sprite);
+    return raster;
 }
 // FUN_0046D6A0
 void sdkSpriteNoop(void)

@@ -31,5 +31,6 @@ typedef struct SdkPadRecord {
     u16 unk3C;
     u8 heldRepeatTimers[12];
 } SdkPadRecord;
+typedef char SdkPadRecordSizeCheck[sizeof(SdkPadRecord) == 0x4A ? 1 : -1];
 
 #endif

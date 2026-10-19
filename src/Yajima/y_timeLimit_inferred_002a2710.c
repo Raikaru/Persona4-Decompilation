@@ -23,17 +23,11 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-typedef struct P4_002aabf0_Work {
-    f32 values[4];
-    s32 pad80;
-    s32 sp84;
-    s32 sp88;
-    u8 colors[4];
-} P4_002aabf0_Work;
+
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
 extern u8 D_0063EEA0[];
@@ -42,21 +36,9 @@ extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
-typedef struct P4_002aa450_Pair {
-    s64 bits;
-    f32 value;
-} P4_002aa450_Pair;
-typedef struct P4_002aa450_Work {
-    u8 matrix[0x40];
-    P4_002aa450_Pair pair4;
-    P4_002aa450_Pair pair3;
-    P4_002aa450_Pair pair2;
-    P4_002aa450_Pair pair1;
-    P4_002aa450_Pair pair0;
-} P4_002aa450_Work;
-static inline f32 p4_002aa450_mul(f32 left, f32 right) {
-    return left * right;
-}
+
+
+
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -84,43 +66,20 @@ extern u8 iGpffffa7e8;
 
 
 
-typedef struct NameTweenEntry {
-    f32 startX, startY, endX, endY, stepX, stepY, rate;
-    s8 delay, hold;
-    s16 duration;
-} NameTweenEntry;
-typedef struct NameTweenState {
-    NameTweenEntry entries[4];
-    s32 current, count, frame;
-    u32 flags;
-    s32 timer, total;
-} NameTweenState;
+
+
 /* Existing task-work layout. The tween fields are defined by 002a27c0;
  * 0029fbb0 uses the selection pairs, status halfwords and flash flags.
  * State preceding the background tween is outside this renderer's view. */
-typedef struct NameEntrySelectionTweens {
-    NameTweenState slide, pulse;
-} NameEntrySelectionTweens;
-typedef struct NameEntryRenderWork {
-    /* 0x0000 */ u8 stateBeforeBackground[0x178];
-    /* 0x0178 */ NameTweenState background;
-    /* 0x0210 */ NameTweenState rowOrigin;
-    /* 0x02a8 */ NameTweenState modeTransition;
-    /* 0x0340 */ NameTweenState cells[24];
-    /* 0x1180 */ NameTweenState rows[6];
-    /* 0x1510 */ NameEntrySelectionTweens selection[6];
-    /* 0x1c30 */ s32 selectionState[2];
-    /* 0x1c38 */ s16 selectionStatus[6][2];
-    /* 0x1c50 */ s32 selectionFlash[6];
-    /* 0x1c68 */ s32 backgroundFrame;
-} NameEntryRenderWork;
-typedef char NameTweenEntrySize[(sizeof(NameTweenEntry) == 0x20) ? 1 : -1];
-typedef char NameTweenStateSize[(sizeof(NameTweenState) == 0x98) ? 1 : -1];
-typedef char NameEntryWorkSize[(sizeof(NameEntryRenderWork) == 0x1c6c) ? 1 : -1];
+
+
+
+
+
 #pragma push
 
 #pragma pop
-extern s32 func_002a1c80(u8 *arg0);
+extern s32 yTimeNameRevealRows(u8 *arg0);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a2710-002a2710 */
 
