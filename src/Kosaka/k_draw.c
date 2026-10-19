@@ -1,3 +1,5 @@
+#include "primitive_queue_internal.h"
+#include "kwln_task_internal.h"
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -52,6 +54,37 @@ extern void KDraw_GroupTaskDestroy(u8 *);
 extern void KDraw_DrawCylinder(u8 *, u8 *);
 extern void KDraw_DrawAxes(u8 *, u8 *);
 
+/* Allocation extents and setters below establish these task-work layouts. */
+typedef struct KDrawGroupWork {
+    u32 flags;
+    s32 unk04;
+    Rgba8 color;
+    s32 curve;
+    u8 pad10[0x100];
+    s32 drawList;
+} KDrawGroupWork;
+typedef struct KDrawSphereWork {
+    u32 flags;
+    SVec3 center;
+    Rgba8 color;
+    s32 drawList;
+} KDrawSphereWork;
+typedef struct KDrawCylinderWork {
+    u32 flags;
+    SVec3 center;
+    f32 radius;
+    f32 height;
+    s32 drawList;
+} KDrawCylinderWork;
+typedef struct KDrawAxesWork {
+    RwMatrix matrix;
+    u8 pad40[4];
+    s32 enabled;
+    Rgba8 color;
+    void *drawList;
+} KDrawAxesWork;
+
+/* Normalize the matrix before extracting yaw in degrees from its right axis. */
 // FUN_0014B5D0
 f32 KDraw_MatrixYawDeg(const RwMatrix* matrix)
 {
@@ -62,6 +95,7 @@ f32 KDraw_MatrixYawDeg(const RwMatrix* matrix)
     return (-func_0044b950(normalized.right.z, normalized.right.x) * 180.0f) / gPI;
 }
 
+/* Normalize the matrix before extracting pitch in degrees from its up axis. */
 // FUN_0014B660
 f32 KDraw_MatrixPitchDeg(const RwMatrix* matrix)
 {
@@ -74,6 +108,7 @@ f32 KDraw_MatrixPitchDeg(const RwMatrix* matrix)
     return (-func_0044b950(up->z, up->y) * 180.0f) / gPI;
 }
 
+/* Normalize the matrix before extracting roll in degrees from its up axis. */
 // FUN_0014B6F0
 f32 KDraw_MatrixRollDeg(const RwMatrix* matrix)
 {
@@ -86,97 +121,100 @@ f32 KDraw_MatrixRollDeg(const RwMatrix* matrix)
     return (func_0044b950(up->x, up->y) * 180.0f) / gPI;
 }
 
+/* Create a debug curve-marker task and record its curve and primitive-queue handles. */
 // FUN_0014D510
-s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, s32 arg2)
+s32 KDraw_CreateGroupTask(s32 parent, s32 curve, s32 drawList)
 {
-    u8 *buf;
-    s32 ret;
+    u8 *workMemory;
+    s32 taskHandle;
 
     chkmemAllocSiteTag(D_005EFBC8, 0x72);
-    buf = D_008873F4[0](1, 0x114, 0x40000);
-    if (buf == NULL) {
+    workMemory = D_008873F4[0](1, 0x114, 0x40000);
+    if (workMemory == NULL) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBD8), 0xF, 0, 0, FldEventQueueDraw, KDraw_GroupTaskDestroy, (u8 *)(buf));
-    *(s32 *)(buf + 0xC) = arg1;
-    *(s32 *)(buf + 0x4) = 0x14;
-    *(s32 *)(buf + 0x110) = arg2;
-    return ret;
+    taskHandle = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005EFBD8), 0xF, 0, 0, FldEventQueueDraw, KDraw_GroupTaskDestroy, (u8 *)(workMemory));
+    ((KDrawGroupWork *)workMemory)->curve = curve;
+    ((KDrawGroupWork *)workMemory)->unk04 = 0x14;
+    ((KDrawGroupWork *)workMemory)->drawList = drawList;
+    return taskHandle;
 }
 
 // FUN_0014D5E0
-void KDraw_SetGroupFlags(u8 *arg0, u32 arg1)
+void KDraw_SetGroupFlags(u8 *task, u32 flags)
 {
-    *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
+    ((KDrawGroupWork *)((KwlnTask *)task)->work)->flags = flags;
 }
 
 // FUN_0014D5F0
-void KDraw_SetGroupColor(u8 *arg0, u8 *arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void KDraw_SetGroupColor(u8 *task, u8 *color) {
+    u8 *p = ((KwlnTask *)task)->work;
 
-    *(Rgba8 *)(p + 0x8) = *(Rgba8 *)arg1;
+    ((KDrawGroupWork *)p)->color = *(Rgba8 *)color;
 }
 
 // FUN_0014D620
-void KDraw_DrawSphere(u8 *arg0, u8 *arg1)
+void KDraw_DrawSphere(u8 *queue, u8 *work)
 {
-    primSphereLine3D(arg1 + 4, 10.0f, arg1 + 0x10, 1);
+    primSphereLine3D(work + 4, 10.0f, work + 0x10, 1);
 }
 
+/* Enqueue the sphere draw callback only while its work flags are nonzero. */
 // FUN_0014D660
-s32 KDraw_UpdateSphere(u8 *arg0)
+s32 KDraw_UpdateSphere(u8 *task)
 {
     u8 *work;
     u8 *obj;
 
-    work = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)work == 0) {
+    work = ((KwlnTask *)task)->work;
+    if ((s32)((KDrawSphereWork *)work)->flags == 0) {
         return 0;
     }
     obj = PrimAllocQueueNode();
-    *(void **)(obj + 8) = KDraw_DrawSphere;
-    *(void **)(obj + 0x10) = work;
-    PrimAppendNode(*(void **)(work + 0x14), obj);
+    ((PrimQueueNode *)obj)->callback = KDraw_DrawSphere;
+    ((PrimQueueNode *)obj)->argument.data = work;
+    PrimAppendNode((void *)((KDrawSphereWork *)work)->drawList, obj);
     return 0;
 }
 
 // FUN_0014D6D0
-void KDraw_DestroySphere(u8 *arg0)
+void KDraw_DestroySphere(u8 *task)
 {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)((KwlnTask *)task)->work);
 }
 
+/* Create a debug sphere task attached to the supplied primitive queue. */
 // FUN_0014D700
-s32 KDraw_CreateSphereTask(s32 arg0, s32 arg1)
+s32 KDraw_CreateSphereTask(s32 parent, s32 drawList)
 {
-    u8 *buf;
-    s32 ret;
+    u8 *workMemory;
+    s32 taskHandle;
 
     chkmemAllocSiteTag(D_005EFBC8, 0x16E);
-    buf = D_008873F4[0](1, 0x18, 0x40000);
-    if (buf == NULL) {
+    workMemory = D_008873F4[0](1, 0x18, 0x40000);
+    if (workMemory == NULL) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBE8), 0xF, 0, 0, KDraw_UpdateSphere, KDraw_DestroySphere, (u8 *)(buf));
-    *(s32 *)(buf + 0x14) = arg1;
-    return ret;
+    taskHandle = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005EFBE8), 0xF, 0, 0, KDraw_UpdateSphere, KDraw_DestroySphere, (u8 *)(workMemory));
+    ((KDrawSphereWork *)workMemory)->drawList = drawList;
+    return taskHandle;
 }
 
 // FUN_0014D7C0
-void KDraw_SetSphereFlags(u8 *arg0, u32 arg1)
+void KDraw_SetSphereFlags(u8 *task, u32 flags)
 {
-    *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
+    ((KDrawSphereWork *)((KwlnTask *)task)->work)->flags = flags;
 }
 
 // FUN_0014D7D0
-void KDraw_SetSphereCenter(u8 *arg0, u8 *arg1) {
-    *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
+void KDraw_SetSphereCenter(u8 *task, u8 *center) {
+    ((KDrawSphereWork *)((KwlnTask *)task)->work)->center = *(SVec3 *)center;
 }
 // FUN_0014D800
-void KDraw_SetSphereColor(u8 *arg0, u8 *arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+void KDraw_SetSphereColor(u8 *task, u8 *color) {
+    u8 *p = ((KwlnTask *)task)->work;
 
-    *(Rgba8 *)(p + 0x10) = *(Rgba8 *)arg1;
+    ((KDrawSphereWork *)p)->color = *(Rgba8 *)color;
 }
 
 /* measured: retail computes $a0 = arg1 + 4, reads both floats from arg1, then overwrites
@@ -184,74 +222,77 @@ void KDraw_SetSphereColor(u8 *arg0, u8 *arg1) {
    arg1 into $v0 to survive. Naming the floats or the pointer in locals first does not
    change the order; both spellings give the identical nd 12. Evaluation-order floor. */
 // FUN_0014D830
-void KDraw_DrawCylinder(u8 *arg0, u8 *arg1)
+void KDraw_DrawCylinder(u8 *queue, u8 *work)
 {
-    primCylinderLine3D((f32 *)(arg1 + 4), *(f32 *)(arg1 + 0x10), *(f32 *)(arg1 + 0x14),
+    primCylinderLine3D((f32 *)(work + 4), ((KDrawCylinderWork *)work)->radius, ((KDrawCylinderWork *)work)->height,
                   &iGpffff9dd4, 1);
 }
+/* Enqueue the cylinder draw callback only while its work flags are nonzero. */
 // FUN_0014D870
-s32 KDraw_UpdateCylinder(u8 *arg0)
+s32 KDraw_UpdateCylinder(u8 *task)
 {
     u8 *work;
     u8 *obj;
 
-    work = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)work == 0) {
+    work = ((KwlnTask *)task)->work;
+    if ((s32)((KDrawCylinderWork *)work)->flags == 0) {
         return 0;
     }
     obj = PrimAllocQueueNode();
-    *(void **)(obj + 8) = KDraw_DrawCylinder;
-    *(void **)(obj + 0x10) = work;
-    PrimAppendNode(*(void **)(work + 0x18), obj);
+    ((PrimQueueNode *)obj)->callback = KDraw_DrawCylinder;
+    ((PrimQueueNode *)obj)->argument.data = work;
+    PrimAppendNode((void *)((KDrawCylinderWork *)work)->drawList, obj);
     return 0;
 }
 
 // FUN_0014D8E0
-void KDraw_DestroyCylinder(u8 *arg0)
+void KDraw_DestroyCylinder(u8 *task)
 {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)((KwlnTask *)task)->work);
 }
 
+/* Create a debug cylinder task attached to the supplied primitive queue. */
 // FUN_0014D910
-s32 KDraw_CreateCylinderTask(s32 arg0, s32 arg1)
+s32 KDraw_CreateCylinderTask(s32 parent, s32 drawList)
 {
-    u8 *buf;
-    s32 ret;
+    u8 *workMemory;
+    s32 taskHandle;
 
     chkmemAllocSiteTag(D_005EFBC8, 0x1DF);
-    buf = D_008873F4[0](1, 0x1C, 0x40000);
-    if (buf == NULL) {
+    workMemory = D_008873F4[0](1, 0x1C, 0x40000);
+    if (workMemory == NULL) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBF8), 0xF, 0, 0, KDraw_UpdateCylinder, KDraw_DestroyCylinder, (u8 *)(buf));
-    *(s32 *)(buf + 0x18) = arg1;
-    return ret;
+    taskHandle = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005EFBF8), 0xF, 0, 0, KDraw_UpdateCylinder, KDraw_DestroyCylinder, (u8 *)(workMemory));
+    ((KDrawCylinderWork *)workMemory)->drawList = drawList;
+    return taskHandle;
 }
 
 // FUN_0014D9D0
-void KDraw_SetCylinderFlags(u8 *arg0, u32 arg1)
+void KDraw_SetCylinderFlags(u8 *task, u32 flags)
 {
-    *(u32 *) *(u8 **)(arg0 + 0x38) = arg1;
+    ((KDrawCylinderWork *)((KwlnTask *)task)->work)->flags = flags;
 }
 
 // FUN_0014D9E0
-void KDraw_SetCylinderCenter(u8 *arg0, u8 *arg1) {
-    *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
+void KDraw_SetCylinderCenter(u8 *task, u8 *center) {
+    ((KDrawCylinderWork *)((KwlnTask *)task)->work)->center = *(SVec3 *)center;
 }
 // FUN_0014DA10
-void KDraw_SetCylinderRadius(u8 *arg0, f32 arg1)
+void KDraw_SetCylinderRadius(u8 *task, f32 radius)
 {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x10) = arg1;
+    ((KDrawCylinderWork *)((KwlnTask *)task)->work)->radius = radius;
 }
 
 // FUN_0014DA20
-void KDraw_SetCylinderHeight(u8 *arg0, f32 arg1)
+void KDraw_SetCylinderHeight(u8 *task, f32 height)
 {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x14) = arg1;
+    ((KDrawCylinderWork *)((KwlnTask *)task)->work)->height = height;
 }
 
+/* Set the immediate-render states, then draw axes and a sphere at the matrix position. */
 // FUN_0014DA30
-void KDraw_DrawAxes(u8 *arg0, u8 *arg1)
+void KDraw_DrawAxes(u8 *queue, u8 *work)
 {
     KDrawFunc *tbl = (KDrawFunc *)D_00887300_abs;
 
@@ -261,63 +302,64 @@ void KDraw_DrawAxes(u8 *arg0, u8 *arg1)
     (*tbl)((RwRenderState)0xC, (void *)1);
     RpSkyRenderStateSet(2, (void *)0x44);
     RpSkyRenderStateSet(3, (void *)0x717FB);
-    primAxisLine3D(60.0f, arg1, 1);
-    primSphereLine3D(arg1 + 0x30, 20.0f, arg1 + 0x48, 1);
+    primAxisLine3D(60.0f, work, 1);
+    primSphereLine3D(work + 0x30, 20.0f, work + 0x48, 1);
 }
+/* Enqueue the axes callback only while the axes work is enabled. */
 // FUN_0014DB10
-s32 KDraw_UpdateAxes(u8 *arg0)
+s32 KDraw_UpdateAxes(u8 *task)
 {
     u8 *work;
     u8 *obj;
 
-    work = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(work + 0x44) == 0) {
+    work = ((KwlnTask *)task)->work;
+    if (((KDrawAxesWork *)work)->enabled == 0) {
         return 0;
     }
     obj = PrimAllocQueueNode();
-    *(void **)(obj + 8) = KDraw_DrawAxes;
-    *(void **)(obj + 0x10) = work;
-    PrimAppendNode(*(void **)(work + 0x4C), obj);
+    ((PrimQueueNode *)obj)->callback = KDraw_DrawAxes;
+    ((PrimQueueNode *)obj)->argument.data = work;
+    PrimAppendNode(((KDrawAxesWork *)work)->drawList, obj);
     return 0;
 }
 
 // FUN_0014DB80
-void KDraw_DestroyAxes(u8 *arg0)
+void KDraw_DestroyAxes(u8 *task)
 {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)((KwlnTask *)task)->work);
 }
 
 /* Parent is forwarded to task creation; drawList is retained for PrimAppendNode. */
 // FUN_0014DBB0
 s32 KDraw_CreateAxesTask(void *parent, void *drawList)
 {
-    u8 *buf;
-    s32 ret;
+    u8 *workMemory;
+    s32 taskHandle;
 
     chkmemAllocSiteTag(D_005EFBC8, 0x30E);
-    buf = D_008873F4[0](1, 0x50, 0x40000);
-    if (buf == NULL) {
+    workMemory = D_008873F4[0](1, 0x50, 0x40000);
+    if (workMemory == NULL) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild(parent, (const void *)(D_005EFC08), 0xF, 0, 0, KDraw_UpdateAxes, KDraw_DestroyAxes, (u8 *)(buf));
-    *(f32 *)(buf + 0x28) = 1.0f;
-    *(f32 *)(buf + 0x14) = 1.0f;
-    *(f32 *)(buf + 0x00) = 1.0f;
-    *(s32 *)(buf + 0x10) = 0;
-    *(s32 *)(buf + 0x08) = 0;
-    *(s32 *)(buf + 0x04) = 0;
-    *(s32 *)(buf + 0x24) = 0;
-    *(s32 *)(buf + 0x20) = 0;
-    *(s32 *)(buf + 0x18) = 0;
-    *(s32 *)(buf + 0x38) = 0;
-    *(s32 *)(buf + 0x34) = 0;
-    *(s32 *)(buf + 0x30) = 0;
-    *(s32 *)(buf + 0x0C) |= 0x20003;
-    *(u8 *)(buf + 0x48) = 0xFF;
-    *(u8 *)(buf + 0x49) = 0;
-    *(u8 *)(buf + 0x4A) = 0;
-    *(u8 *)(buf + 0x4B) = 0xFF;
-    *(void **)(buf + 0x4C) = drawList;
-    *(s32 *)(buf + 0x44) = 1;
-    return ret;
+    taskHandle = (s32)kwlnTaskCreateChild(parent, (const void *)(D_005EFC08), 0xF, 0, 0, KDraw_UpdateAxes, KDraw_DestroyAxes, (u8 *)(workMemory));
+    ((KDrawAxesWork *)workMemory)->matrix.at.z = 1.0f;
+    ((KDrawAxesWork *)workMemory)->matrix.up.y = 1.0f;
+    ((KDrawAxesWork *)workMemory)->matrix.right.x = 1.0f;
+    ((KDrawAxesWork *)workMemory)->matrix.up.x = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.right.z = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.right.y = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.at.y = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.at.x = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.up.z = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.pos.z = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.pos.y = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.pos.x = 0;
+    ((KDrawAxesWork *)workMemory)->matrix.flags |= 0x20003;
+    ((KDrawAxesWork *)workMemory)->color.c[0] = 0xFF;
+    ((KDrawAxesWork *)workMemory)->color.c[1] = 0;
+    ((KDrawAxesWork *)workMemory)->color.c[2] = 0;
+    ((KDrawAxesWork *)workMemory)->color.c[3] = 0xFF;
+    ((KDrawAxesWork *)workMemory)->drawList = drawList;
+    ((KDrawAxesWork *)workMemory)->enabled = 1;
+    return taskHandle;
 }

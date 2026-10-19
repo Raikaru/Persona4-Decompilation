@@ -1,3 +1,4 @@
+#include "effect_mesh_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -241,31 +242,32 @@ extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 #pragma pop
 /* measured: opt_propagation off preserves the retail global-load destination register. */
 /* measured: close propagation-off probe for K_ClumpLookAtBasis. */
+/* Store an RGBA color as the material property packed in ARGB order. */
 // FUN_004586F0
-void K_ClumpMatColorStore(u8 *arg0, u8 *arg1) {
+void K_ClumpMatColorStore(u8 *material, u8 *color) {
     s32 userData;
     s32 index;
 
     index = 0;
     goto loop_004586f0_test;
 loop_004586f0_body:
-    userData = (s32)func_003bd000((const RpMaterial *)arg0, index);
+    userData = (s32)func_003bd000((const RpMaterial *)material, index);
     if (strcmp(func_003bd040((RpUserDataArray *)userData), (const char *)D_00711870_abs) != 0) {
         index += 1;
         goto loop_004586f0_test;
     }
     goto loop_004586f0_done;
 loop_004586f0_test:
-    if (index < func_003bcfb0((const RpMaterial *)arg0)) {
+    if (index < func_003bcfb0((const RpMaterial *)material)) {
         goto loop_004586f0_body;
     }
 loop_004586f0_done:
     func_003bd0d0(
         (u8 *)userData,
         0,
-        *(u8 *)(arg1 + 2) |
-        (*(u8 *)(arg1 + 1) << 8 |
-            (*(u8 *)(arg1 + 3) << 0x18 |
-                (*(u8 *)(arg1 + 0) << 0x10))));
+        ((EffMeshColor *)color)->c[2] |
+        (((EffMeshColor *)color)->c[1] << 8 |
+            (((EffMeshColor *)color)->c[3] << 0x18 |
+                (((EffMeshColor *)color)->c[0] << 0x10))));
 }
 

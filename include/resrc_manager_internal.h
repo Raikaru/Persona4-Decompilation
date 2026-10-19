@@ -54,11 +54,22 @@ struct ResrcRecord
     ResrcRecord *next;      /* 0x138 */
     ResrcRecord *prev;      /* 0x13c */
     union {
-        void *slotHandle[2]; /* 0x140. [1] is 0x144 in the per-type cases */
-        f32 fieldOfView;     /* 0x140. Camera-resource interpretation */
+        struct {
+            union {
+                void *slotHandle[2]; /* 0x140. [1] is 0x144 in the per-type cases */
+                f32 fieldOfView;     /* 0x140. Camera-resource interpretation */
+            };
+            s32 cameraRes[2];       /* 0x148. Camera resources (RESRC_TYPE_20) */
+        };
+        struct {
+            f32 placement[3];      /* 0x140. Placement-resource position */
+            f32 heading;           /* 0x14c. Rotation about the vertical axis */
+        };
     };
-    s32 cameraRes[2];       /* 0x148. Camera resources (RESRC_TYPE_20) */
-    u8 unk150[0x8];
+    union {
+        u8 unk150[0x8];
+        struct { s32 value150, unk154; };
+    };
     void *modelHandle158;   /* 0x158. Model data (RESRC_TYPE_MODELUNK) */
     u8 unk15C[0x8];
     void *modelHandle164;   /* 0x164. Model data (RESRC_TYPE_MODELCHAR/NPC) */

@@ -1,3 +1,5 @@
+#include "mdl_file_internal.h"
+#include "Kosaka/k_clump_draw_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -235,54 +237,59 @@ typedef struct MovieNativeWork {
 // measured: opt_propagation off preserves the callback table pointer across jal calls while probing movieNativeSkyDraw.
 /* measured: movieNativeSkyDraw MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Draw the sky clump directly or through its material buckets, temporarily enabling environment mapping. */
+/* measured: typing the remaining model-flag/bucket reads or bucket-payload store loses MATCH; retain their
+ * cross-callback byte aliasing. */
 // FUN_00462230
-void movieNativeSkyDraw(u8 *arg0)
+void movieNativeSkyDraw(u8 *bucket)
 {
     u8 *self;
     u8 *work;
     WindowRenderStateSet *table;
 
-    self = arg0;
-    work = *(u8 **)(self + 0x1C);
+    self = bucket;
+    work = (u8 *)((OtPrimitiveNode *)self)->primitive;
     if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
-        mdlClumpSetEnvMapValue(*(s32 *)(work + 0xDC), 1);
+        mdlClumpSetEnvMapValue(((MdlFileModel *)work)->clump, 1);
     }
     mdlDrawSkyPass(work);
     if ((*(s32 *)(work + 0xE0) == 0) ||
-        ((*(s32 *)(work + 0xD8) & 0x800) != 0)) {
-        RpSkyRenderStateSet(2, (void *)(*(s32 *)(work + 0xE4)));
-        RpSkyRenderStateSet(3, (void *)(*(s32 *)(work + 0xE8)));
+        ((((MdlFileModel *)work)->flags & 0x800) != 0)) {
+        RpSkyRenderStateSet(2, (void *)(((MdlFileModel *)work)->skyAlpha));
+        RpSkyRenderStateSet(3, (void *)(((MdlFileModel *)work)->skyTest));
         self = (u8 *)D_00887300;
         ((WindowRenderStateSet *)self)[0]((RwRenderState)(6), (void *)(1));
         ((WindowRenderStateSet *)self)[0]((RwRenderState)(8), (void *)(0));
-        mdlDrawVisibleAtomics(*(s32 *)(work + 0xDC));
+        mdlDrawVisibleAtomics(((MdlFileModel *)work)->clump);
     } else {
         table = D_00887300;
         table[0]((RwRenderState)(6), (void *)(1));
         table[0]((RwRenderState)(8), (void *)(0));
-        *(u16 *)(self + 0x1A) |= 2;
-        *(s32 *)(self + 0x1C) = *(s32 *)(work + 0xE0);
+        ((OtPrimitiveNode *)self)->reserved1A |= 2;
+        *(s32 *)(self + 0x1C) = ((MdlFileModel *)work)->drawBuckets;
         movieNativeDrawPass1(self);
         movieNativeDrawPass2(self);
         movieNativeDrawPass3(self);
     }
-    if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
-        mdlClumpSetEnvMapValue(*(s32 *)(work + 0xDC), 0);
+    if ((((MdlFileModel *)work)->flags & 0x400) != 0) {
+        mdlClumpSetEnvMapValue(((MdlFileModel *)work)->clump, 0);
     }
 }
 
 // measured: closes opt_propagation around movieNativeSkyDraw.
 /* Walks the ordering-table bucket list, calling each node's start callback and then the callback tables D_00887308..D_00887314 for each entry. */
+/* measured: typing the remaining scalar payload/callback-data loads individually loses MATCH; pointer
+ * payloads, command, flags, and callbacks stay typed. */
 // FUN_004623A0
-void sdkOtFlushBuckets(u8 *arg0)
+void sdkOtFlushBuckets(u8 *firstBucket)
 {
-    u8 *p;
-    s8 sp2C[4];
-    s8 *ptr;
+    u8 *bucket;
+    s8 clearColor[4];
+    s8 *clearCursor;
     s32 count;
     u16 type;
-    void (*start_cb)(u8 *, s32, void *);
-    void (*end_cb)(u8 *, s32, void *);
+    void (*startCallback)(u8 *, s32, void *);
+    void (*endCallback)(u8 *, s32, void *);
     extern void RwCameraClear(s32, s8 *, s32);
     extern s32 func_003c9d00(u8 *);
     extern void *K_Clump_RenderAtomicIfVisibleCb(void *, void *);
@@ -304,123 +311,123 @@ void sdkOtFlushBuckets(u8 *arg0)
     extern void (*D_00887308[])(s32, s32, s32, s32);
     extern void (*D_0088730C[])(s32, s32, s32, s32, s32);
 
-    p = arg0;
-    while (p != NULL) {
-        start_cb = (void (*)(u8 *, s32, void *))*(u32 *)(p + 8);
-        if ((start_cb != NULL) && (((*(u16 *)(p + 0x1A) & 1) == 0) || (*(u32 *)p != 0))) {
-            start_cb(p + 0x1C, *(s32 *)(p + 0x10), (void *)start_cb);
+    bucket = firstBucket;
+    while (bucket != NULL) {
+        startCallback = (void (*)(u8 *, s32, void *))(u32)((OtPrimitiveNode *)bucket)->callback;
+        if ((startCallback != NULL) && (((((OtPrimitiveNode *)bucket)->reserved1A & 1) == 0) || (*(u32 *)bucket != 0))) {
+            startCallback(bucket + 0x1C, *(s32 *)(bucket + 0x10), (void *)startCallback);
         }
 
-        type = *(u16 *)(p + 0x18);
+        type = ((OtPrimitiveNode *)bucket)->command;
         switch (type) {
         case 1:
-            ptr = &sp2C[0];
+            clearCursor = &clearColor[0];
             count = 4;
-            if (ptr != NULL) {
+            if (clearCursor != NULL) {
                 do {
-                    *ptr = 0;
-                    ptr++;
+                    *clearCursor = 0;
+                    clearCursor++;
                     count--;
                 } while (count != 0);
             }
-            RwCameraClear(kwlnGetCamera(), &sp2C[0], *(s32 *)(p + 0x1C));
+            RwCameraClear(kwlnGetCamera(), &clearColor[0], ((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 2:
-            D_00887300[0]((RwRenderState)(*(s32 *)(p + 0x1C)), (void *)(*(s32 *)(p + 0x20)));
+            D_00887300[0]((RwRenderState)(((OtPrimitiveNode *)bucket)->primitive), (void *)((s32)((OtPrimitiveNode *)bucket)->vertices));
             break;
         case 3:
-            RpSkyRenderStateSet(*(s32 *)(p + 0x1C), (void *)(*(s32 *)(p + 0x20)));
+            RpSkyRenderStateSet(((OtPrimitiveNode *)bucket)->primitive, (void *)(*(s32 *)(bucket + 0x20)));
             break;
         case 4:
             {
-                u8 *obj = *(u8 **)(p + 0x1C);
-                ((void (*)(u8 *))*(u32 *)((u8 *)obj + 0x48))(obj);
+                u8 *obj = (u8 *)((OtPrimitiveNode *)bucket)->primitive;
+                ((void (*)(u8 *))(u32)((struct RpAtomic *)((u8 *)obj))->renderCallBack)(obj);
             }
             break;
         case 5:
-            movieNativeDrawPass1(p);
-            movieNativeDrawPass2(p);
-            movieNativeDrawPass3(p);
+            movieNativeDrawPass1(bucket);
+            movieNativeDrawPass2(bucket);
+            movieNativeDrawPass3(bucket);
             break;
         case 6:
-            movieNativeDrawPass1(p);
+            movieNativeDrawPass1(bucket);
             break;
         case 7:
-            movieNativeDrawPass2(p);
+            movieNativeDrawPass2(bucket);
             break;
         case 8:
-            movieNativeDrawPass3(p);
+            movieNativeDrawPass3(bucket);
             break;
         case 9:
-            RpClumpForAllAtomics(*(void **)(p + 0x1C), K_Clump_RenderAtomicIfVisibleCb, NULL);
+            RpClumpForAllAtomics((void *)((OtPrimitiveNode *)bucket)->primitive, K_Clump_RenderAtomicIfVisibleCb, NULL);
             break;
         case 10:
-            func_003c9d00(*(u8 **)(p + 0x1C));
+            func_003c9d00((u8 *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 11:
-            D_00887310[0](*(s32 *)(p + 0x1C), *(void **)(p + 0x20), *(s32 *)(p + 0x24));
+            D_00887310[0](((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, ((OtPrimitiveNode *)bucket)->count);
             break;
         case 12:
-            D_00887314[0](*(s32 *)(p + 0x1C), *(void **)(p + 0x20), *(s32 *)(p + 0x24), *(void **)(p + 0x28), *(s32 *)(p + 0x2C));
+            D_00887314[0](((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, ((OtPrimitiveNode *)bucket)->count, (void *)((OtPrimitiveNode *)bucket)->reserved28[0], *(s32 *)(bucket + 0x2C));
             break;
         case 13:
-            D_00887308[0](*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20), *(s32 *)(p + 0x24), *(s32 *)(p + 0x28));
+            D_00887308[0](((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20), ((OtPrimitiveNode *)bucket)->count, *(s32 *)(bucket + 0x28));
             break;
         case 14:
-            D_0088730C[0](*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20), *(s32 *)(p + 0x24), *(s32 *)(p + 0x28), *(s32 *)(p + 0x2C));
+            D_0088730C[0](((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20), ((OtPrimitiveNode *)bucket)->count, *(s32 *)(bucket + 0x28), *(s32 *)(bucket + 0x2C));
             break;
         case 15:
-            func_00410420(*(void **)(p + 0x1C), *(u32 *)(p + 0x20), *(void **)(p + 0x24), *(u32 *)(p + 0x28));
+            func_00410420((void *)((OtPrimitiveNode *)bucket)->primitive, *(u32 *)(bucket + 0x20), (void *)((OtPrimitiveNode *)bucket)->count, ((OtPrimitiveNode *)bucket)->reserved28[0]);
             break;
         case 16:
             func_004104d0();
             break;
         case 17:
-            func_00410930(*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20));
+            func_00410930(((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20));
             break;
         case 18:
-            func_00410800(*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20), *(s32 *)(p + 0x24));
+            func_00410800(((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20), ((OtPrimitiveNode *)bucket)->count);
             break;
         case 19:
-            func_004106a0(*(s32 *)(p + 0x1C));
+            func_004106a0(((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 20:
-            func_00410520(*(u32 *)(p + 0x1C), *(void **)(p + 0x20), *(u32 *)(p + 0x24));
+            func_00410520((u32)((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, *(u32 *)(bucket + 0x24));
             break;
         case 21:
-            TnDispatchObjectCallback(*(void **)(p + 0x1C));
+            TnDispatchObjectCallback((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 22:
-            TnDispatchBlurCopied(*(void **)(p + 0x1C));
+            TnDispatchBlurCopied((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 23:
-            TnDispatchBlurDirect(*(void **)(p + 0x1C));
+            TnDispatchBlurDirect((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 24:
-            TnDispatchSkyDraw(*(void **)(p + 0x1C));
+            TnDispatchSkyDraw((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 25:
-            TnDispatchBillboards(*(void **)(p + 0x1C));
+            TnDispatchBillboards((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 26:
-            TnDispatchPairedDraw(*(void **)(p + 0x1C));
+            TnDispatchPairedDraw((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 27:
-            movieNativeSkyDraw(p);
+            movieNativeSkyDraw(bucket);
             break;
         case 28:
-            mdlUpdateDrawState(*(void **)(p + 0x1C));
+            mdlUpdateDrawState((void *)((OtPrimitiveNode *)bucket)->primitive);
             break;
         default:
             break;
         }
 
-        end_cb = (void (*)(u8 *, s32, void *))*(u32 *)(p + 0xC);
-        if ((end_cb != NULL) && (((*(u16 *)(p + 0x1A) & 1) == 0) || (*(u32 *)p != 0))) {
-            end_cb(p + 0x1C, *(s32 *)(p + 0x14), (void *)end_cb);
+        endCallback = (void (*)(u8 *, s32, void *))(u32)((OtPrimitiveNode *)bucket)->endCallback;
+        if ((endCallback != NULL) && (((((OtPrimitiveNode *)bucket)->reserved1A & 1) == 0) || (*(u32 *)bucket != 0))) {
+            endCallback(bucket + 0x1C, *(s32 *)(bucket + 0x14), (void *)endCallback);
         }
 
-        p = *(u8 **)p;
+        bucket = *(u8 **)bucket;
     }
 }
 

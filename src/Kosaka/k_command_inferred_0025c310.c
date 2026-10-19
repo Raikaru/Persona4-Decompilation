@@ -52,27 +52,29 @@ void K_Cmd_TASK_LOOKUP(void) {
     kwlnTaskGetTaskByName(D_006367C0);
 }
 
+/* Split the current calendar date and return its month component. */
 // FUN_0025C340
 s32 scrCommonGetMonth(void) {
-    s32 sp1C;
-    s32 sp18;
+    s32 month;
+    s32 day;
 
-    sp1C = 0;
-    sp18 = 0;
-    calSplitDayOfYear(datGetDateIndex(), &sp1C, &sp18);
-    scrSetReturnInt(sp1C);
+    month = 0;
+    day = 0;
+    calSplitDayOfYear(datGetDateIndex(), &month, &day);
+    scrSetReturnInt(month);
     return 1;
 }
 
+/* Split the current calendar date and return its day-of-month component. */
 // FUN_0025C390
 s32 scrCommonGetDay(void) {
-    s32 sp1C;
-    s32 sp18;
+    s32 month;
+    s32 day;
 
-    sp1C = 0;
-    sp18 = 0;
-    calSplitDayOfYear(datGetDateIndex(), &sp1C, &sp18);
-    scrSetReturnInt(sp18);
+    month = 0;
+    day = 0;
+    calSplitDayOfYear(datGetDateIndex(), &month, &day);
+    scrSetReturnInt(day);
     return 1;
 }
 

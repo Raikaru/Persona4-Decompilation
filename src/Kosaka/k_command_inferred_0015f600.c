@@ -1,3 +1,4 @@
+#include "resrc_manager_internal.h"
 /* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Kosaka/k_command_inferred_00175f70.c); members 0015f600-0015f660 */
 
 #include "mt_scene_internal.h"
@@ -31,11 +32,11 @@ s32 MT_Scene_AllResFlagSet(void)
     work = MT_Scene_GetResListHead(3);
     result = 1;
     while (work != NULL) {
-        if (!(*(s32 *)(work + 0x28) & 0x10000000)) {
+        if (!((s32)((ResrcRecord *)work)->unk28 & 0x10000000)) {
             result = 0;
             break;
         }
-        work = *(u8 **)(work + 0x138);
+        work = (u8 *)((ResrcRecord *)work)->next;
     }
     return result;
 }
@@ -46,6 +47,7 @@ s32 MT_Scene_AllResFlagSet(void)
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 // Intent: Prepare each model in scene resource list 3 that is not yet prepared and mark it prepared; returns 1 only when every model is ready [inferred]
+/* measured: typing the prepared-flag read/store loses MATCH; the model handle and resource link stay typed. */
 // FUN_0015F660
 s32 mtSceneResListPrepareAll(void)
 {
@@ -56,12 +58,12 @@ s32 mtSceneResListPrepareAll(void)
     result = 1;
     while (work != NULL) {
         if (!(*(s32 *)(work + 0x28) & 0x10000000)) {
-            if (mdlPrepareModel(*(s32 *)(work + 0x164)) != 0) {
+            if (mdlPrepareModel((s32)((ResrcRecord *)work)->modelHandle164) != 0) {
                 *(s32 *)(work + 0x28) |= 0x10000000;
             }
             result = 0;
         }
-        work = *(u8 **)(work + 0x138);
+        work = (u8 *)((ResrcRecord *)work)->next;
     }
     if (func_003e8120(kwlnGetCamera()) != 0) {
         func_003e8110(kwlnGetCamera());

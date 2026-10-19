@@ -1,3 +1,5 @@
+#include "Kosaka/k_misc_work_internal.h"
+#include "kwln_task_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -291,29 +293,30 @@ extern f32 D_008872F8[];
 /* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
 /* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 /* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
+/* Wait for the model to become ready, then count down before destroying it. */
 // FUN_0014B780
-s32 KMisc_DelayMdlFreeUpdate(u8 *arg0) {
-    s32 temp_2;
-    s32 temp_3;
-    u8 *p;
+s32 KMisc_DelayMdlFreeUpdate(u8 *task) {
+    s32 framesRemaining;
+    s32 state;
+    u8 *work;
 
-    p = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)p;
-    switch (temp_3) {
+    work = ((KwlnTask *)task)->work;
+    state = ((DelayMdlFreeWork *)work)->state;
+    switch (state) {
     case 0:
-        if (mdlPrepareModel(*(s32 *)(p + 8)) != 0) {
-            *(s32 *)p = *(s32 *)p + 1;
+        if (mdlPrepareModel((s32)((DelayMdlFreeWork *)work)->mdl) != 0) {
+            ((DelayMdlFreeWork *)work)->state = ((DelayMdlFreeWork *)work)->state + 1;
         }
         goto done;
     case 1:
-        temp_2 = *(s32 *)(p + 4) - 1;
-        *(s32 *)(p + 4) = temp_2;
-        if (temp_2 > 0) {
+        framesRemaining = ((DelayMdlFreeWork *)work)->countdown - 1;
+        ((DelayMdlFreeWork *)work)->countdown = framesRemaining;
+        if (framesRemaining > 0) {
             goto done;
         }
-        *(s32 *)p = *(s32 *)p + 1;
+        ((DelayMdlFreeWork *)work)->state = ((DelayMdlFreeWork *)work)->state + 1;
     case 2:
-        mdlDestroyModelObject(*(s32 *)(p + 8));
+        mdlDestroyModelObject((s32)((DelayMdlFreeWork *)work)->mdl);
         return -1;
     default:
     done:
@@ -322,8 +325,8 @@ s32 KMisc_DelayMdlFreeUpdate(u8 *arg0) {
 }
 
 // FUN_0014B840
-void KMisc_DelayMdlFreeDestroy(u8 *arg0)
+void KMisc_DelayMdlFreeDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 

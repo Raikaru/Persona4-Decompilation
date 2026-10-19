@@ -38,6 +38,7 @@ extern char D_007616B0;
 
 
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00102BE0
 void SeqInitDataRead_End(void)
 {
@@ -63,6 +64,7 @@ s32 SeqMemcardBootCheck_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCB80) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00102CB0
 void SeqMemcardBootCheck_End(void)
 {
@@ -86,6 +88,7 @@ s32 SeqDebugMenu_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCB98) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00102D60
 void SeqDebugMenu_End(void)
 {
@@ -109,6 +112,7 @@ s32 SeqSample_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(&D_007616B0) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00102E10
 void SeqSample_End(void)
 {
@@ -135,6 +139,7 @@ s32 SeqBattle_IsRunning(void)
     return (s32)(btlIsRunning() != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00102ED0
 void SeqBattle_End(void)
 {
@@ -145,6 +150,7 @@ void SeqBattle_End(void)
     }
 }
 
+/* Create the script viewer only when its named scheduler task is absent. */
 // FUN_00102F10
 void SeqScriptViewer_Start(void)
 {
@@ -159,6 +165,7 @@ s32 SeqScriptViewer_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCBB0) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00102F80
 void SeqScriptViewer_End(void)
 {
@@ -170,6 +177,7 @@ void SeqScriptViewer_End(void)
     kwlnTaskDestroyWithHierarchy(handle);
 }
 
+/* Start the event sequence only when no current event task is reported. */
 // FUN_00102FE0
 void SeqEvent_Start(void)
 {
@@ -184,6 +192,7 @@ s32 SeqEvent_IsRunning(void)
     return (s32)(evtLookupTask() != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00103040
 void SeqEvent_End(void)
 {
@@ -207,6 +216,7 @@ s32 SeqYaji_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCBC0) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_001030F0
 void SeqYaji_End(void)
 {
@@ -230,6 +240,7 @@ s32 SeqNowatari_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_00763A30) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_001031A0
 void SeqNowatari_End(void)
 {
@@ -253,6 +264,7 @@ s32 SeqWeaponStore_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCBD0) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00103260
 void SeqWeaponStore_End(void)
 {
@@ -276,6 +288,7 @@ s32 SeqItemStore_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCBE8) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_00103320
 void SeqItemStore_End(void)
 {
@@ -299,6 +312,7 @@ s32 SeqCombine_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(D_005DCC00) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_001033E0
 void SeqCombine_End(void)
 {
@@ -311,9 +325,9 @@ void SeqCombine_End(void)
 }
 
 // FUN_00103440
-void SeqMovie_Start(s16 *arg0)
+void SeqMovie_Start(s16 *movieIndex)
 {
-    mwPlayerCreate(0, *arg0, &D_007963A0);
+    mwPlayerCreate(0, *movieIndex, &D_007963A0);
 }
 
 // FUN_00103480
@@ -322,6 +336,7 @@ s32 SeqMovie_IsRunning(void)
     return (s32)(kwlnTaskGetTaskByName(mwPlayerGetTaskName()) != 0);
 }
 
+/* Destroy the corresponding sequence task hierarchy, preserving the existing missing-task assertions. */
 // FUN_001034B0
 void SeqMovie_End(void)
 {

@@ -1,3 +1,7 @@
+#include "rw_camera_internal.h"
+#include "Kosaka/k_field_state_internal.h"
+#include "mdl_file_internal.h"
+#include "resrc_manager_internal.h"
 #include "mt_scene_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
@@ -72,10 +76,7 @@ extern void FldAI_ChaserDisable(s32 arg0);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
 extern u8* MT_Scene_GetFrameState(void);
 
-typedef struct
-{
-    f32 x, y, z;
-} Vec3f;
+typedef RwV3d Vec3f;
 
 typedef struct
 {
@@ -90,6 +91,7 @@ extern s32 FldSceneLoadReady(void);
 extern void fclMiscStopAndClose(void);
 extern void fclMiscSetDoneFlag(void);
 /* Script command 0x1002 (group 1 table 0x63D440 + 0x010, FLD_FUNCTION_0002). */
+
 // FUN_00176880
 s32 K_Cmd_FLD_STEP_INDEX(void)
 {
@@ -107,6 +109,7 @@ s32 K_Cmd_FLD_SCENE_LOAD_READY(void)
 }
 
 
+/* Set scene-resource visibility using the script resource identifier narrowed to a halfword. */
 // FUN_00176C20
 u32 Cmd_SetSceneResourceParam()
 {
@@ -123,65 +126,67 @@ u32 Cmd_SetSceneResourceParam()
 
 /* Retail command operands narrow animation to s16 and converted frame to
    u16 at each dispatch; these are caller conversions, not the shared ABI. */
+/* measured: typing the model-pointer reads in the looping dispatch branches individually loses MATCH; the
+ * non-looping branches and weight calls remain typed. */
 // FUN_00176C70
 s32 Cmd_PlayModelMotion(void)
 {
-    s32 v = scrGetParamInt(0);
-    s32 w = scrGetParamInt(1);
-    s32 x = scrGetParamInt(2);
-    s32 iv = (s32)scrGetParamFloat(3);
-    f32 g = scrGetParamFloat(4);
-    s32 k = (v & 0xFFC00) >> 10;
-    switch (k)
+    s32 resourceId = scrGetParamInt(0);
+    s32 animationId = scrGetParamInt(1);
+    s32 loop = scrGetParamInt(2);
+    s32 frame = (s32)scrGetParamFloat(3);
+    f32 weight = scrGetParamFloat(4);
+    s32 resourceType = (resourceId & 0xFFC00) >> 10;
+    switch (resourceType)
     {
     case 1:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            if (x != 0)
+            if (loop != 0)
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(resource + 0x164), 0, (s16)animationId, (u16)frame, 1);
             }
             else
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
+                mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)resource)->modelHandle164, 0, (s16)animationId, (u16)frame, 0);
             }
-            mdlSetLayerWeight(*(s32*)(p + 0x164), 0, g);
+            mdlSetLayerWeight((s32)((ResrcRecord *)resource)->modelHandle164, 0, weight);
         }
         break;
     }
     case 3:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            if (x != 0)
+            if (loop != 0)
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(resource + 0x164), 0, (s16)animationId, (u16)frame, 1);
             }
             else
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
+                mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)resource)->modelHandle164, 0, (s16)animationId, (u16)frame, 0);
             }
-            mdlSetLayerWeight(*(s32*)(p + 0x164), 0, g);
+            mdlSetLayerWeight((s32)((ResrcRecord *)resource)->modelHandle164, 0, weight);
         }
         break;
     }
     case 10:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            if (x != 0)
+            if (loop != 0)
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 1);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(resource + 0x144), 0, (s16)animationId, (u16)frame, 1);
             }
             else
             {
-                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 0);
+                mdlDispatchAnimIfPresent((u8 *)((ResrcRecord *)resource)->slotHandle[1], 0, (s16)animationId, (u16)frame, 0);
             }
-            mdlSetLayerWeight(*(s32*)(p + 0x144), 0, g);
+            mdlSetLayerWeight((s32)((ResrcRecord *)resource)->slotHandle[1], 0, weight);
         }
         break;
     }
@@ -194,37 +199,38 @@ s32 Cmd_PlayModelMotion(void)
 
 
 
+/* Query the completion byte of the selected character, NPC, or field model. */
 // FUN_00176EF0
 s32 Cmd_CheckModelFlag(void)
 {
-    s32 v = scrGetParamInt(0);
-    s32 k = (v & 0xFFC00) >> 10;
-    switch (k)
+    s32 resourceId = scrGetParamInt(0);
+    s32 resourceType = (resourceId & 0xFFC00) >> 10;
+    switch (resourceType)
     {
     case 1:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            return *(u8*)(*(s32*)(p + 0x164) + 0xEE) == 1;
+            return ((MdlFileModel *)((s32)((ResrcRecord *)resource)->modelHandle164))->finished == 1;
         }
         break;
     }
     case 3:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            return *(u8*)(*(s32*)(p + 0x164) + 0xEE) == 1;
+            return ((MdlFileModel *)((s32)((ResrcRecord *)resource)->modelHandle164))->finished == 1;
         }
         break;
     }
     case 10:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            return *(u8*)(*(s32*)(p + 0x144) + 0xEE) == 1;
+            return ((MdlFileModel *)((s32)((ResrcRecord *)resource)->slotHandle[1]))->finished == 1;
         }
         break;
     }
@@ -237,38 +243,39 @@ s32 Cmd_CheckModelFlag(void)
 
 
 
+/* Set animation-layer zero time for the selected resource model. */
 // FUN_00176FF0
 s32 Cmd_SetModelFloatParam(void)
 {
-    s32 v = scrGetParamInt(0);
-    f32 f = scrGetParamFloat(1);
-    s32 k = (v & 0xFFC00) >> 10;
-    switch (k)
+    s32 resourceId = scrGetParamInt(0);
+    f32 time = scrGetParamFloat(1);
+    s32 resourceType = (resourceId & 0xFFC00) >> 10;
+    switch (resourceType)
     {
     case 1:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            mdlSetLayerTime(*(s32*)(p + 0x164), 0, f);
+            mdlSetLayerTime((s32)((ResrcRecord *)resource)->modelHandle164, 0, time);
         }
         break;
     }
     case 3:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            mdlSetLayerTime(*(s32*)(p + 0x164), 0, f);
+            mdlSetLayerTime((s32)((ResrcRecord *)resource)->modelHandle164, 0, time);
         }
         break;
     }
     case 10:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            mdlSetLayerTime(*(s32*)(p + 0x144), 0, f);
+            mdlSetLayerTime((s32)((ResrcRecord *)resource)->slotHandle[1], 0, time);
         }
         break;
     }
@@ -281,81 +288,83 @@ s32 Cmd_SetModelFloatParam(void)
 
 
 
+/* Compare the script value with layer-zero weight; retain the existing resource-local reuse in types 3 and 10. */
 // FUN_00177120
 s32 Cmd_CompareModelThreshold(void)
 {
-    s32 v = scrGetParamInt(0);
+    s32 resourceId = scrGetParamInt(0);
     f32 threshold = 0.0f;
-    f32 f = scrGetParamFloat(1);
-    s32 k = (v & 0xFFC00) >> 10;
-    u8* p;
+    f32 value = scrGetParamFloat(1);
+    s32 resourceType = (resourceId & 0xFFC00) >> 10;
+    u8* resource;
     s32 result;
-    switch (k)
+    switch (resourceType)
     {
     case 1:
-        p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            threshold = mdlGetLayerWeight(*(s32*)(p + 0x164), 0);
+            threshold = mdlGetLayerWeight((s32)((ResrcRecord *)resource)->modelHandle164, 0);
         }
         break;
     case 3:
-        if (MT_Scene_GetRes(v & 0xFFFF) != 0)
+        if (MT_Scene_GetRes(resourceId & 0xFFFF) != 0)
         {
-            threshold = mdlGetLayerWeight(*(s32*)(p + 0x164), 0);
+            threshold = mdlGetLayerWeight((s32)((ResrcRecord *)resource)->modelHandle164, 0);
         }
         break;
     case 10:
-        if (MT_Scene_GetRes(v & 0xFFFF) != 0)
+        if (MT_Scene_GetRes(resourceId & 0xFFFF) != 0)
         {
-            threshold = mdlGetLayerWeight(*(s32*)(p + 0x164), 0);
+            threshold = mdlGetLayerWeight((s32)((ResrcRecord *)resource)->modelHandle164, 0);
         }
         break;
     default:
         kAssertFail(D_005F1858, 0x264);
         break;
     }
-    return (f >= threshold) ^ 1;
+    return (value >= threshold) ^ 1;
 }
 
 
 
+/* Apply uniform scaling; retail reads parameter one for all three components. */
 // FUN_00177280
 s32 Cmd_SetModelScale(void)
 {
-    s32 v = scrGetParamInt(0);
-    f32 pos[3];
-    s32 k;
-    pos[0] = scrGetParamFloat(1);
-    pos[1] = scrGetParamFloat(1);
-    pos[2] = scrGetParamFloat(1);
-    k = (v & 0xFFC00) >> 10;
-    switch (k)
+    s32 resourceId = scrGetParamInt(0);
+    f32 scale[3];
+    s32 resourceType;
+    scale[0] = scrGetParamFloat(1);
+    scale[1] = scrGetParamFloat(1);
+    scale[2] = scrGetParamFloat(1);
+    resourceType = (resourceId & 0xFFC00) >> 10;
+    switch (resourceType)
     {
     case 1:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            mdlScale(*(s32*)(p + 0x164), pos, 2);
+            mdlScale((s32)((ResrcRecord *)resource)->modelHandle164, scale, 2);
         }
         break;
     }
     case 3:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            mdlScale(*(s32*)(p + 0x164), pos, 2);
+            mdlScale((s32)((ResrcRecord *)resource)->modelHandle164, scale, 2);
         }
         break;
     }
     case 10:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            mdlScale(*(s32*)(p + 0x144), pos, 2);
+            mdlScale((s32)((ResrcRecord *)resource)->slotHandle[1], scale, 2);
         }
         break;
     }
@@ -368,22 +377,24 @@ s32 Cmd_SetModelScale(void)
 
 
 
+/* Set the ring-particle radius only for NPC resources with a shadow handle. */
+/* measured: typing the shadow-handle guard loses MATCH; the handle passed after the guard stays typed. */
 // FUN_001773D0
 s32 Cmd_SetShadowRingRadius(void)
 {
-    s32 v = scrGetParamInt(0);
-    s32 k = (v & 0xFFC00) >> 10;
-    switch (k)
+    s32 resourceId = scrGetParamInt(0);
+    s32 resourceType = (resourceId & 0xFFC00) >> 10;
+    switch (resourceType)
     {
     case 1:
         break;
     case 3:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0 && *(s32*)(p + 0x230) != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0 && *(s32*)(resource + 0x230) != 0)
         {
-            f32 f = scrGetParamFloat(1);
-            FldShadow_SetRingParticles(*(s32*)(p + 0x230), f);
+            f32 radius = scrGetParamFloat(1);
+            FldShadow_SetRingParticles(((ResrcRecord *)resource)->handle230, radius);
         }
         break;
     }
@@ -407,6 +418,9 @@ static inline u32 fieldPlacementEnabled(u32 value)
 {
     return value != 0;
 }
+/* measured: typing the remaining model-handle, heading, or translated-placement operands individually loses
+ * MATCH. The position aggregate copies reinterpret the named three-float placement array as the native
+ * vector type. */
 // FUN_001774A0
 s32 Cmd_PlaceFieldResource(void)
 {
@@ -428,7 +442,7 @@ s32 Cmd_PlaceFieldResource(void)
             if ((*(u16 *)placement & 0x3FF) == placementId) {
                 break;
             }
-            placement = *(u8 **)(placement + 0x138);
+            placement = (u8 *)((ResrcRecord *)placement)->next;
         }
         resourceType = (resourceId & 0xFFC00) >> 10;
         switch (resourceType) {
@@ -444,7 +458,7 @@ s32 Cmd_PlaceFieldResource(void)
             resource = MT_Scene_GetRes(resourceId & 0xFFFF);
             if (resource != 0) {
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
-                *(Vec3f *)translation = *(Vec3f *)(matrix + 0x30);
+                *(Vec3f *)translation = ((struct RwMatrixTag *)(matrix))->pos;
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
@@ -452,27 +466,27 @@ s32 Cmd_PlaceFieldResource(void)
                 mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
                 mdlTranslateMatrix(*(s32 *)(resource + 0x164), translation, 2);
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
-                *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
+                ((struct RwMatrixTag *)(matrix))->pos = *(Vec3f *)((ResrcRecord *)placement)->placement;
                 RwEngineGetMatrixTolerances(&tolerance);
                 RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
-                RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
-                FldFrameTask_UpdateTile(*(s32 *)(resource + 0x220));
+                RwMatrixUpdate(mdlGetMatrix((s32)((ResrcRecord *)resource)->modelHandle164));
+                FldFrameTask_UpdateTile(((ResrcRecord *)resource)->handle220);
                 FldStepUpdateBandRes();
                 for (i = 0; i < 3; i++) {
                     hasWork = 0;
                     entry = D_007EF9B0 + i * 0x750;
-                    if (*(s32 *)(entry + 0x798) != 0) {
-                        if (*(s32 *)(entry + 0x7A4) != 0) {
+                    if (((FldPartySlot *)entry)[1].active != 0) {
+                        if ((s32)((FldPartySlot *)entry)[1].resource != 0) {
                             hasWork = 1;
                         }
                     }
-                    if (fieldPlacementEnabled(hasWork) && *(s32 *)(entry + 0x900) != 0) {
-                        FldAI_ChaserDisable(*(s32 *)(entry + 0x900));
+                    if (fieldPlacementEnabled(hasWork) && ((FldPartySlot *)entry)[1].chaser != 0) {
+                        FldAI_ChaserDisable(((FldPartySlot *)entry)[1].chaser);
                     }
                 }
                 fieldState = MT_Scene_GetFrameState();
-                if (*(s32 *)(fieldState + 4) != 0) {
-                    FldCameraUpdateOrbit(*(s32 *)(MT_Scene_GetFrameState() + 4));
+                if (((FldSceneTasks *)fieldState)->camera != 0) {
+                    FldCameraUpdateOrbit(((FldSceneTasks *)MT_Scene_GetFrameState())->camera);
                 }
             }
             break;
@@ -487,7 +501,7 @@ s32 Cmd_PlaceFieldResource(void)
             resource = MT_Scene_GetRes(resourceId & 0xFFFF);
             if (resource != 0) {
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
-                *(Vec3f *)translation = *(Vec3f *)(matrix + 0x30);
+                *(Vec3f *)translation = ((struct RwMatrixTag *)(matrix))->pos;
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
@@ -495,19 +509,19 @@ s32 Cmd_PlaceFieldResource(void)
                 mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x164), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
                 mdlTranslateMatrix(*(s32 *)(resource + 0x164), translation, 2);
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x164));
-                *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
+                ((struct RwMatrixTag *)(matrix))->pos = *(Vec3f *)((ResrcRecord *)placement)->placement;
                 RwEngineGetMatrixTolerances(&tolerance);
                 RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
-                RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
+                RwMatrixUpdate(mdlGetMatrix((s32)((ResrcRecord *)resource)->modelHandle164));
                 if (*(s32 *)(resource + 0x22C) != 0) {
-                    uniformScale = FldFrameTask_GetHeight(*(s32 *)(resource + 0x228));
+                    uniformScale = FldFrameTask_GetHeight((s32)((ResrcRecord *)resource)->handle228);
                     scale[2] = uniformScale;
                     scale[1] = uniformScale;
                     scale[0] = uniformScale;
                     mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x22C), &rotationAxis, *(f32 *)(placement + 0x14C), 2);
                     mdlScale(*(s32 *)(resource + 0x22C), scale, 2);
                     mdlTranslateMatrix(*(s32 *)(resource + 0x22C), placement + 0x140, 2);
-                    mdlAdvanceModelFromFlags(*(s32 *)(resource + 0x22C));
+                    mdlAdvanceModelFromFlags((s32)((ResrcRecord *)resource)->handle22C);
                 }
             }
             break;
@@ -520,7 +534,7 @@ s32 Cmd_PlaceFieldResource(void)
             resource = MT_Scene_GetRes(resourceId & 0xFFFF);
             if (resource != 0) {
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
-                *(Vec3f *)translation = *(Vec3f *)(matrix + 0x30);
+                *(Vec3f *)translation = ((struct RwMatrixTag *)(matrix))->pos;
                 negativeTranslation[0] = -1.0f * translation[0];
                 negativeTranslation[1] = -1.0f * translation[1];
                 negativeTranslation[2] = -1.0f * translation[2];
@@ -528,10 +542,10 @@ s32 Cmd_PlaceFieldResource(void)
                 mdlRotateMatrix((void *)(u32)*(s32 *)(resource + 0x144), &rotationAxis, *(f32 *)(placement + 0x14C), 0);
                 mdlTranslateMatrix(*(s32 *)(resource + 0x144), translation, 2);
                 matrix = mdlGetMatrix(*(s32 *)(resource + 0x144));
-                *(Vec3f *)(matrix + 0x30) = *(Vec3f *)(placement + 0x140);
+                ((struct RwMatrixTag *)(matrix))->pos = *(Vec3f *)((ResrcRecord *)placement)->placement;
                 RwEngineGetMatrixTolerances(&tolerance);
                 RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x144)), &tolerance);
-                RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x144)));
+                RwMatrixUpdate(mdlGetMatrix((s32)((ResrcRecord *)resource)->slotHandle[1]));
             }
             break;
         }
@@ -583,52 +597,55 @@ u32 K_Cmd_CREATE_FLD_MDL()
 
 
 
+/* The frame-list words at +24/+28 lie beyond the published SceneContext prefix; no constructor/allocation
+ * extent proving that tail was found, so do not invent a larger context. */
 // FUN_00177B30
 s32 Cmd_CreateFieldModel(void)
 {
-    s32 v = scrGetParamInt(0);
-    s32 w = scrGetParamInt(1);
-    s32 flag = 0;
+    s32 model = scrGetParamInt(0);
+    s32 resourceIndex = scrGetParamInt(1);
+    s32 resourceId = 0;
     s32 created = 0;
-    u8* p2 = 0;
-    s32 tmp;
-    if (mdlPrepareModel((void*)v) == 1)
+    u8* placementFrame = 0;
+    s32 frameFlag;
+    if (mdlPrepareModel((void*)model) == 1)
     {
-        u8* p = MT_Scene_GetRes((w & 0x3FF) | 0x2800);
-        if (p != 0)
+        u8* existingResource = MT_Scene_GetRes((resourceIndex & 0x3FF) | 0x2800);
+        if (existingResource != 0)
         {
-            mdlDestroyModelObject(v);
+            mdlDestroyModelObject(model);
             scrSetReturnInt(0);
             return 1;
         }
-        flag = MT_Scene_CreateModelFldRes(w & 0xFFFF, v) & 0xFFFF;
+        resourceId = MT_Scene_CreateModelFldRes(resourceIndex & 0xFFFF, model) & 0xFFFF;
         while (*(s32*)(D_00762EA0 + 0x24) > 0)
         {
-            p2 = (u8*)FldResource_FindFrameForId(*(s32*)(D_00762EA0 + 0x28), w, &tmp);
+            placementFrame = (u8*)FldResource_FindFrameForId(*(s32*)(D_00762EA0 + 0x28), resourceIndex, &frameFlag);
             break;
         }
-        if (p2 != 0)
+        if (placementFrame != 0)
         {
-            f32 vec[3];
-            p2 = (u8*)func_003e9700((s32)p2);
-            vec[0] = KDraw_MatrixPitchDeg(p2);
-            vec[1] = KDraw_MatrixYawDeg(p2);
-            vec[2] = KDraw_MatrixRollDeg(p2);
-            MT_Scene_SetResPlacement(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
-            mdlApplyModelMatrix(v, p2, 0);
-            mdlDispatchAnimIfPresent((u8*)v, 0, 0, 8, 1);
+            f32 rotation[3];
+            placementFrame = (u8*)func_003e9700((s32)placementFrame);
+            rotation[0] = KDraw_MatrixPitchDeg(placementFrame);
+            rotation[1] = KDraw_MatrixYawDeg(placementFrame);
+            rotation[2] = KDraw_MatrixRollDeg(placementFrame);
+            MT_Scene_SetResPlacement(resourceId & 0xFFFF, (u8*)(placementFrame + 0x30), (u8 *)&rotation);
+            mdlApplyModelMatrix(model, placementFrame, 0);
+            mdlDispatchAnimIfPresent((u8*)model, 0, 0, 8, 1);
         }
-        if (tmp == 1)
+        if (frameFlag == 1)
         {
-            u8* r = MT_Scene_GetRes(flag & 0xFFFF);
-            *(s32*)(r + 0x150) = 1;
+            u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+            ((ResrcRecord *)resource)->value150 = 1;
         }
         created = 1;
     }
-    scrSetReturnInt(flag);
+    scrSetReturnInt(resourceId);
     return created;
 }
 
+/* Prepare a model and assign a free field-model resource identifier; return whether creation succeeded. */
 // FUN_00177D10
 u32 Cmd_CreateModelResource()
 {
@@ -653,19 +670,21 @@ u32 Cmd_CreateModelResource()
 
 
 
+/* Store the script value in the resource-specific word at +150 when the resource exists. */
 // FUN_00177DB0
 s32 Cmd_SetResourceWord150(void)
 {
-    s32 a = scrGetParamInt(0);
-    s32 b = scrGetParamInt(1);
-    u8* p = MT_Scene_GetRes(a);
-    if (p != 0)
+    s32 resourceId = scrGetParamInt(0);
+    s32 value = scrGetParamInt(1);
+    u8* resource = MT_Scene_GetRes(resourceId);
+    if (resource != 0)
     {
-        *(s32*)(p + 0x150) = b;
+        ((ResrcRecord *)resource)->value150 = value;
     }
     return 1;
 }
 
+/* Find or create a model by its halfword type and identifier, then return the handle to the script. */
 // FUN_00177E20
 u32 K_Cmd_CREATE_MDL()
 {
@@ -687,58 +706,62 @@ u32 K_Cmd_CREATE_MDL()
 
 
 
+/* Prepare a model as an NPC resource and attach a clone of the shared shadow model. */
 // FUN_00177E80
 s32 Cmd_CreateSceneResource(void)
 {
-    s32 type = scrGetParamInt(0);
-    s32 id = scrGetParamInt(1);
-    s32 res = 0;
+    s32 model = scrGetParamInt(0);
+    s32 npcId = scrGetParamInt(1);
+    s32 resourceId = 0;
     s32 created = 0;
-    if (mdlPrepareModel((void*)type) == 1)
+    if (mdlPrepareModel((void*)model) == 1)
     {
-        u8* p;
-        res = (u16)MT_Scene_CreateModelNpcShadowRes(MT_Scene_FindFreeResId(3), (u16)id, type);
-        p = MT_Scene_GetRes(res);
-        *(s32*)(p + 0x22C) = (s32)mdlCloneModelObject(D_00764364);
+        u8* resource;
+        resourceId = (u16)MT_Scene_CreateModelNpcShadowRes(MT_Scene_FindFreeResId(3), (u16)npcId, model);
+        resource = MT_Scene_GetRes(resourceId);
+        ((ResrcRecord *)resource)->handle22C = (void *)mdlCloneModelObject(D_00764364);
         created = 1;
     }
-    scrSetReturnInt(res);
+    scrSetReturnInt(resourceId);
     return created;
 }
 
 
 
+/* Set resource height and rescale an attached NPC shadow when present. */
+/* measured: typing the remaining shadow-handle guard and scale operand individually loses MATCH; the height
+ * calls and final model update stay typed. */
 // FUN_00177F50
 s32 Cmd_SetFieldFloat(void)
 {
-    s32 v = scrGetParamInt(0);
-    f32 f = scrGetParamFloat(1);
-    s32 k = (v & 0xFFC00) >> 10;
-    switch (k)
+    s32 resourceId = scrGetParamInt(0);
+    f32 height = scrGetParamFloat(1);
+    s32 resourceType = (resourceId & 0xFFC00) >> 10;
+    switch (resourceType)
     {
     case 1:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            FldFrameTask_SetHeight(*(s32*)(p + 0x220), f);
+            FldFrameTask_SetHeight(((ResrcRecord *)resource)->handle220, height);
         }
         break;
     }
     case 3:
     {
-        u8* p = MT_Scene_GetRes(v & 0xFFFF);
-        if (p != 0)
+        u8* resource = MT_Scene_GetRes(resourceId & 0xFFFF);
+        if (resource != 0)
         {
-            FldFrameTask_SetHeight(*(s32*)(p + 0x228), f);
-            if (*(s32*)(p + 0x22C) != 0)
+            FldFrameTask_SetHeight((s32)((ResrcRecord *)resource)->handle228, height);
+            if (*(s32*)(resource + 0x22C) != 0)
             {
-                f32 vec[3];
-                vec[2] = f;
-                vec[1] = f;
-                vec[0] = f;
-                mdlScale(*(s32*)(p + 0x22C), vec, 2);
-                mdlAdvanceModelFromFlags(*(s32*)(p + 0x22C));
+                f32 scale[3];
+                scale[2] = height;
+                scale[1] = height;
+                scale[0] = height;
+                mdlScale(*(s32*)(resource + 0x22C), scale, 2);
+                mdlAdvanceModelFromFlags((s32)((ResrcRecord *)resource)->handle22C);
             }
         }
         break;
@@ -757,9 +780,9 @@ s32 Cmd_SetFieldFloat(void)
 // FUN_00178070
 s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 {
-    s32 a = scrGetParamInt(0);
-    s32 b = scrGetParamInt(1);
-    FldFrame_RotateTaskCreate(0, b, a);
+    s32 angle = scrGetParamInt(0);
+    s32 frames = scrGetParamInt(1);
+    FldFrame_RotateTaskCreate(0, frames, angle);
     return 1;
 }
 
@@ -771,66 +794,70 @@ s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 // FUN_001780D0
 s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
 {
-    s32 a = scrGetParamInt(0);
-    s32 b = scrGetParamInt(1);
-    FldFrameRotateTaskCreate(0, b, a);
+    s32 angle = scrGetParamInt(0);
+    s32 frames = scrGetParamInt(1);
+    FldFrameRotateTaskCreate(0, frames, angle);
     return 1;
 }
 
 
 
+/* Choose a cardinal heading facing the player from the nearest entry forward axis and start a camera turn. */
+/* measured: typing the remaining resource model-handle loads individually loses MATCH; the matrix axes,
+ * position, and camera parent are typed. */
 // FUN_00178130
 s32 Cmd_FaceNearestAxis(void)
 {
-    s32 v = scrGetParamInt(0);
-    u8* p = FldEvent_GetNearestEntry();
+    s32 frames = scrGetParamInt(0);
+    u8* entry = FldEvent_GetNearestEntry();
     Vec3f diff;
-    Vec3f v1;
-    f32 v2x;
+    Vec3f forward;
+    f32 coordinate;
     f32 angle;
     f32 dot;
-    if (p != 0)
+    if (entry != 0)
     {
-        v1 = *(Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x20);
-        v2x = ((Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x30))->x;
-        diff.x = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->x;
-        v2x = ((Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x30))->y;
-        diff.y = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->y;
-        v2x = ((Vec3f*)((u8*)mdlGetMatrix(*(s32*)(p + 0x144)) + 0x30))->z;
-        diff.z = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->z;
+        forward = ((struct RwMatrixTag *)((u8*)mdlGetMatrix(*(s32*)(entry + 0x144))))->at;
+        coordinate = ((RwMatrixTag *)mdlGetMatrix(*(s32*)(entry + 0x144)))->pos.x;
+        diff.x = coordinate - ((RwMatrixTag *)mdlGetMatrix(D_007EFA00[0]))->pos.x;
+        coordinate = ((RwMatrixTag *)mdlGetMatrix(*(s32*)(entry + 0x144)))->pos.y;
+        diff.y = coordinate - ((RwMatrixTag *)mdlGetMatrix(D_007EFA00[0]))->pos.y;
+        coordinate = ((RwMatrixTag *)mdlGetMatrix((s32)((ResrcRecord *)entry)->slotHandle[1]))->pos.z;
+        diff.z = coordinate - ((RwMatrixTag *)mdlGetMatrix(D_007EFA00[0]))->pos.z;
         RwV3dNormalize(&diff.x, &diff.x);
-        RwV3dNormalize(&v1.x, &v1.x);
-        KDraw_MatrixYawDeg((u8*)func_003e9700(*(s32*)((u8*)kwlnGetCamera() + 4)));
-        dot = diff.x * v1.x + diff.y * v1.y + diff.z * v1.z;
+        RwV3dNormalize(&forward.x, &forward.x);
+        KDraw_MatrixYawDeg((u8*)func_003e9700((s32)((RwCamera *)kwlnGetCamera())->object.object.parent));
+        dot = diff.x * forward.x + diff.y * forward.y + diff.z * forward.z;
         if (dot < 0.0f)
         {
-            v1.x = -v1.x;
-            v1.y = -v1.y;
-            v1.z = -v1.z;
+            forward.x = -forward.x;
+            forward.y = -forward.y;
+            forward.z = -forward.z;
         }
-        if (v1.x > 0.5f)
+        if (forward.x > 0.5f)
         {
             angle = 90.0f;
         }
-        else if (v1.x < -0.5f)
+        else if (forward.x < -0.5f)
         {
             angle = 270.0f;
         }
-        else if (v1.z > 0.5f)
+        else if (forward.z > 0.5f)
         {
             angle = 0.0f;
         }
-        else if (v1.z < -0.5f)
+        else if (forward.z < -0.5f)
         {
             angle = 180.0f;
         }
-        FldFrameRotateTaskCreate(0, v, (s32)angle);
+        FldFrameRotateTaskCreate(0, frames, (s32)angle);
     }
     return 1;
 }
 
 
 
+/* Store three script operands and reset the shared work-state word. */
 // FUN_00178360
 s32 Cmd_SetWorkValues(void)
 {
@@ -841,15 +868,16 @@ s32 Cmd_SetWorkValues(void)
     return 1;
 }
 
+/* Set the scene RGB channels from byte-truncated script operands with alpha zero. */
 // FUN_001783B0
 s32 Cmd_SetSceneMode(void)
 {
-    u8 temp_17;
-    u8 temp_16;
+    u8 red;
+    u8 green;
 
-    temp_17 = scrGetParamInt(0) & 0xFF;
-    temp_16 = scrGetParamInt(1) & 0xFF;
-    kwlnSetColorRgba(temp_17, temp_16, scrGetParamInt(2) & 0xFF, 0);
+    red = scrGetParamInt(0) & 0xFF;
+    green = scrGetParamInt(1) & 0xFF;
+    kwlnSetColorRgba(red, green, scrGetParamInt(2) & 0xFF, 0);
     return 1;
 }
 
@@ -857,15 +885,17 @@ s32 Cmd_SetSceneMode(void)
 
 
 
+/* Update the active camera fog plane; retain the second camera lookup performed by retail. */
 // FUN_00178420
 s32 Cmd_SetCameraFloat(void)
 {
     f32 value = scrGetParamFloat(0);
-    *(f32*)((u8*)kwlnGetCamera() + 0x88) = value;
+    ((RwCamera *)kwlnGetCamera())->fogPlane = value;
     kwlnGetCamera();
     return 1;
 }
 
+/* Store the real script operand in shared state; its wider gameplay role is not established. */
 // FUN_00178470
 s32 Cmd_SetFloatGlobal(void)
 {
@@ -877,13 +907,14 @@ s32 Cmd_SetFloatGlobal(void)
 
 
 
+/* Return the nearest entry identifier; assert when no entry is available. */
 // FUN_001784A0
 s32 Cmd_LoadFieldWord(void)
 {
-    u16* p = FldEvent_GetNearestEntry();
-    if (p != 0)
+    u16* entry = FldEvent_GetNearestEntry();
+    if (entry != 0)
     {
-        scrSetReturnInt(*p);
+        scrSetReturnInt(*entry);
     }
     else
     {
@@ -894,13 +925,14 @@ s32 Cmd_LoadFieldWord(void)
 
 
 
+/* Return the trigger entry identifier; assert when no entry is available. */
 // FUN_00178500
 s32 Cmd_LoadFieldWordAlt(void)
 {
-    u16* p = FldEvent_GetTriggerEntry();
-    if (p != 0)
+    u16* entry = FldEvent_GetTriggerEntry();
+    if (entry != 0)
     {
-        scrSetReturnInt(*p);
+        scrSetReturnInt(*entry);
     }
     else
     {
@@ -909,6 +941,7 @@ s32 Cmd_LoadFieldWordAlt(void)
     return 1;
 }
 
+/* Return whether the requested resource/value pair is absent from the field-sequence records. */
 // FUN_00178970
 u32 Cmd_TestResourceValue()
 {
@@ -942,6 +975,7 @@ s32 scrGetTimeSlot(void) {
 }
 
 
+/* Form a character-resource identifier from the low ten operand bits and spawn its byte-sized icon. */
 // FUN_0025C6D0
 u32 Cmd_SetResourceValueByte(void)
 {
@@ -957,6 +991,7 @@ u32 Cmd_SetResourceValueByte(void)
 }
 
 
+/* Return the item count using a signed-halfword item identifier and byte-sized result. */
 // FUN_0025D100
 u32 Cmd_LoadTableWord()
 {
@@ -1001,12 +1036,12 @@ s32 K_Cmd_CALC_MAX_HP(void) {
 // FUN_00299D00
 s32 K_Cmd_SET_UNIT_HP(void)
 {
-    s64 temp_16;
-    s64 temp_17;
+    s64 unitId;
+    s64 hitPoints;
 
-    temp_16 = scrGetParamIntS64(0);
-    temp_17 = scrGetParamIntS64(1);
-    datSetUnitHp((s16)temp_16, (s16)temp_17);
+    unitId = scrGetParamIntS64(0);
+    hitPoints = scrGetParamIntS64(1);
+    datSetUnitHp((s16)unitId, (s16)hitPoints);
     return 1;
 }
 
@@ -1031,16 +1066,17 @@ s32 K_Cmd_CALC_MAX_SP(void) {
 // FUN_00299E00
 s32 K_Cmd_SET_UNIT_SP(void)
 {
-    s64 temp_16;
-    s64 temp_17;
+    s64 unitId;
+    s64 skillPoints;
 
-    temp_16 = scrGetParamIntS64(0);
-    temp_17 = scrGetParamIntS64(1);
-    datSetUnitSp((s16)temp_16, (s16)temp_17);
+    unitId = scrGetParamIntS64(0);
+    skillPoints = scrGetParamIntS64(1);
+    datSetUnitSp((s16)unitId, (s16)skillPoints);
     return 1;
 }
 
 
+/* Return the character level using a signed-halfword identifier and byte-sized result. */
 // FUN_00299FD0
 u32 Cmd_LoadTableWordAlt(void)
 {
