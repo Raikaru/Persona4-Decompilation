@@ -95,7 +95,7 @@ extern s32 datCalcHasSkill(u8 *unit, s32 command);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 command);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern void func_001ebc00(u8 *a, u8 *b);
+extern void btlAiChooseUsableAttackSkill(u8 *a, u8 *b);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcPickSpecialItem(u8 *arg0);
 extern u32 datCalcGetLevel(u32 arg0);
@@ -116,7 +116,7 @@ extern void kwlnTaskAddChild(u8 *a, u32 b);
 extern u8 D_00609E20[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
-extern void func_001eb3b0(u8 *a);
+extern void btlTargetResetCommandRecord(u8 *a);
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
@@ -1912,7 +1912,7 @@ void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode)
         ((BtlAiCommandWork *)work)->kind = 0xC;
         break;
     case 0x8009:
-        func_001ebc00(action, work);
+        btlAiChooseUsableAttackSkill(action, work);
         break;
     case 0x8004:
         actionCode = (u16)(datCalcPickSpecialItem((u8 *)(((BtlAction *)action))->unit->datUnit) & 0xFFFF);
@@ -2087,7 +2087,7 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
     u32 conditionResult;
 
     baseActionId = *(u16 *)(*(s32 *)(action + 0x30) + 0xa4);
-    func_001eb3b0((u8 *)work);
+    btlTargetResetCommandRecord((u8 *)work);
     genus = *(u8 *)(*(s32 *)(action + 0x30) + 0xa2);
     switch (genus) {
     case 0:

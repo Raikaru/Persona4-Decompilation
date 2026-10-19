@@ -1,3 +1,7 @@
+#include "btl_sound_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +17,30 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
+
+/* The step trigger occupies the first eight bytes of the playback block. */
+typedef struct BtlActionStepCounter {
+    u16 elapsed;
+    u16 interval;
+} BtlActionStepCounter;
+typedef struct BtlActionStepState {
+    BtlActionStepCounter counter;
+    u16 pending;
+    u16 unk06;
+} BtlActionStepState;
+
+/* Packet 0x800 has 0x18 bytes of work, populated by btlTargetCreateTargetPacket. */
+typedef struct BtlTargetCallbackWork {
+    s32 action;
+    u16 command;
+    u8 pad06[2];
+    s32 argument;
+    s32 extraArgument;
+    s32 flags;
+    s32 result;
+} BtlTargetCallbackWork;
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -93,8 +107,8 @@ extern u8 D_00624FA0[];
 
 extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 func_001f0d30(u8 *arg0);
-extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *arg0);
+extern s32 btlActionTargetsHaveDamageResult(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern s32 btlTargetGroupStateMatches(u8 *arg0);
 extern s32 btlSoundRequestPlayback(s16 arg0, s32 arg1);
@@ -123,14 +137,18 @@ extern u8 *btlActionFindByUnit(s32 arg0);
 /* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
+/* Return the current-actor message only for the selected action. */
+/* Raw selected-action word comparison preserves the existing integer callback contract; the shared state stores a pointer. */
 // FUN_001F42A0
-s32 btlActionGetCurrentActorMsgCode(s32 arg0) {
-    if (*(s32 *)(iGpffffb3ac + 0x170) != arg0) {
+s32 btlActionGetCurrentActorMsgCode(s32 context) {
+    if (*(s32 *)(iGpffffb3ac + 0x170) != context) {
         return -1;
     }
     return 0x173;
 }
 
+/* Choose the default message, including the battle-flag/actor-id exception. */
+/* Raw battle flags preserve the signed-word access of this callback; the shared field is unsigned. */
 // FUN_001F42D0
 s32 btlActionGetDefaultMsgCode(void) {
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) != 0) {
@@ -141,30 +159,32 @@ s32 btlActionGetDefaultMsgCode(void) {
     return 0x165;
 }
 
+/* Choose the selected-action or enemy-side message, otherwise return -1. */
 // FUN_001F4330
-s32 btlActionGetSideMsgCode(u8 *arg0)
+s32 btlActionGetSideMsgCode(u8 *context)
 {
-    if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction == context) {
         return 0x99;
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus == 1) {
         return 0x5D;
     }
     return -1;
 }
 
+/* Map party character ids to the message bank beginning at 0x68. */
 // FUN_001F4380
-s32 func_001f4380(u8 *arg0)
+s32 func_001f4380(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x68;
     case 2:
@@ -184,54 +204,57 @@ s32 func_001f4380(u8 *arg0)
     }
 }
 
+/* Select a character message tier only while enemies remain. */
+/* measured: the remaining action-unit reload changed MATCH when converted to the typed unit field. */
 // FUN_001F4430
-s32 btlActionGetCharacterLevelMsg(u8 *arg0, s32 arg1) {
-    s32 temp_4;
-    u16 temp_2;
+s32 btlActionGetCharacterLevelMsg(u8 *action, s32 tier) {
+    s32 messageOffset;
+    u16 characterId;
 
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->genus != 0) {
         return -1;
     }
-    if (arg1 <= 0) {
+    if (tier <= 0) {
         return -1;
     }
     if (!(func_001ef720(2, 0x80000) & 0xFFFF)) {
         return -1;
     }
-    temp_4 = (5 - arg1) * 7;
-    temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-    switch (temp_2) {
+    messageOffset = (5 - tier) * 7;
+    characterId = ((BtlUnit *)*(u8 **)(action + 0x30))->charId;
+    switch (characterId) {
     case 1:
-        return temp_4 + 0xFD;
+        return messageOffset + 0xFD;
     case 2:
-        return temp_4 + 0xFE;
+        return messageOffset + 0xFE;
     case 3:
-        return temp_4 + 0xFF;
+        return messageOffset + 0xFF;
     case 4:
-        return temp_4 + 0x100;
+        return messageOffset + 0x100;
     case 6:
-        return temp_4 + 0x101;
+        return messageOffset + 0x101;
     case 7:
-        return temp_4 + 0x102;
+        return messageOffset + 0x102;
     case 8:
-        return temp_4 + 0x103;
+        return messageOffset + 0x103;
     default:
         return -1;
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x3D. */
 // FUN_001F4550
-s32 func_001f4550(u8 *arg0)
+s32 func_001f4550(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x3D;
     case 2:
@@ -251,18 +274,19 @@ s32 func_001f4550(u8 *arg0)
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x35. */
 // FUN_001F4600
-s32 func_001f4600(u8 *arg0)
+s32 func_001f4600(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x35;
     case 2:
@@ -282,18 +306,19 @@ s32 func_001f4600(u8 *arg0)
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x14A. */
 // FUN_001F46B0
-s32 func_001f46b0(u8 *arg0)
+s32 func_001f46b0(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x14A;
     case 2:
@@ -313,18 +338,19 @@ s32 func_001f46b0(u8 *arg0)
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x143. */
 // FUN_001F4760
-s32 func_001f4760(u8 *arg0)
+s32 func_001f4760(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x143;
     case 2:
@@ -344,119 +370,122 @@ s32 func_001f4760(u8 *arg0)
     }
 }
 
+/* Choose a character/tier message, with optional thirty-percent special-bank rolls. */
+/* measured: the remaining repeated action-unit loads changed MATCH when typed, including one-access substitutions. */
 // FUN_001F4810
-s32 btlActionPickMsgCodeByRoll(u8 *arg0, s32 arg1, s32 arg2) {
-    s32 temp_4;
+s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
+    s32 messageOffset;
 
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->genus != 0) {
         return -1;
     }
-    if ((arg2 >= 6) || (arg2 <= 0)) {
+    if ((tier >= 6) || (tier <= 0)) {
         return -1;
     }
-    if (arg2 == 1) {
-        if ((arg1 & 2) && (datCalcRandomBelow(0x64) < 0x1E)) {
-            s32 var_2_2;
-            if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
-                var_2_2 = -1;
+    if (tier == 1) {
+        if ((flags & 2) && (datCalcRandomBelow(0x64) < 0x1E)) {
+            s32 firstChoice;
+            if (((BtlUnit *)*(u8 **)(action + 0x30))->genus != 0) {
+                firstChoice = -1;
             } else {
-                switch (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)) {
+                switch (((BtlUnit *)*(u8 **)(action + 0x30))->charId) {
                 case 1:
-                    var_2_2 = 0x14A;
+                    firstChoice = 0x14A;
                     break;
                 case 2:
-                    var_2_2 = 0x14B;
+                    firstChoice = 0x14B;
                     break;
                 case 3:
-                    var_2_2 = 0x14C;
+                    firstChoice = 0x14C;
                     break;
                 case 4:
-                    var_2_2 = 0x14D;
+                    firstChoice = 0x14D;
                     break;
                 case 6:
-                    var_2_2 = 0x14E;
+                    firstChoice = 0x14E;
                     break;
                 case 7:
-                    var_2_2 = 0x14F;
+                    firstChoice = 0x14F;
                     break;
                 case 8:
-                    var_2_2 = 0x150;
+                    firstChoice = 0x150;
                     break;
                 default:
-                    var_2_2 = -1;
+                    firstChoice = -1;
                     break;
                 }
             }
-            return var_2_2;
+            return firstChoice;
         }
-        if ((arg1 & 4) && (datCalcRandomBelow(0x64) < 0x1E)) {
-            s32 var_2;
-            if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
-                var_2 = -1;
+        if ((flags & 4) && (datCalcRandomBelow(0x64) < 0x1E)) {
+            s32 secondChoice;
+            if (((BtlUnit *)*(u8 **)(action + 0x30))->genus != 0) {
+                secondChoice = -1;
             } else {
-                switch (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)) {
+                switch (((BtlUnit *)*(u8 **)(action + 0x30))->charId) {
                 case 1:
-                    var_2 = 0x143;
+                    secondChoice = 0x143;
                     break;
                 case 2:
-                    var_2 = 0x144;
+                    secondChoice = 0x144;
                     break;
                 case 3:
-                    var_2 = 0x145;
+                    secondChoice = 0x145;
                     break;
                 case 4:
-                    var_2 = 0x146;
+                    secondChoice = 0x146;
                     break;
                 case 6:
-                    var_2 = 0x147;
+                    secondChoice = 0x147;
                     break;
                 case 7:
-                    var_2 = 0x148;
+                    secondChoice = 0x148;
                     break;
                 case 8:
-                    var_2 = 0x149;
+                    secondChoice = 0x149;
                     break;
                 default:
-                    var_2 = -1;
+                    secondChoice = -1;
                     break;
                 }
             }
-            return var_2;
+            return secondChoice;
         }
     }
-    temp_4 = (5 - arg2) * 7;
-    switch (*(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)) {
+    messageOffset = (5 - tier) * 7;
+    switch (((BtlUnit *)*(u8 **)(action + 0x30))->charId) {
     case 1:
-        return temp_4 + 0x120;
+        return messageOffset + 0x120;
     case 2:
-        return temp_4 + 0x121;
+        return messageOffset + 0x121;
     case 3:
-        return temp_4 + 0x122;
+        return messageOffset + 0x122;
     case 4:
-        return temp_4 + 0x123;
+        return messageOffset + 0x123;
     case 6:
-        return temp_4 + 0x124;
+        return messageOffset + 0x124;
     case 7:
-        return temp_4 + 0x125;
+        return messageOffset + 0x125;
     case 8:
-        return temp_4 + 0x126;
+        return messageOffset + 0x126;
     default:
         return -1;
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x158. */
 // FUN_001F4AD0
-s32 func_001f4ad0(u8 *arg0)
+s32 func_001f4ad0(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x158;
     case 2:
@@ -476,18 +505,19 @@ s32 func_001f4ad0(u8 *arg0)
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x4D. */
 // FUN_001F4B80
-s32 func_001f4b80(u8 *arg0)
+s32 func_001f4b80(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x4D;
     case 2:
@@ -507,18 +537,19 @@ s32 func_001f4b80(u8 *arg0)
     }
 }
 
+/* Map party character ids to the message bank beginning at 0x2D. */
 // FUN_001F4C30
-s32 func_001f4c30(u8 *arg0)
+s32 func_001f4c30(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return 0x2D;
     case 2:
@@ -538,23 +569,25 @@ s32 func_001f4c30(u8 *arg0)
     }
 }
 
+/* Choose the character message bank according to the battle flag and current actor id. */
+/* measured: the initial unit-pointer load must remain raw to preserve the verified branch/load sequence. */
 // FUN_001F4CE0
-s32 func_001f4ce0(u8 *arg0)
+s32 func_001f4ce0(u8 *action)
 {
-    u16 temp_2;
-    u16 temp_2_2;
-    u8 *temp_4;
+    u16 specialCharacterId;
+    u16 characterId;
+    u8 *unit;
 
-    temp_4 = *(u8 **)(arg0 + 0x30);
-    if (temp_4[0xA2] != 0) {
+    unit = *(u8 **)(action + 0x30);
+    if (unit[0xA2] != 0) {
         return -1;
     }
-    if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) != 0) {
+    if ((((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x20000000) != 0) {
         if (btlCurrentUnitId() != 0x20B) {
             goto high_default_4ce0;
         }
-        temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-        switch (temp_2) {
+        specialCharacterId = ((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->charId;
+        switch (specialCharacterId) {
         case 2:
             return 0x18C;
         case 3:
@@ -578,8 +611,8 @@ s32 func_001f4ce0(u8 *arg0)
 high_default_4ce0:
     return -1;
 low_switch_4ce0:
-    temp_2_2 = *(u16 *)(temp_4 + 0xA4);
-    switch (temp_2_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 2:
         return 0x26;
     case 3:
@@ -607,8 +640,10 @@ low_switch_4ce0:
    This preserves both addiu/LH-at-zero pairs and the signed actor guard.
    The owned nine-entry switch table resolves to retail at 0x00747500.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
+/* Collect party status/buff and enemy-count messages, then pick a non-repeated candidate. */
+/* measured: remaining unit and playback snapshots changed MATCH under per-access typing; keep the raw loads around query callbacks. */
 // FUN_001F4E50
-s64 btlActionPickRandomStatusMsg(u8 *arg0) {
+s64 btlActionPickRandomStatusMsg(u8 *context) {
     struct ActionMessageChoice {
         s16 code;
         s16 actor;
@@ -620,25 +655,25 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
     s32 enemyCount;
     u8 *battle;
 
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus != 0) {
         return -1;
     }
     choiceCount = 0;
     code8ACount = 0;
     battle = iGpffffb3ac;
-    unit = *(u8 **)(battle + 0x178);
+    unit = ((BtlBattleState *)battle)->unitLists[0];
     while (unit != NULL) {
-        if (datCalcIsDead((s32)(*(u8 **)(unit + 0xA64)), 0) == 0) {
+        if (datCalcIsDead((s32)((u8 *)((BtlUnit *)unit)->datUnit), 0) == 0) {
             u8 *unitWork = (u8 *)btlActionFindByUnit((s32)unit);
-            if ((unitWork == NULL) || !(*(u16 *)(unitWork + 0x18) & 0x20)) {
+            if ((unitWork == NULL) || !(((BtlAction *)unitWork)->flags & 0x20)) {
                 if (datCalcIsLowHp((s32)((void *)*(u8 **)(unit + 0xA64))) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x8A;
-                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choice->actor = ((BtlUnit *)unit)->charId;
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                     code8ACount = (code8ACount + 1) & 0xFFFF;
                 }
-                if (*(u16 *)(unit + 0xA4) != 1) {
+                if (((BtlUnit *)unit)->charId != 1) {
                     if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x10) != 0) {
                         struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                         choice->code = 0x99;
@@ -701,12 +736,12 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
                 }
             }
         }
-        unit = *(u8 **)(unit + 0xA6C);
+        unit = (u8 *)((BtlUnit *)unit)->nextUnit;
     }
     {
-        u8 *sourceUnit = *(u8 **)(arg0 + 0x30);
-        if (*(u16 *)(sourceUnit + 0xA4) == 1) {
-            if (datCalcChkBadStatus(*(s32 *)(sourceUnit + 0xA64), 0x20) != 0) {
+        u8 *sourceUnit = *(u8 **)(context + 0x30);
+        if (((BtlUnit *)sourceUnit)->charId == 1) {
+            if (datCalcChkBadStatus((s32)((BtlUnit *)sourceUnit)->datUnit, 0x20) != 0) {
                 choices[choiceCount & 0xFFFF].code = 0x92;
                 choices[choiceCount & 0xFFFF].actor = -1;
                 choiceCount = (choiceCount + 1) & 0xFFFF;
@@ -742,7 +777,7 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
     {
         u8 *battleCounts = iGpffffb3ac;
         s16 *savedEnemyCount = (s16 *)(battleCounts + 0xA6C);
-        if (*(s16 *)(battleCounts + 0xA6C) == enemyCount) {
+        if (((BtlSoundPlayback *)(battleCounts + 0xA44))->unk28 == enemyCount) {
             if ((enemyCount < 6) && (enemyCount > 0)) {
                 choices[choiceCount & 0xFFFF].code = 0x89 - enemyCount;
                 choices[choiceCount & 0xFFFF].actor = -1;
@@ -766,7 +801,7 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
         selectedCode = *(s16 *)codeAddress;
         battleSelection = iGpffffb3ac;
         previousCode = (s32 *)(battleSelection + 0xA68);
-        if (*(s32 *)(battleSelection + 0xA68) == selectedCode) {
+        if (((BtlSoundPlayback *)(battleSelection + 0xA44))->unk24 == selectedCode) {
             return -1;
         }
         *previousCode = selectedCode;
@@ -798,18 +833,20 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
     return selectedCode;
 }
 
+/* Select an ailment message for the selected action while its pending kind is 0xB. */
+/* measured: these DatUnit-pointer reloads must remain raw after the first status query; typing either changed MATCH. */
 // FUN_001F55B0
-s32 btlActionGetPendingMsgCode(u8 *arg0)
+s32 btlActionGetPendingMsgCode(u8 *context)
 {
     u8 *work;
 
-    if (*(u8 **)(iGpffffb3ac + 0x170) != arg0) {
+    if (((BtlBattleState *)iGpffffb3ac)->selectedAction != context) {
         return -1;
     }
-    work = *(u8 **)(arg0 + 0x30);
-    switch (*(u16 *)(arg0 + 0x6C)) {
+    work = (u8 *)((BtlAction *)context)->unit;
+    switch (((BtlAction *)context)->unk_6c) {
     case 0xB:
-        if (datCalcChkBadStatus(*(s32 *)(work + 0xA64), 0x10) != 0) {
+        if (datCalcChkBadStatus((s32)((BtlUnit *)work)->datUnit, 0x10) != 0) {
             return 0x91;
         }
         if (datCalcChkBadStatus(*(s32 *)(work + 0xA64), 4) != 0) {
@@ -825,6 +862,8 @@ s32 btlActionGetPendingMsgCode(u8 *arg0)
     return -1;
 }
 
+/* Map an encounter slot from one through five to its message code. */
+/* The encounter record is opaque here; only its halfword slot selector at +2 is established. */
 // FUN_001F5680
 /* The `return -1` and `return v + 0x11` blocks are reached by goto so they
    land in retail's order; writing both as plain returns emits them the other
@@ -848,8 +887,10 @@ add:
     return v + 0x11;
 }
 
+/* Gate a target-message callback against playback state and encounter flags, then request playback. */
+/* measured: remaining playback-state reloads changed MATCH when typed. Encounter-rule and relative-message directory payloads remain opaque. */
 // FUN_001F56D0
-s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4) {
+s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra, s32 argumentMode) {
     s32 flags;
     s32 mode;
     s32 index;
@@ -865,10 +906,10 @@ s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4)
     if ((flags & 0x1000000) == 0) {
         return 1;
     }
-    if (*(u16 *)(iGpffffb3ac + 0xA50) != 0) {
+    if (((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->phase != 0) {
         return 0;
     }
-    mode = arg4 & 6;
+    mode = argumentMode & 6;
     if ((mode == 0) && ((*(u16 *)(iGpffffb3ac + 0xA4E) & 1) != 0)) {
         return 1;
     }
@@ -877,7 +918,7 @@ s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4)
         return 1;
     }
     if ((*(u16 *)(iGpffffb3ac + 0xA4E) & 1) != 0) {
-        index = arg1 & 0xFFFF;
+        index = argument & 0xFFFF;
         if (*(s16 *)(iGpffffb3ac + 0xA5C) == index) {
             return 1;
         }
@@ -885,11 +926,11 @@ s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4)
             return 1;
         }
     }
-    callback = D_0060AB20[arg1 & 0xFFFF];
+    callback = D_0060AB20[argument & 0xFFFF];
     if (callback == NULL) {
         return 1;
     }
-    value = callback(arg0, arg2, arg3, 0);
+    value = callback(context, option, extra, 0);
     if (value < 0) {
         return 1;
     }
@@ -899,41 +940,43 @@ s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4)
         s32 slot;
         pool = *(u8 **)(iGpffffb3ac + 0xA54);
         slot = value & 0xFFFF;
-        entries = *(u8 **)(pool + 0x110);
+        entries = (u8 *)((HCdvdRequest *)pool)->data;
         if (*(u8 *)(entries + slot * 0xC) != 0) {
             return 1;
         }
     }
-    if ((arg4 & 2) != 0) {
+    if ((argumentMode & 2) != 0) {
         btlSoundCancelPlayback();
-        *(u16 *)(iGpffffb3ac + 0xA6E) = 2;
+        ((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->unk2A = 2;
     } else {
-        *(u16 *)(iGpffffb3ac + 0xA6E) = 0;
+        ((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->unk2A = 0;
     }
-    result = btlSoundRequestPlayback(arg1, value);
+    result = btlSoundRequestPlayback(argument, value);
     return result;
 }
 
+/* Advance the delayed message request, select a record, and remember its callback/channel. */
+/* The message directory retains twelve-byte relative-offset rows; its resource payload is outside the playback-state layout. */
 // FUN_001F58D0
 void btlActionStepMessagePhase(void)
 {
-    s16 temp_2;
-    u8 *state_ptr;
-    u8 *temp_2_ptr;
-    u8 *temp_16;
-    u8 *temp_4;
-    u16 temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
-    u8 *temp_3_5;
-    u8 *temp_4_2;
-    u8 *temp_6;
+    s16 delay;
+    u8 *phaseAddress;
+    u8 *delayAddress;
+    u8 *messageRecord;
+    u8 *messageTable;
+    u16 phase;
+    u8 *messageState;
+    u8 *codeState;
+    u8 *actorState;
+    u8 *flagState;
+    u8 *idleState;
+    u8 *battle;
 
-    temp_6 = iGpffffb3ac;
-    state_ptr = temp_6 + 0xA50;
-    temp_3 = *(u16 *)state_ptr;
-    switch (temp_3) {
+    battle = iGpffffb3ac;
+    phaseAddress = battle + 0xA50;
+    phase = *(u16 *)phaseAddress;
+    switch (phase) {
     case 0:
         goto done;
     case 1:
@@ -944,42 +987,44 @@ void btlActionStepMessagePhase(void)
         goto done;
     }
 case1:
-    temp_2_ptr = temp_6 + 0xA6E;
-    temp_2 = *(s16 *)temp_2_ptr;
-    if (temp_2 > 0) {
-        *(s16 *)temp_2_ptr = (s16)(temp_2 - 1);
+    delayAddress = battle + 0xA6E;
+    delay = *(s16 *)delayAddress;
+    if (delay > 0) {
+        *(s16 *)delayAddress = (s16)(delay - 1);
         goto done;
     }
-    *(u16 *)state_ptr = 2;
+    *(u16 *)phaseAddress = 2;
 case2:
-    temp_3_2 = iGpffffb3ac;
-    temp_4 = *(u8 **)(*(u8 **)(temp_3_2 + 0xA54) + 0x110);
-    temp_16 = temp_4 + ((s32 *)(temp_4 + 4))[*(u16 *)(temp_3_2 + 0xA60) * 3];
-    fclMiscSetStatusCode(temp_16, state_ptr, temp_6);
-    fclMiscAddRecord(*(u16 *)(iGpffffb3ac + 0xA4C),
-                  datCalcRandomBelow(itfMesRecordCount(temp_16)), 0, 0);
-    temp_3_3 = iGpffffb3ac;
-    *(s32 *)(temp_3_3 + 0xA58) = *(s32 *)(temp_3_3 + 0xA60);
-    temp_3_4 = iGpffffb3ac;
-    *(s16 *)(temp_3_4 + 0xA5C) = *(s16 *)(temp_3_4 + 0xA64);
-    temp_3_5 = iGpffffb3ac;
-    *(u16 *)(temp_3_5 + 0xA4E) =
-        (u16)(*(u16 *)(temp_3_5 + 0xA4E) | 1);
-    *(u16 *)(iGpffffb3ac + 0xA50) = 0;
+    messageState = iGpffffb3ac;
+    messageTable = *(u8 **)(((BtlSoundPlayback *)(messageState + 0xA44))->handle + 0x110);
+    messageRecord = messageTable + ((s32 *)(messageTable + 4))[*(u16 *)(messageState + 0xA60) * 3];
+    fclMiscSetStatusCode(messageRecord, phaseAddress, battle);
+    fclMiscAddRecord(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->channel,
+                  datCalcRandomBelow(itfMesRecordCount(messageRecord)), 0, 0);
+    codeState = iGpffffb3ac;
+    ((BtlSoundPlayback *)(codeState + 0xA44))->currentId = ((BtlSoundPlayback *)(codeState + 0xA44))->pendingId;
+    actorState = iGpffffb3ac;
+    ((BtlSoundPlayback *)(actorState + 0xA44))->currentChannel = ((BtlSoundPlayback *)(actorState + 0xA44))->pendingChannel;
+    flagState = iGpffffb3ac;
+    ((BtlSoundPlayback *)(flagState + 0xA44))->flags =
+        (u16)(((BtlSoundPlayback *)(flagState + 0xA44))->flags | 1);
+    ((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->phase = 0;
 done:
     if (fclMiscGetRecordCount() == 0) {
-        temp_4_2 = iGpffffb3ac;
-        *(u16 *)(temp_4_2 + 0xA4E) =
-            (u16)(*(u16 *)(temp_4_2 + 0xA4E) & 0xFFFE);
+        idleState = iGpffffb3ac;
+        ((BtlSoundPlayback *)(idleState + 0xA44))->flags =
+            (u16)(((BtlSoundPlayback *)(idleState + 0xA44))->flags & 0xFFFE);
     }
 }
 
+/* Advance pending step counters and enqueue the trigger action when its threshold is reached. */
+/* measured: remaining counter/action reloads changed MATCH with typed substitutions; preserve their callback-crossing byte-pointer shape. */
 // FUN_001F5A00
-void btlActionCheckStepTrigger(s32 arg0)
+void btlActionCheckStepTrigger(s32 context)
 {
     extern s32 btlActionGetQueueFront(void);
     extern s32 btlActionGetActive(void);
-    extern s32 btlActionActiveListPush(s32 arg0);
+    extern s32 btlActionActiveListPush(s32 context);
     s32 i;
     s32 result;
     u8 *current;
@@ -988,45 +1033,45 @@ void btlActionCheckStepTrigger(s32 arg0)
     result = 0;
     i = 0;
     while (((i & 0xFFFF) <= 0) && (result == 0)) {
-        if ((*(u16 *)(iGpffffb3ac + 0xA48) &
+        if ((((BtlActionStepState *)(iGpffffb3ac + 0xA44))->pending &
              ((1 << (i & 0xFFFF)) & 0xFFFF)) != 0) {
             switch (((1 << (i & 0xFFFF)) & 0xFFFF)) {
             case 1:
                 current = (u8 *)btlActionGetQueueFront();
                 if ((current != NULL) &&
-                    ((*(u16 *)(current + 0x1A) & 1) != 0) &&
-                    (arg0 != 0) &&
-                    (*(u8 *)(*(u8 **)(current + 0x30) + 0xA2) == 0)) {
-                    *(u16 *)(iGpffffb3ac + ((i & 0xFFFF) * 4) + 0xA44) =
-                        (u16)(*(u16 *)(iGpffffb3ac +
-                                       ((i & 0xFFFF) * 4) + 0xA44) + 1);
-                    if ((arg0 != 0) &&
+                    ((((BtlAction *)current)->unk_1a & 1) != 0) &&
+                    (context != 0) &&
+                    (((BtlUnit *)(u8 *)((BtlAction *)current)->unit)->genus == 0)) {
+                    ((BtlActionStepCounter *)(iGpffffb3ac + ((i & 0xFFFF) * 4) + 0xA44))->elapsed =
+                        (u16)(((BtlActionStepCounter *)(iGpffffb3ac +
+                                       ((i & 0xFFFF) * 4) + 0xA44))->elapsed + 1);
+                    if ((context != 0) &&
                         (*(u16 *)(iGpffffb3ac +
                                   ((i & 0xFFFF) * 4) + 0xA46) >= 4) &&
-                        (*(u16 *)(iGpffffb3ac +
-                                  ((i & 0xFFFF) * 4) + 0xA44) ==
-                         (*(u16 *)(iGpffffb3ac +
-                                   ((i & 0xFFFF) * 4) + 0xA46) >> 1))) {
+                        (((BtlActionStepCounter *)(iGpffffb3ac +
+                                  ((i & 0xFFFF) * 4) + 0xA44))->elapsed ==
+                         (((BtlActionStepCounter *)(iGpffffb3ac +
+                                   ((i & 0xFFFF) * 4) + 0xA44))->interval >> 1))) {
                         btlActionRunTargetCallback(
-                            *(s32 *)(iGpffffb3ac + 0x170), 4, 0, 0, 4);
+                            (s32)((BtlBattleState *)iGpffffb3ac)->selectedAction, 4, 0, 0, 4);
                     } else {
                         global = iGpffffb3ac;
-                        if ((*(u16 *)(global +
-                                      ((i & 0xFFFF) * 4) + 0xA44) >=
-                             *(u16 *)(global +
-                                      ((i & 0xFFFF) * 4) + 0xA46)) &&
+                        if ((((BtlActionStepCounter *)(global +
+                                      ((i & 0xFFFF) * 4) + 0xA44))->elapsed >=
+                             ((BtlActionStepCounter *)(global +
+                                      ((i & 0xFFFF) * 4) + 0xA44))->interval) &&
                             (datCalcChkBadStatus(
-                                 *(s32 *)(*(u8 **)(*(u8 **)(global + 0x170) +
+                                 *(s32 *)(*(u8 **)(((BtlBattleState *)global)->selectedAction +
                                                    0x30) + 0xA64),
                                  0x180010) == 0) &&
                             (btlActionGetActive() == 0)) {
-                            *(u16 *)(*(u8 **)(iGpffffb3ac + 0x170) + 0x16) =
+                            *(u16 *)(((BtlBattleState *)iGpffffb3ac)->selectedAction + 0x16) =
                                 0x1C;
                             btlActionActiveListPush(
-                                *(s32 *)(iGpffffb3ac + 0x170));
+                                (s32)((BtlBattleState *)iGpffffb3ac)->selectedAction);
                             result = 1;
-                            *(u16 *)(iGpffffb3ac + 0xA48) =
-                                (u16)(*(u16 *)(iGpffffb3ac + 0xA48) &
+                            ((BtlActionStepState *)(iGpffffb3ac + 0xA44))->pending =
+                                (u16)(((BtlActionStepState *)(iGpffffb3ac + 0xA44))->pending &
                                       0xFFFE);
                         }
                     }
@@ -1043,11 +1088,12 @@ void btlActionCheckStepTrigger(s32 arg0)
 /* measured: 708/720B MATCH; the remaining 12 bytes are zero tail padding.
    Paired group statistics stay in FPRs and preserve the retail operation
    tree and unsigned conversions without additional storage. */
+/* Roll and clamp a group-stat ratio, then derive the step-trigger interval from it. */
 // FUN_001F5BD0
 #pragma push
 /* measured: btlActionRollGroupRatio MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void btlActionRollGroupRatio(s32 arg0)
+void btlActionRollGroupRatio(s32 context)
 {
     u32 mask;
     unsigned int random_value;
@@ -1056,10 +1102,10 @@ void btlActionRollGroupRatio(s32 arg0)
     f32 ratio;
     u16 result;
 
-    mask = ((1 << (u16)arg0) & 0xFFFF);
-    *(u16 *)(iGpffffb3ac + 0xA48) =
-        (u16)(*(u16 *)(iGpffffb3ac + 0xA48) | mask);
-    switch ((u16)arg0) {
+    mask = ((1 << (u16)context) & 0xFFFF);
+    ((BtlActionStepState *)(iGpffffb3ac + 0xA44))->pending =
+        (u16)(((BtlActionStepState *)(iGpffffb3ac + 0xA44))->pending | mask);
+    switch ((u16)context) {
     case 0:
         goto body;
     default:
@@ -1083,43 +1129,46 @@ body:
     {
         s32 offset;
         u8 *p;
-        offset = (u16)arg0 * 4;
+        offset = (u16)context * 4;
         p = (u8 *)(offset + (s32)iGpffffb3ac);
-        *(u16 *)(p + 0xA44) = 0;
+        ((BtlActionStepCounter *)(p + 0xA44))->elapsed = 0;
         result = (u16)(100.0f / ratio);
-        offset = (u16)arg0 * 4;
+        offset = (u16)context * 4;
         p = (u8 *)(offset + (s32)iGpffffb3ac);
-        *(u16 *)(p + 0xA46) = result;
+        ((BtlActionStepCounter *)(p + 0xA44))->interval = result;
     }
 done:
     ;
 }
 
 #pragma pop
+/* Test whether the requested step-trigger bit is pending. */
 // FUN_001F5EA0
-s32 btlActionIsPendingBit(s32 arg0) {
-    return (s32)((*(u16 *)((u8 *)iGpffffb3ac + 0xA48) & (1 << (arg0 & 0xFFFF))) != 0);
+s32 btlActionIsPendingBit(s32 context) {
+    return (s32)((((BtlActionStepState *)((u8 *)iGpffffb3ac + 0xA44))->pending & (1 << (context & 0xFFFF))) != 0);
 }
 
+/* Cache target callback dispatch and optionally wait until its message playback has finished. */
+/* measured: the two remaining cached-result accesses changed MATCH when replaced with typed work fields. */
 // FUN_001F5ED0
-s32 btlActionCachedDispatch(u8 *arg0)
+s32 btlActionCachedDispatch(u8 *context)
 {
     s32 result;
     u8 *global;
 
-    if (*(s32 *)(arg0 + 0x14) == 0) {
-        *(s32 *)(arg0 + 0x14) = btlActionRunTargetCallback(
-            *(s32 *)(arg0 + 0),
-            *(u16 *)(arg0 + 4),
-            *(s32 *)(arg0 + 8),
-            *(s32 *)(arg0 + 0xC),
-            *(s32 *)(arg0 + 0x10));
+    if (((BtlTargetCallbackWork *)context)->result == 0) {
+        *(s32 *)(context + 0x14) = btlActionRunTargetCallback(
+            ((BtlTargetCallbackWork *)context)->action,
+            ((BtlTargetCallbackWork *)context)->command,
+            ((BtlTargetCallbackWork *)context)->argument,
+            ((BtlTargetCallbackWork *)context)->extraArgument,
+            ((BtlTargetCallbackWork *)context)->flags);
     }
-    result = *(s32 *)(arg0 + 0x14);
-    if ((result == 1) && (*(s32 *)(arg0 + 0x10) & 1) != 0) {
+    result = *(s32 *)(context + 0x14);
+    if ((result == 1) && (((BtlTargetCallbackWork *)context)->flags & 1) != 0) {
         global = iGpffffb3ac;
-        if (((*(u16 *)(global + 0xA4E) & 1) != 0) ||
-            (*(u16 *)(global + 0xA50) != 0)) {
+        if (((((BtlSoundPlayback *)(global + 0xA44))->flags & 1) != 0) ||
+            (((BtlSoundPlayback *)(global + 0xA44))->phase != 0)) {
             result = 0;
         }
     }

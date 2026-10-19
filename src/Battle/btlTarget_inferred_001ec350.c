@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,30 +8,13 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
-typedef signed __int128 s128;
-typedef struct P4Vec4_001EC2B0 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4Vec4_001EC2B0;
-typedef struct P4Vec4Holder_001EC2B0 {
-    P4Vec4_001EC2B0 quat;
-} P4Vec4Holder_001EC2B0;
-typedef struct P4RouteSlerp_001EF110 {
-    P4Vec4_001EC2B0 first;
-    P4Vec4_001EC2B0 second;
-    f32 angle;
-    s32 mode;
-} P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
-extern f32 sqrtf(f32 arg0);
+extern f32 sqrtf(f32);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -99,22 +83,23 @@ extern s32 btlAiSetGlobal(void);
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 // FUN_001EC350
-f32 func_001ec350(f32 *arg0, f32 *arg1)
+/* Normalize all four components; leave the destination untouched for zero length. */
+f32 btlTargetNormalizeVector(f32 *source, f32 *destination)
 {
     f32 zero;
     f32 length;
 
     zero = 0.0f;
     length = sqrtf(
-        arg0[0] * arg0[0] +
-        arg0[1] * arg0[1] +
-        arg0[2] * arg0[2] +
-        arg0[3] * arg0[3]);
+        source[0] * source[0] +
+        source[1] * source[1] +
+        source[2] * source[2] +
+        source[3] * source[3]);
     if (zero != length) {
-        arg1[0] = arg0[0] / length;
-        arg1[1] = arg0[1] / length;
-        arg1[2] = arg0[2] / length;
-        arg1[3] = arg0[3] / length;
+        destination[0] = source[0] / length;
+        destination[1] = source[1] / length;
+        destination[2] = source[2] / length;
+        destination[3] = source[3] / length;
     }
     return length;
 }

@@ -1,20 +1,10 @@
+#include "btl_effect_internal.h"
+#include "btl_unit_internal.h"
 #include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlUnit_00198300.c */
 #include "include_asm.h"
 #include "type.h"
 
-typedef struct BtlUnit BtlUnit;
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x47];
-    u8 flags;
-    u8 padding_48[0x20];
-    BtlPacketFunc initFunc;
-    BtlPacketFunc updateFunc;
-    BtlPacketFunc destroyFunc;
-    u8 padding_74[4];
-    void* workData;
-} BtlPacket;
 typedef struct RotateTowardUnitWork {
     BtlUnit* unit;
     BtlUnit* targetUnit;
@@ -97,19 +87,6 @@ u32 btlUnitReleasePendingShow(void* work);
 u32 btlUnitHoldPendingHide(void* work);
 u32 btlUnitHidePacketUpdate(void* work);
 u32 btlUnitReleasePendingHide(void* work);
-struct BtlUnit {
-    u8 padding_00[0x98];
-    u32 flags2;
-    u32 flags3;
-    u8 padding_a0[2];
-    u8 genus;
-    u8 padding_a3[0xd];
-    s16 lookAtMode;
-    u8 padding_b2[0x94e];
-    void* mdl;
-    u8 padding_a04[0x64];
-    struct BtlUnit* prev;
-};
 typedef struct BtlUnitResourceWork {
     BtlUnit* unit;
     u16 type;
@@ -139,14 +116,10 @@ u32 btlUnitHoldPendingLookAtDeactivate(void* work);
 u32 btlUnitLookAtDeactivatePacketUpdate(void* work);
 u32 btlUnitReleasePendingLookAtDeactivate(void* work);
 
-typedef struct BattleUnit {
-    u8 pad[0xa0];
-    u16 pendingPacketCount;
-} BattleUnit;
 
 typedef struct RotateTowardUnitPacket {
-    BattleUnit* unit;
-    BattleUnit* targetUnit;
+    BtlUnit* unit;
+    BtlUnit* targetUnit;
 } RotateTowardUnitPacket;
 
 
@@ -420,23 +393,24 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
 
 
 // FUN_0019E5D0
-u32 btlUnitHoldPendingLookAtDeactivate(void *arg0)
+u32 btlUnitHoldPendingLookAtDeactivate(void *context)
 {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL)
     {
-        *(u16 *)(temp + 0xa0) = *(u16 *)(temp + 0xa0) + 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount + 1;
     }
 }
+/* Restore default look-at ranges and request a model update for one unit or both selected lists. */
 // FUN_0019E5F0
 u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
 {
     extern u8* iGpffffb3ac;
-    extern void mdlSetBlendWeight(void* arg0, f32 arg1);
-    extern void mdlLookAtSetupSetRange(void* arg0, f32 arg1, f32 arg2);
-    extern void mdlSetLookAtRequested(void* arg0);
+    extern void mdlSetBlendWeight(void* context, f32 value);
+    extern void mdlLookAtSetupSetRange(void* context, f32 value, f32 option);
+    extern void mdlSetLookAtRequested(void* context);
     BtlUnitPacketLookAtDeactivate* packet;
     BtlUnit* curr;
 
@@ -446,33 +420,33 @@ u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
     {
         if (packet->flags & 1)
         {
-            curr = *(BtlUnit**)((u8*)iGpffffb3ac + 0x17c);
+            curr = (BtlUnit *)((BtlBattleState *)iGpffffb3ac)->unitLists[1];
             while (curr != NULL)
             {
                 if ((curr->flags3 & 8) && (curr->flags2 & 2))
                 {
-                    mdlSetBlendWeight(curr->mdl, 0.25f);
-                    mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-                    mdlSetLookAtRequested(curr->mdl);
+                    mdlSetBlendWeight(curr->layerHandle, 0.25f);
+                    mdlLookAtSetupSetRange(curr->layerHandle, 70.0f, 60.0f);
+                    mdlSetLookAtRequested(curr->layerHandle);
                     curr->lookAtMode = 0;
                 }
-                curr = curr->prev;
+                curr = curr->prevUnit;
             }
         }
 
         if (packet->flags & 2)
         {
-            curr = *(BtlUnit**)((u8*)iGpffffb3ac + 0x184);
+            curr = (BtlUnit *)((BtlBattleState *)iGpffffb3ac)->unitLists[3];
             while (curr != NULL)
             {
                 if ((curr->flags3 & 8) && (curr->flags2 & 2))
                 {
-                    mdlSetBlendWeight(curr->mdl, 0.25f);
-                    mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-                    mdlSetLookAtRequested(curr->mdl);
+                    mdlSetBlendWeight(curr->layerHandle, 0.25f);
+                    mdlLookAtSetupSetRange(curr->layerHandle, 70.0f, 60.0f);
+                    mdlSetLookAtRequested(curr->layerHandle);
                     curr->lookAtMode = 0;
                 }
-                curr = curr->prev;
+                curr = curr->prevUnit;
             }
         }
     }
@@ -481,9 +455,9 @@ u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
         curr = packet->unit;
         if (curr->flags2 & 2)
         {
-            mdlSetBlendWeight(curr->mdl, 0.25f);
-            mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-            mdlSetLookAtRequested(curr->mdl);
+            mdlSetBlendWeight(curr->layerHandle, 0.25f);
+            mdlLookAtSetupSetRange(curr->layerHandle, 70.0f, 60.0f);
+            mdlSetLookAtRequested(curr->layerHandle);
             curr->lookAtMode = 0;
         }
     }
@@ -491,14 +465,14 @@ u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
     return 1;
 }
 // FUN_0019E7A0
-u32 btlUnitReleasePendingLookAtDeactivate(void *arg0)
+u32 btlUnitReleasePendingLookAtDeactivate(void *context)
 {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL)
     {
-        *(u16 *)(temp + 0xa0) = *(u16 *)(temp + 0xa0) - 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount - 1;
     }
 }
 // FUN_0019E7C0

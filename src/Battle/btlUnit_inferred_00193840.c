@@ -1,3 +1,5 @@
+#include "h_cdvd_request_internal.h"
+#include "btl_effect_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
@@ -90,58 +92,15 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *p4_unit_00195530(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
+static inline s32 *btlPacketAddListByteOffset(s32 offset, s32 *base)
 {
     return (s32 *)((s32)base + offset);
 }
-static inline s32 p4_base_add_00194590(s32 offset, s32 base)
+static inline s32 btlPacketAddBaseOffset(s32 offset, s32 base)
 {
     return offset + base;
 }
-static inline u8 p4_one_00194470(void)
-{
-    return 1;
-}
-static inline s64 p4_sign16_001991c0(s16 value)
-{
-    return value;
-}
-static inline s32 p4_table_001951f0(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 p4_add_0019a680(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
-{
-    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
-}
-static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
-{
-    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
-}
 extern u8 iGpffffa4d8;
 extern void btlPacketStep(u8 *arg0);
 extern f32 fGpffff80fc;
@@ -156,10 +115,6 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 
-static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
-{
-    btlUnitInitChild(arg0, arg1);
-}
 extern void btlPacketFlushAll(void);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
@@ -178,7 +133,7 @@ extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00193840-00194b60 */
 
-static inline u8 *search_58_10(u64 uid)
+static inline u8 *btlPacketFindFlaggedByUid(u64 uid)
 {
     u8 *node;
     u8 *btl;
@@ -189,16 +144,16 @@ static inline u8 *search_58_10(u64 uid)
     while (i < 4) {
         node = *(u8 **)(btl + i * 8 + 0x19C);
         while (node != NULL) {
-            if (uid == (*(u64 *)(node + 0x58) & mask) && (*(u8 *)(node + 0x47) & 0x20) != 0) {
+            if (uid == (((BtlPacket *)node)->uid & mask) && (((BtlPacket *)node)->flags & 0x20) != 0) {
                 return node;
             }
-            node = *(u8 **)(node + 0x7C);
+            node = ((BtlPacket *)node)->previous;
         }
         i++;
     }
     return NULL;
 }
-static inline u8 *search_60_10(u64 uid)
+static inline u8 *btlPacketFindFlaggedByActionUid(u64 uid)
 {
     u8 *node;
     u8 *btl;
@@ -209,16 +164,17 @@ static inline u8 *search_60_10(u64 uid)
     while (i < 4) {
         node = *(u8 **)(btl + i * 8 + 0x19C);
         while (node != NULL) {
-            if (uid == (*(u64 *)(node + 0x60) & mask) && (*(u8 *)(node + 0x47) & 0x20) != 0) {
+            if (uid == (((BtlPacket *)node)->actionUID & mask) && (((BtlPacket *)node)->flags & 0x20) != 0) {
                 return node;
             }
-            node = *(u8 **)(node + 0x7C);
+            node = ((BtlPacket *)node)->previous;
         }
         i++;
     }
     return NULL;
 }
-static inline u8 *search_40_10(u16 key)
+/* This id search intentionally reads the low halfword of the 32-bit packet type. */
+static inline u8 *btlPacketFindFlaggedByType(u16 key)
 {
     u8 *node;
     u8 *btl;
@@ -228,10 +184,10 @@ static inline u8 *search_40_10(u16 key)
     while (i < 4) {
         node = *(u8 **)(btl + i * 8 + 0x19C);
         while (node != NULL) {
-            if (*(u16 *)(node + 0x40) == key && (*(u8 *)(node + 0x47) & 0x20) != 0) {
+            if (*(u16 *)(node + 0x40) == key && (((BtlPacket *)node)->flags & 0x20) != 0) {
                 return node;
             }
-            node = *(u8 **)(node + 0x7C);
+            node = ((BtlPacket *)node)->previous;
         }
         i++;
     }
@@ -246,20 +202,36 @@ typedef struct {
     u8 *tail;
 } PacketList;
 extern s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1);
+/* Eight-byte entries in a load descriptor; only the first leading word is
+ * passed to the directory loader. Each destination slot receives one block. */
+typedef struct BtlUnitLoadBlock {
+    u32 unk00;
+    u8 **destination;
+} BtlUnitLoadBlock;
+
+/* The save-table reset clears ten records of exactly 0x14 bytes. */
+typedef struct BtlUnitSavedRecord {
+    u16 unk00;
+    u16 unk02;
+    u8 pad04[0x10];
+} BtlUnitSavedRecord;
+
+/* Load packed blocks, align each source/destination span to sixteen bytes, and publish their pointers. */
+/* measured: typing the loaded-directory payload access changed MATCH; load-descriptor destinations are typed. */
 // FUN_00193840
-s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1)
+s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous)
 {
-    u8 *var_18;
-    s32 var_17;
-    u32 temp_16;
-    u32 temp_4;
-    u8 **temp_2;
+    u8 *block;
+    s32 blockIndex;
+    u32 blockSize;
+    u32 offset;
+    u8 **destination;
 
     if (iGpffffb434 == 0) {
         func_00440b68(&iGpffffa0a0, D_005F6BE0, 0x4B1);
-        iGpffffb434 = H_Cdvd_AcquireDirectory(*(s32 *)arg0, 0);
+        iGpffffb434 = H_Cdvd_AcquireDirectory(*(s32 *)loadTable, 0);
     }
-    if (arg1 != 0) {
+    if (synchronous != 0) {
         H_Cdvd_ReadSync(iGpffffb434);
         goto block_6;
     }
@@ -267,23 +239,23 @@ s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1)
         return 0;
     }
 block_6:
-    var_18 = *(u8 **)((u8 *)iGpffffb434 + 0x110);
-    var_17 = 0;
+    block = *(u8 **)((u8 *)iGpffffb434 + 0x110);
+    blockIndex = 0;
     goto loop_8_check;
 loop_8_body:
-    temp_16 = *(u32 *)var_18;
-    temp_4 = iGpffffb430;
-    *temp_2 = (u8 *)((s32)D_007F17B0 + temp_4);
+    blockSize = *(u32 *)block;
+    offset = iGpffffb430;
+    *destination = (u8 *)((s32)D_007F17B0 + offset);
     iGpffffb430 +=
-        (((temp_16 >> 4) + ((temp_16 & 0xF) != 0)) * 0x10);
-    memcpy(*temp_2, var_18 + 4, temp_16);
-    temp_4 = temp_16 + 4;
-    var_18 +=
-        (((temp_4 >> 4) + ((temp_4 & 0xF) != 0)) * 0x10);
-    var_17 += 1;
+        (((blockSize >> 4) + ((blockSize & 0xF) != 0)) * 0x10);
+    memcpy(*destination, block + 4, blockSize);
+    offset = blockSize + 4;
+    block +=
+        (((offset >> 4) + ((offset & 0xF) != 0)) * 0x10);
+    blockIndex += 1;
 loop_8_check:
-    temp_2 = *(u8 ***)((u8 *)arg0 + (var_17 * 8) + 4);
-    if (temp_2 != NULL) {
+    destination = ((BtlUnitLoadBlock *)loadTable)[blockIndex].destination;
+    if (destination != NULL) {
         goto loop_8_body;
     }
     H_Cdvd_Destroy(iGpffffb434);
@@ -291,6 +263,7 @@ loop_8_check:
     return 1;
 }
 
+/* Synchronously load the effect, UI, sound, and panel assets used by battle units. */
 // FUN_001939A0
 void btlUnitLoadSyncedAssets(void) {
     btlEffectLoadFilesSync();
@@ -299,6 +272,7 @@ void btlUnitLoadSyncedAssets(void) {
     btlPanelLoadSync();
 }
 
+/* Poll the eight load descriptors in order and finish the load task after the final descriptor. */
 // FUN_001939E0
 s32 btlUnitLoadStep(u8 *unusedTask)
 {
@@ -332,6 +306,7 @@ end:
 /* 80/80 bytes; eight resolved relocations. Retail forwards the incoming
  * a0 to the task constructor as the parent; it is not an uninitialized
  * local left in an incidental register. */
+/* Reset load cursors and create the child task that polls battle-unit assets. */
 // FUN_00193A80
 void btlUnitStartLoad(u8 *ctx) {
     iGpffffb430 = 0;
@@ -343,8 +318,9 @@ void btlUnitStartLoad(u8 *ctx) {
 /* Resets the ten 20-byte unit-record slots of save chunk 40 (D_0079BE2C,
    src/g_data/g_data.c). Called from func_0010f4c0 in src/g_data/g_data.c,
    which owns the chunk's save/load copy. */
+/* Clear ten saved unit-record slots and initialize their leading halfwords. */
 // FUN_00193AD0
-void btlUnitRecordResetSaveTable(u8 *arg0)
+void btlUnitRecordResetSaveTable(u8 *context)
 {
     s16 i;
     s64 index;
@@ -355,14 +331,16 @@ void btlUnitRecordResetSaveTable(u8 *arg0)
     while ((u32)i < 10U) {
         index = i;
         offset = (s32)index * 0x14;
-        entry = arg0 + offset;
+        entry = context + offset;
         memset(entry, 0, 0x14);
-        *(u16 *)(entry + 0x0) = 0;
-        *(u16 *)(entry + 0x2) = 3;
+        ((BtlUnitSavedRecord *)entry)->unk00 = 0;
+        ((BtlUnitSavedRecord *)entry)->unk02 = 3;
         i++;
     }
 }
 
+/* Find a flagged packet by its masked packet UID across all four lists. */
+/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
 // FUN_00193B70
 u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
 {
@@ -375,17 +353,19 @@ u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
     while (i < 4) {
         packet = *(u8 **)(btl + i * 8 + 0x19C);
         while (packet != NULL) {
-            if (uid == (*(u64 *)(packet + 0x58) & mask) &&
-                (*(u8 *)(packet + 0x47) & 0x20) != 0) {
+            if (uid == (((BtlPacket *)packet)->uid & mask) &&
+                (((BtlPacket *)packet)->flags & 0x20) != 0) {
                 return packet;
             }
-            packet = *(u8 **)(packet + 0x7C);
+            packet = ((BtlPacket *)packet)->previous;
         }
         i++;
     }
     return NULL;
 }
 
+/* Find a flagged packet by its masked action UID across all four lists. */
+/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
 // FUN_00193BF0
 /* Same packet-list walk as btlUnitRecordFindByUID; this P4 packet stores the
  * UID at offset 0x60 instead of 0x58. */
@@ -400,17 +380,19 @@ u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
     while (i < 4) {
         packet = *(u8 **)(btl + i * 8 + 0x19C);
         while (packet != NULL) {
-            if (uid == (*(u64 *)(packet + 0x60) & mask) &&
-                (*(u8 *)(packet + 0x47) & 0x20) != 0) {
+            if (uid == (((BtlPacket *)packet)->actionUID & mask) &&
+                (((BtlPacket *)packet)->flags & 0x20) != 0) {
                 return packet;
             }
-            packet = *(u8 **)(packet + 0x7C);
+            packet = ((BtlPacket *)packet)->previous;
         }
         i++;
     }
     return NULL;
 }
 
+/* Count packets across the four battle lists. */
+/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
 // FUN_00193C70
 u32 btlCountUnitRecords(void)
 {
@@ -426,12 +408,14 @@ u32 btlCountUnitRecords(void)
         packet = *(u8 **)(btl + i * 8 + 0x19C);
         while (packet != NULL) {
             total++;
-            packet = *(u8 **)(packet + 0x7C);
+            packet = ((BtlPacket *)packet)->previous;
         }
     }
     return total;
 }
 
+/* Count packets whose type matches the low halfword of the supplied id. */
+/* measured: replacing the raw list-head load with PacketList.tail changed MATCH. */
 // FUN_00193CD0
 u32 btlCountUnitRecordsById(u32 id)
 {
@@ -447,10 +431,10 @@ u32 btlCountUnitRecordsById(u32 id)
     for (; i < 4; i++) {
         packet = *(u8 **)(btl + i * 8 + 0x19C);
         while (packet != NULL) {
-            if (*(u32 *)(packet + 0x40) == id) {
+            if (((BtlPacket *)packet)->type == id) {
                 total++;
             }
-            packet = *(u8 **)(packet + 0x7C);
+            packet = ((BtlPacket *)packet)->previous;
         }
     }
     return total;
@@ -461,6 +445,8 @@ u32 btlCountUnitRecordsById(u32 id)
 #define BTLUNIT_RECORD_FLAG_PENDING   0x01
 #define BTLUNIT_RECORD_FLAG_COMMITTED 0x04
 
+/* Promote pending unit-record flags to committed while walking the forward links. */
+/* measured: list/flag field substitutions changed MATCH; the +0x80 forward link is beyond the preserved 0x80-byte BtlPacket prefix. */
 // FUN_00193D30
 void btlUnitRecordCommitPending(void)
 {
@@ -472,7 +458,7 @@ void btlUnitRecordCommitPending(void)
     for (; i < 4; i++) {
         packet = *(u8 **)(iGpffffb3ac + i * 8 + 0x19C);
         while (packet != NULL) {
-            flags = *(u8 *)(packet + 0x47);
+            flags = ((BtlPacket *)packet)->flags;
             if ((flags & BTLUNIT_RECORD_FLAG_PENDING) != 0) {
                 *(u8 *)(packet + 0x47) = flags | BTLUNIT_RECORD_FLAG_COMMITTED;
             }
@@ -483,8 +469,9 @@ void btlUnitRecordCommitPending(void)
 
 /* measured: func_00193d90 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Evaluate a packet dependency by elapsed frame, packet/action UID, id, or optional condition callback. */
 // FUN_00193D90
-s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1)
+s32 btlPacketWaitConditionMet(u8 *context, s32 argument)
 {
     s32 result;
     u64 uid;
@@ -492,81 +479,81 @@ s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1)
     u8 *node;
     s32 (*cb)(u8 *);
     result = 0;
-    switch (*(u8 *)arg0) {
+    switch (*(u8 *)context) {
     case 1:
         result = 1;
         break;
     case 2:
-        if (*(s32 *)(arg0 + 8) <= arg1) {
+        if (((BtlPacketCondition *)context)->value.frame <= argument) {
             result = 1;
         }
         break;
     case 3:
-        uid = *(u64 *)(arg0 + 8);
-        node = search_58_10(uid);
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByUid(uid);
         if (node != NULL) {
             result = 1;
         }
         break;
     case 4:
-        uid = *(u64 *)(arg0 + 8);
-        node = search_58_10(uid);
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByUid(uid);
         if (node == NULL) {
             result = 1;
         }
         break;
     case 5:
         result = 1;
-        uid = *(u64 *)(arg0 + 8);
-        node = search_58_10(uid);
-        if (node != NULL && *(u8 *)(node + 0x45) != 2) {
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByUid(uid);
+        if (node != NULL && ((BtlPacket *)node)->phase != 2) {
             result = 0;
         }
         break;
     case 6:
-        uid = *(u64 *)(arg0 + 8);
-        node = search_60_10(uid);
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByActionUid(uid);
         if (node != NULL) {
             result = 1;
         }
         break;
     case 7:
-        uid = *(u64 *)(arg0 + 8);
-        node = search_60_10(uid);
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByActionUid(uid);
         if (node == NULL) {
             result = 1;
         }
         break;
     case 8:
         result = 1;
-        uid = *(u64 *)(arg0 + 8);
-        node = search_60_10(uid);
-        if (node != NULL && *(u8 *)(node + 0x45) != 2) {
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByActionUid(uid);
+        if (node != NULL && ((BtlPacket *)node)->phase != 2) {
             result = 0;
         }
         break;
     case 9:
-        key = *(u16 *)(arg0 + 8);
-        node = search_40_10(key);
+        key = ((BtlPacketCondition *)context)->value.id;
+        node = btlPacketFindFlaggedByType(key);
         if (node != NULL) {
             result = 1;
         }
         break;
     case 10:
-        key = *(u16 *)(arg0 + 8);
-        node = search_40_10(key);
+        key = ((BtlPacketCondition *)context)->value.id;
+        node = btlPacketFindFlaggedByType(key);
         if (node == NULL) {
             result = 1;
         }
         break;
     case 11:
         result = 1;
-        uid = *(u64 *)(arg0 + 8);
-        node = search_58_10(uid);
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByUid(uid);
         if (node != NULL) {
             cb = *(s32 (**)(u8 *))(node + 0x74);
             if (cb != NULL) {
-                result = cb(*(u8 **)(node + 0x78));
+                result = cb((u8 *)((BtlPacket *)node)->workData);
             } else {
                 result = 0;
             }
@@ -574,12 +561,12 @@ s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1)
         break;
     case 12:
         result = 1;
-        uid = *(u64 *)(arg0 + 8);
-        node = search_60_10(uid);
+        uid = ((BtlPacketCondition *)context)->value.uid;
+        node = btlPacketFindFlaggedByActionUid(uid);
         if (node != NULL) {
             cb = *(s32 (**)(u8 *))(node + 0x74);
             if (cb != NULL) {
-                result = cb(*(u8 **)(node + 0x78));
+                result = cb((u8 *)((BtlPacket *)node)->workData);
             } else {
                 result = 0;
             }
@@ -594,84 +581,88 @@ s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1)
    the 288-byte window at nd 0; -O2 reorders the initialisation. */
 /* measured: func_00194470 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
+/* Allocate the packet header and inline work, then initialize its four dependency conditions. */
+/* The four discriminator bytes are in 0x10-byte dependency records; raw indexed stores preserve the measured two-loop initialization order. */
 // FUN_00194470
-u8 *btlPacketAlloc(s32 arg0, s32 arg1)
+u8 *btlPacketAlloc(s32 packetType, s32 workSize)
 {
-    s32 temp_18;
-    s32 var_4;
-    s32 var_4_2;
+    s32 allocationSize;
+    s32 startConditionIndex;
+    s32 endConditionIndex;
     s32 value;
-    u8 *temp_2;
+    u8 *packet;
 
-    temp_18 = arg1 + 0x90;
+    allocationSize = workSize + 0x90;
     chkmemAllocSiteTag(D_005F6C00, 0x51);
-    temp_2 = D_008873E8[0](temp_18, 0x40000);
-    memset(temp_2, 0, temp_18);
-    *(s32 *)(temp_2 + 0x40) = arg0;
-    var_4 = 0;
+    packet = D_008873E8[0](allocationSize, 0x40000);
+    memset(packet, 0, allocationSize);
+    ((BtlPacket *)packet)->type = packetType;
+    startConditionIndex = 0;
     value = 1;
     goto loop1_check;
 loop1_body:
-    *(u8 *)(temp_2 + ((var_4 & 0xFFFF) << 4)) = value;
-    var_4 = (var_4 + 1) & 0xFFFF;
+    *(u8 *)(packet + ((startConditionIndex & 0xFFFF) << 4)) = value;
+    startConditionIndex = (startConditionIndex + 1) & 0xFFFF;
 loop1_check:
-    if ((var_4 & 0xFFFF) < 2) {
+    if ((startConditionIndex & 0xFFFF) < 2) {
         goto loop1_body;
     }
-    var_4_2 = 0;
+    endConditionIndex = 0;
     value = 1;
     goto loop2_check;
 loop2_body:
-    *(u8 *)(temp_2 + ((var_4_2 & 0xFFFF) << 4) + 0x20) = value;
-    var_4_2 = (var_4_2 + 1) & 0xFFFF;
+    *(u8 *)(packet + ((endConditionIndex & 0xFFFF) << 4) + 0x20) = value;
+    endConditionIndex = (endConditionIndex + 1) & 0xFFFF;
 loop2_check:
-    if ((var_4_2 & 0xFFFF) < 2) {
+    if ((endConditionIndex & 0xFFFF) < 2) {
         goto loop2_body;
     }
-    if (arg1 > 0) {
-        *(u8 **)(temp_2 + 0x78) = temp_2 + 0x90;
+    if (workSize > 0) {
+        (u8 *)((BtlPacket *)packet)->workData = packet + 0x90;
     }
-    *(u8 *)(temp_2 + 0x47) =
-        (u8)(*(u8 *)(temp_2 + 0x47) | 0x31);
-    return temp_2;
+    ((BtlPacket *)packet)->flags =
+        (u8)(((BtlPacket *)packet)->flags | 0x31);
+    return packet;
 }
 
 /* measured: func_00194590, func_00194670 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
+/* Assign a UID, initialize packet counters, invoke init, and link into the selected list. */
+/* measured: remaining packet snapshots changed MATCH when typed. List links at +0x80 lie beyond the preserved public packet prefix. */
 // FUN_00194590
 /* measured: opt_propagation off is scoped to func_00194590. */
-s64 btlPacketEnqueue(u8 *arg0, u32 arg1)
+s64 btlPacketEnqueue(u8 *context, u32 value)
 {
     u32 index;
     u8 *next;
     void (*callback)(u8 *);
 
-    *(s64 *)(arg0 + 0x58) = btlGetUID();
-    *(s32 *)(arg0 + 0x4C) = 0;
-    *(s32 *)(arg0 + 0x50) = 0;
-    *(u8 *)(arg0 + 0x45) = 0;
-    *(u8 *)(arg0 + 0x44) = arg1;
-    *(u8 *)(arg0 + 0x47) |= 8;
-    callback = *(void (**)(u8 *))(arg0 + 0x68);
+    ((BtlPacket *)context)->uid = btlGetUID();
+    ((BtlPacket *)context)->elapsed = 0;
+    ((BtlPacket *)context)->updateFrames = 0;
+    ((BtlPacket *)context)->phase = 0;
+    ((BtlPacket *)context)->listIndex = value;
+    ((BtlPacket *)context)->flags |= 8;
+    callback = *(void (**)(u8 *))(context + 0x68);
     if (callback != NULL) {
-        callback(*(u8 **)(arg0 + 0x78));
+        callback((u8 *)((BtlPacket *)context)->workData);
     }
-    *(s32 *)(arg0 + 0x7C) = 0;
-    index = ((u8)arg1) * 8;
-    next = *(u8 **)((u8 *)p4_entries_001900a0(0x198, (s32 *)iGpffffb3ac) + index);
+    *(s32 *)(context + 0x7C) = 0;
+    index = ((u8)value) * 8;
+    next = *(u8 **)((u8 *)btlPacketAddListByteOffset(0x198, (s32 *)iGpffffb3ac) + index);
     if (next != NULL) {
-        *(u8 **)(next + 0x7C) = arg0;
-        *(u8 **)(arg0 + 0x80) =
-            *(u8 **)((u8 *)p4_base_add_00194590(index,
+        ((BtlPacket *)next)->previous = context;
+        *(u8 **)(context + 0x80) =
+            *(u8 **)((u8 *)btlPacketAddBaseOffset(index,
                                                  (s32)iGpffffb3ac) + 0x198);
     } else {
-        *(u8 **)((u8 *)p4_base_add_00194590(index,
-                                             (s32)iGpffffb3ac) + 0x19C) = arg0;
-        *(u8 **)(arg0 + 0x80) = NULL;
+        *(u8 **)((u8 *)btlPacketAddBaseOffset(index,
+                                             (s32)iGpffffb3ac) + 0x19C) = context;
+        *(u8 **)(context + 0x80) = NULL;
     }
-    *(u8 **)((u8 *)p4_base_add_00194590(index,
-                                         (s32)iGpffffb3ac) + 0x198) = arg0;
-    return *(s64 *)(arg0 + 0x58);
+    *(u8 **)((u8 *)btlPacketAddBaseOffset(index,
+                                         (s32)iGpffffb3ac) + 0x198) = context;
+    return *(s64 *)(context + 0x58);
 }
 
 /* measured: closes opt_propagation around func_00194590. */
@@ -683,8 +674,10 @@ void func_00194660(void)
 /* 852/864 bytes; ten resolved relocations; twelve zero alignment bytes.
  * States fall through only after their conditions complete. Destruction
  * reloads the list flag and links after the callback; counters wrap as u32. */
+/* Advance packet conditions, delays, update, and teardown, reloading links after callbacks. */
+/* measured: remaining phase/flag/delay reloads changed MATCH under per-access typing; +0x80 links are outside the preserved packet prefix. */
 // FUN_00194670
-void btlPacketStep(u8 *arg0)
+void btlPacketStep(u8 *context)
 {
     u8 flags;
     u8 index;
@@ -695,41 +688,41 @@ void btlPacketStep(u8 *arg0)
     s32 ok;
     s32 i;
 
-    if (*(u8 *)(arg0 + 0x46) != 0) {
+    if (((BtlPacket *)context)->paused != 0) {
         return;
     }
-    flags = *(u8 *)(arg0 + 0x47);
+    flags = ((BtlPacket *)context)->flags;
     if ((flags & 8) == 0) {
         return;
     }
     if ((flags & 4) != 0) {
-        callback = *(void (**)(u8 *))(arg0 + 0x70);
+        callback = *(void (**)(u8 *))(context + 0x70);
         if (callback != NULL) {
-            callback(*(u8 **)(arg0 + 0x78));
+            callback((u8 *)((BtlPacket *)context)->workData);
         }
-        if ((*(u8 *)(arg0 + 0x47) & 8) != 0) {
-            index = *(u8 *)(arg0 + 0x44);
-            next = *(u8 **)(arg0 + 0x80);
+        if ((*(u8 *)(context + 0x47) & 8) != 0) {
+            index = ((BtlPacket *)context)->listIndex;
+            next = *(u8 **)(context + 0x80);
             if (next != NULL) {
-                *(u8 **)(next + 0x7C) = *(u8 **)(arg0 + 0x7C);
+                ((BtlPacket *)next)->previous = ((BtlPacket *)context)->previous;
             } else {
-                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = *(u8 **)(arg0 + 0x7C);
+                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = ((BtlPacket *)context)->previous;
             }
-            prev = *(u8 **)(arg0 + 0x7C);
+            prev = *(u8 **)(context + 0x7C);
             if (prev != NULL) {
-                *(u8 **)(prev + 0x80) = *(u8 **)(arg0 + 0x80);
+                *(u8 **)(prev + 0x80) = *(u8 **)(context + 0x80);
             } else {
-                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(arg0 + 0x80);
+                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(context + 0x80);
             }
         }
-        jtbl_008873EC[0](arg0);
+        jtbl_008873EC[0](context);
     } else {
-        count = *(s32 *)(arg0 + 0x4C);
-        *(s32 *)(arg0 + 0x4C) = (s32)((u32)count + 1U);
-        switch (*(u8 *)(arg0 + 0x45)) {
+        count = ((BtlPacket *)context)->elapsed;
+        ((BtlPacket *)context)->elapsed = (s32)((u32)count + 1U);
+        switch (((BtlPacket *)context)->phase) {
         case 0:
             for (i = 0; (i & 0xFFFF) < 2; i = (i + 1) & 0xFFFF) {
-                if (btlPacketWaitConditionMet(arg0 + (((u16)i) << 4), count) == 0) {
+                if (btlPacketWaitConditionMet(context + (((u16)i) << 4), count) == 0) {
                     ok = 0;
                     goto state0_done;
                 }
@@ -739,24 +732,24 @@ void btlPacketStep(u8 *arg0)
             if (ok == 0) {
                 return;
             }
-            *(u8 *)(arg0 + 0x45) = 1;
+            *(u8 *)(context + 0x45) = 1;
         case 1:
-            if (*(s16 *)(arg0 + 0x48) <= 0) {
-                *(u8 *)(arg0 + 0x45) = 2;
+            if (*(s16 *)(context + 0x48) <= 0) {
+                *(u8 *)(context + 0x45) = 2;
             } else {
-                *(s16 *)(arg0 + 0x48) = (s16)(*(s16 *)(arg0 + 0x48) - 1);
+                ((BtlPacket *)context)->delay = (s16)((s16)((BtlPacket *)context)->delay - 1);
                 return;
             }
         case 2:
-            if ((*(u32 (**)(void *))(arg0 + 0x6C))(*(void **)(arg0 + 0x78)) != 0) {
-                *(u8 *)(arg0 + 0x45) = 3;
+            if ((*(u32 (**)(void *))(context + 0x6C))(((BtlPacket *)context)->workData) != 0) {
+                *(u8 *)(context + 0x45) = 3;
             } else {
-                *(u32 *)(arg0 + 0x50) += 1U;
+                ((BtlPacket *)context)->updateFrames += 1U;
                 return;
             }
         case 3:
             for (i = 0; (i & 0xFFFF) < 2; i = (i + 1) & 0xFFFF) {
-                if (btlPacketWaitConditionMet((u8 *)((((u16)i) << 4) + (u32)arg0) + 0x20, count) == 0) {
+                if (btlPacketWaitConditionMet((u8 *)((((u16)i) << 4) + (u32)context) + 0x20, count) == 0) {
                     ok = 0;
                     goto state3_done;
                 }
@@ -766,31 +759,31 @@ void btlPacketStep(u8 *arg0)
             if (ok == 0) {
                 return;
             }
-            *(u8 *)(arg0 + 0x45) = 4;
+            *(u8 *)(context + 0x45) = 4;
         case 4:
-            if (*(s16 *)(arg0 + 0x4A) <= 0) {
-                callback = *(void (**)(u8 *))(arg0 + 0x70);
+            if (*(s16 *)(context + 0x4A) <= 0) {
+                callback = *(void (**)(u8 *))(context + 0x70);
                 if (callback != NULL) {
-                    callback(*(u8 **)(arg0 + 0x78));
+                    callback((u8 *)((BtlPacket *)context)->workData);
                 }
-                if ((*(u8 *)(arg0 + 0x47) & 8) != 0) {
-                    index = *(u8 *)(arg0 + 0x44);
-                    next = *(u8 **)(arg0 + 0x80);
+                if ((*(u8 *)(context + 0x47) & 8) != 0) {
+                    index = ((BtlPacket *)context)->listIndex;
+                    next = *(u8 **)(context + 0x80);
                     if (next != NULL) {
-                        *(u8 **)(next + 0x7C) = *(u8 **)(arg0 + 0x7C);
+                        ((BtlPacket *)next)->previous = ((BtlPacket *)context)->previous;
                     } else {
-                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = *(u8 **)(arg0 + 0x7C);
+                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = ((BtlPacket *)context)->previous;
                     }
-                    prev = *(u8 **)(arg0 + 0x7C);
+                    prev = *(u8 **)(context + 0x7C);
                     if (prev != NULL) {
-                        *(u8 **)(prev + 0x80) = *(u8 **)(arg0 + 0x80);
+                        *(u8 **)(prev + 0x80) = *(u8 **)(context + 0x80);
                     } else {
-                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(arg0 + 0x80);
+                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(context + 0x80);
                     }
                 }
-                jtbl_008873EC[0](arg0);
+                jtbl_008873EC[0](context);
             } else {
-                *(s16 *)(arg0 + 0x4A) = (s16)(*(s16 *)(arg0 + 0x4A) - 1);
+                ((BtlPacket *)context)->duration = (s16)((s16)((BtlPacket *)context)->duration - 1);
             }
             break;
         }
@@ -800,23 +793,27 @@ void btlPacketStep(u8 *arg0)
 /* measured: opt_propagation off is scoped to func_001949d0. */
 /* measured: func_001949d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Step one packet list while saving the preceding link before a callback can free the packet. */
+/* The raw list-head address preserves the measured offset-first helper ordering for the selected list. */
 // FUN_001949D0
-void btlPacketStepSide(s32 arg0)
+void btlPacketStepSide(s32 side)
 {
     u8 *btl;
-    u8 *temp_16;
-    u8 *var_4;
+    u8 *next;
+    u8 *packet;
 
     btl = iGpffffb3ac;
-    var_4 = *(u8 **)((u8 *)packetListOffset((arg0 & 0xFF) * 8, (u32)btl) + 0x19C);
-    while (var_4 != NULL) {
-        temp_16 = *(u8 **)(var_4 + 0x7C);
-        btlPacketStep(var_4);
-        var_4 = temp_16;
+    packet = *(u8 **)((u8 *)packetListOffset((side & 0xFF) * 8, (u32)btl) + 0x19C);
+    while (packet != NULL) {
+        next = ((BtlPacket *)packet)->previous;
+        btlPacketStep(packet);
+        packet = next;
     }
 }
 
 /* measured: closes opt_propagation for func_001949d0. */
+/* Destroy and unlink every packet, invoking each destroy callback before releasing memory. */
+/* measured: remaining link/list reloads changed MATCH when typed; +0x80 links lie beyond the preserved packet prefix. */
 // FUN_00194A30
 void btlPacketFlushAll(void)
 {
@@ -836,16 +833,16 @@ inner:
     next = *(u8 **)(entry + 0x80);
     callback = *(void (**)(u8 *))(entry + 0x70);
     if (callback != NULL) {
-        callback(*(u8 **)(entry + 0x78));
+        callback((u8 *)((BtlPacket *)entry)->workData);
     }
-    if ((*(u8 *)(entry + 0x47) & 8) != 0) {
-        index = *(u8 *)(entry + 0x44);
+    if ((((BtlPacket *)entry)->flags & 8) != 0) {
+        index = ((BtlPacket *)entry)->listIndex;
         link = *(u8 **)(entry + 0x80);
         if (link != NULL) {
-            *(u8 **)(link + 0x7C) = *(u8 **)(entry + 0x7C);
+            ((BtlPacket *)link)->previous = ((BtlPacket *)entry)->previous;
         } else {
             *(u8 **)(iGpffffb3ac + ((index & 0xFF) * 8) + 0x19C) =
-                *(u8 **)(entry + 0x7C);
+                ((BtlPacket *)entry)->previous;
         }
         link = *(u8 **)(entry + 0x7C);
         if (link != NULL) {
@@ -877,30 +874,32 @@ s32 btlPacketConditionAlwaysMet(void)
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 /* measured: func_00194b60 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
+/* Create a header-only packet whose update callback completes immediately. */
+/* Raw discriminator stores retain the measured two-loop initialization; the callback word uses the existing integer-address store contract. */
 // FUN_00194B60
 u8 *btlPacketCreateImmediate(void)
 {
-    u8 *temp_16;
+    u8 *packet;
     s32 j;
     s32 i;
     u8 *base;
     s32 value;
 
     chkmemAllocSiteTag(D_005F6C00, 0x51);
-    temp_16 = (u8 *)D_008873E8[0](0x90, 0x40000);
-    memset(temp_16, 0, 0x90);
-    *(s32 *)(temp_16 + 0x40) = 0xFF00;
+    packet = (u8 *)D_008873E8[0](0x90, 0x40000);
+    memset(packet, 0, 0x90);
+    ((BtlPacket *)packet)->type = 0xFF00;
     i = 0;
     value = 1;
     goto first_check;
 first_body:
-    *(u8 *)(temp_16 + ((i & 0xFFFF) << 4)) = (u8)value;
+    *(u8 *)(packet + ((i & 0xFFFF) << 4)) = (u8)value;
     i = (i + 1) & 0xFFFF;
 first_check:
     if ((i & 0xFFFF) < 2) {
         goto first_body;
     }
-    base = temp_16 + 0x20;
+    base = packet + 0x20;
     j = 0;
     value = 1;
     goto second_check;
@@ -911,9 +910,9 @@ second_check:
     if ((j & 0xFFFF) < 2) {
         goto second_body;
     }
-    *(u8 *)(temp_16 + 0x47) =
-        (u8)(*(u8 *)(temp_16 + 0x47) | 0x31);
-    *(s32 *)(temp_16 + 0x6C) = (s32)btlPacketConditionAlwaysMet;
-    return temp_16;
+    ((BtlPacket *)packet)->flags =
+        (u8)(((BtlPacket *)packet)->flags | 0x31);
+    *(s32 *)(packet + 0x6C) = (s32)btlPacketConditionAlwaysMet;
+    return packet;
 }
 

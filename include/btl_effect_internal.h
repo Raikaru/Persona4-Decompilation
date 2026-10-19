@@ -55,6 +55,25 @@ typedef struct BtlEffectFormationStep {
     u8 pad24[4];
 } BtlEffectFormationStep;
 
+/* Four 0x10-byte dependency records precede the packet kind. The discriminator
+ * selects a UID, elapsed-frame threshold, or halfword packet id at +0x08. */
+typedef struct BtlPacketCondition {
+    u8 kind;
+    u8 pad01[7];
+    union {
+        u64 uid;
+        s32 frame;
+        u16 id;
+    } value;
+} BtlPacketCondition;
+
+/* Three four-byte reward rows at battle + 0xCD0. Defeat accounting first
+ * increments an existing id, then fills the first empty row. */
+typedef struct BtlRewardEntry {
+    u16 id;
+    s16 count;
+} BtlRewardEntry;
+
 /* Generic packet dispatcher prefix used by all packet constructors here.
  * Callback casts retain the existing declarations at each call site. */
 typedef u32 (*BtlPacketFunc)(void *work);
@@ -68,19 +87,35 @@ typedef struct BtlPacket {
     u8 dependencyKind3;     /* 0x20: third dispatcher condition */
     u8 pad21[7];
     u64 dependencyUID3;     /* 0x28 */
-    u8 pad30[0x17];
+    u8 dependencyKind4;     /* 0x30: second end condition */
+    u8 pad31[7];
+    u64 dependencyUID4;     /* 0x38 */
+    s32 type;               /* 0x40: btlPacketAlloc's packet kind */
+    u8 listIndex;           /* 0x44 */
+    u8 phase;               /* 0x45: condition/delay/update/end-condition/duration */
+    u8 paused;              /* 0x46 */
     u8 flags;               /* 0x47 */
     u16 delay;              /* 0x48: frames before dispatch */
     u16 duration;           /* 0x4A: packet-specific frame interval */
-    u8 pad4C[0x0C];
+    s32 elapsed;            /* 0x4C: wrapping frame count since enqueue */
+    u32 updateFrames;       /* 0x50: frames spent waiting for updateFunc */
+    u8 pad54[4];
     u64 uid;                /* 0x58 */
     u64 actionUID;          /* 0x60 */
     BtlPacketFunc initFunc;  /* 0x68 */
     BtlPacketFunc updateFunc;/* 0x6C */
     BtlPacketFunc destroyFunc;/* 0x70 */
-    u8 pad74[4];
+    s32 (*conditionFunc)(u8 *work); /* 0x74: optional dependency query */
     void *workData;         /* 0x78 */
+    u8 *previous;           /* 0x7C: preceding packet in the list */
 } BtlPacket;
+/* The public dispatcher prefix stays 0x80 bytes; allocation/list code also
+ * accesses a trailing next link at +0x80 in the full 0x90-byte header. */
+typedef char BtlPacketConditionSizeCheck[sizeof(BtlPacketCondition) == 0x10 ? 1 : -1];
+typedef char BtlPacketWorkOffsetCheck[(u32)&((BtlPacket *)0)->workData == 0x78 ? 1 : -1];
+typedef char BtlPacketPreviousOffsetCheck[(u32)&((BtlPacket *)0)->previous == 0x7C ? 1 : -1];
+typedef char BtlPacketPrefixSizeCheck[sizeof(BtlPacket) == 0x80 ? 1 : -1];
+
 
 /* Target collectors clear twelve pointer slots; the UID occupies the next
  * eight bytes. The count, cursor and flags follow at 0x38/0x3A/0x3C. */

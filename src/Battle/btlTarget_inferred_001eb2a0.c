@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,30 +8,13 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
-typedef signed __int128 s128;
-typedef struct P4Vec4_001EC2B0 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4Vec4_001EC2B0;
-typedef struct P4Vec4Holder_001EC2B0 {
-    P4Vec4_001EC2B0 quat;
-} P4Vec4Holder_001EC2B0;
-typedef struct P4RouteSlerp_001EF110 {
-    P4Vec4_001EC2B0 first;
-    P4Vec4_001EC2B0 second;
-    f32 angle;
-    s32 mode;
-} P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 scrGetParamIntS32(s32 index);
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -42,7 +26,7 @@ extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 D_00724504;
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32);
 
 
 extern f32 fGpffff8048;
@@ -56,8 +40,8 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern void btlTargetResetRecordCounter(u8 *arg0);
-extern u32 datCalcRandomBelow(u32 arg0);
+extern void btlTargetResetRecordCounter(u8 *);
+extern u32 datCalcRandomBelow(u32);
 
 
 
@@ -98,11 +82,11 @@ extern u8 *iGpffffb42c;
 /* AI command 0x2097 (p4flow AI.json AI_RND). */
 // FUN_001EB2A0
 s32 btlAiRandom(void) {
-    s32 temp;
+    s32 value;
 
-    temp = scrGetParamIntS32(0);
-    temp = datCalcRandomBelow(temp);
-    scrSetReturnInt(temp);
+    value = scrGetParamIntS32(0);
+    value = datCalcRandomBelow(value);
+    scrSetReturnInt(value);
     return 1;
 }
 
@@ -116,8 +100,8 @@ s32 btlAiGetGlobal(void) {
     u8 *slot;
 
     index = scrGetParamIntS32(0);
-    slot = p4_slot_001eb320((u32)index * 4, iGpffffb3ac);
-    scrSetReturnInt(*(s32 *)(slot + 0xDD8));
+    slot = btlTargetOffsetAddress((u32)index * 4, iGpffffb3ac);
+    scrSetReturnInt(((BtlTargetScriptGlobals *)(slot + 0xDD8))->values[0]);
     return 1;
 }
 
@@ -136,40 +120,41 @@ s32 btlAiSetGlobal(void)
 
     idx = scrGetParamIntS32(0);
     value = scrGetParamIntS32(1);
-    *(s32 *)(p4_slot_001eb320((u32)idx * 4, iGpffffb3ac) + 0xDD8) = value;
+    ((BtlTargetScriptGlobals *)(btlTargetOffsetAddress((u32)idx * 4, iGpffffb3ac) + 0xDD8))->values[0] = value;
     return 1;
 }
 
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* AI script command 0x20b8 (p4flow AI.json AI_FUNCTION_00B8). */
 // FUN_001EB370
-s32 func_001eb370(void)
+s32 btlAiNoOperation(void)
 {
     return 1;
 }
 
 // FUN_001EB380
-void btlTargetClearRecord(u8 *arg0) {
-    memset(arg0, 0, 0x5C);
+void btlTargetClearRecord(u8 *record) {
+    memset(record, 0, 0x5C);
 }
 
 // FUN_001EB3B0
-void func_001eb3b0(u8 *arg0) {
-    u8 *temp;
+/* Reset command selection and its three plan values while retaining the target slots. */
+void btlTargetResetCommandRecord(u8 *record) {
+    u8 *work;
 
-    temp = arg0;
-    btlTargetResetRecordCounter(temp);
-    *(s16 *)(temp + 0x36) = 0;
-    *(s16 *)(temp + 0x38) = 0;
-    *(s16 *)(temp + 0x34) = 0;
-    *(s32 *)(temp + 0x50) = 0;
-    *(s32 *)(temp + 0x54) = 0;
-    *(s32 *)(temp + 0x58) = 0;
-    memset(temp + 0x3E, 0, 6);
+    work = record;
+    btlTargetResetRecordCounter(work);
+    ((BtlTargetRecord *)work)->command = 0;
+    ((BtlTargetRecord *)work)->skill = 0;
+    ((BtlTargetRecord *)work)->kind = 0;
+    ((BtlTargetRecord *)work)->unk50 = 0;
+    ((BtlTargetRecord *)work)->unk54 = 0;
+    ((BtlTargetRecord *)work)->unk58 = 0;
+    memset(work + 0x3E, 0, 6);
 }
 
 // FUN_001EB410
-void btlTargetResetRecordCounter(u8 *arg0) {
-    *(s16 *)(arg0 + 0x32) = 0;
+void btlTargetResetRecordCounter(u8 *record) {
+    ((BtlTargetRecord *)record)->count = 0;
 }
 
