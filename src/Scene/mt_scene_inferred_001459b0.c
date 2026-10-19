@@ -894,7 +894,7 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
     extern u8 D_005EF9F0[];
     typedef struct Model Model;
     extern void mdlScale(Model *model, const RwV3d *scale, s32 combineOp);
-    extern void func_004b12e0(s32 effect, u8 *matrix);
+    extern void mdlEffectSetMatrixPose(s32 effect, u8 *matrix);
     RwV3d axisY = {0.0f, 1.0f, 0.0f};
     RwV3d axisX = {1.0f, 0.0f, 0.0f};
     RwV3d axisZ = {0.0f, 0.0f, 1.0f};
@@ -976,7 +976,7 @@ void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *sc
                 outputWords[1] = second;
                 outputWords = outputWords + 2;
             } while (remainingPairs > 0);
-            func_004b12e0(*(s32 *)(resource + 0x144), (u8 *)effectMatrix);
+            mdlEffectSetMatrixPose(*(s32 *)(resource + 0x144), (u8 *)effectMatrix);
             return;
         case 10:
             modelHandle = *(s32 *)(resource + 0x144);

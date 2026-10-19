@@ -3,18 +3,21 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "btl_shuffle_state_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_shuffle_draw_internal.h"
 #include "shd_misc_internal.h"
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
 #include "datPersona_internal.h"
-s32 datGetFlag(u32 arg0);
+s32 datGetFlag(u32 rosterWork);
 extern void memset(void *dst, s32 value, u32 size);
-extern void nmMesWindowShowCurrentRecord(s32 arg0);
-extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
+extern void nmMesWindowShowCurrentRecord(s32 rosterWork);
+extern void nmMesWindowSetCurrentString(s32 rosterWork, void *personaId);
+/* Build the selected reward roster and populate its message substitutions and trail. */
+/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 413..413); retain only the failing byte-base accesses. */
 // FUN_00380980
-s32 btlShuffleShowRosterMessage(u8 *arg0)
+s32 btlShuffleShowRosterMessage(u8 *rosterWork)
 {
     typedef struct {
         s32 active;
@@ -22,12 +25,12 @@ s32 btlShuffleShowRosterMessage(u8 *arg0)
         u16 value1;
         u16 value2;
     } Result;
-    extern s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1);
-    extern u8 *datCalcGetIdRecord(s32 arg0);
-    extern s32 nmMesWindowShowCurrentRecord(s32 arg0);
-    extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
-    extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
-    extern void sprintf(void *arg0, const void *arg1, s32 arg2);
+    extern s32 btlShuffleBuildRoster(s32 rosterWork, s32 *personaId);
+    extern u8 *datCalcGetIdRecord(s32 rosterWork);
+    extern s32 nmMesWindowShowCurrentRecord(s32 rosterWork);
+    extern void nmMesWindowSetCurrentString(s32 rosterWork, void *personaId);
+    extern void btlShuffleEffInitTrail(u8 *rosterWork, s32 personaId);
+    extern void sprintf(void *rosterWork, const void *personaId, s32 number);
     extern s32 D_0064EB80[];
     extern s32 D_0064EB84[];
     extern u8 D_0064EC30[];
@@ -47,11 +50,11 @@ s32 btlShuffleShowRosterMessage(u8 *arg0)
     u8 text[64];
     Result output;
 
-    base = *(u8 **)arg0;
-    state = arg0 + 0x18;
-    id = *(u8 *)(arg0 + 0x12);
+    base = ((BtlShuffleRosterWork *)rosterWork)->context;
+    state = rosterWork + 0x18;
+    id = ((BtlShuffleRosterWork *)rosterWork)->rosterId;
     if (id == 1) {
-        id = *(u8 *)(state + 0xC);
+        id = ((BtlShuffleRosterState *)state)->rosterId;
     }
     id &= 0xFF;
     index = id - 1;
@@ -62,7 +65,7 @@ s32 btlShuffleShowRosterMessage(u8 *arg0)
     if (high != 0) {
         original = ((u32)(packed & 0xFFFF0000) >> 16) & 0xFFFF;
         if (high != original) {
-            *(s32 *)(state + 0x18) = result;
+            ((BtlShuffleRosterState *)state)->result = result;
         }
     }
     if (output.active != 0) {
@@ -87,24 +90,25 @@ s32 btlShuffleShowRosterMessage(u8 *arg0)
     }
     if (*(s32 *)(state + 0x10) != 0) {
         entry = D_0064EB80 + index * 2;
-        resource = *(u8 **)(base + 0x1F29C);
+        resource = ((BtlShuffleContext *)base)->trailTask;
         btlShuffleEffInitTrail(resource, *entry);
         nmMesWindowShowCurrentRecord(channel + 1);
     } else {
         entry = D_0064EB84 + index * 2;
-        resource = *(u8 **)(base + 0x1F29C);
+        resource = ((BtlShuffleContext *)base)->trailTask;
         btlShuffleEffInitTrail(resource, *entry);
         nmMesWindowShowCurrentRecord(channel + 2);
     }
     return 1;
 }
 
+/* Roll a 12-bit uniform sample against the flag- or stat-derived percent threshold. */
 // FUN_00380BD0
-s32 btlShuffleRollChance(u8 **arg0)
+s32 btlShuffleRollChance(u8 **rosterWork)
 {
-    extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
-    extern s32 datCalcGetLevelById(s32 arg0);
-    extern s32 datGetFlag(s32 arg0);
+    extern u8 datPersonaGetTotalStatById(u16 rosterWork, s32 personaId);
+    extern s32 datCalcGetLevelById(s32 rosterWork);
+    extern s32 datGetFlag(s32 rosterWork);
     extern u32 RpRandom(void);
     extern u8 D_0064E760[];
     f32 percent;
@@ -113,7 +117,7 @@ s32 btlShuffleRollChance(u8 **arg0)
     u16 clamped;
     s32 rollPercent;
     u8 threshold;
-    if (*(s32 *)(*arg0 + 0x1F30C) != 0) {
+    if (((BtlShuffleContext *)*rosterWork)->unk1F30C != 0) {
         return 0;
     }
     rawLevel = datPersonaGetTotalStatById(1, 4) & 0xFF;
@@ -137,26 +141,27 @@ s32 btlShuffleRollChance(u8 **arg0)
     return (rollPercent & 0xFF) < (threshold & 0xFF);
 }
 
+/* Reject duplicates, show the full-roster prompt, or add the reward persona. */
 // FUN_00380D80
-s32 btlShuffleAddRosterMember(u8 *arg0, s32 arg1)
+s32 btlShuffleAddRosterMember(u8 *rosterWork, s32 personaId)
 {
     u16 count2;
     u16 count1;
 
     count1 = datPersonaCountValidMembers();
     count2 = datPersonaRosterCapacity();
-    if (datPersonaFindRosterRecordById((u16)arg1) != 0) {
+    if (datPersonaFindRosterRecordById((u16)personaId) != 0) {
         nmMesWindowShowCurrentRecord(2);
         return 6;
     }
     if (count1 == count2) {
-        memset(arg0 + 0x18, 0, 0x7C);
-        nmMesWindowSetCurrentString(0, datPersonaGetRow(arg1));
+        memset(rosterWork + 0x18, 0, 0x7C);
+        nmMesWindowSetCurrentString(0, datPersonaGetRow(personaId));
         nmMesWindowShowCurrentRecord(3);
         return 7;
     }
-    datPersonaAddRosterMember((u16)arg1);
-    nmMesWindowSetCurrentString(0, datPersonaGetRow(arg1));
+    datPersonaAddRosterMember((u16)personaId);
+    nmMesWindowSetCurrentString(0, datPersonaGetRow(personaId));
     nmMesWindowShowCurrentRecord(1);
     return 5;
 }

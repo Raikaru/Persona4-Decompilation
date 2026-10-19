@@ -8,22 +8,25 @@
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
-extern void mdlEffectReleaseTrackInstance(s32 arg0);
-extern void TlpRelease(s32 arg0);
+#include "mdl_effect_drawable_internal.h"
+extern void mdlEffectReleaseTrackInstance(s32 handle);
+extern void TlpRelease(s32 handle);
 extern void (*jtbl_008873EC[])(void *);
+/* Release optional TLP and track resources, geometry and the screen-sprite allocation. */
 // FUN_004B18E0
-void func_004b18e0(u8 *arg0)
+/* Release both optional resources and the geometry before freeing the screen sprite. */
+void mdlEffectScreenSpriteRelease(u8 *sprite)
 {
-    s32 h;
+    s32 handle;
 
-    h = *(s32 *)(arg0 + 0xA8);
-    if (h != 0) {
-        TlpRelease(h);
+    handle = ((MdlEffectScreenSprite *)sprite)->tlp;
+    if (handle != 0) {
+        TlpRelease(handle);
     }
-    h = *(s32 *)(arg0 + 0xAC);
-    if (h != 0) {
-        mdlEffectReleaseTrackInstance(h);
+    handle = ((MdlEffectScreenSprite *)sprite)->tracks;
+    if (handle != 0) {
+        mdlEffectReleaseTrackInstance(handle);
     }
-    GeometryBlockDestroy(*(s32 *)(arg0 + 0xA4));
-    (*jtbl_008873EC)(arg0);
+    GeometryBlockDestroy((s32)((MdlEffectScreenSprite *)sprite)->geometry);
+    (*jtbl_008873EC)(sprite);
 }

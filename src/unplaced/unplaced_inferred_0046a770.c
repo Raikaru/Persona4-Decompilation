@@ -8,7 +8,24 @@
 #include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
-extern void sdkSpriteLoadStep(u8 *arg0);
+/* resourceFindByName and resourceLoadSprites share the name and next-link offsets. */
+typedef struct SdkSpriteResourceLink {
+    u8 pad0[2];
+    char name[0x236];
+    u8 *next;
+} SdkSpriteResourceLink;
+
+/* Four XY points are transformed using this attachment's position and angle. */
+typedef struct SdkSpriteAttachment {
+    u8 *resource;
+    s32 segment;
+    f32 x, y;
+    u8 pad10[8];
+    f32 angle;
+    s16 offsetX, offsetY;
+} SdkSpriteAttachment;
+
+extern void sdkSpriteLoadStep(u8 *resource);
 extern u8 *D_00724C08;
 extern s32 strcmp(const char *a, const char *b);
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
@@ -44,11 +61,12 @@ extern f32 fGpffff81cc;
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Search the linked resource list for an exact name; return NULL when the name is absent. */
 // FUN_0046A770
 /* The list walk is written with an explicit goto loop: retail tests the
    cursor at the TOP of the loop and both early exits are out of line, which
    the natural `while (p != NULL)` form does not reproduce (nd 57). */
-u8 *resourceFindByName(char *arg0) {
+u8 *resourceFindByName(char *name) {
     u8 *p;
 
     p = D_00724C08;
@@ -56,10 +74,10 @@ loop:
     if (p == NULL) {
         return NULL;
     }
-    if (strcmp((char *)(p + 2), arg0) == 0) {
+    if (strcmp(((SdkSpriteResourceLink *)p)->name, name) == 0) {
         return p;
     }
-    p = *(u8 **)(p + 0x238);
+    p = ((SdkSpriteResourceLink *)p)->next;
     goto loop;
 }
 #pragma pop
@@ -72,6 +90,8 @@ loop:
  * upper-limit result separate from its branch and the Y subtotal separate
  * from the attachment-table load. Loop invariants retain the retail wrap
  * constants; see docs/probe_archive/Sprite_attachment_0046a7f0_20260924.md. */
+/* Rotate four attachment points when needed, then add attachment and resource-segment positions. */
+/* measured: typing the segment index changes point-translation scheduling (normalized_diff 51); keep the index and dependent segment-coordinate byte accesses. */
 // FUN_0046A7F0
 #pragma push
 #pragma opt_loop_invariants on
@@ -102,7 +122,7 @@ void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
         d->y = s[1];
         /* Retail leaves the third component unwritten before rotation. */
     }
-    angle = *(f32 *)(attachment + 0x18);
+    angle = ((SdkSpriteAttachment *)attachment)->angle;
     if (angle != 0.0f) {
         do {
             s32 notAboveUpper;
@@ -151,12 +171,12 @@ void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
         RwV3d *p = &source[pointIndex];
         f32 *o = (f32 *)(points + pointIndex * 8);
 
-        o[0] = *(f32 *)(attachment + 8) + ((f32)*(s16 *)(attachment + 0x1C) + p->x) +
-               (f32)*(s32 *)(*(s32 *)(*(u8 **)attachment + 0x204) + (*(s32 *)(attachment + 4) << 7) + 0x44);
+        o[0] = ((SdkSpriteAttachment *)attachment)->x + ((f32)((SdkSpriteAttachment *)attachment)->offsetX + p->x) +
+               (f32)*(s32 *)(*(s32 *)(((SdkSpriteAttachment *)attachment)->resource + 0x204) + (*(s32 *)(attachment + 4) << 7) + 0x44);
         {
             f32 subtotal;
-            subtotal = *(f32 *)(attachment + 0xC) + ((f32)*(s16 *)(attachment + 0x1E) + p->y);
-            subtotal += (f32)*(s32 *)(*(s32 *)(*(u8 **)attachment + 0x204) + (*(s32 *)(attachment + 4) << 7) + 0x48);
+            subtotal = ((SdkSpriteAttachment *)attachment)->y + ((f32)((SdkSpriteAttachment *)attachment)->offsetY + p->y);
+            subtotal += (f32)*(s32 *)(*(s32 *)(((SdkSpriteAttachment *)attachment)->resource + 0x204) + (*(s32 *)(attachment + 4) << 7) + 0x48);
             o[1] = subtotal;
         }
     }
@@ -166,6 +186,7 @@ void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
+/* Advance sprite loading for each linked resource in list order. */
 // FUN_0046AB40
 void resourceLoadSprites(void)
 {
@@ -173,8 +194,10 @@ void resourceLoadSprites(void)
 loop_1:
     if (attachment != NULL) {
         sdkSpriteLoadStep(attachment);
-        attachment = *(u8 **)(attachment + 0x238);
+        attachment = ((SdkSpriteResourceLink *)attachment)->next;
         goto loop_1;
     }
 }
+#pragma pop
+/* Close the outer attachment-transform settings scope. */
 #pragma pop

@@ -62,7 +62,7 @@ extern void memset(void *dest, s32 value, s32 size);
 extern s32 mdlCopyIndexedMatrix(void *input, s32 data, void *options);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
 extern void RtQuatConvertFromMatrix(void *input, void *data);
-extern void func_004b12e0(u8 *input, u8 *data);
+extern void mdlEffectSetMatrixPose(u8 *input, u8 *data);
 typedef struct { u8 c0; u8 c1; u8 c2; u8 c3; } MdlCol;
 extern MdlCol iGpffffbb64;
 
@@ -480,7 +480,7 @@ void mdlEffectListBuildTransforms(u8 **list, u8 *model)
                 out[0].flag = 3;
                 *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
             }
-            func_004b12e0((u8 *)*(u32 *)(node + 8), (u8 *)out);
+            mdlEffectSetMatrixPose((u8 *)*(u32 *)(node + 8), (u8 *)out);
             mdlEffectCommitAndAdvance(*(u8 **)(node + 8));
             node = (u8 *)((MdlEffectListNode *)node)->next;
     }
@@ -3510,7 +3510,7 @@ void ObjectParticleSetScale(u8 *instance, f32 scale) {
 }
 
 
-extern void func_004b1a00(u8 *input, u8 *data);
+extern void mdlEffectScreenSpriteCopyResource(u8 *input, u8 *data);
 extern s32 iGpffffbb98; /* sequence playback enabled */
 extern s32 iGpffffbb94; /* current sequence frame */
 extern s32 D_00922DA0[]; /* sequence duration; zero leaves it unbounded */
@@ -3524,7 +3524,7 @@ extern void func_003e9390(s32 input);
 extern void func_003ec330(s32 input);
 extern void RpSkyTexCacheRasterLock(s32 input, s32 data);
 extern void func_003e8440(u8 *input);
-extern void func_004b1a00(u8 *input, u8 *data);
+extern void mdlEffectScreenSpriteCopyResource(u8 *input, u8 *data);
 extern u8 D_0071465C[];
 extern u8 D_00714650[];
 extern u8 D_00714660[];
@@ -3702,7 +3702,7 @@ void *mdlEffectCloneHelperInstance(void *opaqueSource) {
         ((s32 *)colors)[2] = -1;
         ((s32 *)colors)[3] = -1;
     }
-    func_004b1a00(clone, source);
+    mdlEffectScreenSpriteCopyResource(clone, source);
     return clone;
 }
 

@@ -32,9 +32,9 @@ extern s32 btlShuffleDrawStateC(u8 *a);
 extern void btlShuffleSeqUpdateMode(u8 *ctx, s32 a, u16 b, s32 c);
 extern void btlShuffleDrawViewSetMenuBusy(u8 *a);
 extern s32 btlShuffleDrawViewIsMenuReady(u8 *a);
-extern void func_00388e00(u8 *a);
+extern void btlShuffleDrawViewEndMenu(u8 *a);
 extern s32 btlShuffleDrawViewIsMenuIdle(u8 *a);
-extern void func_0038d310(u8 *a);
+extern void btlShuffleDrawCardEndBands(u8 *a);
 extern void btlShuffleEffEnd(u8 *a);
 extern void btlShuffleEffUpdate(u8 *a);
 extern void btlShuffleEffInitTrail(u8 *a, s32 b);
@@ -66,8 +66,8 @@ extern void sdkListStateSetPrimaryMasks(u8 *buf, s32 a, s32 b, s32 c, s32 d);
 extern void sdkListStateSetActive(u8 *buf, s32 a);
 extern s32 sdkListStateHandleInput(u8 *buf);
 extern void btlShuffleDrawCardActivate(u8 *arg0);
-extern void func_0038d0d0(u8 *arg0, s32 arg1);
-extern void func_0038d0a0(u8 *arg0);
+extern void btlShuffleDrawCardSetDetail(u8 *arg0, s32 arg1);
+extern void btlShuffleDrawCardEndDetail(u8 *arg0);
 extern void btlShuffleDrawViewSetActive(u8 *arg0);
 extern void btlShuffleDrawViewClearActive(u8 *arg0);
 extern u16 D_008C024E[];
@@ -77,7 +77,7 @@ extern s32 FldStepBandFlagSet(void);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
 extern void *func_0036e910(void *a);
 extern s32 btlShuffleDrawSpawn(u8 *parent, s32 cardIndex);
-extern void func_0038d2a0(u8 *a);
+extern void btlShuffleDrawCardActivateRing(u8 *a);
 extern u32 RpRandom(void);
 extern s32 btlShuffleRollChance(u8 *a);
 extern u8 D_0064E6E0[][2];
@@ -90,12 +90,12 @@ extern const char *iGpffffa9E4; /* "reversed" */
 extern void btlShuffleDrawSetPose(u8 *a, s32 b, u16 c, u16 d);
 extern s32 btlShuffleDrawFlagA(u8 *task);
 extern s32 btlShuffleDrawViewIsRunReady(u8 *a);
-extern void func_00388e40(u8 *a);
-extern void func_00388ee0(u8 *a);
-extern void func_00388f00(u8 *a);
+extern void btlShuffleDrawViewStartRun(u8 *a);
+extern void btlShuffleDrawViewExpandRun(u8 *a);
+extern void btlShuffleDrawViewStartDesaturation(u8 *a);
 extern void btlShuffleDrawViewStartReveal(u8 *a);
 extern s32 btlShuffleDrawViewIsRevealFinished(u8 *a);
-extern void func_00389350(u8 *a);
+extern void btlShuffleDrawViewEndReveal(u8 *a);
 extern void btlShuffleSeqClearA(u8 *a, s32 b);
 extern s32 btlShuffleSeqFlag(u8 *a);
 extern s32 btlShuffleShowRosterMessage(u8 *a);
@@ -166,7 +166,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 v = *(s32 *)(*(u8 **)arg0 + 0x1F298);
                 {
                     btlShuffleDrawCardActivate((u8 *)(v));
-                    func_0038d0d0((u8 *)(v), 4);
+                    btlShuffleDrawCardSetDetail((u8 *)(v), 4);
                 }
                 btlShuffleDrawViewSetActive((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
             }
@@ -307,7 +307,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
             case 0:
                 shdPersonaFinishPhase((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)(state + 0x18) = 0;
-                func_0038d0a0((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F298)));
+                btlShuffleDrawCardEndDetail((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F298)));
                 btlShuffleDrawViewClearActive((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
                 {
                     u8 **slot;
@@ -473,7 +473,7 @@ static inline void shuffleResultOpen(u8 *context)
     btlShuffleDrawMoveCard(context, *(s32 *)(context + 0x1F308), 0.0f, 0.0f, (f32 *)&position, (f32 *)&position);
     btlShuffleEffUpdate(*(u8 **)(context + 0x1F29C));
     btlShuffleEffEnd(*(u8 **)(context + 0x1F29C));
-    func_00388e40(*(u8 **)(context + 0x1F294));
+    btlShuffleDrawViewStartRun(*(u8 **)(context + 0x1F294));
     btlShuffleEffInitTrail(*(u8 **)(context + 0x1F29C), 6);
 
 }
@@ -703,7 +703,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         if (((view.state->timer += 1) & 0xFFFF) >= 10) {
             view.state->step = 1;
             view.state->phase = 8;
-            func_00388ee0(*(u8 **)(view.context + 0x1F294));
+            btlShuffleDrawViewExpandRun(*(u8 **)(view.context + 0x1F294));
             goto advanceSpin;
         }
         break;
@@ -744,8 +744,8 @@ s32 btlShuffleResultRun(u8 *arg0)
         if (((view.state->timer += 1) & 0xFFFF) >= 10) {
             view.state->step = 5;
             view.state->phase = 0xB;
-            func_00388ee0(*(u8 **)(view.context + 0x1F294));
-            func_00388f00(*(u8 **)(view.context + 0x1F294));
+            btlShuffleDrawViewExpandRun(*(u8 **)(view.context + 0x1F294));
+            btlShuffleDrawViewStartDesaturation(*(u8 **)(view.context + 0x1F294));
             btlShuffleDrawViewStartReveal(*(u8 **)(view.context + 0x1F294));
         }
         break;
@@ -754,7 +754,7 @@ s32 btlShuffleResultRun(u8 *arg0)
             result = btlShuffleDrawFlagA((u8 *)*(s32 *)(view.context + 0x1F2A4));
             if (result != 0) {
                 view.state->phase = 0xC;
-                func_00389350(*(u8 **)(view.context + 0x1F294));
+                btlShuffleDrawViewEndReveal(*(u8 **)(view.context + 0x1F294));
                 goto finishReveal;
             }
         }
@@ -902,9 +902,9 @@ s32 btlShuffleResultMenu(u8 *arg0) {
                 nmMesWindowCloseCurrent(1);
                 *(s32 *)phaseState = 3;
                 btlShuffleSeqUpdateMode(work, *(s32 *)(work + 0x1F308), 0xA, 1);
-                func_00388e00(*(u8 **)(work + 0x1F294));
+                btlShuffleDrawViewEndMenu(*(u8 **)(work + 0x1F294));
                 btlShuffleEffSetup(*(u8 **)(work + 0x1F29C), 7);
-                func_0038d310(*(u8 **)(work + 0x1F298));
+                btlShuffleDrawCardEndBands(*(u8 **)(work + 0x1F298));
             }
         }
         goto block_17;
@@ -1009,7 +1009,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         *(u16 *)(work + 6) = 0;
         nmMesWindowSetCurrentString(0, datPersonaGetRow(arg2));
         nmMesWindowShowCurrentRecord(0);
-        func_0038d2a0(*(u8 **)(unit + 0x1F298));
+        btlShuffleDrawCardActivateRing(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 0;
         break;
     case 2:
@@ -1021,7 +1021,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             *(u16 *)(work + 4) |= 2;
         }
         nmMesWindowShowCurrentRecord(7);
-        func_0038d2a0(*(u8 **)(unit + 0x1F298));
+        btlShuffleDrawCardActivateRing(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 2;
         break;
     case 3:
@@ -1030,7 +1030,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         }
         *(u16 *)(work + 6) = 0;
         nmMesWindowShowCurrentRecord(9);
-        func_0038d2a0(*(u8 **)(unit + 0x1F298));
+        btlShuffleDrawCardActivateRing(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 3;
         break;
     default:
