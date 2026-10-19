@@ -21,7 +21,7 @@ static inline u8 *btlShuffleAddCardOffset(u32 offset, u8 *base)
     return (u8 *)(offset + (u32)base);
 }
 
-void func_00371160(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
+void btlShuffleCalcRotatePointAroundAxis(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
 
 #pragma push
 #pragma opt_propagation off
@@ -53,7 +53,7 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     work.axisY = cosf(fGpffff80d8);
     work.axisZ = -sinf(fGpffff80d8);
     if (output != NULL) {
-        func_00371160((u8 *)&work.eyeX, (u8 *)&work.axisX, (u8 *)&work.originX, 0.0f, (u8 *)output);
+        btlShuffleCalcRotatePointAroundAxis((u8 *)&work.eyeX, (u8 *)&work.axisX, (u8 *)&work.originX, 0.0f, (u8 *)output);
         return;
     }
     btlShuffleDrawInitCard(context, cardIndex, 0, &work.axisX, &work.eyeX, &work.originX, 0.0f, 0.0f);
@@ -334,7 +334,7 @@ s32 btlShuffleSeq1Run(u8 *context) {
 }
 #pragma pop
 
-void func_00371160(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
+void btlShuffleCalcRotatePointAroundAxis(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
 
 #pragma push
 #pragma opt_propagation on
@@ -385,7 +385,7 @@ void btlShuffleInitAlternatingPose(u8 *context, s32 cardIndex, f32 *output) {
         zero = 0.0f;
     }
     if (output != NULL) {
-        func_00371160((u8 *)&work.eyeX, (u8 *)&work.axisX,
+        btlShuffleCalcRotatePointAroundAxis((u8 *)&work.eyeX, (u8 *)&work.axisX,
                       (u8 *)&work.originX, zero, (u8 *)output);
         return;
     }
@@ -669,7 +669,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
 }
 #pragma pop
 
-void func_00371160(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
+void btlShuffleCalcRotatePointAroundAxis(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
 
 #pragma push
 #pragma opt_propagation on
@@ -720,7 +720,7 @@ void btlShuffleInitThreeAxisPose(u8 *context, s32 cardIndex, f32 *output) {
         break;
     }
     if (output != NULL) {
-        func_00371160((u8 *)&work.eyeX, (u8 *)&work.axisX,
+        btlShuffleCalcRotatePointAroundAxis((u8 *)&work.eyeX, (u8 *)&work.axisX,
                       (u8 *)&work.originX, 0.0f, (u8 *)output);
         return;
     }

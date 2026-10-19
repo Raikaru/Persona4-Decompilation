@@ -1398,7 +1398,7 @@ u8 *btlShuffleDrawViewCreate(s32 drawWork)
     if (task == NULL) {
         kAssertFail(D_0064EEB0, 0x64A);
     }
-    *(s32 *)work = func_0036e910(drawWork);
+    *(s32 *)work = btlShuffleGetDrawContext(drawWork);
     memset(work + 0x50, 0, 0x30);
     memset(work + 0x80, 0, 0x30);
     ((BtlRenderNode *)(work + 0x50))->callback = (void *)btlShuffleDrawViewBackground;
@@ -3043,7 +3043,7 @@ u8 *btlShuffleDrawCardCreate(s32 drawWork)
     if (task == NULL) {
         kAssertFail(D_0064F0E0, 0x5A8);
     }
-    *(s32 *)work = func_0036e910(drawWork);
+    *(s32 *)work = btlShuffleGetDrawContext(drawWork);
     btlShuffleInitRing(work);
     btlShuffleInitWaveStrips(work);
     memset(work + 8, 0, 0x30);
