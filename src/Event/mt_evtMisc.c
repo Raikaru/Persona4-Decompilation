@@ -22,22 +22,22 @@ extern f32 D_00882244[];
 // Returns 1 when the light-slot table is idle: every entry except slot 0 and slots 4-6 is zero.
 // FUN_00285330
 s32 evtSlotTableIdle(void) {
-    s32 i;
+    s32 slotIndex;
     s32 exemptSlot4;
     s32 exemptSlot5;
     s32 exemptSlot6;
     s32 *table;
 
-    i = 0;
+    slotIndex = 0;
     table = D_00882170;
     exemptSlot6 = 6;
     exemptSlot5 = 5;
     exemptSlot4 = 4;
-    while (i < 0xD) {
-        if ((i != 0) && (i != exemptSlot4) && (i != exemptSlot5) && (i != exemptSlot6) && (table[i] != 0)) {
+    while (slotIndex < 0xD) {
+        if ((slotIndex != 0) && (slotIndex != exemptSlot4) && (slotIndex != exemptSlot5) && (slotIndex != exemptSlot6) && (table[slotIndex] != 0)) {
             return 0;
         }
-        i++;
+        slotIndex++;
     }
     return 1;
 }
@@ -93,29 +93,31 @@ void sceneLightSlotsReset(void)
 #pragma pop
 // Writes slot `slot` (0-2) of the light slot table: position, colour, and mode value.
 // FUN_0028CED0
-void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *arg3,
-                       f32 *arg4, f32 *arg5) {
+void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *secondColor,
+                       f32 *angles, f32 *firstColor) {
     s32 slotOffset;
 
     if (slot < 3) {
+        /* Recover the containing slot from each interior alias; rebasing all writes
+         * to D_00882210 shortened retail's 336-byte window to 160 bytes (MISMATCH). */
         slotOffset = slot << 6;
-        *(f32 *)((u8 *)D_00882218 + slotOffset) = arg3[0];
-        *(f32 *)((u8 *)D_0088221C + slotOffset) = arg3[1];
-        *(f32 *)((u8 *)D_00882220 + slotOffset) = arg3[2];
-        *(u32 *)((u8 *)D_00882224 + slotOffset) = 0;
-        *(f32 *)((u8 *)D_00882228 + slotOffset) = arg4[0];
-        *(f32 *)((u8 *)D_0088222C + slotOffset) = arg4[1];
-        *(f32 *)((u8 *)D_00882230 + slotOffset) = arg4[2];
-        *(f32 *)((u8 *)D_00882234 + slotOffset) = arg4[3];
-        *(f32 *)((u8 *)D_00882238 + slotOffset) = arg5[0];
-        *(f32 *)((u8 *)D_0088223C + slotOffset) = arg5[1];
-        *(f32 *)((u8 *)D_00882240 + slotOffset) = arg5[2];
-        *(u32 *)((u8 *)D_00882244 + slotOffset) = 0x3F800000;
-        *(s32 *)((u8 *)D_00882210 + slotOffset) = mode;
+        ((SceneLightSlot *)((u8 *)D_00882218 + slotOffset - 0x8))->secondColor.x = secondColor[0];
+        ((SceneLightSlot *)((u8 *)D_0088221C + slotOffset - 0xC))->secondColor.y = secondColor[1];
+        ((SceneLightSlot *)((u8 *)D_00882220 + slotOffset - 0x10))->secondColor.z = secondColor[2];
+        ((SceneLightSlot *)((u8 *)D_00882224 + slotOffset - 0x14))->secondColor.w = 0.0f;
+        ((SceneLightSlot *)((u8 *)D_00882228 + slotOffset - 0x18))->angles.x = angles[0];
+        ((SceneLightSlot *)((u8 *)D_0088222C + slotOffset - 0x1C))->angles.y = angles[1];
+        ((SceneLightSlot *)((u8 *)D_00882230 + slotOffset - 0x20))->angles.z = angles[2];
+        ((SceneLightSlot *)((u8 *)D_00882234 + slotOffset - 0x24))->angles.w = angles[3];
+        ((SceneLightSlot *)((u8 *)D_00882238 + slotOffset - 0x28))->firstColor.x = firstColor[0];
+        ((SceneLightSlot *)((u8 *)D_0088223C + slotOffset - 0x2C))->firstColor.y = firstColor[1];
+        ((SceneLightSlot *)((u8 *)D_00882240 + slotOffset - 0x30))->firstColor.z = firstColor[2];
+        ((SceneLightSlot *)((u8 *)D_00882244 + slotOffset - 0x34))->firstColor.w = 1.0f;
+        ((SceneLightSlot *)((u8 *)D_00882210 + slotOffset - 0x0))->mode = mode;
         if (mode == 3) {
-            *(s32 *)((u8 *)D_00882214 + slotOffset) = modeValue;
+            ((SceneLightSlot *)((u8 *)D_00882214 + slotOffset - 0x4))->resource = (u8 *)modeValue;
             return;
         }
-        *(s32 *)((u8 *)D_00882214 + slotOffset) = 0;
+        ((SceneLightSlot *)((u8 *)D_00882214 + slotOffset - 0x4))->resource = NULL;
     }
 }

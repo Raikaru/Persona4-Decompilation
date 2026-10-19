@@ -2,6 +2,7 @@
 /* Original translation unit evtPolygonMovie.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "scene_event_internal.h"
+#include "evt_movie_internal.h"
 
 typedef signed __int128 s128;
 
@@ -12,12 +13,12 @@ typedef struct {
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
-extern void evtMemAccount(s32 arg0, s32 arg1);
+extern void evtMemAccount(s32, s32);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void memset(void *dst, s32 value, u32 size);
 extern void sprintf();
-extern void MT_Scene_GetAngleDelta(f32 *param_1, f32 *param_2, f32 *param_3);
-extern void MT_Scene_WrapAngles(f32 *param_1);
+extern void MT_Scene_GetAngleDelta(f32 *fromAngles, f32 *toAngles, f32 *angleDelta);
+extern void MT_Scene_WrapAngles(f32 *fromAngles);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 extern u8 D_0063C6A0[];
@@ -26,10 +27,10 @@ extern u8 D_0063C7C0[];
 extern u8 D_0063C7E0[];
 extern u8 D_0063C800[];
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s128 D_0063C700;
+extern s128 D_0063C700; /* default primary-section header, 0x20 bytes */
 extern s128 D_0063C710;
-extern s128 D_0063C720[];
-extern s128 D_0063C780;
+extern s128 D_0063C720[]; /* default secondary section, 0x54 bytes */
+extern s128 D_0063C780; /* default overlay-section header, 0x20 bytes */
 extern s128 D_0063C790;
 
 /* Without opt_loop_invariants the two lerp loops allocate the s2 value into
@@ -39,69 +40,70 @@ extern s128 D_0063C790;
    moved the allocation. measured: pragma on nd ~110 -> 0. */
 #pragma opt_loop_invariants on
 
-// Intent: Blends two pose sets by fparg0 (the 8 fields and the 4-vector, angles wrapped); copies arg3 when arg2 is NULL [inferred]
+/* Blend pose vectors and shortest-path angles; a missing toPose copies fromPose. */
 // FUN_0028F990
-void evtPolygonMovieLerpPose(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3)
+void evtPolygonMovieLerpPose(s32 enabled, f32 blend, f32 *fromPose, f32 *toPose, f32 *outPose)
 {
-    f32 sp90[4];
-    f32 sp80[4];
-    f32 sp70[4];
-    f32 sp60[4];
-    f32 *var_16;
-    f32 *var_18;
+    f32 fromAngles[4];
+    f32 toAngles[4];
+    f32 angleDelta[4];
+    f32 blendedAngles[4];
+    f32 *destination;
+    f32 *source;
 
-    var_18 = arg1;
-    var_16 = arg3;
-    if (var_16 == NULL) {
+    source = fromPose;
+    destination = outPose;
+    if (destination == NULL) {
         kAssertFail(D_0063C6A0, 0x8F);
     }
-    if (arg0 == 0) {
-        fparg0 = 0.0f;
+    if (enabled == 0) {
+        blend = 0.0f;
     }
-    if (var_18 != NULL) {
-        if (arg2 == NULL) {
-            s32 var_5 = 6;
+    if (source != NULL) {
+        if (toPose == NULL) {
+            s32 pairsRemaining = 6;
 
             do {
-                s32 temp_4 = *(s32 *)var_18;
-                s32 temp_3 = *(s32 *)(var_18 + 1);
+                /* Copy float representations in word pairs without changing their bits. */
+                s32 firstWord = *(s32 *)source;
+                s32 secondWord = *(s32 *)(source + 1);
 
-                var_18 += 2;
-                var_5 -= 1;
-                *(s32 *)var_16 = temp_4;
-                *(s32 *)(var_16 + 1) = temp_3;
-                var_16 += 2;
-            } while (var_5 > 0);
+                source += 2;
+                pairsRemaining -= 1;
+                *(s32 *)destination = firstWord;
+                *(s32 *)(destination + 1) = secondWord;
+                destination += 2;
+            } while (pairsRemaining > 0);
             return;
         }
         {
-            s32 var_4;
+            s32 component;
 
-            for (var_4 = 0; var_4 < 4; var_4++) {
-                var_16[var_4 + 8] = var_18[var_4 + 8] + fparg0 * (arg2[var_4 + 8] - var_18[var_4 + 8]);
+            for (component = 0; component < 4; component++) {
+                destination[component + 8] = source[component + 8] + blend * (toPose[component + 8] - source[component + 8]);
             }
         }
         {
-            s32 var_4_2;
+            s32 component;
 
-            for (var_4_2 = 0; var_4_2 < 4; var_4_2++) {
-                var_16[var_4_2] = var_18[var_4_2] + fparg0 * (arg2[var_4_2] - var_18[var_4_2]);
+            for (component = 0; component < 4; component++) {
+                destination[component] = source[component] + blend * (toPose[component] - source[component]);
             }
         }
-        sp90[0] = var_18[4];
-        sp90[1] = var_18[5];
-        sp90[2] = var_18[6];
-        sp80[0] = arg2[4];
-        sp80[1] = arg2[5];
-        sp80[2] = arg2[6];
-        MT_Scene_GetAngleDelta(&sp90[0], &sp80[0], &sp70[0]);
-        sp60[0] = sp70[0] * fparg0 + var_18[4];
-        sp60[1] = sp70[1] * fparg0 + var_18[5];
-        sp60[2] = sp70[2] * fparg0 + var_18[6];
-        MT_Scene_WrapAngles(&sp60[0]);
-        var_16[4] = sp60[0];
-        var_16[5] = sp60[1];
-        var_16[6] = sp60[2];
+        fromAngles[0] = source[4];
+        fromAngles[1] = source[5];
+        fromAngles[2] = source[6];
+        toAngles[0] = toPose[4];
+        toAngles[1] = toPose[5];
+        toAngles[2] = toPose[6];
+        MT_Scene_GetAngleDelta(&fromAngles[0], &toAngles[0], &angleDelta[0]);
+        blendedAngles[0] = angleDelta[0] * blend + source[4];
+        blendedAngles[1] = angleDelta[1] * blend + source[5];
+        blendedAngles[2] = angleDelta[2] * blend + source[6];
+        MT_Scene_WrapAngles(&blendedAngles[0]);
+        destination[4] = blendedAngles[0];
+        destination[5] = blendedAngles[1];
+        destination[6] = blendedAngles[2];
     }
 }
 #pragma opt_loop_invariants off
@@ -131,6 +133,8 @@ u8 *evtPolygonMovieAlloc(void)
    moves; propagation-off and loop-invariant analysis preserve the traversals.
    See docs/probe_archive/evtPolygonMovie_0028fc40_167e607.md. */
 // Intent: Binds the primary, secondary and overlay resource sections into the work block; opens the message window when one is bound [inferred]
+/* measured: each remaining raw work access lost MATCH when typed individually;
+ * member-address hoisting in the fully typed body grew code from 2088 to 2708 bytes. */
 // FUN_0028FC40
 #pragma push
 #pragma opt_propagation off
@@ -154,76 +158,76 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
         kAssertFail(D_0063C6A0, 0x155);
         return NULL;
     }
-    *(s32 *)(work + 0x110) = 0;
+    ((EvtPolygonMovieWork *)work)->flags = 0;
     *(u8 **)(work + 0x10) = primary;
     *(u8 **)(work + 0x14) = primary + 0x20;
-    *(s32 *)(work + 0x18) = 0;
+    ((EvtPolygonMovieWork *)work)->unk18 = NULL;
     *(s32 *)(work + 0x1C) = 0;
-    *(s32 *)(work + 0x20) = 0;
+    ((EvtPolygonMovieWork *)work)->unk20 = NULL;
     *(s32 *)(work + 0x24) = 0;
-    *(s32 *)(work + 0x28) = 0;
-    *(s32 *)(work + 0x2C) = 0;
-    *(s32 *)(work + 0x30) = 0;
-    *(s32 *)(work + 0x34) = 0;
+    ((EvtPolygonMovieWork *)work)->unk28 = NULL;
+    ((EvtPolygonMovieWork *)work)->unk2C = NULL;
+    ((EvtPolygonMovieWork *)work)->unk30 = NULL;
+    ((EvtPolygonMovieWork *)work)->unk34 = NULL;
     *(s32 *)(work + 0x38) = 0;
-    *(s32 *)(work + 0x3C) = 0;
-    *(s32 *)(work + 0x40) = 0;
+    ((EvtPolygonMovieWork *)work)->unk3C = NULL;
+    ((EvtPolygonMovieWork *)work)->unk40 = NULL;
     *(s32 *)(work + 0x44) = 0;
-    *(s32 *)(work + 0x48) = 0;
+    ((EvtPolygonMovieWork *)work)->unk48 = NULL;
     *(s32 *)(work + 0x50) = 0;
     *(s32 *)(work + 0x4C) = 0;
-    *(s32 *)(work + 0x54) = 0;
+    ((EvtPolygonMovieWork *)work)->unk54 = NULL;
     *(s32 *)(work + 0x58) = 0;
-    *(s32 *)(work + 0x5C) = 0;
-    for (recordIndex = 0; recordIndex < *(s32 *)(*(u8 **)(work + 0x10) + 0x10); recordIndex++) {
+    ((EvtPolygonMovieWork *)work)->unk5C = NULL;
+    for (recordIndex = 0; recordIndex < ((EvtMovieFileHeader *)((EvtPolygonMovieWork *)work)->primary)->recordCount; recordIndex++) {
         primaryRecords = *(u8 **)(work + 0x14);
         entry = primaryRecords + recordIndex * 0x10;
-        code = *(s32 *)entry;
+        code = ((EvtMovieSection *)entry)->code;
         if (code == 0x1B) {
             continue;
         }
         switch (code) {
         case 2:
-            *(u8 **)(work + 0x20) = primary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x24) = *(s32 *)(*(u8 **)(work + 0x14) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x20) = primary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count24 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 10:
-            *(u8 **)(work + 0x28) = primary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x28) = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 11:
-            *(u8 **)(work + 0x2C) = primary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x2C) = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 12:
-            *(u8 **)(work + 0x30) = primary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x30) = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 3:
-            *(u8 **)(work + 0x34) = primary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x38) = *(s32 *)(*(u8 **)(work + 0x14) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x34) = primary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count38 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 9:
-            *(u8 **)(work + 0x3C) = primary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x3C) = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 1:
-            *(u8 **)(work + 0x18) = primary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x1C) = *(s32 *)(*(u8 **)(work + 0x14) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x18) = primary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count1C = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 6:
-            *(u8 **)(work + 0x4C) = primary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x50) = *(s32 *)(*(u8 **)(work + 0x14) + recordIndex * 0x10 + 8);
+            ((EvtPolygonMovieWork *)work)->message = primary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count50 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 7:
-            *(u8 **)(work + 0x40) = primary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x44) = *(s32 *)(*(u8 **)(work + 0x14) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x40) = primary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count44 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 8:
-            *(u8 **)(work + 0x48) = primary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x48) = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 22:
-            *(u8 **)(work + 0x54) = primary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x58) = *(s32 *)(*(u8 **)(work + 0x14) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x54) = primary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count58 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 23:
-            *(u8 **)(work + 0x5C) = primary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x5C) = primary + ((EvtMovieSection *)entry)->offset;
             break;
         default:
             kAssertFail(D_0063C6A0, 0x1C3);
@@ -234,117 +238,117 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
     if (secondary != NULL) {
         *(u8 **)(work + 0x84) = secondary + 0x20;
     } else {
-        *(s32 *)(work + 0x84) = 0;
+        ((EvtPolygonMovieWork *)work)->secondaryRecords = NULL;
     }
-    *(s32 *)(work + 0x88) = 0;
+    ((EvtPolygonMovieWork *)work)->unk88 = NULL;
     *(s32 *)(work + 0x8C) = 0;
-    *(s32 *)(work + 0x90) = 0;
+    ((EvtPolygonMovieWork *)work)->unk90 = NULL;
     *(s32 *)(work + 0x94) = 0;
     *(s32 *)(work + 0xAC) = 0;
-    *(s32 *)(work + 0xB0) = 0;
+    ((EvtPolygonMovieWork *)work)->unkB0 = NULL;
     *(s32 *)(work + 0xB4) = 0;
-    *(s32 *)(work + 0xB8) = 0;
+    ((EvtPolygonMovieWork *)work)->unkB8 = NULL;
     *(s32 *)(work + 0xBC) = 0;
-    *(s32 *)(work + 0xC0) = 0;
+    ((EvtPolygonMovieWork *)work)->unkC0 = NULL;
     *(s32 *)(work + 0xC4) = 0;
-    *(s32 *)(work + 0xC8) = 0;
+    ((EvtPolygonMovieWork *)work)->unkC8 = NULL;
     *(s32 *)(work + 0xCC) = 0;
-    *(s32 *)(work + 0xD0) = 0;
+    ((EvtPolygonMovieWork *)work)->unkD0 = NULL;
     *(s32 *)(work + 0xD4) = 0;
-    *(s32 *)(work + 0xD8) = 0;
+    ((EvtPolygonMovieWork *)work)->unkD8 = NULL;
     *(s32 *)(work + 0xDC) = 0;
-    *(s32 *)(work + 0xE0) = 0;
+    ((EvtPolygonMovieWork *)work)->unkE0 = NULL;
     *(s32 *)(work + 0xE4) = 0;
-    *(s32 *)(work + 0xE8) = 0;
+    ((EvtPolygonMovieWork *)work)->unkE8 = NULL;
     *(s32 *)(work + 0xEC) = 0;
-    *(s32 *)(work + 0xF0) = 0;
+    ((EvtPolygonMovieWork *)work)->unkF0 = NULL;
     *(s32 *)(work + 0xF4) = 0;
-    *(s32 *)(work + 0x100) = 0;
+    ((EvtPolygonMovieWork *)work)->unk100 = NULL;
     *(s32 *)(work + 0x104) = 0;
-    *(s32 *)(work + 0xF8) = 0;
+    ((EvtPolygonMovieWork *)work)->unkF8 = NULL;
     *(s32 *)(work + 0xFC) = 0;
-    *(s32 *)(work + 0x108) = 0;
+    ((EvtPolygonMovieWork *)work)->unk108 = NULL;
     *(s32 *)(work + 0x10C) = 0;
-    *(s32 *)(work + 0x60) = 0;
+    ((EvtPolygonMovieWork *)work)->unk60 = NULL;
     *(s32 *)(work + 0x64) = 0;
     if (secondary == NULL) {
         return work;
     }
-    func_00440b68(D_0063C6C0, *(s32 *)(*(u8 **)(work + 0x80) + 0x10));
-    for (recordIndex = 0; recordIndex < *(s32 *)(*(u8 **)(work + 0x80) + 0x10); recordIndex++) {
+    func_00440b68(D_0063C6C0, ((EvtMovieFileHeader *)((EvtPolygonMovieWork *)work)->secondary)->recordCount);
+    for (recordIndex = 0; recordIndex < ((EvtMovieFileHeader *)*(u8 **)(work + 0x80))->recordCount; recordIndex++) {
         secondaryRecords = *(u8 **)(work + 0x84);
         entry = secondaryRecords + recordIndex * 0x10;
-        code = *(s32 *)entry;
+        code = ((EvtMovieSection *)entry)->code;
         switch (code) {
         case 0:
-            *(u8 **)(work + 0x90) = secondary + *(s32 *)(entry + 0xC);
+            *(u8 **)(work + 0x90) = secondary + ((EvtMovieSection *)entry)->offset;
             break;
         case 4:
-            if (*(s32 *)(*(u8 **)(work + 0x80) + 0x14) == 4) {
-                *(u8 **)(work + 0x94) = secondary + *(s32 *)(entry + 0xC);
-                *(s32 *)(work + 0x98) = 0;
+            if (((EvtMovieFileHeader *)*(u8 **)(work + 0x80))->version == 4) {
+                ((EvtPolygonMovieWork *)work)->unk94 = secondary + ((EvtMovieSection *)entry)->offset;
+                ((EvtPolygonMovieWork *)work)->unk98 = NULL;
             } else {
-                *(u8 **)(work + 0x98) = secondary + *(s32 *)(entry + 0xC);
-                *(s32 *)(work + 0x94) = 0;
+                ((EvtPolygonMovieWork *)work)->unk98 = secondary + ((EvtMovieSection *)entry)->offset;
+                ((EvtPolygonMovieWork *)work)->unk94 = NULL;
             }
-            *(s32 *)(work + 0xAC) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            ((EvtPolygonMovieWork *)work)->countAC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 1:
-            *(u8 **)(work + 0x88) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x8C) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x88) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count8C = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 5:
-            *(u8 **)(work + 0xB0) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xB4) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xB0) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countB4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 13:
-            *(u8 **)(work + 0xB8) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xBC) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xB8) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countBC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 14:
-            *(u8 **)(work + 0xC0) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xC4) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xC0) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countC4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 15:
-            *(u8 **)(work + 0xC8) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xCC) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xC8) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countCC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 16:
-            *(u8 **)(work + 0xD0) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xD4) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xD0) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countD4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 17:
-            *(u8 **)(work + 0xD8) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xDC) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xD8) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countDC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 18:
-            *(u8 **)(work + 0xE0) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xE4) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xE0) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countE4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 19:
-            *(u8 **)(work + 0xE8) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xEC) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xE8) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countEC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 20:
-            *(u8 **)(work + 0xF0) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xF4) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xF0) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countF4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 24:
-            *(u8 **)(work + 0xF8) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xFC) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0xF8) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countFC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 21:
-            *(u8 **)(work + 0x100) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x104) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x100) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count104 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             func_00440b68(D_0063C6E0);
             break;
         case 25:
-            *(u8 **)(work + 0x108) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x10C) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x108) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count10C = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 26:
-            *(u8 **)(work + 0x60) = secondary + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0x64) = *(s32 *)(*(u8 **)(work + 0x84) + recordIndex * 0x10 + 8);
+            *(u8 **)(work + 0x60) = secondary + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->count64 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         default:
             kAssertFail(D_0063C6A0, 0x24D);
@@ -352,29 +356,29 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
         }
     }
     if (*(u8 **)(work + 0x90) != NULL) {
-        if (*(u8 **)(work + 0x4C) != NULL && *(s32 *)(work + 0x50) > 0) {
-            evtMessageWindowOpen(messageContext, *(s32 *)(work + 0x4C));
+        if (((EvtPolygonMovieWork *)work)->message != NULL && ((EvtPolygonMovieWork *)work)->count50 > 0) {
+            evtMessageWindowOpen(messageContext, (s32)((EvtPolygonMovieWork *)work)->message);
         }
     }
     *(u8 **)(work + 0x9C) = overlay;
     if (overlay != NULL) {
         *(u8 **)(work + 0xA0) = overlay + 0x20;
     } else {
-        *(s32 *)(work + 0xA0) = 0;
+        ((EvtPolygonMovieWork *)work)->overlayRecords = NULL;
     }
-    *(s32 *)(work + 0xA4) = 0;
+    ((EvtPolygonMovieWork *)work)->unkA4 = NULL;
     *(s32 *)(work + 0xA8) = 0;
     if (overlay == NULL) {
         return work;
     }
-    for (overlayIndex = 0; overlayIndex < *(s32 *)(*(u8 **)(work + 0x9C) + 0x10); overlayIndex++) {
+    for (overlayIndex = 0; overlayIndex < ((EvtMovieFileHeader *)((EvtPolygonMovieWork *)work)->overlay)->recordCount; overlayIndex++) {
         overlayRecords = *(u8 **)(work + 0xA0);
         entry = overlayRecords + overlayIndex * 0x10;
-        code = *(s32 *)entry;
+        code = ((EvtMovieSection *)entry)->code;
         switch (code) {
         case 4:
-            *(u8 **)(work + 0xA4) = overlay + *(s32 *)(entry + 0xC);
-            *(s32 *)(work + 0xA8) = *(s32 *)(*(u8 **)(work + 0xA0) + overlayIndex * 0x10 + 8);
+            *(u8 **)(work + 0xA4) = overlay + ((EvtMovieSection *)entry)->offset;
+            ((EvtPolygonMovieWork *)work)->countA8 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->overlayRecords + overlayIndex * 0x10))->count;
             break;
         default:
             break;
@@ -385,101 +389,101 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
 #pragma pop
 // Intent: Frees the movie: closes its message window when active, then releases the block (accounts -0x114) [inferred]
 // FUN_00290470
-void evtPolygonMovieFree(s32 *arg0, u32 *arg1)
+void evtPolygonMovieFree(s32 *movie, u32 *messageWindow)
 {
-    if (arg0 != NULL) {
-        if (evtMessageWindowIsOpen(arg1) == 1) {
-            evtMessageWindowClose(arg1);
+    if (movie != NULL) {
+        if (evtMessageWindowIsOpen(messageWindow) == 1) {
+            evtMessageWindowClose(messageWindow);
         }
-        jtbl_008873EC[0](arg0);
+        jtbl_008873EC[0](movie);
         evtMemAccount(1, -0x114);
     }
 }
 
-// Intent: Allocates a 0x20-byte copy of the static table at D_0063C700 into *arg0 (memory account 4) [inferred]
+/* Copy the static 0x20-byte table into outTable, charging memory account 4. */
 // FUN_002904F0
-s32 *evtPolygonMovieAllocTableA(s32 **arg0)
+s32 *evtPolygonMovieAllocTableA(s32 **outTable)
 {
-    s2x128 sp30;
-    s32 *temp;
+    s2x128 tableCopy;
+    s32 *table;
 
-    sp30 = *(s2x128 *)&D_0063C700;
+    tableCopy = *(s2x128 *)&D_0063C700;
     chkmemAllocSiteTag(D_00748340, 0x52);
-    temp = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
+    table = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
     evtMemAccount(4, 0x20);
-    memcpy(temp, &sp30, 0x20);
-    *arg0 = temp;
-    return temp;
+    memcpy(table, &tableCopy, 0x20);
+    *outTable = table;
+    return table;
 }
 
-// Intent: Allocates a 0x54-byte copy of the static table at D_0063C720 into *arg0 (memory account 5) [inferred]
+/* Copy the static 0x54-byte table into outTable, charging memory account 5. */
 // FUN_002905A0
-s32 *evtPolygonMovieAllocTableB(s32 **arg0)
+s32 *evtPolygonMovieAllocTableB(s32 **outTable)
 {
-    u8 sp30[0x54];
+    u8 tableCopy[0x54];
     s128 *src;
     s128 *dst;
     s32 count;
-    s32 *temp;
+    s32 *table;
 
     src = &D_0063C720[0];
-    dst = (s128 *)&sp30[0];
+    dst = (s128 *)&tableCopy[0];
     count = 5;
     do {
-        s128 temp;
+        s128 chunk;
 
-        temp = *src;
+        chunk = *src;
         src++;
         count--;
-        *dst = temp;
+        *dst = chunk;
         dst++;
     } while (count > 0);
     *(f32 *)dst = *(f32 *)src;
     chkmemAllocSiteTag(D_00748340, 0x52);
-    temp = (s32 *)D_008873F4[0](1, 0x54, 0x40000);
+    table = (s32 *)D_008873F4[0](1, 0x54, 0x40000);
     evtMemAccount(5, 0x54);
-    memcpy(temp, &sp30[0], 0x54);
-    *arg0 = temp;
-    return temp;
+    memcpy(table, &tableCopy[0], 0x54);
+    *outTable = table;
+    return table;
 }
 
-// Intent: Allocates a 0x20-byte copy of the static table at D_0063C780 into *arg0 (memory account 6) [inferred]
+/* Copy the static 0x20-byte table into outTable, charging memory account 6. */
 // FUN_00290660
-s32 *evtPolygonMovieAllocTableC(s32 **arg0)
+s32 *evtPolygonMovieAllocTableC(s32 **outTable)
 {
-    s2x128 sp30;
-    s32 *temp;
+    s2x128 tableCopy;
+    s32 *table;
 
-    sp30 = *(s2x128 *)&D_0063C780;
+    tableCopy = *(s2x128 *)&D_0063C780;
     chkmemAllocSiteTag(D_00748340, 0x52);
-    temp = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
+    table = (s32 *)D_008873F4[0](1, 0x20, 0x40000);
     evtMemAccount(6, 0x20);
-    memcpy(temp, &sp30, 0x20);
-    *arg0 = temp;
-    return temp;
+    memcpy(table, &tableCopy, 0x20);
+    *outTable = table;
+    return table;
 }
 
 // Intent: Formats the four name strings for a frame number (rounded down to tens) with the four D_0063C7A0..7C0 formats [inferred]
 // FUN_00290710
-void evtPolygonMovieFormatNames(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5)
+void evtPolygonMovieFormatNames(s32 frame, s32 variant, u8 *primaryName, u8 *secondaryName, u8 *overlayName, u8 *extraName)
 {
-    s32 temp;
+    s32 frameGroup;
 
-    if (arg2 == 0) {
+    if (primaryName == 0) {
         kAssertFail(D_0063C6A0, 0x36B);
     }
-    if (arg3 == 0) {
+    if (secondaryName == 0) {
         kAssertFail(D_0063C6A0, 0x36C);
     }
-    if (arg4 == 0) {
+    if (overlayName == 0) {
         kAssertFail(D_0063C6A0, 0x36D);
     }
-    if (arg5 == 0) {
+    if (extraName == 0) {
         kAssertFail(D_0063C6A0, 0x36E);
     }
-    temp = (arg0 / 10) * 10;
-    sprintf(arg2, D_0063C7A0, temp, arg0, arg1);
-    sprintf(arg3, D_0063C7C0, temp, arg0, arg1);
-    sprintf(arg4, D_0063C7E0, temp, arg0, arg1);
-    sprintf(arg5, D_0063C800, temp, arg0, arg1);
+    frameGroup = (frame / 10) * 10;
+    sprintf(primaryName, D_0063C7A0, frameGroup, frame, variant);
+    sprintf(secondaryName, D_0063C7C0, frameGroup, frame, variant);
+    sprintf(overlayName, D_0063C7E0, frameGroup, frame, variant);
+    sprintf(extraName, D_0063C800, frameGroup, frame, variant);
 }

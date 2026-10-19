@@ -4,6 +4,7 @@
 /* Source unit: src/Event/mt_misc_00290ec0.c */
 #include "type.h"
 #include "scene_event_internal.h"
+#include "evt_effect_internal.h"
 
 extern int MT_Scene_GetObject();
 extern int MT_Scene_DestroyRes();
@@ -21,58 +22,59 @@ extern int sdkSndResetChannel();
 
 /* opt_loop_invariants on: measured nd 124 -> 0, object 292/304 -> 292/304. */
 
-// Appends a 0x2C-byte entry (param_2 stored at +0x34) to the table at param_1 and bumps its count at +4 [inferred].
+/* Append a direct resource-data entry to the effect table and advance its count. */
 // FUN_00290EC0
-void mtMiscAppendEntry(int param_1, u32 param_2)
+void mtMiscAppendEntry(int tableAddress, u32 resourceData)
 {
-    int iVar1;
+    int entryAddress;
 
-    iVar1 = *(int *)(param_1 + 4) * 0x2c;
-    iVar1 = iVar1 + param_1;
+    entryAddress = ((EvtEffectTable *)tableAddress)->count * 0x2c;
+    entryAddress = entryAddress + tableAddress;
 
-    *(u8 *)(iVar1 + 0x14) = 0;
-    *(u32 *)(iVar1 + 0x10) = 0;
-    *(u32 *)(iVar1 + 0x38) = 0;
-    *(u32 *)(iVar1 + 0x34) = param_2;
-    *(int *)(param_1 + 4) = *(int *)(param_1 + 4) + 1;
+    ((EvtEffectEntry *)(entryAddress + 0x10))->filename[0] = 0;
+    ((EvtEffectEntry *)(entryAddress + 0x10))->kind = 0;
+    ((EvtEffectEntry *)(entryAddress + 0x10))->request = NULL;
+    ((EvtEffectEntry *)(entryAddress + 0x10))->lookupResult = resourceData;
+    ((EvtEffectTable *)tableAddress)->count = ((EvtEffectTable *)tableAddress)->count + 1;
 
     return;
 }
 
 
 
-// Intent: Sets slot arg2 (below 16) of the table to the object resource built from entry arg3 after destroying the slot's previous resource [inferred]
+/* Replace a slot resource with the object created from the selected effect entry. */
 // FUN_00291220
-void mtMiscSetSlotRes(int param_1, int param_2, int param_3, u64 param_4)
+void mtMiscSetSlotRes(int tableAddress, int slotIndex, int entryIndex, u64 creationFlags)
 {
-    u16 sVar1;
-    u16 uVar2;
-    u16 *puVar5;
-    int iVar4;
+    u16 oldResourceId;
+    u16 resourceId;
+    u16 *slot;
+    int value;
 
-    if (((param_2 < 0x10) && (param_3 < *(int *)(param_1 + 4))) &&
+    if (((slotIndex < 0x10) && (entryIndex < ((EvtEffectTable *)tableAddress)->count)) &&
         MT_Scene_GetObject() != 0) {
-        iVar4 = (int)param_2 * 2;
-        iVar4 = iVar4 + param_1;
-        puVar5 = (u16 *)(iVar4 + 0x170);
-        sVar1 = *(u16 *)(iVar4 + 0x170);
-        if (sVar1 != 0) {
-            if (MT_Scene_GetRes(sVar1) != 0) {
-                MT_Scene_DestroyRes(sVar1);
+        value = (int)slotIndex * 2;
+        value = value + tableAddress;
+        slot = &((EvtEffectTable *)value)->slots[0];
+        oldResourceId = ((EvtEffectTable *)value)->slots[0];
+        if (oldResourceId != 0) {
+            if (MT_Scene_GetRes(oldResourceId) != 0) {
+                MT_Scene_DestroyRes(oldResourceId);
             }
-            *puVar5 = 0;
+            *slot = 0;
         }
-        if (*(int *)(param_1 + 4) <= param_3) {
-            iVar4 = 0;
+        /* measured: typing this remaining count reload loses MATCH across the resource callbacks. */
+        if (*(int *)(tableAddress + 4) <= entryIndex) {
+            value = 0;
         }
         else {
-            iVar4 = *(int *)((u8 *)(uintptr_t)(param_3 * 0x2c) + (uintptr_t)param_1 + 0x34);
+            value = ((EvtEffectEntry *)((u8 *)(uintptr_t)(entryIndex * 0x2c) + (uintptr_t)tableAddress + 0x10))->lookupResult;
         }
-        if (iVar4 != 0) {
-            uVar2 = MT_Scene_CreateObjectRes((int)param_2 + 200U & 0xffff, iVar4, param_4);
-            func_00440b68(DAT_0063c8a0, uVar2);
-            MT_Scene_SetResActiveById(uVar2, 1);
-            *puVar5 = uVar2;
+        if (value != 0) {
+            resourceId = MT_Scene_CreateObjectRes((int)slotIndex + 200U & 0xffff, value, creationFlags);
+            func_00440b68(DAT_0063c8a0, resourceId);
+            MT_Scene_SetResActiveById(resourceId, 1);
+            *slot = resourceId;
         }
     }
     return;
@@ -80,46 +82,46 @@ void mtMiscSetSlotRes(int param_1, int param_2, int param_3, u64 param_4)
 
 
 
-// Intent: Returns the resource id held in slot arg2 (below 16), or 0 when the slot is empty or no object is active [inferred]
+/* Return the slot resource id, or zero for an unavailable slot or scene. */
 // FUN_00291360
-s32 mtMiscGetSlotRes(int param_1, int param_2)
+s32 mtMiscGetSlotRes(int tableAddress, int slotIndex)
 {
-    int lVar2;
+    int sceneObject;
 
-    if (param_2 >= 0x10) {
+    if (slotIndex >= 0x10) {
         return 0;
     }
 
-    lVar2 = MT_Scene_GetObject();
+    sceneObject = MT_Scene_GetObject();
 
-    if (lVar2 == 0) {
+    if (sceneObject == 0) {
         return 0;
     }
 
-    return *(u16 *)((u8 *)((int)param_2 * 2) + param_1 + 0x170);
+    return ((EvtEffectTable *)((u8 *)((int)slotIndex * 2) + tableAddress))->slots[0];
 }
 
 
 
-// Intent: Destroys the resource in slot arg2 (below 16) and clears the slot [inferred]
+/* Destroy the selected slot resource, if present, and clear its resource id. */
 // FUN_002913D0
-void mtMiscClearSlotRes(int param_1, int param_2)
+void mtMiscClearSlotRes(int tableAddress, int slotIndex)
 {
-    u16 *puVar5;
-    u16 sVar1;
-    int iVar4;
+    u16 *slot;
+    u16 oldResourceId;
+    int value;
 
-    if ((param_2 < 0x10) && (MT_Scene_GetObject() != 0)) {
-        iVar4 = (int)param_2 * 2;
-        iVar4 = iVar4 + param_1;
-        puVar5 = (u16 *)(iVar4 + 0x170);
-        sVar1 = *(u16 *)(iVar4 + 0x170);
-        if (sVar1 != 0) {
-            if (MT_Scene_GetRes(sVar1) != 0) {
-                MT_Scene_DestroyRes(sVar1);
+    if ((slotIndex < 0x10) && (MT_Scene_GetObject() != 0)) {
+        value = (int)slotIndex * 2;
+        value = value + tableAddress;
+        slot = &((EvtEffectTable *)value)->slots[0];
+        oldResourceId = ((EvtEffectTable *)value)->slots[0];
+        if (oldResourceId != 0) {
+            if (MT_Scene_GetRes(oldResourceId) != 0) {
+                MT_Scene_DestroyRes(oldResourceId);
                 func_00440b68(DAT_0063c8c0);
             }
-            *puVar5 = 0;
+            *slot = 0;
         }
     }
     return;
@@ -129,24 +131,24 @@ void mtMiscClearSlotRes(int param_1, int param_2)
 
 // Intent: Destroys every slot resource of the table and clears the slots [inferred]
 // FUN_00291470
-void mtMiscClearAllSlotRes(int param_1)
+void mtMiscClearAllSlotRes(int tableAddress)
 {
-    u16 *puVar5;
-    u16 sVar1;
-    int iVar3;
-    int iVar4;
+    u16 *slot;
+    u16 oldResourceId;
+    int slotAddress;
+    int slotIndex;
 
-    for (iVar4 = 0; iVar4 < 0x10; iVar4 = iVar4 + 1) {
-        if ((iVar4 < 0x10) && (MT_Scene_GetObject() != 0)) {
-            iVar3 = param_1 + iVar4 * 2;
-            puVar5 = (u16 *)(iVar3 + 0x170);
-            sVar1 = *(u16 *)(iVar3 + 0x170);
-            if (sVar1 != 0) {
-                if (MT_Scene_GetRes(sVar1) != 0) {
-                    MT_Scene_DestroyRes(sVar1);
+    for (slotIndex = 0; slotIndex < 0x10; slotIndex = slotIndex + 1) {
+        if ((slotIndex < 0x10) && (MT_Scene_GetObject() != 0)) {
+            slotAddress = tableAddress + slotIndex * 2;
+            slot = &((EvtEffectTable *)slotAddress)->slots[0];
+            oldResourceId = ((EvtEffectTable *)slotAddress)->slots[0];
+            if (oldResourceId != 0) {
+                if (MT_Scene_GetRes(oldResourceId) != 0) {
+                    MT_Scene_DestroyRes(oldResourceId);
                     func_00440b68(DAT_0063c8c0);
                 }
-                *puVar5 = 0;
+                *slot = 0;
             }
         }
     }
@@ -155,29 +157,29 @@ void mtMiscClearAllSlotRes(int param_1)
 
 
 
-// Plays sound cue param_1 on the sound system; returns 0 [inferred].
+/* Play the cue on the sound system; the command result is always zero. */
 // FUN_00298100
-u64 mtMiscPlayCue(s16 param_1)
+u64 mtMiscPlayCue(s16 cueId)
 {
-    sdkSndPlayCue(param_1, 1);
+    sdkSndPlayCue(cueId, 1);
 
     return 0;
 }
 
 
 
-// Intent: Stops sound channel arg1 by fading it out over arg2 frames when arg2 is nonzero, otherwise resets the channel [inferred]
+/* Stop a channel by fading over fadeFrames, or reset it immediately for zero. */
 // FUN_00298190
-u64 mtMiscStopSoundChannel(s16 param_1, int param_2)
+u64 mtMiscStopSoundChannel(s16 channel, int fadeFrames)
 {
-    int iVar1;
+    int duration;
 
-    iVar1 = param_2;
-    if (iVar1 != 0) {
-        sdkSndFadeOutChannelFrames(param_1, 0, param_2);
+    duration = fadeFrames;
+    if (duration != 0) {
+        sdkSndFadeOutChannelFrames(channel, 0, fadeFrames);
     }
     else {
-        sdkSndResetChannel(param_1, 0, param_2);
+        sdkSndResetChannel(channel, 0, fadeFrames);
     }
 
     return 0;
