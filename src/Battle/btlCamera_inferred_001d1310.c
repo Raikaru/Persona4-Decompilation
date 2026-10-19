@@ -1,3 +1,6 @@
+#include "btl_camera_framing_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -10,17 +13,17 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
     return left + right;
 }
 
-extern void btlUnitSetRot(void *arg0, void *arg1);
+extern void btlUnitSetRot(void *first, void *second);
 extern void btlTargetBlendVectors(void *out, void *first, void *second);
-extern void btlTargetPositionToCell(s16 *arg0, s16 *arg1, f32 *position);
-extern u8 *iGpffffb3ac;
+extern void btlTargetPositionToCell(s16 *first, s16 *second, f32 *position);
+extern u8 *iGpffffb3ac; /* battle-state allocation */
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *first, s32 second);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+extern void btlUnitGetSphereWorldCenter(u8 *first, f32 *second);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -29,12 +32,12 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
-extern void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *arg0, s32 arg1, u8 *arg2);
-extern u8 *btlUnitGetRecordPtr(u8 *arg0, s32 arg1);
-extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void memset(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlUnitSetPos(u8 *first, f32 *second);
+extern void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *first, s32 second, u8 *third);
+extern u8 *btlUnitGetRecordPtr(u8 *first, s32 second);
+extern f32 RwV3dNormalize(f32 *first, f32 *second);
+extern u8 *(*jtbl_008873E8[])(s32 first, s32 second);
+extern void memset(u8 *first, s32 second, s32 third);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -43,7 +46,7 @@ extern u8 D_0060A0F0[];
 
 
 extern u8 D_008813B0[];
-extern u8 D_00607E50[];
+extern u8 D_00607E50[]; /* 0xE0-byte formation rows */
 extern u8 D_00609558[];
 extern u8 iGpffffa4db;
 extern u8 iGpffffa4da;
@@ -61,22 +64,7 @@ typedef int (*code)();
 
 extern s32 btlUnitRealignCells(void);
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
@@ -90,51 +78,53 @@ static inline f32 formationCapacityLimit(s32 limit)
 {
     return (f32)limit;
 }
+/* Count living enemies into three radius/height capacity bands plus a total. */
 // FUN_001D1310
-void btlCameraCountUnitsByBand(u16 *arg0) {
-    u8 *node;
+void btlCameraCountUnitsByBand(u16 *counts) {
+    u8 *unit;
     f32 scale;
-    f32 x;
-    f32 y;
-    memset((u8 *)arg0, 0, 8);
-    node = *(u8 **)(iGpffffb3ac + 0x184);
-    while (node != NULL) {
-        if (datCalcIsDead(*(u8 **)(node + 0xA64), 0) == 0) {
-            scale = *(f32 *)(node + 0x2C);
-            x = (f32)(s32)(*(f32 *)(node + 0x90) * scale);
-            y = (f32)(s32)(*(f32 *)(node + 0x8C) * scale);
-            if (y <= 200.0f) {
-                if (x <= 75.0f) {
-                    *(u16 *)((u8 *)arg0 + 0) = *(u16 *)((u8 *)arg0 + 0) + 1;
-                } else if (x <= 125.0f) {
-                    *(u16 *)((u8 *)arg0 + 2) = *(u16 *)((u8 *)arg0 + 2) + 1;
-                } else if (x <= 200.0f) {
-                    *(u16 *)((u8 *)arg0 + 4) = *(u16 *)((u8 *)arg0 + 4) + 1;
+    f32 radius;
+    f32 height;
+    memset((u8 *)counts, 0, 8);
+    unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[3];
+    while (unit != NULL) {
+        if (datCalcIsDead((u8*)((BtlUnit *)unit)->datUnit, 0) == 0) {
+            scale = ((BtlUnit *)unit)->scale;
+            radius = (f32)(s32)(((BtlUnit *)unit)->sphereRadius * scale);
+            height = (f32)(s32)(((BtlUnit *)unit)->unk_8c * scale);
+            if (height <= 200.0f) {
+                if (radius <= 75.0f) {
+                    counts[0] = counts[0] + 1;
+                } else if (radius <= 125.0f) {
+                    counts[1] = counts[1] + 1;
+                } else if (radius <= 200.0f) {
+                    counts[2] = counts[2] + 1;
                 }
-            } else if (y <= 300.0f) {
-                if (x <= 125.0f) {
-                    *(u16 *)((u8 *)arg0 + 2) = *(u16 *)((u8 *)arg0 + 2) + 1;
-                } else if (x <= 200.0f) {
-                    *(u16 *)((u8 *)arg0 + 4) = *(u16 *)((u8 *)arg0 + 4) + 1;
+            } else if (height <= 300.0f) {
+                if (radius <= 125.0f) {
+                    counts[1] = counts[1] + 1;
+                } else if (radius <= 200.0f) {
+                    counts[2] = counts[2] + 1;
                 }
             } else {
-                *(u16 *)((u8 *)arg0 + 4) = *(u16 *)((u8 *)arg0 + 4) + 1;
+                counts[2] = counts[2] + 1;
             }
-            *(u16 *)((u8 *)arg0 + 6) = *(u16 *)((u8 *)arg0 + 6) + 1;
+            counts[3] = counts[3] + 1;
         }
-        node = *(u8 **)(node + 0xA68);
+        unit = (u8 *)((BtlUnit *)unit)->prevUnit;
     }
 }
 
 /* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
 /* measured: btlCameraFindFormationForCounts MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Return the first fitting formation row, or the final row if no capacities fit. */
 // FUN_001D14B0
-s32 btlCameraFindFormationForCounts(u8 *arg0)
+s32 btlCameraFindFormationForCounts(u8 *counts)
 {
     s32 index;
-    u16 masked_index;
-    u16 test_index;
+    u16 maskedIndex;
+    u16 testIndex;
     u8 *table;
     u8 *entry;
 
@@ -142,23 +132,23 @@ s32 btlCameraFindFormationForCounts(u8 *arg0)
     table = D_00607E50;
     goto test;
 loop:
-    masked_index = (u16)index;
-    entry = table + (masked_index * 0xE0);
-    if (*(u16 *)(arg0 + 0) > *(u16 *)(entry + 0xD8)) {
+    maskedIndex = (u16)index;
+    entry = table + (maskedIndex * 0xE0);
+    if (((u16 *)counts)[0] > ((BtlCameraFormation *)entry)->capacity[0]) {
         goto next;
     }
-    if (*(u16 *)(arg0 + 2) > *(u16 *)(entry + 0xDA)) {
+    if (((u16 *)counts)[1] > ((BtlCameraFormation *)entry)->capacity[1]) {
         goto next;
     }
-    if (*(u16 *)(arg0 + 4) > *(u16 *)(entry + 0xDC)) {
+    if (((u16 *)counts)[2] > ((BtlCameraFormation *)entry)->capacity[2]) {
         goto next;
     }
     return index;
 next:
     index = (index + 1) & 0xFFFF;
 test:
-    test_index = (u16)index;
-    if (test_index < 0x19U) {
+    testIndex = (u16)index;
+    if (testIndex < 0x19U) {
         goto loop;
     }
     return 0x18;
@@ -167,17 +157,18 @@ test:
 /* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 /* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
+/* Write the party or enemy occupancy slot selected by unit genus. */
 // FUN_001D1540
-void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 temp_4;
+void btlCameraSetUnitSlotValue(u8 *unit, s32 slotIndex, s32 slotValue) {
+    u8 genus;
 
-    temp_4 = *(u8 *)(arg0 + 0xA2);
-    switch (temp_4) {
+    genus = ((BtlUnit *)unit)->genus;
+    switch (genus) {
     case 0:
-        ((s32 *)(iGpffffb3ac + 0xA74))[(u16)arg1] = arg2;
+        ((BtlCameraFormationOccupancy *)(iGpffffb3ac + 0xA74))->party[(u16)slotIndex] = slotValue;
         return;
     case 1:
-        ((s32 *)(iGpffffb3ac + 0xA84))[(u16)arg1] = arg2;
+        ((BtlCameraFormationOccupancy *)(iGpffffb3ac + 0xA74))->enemies[(u16)slotIndex] = slotValue;
         return;
     }
 }
@@ -186,6 +177,7 @@ void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2) {
    The four output counters are a complete helper buffer. A two-halfword
    cursor keeps induction and explicitly narrowed selection in retail's
    distinct registers without adding stack storage. */
+/* Realign units and select the first formation capacity triple fitting the living counts. */
 // FUN_001D15A0
 s16 btlCameraSelectFormationIndex(void)
 {
@@ -213,9 +205,9 @@ s16 btlCameraSelectFormationIndex(void)
     for (; cursor.index < 0x19U; cursor.index++) {
         cursor.selected = (u16)cursor.index;
         entry = table + (s32)cursor.selected * 0xE0;
-        if (first > *(u16 *)(entry + 0xD8)) continue;
-        if (second > *(u16 *)(entry + 0xDA)) continue;
-        if (third > *(u16 *)(entry + 0xDC)) continue;
+        if (first > ((BtlCameraFormation *)entry)->capacity[0]) continue;
+        if (second > ((BtlCameraFormation *)entry)->capacity[1]) continue;
+        if (third > ((BtlCameraFormation *)entry)->capacity[2]) continue;
         result = cursor.selected;
         goto done;
     }
@@ -235,6 +227,8 @@ done:
 // FUN_001D1680
 void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
 {
+    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+
     RwV3d position;
     RwV3d actorCenter;
     RwV3d enemyCenter;
@@ -252,7 +246,7 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
     u8 *facingUnit;
 
     position.y = 0.0f;
-    *(s16 *)(iGpffffb3ac + 0xA70) = -1;
+    ((BtlBattleState *)iGpffffb3ac)->unkA70 = -1;
     if (btlUnitRealignCells() == 1) {
         formation = -1;
     } else {
@@ -263,12 +257,12 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
     if ((s64)formation != -1) {
         memset(iGpffffb3ac + 0xA74, 0, 0x24);
         nextSlot = 1;
-        actor = *(u8 **)(iGpffffb3ac + 0x178);
+        actor = ((BtlBattleState *)iGpffffb3ac)->unitLists[0];
         layout = D_00607E50 + formation * 0xE0;
         while (actor != NULL) {
             s32 slot;
             u8 *entry;
-            if (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) == actor) {
+            if ((u8 *)((BtlAction *)(((BtlBattleState *)iGpffffb3ac)->selectedAction))->unit == actor) {
                 selectedSlot = 0;
             } else {
                 while (layout[(u16)nextSlot * 0x18] == 0 && (u16)nextSlot < 4) {
@@ -279,12 +273,12 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
             }
             slot = (u16)selectedSlot;
             entry = layout + slot * 0x18;
-            position.x = *(f32 *)(entry + 4);
-            position.z = *(f32 *)(entry + 8);
+            position.x = ((BtlCameraFormationSlot *)entry)->x;
+            position.z = ((BtlCameraFormationSlot *)entry)->z;
             btlTargetPositionToCell((s16 *)(actor + 0x94), (s16 *)(actor + 0x96), (f32 *)&position);
             if (applyPositions != 0) {
-                position.x = (f32)(*(s16 *)(actor + 0x94) * 25 - 1750);
-                position.z = (f32)(*(s16 *)(actor + 0x96) * 25 - 1750);
+                position.x = (f32)(((BtlUnit *)actor)->unk_94 * 25 - 1750);
+                position.z = (f32)(((BtlUnit *)actor)->unk_96 * 25 - 1750);
                 btlUnitSetPos(actor, (f32 *)&position);
             }
             switch (actor[0xA2]) {
@@ -296,13 +290,13 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 break;
             }
             actor[0x9FC] = (s8)selectedSlot;
-            actor = *(u8 **)(actor + 0xA6C);
+            actor = (u8 *)((BtlUnit *)actor)->nextUnit;
         }
 
-        enemy = *(u8 **)(iGpffffb3ac + 0x180);
+        enemy = ((BtlBattleState *)iGpffffb3ac)->unitLists[2];
         memset((u8 *)occupied, 0, 5 * sizeof(occupied[0]));
         while (enemy != NULL) {
-            if (datCalcIsDead(*(u8 **)(enemy + 0xA64), 0) == 0) {
+            if (datCalcIsDead((u8*)((BtlUnit *)enemy)->datUnit, 0) == 0) {
                 f32 radius;
                 f32 height;
                 f32 radiusSlack;
@@ -317,17 +311,17 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 chosen = 5;
                 leastRadius = formationCapacityLimit(100000000);
                 leastHeight = leastRadius;
-                scale = *(f32 *)(enemy + 0x2C);
-                radius = (f32)(s32)(*(f32 *)(enemy + 0x90) * scale);
-                height = (f32)(s32)(*(f32 *)(enemy + 0x8C) * scale);
+                scale = ((BtlUnit *)enemy)->scale;
+                radius = (f32)(s32)(((BtlUnit *)enemy)->sphereRadius * scale);
+                height = (f32)(s32)(((BtlUnit *)enemy)->unk_8c * scale);
                 for (cursor.index = 0; (u16)cursor.index < 5; cursor.index++) {
                     cursor.current = (u16)cursor.index;
                     if (occupied[cursor.current] != 1) {
                         u8 *candidate = layout + (s32)cursor.current * 0x18;
                         if (candidate[0x60] != 0) {
                             f32 heightSlack;
-                            radiusSlack = *(f32 *)(candidate + 0x70) - radius;
-                            heightSlack = *(f32 *)(candidate + 0x74) - height;
+                            radiusSlack = ((BtlCameraFormationSlot *)(candidate + 0x60))->radius - radius;
+                            heightSlack = ((BtlCameraFormationSlot *)(candidate + 0x60))->height - height;
                             if (!(radiusSlack < 0.0f) && !(heightSlack < 0.0f) &&
                                 (radiusSlack < leastRadius || heightSlack < leastHeight)) {
                                 leastRadius = radiusSlack;
@@ -347,8 +341,8 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                             u8 *candidate = layout + (s32)cursor.current * 0x18;
                             if (candidate[0x60] != 0) {
                                 f32 heightSlack;
-                                radiusSlack = *(f32 *)(candidate + 0x70) - radius;
-                                heightSlack = *(f32 *)(candidate + 0x74) - height;
+                                radiusSlack = ((BtlCameraFormationSlot *)(candidate + 0x60))->radius - radius;
+                                heightSlack = ((BtlCameraFormationSlot *)(candidate + 0x60))->height - height;
                                 if (radiusSlack < leastRadius || heightSlack < leastHeight) {
                                     leastRadius = radiusSlack;
                                     leastHeight = heightSlack;
@@ -362,12 +356,12 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 occupiedOffset = slot * 4;
                 occupied[slot] = 1;
                 entry = layout + slot * 0x18;
-                position.x = *(f32 *)(entry + 0x64);
-                position.z = *(f32 *)(entry + 0x68);
+                position.x = ((BtlCameraFormationSlot *)(entry + 0x60))->x;
+                position.z = ((BtlCameraFormationSlot *)(entry + 0x60))->z;
                 btlTargetPositionToCell((s16 *)(enemy + 0x94), (s16 *)(enemy + 0x96), (f32 *)&position);
                 if (applyPositions != 0) {
-                    position.x = (f32)(*(s16 *)(enemy + 0x94) * 25 - 1750);
-                    position.z = (f32)(*(s16 *)(enemy + 0x96) * 25 - 1750);
+                    position.x = (f32)(((BtlUnit *)enemy)->unk_94 * 25 - 1750);
+                    position.z = (f32)(((BtlUnit *)enemy)->unk_96 * 25 - 1750);
                     btlUnitSetPos(enemy, (f32 *)&position);
                 }
                 switch (enemy[0xA2]) {
@@ -380,34 +374,38 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
                 }
                 enemy[0x9FC] = (s8)chosen;
             }
-            enemy = *(u8 **)(enemy + 0xA6C);
+            enemy = (u8 *)((BtlUnit *)enemy)->nextUnit;
         }
 
         btlUnitGetGroupBounds(2, 1, &enemyCenter, NULL, NULL, 1);
-        btlUnitGetSphereWorldCenter(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30), (f32 *)&actorCenter);
-        facingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+        btlUnitGetSphereWorldCenter((u8 *)((BtlAction *)(((BtlBattleState *)iGpffffb3ac)->selectedAction))->unit, (f32 *)&actorCenter);
+        facingUnit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
         while (facingUnit != NULL) {
             btlUnitGetSphereWorldCenter(facingUnit, (f32 *)&position);
             btlTargetBlendVectors(&rotation, &position, &enemyCenter);
             btlUnitSetRot(facingUnit, &rotation);
-            facingUnit = *(u8 **)(facingUnit + 0xA68);
+            facingUnit = (u8 *)((BtlUnit *)facingUnit)->prevUnit;
         }
-        facingUnit = *(u8 **)(iGpffffb3ac + 0x184);
+        facingUnit = ((BtlBattleState *)iGpffffb3ac)->unitLists[3];
         while (facingUnit != NULL) {
             btlUnitGetSphereWorldCenter(facingUnit, (f32 *)&position);
             btlTargetBlendVectors(&rotation, &position, &actorCenter);
             btlUnitSetRot(facingUnit, &rotation);
-            facingUnit = *(u8 **)(facingUnit + 0xA68);
+            facingUnit = (u8 *)((BtlUnit *)facingUnit)->prevUnit;
         }
-        *(s16 *)(iGpffffb3ac + 0xA70) = formation;
-        *(s16 *)(iGpffffb3ac + 0xA72) = btlSideCountNotBad(2, 0x80000);
+        ((BtlBattleState *)iGpffffb3ac)->unkA70 = formation;
+        ((BtlBattleState *)iGpffffb3ac)->unkA72 = btlSideCountNotBad(2, 0x80000);
     }
 }
 
 #pragma pop
+/* Move the flagged units along their horizontal animation-bound separation; return completion. */
 // FUN_001D1CC0
-s32 btlCameraNudgeUnitPair(u8 *arg0)
+s32 btlCameraNudgeUnitPair(u8 *work)
 {
+    /* Record 0xA exposes a signed extent at +4; its remaining animation-record layout is unrecovered. */
+    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+
     struct Frame {
         f32 value40;
         f32 pad44;
@@ -421,54 +419,54 @@ s32 btlCameraNudgeUnitPair(u8 *arg0)
         f32 value64;
         f32 value68;
     } frame;
-    u8 *temp_17;
-    u8 *temp_16;
-    u8 *temp_4;
+    u8 *firstUnit;
+    u8 *secondUnit;
+    u8 *childUnit;
     u8 *bounds;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f2;
-    f32 temp_f3;
+    f32 distance;
+    f32 offsetZ;
+    f32 scaleOrY;
+    f32 radiusOrX;
 
-    temp_17 = *(u8 **)(arg0 + 0);
-    temp_16 = *(u8 **)(arg0 + 4);
-    btlUnitGetAnimBoundsWorldCenterTowardUnit(temp_16, (s32)temp_17, (u8 *)&frame.value40);
-    frame.value60 = *(f32 *)(temp_17 + 4) - frame.value40;
+    firstUnit = (u8 *)((BtlCameraUnitPair *)work)->first;
+    secondUnit = (u8 *)((BtlCameraUnitPair *)work)->second;
+    btlUnitGetAnimBoundsWorldCenterTowardUnit(secondUnit, (s32)firstUnit, (u8 *)&frame.value40);
+    frame.value60 = *(f32 *)(firstUnit + 4) - frame.value40;
     frame.value64 = 0.0f;
-    frame.value68 = *(f32 *)(temp_17 + 0xC) - frame.value48;
+    frame.value68 = *(f32 *)(firstUnit + 0xC) - frame.value48;
     RwV3dNormalize(&frame.value60, &frame.value60);
     if ((frame.value60 == 0.0f) && (frame.value68 == 0.0f)) {
         return 1;
     }
-    bounds = btlUnitGetRecordPtr(temp_16, 0xA);
-    temp_f3 = (f32)*(s16 *)(bounds + 4);
-    temp_f2 = *(f32 *)(temp_16 + 0x2C);
-    temp_f1 = *(f32 *)(arg0 + 8);
-    temp_f1 -= temp_f3 * temp_f2;
-    temp_f3 = frame.value60 * temp_f1;
-    frame.value60 = temp_f3;
-    temp_f2 = frame.value64 * temp_f1;
-    frame.value64 = temp_f2;
-    temp_f1_2 = frame.value68 * temp_f1;
-    frame.value68 = temp_f1_2;
-    if ((*(u16 *)(arg0 + 0xC) & 1) != 0) {
-        frame.value50 = *(f32 *)(temp_17 + 4) + frame.value60;
-        frame.value54 = *(f32 *)(temp_17 + 8) + frame.value64;
-        frame.value58 = *(f32 *)(temp_17 + 0xC) + frame.value68;
-        btlUnitSetPos(temp_17, &frame.value50);
-        temp_4 = *(u8 **)(temp_17 + 0xA0C);
-        if (temp_4 != NULL) {
-            frame.value50 = *(f32 *)(temp_4 + 4) + frame.value60;
-            frame.value54 = *(f32 *)(temp_4 + 8) + frame.value64;
-            frame.value58 = *(f32 *)(temp_4 + 0xC) + frame.value68;
-            btlUnitSetPos(temp_4, &frame.value50);
+    bounds = btlUnitGetRecordPtr(secondUnit, 0xA);
+    radiusOrX = (f32)*(s16 *)(bounds + 4);
+    scaleOrY = ((BtlUnit *)secondUnit)->scale;
+    distance = ((BtlCameraUnitPair *)work)->separation;
+    distance -= radiusOrX * scaleOrY;
+    radiusOrX = frame.value60 * distance;
+    frame.value60 = radiusOrX;
+    scaleOrY = frame.value64 * distance;
+    frame.value64 = scaleOrY;
+    offsetZ = frame.value68 * distance;
+    frame.value68 = offsetZ;
+    if ((*(u16 *)(work + 0xC) & 1) != 0) {
+        frame.value50 = ((BtlUnit *)firstUnit)->pos.x + frame.value60;
+        frame.value54 = ((BtlUnit *)firstUnit)->pos.y + frame.value64;
+        frame.value58 = ((BtlUnit *)firstUnit)->pos.z + frame.value68;
+        btlUnitSetPos(firstUnit, &frame.value50);
+        childUnit = (u8 *)((BtlUnit *)firstUnit)->childUnit;
+        if (childUnit != NULL) {
+            frame.value50 = ((BtlUnit *)childUnit)->pos.x + frame.value60;
+            frame.value54 = ((BtlUnit *)childUnit)->pos.y + frame.value64;
+            frame.value58 = ((BtlUnit *)childUnit)->pos.z + frame.value68;
+            btlUnitSetPos(childUnit, &frame.value50);
         }
     }
-    if ((*(u16 *)(arg0 + 0xC) & 2) != 0) {
-        frame.value50 = *(f32 *)(temp_16 + 4) + frame.value60;
-        frame.value54 = *(f32 *)(temp_16 + 8) + frame.value64;
-        frame.value58 = *(f32 *)(temp_16 + 0xC) + frame.value68;
-        btlUnitSetPos(temp_16, &frame.value50);
+    if ((((BtlCameraUnitPair *)work)->flags & 2) != 0) {
+        frame.value50 = ((BtlUnit *)secondUnit)->pos.x + frame.value60;
+        frame.value54 = ((BtlUnit *)secondUnit)->pos.y + frame.value64;
+        frame.value58 = ((BtlUnit *)secondUnit)->pos.z + frame.value68;
+        btlUnitSetPos(secondUnit, &frame.value50);
     }
     return 1;
 }
