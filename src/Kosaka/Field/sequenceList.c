@@ -13,7 +13,7 @@ extern void evtNoopCallback(void);
 extern s32 evtLookupTask(void);
 extern void scrCreateScriptChildTask(void *);
 extern void seqYajiTaskCreate(void);
-extern s32 func_002bdb50(s32, s8);
+extern s32 fclShopCreate(s32, s8);
 extern s32 shopSystemCreate(s32);
 extern s32 fclCombineTaskCreate(s32);
 extern void func_0034b8c0(void);
@@ -244,7 +244,7 @@ void SeqNowatari_End(void)
 // FUN_00103200
 void SeqWeaponStore_Start(void)
 {
-    func_002bdb50(0, 0);
+    fclShopCreate(0, 0);
 }
 
 // FUN_00103230

@@ -106,7 +106,7 @@ extern void itfMesLoadData(void);
 extern void itfMesInitManager(void);
 extern void scrInitPools(void);
 extern void loadingSpinnerTaskCreate(void);
-extern void func_002bdf20(void);
+extern void fclShopLoadMessageResources(void);
 extern void nLineInit(void);
 extern void RpSkySelectTrueTSClipper(s32 arg0);
 extern void RpSkySelectTrueTLClipper(s32 arg0);
