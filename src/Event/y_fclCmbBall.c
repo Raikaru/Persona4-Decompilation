@@ -7,6 +7,7 @@ extern s32 fclCmbBallSlotsUpdate(u8 *task);
 extern void fclCmbBallSlotsDestroy(u8 *task);
 /* Original translation unit y_fclCmbBall.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdktask.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -27,30 +28,88 @@ extern void RpSkyRenderStateSet(s32, s32);
 
 
 
-/* Ball task with a 0x1810-byte state block: arg1 -> +0x1800, arg2 -> each slot's +0x100. */
+/* PrimQueueDrawPrimitive uses four 0x40-byte vertices per ball. UVs are
+ * written as IEEE-754 words (0 or 0x3F800000) before submission. */
+typedef struct {
+    f32 x, y, z;
+    u8 pad0C[4];
+    s32 uBits, vBits;
+    f32 reciprocalDepth;
+    u8 pad1C[4];
+    f32 red, green, blue, alpha;
+    u8 pad30[0x10];
+} FclBallVertex;
+typedef struct {
+    u8 pad00[8];
+    void *draw;
+    u8 pad0C[4];
+    u8 *work;
+} FclBallDrawPacket;
+typedef struct {
+    u8 pad00[0x80];
+    f32 depth;
+} FclBallCamera;
+
+/* The allocator reserves 0xF10 bytes. Fourteen 0x100-byte quad packets
+ * precede the animation fields; drawPacket is reset before queue traversal. */
+typedef struct {
+    s16 drawOrder, drawPacket;
+    u8 pad04[0xE0C];
+    s16 flags;
+    u8 padE12[2];
+    f32 depth;
+    u8 padE18[0x20];
+    FclVec2 position;
+    u8 padE40[0x28];
+    s16 alphaDuration, alphaFrame;
+    u8 startAlpha, endAlpha, alpha;
+    u8 padE6F;
+    s16 alphaDelay;
+    s8 easeMode, alphaLoop;
+    u8 padE74[0x8C];
+    s8 colorMode;
+    u8 padF01[0xF];
+} FclCmbBall;
+typedef char FclCmbBallSizeCheck[sizeof(FclCmbBall) == 0xF10 ? 1 : -1];
+
+/* Twelve records, each 0x200 bytes, followed by a count byte. */
+typedef struct {
+    u8 pad00[0x100];
+    s16 order;
+    u8 pad102[2];
+    s16 state;
+    u8 pad106[0xFA];
+} FclCmbBallSlot;
+typedef struct {
+    FclCmbBallSlot slots[12];
+    s8 count;
+    u8 pad1801[0xF];
+} FclCmbBallSlots;
+
+/* Allocate twelve slot records, initialize their order, and store the requested count. */
 // FUN_0034AD70
-s32 fclCmbBallTaskCreateSlots(s32 arg0, u8 arg1, s16 arg2) {
+s32 fclCmbBallTaskCreateSlots(s32 parent, u8 count, s16 order) {
     s32 handle;
-    u8 *buf;
-    s32 i;
+    u8 *work;
+    s32 slotIndex;
 
     chkmemAllocSiteTag(&D_0064A740, 0x98);
-    buf = (u8 *)D_008873F4[0](1, 0x1810, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0064A750), 0xF, 0, 0, fclCmbBallSlotsUpdate, fclCmbBallSlotsDestroy, (u8 *)(buf));
-    for (i = 0; i < 0xC; i++) {
-        *(s16 *)(buf + (i << 9) + 0x104) = 0;
-        *(s16 *)(buf + (i << 9) + 0x100) = arg2;
+    work = (u8 *)D_008873F4[0](1, 0x1810, 0x40000);
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0064A750), 0xF, 0, 0, fclCmbBallSlotsUpdate, fclCmbBallSlotsDestroy, (u8 *)(work));
+    for (slotIndex = 0; slotIndex < 0xC; slotIndex++) {
+        ((FclCmbBallSlots *)work)->slots[slotIndex].state = 0;
+        ((FclCmbBallSlots *)work)->slots[slotIndex].order = order;
     }
-    *(s8 *)(buf + 0x1800) = arg1;
+    ((FclCmbBallSlots *)work)->count = count;
     return handle;
 }
 
 /* Slot record in the task's record block (base +0x38, 0x200 stride, record at +0x104). */
 // FUN_0034AE50
-u8 *fclCombineSlotRecord(u8 *arg0, s8 arg1) {
-    s32 off = arg1 * 0x200;
+u8 *fclCombineSlotRecord(u8 *task, s8 slotIndex) {
+    s32 slotOffset = slotIndex * 0x200;
 
-    return *(u8 **)(arg0 + 0x38) + off + 0x104;
+    return ((SdkTask *)task)->work + slotOffset + 0x104;
 }
 
 /* The RenderWare globals block at D_008872E0 is read through a cast
@@ -71,18 +130,19 @@ extern u8 D_008872E0[];
 #pragma opt_loop_invariants on
 /* Renders one fusion ball: sets the render states, then per-slot depth and colour. */
 // FUN_0034AE70
-void fclCmbBallDraw(u8 *arg0, u8 *arg1) {
+void fclCmbBallDraw(u8 *drawTask, u8 *work) {
     void (**setState)(u32, u32);
     s32 texture;
     f32 scale;
     FclDrawColor color;
     FclVec2 position;
-    s16 i;
-    s16 slot;
+    s16 vertexIndex;
+    s16 packetIndex;
 
-    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    scale = 1.0f / ((FclBallCamera *)kwlnGetCamera())->depth;
     texture = fclCombineGetTexture();
     setState = D_00887300;
+    /* RenderWare: depth test/write, filtering, addressing and alpha blending. */
     setState[0](6, 1);
     setState[0](7, 2);
     setState[0](8, 1);
@@ -93,46 +153,48 @@ void fclCmbBallDraw(u8 *arg0, u8 *arg1) {
     setState[0](0xA, 5);
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x20) = 0;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x24) = 0;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x60) = 0x3F800000;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x64) = 0;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xA0) = 0;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xA4) = 0x3F800000;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xE0) = 0x3F800000;
-    *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xE4) = 0x3F800000;
-    if (*(s8 *)(arg1 + 0xF00) == 1) {
-        color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, *(u8 *)(arg1 + 0xE6E));
+    /* measured: the remaining drawPacket reads lose MATCH when individually typed after vertex stores. */
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x10))->uBits = 0;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x10))->vBits = 0;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->uBits = 0x3F800000;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->vBits = 0;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->uBits = 0;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->vBits = 0x3F800000;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->uBits = 0x3F800000;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->vBits = 0x3F800000;
+    /* measured: typing all alpha reads adds a saved register across color constructors; only the matching reads are typed. */
+    if (((FclCmbBall *)work)->colorMode == 1) {
+        color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, ((FclCmbBall *)work)->alpha);
     } else {
-        color = fclMakeDrawColor(0, 0, 0x66, *(u8 *)(arg1 + 0xE6E));
-        if (*(s16 *)(arg1 + 2) >= 3) {
-            color = fclMakeDrawColor(0xCC, 0xFF, 0xFF, (u32)*(u8 *)(arg1 + 0xE6E) >> 1);
+        color = fclMakeDrawColor(0, 0, 0x66, *(u8 *)(work + 0xE6E));
+        if (((FclCmbBall *)work)->drawPacket >= 3) {
+            color = fclMakeDrawColor(0xCC, 0xFF, 0xFF, (u32)((FclCmbBall *)work)->alpha >> 1);
         }
     }
-    for (i = 0; i < 4; i++) {
-        *(f32 *)((u32)arg1 + (*(s16 *)(arg1 + 2) << 8) + i * 64 + 0x18) = ((RenderDepth *)D_008872E0)->nearZ - *(f32 *)(arg1 + 0xE14);
-        *(f32 *)((u32)arg1 + (*(s16 *)(arg1 + 2) << 8) + i * 64 + 0x28) = scale;
-        *(f32 *)((u32)arg1 + (*(s16 *)(arg1 + 2) << 8) + i * 64 + 0x30) = color.c0;
-        *(f32 *)((u32)arg1 + (*(s16 *)(arg1 + 2) << 8) + i * 64 + 0x34) = color.c1;
-        *(f32 *)((u32)arg1 + (*(s16 *)(arg1 + 2) << 8) + i * 64 + 0x38) = color.c2;
-        *(f32 *)((u32)arg1 + (*(s16 *)(arg1 + 2) << 8) + i * 64 + 0x3C) = color.c3;
+    for (vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
+        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->z = ((RenderDepth *)D_008872E0)->nearZ - ((FclCmbBall *)work)->depth;
+        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->reciprocalDepth = scale;
+        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->red = color.c0;
+        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->green = color.c1;
+        ((FclBallVertex *)((u32)work + (*(s16 *)(work + 2) << 8) + vertexIndex * 64 + 0x10))->blue = color.c2;
+        ((FclBallVertex *)((u32)work + (((FclCmbBall *)work)->drawPacket << 8) + vertexIndex * 64 + 0x10))->alpha = color.c3;
     }
-    position = *(FclVec2 *)(arg1 + 0xE38);
-    slot = *(s16 *)(arg1 + 2);
-    position.x += slot * 19;
-    if (slot >= 3) {
+    position = ((FclCmbBall *)work)->position;
+    packetIndex = *(s16 *)(work + 2);
+    position.x += packetIndex * 19;
+    if (packetIndex >= 3) {
         position.x += 12.0f;
     }
-    *(f32 *)((slot << 8) + (u32)arg1 + 0x10) = position.x;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x14) = position.y;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x50) = 16.0f + position.x;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x54) = position.y;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x90) = position.x;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0x94) = 16.0f + position.y;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xD0) = 16.0f + position.x;
-    *(f32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xD4) = 16.0f + position.y;
+    ((FclBallVertex *)((packetIndex << 8) + (u32)work + 0x10))->x = position.x;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x10))->y = position.y;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->x = 16.0f + position.x;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x50))->y = position.y;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->x = position.x;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0x90))->y = 16.0f + position.y;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->x = 16.0f + position.x;
+    ((FclBallVertex *)((*(s16 *)(work + 2) << 8) + (u32)work + 0xD0))->y = 16.0f + position.y;
     (*setState)(1, *(u32 *)texture);
-    *(s16 *)(arg1 + 2) += 1;
+    ((FclCmbBall *)work)->drawPacket += 1;
 }
 #pragma pop
 
@@ -150,85 +212,89 @@ extern void fclCmbBallDraw(u8 *, u8 *);
 
 /* Per-frame update: advances the interpolation, then queues the 0xE draw packets. */
 // FUN_0034B380
-s32 fclCmbBallUpdate(u8 *arg0) {
-    u8 *p;
+s32 fclCmbBallUpdate(u8 *task) {
+    u8 *work;
 
-    p = *(u8 **)(arg0 + 0x38);
-    if ((*(s16 *)(p + 0xE10) & 1) == 0) {
+    work = ((SdkTask *)task)->work;
+    if ((((FclCmbBall *)work)->flags & 1) == 0) {
         return 0;
     }
 
-    if (((*(s16 *)(p + 0xE10) & 4) >> 2) == 1) {
-        if (*(s16 *)(p + 0xE70) == 0) {
-            if (*(s8 *)(p + 0xE73) == 0) {
-                *(u8 *)(p + 0xE6E) =
-                    (u8)fclEaseInterpolate((s32)*(s8 *)(p + 0xE72),
-                                           (f32)*(u8 *)(p + 0xE6C),
-                                           (f32)*(u8 *)(p + 0xE6D),
-                                           (f32)(s16)*(s16 *)(p + 0xE6A),
-                                           (f32)(s16)*(s16 *)(p + 0xE68));
+    /* Flags: bit 0 enables drawing; bit 2 enables the alpha animation. */
+    /* measured: typing the remaining E68-E70/E73 accesses individually loses MATCH;
+     * whole-field typing hoists their addresses across interpolation/clamp calls. */
+    if (((((FclCmbBall *)work)->flags & 4) >> 2) == 1) {
+        if (((FclCmbBall *)work)->alphaDelay == 0) {
+            if (*(s8 *)(work + 0xE73) == 0) {
+                *(u8 *)(work + 0xE6E) =
+                    (u8)fclEaseInterpolate((s32)((FclCmbBall *)work)->easeMode,
+                                           (f32)*(u8 *)(work + 0xE6C),
+                                           (f32)*(u8 *)(work + 0xE6D),
+                                           (f32)(s16)*(s16 *)(work + 0xE6A),
+                                           (f32)(s16)((FclCmbBall *)work)->alphaDuration);
             } else {
-                *(u8 *)(p + 0xE6E) =
-                    (u8)fclEaseInterpolate((s32)*(s8 *)(p + 0xE72),
-                                           (f32)*(u8 *)(p + 0xE6C),
-                                           (f32)*(u8 *)(p + 0xE6D),
-                                           (f32)(s16)*(s16 *)(p + 0xE6A),
-                                           (f32)(*(s16 *)(p + 0xE68) / 2));
+                ((FclCmbBall *)work)->alpha =
+                    (u8)fclEaseInterpolate((s32)((FclCmbBall *)work)->easeMode,
+                                           (f32)((FclCmbBall *)work)->startAlpha,
+                                           (f32)((FclCmbBall *)work)->endAlpha,
+                                           (f32)(s16)((FclCmbBall *)work)->alphaFrame,
+                                           (f32)(((FclCmbBall *)work)->alphaDuration / 2));
             }
-            if (*(s16 *)(p + 0xE6A) < *(s16 *)(p + 0xE68)) {
-                *(s16 *)(p + 0xE6A) =
-                    fclAddClamped(*(s16 *)(p + 0xE6A), 1,
-                                  *(s16 *)(p + 0xE68), 0, 1);
+            if (((FclCmbBall *)work)->alphaFrame < *(s16 *)(work + 0xE68)) {
+                *(s16 *)(work + 0xE6A) =
+                    fclAddClamped(((FclCmbBall *)work)->alphaFrame, 1,
+                                  *(s16 *)(work + 0xE68), 0, 1);
             } else {
-                *(u8 *)(p + 0xE6E) = *(u8 *)(p + 0xE6D);
-                if (*(s8 *)(p + 0xE73) == 1) {
-                    *(u8 *)(p + 0xE6E) = *(u8 *)(p + 0xE6C);
+                *(u8 *)(work + 0xE6E) = ((FclCmbBall *)work)->endAlpha;
+                if (((FclCmbBall *)work)->alphaLoop == 1) {
+                    ((FclCmbBall *)work)->alpha = ((FclCmbBall *)work)->startAlpha;
                 }
-                *(s16 *)(p + 0xE10) = *(s16 *)(p + 0xE10) | 4;
+                ((FclCmbBall *)work)->flags = ((FclCmbBall *)work)->flags | 4;
             }
         } else {
-            *(s16 *)(p + 0xE70) = fclSubClamped(*(s16 *)(p + 0xE70), 1, 0, 0, 1);
+            *(s16 *)(work + 0xE70) = fclSubClamped(((FclCmbBall *)work)->alphaDelay, 1, 0, 0, 1);
         }
     }
 
-    if (*(u8 *)(p + 0xE6E) <= 0) {
+    if (((FclCmbBall *)work)->alpha <= 0) {
         return 0;
     }
 
-    *(s16 *)(p + 2) = 0;
+    ((FclCmbBall *)work)->drawPacket = 0;
     {
-        s16 i;
+        s16 packetIndex;
 
-        for (i = 0; i < 0xE; i++) {
-            u8 *q = (u8 *)PrimQueueDrawPrimitive(D_00793E80 + *(s16 *)p * 0x30, 4,
-                                        p + i * 0x100 + 0x10, 4);
-            *(void **)(q + 8) = (void *)fclCmbBallDraw;
-            *(u8 **)(q + 0x10) = p;
+        for (packetIndex = 0; packetIndex < 0xE; packetIndex++) {
+            u8 *packet = (u8 *)PrimQueueDrawPrimitive(D_00793E80 + ((FclCmbBall *)work)->drawOrder * 0x30, 4,
+                                        work + packetIndex * 0x100 + 0x10, 4);
+            ((FclBallDrawPacket *)packet)->draw = (void *)fclCmbBallDraw;
+            ((FclBallDrawPacket *)packet)->work = work;
         }
     }
     return 0;
 }
 /* Task destructor: forwards the state block to jump-table slot 0. */
 // FUN_0034B710
-void fclCmbBallDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+void fclCmbBallDestroy(u8 *task) {
+    jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 
 /* Ball task with a 0xF10-byte state block; its s16 header at +0 is set to 0x41. */
 // FUN_0034B740
-s32 fclCmbBallTaskCreate(s32 arg0) {
+s32 fclCmbBallTaskCreate(s32 parent) {
     s32 handle;
-    u8 *buf;
-    s16 i;
+    u8 *work;
+    s16 packetIndex;
 
     chkmemAllocSiteTag(&D_0064A740, 0x14D);
-    buf = (u8 *)D_008873F4[0](1, 0xF10, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0064A770), 0xF, 0, 0, fclCmbBallUpdate, fclCmbBallDestroy, (u8 *)(buf));
-    i = 0;
-    *(s16 *)(buf + 0xE10) = 0;
-    while (i < 0xE) {
-        i++;
+    work = (u8 *)D_008873F4[0](1, 0xF10, 0x40000);
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0064A770), 0xF, 0, 0, fclCmbBallUpdate, fclCmbBallDestroy, (u8 *)(work));
+    packetIndex = 0;
+    ((FclCmbBall *)work)->flags = 0;
+    /* Preserve the recovered empty packet-count loop; it has no observable writes. */
+    while (packetIndex < 0xE) {
+        packetIndex++;
     }
-    *(s16 *)(buf + 0) = 0x41;
+    ((FclCmbBall *)work)->drawOrder = 0x41;
     return handle;
 }
