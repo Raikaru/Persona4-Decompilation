@@ -51,7 +51,10 @@ struct BtlUnit
     RwV3d lookAtTargetPos;   /* 0xB8 */
     u32 stateFlags;          /* 0xC4 */
     u16 movementFlags;       /* 0xC8 */
-    u8 unk_ca[0x09D8 - 0x00CA];   /* 0xCA. Not yet named */
+    u8 unk_ca[0x00DC - 0x00CA];
+    RwV3d moveDestination;        /* 0xDC. Written by btlUnitMovePacketUpdate, including the stopping-distance adjustment */
+    f32 stoppingDistance;         /* 0xE8. Move-packet separation; btlUnitUpdateFollowPath stops this far from the route end */
+    u8 unk_ec[0x09D8 - 0x00EC];
     u16 unk_9d8;                  /* 0x9D8. Motion-mode bits: 0x10 adds 0x100 to the packet flags, 0x20 zeroes the frame, 0x40 forces motion 27 */
     s16 currentMotion;            /* 0x9DA. Valid while flags2 bit 1 (0x2) is set; written by btlUnitSetMotion */
     s16 motionOption;             /* 0x9DC. Option argument of btlUnitSetMotion */

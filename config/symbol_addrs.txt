@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2246 of 13102 symbols carry a recovered name.
+// 2251 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -1929,11 +1929,11 @@ func_001bf530 = 0x001BF530; // type:func
 func_001bf5e0 = 0x001BF5E0; // type:func
 func_001bfb70 = 0x001BFB70; // type:func
 btlAct_SKILL_RECITE_E = 0x001BFC00; // type:func
-func_001c04d0 = 0x001C04D0; // type:func
+btlCameraMoveTargetUpdate = 0x001C04D0; // type:func
 func_001c04e0 = 0x001C04E0; // type:func
-func_001c09a0 = 0x001C09A0; // type:func
+btlCameraMoveTargetSideUpdate = 0x001C09A0; // type:func
 func_001c09b0 = 0x001C09B0; // type:func
-func_001c0e40 = 0x001C0E40; // type:func
+btlCameraMoveHomeUpdate = 0x001C0E40; // type:func
 func_001c0e50 = 0x001C0E50; // type:func
 func_001c1040 = 0x001C1040; // type:func
 func_001c17a0 = 0x001C17A0; // type:func
@@ -1963,7 +1963,7 @@ func_001c7500 = 0x001C7500; // type:func
 func_001c7510 = 0x001C7510; // type:func
 func_001c7770 = 0x001C7770; // type:func
 func_001c7780 = 0x001C7780; // type:func
-func_001c79e0 = 0x001C79E0; // type:func
+btlCameraOverlimitUpdate = 0x001C79E0; // type:func
 func_001c79f0 = 0x001C79F0; // type:func
 func_001c80f0 = 0x001C80F0; // type:func
 func_001c88d0 = 0x001C88D0; // type:func
@@ -1987,7 +1987,7 @@ func_001cb440 = 0x001CB440; // type:func
 func_001cb460 = 0x001CB460; // type:func
 func_001cb540 = 0x001CB540; // type:func
 func_001cb610 = 0x001CB610; // type:func
-func_001cb960 = 0x001CB960; // type:func
+btlCameraAttackScfUpdate = 0x001CB960; // type:func
 func_001cb970 = 0x001CB970; // type:func
 func_001cbf80 = 0x001CBF80; // type:func
 func_001cbfe0 = 0x001CBFE0; // type:func
