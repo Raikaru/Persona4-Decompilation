@@ -4,6 +4,7 @@
 #include "type.h"
 #include "btl_boss_internal.h"
 #include "btl_camera_internal.h"
+#include "btl_camera_sequence_internal.h"
 
 /* Allocated as 0x24 bytes by btlEffectAllocNodePool and CreatePlacementEntry.
  * Reset/release and fade update agree on the resource slots and list links. */
@@ -126,6 +127,14 @@ typedef struct BtlRenderNode {
     u8 pad14[0x1C];
 } BtlRenderNode;
 
+/* Three colors/quaternions form the scene blocks saved by camera setup. */
+typedef struct BtlSceneColor { f32 x, y, z, w; } BtlSceneColor;
+typedef struct BtlSceneColorBlock {
+    BtlSceneColor first;
+    BtlSceneColor second;
+    BtlCameraQuaternion rotation;
+} BtlSceneColorBlock;
+
 /* btlInit allocates and clears 0xE88 bytes. All gaps retain their retail
  * offsets; the lifecycle, action and effect paths share this allocation. */
 typedef struct BtlBattleState {
@@ -144,17 +153,23 @@ typedef struct BtlBattleState {
     u8 *unitLists[8];              /* 0x178: head/tail pairs */
     u8 pad198[0x1B8 - 0x198];
     BtlEffectNode *effectNodes;    /* 0x1B8 */
-    u8 pad1BC[0x26C - 0x1BC];
+    BtlSceneColorBlock scene;       /* 0x1BC */
+    BtlSceneColorBlock list4;       /* 0x1EC */
+    BtlSceneColorBlock savedList4;  /* 0x21C */
+    BtlSceneColor colorFactors;    /* 0x24C */
+    BtlSceneColor skyColor;        /* 0x25C */
     u16 formation;                /* 0x26C */
     u16 formationVariant;         /* 0x26E */
-    u8 pad270[0x290 - 0x270];
+    BtlSceneColor savedLightA;     /* 0x270 */
+    BtlSceneColor savedLightC;     /* 0x280 */
     u16 queueFlags;               /* 0x290: enable, reorder and advance bits */
     u8 pad292[2];
     s32 actionCount;              /* 0x294: dispatched actions this round */
     s32 unk298;
     s32 actionQueue[12];          /* 0x29C: action pointers in execution order */
     s32 activeActions[12];        /* 0x2CC: pending follow-up actions */
-    u8 pad2FC[0xA70 - 0x2FC];
+    BtlCameraSequenceWork phase;  /* 0x2FC */
+    u8 pad318[0xA70 - 0x318];
     s16 unkA70;
     s16 unkA72;
     u8 padA74[0xB4C - 0xA74];
@@ -216,7 +231,7 @@ typedef struct BtlBattleState {
     u8 *formations[48];           /* 0xD04 */
     u8 *formationHandle;           /* 0xDC4 */
     s32 cutinTaskParent;           /* 0xDC8: owning battle task */
-    u8 padDCC[4];
+    s32 mcIconTask;               /* 0xDCC */
     s32 shuffleTask;              /* 0xDD0: result/shuffle task */
     s32 uiTask;                   /* 0xDD4 */
     u8 padDD8[0xE18 - 0xDD8];

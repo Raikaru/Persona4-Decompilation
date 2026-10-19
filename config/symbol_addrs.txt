@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2444 of 13102 symbols carry a recovered name.
+// 2446 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -1834,7 +1834,7 @@ func_001b5f70 = 0x001B5F70; // type:func
 func_001b5fd0 = 0x001B5FD0; // type:func
 func_001b5fe0 = 0x001B5FE0; // type:func
 func_001b60a0 = 0x001B60A0; // type:func
-func_001b6110 = 0x001B6110; // type:func
+btlMainRelease = 0x001B6110; // type:func
 func_001b6120 = 0x001B6120; // type:func
 func_001b68d0 = 0x001B68D0; // type:func
 func_001b6990 = 0x001B6990; // type:func
@@ -2088,7 +2088,7 @@ func_001d4dc0 = 0x001D4DC0; // type:func
 func_001d4e90 = 0x001D4E90; // type:func
 func_001d4eb0 = 0x001D4EB0; // type:func
 func_001d5130 = 0x001D5130; // type:func
-func_001d53e0 = 0x001D53E0; // type:func
+btlFormationUpdateAttachments = 0x001D53E0; // type:func
 func_001d5990 = 0x001D5990; // type:func
 func_001d5ac0 = 0x001D5AC0; // type:func
 func_001d5b20 = 0x001D5B20; // type:func

@@ -48,11 +48,12 @@ typedef struct BtlResultSummaryWork {
     u8 pad02[2];
     s32 state;
     u8 drawNode[0x30];
-    u8 pad38[4];
+    s32 partyIndex;     /* 0x38: four friend-persona slots */
     u8 *parentWork;
-    u8 pad40[4];
+    u16 waitFrame;
+    u8 pad42[2];
     u8 *personaWindow;
-    u8 pad48[4];
+    u8 *levelUpTask;
 } BtlResultSummaryWork;
 
 /* PrepareAwards clears 0x8D4 bytes. Preview records have an observed 0x88

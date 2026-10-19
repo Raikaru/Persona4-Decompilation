@@ -3,28 +3,30 @@
 #include "type.h"
 #include "btl_packet_create_internal.h"
 #include "btl_camera_palette_internal.h"
+#include "btl_effect_internal.h"
+#include "btl_unit_internal.h"
+#include "btl_action_internal.h"
 
-typedef struct BtlMain BtlMain;
-struct BtlMain
-{
-    u8 _pad00[0xc];
-    u32 flags;
-};
+/* Packet 0x606 (0x10 bytes) and 0x607 (8 bytes), filled by their factories. */
+typedef struct BtlUnitTintWork {
+    struct BtlAction *action;
+    u32 totalFrames;
+    u32 currentFrame;
+    u16 selector;
+    u8 pad0E[2];
+} BtlUnitTintWork;
+typedef struct BtlUnitAlphaWork {
+    u32 totalFrames;
+    u32 currentFrame;
+} BtlUnitAlphaWork;
+
+
 
 extern u32 btlCountUnitRecords(void);
 extern u32 btlSoundIsPlaybackActive(void);
 extern void func_001f75b0(void);
 
 typedef int (*code)();
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x68];
-    BtlPacketFunc initFunc;
-    BtlPacketFunc updateFunc;
-    BtlPacketFunc destroyFunc;
-    u8 padding_74[4];
-    void* workData;
-} BtlPacket;
 
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 
@@ -33,7 +35,7 @@ extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
 u32 btlMainUpdateCameraLerp(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
-extern u32 btlMainUpdateColorWork(BtlMainColorWork* param_1); /* retail update target */
+extern u32 btlMainUpdateColorWork(BtlMainColorWork* value); /* retail update target */
 u32 btlMainUpdateFade(void* work);
 typedef struct BtlMainLerpWork
 {
@@ -132,8 +134,8 @@ extern f32 fGpffff81a4; /* P4 gp -0x7e5c */
 
 extern f32 fGpffff8434; /* P4 gp -0x7bcc */
 
-extern void btlMainEvalLinearPosition(u8* param_2, f32* param_3, f32 param_1);
-extern void btlMainEvalBezierPosition(u8* param_2, f32* param_3, f32 param_1);
+extern void btlMainEvalLinearPosition(u8* curve, f32* output, f32 value);
+extern void btlMainEvalBezierPosition(u8* curve, f32* output, f32 value);
 extern void func_003bb5b0(void* curve, s32 mode, f32 time, RwV3d* dst, void* aux);
 extern void func_003dcc70(f32* first, f32* second, BtlMainSlerpResult* result);
 extern f32 fGpffff83f8;
@@ -142,20 +144,22 @@ extern f32 fGpffff8058;
 extern f32 fGpffff8344;
 extern f32 fGpffff843c;
 extern f32 fGpffff8440;
-extern void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1);
+extern void btlMainEvalSlerpRotation(u8* curve, f32* output, f32 value);
 extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 
 
 // FUN_001B5E60
+/* Finish battle shutdown once both unit records and sound playback are drained, then clear the active
+ * flag. */
 u32 btlMainExitUpdate(void* work)
 {
-    BtlMain* btl;
+    BtlBattleState* btl;
 
     if (btlCountUnitRecords() == 0 && btlSoundIsPlaybackActive() == 0)
     {
         func_001f75b0();
-        btl = (BtlMain*)iGpffffb3ac;
+        btl = (BtlBattleState*)iGpffffb3ac;
         btl->flags &= ~1;
     }
 
@@ -165,7 +169,8 @@ u32 btlMainExitUpdate(void* work)
 
 
 // FUN_001B7880
-BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3)
+/* Create a field-color fade packet from two packed RGBA multipliers and a frame duration. */
+BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 duration)
 {
     float *color;
     BtlPacket *packet;
@@ -174,17 +179,17 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3)
     packet = btlPacketAlloc(0x600, 0x68);
     packet->updateFunc = btlMainFieldColorFadePacketUpdate;
     color = packet->workData;
-    packed.value = param_1;
+    packed.value = startColor;
     color[0] = fGpffff81f4 * (float)packed.bytes[0];
     color[1] = fGpffff81f4 * (float)packed.bytes[1];
     color[2] = fGpffff81f4 * (float)packed.bytes[2];
     color[3] = fGpffff81f4 * (float)packed.bytes[3];
-    packed.value = param_2;
+    packed.value = targetColor;
     color[4] = fGpffff81f4 * (float)packed.bytes[0];
     color[5] = fGpffff81f4 * (float)packed.bytes[1];
     color[6] = fGpffff81f4 * (float)packed.bytes[2];
     color[7] = fGpffff81f4 * (float)packed.bytes[3];
-    *(u32*)((u8*)color + 0x60) = param_3;
+    ((BtlMainColorWork *)color)->totalFrames = duration;
     return packet;
 }
 
@@ -192,6 +197,8 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3)
 /* measured: opt_propagation off preserves the retail grouped first-vector products. */
 #pragma opt_propagation off
 // FUN_001B7B30
+/* Interpolate the saved scene color pair over the packet duration; return one when the endpoint is
+ * installed. */
 u32 btlMainUpdateCameraLerp(void* work)
 {
     BtlMainLerpWork* lerpWork;
@@ -215,7 +222,7 @@ u32 btlMainUpdateCameraLerp(void* work)
 
     lerpWork = (BtlMainLerpWork*)work;
     global = iGpffffb3ac;
-    flags = *(u32*)(global + 0xc);
+    flags = ((BtlBattleState *)global)->flags;
     if ((flags & 2) == 0)
     {
         return 1;
@@ -245,10 +252,10 @@ u32 btlMainUpdateCameraLerp(void* work)
         firstZ = lerpWork->value2 * inverse;
         firstW = lerpWork->value3 * inverse;
         global = iGpffffb3ac;
-        secondX = *(f32*)(global + 0x1bc) * ratio;
-        secondY = *(f32*)(global + 0x1c0) * ratio;
-        secondZ = *(f32*)(global + 0x1c4) * ratio;
-        secondW = *(f32*)(global + 0x1c8);
+        secondX = ((BtlBattleState *)global)->scene.first.x * ratio;
+        secondY = ((BtlBattleState *)global)->scene.first.y * ratio;
+        secondZ = ((BtlBattleState *)global)->scene.first.z * ratio;
+        secondW = ((BtlBattleState *)global)->scene.first.w;
         result.x = firstX + secondX;
         result.y = firstY + secondY;
         result.z = firstZ + secondZ;
@@ -256,19 +263,19 @@ u32 btlMainUpdateCameraLerp(void* work)
         *resrcMngGetColorValue() = result;
 
         global = iGpffffb3ac;
-        result.x = lerpWork->target0 * inverse + *(f32*)(global + 0x1cc) * ratio;
-        result.y = lerpWork->target1 * inverse + *(f32*)(global + 0x1d0) * ratio;
-        result.z = lerpWork->target2 * inverse + *(f32*)(global + 0x1d4) * ratio;
-        result.w = lerpWork->target3 * inverse + *(f32*)(global + 0x1d8) * ratio;
+        result.x = lerpWork->target0 * inverse + ((BtlBattleState *)global)->scene.second.x * ratio;
+        result.y = lerpWork->target1 * inverse + ((BtlBattleState *)global)->scene.second.y * ratio;
+        result.z = lerpWork->target2 * inverse + ((BtlBattleState *)global)->scene.second.z * ratio;
+        result.w = lerpWork->target3 * inverse + ((BtlBattleState *)global)->scene.second.w * ratio;
         *resrcMngGetColorTarget() = result;
 
     }
     else
     {
         global = iGpffffb3ac;
-        *resrcMngGetColorValue() = *(RwV4d*)(global + 0x1bc);
+        *resrcMngGetColorValue() = *(RwV4d *)&((BtlBattleState *)global)->scene.first;
         global = iGpffffb3ac;
-        *resrcMngGetColorTarget() = *(RwV4d*)(global + 0x1cc);
+        *resrcMngGetColorTarget() = *(RwV4d *)&((BtlBattleState *)global)->scene.second;
         return 1;
     }
 
@@ -278,13 +285,14 @@ u32 btlMainUpdateCameraLerp(void* work)
 /* measured: restore propagation after btlMainUpdateCameraLerp. */
 #pragma opt_propagation on
 // FUN_001B7E20
+/* Create the scene-color interpolation packet and store its unsigned frame duration. */
 BtlPacket* btlCreateTimingPacket(u32 value)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x601, 0x28);
     packet->updateFunc = btlMainUpdateCameraLerp;
-    *(u32*)((u8*)packet->workData + 0x20) = value;
+    ((BtlMainLerpWork *)packet->workData)->totalFrames = value;
     return packet;
 }
 
@@ -293,6 +301,8 @@ BtlPacket* btlCreateTimingPacket(u32 value)
 /* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
 #pragma opt_loop_invariants on
 // FUN_001B7E70
+/* Snapshot scene colors and rotation, update unit light modes, then interpolate three color vectors.
+ * Raw model mode bytes are SDK/model handle fields. */
 u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 {
     u8* global;
@@ -316,30 +326,30 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
     f32 secondY;
     f32 secondZ;
     f32 secondW;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f10;
-    f32 temp_f11;
-    f32 temp_f12;
-    f32 temp_f13;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f3;
-    f32 temp_f3_2;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 temp_f5;
-    f32 temp_f6;
-    f32 temp_f7;
-    f32 temp_f8;
-    f32 temp_f9;
+    f32 value;
+    f32 otherValue;
+    f32 productXW;
+    f32 quatZ;
+    f32 quatX;
+    f32 quatY;
+    f32 normalization;
+    f32 scaledZ;
+    f32 scaledY;
+    f32 productXY;
+    f32 scaledX;
+    f32 productZX;
+    f32 quatW;
+    f32 productYZ;
+    f32 productZZ;
+    f32 productYY;
+    f32 productXX;
+    f32 productZW;
+    f32 productYW;
     BtlMainMatrix matrix;
     RwV4d result;
 
     global = iGpffffb3ac;
-    globalFlags = *(u32*)(global + 0xc);
+    globalFlags = ((BtlBattleState *)global)->flags;
     if ((globalFlags & 2) == 0)
     {
         return 1;
@@ -353,43 +363,43 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
     {
         work->target0.w = 1.0f;
         global = iGpffffb3ac;
-        work->current0 = *(RwV4d*)(global + 0x24c);
-        work->current1 = *(RwV4d*)(global + 0x1ec);
-        work->current2 = *(RwV4d*)(global + 0x1fc);
+        work->current0 = *(RwV4d *)&((BtlBattleState *)global)->colorFactors;
+        work->current1 = *(RwV4d *)&((BtlBattleState *)global)->list4.first;
+        work->current2 = *(RwV4d *)&((BtlBattleState *)global)->list4.second;
 
-        *(RwV4d*)&D_00922CA0[0] = *(RwV4d*)(global + 0x1bc);
-        *(RwV4d*)&D_00922CA0[4] = *(RwV4d*)(global + 0x1cc);
+        *(RwV4d*)&D_00922CA0[0] = *(RwV4d *)&((BtlBattleState *)global)->scene.first;
+        *(RwV4d*)&D_00922CA0[4] = *(RwV4d *)&((BtlBattleState *)global)->scene.second;
 
-        temp_f13 = *(f32*)(global + 0x1e0);
-        temp_f12 = *(f32*)(global + 0x1dc);
-        temp_f11 = *(f32*)(global + 0x1e4);
-        temp_f4 = *(f32*)(global + 0x1e8);
-        temp_f1 =
-            2.0f / ((temp_f12 * temp_f12) +
-                    (temp_f13 * temp_f13) +
-                    (temp_f11 * temp_f11) +
-                    (temp_f4 * temp_f4));
-        temp_f3 = temp_f12 * temp_f1;
-        temp_f2 = temp_f13 * temp_f1;
-        temp_f1_2 = temp_f11 * temp_f1;
-        temp_f10 = temp_f3 * temp_f4;
-        temp_f9 = temp_f2 * temp_f4;
-        temp_f8 = temp_f1_2 * temp_f4;
-        temp_f7 = temp_f12 * temp_f3;
-        temp_f6 = temp_f13 * temp_f2;
-        temp_f5 = temp_f11 * temp_f1_2;
-        temp_f4_2 = temp_f13 * temp_f1_2;
-        temp_f3_2 = temp_f11 * temp_f3;
-        temp_f2_2 = temp_f12 * temp_f2;
-        matrix.right.x = 1.0f - (temp_f6 + temp_f5);
-        matrix.right.y = temp_f2_2 + temp_f8;
-        matrix.right.z = temp_f3_2 - temp_f9;
-        matrix.up.x = temp_f2_2 - temp_f8;
-        matrix.up.y = 1.0f - (temp_f5 + temp_f7);
-        matrix.up.z = temp_f4_2 + temp_f10;
-        matrix.at.x = temp_f3_2 + temp_f9;
-        matrix.at.y = temp_f4_2 - temp_f10;
-        matrix.at.z = 1.0f - (temp_f7 + temp_f6);
+        quatY = ((BtlBattleState *)global)->scene.rotation.imag.y;
+        quatX = ((BtlBattleState *)global)->scene.rotation.imag.x;
+        quatZ = ((BtlBattleState *)global)->scene.rotation.imag.z;
+        quatW = ((BtlBattleState *)global)->scene.rotation.real;
+        normalization =
+            2.0f / ((quatX * quatX) +
+                    (quatY * quatY) +
+                    (quatZ * quatZ) +
+                    (quatW * quatW));
+        scaledX = quatX * normalization;
+        scaledY = quatY * normalization;
+        scaledZ = quatZ * normalization;
+        productXW = scaledX * quatW;
+        productYW = scaledY * quatW;
+        productZW = scaledZ * quatW;
+        productXX = quatX * scaledX;
+        productYY = quatY * scaledY;
+        productZZ = quatZ * scaledZ;
+        productYZ = quatY * scaledZ;
+        productZX = quatZ * scaledX;
+        productXY = quatX * scaledY;
+        matrix.right.x = 1.0f - (productYY + productZZ);
+        matrix.right.y = productXY + productZW;
+        matrix.right.z = productZX - productYW;
+        matrix.up.x = productXY - productZW;
+        matrix.up.y = 1.0f - (productZZ + productXX);
+        matrix.up.z = productYZ + productXW;
+        matrix.at.x = productZX + productYW;
+        matrix.at.y = productYZ - productXW;
+        matrix.at.z = 1.0f - (productXX + productYY);
         matrix.pos.x = 0.0f;
         matrix.pos.y = 0.0f;
         matrix.pos.z = 0.0f;
@@ -417,20 +427,20 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
                 unit = *(u8**)(iGpffffb3ac + group * 8 + 0x178);
                 while (unit != 0)
                 {
-                    if ((*(u32*)(unit + 0x98) & 2) != 0)
+                    if ((((BtlUnit *)unit)->flags2 & 2) != 0)
                     {
                         if ((work->flags & 1) != 0)
                         {
-                            (*(u8**)(unit + 0xa00))[0x281] = 0;
-                            (*(u8**)(unit + 0xa00))[0x282] = 6;
+                            (((BtlUnit *)unit)->layerHandle)[0x281] = 0;
+                            (((BtlUnit *)unit)->layerHandle)[0x282] = 6;
                         }
                         else
                         {
-                            (*(u8**)(unit + 0xa00))[0x281] = 0x50;
-                            (*(u8**)(unit + 0xa00))[0x282] = 4;
+                            (((BtlUnit *)unit)->layerHandle)[0x281] = 0x50;
+                            (((BtlUnit *)unit)->layerHandle)[0x282] = 4;
                         }
                     }
-                    unit = *(u8**)(unit + 0xa6c);
+                    unit = (u8 *)((BtlUnit *)unit)->nextUnit;
                 }
                 group++;
             }
@@ -459,7 +469,7 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
         result.z = firstZ + secondZ * ratio;
         result.w = 1.0f;
         global = iGpffffb3ac;
-        *(RwV4d*)(global + 0x24c) = result;
+        *(RwV4d *)&((BtlBattleState *)global)->colorFactors = result;
         resrcMngApplyColorFactors(&result);
 
         firstX = work->current1.x * inverse;
@@ -470,10 +480,10 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
         secondY = work->target1.y * ratio;
         secondZ = work->target1.z * ratio;
         secondW = work->target1.w;
-        *(f32*)(iGpffffb3ac + 0x1ec) = firstX + secondX;
-        *(f32*)(iGpffffb3ac + 0x1f0) = firstY + secondY;
-        *(f32*)(iGpffffb3ac + 0x1f4) = firstZ + secondZ;
-        *(f32*)(iGpffffb3ac + 0x1f8) = firstW + secondW * ratio;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.x = firstX + secondX;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.y = firstY + secondY;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.z = firstZ + secondZ;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.w = firstW + secondW * ratio;
 
         firstY = work->current2.y * inverse;
         firstZ = work->current2.z * inverse;
@@ -481,19 +491,19 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
         secondY = work->target2.y * ratio;
         secondZ = work->target2.z * ratio;
         secondW = work->target2.w * ratio;
-        *(f32*)(iGpffffb3ac + 0x1fc) =
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.x =
             work->current2.x * inverse + work->target2.x * ratio;
-        *(f32*)(iGpffffb3ac + 0x200) = firstY + secondY;
-        *(f32*)(iGpffffb3ac + 0x204) = firstZ + secondZ;
-        *(f32*)(iGpffffb3ac + 0x208) = firstW + secondW;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.y = firstY + secondY;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.z = firstZ + secondZ;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.w = firstW + secondW;
     }
     else
     {
         resrcMngApplyColorFactors(work);
         global = iGpffffb3ac;
-        *(RwV4d*)(global + 0x24c) = work->target0;
-        *(RwV4d*)(global + 0x1ec) = work->target1;
-        *(RwV4d*)(global + 0x1fc) = work->target2;
+        *(RwV4d *)&((BtlBattleState *)global)->colorFactors = work->target0;
+        *(RwV4d *)&((BtlBattleState *)global)->list4.first = work->target1;
+        *(RwV4d *)&((BtlBattleState *)global)->list4.second = work->target2;
         return 1;
     }
 
@@ -505,37 +515,38 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 /* measured: restore propagation after btlMainUpdateColorWork. */
 #pragma opt_propagation on
 // FUN_001B83F0
-BtlPacket* btlMainCreateColorWorkPacket(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16 param_5)
+/* Unpack three RGBA colors into a color-work packet and record duration and mode flags. */
+BtlPacket* btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags)
 {
-    float *pfVar1;
-    int iVar2;
+    float *color;
+    int packetAddress;
     union { u32 value; u8 bytes[4]; } packed;
 
-    iVar2 = (int)btlPacketAlloc(0x602, 0x6c);
-    *(code **)(iVar2 + 0x6c) = (code *)btlMainUpdateColorWork;
-    pfVar1 = *(float **)(iVar2 + 0x78);
+    packetAddress = (int)btlPacketAlloc(0x602, 0x6c);
+    *(code **)&((BtlPacket *)packetAddress)->updateFunc = (code *)btlMainUpdateColorWork;
+    color = *(float **)&((BtlPacket *)packetAddress)->workData;
 
-    packed.value = (u32)param_1;
-    pfVar1[0] = fGpffff81f4 * (float)packed.bytes[0];
-    pfVar1[1] = fGpffff81f4 * (float)packed.bytes[1];
-    pfVar1[2] = fGpffff81f4 * (float)packed.bytes[2];
-    pfVar1[3] = fGpffff81f4 * (float)packed.bytes[3];
+    packed.value = (u32)lightColor;
+    color[0] = fGpffff81f4 * (float)packed.bytes[0];
+    color[1] = fGpffff81f4 * (float)packed.bytes[1];
+    color[2] = fGpffff81f4 * (float)packed.bytes[2];
+    color[3] = fGpffff81f4 * (float)packed.bytes[3];
 
-    packed.value = (u32)param_2;
-    pfVar1[8] = fGpffff81f4 * (float)packed.bytes[0];
-    pfVar1[9] = fGpffff81f4 * (float)packed.bytes[1];
-    pfVar1[10] = fGpffff81f4 * (float)packed.bytes[2];
-    pfVar1[0xb] = fGpffff81f4 * (float)packed.bytes[3];
+    packed.value = (u32)ambientColor;
+    color[8] = fGpffff81f4 * (float)packed.bytes[0];
+    color[9] = fGpffff81f4 * (float)packed.bytes[1];
+    color[10] = fGpffff81f4 * (float)packed.bytes[2];
+    color[0xb] = fGpffff81f4 * (float)packed.bytes[3];
 
-    packed.value = (u32)param_3;
-    pfVar1[0x10] = fGpffff81f4 * (float)packed.bytes[0];
-    pfVar1[0x11] = fGpffff81f4 * (float)packed.bytes[1];
-    pfVar1[0x12] = fGpffff81f4 * (float)packed.bytes[2];
-    pfVar1[0x13] = fGpffff81f4 * (float)packed.bytes[3];
+    packed.value = (u32)fogColor;
+    color[0x10] = fGpffff81f4 * (float)packed.bytes[0];
+    color[0x11] = fGpffff81f4 * (float)packed.bytes[1];
+    color[0x12] = fGpffff81f4 * (float)packed.bytes[2];
+    color[0x13] = fGpffff81f4 * (float)packed.bytes[3];
 
-    *(u32 *)((u8 *)pfVar1 + 0x60) = param_4;
-    *(u16 *)(pfVar1 + 0x1a) = param_5;
-    return (BtlPacket*)iVar2;
+    ((BtlMainColorWork *)color)->totalFrames = duration;
+    ((BtlMainColorWork *)color)->flags = flags;
+    return (BtlPacket*)packetAddress;
 }
 
 
@@ -567,6 +578,9 @@ static inline void btlMainColorToV4d(RwV4d *out, const BtlCameraPalette *color)
 // FUN_001B87E0
 #pragma push
 #pragma opt_loop_invariants on
+/* Fade scene and unit colors toward the current palette, switching model light modes at the midpoint.
+ * Raw model-handle reloads are measured alias-sensitive; unit tint vectors retain their existing
+ * aggregate type. */
 u32 btlMainUpdateFade(void *workRaw)
 {
     BtlMainFadeWork *work = (BtlMainFadeWork *)workRaw;
@@ -585,16 +599,16 @@ u32 btlMainUpdateFade(void *workRaw)
     RwV4d target;
 
     global = iGpffffb3ac;
-    if ((*(u32 *)(global + 0xc) & 2) == 0) {
+    if ((((BtlBattleState *)global)->flags & 2) == 0) {
         return 1;
     }
-    if ((*(u32 *)(global + 0xc) & 0x2000000) == 0) {
+    if ((((BtlBattleState *)global)->flags & 0x2000000) == 0) {
         return 1;
     }
     if (work->currentFrame == 0) {
-        work->from0 = *(RwV4d *)(global + 0x24c);
-        work->from3 = *(RwV4d *)(global + 0x1ec);
-        work->from4 = *(RwV4d *)(global + 0x1fc);
+        work->from0 = *(RwV4d *)&((BtlBattleState *)global)->colorFactors;
+        work->from3 = *(RwV4d *)&((BtlBattleState *)global)->list4.first;
+        work->from4 = *(RwV4d *)&((BtlBattleState *)global)->list4.second;
         work->from1 = *resrcMngGetColorValue();
         work->from2 = *resrcMngGetColorTarget();
         {
@@ -603,7 +617,7 @@ u32 btlMainUpdateFade(void *workRaw)
 
             for (group = 0; group < 4; group++) {
                 for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
-                     unit = *(u8 **)(unit + 0xa6c)) {
+                     unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
                     *(BtlCameraPalette *)(unit + 0x38) = *(BtlCameraPalette *)(unit + 0x3c);
                     *(RwV4d *)(unit + 0x60) = *(RwV4d *)(unit + 0x70);
                 }
@@ -617,8 +631,8 @@ u32 btlMainUpdateFade(void *workRaw)
 
             for (group = 0; group < 4; group++) {
                 for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
-                     unit = *(u8 **)(unit + 0xa6c)) {
-                    if ((*(u32 *)(unit + 0x98) & 2) != 0 &&
+                     unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
+                    if ((((BtlUnit *)unit)->flags2 & 2) != 0 &&
                         (*(*(u8 **)(unit + 0xa00) + 0x260) & 0x10) == 0) {
                         f32 *scale;
 
@@ -647,16 +661,16 @@ u32 btlMainUpdateFade(void *workRaw)
         tmp.y = firstY + secondY;
         tmp.z = firstZ + secondZ * ratio;
         tmp.w = 1.0f;
-        *(RwV4d *)(iGpffffb3ac + 0x24c) = tmp;
+        *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->colorFactors = tmp;
         resrcMngApplyColorFactors(&tmp);
         firstX = work->from1.x * inv;
         firstY = work->from1.y * inv;
         firstZ = work->from1.z * inv;
         firstW = work->from1.w * inv;
-        secondX = *(f32 *)(iGpffffb3ac + 0x1bc) * ratio;
-        secondY = *(f32 *)(iGpffffb3ac + 0x1c0) * ratio;
-        secondZ = *(f32 *)(iGpffffb3ac + 0x1c4) * ratio;
-        secondW = *(f32 *)(iGpffffb3ac + 0x1c8);
+        secondX = ((BtlBattleState *)iGpffffb3ac)->scene.first.x * ratio;
+        secondY = ((BtlBattleState *)iGpffffb3ac)->scene.first.y * ratio;
+        secondZ = ((BtlBattleState *)iGpffffb3ac)->scene.first.z * ratio;
+        secondW = ((BtlBattleState *)iGpffffb3ac)->scene.first.w;
         tmp.x = firstX + secondX;
         tmp.y = firstY + secondY;
         tmp.z = firstZ + secondZ;
@@ -666,10 +680,10 @@ u32 btlMainUpdateFade(void *workRaw)
         firstY = work->from2.y * inv;
         firstZ = work->from2.z * inv;
         firstW = work->from2.w * inv;
-        secondX = *(f32 *)(iGpffffb3ac + 0x1cc) * ratio;
-        secondY = *(f32 *)(iGpffffb3ac + 0x1d0) * ratio;
-        secondZ = *(f32 *)(iGpffffb3ac + 0x1d4) * ratio;
-        secondW = *(f32 *)(iGpffffb3ac + 0x1d8);
+        secondX = ((BtlBattleState *)iGpffffb3ac)->scene.second.x * ratio;
+        secondY = ((BtlBattleState *)iGpffffb3ac)->scene.second.y * ratio;
+        secondZ = ((BtlBattleState *)iGpffffb3ac)->scene.second.z * ratio;
+        secondW = ((BtlBattleState *)iGpffffb3ac)->scene.second.w;
         tmp.x = firstX + secondX;
         tmp.y = firstY + secondY;
         tmp.z = firstZ + secondZ;
@@ -679,26 +693,26 @@ u32 btlMainUpdateFade(void *workRaw)
         firstY = work->from3.y * inv;
         firstZ = work->from3.z * inv;
         firstW = work->from3.w * inv;
-        secondX = *(f32 *)(iGpffffb3ac + 0x21c) * ratio;
-        secondY = *(f32 *)(iGpffffb3ac + 0x220) * ratio;
-        secondZ = *(f32 *)(iGpffffb3ac + 0x224) * ratio;
-        secondW = *(f32 *)(iGpffffb3ac + 0x228);
-        *(f32 *)(iGpffffb3ac + 0x1ec) = firstX + secondX;
-        *(f32 *)(iGpffffb3ac + 0x1f0) = firstY + secondY;
-        *(f32 *)(iGpffffb3ac + 0x1f4) = firstZ + secondZ;
-        *(f32 *)(iGpffffb3ac + 0x1f8) = firstW + secondW * ratio;
+        secondX = ((BtlBattleState *)iGpffffb3ac)->savedList4.first.x * ratio;
+        secondY = ((BtlBattleState *)iGpffffb3ac)->savedList4.first.y * ratio;
+        secondZ = ((BtlBattleState *)iGpffffb3ac)->savedList4.first.z * ratio;
+        secondW = ((BtlBattleState *)iGpffffb3ac)->savedList4.first.w;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.x = firstX + secondX;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.y = firstY + secondY;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.z = firstZ + secondZ;
+        ((BtlBattleState *)iGpffffb3ac)->list4.first.w = firstW + secondW * ratio;
         firstX = work->from4.x * inv;
         firstY = work->from4.y * inv;
         firstZ = work->from4.z * inv;
         firstW = work->from4.w * inv;
-        secondX = *(f32 *)(iGpffffb3ac + 0x22c) * ratio;
-        secondY = *(f32 *)(iGpffffb3ac + 0x230) * ratio;
-        secondZ = *(f32 *)(iGpffffb3ac + 0x234) * ratio;
-        secondW = *(f32 *)(iGpffffb3ac + 0x238);
-        *(f32 *)(iGpffffb3ac + 0x1fc) = firstX + secondX;
-        *(f32 *)(iGpffffb3ac + 0x200) = firstY + secondY;
-        *(f32 *)(iGpffffb3ac + 0x204) = firstZ + secondZ;
-        *(f32 *)(iGpffffb3ac + 0x208) = firstW + secondW * ratio;
+        secondX = ((BtlBattleState *)iGpffffb3ac)->savedList4.second.x * ratio;
+        secondY = ((BtlBattleState *)iGpffffb3ac)->savedList4.second.y * ratio;
+        secondZ = ((BtlBattleState *)iGpffffb3ac)->savedList4.second.z * ratio;
+        secondW = ((BtlBattleState *)iGpffffb3ac)->savedList4.second.w;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.x = firstX + secondX;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.y = firstY + secondY;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.z = firstZ + secondZ;
+        ((BtlBattleState *)iGpffffb3ac)->list4.second.w = firstW + secondW * ratio;
         if ((work->flags & 2) == 0) {
             f32 scale = 1.0f / 255.0f;
 
@@ -708,7 +722,7 @@ u32 btlMainUpdateFade(void *workRaw)
 
                 for (group = 0; group < 4; group++) {
                     for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
-                         unit = *(u8 **)(unit + 0xa6c)) {
+                         unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
                         firstX = scale * unit[0x38];
                         firstX *= inv;
                         firstY = scale * unit[0x39];
@@ -739,11 +753,11 @@ u32 btlMainUpdateFade(void *workRaw)
         }
     } else {
         resrcMngApplyColorFactors(&target);
-        *(RwV4d *)(iGpffffb3ac + 0x24c) = target;
-        *resrcMngGetColorValue() = *(RwV4d *)(iGpffffb3ac + 0x1bc);
-        *resrcMngGetColorTarget() = *(RwV4d *)(iGpffffb3ac + 0x1cc);
-        *(RwV4d *)(iGpffffb3ac + 0x1ec) = *(RwV4d *)(iGpffffb3ac + 0x21c);
-        *(RwV4d *)(iGpffffb3ac + 0x1fc) = *(RwV4d *)(iGpffffb3ac + 0x22c);
+        *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->colorFactors = target;
+        *resrcMngGetColorValue() = *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->scene.first;
+        *resrcMngGetColorTarget() = *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->scene.second;
+        *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->list4.first = *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->savedList4.first;
+        *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->list4.second = *(RwV4d *)&((BtlBattleState *)iGpffffb3ac)->savedList4.second;
         if ((work->flags & 2) == 0) {
             btlMainColorToV4d(&tmp, &iGpffffb45c);
             {
@@ -752,7 +766,7 @@ u32 btlMainUpdateFade(void *workRaw)
 
                 for (group = 0; group < 4; group++) {
                     for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
-                         unit = *(u8 **)(unit + 0xa6c)) {
+                         unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
                         *(BtlCameraPalette *)(unit + 0x3c) = D_007635C8;
                         *(RwV4d *)(unit + 0x70) = tmp;
                     }
@@ -766,6 +780,7 @@ u32 btlMainUpdateFade(void *workRaw)
 }
 #pragma pop
 // FUN_001B9360
+/* Create the palette fade packet with its frame duration and halfword mode flags. */
 BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
 {
     BtlPacket* packet;
@@ -774,15 +789,16 @@ BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
     packet = btlPacketAlloc(0x603, 0x5c);
     packet->updateFunc = btlMainUpdateFade;
     work = (u8*)packet->workData;
-    *(s32*)(work + 0x50) = arg;
-    *(s16*)(work + 0x58) = mode;
+    ((BtlMainFadeWork *)work)->totalFrames = arg;
+    ((BtlMainFadeWork *)work)->flags = mode;
     return packet;
 }
 
 
 
 // FUN_001B93C0
-u8 btlMainUpdateTintLerp(BtlMainLerpWork* param_1)
+/* Snapshot sky tint on the first frame and blend toward the packet color until its duration expires. */
+u8 btlMainUpdateTintLerp(BtlMainLerpWork* work)
 {
     f32 currentFloat;
     f32 totalFloat;
@@ -793,52 +809,53 @@ u8 btlMainUpdateTintLerp(BtlMainLerpWork* param_1)
     u32 currentFrame;
     u8* global;
 
-    if (param_1->currentFrame == 0)
+    if (work->currentFrame == 0)
     {
         global = iGpffffb3ac;
-        *(RwV4d*)&param_1->target0 = *(RwV4d*)(global + 0x25c);
+        *(RwV4d*)&work->target0 = *(RwV4d *)&((BtlBattleState *)global)->skyColor;
     }
 
-    totalFrames = param_1->totalFrames;
-    currentFrame = param_1->currentFrame;
+    totalFrames = work->totalFrames;
+    currentFrame = work->currentFrame;
     if (currentFrame < totalFrames)
     {
         currentFloat = (f32)currentFrame;
         totalFloat = (f32)totalFrames;
         ratio = currentFloat / totalFloat;
         inverse = 1.0f - ratio;
-        results.x = param_1->target0 * inverse + param_1->value0 * ratio;
-        results.y = param_1->target1 * inverse + param_1->value1 * ratio;
-        results.z = param_1->target2 * inverse + param_1->value2 * ratio;
-        results.w = param_1->target3 * inverse + param_1->value3 * ratio;
+        results.x = work->target0 * inverse + work->value0 * ratio;
+        results.y = work->target1 * inverse + work->value1 * ratio;
+        results.z = work->target2 * inverse + work->value2 * ratio;
+        results.w = work->target3 * inverse + work->value3 * ratio;
         global = iGpffffb3ac;
-        *(RwV4d*)(global + 0x25c) = results;
+        *(RwV4d *)&((BtlBattleState *)global)->skyColor = results;
     }
     else
     {
         global = iGpffffb3ac;
-        *(RwV4d*)(global + 0x25c) = *(RwV4d*)&param_1->value0;
+        *(RwV4d *)&((BtlBattleState *)global)->skyColor = *(RwV4d*)&work->value0;
         return 1;
     }
 
-    param_1->currentFrame++;
+    work->currentFrame++;
     return 0;
 }
 // FUN_001B9560
-BtlPacket* btlMainCreateTintPacket(u32 param_1, u32 param_2)
+/* Create a sky-tint interpolation packet from packed RGBA and a frame duration. */
+BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration)
 {
     float *color;
     u32 packed;
     int packet;
     packet = (int)btlPacketAlloc(0x604, 0x28);
-    *(code **)(packet + 0x6c) = (code *)btlMainUpdateTintLerp;
-    color = *(float **)(packet + 0x78);
-    packed = param_1;
+    *(code **)&((BtlPacket *)packet)->updateFunc = (code *)btlMainUpdateTintLerp;
+    color = *(float **)&((BtlPacket *)packet)->workData;
+    packed = targetColor;
     color[0] = fGpffff81f4 * (float)((u8*)&packed)[0];
     color[1] = fGpffff81f4 * (float)((u8*)&packed)[1];
     color[2] = fGpffff81f4 * (float)((u8*)&packed)[2];
     color[3] = fGpffff81f4 * (float)((u8*)&packed)[3];
-    *(u32*)((u8*)color + 0x20) = param_2;
+    ((BtlMainLerpWork *)color)->totalFrames = duration;
     return (BtlPacket*)packet;
 }
 
@@ -846,6 +863,8 @@ BtlPacket* btlMainCreateTintPacket(u32 param_1, u32 param_2)
 /* measured: opt_common_subs off preserves the retail per-component scale reloads. */
 #pragma opt_common_subs off
 // FUN_001B96E0
+/* Fade the current sky tint to the live default RGBA value and report completion after the endpoint
+ * write. */
 u32 btlMainUpdateColorFade(void* work)
 {
     BtlMainColorFadeWork* colorWork;
@@ -863,7 +882,7 @@ u32 btlMainUpdateColorFade(void* work)
     if (colorWork->currentFrame == 0)
     {
         global = iGpffffb3ac;
-        *(RwV4d*)&colorWork->value0 = *(RwV4d*)(global + 0x25c);
+        *(RwV4d*)&colorWork->value0 = *(RwV4d *)&((BtlBattleState *)global)->skyColor;
     }
 
     target.x = fGpffff81f4 * (f32)((u8*)&fGpffffb458)[4];
@@ -883,12 +902,12 @@ u32 btlMainUpdateColorFade(void* work)
         results.z = colorWork->value2 * inverse + target.z * ratio;
         results.w = colorWork->value3 * inverse + target.w * ratio;
         global = iGpffffb3ac;
-        *(RwV4d*)(global + 0x25c) = results;
+        *(RwV4d *)&((BtlBattleState *)global)->skyColor = results;
     }
     else
     {
         global = iGpffffb3ac;
-        *(RwV4d*)(global + 0x25c) = target;
+        *(RwV4d *)&((BtlBattleState *)global)->skyColor = target;
         return 1;
     }
 
@@ -898,20 +917,20 @@ u32 btlMainUpdateColorFade(void* work)
 /* measured: restore common-subexpression optimization after btlMainUpdateColorFade. */
 #pragma opt_common_subs on
 // FUN_001B99A0
+/* Create a timed sky-tint fade back to the current default color. */
 BtlPacket* btlMainCreateColorFadePacket(s32 arg)
 {
     BtlPacket* packet;
 
     packet = btlPacketAlloc(0x605, 0x18);
     packet->updateFunc = btlMainUpdateColorFade;
-    *(s32*)((u8*)packet->workData + 0x10) = arg;
+    ((BtlMainColorFadeWork *)packet->workData)->totalFrames = arg;
     return packet;
 }
 
 
 
 typedef struct BtlUnit BtlUnit;
-typedef BtlCameraPalette RwRGBA;
 extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 /* Measured: all 1008 bytes and five relocations match.
  * Keep the word selector and row base separate: the base load precedes
@@ -922,9 +941,11 @@ extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 extern u8 *iGpffffb3b8;
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 // FUN_001B99F0
+/* Fade unrelated unit groups while preserving the acting unit and selected target groups. Raw target-
+ * list storage is opaque in BtlAction; raw counter increments retain measured callback reloads. */
 u32 btlMainUpdateUnitTint(void *work)
 {
-    u8 *arg0;
+    u8 *tintWork;
     u8 *unit;
     s32 result;
     s32 i;
@@ -948,10 +969,10 @@ u32 btlMainUpdateUnitTint(void *work)
     RwRGBA col;
 
     result = 1;
-    arg0 = (u8 *)work;
-    unit = *(u8 **)(arg0 + 0);
-    selector = *(u16 *)(arg0 + 0xc);
-    if ((*(s32 *)(iGpffffb3ac + 0x10) & 8) != 0)
+    tintWork = (u8 *)work;
+    unit = (u8 *)((BtlUnitTintWork *)tintWork)->action;
+    selector = ((BtlUnitTintWork *)tintWork)->selector;
+    if ((((BtlBattleState *)iGpffffb3ac)->battleFlags & 8) != 0)
     {
         return 1;
     }
@@ -999,8 +1020,8 @@ u32 btlMainUpdateUnitTint(void *work)
             return 1;
         }
     }
-    total = *(u32 *)(arg0 + 4);
-    current = *(u32 *)(arg0 + 8);
+    total = ((BtlUnitTintWork *)tintWork)->totalFrames;
+    current = ((BtlUnitTintWork *)tintWork)->currentFrame;
     if (current < total)
     {
         curF = (f32)current;
@@ -1023,10 +1044,10 @@ u32 btlMainUpdateUnitTint(void *work)
         node = *(u8 **)(iGpffffb3ac + ((u16)i) * 8 + 0x178);
         while (node != 0)
         {
-            if (*(u16 *)(node + 0x9fe) != 0)
+            if (((BtlUnit *)node)->sceneDrawId != 0)
             {
-                bit = ((1 << *(u8 *)(node + 0xa2)) & 0xFFFF);
-                if (((mask1 & bit) != 0) && ((*(s32 *)(node + 0x9c) & 1) == 0))
+                bit = ((1 << ((BtlUnit *)node)->genus) & 0xFFFF);
+                if (((mask1 & bit) != 0) && ((((BtlUnit *)node)->flags3 & 1) == 0))
                 {
                     col.red = *(u8 *)(node + 0x30);
                     col.green = *(u8 *)(node + 0x31);
@@ -1043,15 +1064,16 @@ u32 btlMainUpdateUnitTint(void *work)
                     btlUnitSetColor((BtlUnit *)node, col);
                 }
             }
-            node = *(u8 **)(node + 0xa6c);
+            node = (u8 *)((BtlUnit *)node)->nextUnit;
         }
         i = (i + 1) & 0xFFFF;
     }
-    *(u32 *)(arg0 + 8) = *(u32 *)(arg0 + 8) + 1;
+    *(u32 *)(tintWork + 8) = *(u32 *)(tintWork + 8) + 1;
     return result;
 }
 #pragma pop
 // FUN_001B9DE0
+/* Create an action-associated unit-tint packet with selector, duration and zero elapsed frames. */
 BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration)
 {
     BtlPacket* packet;
@@ -1060,22 +1082,24 @@ BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u
     packet = btlPacketAlloc(0x606, 0x10);
     packet->updateFunc = btlMainUpdateUnitTint;
     work = (u8*)packet->workData;
-    *(struct BtlAction**)(work + 0) = action;
-    *(u32*)(work + 4) = duration;
-    *(u16*)(work + 0xc) = (u16)selector;
-    *(s32*)(work + 8) = 0;
+    ((BtlUnitTintWork *)work)->action = action;
+    ((BtlUnitTintWork *)work)->totalFrames = duration;
+    ((BtlUnitTintWork *)work)->selector = (u16)selector;
+    ((BtlUnitTintWork *)work)->currentFrame = 0;
     return packet;
 }
 
 
 
 // FUN_001B9E50
+/* Raise drawable unit alpha to the current fade threshold, respecting the battle transition guard. Raw
+ * elapsed-counter increments retain measured callback reloads. */
 u32 btlMainUpdateUnitAlphaFade(void* work)
 {
     RwRGBA color;
-    f32 temp_f1;
-    f32 var_f0;
-    f32 var_f1;
+    f32 scaledAlpha;
+    f32 totalFloat;
+    f32 currentFloat;
     BtlUnit *unit;
     s32 index;
     s32 result;
@@ -1083,24 +1107,24 @@ u32 btlMainUpdateUnitAlphaFade(void* work)
     u8 threshold;
     u32 current;
     u32 total;
-    u8 *arg0;
+    u8 *fadeWork;
 
-    arg0 = (u8 *)work;
-    if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0) &&
-        ((*(u16 *)(iGpffffb3ac + 0x18) & 0x10) != 0))
+    fadeWork = (u8 *)work;
+    if (((((BtlBattleState *)iGpffffb3ac)->flags & 0x400000) != 0) &&
+        ((((BtlBattleState *)iGpffffb3ac)->actionEndFlags & 0x10) != 0))
     {
         return 1;
     }
 
     result = 1;
-    total = *(u32 *)(arg0 + 0);
-    current = *(u32 *)(arg0 + 4);
+    total = ((BtlUnitAlphaWork *)fadeWork)->totalFrames;
+    current = ((BtlUnitAlphaWork *)fadeWork)->currentFrame;
     if (current < total)
     {
-        var_f1 = (f32)(u32)current;
-        var_f0 = (f32)(u32)total;
-        temp_f1 = 255.0f * (var_f1 / var_f0);
-        threshold = (u8)temp_f1;
+        currentFloat = (f32)(u32)current;
+        totalFloat = (f32)(u32)total;
+        scaledAlpha = 255.0f * (currentFloat / totalFloat);
+        threshold = (u8)scaledAlpha;
         result = 0;
     }
     else
@@ -1115,8 +1139,8 @@ u32 btlMainUpdateUnitAlphaFade(void* work)
         unit = *(BtlUnit **)(iGpffffb3ac + (((u16)index) * 8) + 0x178);
         while (unit != NULL)
         {
-            if ((*(u16 *)((u8 *)unit + 0x9FE) != 0) &&
-                ((*(s32 *)((u8 *)unit + 0x9C) & 1) == 0))
+            if ((((BtlUnit *)(u8 *)unit)->sceneDrawId != 0) &&
+                ((((BtlUnit *)(u8 *)unit)->flags3 & 1) == 0))
             {
                 color = *(RwRGBA *)((u8 *)unit + 0x30);
                 if ((s32)color.alpha < compareThreshold)
@@ -1125,15 +1149,16 @@ u32 btlMainUpdateUnitAlphaFade(void* work)
                     btlUnitSetColor(unit, color);
                 }
             }
-            unit = *(BtlUnit **)((u8 *)unit + 0xA6C);
+            unit = (BtlUnit *)((BtlUnit *)(u8 *)unit)->nextUnit;
         }
         index = (index + 1) & 0xFFFF;
     }
 
-    *(u32 *)(arg0 + 4) = *(u32 *)(arg0 + 4) + 1;
+    *(u32 *)(fadeWork + 4) = *(u32 *)(fadeWork + 4) + 1;
     return result;
 }
 // FUN_001BA090
+/* Create the unit-alpha fade packet with an unsigned elapsed counter initialized by allocation. */
 BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 {
     BtlPacket* packet;
@@ -1147,7 +1172,10 @@ BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 
 
 // FUN_001BA9E0
-u32 btlMainCurveAppendKeyframe(u16 *param_1, f32 *param_2, f32 *param_3)
+/* Append an optional position/quaternion to the four-key ring and mirror position into the spline.
+ * Measured: direct curveKeys addressing changes MATCH; retain integer-address copies and raw ring
+ * writes. */
+u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation)
 {
     u16 index;
     u32 address;
@@ -1156,36 +1184,36 @@ u32 btlMainCurveAppendKeyframe(u16 *param_1, f32 *param_2, f32 *param_3)
     f32 value2;
     f32 value3;
     f32 value4;
-    if (param_1[0x3b] >= 4)
+    if (((BtlCamera *)curve)->keyCount >= 4)
     {
         return 0;
     }
-    index = param_1[0x3c];
-    if (param_2 != ((void*)0))
+    index = ((BtlCamera *)curve)->keyWriteIndex;
+    if (position != ((void*)0))
     {
         address = (u32)index * 0x1c;
-        address = address + (u32)param_1;
+        address = address + (u32)curve;
         entry = (f32*)(address + 4);
-        value2 = param_2[0];
-        value3 = param_2[1];
-        value1 = param_2[2];
+        value2 = position[0];
+        value3 = position[1];
+        value1 = position[2];
         entry[0] = value2;
         entry[1] = value3;
         entry[2] = value1;
-        if ((*param_1 & 1) == 0)
+        if ((*curve & 1) == 0)
         {
-            func_003bb4a0(*(u8 **)(param_1 + 0x4c), index, param_2);
+            func_003bb4a0(*(u8 **)(curve + 0x4c), index, position);
         }
     }
-    if (param_3 != ((void*)0))
+    if (rotation != ((void*)0))
     {
         address = (u32)index * 0x1c;
-        address = address + (u32)param_1;
+        address = address + (u32)curve;
         entry = (f32*)(address + 0x10);
-        value2 = param_3[0];
-        value3 = param_3[1];
-        value4 = param_3[2];
-        value1 = param_3[3];
+        value2 = rotation[0];
+        value3 = rotation[1];
+        value4 = rotation[2];
+        value1 = rotation[3];
         entry[0] = value2;
         entry[1] = value3;
         entry[2] = value4;
@@ -1196,15 +1224,17 @@ u32 btlMainCurveAppendKeyframe(u16 *param_1, f32 *param_2, f32 *param_3)
     {
         index = 0;
     }
-    param_1[0x3c] = index;
-    param_1[0x3b]++;
+    curve[0x3c] = index;
+    curve[0x3b]++;
     return 1;
 }
 
 
 
 // FUN_001BAB00
-void btlMainCurveReset(u16 *param_1, f32 *param_2)
+/* Reset curve mode, ring counters and time, then seed the first position/quaternion. Raw ring writes
+ * preserve callback-visible reloads and the existing integer-address copy shape. */
+void btlMainCurveReset(u16 *curve, f32 *pose)
 {
     u16 index;
     u32 address;
@@ -1214,36 +1244,36 @@ void btlMainCurveReset(u16 *param_1, f32 *param_2)
     f32 value2;
     f32 value3;
     f32 value4;
-    *param_1 = 0;
-    param_1[0x3a] = 0;
-    param_1[0x3b] = 0;
-    param_1[0x3c] = 0;
-    *(u32*)((u8*)param_1 + 0x80) = 0;
-    *(u32*)((u8*)param_1 + 0x7c) = 0;
-    if (param_1[0x3b] < 4)
+    *curve = 0;
+    curve[0x3a] = 0;
+    curve[0x3b] = 0;
+    curve[0x3c] = 0;
+    *(u32*)((u8*)curve + 0x80) = 0;
+    *(u32*)((u8*)curve + 0x7c) = 0;
+    if (((BtlCamera *)curve)->keyCount < 4)
     {
-        index = param_1[0x3c];
-        if (param_2 != ((void*)0))
+        index = ((BtlCamera *)curve)->keyWriteIndex;
+        if (pose != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address = address + (u32)param_1;
+            address = address + (u32)curve;
             entry = (f32*)(address + 4);
-            value2 = param_2[0];
-            value3 = param_2[1];
-            value1 = param_2[2];
+            value2 = pose[0];
+            value3 = pose[1];
+            value1 = pose[2];
             entry[0] = value2;
             entry[1] = value3;
             entry[2] = value1;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, param_2);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, pose);
             }
         }
-        source = param_2 + 3;
+        source = pose + 3;
         if (source != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address = address + (u32)param_1;
+            address = address + (u32)curve;
             entry = (f32*)(address + 0x10);
             value2 = source[0];
             value3 = source[1];
@@ -1259,15 +1289,17 @@ void btlMainCurveReset(u16 *param_1, f32 *param_2)
         {
             index = 0;
         }
-        param_1[0x3c] = index;
-        param_1[0x3b]++;
+        curve[0x3c] = index;
+        curve[0x3b]++;
     }
 }
 
 
 
 // FUN_001BAC20
-void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
+/* Seed four keys from two endpoint poses and their one-third/two-third interpolants. Measured: typed
+ * count reloads change MATCH; keep raw ring writes and callback-visible count checks. */
+void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
 {
     u16 index;
     u16 index0;
@@ -1281,36 +1313,36 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
     f32 value4;
     f32 work[7];
 
-    *param_1 = param_4;
-    param_1[0x3a] = 0;
-    param_1[0x3b] = 0;
-    param_1[0x3c] = 0;
-    *(u32*)((u8*)param_1 + 0x80) = 0;
-    *(u32*)((u8*)param_1 + 0x7c) = 0;
-    if (param_1[0x3b] < 4)
+    *curve = mode;
+    curve[0x3a] = 0;
+    curve[0x3b] = 0;
+    curve[0x3c] = 0;
+    *(u32*)((u8*)curve + 0x80) = 0;
+    *(u32*)((u8*)curve + 0x7c) = 0;
+    if (curve[0x3b] < 4)
     {
-        index0 = param_1[0x3c];
-        if (param_2 != ((void*)0))
+        index0 = ((BtlCamera *)curve)->keyWriteIndex;
+        if (firstPose != ((void*)0))
         {
             address = (u32)index0 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
-            value2 = param_2[0];
-            value3 = param_2[1];
-            value1 = param_2[2];
+            value2 = firstPose[0];
+            value3 = firstPose[1];
+            value1 = firstPose[2];
             entry[0] = value2;
             entry[1] = value3;
             entry[2] = value1;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index0, param_2);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index0, firstPose);
             }
         }
-        source = param_2 + 3;
+        source = firstPose + 3;
         if (source != ((void*)0))
         {
             address = (u32)index0 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             value2 = source[0];
             value3 = source[1];
@@ -1326,29 +1358,29 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         {
             index0 = 0;
         }
-        param_1[0x3c] = index0;
-        param_1[0x3b]++;
+        curve[0x3c] = index0;
+        curve[0x3b]++;
     }
 
-    mdlBlendTranslationRotation(work, param_2, param_3, fGpffff80c0);
-    if (param_1[0x3b] < 4)
+    mdlBlendTranslationRotation(work, firstPose, lastPose, fGpffff80c0);
+    if (curve[0x3b] < 4)
     {
-        index1 = param_1[0x3c];
+        index1 = ((BtlCamera *)curve)->keyWriteIndex;
         if (work != ((void*)0))
         {
             address = (u32)index1 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
             *(RwV3d*)entry = *(RwV3d*)work;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index1, work);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index1, work);
             }
         }
         if (work + 3 != ((void*)0))
         {
             address = (u32)index1 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             *(RwV4d*)entry = *(RwV4d*)(work + 3);
         }
@@ -1357,29 +1389,29 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         {
             index1 = 0;
         }
-        param_1[0x3c] = index1;
-        param_1[0x3b]++;
+        curve[0x3c] = index1;
+        curve[0x3b]++;
     }
 
-    mdlBlendTranslationRotation(work, param_2, param_3, fGpffff80c8);
-    if (param_1[0x3b] < 4)
+    mdlBlendTranslationRotation(work, firstPose, lastPose, fGpffff80c8);
+    if (curve[0x3b] < 4)
     {
-        index = param_1[0x3c];
+        index = ((BtlCamera *)curve)->keyWriteIndex;
         if (work != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
             *(RwV3d*)entry = *(RwV3d*)work;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, work);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, work);
             }
         }
         if (work + 3 != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             *(RwV4d*)entry = *(RwV4d*)(work + 3);
         }
@@ -1388,34 +1420,34 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         {
             index = 0;
         }
-        param_1[0x3c] = index;
-        param_1[0x3b]++;
+        curve[0x3c] = index;
+        curve[0x3b]++;
     }
 
-    if (param_1[0x3b] < 4)
+    if (curve[0x3b] < 4)
     {
-        index = param_1[0x3c];
-        if (param_3 != ((void*)0))
+        index = ((BtlCamera *)curve)->keyWriteIndex;
+        if (lastPose != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
-            value2 = param_3[0];
-            value3 = param_3[1];
-            value1 = param_3[2];
+            value2 = lastPose[0];
+            value3 = lastPose[1];
+            value1 = lastPose[2];
             entry[0] = value2;
             entry[1] = value3;
             entry[2] = value1;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, param_3);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, lastPose);
             }
         }
-        source = param_3 + 3;
+        source = lastPose + 3;
         if (source != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             value2 = source[0];
             value3 = source[1];
@@ -1431,8 +1463,8 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         {
             index = 0;
         }
-        param_1[0x3c] = index;
-        param_1[0x3b]++;
+        curve[0x3c] = index;
+        curve[0x3b]++;
     }
 }
 
@@ -1443,7 +1475,9 @@ void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
    reloads, including when an input aliases spline storage.
    Measured: 984/992B, eight resolved relocations, eight zero-tail bytes. */
 // FUN_001BAFF0
-void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *param_4, u16 param_5)
+/* Seed four keys from three poses, interpolating the interior pair around the middle pose. Measured:
+ * typed count reloads change MATCH; keep raw ring writes and callback-visible count checks. */
+void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 *lastPose, u16 mode)
 {
     u16 index;
     u16 index0;
@@ -1457,36 +1491,36 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
     f32 value4;
     f32 work[7];
 
-    *param_1 = param_5;
-    param_1[0x3a] = 0;
-    param_1[0x3b] = 0;
-    param_1[0x3c] = 0;
-    *(u32*)((u8*)param_1 + 0x80) = 0;
-    *(u32*)((u8*)param_1 + 0x7c) = 0;
-    if (param_1[0x3b] < 4)
+    *curve = mode;
+    curve[0x3a] = 0;
+    curve[0x3b] = 0;
+    curve[0x3c] = 0;
+    *(u32*)((u8*)curve + 0x80) = 0;
+    *(u32*)((u8*)curve + 0x7c) = 0;
+    if (curve[0x3b] < 4)
     {
-        index0 = param_1[0x3c];
-        if (param_2 != ((void*)0))
+        index0 = ((BtlCamera *)curve)->keyWriteIndex;
+        if (firstPose != ((void*)0))
         {
             address = (u32)index0 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
-            value2 = param_2[0];
-            value3 = param_2[1];
-            value1 = param_2[2];
+            value2 = firstPose[0];
+            value3 = firstPose[1];
+            value1 = firstPose[2];
             entry[0] = value2;
             entry[1] = value3;
             entry[2] = value1;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index0, param_2);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index0, firstPose);
             }
         }
-        source = param_2 + 3;
+        source = firstPose + 3;
         if (source != ((void*)0))
         {
             address = (u32)index0 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             value2 = source[0];
             value3 = source[1];
@@ -1502,29 +1536,29 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
         {
             index0 = 0;
         }
-        param_1[0x3c] = index0;
-        param_1[0x3b]++;
+        curve[0x3c] = index0;
+        curve[0x3b]++;
     }
 
-    mdlBlendTranslationRotation(work, param_2, param_3, fGpffff80c8);
-    if (param_1[0x3b] < 4)
+    mdlBlendTranslationRotation(work, firstPose, middlePose, fGpffff80c8);
+    if (curve[0x3b] < 4)
     {
-        index1 = param_1[0x3c];
+        index1 = ((BtlCamera *)curve)->keyWriteIndex;
         if (work != ((void*)0))
         {
             address = (u32)index1 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
             *(RwV3d*)entry = *(RwV3d*)work;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index1, work);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index1, work);
             }
         }
         if (work + 3 != ((void*)0))
         {
             address = (u32)index1 * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             *(RwV4d*)entry = *(RwV4d*)(work + 3);
         }
@@ -1533,29 +1567,29 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
         {
             index1 = 0;
         }
-        param_1[0x3c] = index1;
-        param_1[0x3b]++;
+        curve[0x3c] = index1;
+        curve[0x3b]++;
     }
 
-    mdlBlendTranslationRotation(work, param_3, param_4, fGpffff81a4);
-    if (param_1[0x3b] < 4)
+    mdlBlendTranslationRotation(work, middlePose, lastPose, fGpffff81a4);
+    if (curve[0x3b] < 4)
     {
-        index = param_1[0x3c];
+        index = ((BtlCamera *)curve)->keyWriteIndex;
         if (work != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
             *(RwV3d*)entry = *(RwV3d*)work;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, work);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, work);
             }
         }
         if (work + 3 != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             *(RwV4d*)entry = *(RwV4d*)(work + 3);
         }
@@ -1564,34 +1598,34 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
         {
             index = 0;
         }
-        param_1[0x3c] = index;
-        param_1[0x3b]++;
+        curve[0x3c] = index;
+        curve[0x3b]++;
     }
 
-    if (param_1[0x3b] < 4)
+    if (curve[0x3b] < 4)
     {
-        index = param_1[0x3c];
-        if (param_4 != ((void*)0))
+        index = ((BtlCamera *)curve)->keyWriteIndex;
+        if (lastPose != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 4);
-            value2 = param_4[0];
-            value3 = param_4[1];
-            value1 = param_4[2];
+            value2 = lastPose[0];
+            value3 = lastPose[1];
+            value1 = lastPose[2];
             entry[0] = value2;
             entry[1] = value3;
             entry[2] = value1;
-            if ((*param_1 & 1) == 0)
+            if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, param_4);
+                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, lastPose);
             }
         }
-        source = param_4 + 3;
+        source = lastPose + 3;
         if (source != ((void*)0))
         {
             address = (u32)index * 0x1c;
-            address += (u32)param_1;
+            address += (u32)curve;
             entry = (f32*)(address + 0x10);
             value2 = source[0];
             value3 = source[1];
@@ -1607,13 +1641,15 @@ void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *pa
         {
             index = 0;
         }
-        param_1[0x3c] = index;
-        param_1[0x3b]++;
+        curve[0x3c] = index;
+        curve[0x3b]++;
     }
 }
 /* Exact: 948B/960B, four resolved spline calls and twelve zero-tail bytes.
    Keep each append's count/index reloads and callback-visible copy order. */
 // FUN_001BB3D0
+/* Reset the curve and copy four explicit position/quaternion poses in order. Raw ring storage retains
+ * the established callback-visible copy order and byte-address traversal. */
 void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
                    void *third, void *fourth, u16 mode)
 {
@@ -1810,7 +1846,9 @@ extern RwV3d D_00881430;
    Scoped loop extraction hoists positive zero; the coefficient pointer
    retains retail's stack-address materialization with propagation off. */
 // FUN_001BB790
-void btlMainEvalBezierPosition(u8 *arg0, f32 *arg1, f32 fparg0)
+/* Evaluate cubic Bezier position weights across the four-key ring. Raw coordinate loads retain the
+ * integer-address traversal of the canonical 0x1C-byte pose records. */
+void btlMainEvalBezierPosition(u8 *curveWork, f32 *position, f32 time)
 {
     f32 weights[4];
     f32 f0;
@@ -1818,34 +1856,34 @@ void btlMainEvalBezierPosition(u8 *arg0, f32 *arg1, f32 fparg0)
     f32 f2;
     f32 f3;
     f32 f4;
-    f32 temp_f5;
+    f32 coefficient;
     u16 i;
     s32 index;
     u8 *p;
     f32 *weight;
 
-    f3 = 1.0f - fparg0;
+    f3 = 1.0f - time;
     f1 = f3 * f3;
     weights[0] = f3 * f1;
-    f0 = fparg0 * f1;
+    f0 = time * f1;
     f2 = 3.0f;
     weights[1] = f2 * f0;
-    f1 = fparg0 * fparg0;
+    f1 = time * time;
     f0 = f3 * f1;
     weights[2] = f2 * f0;
-    weights[3] = fparg0 * f1;
-    index = *(u16 *)(arg0 + 0x74);
-    *(RwV3d *)arg1 = D_00881430;
+    weights[3] = time * f1;
+    index = ((BtlCamera *)curveWork)->keyReadIndex;
+    *(RwV3d *)position = D_00881430;
     i = 0;
     while (i < 4) {
         weight = &weights[i];
-        temp_f5 = *weight;
-        p = arg0 + (u16)index * 0x1C;
-        f4 = *(f32 *)(p + 8) * temp_f5;
-        f3 = *(f32 *)(p + 0xC) * temp_f5;
-        arg1[0] = (arg1[0] + 0.0f) + *(f32 *)(p + 4) * temp_f5;
-        arg1[1] += f4;
-        arg1[2] += f3;
+        coefficient = *weight;
+        p = curveWork + (u16)index * 0x1C;
+        f4 = *(f32 *)(p + 8) * coefficient;
+        f3 = *(f32 *)(p + 0xC) * coefficient;
+        position[0] = (position[0] + 0.0f) + *(f32 *)(p + 4) * coefficient;
+        position[1] += f4;
+        position[2] += f3;
         index = (u16)(index + 1);
         if (index >= 4) {
             index = 0;
@@ -1855,7 +1893,9 @@ void btlMainEvalBezierPosition(u8 *arg0, f32 *arg1, f32 fparg0)
 }
 #pragma pop
 // FUN_001BB8C0
-void btlMainEvalLinearPosition(u8* param_2, f32* param_3, f32 param_1)
+/* Select adjacent ring keys from time and linearly interpolate their positions. Raw coordinate loads
+ * retain the integer-address traversal of the canonical 0x1C-byte pose records. */
+void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time)
 {
     u16 currentIndex;
     u16 nextIndex;
@@ -1869,14 +1909,14 @@ void btlMainEvalLinearPosition(u8* param_2, f32* param_3, f32 param_1)
     f32 nextZ;
     f32 blend;
     f32 period;
-    currentIndex = *(u16*)(param_2 + 0x74);
+    currentIndex = ((BtlCamera *)curve)->keyReadIndex;
     period = fGpffff8434;
-    while (param_1 >= period)
+    while (time >= period)
     {
         currentIndex++;
-        param_1 -= period;
+        time -= period;
     }
-    param_1 /= period;
+    time /= period;
     if (currentIndex >= 4)
     {
         currentIndex &= 3;
@@ -1886,30 +1926,32 @@ void btlMainEvalLinearPosition(u8* param_2, f32* param_3, f32 param_1)
     {
         nextIndex &= 3;
     }
-    blend = 1.0f - param_1;
+    blend = 1.0f - time;
     currentAddress = (u32)currentIndex * 0x1c;
-    currentAddress = currentAddress + (u32)param_2;
+    currentAddress = currentAddress + (u32)curve;
     currentY = *(f32*)(currentAddress + 8);
     currentY = currentY * blend;
     currentZ = *(f32*)(currentAddress + 0xc);
     currentZ = currentZ * blend;
     nextAddress = (u32)nextIndex * 0x1c;
-    nextAddress = nextAddress + (u32)param_2;
+    nextAddress = nextAddress + (u32)curve;
     nextY = *(f32*)(nextAddress + 8);
-    nextY = nextY * param_1;
+    nextY = nextY * time;
     nextZ = *(f32*)(nextAddress + 0xc);
-    nextZ = nextZ * param_1;
+    nextZ = nextZ * time;
     currentX = *(f32*)(currentAddress + 4);
     nextX = *(f32*)(nextAddress + 4);
-    param_3[0] = currentX * blend + nextX * param_1;
-    param_3[1] = currentY + nextY;
-    param_3[2] = currentZ + nextZ;
+    position[0] = currentX * blend + nextX * time;
+    position[1] = currentY + nextY;
+    position[2] = currentZ + nextZ;
 }
 
 
 
 // FUN_001BB9B0
-void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1)
+/* Select neighboring ring quaternions and blend them using the prepared spherical/linear mode and sine
+ * approximation. */
+void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time)
 {
     u16 index;
     u16 nextIndex;
@@ -1924,8 +1966,8 @@ void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1)
     f32 f4;
     BtlMainSlerpResult result;
 
-    blend = param_1;
-    index = *(u16*)(param_2 + 0x74);
+    blend = time;
+    index = ((BtlCamera *)curve)->keyReadIndex;
     period = fGpffff8434;
     while (blend >= period)
     {
@@ -1940,18 +1982,18 @@ void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1)
     if (nextIndex >= 4)
         nextIndex &= 3;
 
-    nextAddress = param_2 + ((u32)nextIndex * 0x1c) + 0x10;
-    currentAddress = param_2 + ((u32)index * 0x1c) + 0x10;
+    nextAddress = curve + ((u32)nextIndex * 0x1c) + 0x10;
+    currentAddress = curve + ((u32)index * 0x1c) + 0x10;
     func_003dcc70((f32*)currentAddress, (f32*)nextAddress, &result);
 
     if (blend <= 0.0f)
     {
-        *(RwV4d*)param_3 = *(RwV4d*)currentAddress;
+        *(RwV4d*)rotation = *(RwV4d*)currentAddress;
         return;
     }
     if (1.0f <= blend)
     {
-        *(RwV4d*)param_3 = *(RwV4d*)nextAddress;
+        *(RwV4d*)rotation = *(RwV4d*)nextAddress;
         return;
     }
 
@@ -1979,22 +2021,24 @@ void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1)
         blend = f1 * f0 + f4;
     }
 
-    param_3[0] = result.current0 * inverse;
-    param_3[1] = result.current1 * inverse;
-    param_3[2] = result.current2 * inverse;
-    param_3[0] = result.next0 * blend + param_3[0];
-    param_3[1] = result.next1 * blend + param_3[1];
-    param_3[2] = result.next2 * blend + param_3[2];
-    param_3[3] = result.current3 * inverse + result.next3 * blend;
+    rotation[0] = result.current0 * inverse;
+    rotation[1] = result.current1 * inverse;
+    rotation[2] = result.current2 * inverse;
+    rotation[0] = result.next0 * blend + rotation[0];
+    rotation[1] = result.next1 * blend + rotation[1];
+    rotation[2] = result.next2 * blend + rotation[2];
+    rotation[3] = result.current3 * inverse + result.next3 * blend;
 }
 // FUN_001BBC40
-u32 btlCameraSampleKeyframes(u8* param_1, f32* param_2, f32* param_3)
+/* Sample the available keys with a single pose, linear interpolation, Bezier, or spline position and
+ * quaternion interpolation. Raw spline and pose copies retain their original pointer/copy shape. */
+u32 btlCameraSampleKeyframes(u8* curveWork, f32* position, f32* rotation)
 {
     void* curve;
     u16 frame;
     u16 index;
     u8* entry;
-    frame = *(u16*)(param_1 + 0x76);
+    frame = ((BtlCamera *)curveWork)->keyCount;
     if (0 < frame)
     {
         goto has_frame;
@@ -2003,58 +2047,60 @@ u32 btlCameraSampleKeyframes(u8* param_1, f32* param_2, f32* param_3)
 has_frame:
     if (frame < 2)
     {
-        index = *(u16*)(param_1 + 0x74);
+        index = ((BtlCamera *)curveWork)->keyReadIndex;
         entry = (u8 *)((u32)index * 0x1c);
-        entry += (u32)param_1;
-        *(RwV3d *)param_2 = *(RwV3d *)(entry + 4);
-        index = *(u16*)(param_1 + 0x74);
+        entry += (u32)curveWork;
+        *(RwV3d *)position = *(RwV3d *)(entry + 4);
+        index = ((BtlCamera *)curveWork)->keyReadIndex;
         entry = (u8 *)((u32)index * 0x1c);
-        entry += (u32)param_1;
-        *(RwV4d *)param_3 = *(RwV4d *)(entry + 0x10);
+        entry += (u32)curveWork;
+        *(RwV4d *)rotation = *(RwV4d *)(entry + 0x10);
         return 0;
     }
     if (frame < 4)
     {
-        btlMainEvalLinearPosition(param_1, param_2, *(f32*)(param_1 + 0x7c));
+        btlMainEvalLinearPosition(curveWork, position, *(f32*)(curveWork + 0x7c));
     }
-    else if ((*(u16*)param_1 & 1) != 0)
+    else if ((((BtlCamera *)curveWork)->curveFlags & 1) != 0)
     {
-        btlMainEvalBezierPosition(param_1, param_2, *(f32*)(param_1 + 0x7c));
+        btlMainEvalBezierPosition(curveWork, position, *(f32*)(curveWork + 0x7c));
     }
     else
     {
-        curve = *(void* *)(param_1 + 0x98);
+        curve = *(void* *)(curveWork + 0x98);
         func_003bb5b0((void*)curve, 0xa,
-                     *(f32*)(param_1 + 0x7c),
-                     (RwV3d *)param_2, ((void*)0));
+                     *(f32*)(curveWork + 0x7c),
+                     (RwV3d *)position, ((void*)0));
     }
-    btlMainEvalSlerpRotation(param_1, param_3, *(f32*)(param_1 + 0x7c));
+    btlMainEvalSlerpRotation(curveWork, rotation, *(f32*)(curveWork + 0x7c));
     return 1;
 }
 
 
 
 // FUN_001BBD80
-u32 btlCameraAdvanceKeyframes(u8* param_2, f32 param_1)
+/* Advance time, consume complete key intervals, and wrap the read index in the four-key ring. Raw ring
+ * writes preserve the measured load/store alias behavior. */
+u32 btlCameraAdvanceKeyframes(u8* curveWork, f32 deltaTime)
 {
     u16 frame;
     u16 counter;
     u32 result;
     f32 value;
-    frame = *(u16*)(param_2 + 0x76);
+    frame = ((BtlCamera *)curveWork)->keyCount;
     if (frame < 2)
     {
-        *(u32*)(param_2 + 0x7c) = 0;
+        *(u32*)(curveWork + 0x7c) = 0;
         return 0;
     }
-    value = *(f32*)(param_2 + 0x7c) + param_1;
+    value = *(f32*)(curveWork + 0x7c) + deltaTime;
     if (frame < 3)
     {
         if (!(value < fGpffff8434))
         {
             value = 0.0f;
-            *(u16*)(param_2 + 0x76) = frame - 1;
-            *(u16*)(param_2 + 0x74) = *(u16*)(param_2 + 0x74) + 1;
+            *(u16 *)(curveWork + 0x76) = frame - 1;
+            *(u16 *)(curveWork + 0x74) = ((BtlCamera *)curveWork)->keyReadIndex + 1;
         }
     }
     else if (frame < 4)
@@ -2062,22 +2108,22 @@ u32 btlCameraAdvanceKeyframes(u8* param_2, f32 param_1)
         if (!(value < fGpffff80c8))
         {
             value = 0.0f;
-            *(u16*)(param_2 + 0x76) = frame - 2;
-            *(u16*)(param_2 + 0x74) = *(u16*)(param_2 + 0x74) + 2;
+            *(u16 *)(curveWork + 0x76) = frame - 2;
+            *(u16 *)(curveWork + 0x74) = ((BtlCamera *)curveWork)->keyReadIndex + 2;
         }
     }
     else if (!(value < fGpffff8438))
     {
         value = value - 1.0f;
-        *(u16*)(param_2 + 0x76) = frame - 3;
-        *(u16*)(param_2 + 0x74) = *(u16*)(param_2 + 0x74) + 3;
+        *(u16 *)(curveWork + 0x76) = frame - 3;
+        *(u16 *)(curveWork + 0x74) = ((BtlCamera *)curveWork)->keyReadIndex + 3;
     }
-    counter = *(u16*)(param_2 + 0x74);
+    counter = ((BtlCamera *)curveWork)->keyReadIndex;
     if (counter >= 4)
     {
-        *(u16*)(param_2 + 0x74) = counter & 3;
+        *(u16 *)(curveWork + 0x74) = counter & 3;
     }
-    *(f32*)(param_2 + 0x7c) = value;
+    *(f32*)(curveWork + 0x7c) = value;
     result = 1;
     return result;
 }
@@ -2085,6 +2131,8 @@ u32 btlCameraAdvanceKeyframes(u8* param_2, f32 param_1)
 
 
 // FUN_001BBEF0
+/* Convert seconds to the camera frame-duration convention and select the eased transition mode. Raw
+ * bit-pattern writes preserve the float storage interpretation. */
 void btlCameraSetDuration(u8* work, f32 value)
 {
     *(f32*)(work + 0x84) = (value * 2.0f * 60.0f) / 2.0f;

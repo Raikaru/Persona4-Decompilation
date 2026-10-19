@@ -821,3 +821,5 @@ mdlEffectWindClearGeometry = 0x0049A810; // type:func  evidence: inferred: Clear
 mdlEffectSetMatrixPose = 0x004B12E0; // type:func  evidence: inferred: Set effect translation and derive its quaternion from a RenderWare matrix.
 mdlEffectScreenSpriteRelease = 0x004B18E0; // type:func  evidence: inferred: Release optional TLP and track resources, geometry and the screen-sprite allocation.
 mdlEffectScreenSpriteCopyResource = 0x004B1A00; // type:func  evidence: inferred: Replace the screen sprite track resource, or reference the source TLP when no track is present.
+btlFormationUpdateAttachments = 0x001D53E0; // type:func  evidence: inferred: advances attachment entries, clones and positions effect handles, applies rotation and packed color, then increments the frame
+btlMainRelease = 0x001B6110; // type:func  evidence: inferred: empty retail lifecycle hook called by btlRelease immediately after saving field colors and unloading the field scene

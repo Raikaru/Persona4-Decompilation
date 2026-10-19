@@ -25,7 +25,7 @@ extern void mdlSetColor(u8 *input, u32 *value);
 extern void mdlEffectApplyPackedColor(u8 *input, s32 value);
 extern void mdlAdvanceModelFromFlags(s32 input);
 extern void mdlEffectCommitTreeFrame(u8 *input);
-extern void func_001d53e0(s32 input);
+extern void btlFormationUpdateAttachments(s32 input);
 extern void mdlQueueModelForDraw(s32 input, u8 *value);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -254,7 +254,7 @@ void btlEffectUpdateFadeNodes(void)
                     mdlEffectCommitTreeFrame(node->effect);
                 }
                 if (node->formation != NULL) {
-                    func_001d53e0((s32)node->formation);
+                    btlFormationUpdateAttachments((s32)node->formation);
                 }
             }
         }

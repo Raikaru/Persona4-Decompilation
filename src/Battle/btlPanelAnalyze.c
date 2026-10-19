@@ -3,6 +3,7 @@
 #include "type.h"
 #include "btl_panel_internal.h"
 #include "datCalc_unit_internal.h"
+#include "btl_action_internal.h"
 extern void memset();
 s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
 void shdEnableBlendFlag(void);
@@ -29,11 +30,34 @@ extern f32 fGpffff80cc;
 
 static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
 
+/* btlPanelClear clears 0x90 bytes; layout callbacks save lights, matrix and
+ * projection values while the model updater owns state, opacity and yaw. */
+typedef struct BtlAnalyzePanel
+{
+    u16 flags;
+    u16 state;
+    u16 frame;
+    u8 opacity;
+    u8 pad07;
+    u8 *action;
+    u8 *model;
+    s32 task;
+    f32 savedLightA[4];
+    f32 savedLightC[4];
+    u8 pad34[0x0C];
+    f32 savedMatrix[16];
+    f32 savedProjection;
+    f32 savedFarClip;
+    f32 yaw;
+    u8 pad8C[4];
+} BtlAnalyzePanel;
+
 /* measured: opt_propagation off preserves the split mode live range and
    retail's parameter-save order (MATCH nd0; without it, nd10). */
 #pragma opt_propagation off
 // FUN_00218760
-void btlPanelAddEntry(void *arg0, u32 arg1, f32 fparg0, s32 arg2, f32 fparg1) {
+/* Draw an HP/SP number or hidden-value panel using active/disabled colors and digit sprites. */
+void btlPanelAddEntry(void *work, u32 value, f32 x, s32 displayMode, f32 yPosition) {
     struct {
         char text[128];
     } locals;
@@ -53,9 +77,9 @@ void btlPanelAddEntry(void *arg0, u32 arg1, f32 fparg0, s32 arg2, f32 fparg1) {
     f32 px;
     f32 y;
 
-    px = fparg0;
-    py = fparg1;
-    mode = arg2;
+    px = x;
+    py = yPosition;
+    mode = displayMode;
     switch (mode) {
     case 0:
     case 1:
@@ -90,22 +114,22 @@ mode_error:
     kAssertFail(D_00628F80, 0x12D);
 mode_done:
     mode2 = mode;
-    btlUiDrawSpriteFaded(arg0, 0xA, 0x40, px, py,
+    btlUiDrawSpriteFaded(work, 0xA, 0x40, px, py,
                   color0, color1, blue, color2);
-    btlUiDrawSpriteFaded(arg0, 0xA, 0x41, 81.0f + px, py,
+    btlUiDrawSpriteFaded(work, 0xA, 0x41, 81.0f + px, py,
                   color0, color1, blue, color2);
     y = 2.0f + py;
-    btlUiDrawSpriteFaded(arg0, 0xA, 0x46, 6.0f + px, y,
+    btlUiDrawSpriteFaded(work, 0xA, 0x46, 6.0f + px, y,
                   color3, color4, color5, color6);
     switch (mode2) {
     case 0:
     case 2:
-        btlUiDrawSpriteFaded(arg0, 0xA, 0x44, 59.0f + px, y,
+        btlUiDrawSpriteFaded(work, 0xA, 0x44, 59.0f + px, y,
                       color3, color4, color5, color6);
         break;
     case 1:
     case 3:
-        btlUiDrawSpriteFaded(arg0, 0xA, 0x45, 59.0f + px, y,
+        btlUiDrawSpriteFaded(work, 0xA, 0x45, 59.0f + px, y,
                       color3, color4, color5, color6);
         break;
     default:
@@ -116,12 +140,12 @@ mode_done:
     case 0:
     case 1:
         px = panelAdd2(96.0f, px);
-        sprintf(locals.text, &iGpffffa59c, arg1);
+        sprintf(locals.text, &iGpffffa59c, value);
         length = strlen(locals.text);
         i = 0;
         y = 4.0f + py;
         while (i < length) {
-            btlUiDrawSpriteFaded(arg0, 0xC, locals.text[i] - 0x27,
+            btlUiDrawSpriteFaded(work, 0xC, locals.text[i] - 0x27,
                           px, y, 0x89, 0xFF, 0x1F, 0xFF);
             px += 16.0f;
             i += 1;
@@ -148,7 +172,9 @@ typedef struct {
 } PanelQuad;
 
 // FUN_00218AF0
-void btlPanelSetRgb(f32 fparg0, f32 fparg1, f32 fparg2) {
+/* Draw the four-vertex affinity backdrop at the requested position and height. The raw projection-
+ * scale access is an external SDK camera field. */
+void btlPanelSetRgb(f32 x, f32 y, f32 height) {
     PanelQuad quads[4];
     u8 *p;
     f32 zval;
@@ -157,41 +183,41 @@ void btlPanelSetRgb(f32 fparg0, f32 fparg1, f32 fparg2) {
     zval = D_008872F8[0];
     scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     p = (u8 *)&quads[0];
-    *(f32 *)(p + 0) = fparg0;
-    *(f32 *)(p + 4) = fparg1;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x18) = scale;
-    *(u32 *)(p + 0x20) = 0x43090000;
-    *(u32 *)(p + 0x24) = 0x437F0000;
-    *(u32 *)(p + 0x28) = 0x41F80000;
-    *(u32 *)(p + 0x2C) = 0x437F0000;
+    ((PanelQuad *)p)->x = x;
+    ((PanelQuad *)p)->y = y;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->scale = scale;
+    ((PanelQuad *)p)->color[0] = 0x43090000;
+    ((PanelQuad *)p)->color[1] = 0x437F0000;
+    ((PanelQuad *)p)->color[2] = 0x41F80000;
+    ((PanelQuad *)p)->color[3] = 0x437F0000;
     p = (u8 *)&quads[1];
-    *(f32 *)(p + 0) = 323.0f + fparg0;
-    *(f32 *)(p + 4) = fparg1;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x18) = scale;
-    *(u32 *)(p + 0x20) = 0x43090000;
-    *(u32 *)(p + 0x24) = 0x437F0000;
-    *(u32 *)(p + 0x28) = 0x41F80000;
-    *(u32 *)(p + 0x2C) = 0x437F0000;
+    ((PanelQuad *)p)->x = 323.0f + x;
+    ((PanelQuad *)p)->y = y;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->scale = scale;
+    ((PanelQuad *)p)->color[0] = 0x43090000;
+    ((PanelQuad *)p)->color[1] = 0x437F0000;
+    ((PanelQuad *)p)->color[2] = 0x41F80000;
+    ((PanelQuad *)p)->color[3] = 0x437F0000;
     p = (u8 *)&quads[2];
-    *(f32 *)(p + 0) = fparg0;
-    *(f32 *)(p + 4) = fparg1 + fparg2;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x18) = scale;
-    *(u32 *)(p + 0x20) = 0x43090000;
-    *(u32 *)(p + 0x24) = 0x437F0000;
-    *(u32 *)(p + 0x28) = 0x41F80000;
-    *(u32 *)(p + 0x2C) = 0x437F0000;
+    ((PanelQuad *)p)->x = x;
+    ((PanelQuad *)p)->y = y + height;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->scale = scale;
+    ((PanelQuad *)p)->color[0] = 0x43090000;
+    ((PanelQuad *)p)->color[1] = 0x437F0000;
+    ((PanelQuad *)p)->color[2] = 0x41F80000;
+    ((PanelQuad *)p)->color[3] = 0x437F0000;
     p = (u8 *)&quads[3];
-    *(f32 *)(p + 0) = 374.0f + fparg0;
-    *(f32 *)(p + 4) = fparg1 + fparg2;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x18) = scale;
-    *(u32 *)(p + 0x20) = 0x43090000;
-    *(u32 *)(p + 0x24) = 0x437F0000;
-    *(u32 *)(p + 0x28) = 0x41F80000;
-    *(u32 *)(p + 0x2C) = 0x437F0000;
+    ((PanelQuad *)p)->x = 374.0f + x;
+    ((PanelQuad *)p)->y = y + height;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->scale = scale;
+    ((PanelQuad *)p)->color[0] = 0x43090000;
+    ((PanelQuad *)p)->color[1] = 0x437F0000;
+    ((PanelQuad *)p)->color[2] = 0x41F80000;
+    ((PanelQuad *)p)->color[3] = 0x437F0000;
     D_00887300[0](1, 0);
     shdEnableBlendFlag();
     D_00887310[0](4, &quads[0], 4);
@@ -199,43 +225,46 @@ void btlPanelSetRgb(f32 fparg0, f32 fparg1, f32 fparg2) {
 }
 
 // FUN_00218C60
-void btlPanelAddStatusEntry(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
-    s32 temp;
-    f32 temp_f12;
-    f32 temp_f13;
+/* Draw the affinity icon selected by the unit data flags, in priority order for the tested affinity
+ * bits. */
+void btlPanelAddStatusEntry(u8 *work, s32 unitData, s64 affinity, f32 x, f32 y) {
+    s32 flags;
+    f32 iconX;
+    f32 iconY;
 
-    temp = datCalcGetAffinity((u8 *)arg1, (s16)arg2);
-    btlUiDrawSpriteFaded(arg0, 0xE, 0x43, fparg0, fparg1, 0x24, 0x4C, 0, 0xFF);
-    temp_f12 = panelAdd2(fparg0, 2.0f);
-    temp_f13 = panelAdd2(fparg1, 2.0f);
-    if (temp & 0x08000000) {
-        btlUiDrawSpriteFaded(arg0, 0xD, 0x36, temp_f12, temp_f13, 0x89, 0xFF, 0x1F, 0xFF);
+    flags = datCalcGetAffinity((u8 *)unitData, (s16)affinity);
+    btlUiDrawSpriteFaded(work, 0xE, 0x43, x, y, 0x24, 0x4C, 0, 0xFF);
+    iconX = panelAdd2(x, 2.0f);
+    iconY = panelAdd2(y, 2.0f);
+    if (flags & 0x08000000) {
+        btlUiDrawSpriteFaded(work, 0xD, 0x36, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
         return;
     }
-    if (temp & 0x01000000) {
-        btlUiDrawSpriteFaded(arg0, 0xD, 0x38, temp_f12, temp_f13, 0x89, 0xFF, 0x1F, 0xFF);
+    if (flags & 0x01000000) {
+        btlUiDrawSpriteFaded(work, 0xD, 0x38, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
         return;
     }
-    if (temp & 0x10000000) {
-        btlUiDrawSpriteFaded(arg0, 0xD, 0x37, temp_f12, temp_f13, 0x89, 0xFF, 0x1F, 0xFF);
+    if (flags & 0x10000000) {
+        btlUiDrawSpriteFaded(work, 0xD, 0x37, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
         return;
     }
-    if (temp & 0x04000000) {
-        btlUiDrawSpriteFaded(arg0, 0xD, 0x39, temp_f12, temp_f13, 0x89, 0xFF, 0x1F, 0xFF);
+    if (flags & 0x04000000) {
+        btlUiDrawSpriteFaded(work, 0xD, 0x39, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
         return;
     }
-    if (temp & 0x02000000) {
-        btlUiDrawSpriteFaded(arg0, 0xD, 0x35, temp_f12, temp_f13, 0x89, 0xFF, 0x1F, 0xFF);
+    if (flags & 0x02000000) {
+        btlUiDrawSpriteFaded(work, 0xD, 0x35, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
         return;
     }
-    btlUiDrawSpriteFaded(arg0, 0xD, 0x3A, temp_f12, temp_f13, 0x89, 0xFF, 0x1F, 0xFF);
+    btlUiDrawSpriteFaded(work, 0xD, 0x3A, iconX, iconY, 0x89, 0xFF, 0x1F, 0xFF);
 }
 
 // FUN_00218E50
-void btlPanelClear(u8 *arg0, s32 arg1) {
-    memset(arg0, 0, 0x90);
-    *(s32 *)(arg0 + 0x10) = arg1;
-    *(s16 *)(arg0 + 0x2) = 0;
+/* Clear the complete 0x90-byte analysis panel and record its owning task. */
+void btlPanelClear(u8 *panel, s32 task) {
+    memset(panel, 0, 0x90);
+    ((BtlAnalyzePanel *)panel)->task = task;
+    ((BtlAnalyzePanel *)panel)->state = 0;
 }
 
 
@@ -246,53 +275,55 @@ void btlPanelClear(u8 *arg0, s32 arg1) {
    each iteration, consumed after the loop): a loop-carried alias of src_base
    drops it to $s0. Found by tools/permute_ast.py, minimised to this one line. */
 // FUN_00218EA0
-void btlPanelSetupLayout(u8 *arg0) {
+/* Save the current light colors, light frame and camera projection, then install the analysis
+ * presentation. Raw SDK light/frame words preserve the measured paired-copy and argument-load order. */
+void btlPanelSetupLayout(u8 *panel) {
     typedef struct { f32 x, y, z, w; } PanelVec4X;
     s32 *src;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u32 src_base;
-    u8 *var_6;
-    u8 *var_5;
+    u8 *firstLight;
+    u8 *secondLight;
+    u32 frameAddress;
+    u8 *matrixSource;
+    u8 *matrixDestination;
     u8 *dst;
-    s32 var_4;
-    s32 temp_3;
-    s32 temp_2_3;
+    s32 copyCount;
+    s32 firstWord;
+    s32 secondWord;
     PanelVec4X tmp;
 
-    dst = arg0;
+    dst = panel;
     func_003e8110(kwlnGetCamera());
-    temp_2 = K_Clump_GetLightA();
-    *(PanelVec4X *)(dst + 0x14) = *(PanelVec4X *)(temp_2 + 0x18);
+    firstLight = K_Clump_GetLightA();
+    *(PanelVec4X *)(dst + 0x14) = *(PanelVec4X *)(firstLight + 0x18);
     tmp.x = fGpffff847c;
     tmp.y = fGpffff847c;
     tmp.z = fGpffff847c;
     tmp.w = 1.0f;
-    func_003c38b0(temp_2, &tmp);
-    temp_2_2 = K_Clump_GetLightC();
-    *(PanelVec4X *)(dst + 0x24) = *(PanelVec4X *)(temp_2_2 + 0x18);
+    func_003c38b0(firstLight, &tmp);
+    secondLight = K_Clump_GetLightC();
+    *(PanelVec4X *)(dst + 0x24) = *(PanelVec4X *)(secondLight + 0x18);
     tmp.x = fGpffff80cc;
     tmp.y = 1.0f;
     tmp.z = fGpffff80cc;
     tmp.w = 1.0f;
-    func_003c38b0(temp_2_2, &tmp);
-    src_base = (u32)(temp_2_2 + 4);
-    var_6 = (u8 *)(*(s32 *)(u8 *)src_base + 0x10);
-    var_5 = dst + 0x40;
-    var_4 = 8;
+    func_003c38b0(secondLight, &tmp);
+    frameAddress = (u32)(secondLight + 4);
+    matrixSource = (u8 *)(*(s32 *)(u8 *)frameAddress + 0x10);
+    matrixDestination = dst + 0x40;
+    copyCount = 8;
     do {
-        temp_3 = *(s32 *)var_6;
-        src = (s32 *)(u8 *)src_base;
-        temp_2_3 = *(s32 *)(var_6 + 4);
-        var_6 += 8;
-        var_4 -= 1;
-        *(s32 *)var_5 = temp_3;
-        *(s32 *)(var_5 + 4) = temp_2_3;
-        var_5 += 8;
-    } while (var_4 > 0);
-    temp_2_2 = (u8 *)(*(u32 *)(kwlnGetCamera() + 4));
-    temp_2 = (u8 *)*src;
-    func_003e9cb0(temp_2, temp_2_2 + 0x10, 0);
+        firstWord = *(s32 *)matrixSource;
+        src = (s32 *)(u8 *)frameAddress;
+        secondWord = *(s32 *)(matrixSource + 4);
+        matrixSource += 8;
+        copyCount -= 1;
+        *(s32 *)matrixDestination = firstWord;
+        *(s32 *)(matrixDestination + 4) = secondWord;
+        matrixDestination += 8;
+    } while (copyCount > 0);
+    secondLight = (u8 *)(*(u32 *)(kwlnGetCamera() + 4));
+    firstLight = (u8 *)*src;
+    func_003e9cb0(firstLight, secondLight + 0x10, 0);
     *(f32 *)(dst + 0x80) = *(f32 *)(kwlnGetCamera() + 0x80);
     *(f32 *)(dst + 0x84) = *(f32 *)(kwlnGetCamera() + 0x84);
     func_003e8180(kwlnGetCamera(), 35.0f);
@@ -301,16 +332,18 @@ void btlPanelSetupLayout(u8 *arg0) {
 }
 
 // FUN_00219060
-void btlPanelResetLayout(u8 *arg0) {
+/* Restore the light colors, frame and camera projection saved by the analysis draw callback. The raw
+ * SDK frame pointer is the light attachment. */
+void btlPanelResetLayout(u8 *panel) {
     u8 *temp;
 
     func_003e8110(kwlnGetCamera());
-    func_003c38b0(K_Clump_GetLightA(), arg0 + 0x14);
+    func_003c38b0(K_Clump_GetLightA(), panel + 0x14);
     temp = K_Clump_GetLightC();
-    func_003c38b0(temp, arg0 + 0x24);
-    func_003e9cb0((void *)*(s32 *)(temp + 4), arg0 + 0x40, 0);
-    func_003e8180(kwlnGetCamera(), *(f32 *)(arg0 + 0x80));
-    func_003e81c0(kwlnGetCamera(), *(f32 *)(arg0 + 0x84));
+    func_003c38b0(temp, panel + 0x24);
+    func_003e9cb0((void *)*(s32 *)(temp + 4), panel + 0x40, 0);
+    func_003e8180(kwlnGetCamera(), ((BtlAnalyzePanel *)panel)->savedProjection);
+    func_003e81c0(kwlnGetCamera(), ((BtlAnalyzePanel *)panel)->savedFarClip);
     func_003e8120(kwlnGetCamera());
 }
 
@@ -319,7 +352,10 @@ void btlPanelResetLayout(u8 *arg0) {
  * Preserve unsigned controller conversion before subtracting 128, matrix
  * initialization before composition, and callback-visible field reloads. */
 // FUN_00219130
-void btlPanelLoadModels(u8 *arg0) {
+/* Create or replace the analysis model, apply controller yaw limits, and animate opacity before
+ * queuing it. Measured: typed state, yaw, model and actor reloads each change MATCH; raw SDK matrices
+ * and descriptor rows retain external layouts. */
+void btlPanelLoadModels(u8 *panel) {
     typedef struct { f32 x, y, z; } AnalyzeVec3;
     typedef struct { f32 matrix[16]; } AnalyzeMatrix;
     extern u8 D_005DC9C8[];
@@ -353,74 +389,74 @@ void btlPanelLoadModels(u8 *arg0) {
     u8 *matrix;
     u8 *unit;
     u16 flags;
-    u32 table_address;
+    u32 tableAddress;
     f32 delta;
     f32 width;
     f32 height;
     f32 translated;
 
-    if (*(u16 *)(arg0 + 2) == 0) {
+    if (*(u16 *)(panel + 2) == 0) {
         return;
     }
-    switch (*(u16 *)(arg0 + 2)) {
+    switch (*(u16 *)(panel + 2)) {
     case 1:
-        unit = *(u8 **)(arg0 + 8);
+        unit = ((BtlAnalyzePanel *)panel)->action;
         model = mdlCloneModelObject(*(u8 **)(*(u8 **)(unit + 0x30) + 0xA00));
-        *(u8 **)(arg0 + 0xC) = model;
+        *(u8 **)(panel + 0xC) = model;
         mdlSetAttachedOwner(model, D_005DC9C8);
-        *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
+        *(u32 *)(*(u8 **)(panel + 0xC) + 0xD8) &= ~0x100;
         entry = *(u8 **)(unit + 0x30);
         if (entry[0xA2] == 1) {
-            table_address = *(u16 *)(entry + 0xA4) * 0xE8;
-            table_address += (u32)iGpffffb3cc;
-            flags = *(u16 *)(table_address + 0x18);
+            tableAddress = ((BtlUnit *)entry)->charId * 0xE8;
+            tableAddress += (u32)iGpffffb3cc;
+            flags = *(u16 *)(tableAddress + 0x18);
             if (flags & 2) {
-                *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x200;
+                *(u32 *)(*(u8 **)(panel + 0xC) + 0xD8) |= 0x200;
             }
             if (flags & 8) {
-                *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x400;
+                *(u32 *)(*(u8 **)(panel + 0xC) + 0xD8) |= 0x400;
             }
             if (flags & 0x10) {
-                *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x800;
+                *(u32 *)(*(u8 **)(panel + 0xC) + 0xD8) |= 0x800;
             }
         }
-        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), btlPanelSetupLayout, arg0);
-        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), btlPanelResetLayout, arg0);
-        *(u16 *)(arg0 + 0) &= ~2;
-        *(u16 *)(arg0 + 0) |= 1;
-        *(f32 *)(arg0 + 0x88) = 0.0f;
-        arg0[6] = 0;
-        *(u16 *)(arg0 + 2) = 3;
+        mdlSetDrawCallback(*(u8 **)(panel + 0xC), btlPanelSetupLayout, panel);
+        mdlSetResetCallback(*(u8 **)(panel + 0xC), btlPanelResetLayout, panel);
+        ((BtlAnalyzePanel *)panel)->flags &= ~2;
+        ((BtlAnalyzePanel *)panel)->flags |= 1;
+        *(f32 *)(panel + 0x88) = 0.0f;
+        panel[6] = 0;
+        *(u16 *)(panel + 2) = 3;
         break;
     case 2:
-        mdlDestroyModelObject(*(u8 **)(arg0 + 0xC));
-        model = mdlCloneModelObject(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 8) + 0x30) + 0xA00));
-        *(u8 **)(arg0 + 0xC) = model;
+        mdlDestroyModelObject(*(u8 **)(panel + 0xC));
+        model = mdlCloneModelObject(*(u8 **)(*(u8 **)(((BtlAnalyzePanel *)panel)->action + 0x30) + 0xA00));
+        *(u8 **)(panel + 0xC) = model;
         mdlSetAttachedOwner(model, D_005DC9C8);
-        *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
-        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), btlPanelSetupLayout, arg0);
-        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), btlPanelResetLayout, arg0);
-        *(f32 *)(arg0 + 0x88) = 0.0f;
-        *(u16 *)(arg0 + 2) = 3;
+        *(u32 *)(*(u8 **)(panel + 0xC) + 0xD8) &= ~0x100;
+        mdlSetDrawCallback(*(u8 **)(panel + 0xC), btlPanelSetupLayout, panel);
+        mdlSetResetCallback(*(u8 **)(panel + 0xC), btlPanelResetLayout, panel);
+        *(f32 *)(panel + 0x88) = 0.0f;
+        *(u16 *)(panel + 2) = 3;
     case 3:
-        if (*(u16 *)(arg0 + 4) < 5) {
+        if (((BtlAnalyzePanel *)panel)->frame < 5) {
             break;
         }
-        unit = *(u8 **)(*(u8 **)(arg0 + 8) + 0x30);
+        unit = *(u8 **)(((BtlAnalyzePanel *)panel)->action + 0x30);
         if (unit[0xA2] == 1) {
-            entry = D_00626FE0[*(u16 *)(unit + 0xA4)];
+            entry = D_00626FE0[((BtlUnit *)unit)->charId];
         } else {
             entry = D_00628F60;
         }
         delta = (f32)D_008C025C[0] - 128.0f;
         if (delta < -48.0f || delta > 48.0f) {
-            *(f32 *)(arg0 + 0x88) = (0.0f + *(f32 *)(arg0 + 0x88)) + fGpffff8480 * delta;
+            *(f32 *)(panel + 0x88) = (0.0f + *(f32 *)(panel + 0x88)) + fGpffff8480 * delta;
         }
         if (entry[0x14] < 180 || entry[0x15] < 180) {
-            if (*(f32 *)(arg0 + 0x88) > (f32)entry[0x14]) {
-                *(f32 *)(arg0 + 0x88) = (f32)entry[0x14];
-            } else if (*(f32 *)(arg0 + 0x88) < (f32)-entry[0x15]) {
-                *(f32 *)(arg0 + 0x88) = (f32)-entry[0x15];
+            if (*(f32 *)(panel + 0x88) > (f32)entry[0x14]) {
+                *(f32 *)(panel + 0x88) = (f32)entry[0x14];
+            } else if (*(f32 *)(panel + 0x88) < (f32)-entry[0x15]) {
+                *(f32 *)(panel + 0x88) = (f32)-entry[0x15];
             }
         }
         unit = kwlnGetCamera();
@@ -436,36 +472,36 @@ void btlPanelLoadModels(u8 *arg0) {
         translated += *(f32 *)(entry + 8);
         position.z = translated;
         func_003e4320(&transformed, &position, matrix);
-        RwMatrixRotate(&rotation, D_0060A0E0, *(f32 *)(arg0 + 0x88), 0);
+        RwMatrixRotate(&rotation, D_0060A0E0, *(f32 *)(panel + 0x88), 0);
         RwMatrixRotate(&rotation, D_0060A0D0, *(f32 *)(entry + 0xC), 2);
         RwMatrixRotate(&rotation, D_0060A0E0, 180.0f + *(f32 *)(entry + 0x10), 2);
-        RwMatrixMultiply(mdlGetMatrix(*(u8 **)(arg0 + 0xC)), &rotation, matrix);
+        RwMatrixMultiply(mdlGetMatrix(*(u8 **)(panel + 0xC)), &rotation, matrix);
         translated = *(f32 *)(matrix + 0x30) + transformed.x;
-        *(f32 *)(mdlGetMatrix(*(u8 **)(arg0 + 0xC)) + 0x30) = translated;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(panel + 0xC)) + 0x30) = translated;
         translated = *(f32 *)(matrix + 0x34) + transformed.y;
-        *(f32 *)(mdlGetMatrix(*(u8 **)(arg0 + 0xC)) + 0x34) = translated;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(panel + 0xC)) + 0x34) = translated;
         translated = *(f32 *)(matrix + 0x38) + transformed.z;
-        *(f32 *)(mdlGetMatrix(*(u8 **)(arg0 + 0xC)) + 0x38) = translated;
-        if (arg0[6] < 0xFF) {
-            if (arg0[6] < 0xD7) {
-                arg0[6] += 0x28;
+        *(f32 *)(mdlGetMatrix(*(u8 **)(panel + 0xC)) + 0x38) = translated;
+        if (panel[6] < 0xFF) {
+            if (panel[6] < 0xD7) {
+                panel[6] += 0x28;
             } else {
-                arg0[6] = 0xFF;
+                panel[6] = 0xFF;
             }
-            mdlSetAlphaBlend(*(u8 **)(arg0 + 0xC));
+            mdlSetAlphaBlend(*(u8 **)(panel + 0xC));
             color[0] = 0xFF;
             color[1] = 0xFF;
             color[2] = 0xFF;
-            color[3] = arg0[6];
-            mdlSetColor(*(u8 **)(arg0 + 0xC), color);
+            color[3] = panel[6];
+            mdlSetColor(*(u8 **)(panel + 0xC), color);
         }
-        mdlQueueModelForDraw(D_00795020, *(u8 **)(arg0 + 0xC));
+        mdlQueueModelForDraw(D_00795020, *(u8 **)(panel + 0xC));
         break;
     case 4:
-        mdlDestroyModelObject(*(u8 **)(arg0 + 0xC));
-        *(u8 **)(arg0 + 0xC) = NULL;
-        *(u16 *)(arg0 + 0) &= ~1;
-        *(u16 *)(arg0 + 2) = 0;
+        mdlDestroyModelObject(*(u8 **)(panel + 0xC));
+        *(u8 **)(panel + 0xC) = NULL;
+        ((BtlAnalyzePanel *)panel)->flags &= ~1;
+        *(u16 *)(panel + 2) = 0;
         break;
     }
 }
@@ -481,6 +517,8 @@ static inline u8 btlPanelEnemyKind(u32 offset)
 /* Name, affinity, skill and footer phases keep separate coordinates and fades.
  * See docs/probe_archive/BtlPanelAnalyze_00219790_20260929.md. */
 // FUN_00219790
+/* Animate name, rewards, affinities, skills and footer using independently timed fades. Measured:
+ * typed data-record pointer reloads change MATCH; raw camera fields retain the SDK boundary layout. */
 void btlPanelAnimate(s32 unusedTask, u8 *panel)
 {
     extern f32 fGpffff84a4;
@@ -517,18 +555,18 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
     u32 sp;
     u16 *affinity;
     (void)unusedTask;
-    work = (u8 *)kwlnTaskGetWork(*(u8 **)(panel + 0x10));
+    work = (u8 *)kwlnTaskGetWork((u8 *)((BtlAnalyzePanel *)panel)->task);
     if ((*(u32 *)work & 1) == 0) {
         return;
     }
-    if ((*(u16 *)panel & 1) == 0) {
+    if ((((BtlAnalyzePanel *)panel)->flags & 1) == 0) {
         return;
     }
-    frame = *(u16 *)(panel + 4);
+    frame = ((BtlAnalyzePanel *)panel)->frame;
     btlUiSetRenderStates();
     btlUiSetOrigin(work, 0.0f, 0.0f);
-    unit = *(u8 **)(*(u8 **)(panel + 8) + 0x30);
-    enemyIndex = *(u16 *)(unit + 0xA4);
+    unit = *(u8 **)(((BtlAnalyzePanel *)panel)->action + 0x30);
+    enemyIndex = ((BtlUnit *)unit)->charId;
     {
         f32 nameFade;
         f32 nameX;
@@ -543,10 +581,10 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             nameX = (1.0f - nameFade) * -500.0f;
             btlUiDrawSpriteFaded(work, 10, 0x47, 103.0f + nameX, 103.0f, 0x89, 0xFF, 0x1F, 0xFF);
             btlUiDrawSpriteFaded(work, 13, 0x2A, 30.0f + nameX, 147.0f, 0x24, 0x4C, 0, 0xFF);
-            if ((*(u16 *)panel & 8) == 0) {
+            if ((((BtlAnalyzePanel *)panel)->flags & 8) == 0) {
                 f32 nx;
                 nx = 60.0f + nameX;
-                sprintf(text, &iGpffffa59c, datCalcGetLevel(*(u8 **)(unit + 0xA64)) & 0xFF);
+                sprintf(text, &iGpffffa59c, datCalcGetLevel(*(u8 * *)(unit + 0xA64)) & 0xFF);
                 len = strlen(text);
                 if (len > 2) {
                     kAssertFail(D_00628F80, 0xF4);
@@ -581,14 +619,14 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                 }
             }
             frFontExDrawTextWithCharWidth(112.0f + nameX, 136.0f, 0.0f, 0x89FF1FFF, 0, 1, iGpffffb444 + (u32)enemyIndex * 0x15, 0, -1);
-            if ((*(u16 *)panel & 8) == 0) {
+            if ((((BtlAnalyzePanel *)panel)->flags & 8) == 0) {
                 nameX = panelAdd2(15.0f, nameX);
-                hp = datCalcMaxHp(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                hp = datCalcMaxHp(*(u8 * *)(unit + 0xA64)) & 0xFFFF;
                 if (hp > 999U) {
                     hp = 999;
                 }
                 btlPanelAddEntry(work, hp, nameX, 0, 167.0f);
-                sp = datCalcMaxSp(*(u8 **)(unit + 0xA64)) & 0xFFFF;
+                sp = datCalcMaxSp(*(u8 * *)(unit + 0xA64)) & 0xFFFF;
                 if (sp > 999U) {
                     sp = 999;
                 }
@@ -651,7 +689,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             btlUiSetScale(work, 1.0f, 1.0f);
         }
     }
-    if ((*(u16 *)panel & 4) != 0) {
+    if ((((BtlAnalyzePanel *)panel)->flags & 4) != 0) {
         if (frame < 4) {
             skillFade = 0.0f;
         } else if (frame < 10) {
@@ -663,13 +701,13 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             struct { f32 x; f32 y; } slide;
             slide.x = (1.0f - skillFade) * -500.0f;
             slide.y = 0.0f;
-            if ((*(u16 *)panel & 8) == 0) {
+            if ((((BtlAnalyzePanel *)panel)->flags & 8) == 0) {
                 u16 n;
                 u32 count;
                 u16 *cmds;
                 u32 skillIndex;
-                n = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)) & 0xFFFF;
-                cmds = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
+                n = datCalcGetTableLength(*(DatUnit * *)(unit + 0xA64)) & 0xFFFF;
+                cmds = (u16 *)datCalcSkillList(*(DatUnit * *)(unit + 0xA64));
                 skillIndex = 0;
                 count = n & 0xFFFF;
                 while (skillIndex < count) {
@@ -739,7 +777,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             }
         }
     }
-    if ((*(u16 *)panel & 0x10) != 0) {
+    if ((((BtlAnalyzePanel *)panel)->flags & 0x10) != 0) {
         if (frame < 8) {
             footerFade = 0.0f;
         } else if (frame < 13) {
@@ -751,7 +789,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
             f32 yy;
             f32 xx;
             btlUiSetScale(work, 1.0f, footerFade);
-            if ((*(u16 *)panel & 4) != 0) {
+            if ((((BtlAnalyzePanel *)panel)->flags & 4) != 0) {
                 xx = 18.0f;
                 yy = (f32)(s32)399;
             } else {
