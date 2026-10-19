@@ -68,7 +68,7 @@ extern void func_00440b68(void* input, void* secondInput, u32 thirdInput);
 extern u8* cmmItemInfoRecord(s32 input);
 extern void cmmAdvanceReverseProgress(s32 input);
 extern void datPersonaCollectSkills(s32 input, void* secondInput, s32* thirdInput);
-extern void func_001029a0(s32 input, void* secondInput, s32 thirdInput, s32 fourthInput);
+extern void sequenceRequest(s32 input, void* secondInput, s32 thirdInput, s32 fourthInput);
 extern s32 kwlnGetCurrentWorkValue(void);
 extern s32 datPersonaDisplayName(s16 input);
 extern s8 cmmCommunityEventValue(s32 input, s32 secondInput);
@@ -272,7 +272,7 @@ s32 cmmMsgStreamUpdate(void)
         pack1.hi = (u32)(x & 0xFFFF0000) >> 0x10;
         pack1.lo = lo;
         pack1.u = u16val;
-        func_001029a0(0xA, &pack1, 0x1C, 2);
+        sequenceRequest(0xA, &pack1, 0x1C, 2);
     } else if (x > 0xA) {
         u32 b;
 
@@ -290,7 +290,7 @@ s32 cmmMsgStreamUpdate(void)
                 pack2.hi = (u32)(x & 0xFFFF0000) >> 0x10;
                 pack2.lo = lo;
                 pack2.u = u16val;
-                func_001029a0(0xA, &pack2, 0x1C, 2);
+                sequenceRequest(0xA, &pack2, 0x1C, 2);
                 p->counter = 0;
             } else {
                 datDestroyTaskByName();

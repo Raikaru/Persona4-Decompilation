@@ -6,7 +6,7 @@ typedef struct KwlnTask KwlnTask;
 extern s32 scrGetParamInt(s32 paramIdx);
 extern u32 scrGetCmdTimer(void);
 
-void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+void sequenceRequest(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 /* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
@@ -204,7 +204,7 @@ s32 scrSendParamPair(void) {
     s16 parameters[2]; /* measured: 2-element form required for retail slot at 0x1c */
 
     parameters[0] = scrGetParamInt(0);
-    func_001029a0(0x1D, parameters, 2, 0xA);
+    sequenceRequest(0x1D, parameters, 2, 0xA);
     return 1;
 }
 

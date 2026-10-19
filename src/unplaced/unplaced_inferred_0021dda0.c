@@ -18,7 +18,7 @@ extern f32 *iGpffffb40c;
 extern u8 *datUnitGetRecord(s16 arg0);
 extern u32 datPersonaGetExpById(s16 arg0);
 extern void datSetHeroExp(s16 arg0, u32 value);
-extern u8 func_001059e0(s32 arg0);
+extern u8 datLevelFromExp(s32 arg0);
 extern s32 datAddMoney(s32 arg0);
 extern s32 datItemCount(s16 id);
 extern void datCalcSetLevel(u8 *arg0, u8 arg1);
@@ -200,7 +200,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
     if (datItemValue(datGetEquippedItemByUnit(1, 1)) == 0x86) {
         level += (s32)(0.5f * (f32)base);
     }
-    if (c != (func_001059e0(level + datPersonaGetExpById(1)) & 0xFF)) {
+    if (c != (datLevelFromExp(level + datPersonaGetExpById(1)) & 0xFF)) {
         *(u32 *)arg0 |= 2;
     }
     *(s16 *)(arg0 + 0x698) = *(s16 *)(arg1 + 0x10);
@@ -337,10 +337,10 @@ void btlXpApplyAwards(u8 *arg0, u8 *arg1)
     s16 sum;
     temp_17 = (s32)datUnitGetRecord(1);
     temp_2 = (s32)datPersonaGetExpById(1);
-    if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
+    if ((datLevelFromExp(temp_2) & 0xFF) < 0x63) {
         temp_16 = temp_2 + *(s32 *)(arg0 + 4);
         datSetHeroExp(1, temp_16);
-        datCalcSetLevel((u8 *)temp_17, func_001059e0(temp_16));
+        datCalcSetLevel((u8 *)temp_17, datLevelFromExp(temp_16));
     }
     var_16 = *(s32 *)(arg1 + 8);
     if (var_16 <= 0) {

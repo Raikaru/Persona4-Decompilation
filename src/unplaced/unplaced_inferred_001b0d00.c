@@ -4,7 +4,8 @@
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
-typedef struct BtlAction BtlAction;
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 
 extern s32 iGpffffb3ac;
 /* Canonical grouped function declarations. */
@@ -13,15 +14,16 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* act
 
 extern s32 btlActionQueueMoveToBack(u8 *arg0);
 // FUN_001B0D00
-static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action)
+/* Remove the first matching action, compacting the fixed-capacity queue. */
+static u32 btlOrderRemoveAction(BtlAction** actions, u32 capacity, BtlAction* action)
 {
-    BtlAction* curr;
-    s32 i;
+    BtlAction* current;
+    s32 index;
 
-    for (i = 0; i < arrSize; i++)
+    for (index = 0; index < capacity; index++)
     {
-        curr = *actions;
-        if (curr != action)
+        current = *actions;
+        if (current != action)
         {
             actions++;
         }
@@ -31,12 +33,12 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* act
         }
     }
 
-    if (i == arrSize)
+    if (index == capacity)
     {
         return 0;
     }
 
-    for (; i < arrSize - 1; i++)
+    for (; index < capacity - 1; index++)
     {
         *actions = *(actions + 1);
         actions++;
@@ -48,14 +50,15 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* act
 }
 
 // FUN_001B0DD0
-s32 btlOrderRemoveActionAll(u8 *arg0)
+/* Remove every occurrence of the action from the execution queue. */
+s32 btlOrderRemoveActionAll(u8 *action)
 {
     BtlAction **actions;
     s32 result;
 
-    actions = (BtlAction **)((u8 *)iGpffffb3ac + 0x29C);
+    actions = (BtlAction **)((BtlBattleState *)iGpffffb3ac)->actionQueue;
     result = 0;
-    while (btlOrderRemoveAction(actions, 0xC, (BtlAction *)arg0) == 1) {
+    while (btlOrderRemoveAction(actions, 0xC, (BtlAction *)action) == 1) {
         result = 1;
     }
     return result;
@@ -65,25 +68,28 @@ s32 btlOrderRemoveActionAll(u8 *arg0)
 #pragma opt_rebuildconditionals on
 #pragma auto_inline on
 // FUN_001B13C0
-void btlOrderQueueAction(u8 *arg0)
+/* Consume follow-up bit 4, or move the action to the back when flag 8 is set. */
+void btlOrderQueueAction(u8 *action)
 {
-    u8 *ptr;
-    u8 *global;
+    u8 *queuedAction;
+    /* Proven BtlAction/BtlBattleState fields stay raw: typed access loses MATCH. */
+    u8 *battle;
 
-    ptr = arg0;
-    if ((*(u16 *)(ptr + 0x18) & 4) != 0) {
-        btlOrderRemoveAction((BtlAction **)((u8 *)iGpffffb3ac + 0x2CC), 0xC, (BtlAction *)ptr);
-        *(u16 *)(ptr + 0x18) &= 0xFFFB;
+    queuedAction = action;
+    if ((*(u16 *)(queuedAction + 0x18) & 4) != 0) {
+        btlOrderRemoveAction((BtlAction **)((u8 *)iGpffffb3ac + 0x2CC), 0xC, (BtlAction *)queuedAction);
+        *(u16 *)(queuedAction + 0x18) &= 0xFFFB;
         goto done;
     }
-    global = (u8 *)iGpffffb3ac;
-    if ((*(s32 *)(global + 0xC) & 8) != 0) {
-        *(u8 **)(global + 0x298) = ptr;
-        btlActionQueueMoveToBack(ptr);
+    battle = (u8 *)iGpffffb3ac;
+    if ((*(s32 *)(battle + 0xC) & 8) != 0) {
+        /* +0x298 stores the selected action; retain pointer-typed store for MWCC. */
+        *(u8 **)(battle + 0x298) = queuedAction;
+        btlActionQueueMoveToBack(queuedAction);
     }
 done:
-    global = (u8 *)iGpffffb3ac;
-    *(u16 *)(global + 0x290) |= 8;
+    battle = (u8 *)iGpffffb3ac;
+    *(u16 *)(battle + 0x290) |= 8;
 }
 #pragma pop
 
@@ -91,18 +97,21 @@ done:
 #pragma opt_rebuildconditionals on
 #pragma auto_inline on
 // FUN_001B1450
-void btlOrderSetCurrentAction(u8 *arg0)
+/* Route pending follow-ups through the queue, otherwise select the current action. */
+void btlOrderSetCurrentAction(u8 *action)
 {
-    u8 *global;
-    if ((*(u16 *)(arg0 + 0x18) & 4) != 0) {
-        btlOrderQueueAction(arg0);
+    /* Proven BtlAction/BtlBattleState fields stay raw: typed access loses MATCH. */
+    u8 *battle;
+    if ((*(u16 *)(action + 0x18) & 4) != 0) {
+        btlOrderQueueAction(action);
     } else {
-        global = (u8 *)iGpffffb3ac;
-        if ((*(s32 *)(global + 0xC) & 8) != 0) {
-            *(u8 **)(global + 0x298) = arg0;
+        battle = (u8 *)iGpffffb3ac;
+        if ((*(s32 *)(battle + 0xC) & 8) != 0) {
+            /* +0x298 stores the selected action; retain pointer-typed store for MWCC. */
+            *(u8 **)(battle + 0x298) = action;
         }
-        global = (u8 *)iGpffffb3ac;
-        *(u16 *)(global + 0x290) |= 8;
+        battle = (u8 *)iGpffffb3ac;
+        *(u16 *)(battle + 0x290) |= 8;
     }
 }
 #pragma pop

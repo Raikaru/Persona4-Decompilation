@@ -34,6 +34,7 @@ typedef struct MaterialTextureContext {
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018C610
+/* Replace the texture only on materials carrying the mipmap user-data tag. */
 struct RpMaterial *FldRcMaterialSetMipmapTex(struct RpMaterial *material, void *data) {
     MaterialTextureContext *context = data;
 

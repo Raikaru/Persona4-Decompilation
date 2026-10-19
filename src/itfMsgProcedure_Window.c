@@ -350,7 +350,7 @@ void msgWinDrawRing(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4
 }
 
 // FUN_0027D620
-void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3) { func_00366380(a0, a1, f0, a2, a3, t0, t1, 1, t2, t3, s0, f1, f2, f3); }
+void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3) { sflDataDrawNarrowRoundedFrame(a0, a1, f0, a2, a3, t0, t1, 1, t2, t3, s0, f1, f2, f3); }
 
 // FUN_0027D660
 void msgWinDrawRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
@@ -1911,10 +1911,10 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
             if (D_00882044[0] < 5) {
                 f = sinf(iGpffff81dc + iGpffff8084 * (f32)D_00882044[0] / 4.0f);
                 f = (1.0f + f) / 2.0f;
-                func_00366380((s32)(200.0f * (1.0f - f) + 70.0f), (s32)(47.0f - 5.0f * (1.0f - f)), 0.0f, (s32)(404.0f * f), (s32)(20.0f - 15.0f * f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
+                sflDataDrawNarrowRoundedFrame((s32)(200.0f * (1.0f - f) + 70.0f), (s32)(47.0f - 5.0f * (1.0f - f)), 0.0f, (s32)(404.0f * f), (s32)(20.0f - 15.0f * f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             } else if (D_00882044[0] < 11) {
                 f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 4) / 6.0f);
-                func_00366380(0x46, (s32)(20.0f * (1.0f - f) + 27.0f), 0.0f, 0x194, (s32)(50.0f * f + 5.0f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
+                sflDataDrawNarrowRoundedFrame(0x46, (s32)(20.0f * (1.0f - f) + 27.0f), 0.0f, 0x194, (s32)(50.0f * f + 5.0f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             }
             if (D_00882044[0] < 6) {
                 msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f,
@@ -1939,7 +1939,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
         break;
     case 5:
         if (func_0027bec0((s32)arg0) != 0) {
-            func_00366380(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
+            sflDataDrawNarrowRoundedFrame(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             if ((tex = itfMesWindowSubTablePtr((s32)arg0)) != NULL) {
                 sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
@@ -2137,7 +2137,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
             cnt32 = (s32)D_00882066[0];
             f = sinf(iGpffff8094 * (float)cnt32 / 10.0f);
             backgroundY = (4 - v79010) * 0x1E + 0xCE;
-            func_00366380((s32)(-5.0f - (1.0f - f) * 500.0f), backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+            sflDataDrawNarrowRoundedFrame((s32)(-5.0f - (1.0f - f) * 500.0f), backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
             if ((pv = (void *)itfMesWindowGetTextList(arg0)) != NULL) {
                 v738d0 = frFontNodeWidth(pv);
                 frFontMoveListToFloat(pv, (f * 443.0f - 4.0f) - (float)v738d0, 351.0f);
@@ -2170,7 +2170,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                 v79010 = (s16)func_00279010((s32)arg0);
                 i1 = (4 - v79010) * 0x1E;
                 backgroundY = i1 + 0xCE;
-                func_00366380(-5, backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+                sflDataDrawNarrowRoundedFrame(-5, backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
                 baseline = i1 + 0xD5;
                 i2 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
                 sdkSpriteDrawQueuedUnscaled(23.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
@@ -2250,7 +2250,7 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                     }
                     rowY = (float)((4 - i3) * 0x1E + 0xCE);
                     rowY += displacement;
-                    func_00366380(-5, (s32)rowY, 0.0f, 0x1C0, (s32)(scale * (float)extent), 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+                    sflDataDrawNarrowRoundedFrame(-5, (s32)rowY, 0.0f, 0x1C0, (s32)(scale * (float)extent), 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
                 }
                 baseline = (4 - i3) * 0x1E + 0xD5;
                 i5 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
@@ -2556,7 +2556,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         }
         if ((s32)frame < 5) {
             fade = sinf(angle / 5.0f);
-            func_00366380(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c);
+            sflDataDrawNarrowRoundedFrame(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c);
         } else if (frame < 12) {
             fade = sinf(iGpffff8094 * (f32)(frame - 5) / 7.0f);
             if (handle == NULL) {
@@ -2564,13 +2564,13 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             }
             alpha = 1.0f - fade;
             sdkSpriteDrawNow(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
-            func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
+            sflDataDrawNarrowRoundedFrame(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
         } else {
             if (handle == NULL) {
                 kAssertFail(D_007482F0, 0x59);
             }
             sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
-            func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            sflDataDrawNarrowRoundedFrame(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         }
         font = msgCalendarResource(1);
         {
@@ -2613,7 +2613,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             t = 64.0f * alpha;
             py = 113.0f + t;
             px = i * 0x53;
-            func_00366380(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
+            sflDataDrawNarrowRoundedFrame(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
             calDrawDateCell(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
             py = 163.0f - 5.0f * alpha;
             calDrawWeather(px + 0x5D, py, 0.0f, 0xFF, calGetPackedDayEntry(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
@@ -2630,7 +2630,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         if (frame < 6) {
             t = 1.0f - (f32)frame / 6.0f;
             fade = 1.0f - t;
-            func_00366380(300.0f * fade, 169.0f - 20.0f * fade, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - fGpffff813c * t);
+            sflDataDrawNarrowRoundedFrame(300.0f * fade, 169.0f - 20.0f * fade, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - fGpffff813c * t);
         }
         break;
     }
@@ -2673,7 +2673,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             kAssertFail(D_007482F0, 0x59);
         }
         sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
-        func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+        sflDataDrawNarrowRoundedFrame(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         font = msgCalendarResource(1);
         today = (s16)datGetDateIndex();
         for (i = 0; i < 6; i++) {
@@ -2697,7 +2697,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
                 sdkSpriteDrawNowUnscaled(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, **(void ***)(handle + 8), 1);
             }
             px = i * 0x53;
-            func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            sflDataDrawNarrowRoundedFrame(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
             calDrawDateCell(px + 0x6B, 0x71, 0.0f, 0xFF, today + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
             calDrawWeather(px + 0x5D, 0xA3, 0.0f, 0xFF, calGetPackedDayEntry(today + i + 1, today) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
         }

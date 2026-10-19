@@ -7,6 +7,7 @@
 #include "shd_misc_internal.h"
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
+#include "ed_scroll_internal.h"
 
 
 
@@ -55,17 +56,17 @@ extern void func_00389cb0(u8 *arg0);
 #pragma pop
 // Intent: Initialise the scroll work block: clear the records, set the colour to white and publish the work pointer [inferred]
 // FUN_0038DD90
-void edScrollWorkInit(u8 *arg0) {
+void edScrollWorkInit(u8 *work) {
     s32 i;
 
-    *(s32 *)arg0 = 0;
-    arg0[0x122C] = 0xFF;
-    arg0[0x122D] = 0xFF;
-    arg0[0x122E] = 0xFF;
-    arg0[0x122F] = 0xFF;
+    *(s32 *)work = 0;
+    work[0x122C] = 0xFF;
+    work[0x122D] = 0xFF;
+    work[0x122E] = 0xFF;
+    work[0x122F] = 0xFF;
     for (i = 0; i < 0x20; i++) {
-        *(s32 *)(arg0 + i * 0x90 + 4) = 0;
+        *(s32 *)&((EdScrollWork *)work)->records[i].flags = 0;
     }
-    iGpffffb5b0 = arg0;
+    iGpffffb5b0 = work;
 }
 

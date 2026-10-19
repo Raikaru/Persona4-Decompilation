@@ -13,10 +13,10 @@ extern void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
 extern void sflResGetSecondaryVector(u8 *arg0, f32 *out);
 
 extern void sflDataSetupLayoutPanel(void);
-extern void func_0036a820(u8 *arg0, s32 arg1);
+extern void pscModelSetPersonaCard(u8 *arg0, s32 arg1);
 extern void pscResAcquirePersonaCard(s32 arg0);
 extern void sflDataSetupFramePanel(void);
-extern void func_0036a880(u8 *arg0, u16 arg1, s32 arg2);
+extern void pscModelSetArcanaCard(u8 *arg0, u16 arg1, s32 arg2);
 extern void pscResAcquireArcanaCard(s32 arg0, s32 arg1);
 extern void pscModelInitPanel(void);
 extern void pscResAcquireMiscCardW01(void);
@@ -26,7 +26,7 @@ extern void sflResSetVector(u8 *arg0, void *arg1);
 extern void pscPanelSetColor(u8 *arg0, void *arg1);
 extern void pscModelScreenPos(void *arg0, const f32 *arg1, f32 fparg2, void *arg3);
 extern f32 pscModelPanelScale(const f32 *value, f32 scale);
-extern void func_0036a8f0(u8 *arg0, s32 arg1);
+extern void pscModelSetParentFrame(u8 *arg0, s32 arg1);
 extern void pscModelCopyVector(u8 *arg0, s32 arg1);
 extern void pscModelStepAnimation(u8 *arg0);
 extern void pscModelDraw(u8 *arg0);
@@ -88,7 +88,7 @@ void btlShuffleCardInit(u8 *arg0, u8 *arg1)
 void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1)
 {
     sflDataSetupLayoutPanel();
-    func_0036a820(arg0, arg1);
+    pscModelSetPersonaCard(arg0, arg1);
     pscResAcquirePersonaCard(arg1);
     btlShuffleCardUpdateCards(arg0);
 }
@@ -100,7 +100,7 @@ void btlShuffleCardSetupFrame(u8 *arg0, s32 arg1, s32 arg2)
 
     sflDataSetupFramePanel();
     masked = arg1 & 0xFFFF;
-    func_0036a880(arg0, masked, arg2);
+    pscModelSetArcanaCard(arg0, masked, arg2);
     pscResAcquireArcanaCard(masked, arg2);
     btlShuffleCardUpdateCards(arg0);
 }
@@ -145,7 +145,7 @@ void btlShuffleCardUpdateCards(u8 *arg0)
     sp3C[2] = 0xFF;
     sp3C[3] = 0xFF;
     btlShuffleCardBindSlot(arg0, sp3C);
-    func_0036a8f0(arg0, *(s32 *)((u8 *)kwlnGetCamera() + 4));
+    pscModelSetParentFrame(arg0, *(s32 *)((u8 *)kwlnGetCamera() + 4));
     *(u16 *)(arg0 + 0xFAC) |= 1;
 }
 

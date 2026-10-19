@@ -22,7 +22,7 @@ typedef struct SdlSched
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern void calSplitDayOfYear(s32 date, s32 *month, s32 *loadedMonth);
-extern void func_001029a0(s32 id, void *data, s32 size, s32 sameMonth);
+extern void sequenceRequest(s32 id, void *data, s32 size, s32 sameMonth);
 extern void cmmTickReverseProgress(void);
 extern s32 scrStartProcedureIndex(s32 kind, u8 *script, s32 index);
 extern s32 scrFindPrcdIdxByName(s32 scriptOrSize, void *fileData);
@@ -201,7 +201,7 @@ s32 cldSchedulerTaskUpdate(u8 *task)
     case 4:
         if ((sched->flags & 1) != 1)
         {
-            func_001029a0(0x19, 0, 0, 0);
+            sequenceRequest(0x19, 0, 0, 0);
         }
         return -1;
     default:

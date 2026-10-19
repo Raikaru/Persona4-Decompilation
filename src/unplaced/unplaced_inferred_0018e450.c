@@ -8,6 +8,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
 #include "field_frame_internal.h"
@@ -25,20 +26,21 @@ void K_Test_Create(s32 arg0);
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018E450
-s32 K_Test_LauncherUpdate(u8 *arg0)
+/* Start the test one update after initialization, then remain idle. */
+s32 K_Test_LauncherUpdate(u8 *task)
 {
-    s32 *p;
+    s32 *statePtr;
     s32 state;
 
-    p = *(s32 **)(arg0 + 0x38);
-    state = *p;
+    statePtr = (s32 *)((KwlnTask *)task)->work;
+    state = *statePtr;
     switch (state) {
     case 0:
-        *p = state + 1;
+        *statePtr = state + 1;
         break;
     case 1:
         K_Test_Create(0);
-        *p += 1;
+        *statePtr += 1;
         break;
     case 2:
         break;
@@ -56,13 +58,15 @@ s32 K_Test_LauncherUpdate(u8 *arg0)
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018E4D0
-void K_Test_LauncherDestroy(u8 *arg0)
+/* Release an optional model before freeing the launcher allocation. */
+void K_Test_LauncherDestroy(u8 *task)
 {
-    s32 value;
-    value = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
-    if (value != 0) {
-        mdlDestroyModelObject(value);
+    s32 model;
+    /* Work+4 is the model; typed task access changes MWCC alias/reload codegen. */
+    model = *(s32 *)(*(u8 **)(task + 0x38) + 4);
+    if (model != 0) {
+        mdlDestroyModelObject(model);
     }
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(void **)(task + 0x38));
 }
 #pragma pop

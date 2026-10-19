@@ -10,6 +10,58 @@
 #include "btl_panel_internal.h"
 #include "btl_shuffle_draw_internal.h"
 #include "datPersona_internal.h"
+#include "btl_unit_internal.h"
+
+/* Adjacent BtlUnit gauge blocks at +0xA28/+0xA3C establish the 0x14 stride. */
+typedef struct BtlGaugeTween
+{
+    f32 requestedFill;
+    f32 fill;
+    f32 startFill;
+    f32 targetFill;
+    s16 frame;
+    u8 pad12[2];
+} BtlGaugeTween;
+
+typedef struct BtlGaugeReveal
+{
+    s32 frame;
+    s32 active;
+} BtlGaugeReveal;
+
+typedef struct BtlFlourishState
+{
+    u16 flags;
+    u16 unk02;
+    u16 frame;
+    u8 pad06[0xA];
+    void *renderTask;
+} BtlFlourishState;
+
+typedef struct BtlAdvantageState
+{
+    u16 flags;
+    u16 frame;
+    u16 segments;
+    u16 unk06;
+    void *task;
+} BtlAdvantageState;
+
+/* btlShuffleCreate allocates/clears 0x94C bytes and fills these child handles. */
+typedef struct BtlResultWork
+{
+    s32 flags;
+    s32 phase;
+    u8 parameters[0x58];
+    s32 awardFlags;
+    u8 awards[0x8D0];
+    s32 file;
+    s32 shuffleTask;
+    s32 resultTask;
+    s32 titleTask;
+    s32 overlayTask;
+    s32 summaryTask;
+} BtlResultWork;
 typedef struct KwlnTask KwlnTask;
 
 extern u8 *iGpffffb3ac;
@@ -70,6 +122,7 @@ union ColorWord {
 
 // Intent: draw a panel flourish with sky vertices and its fade. [inferred]
 // FUN_0021A7B0
+/* The index pairs are copied as packed halfwords; camera +0x80 is RwCamera.nearPlane (the camera header conflicts with the sky matrix tags here). */
 void btlPanelDrawFlourish(u8 *task, u8 *state)
 {
     PackedVec2f effectPosition;
@@ -91,25 +144,25 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
     s32 flags;
     extern void btlUiSetOrigin(u8 *task, f32 fparg0, f32 fparg1);
 
-    renderWork = (s32 *)kwlnTaskGetWork(*(void **)(state + 0x10));
+    renderWork = (s32 *)kwlnTaskGetWork(((BtlFlourishState *)state)->renderTask);
     if ((*renderWork & 1) == 0) {
         return;
     }
-    flags = *(u16 *)(state + 0);
+    flags = ((BtlFlourishState *)state)->flags;
     if (flags & 1) {
         if (!(flags & 2)) {
-            *(u16 *)(state + 4) += 1;
-            if (*(u16 *)(state + 4) == 0x0E) {
-                *(u16 *)(state + 0) |= 2;
+            ((BtlFlourishState *)state)->frame += 1;
+            if (((BtlFlourishState *)state)->frame == 0x0E) {
+                ((BtlFlourishState *)state)->flags |= 2;
             }
         }
-        tick = *(u16 *)(state + 4);
+        tick = ((BtlFlourishState *)state)->frame;
         btlUiSetRenderStates();
         {
             f32 depth = 0.0f;
             btlUiSetOrigin((u8 *)renderWork, depth, depth);
         }
-        if (*(u16 *)(state + 0) & 4) {
+        if (((BtlFlourishState *)state)->flags & 4) {
             originX = -10.0f;
             originY = 95.0f;
             panelHeight = 298.0f;
@@ -249,54 +302,58 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
 
 // Intent: initialise a gauge with its default range. [inferred]
 // FUN_0021AE60
-void btlGaugeInit(u8 *arg0, u8 *arg1)
+void btlGaugeInit(u8 *unusedTask, u8 *gauge)
 {
-    *(f32 *)(arg1 + 0) = -1.0f;
-    *(f32 *)(arg1 + 4) = 1.0f;
-    *(s16 *)(arg1 + 0x10) = -1;
+    ((BtlGaugeTween *)gauge)->requestedFill = -1.0f;
+    ((BtlGaugeTween *)gauge)->fill = 1.0f;
+    ((BtlGaugeTween *)gauge)->frame = -1;
 }
 
 // Intent: clear a unit's gauge state. [inferred]
 // FUN_0021AE80
-void btlUnitGaugeClear(s32 arg0)
+void btlUnitGaugeClear(s32 unitAddress)
 {
-    btlGaugeSetActive(arg0 + 0xA3C);
+    btlGaugeSetActive(unitAddress + 0xA3C);
 }
 
 // Intent: draw a unit's gauge with its HP fraction and fill. [inferred]
 // FUN_0021AEB0
-void btlGaugeDrawUnit(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2, f32 fparg2)
+/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
+ * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+void btlGaugeDrawUnit(s32 task, u8 *unit, f32 x, f32 y, s32 visible, f32 hpRatio)
 {
-    f32 temp_f0;
-    f32 var_f20;
-    u16 *temp_4;
-    u16 *temp_4_2;
+    f32 minimumFill;
+    f32 fill;
+    u16 *unitData;
+    u16 *checkedData;
 
-    var_f20 = fparg2;
-    if (arg2 != 0) {
-        temp_4 = *(u16 **)(arg1 + 0xA64);
-        if ((temp_4 != NULL) &&
-            (datCalcIsDead((u8 *)temp_4, 0) == 0)) {
-            temp_4_2 = *(u16 **)(arg1 + 0xA64);
-            if ((*temp_4_2 & 0x20) != 0) {
-                if ((datCalcGetHp((s32)temp_4_2) & 0xFFFF) <= 1) {
+    fill = hpRatio;
+    if (visible != 0) {
+        unitData = *(u16 **)(unit + 0xA64);
+        if ((unitData != NULL) &&
+            (datCalcIsDead((u8 *)unitData, 0) == 0)) {
+            checkedData = *(u16 **)(unit + 0xA64);
+            if ((*checkedData & 0x20) != 0) {
+                if ((datCalcGetHp((s32)checkedData) & 0xFFFF) <= 1) {
                     goto callback;
                 }
             }
-            if (!(var_f20 <= 0.0f)) {
-                temp_f0 = fGpffff8498;
-                if (var_f20 < temp_f0) {
-                    var_f20 = temp_f0;
+            if (!(fill <= 0.0f)) {
+                minimumFill = fGpffff8498;
+                if (fill < minimumFill) {
+                    fill = minimumFill;
                 }
             }
         }
 callback:
-        btlGaugeDrawSegment(arg0, arg1 + 0xA3C, fparg0, fparg1, var_f20);
+        btlGaugeDrawSegment(task, unit + 0xA3C, x, y, fill);
     }
 }
 
 // Intent: refresh the HP ratio of each party gauge. [inferred]
 // FUN_0021AFA0
+/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
+ * retain byte accesses to the layouts above and BtlUnit for an exact match. */
 void btlGaugeRefreshAll(void)
 {
     u8 *p;
@@ -336,35 +393,37 @@ outer_test:
 
 // Intent: return a unit's HP as a fraction of its max HP. [inferred]
 // FUN_0021B0A0
-f32 btlGaugeHpRatio(u8 *arg0)
+/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
+ * retain byte accesses to the layouts above and BtlUnit for an exact match. */
+f32 btlGaugeHpRatio(u8 *unit)
 {
     typedef struct DatUnit DatUnit;
-    extern s32 datCalcGetHp(DatUnit *arg0);
-    extern s32 datCalcMaxHp(DatUnit *arg0);
-    f32 var_f20;
-    f32 var_f0;
-    u32 temp_2;
-    u32 temp_2_2;
+    extern s32 datCalcGetHp(DatUnit *unit);
+    extern s32 datCalcMaxHp(DatUnit *unit);
+    f32 maxHpFloat;
+    f32 hpFloat;
+    u32 maxHp;
+    u32 hp;
 
-    if (*(s32 *)(arg0 + 0xA64) == 0) {
+    if (*(s32 *)(unit + 0xA64) == 0) {
         return 0.0f;
     }
-    temp_2 = (u32)datCalcMaxHp((DatUnit *)*(s32 *)(arg0 + 0xA64));
-    var_f20 = (f32)temp_2;
-    if (var_f20 == 0.0f) {
+    maxHp = (u32)datCalcMaxHp((DatUnit *)*(s32 *)(unit + 0xA64));
+    maxHpFloat = (f32)maxHp;
+    if (maxHpFloat == 0.0f) {
         return 0.0f;
     }
-    temp_2_2 = (u32)datCalcGetHp((DatUnit *)*(s32 *)(arg0 + 0xA64));
-    var_f0 = (f32)temp_2_2;
-    return var_f0 / var_f20;
+    hp = (u32)datCalcGetHp((DatUnit *)*(s32 *)(unit + 0xA64));
+    hpFloat = (f32)hp;
+    return hpFloat / maxHpFloat;
 }
 
 // Intent: initialise a gauge value and its counter. [inferred]
 // FUN_0021B190
-void btlGaugeInitValue(u8 *arg0, s32 arg1)
+void btlGaugeInitValue(u8 *valueState, s32 value)
 {
-    memset(arg0, 0, 4);
-    *(s32 *)arg0 = arg1;
+    memset(valueState, 0, 4);
+    *(s32 *)valueState = value;
 }
 
 // FUN_0021B1E0
@@ -376,48 +435,49 @@ void func_0021b1e0(void)
 // FUN_0021B1F0
 // measured: loop-invariant constant hoisting probe for func_0021b1f0.
 #pragma opt_loop_invariants on
-void btlGaugeStepAll(s32 arg0, s32 *arg1)
+/* Battle-global list heads use +0x178 with eight-byte slots; their owning global layout is not recovered here. The tween is the BtlUnit +0xA28 subobject. */
+void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
 {
-    f32 temp_f0;
-    f32 temp_f3;
-    s16 temp_3;
-    u8 *var_7;
-    u32 var_6;
-    u8 *temp_5;
+    f32 fraction;
+    f32 startFill;
+    s16 frame;
+    u8 *unit;
+    u32 listIndex;
+    u8 *gauge;
 
-    if ((*(s32 *)kwlnTaskGetWork((void *)*arg1) & 1) != 0) {
-        var_6 = 0;
-        while (var_6 < 2U) {
-            var_7 = *(u8 **)(iGpffffb3ac + var_6 * 8 + 0x178);
-            while (var_7 != NULL) {
-                if (*(s32 *)(var_7 + 0xA64) != 0) {
-                    temp_5 = var_7 + 0xA28;
-                    temp_f0 = *(f32 *)(var_7 + 0xA28);
-                    if (!(temp_f0 < 0.0f)) {
-                        *(f32 *)(temp_5 + 0xC) = temp_f0;
-                        *(f32 *)(temp_5 + 8) = *(f32 *)(temp_5 + 4);
-                        *(s32 *)temp_5 = (s32)0xBF800000;
-                        *(s16 *)(temp_5 + 0x10) = 0;
+    if ((*(s32 *)kwlnTaskGetWork((void *)*taskPointer) & 1) != 0) {
+        listIndex = 0;
+        while (listIndex < 2U) {
+            unit = *(u8 **)(iGpffffb3ac + listIndex * 8 + 0x178);
+            while (unit != NULL) {
+                if (*(s32 *)&((BtlUnit *)unit)->datUnit != 0) {
+                    gauge = unit + 0xA28;
+                    fraction = *(f32 *)(unit + 0xA28);
+                    if (!(fraction < 0.0f)) {
+                        ((BtlGaugeTween *)gauge)->targetFill = fraction;
+                        ((BtlGaugeTween *)gauge)->startFill = ((BtlGaugeTween *)gauge)->fill;
+                        *(s32 *)gauge = (s32)0xBF800000;
+                        ((BtlGaugeTween *)gauge)->frame = 0;
                     }
-                    temp_3 = *(s16 *)(temp_5 + 0x10);
-                    if (temp_3 >= 0 && temp_3 < 0xD) {
-                        if (temp_3 < 0xC) {
-                            temp_f3 = *(f32 *)(temp_5 + 8);
-                            temp_f0 = (f32)temp_3 / 12.0f;
-                            *(f32 *)(temp_5 + 4) =
-                                temp_f0 * (*(f32 *)(temp_5 + 0xC) -
-                                           temp_f3) +
-                                (0.0f + temp_f3);
+                    frame = ((BtlGaugeTween *)gauge)->frame;
+                    if (frame >= 0 && frame < 0xD) {
+                        if (frame < 0xC) {
+                            startFill = ((BtlGaugeTween *)gauge)->startFill;
+                            fraction = (f32)frame / 12.0f;
+                            ((BtlGaugeTween *)gauge)->fill =
+                                fraction * (((BtlGaugeTween *)gauge)->targetFill -
+                                           startFill) +
+                                (0.0f + startFill);
                         } else {
-                            *(f32 *)(temp_5 + 4) = *(f32 *)(temp_5 + 0xC);
+                            ((BtlGaugeTween *)gauge)->fill = ((BtlGaugeTween *)gauge)->targetFill;
                         }
-                        *(s16 *)(temp_5 + 0x10) =
-                            *(s16 *)(temp_5 + 0x10) + 1;
+                        ((BtlGaugeTween *)gauge)->frame =
+                            ((BtlGaugeTween *)gauge)->frame + 1;
                     }
                 }
-                var_7 = *(u8 **)(var_7 + 0xA6C);
+                unit = *(u8 * *)&((BtlUnit *)unit)->nextUnit;
             }
-            var_6 += 1;
+            listIndex += 1;
         }
     }
 }
@@ -426,12 +486,12 @@ void btlGaugeStepAll(s32 arg0, s32 *arg1)
 #pragma opt_loop_invariants off
 // Intent: set a gauge's active state. [inferred]
 // FUN_0021B310
-void btlGaugeSetActive(u8 *arg0, s32 arg1)
+void btlGaugeSetActive(u8 *gauge, s32 active)
 {
-    if (arg1 != 0) {
-        *(s32 *)(arg0 + 0) = 0;
+    if (active != 0) {
+        ((BtlGaugeReveal *)gauge)->frame = 0;
     }
-    *(s32 *)(arg0 + 4) = arg1;
+    ((BtlGaugeReveal *)gauge)->active = active;
 }
 #pragma pop
 
@@ -440,17 +500,17 @@ void btlGaugeSetActive(u8 *arg0, s32 arg1)
 /* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
 // Intent: draw one gauge segment with its scale and fill. [inferred]
 // FUN_0021B330
-void btlGaugeDrawSegment(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
+void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 x, f32 y, f32 fill)
 {
     extern f32 fGpffff849c;
     u8 *context;
     s32 value;
     f32 amount;
 
-    context = (u8 *)kwlnTaskGetWork((void *)arg0);
-    if (*(s32 *)(arg1 + 4) != 0) {
-        value = *(s32 *)arg1;
-        *(s32 *)arg1 = value + 1;
+    context = (u8 *)kwlnTaskGetWork((void *)task);
+    if (((BtlGaugeReveal *)gauge)->active != 0) {
+        value = *(s32 *)gauge;
+        *(s32 *)gauge = value + 1;
         amount = (f32)(value + 1) / 4.0f;
         if (amount > 1.0f) {
             amount = 1.0f;
@@ -459,14 +519,14 @@ void btlGaugeDrawSegment(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
         amount = 1.0f;
     }
     if (amount != 0.0f) {
-        fparg1 = (1.0f - amount) * 5.5f + fparg1 + 0.0f;
+        y = (1.0f - amount) * 5.5f + y + 0.0f;
         btlUiSetScale(context, 1.0f, amount);
-        btlUiDrawSpriteFaded(context, 10, 0, fparg0, fparg1, 0x19, 0x19, 0x19, 0xFF);
-        if (!(fparg2 <= fGpffff849c)) {
-            btlUiSetScale(context, fparg2, amount);
+        btlUiDrawSpriteFaded(context, 10, 0, x, y, 0x19, 0x19, 0x19, 0xFF);
+        if (!(fill <= fGpffff849c)) {
+            btlUiSetScale(context, fill, amount);
             btlUiDrawSpriteFaded(context, 10, 1,
-                          (1.0f - fparg2) * 5.0f + fparg0 + 0.0f,
-                          fparg1, 0xFF, 0xFF, 0x51, 0xFF);
+                          (1.0f - fill) * 5.0f + x + 0.0f,
+                          y, 0xFF, 0xFF, 0x51, 0xFF);
         }
         btlUiSetScale(context, 1.0f, 1.0f);
     }
@@ -477,25 +537,25 @@ void btlGaugeDrawSegment(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
 #pragma opt_loop_invariants off
 // Intent: store a gauge quad's position, depth, colour and texture coordinates. [inferred]
 // FUN_0021B500
-static void btlGaugeSetStyle(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   f32 fparg3, f32 fparg4, f32 fparg5, s32 arg1)
+static void btlGaugeSetStyle(u8 *vertex, f32 x, f32 y, f32 depth,
+                   f32 u, f32 v, f32 reciprocalDepth, s32 packedColor)
 {
     union {
         s32 word;
         u8 bytes[4];
-    } spC;
+    } color;
 
-    spC.word = arg1;
-    *(f32 *)(arg0 + 0) = fparg0;
-    *(f32 *)(arg0 + 4) = fparg1;
-    *(f32 *)(arg0 + 8) = fparg2;
-    *(f32 *)(arg0 + 0x20) = (f32)(u32)spC.bytes[0];
-    *(f32 *)(arg0 + 0x24) = (f32)(u32)spC.bytes[1];
-    *(f32 *)(arg0 + 0x28) = (f32)(u32)spC.bytes[2];
-    *(f32 *)(arg0 + 0x2C) = (f32)(u32)spC.bytes[3];
-    *(f32 *)(arg0 + 0x10) = fparg3;
-    *(f32 *)(arg0 + 0x14) = fparg4;
-    *(f32 *)(arg0 + 0x18) = fparg5;
+    color.word = packedColor;
+    ((BtlShuffleSkyVertex *)vertex)->u.els.scrVertex.x = x;
+    ((BtlShuffleSkyVertex *)vertex)->u.els.scrVertex.y = y;
+    ((BtlShuffleSkyVertex *)vertex)->u.els.scrVertex.z = depth;
+    ((BtlShuffleSkyVertex *)vertex)->u.els.color.r = (f32)(u32)color.bytes[0];
+    ((BtlShuffleSkyVertex *)vertex)->u.els.color.g = (f32)(u32)color.bytes[1];
+    ((BtlShuffleSkyVertex *)vertex)->u.els.color.b = (f32)(u32)color.bytes[2];
+    ((BtlShuffleSkyVertex *)vertex)->u.els.color.a = (f32)(u32)color.bytes[3];
+    ((BtlShuffleSkyVertex *)vertex)->u.els.u = u;
+    ((BtlShuffleSkyVertex *)vertex)->u.els.v = v;
+    ((BtlShuffleSkyVertex *)vertex)->u.els.recipZ = reciprocalDepth;
 }
 #pragma pop
 
@@ -516,9 +576,10 @@ typedef struct {
  * Nine float formals precede the color union to preserve caller scheduling. */
 // Intent: draw one textured four-vertex strip at a panel position. [inferred]
 // FUN_0021B630
-void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
-                   f32 fparg8, union ColorWord arg0)
+/* Camera +0x80 is RwCamera.nearPlane; the full camera header conflicts with the sky vertex matrix tags in this unit. */
+void btlPanelDrawQuad(f32 x, f32 y, f32 depth, f32 width,
+                   f32 height, f32 u0, f32 v0, f32 u1,
+                   f32 v1, union ColorWord packedColor)
 {
     extern f32 D_008872F8[];
     extern s32 (*D_00887310[])(s32, void *, s32);
@@ -529,66 +590,66 @@ void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
         s32 word;
         f32 value;
         u8 bytes[4];
-    } spC, sp8, sp4, sp0;
+    } upperLeftColor, upperRightColor, lowerLeftColor, lowerRightColor;
     u8 *p;
     f32 zval;
     f32 scale;
 
-    zval = D_008872F8[0] - fparg2;
+    zval = D_008872F8[0] - depth;
     scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
-    fparg5 = fparg5 / 256.0f;
-    fparg6 = fparg6 / 256.0f;
-    fparg7 = fparg7 / 256.0f;
-    fparg8 = fparg8 / 256.0f;
-    color = arg0.value;
-    spC.value = color;
+    u0 = u0 / 256.0f;
+    v0 = v0 / 256.0f;
+    u1 = u1 / 256.0f;
+    v1 = v1 / 256.0f;
+    color = packedColor.value;
+    upperLeftColor.value = color;
     p = (u8 *)&quads[0];
-    *(f32 *)(p + 0) = fparg0;
-    *(f32 *)(p + 4) = fparg1;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x20) = (f32)(u32)spC.bytes[0];
-    *(f32 *)(p + 0x24) = (f32)(u32)spC.bytes[1];
-    *(f32 *)(p + 0x28) = (f32)(u32)spC.bytes[2];
-    *(f32 *)(p + 0x2C) = (f32)(u32)spC.bytes[3];
-    *(f32 *)(p + 0x10) = fparg5;
-    *(f32 *)(p + 0x14) = fparg6;
-    *(f32 *)(p + 0x18) = scale;
-    sp8.value = color;
+    ((PanelQuad *)p)->x = x;
+    ((PanelQuad *)p)->y = y;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->color[0] = (f32)(u32)upperLeftColor.bytes[0];
+    ((PanelQuad *)p)->color[1] = (f32)(u32)upperLeftColor.bytes[1];
+    ((PanelQuad *)p)->color[2] = (f32)(u32)upperLeftColor.bytes[2];
+    ((PanelQuad *)p)->color[3] = (f32)(u32)upperLeftColor.bytes[3];
+    ((PanelQuad *)p)->u = u0;
+    ((PanelQuad *)p)->v = v0;
+    ((PanelQuad *)p)->scale = scale;
+    upperRightColor.value = color;
     p = (u8 *)&quads[1];
-    *(f32 *)(p + 0) = fparg0 + fparg3;
-    *(f32 *)(p + 4) = fparg1;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x20) = (f32)(u32)sp8.bytes[0];
-    *(f32 *)(p + 0x24) = (f32)(u32)sp8.bytes[1];
-    *(f32 *)(p + 0x28) = (f32)(u32)sp8.bytes[2];
-    *(f32 *)(p + 0x2C) = (f32)(u32)sp8.bytes[3];
-    *(f32 *)(p + 0x10) = fparg7;
-    *(f32 *)(p + 0x14) = fparg6;
-    *(f32 *)(p + 0x18) = scale;
-    sp4.value = color;
+    ((PanelQuad *)p)->x = x + width;
+    ((PanelQuad *)p)->y = y;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->color[0] = (f32)(u32)upperRightColor.bytes[0];
+    ((PanelQuad *)p)->color[1] = (f32)(u32)upperRightColor.bytes[1];
+    ((PanelQuad *)p)->color[2] = (f32)(u32)upperRightColor.bytes[2];
+    ((PanelQuad *)p)->color[3] = (f32)(u32)upperRightColor.bytes[3];
+    ((PanelQuad *)p)->u = u1;
+    ((PanelQuad *)p)->v = v0;
+    ((PanelQuad *)p)->scale = scale;
+    lowerLeftColor.value = color;
     p = (u8 *)&quads[2];
-    *(f32 *)(p + 0) = fparg0;
-    *(f32 *)(p + 4) = fparg1 + fparg4;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x20) = (f32)(u32)sp4.bytes[0];
-    *(f32 *)(p + 0x24) = (f32)(u32)sp4.bytes[1];
-    *(f32 *)(p + 0x28) = (f32)(u32)sp4.bytes[2];
-    *(f32 *)(p + 0x2C) = (f32)(u32)sp4.bytes[3];
-    *(f32 *)(p + 0x10) = fparg5;
-    *(f32 *)(p + 0x14) = fparg8;
-    *(f32 *)(p + 0x18) = scale;
-    sp0.value = color;
+    ((PanelQuad *)p)->x = x;
+    ((PanelQuad *)p)->y = y + height;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->color[0] = (f32)(u32)lowerLeftColor.bytes[0];
+    ((PanelQuad *)p)->color[1] = (f32)(u32)lowerLeftColor.bytes[1];
+    ((PanelQuad *)p)->color[2] = (f32)(u32)lowerLeftColor.bytes[2];
+    ((PanelQuad *)p)->color[3] = (f32)(u32)lowerLeftColor.bytes[3];
+    ((PanelQuad *)p)->u = u0;
+    ((PanelQuad *)p)->v = v1;
+    ((PanelQuad *)p)->scale = scale;
+    lowerRightColor.value = color;
     p = (u8 *)&quads[3];
-    *(f32 *)(p + 0) = fparg0 + fparg3;
-    *(f32 *)(p + 4) = fparg1 + fparg4;
-    *(f32 *)(p + 8) = zval;
-    *(f32 *)(p + 0x20) = (f32)(u32)sp0.bytes[0];
-    *(f32 *)(p + 0x24) = (f32)(u32)sp0.bytes[1];
-    *(f32 *)(p + 0x28) = (f32)(u32)sp0.bytes[2];
-    *(f32 *)(p + 0x2C) = (f32)(u32)sp0.bytes[3];
-    *(f32 *)(p + 0x10) = fparg7;
-    *(f32 *)(p + 0x14) = fparg8;
-    *(f32 *)(p + 0x18) = scale;
+    ((PanelQuad *)p)->x = x + width;
+    ((PanelQuad *)p)->y = y + height;
+    ((PanelQuad *)p)->z = zval;
+    ((PanelQuad *)p)->color[0] = (f32)(u32)lowerRightColor.bytes[0];
+    ((PanelQuad *)p)->color[1] = (f32)(u32)lowerRightColor.bytes[1];
+    ((PanelQuad *)p)->color[2] = (f32)(u32)lowerRightColor.bytes[2];
+    ((PanelQuad *)p)->color[3] = (f32)(u32)lowerRightColor.bytes[3];
+    ((PanelQuad *)p)->u = u1;
+    ((PanelQuad *)p)->v = v1;
+    ((PanelQuad *)p)->scale = scale;
     D_00887310[0](4, &quads[0], 4);
 }
 #pragma pop
@@ -597,11 +658,11 @@ void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
 #pragma opt_loop_invariants off
 // Intent: draw the sky pulse effect for one frame index. [inferred]
 // FUN_0021BBB0
-void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
+void btlEffectDrawSkyPulse(s32 packedColor, u16 frame)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
-    extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-    extern void effMiscDrawScreenColor(u8 *arg0, s32 arg1);
+    extern void RpSkyRenderStateSet(s32 packedColor, s32 frame);
+    extern void effMiscDrawScreenColor(u8 *packedColor, s32 frame);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern f32 fGpffff84a4;
@@ -630,14 +691,14 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
     coords.raw.low = 0x43A00000;
     coords.raw.high = 0x43640000;
     D_00887300[0](rwRENDERSTATETEXTURERASTER, 0);
-    arg1 = arg1 & 0xFFFF;
-    if ((arg1 >= 0x21) && (arg1 < 0x30)) {
+    frame = frame & 0xFFFF;
+    if ((frame >= 0x21) && (frame < 0x30)) {
         color.bytes[0] = 0;
         color.bytes[1] = 0;
         color.bytes[2] = 0;
         scale = 400.0f *
                 (1.0f - cosf(
-                    fGpffff84a4 * ((f32)(arg1 - 0x21) / 15.0f)));
+                    fGpffff84a4 * ((f32)(frame - 0x21) / 15.0f)));
         mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(3, 0x31801);
         color.bytes[3] = 0;
@@ -650,20 +711,20 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
         mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, 0x37801);
     }
-    if (arg1 >= 3) {
-        if (arg1 < 0x21) {
+    if (frame >= 3) {
+        if (frame < 0x21) {
             RpSkyRenderStateSet(2, 0x48);
             scale = 400.0f *
                     sinf(
-                        fGpffff84a4 * ((f32)(arg1 - 3) / 30.0f));
-            arg_color_copy.f = *(f32 *)&arg0;
+                        fGpffff84a4 * ((f32)(frame - 3) / 30.0f));
+            arg_color_copy.f = *(f32 *)&packedColor;
             shdDrawRadialFan(coords.v, 0.0f,
                           arg_color_copy.i, arg_color_copy.i,
                           scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
             RpSkyRenderStateSet(2, 0x44);
-        } else if (arg1 < 0x30) {
+        } else if (frame < 0x30) {
             RpSkyRenderStateSet(2, 0x48);
-            effMiscDrawScreenColor((u8 *)&arg0, 0);
+            effMiscDrawScreenColor((u8 *)&packedColor, 0);
             RpSkyRenderStateSet(2, 0x44);
         }
     }
@@ -674,18 +735,19 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
 #pragma opt_loop_invariants off
 // Intent: initialise an effect block with its frame and its state. [inferred]
 // FUN_0021BE10
-void btlEffectInit(u8 *arg0, s32 arg1)
+void btlEffectInit(u8 *effect, s32 value)
 {
-    memset(arg0, 0, 0xC);
-    *(s32 *)(arg0 + 8) = arg1;
-    *(s16 *)(arg0 + 4) = 1;
+    typedef struct BtlEffectState { s32 unk00; s16 state; u16 unk06; s32 value; } BtlEffectState;
+    memset(effect, 0, 0xC);
+    ((BtlEffectState *)effect)->value = value;
+    ((BtlEffectState *)effect)->state = 1;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 // FUN_0021BE60
-s32 func_0021be60(void)
+s32 btlAdvantageGetRaster(void)
 {
     return iGpffffb470;
 }
@@ -799,6 +861,7 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
     BtlShuffleSkyVertex vertices[4];
     s32 count = 0;
     f32 depth = D_008872F8[0] - z;
+    /* RwCamera.nearPlane at +0x80; the camera header conflicts with these sky matrix tags. */
     f32 reciprocalZ = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     u0 /= 256.0f;
     v0 /= 256.0f;
@@ -829,6 +892,8 @@ static inline u16 btlAdvantageChooseSegments(void)
 #pragma opt_loop_invariants off
 // Intent: draw the advantage panel's background, segments and random pattern. [inferred]
 // FUN_0021BE80
+/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
+ * retain byte accesses to the layouts above and BtlUnit for an exact match. */
 void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
@@ -935,6 +1000,7 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
 #pragma opt_loop_invariants off
 // Intent: start a shuffle task and mark it ready. [inferred]
 // FUN_0021D440
+/* The child task-work tail at +0x9E4/+0x9E6 has no allocation/layout evidence here; retain the flag and halfword counter offsets. */
 void btlShuffleStart(s32 task)
 {
     u8 *p;
@@ -949,6 +1015,7 @@ void btlShuffleStart(s32 task)
 #pragma opt_loop_invariants off
 // Intent: report whether the shuffle task is not ready. [inferred]
 // FUN_0021D470
+/* The child task-work allocation is not established here; +0x9E4 is the same ready flag written by btlShuffleStart. */
 s32 btlShuffleIsIdle(s32 task)
 {
     s32 flag;
@@ -962,21 +1029,23 @@ s32 btlShuffleIsIdle(s32 task)
 #pragma opt_loop_invariants off
 // Intent: advance the shuffle task state machine. [inferred]
 // FUN_0021D4A0
+/* Typed gauge/result members change b210 addressing and saved-register lifetimes;
+ * retain byte accesses to the layouts above and BtlUnit for an exact match. */
 s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
 {
-    s32 arg0 = (s32)sdkTaskBytes;
-    extern s32 btlShuffleTaskIsCancelRequested(s32 arg0);
+    s32 task = (s32)sdkTaskBytes;
+    extern s32 btlShuffleTaskIsCancelRequested(s32 task);
     extern s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task);
-    extern void btlShuffleTaskSetBusy(s32 arg0);
-    extern void btlXpPrepareAwards(u8 *arg0, u8 *arg1);
-    extern s32 btlResultSimpleSetDoneFlag(s32 arg0);
-    extern s32 btlShuffleTaskIsBusy(s32 arg0);
-    extern void btlShuffleTaskResetPhase(s32 arg0);
-    extern s32 btlResultSimpleIsDone(s32 arg0);
-    extern void btlResultSimpleOnConfirm(s32 arg0);
-    extern s32 btlLogoTitleCreate(s32 arg0);
-    extern s32 btlResultOverlayCreate(s32 arg0);
-    extern s32 btlResultSummaryCreate(s32 arg0);
+    extern void btlShuffleTaskSetBusy(s32 task);
+    extern void btlXpPrepareAwards(u8 *task, u8 *arg1);
+    extern s32 btlResultSimpleSetDoneFlag(s32 task);
+    extern s32 btlShuffleTaskIsBusy(s32 task);
+    extern void btlShuffleTaskResetPhase(s32 task);
+    extern s32 btlResultSimpleIsDone(s32 task);
+    extern void btlResultSimpleOnConfirm(s32 task);
+    extern s32 btlLogoTitleCreate(s32 task);
+    extern s32 btlResultOverlayCreate(s32 task);
+    extern s32 btlResultSummaryCreate(s32 task);
     extern s32 btlLogoTitleIsReady(KwlnTask *task);
     extern void btlLogoTitleAdvance(KwlnTask *task);
     extern s32 btlResultOverlayIsReady(KwlnTask *task);
@@ -992,7 +1061,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     s32 flags;
     s32 ready;
 
-    work = (u8 *)kwlnTaskGetWork((void *)arg0);
+    work = (u8 *)kwlnTaskGetWork((void *)task);
     switch (*(s32 *)(work + 4)) {
     case 1:
         *(s32 *)(work + 4) = 2;
@@ -1046,16 +1115,16 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             flags = *(s32 *)(work + 0x60);
             if ((flags & 2) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
-                *(s32 *)(work + 0x940) = btlLogoTitleCreate(arg0);
+                *(s32 *)(work + 0x940) = btlLogoTitleCreate(task);
                 *(s32 *)(work + 4) = 6;
             } else if ((flags & 8) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
-                *(s32 *)(work + 0x944) = btlResultOverlayCreate(arg0);
+                *(s32 *)(work + 0x944) = btlResultOverlayCreate(task);
                 *(s32 *)(work + 4) = 7;
             } else if ((flags & 0x10) != 0) {
                 btlXpApplyAwards(work + 0x60, work + 8);
                 btlXpAddRosterExp(work + 0x60);
-                *(s32 *)(work + 0x948) = btlResultSummaryCreate(arg0);
+                *(s32 *)(work + 0x948) = btlResultSummaryCreate(task);
                 *(s32 *)(work + 4) = 8;
             } else {
                 btlXpApplyAwards(work + 0x60, work + 8);
@@ -1071,11 +1140,11 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             *(s32 *)(work + 0x940) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 8) != 0) {
-                *(s32 *)(work + 0x944) = btlResultOverlayCreate(arg0);
+                *(s32 *)(work + 0x944) = btlResultOverlayCreate(task);
                 *(s32 *)(work + 4) = 7;
             } else if ((flags & 0x10) != 0) {
                 btlXpAddRosterExp(work + 0x60);
-                *(s32 *)(work + 0x948) = btlResultSummaryCreate(arg0);
+                *(s32 *)(work + 0x948) = btlResultSummaryCreate(task);
                 *(s32 *)(work + 4) = 8;
             } else {
                 btlXpAddRosterExp(work + 0x60);
@@ -1090,7 +1159,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             *(s32 *)(work + 0x944) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 0x10) != 0) {
-                *(s32 *)(work + 0x948) = btlResultSummaryCreate(arg0);
+                *(s32 *)(work + 0x948) = btlResultSummaryCreate(task);
                 *(s32 *)(work + 4) = 8;
             } else {
             btlXpAddPartyExp((s32)(work + 0x60));
@@ -1130,7 +1199,7 @@ void btlShuffleDestroyTask(u8 *sdkTaskBytes)
     s32 value;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
-    value = *(s32 *)(p + 0x934);
+    value = ((BtlResultWork *)p)->file;
     if (value != 0) {
         H_Cdvd_Destroy((u8 *)value);
     }
@@ -1142,7 +1211,7 @@ void btlShuffleDestroyTask(u8 *sdkTaskBytes)
 #pragma opt_loop_invariants off
 // Intent: create a shuffle task with its child task and state. [inferred]
 // FUN_0021D980
-s32 btlShuffleCreate(s32 arg0, u16 *arg1)
+s32 btlShuffleCreate(s32 parentTask, u16 *parameters)
 {
     u8 *work;
     s32 result;
@@ -1150,16 +1219,16 @@ s32 btlShuffleCreate(s32 arg0, u16 *arg1)
     chkmemAllocSiteTag(&D_006290D0, 0x3A);
     work = (u8 *)jtbl_008873E8[0](0x94C, 0x40000);
     memset(work, 0, 0x94C);
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, btlShuffleUpdateTask, btlShuffleDestroyTask, (u8 *)(work));
-    memcpy(work + 8, arg1, 0x58);
-    if ((*arg1 & 1) != 0) {
-        *(s32 *)(work + 0x60) |= 1;
+    result = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(&D_006290C0), 0xF, 0, 0, btlShuffleUpdateTask, btlShuffleDestroyTask, (u8 *)(work));
+    memcpy(work + 8, parameters, 0x58);
+    if ((*parameters & 1) != 0) {
+        ((BtlResultWork *)work)->awardFlags |= 1;
     }
-    *(s32 *)(work + 4) = 1;
-    if ((*(s32 *)(work + 0x60) & 1) != 0) {
-        *(s32 *)(work + 0x938) = btlShuffleTaskCreate(result, work + 0x48);
+    ((BtlResultWork *)work)->phase = 1;
+    if ((((BtlResultWork *)work)->awardFlags & 1) != 0) {
+        ((BtlResultWork *)work)->shuffleTask = btlShuffleTaskCreate(result, work + 0x48);
     }
-    *(s32 *)(work + 0x93C) = btlResultSimpleCreateTask(result);
+    ((BtlResultWork *)work)->resultTask = btlResultSimpleCreateTask(result);
     return result;
 }
 #pragma pop
@@ -1173,10 +1242,10 @@ void btlShuffleCancel(s32 task)
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
-    if ((*(s32 *)(p + 0x60) & 1) != 0) {
-        btlShuffleTaskRequestCancel(*(s32 *)(p + 0x938));
+    if ((((BtlResultWork *)p)->awardFlags & 1) != 0) {
+        btlShuffleTaskRequestCancel(((BtlResultWork *)p)->shuffleTask);
     }
-    btlResultSimpleSetupEntries(*(s32 *)(p + 0x93C));
+    btlResultSimpleSetupEntries(((BtlResultWork *)p)->resultTask);
     *(s32 *)p |= 2;
 }
 #pragma pop
@@ -1201,10 +1270,10 @@ s32 btlShuffleIsBusy(s32 task)
     s32 temp;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
-    if (*(s32 *)(p + 0x938) != 0) {
+    if (((BtlResultWork *)p)->shuffleTask != 0) {
         return 0;
     }
-    temp = *(s32 *)(p + 0x93C);
+    temp = ((BtlResultWork *)p)->resultTask;
     if (temp != 0) {
         return btlShuffleTaskIsLoading((KwlnTask *)temp);
     }
@@ -1218,16 +1287,17 @@ s32 btlShuffleIsBusy(s32 task)
 // FUN_0021DBA0
 s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
 {
+    typedef struct BtlSweepWork { s32 frame; s32 next; s32 previous; } BtlSweepWork;
     s32 task = (s32)sdkTaskBytes;
     u8 *p;
     s32 value;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
-    *(s32 *)(p + 4) = 0;
-    *(s32 *)(p + 8) = 0;
+    ((BtlSweepWork *)p)->next = 0;
+    ((BtlSweepWork *)p)->previous = 0;
     PrimAppendNode(&D_00796340, p + 4);
-    value = *(s32 *)p + 1;
-    *(s32 *)p = value;
+    value = ((BtlSweepWork *)p)->frame + 1;
+    ((BtlSweepWork *)p)->frame = value;
     if (value == 0xC) {
         fadeBeginTransition(1, 1);
         goto exit;
@@ -1247,26 +1317,26 @@ exit:
 #pragma opt_loop_invariants off
 // Intent: draw the shuffle sweep quad for the current frame. [inferred]
 // FUN_0021DC50
-void btlShuffleDrawSweep(s32 arg0, s32 *arg1)
+void btlShuffleDrawSweep(s32 unusedTask, s32 *frameState)
 {
-    f32 var_f20;
-    f32 temp_f0;
-    f32 temp_f1;
-    Vec2f sp38;
-    f32 var_f1;
+    f32 progress;
+    f32 directionY;
+    f32 travelY;
+    Vec2f position;
+    f32 unusedValue;
 
     btlUiSetRenderStates();
-    var_f20 = (f32)*(s32 *)(arg1 + 0) / 12.0f;
-    if (!(var_f20 <= 1.0f)) {
-        var_f20 = 1.0f;
+    progress = (f32)frameState[0] / 12.0f;
+    if (!(progress <= 1.0f)) {
+        progress = 1.0f;
     }
-    sp38.x = 0.0f;
-    sp38.y = -500.0f;
-    sp38.x = sp38.x + var_f20 * (800.0f * sinf(fGpffff837c));
-    temp_f0 = cosf(fGpffff837c);
-    temp_f1 = 800.0f * temp_f0;
-    sp38.y = sp38.y + var_f20 * temp_f1;
-    shdDrawRotatedRect(sp38, 0.0f, 0xFF,
+    position.x = 0.0f;
+    position.y = -500.0f;
+    position.x = position.x + progress * (800.0f * sinf(fGpffff837c));
+    directionY = cosf(fGpffff837c);
+    travelY = 800.0f * directionY;
+    position.y = position.y + progress * travelY;
+    shdDrawRotatedRect(position, 0.0f, 0xFF,
                   1500.0f, 1000.0f, fGpffff8378, 0);
 }
 #pragma pop
