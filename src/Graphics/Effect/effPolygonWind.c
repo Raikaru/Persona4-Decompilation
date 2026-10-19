@@ -4,7 +4,7 @@
 #include "effect_instance_internal.h"
 #include "rw_geometry_internal.h"
 #include "effect_vu0_internal.h"
-extern void func_004841c0(void *instance);
+extern void mdlEffectDestroyMultipartGeometry(void *instance);
 extern void (*D_008873ec[])(void *);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -100,12 +100,12 @@ extern void chkmemAllocSiteTag(char *, s32);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *GeometryCreateStripGridMultiPart(s32, s32, s32, s32, s32);
 extern s32 TnSlotObject(s32);
-extern void func_004842d0(void *, s32);
-extern void func_004843f0(void *, s32);
+extern void mdlEffectSetGeometryTexture(void *, s32);
+extern void mdlEffectUploadGeometryTexture(void *, s32);
 extern void func_004a1d70(void *, void *);
 extern void FallingFunnelWindInitEntries(u8 *, u8 *);
 extern void SpiralWindInitEntries(u8 *, u8 *);
-extern u8 *func_00484010(u8 *);
+extern u8 *mdlEffectCloneMultipartGeometry(u8 *);
 extern void *memcpy(void *, const void *, u32);
 extern char D_00713330[];
 extern char D_00714148[];
@@ -115,7 +115,7 @@ extern void kAssertFail(void *, s32);
 extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
 /* lint-allow: declared with no parameters and called with four. The definition in mdlEffect.c takes one; the one-argument form moved the codegen of all three call sites (verify MISMATCH 3). */
 extern void mdlEffectApplyCombinedGeometryMatrix();
-extern void func_00484280();
+extern void mdlEffectAppendGeometryPrimitive();
 extern void memset(void *, s32, s32);
 extern void effMiscRotateXVU(f32);
 extern void effMiscRotateYVU(f32);
@@ -156,9 +156,9 @@ u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
     }
     *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(config + 0x38), *(u16 *)(config + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
-        func_004842d0(*(void **)(work + 4), TnSlotObject(0x14));
+        mdlEffectSetGeometryTexture(*(void **)(work + 4), TnSlotObject(0x14));
     } else {
-        func_004843f0(*(void **)(work + 4), texture);
+        mdlEffectUploadGeometryTexture(*(void **)(work + 4), texture);
     }
     func_004a1d70(work, config);
     return work;
@@ -188,7 +188,7 @@ u8 *FunnelWindAllocFromParent(u8 *parent)
     if (*(u32 *)(config + 0x8C) < 3U) {
         *(u32 *)(config + 0x8C) = 3U;
     }
-    *(u8 **)(work + 4) = func_00484010(*(u8 **)(parentBlock + 4));
+    *(u8 **)(work + 4) = mdlEffectCloneMultipartGeometry(*(u8 **)(parentBlock + 4));
     func_004a1d70(work, config);
     return work;
 }
@@ -199,7 +199,7 @@ void FunnelWindFreeBlock(u8 *effect) {
     u8 *block;
 
     block = ((WindEffect *)effect)->block.bytes;
-    func_004841c0((void *)((WindBlock *)block)->instance.signedWord);
+    mdlEffectDestroyMultipartGeometry((void *)((WindBlock *)block)->instance.signedWord);
     D_008873ec[0](((WindBlock *)block)->allocation.pointer);
 }
 
@@ -611,7 +611,7 @@ void FunnelWindPackColors(u8 *effect)
         } else {
             *(u16 *)instance = *(u16 *)instance & 0xFFFE;
         }
-        func_00484280(instance, ((WindConfig *)config)->unk28);
+        mdlEffectAppendGeometryPrimitive(instance, ((WindConfig *)config)->unk28);
     }
 }
 
@@ -768,9 +768,9 @@ u8 *FallingFunnelWindAllocBlock(u8 *config, s32 texture)
     }
     *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(config + 0x38), *(u16 *)(config + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
-        func_004842d0(*(void **)(work + 4), TnSlotObject(0x14));
+        mdlEffectSetGeometryTexture(*(void **)(work + 4), TnSlotObject(0x14));
     } else {
-        func_004843f0(*(void **)(work + 4), texture);
+        mdlEffectUploadGeometryTexture(*(void **)(work + 4), texture);
     }
     FallingFunnelWindInitEntries(work, config);
     return work;
@@ -800,7 +800,7 @@ u8 *FallingFunnelWindAllocFromParent(u8 *parent)
     if (*(u32 *)(config + 0x8C) < 3U) {
         *(u32 *)(config + 0x8C) = 3U;
     }
-    *(u8 **)(work + 4) = func_00484010(*(u8 **)(parentBlock + 4));
+    *(u8 **)(work + 4) = mdlEffectCloneMultipartGeometry(*(u8 **)(parentBlock + 4));
     FallingFunnelWindInitEntries(work, config);
     return work;
 }
@@ -811,7 +811,7 @@ void FallingFunnelWindFreeBlock(u8 *effect) {
     u8 *block;
 
     block = ((WindEffect *)effect)->block.bytes;
-    func_004841c0((void *)((WindBlock *)block)->instance.signedWord);
+    mdlEffectDestroyMultipartGeometry((void *)((WindBlock *)block)->instance.signedWord);
     D_008873ec[0](((WindBlock *)block)->allocation.pointer);
 }
 
@@ -1245,7 +1245,7 @@ void FallingFunnelWindPackColors(u8 *effect)
         } else {
             *(u16 *)instance = *(u16 *)instance & 0xFFFE;
         }
-        func_00484280(instance, ((WindConfig *)config)->unk28);
+        mdlEffectAppendGeometryPrimitive(instance, ((WindConfig *)config)->unk28);
     }
 }
 
@@ -1416,9 +1416,9 @@ u8 *SpiralWindAllocBlock(u8 *config, s32 texture)
     }
     *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(config + 0x38), *(u16 *)(config + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
-        func_004842d0(*(void **)(work + 4), TnSlotObject(0x14));
+        mdlEffectSetGeometryTexture(*(void **)(work + 4), TnSlotObject(0x14));
     } else {
-        func_004843f0(*(void **)(work + 4), texture);
+        mdlEffectUploadGeometryTexture(*(void **)(work + 4), texture);
     }
     SpiralWindInitEntries(work, config);
     return work;
@@ -1448,7 +1448,7 @@ u8 *SpiralWindAllocFromParent(u8 *parent)
     if (*(u32 *)(config + 0x8C) < 3U) {
         *(u32 *)(config + 0x8C) = 3U;
     }
-    *(u8 **)(work + 4) = func_00484010(*(u8 **)(parentBlock + 4));
+    *(u8 **)(work + 4) = mdlEffectCloneMultipartGeometry(*(u8 **)(parentBlock + 4));
     SpiralWindInitEntries(work, config);
     return work;
 }
@@ -1459,7 +1459,7 @@ void SpiralWindFreeBlock(u8 *effect) {
     u8 *block;
 
     block = ((WindEffect *)effect)->block.bytes;
-    func_004841c0((void *)((WindBlock *)block)->instance.signedWord);
+    mdlEffectDestroyMultipartGeometry((void *)((WindBlock *)block)->instance.signedWord);
     D_008873ec[0](((WindBlock *)block)->allocation.pointer);
 }
 
@@ -1866,7 +1866,7 @@ void SpiralWindPackColors(u8 *effect)
         } else {
             *(u16 *)instance = *(u16 *)instance & 0xFFFE;
         }
-        func_00484280(instance, ((WindConfig *)config)->unk28);
+        mdlEffectAppendGeometryPrimitive(instance, ((WindConfig *)config)->unk28);
     }
 }
 

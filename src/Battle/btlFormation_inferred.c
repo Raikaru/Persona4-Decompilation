@@ -20,11 +20,11 @@ extern u32 iGpffffb3b8;
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 mdlComputeIndexedAttachMatrix();
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
-extern void func_00485870(s32 arg0);
+extern void mdlEffectFlushTreeFrame(s32 arg0);
 extern s32 TnGetTableBase(void);
 extern void TnSetTableBase(s32 arg0);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
-extern void func_00485630(u8 *arg0);
+extern void mdlEffectCommitTreeFrame(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -510,7 +510,7 @@ void func_001d53e0(s32 arg0)
         btlFormationAttachRotation((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
         mdlEffectSetChildRotations(*handles, (u8 *)rot);
         mdlEffectApplyPackedColor(*handles, (s32)color);
-        func_00485630(*handles);
+        mdlEffectCommitTreeFrame(*handles);
     }
     w->frame++;
 }
@@ -634,7 +634,7 @@ void btlFormationCameraTaskStart(u8 *arg0)
         count = (u16)(count & 0xFFFF);
         while ((u16)index < count) {
             if (*entries != NULL) {
-                func_00485870((s32)*entries);
+                mdlEffectFlushTreeFrame((s32)*entries);
             }
             index = (index + 1) & 0xFFFF;
             entries++;
@@ -653,7 +653,7 @@ void btlFormationCameraTaskStart(u8 *arg0)
     count = (u16)(count & 0xFFFF);
     while ((u16)index < count) {
         if (*entries != NULL) {
-            func_00485870((s32)*entries);
+            mdlEffectFlushTreeFrame((s32)*entries);
         }
         index = (index + 1) & 0xFFFF;
         entries++;

@@ -21,8 +21,8 @@ extern s32 btlCutinLoadStatus();
 extern s32 H_Cdvd_IsFileLoaded();
 extern void H_Cdvd_Destroy();
 extern s32 mdlEffectIsFinished();
-extern void func_00485630();
-extern void func_00485870();
+extern void mdlEffectCommitTreeFrame();
+extern void mdlEffectFlushTreeFrame();
 extern void *TnGetTableBase();
 extern void TnSetTableBase();
 extern u8 D_005DC8CC[];
@@ -172,8 +172,8 @@ s32 btlCutinUpdate(s32 *elapsed) {
         if (effect != 0) {
             if (mdlEffectIsFinished(effect) == 0) {
                 slotOffset = slotIndex * 4;
-                func_00485630(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
-                func_00485870(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
+                mdlEffectCommitTreeFrame(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
+                mdlEffectFlushTreeFrame(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
                 allFinished = 0;
             } else {
                 slotOffset = slotIndex * 4;
@@ -185,8 +185,8 @@ s32 btlCutinUpdate(s32 *elapsed) {
     mainEffect = *(s32 *)(iGpffffb3ac + 0xB54);
     if (mainEffect != 0) {
         if (mdlEffectIsFinished(mainEffect) == 0) {
-            func_00485630(*(s32 *)(iGpffffb3ac + 0xB54));
-            func_00485870(*(s32 *)(iGpffffb3ac + 0xB54));
+            mdlEffectCommitTreeFrame(*(s32 *)(iGpffffb3ac + 0xB54));
+            mdlEffectFlushTreeFrame(*(s32 *)(iGpffffb3ac + 0xB54));
             allFinished = 0;
         } else {
             mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + 0xB54));

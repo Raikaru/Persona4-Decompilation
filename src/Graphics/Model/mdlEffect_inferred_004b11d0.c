@@ -22,7 +22,7 @@ extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
 extern void TnSetTableBase(void *arg0);
-extern void func_00485870(void *arg0);
+extern void mdlEffectFlushTreeFrame(void *arg0);
 extern void mdlEffectAdvanceAndDrawChildren(void *arg0);
 typedef struct {
     u8 c0;
@@ -67,7 +67,7 @@ void func_004b11d0(void *arg0, void *arg1)
     if (arg0 != NULL) {
         TnSetTableBase(arg0);
     }
-    func_00485870(arg1);
+    mdlEffectFlushTreeFrame(arg1);
 }
 
 // FUN_004B1210

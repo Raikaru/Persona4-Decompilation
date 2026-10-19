@@ -37,8 +37,8 @@ extern void kAssertFail(void *file, s32 line);
 extern u8 D_00713CC0[];
 extern u8 D_00713CD0[];
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *func_00484570(u8 *object);
-extern void func_004846d0(u8 *object);
+extern u8 *mdlEffectCreatePrimitiveRecord(u8 *object);
+extern void mdlEffectDestroyPrimitiveRecord(u8 *object);
 extern u8 *mdlEffectCreateChildRecord(u8 *object);
 extern void mdlEffectDestroyWithNodes(void *object);
 extern u8 *GeometryCloneBlock(void *object);
@@ -58,7 +58,7 @@ extern void mdlEffectCommitChild(u8 *object);
 extern void mdlEffectStartChildren(u8 *object);
 extern void mdlEffectSetChildScales(u8 *object, f32 value);
 extern void mdlEffectSetChildPositions(u8 *object, f32 *value);
-extern void func_00485630(u8 *object);
+extern void mdlEffectCommitTreeFrame(u8 *object);
 extern ParticleSnapshot mdlEffectLoadQuadB(s32 object, u32 *value);
 extern ParticleSnapshot mdlEffectLoadQuadA(s32 object, u32 *value);
 extern void effMiscBuildRotationVU(void);
@@ -182,7 +182,7 @@ void ParticleFree(u8 *particle)
             count = *(s32 *)(particle + 0);
         }
         for (i = 0; i < count; i++) {
-            func_004846d0(*(u8 **)(*(u8 **)(particle + 0x34) + i * 4));
+            mdlEffectDestroyPrimitiveRecord(*(u8 **)(*(u8 **)(particle + 0x34) + i * 4));
         }
         jtbl_008873EC[0](*(void **)(particle + 0x38));
     }
@@ -309,7 +309,7 @@ void ParticleCopyModeFromSource(u8 *particle, u8 *source)
         }
         if (*(s32 *)(particle + 0x38) != 0) {
             for (i5 = 0; i5 < count5; i5++) {
-                func_004846d0(*(u8 **)(*(u8 **)(particle + 0x34) + i5 * 4));
+                mdlEffectDestroyPrimitiveRecord(*(u8 **)(*(u8 **)(particle + 0x34) + i5 * 4));
             }
             jtbl_008873EC[0](*(void **)(particle + 0x38));
             *(u8 **)(particle + 0x34) = NULL;
@@ -501,7 +501,7 @@ void ParticleRebuildSubtypeChain(u8 *particle, void *source)
     }
     if (*(s32 *)(particle + 0x38) != 0) {
         for (i = 0; i < count; i++) {
-            func_004846d0(*(u8 **)(*(u8 **)(particle + 0x34) + i * 4));
+            mdlEffectDestroyPrimitiveRecord(*(u8 **)(*(u8 **)(particle + 0x34) + i * 4));
         }
         jtbl_008873EC[0](*(void **)(particle + 0x38));
         *(u8 **)(particle + 0x34) = NULL;
@@ -514,7 +514,7 @@ void ParticleRebuildSubtypeChain(u8 *particle, void *source)
             kAssertFail(D_00713CD0, 0x21D);
         }
         *(u8 **)(particle + 0x34) = *(u8 **)(particle + 0x38);
-        *(u8 **)(*(u8 **)(particle + 0x34)) = func_00484570((u8 *)source);
+        *(u8 **)(*(u8 **)(particle + 0x34)) = mdlEffectCreatePrimitiveRecord((u8 *)source);
         for (i = 1; i < count; i++) {
             *(u8 **)(*(u8 **)(particle + 0x34) + i * 4) = mdlEffectCreateChildRecord(*(u8 **)(*(u8 **)(particle + 0x34)));
         }
@@ -732,7 +732,7 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                         {
                             mdlEffectSetChildScales(*objects, record->scale * scale);
                             mdlEffectSetChildPositions(*objects, (f32*)record);
-                            func_00485630(*objects);
+                            mdlEffectCommitTreeFrame(*objects);
                         }
                         index++;
                         record++;
@@ -799,7 +799,7 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                                          : "$vf10", "memory");
                         mdlEffectSetChildScales(*objects, record->scale * scale);
                         mdlEffectSetChildPositions(*objects, (f32*)transformedPosition);
-                        func_00485630(*objects);
+                        mdlEffectCommitTreeFrame(*objects);
                     }
                     index++;
                     record++;
@@ -905,13 +905,13 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     extern RpAtomic *func_003a2920(RpAtomic *atomic);
     extern void mdlEffectWrapTrackFrames(s32 a, u32 b);
     extern void mdlEffectEvalSubPose(s32 a, f32* b);
-    extern s32 func_00482790(u8 * *a, u32 b);
+    extern s32 mdlEffectGetStreamHandle(u8 * *a, u32 b);
     extern void GeometryBlockSetPartState(u8 * a, s32 b);
     extern void GeometryBlockBindResource(u8 * a, s32 b);
     extern void mdlEffectSetChildColor(u8 * a, s32 b);
     extern void mdlEffectFlushChild(u8 * a);
     extern void mdlEffectApplyPackedColor(u8 * a, s32 b);
-    extern void func_00485870(s32 a);
+    extern void mdlEffectFlushTreeFrame(s32 a);
     extern s32 TnGetOffset1C(u16 a);
     extern void PrimAppendNode(u8 * list, u8 * node);
     extern f32 fGpffff8044;
@@ -1172,7 +1172,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
             func_003a2770((RpAtomic*)atomicAddress, &rotationLock, 0x20, 0x40000000);
             func_003a2770((RpAtomic*)atomicAddress, &uvLock, 0x80, 0x40000000);
             {
-                s32 t = func_00482790((u8**)animationResource, 0);
+                s32 t = mdlEffectGetStreamHandle((u8**)animationResource, 0);
                 func_003c42b0(**(RpMaterial***)(*(u8**)(atomicAddress + 0x18) + 0x20), (RwTexture*)t);
             }
             if ((*(u32*)(emitterOrObjects + 0xC) & 1) == 0)
@@ -1500,7 +1500,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                                  :
                                  : "$vf2", "$vf10", "memory");
                 mdlEffectApplyPackedColor((u8*)*(s32*)emitterOrObjects, packedColor);
-                func_00485870(*(s32*)emitterOrObjects);
+                mdlEffectFlushTreeFrame(*(s32*)emitterOrObjects);
             }
             modelIndex++;
             record += 0x20;

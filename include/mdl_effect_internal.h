@@ -2,27 +2,23 @@
 #define MDL_EFFECT_INTERNAL_H
 
 #include "type.h"
+#include "mdl_effect_resource_internal.h"
 #include "polygon_track_internal.h"
 #include "polygon_thunder_internal.h"
 
 /* mdlEffect_inferred_00481d80 allocates 0x18 + trackCount * 0x14.
  * The resource is shared, with its reference count at +0x10. */
-typedef struct MdlEffectTrackResource {
-    u8 pad0[8];
-    s32 trackCount;
-    u32 unkC;
-    s32 references;
-} MdlEffectTrackResource;
 typedef struct MdlEffectTrack {
     u32 unk0;
     u32 frame;
-    u32 active;
-    u8 *resource;
-    u32 unk10;
+    u32 active; /* Signed frame-delay countdown in the resource playback path. */
+    u8 *resource; /* Resource entry, including its frame count at +0xC. */
+    u8 *payload;
 } MdlEffectTrack;
 typedef struct MdlEffectTrackInstance {
     MdlEffectTrackResource *resource;
-    u8 pad4[8];
+    s32 flags;
+    s32 entryIndex;
     s32 trackCount;
     MdlEffectTrack *tracks;
     s16 active;
@@ -219,11 +215,18 @@ typedef struct MdlEffectFlareInstance {
 
 /* Intrusive node fields and the lookup key used by mdlEffectFindNodeById. */
 typedef struct MdlEffectNode {
-    u8 pad0[0x8C];
+    MdlEffectState state;
+    s32 startFrame;
+    s32 flags;
+    u8 attributes[4];
     u8 *children;
-    s32 id;
-    u8 pad94[0x18];
+    union { s32 id; u8 *primitive; };
+    s32 sourceIndex;
+    s32 sourceFlags;
+    char name[0x10];
     u8 *next;
+    u8 *previous;
+    u8 padB4[0xC];
 } MdlEffectNode;
 
 /* Randomized quad initializer: source +0x28 is the full side length;
