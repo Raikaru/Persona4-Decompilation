@@ -1,3 +1,5 @@
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "list_item_internal.h"
 #include "rw_geometry_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -24,9 +26,9 @@ typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern s32 btlActionQueuePush(u8 *arg0);
-extern s32 btlOrderRemoveActionAll(u8 *arg0);
-extern u32 datCalcIsDead(s32 arg0, s32 arg1);
+extern s32 btlActionQueuePush(u8 *);
+extern s32 btlOrderRemoveActionAll(u8 *);
+extern u32 datCalcIsDead(s32, s32);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
@@ -37,11 +39,11 @@ extern f32 D_00922CB4[];
 extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
-extern s32 btlUnitIsMoving(u8 *arg0);
+extern s32 btlUnitIsMoving(u8 *);
 extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
-extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern void btlActionSetState(BtlAction *arg0, u16 arg1);
+extern s64 btlPacketEnqueue(u8 *, u32);
+extern void btlActionSetState(BtlAction *, u16);
 
 extern u8 *D_0076449C;
 extern u8 D_005F7180[];
@@ -50,11 +52,11 @@ extern u8 D_005F7000[];
 
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void (*D_005F6E20[])(u8 *arg0);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern void btlBossCollectTargets(u8 *arg0);
+extern void (*D_005F6E20[])(u8 *);
+extern u32 datCalcChkBadStatus(s32, u32);
+extern void btlBossCollectTargets(u8 *);
 extern u32 iGpffffa0b8;
-s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
+s64 btlPacketEnqueue(u8 *, u32);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -64,16 +66,16 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 {
     return left * right;
 }
-extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+extern BtlPacket *btlFormationCreatePacket(u32, u32, u32, u16, u32);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
-extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
-extern void btlUnitUnlinkAndFree(u8 *arg0);
-extern void func_001b08f0(void *arg0);
-extern void btlCameraReleaseActionRefs(u8 *arg0);
-extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
-extern void datCalcClearAllBuffs(u8 *arg0);
+extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *, u32, s16, s16, u8, u8);
+extern BtlPacket *btlSoundCreateChannelCuePacket(u16, u16, u16);
+extern void btlUnitUnlinkAndFree(u8 *);
+extern void func_001b08f0(void *);
+extern void btlCameraReleaseActionRefs(u8 *);
+extern u32 datCalcClearBadStatus(s32, u32);
+extern void datCalcClearAllBuffs(u8 *);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
@@ -96,6 +98,15 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
+/* Partial encounter-slot descriptor; both scans agree on the +4 data pointer
+ * and the +A live bit. No allocation size is inferred from this prefix. */
+typedef struct BtlEncounterEntry {
+    u8 pad00[4];
+    DatUnit *unitData;
+    u16 unk08;
+    u16 flags;
+} BtlEncounterEntry;
+
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b0020-001b07c0 */
 
 /* 564/576 bytes; sixteen resolved relocations; twelve zero alignment bytes.
@@ -103,8 +114,10 @@ extern f32 fGpffff8108;
 /* measured: func_001b0020 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001B0020
-void btlActionEndHomeInit(u8 *arg0)
+/* Return a surviving, non-active unit to its anchor unless another return sequence owns the camera. */
+void btlActionEndHomeInit(u8 *action)
 {
+    /* Typed action/unit/packet fields changed MWCC codegen (592B trial); retain the proven byte offsets for MATCH. */
     extern s32 btlActionGetActiveOrQueueFront(void);
     extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
         extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
@@ -124,32 +137,32 @@ void btlActionEndHomeInit(u8 *arg0)
     u32 record;
     u32 selector;
 
-    unit = *(u8 **)(arg0 + 0x30);
-    *(s32 *)(arg0 + 0x41C) = 0;
+    unit = *(u8 **)(action + 0x30);
+    *(s32 *)(action + 0x41C) = 0;
     if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
         if ((*(u32 *)(unit + 0x9C) & 0x40) != 0) {
             *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
             *(u16 *)(iGpffffb3ac + 0x18) |= 6;
         }
-        btlActionSetState((BtlAction *)arg0, 1);
+        btlActionSetState((BtlAction *)action, 1);
         return;
     }
-    if (arg0 == (u8 *)btlActionGetActiveOrQueueFront()) {
-        btlActionSetState((BtlAction *)arg0, 1);
+    if (action == (u8 *)btlActionGetActiveOrQueueFront()) {
+        btlActionSetState((BtlAction *)action, 1);
         return;
     }
     if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0 &&
         (*(u16 *)(iGpffffb3ac + 0x18) & 2) != 0) return;
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) != 0) return;
+    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x180001) != 0) return;
     btlUnitGetAnchorPose(unit, (u8 *)&position, NULL, NULL);
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0) {
-        *(s32 *)(arg0 + 0x41C) = 1;
+    if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
+        *(s32 *)(action + 0x41C) = 1;
     }
     if (!(btlTargetVectorDistance((const RwV3d *)(unit + 4), &position) <= 75.0f)) {
         speed = 2;
-        side = !(iGpffffb3b8[*(u16 *)(arg0 + 0x6E) * 0x28] & 2);
-        id = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64) + 2);
-        kind = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
+        side = !(iGpffffb3b8[*(u16 *)(action + 0x6E) * 0x28] & 2);
+        id = *(u16 *)(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64) + 2);
+        kind = *(u8 *)(*(u8 **)(action + 0x30) + 0xA2);
         switch (kind) {
         case 0: break;
         case 1:
@@ -160,63 +173,67 @@ void btlActionEndHomeInit(u8 *arg0)
             speed = *(u16 *)(selector + record + 0x24);
             break;
         }
-        packet = (u8 *)btlUnitCreateMovePacket(*(BtlUnit **)(arg0 + 0x30), &position, D_005F6D20[speed], 0);
-        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        packet = (u8 *)btlUnitCreateMovePacket(*(BtlUnit **)(action + 0x30), &position, D_005F6D20[speed], 0);
+        *(s64 *)(packet + 0x60) = *(s64 *)action;
         btlPacketEnqueue(packet, 1);
-        *(s32 *)(arg0 + 0x41C) = 1;
+        *(s32 *)(action + 0x41C) = 1;
     }
 }
 
 // FUN_001B0260
-void btlActionEndHomeUpdate(u8 *arg0)
+/* After movement completes, restore the anchor direction and enter the idle action state. */
+void btlActionEndHomeUpdate(u8 *action)
 {
-    f32 sp20[3];
-    u8 *temp_2;
+    /* Typed action/unit/packet fields changed MWCC codegen (168B trial); retain the proven byte offsets for MATCH. */
+    f32 direction[3];
+    u8 *packet;
 
-    if (btlUnitIsMoving(*(u8 **)(arg0 + 0x30)) == 0) {
-        if (*(s32 *)(arg0 + 0x41C) == 1) {
-            btlUnitGetAnchorPose(*(u8 **)(arg0 + 0x30), NULL, NULL, sp20);
-            temp_2 = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(*(u8 **)(arg0 + 0x30)), (const RwV3d *)(sp20), (u32)(0));
-            *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue(temp_2, 1);
+    if (btlUnitIsMoving(*(u8 **)(action + 0x30)) == 0) {
+        if (*(s32 *)(action + 0x41C) == 1) {
+            btlUnitGetAnchorPose(*(u8 **)(action + 0x30), NULL, NULL, direction);
+            packet = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(*(u8 **)(action + 0x30)), (const RwV3d *)(direction), (u32)(0));
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            btlPacketEnqueue(packet, 1);
         }
-        btlActionSetState((BtlAction *)arg0, 1);
+        btlActionSetState((BtlAction *)action, 1);
     }
 }
 
 // FUN_001B0300
-void btlActionDeadInit(u8 *arg0)
+/* Remove the defeated action from orders; clear party buffs or queue enemy removal effects. */
+void btlActionDeadInit(u8 *action)
 {
-    u8 *p;
-    u8 status;
-    u8 *work;
+    /* Typed action/unit/packet fields changed MWCC codegen (360B trial); retain the proven byte offsets for MATCH. */
+    u8 *unit;
+    u8 genus;
+    u8 *packet;
     s32 flags;
-    s32 flags2;
+    s32 updatedFlags;
 
-    p = *(u8 **)(arg0 + 0x30);
-    btlOrderRemoveActionAll(arg0);
-    status = *(u8 *)(p + 0xA2);
-    switch (status) {
+    unit = *(u8 **)(action + 0x30);
+    btlOrderRemoveActionAll(action);
+    genus = *(u8 *)(unit + 0xA2);
+    switch (genus) {
     case 0:
-        datCalcClearAllBuffs(*(u8 **)(p + 0xA64));
+        datCalcClearAllBuffs(*(u8 **)(unit + 0xA64));
         return;
     case 1:
-        btlTargetRecordDefeatReward(arg0);
-        flags = *(s32 *)(p + 0x9C);
+        btlTargetRecordDefeatReward(action);
+        flags = *(s32 *)(unit + 0x9C);
         if ((flags & 0x20) == 0 && (flags & 0x100) == 0) {
-            work = (u8 *)btlUnitCreateColorPacket((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);
-            *(s64 *)(work + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue(work, 1);
-            work = (u8 *)btlFormationCreatePacket((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
-            *(s64 *)(work + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue(work, 2);
-            work = (u8 *)btlSoundCreateChannelCuePacket(0xA, 2, 0xA);
-            *(s64 *)(work + 0x60) = *(s64 *)arg0;
-            btlPacketEnqueue(work, 1);
+            packet = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFF, 6, 0, 4, 0);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            btlPacketEnqueue(packet, 1);
+            packet = (u8 *)btlFormationCreatePacket((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)unit, (u32)unit, 0, 0);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            btlPacketEnqueue(packet, 2);
+            packet = (u8 *)btlSoundCreateChannelCuePacket(0xA, 2, 0xA);
+            *(s64 *)(packet + 0x60) = *(s64 *)action;
+            btlPacketEnqueue(packet, 1);
         }
-        flags2 = *(s32 *)(p + 0x9C);
-        if ((flags2 & 0x40) == 0 && (flags2 & 8) != 0) {
-            *(s32 *)(p + 0x9C) = flags2 & ~8;
+        updatedFlags = *(s32 *)(unit + 0x9C);
+        if ((updatedFlags & 0x40) == 0 && (updatedFlags & 8) != 0) {
+            *(s32 *)(unit + 0x9C) = updatedFlags & ~8;
         }
         return;
     default:
@@ -225,33 +242,35 @@ void btlActionDeadInit(u8 *arg0)
 }
 
 // FUN_001B0460
-void btlActionDeadUpdate(u8 *arg0)
+/* Wait for revival of retained units, otherwise transition defeated enemies to exit. */
+void btlActionDeadUpdate(u8 *action)
 {
-    u8 status;
-    u8 *p;
+    /* Typed action/unit/packet fields changed MWCC codegen (316B trial); retain the proven byte offsets for MATCH. */
+    u8 genus;
+    u8 *unit;
 
-    p = *(u8 **)(arg0 + 0x30);
-    status = *(u8 *)(p + 0xA2);
-    switch (status) {
+    unit = *(u8 **)(action + 0x30);
+    genus = *(u8 *)(unit + 0xA2);
+    switch (genus) {
     case 0:
-        if (datCalcIsDead(*(s32 *)(p + 0xA64), 0) == 0) {
-            *(s32 *)(p + 0x9C) &= ~1;
-            btlActionQueuePush(arg0);
+        if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) == 0) {
+            *(s32 *)(unit + 0x9C) &= ~1;
+            btlActionQueuePush(action);
             if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
                 btlBossCollectTargets((u8 *)btlActionGetQueueFront());
             }
-            btlActionSetState((BtlAction *)arg0, 1);
+            btlActionSetState((BtlAction *)action, 1);
         }
         break;
     case 1:
-        if ((*(s32 *)(p + 0x9C) & 0x40) == 0) {
-            btlActionSetState((BtlAction *)arg0, 0x24);
+        if ((*(s32 *)(unit + 0x9C) & 0x40) == 0) {
+            btlActionSetState((BtlAction *)action, 0x24);
             return;
         }
-        if (datCalcIsDead(*(s32 *)(p + 0xA64), 0) == 0) {
-            *(s32 *)(p + 0x9C) &= ~1;
-            btlActionQueuePush(arg0);
-            btlActionSetState((BtlAction *)arg0, 1);
+        if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) == 0) {
+            *(s32 *)(unit + 0x9C) &= ~1;
+            btlActionQueuePush(action);
+            btlActionSetState((BtlAction *)action, 1);
         }
         break;
     default:
@@ -260,18 +279,19 @@ void btlActionDeadUpdate(u8 *arg0)
 }
 
 // FUN_001B0590
-void btlActionExitInit(u8 *arg0)
+/* Clear the displayed-unit bit before an attached unit exits. */
+void btlActionExitInit(u8 *action)
 {
-    s32 temp;
-    u8 *p;
-    s32 *field;
+    s32 flags;
+    u8 *unit;
+    s32 *unitFlags;
 
-    if (*(u16 *)(arg0 + 0x1A) & 1) {
-        p = *(u8 **)(arg0 + 0x30);
-        field = (s32 *)(p + 0x9C);
-        temp = *field;
-        if (temp & 8) {
-            *field = temp & ~8;
+    if (((BtlAction *)action)->unk_1a & 1) {
+        unit = *(u8 * *)&((BtlAction *)action)->unit;
+        unitFlags = (s32 *)(unit + 0x9C);
+        flags = *unitFlags;
+        if (flags & 8) {
+            *unitFlags = flags & ~8;
         }
     }
 }
@@ -285,76 +305,78 @@ void btlActionExitInit(u8 *arg0)
 /* measured: func_001b05d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_001B05D0
-void btlActionExitUpdate(u8 *arg0)
+/* Wait for unit packets, release encounter references and the unit, then mark the action for deletion. */
+void btlActionExitUpdate(u8 *action)
 {
+    /* Typed encounter-slot indexing changed codegen (500B trial); retain offset-first C74/C94 table reads. */
     u8 *found;
     u8 *base;
-    u8 *p;
-    u8 *temp;
-    u16 i;
+    u8 *unit;
+    u8 *entry;
+    u16 slotIndex;
     s32 offset;
-    u8 status;
+    u8 genus;
     u8 *table;
 
-    if (*(u16 *)(arg0 + 0x1A) & 1) {
-        p = *(u8 **)(arg0 + 0x30);
-        if (*(u16 *)(p + 0xA0) != 0) {
+    if (((BtlAction *)action)->unk_1a & 1) {
+        unit = *(u8 * *)&((BtlAction *)action)->unit;
+        if (((BtlUnit *)unit)->pendingPacketCount != 0) {
             return;
         }
-        status = *(u8 *)(p + 0xA2);
-        switch (status) {
+        genus = ((BtlUnit *)unit)->genus;
+        switch (genus) {
         case 0:
-            if (*(u16 *)(arg0 + 0x18) & 0x20) {
+            if (((BtlAction *)action)->flags & 0x20) {
                 found = NULL;
-                i = 0;
+                slotIndex = 0;
                 base = (u8 *)iGpffffb3ac;
-                while (i < 4U) {
-                    offset = i * 4;
-                    temp = *(u8 **)(base + offset + 0xC74);
-                    if (temp != NULL) {
-                        if (*(DatUnit **)(temp + 4) ==
-                            *(DatUnit **)(p + 0xA64)) {
+                while (slotIndex < 4U) {
+                    offset = slotIndex * 4;
+                    entry = *(u8 **)(base + offset + 0xC74);
+                    if (entry != NULL) {
+                        if (((BtlEncounterEntry *)entry)->unitData ==
+                            ((BtlUnit *)unit)->datUnit) {
                             found = *(u8 **)(func_001bf3a0_add(offset, base) + 0xC74);
                             break;
                         }
                     }
-                    i++;
+                    slotIndex++;
                 }
                 if (found == NULL) {
                     table = base;
-                    i = 0;
-                    while (i < 3U) {
-                        offset = i * 8;
-                        temp = *(u8 **)(table + offset + 0xC94);
-                        if (temp != NULL &&
-                            *(DatUnit **)(temp + 4) == *(DatUnit **)(p + 0xA64)) {
-                            found = temp;
+                    slotIndex = 0;
+                    while (slotIndex < 3U) {
+                        offset = slotIndex * 8;
+                        entry = *(u8 **)(table + offset + 0xC94);
+                        if (entry != NULL &&
+                            ((BtlEncounterEntry *)entry)->unitData == ((BtlUnit *)unit)->datUnit) {
+                            found = entry;
                             break;
                         }
-                        i++;
+                        slotIndex++;
                     }
                 }
                 if (found != NULL) {
-                    *(u16 *)(found + 0xA) &= 0xFFFE;
+                    ((BtlEncounterEntry *)found)->flags &= 0xFFFE;
                 }
-                datCalcClearBadStatus(*(s32 *)(p + 0xA64), 0xFFF7FFFF);
-                datCalcClearAllBuffs(*(u8 **)(p + 0xA64));
+                datCalcClearBadStatus(*(s32 *)&((BtlUnit *)unit)->datUnit, 0xFFF7FFFF);
+                datCalcClearAllBuffs(*(u8 * *)&((BtlUnit *)unit)->datUnit);
             }
             break;
         case 1:
-            if (datCalcIsDead(*(s32 *)(p + 0xA64), 0) != 0) {
-                datUnitRemoveEncounterUnit(*(DatUnitEc **)((u8 *)iGpffffb3ac + 0xC68),
-                              *(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+            if (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) != 0) {
+                datUnitRemoveEncounterUnit(*(DatUnitEc * *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->encounterRecord,
+                              ((BtlUnit *)*(u8 * *)&((BtlAction *)action)->unit)->datUnit);
             }
             break;
         }
-        btlUnitUnlinkAndFree(*(u8 **)(arg0 + 0x30));
-        *(u8 **)(arg0 + 0x30) = NULL;
-        *(u16 *)(arg0 + 0x1A) &= 0xFFFE;
+        btlUnitUnlinkAndFree(*(u8 * *)&((BtlAction *)action)->unit);
+        *(u8 * *)&((BtlAction *)action)->unit = NULL;
+        ((BtlAction *)action)->unk_1a &= 0xFFFE;
     }
-    func_001b08f0(arg0);
-    btlCameraReleaseActionRefs(arg0);
-    *(u16 *)(arg0 + 0x1A) |= 2;
+    func_001b08f0(action);
+    btlCameraReleaseActionRefs(action);
+    ((BtlAction *)action)->unk_1a |= 2;
 }
 
 #pragma pop
