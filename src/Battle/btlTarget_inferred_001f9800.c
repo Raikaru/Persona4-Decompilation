@@ -1,3 +1,6 @@
+#include "btl_voice_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +16,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -43,7 +34,7 @@ extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 sdkSndIsChannelPlaying(s32 arg0);
+extern s32 sdkSndIsChannelPlaying(s16 channel);
 
 
 
@@ -142,53 +133,55 @@ extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
 /* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
 /* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
+/* Run the voice selector once, wait for channel 3, and bracket the unit/model talk flags. */
+/* measured: remaining packet/action reloads changed MATCH when typed. Model +0x2E0 is a talk-control halfword inside an otherwise opaque model span. */
 // FUN_001F9800
-s32 btlVoicePacketUpdate(u8 *arg0)
+s32 btlVoicePacketUpdate(u8 *packetData)
 {
-    s32 temp_2;
-    u8 *temp_16;
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
+    s32 voiceId;
+    u8 *action;
+    u8 *finishingUnit;
+    u8 *finishingModel;
+    u8 *speakingUnit;
+    u8 *speakingModel;
 
-    if ((*(u16 *)(iGpffffb3ac + 0xB2E) & 1) == 0) {
+    if ((((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->flags & 1) == 0) {
         return 1;
     }
-    temp_16 = *(u8 **)arg0;
-    if (*(s32 *)(arg0 + 0x14) == 0) {
-        if ((temp_16 != NULL) &&
-            ((*(u16 *)(temp_16 + 0x1A) & 1) == 0)) {
+    action = *(u8 **)packetData;
+    if (((BtlVoicePacketWork *)packetData)->started == 0) {
+        if ((action != NULL) &&
+            ((((BtlAction *)action)->unk_1a & 1) == 0)) {
             return 1;
         }
-        temp_2 = D_00624FF0[*(u16 *)(arg0 + 4)](
-            temp_16, *(s32 *)(arg0 + 8), *(s32 *)(arg0 + 0xC));
-        if (temp_2 == -1) {
+        voiceId = D_00624FF0[((BtlVoicePacketWork *)packetData)->callbackIndex](
+            action, ((BtlVoicePacketWork *)packetData)->argument, ((BtlVoicePacketWork *)packetData)->extraArgument);
+        if (voiceId == -1) {
             return 1;
         }
-        sdkSndStartIndexedSource(*(u16 *)(iGpffffb3ac + 0xB30), 3, (u16)temp_2);
-        *(s32 *)(arg0 + 0x14) = 1;
+        sdkSndStartIndexedSource(((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->bank, 3, (u16)voiceId);
+        *(s32 *)(packetData + 0x14) = 1;
         goto block_15_9800;
     }
     if (sdkSndIsChannelPlaying(3) != 1) {
-        if ((*(u16 *)(arg0 + 0x10) & 1) == 0 && (temp_16 != NULL)) {
-            temp_3 = *(u8 **)(temp_16 + 0x30);
-            if ((*(s32 *)(temp_3 + 0x98) & 2) != 0) {
-                *(u16 *)(temp_3 + 0x9D8) &= 0xFFEF;
-                temp_3_2 = *(u8 **)(*(u8 **)(temp_16 + 0x30) + 0xA00);
-                *(u16 *)(temp_3_2 + 0x2E0) |= 0x20;
+        if ((((BtlVoicePacketWork *)packetData)->flags & 1) == 0 && (action != NULL)) {
+            finishingUnit = *(u8 **)(action + 0x30);
+            if ((((BtlUnit *)finishingUnit)->flags2 & 2) != 0) {
+                ((BtlUnit *)finishingUnit)->unk_9d8 &= 0xFFEF;
+                finishingModel = ((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->layerHandle;
+                *(u16 *)(finishingModel + 0x2E0) |= 0x20;
             }
         }
         return 1;
     }
 block_15_9800:
-    if ((*(u16 *)(arg0 + 0x10) & 1) == 0 &&
-        *(s32 *)(arg0 + 0x14) == 1 && (temp_16 != NULL)) {
-        temp_3_3 = *(u8 **)(temp_16 + 0x30);
-        if ((*(s32 *)(temp_3_3 + 0x98) & 2) != 0) {
-            *(u16 *)(temp_3_3 + 0x9D8) |= 0x10;
-            temp_3_4 = *(u8 **)(*(u8 **)(temp_16 + 0x30) + 0xA00);
-            *(u16 *)(temp_3_4 + 0x2E0) &= 0xFFDF;
+    if ((((BtlVoicePacketWork *)packetData)->flags & 1) == 0 &&
+        *(s32 *)(packetData + 0x14) == 1 && (action != NULL)) {
+        speakingUnit = *(u8 **)(action + 0x30);
+        if ((((BtlUnit *)speakingUnit)->flags2 & 2) != 0) {
+            ((BtlUnit *)speakingUnit)->unk_9d8 |= 0x10;
+            speakingModel = ((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->layerHandle;
+            *(u16 *)(speakingModel + 0x2E0) &= 0xFFDF;
         }
     }
     return 0;

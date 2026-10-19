@@ -61,7 +61,7 @@ extern u32 btlSoundLoadStream(u16* work);
 extern void strcpy(char* destination, const char* source);
 extern u32 btlSoundClearUnitFlag10(void* work);
 extern u32 btlSoundSetUnitFlag10(void* work);
-extern u32 func_001f9750(void* work);
+extern u32 btlVoiceEnablePlaybackPacketUpdate(void* work);
 
 
 
@@ -391,7 +391,7 @@ void btlSoundCreateWaitPacket(void)
 
     packet = btlPacketAlloc(0xA00, 8);
     packet->flags &= ~(1 << 0);
-    packet->updateFunc = func_001f9750;
+    packet->updateFunc = btlVoiceEnablePlaybackPacketUpdate;
     work = (u32*)packet->workData;
     work[0] = 0;
     work[1] = 0;
