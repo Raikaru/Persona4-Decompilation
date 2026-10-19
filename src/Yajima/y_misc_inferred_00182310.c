@@ -383,7 +383,7 @@ s32 FldRainUpdate(u8 *task)
     extern RainMatrix *RwMatrixScale(RainMatrix *matrix, const RainVector *scale, enum RwOpCombineType combine);
     extern s32 func_003a2770(struct RpAtomic *atomic, RainLock *lock, u32 dataFlags, enum RpPTankLockFlags lockFlags);
     extern struct RpAtomic *func_003a2920(struct RpAtomic *atomic);
-    extern u8 *func_00460d80(u8 *list, s32 payload);
+    extern u8 *sdkOtQueueDrawObject(u8 *list, s32 payload);
     extern void FldRainRenderStateSet(void);
     extern void *(*D_008873F4[])(size_t, size_t, u32);
     extern u8 D_005F1D80[];
@@ -642,7 +642,7 @@ s32 FldRainUpdate(u8 *task)
         func_003a2920(*(struct RpAtomic **)(work + 8));
         {
             u8 *drawNode;
-            drawNode = func_00460d80(D_00794420, *(s32 *)(work + 8));
+            drawNode = sdkOtQueueDrawObject(D_00794420, *(s32 *)(work + 8));
             *(void (**)(void))(drawNode + 8) = FldRainRenderStateSet;
             *(s32 *)(drawNode + 0x10) = 0;
         }

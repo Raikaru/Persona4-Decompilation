@@ -10,13 +10,13 @@ extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void cldDungeonInDrawFrame(void *unused, void *task);
 extern u8 D_007964F0[];
-extern void func_002e1ef0(void *a);
+extern void nmListDestroyManager(void *a);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void sdkSndFadeOutChannel(s32 a, s32 b);
 extern void datSetFlag(s32 a, s32 b);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
-extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
+extern u8 *nmListAllocManager(s32 a, s32 b, s32 c, s32 d);
 extern void sdkSndRequestTrack(s32 a);
 extern u8 D_00638FC0[];
 extern u8 D_0063B070[];
@@ -65,7 +65,7 @@ void cldDungeonInTaskDestroy(u8 *task);
 // FUN_00268920
 void cldDungeonInTaskDestroy(u8 *task) {
     DungeonInWork *work = (DungeonInWork *)kwlnTaskGetWork(task);
-    func_002e1ef0((void *)*work->list);
+    nmListDestroyManager((void *)*work->list);
     jtbl_008873EC[0](work);
     sdkSndFadeOutChannel(3, 0);
     datSetFlag(0x1470, 0);
@@ -104,7 +104,7 @@ s32 cldDungeonInStart(s32 parentTask) {
     chkmemAllocSiteTag(D_00638FC0, 0x33D);
     work = D_008873F4[0](1, 0xC, 0x40000);
     work->state = 0;
-    list = func_002e1db0(0x10, 0, 0, 0);
+    list = nmListAllocManager(0x10, 0, 0, 0);
     /* The list provider exposes its self-reference at +0x24; its remaining layout is opaque here. */
     listReference = *(u8 ***)(list + 0x24);
     *listReference = list;
@@ -120,7 +120,7 @@ extern void H_Fade_SetCustomColor(s32, s32, s32);
 extern void PrimDrawContour(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
 extern s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 extern u8 *resourceFindByName(char *);
-extern u8 *func_002e2170(u8 *, u8 *, s32);
+extern u8 *nmListAppendNode(u8 *, u8 *, s32);
 extern void kAssertFail(const void *, s32);
 extern void *memcpy(void *, const void *, u32);
 extern void cldShapeListDraw(u8 **);
@@ -231,7 +231,7 @@ void cldDungeonInDrawFrame(void *unused, void *task)
                 mode = entry->mode;
                 duration = entry->duration;
                 kind = entry->kind;
-                nodeWork = ((DungeonInNode *)func_002e2170((u8 *)*work->list,
+                nodeWork = ((DungeonInNode *)nmListAppendNode((u8 *)*work->list,
                     (u8 *)(u32)((*work->list)->count + 1), 0x58))->work;
                 nodeWork->flags |= 1;
                 if (nodeWork == NULL) kAssertFail(D_00638FC0, 86);

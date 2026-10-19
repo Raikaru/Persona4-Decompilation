@@ -104,7 +104,7 @@ typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 // FUN_00468D10
 void movieLoadStep(void)
 {
-    extern s32 func_00468bf0(u8 *node, s32 slot);
+    extern s32 sdkPakStartEntryLoad(u8 *node, s32 slot);
     extern s32 func_004c9820(ADXF request);
     extern void *memset(void *dst, s32 value, size_t count);
     extern void H_Cdvd_RegisterArchiveEntries(u8 *basePath, u8 *archive, s32 singleEntry);
@@ -129,7 +129,7 @@ void movieLoadStep(void)
         case 1:
             ((FldArchiveLoadNode *)node)->cursor = 0;
             for (phase = 0; phase < 10; phase++) {
-                if (func_00468bf0(node, phase) == 0) {
+                if (sdkPakStartEntryLoad(node, phase) == 0) {
                     break;
                 }
             }
@@ -142,7 +142,7 @@ void movieLoadStep(void)
                     if (func_004c9820(*(ADXF *)&((FldArchiveLoadNode *)node)->requests[slot]) == 3) {
                         func_004c8a60(*(ADXF *)(node + 0x10 + slot * 4));
                         *(s32 *)(node + 0x10 + slot * 4) = 0;
-                        if (func_00468bf0(node, slot) == 1) {
+                        if (sdkPakStartEntryLoad(node, slot) == 1) {
                             phase = 0;
                         }
                     } else {

@@ -15,7 +15,7 @@ typedef struct NmlistList {
     u16 count;
 } NmlistList;
 
-extern NmlistNode *func_002e2080(int *owner, int *source);
+extern NmlistNode *nmListUnlinkNode(int *owner, int *source);
 extern void FUN_0043f9c8(u32 dest, int value, u32 size);
 
 extern code DAT_008873ec_abs[];
@@ -32,7 +32,7 @@ NmlistNode *comuDataRemoveAndReleaseNode(NmlistList *owner, NmlistList *source, 
     node = (NmlistNode *)nodeStorage;
     list2 = source;
     list = owner;
-    next = func_002e2080((int *)list2, (int *)node);
+    next = nmListUnlinkNode((int *)list2, (int *)node);
     if (node == list2->cursor) {
         list2->cursor = (NmlistNode *)next;
     }

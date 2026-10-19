@@ -80,11 +80,11 @@ extern u16 D_008C0276[];
 extern char iGpffffb020[3];
 extern char iGpffffb024[2];
 extern char iGpffffb028[6];
-extern u8 *func_00468940(u8 *arg0, s64 arg1);
+extern u8 *sdkFilerSelectorCreate(u8 *arg0, s64 arg1);
 extern void sdkListStateConfigure(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void sdkListStateSetPrimaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 sdkListStateHandleInput(u8 *arg0);
-extern s32 func_004688d0(u8 *arg0, s8 *arg1);
+extern s32 sdkFilerSelectorPoll(u8 *arg0, s8 *arg1);
 extern s32 strcmp(const char *a, const char *b);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
@@ -410,7 +410,7 @@ parentDirectory:
         } else if ((D_008C0276[0] & 0x80) != 0) {
             position.xy[0] = 48.0f;
             position.xy[1] = 248.0f;
-            work->chooser = func_00468940(task, position.packed);
+            work->chooser = sdkFilerSelectorCreate(task, position.packed);
             work->state = 4;
         } else if ((D_008C0276[0] & 0x20) != 0) {
             work->accepted = 0;
@@ -429,7 +429,7 @@ parentDirectory:
     case 3:
         break;
     case 4:
-        if (func_004688d0(work->chooser, typedName) != 0) {
+        if (sdkFilerSelectorPoll(work->chooser, typedName) != 0) {
             if (typedName[0] == 0) {
                 work->state = 2;
             } else {

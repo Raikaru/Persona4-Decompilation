@@ -15,7 +15,7 @@ extern void *func_003ef650(void *value, const char *other);
 extern void func_003ef610(s32 value);
 extern void func_003ef5b0(s32 value, s32 other);
 
-extern s32 func_00468170(void *value, const char *other);
+extern s32 sdkFilerTaskCreate(void *value, const char *other);
 extern s32 sdkFilerPollResult(s32 value, void *other);
 extern void K_Clump_LogCodeCounts(void *value);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
@@ -761,7 +761,7 @@ s32 K_TexStripCodeLogUpdate(u8 *task)
     switch (work->state)
     {
     case 0:
-        work->filerTask = func_00468170(task, D_005F6490);
+        work->filerTask = sdkFilerTaskCreate(task, D_005F6490);
         work->state = work->state + 1;
         break;
     case 1:

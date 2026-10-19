@@ -180,7 +180,7 @@ s32 itfMesWindowInstall(u8* str);
 void itfMesWindowApplyStyle(s32 handle, s32 arg1, s32 arg2);
 s32 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
 void H_Cdvd_Destroy(s32 handle);
-u8* func_00468170(void* parent, const char* text);
+u8* sdkFilerTaskCreate(void* parent, const char* text);
 s32 sprintf(char* dst, const char* format, ...);
 u32 strlen(void* arg0);
 
@@ -981,7 +981,7 @@ s32 scrStartScriptTask(u8 *sdkTask)
             }
             n--;
         }
-        task->unk_04 = func_00468170(sdkTask, task->text);
+        task->unk_04 = sdkFilerTaskCreate(sdkTask, task->text);
         task->unk_0C = 1;
         task->state = 0;
         break;

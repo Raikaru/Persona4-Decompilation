@@ -20,7 +20,7 @@ typedef struct NmlistManager {
 
 extern void fclSpriteStartPosition(u8 *sprite, FclVec2 start, FclVec2 end, u32 mode, s32 duration, s32 delay);
 extern u8 *iGpffffb588;
-extern u8 *func_002e1db0(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
+extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
 extern s32 fclBankQueueRequest();
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern s32 resourceFindByName(const void *name);
@@ -263,7 +263,7 @@ void fclDrawEquipHelpSprite(s32 spriteId, FclVec2 position, f32 depth, s32 layer
 // FUN_002E0D60
 s32 fclBankManagerCreate(void)
 {
-    u8 *manager = func_002e1db0(0x30, 0, 0, 0);
+    u8 *manager = nmListAllocManager(0x30, 0, 0, 0);
     iGpffffb588 = manager;
     return (s32)((NmlistManager *)manager)->data;
 }

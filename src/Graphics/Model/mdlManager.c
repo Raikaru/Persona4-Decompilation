@@ -266,7 +266,7 @@ extern f32 iGpffff80cc;
 extern void* mdlAllocModelObject(u32 type, u16 id);
 extern s32 mdlLayerIsPresent(void* a, s32 b);
 extern u32* func_003971d0(u8*, s32, s32, s32);
-extern void* func_00462ae0(void* object);
+extern void* sdkClumpCreateBuckets(void* object);
 extern void mdlEffectListRefreshHandles();
 extern void* func_003c0520();
 extern u32 *mdlEffectListCopy(u32 **head);
@@ -4243,7 +4243,7 @@ void mdlSetupPreparedModel(u8* arg0)
             }
         }
     }
-    *(void**)(arg0 + 0xE0) = func_00462ae0(*(void**)(arg0 + 0xDC));
+    *(void**)(arg0 + 0xE0) = sdkClumpCreateBuckets(*(void**)(arg0 + 0xDC));
     RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), mdlEnsureAtomicMatColors, NULL);
     temp_3 = *(u16*)(arg0 + 0xD4);
     switch (temp_3) {
@@ -4525,7 +4525,7 @@ void mdlCopyModelState(u8* source, u8* destination)
     if (*(void**)(source + 0xdc) != 0) {
         void* clump = func_003c0520(*(void**)(source + 0xdc));
         *(void**)(destination + 0xdc) = clump;
-        *(void**)(destination + 0xe0) = func_00462ae0(clump);
+        *(void**)(destination + 0xe0) = sdkClumpCreateBuckets(clump);
     }
     for (layer = 0; layer < 2; layer++) {
         if (mdlLayerIsPresent(source, (u16)layer) != 0) {

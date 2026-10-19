@@ -106,7 +106,7 @@ extern char D_00710910[];
 #pragma opt_loop_invariants on
 void H_Cdvd_UpdateRequests(void)
 {
-    extern void func_00468a50(void);
+    extern void sdkPakUpdateDirectoryLoads(void);
     extern void movieLoadStep(void);
     extern void H_Cdvd_SelectDirectory(void *arg0);
     extern void H_Cdvd_ParseArchive(void *arg0);
@@ -136,7 +136,7 @@ void H_Cdvd_UpdateRequests(void)
     s32 state;
     s16 i;
 
-    func_00468a50();
+    sdkPakUpdateDirectoryLoads();
     movieLoadStep();
     node = (HCdvd *)D_008D1B84[0];
     if (node == NULL) {

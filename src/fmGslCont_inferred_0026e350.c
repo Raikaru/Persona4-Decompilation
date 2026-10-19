@@ -94,7 +94,7 @@ extern u32 datGetItemNameId(s16 id);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
-extern s32 func_0045ae10(s32 value, s32 otherValue, s32 thirdValue);
+extern s32 sdkSndStartIndexedSource(s32 value, s32 otherValue, s32 thirdValue);
 extern s32 sdkSndStartChannel(s16 value, const char *otherValue);
 extern s32 D_008815B0[];
 extern void frFontUpdateTextWork(u8 *value);
@@ -1251,20 +1251,20 @@ L0:
 
 L1:
     if (fourth != 0) {
-        func_0045ae10(action, channel, fourth);
+        sdkSndStartIndexedSource(action, channel, fourth);
     }
     goto Lend;
 
 L2:
-    func_0045ae10(third, 1, fourth);
+    sdkSndStartIndexedSource(third, 1, fourth);
     goto Lend;
 
 L3:
-    func_0045ae10(third, 1, fourth);
+    sdkSndStartIndexedSource(third, 1, fourth);
     goto Lend;
 
 L4:
-    func_0045ae10(third, 1, fourth);
+    sdkSndStartIndexedSource(third, 1, fourth);
     goto Lend;
 
 Lend:
