@@ -3,6 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+#include "mdl_effect_resource_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct RwV3d
@@ -54,84 +55,102 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484830-00484ae0 */
 
+/* Clone a primitive payload through its kind-specific child constructor. */
 // FUN_00484830
-u8 *mdlEffectCreateChildRecord(u8 *arg0)
+u8 *mdlEffectCreateChildRecord(u8 *record)
 {
-    u32 temp_3;
-    u16 temp_18;
-    u8 *temp_2;
-    temp_3 = *(u32 *)(arg0 + 0);
-    if (temp_3 <= 0xD2U) {
+    u32 tag;
+    u16 kind;
+    u8 *child;
+    tag = ((MdlEffectPrimitiveRecord *)record)->tag.value;
+    if (tag <= 0xD2U) {
         goto code1_0048_after_check;
     } else {
         kAssertFail(D_00713470, 0x318);
     }
 code1_0048_after_check:
-    temp_18 = *(u16 *)(arg0 + 4);
+    kind = ((MdlEffectPrimitiveRecord *)record)->kind;
     chkmemAllocSiteTag(D_00713470, 0x21);
-    temp_2 = jtbl_008873E8[0](0x2C, 0x40000);
-    if (temp_2 == NULL) {
+    child = jtbl_008873E8[0](0x2C, 0x40000);
+    if (child == NULL) {
         kAssertFail(D_00713470, 0x22);
     }
-    memset(temp_2, 0, 0x2C);
-    *(s32 *)(temp_2 + 0) = 0xD2;
-    *(u16 *)(temp_2 + 4) = temp_18;
-    *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0xC);
-    *(u16 *)(temp_2 + 0x1C) = *(u16 *)(arg0 + 0x1C);
-    if (*(EffectInstanceConstructor *)(D_00713494 + (*(u16 *)(temp_2 + 4) << 6)) == NULL) {
+    memset(child, 0, 0x2C);
+    ((MdlEffectPrimitiveRecord *)child)->tag.signedValue = 0xD2;
+    *(u16 *)(child + 4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    ((MdlEffectPrimitiveRecord *)child)->id = ((MdlEffectPrimitiveRecord *)record)->id;
+    ((MdlEffectPrimitiveRecord *)child)->sourceKind = ((MdlEffectPrimitiveRecord *)record)->sourceKind;
+    if (*(EffectInstanceConstructor *)(D_00713494 + (*(u16 *)(child + 4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
         kAssertFail(D_00713470, 0x321);
     }
-    *(void **)(temp_2 + 8) =
-        (*(EffectInstanceConstructor *)(D_00713494 + (*(u16 *)(temp_2 + 4) << 6)))(
-            *(void **)(arg0 + 8));
-    return temp_2;
+    ((MdlEffectPrimitiveRecord *)child)->instance.pointer =
+        (*(EffectInstanceConstructor *)(D_00713494 + (((MdlEffectPrimitiveRecord *)child)->kind << 6)))( /* The 0x40-byte kind table has slot-specific callback signatures. */
+            ((MdlEffectPrimitiveRecord *)record)->instance.pointer);
+    return child;
 }
 
+/* Invoke the optional start callback for this primitive kind. */
 // FUN_00484970
-void mdlEffectStartChild(u8 *arg0) {
-    void (*fn)(s32) = *(void (**)(s32))(D_0071349C + (*(u16 *)(arg0 + 4) << 6));
+void mdlEffectStartChild(u8 *record) {
+    void (*fn)(s32) = *(void (**)(s32))(D_0071349C + (((MdlEffectPrimitiveRecord *)record)->kind << 6));
 
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8));
+        fn(((MdlEffectPrimitiveRecord *)record)->instance.handle);
     }
 }
 
+/* Commit the primitive through its required kind callback. */
 // FUN_004849C0
-void mdlEffectCommitChild(u8 *arg0)
+void mdlEffectCommitChild(u8 *record)
 {
-    void (*fn)(s32) = *(void (**)(s32))(D_00713488 + (*(u16 *)(arg0 + 4) << 6));
-    fn(*(s32 *)(arg0 + 8));
+    void (*fn)(s32) = *(void (**)(s32))(D_00713488 + (((MdlEffectPrimitiveRecord *)record)->kind << 6));
+    fn(((MdlEffectPrimitiveRecord *)record)->instance.handle);
 }
 
+/* Flush the primitive through its required kind callback. */
 // FUN_00484A00
-void mdlEffectFlushChild(u8 *arg0)
+void mdlEffectFlushChild(u8 *record)
 {
-    void (*fn)(s32) = *(void (**)(s32))(D_0071348C + (*(u16 *)(arg0 + 4) << 6));
-    fn(*(s32 *)(arg0 + 8));
+    void (*fn)(s32) = *(void (**)(s32))(D_0071348C + (((MdlEffectPrimitiveRecord *)record)->kind << 6));
+    fn(((MdlEffectPrimitiveRecord *)record)->instance.handle);
 }
 
+/* Forward data to the primitive's optional update callback. */
 // FUN_00484A40
-void mdlEffectUpdateChildData(u8 *arg0, void *arg1) {
-    void (*fn)(s32, void *) = *(void (**)(s32, void *))(D_007134A0 + (*(u16 *)(arg0 + 4) << 6));
+void mdlEffectUpdateChildData(u8 *record, void *data) {
+    void (*fn)(s32, void *) = *(void (**)(s32, void *))(D_007134A0 + (((MdlEffectPrimitiveRecord *)record)->kind << 6));
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8), arg1);
+        fn(((MdlEffectPrimitiveRecord *)record)->instance.handle, data);
     }
 }
 
+/* Forward a scalar to the primitive's optional scale callback. */
 // FUN_00484A90
-void mdlEffectScaleChild(u8 *arg0, f32 scale) {
-    void (*fn)(s32, f32) = *(void (**)(s32, f32))(D_007134A8 + (*(u16 *)(arg0 + 4) << 6));
+void mdlEffectScaleChild(u8 *record, f32 scale) {
+    void (*fn)(s32, f32) = *(void (**)(s32, f32))(D_007134A8 + (((MdlEffectPrimitiveRecord *)record)->kind << 6));
 
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8), scale);
+        fn(((MdlEffectPrimitiveRecord *)record)->instance.handle, scale);
     }
 }
 
+/* Forward packed color to the primitive's optional color callback. */
 // FUN_00484AE0
-void mdlEffectSetChildColor(u8 *arg0, s32 arg1) {
-    void (*fn)(s32, s32) = *(void (**)(s32, s32))(D_007134B0 + (*(u16 *)(arg0 + 4) << 6));
+void mdlEffectSetChildColor(u8 *record, s32 packedColor) {
+    void (*fn)(s32, s32) = *(void (**)(s32, s32))(D_007134B0 + (((MdlEffectPrimitiveRecord *)record)->kind << 6));
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8), arg1);
+        fn(((MdlEffectPrimitiveRecord *)record)->instance.handle, packedColor);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 

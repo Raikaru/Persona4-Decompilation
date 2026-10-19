@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -26,10 +27,10 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern void effMiscQuatMultiplyVU(void);
-extern void mdlEffectAimDirection(u8 *arg0, u8 *arg1);
-extern f32 func_0044b920(f32 arg0);
-extern f32 func_0044b950(f32 arg0, f32 arg1);
-extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
+extern void mdlEffectAimDirection(u8 *effect, u8 *target);
+extern f32 func_0044b920(f32 effect);
+extern f32 func_0044b950(f32 effect, f32 target);
+extern void effMiscEulerToQuatVU(f32 effect, f32 target, f32 output);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -73,50 +74,53 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* measured: opt_propagation off keeps `alloc` live in $s1 across all three
    allocations instead of re-materialising the table address at the first use. */
 /* measured: closes the propagation bracket; the file default is on. */
+/* Return the child at the requested list index, asserting when it is out of range. */
 // FUN_00486780
-u8 *func_00486780(u8 *arg0, s32 arg1)
+u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 target)
 {
-    s32 temp_3;
-    s32 var_5;
-    u8 *var_2;
+    s32 remainingBeforeStep;
+    s32 remaining;
+    u8 *child;
 
-    var_5 = arg1;
-    var_2 = *(u8 **)(arg0 + 0x8C);
+    remaining = target;
+    child = ((MdlEffectNode *)effect)->children;
     goto loop_00486780_check;
 loop_00486780_body:
-    temp_3 = var_5;
-    var_5 -= 1;
-    if (temp_3 == 0) {
-        return var_2;
+    remainingBeforeStep = remaining;
+    remaining -= 1;
+    if (remainingBeforeStep == 0) {
+        return child;
     }
-    var_2 = *(u8 **)(var_2 + 0xAC);
+    child = ((MdlEffectNode *)child)->next;
 loop_00486780_check:
-    if (var_2 != NULL) {
+    if (child != NULL) {
         goto loop_00486780_body;
     }
     kAssertFail(D_00713470, 0xA87);
     return NULL;
 }
 
+/* Find the list index of a child pointer, asserting when it is not in this tree. */
 // FUN_004867E0
-s32 func_004867e0(u8 *arg0, u8 *arg1)
+s32 mdlEffectGetChildIndex(u8 *effect, u8 *target)
 {
     s32 index = 0;
-    u8 *node = *(u8 **)(arg0 + 0x8C);
+    u8 *node = ((MdlEffectNode *)effect)->children;
 
     while (node != NULL) {
-        if (node == arg1) {
+        if (node == target) {
             return index;
         }
         index++;
-        node = *(u8 **)(node + 0xAC);
+        node = ((MdlEffectNode *)node)->next;
     }
     kAssertFail(D_00713470, 0xA9E);
     return 0;
 }
 
+/* Resolve the child offset from its flags and target direction; write the full VU vector. */
 // FUN_00486840
-u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
+u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output)
 {
     /* measured: O1 probe for initial flag and aggregate register colours. */
     u32 values[3];
@@ -127,17 +131,17 @@ u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
 
     {
 
-        flags = *(s32 *)(arg0 + 0x68);
+        flags = ((MdlEffectState *)effect)->flags.signedValue;
         mask = flags & 0x18;
         if (mask == 0) {
-            value = *(u_long128 *)(arg0 + 0x40);
-            *(u_long128 *)arg2 = value;
+            value = *(u_long128 *)((MdlEffectState *)effect)->offset; /* Transfer the complete quadword representation, including the VU W lane. */
+            *(u_long128 *)output = value;
             return value;
         }
         __asm__ volatile(
             "lqc2 $vf10, 64(%0) \n"
             :
-            : "r"(arg0)
+            : "r"(effect)
             : "$vf10", "memory");
         mask = flags & 0x10;
         if (mask != 0) {
@@ -169,7 +173,7 @@ u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
             :
             : "$2", "$f0", "$vf2", "$vf10", "Q", "memory");
     }
-    mdlEffectAimDirection(arg1, work);
+    mdlEffectAimDirection(target, work);
     {
         u32 mask;
 
@@ -179,7 +183,7 @@ u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
             :
             : "r"(work)
             : "$vf10", "memory");
-        flags = *(u32 *)(arg0 + 0x68);
+        flags = ((MdlEffectState *)effect)->flags.value;
         mask = flags & 0x10;
         if (mask != 0) {
             __asm__ volatile(
@@ -217,53 +221,69 @@ u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
                 "qmtc2 $2, $vf2 \n"
                 "vaddx.y $vf10y, $vf0y, $vf2x \n"
                 :
-                : "r"(arg0)
+                : "r"(effect)
                 : "$2", "$vf2", "$vf10", "memory");
         }
     }
     __asm__ volatile(
         "sqc2 $vf10, 0(%0) \n"
         :
-        : "r"(arg2)
+        : "r"(output)
         : "$vf10", "memory");
     /* measured: closes O1 probe for initial flag and aggregate register colours. */
 }
 
 /* measured: opening optimization_level 1 for the parked 00486970 body. */
+/* Resolve the child orientation from its flags and target direction; write the VU quaternion. */
 // FUN_00486970
-u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
+u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output)
 {
     u32 flags;
-    u_long128 sp40;
+    u_long128 direction;
     u_long128 value;
-    f32 var_f20;
+    f32 pitch;
 
-    if (((flags = *(s32 *)(arg0 + 0x68)) & 0x60) == 0) {
-        value = *(u_long128 *)(arg0 + 0x50);
-        *arg2 = value;
+    if (((flags = *(s32 *)(effect + 0x68)) & 0x60) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        value = *(u_long128 *)((MdlEffectState *)effect)->orientation; /* Transfer the complete quadword representation, including the VU W lane. */
+        *output = value;
         return value;
     }
-    mdlEffectAimDirection(arg1, (u8 *)&sp40);
-    if (*(s32 *)(arg0 + 0x68) & 0x40) {
-        var_f20 = 0.0f;
+    mdlEffectAimDirection(target, (u8 *)&direction);
+    if (*(s32 *)(effect + 0x68) & 0x40) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        pitch = 0.0f;
     } else {
-        var_f20 = -func_0044b920(-*(f32 *)((u8 *)&sp40 + 4));
+        pitch = -func_0044b920(-((EffectVuVector *)&direction)->lane[1]);
     }
-    effMiscEulerToQuatVU(var_f20,
-                  func_0044b950(*(f32 *)((u8 *)&sp40 + 0),
-                                *(f32 *)((u8 *)&sp40 + 8)),
+    effMiscEulerToQuatVU(pitch,
+                  func_0044b950(((EffectVuVector *)&direction)->lane[0],
+                                ((EffectVuVector *)&direction)->lane[2]),
                   0.0f);
-    if (*(s32 *)(arg0 + 0x68) & 0x40) {
+    if (((MdlEffectState *)effect)->flags.signedValue & 0x40) {
         __asm__ volatile(
             ".set noreorder\n"
             "vmove.xyzw $vf11, $vf10\n"
             "lqc2 $vf10, 0x50(%0)\n"
             ".set reorder\n"
             :
-            : "r"(arg0)
+            : "r"(effect)
             : "$vf10", "$vf11", "memory");
         effMiscQuatMultiplyVU();
     }
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(arg2) : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(output) : "$vf10", "memory");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

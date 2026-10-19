@@ -49,7 +49,7 @@ void EffSwayParticleUpdate(u8 *arg0)
     extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 value);
     extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern void mdlEffectUpdateParticleTrail(u8 *arg0, u8 *arg1);
     extern f32 sinf(f32 arg0);
     extern u_long128 D_00713D40;
     extern f32 fGpffff807c;
@@ -325,7 +325,7 @@ else_branch:
     particle->size = particle->size * state->sizeScale;
     particle->angle = particle->angle * state->angleScale;
     particle->angle = particle->angle + state->angleOffset;
-    func_0048b340((u8 *)emitter, (u8 *)particle);
+    mdlEffectUpdateParticleTrail((u8 *)emitter, (u8 *)particle);
     particle->age = age + 1;
 next_iter:
     index += 1;

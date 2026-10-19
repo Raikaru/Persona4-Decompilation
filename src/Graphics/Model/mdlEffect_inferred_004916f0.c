@@ -66,7 +66,7 @@ void func_004916f0(u8 *arg0)
     extern f32 fabsf(f32 arg0);
     extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern void mdlEffectUpdateParticleTrail(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     extern f32 fGpffff8084;
@@ -341,7 +341,7 @@ else_branch:
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[8];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[7];
-    func_0048b340(parent, nodes);
+    mdlEffectUpdateParticleTrail(parent, nodes);
     *(s32 *)(nodes + 16) = node10 + 1;
 next_iter2:
 next_iter:

@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_emitter_internal.h"
 #include "effect_instance_internal.h"
 #include "particle_spawn_internal.h"
 #include "effect_vu0_internal.h"
@@ -35,238 +36,240 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 #pragma opt_propagation off
 /* measured: func_004903c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* Emit downward cone particles, reflecting their vertical motion against the configured floor. */
 // FUN_004903C0
-void func_004903c0(u8 *arg0)
+void mdlEffectUpdateFloorEmitter(u8 *emitterData)
 {
-    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
-    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *parametersData, s32 frame, u_long128 *snapshot);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
     extern void effMiscBuildRotationVU(void);
-    extern f32 fabsf(f32 arg0);
+    extern f32 fabsf(f32 emitterData);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
-    EffectVuVector vec120;
+    EffectVuVector direction;
     typedef struct SwayScale3 {
         f32 lane[3];
     } __attribute__((aligned(16))) SwayScale3;
-    SwayScale3 vec110;
-    u_long128 b220buf;
+    SwayScale3 spreadVector;
+    u_long128 previousPosition;
     u32 count;
     u32 flags;
-    u8 *nodes;
-    f32 *out;
-    u8 *config;
-    u8 *const parent = arg0;
-    s32 limitB8;
-    s32 saved20;
-    u8 mode9C;
+    u8 *particle;
+    /* measured: sizeScale, angleOffset, angleScale retain array addressing for MATCH. */
+    f32 *state;
+    u8 *parameters;
+    u8 *const emitter = emitterData;
+    s32 lifetime;
+    s32 emissionDuration;
+    u8 angleMode;
     f32 variation;
-    f32 eE8;
-    f32 eE4;
-    f32 eF4;
-    f32 eD8;
+    f32 gravity;
+    f32 acceleration;
+    f32 bounceDecay;
+    f32 floorHeight;
     f32 one;
     f32 half;
     f32 two;
     f32 zero;
-    f32 g80;
-    f32 negone;
-    s32 v15;
-    u32 idx;
-    s32 tmp;
-    f32 ftmp1;
-    f32 ftmp2;
-    s32 node10;
-    s32 c0;
-    s32 c4;
-    s32 nmult;
-    u8 *clear;
-    s32 ci;
+    f32 angleScale;
+    f32 negativeOne;
+    s32 spawnBudget;
+    u32 index;
+    s32 sample;
+    f32 scaledValue;
+    f32 sampleValue;
+    s32 age;
+    s32 trailCount;
+    s32 trailWidth;
+    s32 trailLength;
+    u8 *trail;
+    s32 trailIndex;
     u32 particleIndex;
     f32 b;
 
-    count = *(u32 *)(parent + 4);
-    flags = *(u32 *)(parent + 12);
-    nodes = *(u8 **)(parent + 24);
-    out = *(f32 **)(parent + 28);
-    config = *(u8 **)(parent + 32);
-    limitB8 = *(s32 *)(config + 184);
-    if (limitB8 == 0) {
+    count = *(u32 *)(emitter + 4); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    flags = ((MdlEffectEmitter *)emitter)->flags;
+    particle = ((MdlEffectEmitter *)emitter)->particles;
+    state = ((MdlEffectEmitter *)emitter)->state.scalars;
+    parameters = ((MdlEffectEmitter *)emitter)->parameters;
+    lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
+    if (lifetime == 0) {
         return;
     }
-    saved20 = *(s32 *)(config + 32);
-    mode9C = *(u8 *)(config + 156);
-    eE8 = *(f32 *)(config + 232);
-    eF4 = *(f32 *)(config + 244);
-    eE4 = *(f32 *)(config + 228);
-    eD8 = *(f32 *)(config + 216);
-    vec120.lane[3] = 0.0f;
-    effectVuLoad10((const EffectVuVector *)(config + 16));
+    emissionDuration = ((MdlEffectEmitterParameters *)parameters)->emissionDuration;
+    angleMode = ((MdlEffectEmitterParameters *)parameters)->angleMode;
+    gravity = ((MdlEffectFloorParameters *)parameters)->gravity;
+    bounceDecay = ((MdlEffectFloorParameters *)parameters)->bounceDecay;
+    acceleration = ((MdlEffectFloorParameters *)parameters)->acceleration;
+    floorHeight = ((MdlEffectFloorParameters *)parameters)->floorHeight;
+    direction.lane[3] = 0.0f;
+    effectVuLoad10((const EffectVuVector *)(parameters + 16));
     effMiscBuildRotationVU();
-    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
-        v15 = 0;
+    if ((emissionDuration != 0) && (((MdlEffectEmitter *)emitter)->ticks >= emissionDuration)) {
+        spawnBudget = 0;
         goto post_init;
     }
-    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
-        if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            f32 prerollScale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)*(u32 *)(parent + 4);
-            v15 = (s32)(ftmp2 * prerollScale);
+    if ((((MdlEffectEmitter *)emitter)->ticks == 0) && (((MdlEffectEmitterParameters *)parameters)->preroll != 0)) {
+        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            f32 prerollScale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
+            sampleValue = (f32)((MdlEffectEmitter *)emitter)->primaryCount.value;
+            spawnBudget = (s32)(sampleValue * prerollScale);
         } else {
-            v15 = *(s32 *)(parent + 4);
+            spawnBudget = ((MdlEffectEmitter *)emitter)->primaryCount.signedValue;
         }
         goto post_init;
     } else {
-        if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(config + 36);
-            ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * ftmp1;
+        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            scaledValue = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
+            sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
+            sampleValue = (f32)(u32)sample;
+            ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator + sampleValue * scaledValue;
         } else {
-            tmp = *(s32 *)(config + 36);
-            ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
+            sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
+            scaledValue = (f32)(u32)sample;
+            ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator + scaledValue;
         }
-        ftmp1 = *(f32 *)(parent + 20);
-        ftmp1 = fabsf(ftmp1);
-        v15 = (s32)ftmp1;
-        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        scaledValue = ((MdlEffectEmitter *)emitter)->emissionAccumulator;
+        scaledValue = fabsf(scaledValue);
+        spawnBudget = (s32)scaledValue;
+        ((MdlEffectEmitter *)emitter)->emissionAccumulator = ((MdlEffectEmitter *)emitter)->emissionAccumulator - (f32)spawnBudget;
         goto post_init;
     }
 post_init:
-    idx = 0;
+    index = 0;
     one = 1.0f;
     half = 0.5f;
     two = 2.0f;
     zero = 0.0f;
-    g80 = fGpffff8080;
-    negone = -1.0f;
+    angleScale = fGpffff8080;
+    negativeOne = -1.0f;
     goto main_check;
 main_body:
-    if (*(s32 *)(nodes + 16) < limitB8) {
+    if (*(s32 *)(particle + 16) < lifetime) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         goto skip_clear;
     }
-    if (saved20 != 0) {
-        tmp = -2;
+    if (emissionDuration != 0) {
+        sample = -2;
     } else {
-        tmp = -1;
+        sample = -1;
     }
-    *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
-    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
-    nmult = c0 * c4;
-    if (nmult != 0) {
-        particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
-        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
-        ci = 0;
+    ((SpawnParticle *)particle)->age = sample;
+    trailCount = ((MdlEffectEmitterParameters *)(((MdlEffectEmitter *)emitter)->parameters))->trailCount.signedValue;
+    trailWidth = ((MdlEffectEmitterParameters *)(((MdlEffectEmitter *)emitter)->parameters))->trailWidth;
+    trailLength = trailCount * trailWidth;
+    if (trailLength != 0) {
+        particleIndex = ((u32)particle - (u32)((MdlEffectEmitter *)emitter)->particles) >> 5;
+        trail = ((MdlEffectEmitter *)emitter)->particles + ((((MdlEffectEmitter *)emitter)->primaryCount.value + particleIndex * (u32)trailLength) << 5);
+        trailIndex = 0;
         goto clear_check;
 clear_body:
-        *(s32 *)(clear + 16) = -1;
-        clear += 32;
-        ci += 1;
+        ((SpawnParticle *)trail)->age = -1;
+        trail += 32;
+        trailIndex += 1;
 clear_check:
-        if (ci < nmult) {
+        if (trailIndex < trailLength) {
             goto clear_body;
         }
     }
 skip_clear:
-    node10 = *(s32 *)(nodes + 16);
-    if (node10 == -2) {
+    age = ((SpawnParticle *)particle)->age;
+    if (age == -2) {
         goto next_iter;
     }
-    if (node10 != -1) {
+    if (age != -1) {
         goto else_branch;
     }
-    if (v15 == 0) {
+    if (spawnBudget == 0) {
         goto next_iter;
     }
-    variation = *(f32 *)(config + 212);
+    variation = ((MdlEffectFloorParameters *)parameters)->coneVariation;
     b = effMiscRandFloat(0);
-    variation = *(f32 *)(config + 208) * ((one - variation) + variation * b);
-    vec120.lane[0] = variation * ((effMiscRandFloat(0) - half) * two);
-    vec120.lane[1] = -(one - variation);
-    vec120.lane[2] = variation * ((effMiscRandFloat(0) - half) * two);
-    effectVuLoad10(&vec120);
+    variation = ((MdlEffectFloorParameters *)parameters)->cone * ((one - variation) + variation * b);
+    direction.lane[0] = variation * ((effMiscRandFloat(0) - half) * two);
+    direction.lane[1] = -(one - variation);
+    direction.lane[2] = variation * ((effMiscRandFloat(0) - half) * two);
+    effectVuLoad10(&direction);
     spawnVuNormalize10();
     if ((flags & 1) == 0) {
         spawnVuTransform10();
     }
-    effectVuStore10(&vec120);
-    out[0] = vec120.lane[0];
-    out[1] = vec120.lane[1];
-    out[2] = vec120.lane[2];
-    variation = *(f32 *)(config + 224);
+    effectVuStore10(&direction);
+    ((MdlEffectFloorState *)state)->direction[0] = direction.lane[0];
+    ((MdlEffectFloorState *)state)->direction[1] = direction.lane[1];
+    ((MdlEffectFloorState *)state)->direction[2] = direction.lane[2];
+    variation = ((MdlEffectFloorParameters *)parameters)->speedVariation;
     b = effMiscRandFloat(0);
-    out[3] = fabsf(*(f32 *)(config + 220) * ((one - variation) + variation * b));
-    variation = *(f32 *)(config + 240);
+    ((MdlEffectFloorState *)state)->speed = fabsf(*(f32 *)(parameters + 0xDC) * ((one - variation) + variation * b)); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    variation = ((MdlEffectFloorParameters *)parameters)->bounceVariation;
     b = effMiscRandFloat(0);
-    ftmp1 = (one - variation) + variation * b;
-    out[4] = -*(f32 *)(config + 236) * ftmp1;
-    variation = *(f32 *)(config + 204);
+    scaledValue = (one - variation) + variation * b;
+    ((MdlEffectFloorState *)state)->bounce = -((MdlEffectFloorParameters *)parameters)->bounce * scaledValue;
+    variation = ((MdlEffectFloorParameters *)parameters)->spreadVariation;
     b = effMiscRandFloat(0);
-    vec110.lane[0] = *(f32 *)(config + 200) * ((one - variation) + variation * b);
-    vec110.lane[1] = vec110.lane[0];
-    vec110.lane[2] = vec110.lane[0];
-    effectVuLoad10(&vec120);
-    if (*(f32 *)(config + 220) < zero) {
+    spreadVector.lane[0] = ((MdlEffectFloorParameters *)parameters)->spread * ((one - variation) + variation * b);
+    spreadVector.lane[1] = spreadVector.lane[0];
+    spreadVector.lane[2] = spreadVector.lane[0];
+    effectVuLoad10(&direction);
+    if (((MdlEffectFloorParameters *)parameters)->speed < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
     }
     if ((flags & 1) != 0) {
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&vec110), "m"(*(const u8 (*)[sizeof(vec110)])&vec110) : "$vf11");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&spreadVector), "m"(*(const u8 (*)[sizeof(spreadVector)])&spreadVector) : "$vf11");
         spawnVuMultiply10();
     } else {
-        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&vec110), "m"(*(const u8 (*)[sizeof(vec110)])&vec110) : "$vf11");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&spreadVector), "m"(*(const u8 (*)[sizeof(spreadVector)])&spreadVector) : "$vf11");
         spawnVuMultiply10();
-        effectVuLoad11((const EffectVuVector *)config);
+        effectVuLoad11((const EffectVuVector *)parameters);
         spawnVuAdd10();
     }
-    effectVuStore10((EffectVuVector *)nodes);
-    variation = *(f32 *)(config + 108);
+    effectVuStore10((EffectVuVector *)particle);
+    variation = ((MdlEffectEmitterParameters *)parameters)->sizeVariation;
     b = effMiscRandFloat(0);
-    out[5] = (one - variation) + variation * b;
-    if (mode9C != 2) {
-        variation = *(f32 *)(config + 152);
+    state[5] = (one - variation) + variation * b;
+    if (angleMode != 2) {
+        variation = ((MdlEffectEmitterParameters *)parameters)->angleVariation;
         b = effMiscRandFloat(0);
-        out[7] = (one - variation) + variation * b;
-        if (mode9C == 1) {
+        state[7] = (one - variation) + variation * b;
+        if (angleMode == 1) {
             b = effMiscRandFloat(0);
-            out[6] = g80 * b;
+            state[6] = angleScale * b;
             if ((effMiscRand(0) & 1) != 0) {
-                out[7] = out[7] * negone;
+                ((MdlEffectFloorState *)state)->angleScale = ((MdlEffectFloorState *)state)->angleScale * negativeOne;
             }
         } else {
-            out[6] = zero;
+            ((MdlEffectFloorState *)state)->angleOffset = zero;
         }
     } else {
-        out[6] = zero;
-        out[7] = one;
+        ((MdlEffectFloorState *)state)->angleOffset = zero;
+        ((MdlEffectFloorState *)state)->angleScale = one;
     }
-    *(s32 *)(nodes + 16) = 0;
-    mdlEffectSampleKeyState(nodes, config, 0, (u_long128 *)nodes);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[5];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[7];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[6];
-    v15 -= 1;
+    ((SpawnParticle *)particle)->age = 0;
+    mdlEffectSampleKeyState(particle, parameters, 0, (u_long128 *)particle);
+    ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectFloorState *)state)->sizeScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectFloorState *)state)->angleScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectFloorState *)state)->angleOffset;
+    spawnBudget -= 1;
     goto next_iter;
 else_branch:
     {
     f32 liveDistance;
     f32 height;
     {
-        u_long128 *snapshot = &b220buf;
-        *snapshot = *(u_long128 *)nodes;
+        u_long128 *snapshot = &previousPosition;
+        *snapshot = *(u_long128 *)particle;
     }
-    effectVuLoad11((const EffectVuVector *)nodes);
-    liveDistance = out[3] + eE4 * (f32)node10;
+    effectVuLoad11((const EffectVuVector *)particle);
+    liveDistance = ((MdlEffectFloorState *)state)->speed + acceleration * (f32)age;
     if (liveDistance < zero) {
         liveDistance = zero;
     }
-    out[1] = out[1] - eE8;
-    vec120.lane[0] = liveDistance * out[0];
-    vec120.lane[1] = out[1];
-    vec120.lane[2] = liveDistance * out[2];
-    effectVuLoad10(&vec120);
+    ((MdlEffectFloorState *)state)->direction[1] = ((MdlEffectFloorState *)state)->direction[1] - gravity;
+    direction.lane[0] = liveDistance * ((MdlEffectFloorState *)state)->direction[0];
+    direction.lane[1] = ((MdlEffectFloorState *)state)->direction[1];
+    direction.lane[2] = liveDistance * ((MdlEffectFloorState *)state)->direction[2];
+    effectVuLoad10(&direction);
     spawnVuAdd10();
-    effectVuStore10((EffectVuVector *)nodes);
+    effectVuStore10((EffectVuVector *)particle);
     {
         __asm__ volatile(
             "qmfc2.ni $2, $vf10\n"
@@ -275,26 +278,29 @@ else_branch:
             "nop\n"
             : "=f"(height) : : "$2");
     }
-    if (height < eD8) {
-        out[4] = out[4] * eF4;
-        out[1] = out[1] * out[4];
-        ftmp1 = out[4];
-        *(f32 *)(nodes + 4) = eD8 + ftmp1 * (*(f32 *)(nodes + 4) - eD8);
+    if (height < floorHeight) {
+        ((MdlEffectFloorState *)state)->bounce = ((MdlEffectFloorState *)state)->bounce * bounceDecay;
+        ((MdlEffectFloorState *)state)->direction[1] = ((MdlEffectFloorState *)state)->direction[1] * ((MdlEffectFloorState *)state)->bounce;
+        scaledValue = ((MdlEffectFloorState *)state)->bounce;
+        ((SpawnParticle *)particle)->position.lane[1] = floorHeight + scaledValue * (((SpawnParticle *)particle)->position.lane[1] - floorHeight);
     }
-    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[5];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[7];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[6];
-    func_0048b340(parent, nodes);
-    *(s32 *)(nodes + 16) = node10 + 1;
+    mdlEffectSampleKeyState(particle, parameters, age, &previousPosition);
+    ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectFloorState *)state)->sizeScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectFloorState *)state)->angleScale;
+    ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectFloorState *)state)->angleOffset;
+    mdlEffectUpdateParticleTrail(emitter, particle);
+    ((SpawnParticle *)particle)->age = age + 1;
     }
 next_iter:
-    idx += 1;
-    out += 8;
-    nodes += 32;
+    index += 1;
+    state += 8;
+    particle += 32;
 main_check:
-    if (idx < count) {
+    if (index < count) {
         goto main_body;
     }
 }
 
+
+
+#pragma pop

@@ -13,7 +13,7 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void func_00485630(u8 *object);
+extern void mdlEffectCommitTreeFrame(u8 *object);
 
 
 extern s32 iGpffffbb98;
@@ -62,6 +62,6 @@ extern void (*jtbl_008873EC[])(void *);
 // FUN_004B1190
 void func_004b1190(u8 *object)
 {
-    func_00485630(object);
+    mdlEffectCommitTreeFrame(object);
 }
 

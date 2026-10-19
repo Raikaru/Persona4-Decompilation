@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -25,13 +26,13 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_004823e0(u8 *arg0);
-extern void func_00481f30(u8 *arg0, s32 arg1);
-extern u8 *func_00482230(s32 *arg0);
+extern void mdlEffectReleaseTrackResource(u8 *object);
+extern void mdlEffectSelectResourceEntry(u8 *object, s32 input);
+extern u8 *mdlEffectLoadTrackResource(s32 *object);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern s32 TnUploadStreamTagged(s32 arg0);
-extern void func_003ef3a0(void *arg0);
+extern s32 TnUploadStreamTagged(s32 object);
+extern void func_003ef3a0(void *object);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
@@ -58,115 +59,116 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00481f30-004824a0 */
 
+/* Select a resource entry and initialize its single, paired or grouped tracks. */
 // FUN_00481F30
-void func_00481f30(u8 *arg0, s32 arg1)
+void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex)
 {
-    s16 temp_16_2;
-    s32 *temp_5;
-    s32 *temp_5_2;
-    s32 *temp_5_3;
-    s32 *temp_5_4;
-    s32 temp_16;
-    s32 temp_22;
-    s32 temp_4_2;
-    u32 temp_3;
-    s32 var_20;
-    u8 *temp_16_3;
-    u8 *temp_17;
-    u8 *temp_18;
-    u8 *temp_18_2;
-    u8 *temp_18_3;
-    u8 *temp_19;
-    u8 *temp_23;
-    u8 *temp_30;
-    u8 *temp_4;
-    u8 *temp_4_3;
-    u8 *temp_4_4;
-    u8 *temp_4_5;
+    s16 childIndex;
+    s32 *childEntry;
+    s32 *firstEntry;
+    s32 *secondEntry;
+    s32 *singleEntry;
+    s32 entryOffset;
+    s32 trackOffset;
+    s32 flags;
+    u32 hasMore;
+    s32 trackIndex;
+    u8 *secondTrack;
+    u8 *track;
+    u8 *entry;
+    u8 *firstTrack;
+    u8 *singleTrack;
+    u8 *resource;
+    u8 *child;
+    u8 *children;
+    u8 *payload;
+    u8 *firstPayload;
+    u8 *secondPayload;
+    u8 *singlePayload;
 
-    temp_19 = *(u8 **)(arg0 + 0);
-    if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= arg1) {
+    resource = (u8 *)((MdlEffectTrackInstance *)player)->resource;
+    if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= entryIndex) {
         kAssertFail(D_007132F0, 0xCB);
     }
-    temp_16 = arg1 * 0x14;
-    temp_18 = *(u8 **)(temp_19 + 4) + temp_16;
-    if (*(u32 *)(temp_18 + 0xC) != 0) {
-        if (*(s32 *)(temp_18 + 0x10) & 0x10000000) {
-            *(s32 *)(arg0 + 4) = 0x10000000;
-            *(s32 *)(arg0 + 8) = arg1;
-            *(u32 *)(arg0 + 0xC) = *(u32 *)(temp_18 + 0xC);
-            temp_30 = *(u8 **)(temp_19 + 0) + *(s32 *)(temp_18 + 0);
-            var_20 = 0;
+    entryOffset = entryIndex * 0x14;
+    entry = *(u8 **)(resource + 0x4) + entryOffset; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    if (*(u32 *)(entry + 0xC) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (((MdlEffectResourceEntry *)entry)->kind & 0x10000000) {
+            ((MdlEffectTrackInstance *)player)->flags = 0x10000000;
+            ((MdlEffectTrackInstance *)player)->entryIndex = entryIndex;
+            *(u32 *)&((MdlEffectTrackInstance *)player)->trackCount = *(u32 *)(entry + 0xC); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            children = ((MdlEffectTrackResource *)resource)->image + ((MdlEffectResourceEntry *)entry)->payloadOffset;
+            trackIndex = 0;
             goto loop_00481f30_check;
 loop_00481f30_body:
-            temp_22 = var_20 * 0x14;
-            temp_17 = *(u8 **)(arg0 + 0x10) + temp_22;
-            temp_23 = temp_30 + var_20 * 0x18;
-            temp_16_2 = *(s16 *)(temp_23 + 0);
-            if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= temp_16_2) {
+            trackOffset = trackIndex * 0x14;
+            track = *(u8 **)(player + 0x10) + trackOffset; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            child = children + trackIndex * 0x18;
+            childIndex = ((MdlEffectTrackChild *)child)->entryIndex;
+            if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= childIndex) {
                 kAssertFail(D_007132F0, 0xB0);
             }
-            temp_5 = (s32 *)(*(u8 **)(temp_19 + 4) + temp_16_2 * 0x14);
-            temp_4 = *(u8 **)(temp_19 + 0) + *temp_5;
-            *(s32 *)(temp_17 + 4) = 0;
-            *(s32 *)(temp_17 + 8) = *(s16 *)(temp_4 + 0x12);
-            *(s32 **)(temp_17 + 0xC) = temp_5;
-            *(u8 **)(temp_17 + 0x10) = temp_4;
-            *(s32 *)(*(u8 **)(arg0 + 0x10) + temp_22 + 4) =
-                -(s32)*(s16 *)(temp_23 + 2);
-            var_20 += 1;
+            childEntry = (s32 *)(((MdlEffectTrackResource *)resource)->entries + childIndex * 0x14);
+            payload = ((MdlEffectTrackResource *)resource)->image + *childEntry;
+            *(s32 *)&((MdlEffectTrack *)track)->frame = 0;
+            *(s32 *)&((MdlEffectTrack *)track)->active = ((MdlEffectTrackFrame *)payload)->delay;
+            *(s32 **)&((MdlEffectTrack *)track)->resource = childEntry;
+            ((MdlEffectTrack *)track)->payload = payload;
+            ((MdlEffectTrack *)((u8 *)((MdlEffectTrackInstance *)player)->tracks + trackOffset))->frame =
+                -(s32)((MdlEffectTrackChild *)child)->delay;
+            trackIndex += 1;
 loop_00481f30_check:
-            temp_3 = (u32)*(u32 *)(temp_18 + 0xC) > (u32)var_20;
-            if (temp_3 == 0) {
+            hasMore = ((MdlEffectResourceEntry *)entry)->count > (u32)trackIndex;
+            if (hasMore == 0) {
                 goto loop_00481f30_done;
             } else {
                 goto loop_00481f30_body;
             }
         } else {
-            temp_4_2 = *(s32 *)(temp_18 + 8);
-            if (temp_4_2 & 0xC0) {
-                *(s32 *)(arg0 + 4) = temp_4_2;
-                *(s32 *)(arg0 + 8) = arg1;
-                *(u32 *)(arg0 + 0xC) = 2U;
-                temp_18_2 = *(u8 **)(arg0 + 0x10);
-                if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= arg1) {
+            flags = ((MdlEffectResourceEntry *)entry)->flags;
+            if (flags & 0xC0) {
+                ((MdlEffectTrackInstance *)player)->flags = flags;
+                ((MdlEffectTrackInstance *)player)->entryIndex = entryIndex;
+                *(u32 *)&((MdlEffectTrackInstance *)player)->trackCount = 2U;
+                firstTrack = *(u8 **)(player + 0x10); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= entryIndex) {
                     kAssertFail(D_007132F0, 0xB0);
                 }
-                temp_5_2 = (s32 *)(*(u8 **)(temp_19 + 4) + temp_16);
-                temp_4_3 = *(u8 **)(temp_19 + 0) + *temp_5_2;
-                *(s32 *)(temp_18_2 + 4) = 0;
-                *(s32 *)(temp_18_2 + 8) = *(s16 *)(temp_4_3 + 0x12);
-                *(s32 **)(temp_18_2 + 0xC) = temp_5_2;
-                *(u8 **)(temp_18_2 + 0x10) = temp_4_3;
-                temp_16_3 = *(u8 **)(arg0 + 0x10) + 0x14;
-                if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= (arg1 + 1)) {
+                firstEntry = (s32 *)(*(u8 **)(resource + 0x4) + entryOffset); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                firstPayload = ((MdlEffectTrackResource *)resource)->image + *firstEntry;
+                *(s32 *)&((MdlEffectTrack *)firstTrack)->frame = 0;
+                *(s32 *)&((MdlEffectTrack *)firstTrack)->active = ((MdlEffectTrackFrame *)firstPayload)->delay;
+                *(s32 **)&((MdlEffectTrack *)firstTrack)->resource = firstEntry;
+                ((MdlEffectTrack *)firstTrack)->payload = firstPayload;
+                secondTrack = (u8 *)((MdlEffectTrackInstance *)player)->tracks + 0x14;
+                if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= (entryIndex + 1)) {
                     kAssertFail(D_007132F0, 0xB0);
                 }
-                temp_5_3 =
-                    (s32 *)(*(u8 **)(temp_19 + 4) + (arg1 + 1) * 0x14);
-                temp_4_4 = *(u8 **)(temp_19 + 0) + *temp_5_3;
-                *(s32 *)(temp_16_3 + 4) = 0;
-                *(s32 *)(temp_16_3 + 8) = *(s16 *)(temp_4_4 + 0x12);
-                *(s32 **)(temp_16_3 + 0xC) = temp_5_3;
-                *(u8 **)(temp_16_3 + 0x10) = temp_4_4;
+                secondEntry =
+                    (s32 *)(((MdlEffectTrackResource *)resource)->entries + (entryIndex + 1) * 0x14);
+                secondPayload = ((MdlEffectTrackResource *)resource)->image + *secondEntry;
+                *(s32 *)&((MdlEffectTrack *)secondTrack)->frame = 0;
+                *(s32 *)&((MdlEffectTrack *)secondTrack)->active = ((MdlEffectTrackFrame *)secondPayload)->delay;
+                *(s32 **)&((MdlEffectTrack *)secondTrack)->resource = secondEntry;
+                ((MdlEffectTrack *)secondTrack)->payload = secondPayload;
             } else {
-                *(s32 *)(arg0 + 4) = 0;
-                *(s32 *)(arg0 + 8) = arg1;
-                *(u32 *)(arg0 + 0xC) = 1U;
-                temp_18_3 = *(u8 **)(arg0 + 0x10);
-                if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= arg1) {
+                ((MdlEffectTrackInstance *)player)->flags = 0;
+                ((MdlEffectTrackInstance *)player)->entryIndex = entryIndex;
+                *(u32 *)&((MdlEffectTrackInstance *)player)->trackCount = 1U;
+                singleTrack = (u8 *)((MdlEffectTrackInstance *)player)->tracks;
+                if (((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount <= entryIndex) {
                     kAssertFail(D_007132F0, 0xB0);
                 }
-                temp_5_4 = (s32 *)(*(u8 **)(temp_19 + 4) + temp_16);
-                temp_4_5 = *(u8 **)(temp_19 + 0) + *temp_5_4;
-                *(s32 *)(temp_18_3 + 4) = 0;
-                *(s32 *)(temp_18_3 + 8) = *(s16 *)(temp_4_5 + 0x12);
-                *(s32 **)(temp_18_3 + 0xC) = temp_5_4;
-                *(u8 **)(temp_18_3 + 0x10) = temp_4_5;
+                singleEntry = (s32 *)(((MdlEffectTrackResource *)resource)->entries + entryOffset);
+                singlePayload = ((MdlEffectTrackResource *)resource)->image + *singleEntry;
+                *(s32 *)&((MdlEffectTrack *)singleTrack)->frame = 0;
+                *(s32 *)&((MdlEffectTrack *)singleTrack)->active = ((MdlEffectTrackFrame *)singlePayload)->delay;
+                *(s32 **)&((MdlEffectTrack *)singleTrack)->resource = singleEntry;
+                ((MdlEffectTrack *)singleTrack)->payload = singlePayload;
             }
         }
 loop_00481f30_done:
-        *(s16 *)(arg0 + 0x14) = 1;
+        ((MdlEffectTrackInstance *)player)->active = 1;
     }
 }
 
@@ -176,189 +178,309 @@ loop_00481f30_done:
 /* measured: opt_propagation off preserves the target pointer evaluation order. */
 /* measured: func_00482230 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Copy the resource image, upload streams and find its maximum simultaneous track count. */
 // FUN_00482230
-u8 *func_00482230(s32 *arg0)
+u8 *mdlEffectLoadTrackResource(s32 *source)
 {
-    u8 *temp_2;
-    s32 *var_18;
-    s32 temp_17;
-    s32 temp_16;
-    s32 temp_4_2;
-    s32 var_17;
-    s32 var_7;
-    u8 *temp_17_2;
-    u8 *temp_2_3;
-    u8 *temp_4;
-    s32 temp_3;
+    u8 *resource;
+    s32 *streamOffsets;
+    s32 allocationSize;
+    s32 streamCount;
+    s32 offsetOrFlags;
+    s32 streamIndex;
+    s32 entryIndex;
+    u8 *image;
+    u8 *header;
+    u8 *entry;
+    s32 countOrHandle;
     u8 *scratch;
     extern void memcpy(void *dst, void *src, u32 size);
     {
         s32 offset;
-        s32 *temp_2_2;
-        offset = *(s32 *)arg0;
-        temp_2_2 = (s32 *)((u8 *)arg0 + offset);
-        temp_16 = *temp_2_2;
-        var_18 = temp_2_2 + 1;
-        temp_17 = offset + 0x1C;
-        temp_17 += temp_16 * 4;
+        s32 *streamTable;
+        offset = *(s32 *)source;
+        streamTable = (s32 *)((u8 *)source + offset);
+        streamCount = *streamTable;
+        streamOffsets = streamTable + 1;
+        allocationSize = offset + 0x1C;
+        allocationSize += streamCount * 4;
     }
     chkmemAllocSiteTag(D_007132F0, 0x114);
-    temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
-    *(u8 **)(temp_2 + 0x18) = temp_2;
-    temp_17_2 = temp_2 + 0x1C;
-    memcpy(temp_17_2, arg0, *arg0);
-    *(u8 **)(temp_2 + 0) = temp_17_2;
-    *(u8 **)(temp_2 + 4) = temp_17_2 + 8;
-    *(s32 *)(temp_2 + 0xC) = temp_16;
-    temp_2_3 = *(u8 **)(temp_2 + 0);
-    scratch = temp_2_3 + 8;
-    temp_4_2 = *(s32 *)temp_2_3;
-    *(u8 **)(temp_2 + 0x14) =
-        (u8 *)((s32)scratch + temp_4_2);
+    resource = (u8 *)jtbl_008873E8[0](allocationSize, 0x40000);
+    ((MdlEffectTrackResource *)resource)->allocation = resource;
+    image = resource + 0x1C;
+    memcpy(image, source, *source);
+    ((MdlEffectTrackResource *)resource)->image = image;
+    *(u8 **)(resource + 0x4) = image + 8; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    *(s32 *)&((MdlEffectTrackResource *)resource)->streamCount = streamCount;
+    header = ((MdlEffectTrackResource *)resource)->image;
+    scratch = header + 8;
+    offsetOrFlags = *(s32 *)header;
+    *(u8 **)(resource + 0x14) = /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        (u8 *)((s32)scratch + offsetOrFlags);
 
-    var_17 = 0;
-    while (var_17 < temp_16) {
-        s32 temp_3;
-        temp_3 = TnUploadStreamTagged((s32)((u8 *)arg0 + *var_18));
-        *(s32 *)(*(u8 **)(temp_2 + 0x14) + (var_17 * 4)) = temp_3;
-        var_18 += 1;
-        var_17 += 1;
+    streamIndex = 0;
+    while (streamIndex < streamCount) {
+        s32 countOrHandle;
+        countOrHandle = TnUploadStreamTagged((s32)((u8 *)source + *streamOffsets));
+        ((s32 *)((MdlEffectTrackResource *)resource)->streams)[streamIndex] = countOrHandle;
+        streamOffsets += 1;
+        streamIndex += 1;
     }
-    *(s32 *)(temp_2 + 0x10) = 1;
-    *(s32 *)(temp_2 + 8) = 1;
-    temp_3 = *(s32 *)(*(u8 **)(temp_2 + 0) + 4);
-    var_7 = 0;
-    while (var_7 < temp_3) {
-        temp_4 = *(u8 **)(temp_2 + 4) + (var_7 * 0x14);
-        if ((*(s32 *)(temp_4 + 0x10) & 0x10000000) != 0) {
-            *(s32 *)(temp_2 + 8) = *(s32 *)(temp_4 + 0xC);
+    ((MdlEffectTrackResource *)resource)->references = 1;
+    *(s32 *)(resource + 0x8) = 1; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    countOrHandle = ((MdlEffectResourceImage *)((MdlEffectTrackResource *)resource)->image)->entryCount;
+    entryIndex = 0;
+    while (entryIndex < countOrHandle) {
+        entry = ((MdlEffectTrackResource *)resource)->entries + (entryIndex * 0x14);
+        if ((((MdlEffectResourceEntry *)entry)->kind & 0x10000000) != 0) {
+            ((MdlEffectTrackResource *)resource)->trackCount = (s32)((MdlEffectResourceEntry *)entry)->count;
         } else {
-            temp_4_2 = *(s32 *)(temp_4 + 8);
-            if ((temp_4_2 & 0x40) != 0) {
-                *(s32 *)(temp_2 + 8) = 2;
-            } else if ((temp_4_2 & 0x80) != 0) {
-                *(s32 *)(temp_2 + 8) = 2;
+            offsetOrFlags = ((MdlEffectResourceEntry *)entry)->flags;
+            if ((offsetOrFlags & 0x40) != 0) {
+                ((MdlEffectTrackResource *)resource)->trackCount = 2;
+            } else if ((offsetOrFlags & 0x80) != 0) {
+                ((MdlEffectTrackResource *)resource)->trackCount = 2;
             }
         }
-        var_7 += 1;
+        entryIndex += 1;
     }
-    return temp_2;
+    return resource;
 }
 
 /* measured: restore opt_propagation after func_00482230. */
 /* measured: restore opt_loop_invariants after func_00482230. */
+/* Release one resource reference; the last owner releases every uploaded stream and the allocation. */
 // FUN_004823E0
-void func_004823e0(u8 *arg0) {
-    s32 temp_3;
-    s32 var_17;
+void mdlEffectReleaseTrackResource(u8 *resource) {
+    s32 references;
+    s32 streamIndex;
 
-    if ((arg0 == NULL) || (*(s32 *)(arg0 + 0x10) == 0)) {
+    if ((resource == NULL) || (((MdlEffectTrackResource *)resource)->references == 0)) {
         kAssertFail(D_007132F0, 0x151);
     }
-    temp_3 = *(s32 *)(arg0 + 0x10) - 1;
-    *(s32 *)(arg0 + 0x10) = temp_3;
-    if (temp_3 == 0) {
-        var_17 = 0;
+    references = ((MdlEffectTrackResource *)resource)->references - 1;
+    ((MdlEffectTrackResource *)resource)->references = references;
+    if (references == 0) {
+        streamIndex = 0;
         goto loop_004823e0_check;
 loop_004823e0_body:
-        func_003ef3a0(*(void **)(*(u8 **)(arg0 + 0x14) + (var_17 * 4)));
-        var_17 += 1;
+        func_003ef3a0(((void **)((MdlEffectTrackResource *)resource)->streams)[streamIndex]);
+        streamIndex += 1;
 loop_004823e0_check:
-        if (var_17 < *(s32 *)(arg0 + 0xC)) {
+        if (streamIndex < *(s32 *)&((MdlEffectTrackResource *)resource)->streamCount) {
             goto loop_004823e0_body;
         }
-        (*jtbl_008873EC)(*(u8 **)(arg0 + 0x18));
+        (*jtbl_008873EC)(((MdlEffectTrackResource *)resource)->allocation);
     }
 }
 
+/* Advance a track and build its quad bounds, texture selection and normalized fixed-point UVs. */
 // FUN_004824A0
-void func_004824a0(u8 *arg0, u8 *arg1, u8 *arg2)
+void mdlEffectAdvanceTrackQuad(u8 *player, u8 *track, u8 *output)
 {
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f4;
-    f32 temp_f5;
-    f32 temp_f6;
-    s32 temp_7_2;
-    s32 temp_8;
-    s32 var_5;
-    u32 temp_9;
-    u32 temp_9_2;
-    u8 **temp_3_2;
-    u8 *temp_3;
-    u8 *temp_4;
-    u8 *temp_5;
-    u8 *temp_7;
+    f32 height;
+    f32 width;
+    f32 originY;
+    f32 originX;
+    f32 textureWidth;
+    f32 textureHeight;
+    s32 flags;
+    s32 delay;
+    s32 frameValue;
+    u32 nextFrame;
+    u32 frameIndex;
+    u8 **texture;
+    u8 *resource;
+    u8 *frame;
+    u8 *payload;
+    u8 *entry;
 
-    temp_3 = *(u8 **)(arg0 + 0);
-    temp_7 = *(u8 **)(arg1 + 0xC);
-    if ((*(s32 *)(temp_7 + 0x10) & 0x10000000) == 0) {
-        temp_8 = *(s32 *)(arg1 + 8);
-        if (temp_8 <= 0) {
-            temp_9 = *(u32 *)(arg1 + 4) + 1;
-            *(u32 *)(arg1 + 4) = temp_9;
-            if (temp_9 >= *(u32 *)(temp_7 + 0xC)) {
-                if ((*(s32 *)(temp_7 + 0x10) & 0x10) != 0) {
-                    *(s16 *)(arg0 + 0x14) = 0;
-                    *(u32 *)(arg1 + 4) = *(u32 *)(temp_7 + 0xC) - 1;
+    resource = (u8 *)((MdlEffectTrackInstance *)player)->resource;
+    entry = ((MdlEffectTrack *)track)->resource;
+    if ((*(s32 *)(entry + 0x10) & 0x10000000) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        delay = *(s32 *)(track + 0x8); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (delay <= 0) {
+            nextFrame = *(u32 *)(track + 0x4) + 1; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            *(u32 *)(track + 0x4) = nextFrame; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            if (nextFrame >= *(u32 *)(entry + 0xC)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                if ((((MdlEffectResourceEntry *)entry)->kind & 0x10) != 0) {
+                    ((MdlEffectTrackInstance *)player)->active = 0;
+                    ((MdlEffectTrack *)track)->frame = ((MdlEffectResourceEntry *)entry)->count - 1;
                 } else {
-                    *(u32 *)(arg1 + 4) = 0;
+                    ((MdlEffectTrack *)track)->frame = 0;
                 }
             }
-            temp_5 = *(u8 **)(arg1 + 0x10);
-            temp_9_2 = *(u32 *)(arg1 + 4);
-            temp_4 = (u8 *)(temp_9_2 * 0x18);
-            temp_4 = (u8 *)((u32)temp_4 + (u32)temp_5);
-            *(s32 *)(arg1 + 8) = *(s16 *)(temp_4 + 0x12);
+            payload = ((MdlEffectTrack *)track)->payload;
+            frameIndex = ((MdlEffectTrack *)track)->frame;
+            frame = (u8 *)(frameIndex * 0x18);
+            frame = (u8 *)((u32)frame + (u32)payload);
+            *(s32 *)&((MdlEffectTrack *)track)->active = ((MdlEffectTrackFrame *)frame)->delay;
         } else {
-            *(s32 *)(arg1 + 8) = temp_8 - 1;
+            *(s32 *)&((MdlEffectTrack *)track)->active = delay - 1;
         }
-        temp_9_2 = *(u32 *)(arg1 + 4);
-        temp_4 = *(u8 **)(arg1 + 0x10) + (temp_9_2 * 0x18);
-        temp_7_2 = *(s32 *)(temp_7 + 0x10);
-        if ((temp_7_2 & 1) != 0) {
-            var_5 = *(s32 *)(*(u8 **)(temp_3 + 0) +
-                             *(s32 *)(temp_7 + 4) + (temp_9_2 * 4));
+        frameIndex = ((MdlEffectTrack *)track)->frame;
+        frame = ((MdlEffectTrack *)track)->payload + (frameIndex * 0x18);
+        flags = *(s32 *)(entry + 0x10); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if ((flags & 1) != 0) {
+            frameValue = ((s32 *)(((MdlEffectTrackResource *)resource)->image + *(s32 *)(entry + 0x4)))[frameIndex]; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         } else {
-            var_5 = -1;
+            frameValue = -1;
         }
-        *(s32 *)(arg2 + 0x2C) = var_5;
-        temp_3_2 = *(u8 ***)(*(u8 **)(temp_3 + 0x14) +
-                             (*(s16 *)(temp_4 + 0x10) * 4));
-        temp_5 = *(u8 **)(temp_3_2 + 0);
-        temp_f5 = (f32)*(s32 *)(temp_5 + 0xC);
-        temp_f6 = (f32)*(s32 *)(temp_5 + 0x10);
-        temp_7_2 = *(s32 *)(temp_7 + 0x10);
-        if ((temp_7_2 & 2) != 0) {
-            *(s16 *)(arg2 + 0x28) = 2;
-        } else if ((temp_7_2 & 4) != 0) {
-            *(s16 *)(arg2 + 0x28) = 3;
+        ((MdlEffectTrackOutput *)output)->frameValue = frameValue;
+        texture = ((u8 ***)((MdlEffectTrackResource *)resource)->streams)[((MdlEffectTrackFrame *)frame)->textureIndex];
+        payload = *texture;
+        textureWidth = (f32)((MdlEffectRaster *)payload)->width;
+        textureHeight = (f32)((MdlEffectRaster *)payload)->height;
+        flags = ((MdlEffectResourceEntry *)entry)->kind;
+        if ((flags & 2) != 0) {
+            ((MdlEffectTrackOutput *)output)->mode = 2;
+        } else if ((flags & 4) != 0) {
+            ((MdlEffectTrackOutput *)output)->mode = 3;
         } else {
-            *(s16 *)(arg2 + 0x28) = 1;
+            ((MdlEffectTrackOutput *)output)->mode = 1;
         }
-        *(f32 *)(arg2 + 0x10) = *(f32 *)(temp_4 + 0x14);
-        temp_f4 = (f32)*(s16 *)(temp_4 + 4);
-        temp_f3 = (f32)*(s16 *)(temp_4 + 6);
-        temp_f2 = (f32)*(s16 *)(temp_4 + 0);
-        temp_f1 = (f32)*(s16 *)(temp_4 + 2);
-        *(f32 *)(arg2 + 0x18) =
-            (f32)((s32)*(s16 *)(temp_4 + 8) >> 4) / temp_f5;
-        *(f32 *)(arg2 + 0x1C) =
-            (f32)((s32)*(s16 *)(temp_4 + 0xA) >> 4) / temp_f6;
-        *(f32 *)(arg2 + 0x20) =
-            (f32)((s32)*(s16 *)(temp_4 + 0xC) >> 4) / temp_f5;
-        *(f32 *)(arg2 + 0x24) =
-            (f32)((s32)*(s16 *)(temp_4 + 0xE) >> 4) / temp_f6;
-        temp_f2 = temp_f2 / 2.0f;
-        temp_f1 = temp_f1 / 2.0f;
-        *(f32 *)(arg2 + 0) = temp_f2 - temp_f4;
-        *(f32 *)(arg2 + 4) = temp_f1 - temp_f3;
-        *(f32 *)(arg2 + 8) = temp_f2;
-        *(f32 *)(arg2 + 0xC) = temp_f1;
-        *(f32 *)(arg2 + 0x30) = temp_f5;
-        *(f32 *)(arg2 + 0x34) = temp_f6;
-        *(u8 **)(arg2 + 0x14) = (u8 *)temp_3_2;
+        ((MdlEffectTrackOutput *)output)->value = ((MdlEffectTrackFrame *)frame)->value;
+        originX = (f32)((MdlEffectTrackFrame *)frame)->originX;
+        originY = (f32)((MdlEffectTrackFrame *)frame)->originY;
+        width = (f32)((MdlEffectTrackFrame *)frame)->width;
+        height = (f32)((MdlEffectTrackFrame *)frame)->height;
+        ((MdlEffectTrackOutput *)output)->u0 =
+            (f32)((s32)((MdlEffectTrackFrame *)frame)->left >> 4) / textureWidth;
+        ((MdlEffectTrackOutput *)output)->v0 =
+            (f32)((s32)((MdlEffectTrackFrame *)frame)->top >> 4) / textureHeight;
+        ((MdlEffectTrackOutput *)output)->u1 =
+            (f32)((s32)((MdlEffectTrackFrame *)frame)->right >> 4) / textureWidth;
+        ((MdlEffectTrackOutput *)output)->v1 =
+            (f32)((s32)((MdlEffectTrackFrame *)frame)->bottom >> 4) / textureHeight;
+        width = width / 2.0f;
+        height = height / 2.0f;
+        ((MdlEffectTrackOutput *)output)->left = width - originX;
+        ((MdlEffectTrackOutput *)output)->top = height - originY;
+        ((MdlEffectTrackOutput *)output)->right = width;
+        ((MdlEffectTrackOutput *)output)->bottom = height;
+        ((MdlEffectTrackOutput *)output)->textureWidth = textureWidth;
+        ((MdlEffectTrackOutput *)output)->textureHeight = textureHeight;
+        ((MdlEffectTrackOutput *)output)->texture = (u8 *)texture;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

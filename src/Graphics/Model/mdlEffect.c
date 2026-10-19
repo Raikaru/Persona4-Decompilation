@@ -36,7 +36,7 @@ extern void mdlEffectDestroy(int value);
 extern u32 mdlEffectCreateFromResource(u32 value);
 extern u32 mdlEffectClone();
 
-extern void func_004824a0(int *value, u8 *data, float *output);
+extern void mdlEffectAdvanceTrackQuad(int *value, u8 *data, float *output);
 
 
 extern void ParticleProjectVertices(u8 *particle, f32 scale);
@@ -683,7 +683,7 @@ u32 *mdlEffectListWrapShared(u32 **source)
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 void func_003e9cb0(void *frame, void *matrix, u32 flags);
-extern void func_004823e0(u8 *input);
+extern void mdlEffectReleaseTrackResource(u8 *input);
 extern void mdlEffectReleasePrimarySource(u8 *input);
 extern void mdlEffectReleaseSecondarySource(u8 *input);
 extern void mdlEffectAdvanceEmitter(void *object);
@@ -712,7 +712,7 @@ typedef struct Code48InitialState {
 // FUN_00481EE0
 void mdlEffectReleaseTrackInstance(u8 **instance)
 {
-    func_004823e0(*instance);
+    mdlEffectReleaseTrackResource(*instance);
     jtbl_008873EC[0](instance);
 }
 
@@ -721,7 +721,7 @@ void mdlEffectReleaseTrackInstance(u8 **instance)
 // FUN_00482700
 void mdlEffectEvalSubPose(int instance, float *output)
 {
-  func_004824a0((int *)(u32)instance, (u8 *)(u32)((MdlEffectTrackInstance *)instance)->tracks, output);
+  mdlEffectAdvanceTrackQuad((int *)(u32)instance, (u8 *)(u32)((MdlEffectTrackInstance *)instance)->tracks, output);
 }
 
 
@@ -884,8 +884,8 @@ u_long128 mdlEffectInitParticleState(u8 *instance)
 }
 
 
-extern void func_00485630(u8 *input);
-extern void func_00485870(u8 *input);
+extern void mdlEffectCommitTreeFrame(u8 *input);
+extern void mdlEffectFlushTreeFrame(u8 *input);
 #pragma push
 #pragma opt_propagation off
 #pragma pop
@@ -903,8 +903,8 @@ extern void func_00485870(u8 *input);
 // FUN_00485AE0
 void mdlEffectAdvanceAndDrawChildren(s32 instance)
 {
-    func_00485630((u8 *)instance);
-    func_00485870((u8 *)instance);
+    mdlEffectCommitTreeFrame((u8 *)instance);
+    mdlEffectFlushTreeFrame((u8 *)instance);
 }
 
 
@@ -1758,7 +1758,7 @@ extern void (*D_00713F20[])(u8 *object);
 extern void (*D_00713D54[])(u8 *emitter, f32 scale);
 typedef struct EffRandState EffRandState;
 extern u32 effMiscRand(EffRandState *state);
-extern void func_00484280(u8 *object, s32 resource);
+extern void mdlEffectAppendGeometryPrimitive(u8 *object, s32 resource);
 /* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490360
 void EffBezierApplyScale(u8 *emitter, f32 scale) {
@@ -2003,7 +2003,7 @@ void EffEmitterApplyScale(u16 *emitter, f32 scale) {
 }
 
 
-extern void func_004841c0(u8 *input);
+extern void mdlEffectDestroyMultipartGeometry(u8 *input);
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
@@ -2018,8 +2018,8 @@ extern void func_004841c0(u8 *input);
 // FUN_00494680
 void mdlEffectDestroyGeometryPair(void *instance)
 {
-    func_004841c0(((MdlEffectSlotTable *)instance)->firstGeometry);
-    func_004841c0(((MdlEffectSlotTable *)instance)->secondGeometry);
+    mdlEffectDestroyMultipartGeometry(((MdlEffectSlotTable *)instance)->firstGeometry);
+    mdlEffectDestroyMultipartGeometry(((MdlEffectSlotTable *)instance)->secondGeometry);
     jtbl_008873EC[0](instance);
 }
 
@@ -2124,8 +2124,8 @@ void mdlEffectUnlockGeometryPair(u8 *instance) {
 // FUN_00495090
 void mdlEffectSetGeometryPairResource(u8 *instance, u32 value)
 {
-    func_00484280(((MdlEffectSlotTable *)instance)->firstGeometry, (s32)value);
-    func_00484280(((MdlEffectSlotTable *)instance)->secondGeometry, (s32)value);
+    mdlEffectAppendGeometryPrimitive(((MdlEffectSlotTable *)instance)->firstGeometry, (s32)value);
+    mdlEffectAppendGeometryPrimitive(((MdlEffectSlotTable *)instance)->secondGeometry, (s32)value);
 }
 
 
@@ -2718,7 +2718,7 @@ void *mdlEffectCreateGridForObject(void *source) {
 // FUN_004A6DC0
 void mdlEffectDestroyGridObject(u8 *instance)
 {
-    func_004841c0((u8 *)((MdlEffectFlareInstance *)instance)->geometry);
+    mdlEffectDestroyMultipartGeometry((u8 *)((MdlEffectFlareInstance *)instance)->geometry);
     jtbl_008873EC[0](instance);
 }
 
@@ -3305,7 +3305,7 @@ void mdlEffectDrawModelChildren(u8 *instance)
     if ((((MdlEffectSpriteInstance *)instance)->age < duration) || (duration == 0)) {
         childIndex = 0;
         while (childIndex < childCount) {
-            func_00485870((u8 *)*child);
+            mdlEffectFlushTreeFrame((u8 *)*child);
             child++;
             childIndex += 1;
         }

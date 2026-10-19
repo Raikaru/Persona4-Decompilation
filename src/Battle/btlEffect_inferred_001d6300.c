@@ -19,12 +19,12 @@ extern s32 btlEffectStepFormationPlacement(u8 *input);
 extern void btlFormationSetPlacement(s32 input);
 extern u32 iGpffffb3b8;
 
-extern void func_00485870(s32 input);
+extern void mdlEffectFlushTreeFrame(s32 input);
 extern void TnSetTableBase(s32 input);
 extern void mdlSetColor(u8 *input, u32 *value);
 extern void mdlEffectApplyPackedColor(u8 *input, s32 value);
 extern void mdlAdvanceModelFromFlags(s32 input);
-extern void func_00485630(u8 *input);
+extern void mdlEffectCommitTreeFrame(u8 *input);
 extern void func_001d53e0(s32 input);
 extern void mdlQueueModelForDraw(s32 input, u8 *value);
 extern u8 D_005DC7D0[];
@@ -251,7 +251,7 @@ void btlEffectUpdateFadeNodes(void)
                     mdlAdvanceModelFromFlags((s32)node->model);
                 }
                 if (node->effect != NULL) {
-                    func_00485630(node->effect);
+                    mdlEffectCommitTreeFrame(node->effect);
                 }
                 if (node->formation != NULL) {
                     func_001d53e0((s32)node->formation);
@@ -266,7 +266,7 @@ void btlEffectUpdateFadeNodes(void)
             }
             if (node->effect != NULL) {
                 mdlEffectApplyPackedColor(node->effect, (s32)color);
-                func_00485870((s32)node->effect);
+                mdlEffectFlushTreeFrame((s32)node->effect);
             }
             if (node->formation != NULL) {
                 *(u32 *)(node->formation + 0x10) = color;
