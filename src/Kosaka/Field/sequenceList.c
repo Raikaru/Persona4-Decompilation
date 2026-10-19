@@ -16,7 +16,7 @@ extern void seqYajiTaskCreate(void);
 extern s32 fclShopCreate(s32, s8);
 extern s32 shopSystemCreate(s32);
 extern s32 fclCombineTaskCreate(s32);
-extern void func_0034b8c0(void);
+extern void fclCombineSpriteNoop(void);
 extern s32 kwlnTaskGetTaskByName(void *);
 extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void kAssertFail(const void *, u32);
@@ -221,7 +221,7 @@ void SeqYaji_End(void)
 // FUN_00103150
 void SeqNowatari_Start(void)
 {
-    func_0034b8c0();
+    fclCombineSpriteNoop();
 }
 
 // FUN_00103170

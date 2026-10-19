@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2274 of 13102 symbols carry a recovered name.
+// 2276 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -4949,7 +4949,7 @@ func_00331fc0 = 0x00331FC0; // type:func
 func_00332060 = 0x00332060; // type:func
 func_003322a0 = 0x003322A0; // type:func
 func_003322d0 = 0x003322D0; // type:func
-func_00332370 = 0x00332370; // type:func
+wshopMaterialTalkShowRequirement = 0x00332370; // type:func
 func_00332520 = 0x00332520; // type:func
 func_003329b0 = 0x003329B0; // type:func
 func_003329e0 = 0x003329E0; // type:func
@@ -5051,7 +5051,7 @@ func_0034b740 = 0x0034B740; // type:func
 func_0034b810 = 0x0034B810; // type:func
 func_0034b820 = 0x0034B820; // type:func
 func_0034b880 = 0x0034B880; // type:func
-func_0034b8c0 = 0x0034B8C0; // type:func
+fclCombineSpriteNoop = 0x0034B8C0; // type:func
 func_0034b8d0 = 0x0034B8D0; // type:func
 func_0034b950 = 0x0034B950; // type:func
 func_0034b970 = 0x0034B970; // type:func

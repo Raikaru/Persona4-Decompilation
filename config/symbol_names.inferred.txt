@@ -651,3 +651,5 @@ fclCombineRunSystemScreen = 0x00331680; // type:func  evidence: inferred: Prepar
 fclBustupObjSetAnchorValue = 0x0033D3C0; // type:func  evidence: inferred: Stores the portrait object anchorValue field used by the existing FclObject layout.
 fclBustupObjSetAnchorMode = 0x0033D3D0; // type:func  evidence: inferred: Stores the portrait object anchorMode field used by the existing FclObject layout.
 debugModelDrawClearScratch = 0x00349340; // type:func  evidence: inferred: Clears twelve local scratch bytes and returns zero without issuing a draw.
+wshopMaterialTalkShowRequirement = 0x00332370; // type:func  evidence: inferred: Opens a shop message slot, inserts the packed material's item name and the selected item's category label, then shows record 0x1E or 0x1F.
+fclCombineSpriteNoop = 0x0034B8C0; // type:func  evidence: inferred: empty entry between the combine sprite setters and nLine callbacks; returns without side effects
