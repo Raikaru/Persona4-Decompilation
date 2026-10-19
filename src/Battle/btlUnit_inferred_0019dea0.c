@@ -10,6 +10,7 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
+#include "btl_unit_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -28,17 +29,17 @@ typedef struct DatUnit DatUnit;
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
-extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3c0;
-extern u8 *iGpffffb3cc;
+extern u8 *iGpffffb3ac; /* active battle context */
+extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
+extern u8 *iGpffffb3c0; /* party visual records, stride 0x14C */
+extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 
 
 extern u8 *iGpffff9db0;
-extern u8 *D_0076449C;
-extern u8 *iGpffffb3ac;
+extern u8 *D_0076449C; /* active battle context */
+extern u8 *iGpffffb3ac; /* active battle context */
 extern u8 *iGpffffb414;
-extern u8 *iGpffffb3e0;
+extern u8 *iGpffffb3e0; /* child visual records, stride 0x58 */
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
 extern s32 iGpffffb438;
@@ -190,13 +191,15 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
+/* Request a look-at refresh only for a loaded model in an active mode. */
 // FUN_0019DEA0
-void btlUnitRequestLookAt(u8 *arg0)
+void btlUnitRequestLookAt(u8 *unit)
 {
-    if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-        if (mdlHasActiveMode(*(u8 **)(arg0 + 0xA00)) != 0) {
-            mdlSetLookAtActive(*(u8 **)(arg0 + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(arg0 + 0xA00));
+    if ((((BtlUnit *)unit)->flags2 & 2) != 0) {
+        if (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0) {
+            /* measured: repeated typed layer loads hoist +0xA00 into an extra saved register (108B vs 96B). */
+            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
         }
     }
 }

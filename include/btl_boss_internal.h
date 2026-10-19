@@ -15,7 +15,11 @@ typedef struct BtlBossWork {
     s32 displayedStates[5];         /* +0xBBC */
     u8 pad38[0x10];
     s32 formations[8];              /* +0xBE0 */
-    u8 pad68[0x10];
+    u16 unk68;                     /* +0xC00: camera aim gate compares this with 1 */
+    u8 pad6A[2];
+    s32 cameraActionId;            /* +0xC04: last action id processed by FrameActionCutscene */
+    s32 cameraGeometryActive;      /* +0xC08: cached action-geometry state */
+    u8 pad74[4];
 } BtlBossWork;
 typedef char BtlBossWorkSizeCheck[sizeof(BtlBossWork) == 0x78 ? 1 : -1];
 
