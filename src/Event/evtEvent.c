@@ -34,7 +34,7 @@ extern void evtRefreshNodeResources(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
 s32 evtNodeTaskUpdate(u8 *task);
-void func_002853c0(void);
+void evtLookupTask(void);
 
 
 
@@ -228,7 +228,7 @@ s32 evtCreateEventTask(s32 arg0, s32 arg1)
 // FUN_00285AF0
 void evtEnsureEventTask(void) {
     if (kwlnTaskGetTaskByName(D_0063C2F8) == 0) {
-        func_002853c0();
+        evtLookupTask();
     }
 }
 
