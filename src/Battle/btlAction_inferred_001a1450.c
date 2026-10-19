@@ -122,7 +122,7 @@ extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
 extern s32 btlActionBuffCondition(u8 *context, s32 value, s32 mode);
 extern void btlSelectionClearTargetMark(s32 context);
-extern void func_00203880(s32 context, s32 value);
+extern void btlPanelOnTargetAction(s32 context, s32 value);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 u32 btlEffectHasAiProcedure(void *context);
@@ -468,7 +468,7 @@ void btlActionCommandUpdate(u8 *action)
     panelState = btlPanelGetState(((BtlBattleState *)iGpffffb3ac)->uiTask) & 0xFFFF;
     if ((D_008C024C[0] & 8) != 0 && (panelState & 0xFFFF) == 1 && (((BtlBattleState *)iGpffffb3ac)->flags & 0x1000) == 0) {
         if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x20000) != 0) {
-            if (func_00203810(((BtlBattleState *)iGpffffb3ac)->uiTask) == 1) {
+            if (btlPanelIsCommandSelectionActive(((BtlBattleState *)iGpffffb3ac)->uiTask) == 1) {
                 if (btlPanelIsReady(((BtlBattleState *)iGpffffb3ac)->uiTask) == 0) {
                     if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x10000) == 0) {
                         btlSelectionSetTargetFlag(((BtlBattleState *)iGpffffb3ac)->uiTask);
@@ -781,7 +781,7 @@ select_action:
         switch (*(u16 *)(action + 0x6C)) {
         case 4: {
             btlSelectionResetUnitFlags((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask));
-            func_00203880((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask), (s32)(*(u8**)(action + 0x38)));
+            btlPanelOnTargetAction((s32)((u8 *)((BtlBattleState *)iGpffffb3ac)->uiTask), (s32)(*(u8**)(action + 0x38)));
             btlActionSetState((BtlAction *)action, 5);
             return;
         } break;

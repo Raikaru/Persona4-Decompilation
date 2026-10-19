@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2343 of 13102 symbols carry a recovered name.
+// 2349 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -2916,9 +2916,9 @@ func_00203600 = 0x00203600; // type:func
 func_00203670 = 0x00203670; // type:func
 func_002037b0 = 0x002037B0; // type:func
 func_002037e0 = 0x002037E0; // type:func
-func_00203810 = 0x00203810; // type:func
+btlPanelIsCommandSelectionActive = 0x00203810; // type:func
 func_00203850 = 0x00203850; // type:func
-func_00203880 = 0x00203880; // type:func
+btlPanelOnTargetAction = 0x00203880; // type:func
 func_00203890 = 0x00203890; // type:func
 func_002038c0 = 0x002038C0; // type:func
 func_00203930 = 0x00203930; // type:func
@@ -2957,19 +2957,19 @@ func_00209bc0 = 0x00209BC0; // type:func
 func_00209cd0 = 0x00209CD0; // type:func
 func_00209d40 = 0x00209D40; // type:func
 func_00209dc0 = 0x00209DC0; // type:func
-func_00209f90 = 0x00209F90; // type:func
+btlSelectionDrawSubList = 0x00209F90; // type:func
 func_00209fa0 = 0x00209FA0; // type:func
-func_0020a5c0 = 0x0020A5C0; // type:func
+btlSelectionEndSubList = 0x0020A5C0; // type:func
 func_0020a5d0 = 0x0020A5D0; // type:func
 func_0020a640 = 0x0020A640; // type:func
 func_0020aa70 = 0x0020AA70; // type:func
 func_0020ac70 = 0x0020AC70; // type:func
-func_0020ad70 = 0x0020AD70; // type:func
+btlSelectionEndSwapList = 0x0020AD70; // type:func
 func_0020ad80 = 0x0020AD80; // type:func
 func_0020add0 = 0x0020ADD0; // type:func
 func_0020b1a0 = 0x0020B1A0; // type:func
 func_0020b3a0 = 0x0020B3A0; // type:func
-func_0020b5a0 = 0x0020B5A0; // type:func
+btlPanelDrawDetail = 0x0020B5A0; // type:func
 func_0020b5b0 = 0x0020B5B0; // type:func
 func_0020b6d0 = 0x0020B6D0; // type:func
 func_0020ba00 = 0x0020BA00; // type:func

@@ -6,65 +6,117 @@
 #include "effect_instance_internal.h"
 #include "btl_formation_internal.h"
 #include "btl_motion_internal.h"
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
+#include "btl_camera_framing_internal.h"
 
-typedef int (*code)();
-
-typedef void (*BtlPacketInitFunc)(void* work);
 typedef u32 (*BtlPacketUpdateFunc)(void* work);
 
-typedef struct BtlPacket {
-    u8 padding_00[0x47];
-    u8 flags;
-    u8 padding_48[0x20];
-    BtlPacketInitFunc initFunc;
-    BtlPacketUpdateFunc updateFunc;
-    BtlPacketUpdateFunc destroyFunc;
-    u8 padding_74[4];
-    void* workData;
-} BtlPacket;
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-extern u32 btlCameraNudgeUnitPair(int* param_1);
+extern u32 btlCameraNudgeUnitPair(int* context);
 extern u32 btlFormationPlaceUnits(u32 *work);
 extern void btlFormationEnterTurn(u32 *work);
-extern u32 btlFormationPlaceFromRaw(u8 *param_1);
+extern u32 btlFormationPlaceFromRaw(u8 *context);
 extern void btlFormationLeaveTurn(u32 *work);
 extern u32 btlFormationUpdatePose(u32 *work);
-extern u32 btlFormationUpdateMovement(u16 *param_1);
-extern u32 btlFormationUpdateDeadPosition(u16 *param_1);
-extern u32 btlFormationAdvanceSlot(u8 **param_1);
+extern u32 btlFormationUpdateMovement(u16 *context);
+extern u32 btlFormationUpdateDeadPosition(u16 *context);
+extern u32 btlFormationAdvanceSlot(u8 **context);
 extern u32 btlFormationApplyDefaultPose(void);
-extern u32 btlEffectAllocEntry(u32 param_1);
+extern u32 btlEffectAllocEntry(u32 context);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 D_00609498[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_0076449C;
-extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void btlUnitSetPos(void *arg0, void *arg1);
-extern void btlUnitSetRot(void *arg0, void *arg1);
-extern s32 btlUnitIsMoving(void *arg0);
-extern void btlUnitClearMoveFlags(void *arg0);
-extern void btlUnitClearRotateFlags(void *arg0);
-extern void btlUnitRequestLookAt(void *arg0);
-extern void btlTargetRefreshRadiusNode(void *arg0);
+extern void btlUnitGetAnchorPose(void *context, void *value, void *option, void *flags);
+extern void btlUnitSetPos(void *context, void *value);
+extern void btlUnitSetRot(void *context, void *value);
+extern s32 btlUnitIsMoving(void *context);
+extern void btlUnitClearMoveFlags(void *context);
+extern void btlUnitClearRotateFlags(void *context);
+extern void btlUnitRequestLookAt(void *context);
+extern void btlTargetRefreshRadiusNode(void *context);
 extern u8 *btlActionGetActiveOrQueueFront(void);
-extern void btlCameraAssignFormationSlots(s32 arg0, s32 arg1);
-extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
+extern void btlCameraAssignFormationSlots(s32 context, s32 value);
+extern f32 RwV3dNormalize(f32 *context, f32 *value);
+
+/* Two 0x314-byte resource blocks are copied before the reference-count tail. */
+typedef struct BtlFormationResourceEntry
+{
+    u8 kind;                    /* FE absent, FF reference, FD non-owning */
+    u8 pad01[3];
+    u32 resource;              /* file-relative offset, then an effect pointer */
+    u8 pad08[0x10];
+} BtlFormationResourceEntry;
+
+typedef struct BtlFormationResourceBlock
+{
+    u8 pad00[8];
+    u32 unk08;
+    u32 duration;
+    u16 entryCount;
+    u8 pad12[2];
+    u32 unk14;
+    u8 pad18[4];
+    BtlFormationResourceEntry entries[31];
+    u8 pad304[0x10];
+} BtlFormationResourceBlock;
 
 typedef struct BtlFormationState
 {
-    u8 padding[0x630];
+    BtlFormationResourceBlock blocks[2];
+    u8 pad628[8];
     u16 flags;
     u16 counter;
     u32 value;
 } BtlFormationState;
+
+/* Packet 0xB03 stores two unit addresses followed by a pose selector. */
+typedef struct BtlFormationPoseWork
+{
+    u32 actor;
+    u32 target;
+    u16 mode;
+    u8 pad0A[2];
+} BtlFormationPoseWork;
+
+/* Packet 0x301 owns the effect node until both timing predicates finish. */
+typedef struct BtlFormationEffectWork
+{
+    u32 formation;
+    u32 source;
+    u32 target;
+    u16 side;
+    u8 pad0E[2];
+    u32 effect;
+    u32 resource;
+    u32 elapsed;
+    u32 flags;
+} BtlFormationEffectWork;
+
+typedef struct BtlFormationDescriptor
+{
+    u8 pad00[4];
+    u16 flags;
+    u16 options;
+    s32 unk08;
+    s32 unk0C;
+} BtlFormationDescriptor;
+
+/* The opaque unit span at +0xA04 ends with the effect-pool key at +0xA08. */
+typedef struct BtlFormationUnitResources
+{
+    u8 pad00[4];
+    u32 effectKey;
+} BtlFormationUnitResources;
 
 extern void btlFormationSetState(int state);
 extern void (*DAT_008873EC[])(void *);
 
 extern u64 memcpy();
 
-extern u64 mdlEffectDestroyWithNodes(u32 param_1);
+extern u64 mdlEffectDestroyWithNodes(u32 context);
 
 extern void btlFormationCopyRecord(int destination, u32 source);
 
@@ -93,28 +145,24 @@ extern float fGpffff8354;
 extern float fGpffff811c;
 extern u32 strlen(const char *text);
 extern char *strcpy(char *destination, const char *source);
-extern void btlBedCopyRecord(u32 *param_1);
-extern u32 btlBedLoad(u32 *param_1);
+extern void btlBedCopyRecord(u32 *context);
+extern u32 btlBedLoad(u32 *context);
 
-typedef u8 bool;
-
-#define true 1
-#define false 0
 
 u32 btlFormationGetCount(void *formation);
 u32 btlFormationGetEntry(void *formation, u32 index);
 
-extern u32 btlEffectFreeEntry(int param_1, u16 *param_2);
-extern void btlFormationSetPlacement(u32 param_1);
-extern void btlFormationRefresh(u32 *param_1);
-extern u32 btlFormationIsReady(u32 *param_1);
+extern u32 btlEffectFreeEntry(int context, u16 *value);
+extern void btlFormationSetPlacement(u32 context);
+extern void btlFormationRefresh(u32 *context);
+extern u32 btlFormationIsReady(u32 *context);
 
-extern bool btlFormationHasEntry(u32 *param_1);
-extern void btlFormationRelease(u32 *param_1);
+extern u8 btlFormationHasEntry(u32 *context);
+extern void btlFormationRelease(u32 *context);
 
 extern u8* DAT_0076449c;
 extern char D_00609570[];
-extern u8 *btlFormationAllocEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *btlFormationAllocEntry(u8 *context, s32 value, s32 option, s32 flags, s32 extra);
 extern char D_00609588[];
 extern u8 D_00763388;
 
@@ -126,18 +174,19 @@ u32 btlUiBeginSequence(void);
 
 
 // FUN_001D1EB0
-BtlPacket *btlFormationCreateMovePacket(u32 param_1, u32 param_2, float param_3, u16 param_4)
+/* Create packet 0xB00 for a unit-pair separation/rotation request. */
+BtlPacket *btlFormationCreateMovePacket(u32 source, u32 target, f32 distance, u16 mode)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb00, 0x10);
-    *(code **)(packet + 0x6c) = (code *)btlCameraNudgeUnitPair;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    *(float *)(work + 2) = param_3;
-    *(u16 *)(work + 3) = param_4;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlCameraNudgeUnitPair;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = source;
+    work[1] = target;
+    ((BtlCameraUnitPair *)work)->separation = distance;
+    ((BtlCameraUnitPair *)work)->flags = mode;
     return (BtlPacket *)packet;
 }
 
@@ -150,8 +199,8 @@ struct RtQuat;
 
 static inline f32 formationRadius(const u8 *unit)
 {
-    f32 scale = *(const f32 *)(unit + 0x2C);
-    return *(const f32 *)(unit + 0x90) * scale;
+    f32 scale = ((const BtlUnit *)unit)->scale;
+    return ((const BtlUnit *)unit)->sphereRadius * scale;
 }
 /* Native b210 O2: 3668/3680 bytes, 73 resolved relocations and
  * twelve zero alignment bytes. Preserve the original target/companion
@@ -161,6 +210,10 @@ static inline f32 formationRadius(const u8 *unit)
 #pragma opt_propagation off
 #pragma opt_lifetimes on
 // FUN_001D1F30
+/* Place the actor, companion and selected groups using their world-space bounds. */
+/* measured: the remaining raw actor/target, radius/scale and target-count reads each changed MATCH
+ * to MISMATCH when typed independently. Typed indexed target reads each changed two compared
+ * bytes; retain their byte-address order. */
 u32 btlFormationPlaceUnits(u32 *work)
 {
     extern void btlUnitSetPos(struct BtlUnit *, const struct RwV3d *);
@@ -188,52 +241,52 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern u8 *iGpffffb3ac;
     extern f32 fGpffff809c;
     typedef struct { f32 v[3]; } Vec3;
-    u8 *base;
-    u8 *unitA;
-    u8 *unitB;
-    u8 *other;
+    u8 *action;
+    u8 *targetAction;
+    u8 *actor;
+    u8 *targetUnit;
     u8 *nearestNode;
     u8 *spacingNode;
     u8 *groupNode;
     u8 *actionTarget;
     u8 *groupTarget;
-    s32 found;
+    s32 movedAny;
     u8 *groupUnit;
-    u8 *entry;
-    u16 h6E;
-    u8 kind;
-    s32 tmp;
-    s32 sel;
+    u8 *companion;
+    u16 skill;
+    u8 genus;
+    s32 motionKind;
+    s32 motionCategory;
     s32 isClose;
     s32 companionNeedsMove;
-    s32 bestFlag;
+    s32 firstCandidate;
     u32 targetCount;
-    u16 i;
-    f32 centerA[3];
-    Vec3 centerB;
-    Vec3 best;
-    f32 diff[3];
-    f32 dest[3];
-    f32 tmp100[3];
-    Vec3 tmpF0;
-    Vec3 tmpE0;
-    f32 tmpD0[3];
-    f32 query[2];
-    f32 delta[2];
-    f32 line[2];
-    f32 projection[2];
-    f32 quat[4];
-    f32 len;
-    f32 radiusA;
+    u16 targetIndex;
+    f32 actorCenter[3];
+    Vec3 targetCenter;
+    Vec3 farthestCenter;
+    f32 direction[3];
+    f32 position[3];
+    f32 companionDelta[3];
+    Vec3 candidateCenter;
+    Vec3 nearestCenter;
+    f32 companionVector[3];
+    f32 actorXZ[2];
+    f32 targetXZ[2];
+    f32 groupXZ[2];
+    f32 nearestXZ[2];
+    f32 rotation[4];
+    f32 distance;
+    f32 actorRadius;
     f32 extraDistance;
-    f32 adj;
-    f32 radiusB;
+    f32 separation;
+    f32 companionRadius;
     f32 companionScale;
-    f32 bestLen;
+    f32 nearestDistance;
     f32 scale;
     f32 centerX;
     f32 extent;
-    f32 dist2;
+    f32 lineDistance;
     f32 minimumSpacing;
     f32 projectedY;
     f32 projectedZ;
@@ -244,317 +297,317 @@ u32 btlFormationPlaceUnits(u32 *work)
     f32 farthestDistance;
     f32 groupDistance;
 
-    base = *(u8 **)work;
-    h6E = *(u16 *)(base + 0x6E);
-    kind = *(u8 *)(*(u8 **)(base + 0x30) + 0xA2);
-    switch (kind) {
+    action = *(u8 **)work;
+    skill = ((BtlAction *)action)->unk_6e;
+    genus = ((BtlAction *)action)->unit->genus;
+    switch (genus) {
     case 0:
-        btlTargetIsEntryActive((s16)h6E);
-        if (btlActionHasNoTargetClass((u32)base) == 1) {
-            unitA = *(u8 **)(base + 0x38);
-            if (base == unitA) {
+        btlTargetIsEntryActive((s16)skill);
+        if (btlActionHasNoTargetClass((u32)action) == 1) {
+            targetAction = (u8 *)((BtlAction **)((BtlAction *)action)->unk_38)[0];
+            if (action == targetAction) {
                 return 1;
             }
-            if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x1000000) != 0) {
+            if ((((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x1000000) != 0) {
                 return 1;
             }
-            if (btlBossTargetBlocked(base) == 0) {
+            if (btlBossTargetBlocked(action) == 0) {
                 return 1;
             }
-            unitB = *(u8 **)(base + 0x30);
-            other = *(u8 **)(unitA + 0x30);
-            entry = *(u8 **)(unitB + 0xA0C);
-            if (btlBossUnitsSameGenus((struct BtlUnit *)(unitB), (struct BtlUnit *)(other)) != 0) {
-                *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
-                *(u16 *)(iGpffffb3ac + 0x18) |= 0xE;
+            actor = *(u8 **)(action + 0x30);
+            targetUnit = (u8 *)((BtlAction *)targetAction)->unit;
+            companion = (u8 *)((BtlUnit *)actor)->childUnit;
+            if (btlBossUnitsSameGenus((struct BtlUnit *)(actor), (struct BtlUnit *)(targetUnit)) != 0) {
+                ((BtlBattleState *)iGpffffb3ac)->flags |= 0x400000;
+                ((BtlBattleState *)iGpffffb3ac)->actionEndFlags |= 0xE;
             }
-            btlUnitGetSphereWorldCenter((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
-            btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(other), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&centerB));
-            centerB.v[1] = *(f32 *)(unitB + 8);
-            centerA[1] = centerB.v[1];
-            if (work[2] == 1 && other != unitB && btlBossFlagPairOk((s32)(unitB), (s32)(other)) != 0) {
-                if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
-                    btlUnitGetSphereWorldCenter((struct BtlUnit *)(other), (struct RwV3d *)((f32 *)&tmpF0));
-                    btlTargetBlendVectors((u8 *)(quat), (u8 *)((f32 *)&tmpF0), (u8 *)(centerA));
-                    centerX = *(f32 *)(other + 0x80);
-                    scale = *(f32 *)(other + 0x2C);
-                    dest[0] = centerX * scale;
-                    dest[1] = *(f32 *)(other + 0x84) * scale;
-                    dest[2] = *(f32 *)(other + 0x88) * scale;
-                    RtQuatTransformVectors((struct RwV3d *)(diff), (const struct RwV3d *)(dest), 1, (const struct RtQuat *)(quat));
-                    dest[0] = tmpF0.v[0] - diff[0];
-                    dest[1] = tmpF0.v[1] - diff[1];
-                    dest[2] = tmpF0.v[2] - diff[2];
-                    tmpF0.v[1] = *(f32 *)(other + 8);
-                    dest[1] = tmpF0.v[1];
-                    btlUnitSetPos((struct BtlUnit *)(other), (const struct RwV3d *)(dest));
-                    btlTargetBlendVectors((u8 *)(quat), (u8 *)(dest), (u8 *)(unitB + 4));
-                    btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
-                    centerB = tmpF0;
+            btlUnitGetSphereWorldCenter((struct BtlUnit *)(actor), (struct RwV3d *)(actorCenter));
+            btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(targetUnit), (struct BtlUnit *)(actor), (struct RwV3d *)((f32 *)&targetCenter));
+            targetCenter.v[1] = ((BtlUnit *)actor)->pos.y;
+            actorCenter[1] = targetCenter.v[1];
+            if (work[2] == 1 && targetUnit != actor && btlBossFlagPairOk((s32)(actor), (s32)(targetUnit)) != 0) {
+                if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) == 0) {
+                    btlUnitGetSphereWorldCenter((struct BtlUnit *)(targetUnit), (struct RwV3d *)((f32 *)&candidateCenter));
+                    btlTargetBlendVectors((u8 *)(rotation), (u8 *)((f32 *)&candidateCenter), (u8 *)(actorCenter));
+                    centerX = ((BtlUnit *)targetUnit)->sphereCenter.x;
+                    scale = ((BtlUnit *)targetUnit)->scale;
+                    position[0] = centerX * scale;
+                    position[1] = ((BtlUnit *)targetUnit)->sphereCenter.y * scale;
+                    position[2] = ((BtlUnit *)targetUnit)->sphereCenter.z * scale;
+                    RtQuatTransformVectors((struct RwV3d *)(direction), (const struct RwV3d *)(position), 1, (const struct RtQuat *)(rotation));
+                    position[0] = candidateCenter.v[0] - direction[0];
+                    position[1] = candidateCenter.v[1] - direction[1];
+                    position[2] = candidateCenter.v[2] - direction[2];
+                    candidateCenter.v[1] = ((BtlUnit *)targetUnit)->pos.y;
+                    position[1] = candidateCenter.v[1];
+                    btlUnitSetPos((struct BtlUnit *)(targetUnit), (const struct RwV3d *)(position));
+                    btlTargetBlendVectors((u8 *)(rotation), (u8 *)(position), (u8 *)(actor + 4));
+                    btlUnitSetRot((struct BtlUnit *)(targetUnit), (const struct RtQuat *)(rotation));
+                    targetCenter = candidateCenter;
                 } else {
-                    btlTargetBlendVectors((u8 *)(quat), (u8 *)((f32 *)&centerB), (u8 *)(centerA));
-                    btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
+                    btlTargetBlendVectors((u8 *)(rotation), (u8 *)((f32 *)&targetCenter), (u8 *)(actorCenter));
+                    btlUnitSetRot((struct BtlUnit *)(targetUnit), (const struct RtQuat *)(rotation));
                 }
-                btlUnitClearRotateFlags(other);
-                btlUnitRequestLookAt(other);
+                btlUnitClearRotateFlags(targetUnit);
+                btlUnitRequestLookAt(targetUnit);
             }
             if (work[1] == 1) {
-                diff[0] = centerA[0] - centerB.v[0];
-                diff[1] = centerA[1] - centerB.v[1];
-                diff[2] = centerA[2] - centerB.v[2];
-                diff[1] = 0.0f;
-                len = RwV3dNormalize(diff, diff);
-                radiusA = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+                direction[0] = actorCenter[0] - targetCenter.v[0];
+                direction[1] = actorCenter[1] - targetCenter.v[1];
+                direction[2] = actorCenter[2] - targetCenter.v[2];
+                direction[1] = 0.0f;
+                distance = RwV3dNormalize(direction, direction);
+                actorRadius = *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
                 extraDistance = 0.0f;
                 /* The null-companion path supplies no isClose value in
                  * retail; only the later distance clamp may set it. */
-                if (entry != NULL) {
-                    isClose = btlTargetCanSelectEntry(entry, (s16)h6E, 1);
-                    sel = (s16)btlUnitOpeningMotionMode((s32)((s32)entry), unitB, (s16)h6E, 1);
-                    len = (0.0f + len) - *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+                if (companion != NULL) {
+                    isClose = btlTargetCanSelectEntry(companion, (s16)skill, 1);
+                    motionCategory = (s16)btlUnitOpeningMotionMode((s32)((s32)companion), actor, (s16)skill, 1);
+                    distance = (0.0f + distance) - *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
                     if (isClose == 0) {
-                        tmp = (s16)btlUnitOpeningMotionMode((s32)((s32)entry), unitB, (s16)h6E, 1);
-                        switch (tmp) {
+                        motionKind = (s16)btlUnitOpeningMotionMode((s32)((s32)companion), actor, (s16)skill, 1);
+                        switch (motionKind) {
                         case 0:
                         case 2:
-                            btlUnitGetSlotPose(entry, unitB, other, sel, dest, NULL, 0);
+                            btlUnitGetSlotPose(companion, actor, targetUnit, motionCategory, position, NULL, 0);
                             break;
                         case 1:
                         case 3:
-                            btlUnitGetSlotPose(entry, unitB, other, sel, dest, NULL, 1);
+                            btlUnitGetSlotPose(companion, actor, targetUnit, motionCategory, position, NULL, 1);
                             break;
                         }
                     } else {
-                        btlUnitGetSlotPose(entry, unitB, other, sel, dest, NULL, 2);
+                        btlUnitGetSlotPose(companion, actor, targetUnit, motionCategory, position, NULL, 2);
                     }
-                    diff[0] = centerB.v[0] - centerA[0];
-                    diff[1] = centerB.v[1] - centerA[1];
-                    diff[2] = centerB.v[2] - centerA[2];
-                    diff[1] = 0.0f;
-                    RwV3dNormalize(diff, diff);
-                    diff[0] *= 1000.0f;
-                    diff[1] *= 1000.0f;
-                    diff[2] *= 1000.0f;
-                    tmpD0[0] = centerB.v[0] + diff[0];
-                    tmpD0[1] = centerB.v[1] + diff[1];
-                    tmpD0[2] = centerB.v[2] + diff[2];
-                    diff[0] = dest[0] - tmpD0[0];
-                    diff[1] = dest[1] - tmpD0[1];
-                    diff[2] = dest[2] - tmpD0[2];
-                    diff[1] = 0.0f;
-                    RwV3dNormalize(diff, diff);
-                    tmpD0[0] = dest[0] - centerB.v[0];
-                    tmpD0[1] = dest[1] - centerB.v[1];
-                    tmpD0[2] = dest[2] - centerB.v[2];
-                    tmpD0[1] = 0.0f;
-                    extent = RwV3dLength(tmpD0);
-                    companionScale = *(f32 *)(entry + 0x2C);
-                    radiusB = *(f32 *)(entry + 0x90) * companionScale;
-                    adj = extent - radiusB;
+                    direction[0] = targetCenter.v[0] - actorCenter[0];
+                    direction[1] = targetCenter.v[1] - actorCenter[1];
+                    direction[2] = targetCenter.v[2] - actorCenter[2];
+                    direction[1] = 0.0f;
+                    RwV3dNormalize(direction, direction);
+                    direction[0] *= 1000.0f;
+                    direction[1] *= 1000.0f;
+                    direction[2] *= 1000.0f;
+                    companionVector[0] = targetCenter.v[0] + direction[0];
+                    companionVector[1] = targetCenter.v[1] + direction[1];
+                    companionVector[2] = targetCenter.v[2] + direction[2];
+                    direction[0] = position[0] - companionVector[0];
+                    direction[1] = position[1] - companionVector[1];
+                    direction[2] = position[2] - companionVector[2];
+                    direction[1] = 0.0f;
+                    RwV3dNormalize(direction, direction);
+                    companionVector[0] = position[0] - targetCenter.v[0];
+                    companionVector[1] = position[1] - targetCenter.v[1];
+                    companionVector[2] = position[2] - targetCenter.v[2];
+                    companionVector[1] = 0.0f;
+                    extent = RwV3dLength(companionVector);
+                    companionScale = ((BtlUnit *)companion)->scale;
+                    companionRadius = ((BtlUnit *)companion)->sphereRadius * companionScale;
+                    separation = extent - companionRadius;
                     companionNeedsMove = isClose;
                     if (companionNeedsMove == 0) {
-                        if ((0.0f + len) + *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) < adj + radiusB) {
+                        if ((0.0f + distance) + ((BtlUnit *)actor)->sphereRadius * ((BtlUnit *)actor)->scale < separation + companionRadius) {
                             isClose = companionNeedsMove;
                         } else {
-                            len = adj;
-                            radiusA = radiusB;
-                            tmp100[0] = centerA[0] - dest[0];
-                            tmp100[1] = centerA[1] - dest[1];
-                            tmp100[2] = centerA[2] - dest[2];
-                            tmp100[1] = 0.0f;
-                            extraDistance = RwV3dNormalize(tmp100, tmp100);
+                            distance = separation;
+                            actorRadius = companionRadius;
+                            companionDelta[0] = actorCenter[0] - position[0];
+                            companionDelta[1] = actorCenter[1] - position[1];
+                            companionDelta[2] = actorCenter[2] - position[2];
+                            companionDelta[1] = 0.0f;
+                            extraDistance = RwV3dNormalize(companionDelta, companionDelta);
                         }
                     } else {
-                        radiusA = radiusB;
-                        btlUnitGetSlotPose(entry, unitB, NULL, -1, dest, NULL, 0);
-                        dest[0] = centerA[0];
-                        dest[1] = centerA[1];
-                        tmp100[0] = dest[0] - centerA[0];
-                        tmp100[1] = dest[1] - centerA[1];
-                        tmp100[2] = dest[2] - centerA[2];
-                        extraDistance = RwV3dLength(tmp100);
-                        if (extraDistance + (adj + radiusB) <= len) {
+                        actorRadius = companionRadius;
+                        btlUnitGetSlotPose(companion, actor, NULL, -1, position, NULL, 0);
+                        position[0] = actorCenter[0];
+                        position[1] = actorCenter[1];
+                        companionDelta[0] = position[0] - actorCenter[0];
+                        companionDelta[1] = position[1] - actorCenter[1];
+                        companionDelta[2] = position[2] - actorCenter[2];
+                        extraDistance = RwV3dLength(companionDelta);
+                        if (extraDistance + (separation + companionRadius) <= distance) {
                             extraDistance = 0.0f;
                         } else {
-                            len = adj;
+                            distance = separation;
                         }
                     }
                 }
-                otherRadius = formationRadius(other);
-                len -= otherRadius;
-                if (len < 300.0f) {
-                    len = 300.0f;
+                otherRadius = formationRadius(targetUnit);
+                distance -= otherRadius;
+                if (distance < 300.0f) {
+                    distance = 300.0f;
                     isClose = 1;
                 }
                 if (isClose != 0) {
-                    offsetDistance = len + radiusA;
-                    targetScale = *(f32 *)(other + 0x2C);
+                    offsetDistance = distance + actorRadius;
+                    targetScale = ((BtlUnit *)targetUnit)->scale;
                     offsetDistance += otherRadius;
                     offsetDistance += extraDistance;
                     scale = (0.0f + offsetDistance) +
-                            *(f32 *)(other + 0x88) * targetScale;
-                    diff[0] *= scale;
-                    diff[1] *= scale;
-                    diff[2] *= scale;
-                    dest[0] = centerB.v[0] + diff[0];
-                    dest[1] = centerB.v[1] + diff[1];
-                    dest[2] = centerB.v[2] + diff[2];
-                    btlUnitSetPos((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
+                            ((BtlUnit *)targetUnit)->sphereCenter.z * targetScale;
+                    direction[0] *= scale;
+                    direction[1] *= scale;
+                    direction[2] *= scale;
+                    position[0] = targetCenter.v[0] + direction[0];
+                    position[1] = targetCenter.v[1] + direction[1];
+                    position[2] = targetCenter.v[2] + direction[2];
+                    btlUnitSetPos((struct BtlUnit *)(actor), (const struct RwV3d *)(position));
                 }
             }
         } else {
-            if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
-                unitB = *(u8 **)(base + 0x30);
+            if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) == 0) {
+                actor = *(u8 **)(action + 0x30);
                 if (work[2] == 1) {
-                    for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
-                        actionTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
-                        if ((*(u16 *)(actionTarget + 0x1A) & 1) != 0 && actionTarget != base) {
-                            btlTargetBlendVectors((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
-                            btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
+                    for (targetIndex = 0; targetIndex < ((BtlAction *)action)->unk_6a; targetIndex++) {
+                        actionTarget = *(u8 **)(action + (u32)targetIndex * 4 + 0x38);
+                        if ((((BtlAction *)actionTarget)->unk_1a & 1) != 0 && actionTarget != action) {
+                            btlTargetBlendVectors((u8 *)(rotation), (u8 *)((u8 *)((BtlAction *)actionTarget)->unit + 4), (u8 *)(actor + 4));
+                            btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(rotation));
                             btlUnitClearRotateFlags(*(u8 **)(actionTarget + 0x30));
                             btlUnitRequestLookAt(*(u8 **)(actionTarget + 0x30));
                         }
                     }
                 }
-                btlUnitGetSphereWorldCenter((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
+                btlUnitGetSphereWorldCenter((struct BtlUnit *)(actor), (struct RwV3d *)(actorCenter));
                 /* An empty filtered group leaves X/Z unwritten, as in
                  * retail. Only Y is replaced before using the center. */
-                btlUnitGetGroupBounds(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
-                centerB.v[1] = *(f32 *)(unitB + 8);
-                centerA[1] = centerB.v[1];
-                tmpE0 = centerB;
-                bestLen = 0.0f;
-                bestFlag = 1;
-                query[0] = centerA[0];
-                query[1] = centerA[2];
-                line[0] = centerB.v[0];
-                line[1] = centerB.v[2];
-                for (nearestNode = *(u8 **)(iGpffffb3ac + 0x184); nearestNode != NULL; nearestNode = *(u8 **)(nearestNode + 0xA68)) {
-                    if ((*(u32 *)(nearestNode + 0x9C) & 8) != 0) {
-                        btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(nearestNode), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&tmpF0));
-                        delta[0] = tmpF0.v[0];
-                        delta[1] = tmpF0.v[2];
-                        btlTargetAngleBetween((u8 *)(query), (u8 *)(line), (u8 *)(delta), (u8 *)(projection));
-                        delta[0] = query[0] - projection[0];
-                        delta[1] = query[1] - projection[1];
-                        dist2 = RwV2dLength(delta);
-                        if (dist2 < bestLen || bestFlag == 1) {
-                            tmpE0.v[0] = projection[0];
-                            tmpE0.v[1] = centerA[1];
-                            tmpE0.v[2] = projection[1];
-                            bestLen = dist2;
-                            bestFlag = 0;
+                btlUnitGetGroupBounds(2, 0, (struct RwV3d *)((f32 *)&targetCenter), NULL, NULL, 1);
+                targetCenter.v[1] = ((BtlUnit *)actor)->pos.y;
+                actorCenter[1] = targetCenter.v[1];
+                nearestCenter = targetCenter;
+                nearestDistance = 0.0f;
+                firstCandidate = 1;
+                actorXZ[0] = actorCenter[0];
+                actorXZ[1] = actorCenter[2];
+                groupXZ[0] = targetCenter.v[0];
+                groupXZ[1] = targetCenter.v[2];
+                for (nearestNode = ((BtlBattleState *)iGpffffb3ac)->unitLists[3]; nearestNode != NULL; nearestNode = (u8 *)((BtlUnit *)nearestNode)->prevUnit) {
+                    if ((((BtlUnit *)nearestNode)->flags3 & 8) != 0) {
+                        btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(nearestNode), (struct BtlUnit *)(actor), (struct RwV3d *)((f32 *)&candidateCenter));
+                        targetXZ[0] = candidateCenter.v[0];
+                        targetXZ[1] = candidateCenter.v[2];
+                        btlTargetAngleBetween((u8 *)(actorXZ), (u8 *)(groupXZ), (u8 *)(targetXZ), (u8 *)(nearestXZ));
+                        targetXZ[0] = actorXZ[0] - nearestXZ[0];
+                        targetXZ[1] = actorXZ[1] - nearestXZ[1];
+                        lineDistance = RwV2dLength(targetXZ);
+                        if (lineDistance < nearestDistance || firstCandidate == 1) {
+                            nearestCenter.v[0] = nearestXZ[0];
+                            nearestCenter.v[1] = actorCenter[1];
+                            nearestCenter.v[2] = nearestXZ[1];
+                            nearestDistance = lineDistance;
+                            firstCandidate = 0;
                         }
                     }
                 }
-                adj = (0.0f + bestLen) - *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+                separation = (0.0f + nearestDistance) - *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
                 minimumSpacing = 450.0f;
-                if (adj < minimumSpacing) {
-                    diff[0] = centerA[0] - tmpE0.v[0];
-                    projectedY = tmpE0.v[1];
-                    diff[1] = centerA[1] - projectedY;
-                    projectedZ = tmpE0.v[2];
-                    diff[2] = centerA[2] - projectedZ;
-                    diff[1] = 0.0f;
-                    RwV3dNormalize(diff, diff);
-                    adj = (0.0f + minimumSpacing) + *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
-                    diff[0] *= adj;
-                    diff[1] *= adj;
-                    diff[2] *= adj;
-                    dest[0] = tmpE0.v[0] + diff[0];
-                    dest[1] = projectedY + diff[1];
-                    dest[2] = projectedZ + diff[2];
-                    btlUnitSetPos((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
+                if (separation < minimumSpacing) {
+                    direction[0] = actorCenter[0] - nearestCenter.v[0];
+                    projectedY = nearestCenter.v[1];
+                    direction[1] = actorCenter[1] - projectedY;
+                    projectedZ = nearestCenter.v[2];
+                    direction[2] = actorCenter[2] - projectedZ;
+                    direction[1] = 0.0f;
+                    RwV3dNormalize(direction, direction);
+                    separation = (0.0f + minimumSpacing) + ((BtlUnit *)actor)->sphereRadius * ((BtlUnit *)actor)->scale;
+                    direction[0] *= separation;
+                    direction[1] *= separation;
+                    direction[2] *= separation;
+                    position[0] = nearestCenter.v[0] + direction[0];
+                    position[1] = projectedY + direction[1];
+                    position[2] = projectedZ + direction[2];
+                    btlUnitSetPos((struct BtlUnit *)(actor), (const struct RwV3d *)(position));
                 }
-            } else if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x80) != 0) {
-                btlUnitGetGroupBounds(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
-                for (spacingNode = *(u8 **)(iGpffffb3ac + 0x17C); spacingNode != NULL; spacingNode = *(u8 **)(spacingNode + 0xA68)) {
-                    if ((*(u32 *)(spacingNode + 0x9C) & 8) != 0) {
-                        btlUnitGetSphereWorldCenter((struct BtlUnit *)(spacingNode), (struct RwV3d *)(centerA));
-                        diff[0] = centerA[0] - centerB.v[0];
-                        diff[1] = centerA[1] - centerB.v[1];
-                        diff[2] = centerA[2] - centerB.v[2];
-                        diff[1] = 0.0f;
-                        RwV3dNormalize(diff, diff);
-                        diff[0] *= 200.0f;
-                        diff[1] *= 200.0f;
-                        diff[2] *= 200.0f;
-                        btlUnitGetAnchorPose((u8 *)(spacingNode), (u8 *)(dest), (f32 *)(NULL), (f32 *)(NULL));
-                        dest[0] += diff[0];
-                        dest[1] += diff[1];
-                        dest[2] += diff[2];
-                        btlUnitSetPos((struct BtlUnit *)(spacingNode), (const struct RwV3d *)(dest));
+            } else if ((((BtlBattleState *)iGpffffb3ac)->battleFlags & 0x80) != 0) {
+                btlUnitGetGroupBounds(2, 0, (struct RwV3d *)((f32 *)&targetCenter), NULL, NULL, 1);
+                for (spacingNode = ((BtlBattleState *)iGpffffb3ac)->unitLists[1]; spacingNode != NULL; spacingNode = (u8 *)((BtlUnit *)spacingNode)->prevUnit) {
+                    if ((((BtlUnit *)spacingNode)->flags3 & 8) != 0) {
+                        btlUnitGetSphereWorldCenter((struct BtlUnit *)(spacingNode), (struct RwV3d *)(actorCenter));
+                        direction[0] = actorCenter[0] - targetCenter.v[0];
+                        direction[1] = actorCenter[1] - targetCenter.v[1];
+                        direction[2] = actorCenter[2] - targetCenter.v[2];
+                        direction[1] = 0.0f;
+                        RwV3dNormalize(direction, direction);
+                        direction[0] *= 200.0f;
+                        direction[1] *= 200.0f;
+                        direction[2] *= 200.0f;
+                        btlUnitGetAnchorPose((u8 *)(spacingNode), (u8 *)(position), (f32 *)(NULL), (f32 *)(NULL));
+                        position[0] += direction[0];
+                        position[1] += direction[1];
+                        position[2] += direction[2];
+                        btlUnitSetPos((struct BtlUnit *)(spacingNode), (const struct RwV3d *)(position));
                     }
                 }
-                *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
-                *(u16 *)(iGpffffb3ac + 0x18) |= 6;
+                ((BtlBattleState *)iGpffffb3ac)->flags |= 0x400000;
+                ((BtlBattleState *)iGpffffb3ac)->actionEndFlags |= 6;
             }
         }
         break;
     case 1:
-        if (*(u16 *)(base + 0x6A) == 1) {
+        if (((BtlAction *)action)->unk_6a == 1) {
             break;
         }
-        if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+        if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) != 0) {
             break;
         }
-        targetCount = btlTargetGetUnitIndex((struct BtlTarget *)(base + 0x38)) & 0xFFFF;
+        targetCount = btlTargetGetUnitIndex((struct BtlTarget *)(action + 0x38)) & 0xFFFF;
         if (targetCount != 1) {
             break;
         }
-        found = 0;
-        groupUnit = *(u8 **)(base + 0x30);
-        btlUnitGetSphereWorldCenter((struct BtlUnit *)(groupUnit), (struct RwV3d *)(centerA));
-        groupRadius = *(f32 *)(groupUnit + 0x90) * *(f32 *)(groupUnit + 0x2C);
+        movedAny = 0;
+        groupUnit = *(u8 **)(action + 0x30);
+        btlUnitGetSphereWorldCenter((struct BtlUnit *)(groupUnit), (struct RwV3d *)(actorCenter));
+        groupRadius = ((BtlUnit *)groupUnit)->sphereRadius * ((BtlUnit *)groupUnit)->scale;
         if (work[2] == 1) {
-            btlUnitGetGroupBounds(targetCount, 1, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
-            /* best is written only for a qualifying farther target.
+            btlUnitGetGroupBounds(targetCount, 1, (struct RwV3d *)((f32 *)&targetCenter), NULL, NULL, 1);
+            /* farthestCenter is written only for a qualifying farther target.
              * Retail still consumes its stack slot after an empty scan. */
             farthestDistance = 0.0f;
-            for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
-                groupTarget = *(u8 **)(base + (u32)i * 4 + 0x38);
-                if ((*(u16 *)(groupTarget + 0x1A) & 1) != 0) {
-                    btlUnitGetGridSphereCenter((struct BtlUnit *)(*(u8 **)(groupTarget + 0x30)), (struct RwV3d *)((f32 *)&tmpF0));
-                    diff[0] = centerB.v[0] - tmpF0.v[0];
-                    diff[1] = centerB.v[1] - tmpF0.v[1];
-                    diff[2] = centerB.v[2] - tmpF0.v[2];
-                    extent = RwV3dLength(diff);
+            for (targetIndex = 0; targetIndex < *(u16 *)(action + 0x6A); targetIndex++) {
+                groupTarget = *(u8 **)(action + (u32)targetIndex * 4 + 0x38);
+                if ((((BtlAction *)groupTarget)->unk_1a & 1) != 0) {
+                    btlUnitGetGridSphereCenter((struct BtlUnit *)((u8 *)((BtlAction *)groupTarget)->unit), (struct RwV3d *)((f32 *)&candidateCenter));
+                    direction[0] = targetCenter.v[0] - candidateCenter.v[0];
+                    direction[1] = targetCenter.v[1] - candidateCenter.v[1];
+                    direction[2] = targetCenter.v[2] - candidateCenter.v[2];
+                    extent = RwV3dLength(direction);
                     if (!(extent <= farthestDistance)) {
-                        best = tmpF0;
+                        farthestCenter = candidateCenter;
                         farthestDistance = extent;
                     }
                 }
             }
-            btlTargetBlendVectors((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
-            btlUnitSetRot((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
+            btlTargetBlendVectors((u8 *)(rotation), (u8 *)(actorCenter), (u8 *)((f32 *)&farthestCenter));
+            btlUnitSetRot((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(rotation));
             btlUnitClearRotateFlags(groupUnit);
             btlUnitRequestLookAt(groupUnit);
         }
-        for (groupNode = *(u8 **)(iGpffffb3ac + 0x17C); groupNode != NULL; groupNode = *(u8 **)(groupNode + 0xA68)) {
-            if ((*(u32 *)(groupNode + 0x9C) & 8) != 0) {
-                btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(groupNode), (struct BtlUnit *)(groupUnit), (struct RwV3d *)((f32 *)&centerB));
-                diff[0] = centerB.v[0] - centerA[0];
-                diff[1] = centerB.v[1] - centerA[1];
-                diff[2] = centerB.v[2] - centerA[2];
-                diff[1] = 0.0f;
-                groupDistance = RwV3dNormalize(diff, diff);
+        for (groupNode = ((BtlBattleState *)iGpffffb3ac)->unitLists[1]; groupNode != NULL; groupNode = (u8 *)((BtlUnit *)groupNode)->prevUnit) {
+            if ((((BtlUnit *)groupNode)->flags3 & 8) != 0) {
+                btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(groupNode), (struct BtlUnit *)(groupUnit), (struct RwV3d *)((f32 *)&targetCenter));
+                direction[0] = targetCenter.v[0] - actorCenter[0];
+                direction[1] = targetCenter.v[1] - actorCenter[1];
+                direction[2] = targetCenter.v[2] - actorCenter[2];
+                direction[1] = 0.0f;
+                groupDistance = RwV3dNormalize(direction, direction);
                 scale = (0.0f + groupRadius) + fGpffff809c * (groupDistance - groupRadius);
                 if (scale < groupDistance && !(scale <= 300.0f)) {
-                    diff[0] *= scale;
-                    diff[1] *= scale;
-                    diff[2] *= scale;
-                    dest[0] = centerA[0] + diff[0];
-                    dest[1] = centerA[1] + diff[1];
-                    dest[2] = centerA[2] + diff[2];
-                    dest[1] = 0.0f;
-                    btlUnitSetPos((struct BtlUnit *)(groupNode), (const struct RwV3d *)(dest));
-                    found = 1;
+                    direction[0] *= scale;
+                    direction[1] *= scale;
+                    direction[2] *= scale;
+                    position[0] = actorCenter[0] + direction[0];
+                    position[1] = actorCenter[1] + direction[1];
+                    position[2] = actorCenter[2] + direction[2];
+                    position[1] = 0.0f;
+                    btlUnitSetPos((struct BtlUnit *)(groupNode), (const struct RwV3d *)(position));
+                    movedAny = 1;
                 }
             }
         }
-        if (found != 0) {
-            *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
-            *(u16 *)(iGpffffb3ac + 0x18) |= 0x1E;
+        if (movedAny != 0) {
+            ((BtlBattleState *)iGpffffb3ac)->flags |= 0x400000;
+            ((BtlBattleState *)iGpffffb3ac)->actionEndFlags |= 0x1E;
         }
         break;
     }
@@ -563,26 +616,28 @@ u32 btlFormationPlaceUnits(u32 *work)
 
 #pragma pop
 // FUN_001D2D90
-BtlPacket* btlFormationCreateStepPacket(u32 param_1, u32 param_2, u32 param_3)
+/* Create packet 0xB01 with independent actor-placement and target-rotation switches. */
+BtlPacket* btlFormationCreateStepPacket(u32 action, u32 moveActor, u32 rotateTargets)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb01, 0xc);
-    *(code **)(packet + 0x6c) = (code *)btlFormationPlaceUnits;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    work[2] = param_3;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlFormationPlaceUnits;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = action;
+    work[1] = moveActor;
+    work[2] = rotateTargets;
     return (BtlPacket*)packet;
 }
 
 
 
 // FUN_001D2E00
+/* Hold the actor while the placement packet owns its pending-packet reference. */
 void btlFormationEnterTurn(u32 *work)
 {
-    *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) + 1;
+    ((BtlUnit *)work[0])->pendingPacketCount = ((BtlUnit *)work[0])->pendingPacketCount + 1;
 }
 /* Native b210 O2: 444/448 bytes, ten resolved calls and four zero
  * alignment bytes. Packet storage remains unsigned; the action helpers
@@ -633,7 +688,7 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
         btlUnitSetRot(node, frame.rotation);
         btlUnitSetPos(node, frame.position);
     } else {
-        btlUnitGetSlotPose(node, unit, *(u8 **)(work->partnerAction + 0x30),
+        btlUnitGetSlotPose(node, unit, (u8 *)((BtlAction *)work->partnerAction)->unit,
                       category, frame.position, frame.rotation, 2);
         btlUnitSetRot(node, frame.rotation);
         btlUnitSetPos(node, frame.position);
@@ -642,6 +697,7 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
 }
 
 // FUN_001D2E20
+/* Place the actor relative to its target action and optional partner action. */
 u32 btlFormationPlaceFromRaw(u8 *raw)
 {
     BtlFormationPlacementWork *work;
@@ -650,42 +706,45 @@ u32 btlFormationPlaceFromRaw(u8 *raw)
 
     work = (BtlFormationPlacementWork *)raw;
     node = work->actor;
-    unit = *(u8 **)(work->targetAction + 0x30);
+    unit = (u8 *)((BtlAction *)work->targetAction)->unit;
     return placeFormation(work, node, unit);
 }
 #pragma pop
 
 // FUN_001D2FE0
+/* Release the placement packet's pending reference on its actor. */
 void btlFormationLeaveTurn(u32 *work)
 {
-    *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) - 1;
+    ((BtlUnit *)work[0])->pendingPacketCount = ((BtlUnit *)work[0])->pendingPacketCount - 1;
 }
 // FUN_001D3000
-BtlPacket* btlFormationCreateTurnPacket(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
+/* Create packet 0xB02, retaining the actor for the target/partner placement callback. */
+BtlPacket* btlFormationCreateTurnPacket(u32 actor, u32 targetAction, u32 partnerAction, u16 skill)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb02, 0x10);
-    *(code **)(packet + 0x68) = (code *)btlFormationEnterTurn;
-    *(code **)(packet + 0x6c) = (code *)btlFormationPlaceFromRaw;
-    *(code **)(packet + 0x70) = (code *)btlFormationLeaveTurn;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    work[2] = param_3;
-    *(u16 *)(work + 3) = param_4;
+    ((BtlPacket *)packet)->initFunc = (BtlPacketFunc)btlFormationEnterTurn;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlFormationPlaceFromRaw;
+    ((BtlPacket *)packet)->destroyFunc = (BtlPacketUpdateFunc)btlFormationLeaveTurn;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = actor;
+    work[1] = targetAction;
+    work[2] = partnerAction;
+    ((BtlFormationPlacementWork *)work)->action = skill;
     return (BtlPacket*)packet;
 }
 
 
 
 // FUN_001D3090
+/* Apply one of five relative-pose modes to the stored unit pair. */
 u32 btlFormationUpdatePose(u32 *work)
 {
     #include "rw_types_internal.h"
 
-    extern void btlUnitFaceTarget(void *arg0, void *arg1);
+    extern void btlUnitFaceTarget(void *context, void *value);
     extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
     extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
     extern f32 D_0060A0E0[3];
@@ -697,24 +756,24 @@ u32 btlFormationUpdatePose(u32 *work)
     f32 dest[3];
     f32 scale;
 
-    sel = *(u16 *)(work + 2);
+    sel = ((BtlFormationPoseWork *)work)->mode;
     switch (sel) {
     case 0:
         btlUnitClearMoveFlags((void *)work[0]);
         btlUnitClearRotateFlags((void *)work[0]);
         btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
         btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
-        diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
-        diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
-        diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
+        diff[0] = ((BtlUnit *)work[0])->pos.x - ((BtlUnit *)work[1])->pos.x;
+        diff[1] = ((BtlUnit *)work[0])->pos.y - ((BtlUnit *)work[1])->pos.y;
+        diff[2] = ((BtlUnit *)work[0])->pos.z - ((BtlUnit *)work[1])->pos.z;
         diff[1] = 0.0f;
         RwV3dNormalize(diff, diff);
         diff[0] *= 100.0f;
         diff[1] *= 100.0f;
         diff[2] *= 100.0f;
-        dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
-        dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
-        dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
+        dest[0] = ((BtlUnit *)work[1])->pos.x + diff[0];
+        dest[1] = ((BtlUnit *)work[1])->pos.y + diff[1];
+        dest[2] = ((BtlUnit *)work[1])->pos.z + diff[2];
         btlUnitSetPos((void *)work[0], dest);
         break;
     case 1:
@@ -722,17 +781,17 @@ u32 btlFormationUpdatePose(u32 *work)
         btlUnitClearRotateFlags((void *)work[0]);
         btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
         btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
-        diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
-        diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
-        diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
+        diff[0] = ((BtlUnit *)work[0])->pos.x - ((BtlUnit *)work[1])->pos.x;
+        diff[1] = ((BtlUnit *)work[0])->pos.y - ((BtlUnit *)work[1])->pos.y;
+        diff[2] = ((BtlUnit *)work[0])->pos.z - ((BtlUnit *)work[1])->pos.z;
         diff[1] = 0.0f;
         RwV3dNormalize(diff, diff);
         diff[0] *= 150.0f;
         diff[1] *= 150.0f;
         diff[2] *= 150.0f;
-        dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
-        dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
-        dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
+        dest[0] = ((BtlUnit *)work[1])->pos.x + diff[0];
+        dest[1] = ((BtlUnit *)work[1])->pos.y + diff[1];
+        dest[2] = ((BtlUnit *)work[1])->pos.z + diff[2];
         btlUnitSetPos((void *)work[0], dest);
         break;
     case 2:
@@ -740,8 +799,8 @@ u32 btlFormationUpdatePose(u32 *work)
         btlUnitSetRot((void *)work[0], (u8 *)work[1] + 0x1c);
         break;
     case 3:
-        rotation = *(RtQuat *)((u8 *)work[1] + 0x1c);
-        if ((*(u32 *)(D_0076449C + 0xc) & 0x200000) == 0) {
+        rotation = ((BtlUnit *)work[1])->rot;
+        if ((((BtlBattleState *)D_0076449C)->flags & 0x200000) == 0) {
             func_003dc740(&rotation, D_0060A0E0, 2, 90.0f);
         } else {
             func_003dc740(&rotation, D_0060A0E0, 2, 130.0f);
@@ -750,9 +809,9 @@ u32 btlFormationUpdatePose(u32 *work)
         diff[0] *= 250.0f;
         diff[1] *= 250.0f;
         diff[2] *= 250.0f;
-        dest[0] = *(f32 *)((u8 *)work[0] + 4) + diff[0];
-        dest[1] = *(f32 *)((u8 *)work[0] + 8) + diff[1];
-        dest[2] = *(f32 *)((u8 *)work[0] + 0xc) + diff[2];
+        dest[0] = ((BtlUnit *)work[0])->pos.x + diff[0];
+        dest[1] = ((BtlUnit *)work[0])->pos.y + diff[1];
+        dest[2] = ((BtlUnit *)work[0])->pos.z + diff[2];
         btlUnitSetPos((void *)work[1], dest);
         break;
     case 4:
@@ -761,82 +820,85 @@ u32 btlFormationUpdatePose(u32 *work)
         btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
         btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
         scale = btlUnitGetMotionDistance((u8 *)work[0], (u8 *)work[1], 7);
-        diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
-        diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
-        diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
+        diff[0] = ((BtlUnit *)work[0])->pos.x - ((BtlUnit *)work[1])->pos.x;
+        diff[1] = ((BtlUnit *)work[0])->pos.y - ((BtlUnit *)work[1])->pos.y;
+        diff[2] = ((BtlUnit *)work[0])->pos.z - ((BtlUnit *)work[1])->pos.z;
         diff[1] = 0.0f;
         RwV3dNormalize(diff, diff);
         diff[0] *= scale;
         diff[1] *= scale;
         diff[2] *= scale;
-        dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
-        dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
-        dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
+        dest[0] = ((BtlUnit *)work[1])->pos.x + diff[0];
+        dest[1] = ((BtlUnit *)work[1])->pos.y + diff[1];
+        dest[2] = ((BtlUnit *)work[1])->pos.z + diff[2];
         btlUnitSetPos((void *)work[0], dest);
         break;
     }
     return 1;
 }
 // FUN_001D3530
-BtlPacket* btlFormationCreateWaitPacket(u32 param_1, u32 param_2, u16 param_3)
+/* Create packet 0xB03 to apply a relative-pose mode to two units. */
+BtlPacket* btlFormationCreateWaitPacket(u32 actor, u32 target, u16 mode)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb03, 0xc);
-    *(code **)(packet + 0x6c) = (code *)btlFormationUpdatePose;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    *(u16 *)(work + 2) = param_3;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlFormationUpdatePose;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = actor;
+    work[1] = target;
+    ((BtlFormationPoseWork *)work)->mode = mode;
     return (BtlPacket*)packet;
 }
 // FUN_001D35A0
-u32 btlFormationUpdateMovement(u16 *arg0)
+/* Restore anchor position/rotation for selected groups; bit 0x8000 skips moving units. */
+u32 btlFormationUpdateMovement(u16 *options)
 {
-    u8 sp80[0x10];
-    u8 sp70[0x10];
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_21;
-    u32 temp_18;
-    u16 temp_2;
-    u8 *var_20;
-    u32 var_19;
+    u8 position[0x10];
+    u8 rotation[0x10];
+    s32 resetPosition;
+    s32 skipMoving;
+    s32 resetRotation;
+    u32 groupMask;
+    u16 flags;
+    u8 *unit;
+    u32 group;
 
-    temp_18 = arg0[0];
-    temp_2 = arg0[1];
-    var_19 = 0;
-    temp_17 = temp_2 & 0x8000;
-    temp_16 = temp_2 & 1;
-    temp_21 = temp_2 & 2;
-    while (var_19 < 4) {
-        if ((temp_18 & (1 << var_19)) != 0) {
-            var_20 = *(u8 **)(D_0076449C + var_19 * 8 + 0x178);
-            while (var_20 != NULL) {
-                if (((*(u32 *)(var_20 + 0x9c) & 4) != 0) &&
-                    ((temp_17 == 0) || (btlUnitIsMoving(var_20) == 0))) {
-                    btlUnitGetAnchorPose(var_20, sp80, sp70, NULL);
-                    if (temp_16 != 0) {
-                        btlUnitSetPos(var_20, sp80);
-                        btlUnitClearMoveFlags(var_20);
-                        btlTargetRefreshRadiusNode(var_20);
+    groupMask = options[0];
+    flags = options[1];
+    group = 0;
+    skipMoving = flags & 0x8000;
+    resetPosition = flags & 1;
+    resetRotation = flags & 2;
+    while (group < 4) {
+        if ((groupMask & (1 << group)) != 0) {
+            unit = ((BtlBattleState *)D_0076449C)->unitLists[group * 2];
+            while (unit != NULL) {
+                if (((((BtlUnit *)unit)->flags3 & 4) != 0) &&
+                    ((skipMoving == 0) || (btlUnitIsMoving(unit) == 0))) {
+                    btlUnitGetAnchorPose(unit, position, rotation, NULL);
+                    if (resetPosition != 0) {
+                        btlUnitSetPos(unit, position);
+                        btlUnitClearMoveFlags(unit);
+                        btlTargetRefreshRadiusNode(unit);
                     }
-                    if (temp_21 != 0) {
-                        btlUnitSetRot(var_20, sp70);
-                        btlUnitClearRotateFlags(var_20);
-                        btlUnitRequestLookAt(var_20);
+                    if (resetRotation != 0) {
+                        btlUnitSetRot(unit, rotation);
+                        btlUnitClearRotateFlags(unit);
+                        btlUnitRequestLookAt(unit);
                     }
                 }
-                var_20 = *(u8 **)(var_20 + 0xa6c);
+                unit = (u8 *)((BtlUnit *)unit)->nextUnit;
             }
         }
-        var_19++;
+        group++;
     }
     return 1;
 }
 // FUN_001D3700
-BtlPacket *btlFormationCreateSlotPacket(u16 param_1, u16 param_2)
+/* Create packet 0xB04 with group mask and anchor-reset option bits. */
+BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags)
 {
     u16 *work;
     BtlPacket *packet;
@@ -844,74 +906,77 @@ BtlPacket *btlFormationCreateSlotPacket(u16 param_1, u16 param_2)
     packet = btlPacketAlloc(0xb04, 4);
     packet->updateFunc = (BtlPacketUpdateFunc)btlFormationUpdateMovement;
     work = (u16 *)packet->workData;
-    work[0] = param_1;
-    work[1] = param_2;
+    work[0] = groupMask;
+    work[1] = flags;
     return packet;
 }
 // FUN_001D3760
-u32 btlFormationUpdateDeadPosition(u16 *arg0)
+/* Reset camera slots and offset eligible living party units from their anchor poses. */
+u32 btlFormationUpdateDeadPosition(u16 *flags)
 {
-    f32 sp60[4];
-    f32 sp50[4];
-    f32 sp40[4];
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 var_f20;
-    u8 *temp_16;
-    BtlUnit *var_17;
+    f32 position[4];
+    f32 anchor[4];
+    f32 direction[4];
+    f32 offsetZ;
+    f32 offsetY;
+    f32 offsetX;
+    f32 distance;
+    u8 *action;
+    BtlUnit *unit;
 
-    temp_16 = btlActionGetActiveOrQueueFront();
-    btlCameraAssignFormationSlots(!(*arg0 & 2), 0);
-    if ((*arg0 & 1) != 0) {
-        var_17 = *(BtlUnit **)(D_0076449C + 0x178);
-        while (var_17 != NULL) {
-            if ((datCalcChkBadStatus(var_17->datUnit, 0x180017) == 0) &&
-                (datCalcIsDead(var_17->datUnit, 0) == 0)) {
-                if (*(BtlUnit **)(temp_16 + 0x30) == var_17) {
-                    var_f20 = 250.0f;
+    action = btlActionGetActiveOrQueueFront();
+    btlCameraAssignFormationSlots(!(*flags & 2), 0);
+    if ((*flags & 1) != 0) {
+        unit = (BtlUnit *)((BtlBattleState *)D_0076449C)->unitLists[0];
+        while (unit != NULL) {
+            if ((datCalcChkBadStatus(unit->datUnit, 0x180017) == 0) &&
+                (datCalcIsDead(unit->datUnit, 0) == 0)) {
+                if (((BtlAction *)action)->unit == unit) {
+                    distance = 250.0f;
                 } else {
-                    var_f20 = 350.0f;
+                    distance = 350.0f;
                 }
-                btlUnitGetAnchorPose(var_17, sp60, NULL, sp50);
-                sp50[1] = sp60[1];
-                sp40[0] = sp60[0] - sp50[0];
-                sp40[1] = sp60[1] - sp60[1];
-                sp40[2] = sp60[2] - sp50[2];
-                RwV3dNormalize(&sp40[0], &sp40[0]);
-                temp_f3 = sp40[0] * var_f20;
-                sp40[0] = temp_f3;
-                temp_f2 = sp40[1] * var_f20;
-                sp40[1] = temp_f2;
-                temp_f1 = sp40[2] * var_f20;
-                sp40[2] = temp_f1;
-                sp60[0] += temp_f3;
-                sp60[1] += temp_f2;
-                sp60[2] += temp_f1;
-                btlUnitSetPos(var_17, sp60);
+                btlUnitGetAnchorPose(unit, position, NULL, anchor);
+                anchor[1] = position[1];
+                direction[0] = position[0] - anchor[0];
+                direction[1] = position[1] - position[1];
+                direction[2] = position[2] - anchor[2];
+                RwV3dNormalize(&direction[0], &direction[0]);
+                offsetX = direction[0] * distance;
+                direction[0] = offsetX;
+                offsetY = direction[1] * distance;
+                direction[1] = offsetY;
+                offsetZ = direction[2] * distance;
+                direction[2] = offsetZ;
+                position[0] += offsetX;
+                position[1] += offsetY;
+                position[2] += offsetZ;
+                btlUnitSetPos(unit, position);
             }
-            var_17 = var_17->nextUnit;
+            unit = unit->nextUnit;
         }
     }
     return 1;
 }
 // FUN_001D3900
-BtlPacket *btlFormationCreateReturnPacket(u16 param_1)
+/* Create packet 0xB05 for the camera/party anchor-position reset. */
+BtlPacket *btlFormationCreateReturnPacket(u16 flags)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb05, 2);
-    *(code **)(packet + 0x6c) = (code *)btlFormationUpdateDeadPosition;
-    work = *(u32 **)(packet + 0x78);
-    *(u16 *)(work + 0) = param_1;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlFormationUpdateDeadPosition;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    *(u16 *)work = flags;
     return (BtlPacket *)packet;
 }
 /* measured: opt_propagation off required for func_001d3950 (nd 0; default nd 7). */
 #pragma push
 #pragma opt_propagation off
 // FUN_001D3950
-u32 btlFormationAdvanceSlot(u8 **param_1)
+/* Put living party units on the 25-unit grid, reserving the active actor's default slot. */
+u32 btlFormationAdvanceSlot(u8 **actionWork)
 {
     typedef union FormationPair {
         u64 whole;
@@ -921,7 +986,7 @@ u32 btlFormationAdvanceSlot(u8 **param_1)
         f32 delta[3];
         u32 gap0;
         FormationPair position;
-        f32 position_z;
+        f32 positionZ;
         u32 gap1;
     } FormationScratch;
     typedef struct FormationDefault
@@ -934,7 +999,7 @@ u32 btlFormationAdvanceSlot(u8 **param_1)
         f32 y;
         f32 z;
     } FormationPosition;
-    extern void btlTargetPositionToCell(s16 *arg0, s16 *arg1, f32 *position);
+    extern void btlTargetPositionToCell(s16 *context, s16 *value, f32 *position);
     extern u8 D_00609430[];
     extern f32 D_00609458[];
     extern f32 D_0060A110[];
@@ -944,30 +1009,29 @@ u32 btlFormationAdvanceSlot(u8 **param_1)
     BtlUnit *current;
     u16 index;
     index = 0;
-    current = *(BtlUnit **)(D_0076449C + 0x17c);
+    current = (BtlUnit *)((BtlBattleState *)D_0076449C)->unitLists[1];
     while (current != NULL) {
         if (((current->flags3 & 8) != 0) &&
             (datCalcIsDead(current->datUnit, 0) == 0)) {
-            if (*(BtlUnit **)(*param_1 + 0x30) == current) {
+            if (((BtlAction *)*actionWork)->unit == current) {
                 {
-                    u64 default_pair = D_00881430.whole;
-                    f32 default_z = D_00881438.x;
-                    scratch.position.whole = default_pair;
-                    scratch.position_z = default_z;
+                    u64 defaultPair = D_00881430.whole;
+                    f32 defaultZ = D_00881438.x;
+                    scratch.position.whole = defaultPair;
+                    scratch.positionZ = defaultZ;
                 }
             } else {
                 *(FormationPosition *)&scratch.position =
-                    *(FormationPosition *)(D_00609430 +
-                                           (index & 0xffff) * 0xc);
+                    ((FormationPosition *)D_00609430)[index & 0xffff];
             }
             btlTargetPositionToCell(&current->unk_94,
                           &current->unk_96,
                           scratch.position.values);
             scratch.position.values[0] =
                 (f32)((s32)current->unk_94 * 25 - 1750);
-            scratch.position_z =
+            scratch.positionZ =
                 (f32)((s32)current->unk_96 * 25 - 1750);
-            if (*(BtlUnit **)(*param_1 + 0x30) != current) {
+            if (((BtlAction *)*actionWork)->unit != current) {
                 RwV3dNormalize(scratch.delta, scratch.position.values);
                 {
                     f32 scale;
@@ -977,7 +1041,7 @@ u32 btlFormationAdvanceSlot(u8 **param_1)
                     scratch.delta[2] *= scale;
                     scratch.position.values[0] += scratch.delta[0];
                     scratch.position.values[1] += scratch.delta[1];
-                    scratch.position_z += scratch.delta[2];
+                    scratch.positionZ += scratch.delta[2];
                 }
                 index++;
             }
@@ -991,18 +1055,20 @@ u32 btlFormationAdvanceSlot(u8 **param_1)
 /* measured: restore pragma state after func_001d3950. */
 #pragma pop
 // FUN_001D3B50
+/* Create packet 0xB06 to assign grid slots around the supplied action. */
 u8 *btlFormationCreateActionPacket(u8 *action)
 {
     u8 **work;
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0xb06, 4);
-    *(code **)(packet + 0x6c) = (code *)btlFormationAdvanceSlot;
-    work = *(u8 ***)(packet + 0x78);
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlFormationAdvanceSlot;
+    work = (u8 **)((BtlPacket *)packet)->workData;
     work[0] = action;
     return packet;
 }
 // FUN_001D3BA0
+/* Restore the active actor anchor and distribute its party actions through rotated offsets. */
 u32 btlFormationApplyDefaultPose(void)
 {
     typedef struct FormationVectors {
@@ -1023,7 +1089,7 @@ u32 btlFormationApplyDefaultPose(void)
     extern u8 D_00609470[];
     extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
 
-    node = *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30);
+    node = (u8 *)((BtlAction *)((BtlBattleState *)D_0076449C)->selectedAction)->unit;
     btlUnitGetAnchorPose(node, vectors.base, vectors.offsets, NULL);
     btlUnitClearMoveFlags(node);
     btlUnitClearRotateFlags(node);
@@ -1031,12 +1097,12 @@ u32 btlFormationApplyDefaultPose(void)
     btlUnitSetRot(node, vectors.offsets);
     RtQuatTransformVectors(vectors.transformed, D_00609470, 3, vectors.offsets);
     index = 0;
-    while (index < *(u16 *)(D_0076449C + 0xc58)) {
+    while (index < ((BtlBattleState *)D_0076449C)->partyActionCount) {
         {
             u32 current;
 
             current = index;
-            node = *(u8 **)(*(u8 **)(D_0076449C + current * 4 + 0xc48) + 0x30);
+            node = (u8 *)((BtlAction *)((BtlBattleState *)D_0076449C)->partyActions[current])->unit;
             offset = &vectors.transformed[current * 3];
         }
         vectors.result[0] = vectors.base[0] + offset[0];
@@ -1051,25 +1117,27 @@ u32 btlFormationApplyDefaultPose(void)
     return 1;
 }
 // FUN_001D3D00
-BtlPacket *btlFormationCreateEventPacket(u32 param_1)
+/* Create packet 0xB07 for the active-action party pose restoration. */
+BtlPacket *btlFormationCreateEventPacket(u32 value)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb07, 4);
-    *(code **)(packet + 0x6c) = (code *)btlFormationApplyDefaultPose;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketUpdateFunc)btlFormationApplyDefaultPose;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = value;
     return (BtlPacket *)packet;
 }
 // FUN_001D3D50
-s32 btlFormationAllocWork(u32 param_1)
+/* Allocate the 0x638-byte resource state with one reference; mode 2 enables deferred loading. */
+s32 btlFormationAllocWork(u32 mode)
 {
     BtlFormationState *state;
 
     chkmemAllocSiteTag(&D_00609498, 0x3A);
     state = (BtlFormationState *)jtbl_008873E8[0](0x638, 0x40000);
-    switch (param_1 & 0xffff) {
+    switch (mode & 0xffff) {
     case 0:
         state->flags = 0;
         break;
@@ -1085,11 +1153,12 @@ s32 btlFormationAllocWork(u32 param_1)
     return (s32)state;
 }
 // FUN_001D3E00
-void btlFormationSetPlacement(u32 param_1)
+/* Release a resource reference, unloading deferred effects at the reference-count boundary. */
+void btlFormationSetPlacement(u32 formation)
 {
     BtlFormationState *state;
 
-    state = (BtlFormationState *)param_1;
+    state = (BtlFormationState *)formation;
     state->counter--;
     if (((state->flags & 8) != 0) && (state->counter == 1)) {
         btlFormationSetState((int)state);
@@ -1105,6 +1174,10 @@ void btlFormationSetPlacement(u32 param_1)
 
 
 // FUN_001D3EA0
+/* Copy two resource blocks and replace file offsets/references with live cloned or built effects. */
+/* measured: typing only the remaining resource-pointer store produced 348 bytes
+ * in the 336-byte retail window and lost MATCH; retain the byte-cursor store
+ * beside the typed readers. */
 void btlFormationCopyRecord(int destination, u32 source)
 {
     u16 outer;
@@ -1121,18 +1194,18 @@ void btlFormationCopyRecord(int destination, u32 source)
     outer = 0;
     while ((s32)(continueLoop = outer) < 2) {
         block = destination + (outer & 0xffff) * 0x314;
-        count = *(u16 *)(block + 0x10);
+        count = ((BtlFormationResourceBlock *)block)->entryCount;
         entry = (u8 *)(block + 0x1c);
         for (index = 0; index < count; index++) {
             if (entry[0] != 0xfe) {
                 if (entry[0] == 0xff) {
-                    packed = *(u32 *)(entry + 4);
+                    packed = ((BtlFormationResourceEntry *)entry)->resource;
                     referencedEntry = (u8 *)(destination + (packed >> 5) * 0x314 +
                                              (packed & 0x1f) * 0x18 + 0x1c);
-                    resource = (u32)mdlEffectCloneWithNodes(*(u8 **)(referencedEntry + 4));
+                    resource = (u32)mdlEffectCloneWithNodes((u8 *)((BtlFormationResourceEntry *)referencedEntry)->resource);
                     entry[0] = referencedEntry[0];
                 } else {
-                    resource = (u32)mdlEffectBuildFromResource((u8 *)(source + *(u32 *)(entry + 4)));
+                    resource = (u32)mdlEffectBuildFromResource((u8 *)(source + ((BtlFormationResourceEntry *)entry)->resource));
                 }
                 *(u32 *)(entry + 4) = resource;
             }
@@ -1140,12 +1213,13 @@ void btlFormationCopyRecord(int destination, u32 source)
         }
         outer++;
     }
-    *(u16 *)(destination + 0x630) |= 2;
+    ((BtlFormationState *)destination)->flags |= 2;
 }
 
 
 
 // FUN_001D3FF0
+/* Destroy owning entries in both resource blocks and clear the loaded flag. */
 void btlFormationSetState(int state)
 {
     u16 outer;
@@ -1158,54 +1232,57 @@ void btlFormationSetState(int state)
     outer = 0;
     while ((s32)(continueLoop = outer) < 2) {
         block = state + (outer & 0xffff) * 0x314;
-        count = *(u16 *)(block + 0x10);
+        count = ((BtlFormationResourceBlock *)block)->entryCount;
         entry = (u8 *)(block + 0x1c);
         index = 0;
         while (index < count) {
             if (*entry != 0xfe && *entry != 0xfd) {
-                mdlEffectDestroyWithNodes(*(u32 *)(entry + 4));
+                mdlEffectDestroyWithNodes(((BtlFormationResourceEntry *)entry)->resource);
             }
             entry += 0x18;
             index++;
         }
         outer++;
     }
-    *(u16 *)(state + 0x630) &= 0xfffd;
+    ((BtlFormationState *)state)->flags &= 0xfffd;
 }
 
 
 
 // FUN_001D40D0
-void btlFormationCopyDefault(int param_1)
+/* Acquire a resource reference, instantiating deferred effects on the first additional reference. */
+void btlFormationCopyDefault(int formation)
 {
     BtlFormationState *state;
 
-    state = (BtlFormationState *)param_1;
+    state = (BtlFormationState *)formation;
     state->counter++;
     if (((state->flags & 8) != 0) && (state->counter == 2)) {
-        btlFormationCopyRecord(param_1, state->value);
+        btlFormationCopyRecord(formation, state->value);
     }
 }
 
 
 
 // FUN_001D4120
+/* Return whether the resource state has instantiated effects (flag 2), not an entry count. */
 u32 btlFormationGetCount(void* formation)
 {
-    return (*(u16*)((u8*)formation + 0x630) & 2) != 0;
+    return (((BtlFormationState *)formation)->flags & 2) != 0;
 }
 
 // FUN_001D4140
-u32 btlFormationGetIndex(int param_1, u16 param_2)
+/* Read the side-specific timing value; unsupported sides return zero. */
+u32 btlFormationGetIndex(int formation, u16 side)
 {
     u32 result;
 
-    switch (param_2) {
+    switch (side) {
     case 0:
-        result = *(u32 *)(param_1 + 8);
+        result = ((BtlFormationState *)formation)->blocks[0].unk08;
         break;
     case 1:
-        result = *(u32 *)(param_1 + 0x328);
+        result = ((BtlFormationState *)formation)->blocks[1].unk14;
         break;
     default:
         result = 0;
@@ -1217,15 +1294,17 @@ u32 btlFormationGetIndex(int param_1, u16 param_2)
 
 
 // FUN_001D4190
+/* Read the selected 0x314-byte resource block's duration word. */
 u32 btlFormationGetEntry(void* formation, u32 index)
 {
     u32 offset;
 
     offset = (index & 0xFFFF) * 0x314;
-    return *(u32*)(offset + (u32)formation + 0xC);
+    return ((BtlFormationResourceBlock *)(offset + (u32)formation))->duration;
 }
 
 // FUN_001D42E0
+/* Destroy an allocated formation entry's effect instances, then release its work. */
 void btlFormationResetState(BtlFormationWork *work)
 {
     s32 count;
@@ -1248,38 +1327,40 @@ void btlFormationResetState(BtlFormationWork *work)
 
 
 // FUN_001D4380
-float btlFormationGetScale(int param_1)
+/* Derive and clamp an effect scale from the unit's scaled sphere dimensions. */
+f32 btlFormationGetScale(int unit)
 {
-    float fVar1 = 0;
+    f32 scale = 0;
 
-    fVar1 = fGpffff8354 * ((*(float *)(param_1 + 0x90) * *(float *)(param_1 + 0x2c) +
-            *(float *)(param_1 + 0x8c) * *(float *)(param_1 + 0x2c) * 0.5f) * 0.5f);
-    if (fVar1 > 2.5f) {
-        fVar1 = 2.5f;
+    scale = fGpffff8354 * ((((BtlUnit *)unit)->sphereRadius * ((BtlUnit *)unit)->scale +
+            ((BtlUnit *)unit)->unk_8c * ((BtlUnit *)unit)->scale * 0.5f) * 0.5f);
+    if (scale > 2.5f) {
+        scale = 2.5f;
     }
-    else if (fVar1 < fGpffff811c) {
-        fVar1 = fGpffff811c;
+    else if (scale < fGpffff811c) {
+        scale = fGpffff811c;
     }
-    return fVar1;
+    return scale;
 }
 
 
 
 // FUN_001D43F0
-u32 btlFormationGetFlags(s32 param_1)
+/* Translate descriptor presence words and flag halfwords into the runtime effect mask. */
+u32 btlFormationGetFlags(s32 record)
 {
     u16 flags = 0;
     u32 result = 0;
 
-    if (*(s32*)(param_1 + 8) != 0)
+    if (((BtlFormationDescriptor *)record)->unk08 != 0)
     {
         result |= 0x80;
     }
-    if (*(s32*)(param_1 + 0xc) != 0)
+    if (((BtlFormationDescriptor *)record)->unk0C != 0)
     {
         result |= 1;
     }
-    flags = *(u16*)(param_1 + 4);
+    flags = ((BtlFormationDescriptor *)record)->flags;
     if ((flags & 0x400) != 0)
     {
         result |= 2;
@@ -1296,11 +1377,11 @@ u32 btlFormationGetFlags(s32 param_1)
     {
         result |= 8;
     }
-    if ((*(u16*)(param_1 + 6) & 2) != 0)
+    if ((((BtlFormationDescriptor *)record)->options & 2) != 0)
     {
         result |= 0x20;
     }
-    if ((*(u16*)(param_1 + 6) & 4) != 0)
+    if ((((BtlFormationDescriptor *)record)->options & 4) != 0)
     {
         result |= 0x40;
     }
@@ -1308,21 +1389,24 @@ u32 btlFormationGetFlags(s32 param_1)
 }
 
 // FUN_001D4490
-void btlFormationSetSlot(s32 param_1, u32 param_2)
+/* Record the source resource address for deferred instantiation. */
+void btlFormationSetSlot(s32 formation, u32 resource)
 {
-    *(u32*)(param_1 + 0x634) = param_2;
+    ((BtlFormationState *)formation)->value = resource;
 }
 
 // FUN_001D4E90
-void btlFormationClearAttachVector(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
-    arg3[0] = 0.0f;
-    arg3[1] = 0.0f;
-    arg3[2] = 0.0f;
-    arg3[3] = 0.0f;
+/* Clear the four-component attachment-vector output; the context arguments are unused. */
+void btlFormationClearAttachVector(u8 *unusedOwner, u8 *unusedEntry, u8 *unusedUnit, f32 *vector) {
+    vector[0] = 0.0f;
+    vector[1] = 0.0f;
+    vector[2] = 0.0f;
+    vector[3] = 0.0f;
 }
 
 // FUN_001D5EB0
-BtlPacket *btlFormationCreateNamedPacket(u32 param_1, const char *param_2, u16 param_3)
+/* Create packet 0x400 with an inline resource-path copy for the BED loader. */
+BtlPacket *btlFormationCreateNamedPacket(u32 resource, const char *path, u16 mode)
 {
     typedef struct FormationStringWork {
         u32 value;
@@ -1334,36 +1418,37 @@ BtlPacket *btlFormationCreateNamedPacket(u32 param_1, const char *param_2, u16 p
     BtlPacket *packet;
     FormationStringWork *work;
 
-    packet = btlPacketAlloc(0x400, strlen(param_2) + sizeof(FormationStringWork));
+    packet = btlPacketAlloc(0x400, strlen(path) + sizeof(FormationStringWork));
     packet->flags &= 0xfe;
-    packet->initFunc = (BtlPacketInitFunc)btlBedCopyRecord;
+    packet->initFunc = (BtlPacketFunc)btlBedCopyRecord;
     packet->updateFunc = (BtlPacketUpdateFunc)btlBedLoad;
     work = packet->workData;
-    work->value = param_1;
+    work->value = resource;
     work->text = (char *)(work + 1);
-    work->field = param_3;
-    strcpy(work->text, param_2);
+    work->field = mode;
+    strcpy(work->text, path);
     return packet;
 }
 
 
 
 // FUN_001D5F60
+/* Acquire the formation and both units, then allocate the selected unit's effect-pool node. */
 void btlFormationRefresh(u32 *work)
 {
     s16 mode;
 
     work[6] = 0;
     btlFormationCopyDefault(work[0]);
-    *(u16 *)(work[1] + 0xa0) = *(u16 *)(work[1] + 0xa0) + 1;
-    *(u16 *)(work[2] + 0xa0) = *(u16 *)(work[2] + 0xa0) + 1;
-    mode = *(s16 *)((u8 *)work + 0xc);
+    ((BtlUnit *)work[1])->pendingPacketCount = ((BtlUnit *)work[1])->pendingPacketCount + 1;
+    ((BtlUnit *)work[2])->pendingPacketCount = ((BtlUnit *)work[2])->pendingPacketCount + 1;
+    mode = (s16)((BtlFormationEffectWork *)work)->side;
     switch (mode) {
     case 0:
-        work[5] = *(u32 *)(work[1] + 0xa08);
+        work[5] = ((BtlFormationUnitResources *)((BtlUnit *)work[1])->unk_a04)->effectKey;
         break;
     case 1:
-        work[5] = *(u32 *)(work[2] + 0xa08);
+        work[5] = ((BtlFormationUnitResources *)((BtlUnit *)work[2])->unk_a04)->effectKey;
         break;
     }
     work[4] = btlEffectAllocEntry(work[5]);
@@ -1371,51 +1456,54 @@ void btlFormationRefresh(u32 *work)
 // FUN_001D6010
 /* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
 #pragma opt_propagation off
-u32 btlFormationIsReady(u32 *param_1)
+/* Advance effect timing by two and create the runtime formation entry before fading it out. */
+/* measured: typing the remaining work+0x0C selector read independently lost MATCH; keep that word-
+ * backed cursor access. */
+u32 btlFormationIsReady(u32 *work)
 {
-    s16 sVar1;
-    u16 *puVar2;
-    int iVar3;
+    s16 side;
+    u16 *effect;
+    int duration;
     u16 functionIndex;
-    u32 unaff_s2_lo;
-    u32 unaff_s1_lo;
+    u32 sourceUnit;
+    u32 targetUnit;
 
-    if (!btlFormationGetCount(*(u8 **)param_1)) {
+    if (!btlFormationGetCount(*(u8 **)work)) {
         return 0;
     }
-    puVar2 = (u16 *)param_1[4];
-    if ((*(u32 *)(puVar2 + 2) & 0xff000000) == 0) {
+    effect = (u16 *)work[4];
+    if ((((BtlEffectNode *)effect)->color & 0xff000000) == 0) {
         return 1;
     }
-    functionIndex = *(u16 *)(param_1 + 3);
-    iVar3 = btlFormationGetIndex(param_1[functionIndex & 0], functionIndex);
-    if ((*puVar2 & 0x40) == 0) {
-        if ((int)param_1[6] >= iVar3 * 2 - 0xd) {
-            *puVar2 = *puVar2 | 0x100;
+    functionIndex = *(u16 *)(work + 3);
+    duration = btlFormationGetIndex(work[functionIndex & 0], functionIndex);
+    if ((*effect & 0x40) == 0) {
+        if ((int)work[6] >= duration * 2 - 0xd) {
+            *effect = *effect | 0x100;
             return 0;
         }
-        if (param_1[6] == 0) {
-            u32 flags = param_1[7];
+        if (work[6] == 0) {
+            u32 flags = work[7];
 
             if ((flags & 0xc00) != 0xc00) {
-                sVar1 = *(short *)(param_1 + 3);
-                switch (sVar1) {
+                side = (s16)((BtlFormationEffectWork *)work)->side;
+                switch (side) {
                 case 0:
-                    unaff_s2_lo = param_1[1];
-                    unaff_s1_lo = param_1[2];
+                    sourceUnit = work[1];
+                    targetUnit = work[2];
                     break;
                 case 1:
-                    unaff_s2_lo = param_1[2];
-                    unaff_s1_lo = param_1[1];
+                    sourceUnit = work[2];
+                    targetUnit = work[1];
                     break;
                 }
-                *(u32 *)(puVar2 + 8) =
-                    (u32)btlFormationAllocEntry((u8 *)param_1[0], sVar1 & 0xffff,
-                                       unaff_s2_lo, unaff_s1_lo, flags);
-                *puVar2 = *puVar2 | 0x30;
+                *(u32 *)&((BtlEffectNode *)effect)->formation =
+                    (u32)btlFormationAllocEntry((u8 *)work[0], side & 0xffff,
+                                       sourceUnit, targetUnit, flags);
+                *effect = *effect | 0x30;
             }
         }
-        param_1[6] = param_1[6] + 2;
+        work[6] = work[6] + 2;
     }
     return 0;
 }
@@ -1426,23 +1514,26 @@ u32 btlFormationIsReady(u32 *param_1)
 // FUN_001D6170
 /* measured: opt_propagation off probe for 6170 argument loads. */
 #pragma opt_propagation off
-bool btlFormationHasEntry(u32 *param_1)
+/* Report when the elapsed two-frame count reaches the selected resource duration. */
+/* The index & 0 address term preserves the existing index-before-value evaluation shape under
+ * opt_propagation off; do not simplify it. */
+u8 btlFormationHasEntry(u32 *work)
 {
-    int iVar2;
+    int duration;
     u16 index;
     u8 *value;
 
-    if (!btlFormationGetCount(*(u8 **)param_1)) {
-        return false;
+    if (!btlFormationGetCount(*(u8 **)work)) {
+        return 0;
     }
-    iVar2 = (index = *(u16 *)(param_1 + 3),
-             value = *(u8 **)((u8 *)param_1 + ((u32)index & 0)),
+    duration = (index = ((BtlFormationEffectWork *)work)->side,
+             value = (u8 *)((BtlFormationEffectWork *)((u8 *)work + ((u32)index & 0)))->formation,
              btlFormationGetEntry(value, index));
-    iVar2 <<= 1;
-    if (iVar2 < 1) {
-        iVar2 = 2;
+    duration <<= 1;
+    if (duration < 1) {
+        duration = 2;
     }
-    return iVar2 <= (int)param_1[6];
+    return duration <= (int)work[6];
 }
 /* measured: closes opt_propagation off probe for func_001d6170. */
 #pragma opt_propagation on
@@ -1450,43 +1541,47 @@ bool btlFormationHasEntry(u32 *param_1)
 
 
 // FUN_001D61E0
-void btlFormationRelease(u32 *param_1)
+/* Release the effect-pool node, formation reference and both unit packet references. */
+void btlFormationRelease(u32 *work)
 {
-    btlEffectFreeEntry(param_1[5], (u16 *)param_1[4]);
-    btlFormationSetPlacement(*(int *)param_1);
-    *(u16 *)(param_1[1] + 0xa0) = *(u16 *)(param_1[1] + 0xa0) + -1;
-    *(u16 *)(param_1[2] + 0xa0) = *(u16 *)(param_1[2] + 0xa0) + -1;
+    btlEffectFreeEntry(work[5], (u16 *)work[4]);
+    btlFormationSetPlacement(*(int *)work);
+    ((BtlUnit *)work[1])->pendingPacketCount = ((BtlUnit *)work[1])->pendingPacketCount + -1;
+    ((BtlUnit *)work[2])->pendingPacketCount = ((BtlUnit *)work[2])->pendingPacketCount + -1;
 }
 
 
 
 // FUN_001D6240
-BtlPacket* btlFormationCreatePacket(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5)
+/* Create packet 0x301 with formation lifecycle callbacks and its two unit addresses. */
+BtlPacket* btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags)
 {
     u32 *work;
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0x301, 0x20);
-    *(u8 *)(packet + 0x47) = *(u8 *)(packet + 0x47) & 0xef;
-    *(code *)(packet + 0x68) = (code)btlFormationRefresh;
-    *(code *)(packet + 0x6c) = (code)btlFormationIsReady;
-    *(code *)(packet + 0x74) = (code)btlFormationHasEntry;
-    *(code *)(packet + 0x70) = (code)btlFormationRelease;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    work[2] = param_3;
-    *(u16 *)(work + 3) = param_4;
-    work[7] = param_5;
+    ((BtlPacket *)packet)->flags = ((BtlPacket *)packet)->flags & 0xef;
+    ((BtlPacket *)packet)->initFunc = (BtlPacketFunc)btlFormationRefresh;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlFormationIsReady;
+    /* +0x74 is the completion predicate; the shared packet keeps it opaque. */
+    *(BtlPacketUpdateFunc *)((u8 *)packet + 0x74) = (BtlPacketUpdateFunc)btlFormationHasEntry;
+    ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlFormationRelease;
+    work = (u32 *)((BtlPacket *)packet)->workData;
+    work[0] = formation;
+    work[1] = sourceUnit;
+    work[2] = targetUnit;
+    ((BtlFormationEffectWork *)work)->side = side;
+    work[7] = flags;
     return (BtlPacket*)packet;
 }
 
 
 
 // FUN_001D69F0
+/* Format the resource path selected by the battle resource-mode flag. */
 void btlFormationFormatName(u32 value, char *destination)
 {
-    if ((*(u32*)(DAT_0076449c + 0x14) & 1) != 0)
+    if ((((BtlBattleState *)DAT_0076449c)->resourceFlags & 1) != 0)
     {
         sprintf(destination, D_00609570);
     }
@@ -1499,6 +1594,7 @@ void btlFormationFormatName(u32 value, char *destination)
 
 
 // FUN_001D7BB0
+/* Forward three stored arguments to the formation helper, then complete the packet. */
 u32 btlFormationDispatchArgs(u32* args)
 {
     mdlSetFileStateTriple(args[0], args[1], args[2]);
@@ -1508,11 +1604,12 @@ u32 btlFormationDispatchArgs(u32* args)
 
 
 // FUN_002027E0
+/* Create the zero-work 0x50D packet that starts the battle UI sequence. */
 u8 *btlFormationCreateDefaultPacket(void)
 {
     u8 *task;
 
     task = (u8 *)btlPacketAlloc(0x50d, 0);
-    *(u32*)(task + 0x6c) = (u32)btlUiBeginSequence;
+    ((BtlPacket *)task)->updateFunc = (BtlPacketFunc)btlUiBeginSequence;
     return task;
 }
