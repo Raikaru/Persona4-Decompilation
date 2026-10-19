@@ -1,3 +1,4 @@
+#include "btl_ui_task_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -21,21 +22,6 @@ typedef struct BtlAction BtlAction;
 
 extern u32 datGetItemNameId(s16 arg0);
 
-typedef struct {
-    u8 pad0[2];
-    s16 field2;
-    s16 field4;
-    s16 field6;
-    s16 field8;
-} P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern f32 fGpffff815c;
@@ -71,20 +57,6 @@ extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-typedef struct {
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-} Color4;
-typedef struct {
-    s32 value3;
-    s32 value0;
-    s32 value1;
-    s32 value2;
-    u8 pad[0xC];
-    Color4 colors;
-} Work4;
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
@@ -125,21 +97,21 @@ extern u8 D_006253B0[];
 /* measured: opt_rebuildconditionals off tested for callback completion. */
 // Intent: packet callback; steps a sprite frame using a lookup table value. [inferred]
 // FUN_00202070
-s32 btlPacketStepSpriteFrameLookup(u8 *arg0)
+s32 btlPacketStepSpriteFrameLookup(u8 *work)
 {
-    u32 temp_2;
+    u32 elapsed;
 
-    if ((*(s32 *)(D_0076449C + 0xC) & 0x200) == 0) {
+    if (((s32)((BtlBattleState *)D_0076449C)->flags & 0x200) == 0) {
         return 1;
     }
-    if (*(u32 *)(arg0 + 8) == 0) {
-        btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
-                      datGetItemNameId(*(s16 *)(arg0 + 4)));
-        btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
+    if (((BtlPanelPacketWork *)work)->elapsed == 0) {
+        btlPanelStartEntry(((BtlBattleState *)D_0076449C)->uiTask,
+                      datGetItemNameId(((BtlPanelPacketWork *)work)->selector.item));
+        btlPanelMarkEntryStarted(((BtlBattleState *)D_0076449C)->uiTask);
     }
-    temp_2 = *(u32 *)(arg0 + 8) + 1;
-    *(u32 *)(arg0 + 8) = temp_2;
-    if (temp_2 >= 0x20U) {
+    elapsed = ((BtlPanelPacketWork *)work)->elapsed + 1;
+    ((BtlPanelPacketWork *)work)->elapsed = elapsed;
+    if (elapsed >= 0x20U) {
         return 1;
     }
     return 0;

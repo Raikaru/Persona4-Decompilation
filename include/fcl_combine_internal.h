@@ -46,7 +46,9 @@ typedef struct FclCombineWork {
     s32 spritePool;
     u8 pad8[0x5];
     s8 fD;
-    u8 padE[0x12];
+    u8 padE[0xC];
+    s8 fusionCount;              /* +0x1A: 2/3 for pair/triple; 4..7 for other material modes */
+    u8 pad1B[5];
     s32 mesWindow;
     s32 raster;
     s32 texture;
@@ -68,7 +70,10 @@ typedef struct FclCombineWork {
     u8 *f148;
     u8 pad14C[0x3C];
     s32 f188;
-    u8 pad18C[0x100];
+    u8 pad18C[0xC0];
+    struct KwlnTask *unk24C;      /* optional child tasks destroyed with the menu */
+    struct KwlnTask *unk250;
+    u8 pad254[0x38];
     u8 *f28C;
     u8 *f290;
     u8 pad294[0x28];

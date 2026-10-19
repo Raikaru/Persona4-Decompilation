@@ -5,10 +5,12 @@
 #include "fcl_combine_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "rw/plcore/barenderstate.h"
 extern void (*jtbl_008873EC[])(void *);
+/* Clears the callback scratch bytes and returns success without drawing. */
 // FUN_00349340
-s32 func_00349340(u8 *unusedTask)
+s32 debugModelDrawClearScratch(u8 *unusedTask)
 {
     s8 buf[0xC];
     s8 *p;
@@ -29,6 +31,6 @@ s32 func_00349340(u8 *unusedTask)
 }
 
 // FUN_00349380
-void debugModelDrawDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+void debugModelDrawDestroy(u8 *task) {
+    jtbl_008873EC[0]((((struct KwlnTask *)task)->work));
 }

@@ -39,11 +39,14 @@ typedef struct NameEntryWork {
     s32 cursorColumn;
     s32 cursorRow;
     s32 cellIndex;
-    u8 pad28[8];
+    s32 previousColumn;
+    s32 previousRow;
     s32 previousCellIndex;
-    u8 pad34[8];
+    s32 changedColumn;
+    s32 changedRow;
     s32 changedCellIndex;
-    u8 pad40[0x138];
+    u8 pad40[0xA0];
+    NameTweenState cursorPulse;
     NameTweenState background;
     NameTweenState rowOrigin;
     NameTweenState modeTransition;

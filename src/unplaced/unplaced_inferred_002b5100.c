@@ -7,65 +7,11 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
+#include "kwln_view_internal.h"
+#include "primitive_queue_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-extern void (*jtbl_008873EC[])(void *);
-extern u8 D_00793E80[];
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern u8 *kwlnGetCamera(void);
-extern f32 fclEaseInterpolate(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
-extern s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-// FUN_002B5100
-void func_002b5100(u8 *arg0, s8 arg1)
-{
-    if (arg0 != NULL) {
-        *(s8 *)(*(u8 **)(arg0 + 0x38) + 8) = arg1;
-    }
-}
-#pragma pop
-
-#pragma push
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
-// FUN_002B5120
-void func_002b5120(s32 arg0, u8 *arg1)
-{
-    void (**base)(s32 arg0, s32 arg1);
-    s8 temp_5;
-
-    base = D_00887300;
-    base[0](6, 1);
-    base[0](7, 2);
-    base[0](8, 1);
-    base[0](0xA, 5);
-    base[0](0xB, 6);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](1, 0);
-    if (*(s8 *)(arg1 + 0x184) == 1) {
-        RpSkyRenderStateSet(2, 0x44);
-        RpSkyRenderStateSet(3, 0x717FB);
-        temp_5 = *(s8 *)(arg1 + 0x18C);
-        switch (temp_5) {
-        case 1:
-            RpSkyRenderStateSet(2, 0x48);
-            RpSkyRenderStateSet(3, 0x71801);
-            return;
-        case 2:
-            RpSkyRenderStateSet(2, 0x42);
-            RpSkyRenderStateSet(3, 0x71801);
-            break;
-        }
-    }
-}
-#pragma pop
-
 typedef struct FclFadeRectVertex
 {
     f32 x;        // 0x00
@@ -84,7 +30,9 @@ typedef struct FclFadeRectVertex
 typedef struct FclFadeRect
 {
     s8 state;                    // 0x000
-    u8 pad001[0xF];
+    u8 pad001[7];
+    s8 unk08;
+    u8 pad009[7];
     FclFadeRectVertex vtx[4];    // 0x010
     u8 color[4][4];              // 0x110
     u8 pad120[8];
@@ -116,29 +64,93 @@ typedef struct FclFadeRect
     u8 alphaFading;              // 0x180
     u8 pad181;
     u16 wait;                    // 0x182
-    u8 pad184[4];
+    s8 renderMode;
+    u8 pad185[3];
     s32 layer;                   // 0x188
+    s8 blendMode;                // 0x18C
 } FclFadeRect;
+
+extern void (*jtbl_008873EC[])(void *);
+extern u8 D_00793E80[];
+extern void (*D_00887300[])(s32 , s32 );
+extern void RpSkyRenderStateSet(s32 , s32 );
+extern u8 *kwlnGetCamera(void);
+extern f32 fclEaseInterpolate(s64 , f32 , f32 , f32 , f32 );
+extern s32 fclAddClamped(s32 , s32 , s32 , s32 , s8 );
+extern s32 fclSubClamped(s32 , s32 , s32 , s32 , s8 );
+#pragma push
+#pragma opt_rebuildconditionals on
+#pragma opt_loop_invariants off
+/* Store the task work control byte when a task is supplied. */
+// FUN_002B5100
+void fclFadeRectSetControl(u8 *task, s8 value)
+{
+    if (task != NULL) {
+        ((FclFadeRect *)((struct KwlnTask *)task)->work)->unk08 = value;
+    }
+}
+#pragma pop
+
+#pragma push
+#pragma opt_rebuildconditionals on
+#pragma opt_loop_invariants off
+#pragma opt_propagation off
+/* Set the fade-rectangle render states, selecting the alternate blend preset from its work record. */
+// FUN_002B5120
+void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work)
+{
+    void (**base)(s32 unusedQueue, s32 work);
+    s8 blendMode;
+
+    base = D_00887300;
+    base[0](6, 1);
+    base[0](7, 2);
+    base[0](8, 1);
+    base[0](0xA, 5);
+    base[0](0xB, 6);
+    base[0](9, 2);
+    base[0](0xC, 1);
+    base[0](1, 0);
+    if (((FclFadeRect *)work)->renderMode == 1) {
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+        blendMode = ((FclFadeRect *)work)->blendMode;
+        switch (blendMode) {
+        case 1:
+            RpSkyRenderStateSet(2, 0x48);
+            RpSkyRenderStateSet(3, 0x71801);
+            return;
+        case 2:
+            RpSkyRenderStateSet(2, 0x42);
+            RpSkyRenderStateSet(3, 0x71801);
+            break;
+        }
+    }
+}
+#pragma pop
+
+
 
 #pragma push
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Advance rectangle movement and alpha transitions, rebuild four projected vertices and queue their draw. */
 // FUN_002B52A0
 #pragma opt_loop_invariants on
-s32 func_002b52a0(u8 *arg0)
+s32 fclFadeRectTaskUpdate(u8 *task)
 {
     /* far-plane depth inside the render-state record; sized so that it is
        re-read after the vertex stores, as retail does */
     extern f32 D_008872F8[4];
-    extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    extern u8 *PrimQueueDrawPrimitive(void *task, s32 , void *, s32 );
     FclFadeRect *work;
     f32 q;
     s32 i;
     s32 j;
     u8 *pkt;
 
-    work = *(FclFadeRect **)(arg0 + 0x38);
+    work = (FclFadeRect *)((struct KwlnTask *)task)->work;
     if (work->done == 1) {
         return 0;
     }
@@ -200,7 +212,7 @@ s32 func_002b52a0(u8 *arg0)
         }
     case 0:
     case 1:
-        q = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+        q = 1.0f / ((KwlnView *)kwlnGetCamera())->unk80;
         for (i = 0; i < 4; i++) {
             f32 farZ = D_008872F8[0];
 
@@ -220,8 +232,8 @@ s32 func_002b52a0(u8 *arg0)
         work->vtx[3].x = work->x + (f32)work->width;
         work->vtx[3].y = work->y + (f32)work->height;
         pkt = PrimQueueDrawPrimitive(D_00793E80 + work->layer * 0x30, 4, work->vtx, 4);
-        *(void **)(pkt + 8) = (void *)func_002b5120;
-        *(FclFadeRect **)(pkt + 0x10) = work;
+        ((PrimQueueNode *)pkt)->callback = (void *)fclFadeRectSetRenderStates;
+        ((PrimQueueNode *)pkt)->argument.data = (u8 *)work;
         break;
     case 3:
         return -1;
@@ -235,8 +247,8 @@ s32 func_002b52a0(u8 *arg0)
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 // FUN_002B5C60
-void func_002b5c60(u8 *arg0)
+void fclFadeRectTaskDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
 #pragma pop

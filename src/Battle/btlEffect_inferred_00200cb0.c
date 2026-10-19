@@ -1,3 +1,5 @@
+#include "btl_ui_task_internal.h"
+#include "datCalc_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -20,24 +22,12 @@ typedef struct BtlAction BtlAction;
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern void btlEncounterInitParams(s32 arg0, u8 *arg1);
 extern void btlGaugeInit(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
 
-typedef struct {
-    u8 pad0[2];
-    s16 field2;
-    s16 field4;
-    s16 field6;
-    s16 field8;
-} P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
+static inline u8 *btlUiAddByteOffset(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -89,20 +79,6 @@ extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-typedef struct {
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-} Color4;
-typedef struct {
-    s32 value3;
-    s32 value0;
-    s32 value1;
-    s32 value2;
-    u8 pad[0xC];
-    Color4 colors;
-} Work4;
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
@@ -194,62 +170,63 @@ s32 btlUiIsOverlayReady(void)
 // FUN_00200CF0
 s32 btlUiTaskInit(u8 *unusedTask)
 {
-    u8 *temp_2;
+    u8 *work;
 
-    temp_2 = (u8 *)kwlnTaskGetWork();
-    func_0021be70(temp_2 + 0x9E4);
-    *(s32 *)(temp_2 + 0x9F0) = 0;
-    *(s32 *)(temp_2 + 0x9F4) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x9F0);
-    *(s32 *)(temp_2 + 0x7DC) = 0;
-    *(s32 *)(temp_2 + 0x7E0) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x7DC);
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x800) == 0) {
+    work = (u8 *)kwlnTaskGetWork();
+    /* measured: typed node addresses schedule argument setup ahead of the link clears. */
+    func_0021be70(((BtlUiTaskWork *)work)->advantage);
+    ((BtlUiTaskWork *)work)->advantageNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->advantageNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x9F0);
+    ((BtlUiTaskWork *)work)->barsNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->barsNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x7DC);
+    if (((s32)((BtlBattleState *)iGpffffb3ac)->flags & 0x800) == 0) {
         return 0;
     }
-    *(s32 *)(temp_2 + 0x7AC) = 0;
-    *(s32 *)(temp_2 + 0x7B0) = 0;
-    PrimAppendNode(D_00794FF0, temp_2 + 0x7AC);
-    btlEncounterUpdateEntries(temp_2 + 0x80C);
-    *(s32 *)(temp_2 + 0x81C) = 0;
-    *(s32 *)(temp_2 + 0x820) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x81C);
-    btlPanelNoOp(temp_2 + 0x84C);
-    *(s32 *)(temp_2 + 0x88C) = 0;
-    *(s32 *)(temp_2 + 0x890) = 0;
-    PrimAppendNode(D_00795080, temp_2 + 0x88C);
-    btlEntryListPrune(temp_2 + 0x75C);
-    *(s32 *)(temp_2 + 0x77C) = 0;
-    *(s32 *)(temp_2 + 0x780) = 0;
-    PrimAppendNode(D_00795080, temp_2 + 0x77C);
-    btlPanelUpdate(temp_2 + 0x9C);
-    *(s32 *)(temp_2 + 0x6E0) = 0;
-    *(s32 *)(temp_2 + 0x6E4) = 0;
-    PrimAppendNode(D_00794810, temp_2 + 0x6E0);
-    *(s32 *)(temp_2 + 0x6B0) = 0;
-    *(s32 *)(temp_2 + 0x6B4) = 0;
-    PrimAppendNode(D_00794870, temp_2 + 0x6B0);
-    *(s32 *)(temp_2 + 0x680) = 0;
-    *(s32 *)(temp_2 + 0x684) = 0;
-    PrimAppendNode(D_00794FF0, temp_2 + 0x680);
-    *(s32 *)(temp_2 + 0x650) = 0;
-    *(s32 *)(temp_2 + 0x654) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x650);
-    btlSelectionUpdateTransition(temp_2 + 0x710);
-    *(s32 *)(temp_2 + 0x72C) = 0;
-    *(s32 *)(temp_2 + 0x730) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x72C);
-    btlPanelLoadModels(temp_2 + 0x8C0);
-    *(s32 *)(temp_2 + 0x980) = 0;
-    *(s32 *)(temp_2 + 0x984) = 0;
-    PrimAppendNode(D_00794FF0, temp_2 + 0x980);
-    *(s32 *)(temp_2 + 0x950) = 0;
-    *(s32 *)(temp_2 + 0x954) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x950);
-    func_0021b1e0(temp_2 + 0x9B0);
-    *(s32 *)(temp_2 + 0x9B4) = 0;
-    *(s32 *)(temp_2 + 0x9B8) = 0;
-    PrimAppendNode(D_00795020, temp_2 + 0x9B4);
+    ((BtlUiTaskWork *)work)->badStatusNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->badStatusNode.unk04 = 0;
+    PrimAppendNode(D_00794FF0, work + 0x7AC);
+    btlEncounterUpdateEntries(((BtlUiTaskWork *)work)->encounter);
+    ((BtlUiTaskWork *)work)->portraitNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->portraitNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x81C);
+    btlPanelNoOp(((BtlUiTaskWork *)work)->message);
+    ((BtlUiTaskWork *)work)->messageNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->messageNode.unk04 = 0;
+    PrimAppendNode(D_00795080, work + 0x88C);
+    btlEntryListPrune(((BtlUiTaskWork *)work)->damage);
+    ((BtlUiTaskWork *)work)->damageNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->damageNode.unk04 = 0;
+    PrimAppendNode(D_00795080, work + 0x77C);
+    btlPanelUpdate(((BtlUiTaskWork *)work)->panel);
+    ((BtlUiTaskWork *)work)->skyFrameNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->skyFrameNode.unk04 = 0;
+    PrimAppendNode(D_00794810, work + 0x6E0);
+    ((BtlUiTaskWork *)work)->detailNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->detailNode.unk04 = 0;
+    PrimAppendNode(D_00794870, work + 0x6B0);
+    ((BtlUiTaskWork *)work)->backdropNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->backdropNode.unk04 = 0;
+    PrimAppendNode(D_00794FF0, work + 0x680);
+    ((BtlUiTaskWork *)work)->frameNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->frameNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x650);
+    btlSelectionUpdateTransition(((BtlUiTaskWork *)work)->selection);
+    ((BtlUiTaskWork *)work)->selectionNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->selectionNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x72C);
+    btlPanelLoadModels(((BtlUiTaskWork *)work)->models);
+    ((BtlUiTaskWork *)work)->flourishNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->flourishNode.unk04 = 0;
+    PrimAppendNode(D_00794FF0, work + 0x980);
+    ((BtlUiTaskWork *)work)->animateNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->animateNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x950);
+    func_0021b1e0(((BtlUiTaskWork *)work)->gauge);
+    ((BtlUiTaskWork *)work)->gaugeNode.unk00 = 0;
+    ((BtlUiTaskWork *)work)->gaugeNode.unk04 = 0;
+    PrimAppendNode(D_00795020, work + 0x9B4);
     return 0;
 }
 
@@ -257,124 +234,125 @@ s32 btlUiTaskInit(u8 *unusedTask)
 // FUN_00200F30
 void btlUiTaskDestroy(u8 *unusedTask)
 {
-    u8 *temp_2;
-    s32 temp_4;
-    s32 var_16;
-    temp_2 = (u8 *)kwlnTaskGetWork();
-    btlEntryListFlush(temp_2 + 0x75C);
-    var_16 = 0;
+    u8 *work;
+    s32 sprite;
+    s32 slotIndex;
+    work = (u8 *)kwlnTaskGetWork();
+    btlEntryListFlush(((BtlUiTaskWork *)work)->damage);
+    slotIndex = 0;
     goto loop_test;
 loop_body:
-    temp_4 = *(s32 *)(temp_2 + (var_16 * 4) + 0x2C);
-    if (temp_4 != 0) {
-        sdkSpriteRelease((void *)temp_4);
+    sprite = ((BtlUiSprite *)work)->sprites[slotIndex];
+    if (sprite != 0) {
+        sdkSpriteRelease((void *)sprite);
     }
-    var_16 += 1;
+    slotIndex += 1;
 loop_test:
-    if (var_16 < 0xC) {
+    if (slotIndex < 0xC) {
         goto loop_body;
     }
     goto loop_done;
 loop_done:
-    itfMesWindowReleaseIfActive(*(s32 *)(temp_2 + 0x98));
-    jtbl_008873EC[0](temp_2);
+    itfMesWindowReleaseIfActive(((BtlUiTaskWork *)work)->messageWindow);
+    jtbl_008873EC[0](work);
 }
 
 // Intent: wire each battle UI component's init and owner pointers, then install its message window. [inferred]
 // FUN_00200FD0
-void btlUiInitComponents(s32 arg0, u8 *arg1)
+void btlUiInitComponents(s32 task, u8 *work)
 {
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
+    u8 *panel;
+    u8 *damage;
+    u8 *models;
 
-    btlPanelInitWork(arg1 + 0x9C, arg0);
-    *(void **)(arg1 + 0x658) = (void *)btlPanelDrawFrame;
-    temp_3 = arg1 + 0x9C;
-    *(u8 **)(arg1 + 0x660) = temp_3;
-    *(void **)(arg1 + 0x688) = (void *)btlPanelDrawBackdropGrid;
-    *(u8 **)(arg1 + 0x690) = temp_3;
-    *(void **)(arg1 + 0x6B8) = (void *)func_0020b5a0;
-    *(u8 **)(arg1 + 0x6C0) = temp_3;
-    *(void **)(arg1 + 0x6E8) = (void *)btlPanelDrawSkyFrame;
-    *(u8 **)(arg1 + 0x6F0) = temp_3;
-    btlSelectionInitTransition(arg1 + 0x710, arg0);
-    *(void **)(arg1 + 0x734) = (void *)btlSelectionDrawTargetFrame;
-    *(u8 **)(arg1 + 0x73C) = arg1 + 0x710;
-    btlEntryInit(arg1 + 0x75C, arg0);
-    *(void **)(arg1 + 0x784) = (void *)btlDamageDrawList;
-    temp_3_2 = arg1 + 0x75C;
-    *(u8 **)(arg1 + 0x78C) = temp_3_2;
-    *(void **)(arg1 + 0x7B4) = (void *)btlDamageDrawBadStatus;
-    *(u8 **)(arg1 + 0x7BC) = temp_3_2;
-    *(void **)(arg1 + 0x7E4) = (void *)btlDamageDrawBars;
-    *(u8 **)(arg1 + 0x7EC) = temp_3_2;
-    btlEncounterInitEntry(arg1 + 0x80C, arg0);
-    *(void **)(arg1 + 0x824) = (void *)btlPortraitDrawRoster;
-    *(u8 **)(arg1 + 0x82C) = arg1 + 0x80C;
-    btlPanelInitRecord(arg1 + 0x84C, arg0);
-    *(void **)(arg1 + 0x894) = (void *)btlMessageDrawTimed;
-    *(u8 **)(arg1 + 0x89C) = arg1 + 0x84C;
-    btlPanelClear(arg1 + 0x8C0, arg0);
-    *(void **)(arg1 + 0x958) = (void *)btlPanelAnimate;
-    temp_3_3 = arg1 + 0x8C0;
-    *(u8 **)(arg1 + 0x960) = temp_3_3;
-    *(void **)(arg1 + 0x988) = (void *)btlPanelDrawFlourish;
-    *(u8 **)(arg1 + 0x990) = temp_3_3;
-    btlGaugeInitValue(arg1 + 0x9B0, arg0);
-    *(void **)(arg1 + 0x9BC) = (void *)btlGaugeStepAll;
-    *(u8 **)(arg1 + 0x9C4) = arg1 + 0x9B0;
-    btlEffectInit(arg1 + 0x9E4, arg0);
-    *(void **)(arg1 + 0x9F8) = (void *)btlAdvantageDrawPanel;
-    *(u8 **)(arg1 + 0xA00) = arg1 + 0x9E4;
-    *(u8 *)(arg1 + 0x94) = 0xFF;
-    *(u8 *)(arg1 + 0x95) = 0xFF;
-    *(u8 *)(arg1 + 0x96) = 0xFF;
-    *(f32 *)(arg1 + 0x14) = 1.0f;
-    *(f32 *)(arg1 + 0x18) = 1.0f;
-    *(f32 *)(arg1 + 0x1C) = 1.0f;
-    *(f32 *)(arg1 + 0x20) = 1.0f;
-    *(s32 *)(arg1 + 0x98) = itfMesWindowInstall(D_006253B0);
+    /* measured: repeating typed component addresses keeps them live across init calls in s0. */
+    btlPanelInitWork(((BtlUiTaskWork *)work)->panel, task);
+    ((BtlUiTaskWork *)work)->frameNode.callback = (void *)btlPanelDrawFrame;
+    panel = work + 0x9C;
+    ((BtlUiTaskWork *)work)->frameNode.work = panel;
+    ((BtlUiTaskWork *)work)->backdropNode.callback = (void *)btlPanelDrawBackdropGrid;
+    ((BtlUiTaskWork *)work)->backdropNode.work = panel;
+    ((BtlUiTaskWork *)work)->detailNode.callback = (void *)func_0020b5a0;
+    ((BtlUiTaskWork *)work)->detailNode.work = panel;
+    ((BtlUiTaskWork *)work)->skyFrameNode.callback = (void *)btlPanelDrawSkyFrame;
+    ((BtlUiTaskWork *)work)->skyFrameNode.work = panel;
+    btlSelectionInitTransition(((BtlUiTaskWork *)work)->selection, task);
+    ((BtlUiTaskWork *)work)->selectionNode.callback = (void *)btlSelectionDrawTargetFrame;
+    ((BtlUiTaskWork *)work)->selectionNode.work = work + 0x710;
+    btlEntryInit(((BtlUiTaskWork *)work)->damage, task);
+    ((BtlUiTaskWork *)work)->damageNode.callback = (void *)btlDamageDrawList;
+    damage = work + 0x75C;
+    ((BtlUiTaskWork *)work)->damageNode.work = damage;
+    ((BtlUiTaskWork *)work)->badStatusNode.callback = (void *)btlDamageDrawBadStatus;
+    ((BtlUiTaskWork *)work)->badStatusNode.work = damage;
+    ((BtlUiTaskWork *)work)->barsNode.callback = (void *)btlDamageDrawBars;
+    ((BtlUiTaskWork *)work)->barsNode.work = damage;
+    btlEncounterInitEntry(((BtlUiTaskWork *)work)->encounter, task);
+    ((BtlUiTaskWork *)work)->portraitNode.callback = (void *)btlPortraitDrawRoster;
+    ((BtlUiTaskWork *)work)->portraitNode.work = work + 0x80C;
+    btlPanelInitRecord(((BtlUiTaskWork *)work)->message, task);
+    ((BtlUiTaskWork *)work)->messageNode.callback = (void *)btlMessageDrawTimed;
+    ((BtlUiTaskWork *)work)->messageNode.work = work + 0x84C;
+    btlPanelClear(((BtlUiTaskWork *)work)->models, task);
+    ((BtlUiTaskWork *)work)->animateNode.callback = (void *)btlPanelAnimate;
+    models = work + 0x8C0;
+    ((BtlUiTaskWork *)work)->animateNode.work = models;
+    ((BtlUiTaskWork *)work)->flourishNode.callback = (void *)btlPanelDrawFlourish;
+    ((BtlUiTaskWork *)work)->flourishNode.work = models;
+    btlGaugeInitValue(((BtlUiTaskWork *)work)->gauge, task);
+    ((BtlUiTaskWork *)work)->gaugeNode.callback = (void *)btlGaugeStepAll;
+    ((BtlUiTaskWork *)work)->gaugeNode.work = work + 0x9B0;
+    btlEffectInit(((BtlUiTaskWork *)work)->advantage, task);
+    ((BtlUiTaskWork *)work)->advantageNode.callback = (void *)btlAdvantageDrawPanel;
+    ((BtlUiTaskWork *)work)->advantageNode.work = work + 0x9E4;
+    ((BtlUiSprite *)work)->red = 0xFF;
+    ((BtlUiSprite *)work)->green = 0xFF;
+    ((BtlUiSprite *)work)->blue = 0xFF;
+    ((BtlUiSprite *)work)->factorX = 1.0f;
+    ((BtlUiSprite *)work)->factorY = 1.0f;
+    ((BtlUiSprite *)work)->scaleX = 1.0f;
+    ((BtlUiSprite *)work)->scaleY = 1.0f;
+    ((BtlUiTaskWork *)work)->messageWindow = itfMesWindowInstall(D_006253B0);
 }
 
 // Intent: allocate the battle UI task block and create its child task. [inferred]
 // FUN_002011C0
-s32 btlUiCreateTask(s32 arg0)
+s32 btlUiCreateTask(s32 parentTask)
 {
-    u8 *temp_2_2;
-    s32 temp_2;
+    u8 *work;
+    s32 task;
 
     chkmemAllocSiteTag(&D_006265B0, 0x3A);
-    temp_2_2 = (u8 *)(*jtbl_008873E8)(0xA20, 0x40000);
-    memset(temp_2_2, 0, 0xA20);
-    temp_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626500), 0xF, 0, 0, btlUiTaskInit, btlUiTaskDestroy, (u8 *)(temp_2_2));
-    btlUiInitComponents(temp_2, temp_2_2);
-    return temp_2;
+    work = (u8 *)(*jtbl_008873E8)(0xA20, 0x40000);
+    memset(work, 0, 0xA20);
+    task = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(&D_00626500), 0xF, 0, 0, btlUiTaskInit, btlUiTaskDestroy, (u8 *)(work));
+    btlUiInitComponents(task, work);
+    return task;
 }
 
 // Intent: initialise the sprite pair at offset +0x18 of a UI component. [inferred]
 // FUN_00201280
-void btlUiInitSpritePair(u8 *arg0, u8 *arg1) {
-    btlEncounterInitParams((s32)arg0, arg1);
-    btlGaugeInit(arg0, arg1 + 0x18);
+void btlUiInitSpritePair(u8 *task, u8 *work) {
+    btlEncounterInitParams((s32)task, work);
+    btlGaugeInit(task, work + 0x18);
 }
 
 // Intent: store two floats as integer origin and clear the following offset words. [inferred]
 // FUN_002012D0
-void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1) {
-    *(s32 *)(arg0 + 4) = (s32)fparg0;
-    *(s32 *)(arg0 + 8) = (s32)fparg1;
-    *(s32 *)(arg0 + 0xC) = 0;
-    *(s32 *)(arg0 + 0x10) = 0;
+void btlUiSetOrigin(u8 *work, f32 x, f32 y) {
+    ((BtlUiSprite *)work)->originX = (s32)x;
+    ((BtlUiSprite *)work)->originY = (s32)y;
+    ((BtlUiSprite *)work)->width = 0;
+    ((BtlUiSprite *)work)->height = 0;
 }
 
 // Intent: store four float values as integer rectangle fields. [inferred]
 // FUN_00201300
-void btlUiSetRect(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3) {
-    arg0[1] = (s32)fp0;
-    arg0[2] = (s32)fp1;
-    arg0[3] = (s32)fp2;
-    arg0[4] = (s32)fp3;
+void btlUiSetRect(s32 *work, f32 x, f32 y, f32 width, f32 height) {
+    ((BtlUiSprite *)work)->originX = (s32)x;
+    ((BtlUiSprite *)work)->originY = (s32)y;
+    ((BtlUiSprite *)work)->width = (s32)width;
+    ((BtlUiSprite *)work)->height = (s32)height;
 }
 
 /* measured: caching D_00887300 in s0 reproduces retail's one-time
@@ -403,47 +381,49 @@ void btlUiSetRenderStates(void)
 #pragma opt_propagation on
 // Intent: draw the sprite for a table entry at the given screen position and scale. [inferred]
 // FUN_00201410
-void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
+void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y)
 {
     u8 *entry;
     u32 offset;
     f32 value;
 
-    offset = (u32)(arg1 * 4);
-    entry = p4_002091f0_add(offset, arg0);
-    *(s32 *)(arg0 + 0x6C) = *(s32 *)(entry + 0x2C);
-    *(s32 *)(arg0 + 0x70) = arg2;
-    if ((*(f32 *)(arg0 + 0x14) == 1.0f) &&
-        (*(f32 *)(arg0 + 0x18) == 1.0f)) {
+    /* measured: typed slot indexing reverses addu operands; repeated typed sprite fields
+     * hoist field addresses across the draw call (596 vs 576 bytes). */
+    offset = (u32)(slot * 4);
+    entry = btlUiAddByteOffset(offset, work);
+    ((BtlUiSprite *)work)->sprite = *(s32 *)(entry + 0x2C);
+    ((BtlUiSprite *)work)->segment = segment;
+    if ((((BtlUiSprite *)work)->factorX == 1.0f) &&
+        (((BtlUiSprite *)work)->factorY == 1.0f)) {
 
-        *(f32 *)(arg0 + 0x74) = (f32)*(s32 *)(arg0 + 4) + fparg0;
-        *(f32 *)(arg0 + 0x78) = (f32)*(s32 *)(arg0 + 8) + fparg1;
-        sdkSpriteDraw(arg0 + 0x6C, 0);
+        ((BtlUiSprite *)work)->x = (f32)((BtlUiSprite *)work)->originX + x;
+        ((BtlUiSprite *)work)->y = (f32)((BtlUiSprite *)work)->originY + y;
+        sdkSpriteDraw(work + 0x6C, 0);
         return;
     }
-    *(f32 *)(arg0 + 0x74) =
-        (f32)*(s32 *)(arg0 + 4) +
-        ((f32)*(s32 *)(arg0 + 0x0C) *
-         (1.0f - *(f32 *)(arg0 + 0x14))) * 0.5f +
-        *(f32 *)(arg0 + 0x14) * fparg0;
-    *(f32 *)(arg0 + 0x78) =
-        (f32)*(s32 *)(arg0 + 8) +
-        ((f32)*(s32 *)(arg0 + 0x10) *
-         (1.0f - *(f32 *)(arg0 + 0x18))) * 0.5f +
-        *(f32 *)(arg0 + 0x18) * fparg1;
-    value = *(f32 *)(arg0 + 0x14) * 4096.0f * *(f32 *)(arg0 + 0x1C);
-    *(u16 *)(arg0 + 0x8C) = (u16)value;
-    value = *(f32 *)(arg0 + 0x18) * 4096.0f * *(f32 *)(arg0 + 0x20);
-    *(u16 *)(arg0 + 0x8E) = (u16)value;
-    if (*(f32 *)(arg0 + 0x84) != 0.0f) {
-        *(s16 *)(arg0 + 0x88) =
-            (s16)(*(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x14));
-        *(s16 *)(arg0 + 0x8A) =
-            (s16)(*(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x18));
+    *(f32 *)(work + 0x74) =
+        (f32)*(s32 *)(work + 0x4) +
+        ((f32)((BtlUiSprite *)work)->width *
+         (1.0f - *(f32 *)(work + 0x14))) * 0.5f +
+        *(f32 *)(work + 0x14) * x;
+    *(f32 *)(work + 0x78) =
+        (f32)*(s32 *)(work + 0x8) +
+        ((f32)((BtlUiSprite *)work)->height *
+         (1.0f - *(f32 *)(work + 0x18))) * 0.5f +
+        *(f32 *)(work + 0x18) * y;
+    value = *(f32 *)(work + 0x14) * 4096.0f * ((BtlUiSprite *)work)->scaleX;
+    ((BtlUiSprite *)work)->fixedScaleX = (u16)value;
+    value = *(f32 *)(work + 0x18) * 4096.0f * ((BtlUiSprite *)work)->scaleY;
+    ((BtlUiSprite *)work)->fixedScaleY = (u16)value;
+    if (((BtlUiSprite *)work)->tileFactor != 0.0f) {
+        ((BtlUiSprite *)work)->tileX =
+            (s16)(((BtlUiSprite *)work)->tileOffsetX * *(f32 *)(work + 0x14));
+        ((BtlUiSprite *)work)->tileY =
+            (s16)(((BtlUiSprite *)work)->tileOffsetY * *(f32 *)(work + 0x18));
     }
-    sdkSpriteDraw(arg0 + 0x6C, 0);
-    *(u16 *)(arg0 + 0x8C) = 0;
-    *(u16 *)(arg0 + 0x8E) = 0;
+    sdkSpriteDraw(work + 0x6C, 0);
+    *(u16 *)(work + 0x8C) = 0;
+    *(u16 *)(work + 0x8E) = 0;
 }
 
 /* Keep the opacity base ahead of byte promotion, matching retail order. */
@@ -452,77 +432,79 @@ void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
 #pragma opt_propagation off
 // Intent: draw a battle sprite with per-channel colour and fade parameters. [inferred]
 // FUN_00201650
-void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
-                   u8 arg5, u8 arg6, u8 arg7, u8 arg8) {
-    arg0[0x94] = (u8)arg5;
-    arg0[0x95] = (u8)arg6;
-    arg0[0x96] = (u8)arg7;
+void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x, f32 y,
+                   u8 red, u8 green, u8 blue, u8 opacity) {
+    ((BtlUiSprite *)work)->red = (u8)red;
+    ((BtlUiSprite *)work)->green = (u8)green;
+    ((BtlUiSprite *)work)->blue = (u8)blue;
     {
         s32 maximum = 0xFF;
-        arg0[0x7D] = maximum - (arg8 & 0xFF);
+        ((BtlUiSprite *)work)->fade = maximum - (opacity & 0xFF);
     }
-    btlUiDrawSpriteEntry(arg0, arg1, arg2, fparg0, fparg1);
-    arg0[0x94] = 0xFF;
-    arg0[0x95] = 0xFF;
-    arg0[0x96] = 0xFF;
-    arg0[0x7D] = 0;
+    btlUiDrawSpriteEntry(work, slot, segment, x, y);
+    /* measured: typed resets retain four field addresses across draw (128 vs 96 bytes). */
+    work[0x94] = 0xFF;
+    work[0x95] = 0xFF;
+    work[0x96] = 0xFF;
+    work[0x7D] = 0;
 }
 
 #pragma pop
 // Intent: add a delta to the tile-offset field of a segment. [inferred]
 // FUN_002016B0
-void btlUiAdjustTileOffset(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void btlUiAdjustTileOffset(s32 work, s32 slot, s32 segmentIndex, s32 delta) {
     u8 *table;
     u8 *base;
     u32 index;
     u32 offset;
-    u8 *temp_4;
+    u8 *segment;
 
-    index = (u32)(arg1 * 4);
-    table = (u8 *)(index + (u32)arg0 + 0x2C);
+    /* measured: typed sprite-slot indexing changes addition/register allocation (10 differing bytes). */
+    index = (u32)(slot * 4);
+    table = (u8 *)(index + (u32)work + 0x2C);
     table = *(u8 **)table;
-    offset = (u32)(arg2 << 7);
-    base = *(u8 **)(table + 0x204);
-    temp_4 = (u8 *)(offset + (u32)base);
-    *(s32 *)(temp_4 + 0x5C) = arg3 + *(s32 *)(temp_4 + 0x54);
+    offset = (u32)(segmentIndex << 7);
+    base = ((SdkSpriteResource *)table)->segments;
+    segment = (u8 *)(offset + (u32)base);
+    ((SdkSpriteSegment *)segment)->tileOffset = delta + ((SdkSpriteSegment *)segment)->originalTileOffset;
 }
 
 /* The tile offset is converted from its full signed word for drawing;
  * only the stored halfword truncates it. Shared with cursor segments. */
 // Intent: store the tile offset and its float mirror (see the note above). [inferred]
 // FUN_002016E0
-void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 fparg0)
+void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor)
 {
-    *(s16 *)(arg0 + 0x88) = arg1;
-    *(s16 *)(arg0 + 0x8A) = arg2;
-    *(f32 *)(arg0 + 0x84) = fparg0;
-    *(f32 *)(arg0 + 0x24) = (f32)arg1;
-    *(f32 *)(arg0 + 0x28) = (f32)arg2;
+    ((BtlUiSprite *)work)->tileX = x;
+    ((BtlUiSprite *)work)->tileY = y;
+    ((BtlUiSprite *)work)->tileFactor = factor;
+    ((BtlUiSprite *)work)->tileOffsetX = (f32)x;
+    ((BtlUiSprite *)work)->tileOffsetY = (f32)y;
 }
 
 // Intent: set the x/y scale fields and their 4096-based fixed-point mirrors. [inferred]
 // FUN_00201720
-void btlUiSetScale(u8 *arg0, f32 fparg0, f32 fparg1)
+void btlUiSetScale(u8 *work, f32 x, f32 y)
 {
-    if ((fparg0 == 1.0f) && (fparg1 == 1.0f)) {
-        *(s16 *)(arg0 + 0x8C) = 0;
-        *(s16 *)(arg0 + 0x8E) = 0;
+    if ((x == 1.0f) && (y == 1.0f)) {
+        ((BtlUiSprite *)work)->fixedScaleX = 0;
+        ((BtlUiSprite *)work)->fixedScaleY = 0;
     } else {
-        *(u16 *)(arg0 + 0x8C) = (u16)(4096.0f * fparg0);
-        *(u16 *)(arg0 + 0x8E) = (u16)(4096.0f * fparg1);
+        ((BtlUiSprite *)work)->fixedScaleX = (u16)(4096.0f * x);
+        ((BtlUiSprite *)work)->fixedScaleY = (u16)(4096.0f * y);
     }
-    *(f32 *)(arg0 + 0x1C) = fparg0;
-    *(f32 *)(arg0 + 0x20) = fparg1;
+    ((BtlUiSprite *)work)->scaleX = x;
+    ((BtlUiSprite *)work)->scaleY = y;
 }
 
 // Intent: select a render-state set by mode index. [inferred]
 // FUN_00201820
-void btlUiSetRenderMode(s32 arg0)
+void btlUiSetRenderMode(s32 mode)
 {
-    s32 temp_5;
+    s32 modeIndex;
 
-    temp_5 = arg0 & 0xFFFF;
-    switch (temp_5) {
+    modeIndex = mode & 0xFFFF;
+    switch (modeIndex) {
     case 0:
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
@@ -548,73 +530,75 @@ void btlUiSetRenderMode(s32 arg0)
 
 // Intent: set the sprite id at the unit's slot and return the scaled sprite width. [inferred]
 // FUN_00201950
-f32 btlUiSpriteWidth(u8 *arg0, s32 arg1, s32 arg2)
+f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment)
 {
-    *(s32 *)(arg0 + 0x6C) =
-        *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
-    *(s32 *)(arg0 + 0x70) = arg2;
-    return sdkSpriteScaledWidth(arg0 + 0x6C);
+    ((BtlUiSprite *)work)->sprite =
+        /* measured: typed indexing reverses the retail addu operands. */
+        *(s32 *)((u8 *)(slot * 4) + (u32)work + 0x2C);
+    ((BtlUiSprite *)work)->segment = segment;
+    return sdkSpriteScaledWidth(work + 0x6C);
 }
 
 // Intent: set the sprite id at the unit's slot and return the scaled sprite height. [inferred]
 // FUN_00201990
-f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2)
+f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment)
 {
-    *(s32 *)(arg0 + 0x6C) =
-        *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
-    *(s32 *)(arg0 + 0x70) = arg2;
-    return sdkSpriteScaledHeight(arg0 + 0x6C);
+    ((BtlUiSprite *)work)->sprite =
+        /* measured: typed indexing reverses the retail addu operands. */
+        *(s32 *)((u8 *)(slot * 4) + (u32)work + 0x2C);
+    ((BtlUiSprite *)work)->segment = segment;
+    return sdkSpriteScaledHeight(work + 0x6C);
 }
 
 // Intent: store the x/y scale factors used by the sprite draw path. [inferred]
 // FUN_002019D0
-void btlUiSetFactorXY(u8 *arg0, f32 fparg0, f32 fparg1)
+void btlUiSetFactorXY(u8 *work, f32 x, f32 y)
 {
-    *(f32 *)(arg0 + 0x14) = fparg0;
-    *(f32 *)(arg0 + 0x18) = fparg1;
+    ((BtlUiSprite *)work)->factorX = x;
+    ((BtlUiSprite *)work)->factorY = y;
 }
 
 // Intent: store the alpha value of a UI component. [inferred]
 // FUN_002019E0
-void btlUiSetAlpha(u8 *arg0, f32 fparg0)
+void btlUiSetAlpha(u8 *work, f32 alpha)
 {
-    *(f32 *)(arg0 + 0x90) = fparg0;
+    ((BtlUiSprite *)work)->alpha = alpha;
 }
 
 // Intent: select the effect entry for a state index and start its playback. [inferred]
 // FUN_002019F0
-void btlUiSelectEffect(s32 arg0, u32 arg1)
+void btlUiSelectEffect(s32 unit, u32 entryId)
 {
-    u8 *temp_2;
+    u8 *battle;
 
-    if (arg1 < 0x1000U) {
-        temp_2 = D_0076449C;
-        btlPanelStartValues(*(s32 *)(temp_2 + 0xDD4), arg0,
-                      *(s32 *)(temp_2 + 0xC60), arg1);
+    if (entryId < 0x1000U) {
+        battle = D_0076449C;
+        btlPanelStartValues(((BtlBattleState *)battle)->uiTask, unit,
+                      ((BtlBattleState *)battle)->messageWindow, entryId);
         return;
     }
-    btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
-                  iGpffffb448 + (((arg1 - 0x1000) & 0xFFFF) * 0x13));
-    btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
+    btlPanelStartEntry(((BtlBattleState *)D_0076449C)->uiTask,
+                  iGpffffb448 + (((entryId - 0x1000) & 0xFFFF) * 0x13));
+    btlPanelMarkEntryStarted(((BtlBattleState *)D_0076449C)->uiTask);
 }
 
 // Intent: packet callback; bumps both unit counters and flags a bad-status hit. [inferred]
 // FUN_00201A80
-void btlPacketHitStatusCheck(u8 *arg0) {
-    s32 temp_4;
-    u8 *temp_5;
-    u8 *temp_5_2;
+void btlPacketHitStatusCheck(u8 *work) {
+    s32 unitData;
+    u8 *source;
+    u8 *target;
 
-    temp_5 = (u8 *)(*(u8 **)(arg0 + 0));
-    *(u16 *)(temp_5 + 0xA0) = (u16) (*(u16 *)(temp_5 + 0xA0) + 1);
-    temp_5_2 = (u8 *)(*(u8 **)(arg0 + 4));
-    *(u16 *)(temp_5_2 + 0xA0) = (u16) (*(u16 *)(temp_5_2 + 0xA0) + 1);
-    temp_4 = (s32)(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA64));
-    if ((temp_4 != 0) && (datCalcChkBadStatus(temp_4, 0x100000) != 0)) {
-        *(s32 *)(arg0 + 0x34) = 1;
+    source = (u8 *)((BtlHitDisplayWork *)work)->source;
+    ((BtlUnit *)source)->pendingPacketCount = (u16) (((BtlUnit *)source)->pendingPacketCount + 1);
+    target = (u8 *)((BtlHitDisplayWork *)work)->target;
+    ((BtlUnit *)target)->pendingPacketCount = (u16) (((BtlUnit *)target)->pendingPacketCount + 1);
+    unitData = (s32)((BtlUnit *)((BtlHitDisplayWork *)work)->target)->datUnit;
+    if ((unitData != 0) && (datCalcChkBadStatus((DatUnit *)unitData, 0x100000) != 0)) {
+        ((BtlHitDisplayWork *)work)->useHudAnchor = 1;
         return;
     }
-    *(s32 *)(arg0 + 0x34) = 0;
+    ((BtlHitDisplayWork *)work)->useHudAnchor = 0;
 }
 
 /* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
@@ -628,7 +612,7 @@ void btlPacketHitStatusCheck(u8 *arg0) {
 s32 btlPacketBuildHitFlags(u8 *work)
 {
     u16 flags;
-    u32 input_flags;
+    u32 inputFlags;
     s32 empty;
     s32 value0;
     s32 value1;
@@ -646,33 +630,33 @@ s32 btlPacketBuildHitFlags(u8 *work)
     extern void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
 
     flags = 0;
-    input_flags = *(u16 *)(work + 0x2C);
-    if ((input_flags & 4) ||
-        (*(s32 *)(work + 8) == 0 && *(s32 *)(work + 0xC) == 0 &&
-         *(s32 *)(work + 0x10) == 0 && *(s32 *)(work + 0x14) == 0 &&
-         *(s32 *)(work + 0x18) == 0)) {
+    inputFlags = ((BtlHitDisplayWork *)work)->effect;
+    if ((inputFlags & 4) ||
+        (((BtlHitDisplayWork *)work)->value0 == 0 && ((BtlHitDisplayWork *)work)->value1 == 0 &&
+         ((BtlHitDisplayWork *)work)->status == 0 && ((BtlHitDisplayWork *)work)->value3 == 0 &&
+         ((BtlHitDisplayWork *)work)->value4 == 0)) {
         empty = 1;
     } else {
         empty = 0;
     }
 
-    value0 = *(s32 *)(work + 8);
+    value0 = ((BtlHitDisplayWork *)work)->value0;
     if (value0 != 0) {
         flags |= 0x10;
     } else {
         value0 = 0;
     }
 
-    value1 = *(s32 *)(work + 0xC);
+    value1 = ((BtlHitDisplayWork *)work)->value1;
     if (value1 != 0) {
         flags |= 0x20;
     } else {
         value1 = 0;
     }
 
-    if (*(u16 *)(work + 0x32) == *(u16 *)(work + 0x30) + 1) {
+    if (((BtlHitDisplayWork *)work)->hitCount == ((BtlHitDisplayWork *)work)->hitIndex + 1) {
         if (empty == 0) {
-            value = *(u16 *)(work + 0x2E);
+            value = ((BtlHitDisplayWork *)work)->targetFlags;
             if (value & 2) {
                 flags |= 1;
             }
@@ -681,10 +665,10 @@ s32 btlPacketBuildHitFlags(u8 *work)
             }
         }
 
-        if (input_flags & 0x100) {
-            value = *(s32 *)(work + 0x28);
-            if (value != -1 && *(u8 **)(*(u8 **)work + 0xA64) != NULL) {
-                value = datCalcSkillElement(*(u8 **)(*(u8 **)work + 0xA64), value & 0xFFFF);
+        if (inputFlags & 0x100) {
+            value = ((BtlHitDisplayWork *)work)->skill;
+            if (value != -1 && (u8 *)((BtlUnit *)(u8 *)((BtlHitDisplayWork *)work)->source)->datUnit != NULL) {
+                value = datCalcSkillElement((u8 *)((BtlUnit *)(u8 *)((BtlHitDisplayWork *)work)->source)->datUnit, value & 0xFFFF);
                 value = datCalcElementBit((s16)value);
             } else {
                 value = 0;
@@ -698,23 +682,23 @@ s32 btlPacketBuildHitFlags(u8 *work)
             flags |= 4;
         }
 
-        if (*(s32 *)(work + 0x10) & 0x100000) {
+        if (((BtlHitDisplayWork *)work)->status & 0x100000) {
             flags |= 0x40;
         }
     }
 
-    offset = *(s32 *)(work + 0x28);
+    offset = ((BtlHitDisplayWork *)work)->skill;
     if (offset >= 0) {
         offset *= 0x28;
         table = iGpffffb3b8;
-        value = *(u8 *)((u32)offset + (u32)table + 8);
+        value = ((DatSkillEntry *)((u32)offset + (u32)table))->unknown04[4];
         switch (value) {
         case 1:
         case 2:
             flags |= 0x80;
             break;
         }
-        if (*(u8 *)(table + offset) & 0x20) {
+        if (((DatSkillEntry *)(table + offset))->flags00 & 0x20) {
             flags &= 0xFFFB;
         }
     }
@@ -722,14 +706,15 @@ s32 btlPacketBuildHitFlags(u8 *work)
     result.value0 = value0;
     result.value1 = value1;
     result.flags = flags;
-    if (*(s32 *)(work + 0x34) != 0) {
-        btlUnitGetHudAnchor((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
+    if (((BtlHitDisplayWork *)work)->useHudAnchor != 0) {
+        btlUnitGetHudAnchor((BtlUnit *)(u8 *)((BtlHitDisplayWork *)work)->target, (RwV3d *)position);
     } else {
-        btlUnitGetAnimBoundsWorldCenter((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
+        btlUnitGetAnimBoundsWorldCenter((BtlUnit *)(u8 *)((BtlHitDisplayWork *)work)->target, (RwV3d *)position);
     }
 
-    btlSelectionPushEntry(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(work + 4),
-                  (s32 *)&result, position, *(u16 *)(work + 0x38));
+    /* measured: typing the final target reload hoists +4 across the anchor callback (684 vs 676 bytes). */
+    btlSelectionPushEntry((u8 *)((BtlBattleState *)D_0076449C)->uiTask, *(s32 *)(work + 4),
+                  (s32 *)&result, position, ((BtlHitDisplayWork *)work)->flags);
     return 1;
 }
-
+#pragma pop

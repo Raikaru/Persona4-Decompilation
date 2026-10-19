@@ -1,3 +1,4 @@
+#include "btl_ui_task_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -23,21 +24,6 @@ extern void btlSelectionFlushEntries();
 
 
 
-typedef struct {
-    u8 pad0[2];
-    s16 field2;
-    s16 field4;
-    s16 field6;
-    s16 field8;
-} P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern f32 fGpffff815c;
@@ -76,20 +62,6 @@ extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-typedef struct {
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-} Color4;
-typedef struct {
-    s32 value3;
-    s32 value0;
-    s32 value1;
-    s32 value2;
-    u8 pad[0xC];
-    Color4 colors;
-} Work4;
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
@@ -137,34 +109,34 @@ extern void btlSelectionFlushEntries();
 u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
                   u16 hitIndex, u16 hitCount, const void *result, u16 flags)
 {
-    u8 *spAC;
-    u8 *temp_16;
-    u8 *temp_2;
+    u8 *createdPacket;
+    u8 *display;
+    u8 *packet;
 
-    temp_2 = (u8 *)btlPacketAlloc(0x50A, 0x3C);
-    spAC = temp_2;
-    *(void **)(temp_2 + 0x68) = (void *)btlPacketHitStatusCheck;
-    *(void **)(temp_2 + 0x6C) = (void *)btlPacketBuildHitFlags;
-    *(void **)(temp_2 + 0x70) = (void *)btlUnitRotateTowardUnitPacketDestroy;
-    temp_16 = *(u8 **)(temp_2 + 0x78);
-    memcpy(temp_16 + 8, result, 0x20);
-    *(s32 *)(temp_16 + 0) = source;
-    *(s32 *)(temp_16 + 4) = target;
-    *(s32 *)(temp_16 + 0x28) = id;
-    *(u16 *)(temp_16 + 0x2C) = effect;
-    *(u16 *)(temp_16 + 0x2E) = targetFlags;
-    *(u16 *)(temp_16 + 0x30) = hitIndex;
-    *(u16 *)(temp_16 + 0x32) = hitCount;
-    *(u16 *)(temp_16 + 0x38) = flags;
-    return spAC;
+    packet = (u8 *)btlPacketAlloc(0x50A, 0x3C);
+    createdPacket = packet;
+    ((BtlPacket *)packet)->initFunc = (BtlPacketFunc)btlPacketHitStatusCheck;
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlPacketBuildHitFlags;
+    ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlUnitRotateTowardUnitPacketDestroy;
+    display = (u8 *)((BtlPacket *)packet)->workData;
+    memcpy(&((BtlHitDisplayWork *)display)->value0, result, 0x20);
+    ((BtlHitDisplayWork *)display)->source = source;
+    ((BtlHitDisplayWork *)display)->target = target;
+    ((BtlHitDisplayWork *)display)->skill = id;
+    ((BtlHitDisplayWork *)display)->effect = effect;
+    ((BtlHitDisplayWork *)display)->targetFlags = targetFlags;
+    ((BtlHitDisplayWork *)display)->hitIndex = hitIndex;
+    ((BtlHitDisplayWork *)display)->hitCount = hitCount;
+    ((BtlHitDisplayWork *)display)->flags = flags;
+    return createdPacket;
 }
 
 // Intent: packet callback; finishes the effect and the associated panel. [inferred]
 // FUN_00201EE0
 s32 btlPacketFinishEffect(void)
 {
-    btlSelectionFlushEntries(*(s32 *)(D_0076449C + 0xDD4));
-    btlGaugeRefreshAll(*(s32 *)(D_0076449C + 0xDD4));
+    btlSelectionFlushEntries(((BtlBattleState *)D_0076449C)->uiTask);
+    btlGaugeRefreshAll(((BtlBattleState *)D_0076449C)->uiTask);
     return 1;
 }
 
@@ -172,33 +144,33 @@ s32 btlPacketFinishEffect(void)
 // FUN_00201F20
 u8 *btlPacketCreateFinishEffect(void)
 {
-    u8 *temp_2;
+    u8 *packet;
 
-    temp_2 = (u8 *)btlPacketAlloc(0x50B, 0);
-    *(void **)(temp_2 + 0x6C) = (void *)btlPacketFinishEffect;
-    return temp_2;
+    packet = (u8 *)btlPacketAlloc(0x50B, 0);
+    ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlPacketFinishEffect;
+    return packet;
 }
 
 /* measured: opt_rebuildconditionals off tested for callback completion. */
 // Intent: packet callback; steps a sprite frame over 32 ticks, selecting the sprite from the table. [inferred]
 // FUN_00201F60
-s32 btlPacketStepSpriteFrame(u8 *arg0)
+s32 btlPacketStepSpriteFrame(u8 *work)
 {
-    u8 *temp_4;
-    u32 temp_2;
+    u8 *battle;
+    u32 elapsed;
 
-    temp_4 = D_0076449C;
-    if ((*(s32 *)(temp_4 + 0xC) & 0x200) == 0) {
+    battle = D_0076449C;
+    if (((s32)((BtlBattleState *)battle)->flags & 0x200) == 0) {
         return 1;
     }
-    if (*(u32 *)(arg0 + 8) == 0) {
-        btlPanelStartEntry(*(s32 *)(temp_4 + 0xDD4),
-                      iGpffffb448 + (*(u16 *)(arg0 + 4) * 0x13));
-        btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
+    if (((BtlPanelPacketWork *)work)->elapsed == 0) {
+        btlPanelStartEntry(((BtlBattleState *)battle)->uiTask,
+                      iGpffffb448 + (((BtlPanelPacketWork *)work)->selector.index * 0x13));
+        btlPanelMarkEntryStarted(((BtlBattleState *)D_0076449C)->uiTask);
     }
-    temp_2 = *(u32 *)(arg0 + 8) + 1;
-    *(u32 *)(arg0 + 8) = temp_2;
-    if (temp_2 >= 0x20U) {
+    elapsed = ((BtlPanelPacketWork *)work)->elapsed + 1;
+    ((BtlPanelPacketWork *)work)->elapsed = elapsed;
+    if (elapsed >= 0x20U) {
         return 1;
     }
     return 0;

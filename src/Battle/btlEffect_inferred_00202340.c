@@ -1,3 +1,4 @@
+#include "btl_ui_task_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -20,21 +21,6 @@ typedef struct BtlAction BtlAction;
 
 
 
-typedef struct {
-    u8 pad0[2];
-    s16 field2;
-    s16 field4;
-    s16 field6;
-    s16 field8;
-} P4_00202D20;
-static inline f32 func_0020_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern f32 fGpffff815c;
@@ -71,20 +57,6 @@ extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-typedef struct {
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-} Color4;
-typedef struct {
-    s32 value3;
-    s32 value0;
-    s32 value1;
-    s32 value2;
-    u8 pad[0xC];
-    Color4 colors;
-} Work4;
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
@@ -126,30 +98,30 @@ extern u8 D_006253B0[];
 /* measured: restore conditional rebuilding after callback completion. */
 // Intent: packet callback; steps an effect counter and redraws the effect entry. [inferred]
 // FUN_00202340
-s32 btlPacketStepEffectCounter(u8 *arg0)
+s32 btlPacketStepEffectCounter(u8 *work)
 {
-    u32 temp_2;
-    u32 temp_7;
-    s32 temp_8;
-    u8 *temp_2_2;
+    u32 elapsed;
+    u32 entryId;
+    s32 unit;
+    u8 *battle;
 
-    if (*(u32 *)(arg0 + 8) == 0) {
-        temp_7 = *(u32 *)(arg0 + 4);
-        temp_8 = *(s32 *)(arg0 + 0);
-        if (temp_7 < 0x1000U) {
-            temp_2_2 = D_0076449C;
-            btlPanelStartValues(*(s32 *)(temp_2_2 + 0xDD4),
-                          temp_8,
-                          *(s32 *)(temp_2_2 + 0xC60), temp_7);
+    if (((BtlPanelPacketWork *)work)->elapsed == 0) {
+        entryId = ((BtlPanelPacketWork *)work)->selector.value;
+        unit = ((BtlPanelPacketWork *)work)->unit;
+        if (entryId < 0x1000U) {
+            battle = D_0076449C;
+            btlPanelStartValues(((BtlBattleState *)battle)->uiTask,
+                          unit,
+                          ((BtlBattleState *)battle)->messageWindow, entryId);
         } else {
-            btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
+            btlPanelStartEntry(((BtlBattleState *)D_0076449C)->uiTask,
                           iGpffffb448 +
-                              (((temp_7 - 0x1000) & 0xFFFF) * 0x13));
-            btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
+                              (((entryId - 0x1000) & 0xFFFF) * 0x13));
+            btlPanelMarkEntryStarted(((BtlBattleState *)D_0076449C)->uiTask);
         }
     }
-    temp_2 = *(u32 *)(arg0 + 8) + 1;
-    *(u32 *)(arg0 + 8) = temp_2;
-    return temp_2 >= 0x21U;
+    elapsed = ((BtlPanelPacketWork *)work)->elapsed + 1;
+    ((BtlPanelPacketWork *)work)->elapsed = elapsed;
+    return elapsed >= 0x21U;
 }
 

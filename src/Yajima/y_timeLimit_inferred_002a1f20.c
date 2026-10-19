@@ -72,8 +72,8 @@ extern u8 iGpffffa7e8;
 extern void datSetHeroNameParts(u8 *arg0, u8 *arg1);
 extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern void fadeBeginReturnTransition(s32 arg0, s32 arg1);
-extern void func_0029ebf0(u8 *arg0, s32 arg1);
-extern void func_0029f070(u8 *arg0);
+extern void yTimeLimitStartRowTransition(u8 *arg0, s32 arg1);
+extern void yTimeLimitUpdateInput(u8 *arg0);
 extern void yTimeNameDrawReveal(u8 *arg0, s32 arg1);
 extern s32 strncmp(void *arg0, void *arg1, s32 arg2);
 
@@ -177,13 +177,13 @@ s32 yTimeLimitDraw(u8 *task) {
             work->inputState = 1;
             work->phase = 2;
             work->selectionState[1] = 0;
-            func_0029ebf0(task, 0);
+            yTimeLimitStartRowTransition(task, 0);
         }
         goto block_39;
     case 2:
         inputState = work->inputState;
         if (inputState == 1) {
-            func_0029f070(task);
+            yTimeLimitUpdateInput(task);
             nextInputState = work->inputState;
             if ((nextInputState != 2) && (nextInputState == 3)) {
                 work->transitionStarted = 0;

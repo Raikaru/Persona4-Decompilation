@@ -4,76 +4,93 @@
 #include "list_item_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "primitive_queue_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
-extern s32 datGetFlag(s32 arg0);
-extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
-                           s32 (*arg3)(u8 **arg0, u8 **arg1));
+extern s32 datGetFlag(s32 );
+extern void qsort(u32 *, s32 , s32 ,
+                           s32 (*)(u8 **, u8 **));
 extern f32 fGpffff84a4;
 extern f32 fGpffff8574;
 extern f32 fGpffff82fc;
 typedef struct {
-    u8 pad18[0x18];
-    s32 field18;
-    s32 field1C;
-    s32 field20;
-} Code1_00263220State;
+    u32 state;
+    union { s32 word; u8 *pointer; } spritePack;
+    s32 queue;
+    s32 fromDay;
+    s32 toDay;
+    s32 childTask;
+    s32 day;
+    s32 scroll;
+    s32 frame;
+} CalendarDayChange;
+
+typedef struct CalendarGlyphContext {
+    s16 offsetX, offsetY;
+    f32 depthOffset, scaleX, scaleY;
+    u8 *font;
+} CalendarGlyphContext;
+
+typedef struct SdlSchedulerWork {
+    u8 pad00[8];
+    s32 flags;
+} SdlSchedulerWork;
 
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 typedef struct { s32 a, b, c, d; } Quad4;
 
-typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
+typedef void (*CalendarGlyphCallback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 extern u8 *kwlnTaskGetWork();
 extern s32 kwlnTaskIsLinked();
-extern s32 sdkSpritePackCreate(u8 *arg0);
+extern s32 sdkSpritePackCreate(u8 *);
 extern u8 D_00637420[];
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern void sdkSpritePackDestroy(void *arg0);
+extern void PrimAppendNode(u8 *, u8 *);
+extern void sdkSpritePackDestroy(void *);
 extern void (*jtbl_008873EC[])(void *);
-extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 shdSpriteEnsureLoaded(u8 *arg0);
+extern void calSplitDayOfYear(s32 , s32 *, s32 *);
+extern s32 shdSpriteEnsureLoaded(u8 *);
 extern char D_00637348[];
-extern s32 kwlnTaskGetTaskByName(void *arg0);
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern void calDrawDayStripCallback(s32 arg0, u8 *arg1);
-extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
-extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
-extern void cldDayChangeMarkDone(u8 *arg0);
-extern s32 cldDayChangeIsDone(s32 arg0);
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern void calQueueDayStripDraw(s32 arg0, s32 arg1);
-extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
-extern s32 func_0043c6a0(s32 arg0);
-extern f32 sinf(f32 fparg0);
-extern void calDrawDateCell(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
-extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
-                           s32 arg_sp0);
+extern s32 kwlnTaskGetTaskByName(void *);
+extern void kwlnTaskDestroyWithHierarchy(s32 );
+extern void calDrawDayStripCallback(s32 , u8 *);
+extern s32 cldDayChangeStartStateTask(s32 , s32 , s32 );
+extern s32 cldDayChangeRequest(u32 , s32 );
+extern void cldDayChangeMarkDone(u8 *);
+extern s32 cldDayChangeIsDone(s32 );
+extern void datSetFlag(s32 , s32 );
+extern void calQueueDayStripDraw(s32 , s32 );
+extern s32 calGetPackedDayEntry(s32 , s32 );
+extern s32 func_0043c6a0(s32 );
+extern f32 sinf(f32 );
+extern void calDrawDateCell(s32 , s32 , f32 , u8 , s32 , s32 , f32 , f32 , s32 , s32 , s32 , s32 );
+extern void calDrawWeather(s32 , s32 , f32 , u8 ,
+                           s32 , s32 , f32 , f32 ,
+                           s32 , s32 , s32 ,
+                           s32 );
 extern s32 sprintf(char *dst, const char *fmt, ...);
-extern s32 calGetWeekdayOfDay(s32 arg0);
-extern s32 calHasDayEntry(s32 arg0);
+extern s32 calGetWeekdayOfDay(s32 );
+extern s32 calHasDayEntry(s32 );
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void mdlEffectEmitMaskedTagPair(void);
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern void mdlEffectEmitTagPair(void);
-extern s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2);
-extern void shdSpriteDrawUniformNumber(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
+extern s32 shdSpriteEntryWidth(s32 , s32 , u8 *);
+extern void shdSpriteDrawUniformNumber(f32, f32, f32, s32, u8, const char *, s32, s16, s16, CalendarGlyphCallback, u8 *);
 // Intent: Sets the enable flag on the sdlScheduler task when it exists [inferred]
 // FUN_00260510
 void sdlSchedulerEnable(void)
 {
-    s32 temp_2;
-    u8 *temp_2_2;
+    s32 task;
+    u8 *work;
 
-    temp_2 = kwlnTaskGetTaskByName(D_00637348);
-    if (temp_2 != 0) {
-        temp_2_2 = kwlnTaskGetWork(temp_2);
-        *(s32 *)(temp_2_2 + 8) |= 1;
+    task = kwlnTaskGetTaskByName(D_00637348);
+    if (task != 0) {
+        work = kwlnTaskGetWork(task);
+        ((SdlSchedulerWork *)work)->flags |= 1;
     }
 }
 
@@ -81,35 +98,35 @@ void sdlSchedulerEnable(void)
 // FUN_00260560
 void sdlSchedulerDestroy(void)
 {
-    s32 temp_2;
+    s32 task;
 
-    temp_2 = kwlnTaskGetTaskByName(D_00637348);
-    if (temp_2 != 0) {
-        kwlnTaskDestroyWithHierarchy(temp_2);
+    task = kwlnTaskGetTaskByName(D_00637348);
+    if (task != 0) {
+        kwlnTaskDestroyWithHierarchy(task);
     }
 }
 
 // Intent: Draws one character of a day number as a glyph (callback for the shdSpriteDrawUniformNumber text drawer; skips newline codes) [inferred]
 // FUN_002605A0
-void calDrawDayNumberGlyph(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * arg2, s32 arg3, s32 arg4, u8 * arg5)
+void calDrawDayNumberGlyph(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s8 * text, s32 index, s32 length, u8 * context)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    s8 temp_7;
+    s8 character;
 
-    temp_7 = *(s8 *)(arg2 + arg3);
-    if (temp_7 != 0xA) {
-        shdSpriteDrawNowEx(fparg0, fparg1, fparg2, arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1, *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
+    character = text[index];
+    if (character != 0xA) {
+        shdSpriteDrawNowEx(x, y, depth, color, alpha, 0, character, ((CalendarGlyphContext *)context)->font, 1, ((CalendarGlyphContext *)context)->offsetX, ((CalendarGlyphContext *)context)->offsetY, ((CalendarGlyphContext *)context)->depthOffset, ((CalendarGlyphContext *)context)->scaleX, ((CalendarGlyphContext *)context)->scaleY);
     }
 }
 
-typedef struct { u32 w[48]; } TrailTable_00260600;
+typedef struct { u32 w[48]; } CalendarTrailTable;
 
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
 // Intent: Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2) [inferred]
 // FUN_00260600
-void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
+void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 cosf(f32);
@@ -119,8 +136,8 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
     extern f32 fGpffff811c;
     extern f32 iGpffff81d0;
     extern f32 D_007612C4;
-    f32 tbl0[12][4];
-    f32 tbl1[12][4];
+    f32 smallTrail[12][4];
+    f32 wideTrail[12][4];
     s32 biasA;
     f32 cosS;
     s32 biasB;
@@ -133,17 +150,17 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
     f32 sinS;
     f32 fx;
     f32 fy;
-    *(TrailTable_00260600 *)tbl0 = *(TrailTable_00260600 *)D_00637440;
-    *(TrailTable_00260600 *)tbl1 = *(TrailTable_00260600 *)D_00637500;
-    switch (arg4) {
+    *(CalendarTrailTable *)smallTrail = *(CalendarTrailTable *)D_00637440;
+    *(CalendarTrailTable *)wideTrail = *(CalendarTrailTable *)D_00637500;
+    switch (variant) {
     case 0:
-        biasA = (int)((float)arg0 - 14.0f * fparg1);
-        biasB = (int)((float)arg1 - 16.0f * fparg2);
+        biasA = (int)((float)x - 14.0f * scaleX);
+        biasB = (int)((float)y - 16.0f * scaleY);
         i = 0;
-        halfThird = 0.5f * fparg2;
-        halfFiveThird = 0.5f * (5.0f * fparg2);
+        halfThird = 0.5f * scaleY;
+        halfFiveThird = 0.5f * (5.0f * scaleY);
         for (; i < 0xC; i++) {
-            f32 *p = tbl0[i];
+            f32 *p = smallTrail[i];
 
             entry2 = p[2];
             angle = iGpffff81d0 * (90.0f - entry2);
@@ -152,20 +169,20 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
             fx = cosS + (47.0f + p[0]);
             fy = sinS + (52.0f + p[1]);
             entry3 = p[3];
-            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
-                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
-                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+            shdSpriteDrawNowEx((float)biasA + fx * scaleX, (float)biasB + fy * scaleY, depth, color, alpha, 0x13, 0, (u8 *)font, setupStates,
+                          (s16)(int)(0.5f * (scaleX * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (scaleX * entry3), halfThird);
         }
-        shdSpriteDrawNowEx((float)biasA + 34.0f * fparg1, (float)biasB + 36.0f * fparg2, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
+        shdSpriteDrawNowEx((float)biasA + 34.0f * scaleX, (float)biasB + 36.0f * scaleY, depth, color, alpha, 5, 0, (u8 *)font, setupStates, 0, 0, 0.0f, scaleX, scaleY);
         break;
     case 1:
-        biasA = (int)((float)arg0 - 41.0f * fparg1);
-        biasB = (int)((float)arg1 - 29.0f * fparg2);
+        biasA = (int)((float)x - 41.0f * scaleX);
+        biasB = (int)((float)y - 29.0f * scaleY);
         i = 0;
-        halfThird = fGpffff811c * fparg2;
-        halfFiveThird = fGpffff811c * (5.0f * fparg2);
+        halfThird = fGpffff811c * scaleY;
+        halfFiveThird = fGpffff811c * (5.0f * scaleY);
         for (; i < 0xC; i++) {
-            f32 *p = tbl1[i];
+            f32 *p = wideTrail[i];
 
             entry2 = p[2];
             angle = iGpffff81d0 * (90.0f - entry2);
@@ -174,22 +191,22 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
             fx = cosS + (57.0f + p[0]);
             fy = sinS + (48.0f + p[1]);
             entry3 = p[3];
-            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
-                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
-                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+            shdSpriteDrawNowEx((float)biasA + fx * scaleX, (float)biasB + fy * scaleY, depth, color, alpha, 0x13, 0, (u8 *)font, setupStates,
+                          (s16)(int)(0.5f * (scaleX * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (scaleX * entry3), halfThird);
         }
-        fx = (float)biasA + 52.0f * fparg1;
-        fy = (float)biasB + 38.0f * fparg2;
-        shdSpriteDrawNowEx(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        fx = (float)biasA + 52.0f * scaleX;
+        fy = (float)biasB + 38.0f * scaleY;
+        shdSpriteDrawNowEx(fx, fy, depth, color, alpha, 5, 0, (u8 *)font, setupStates, 0, 0, 0.0f, D_007612C4 * scaleX, D_007612C4 * scaleY);
         break;
     case 2:
-        biasA = (int)((float)arg0 - 12.0f * fparg1);
-        biasB = (int)((float)arg1 + fparg2);
+        biasA = (int)((float)x - 12.0f * scaleX);
+        biasB = (int)((float)y + scaleY);
         i = 0;
-        halfThird = fGpffff811c * fparg2;
-        halfFiveThird = fGpffff811c * (5.0f * fparg2);
+        halfThird = fGpffff811c * scaleY;
+        halfFiveThird = fGpffff811c * (5.0f * scaleY);
         for (; i < 0xC; i++) {
-            f32 *p = tbl1[i];
+            f32 *p = wideTrail[i];
 
             entry2 = p[2];
             angle = iGpffff81d0 * (90.0f - entry2);
@@ -198,13 +215,13 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
             fx = cosS + (57.0f + p[0]);
             fy = sinS + (48.0f + p[1]);
             entry3 = p[3];
-            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
-                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
-                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+            shdSpriteDrawNowEx((float)biasA + fx * scaleX, (float)biasB + fy * scaleY, depth, color, alpha, 0x13, 0, (u8 *)font, setupStates,
+                          (s16)(int)(0.5f * (scaleX * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (scaleX * entry3), halfThird);
         }
-        fx = (float)biasA + 52.0f * fparg1;
-        fy = (float)biasB + 38.0f * fparg2;
-        shdSpriteDrawNowEx(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        fx = (float)biasA + 52.0f * scaleX;
+        fy = (float)biasB + 38.0f * scaleY;
+        shdSpriteDrawNowEx(fx, fy, depth, color, alpha, 5, 0, (u8 *)font, setupStates, 0, 0, 0.0f, D_007612C4 * scaleX, D_007612C4 * scaleY);
         break;
     }
 }
@@ -220,7 +237,7 @@ typedef struct {
 } CalendarSparkleTable;
 
 extern CalendarSparkle D_006375C0[30];
-extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 arg6);
+extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 );
 #pragma push
 #pragma opt_propagation off
 // Intent: Draws the weather highlight (sparkle table, colour by highlight kind) for a calendar cell [inferred]
@@ -869,11 +886,6 @@ static inline void calendarZeroBytes(void *memory, s32 count)
 void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    struct CalendarGlyphContext {
-        s16 offsetX, offsetY;
-        f32 depthOffset, scaleX, scaleY;
-        u8 *font;
-    };
     char number[4];
     s32 month;
     s32 day;
@@ -943,57 +955,57 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
 // FUN_00263220
 /* measured: optimization-level probe for 00263220 register colouring */
 #pragma optimization_level 1
-s32 calDayScrollStep(Code1_00263220State *arg0, s32 arg1, s32 arg2)
+s32 calDayScrollStep(CalendarDayChange *work, s32 fromDay, s32 toDay)
 {
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    s32 temp_2;
-    s32 temp_17;
-    s32 temp_3;
-    s32 var_16;
+    f32 position;
+    f32 easedPosition;
+    f32 delta;
+    f32 easedDelta;
+    s32 day;
+    s32 frame;
+    s32 distance;
+    s32 duration;
 
-    temp_17 = arg0->field20 + 1;
-    arg0->field20 = temp_17;
-    temp_3 = arg2 - arg1;
-    if (temp_3 == 1) {
-        temp_f0 = sinf((fGpffff84a4 * (f32)temp_17) /
+    frame = work->frame + 1;
+    work->frame = frame;
+    distance = toDay - fromDay;
+    if (distance == 1) {
+        position = sinf((fGpffff84a4 * (f32)frame) /
                                 15.0f);
-        temp_f1 = temp_f0 * (f32)(arg2 - arg1);
-        temp_f0 = (f32)arg1;
-        temp_f0 = temp_f0 + temp_f1;
-        temp_2 = (s32)temp_f0;
-        arg0->field18 = temp_2;
-        arg0->field1C =
-            (s32)(94.0f * (temp_f1 - (f32)(temp_2 - arg1)));
-        if (temp_17 >= 0xF) {
-            arg0->field18 = arg2;
-            arg0->field1C = 0;
+        delta = position * (f32)(toDay - fromDay);
+        position = (f32)fromDay;
+        position = position + delta;
+        day = (s32)position;
+        work->day = day;
+        work->scroll =
+            (s32)(94.0f * (delta - (f32)(day - fromDay)));
+        if (frame >= 0xF) {
+            work->day = toDay;
+            work->scroll = 0;
             return 1;
         }
             goto block_8;
         }
-    if (arg1 < arg2) {
-        var_16 = temp_3 * 3;
+    if (fromDay < toDay) {
+        duration = distance * 3;
     } else {
-        var_16 = (arg1 - arg2) * 3;
+        duration = (fromDay - toDay) * 3;
     }
-    temp_f1_2 =
+    easedDelta =
         (1.0f + sinf(fGpffff8574 +
-                               (fGpffff82fc * (f32)temp_17) /
-                               (f32)var_16)) /
+                               (fGpffff82fc * (f32)frame) /
+                               (f32)duration)) /
         2.0f;
-    temp_f1_2 = temp_f1_2 * (f32)(arg2 - arg1);
-    temp_f0_2 = (f32)arg1;
-    temp_f0_2 = temp_f0_2 + temp_f1_2;
-    temp_2 = (s32)temp_f0_2;
-    arg0->field18 = temp_2;
-    arg0->field1C =
-        (s32)(94.0f * (temp_f1_2 - (f32)(temp_2 - arg1)));
-    if (temp_17 >= var_16) {
-        arg0->field18 = arg2;
-        arg0->field1C = 0;
+    easedDelta = easedDelta * (f32)(toDay - fromDay);
+    easedPosition = (f32)fromDay;
+    easedPosition = easedPosition + easedDelta;
+    day = (s32)easedPosition;
+    work->day = day;
+    work->scroll =
+        (s32)(94.0f * (easedDelta - (f32)(day - fromDay)));
+    if (frame >= duration) {
+        work->day = toDay;
+        work->scroll = 0;
         return 1;
     }
 block_8:
@@ -1008,30 +1020,31 @@ block_8:
 // FUN_00263460
 s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
 {
-    s32 arg0 = (s32)sdkTaskBytes;
-    s32 sp3C;
-    s32 sp38;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    s32 temp_2_5;
-    s32 temp_2_6;
-    s32 temp_2_7;
-    s32 temp_2_8;
-    u8 *temp_2;
+    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
+    s32 taskAddress = (s32)sdkTaskBytes;
+    s32 month;
+    s32 day;
+    s32 introFrame;
+    s32 outroFrame;
+    s32 pauseFrame;
+    s32 settleFrame;
+    s32 weatherFrame;
+    s32 holdFrame;
+    u8 *work;
 
-    temp_2 = kwlnTaskGetWork();
-    calSplitDayOfYear(*(s32 *)(temp_2 + 0xC), &sp3C, &sp38);
-    switch (*(u32 *)temp_2) {
+    work = kwlnTaskGetWork();
+    calSplitDayOfYear(((CalendarDayChange *)work)->fromDay, &month, &day);
+    switch (((CalendarDayChange *)work)->state) {
     case 0:
-        *(s32 *)(temp_2 + 4) = sdkSpritePackCreate(D_00637420);
-        *(u32 *)temp_2 = 1;
+        ((CalendarDayChange *)work)->spritePack.word = sdkSpritePackCreate(D_00637420);
+        ((CalendarDayChange *)work)->state = 1;
         goto block_25;
     case 1:
-        if (shdSpriteEnsureLoaded((u8 *)*(s32 *)(temp_2 + 4)) != 0) {
-            *(u32 *)temp_2 = 2;
-            *(s32 *)(temp_2 + 0x14) =
-                cldDayChangeStartStateTask(arg0, *(s32 *)(temp_2 + 4),
-                              *(s32 *)(temp_2 + 8));
+        if (shdSpriteEnsureLoaded((u8 *)((CalendarDayChange *)work)->spritePack.word) != 0) {
+            ((CalendarDayChange *)work)->state = 2;
+            ((CalendarDayChange *)work)->childTask =
+                cldDayChangeStartStateTask(taskAddress, *(s32 *)(work + 4),
+                              ((CalendarDayChange *)work)->queue);
             if (datGetFlag(0x1471) != 0) {
                 datSetFlag(0x1471, 0);
                 return -1;
@@ -1039,81 +1052,81 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
         }
         goto block_25;
     case 2:
-        *(u32 *)temp_2 = 3;
-        *(s32 *)(temp_2 + 0x20) = 0;
-        *(s32 *)(temp_2 + 0x18) = *(s32 *)(temp_2 + 0xC);
-        cldDayChangeRequest(*(s32 *)(temp_2 + 0x14), sp3C);
+        ((CalendarDayChange *)work)->state = 3;
+        ((CalendarDayChange *)work)->frame = 0;
+        ((CalendarDayChange *)work)->day = *(s32 *)(work + 0xC);
+        cldDayChangeRequest(((CalendarDayChange *)work)->childTask, month);
         /* fall through */
     case 3:
-        temp_2_3 = *(s32 *)(temp_2 + 0x20) + 1;
-        *(s32 *)(temp_2 + 0x20) = temp_2_3;
-        if (temp_2_3 > 0xA) {
-            *(u32 *)temp_2 = 4;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        introFrame = ((CalendarDayChange *)work)->frame + 1;
+        ((CalendarDayChange *)work)->frame = introFrame;
+        if (introFrame > 0xA) {
+            ((CalendarDayChange *)work)->state = 4;
+            *(s32 *)(work + 0x20) = 0;
         }
         goto block_25;
     case 8:
-        temp_2_4 = *(s32 *)(temp_2 + 0x20) + 1;
-        *(s32 *)(temp_2 + 0x20) = temp_2_4;
-        if (temp_2_4 > 0x1E) {
-            cldDayChangeMarkDone((u8 *)*(s32 *)(temp_2 + 0x14));
-            *(u32 *)temp_2 = 0xA;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        outroFrame = ((CalendarDayChange *)work)->frame + 1;
+        ((CalendarDayChange *)work)->frame = outroFrame;
+        if (outroFrame > 0x1E) {
+            cldDayChangeMarkDone((u8 *)((CalendarDayChange *)work)->childTask);
+            ((CalendarDayChange *)work)->state = 0xA;
+            *(s32 *)(work + 0x20) = 0;
         }
         goto block_25;
     case 4:
-        temp_2_5 = *(s32 *)(temp_2 + 0x20) + 1;
-        *(s32 *)(temp_2 + 0x20) = temp_2_5;
-        if (temp_2_5 > 5) {
-            *(u32 *)temp_2 = 5;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        pauseFrame = ((CalendarDayChange *)work)->frame + 1;
+        ((CalendarDayChange *)work)->frame = pauseFrame;
+        if (pauseFrame > 5) {
+            ((CalendarDayChange *)work)->state = 5;
+            *(s32 *)(work + 0x20) = 0;
         }
         goto block_25;
     case 9:
-        temp_2_6 = *(s32 *)(temp_2 + 0x20) + 1;
-        *(s32 *)(temp_2 + 0x20) = temp_2_6;
-        if (temp_2_6 > 0xA) {
-            *(u32 *)temp_2 = 8;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        settleFrame = ((CalendarDayChange *)work)->frame + 1;
+        ((CalendarDayChange *)work)->frame = settleFrame;
+        if (settleFrame > 0xA) {
+            ((CalendarDayChange *)work)->state = 8;
+            *(s32 *)(work + 0x20) = 0;
         }
         goto block_25;
     case 5:
-        if (calDayScrollStep((Code1_00263220State *)temp_2, *(s32 *)(temp_2 + 0xC),
-                          *(s32 *)(temp_2 + 0x10)) != 0) {
-            *(u32 *)temp_2 = 6;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        if (calDayScrollStep((CalendarDayChange *)work, *(s32 *)(work + 0xC),
+                          ((CalendarDayChange *)work)->toDay) != 0) {
+            ((CalendarDayChange *)work)->state = 6;
+            ((CalendarDayChange *)work)->frame = 0;
         }
-        calSplitDayOfYear(*(s32 *)(temp_2 + 0x18), &sp3C, &sp38);
-        cldDayChangeRequest(*(s32 *)(temp_2 + 0x14), sp3C);
+        calSplitDayOfYear(((CalendarDayChange *)work)->day, &month, &day);
+        cldDayChangeRequest(((CalendarDayChange *)work)->childTask, month);
         goto block_25;
     case 7:
-        temp_2_7 = *(s32 *)(temp_2 + 0x20) + 1;
-        *(s32 *)(temp_2 + 0x20) = temp_2_7;
-        if (temp_2_7 > 0xA) {
-            *(u32 *)temp_2 = 9;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        weatherFrame = ((CalendarDayChange *)work)->frame + 1;
+        ((CalendarDayChange *)work)->frame = weatherFrame;
+        if (weatherFrame > 0xA) {
+            ((CalendarDayChange *)work)->state = 9;
+            *(s32 *)(work + 0x20) = 0;
         }
         goto block_25;
     case 6:
-        temp_2_8 = *(s32 *)(temp_2 + 0x20) + 1;
-        *(s32 *)(temp_2 + 0x20) = temp_2_8;
-        if (temp_2_8 > 5) {
-            *(u32 *)temp_2 = 7;
-            *(s32 *)(temp_2 + 0x20) = 0;
+        holdFrame = ((CalendarDayChange *)work)->frame + 1;
+        ((CalendarDayChange *)work)->frame = holdFrame;
+        if (holdFrame > 5) {
+            ((CalendarDayChange *)work)->state = 7;
+            *(s32 *)(work + 0x20) = 0;
         }
         goto block_25;
     case 10:
-        cldDayChangeMarkDone((u8 *)*(s32 *)(temp_2 + 0x14));
+        cldDayChangeMarkDone((u8 *)((CalendarDayChange *)work)->childTask);
         /* fall through */
     case 11:
-        if (cldDayChangeIsDone(*(s32 *)(temp_2 + 0x14)) != 0) {
+        if (cldDayChangeIsDone(((CalendarDayChange *)work)->childTask) != 0) {
             return -1;
         }
     default:
         goto block_25;
     }
 block_25:
-    calQueueDayStripDraw(arg0, *(s32 *)(temp_2 + 8));
+    calQueueDayStripDraw(taskAddress, ((CalendarDayChange *)work)->queue);
     return 0;
 }
 #pragma pop
@@ -1133,6 +1146,7 @@ block_25:
 #pragma opt_lifetimes on
 void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
 {
+    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
     s32 column;
     s32 oldWeather;
     s32 weather;
@@ -1149,7 +1163,7 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
         }
         if (crossfade != 0 && (oldWeather = (u16)calGetPackedDayEntry(date - 1 + column, date)) != (u16)calGetPackedDayEntry(date - 1 + column, date + 1)) {
             oldOpacity = (u8)(255.0f - (f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
-            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, ((CalendarDayChange *)work)->spritePack.word, 0);
             oldFont = *(s32 *)(work + 4);
             weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
             calDrawWeather(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
@@ -1159,7 +1173,7 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
             weather = (u16)calGetPackedDayEntry(date - 1 + column, date + 1);
             calDrawWeather(x + column * 0x5E, y + 295, depth, newOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, newFont, 0);
         } else {
-            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, ((CalendarDayChange *)work)->spritePack.word, 0);
             rowFont = *(s32 *)(work + 4);
             weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
             calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, rowFont, 0);
@@ -1185,153 +1199,154 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
 #pragma opt_lifetimes on
 // Intent: Queued draw callback for the day strip: draws fade rectangles and the strip columns [inferred]
 // FUN_00263CB0
-void calDrawDayStripCallback(s32 arg0, u8 *arg1)
+void calDrawDayStripCallback(s32 queue, u8 *task)
 {
+    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
     typedef signed __int128 s128;
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern void calDrawDayStrip(s32, s32, f32, u8, s32, s32, u8 *);
-    u8 *temp_2;
-    s32 temp_3;
-    f32 spEC;
-    f32 spE8;
-    f32 spE4;
-    f32 spE0;
+    u8 *work;
+    s32 state;
+    f32 fadeColor;
+    f32 fadeScratch;
+    f32 exitColor;
+    f32 exitScratch;
     typedef struct { s32 x, y, w, h; } FadeRect;
-    s128 spD0;
+    s128 fadeBounds;
     FadeRect rectC __attribute__((aligned(16)));
-    s128 spB0;
+    s128 exitBounds;
     FadeRect rectA __attribute__((aligned(16)));
-    f32 *var_3;
-    f32 *var_3_3;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f13;
-    s32 var_21;
-    f32 temp_f20;
-    f32 temp_f21;
-    u8 *var_3_2;
-    u8 *var_3_4;
-    s32 temp_16;
-    s32 temp_16_2;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_17_3;
-    s32 temp_17_4;
-    s32 temp_17_5;
-    s32 temp_17_6;
-    s32 temp_17_7;
-    s32 temp_17_8;
-    s32 temp_17_9;
-    s32 temp_18;
-    s32 temp_18_3;
-    f32 temp_f13_2;
-    s32 temp_18_5;
-    s32 temp_18_6;
-    s32 temp_18_7;
-    s32 temp_21;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 temp_3_4;
-    s32 var_17;
-    s32 var_18;
-    s32 temp_18_4;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 temp_20;
-    s64 temp_20_2;
+    f32 *fadeCursor;
+    f32 *exitCursor;
+    f32 value;
+    f32 remainingScale;
+    f32 drawX;
+    s32 column;
+    f32 progress;
+    f32 weatherProgress;
+    u8 *boundsCursor;
+    u8 *exitBoundsCursor;
+    s32 font;
+    s32 selectedFont;
+    s32 day;
+    s32 heldDay;
+    s32 sourceDay;
+    s32 unusedDay;
+    s32 initialDay;
+    s32 scrolledDay;
+    s32 targetDay;
+    s32 finalDay;
+    s32 displayDay;
+    s32 unusedValue;
+    s32 scrollX;
+    f32 iconX;
+    s32 nextWeather;
+    s32 firstFont;
+    s32 secondFont;
+    s32 opacity;
+    s32 introFrame;
+    s32 unusedFrame;
+    s32 frame;
+    s32 outroFrame;
+    s32 destinationDay;
+    s32 unusedIndex;
+    s32 offsetX;
+    s32 oldWeather;
+    s32 byteCount;
+    s32 boundsBytes;
+    s32 exitBytes;
+    s32 exitBoundsBytes;
+    s32 cellDay;
+    s64 unusedWideDay;
 
-    temp_2 = kwlnTaskGetWork(arg1);
-    temp_3 = *(s32 *)(temp_2 + 0);
-    switch (temp_3) {
+    work = kwlnTaskGetWork(task);
+    state = *(s32 *)(work + 0);
+    switch (state) {
     case 3:
-        temp_17 = *(s32 *)(temp_2 + 0x18);
-        temp_2_2 = *(s32 *)(temp_2 + 0x20);
-        if (temp_2_2 < 5) {
-            temp_f20 = sinf(fGpffff84a4 * ((f32)temp_2_2 / 5.0f));
-            temp_f0 = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
-            temp_f13 = 1.0f - temp_f20;
-            temp_f13_2 = 88.0f + temp_f0 * temp_f13;
-            shdSpriteDrawNowEx(temp_f13_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
+        day = ((CalendarDayChange *)work)->day;
+        introFrame = ((CalendarDayChange *)work)->frame;
+        if (introFrame < 5) {
+            progress = sinf(fGpffff84a4 * ((f32)introFrame / 5.0f));
+            value = (f32)shdSpriteEntryWidth(2, 0, ((CalendarDayChange *)work)->spritePack.pointer) / 2.0f;
+            drawX = 1.0f - progress;
+            iconX = 88.0f + value * drawX;
+            shdSpriteDrawNowEx(iconX, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, progress, 1.0f);
         } else {
-            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
-        temp_3_2 = *(s32 *)(temp_2 + 0x20);
-        if (temp_3_2 > 1) {
-            temp_f0 = 255.0f * ((f32)(temp_3_2 - 1) / 9.0f);
-            temp_21 = (s32)temp_f0;
-            calDrawDayStrip(0, 0, 0.0f, temp_21 & 0xFF, temp_17, 0,
-                          temp_2);
+        frame = *(s32 *)(work + 0x20);
+        if (frame > 1) {
+            value = 255.0f * ((f32)(frame - 1) / 9.0f);
+            opacity = (s32)value;
+            calDrawDayStrip(0, 0, 0.0f, opacity & 0xFF, day, 0,
+                          work);
         }
         break;
     case 4:
     case 9:
-        temp_17_2 = *(s32 *)(temp_2 + 0x18);
-        shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_2, 0, temp_2);
+        heldDay = ((CalendarDayChange *)work)->day;
+        shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        calDrawDayStrip(0, 0, 0.0f, 0xFF, heldDay, 0, work);
         break;
     case 6:
-        temp_17_5 = *(s32 *)(temp_2 + 0xC);
-        if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
-            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            calDrawDayStrip(-0x5E, 0, 0.0f, 0xFF, temp_17_5, 0, temp_2);
+        initialDay = ((CalendarDayChange *)work)->fromDay;
+        if (((CalendarDayChange *)work)->toDay - initialDay == 1) {
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            calDrawDayStrip(-0x5E, 0, 0.0f, 0xFF, initialDay, 0, work);
         } else {
-            temp_17_6 = *(s32 *)(temp_2 + 0x18);
-            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_17_6, 0, temp_2);
+            scrolledDay = ((CalendarDayChange *)work)->day;
+            scrollX = -((CalendarDayChange *)work)->scroll;
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            calDrawDayStrip(scrollX, 0, 0.0f, 0xFF, scrolledDay, 0, work);
         }
         break;
     case 8:
-        temp_3 = *(s32 *)(temp_2 + 0x18);
-        temp_3_3 = *(s32 *)(temp_2 + 0x20);
-        if (temp_3_3 < 0xA) {
-            temp_f0 = (f32)temp_3_3 / 10.0f;
-            temp_21 = (s32)(255.0f * (1.0f - temp_f0));
-            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            var_21 = 0;
-            while (var_21 < 7) {
-                temp_20 = temp_3 - 1 + var_21;
-                if ((temp_20 >= 0) && (var_21 != 1)) {
-                    calDrawDateCell(var_21 * 0x5E + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
-                    temp_17 = *(s32 *)(temp_2 + 4);
-                    calDrawWeather(var_21 * 0x5E, 0x127, 0.0f, temp_21, calGetPackedDayEntry((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+        state = ((CalendarDayChange *)work)->day;
+        outroFrame = ((CalendarDayChange *)work)->frame;
+        if (outroFrame < 0xA) {
+            value = (f32)outroFrame / 10.0f;
+            opacity = (s32)(255.0f * (1.0f - value));
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(work + 4), 1);
+            column = 0;
+            while (column < 7) {
+                cellDay = state - 1 + column;
+                if ((cellDay >= 0) && (column != 1)) {
+                    calDrawDateCell(column * 0x5E + 0xF, 0xF5, 0.0f, opacity, (s32)cellDay, 0, 1.0f, 1.0f, 0x58, 0x5A, ((CalendarDayChange *)work)->spritePack.word, 0);
+                    day = *(s32 *)(work + 4);
+                    calDrawWeather(column * 0x5E, 0x127, 0.0f, opacity, calGetPackedDayEntry((s32)cellDay, state) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, day, 0);
                 }
-                var_21 += 1;
+                column += 1;
             }
-            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-            temp_16_2 = *(s32 *)(temp_2 + 4);
-            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
-        } else if (temp_3_3 < 0x19) {
-            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            var_3 = &spE8;
-            var_2 = 4;
-            if (var_3 != NULL) {
+            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, state, 1, 1.0f, 1.0f, 0, 0x58, ((CalendarDayChange *)work)->spritePack.word, 0);
+            selectedFont = *(s32 *)(work + 4);
+            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(state, state) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
+        } else if (outroFrame < 0x19) {
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(work + 4), 1);
+            fadeCursor = &fadeScratch;
+            byteCount = 4;
+            if (fadeCursor != NULL) {
                 do {
-                    *(u8 *)var_3 = 0;
-                    var_3 = (f32 *)((u8 *)var_3 + 1);
-                    var_2 -= 1;
-                } while (var_2 != 0);
+                    *(u8 *)fadeCursor = 0;
+                    fadeCursor = (f32 *)((u8 *)fadeCursor + 1);
+                    byteCount -= 1;
+                } while (byteCount != 0);
             }
-            spEC = spE8;
-            var_3_2 = (u8 *)&rectC;
-            var_2_2 = 0x10;
-            if (var_3_2 != NULL) {
+            fadeColor = fadeScratch;
+            boundsCursor = (u8 *)&rectC;
+            boundsBytes = 0x10;
+            if (boundsCursor != NULL) {
                 do {
-                    *var_3_2 = 0;
-                    var_3_2 += 1;
-                    var_2_2 -= 1;
-                } while (var_2_2 != 0);
+                    *boundsCursor = 0;
+                    boundsCursor += 1;
+                    boundsBytes -= 1;
+                } while (boundsBytes != 0);
             }
             rectC.x = 0;
             rectC.y = 0;
             rectC.w = 0x280;
             rectC.h = 0x1E0;
-            spD0 = *(s128 *)&rectC;
+            fadeBounds = *(s128 *)&rectC;
             {
                 u32 table = (u32)D_00887300;
 
@@ -1346,42 +1361,42 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             RpSkyRenderStateSet(3, (void *)(0x31003));
             RpSkyRenderStateSet(2, (void *)(0x44));
             mdlEffectEmitMaskedTagPair();
-            PrimDrawFlatRectangle(&spEC, &spD0, 10.0f, 0);
+            PrimDrawFlatRectangle(&fadeColor, &fadeBounds, 10.0f, 0);
             mdlEffectEmitTagPair();
-            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-            temp_16_2 = *(s32 *)(temp_2 + 4);
-            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
-        } else if (temp_3_3 < 0x1E) {
-            temp_f20 = (f32)(temp_3_3 - 0x19) / 5.0f;
-            temp_f0_2 = 1.0f - temp_f20;
-            temp_17_9 = (s32)(255.0f * temp_f0_2);
-            temp_f0 = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
-            temp_f13 = 88.0f + temp_f0 * temp_f20;
-            shdSpriteDrawNowEx(temp_f13, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f0_2, 1.0f);
-            var_3_3 = &spE0;
-            var_2_3 = 4;
-            if (var_3_3 != NULL) {
+            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, state, 1, 1.0f, 1.0f, 0, 0x58, ((CalendarDayChange *)work)->spritePack.word, 0);
+            selectedFont = *(s32 *)(work + 4);
+            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(state, state) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
+        } else if (outroFrame < 0x1E) {
+            progress = (f32)(outroFrame - 0x19) / 5.0f;
+            remainingScale = 1.0f - progress;
+            displayDay = (s32)(255.0f * remainingScale);
+            value = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(work + 4)) / 2.0f;
+            drawX = 88.0f + value * progress;
+            shdSpriteDrawNowEx(drawX, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, remainingScale, 1.0f);
+            exitCursor = &exitScratch;
+            exitBytes = 4;
+            if (exitCursor != NULL) {
                 do {
-                    *(u8 *)var_3_3 = 0;
-                    var_3_3 = (f32 *)((u8 *)var_3_3 + 1);
-                    var_2_3 -= 1;
-                } while (var_2_3 != 0);
+                    *(u8 *)exitCursor = 0;
+                    exitCursor = (f32 *)((u8 *)exitCursor + 1);
+                    exitBytes -= 1;
+                } while (exitBytes != 0);
             }
-            spE4 = spE0;
-            var_3_4 = (u8 *)&rectA;
-            var_2_4 = 0x10;
-            if (var_3_4 != NULL) {
+            exitColor = exitScratch;
+            exitBoundsCursor = (u8 *)&rectA;
+            exitBoundsBytes = 0x10;
+            if (exitBoundsCursor != NULL) {
                 do {
-                    *var_3_4 = 0;
-                    var_3_4 += 1;
-                    var_2_4 -= 1;
-                } while (var_2_4 != 0);
+                    *exitBoundsCursor = 0;
+                    exitBoundsCursor += 1;
+                    exitBoundsBytes -= 1;
+                } while (exitBoundsBytes != 0);
             }
             rectA.x = 0;
             rectA.y = 0;
             rectA.w = 0x280;
             rectA.h = 0x1E0;
-            spB0 = *(s128 *)&rectA;
+            exitBounds = *(s128 *)&rectA;
             {
                 u32 table = (u32)D_00887300;
 
@@ -1396,75 +1411,75 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             RpSkyRenderStateSet(3, (void *)(0x31003));
             RpSkyRenderStateSet(2, (void *)(0x44));
             mdlEffectEmitMaskedTagPair();
-            PrimDrawFlatRectangle(&spE4, &spB0, 10.0f, 0);
+            PrimDrawFlatRectangle(&exitColor, &exitBounds, 10.0f, 0);
             mdlEffectEmitTagPair();
-            calDrawDateCell(0x6D, 0xF5, 0.0f, temp_17_9, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-            temp_16 = *(s32 *)(temp_2 + 4);
-            calDrawWeather(0x5E, 0x127, 0.0f, temp_17_9, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
+            calDrawDateCell(0x6D, 0xF5, 0.0f, displayDay, state, 1, 1.0f, 1.0f, 0, 0x58, ((CalendarDayChange *)work)->spritePack.word, 0);
+            font = *(s32 *)(work + 4);
+            calDrawWeather(0x5E, 0x127, 0.0f, displayDay, calGetPackedDayEntry(state, state) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, font, 0);
         }
         break;
     case 5:
-        temp_17_3 = *(s32 *)(temp_2 + 0xC);
-        temp_3_4 = *(s32 *)(temp_2 + 0x10);
-        if (temp_3_4 - temp_17_3 == 1) {
-            if (*(s32 *)(temp_2 + 0x18) == temp_3_4) {
-                var_18 = -0x5E;
+        sourceDay = ((CalendarDayChange *)work)->fromDay;
+        destinationDay = ((CalendarDayChange *)work)->toDay;
+        if (destinationDay - sourceDay == 1) {
+            if (((CalendarDayChange *)work)->day == destinationDay) {
+                offsetX = -0x5E;
             } else {
-                var_18 = -*(s32 *)(temp_2 + 0x1C);
+                offsetX = -((CalendarDayChange *)work)->scroll;
             }
-            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            calDrawDayStrip(var_18, 0, 0.0f, 0xFF, temp_17_3, 0, temp_2);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1);
+            calDrawDayStrip(offsetX, 0, 0.0f, 0xFF, sourceDay, 0, work);
         } else {
-            temp_16_2 = *(s32 *)(temp_2 + 0x18);
-            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
+            selectedFont = ((CalendarDayChange *)work)->day;
+            scrollX = -((CalendarDayChange *)work)->scroll;
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1);
+            calDrawDayStrip(scrollX, 0, 0.0f, 0xFF, selectedFont, 1, work);
         }
         break;
     case 7:
-        temp_17_7 = *(s32 *)(temp_2 + 0x10);
-        if (temp_17_7 - *(s32 *)(temp_2 + 0xC) == 1) {
-            temp_18_4 = calGetPackedDayEntry(temp_17_7 + 3, temp_17_7) & 0xFFFF;
-            temp_18_5 = calGetPackedDayEntry(temp_17_7 + 3, temp_17_7 + 1) & 0xFFFF;
-            if (temp_18_4 == temp_18_5) {
-                temp_17_8 = *(s32 *)(temp_2 + 0x18);
-                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-                calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_8, 0, temp_2);
+        targetDay = ((CalendarDayChange *)work)->toDay;
+        if (targetDay - ((CalendarDayChange *)work)->fromDay == 1) {
+            oldWeather = calGetPackedDayEntry(targetDay + 3, targetDay) & 0xFFFF;
+            nextWeather = calGetPackedDayEntry(targetDay + 3, targetDay + 1) & 0xFFFF;
+            if (oldWeather == nextWeather) {
+                finalDay = ((CalendarDayChange *)work)->day;
+                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1);
+                calDrawDayStrip(0, 0, 0.0f, 0xFF, finalDay, 0, work);
             } else {
-                temp_17_9 = *(s32 *)(temp_2 + 0xC);
-                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-                temp_17_3 = 0;
-                while (temp_17_3 < 7) {
-                    if ((temp_17_3 != 1) && (temp_17_3 != 4)) {
-                        temp_20 = temp_17_9 + temp_17_3;
-                        var_2 = temp_17_3 * 0x5E;
-                        calDrawDateCell(var_2 + 0xF, 0xF5, 0.0f, 0xFF, temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
-                        temp_17 = *(s32 *)(temp_2 + 4);
-                        calDrawWeather(var_2, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_20, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                displayDay = *(s32 *)(work + 0xC);
+                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(work + 4), 1);
+                sourceDay = 0;
+                while (sourceDay < 7) {
+                    if ((sourceDay != 1) && (sourceDay != 4)) {
+                        cellDay = displayDay + sourceDay;
+                        byteCount = sourceDay * 0x5E;
+                        calDrawDateCell(byteCount + 0xF, 0xF5, 0.0f, 0xFF, cellDay, 0, 1.0f, 1.0f, 0x58, 0x5A, ((CalendarDayChange *)work)->spritePack.word, 0);
+                        day = *(s32 *)(work + 4);
+                        calDrawWeather(byteCount, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(cellDay, displayDay) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, day, 0);
                     }
-                    temp_17_3 += 1;
+                    sourceDay += 1;
                 }
-                calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_17_9 + 1, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-                temp_16 = *(s32 *)(temp_2 + 4);
-                calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_17_9 + 1, temp_17_9) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
-                temp_3_2 = *(s32 *)(temp_2 + 0x20);
-                if (temp_3_2 < 5) {
-                    temp_f21 = (f32)temp_3_2 / 5.0f;
-                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-                    temp_18_6 = *(s32 *)(temp_2 + 4);
-                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_17_9 + 4, temp_17_9) & 0xFFFF, 0, 1.0f - temp_f21, 1.0f, 0, 0x58, temp_18_6, 0);
+                calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, displayDay + 1, 1, 1.0f, 1.0f, 0, 0x58, ((CalendarDayChange *)work)->spritePack.word, 0);
+                font = *(s32 *)(work + 4);
+                calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(displayDay + 1, displayDay) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, font, 0);
+                frame = ((CalendarDayChange *)work)->frame;
+                if (frame < 5) {
+                    weatherProgress = (f32)frame / 5.0f;
+                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, displayDay + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
+                    firstFont = *(s32 *)(work + 4);
+                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(displayDay + 4, displayDay) & 0xFFFF, 0, 1.0f - weatherProgress, 1.0f, 0, 0x58, firstFont, 0);
                 } else {
-                    temp_f21 = ((f32)temp_3_2 - 5.0f) / 5.0f;
-                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
-                    temp_18_7 = *(s32 *)(temp_2 + 4);
-                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_7, 0);
+                    weatherProgress = ((f32)frame - 5.0f) / 5.0f;
+                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, displayDay + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
+                    secondFont = *(s32 *)(work + 4);
+                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(displayDay + 4, displayDay + 1) & 0xFFFF, 0, weatherProgress, 1.0f, 0, 0x58, secondFont, 0);
                 }
             }
         } else {
-            temp_16_2 = *(s32 *)(temp_2 + 0x18);
-            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
+            selectedFont = ((CalendarDayChange *)work)->day;
+            scrollX = -((CalendarDayChange *)work)->scroll;
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, ((CalendarDayChange *)work)->spritePack.pointer, 1);
+            calDrawDayStrip(scrollX, 0, 0.0f, 0xFF, selectedFont, 1, work);
         }
         break;
     case 0:
@@ -1482,14 +1497,14 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
 #pragma optimization_level 2
 // Intent: Queues a day-strip draw task with the strip callback and its state argument [inferred]
 // FUN_00264CB0
-void calQueueDayStripDraw(s32 arg0, s32 arg1)
+void calQueueDayStripDraw(s32 task, s32 queue)
 {
-    u8 *temp_2;
+    u8 *node;
 
-    temp_2 = PrimAllocQueueNode();
-    *(void (**)(s32, u8 *))(temp_2 + 8) = calDrawDayStripCallback;
-    *(s32 *)(temp_2 + 0x10) = arg0;
-    PrimAppendNode((u8 *)arg1, temp_2);
+    node = PrimAllocQueueNode();
+    ((PrimQueueNode *)node)->callback = (void *)calDrawDayStripCallback;
+    ((PrimQueueNode *)node)->argument.handle = task;
+    PrimAppendNode((u8 *)queue, node);
 }
 #pragma pop
 
@@ -1500,17 +1515,18 @@ void calQueueDayStripDraw(s32 arg0, s32 arg1)
 // FUN_00264D10
 void cldDayChangeStopTask(u8 *unusedTask)
 {
-    s32 temp_4;
-    u8 *temp_2;
+    /* measured: remaining CalendarDayChange byte accesses preserve b210 load/address scheduling; individual field substitutions lose MATCH. */
+    s32 spritePack;
+    u8 *work;
 
-    temp_2 = kwlnTaskGetWork();
-    if (kwlnTaskIsLinked((u8 *)*(s32 *)(temp_2 + 0x14)) != 0) {
-        kwlnTaskDestroyWithHierarchy(*(s32 *)(temp_2 + 0x14));
+    work = kwlnTaskGetWork();
+    if (kwlnTaskIsLinked((u8 *)((CalendarDayChange *)work)->childTask) != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(work + 0x14));
     }
-    temp_4 = *(s32 *)(temp_2 + 4);
-    if (temp_4 != 0) {
-        sdkSpritePackDestroy((void *)temp_4);
+    spritePack = ((CalendarDayChange *)work)->spritePack.word;
+    if (spritePack != 0) {
+        sdkSpritePackDestroy((void *)spritePack);
     }
-    (*jtbl_008873EC)(temp_2);
+    (*jtbl_008873EC)(work);
 }
 #pragma pop

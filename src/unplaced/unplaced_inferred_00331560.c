@@ -11,12 +11,18 @@
 #include "scr_internal.h"
 #include "shd_misc_internal.h"
 #include "fcl_combine_internal.h"
-extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+/* Only the returned message handle is established by this accessor. */
+typedef struct FclMessageWindow {
+    u8 pad00[0x110];
+    s32 handle;
+} FclMessageWindow;
+
+extern void kwlnSetColorRgba(u8 , u8 , u8 , u8 );
 extern s8 iGpffffb59c;
-extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
+extern u8 *kwlnTaskGetTaskByName(s8 *);
 extern s32 mtSceneResListPrepareAll(void);
-extern void sequenceRequest(s32 arg0, void *arg1, s32 arg2, s32 arg3);
-extern void calendarSetMode(s32 arg0);
+extern void sequenceRequest(s32 , void *, s32 , s32 );
+extern void calendarSetMode(s32 );
 extern u8 D_00644E80[];
 extern u8 D_00644E98[];
 extern u8 D_00644EB0[];
@@ -71,11 +77,12 @@ s8 fclCombineGetRowCount(void)
 // FUN_00331660
 s32 fclCombineGetMesWindow(void)
 {
-    return *(s32 *)(fclCombineWork()->mesWindow + 0x110);
+    return ((FclMessageWindow *)fclCombineWork()->mesWindow)->handle;
 }
 
+/* Prepare scene resources, run system screen 0x16, then restore the calendar. */
 // FUN_00331680
-s32 func_00331680(void)
+s32 fclCombineRunSystemScreen(void)
 {
     switch (iGpffffb59c) {
     case 0:
@@ -106,6 +113,7 @@ s32 func_00331680(void)
     return 0;
 }
 
+/* Run the shop system screen after resource preparation and restore the calendar when its task ends. */
 // FUN_00331770
 s32 fclShopRunSystemScreen(void)
 {
@@ -138,6 +146,7 @@ s32 fclShopRunSystemScreen(void)
     return 0;
 }
 
+/* Run the title system screen after resource preparation and restore the calendar when its task ends. */
 // FUN_00331860
 s32 fclCombineRunTitleScreen(void)
 {

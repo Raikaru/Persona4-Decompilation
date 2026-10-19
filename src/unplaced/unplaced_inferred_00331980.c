@@ -8,25 +8,39 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
 #include "scr_internal.h"
 #include "shd_misc_internal.h"
 #include "fcl_combine_internal.h"
+typedef struct WeaponShopTalkWork { s8 state, slot; } WeaponShopTalkWork;
+typedef struct WeaponShopGift {
+    s16 message, item;
+    s32 setFlag, clearFlag, requiredFlag;
+} WeaponShopGift;
+typedef struct WeaponShopTalk {
+    s16 message;
+    u8 pad02[2];
+    s32 requiredFlag;
+    u8 startMonth, startDay, endMonth, endDay;
+    s32 seenFlag;
+} WeaponShopTalk;
+
 extern void (*jtbl_008873EC[])(void *);
 extern u16 D_008C024E[];
-extern s32 datGetFlag(s32 arg0);
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
+extern s32 datGetFlag(s32 );
+extern void datSetFlag(s32 , s32 );
+extern u8 *kwlnTaskGetTaskByName(s8 *);
 extern u8 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
-extern s32 fclCalendarMonthOrder(u8 arg0);
-extern u16 cmmCommunityRecordValue(s32 arg0);
-extern s8 nmMesWindowAcquire(void *arg0);
-extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
-extern s32 datItemCount(s16 arg0);
-extern s32 nmMesWindowSlotStatus(s8 arg0);
-extern void nmMesWindowStepSlotRelease(s32 arg0);
-extern void nmMesWindowDestroySlot(s8 arg0);
-extern void wshopMaterialTalkCreate(u8 *arg0);
+extern s32 fclCalendarMonthOrder(u8 );
+extern u16 cmmCommunityRecordValue(s32 );
+extern s8 nmMesWindowAcquire(void *);
+extern s32 nmMesWindowShowSlotRecord(s8 , s32 );
+extern s32 datItemCount(s16 );
+extern s32 nmMesWindowSlotStatus(s8 );
+extern void nmMesWindowStepSlotRelease(s32 );
+extern void nmMesWindowDestroySlot(s8 );
+extern void wshopMaterialTalkCreate(u8 *);
 extern u8 D_00644ED0[];
 extern u8 D_00645090[];
 extern u8 D_00645240[];
@@ -37,6 +51,7 @@ s32 fclScriptFlagIsSet(void)
     return datGetFlag(scrGetParamInt(0)) != 0;
 }
 
+/* Set the script-selected flag only while the confirmation button bit is set. */
 // FUN_003319C0
 s32 fclScriptSetFlagOnButton(void) {
     s32 r;
@@ -52,79 +67,81 @@ s32 fclScriptSetFlagOnButton(void) {
 
 #pragma push
 #pragma opt_loop_invariants on
+/* Choose shop dialogue from first-visit, community-gift and date-gated records, then wait for the message or material-talk task. */
 // FUN_00331A20
-s32 weaponShopTalkUpdate(u8 *arg0)
+s32 weaponShopTalkUpdate(u8 *task)
 {
+    /* measured: remaining talk/task fields preserve b210 reload and state-update ordering; individual typed substitutions lose MATCH. */
     s8 *work;
     s8 i;
     s8 j;
-    s16 level_value;
-    s16 min;
-    s16 max;
+    s16 dateCode;
+    s16 startDate;
+    s16 endDate;
     u8 *entry;
-    u8 *e;
+    u8 *gift;
 
-    work = *(s8 **)(arg0 + 0x38);
-    level_value = (s16)(100 * (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF) + (fclCalendarDay() & 0xFF));
-    switch (*work) {
+    work = (s8 *)((struct KwlnTask *)task)->work;
+    dateCode = (s16)(100 * (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF) + (fclCalendarDay() & 0xFF));
+    switch (((WeaponShopTalkWork *)work)->state) {
     case 0:
         if (datGetFlag(0x1C0) == 0) {
-            work[1] = nmMesWindowAcquire(D_00645240);
+            ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
             nmMesWindowShowSlotRecord(work[1], 0);
-            (*work)++;
+            (((WeaponShopTalkWork *)work)->state)++;
             datSetFlag(0x1C0, 1);
             return 0;
         }
         if ((cmmCommunityRecordValue(0x13) & 0xFFFF) == 6 || (cmmCommunityRecordValue(0x13) & 0xFFFF) == 7) {
-            e = D_00645090 + ((cmmCommunityRecordValue(0x13) & 0xFFFF) - 6) * 0x10;
-            if (datGetFlag(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
-                work[1] = nmMesWindowAcquire(D_00645240);
-                nmMesWindowShowSlotRecord(work[1], *(s16 *)e);
-                datItemSetCount(*(s16 *)(e + 2), ((datItemCount(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
-                datSetFlag(*(s32 *)(e + 4), 1);
-                datSetFlag(*(s32 *)(e + 8), 0);
-                (*work)++;
+            gift = D_00645090 + ((cmmCommunityRecordValue(0x13) & 0xFFFF) - 6) * 0x10;
+            if (datGetFlag(*(s32 *)(gift + 12)) != 0 || *(s32 *)(gift + 12) == 0) {
+                ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
+                nmMesWindowShowSlotRecord(work[1], *(s16 *)gift);
+                datItemSetCount(*(s16 *)(gift + 2), ((datItemCount(*(s16 *)(gift + 2)) & 0xFF) + 1) & 0xFF);
+                datSetFlag(((WeaponShopGift *)gift)->setFlag, 1);
+                datSetFlag(((WeaponShopGift *)gift)->clearFlag, 0);
+                (((WeaponShopTalkWork *)work)->state)++;
                 return 0;
             }
         }
         i = 0;
         do {
             entry = D_00644ED0 + (i * 0x10);
-            min = (s16)(entry[9] + 100 * (fclCalendarMonthOrder(entry[8]) & 0xFF));
-            max = (s16)(entry[11] + 100 * (fclCalendarMonthOrder(entry[10]) & 0xFF));
+            startDate = (s16)(((WeaponShopTalk *)entry)->startDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->startMonth) & 0xFF));
+            endDate = (s16)(((WeaponShopTalk *)entry)->endDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->endMonth) & 0xFF));
             if (*(s16 *)entry != -1 && datGetFlag(*(s32 *)(entry + 12)) == 0 &&
-                (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) && !(min > level_value) &&
-                !(max < level_value)) {
-                work[1] = nmMesWindowAcquire(D_00645240);
+                (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) && !(startDate > dateCode) &&
+                !(endDate < dateCode)) {
+                ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
                 nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);
-                datSetFlag(*(s32 *)(entry + 12), 1);
-                (*work)++;
+                datSetFlag(((WeaponShopTalk *)entry)->seenFlag, 1);
+                (((WeaponShopTalkWork *)work)->state)++;
                 return 0;
             }
             i++;
         } while (*(s16 *)entry != -1);
         if (datGetFlag(0x1324) != 0) {
-            *work = 2;
-            wshopMaterialTalkCreate(arg0);
+            ((WeaponShopTalkWork *)work)->state = 2;
+            wshopMaterialTalkCreate(task);
             return 0;
         }
         j = 0;
         do {
             entry = D_00644ED0 + (j * 0x10);
-            min = (s16)(entry[9] + 100 * (fclCalendarMonthOrder(entry[8]) & 0xFF));
-            max = (s16)(entry[11] + 100 * (fclCalendarMonthOrder(entry[10]) & 0xFF));
+            startDate = (s16)(((WeaponShopTalk *)entry)->startDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->startMonth) & 0xFF));
+            endDate = (s16)(((WeaponShopTalk *)entry)->endDay + 100 * (fclCalendarMonthOrder(((WeaponShopTalk *)entry)->endMonth) & 0xFF));
             if (*(s16 *)entry != -1 && (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) &&
-                !(min > level_value) && !(max < level_value)) {
-                work[1] = nmMesWindowAcquire(D_00645240);
+                !(startDate > dateCode) && !(endDate < dateCode)) {
+                ((WeaponShopTalkWork *)work)->slot = nmMesWindowAcquire(D_00645240);
                 nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);
-                (*work)++;
+                (((WeaponShopTalkWork *)work)->state)++;
                 return 0;
             }
             j++;
         } while (*(s16 *)entry != -1);
         return -1;
     case 1:
-        if (nmMesWindowSlotStatus(work[1]) != 0) {
+        if (nmMesWindowSlotStatus(((WeaponShopTalkWork *)work)->slot) != 0) {
             nmMesWindowStepSlotRelease(work[1]);
             break;
         }
@@ -141,7 +158,7 @@ s32 weaponShopTalkUpdate(u8 *arg0)
 #pragma pop
 
 // FUN_00331F90
-void weaponShopTalkDestroy(u8 *arg0)
+void weaponShopTalkDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }

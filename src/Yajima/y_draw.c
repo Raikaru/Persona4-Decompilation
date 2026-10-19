@@ -195,8 +195,8 @@ typedef char FclSpriteRecordSize[sizeof(FclSpriteRecord) == 0x100 ? 1 : -1];
 typedef char FclSpriteChildSize[sizeof(FclSpriteChild) == 0x190 ? 1 : -1];
 typedef char FclSpritePanelSize[sizeof(FclSpritePanel) == 0x130 ? 1 : -1];
 typedef char FclSpriteListEntrySize[sizeof(FclSpriteListEntry) == 0x220 ? 1 : -1];
-extern s32 func_002b52a0(u8 *task);
-extern void func_002b5c60(u8 *task);
+extern s32 fclFadeRectTaskUpdate(u8 *task);
+extern void fclFadeRectTaskDestroy(u8 *task);
 #include "include_asm.h"
 extern u8 *iGpffffb574;
 
@@ -292,7 +292,7 @@ s32 fclSpriteSpawnChild(s32 parent, f2 position) {
     s32 cornerIndex;
     chkmemAllocSiteTag(&D_0063F178, 0xD4);
     work = D_008873F4[0](1, 0x190, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(work));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(parent)), (const void *)(D_0063F188), 0xF, 0, 0, fclFadeRectTaskUpdate, fclFadeRectTaskDestroy, (u8 *)(work));
     ((FclSpriteChild *)(work))->position = position;
     ((FclSpriteChild *)(work))->elapsed = 0;
     ((FclSpriteChild *)(work))->mode = 0;

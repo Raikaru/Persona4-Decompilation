@@ -7,19 +7,27 @@
 #include "scene_event_internal.h"
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
+#include "scene_resource_internal.h"
+/* Tail table populated by evtLoadEventTables: count then an array of owned blocks. */
+typedef struct EvtHandleTable {
+    s32 count;
+    union { s32 address; s32 *words; u8 **blocks; u8 *bytes; } entries;
+} EvtHandleTable;
+typedef struct EvtResourceKey { s16 packed; u8 pad02[3]; s8 kind; } EvtResourceKey;
+
 extern u32 kwlnTaskGetWork(void *task);
-extern void MT_Scene_SetExclusiveRes(s32 arg0);
+extern void MT_Scene_SetExclusiveRes(s32 );
 extern s32 evtEnsureEventTask(void); /* lint: allow H011 -- caller stores the returned value; the definition is void */
-extern s32 evtGetEventTaskWork(u8 *arg0);
-extern void evtLoadEventTables(u8 *arg0);
+extern s32 evtGetEventTaskWork(u8 *);
+extern void evtLoadEventTables(u8 *);
 typedef signed __int128 s128;
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void evtMemAccount(s32 arg0, s32 arg1);
+extern u8 *MT_Scene_GetResListHead(s32 );
+extern void evtMemAccount(s32 , s32 );
 #pragma push
 #pragma opt_loop_invariants off
 // Event task-handle check: nonzero when the current event's +0x768 task handle is set.
@@ -30,7 +38,7 @@ s32 evtHasTaskHandle(void) {
     if (h == 0) {
         return 0;
     }
-    return *(s32 *)((u8 *)evtGetEventTaskWork((u8 *)kwlnTaskGetWork((void *)h)) + 0x768) != 0;
+    return (s32)((EvtEventWork *)evtGetEventTaskWork((u8 *)kwlnTaskGetWork((void *)h)))->noiseTask != 0;
 }
 #pragma pop
 
@@ -40,35 +48,36 @@ s32 evtHasTaskHandle(void) {
 // FUN_0028B6B0
 /* measured: the table local at the loop-body head reproduces retail's
    sll-before-lw body order; nd 0, object 244B / window 256B. */
-void evtClearHandles(u8 *arg0)
+void evtClearHandles(u8 *work)
 {
+    /* measured: remaining table/key byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
     s32 count;
     s32 i;
     s32 *table;
     s32 tail;
 
-    if (*(s32 *)(arg0 + 0x7A4) == 0) {
-        *(s32 *)(arg0 + 0x7A0) = 0;
+    if (((EvtHandleTable *)(work + 0x7A0))->entries.address == 0) {
+        ((EvtHandleTable *)(work + 0x7A0))->count = 0;
         return;
     }
-    count = *(s32 *)(arg0 + 0x7A0);
+    count = ((EvtHandleTable *)(work + 0x7A0))->count;
     i = 0;
     while (i < count) {
-        table = *(s32 **)(arg0 + 0x7A4);
+        table = *(s32 **)(work + 0x7A4);
         if (table[i] != 0) {
             if (table[i] != 0) {
                 jtbl_008873EC[0]((void *)table[i]);
                 evtMemAccount(0xC, 0);
-                *(s32 *)(*(s32 *)(arg0 + 0x7A4) + i * 4) = 0;
+                *(s32 *)(*(s32 *)(work + 0x7A4) + i * 4) = 0;
             }
         }
         i++;
     }
-    tail = *(s32 *)(arg0 + 0x7A0) * 4;
-    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x7A4));
+    tail = ((EvtHandleTable *)(work + 0x7A0))->count * 4;
+    jtbl_008873EC[0]((void *)*(s32 *)(work + 0x7A4));
     evtMemAccount(0xC, -tail);
-    *(s32 *)(arg0 + 0x7A4) = 0;
-    *(s32 *)(arg0 + 0x7A0) = 0;
+    *(s32 *)(work + 0x7A4) = 0;
+    ((EvtHandleTable *)(work + 0x7A0))->count = 0;
 }
 #pragma pop
 
@@ -76,7 +85,8 @@ void evtClearHandles(u8 *arg0)
 #pragma opt_loop_invariants off
 // Loads the event's tables: allocates the working area, copies the table entries and records their memory [inferred].
 // FUN_0028B7B0
-void evtLoadEventTables(u8 *arg0) {
+void evtLoadEventTables(u8 *work) {
+    /* measured: remaining table/key byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
     u8 *count_node;
     u8 *copy;
     u8 *array;
@@ -104,7 +114,7 @@ void evtLoadEventTables(u8 *arg0) {
 
     count = 0;
     index = 0;
-    evtClearHandles(arg0);
+    evtClearHandles(work);
     for (i = 1; i < 0x16; i++) {
         count_node = MT_Scene_GetResListHead(i);
         if (count_node != NULL) {
@@ -139,19 +149,19 @@ func_0028b7b0_count_valid_done:
             if (valid != 0) {
                 while (count_node != NULL) {
                     count++;
-                    count_node = *(u8 **)(count_node + 0x138);
+                    count_node = (u8 *)((SceneUpdateResource *)count_node)->next;
                 }
             }
         }
     }
     if (count != 0) {
-        *(s32 *)(arg0 + 0x7A0) = count;
+        ((EvtHandleTable *)(work + 0x7A0))->count = count;
         chkmemAllocSiteTag(D_00748340, 0x52);
         size = count * 4;
         allocator = (u32)D_008873F4;
         array = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, size, 0x40000);
         evtMemAccount(12, size);
-        *(u8 **)(arg0 + 0x7A4) = array;
+        ((EvtHandleTable *)(work + 0x7A0))->entries.bytes = array;
         for (i = 1; i < 0x16; i++) {
             array = MT_Scene_GetResListHead(i);
             if (array != NULL) {
@@ -336,8 +346,8 @@ func_0028b7b0_copy_valid_done:
                             } while (n_one > 0);
                             break;
                         }
-                        *(u8 **)(*(u8 **)(arg0 + 0x7A4) + index * 4) = copy;
-                        array = *(u8 **)(array + 0x138);
+                        *(u8 **)(*(u8 **)(work + 0x7A4) + index * 4) = copy;
+                        array = (u8 *)((SceneUpdateResource *)array)->next;
                         index++;
                     }
                 }
@@ -350,11 +360,12 @@ func_0028b7b0_copy_valid_done:
 #pragma push
 #pragma opt_loop_invariants off
 // Sets the exclusive resource for kind 0 or 1 and stores the kind on the event [inferred].
+/* The scene block's surrounding layout is not established; keep its isolated kind word at +0x524 raw. */
 // FUN_0028BE70
-void evtSetKindExclusiveRes(u8 *arg0, s32 arg1)
+void evtSetKindExclusiveRes(u8 *work, s32 kind)
 {
-    if (arg1 < 2) {
-        switch (arg1) {
+    if (kind < 2) {
+        switch (kind) {
         case 0:
             MT_Scene_SetExclusiveRes(0x1E58);
             break;
@@ -364,33 +375,34 @@ void evtSetKindExclusiveRes(u8 *arg0, s32 arg1)
         default:
             break;
         }
-        *(s32 *)(arg0 + 0x524) = arg1;
+        *(s32 *)(work + 0x524) = kind;
     }
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
-// Decodes a node's key: low 12 bits of the node word become arg2, bits 12 to 15 become arg3, and the table entry for the node type is returned [inferred].
+// Decodes a node's key: low 12 bits of the node word become , bits 12 to 15 become , and the table entry for the node type is returned [inferred].
 // FUN_0028BEF0
-s32 evtDecodeNodeKey(s32 arg0, u8 *arg1, s32 *arg2, s32 *arg3) {
-    s32 temp_3_2;
-    s8 temp_3;
+s32 evtDecodeNodeKey(s32 workAddress, u8 *key, s32 *resourceId, s32 *variant) {
+    /* measured: remaining table/key byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    s32 baseKey;
+    s8 kind;
 
-    *arg2 = (s32)((s16)*(s16 *)(arg1 + 0x10) & 0xFFF);
-    *arg3 = (((s16)*(s16 *)(arg1 + 0x10) >> 0xC) & 0xF);
-    temp_3 = *(s8 *)(arg1 + 0x15);
-    switch (temp_3) {
+    *resourceId = (s32)((s16)((EvtResourceKey *)(key + 0x10))->packed & 0xFFF);
+    *variant = (((s16)((EvtResourceKey *)(key + 0x10))->packed >> 0xC) & 0xF);
+    kind = ((EvtResourceKey *)(key + 0x10))->kind;
+    switch (kind) {
     case 1:
     case 2:
     case 3:
     case 4:
     case 5:
-        temp_3_2 = *(s32 *)((u8 *)(temp_3 * 4) + arg0 + 0x694);
-        if (temp_3_2 == -1) {
+        baseKey = *(s32 *)((u8 *)(kind * 4) + workAddress + 0x694);
+        if (baseKey == -1) {
             return 0;
         }
-        *arg2 += temp_3_2;
+        *resourceId += baseKey;
         goto block_6;
     case 6:
         return 0;
