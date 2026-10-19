@@ -63,7 +63,7 @@ extern u16 D_008C024E[];
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
 extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern void btlCameraCopyPose(f32 *arg0, f32 *arg1);
-extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 arg3);
+extern void mdlBlendTranslationRotation(f32 *arg0, f32 *arg1, f32 *arg2, f32 arg3);
 extern u32 btlMainCurveAppendKeyframe(u16 *arg0, f32 *arg1, f32 *arg2);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
@@ -101,7 +101,7 @@ void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bc980-001bd530 */
 
 extern s32 btlActionGetQueueSecond(void);
-extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 fparg0);
+extern void mdlBlendTranslationRotation(f32 *arg0, f32 *arg1, f32 *arg2, f32 fparg0);
 static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
 {
     return *(u8 **)(action + index * 4 + 0x38);
@@ -166,9 +166,9 @@ s32 btlCameraPlayPoseSequence(u8 *arg0)
     *(s32 *)(temp_3 + 0xA4) = 0;
     *(s32 *)(temp_3 + 0xA0) = 0;
     btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v50, frame.v5C);
-    func_001ba790(frame.v30, frame.v50, frame.v6C, fGpffff82f8);
+    mdlBlendTranslationRotation(frame.v30, frame.v50, frame.v6C, fGpffff82f8);
     btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v30, frame.v30 + 3);
-    func_001ba790(frame.v30, frame.v50, frame.v6C, fGpffff80c8);
+    mdlBlendTranslationRotation(frame.v30, frame.v50, frame.v6C, fGpffff80c8);
     btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v30, frame.v30 + 3);
     btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v6C, frame.v78);
     temp_3_2 = D_0076449C;

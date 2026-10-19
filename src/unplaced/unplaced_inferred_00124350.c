@@ -13,7 +13,7 @@ typedef signed __int128 s128;
 extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern s32 mdlCopyIndexedMatrix(void *, s32 , void *);
 extern void mdlApplyModelMatrix(void *, void *, s32 );
-extern void func_002ab550(void *, void *);
+extern void titleVisualDrawTintedModel(void *, void *);
 extern void mdlAdvanceModelFromFlags(void *);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
@@ -312,7 +312,7 @@ void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *conte
             } else {
                 *(s32 *)(attachedModel + 0xD8) &= ~0x40000;
             }
-            func_002ab550(attachedModel, color);
+            titleVisualDrawTintedModel(attachedModel, color);
             if (!(flags & 0x10000)) {
                 mdlAdvanceModelFromFlags(attachedModel);
             }
@@ -452,7 +452,7 @@ void titleTransformSlotModel(s32 modelIndex,
             mdlAdvanceModelFromFlags(model);
         }
         taskPrepareSlotModel(modelIndex, highlightColor, flags | 2, context);
-        func_002ab550(model, color);
+        titleVisualDrawTintedModel(model, color);
         taskPrepareSlotModel(modelIndex, highlightColor, flags | 1, context);
     }
 }
@@ -475,8 +475,8 @@ static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
 
 static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
 {
-    extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
-    func_002aaf20(x, y, depth, color, width, height, flags, parent);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
+    titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
 }
 
 static inline f32 titleBlend(f32 delta, f32 blend, f32 value)
@@ -523,7 +523,7 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 // FUN_00124F70
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
-    extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
     extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha,
         s32 spriteIndex, s32 frame, u8 *sprites, s32 flags);
     extern void titleSkyApplyBasePreset(void);
@@ -670,7 +670,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     titleSkyApplyBasePreset();
     RpSkyRenderStateSet(3, (void *)0x53001);
     RpSkyRenderStateSet(2, (void *)0x58);
-    func_002aaf20(0.0f, 0.0f, 0.0f, (u8 *)color.bytes, 640.0f, 448.0f, 0x300, NULL);
+    titleVisualSubmitRect(0.0f, 0.0f, 0.0f, (u8 *)color.bytes, 640.0f, 448.0f, 0x300, NULL);
     /* Retail ORs the full brightness word into the selected color. */
     opacityPalette = D_005E5530;
     titlePaletteCopy(&opacityRed, &opacityPalette);
@@ -692,7 +692,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         color.bytes[3] = (u8)((u32)brightness | (w3 & 0xFFFFFF00));
     }
     titleSkyApplyBasePreset();
-    func_002aaf20(0.0f, 0.0f, 1.0f, (u8 *)color.bytes, 640.0f, 448.0f, 1, NULL);
+    titleVisualSubmitRect(0.0f, 0.0f, 1.0f, (u8 *)color.bytes, 640.0f, 448.0f, 1, NULL);
 }
 #pragma pop
 

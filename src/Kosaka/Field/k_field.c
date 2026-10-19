@@ -136,7 +136,7 @@ extern s32 FldSupporterTaskCreate(u8 *);
 extern s32 FldEvent_SpawnTrigger(u8 *);
 extern void FldSlotBroadcastState(s32);
 extern s32 evtMainIsFlagSet(void);
-extern void func_001029a0(s32, void *, s32, s32);
+extern void sequenceRequest(s32, void *, s32, s32);
 
 #pragma opt_propagation off
 /* Advance field loading, scripts and task creation, then wait for an exit or event completion. */
@@ -337,7 +337,7 @@ s32 FldRootUpdate(u8 *task)
         break;
     case 17:
         if (fadeStatus() != 0) {
-            func_001029a0(9, work->transition, 0x1C, 0);
+            sequenceRequest(9, work->transition, 0x1C, 0);
             work->state++;
         }
         break;

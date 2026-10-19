@@ -1,6 +1,57 @@
 /* Original translation unit pscRes.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+/* Slot strides and fields are shared by allocation, retain/release and polling. */
+typedef struct PscArcanaCard
+{
+    u32 flags;
+    s32 group;
+    s32 index;
+    s32 raster;
+    s32 references;
+} PscArcanaCard;
+
+typedef struct PscPersonaCard
+{
+    u32 flags;
+    u16 id;
+    u8 pad06[2];
+    s32 raster;
+    s32 references;
+} PscPersonaCard;
+
+typedef struct PscCardRequest
+{
+    u32 flags;
+    s32 state;
+    s32 file;
+    u8 unk0C[0x104];
+    s32 kind;
+    s32 slotIndex;
+    u8 pad118[0xC];
+} PscCardRequest;
+
+typedef struct PscResourceContext
+{
+    u32 flags;
+    s32 baseRaster;
+    s32 miscW00Raster;
+    s32 miscW01Raster;
+    u32 readyFlags;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    u8 pad20[4];
+    s32 textures[7];
+    s32 subTextures[2];
+    s32 unk48;
+    s32 miscW00References;
+    s32 miscW01References;
+    PscArcanaCard arcana[16];
+    PscPersonaCard personas[16];
+    PscCardRequest requests[32];
+} PscResourceContext;
+
 extern void kAssertFail(const void *file, u32 line);
 extern void func_003ec330(s32 arg0);
 extern u32 *pscResFindPersonaCard(s32 arg0);
@@ -41,38 +92,40 @@ extern void H_Cdvd_Destroy(void *arg0);
 
 // Intent: Initialises the social card resource context: clears slot flags, refcounts and handles, and publishes it as the singleton [inferred]
 // FUN_0036B650
-void pscResInit(void *arg0) {
+void pscResInit(void *context) {
     s32 i;
     void *p;
 
     if (D_0072469C != 0) {
         kAssertFail(D_0064E4E0, 0x90);
     }
-    p = arg0;
-    *(s32 *)((u8 *)p + 0x00) = 0;
-    *(s32 *)((u8 *)p + 0x18) = 0;
-    *(s32 *)((u8 *)p + 0x1C) = 0;
-    *(s32 *)((u8 *)p + 0x10) = 0;
-    *(s32 *)((u8 *)p + 0x14) = 0;
-    *(s32 *)((u8 *)p + 0x04) = 0;
-    *(s32 *)((u8 *)p + 0x08) = 0;
-    *(s32 *)((u8 *)p + 0x0C) = 0;
-    *(s32 *)((u8 *)p + 0x48) = 0;
-    *(s32 *)((u8 *)p + 0x4C) = 0;
+    p = context;
+    *(s32 *)&((PscResourceContext *)p)->flags = 0;
+    ((PscResourceContext *)p)->unk18 = 0;
+    ((PscResourceContext *)p)->unk1C = 0;
+    *(s32 *)&((PscResourceContext *)p)->readyFlags = 0;
+    ((PscResourceContext *)p)->unk14 = 0;
+    ((PscResourceContext *)p)->baseRaster = 0;
+    ((PscResourceContext *)p)->miscW00Raster = 0;
+    ((PscResourceContext *)p)->miscW01Raster = 0;
+    ((PscResourceContext *)p)->unk48 = 0;
+    ((PscResourceContext *)p)->miscW00References = 0;
     for (i = 0; i < 0x20; i++) {
-        *(u32 *)((u8 *)p + i * 0x124 + 0x294) = 0;
+        ((PscResourceContext *)p)->requests[i].flags = 0;
     }
     for (i = 0; i < 0x10; i++) {
-        *(u32 *)((u8 *)p + i * 0x14 + 0x54) = 0;
+        ((PscResourceContext *)p)->arcana[i].flags = 0;
     }
     for (i = 0; i < 0x10; i++) {
-        *(u32 *)((u8 *)p + i * 0x10 + 0x194) = 0;
+        ((PscResourceContext *)p)->personas[i].flags = 0;
     }
-    D_0072469C = arg0;
+    D_0072469C = context;
 }
 
 // Intent: Polls card resource loads: when a CD file completes, decodes it into its slot and marks the slot ready [inferred]
 // FUN_0036B750
+/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
+ * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
 void pscResUpdate(void) {
     u8 *e;
     u8 *p;
@@ -172,7 +225,7 @@ s32 pscResAnySlotInUse(void) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x20; i++) {
-        if (*(u32 *)((u8 *)p + i * 0x124 + 0x294) & 1) {
+        if (((PscResourceContext *)p)->requests[i].flags & 1) {
             break;
         }
     }
@@ -181,6 +234,8 @@ s32 pscResAnySlotInUse(void) {
 
 // Intent: Frees every card raster and slot in the resource context and clears the singleton [inferred]
 // FUN_0036BBF0
+/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
+ * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
 void pscResDestroy(void) {
     u8 *p;
     s32 i;
@@ -236,17 +291,18 @@ void pscResDestroy(void) {
 
 
 // FUN_0036BE00
-s32 func_0036be00(void) {
+/* Return the base card raster after asserting that its ready flag is set. */
+s32 pscResGetBaseRaster(void) {
     void *p;
 
     if (D_0072469C == 0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (!(*(u32 *)((u8 *)p + 0x10) & 1)) {
+    if (!(((PscResourceContext *)p)->readyFlags & 1)) {
         kAssertFail(D_0064E4E0, 0x155);
     }
-    return *(s32 *)((u8 *)p + 4);
+    return ((PscResourceContext *)p)->baseRaster;
 }
 
 // Intent: Returns the raster of the misc card w_c00 [inferred]
@@ -258,18 +314,20 @@ s32 pscResGetMiscCardW00Raster(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (!(*(u32 *)((u8 *)p + 0x10) & 2)) {
+    if (!(((PscResourceContext *)p)->readyFlags & 2)) {
         kAssertFail(D_0064E4E0, 0x15F);
     }
-    return *(s32 *)((u8 *)p + 8);
+    return ((PscResourceContext *)p)->miscW00Raster;
 }
 
 // Intent: Returns the raster of the loaded Arcana card for (group, index) [inferred]
 // FUN_0036BEE0
-s32 pscResGetArcanaRaster(s32 arg0, s32 arg1) {
+/* Typed slot members change b210 address folding; retain the byte-stride
+ * accesses to PscArcanaCard/PscPersonaCard for MATCH. */
+s32 pscResGetArcanaRaster(s32 group, s32 cardIndex) {
     s32 i;
-    s32 v58;
-    s32 v5c;
+    s32 entryGroup;
+    s32 entryIndex;
     s32 scaled;
     void *p;
 
@@ -278,10 +336,10 @@ s32 pscResGetArcanaRaster(s32 arg0, s32 arg1) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
-        v58 = *(s32 *)((u8 *)p + i * 0x14 + 0x58);
-        if (v58 == arg0) {
-            v5c = *(s32 *)((u8 *)p + i * 0x14 + 0x5C);
-            if (v5c == arg1) {
+        entryGroup = ((PscResourceContext *)p)->arcana[i].group;
+        if (entryGroup == group) {
+            entryIndex = ((PscResourceContext *)p)->arcana[i].index;
+            if (entryIndex == cardIndex) {
                 break;
             }
         }
@@ -298,7 +356,9 @@ s32 pscResGetArcanaRaster(s32 arg0, s32 arg1) {
 
 // Intent: Returns the raster of the loaded persona card with the given 16-bit id [inferred]
 // FUN_0036BFF0
-s32 pscResGetPersonaRaster(s32 arg0) {
+/* Typed slot members change b210 address folding; retain the byte-stride
+ * accesses to PscArcanaCard/PscPersonaCard for MATCH. */
+s32 pscResGetPersonaRaster(s32 personaId) {
     s32 i;
     u32 key;
     s32 scaled;
@@ -309,8 +369,8 @@ s32 pscResGetPersonaRaster(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
-        v = *(u16 *)((u8 *)p + i * 0x10 + 0x198);
+    for (i = 0, key = personaId & 0xFFFF; i < 0x10; i++) {
+        v = ((PscResourceContext *)p)->personas[i].id;
         if (v == key) {
             break;
         }
@@ -334,59 +394,59 @@ s32 pscResGetMiscCardW01Raster(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (!(*(u32 *)((u8 *)p + 0x10) & 0x10)) {
+    if (!(((PscResourceContext *)p)->readyFlags & 0x10)) {
         kAssertFail(D_0064E4E0, 0x18E);
     }
-    return *(s32 *)((u8 *)p + 0xC);
+    return ((PscResourceContext *)p)->miscW01Raster;
 }
 
 // Intent: Drops one reference to an Arcana card and frees its raster at zero [inferred]
 // FUN_0036C140
-void pscResReleaseArcanaCard(s32 arg0, s32 arg1) {
+void pscResReleaseArcanaCard(s32 group, s32 cardIndex) {
     void *p;
     s32 v;
 
     if (D_0072469C == 0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
-    p = pscResFindArcanaCard(arg0, arg1);
-    if (*(s32 *)((u8 *)p + 0x10) == 0) {
+    p = pscResFindArcanaCard(group, cardIndex);
+    if (((PscArcanaCard *)p)->references == 0) {
         kAssertFail(D_0064E4E0, 0x19B);
     }
-    v = *(s32 *)((u8 *)p + 0x10) - 1;
-    *(s32 *)((u8 *)p + 0x10) = v;
+    v = ((PscArcanaCard *)p)->references - 1;
+    ((PscArcanaCard *)p)->references = v;
     if (v == 0) {
-        if (!(*(u32 *)((u8 *)p + 0) & 2)) {
+        if (!(((PscArcanaCard *)p)->flags & 2)) {
             kAssertFail(D_0064E4E0, 0x1A4);
         }
-        func_003ec330(*(s32 *)((u8 *)p + 0xC));
-        *(u32 *)((u8 *)p + 0) &= ~2;
-        *(u32 *)((u8 *)p + 0) &= ~1;
+        func_003ec330(((PscArcanaCard *)p)->raster);
+        ((PscArcanaCard *)p)->flags &= ~2;
+        ((PscArcanaCard *)p)->flags &= ~1;
     }
 }
 
 // Intent: Drops one reference to a persona card and frees its raster at zero [inferred]
 // FUN_0036C230
-void pscResReleasePersonaCard(s32 arg0) {
+void pscResReleasePersonaCard(s32 personaId) {
     void *p;
     s32 v;
 
     if (D_0072469C == 0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
-    p = pscResFindPersonaCard(arg0);
-    if (*(s32 *)((u8 *)p + 0xC) == 0) {
+    p = pscResFindPersonaCard(personaId);
+    if (((PscPersonaCard *)p)->references == 0) {
         kAssertFail(D_0064E4E0, 0x1B4);
     }
-    v = *(s32 *)((u8 *)p + 0xC) - 1;
-    *(s32 *)((u8 *)p + 0xC) = v;
+    v = ((PscPersonaCard *)p)->references - 1;
+    ((PscPersonaCard *)p)->references = v;
     if (v == 0) {
-        if (!(*(u32 *)((u8 *)p + 0) & 2)) {
+        if (!(((PscPersonaCard *)p)->flags & 2)) {
             kAssertFail(D_0064E4E0, 0x1BD);
         }
-        func_003ec330(*(s32 *)((u8 *)p + 8));
-        *(u32 *)((u8 *)p + 0) &= ~2;
-        *(u32 *)((u8 *)p + 0) &= ~1;
+        func_003ec330(((PscPersonaCard *)p)->raster);
+        ((PscPersonaCard *)p)->flags &= ~2;
+        ((PscPersonaCard *)p)->flags &= ~1;
     }
 }
 
@@ -400,14 +460,14 @@ void pscResReleaseMiscCardW00(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (*(s32 *)((u8 *)p + 0x4C) == 0) {
+    if (((PscResourceContext *)p)->miscW00References == 0) {
         kAssertFail(D_0064E4E0, 0x1DF);
     }
-    v = *(s32 *)((u8 *)p + 0x4C) - 1;
-    *(s32 *)((u8 *)p + 0x4C) = v;
+    v = ((PscResourceContext *)p)->miscW00References - 1;
+    ((PscResourceContext *)p)->miscW00References = v;
     if (v == 0) {
-        func_003ec330(*(s32 *)((u8 *)p + 8));
-        *(s32 *)((u8 *)p + 0x10) &= ~2;
+        func_003ec330(((PscResourceContext *)p)->miscW00Raster);
+        *(s32 *)&((PscResourceContext *)p)->readyFlags &= ~2;
     }
 }
 
@@ -421,19 +481,21 @@ void pscResReleaseMiscCardW01(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (*(s32 *)((u8 *)p + 0x50) == 0) {
+    if (((PscResourceContext *)p)->miscW01References == 0) {
         kAssertFail(D_0064E4E0, 0x1F3);
     }
-    v = *(s32 *)((u8 *)p + 0x50) - 1;
-    *(s32 *)((u8 *)p + 0x50) = v;
+    v = ((PscResourceContext *)p)->miscW01References - 1;
+    ((PscResourceContext *)p)->miscW01References = v;
     if (v == 0) {
-        func_003ec330(*(s32 *)((u8 *)p + 0xC));
-        *(s32 *)((u8 *)p + 0x10) &= ~0x10;
+        func_003ec330(((PscResourceContext *)p)->miscW01Raster);
+        *(s32 *)&((PscResourceContext *)p)->readyFlags &= ~0x10;
     }
 }
 
 // Intent: Takes a reference to misc card w_c00, starting its CD load (card/misc/w_c00.tmx) on first use [inferred]
 // FUN_0036C450
+/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
+ * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
 void pscResAcquireMiscCardW00(void) {
     void *p;
     void *q;
@@ -464,7 +526,7 @@ void pscResAcquireMiscCardW00(void) {
 
 // Intent: Takes a reference to the Arcana card for (group, index), starting its CD load from card/sarcana on first use [inferred]
 // FUN_0036C570
-void pscResAcquireArcanaCard(s32 arg0, s32 arg1) {
+void pscResAcquireArcanaCard(s32 group, s32 cardIndex) {
     char buf1[0x10];
     char buf2[0x100];
     void *p;
@@ -478,21 +540,21 @@ void pscResAcquireArcanaCard(s32 arg0, s32 arg1) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (pscResHasArcanaCard(arg0, arg1) != 0) {
-        pscResRetainArcanaCard(arg0, arg1);
+    if (pscResHasArcanaCard(group, cardIndex) != 0) {
+        pscResRetainArcanaCard(group, cardIndex);
         return;
     }
     i = pscResFindFreeArcanaSlot();
     e = (u8 *)p + i * 0x14 + 0x54;
-    *(s32 *)((u8 *)p + i * 0x14 + 0x58) = arg0;
-    *(s32 *)((u8 *)p + i * 0x14 + 0x5C) = arg1;
-    *(s32 *)((u8 *)p + i * 0x14 + 0x60) = 0;
-    *(s32 *)((u8 *)p + i * 0x14 + 0x64) = 1;
-    *(u32 *)((u8 *)p + i * 0x14 + 0x54) |= 1;
+    ((PscResourceContext *)p)->arcana[i].group = group;
+    ((PscResourceContext *)p)->arcana[i].index = cardIndex;
+    ((PscResourceContext *)p)->arcana[i].raster = 0;
+    ((PscResourceContext *)p)->arcana[i].references = 1;
+    ((PscResourceContext *)p)->arcana[i].flags |= 1;
     q = pscResFindFreeRequest();
-    *(s32 *)((u8 *)q + 0x110) = 0;
-    *(s32 *)((u8 *)q + 0x114) = i;
-    switch (arg0) {
+    ((PscCardRequest *)q)->kind = 0;
+    ((PscCardRequest *)q)->slotIndex = i;
+    switch (group) {
     case 0:
         strcpy(buf1, &D_00723A80);
         break;
@@ -506,7 +568,7 @@ void pscResAcquireArcanaCard(s32 arg0, s32 arg1) {
         strcpy(buf1, &D_00723A98);
         break;
     }
-    s = *(s32 *)(e + 8);
+    s = ((PscArcanaCard *)e)->index;
     if (s < 11) {
         sprintf(buf2, D_0064E510, buf1, s);
     } else {
@@ -527,13 +589,13 @@ void pscResAcquireArcanaCard(s32 arg0, s32 arg1) {
         sprintf(buf2, D_0064E530, buf1, v);
     }
     func_00440b68(&D_00723A78, D_0064E4E0, 0x260);
-    *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(buf2, 0);
-    *(s32 *)((u8 *)q + 4) = 1;
-    *(u32 *)((u8 *)q + 0) |= 1;
+    ((PscCardRequest *)q)->file = H_Cdvd_AcquireDirectory(buf2, 0);
+    ((PscCardRequest *)q)->state = 1;
+    ((PscCardRequest *)q)->flags |= 1;
 }
 // Intent: Takes a reference to the persona card with the given id, starting its CD load from card/persona on first use [inferred]
 // FUN_0036C7E0
-void pscResAcquirePersonaCard(s32 arg0) {
+void pscResAcquirePersonaCard(s32 personaId) {
     char buf[0x100];
     void *p;
     void *q;
@@ -543,27 +605,29 @@ void pscResAcquirePersonaCard(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (pscResHasPersonaCard(arg0) != 0) {
-        pscResRetainPersonaCard(arg0);
+    if (pscResHasPersonaCard(personaId) != 0) {
+        pscResRetainPersonaCard(personaId);
         return;
     }
     i = pscResFindFreePersonaSlot();
-    *(u32 *)((u8 *)p + i * 0x10 + 0x194) |= 1;
-    *(u16 *)((u8 *)p + i * 0x10 + 0x198) = arg0;
-    *(s32 *)((u8 *)p + i * 0x10 + 0x19C) = 0;
-    *(s32 *)((u8 *)p + i * 0x10 + 0x1A0) = 1;
+    ((PscResourceContext *)p)->personas[i].flags |= 1;
+    ((PscResourceContext *)p)->personas[i].id = personaId;
+    ((PscResourceContext *)p)->personas[i].raster = 0;
+    ((PscResourceContext *)p)->personas[i].references = 1;
     q = pscResFindFreeRequest();
-    *(s32 *)((u8 *)q + 0x110) = 1;
-    *(s32 *)((u8 *)q + 0x114) = i;
-    sprintf(buf, D_0064E550, arg0 & 0xFFFF);
+    ((PscCardRequest *)q)->kind = 1;
+    ((PscCardRequest *)q)->slotIndex = i;
+    sprintf(buf, D_0064E550, personaId & 0xFFFF);
     func_00440b68(&D_00723A78, D_0064E4E0, 0x285);
-    *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(buf, 0);
-    *(s32 *)((u8 *)q + 4) = 1;
-    *(u32 *)((u8 *)q + 0) |= 1;
+    ((PscCardRequest *)q)->file = H_Cdvd_AcquireDirectory(buf, 0);
+    ((PscCardRequest *)q)->state = 1;
+    ((PscCardRequest *)q)->flags |= 1;
 }
 
 // Intent: Takes a reference to misc card w_c01, starting its CD load (card/misc/w_c01.tmx) on first use [inferred]
 // FUN_0036C900
+/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
+ * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
 void pscResAcquireMiscCardW01(void) {
     void *p;
     void *q;
@@ -594,10 +658,10 @@ void pscResAcquireMiscCardW01(void) {
 
 // Intent: Reports whether an Arcana card for (group, index) is in a slot [inferred]
 // FUN_0036CA20
-s32 pscResHasArcanaCard(s32 arg0, s32 arg1) {
+s32 pscResHasArcanaCard(s32 group, s32 cardIndex) {
     s32 i;
-    s32 v5c;
-    s32 v58;
+    s32 entryIndex;
+    s32 entryGroup;
     void *p;
 
     if (D_0072469C == 0) {
@@ -605,11 +669,11 @@ s32 pscResHasArcanaCard(s32 arg0, s32 arg1) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
-        if (!(~*(u32 *)((u8 *)p + i * 0x14 + 0x54) & 1)) {
-            v5c = *(s32 *)((u8 *)p + i * 0x14 + 0x5C);
-            if (v5c == arg1) {
-                v58 = *(s32 *)((u8 *)p + i * 0x14 + 0x58);
-                if (v58 == arg0) {
+        if (!(~((PscResourceContext *)p)->arcana[i].flags & 1)) {
+            entryIndex = ((PscResourceContext *)p)->arcana[i].index;
+            if (entryIndex == cardIndex) {
+                entryGroup = ((PscResourceContext *)p)->arcana[i].group;
+                if (entryGroup == group) {
                     break;
                 }
             }
@@ -620,10 +684,10 @@ s32 pscResHasArcanaCard(s32 arg0, s32 arg1) {
 
 // Intent: Returns the slot entry of the Arcana card for (group, index), asserting it exists [inferred]
 // FUN_0036CAD0
-void *pscResFindArcanaCard(s32 arg0, s32 arg1) {
+void *pscResFindArcanaCard(s32 group, s32 cardIndex) {
     s32 i;
-    s32 v5c;
-    s32 v58;
+    s32 entryIndex;
+    s32 entryGroup;
     void *p;
 
     if (D_0072469C == 0) {
@@ -631,11 +695,11 @@ void *pscResFindArcanaCard(s32 arg0, s32 arg1) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
-        if (!(~*(u32 *)((u8 *)p + i * 0x14 + 0x54) & 1)) {
-            v5c = *(s32 *)((u8 *)p + i * 0x14 + 0x5C);
-            if (v5c == arg1) {
-                v58 = *(s32 *)((u8 *)p + i * 0x14 + 0x58);
-                if (v58 == arg0) {
+        if (!(~((PscResourceContext *)p)->arcana[i].flags & 1)) {
+            entryIndex = ((PscResourceContext *)p)->arcana[i].index;
+            if (entryIndex == cardIndex) {
+                entryGroup = ((PscResourceContext *)p)->arcana[i].group;
+                if (entryGroup == group) {
                     break;
                 }
             }
@@ -649,10 +713,10 @@ void *pscResFindArcanaCard(s32 arg0, s32 arg1) {
 
 // Intent: Adds a reference to an Arcana card already in a slot [inferred]
 // FUN_0036CBC0
-void pscResRetainArcanaCard(s32 arg0, s32 arg1) {
+void pscResRetainArcanaCard(s32 group, s32 cardIndex) {
     s32 i;
-    s32 v5c;
-    s32 v58;
+    s32 entryIndex;
+    s32 entryGroup;
     void *p;
 
     if (D_0072469C == 0) {
@@ -660,11 +724,11 @@ void pscResRetainArcanaCard(s32 arg0, s32 arg1) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
-        if (!(~*(u32 *)((u8 *)p + i * 0x14 + 0x54) & 1)) {
-            v5c = *(s32 *)((u8 *)p + i * 0x14 + 0x5C);
-            if (v5c == arg1) {
-                v58 = *(s32 *)((u8 *)p + i * 0x14 + 0x58);
-                if (v58 == arg0) {
+        if (!(~((PscResourceContext *)p)->arcana[i].flags & 1)) {
+            entryIndex = ((PscResourceContext *)p)->arcana[i].index;
+            if (entryIndex == cardIndex) {
+                entryGroup = ((PscResourceContext *)p)->arcana[i].group;
+                if (entryGroup == group) {
                     break;
                 }
             }
@@ -673,7 +737,7 @@ void pscResRetainArcanaCard(s32 arg0, s32 arg1) {
     if (i >= 0x10) {
         kAssertFail(D_0064E4E0, 0x2D3);
     }
-    *(u32 *)((u8 *)p + i * 0x14 + 0x64) += 1;
+    *(u32 *)&((PscResourceContext *)p)->arcana[i].references += 1;
 }
 
 // Intent: Returns the first free Arcana slot index, asserting one exists [inferred]
@@ -687,7 +751,7 @@ s32 pscResFindFreeArcanaSlot(void) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
-        if (~*(u32 *)((u8 *)p + i * 0x14 + 0x54) & 1) {
+        if (~((PscResourceContext *)p)->arcana[i].flags & 1) {
             break;
         }
     }
@@ -699,7 +763,7 @@ s32 pscResFindFreeArcanaSlot(void) {
 
 // Intent: Reports whether a persona card with the given id is in a slot [inferred]
 // FUN_0036CD70
-s32 pscResHasPersonaCard(s32 arg0) {
+s32 pscResHasPersonaCard(s32 personaId) {
     s32 i;
     u32 key;
     void *p;
@@ -709,9 +773,9 @@ s32 pscResHasPersonaCard(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
-        if (!(~*(u32 *)((u8 *)p + i * 0x10 + 0x194) & 1)) {
-            v = *(u16 *)((u8 *)p + i * 0x10 + 0x198);
+    for (i = 0, key = personaId & 0xFFFF; i < 0x10; i++) {
+        if (!(~((PscResourceContext *)p)->personas[i].flags & 1)) {
+            v = ((PscResourceContext *)p)->personas[i].id;
             if (v == key) {
                 break;
             }
@@ -722,7 +786,7 @@ s32 pscResHasPersonaCard(s32 arg0) {
 
 // Intent: Returns the slot entry of the persona card with the given id, asserting it exists [inferred]
 // FUN_0036CE10
-u32 *pscResFindPersonaCard(s32 arg0) {
+u32 *pscResFindPersonaCard(s32 personaId) {
     s32 i;
     u32 key;
     void *p;
@@ -732,9 +796,9 @@ u32 *pscResFindPersonaCard(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
-        if (!(~*(u32 *)((u8 *)p + i * 0x10 + 0x194) & 1)) {
-            v = *(u16 *)((u8 *)p + i * 0x10 + 0x198);
+    for (i = 0, key = personaId & 0xFFFF; i < 0x10; i++) {
+        if (!(~((PscResourceContext *)p)->personas[i].flags & 1)) {
+            v = ((PscResourceContext *)p)->personas[i].id;
             if (v == key) {
                 break;
             }
@@ -757,7 +821,7 @@ s32 pscResFindFreePersonaSlot(void) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
-        if (~*(u32 *)((u8 *)p + i * 0x10 + 0x194) & 1) {
+        if (~((PscResourceContext *)p)->personas[i].flags & 1) {
             break;
         }
     }
@@ -769,7 +833,7 @@ s32 pscResFindFreePersonaSlot(void) {
 
 // Intent: Adds a reference to a persona card already in a slot [inferred]
 // FUN_0036CF80
-void pscResRetainPersonaCard(s32 arg0) {
+void pscResRetainPersonaCard(s32 personaId) {
     s32 i;
     u32 key;
     void *p;
@@ -779,9 +843,9 @@ void pscResRetainPersonaCard(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
-        if (!(~*(u32 *)((u8 *)p + i * 0x10 + 0x194) & 1)) {
-            v = *(u16 *)((u8 *)p + i * 0x10 + 0x198);
+    for (i = 0, key = personaId & 0xFFFF; i < 0x10; i++) {
+        if (!(~((PscResourceContext *)p)->personas[i].flags & 1)) {
+            v = ((PscResourceContext *)p)->personas[i].id;
             if (v == key) {
                 break;
             }
@@ -790,7 +854,7 @@ void pscResRetainPersonaCard(s32 arg0) {
     if (i >= 0x10) {
         kAssertFail(D_0064E4E0, 0x319);
     }
-    *(u32 *)((u8 *)p + i * 0x10 + 0x1A0) += 1;
+    *(u32 *)&((PscResourceContext *)p)->personas[i].references += 1;
 }
 
 // Intent: Returns the first free load-request block, asserting one exists [inferred]
@@ -804,7 +868,7 @@ u32 *pscResFindFreeRequest(void) {
     }
     p = D_0072469C;
     for (i = 0; i < 0x20; i++) {
-        if (~*(u32 *)((u8 *)p + i * 0x124 + 0x294) & 1) {
+        if (~((PscResourceContext *)p)->requests[i].flags & 1) {
             break;
         }
     }
@@ -816,7 +880,7 @@ u32 *pscResFindFreeRequest(void) {
 
 // Intent: Returns decoded texture i of the w_c00 image set (seven entries) [inferred]
 // FUN_0036D130
-s32 pscResGetMiscCardW00Texture(s32 arg0) {
+s32 pscResGetMiscCardW00Texture(s32 textureIndex) {
     void *p;
     u32 *q;
 
@@ -824,15 +888,15 @@ s32 pscResGetMiscCardW00Texture(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (!(*(u32 *)((u8 *)p + 0x10) & 4)) {
+    if (!(((PscResourceContext *)p)->readyFlags & 4)) {
         kAssertFail(D_0064E4E0, 0x371);
     }
     q = p;
-    return q[arg0 + 9];
+    return q[textureIndex + 9];
 }
 // Intent: Returns decoded texture i of the w_c00 secondary set (two entries) [inferred]
 // FUN_0036D1B0
-s32 pscResGetMiscCardW00SubTexture(s32 arg0) {
+s32 pscResGetMiscCardW00SubTexture(s32 textureIndex) {
     void *p;
     u32 *q;
 
@@ -840,16 +904,18 @@ s32 pscResGetMiscCardW00SubTexture(s32 arg0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (!(*(u32 *)((u8 *)p + 0x10) & 8)) {
+    if (!(((PscResourceContext *)p)->readyFlags & 8)) {
         kAssertFail(D_0064E4E0, 0x37C);
     }
     q = p;
-    return q[arg0 + 0x10];
+    return q[textureIndex + 0x10];
 }
 
 // Intent: Decodes the w_c00 container's images into the context's texture sets [inferred]
 // FUN_0036D230
-void pscResBuildMiscCardW00(u8 *arg0) {
+/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
+ * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
+void pscResBuildMiscCardW00(u8 *container) {
     s32 i;
     u8 *p;
     s32 j;
@@ -869,20 +935,20 @@ void pscResBuildMiscCardW00(u8 *arg0) {
     if (!(~*(u32 *)((u32 *)p + 4) & 1)) {
         kAssertFail(D_0064E4E0, 0x3A6);
     }
-    if (*(u16 *)((u8 *)arg0 + 4) != 10) {
+    if (*(u16 *)((u8 *)container + 4) != 10) {
         kAssertFail(D_0064E4E0, 0x3A7);
     }
     for (i = 0; i < 7; i++) {
         off = i * 8;
         *(s32 *)((u8 *)p + i * 4 + 0x24) =
-            pscResDecodeImage((u8 *)arg0 + *(s32 *)(off + (u32)arg0 + 8));
+            pscResDecodeImage((u8 *)container + *(s32 *)(off + (u32)container + 8));
     }
-    base2 = (u8 *)arg0 + 8;
+    base2 = (u8 *)container + 8;
     *(s32 *)((u8 *)p + 4) =
-        pscResDecodeImage((u8 *)arg0 + *(s32 *)((u8 *)arg0 + 0x40));
+        pscResDecodeImage((u8 *)container + *(s32 *)((u8 *)container + 0x40));
     for (j = 0; j < 2; j++) {
         *(s32 *)((u8 *)p + j * 4 + 0x40) =
-            pscResDecodeImage((u8 *)arg0 + *(s32 *)((u8 *)base2 + j * 8 + 0x40));
+            pscResDecodeImage((u8 *)container + *(s32 *)((u8 *)base2 + j * 8 + 0x40));
     }
     *(u32 *)((u8 *)p + 0x10) |= 1;
     *(u32 *)((u8 *)p + 0x10) |= 4;
@@ -899,10 +965,10 @@ typedef struct PscImageHeader {
     u8 reserved17[0x29];
 } PscImageHeader;
 
-typedef struct PscPaletteView {
+typedef struct PscPalette {
     const u32 *colors;
     s32 flags;
-} PscPaletteView;
+} PscPalette;
 
 /* measured: MWCC b210 -O2, 1144/1152 bytes with an 8-byte zero tail.
  * The input byte cursor is separate from the retained header and palette
@@ -911,7 +977,7 @@ typedef struct PscPaletteView {
 // FUN_0036D3E0
 s32 pscResDecodeImage(const void *input) {
     const u8 *source;
-    PscPaletteView paletteView;
+    PscPalette paletteView;
     s32 depth;
     RwRaster *raster;
     const PscImageHeader *header;

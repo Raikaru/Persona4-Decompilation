@@ -38,7 +38,7 @@ extern u16 D_008C0276[];
 extern u16 D_008C027A[];
 extern void fadeBeginTransition(s32 a, s32 b);
 extern void datSetDateIndex(s32 a);
-extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
+extern void sequenceRequest(s32 a, void *b, s32 c, s32 d);
 extern void calendarSyncFromDate(void);
 extern s32 calendarTaskCreate(s32 a);
 extern s32 kwlnTaskGetState(s32 a);
@@ -111,7 +111,7 @@ s32 calendarInputUpdate(u8 *task)
         if (D_008C0276[0] & 0x40) {
             fadeBeginTransition(1, 1);
             datSetDateIndex((s16)work->dateIndex);
-            func_001029a0(0x1A, NULL, 0, 0);
+            sequenceRequest(0x1A, NULL, 0, 0);
             return -1;
         }
         if (D_008C0276[0] & 0x800) {

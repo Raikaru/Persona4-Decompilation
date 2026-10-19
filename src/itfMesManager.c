@@ -29,7 +29,7 @@ typedef struct {
 
 extern D_00881808_t D_00881808[];
 
-void func_002746c0(int param_1, u32 param_2);
+void datSetIndexedWord(int param_1, u32 param_2);
 
 void frFontEnableList(int param_1);
 extern u8 DAT_008817EC_abs[];
@@ -1795,7 +1795,7 @@ void itfMesApplySlotTable(int param_1)
   int iVar1;
 
   for (iVar1 = 0; iVar1 < 0x20; iVar1 = iVar1 + 1) {
-    func_002746c0(iVar1,*(u32 *)(param_1 + iVar1 * 4));
+    datSetIndexedWord(iVar1,*(u32 *)(param_1 + iVar1 * 4));
   }
 
   return;
@@ -1814,7 +1814,7 @@ void itfMesWindowApplySlots(s32 arg0)
         kAssertFail(D_0063BE10, 0xD76);
     }
     for (i = 0; i < 0x20; i++) {
-        func_002746c0(i, *(u32 *)(entry + i * 4 + 0x94));
+        datSetIndexedWord(i, *(u32 *)(entry + i * 4 + 0x94));
     }
 }
 

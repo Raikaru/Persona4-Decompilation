@@ -4,6 +4,20 @@
 
 typedef struct BtlPacket BtlPacket;
 
+/* Cached table header followed by four-byte (model ID, variant flags) rows. */
+typedef struct BtlNpcVariantEntry
+{
+    u16 modelId;
+    s16 flags;
+} BtlNpcVariantEntry;
+
+typedef struct BtlNpcVariantTable
+{
+    u32 unk00;
+    s32 count;
+    BtlNpcVariantEntry entries[1];
+} BtlNpcVariantTable;
+
 /* gp - 0x4C54 = 0x007690f0 - 0x4c54 = 0x0076449c */
 extern u8 *iGpffffb3ac;
 
@@ -42,79 +56,79 @@ extern char D_00635800[];
 
 // Intent: Writes the NPC model file name for a battle model id: the "npc/" or "npc2/" directory, the id and a variant from its table entry and the current flags [inferred]
 // FUN_00231380
-void btlBuildNpcModelName(s32 *arg0, s32 arg1)
+void btlBuildNpcModelName(s32 *destination, s32 modelId)
 {
-    u32 sp5C;
-    s16 var_17;
-    s32 var_19;
-    s32 temp_18;
-    s32 temp_5;
-    s32 var_4;
-    s32 var_6;
-    s64 temp_17;
-    s64 temp_3_2;
-    u8 *temp_2;
-    u8 *temp_3;
-    u8 *temp_4;
+    u32 fileSize;
+    s16 variantFlags;
+    s32 variant;
+    s32 maskedId;
+    s32 entryCount;
+    s32 variantGroup;
+    s32 entryIndex;
+    s64 wideFlags;
+    s64 dayFlags;
+    u8 *table;
+    u8 *entry;
+    u8 *entries;
 
-    var_19 = 0;
-    var_17 = 0;
-    temp_2 = H_Cdvd_LookupRequest(&D_006358D0, &sp5C);
-    temp_5 = *(s32 *)(temp_2 + 4);
-    temp_4 = temp_2 + 8;
-    temp_18 = arg1 & 0xFFFF;
-    var_6 = 0;
-    while (var_6 < temp_5)
+    variant = 0;
+    variantFlags = 0;
+    table = H_Cdvd_LookupRequest(&D_006358D0, &fileSize);
+    entryCount = ((BtlNpcVariantTable *)table)->count;
+    entries = table + 8;
+    maskedId = modelId & 0xFFFF;
+    entryIndex = 0;
+    while (entryIndex < entryCount)
     {
-        temp_3 = temp_4 + (var_6 * 4);
-        if (temp_18 == *(u16 *)temp_3)
-            var_17 = *(s16 *)(temp_3 + 2);
+        entry = entries + (entryIndex * 4);
+        if (maskedId == ((BtlNpcVariantEntry *)entry)->modelId)
+            variantFlags = ((BtlNpcVariantEntry *)entry)->flags;
         else
         {
-            var_6++;
+            entryIndex++;
             continue;
         }
         break;
     }
-    temp_17 = (s64)var_17;
-    if (temp_17 > 0)
+    wideFlags = (s64)variantFlags;
+    if (wideFlags > 0)
     {
-        temp_3_2 = (s64)(s16)calGetDayWindowFlags((s16)datGetDateIndex());
-        if (!(temp_3_2 & 1))
+        dayFlags = (s64)(s16)calGetDayWindowFlags((s16)datGetDateIndex());
+        if (!(dayFlags & 1))
         {
-            if (temp_17 & 3)
-                var_4 = 0;
+            if (wideFlags & 3)
+                variantGroup = 0;
             else
-                var_4 = 1;
+                variantGroup = 1;
         }
-        else if (temp_17 & 0xC)
-            var_4 = 1;
+        else if (wideFlags & 0xC)
+            variantGroup = 1;
         else
-            var_4 = 0;
-        if (temp_3_2 & 2)
+            variantGroup = 0;
+        if (dayFlags & 2)
         {
-            if (temp_17 & 0xA)
-                var_19 = (var_4 * 2) + 2;
+            if (wideFlags & 0xA)
+                variant = (variantGroup * 2) + 2;
             else
-                var_19 = (var_4 * 2) + 1;
+                variant = (variantGroup * 2) + 1;
         }
-        else if (temp_17 & 5)
-            var_19 = (var_4 * 2) + 1;
+        else if (wideFlags & 5)
+            variant = (variantGroup * 2) + 1;
         else
-            var_19 = (var_4 * 2) + 2;
+            variant = (variantGroup * 2) + 2;
     }
-    if (temp_18 < 0xC50)
-        sprintf((char *)arg0, D_006358F0, &D_007636e0,
-                      temp_18, var_19);
+    if (maskedId < 0xC50)
+        sprintf((char *)destination, D_006358F0, &D_007636e0,
+                      maskedId, variant);
     else
-        sprintf((char *)arg0, D_00635910, &D_007636e0,
-                      temp_18, var_19);
+        sprintf((char *)destination, D_00635910, &D_007636e0,
+                      maskedId, variant);
 }
 
 // Intent: Boss model name resolver for case 5 (NPC models): forwards to btlBuildNpcModelName [inferred]
 // FUN_00231550
-void btlBossResolveNpcModelName(s32 arg0, u16 arg1)
+void btlBossResolveNpcModelName(s32 destination, u16 modelId)
 {
-    btlBuildNpcModelName((s32 *)arg0, arg1 & 0xFFFF);
+    btlBuildNpcModelName((s32 *)destination, modelId & 0xFFFF);
 }
 

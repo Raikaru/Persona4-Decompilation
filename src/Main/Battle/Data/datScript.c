@@ -39,15 +39,15 @@ s32 datCalcEnemyHasTableFlag(u16* unit);
 
 // FUN_00244F60
 /* Stores the command's unit pointers and parameters, then runs calculation kind arg0 and returns its result. */
-s32 datScriptRunCalc(u32 arg0, u16* arg1, u16* arg2, u16 arg3, s32 arg4)
+s32 datScriptRunCalc(u32 calculationKind, u16* sourceUnit, u16* targetUnit, u16 commandId, s32 parameter)
 {
-    D_0088146C[0] = arg3;
-    D_00881460[0] = arg1;
-    D_00881464[0] = arg2;
-    D_00881470[0] = arg4;
+    D_0088146C[0] = commandId;
+    D_00881460[0] = sourceUnit;
+    D_00881464[0] = targetUnit;
+    D_00881470[0] = parameter;
     D_00881474[0] &= 0xFFFE;
-    K_ASSERT(arg0 < 0xB, 0x7A);
-    ((void (*)())D_00635950[arg0])();
+    K_ASSERT(calculationKind < 0xB, 0x7A);
+    ((void (*)())D_00635950[calculationKind])();
     K_ASSERT(D_00881474[0] & 1, 0x82);
     return D_00881468[0];
 }
@@ -64,21 +64,22 @@ s32 datScriptRunCalc(u32 arg0, u16* arg1, u16* arg2, u16 arg3, s32 arg4)
    extends once instead of truncating and re-extending. */
 // FUN_00245030
 /* Floating-point calculation dispatch: runs kind arg0 with param and returns the f32 result. */
-f32 datScriptCalcFloat(u32 arg0, s32 arg1)
+/* The skill bytes +0x12/+0x16 follow DatSkillEntry; retain the byte-table ABI because datCalc_internal.h also declares incompatible accessor contracts. The battle-global +0xC58/+0xC5E fields have no complete owning layout here. */
+f32 datScriptCalcFloat(u32 term, s32 parameter)
 {
     f32 result;
     f32 value;
     u16 *unit;
-    u8 *cmd;
-    s32 raw;
+    u8 *command;
+    s32 affinityPercent;
     s16 diff;
-    s16 id;
+    s16 element;
     s16 step;
     s16 tier;
-    s16 lv1;
-    s16 lv2;
+    s16 sourceLevel;
+    s16 targetLevel;
 
-    switch (arg0) {
+    switch (term) {
     case 1:
         K_ASSERT(D_00881460[0] != 0, 0xA5);
         result = (f32)(u32)datCalcGetLevel(D_00881460[0]);
@@ -132,43 +133,43 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 15:
     case 16:
-        if (arg0 == 0xF) {
+        if (term == 0xF) {
             unit = D_00881460[0];
         } else {
             unit = D_00881464[0];
         }
-        id = (s16)datCalcStatusElement((s16)D_0088146C[0], D_00881470[0]);
-        K_ASSERT(id < 0x13, 0xE3);
-        switch (id) {
+        element = (s16)datCalcStatusElement((s16)D_0088146C[0], D_00881470[0]);
+        K_ASSERT(element < 0x13, 0xE3);
+        switch (element) {
         case -1:
         case 0x10:
         case 0x11:
-            raw = 0x64;
+            affinityPercent = 0x64;
             break;
         default:
-            raw = datCalcGetAffinity((u8 *)unit, id);
+            affinityPercent = datCalcGetAffinity((u8 *)unit, element);
             break;
         }
-        result = (f32)(u32)(raw & 0xFFFF) / 100.0f;
+        result = (f32)(u32)(affinityPercent & 0xFFFF) / 100.0f;
         break;
     case 13:
-        K_ASSERT(arg1 < 5, 0xF7);
+        K_ASSERT(parameter < 5, 0xF7);
         K_ASSERT(D_00881460[0] != 0, 0xF8);
-        result = (f32)(u32)datCalcGetBattleStat(D_00881460[0], arg1 & 0xFFFF);
+        result = (f32)(u32)datCalcGetBattleStat(D_00881460[0], parameter & 0xFFFF);
         break;
     case 14:
-        K_ASSERT(arg1 < 5, 0x101);
+        K_ASSERT(parameter < 5, 0x101);
         K_ASSERT(D_00881464[0] != 0, 0x102);
-        result = (f32)(u32)datCalcGetBattleStat(D_00881464[0], arg1 & 0xFFFF);
+        result = (f32)(u32)datCalcGetBattleStat(D_00881464[0], parameter & 0xFFFF);
         break;
     case 17:
         K_ASSERT((s32)D_0088146C[0] < 0x1B8, 0x106);
-        cmd = &DAT_007644A8[D_0088146C[0] * 0x28];
-        if (cmd[0] & 2) {
+        command = &DAT_007644A8[D_0088146C[0] * 0x28];
+        if (command[0] & 2) {
             K_ASSERT(D_00881460[0] != 0, 0x109);
             result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 1);
         } else {
-            result = (f32)(u32)cmd[0xE];
+            result = (f32)(u32)command[0xE];
         }
         break;
     case 18:
@@ -177,26 +178,26 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 19:
         K_ASSERT((s32)D_0088146C[0] < 0x1B8, 0x114);
-        cmd = &DAT_007644A8[D_0088146C[0] * 0x28];
-        if ((cmd[0] & 2) || (cmd[0x11] == 0x10)) {
+        command = &DAT_007644A8[D_0088146C[0] * 0x28];
+        if ((command[0] & 2) || (command[0x11] == 0x10)) {
             K_ASSERT(D_00881460[0] != 0, 0x118);
             result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 0);
         } else if (D_00881470[0] == 1) {
-            result = (f32)*(s16 *)(cmd + 0x12);
+            result = (f32)*(s16 *)(command + 0x12);
         } else if (D_00881470[0] == 2) {
-            result = (f32)*(s16 *)(cmd + 0x16);
+            result = (f32)*(s16 *)(command + 0x16);
         } else {
             kAssertFail(D_00635980, 0x123);
         }
         break;
     case 20:
         K_ASSERT((s32)D_0088146C[0] < 0x1B8, 0x128);
-        cmd = &DAT_007644A8[D_0088146C[0] * 0x28];
-        if (cmd[0] & 2) {
+        command = &DAT_007644A8[D_0088146C[0] * 0x28];
+        if (command[0] & 2) {
             K_ASSERT(D_00881460[0] != 0, 0x12B);
             result = (f32)(u32)datCalcGetWeaponProperty(D_00881460[0], 2);
         } else {
-            result = (f32)(u32)cmd[0x25];
+            result = (f32)(u32)command[0x25];
         }
         break;
     case 21:
@@ -209,29 +210,29 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 23:
         K_ASSERT(D_00881460[0] != 0, 0x139);
         K_ASSERT(D_00881464[0] != 0, 0x13A);
-        lv1 = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
-        lv2 = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
-        diff = (s16)(lv1 - lv2);
+        sourceLevel = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
+        targetLevel = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
+        diff = (s16)(sourceLevel - targetLevel);
         if (diff < -0x1F) {
             diff = -0x1F;
         } else if (diff > 0x1F) {
             diff = 0x1F;
         }
         if ((datCalcEnemyHasTableFlag(D_00881460[0]) == 0) && (datCalcEnemyHasTableFlag(D_00881464[0]) == 0)) {
-            result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x1F) * 4);
+            result = ((f32 *)DAT_007644E4)[(s16)(diff + 0x1F)];
         } else {
-            result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x5E) * 4);
+            result = ((f32 *)DAT_007644E4)[(s16)(diff + 0x5E)];
         }
         break;
     case 24:
         K_ASSERT(D_00881460[0] != 0, 0x160);
         K_ASSERT(D_00881464[0] != 0, 0x161);
-        lv1 = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
-        lv2 = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
-        if (lv2 < lv1) {
-            step = (s16)((lv1 - lv2) - 1);
+        sourceLevel = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
+        targetLevel = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
+        if (targetLevel < sourceLevel) {
+            step = (s16)((sourceLevel - targetLevel) - 1);
         } else {
-            step = (s16)((lv1 - lv2) + 1);
+            step = (s16)((sourceLevel - targetLevel) + 1);
         }
         step /= 3;
         if (step < -6) {
@@ -247,7 +248,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         if (tier > 9) {
             tier = 9;
         }
-        result = (f32)*(s16 *)(DAT_007644F0 + tier * 2);
+        result = (f32)((s16 *)DAT_007644F0)[tier];
         break;
     case 26:
         K_ASSERT(D_00881460[0] != 0, 0x17B);
@@ -255,7 +256,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         if (tier > 0x14) {
             tier = 0x14;
         }
-        result = (f32)*(s16 *)(DAT_007644F4 + tier * 2);
+        result = (f32)((s16 *)DAT_007644F4)[tier];
         break;
     case 27:
         result = (f32)(*(u16 *)(DAT_0076449c + 0xC58) + 1);
@@ -282,18 +283,18 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 33:
         K_ASSERT(D_00881460[0] != 0, 0x199);
         K_ASSERT(D_00881464[0] != 0, 0x19A);
-        lv1 = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
-        lv2 = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
-        diff = (s16)(lv1 - lv2);
+        sourceLevel = (s16)(datCalcGetLevel(D_00881460[0]) & 0xFF);
+        targetLevel = (s16)(datCalcGetLevel(D_00881464[0]) & 0xFF);
+        diff = (s16)(sourceLevel - targetLevel);
         if (diff < -0x1F) {
             diff = -0x1F;
         } else if (diff > 0x1F) {
             diff = 0x1F;
         }
         if ((datCalcEnemyHasTableFlag(D_00881460[0]) == 0) && (datCalcEnemyHasTableFlag(D_00881464[0]) == 0)) {
-            result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x1F) * 4);
+            result = ((f32 *)DAT_007644E4)[(s16)(diff + 0x1F)];
         } else {
-            result = *(f32 *)(DAT_007644E4 + (s16)(diff + 0x5E) * 4);
+            result = ((f32 *)DAT_007644E4)[(s16)(diff + 0x5E)];
         }
         break;
     case 34:

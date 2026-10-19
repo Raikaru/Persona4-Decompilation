@@ -34,7 +34,7 @@ extern void frFontSetGlyphColor(u8 *, s32);
 extern void frFontListKeepOrRelease(u8 *);
 extern f32 iGpffff8094;
 extern f32 sinf(f32);
-extern void func_00366670(s32, s32, f32, s32, s32, s32, s32, s32, s32,
+extern void sflDataDrawWideRoundedFrame(s32, s32, f32, s32, s32, s32, s32, s32, s32,
                          s16, void *, f32, f32, f32);
 extern void shdDrawEntryRow(f32, f32, s32, u8 *);
 
@@ -182,12 +182,12 @@ void shdDrawEntryRow(f32 param_1, f32 param_2, s32 color, u8 *data) {
     case 2:
         if (*(s32 *)(data + 20) == 0) {
             u32 combined = (color & 0xFF) | -256;
-            func_00366670((s32)(110.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            sflDataDrawWideRoundedFrame((s32)(110.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
             frFontExDrawText(163.0f + param_1, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
             frFontExDrawText((f32)293 + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
         } else {
             u32 combined = (color & 0xFF) | -256;
-            func_00366670((s32)(240.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            sflDataDrawWideRoundedFrame((s32)(240.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
             frFontExDrawText(163.0f + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
             frFontExDrawText(3.0f + ((f32)293 + param_1), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
         }
@@ -341,7 +341,7 @@ void shdWindowDrawQueued(s32 arg0, s32 arg1)
         count = *(s32 *)(temp_5 + 0x10);
         count = count < 3 ? count : 3;
         temp_f20 = sinf((iGpffff8094 * (f32)count) / 3.0f);
-        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 0.0f, 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
+        sflDataDrawWideRoundedFrame(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 0.0f, 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
         shdDrawEntryRow(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
         break;
     case 0:
@@ -350,7 +350,7 @@ void shdWindowDrawQueued(s32 arg0, s32 arg1)
         frac = (f32)count / 3.0f;
         temp_f20 = 255.0f * frac;
         color = 0x2D2D2D00 | (((s8)(s32)(255.0f * frac)) & 0xFF);
-        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 0.0f, 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
+        sflDataDrawWideRoundedFrame(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 0.0f, 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
         shdDrawEntryRow(92.0f, 74.0f, (s32)temp_f20, p);
         break;
     }

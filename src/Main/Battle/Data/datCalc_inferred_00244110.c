@@ -39,85 +39,85 @@ void datScriptCalcPhysicalDamage(void)
     extern f32 fGpffff82c0;
     /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcPhysicalDamage) [inferred]. */
     extern f32 fGpffff824c;
-    f32 temp_f20;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
+    f32 damageTerm;
+    f32 scaledTerm;
+    f32 powerTerm;
+    f32 levelTerm;
+    f32 divisor;
 
     if (datScriptCmdFlag2Set() != 0) {
         if (datScriptTargetIsNotEnemy() != 0) {
-            temp_f20 = datScriptCalcFloat(0xE, 2);
-            temp_f20 += datScriptCalcFloat(0xE, 2);
-            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0) / 2.0f;
-            temp_f1 = mul_f32_ordered(30.0f, temp_f1);
-            temp_f0 = 5.0f * temp_f20;
-            temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
-            temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
-            temp_f1 = sqrtf(temp_f0);
-            temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
-            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+            damageTerm = datScriptCalcFloat(0xE, 2);
+            damageTerm += datScriptCalcFloat(0xE, 2);
+            powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0) / 2.0f;
+            powerTerm = mul_f32_ordered(30.0f, powerTerm);
+            scaledTerm = 5.0f * damageTerm;
+            damageTerm = powerTerm / scaledTerm;
+            scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
+            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            powerTerm = sqrtf(scaledTerm);
+            damageTerm = 10.0f * powerTerm;
+            damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
         } else {
-            temp_f20 = datScriptCalcFloat(0x20, 0) / 4.0f;
-            temp_f3 = 2.0f;
-            temp_f0 = datScriptCalcFloat(0xE, 2);
-            temp_f2 = temp_f20 / temp_f3;
-            temp_f1 = temp_f2 + temp_f3 * temp_f0;
-            temp_f0 = fGpffff811c * temp_f1;
-            temp_f20 = temp_f0;
-            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-            temp_f1 = mul_f32_ordered(30.0f, temp_f1);
-            temp_f0 = mul_f32_ordered(5.0f, temp_f20);
-            temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
-            temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
-            temp_f1 = sqrtf(temp_f0);
-            temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
-            temp_f1 = temp_f20 * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
-            temp_f20 = fGpffff82c0 * temp_f1;
+            damageTerm = datScriptCalcFloat(0x20, 0) / 4.0f;
+            divisor = 2.0f;
+            scaledTerm = datScriptCalcFloat(0xE, 2);
+            levelTerm = damageTerm / divisor;
+            powerTerm = levelTerm + divisor * scaledTerm;
+            scaledTerm = fGpffff811c * powerTerm;
+            damageTerm = scaledTerm;
+            powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
+            powerTerm = mul_f32_ordered(30.0f, powerTerm);
+            scaledTerm = mul_f32_ordered(5.0f, damageTerm);
+            damageTerm = powerTerm / scaledTerm;
+            scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
+            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            powerTerm = sqrtf(scaledTerm);
+            damageTerm = 10.0f * powerTerm;
+            damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            powerTerm = damageTerm * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+            damageTerm = fGpffff82c0 * powerTerm;
         }
     } else {
         if (datScriptTargetIsNotEnemy() != 0) {
-            temp_f20 = datScriptCalcFloat(0xE, 2);
-            temp_f20 += datScriptCalcFloat(0xE, 2);
-            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-            temp_f1 = mul_f32_ordered(30.0f, temp_f1);
-            temp_f0 = 5.0f * temp_f20;
-            temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
-            temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
-            temp_f1 = sqrtf(temp_f0);
-            temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
-            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+            damageTerm = datScriptCalcFloat(0xE, 2);
+            damageTerm += datScriptCalcFloat(0xE, 2);
+            powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
+            powerTerm = mul_f32_ordered(30.0f, powerTerm);
+            scaledTerm = 5.0f * damageTerm;
+            damageTerm = powerTerm / scaledTerm;
+            scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
+            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            powerTerm = sqrtf(scaledTerm);
+            damageTerm = 10.0f * powerTerm;
+            damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
         } else {
-            temp_f20 = datScriptCalcFloat(0x20, 0) / 2.0f;
-            temp_f3 = 2.0f;
-            temp_f0 = datScriptCalcFloat(0xE, 2);
-            temp_f2 = temp_f20 / temp_f3;
-            temp_f1 = temp_f2 + temp_f3 * temp_f0;
-            temp_f0 = fGpffff811c * temp_f1;
-            temp_f20 = temp_f0;
-            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-            temp_f1 = mul_f32_ordered(30.0f, temp_f1);
-            temp_f0 = mul_f32_ordered(5.0f, temp_f20);
-            temp_f20 = temp_f1 / temp_f0;
-            temp_f0 = datScriptCalcFloat(0xD, 0) / 5.0f;
-            temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
-            temp_f1 = sqrtf(temp_f0);
-            temp_f20 = 10.0f * temp_f1;
-            temp_f1 = temp_f20 * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
-            temp_f20 = temp_f1 - 30.0f;
-            if (temp_f20 <= 0.0f)
-                temp_f20 = 1.0f;
-            temp_f20 *= fGpffff824c;
-            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            damageTerm = datScriptCalcFloat(0x20, 0) / 2.0f;
+            divisor = 2.0f;
+            scaledTerm = datScriptCalcFloat(0xE, 2);
+            levelTerm = damageTerm / divisor;
+            powerTerm = levelTerm + divisor * scaledTerm;
+            scaledTerm = fGpffff811c * powerTerm;
+            damageTerm = scaledTerm;
+            powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
+            powerTerm = mul_f32_ordered(30.0f, powerTerm);
+            scaledTerm = mul_f32_ordered(5.0f, damageTerm);
+            damageTerm = powerTerm / scaledTerm;
+            scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
+            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            powerTerm = sqrtf(scaledTerm);
+            damageTerm = 10.0f * powerTerm;
+            powerTerm = damageTerm * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+            damageTerm = powerTerm - 30.0f;
+            if (damageTerm <= 0.0f)
+                damageTerm = 1.0f;
+            damageTerm *= fGpffff824c;
+            damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
         }
     }
-    datScriptSetResult(temp_f20);
+    datScriptSetResult(damageTerm);
 }
 
 // Intent: Compute magic damage from attacker MAG, defender END and skill base power, with the same level and resistance factors as the physical formula [inferred]
@@ -127,54 +127,54 @@ void datScriptCalcMagicDamage(void)
     extern f32 sqrtf(f32 arg0);
     /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcMagicDamage) [inferred]. */
     extern f32 fGpffff824c;
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
+    f32 damageTerm;
+    f32 baseDamage;
+    f32 scaledTerm;
+    f32 powerTerm;
+    f32 combinedTerm;
+    f32 divisor;
 
     if (datScriptTargetIsNotEnemy() != 0) {
-        temp_f20 = datScriptCalcFloat(0xE, 2);
-        temp_f20 += datScriptCalcFloat(0xE, 2);
-        temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-        temp_f1 = mul_f32_ordered(30.0f, temp_f1);
-        temp_f0 = 5.0f * temp_f20;
-        temp_f20 = temp_f1 / temp_f0;
-        temp_f0 = datScriptCalcFloat(0xD, 1) / 5.0f;
-        temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
-        temp_f1 = sqrtf(temp_f0);
-        temp_f21 = 10.0f * temp_f1;
-        temp_f21 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
-        temp_f20 = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
-        temp_f0 = datScriptCalcFloat(DAT_SCRIPT_TERM_MAGIC_TIER_BONUS, 0);
-        temp_f20 = temp_f0 + temp_f21 * temp_f20;
+        damageTerm = datScriptCalcFloat(0xE, 2);
+        damageTerm += datScriptCalcFloat(0xE, 2);
+        powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
+        powerTerm = mul_f32_ordered(30.0f, powerTerm);
+        scaledTerm = 5.0f * damageTerm;
+        damageTerm = powerTerm / scaledTerm;
+        scaledTerm = datScriptCalcFloat(0xD, 1) / 5.0f;
+        scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+        powerTerm = sqrtf(scaledTerm);
+        baseDamage = 10.0f * powerTerm;
+        baseDamage *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+        damageTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+        scaledTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_MAGIC_TIER_BONUS, 0);
+        damageTerm = scaledTerm + baseDamage * damageTerm;
     } else {
-        temp_f20 = datScriptCalcFloat(0x20, 0) / 2.0f;
-        temp_f3 = 2.0f;
-        temp_f0 = datScriptCalcFloat(0xE, 2);
-        temp_f2 = temp_f20 / temp_f3;
-        temp_f1 = temp_f2 + temp_f3 * temp_f0;
-        temp_f0 = fGpffff811c * temp_f1;
-        temp_f20 = temp_f0;
-        temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-        temp_f1 = mul_f32_ordered(30.0f, temp_f1);
-        temp_f0 = mul_f32_ordered(5.0f, temp_f20);
-        temp_f20 = temp_f1 / temp_f0;
-        temp_f0 = datScriptCalcFloat(0xD, 1) / 5.0f;
-        temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
-        temp_f1 = sqrtf(temp_f0);
-        temp_f21 = 10.0f * temp_f1;
-        temp_f20 = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
-        temp_f0 = datScriptCalcFloat(DAT_SCRIPT_TERM_MAGIC_TIER_BONUS, 0);
-        temp_f2 = temp_f0 + temp_f21 * temp_f20;
-        temp_f0 = 30.0f;
-        temp_f20 = temp_f2 - temp_f0;
-        if (temp_f20 <= 0.0f)
-            temp_f20 = 1.0f;
-        temp_f20 *= 2.0f;
-        temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+        damageTerm = datScriptCalcFloat(0x20, 0) / 2.0f;
+        divisor = 2.0f;
+        scaledTerm = datScriptCalcFloat(0xE, 2);
+        combinedTerm = damageTerm / divisor;
+        powerTerm = combinedTerm + divisor * scaledTerm;
+        scaledTerm = fGpffff811c * powerTerm;
+        damageTerm = scaledTerm;
+        powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
+        powerTerm = mul_f32_ordered(30.0f, powerTerm);
+        scaledTerm = mul_f32_ordered(5.0f, damageTerm);
+        damageTerm = powerTerm / scaledTerm;
+        scaledTerm = datScriptCalcFloat(0xD, 1) / 5.0f;
+        scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+        powerTerm = sqrtf(scaledTerm);
+        baseDamage = 10.0f * powerTerm;
+        damageTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+        scaledTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_MAGIC_TIER_BONUS, 0);
+        combinedTerm = scaledTerm + baseDamage * damageTerm;
+        scaledTerm = 30.0f;
+        damageTerm = combinedTerm - scaledTerm;
+        if (damageTerm <= 0.0f)
+            damageTerm = 1.0f;
+        damageTerm *= 2.0f;
+        damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
     }
-    datScriptSetResult(temp_f20);
+    datScriptSetResult(damageTerm);
 }
 

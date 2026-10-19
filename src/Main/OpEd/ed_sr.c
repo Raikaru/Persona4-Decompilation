@@ -3,6 +3,9 @@
 /* Original translation unit ed_sr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "scr_internal.h"
+#include "ed_scroll_internal.h"
+#include "kwln_task_internal.h"
+#include "primitive_queue_internal.h"
 
 /* GP-owned work record shared across the opening/ending TU. */
 extern s32 *iGpffffb5b8;
@@ -56,6 +59,8 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 // Intent: Step the end-scene state machine: wait, start playback, fade out and finish [inferred]
 // FUN_0038EE40
+/* Typed staff-roll members change b210 address materialization; retain byte/word
+ * accesses to ed_scroll_internal.h layouts to keep the retail instructions. */
 void edSrStep(void) {
     s32 v;
     u8 *p;
@@ -120,10 +125,10 @@ void edSrStartPlayback(void) {
         v = 0;
     }
     if (v != 0) {
-        *(s32 *)((u8 *)p + 0x1250) = mwPlayerCreateReset(*(s32 *)((u8 *)p + 4), v, &D_00796340);
+        ((EdSrWork *)p)->playerTask = mwPlayerCreateReset(((EdSrWork *)p)->task, v, &D_00796340);
     }
-    *(s32 *)((u8 *)p + 0x1254) = 0;
-    *(s32 *)((u8 *)p + 0x124C) = 2;
+    ((EdSrWork *)p)->frame = 0;
+    ((EdSrWork *)p)->state = 2;
 }
 
 // Intent: Queued overlay draw: draw the scroll lines while the work is active [inferred]
@@ -133,9 +138,9 @@ void edSrStartPlayback(void) {
 #pragma opt_propagation off
 void edSrOverlayDraw(void) {
     void (**base)(s32, s32);
-    s32 sp2C;
+    s32 previousFogState;
 
-    D_00887304[0](0xE, &sp2C);
+    D_00887304[0](0xE, &previousFogState);
     base = D_00887300;
     base[0](0xE, 0);
     if (iGpffffb5b8 == NULL) {
@@ -144,7 +149,7 @@ void edSrOverlayDraw(void) {
     if (!(~*iGpffffb5b8 & 1)) {
         edScrollDrawLines();
     }
-    base[0](0xE, sp2C);
+    base[0](0xE, previousFogState);
 }
 #pragma opt_propagation on
 
@@ -163,33 +168,35 @@ s32 edSrTaskUpdate(u8 *unusedTask) {
 
 // Intent: Overlay task update: queue the overlay draw callback for this task [inferred]
 // FUN_0038F1C0
-s32 edSrOverlayTaskUpdate(u8 *arg0) {
+s32 edSrOverlayTaskUpdate(u8 *task) {
     u8 *work;
     s32 v;
 
-    v = *(s32 *)(arg0 + 0x38);
+    v = *(s32 *)&((KwlnTask *)task)->work;
     work = PrimAllocQueueNode();
-    *(s32 *)(work + 0x8) = (s32)edSrOverlayDraw;
-    *(s32 *)(work + 0x10) = v;
+    *(s32 *)&((PrimQueueNode *)work)->callback = (s32)edSrOverlayDraw;
+    ((PrimQueueNode *)work)->argument.handle = v;
     PrimAppendNode(&D_007964C0, work);
     return 0;
 }
 
 // Intent: End-scene task destroy: release the scroll records and the resource, then run the teardown handler [inferred]
 // FUN_0038F220
-void edSrTaskDestroy(u8 *arg0) {
+void edSrTaskDestroy(u8 *task) {
     if (iGpffffb5b8 == NULL) {
         kAssertFail(&iGpffffa9f0, 0x64);
     }
     edScrollRelease();
     edResRelease();
-    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(void * *)&((KwlnTask *)task)->work);
 }
 
 // Intent: Common script command 0x6A, CALL_STAFF_ROLL (0 params): starts the end-credits scene; returns 1 once the command timer is past 0xA and the task is gone.
 // Index: Common table group 0 base 0x63D070; entry 0x63D3C0 = (0x63D3C0 - 0x63D070) / 8 = 0x6A.
 // Library: p4flow Common.json 0x006A = CALL_STAFF_ROLL.
 // FUN_0038F290
+/* Typed staff-roll members change b210 address materialization; retain byte/word
+ * accesses to ed_scroll_internal.h layouts to keep the retail instructions. */
 s32 K_Cmd_CALL_STAFF_ROLL(void) {
     s32 state;
     u8 *w;

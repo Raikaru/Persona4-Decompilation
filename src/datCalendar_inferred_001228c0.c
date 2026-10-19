@@ -32,7 +32,7 @@ extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
 extern void poolFree(s32 input);
-extern void func_001029a0(s32 input, void *secondInput, s32 thirdInput, s32 fourthInput);
+extern void sequenceRequest(s32 input, void *secondInput, s32 thirdInput, s32 fourthInput);
 extern void datCarryOverPersistentState(void);
 extern s32 shdWindowTaskCreate(u8 *input, s32 secondInput, s32 thirdInput);
 extern s32 shdWindowQueryState(s32 input);
@@ -916,7 +916,7 @@ s32 clndSceneUpdate(u8 *task)
         calRestoreDayFlagMask();
         calendarSyncFromDate();
         calendarSetMode(1);
-        func_001029a0(0x19, 0, 0, 0);
+        sequenceRequest(0x19, 0, 0, 0);
         return -1;
     state3:
         iGpffffb1f0 = 1;
@@ -924,20 +924,20 @@ s32 clndSceneUpdate(u8 *task)
         calendarSetMode(1);
         pendingDate = (s16)datGetPendingDateIndex();
         if ((pendingDate == 9) && ((u8)datGetPendingTimeSlot() == 5)) {
-            func_001029a0(0x19, 0, 0, 0);
+            sequenceRequest(0x19, 0, 0, 0);
             return -1;
         }
         if (*(s32 *)D_0079B6A0 != 0) {
             int_work.s48 = *(s32 *)D_0079B6A0;
             int_work.s4C = 0xFF;
-            func_001029a0(0xB, &int_work, 8, 2);
+            sequenceRequest(0xB, &int_work, 8, 2);
         } else {
             short_work.s20 = (s16)*(s32 *)D_0079B698;
             short_work.s22 = (s16)*(s32 *)D_0079B69C;
             short_work.s24 = 0xFF;
             short_work.s26 = 0;
             short_work.s28 = 0;
-            func_001029a0(9, &short_work, 0x1C, 0);
+            sequenceRequest(9, &short_work, 0x1C, 0);
         }
         goto state_done;
     state4:

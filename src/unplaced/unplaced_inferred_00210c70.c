@@ -355,7 +355,7 @@ void btlDamageDrawGaugeBar(u8 *arg0, u8 *arg1)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
     extern void btlUiSetRenderMode(s32 arg0);
-    extern s32 func_0021be60(void);
+    extern s32 btlAdvantageGetRaster(void);
     extern void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                               f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
                               f32 fparg8, union ColorWord arg0);
@@ -367,7 +367,7 @@ void btlDamageDrawGaugeBar(u8 *arg0, u8 *arg1)
     s32 temp_16;
     s32 var_17;
 
-    D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)func_0021be60());
+    D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)btlAdvantageGetRaster());
     btlUiSetRenderMode(2);
     frame.bytes[0] = 0x52;
     frame.bytes[1] = 0xF3;
@@ -717,7 +717,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     extern void sdkSpriteDrawOnceScaled(s32 file, s32 tile, f32 x, f32 y, f32 z,
         u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
         f32 angle, s16 centerX, s16 centerY);
-    extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height,
+    extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height,
         s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY,
         BtlShuffleMatrix *matrix, s32 texture, f32 (*uv)[2]);
     extern s32 sdkSpriteSlotHandle(u8 *file, s32 tile);
@@ -883,7 +883,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         uv[2][1] = 0.4375f;
         uv[3][0] = 0.00390625f;
         uv[3][1] = 0.921875f;
-        func_00366c70(0x13F, 0xE0, 0.0f, 0x78, 0x98, 0xFFFF761E, alpha,
+        sflDataDrawTexturedQuad(0x13F, 0xE0, 0.0f, 0x78, 0x98, 0xFFFF761E, alpha,
             0, 0x3C, 0x4C, &matrix,
             sdkSpriteSlotHandle((u8 *)*(s32 *)(work + 4), 2),
             uv);

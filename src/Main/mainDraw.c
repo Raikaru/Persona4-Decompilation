@@ -2,6 +2,23 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
+
+/* Two 0x30-byte queue records allocated by mainDrawStartClearOt. */
+typedef struct MainDrawClearNode
+{
+    s32 next;
+    s32 previous;
+    void *callback;
+    u32 unk0C;
+    s32 argument;
+    u8 pad14[0x1C];
+} MainDrawClearNode;
+
+typedef struct MainDrawClearWork
+{
+    MainDrawClearNode nodes[2];
+} MainDrawClearWork;
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
@@ -199,11 +216,11 @@ extern u16 D_0079662A[];
 extern void (*D_00796648[])(void);
 extern s32 D_00796650[];
 extern u16 D_0079665A[];
-extern void func_001015c0(void);
-extern void func_001016f0(void);
-extern void func_00101820(void);
-extern void func_00101950(void);
-extern void func_00101a80(void);
+extern void mainDrawSetSkyThresholdBlendState(void);
+extern void mainDrawSetSkyAlphaBlendState(void);
+extern void mainDrawSetSkyAdditiveBlendState(void);
+extern void mainDrawSetSkySubtractiveBlendState(void);
+extern void mainDrawSetSkyReverseBlendState(void);
 extern void mainDrawClearCameraAndSky(void);
 extern s32 mainDrawClearOtUpdate(u8 *arg0);
 extern s32 mainDrawFrameUpdate(u8 *task);
@@ -218,12 +235,12 @@ extern void mainDrawFrameDestroy(u8 *task);
 /* measured: opening opt_propagation bracket for the matching vtable probe. */
 #pragma opt_propagation off
 void mainDrawClearCameraAndSky(void) {
-    s32 temp_16;
+    s32 camera;
     void (**base)(u32, u32);
 
     func_003e8110(kwlnGetCamera());
-    temp_16 = kwlnGetCamera();
-    RwCameraClear(temp_16, kwlnGetColorRgb(), 2);
+    camera = kwlnGetCamera();
+    RwCameraClear(camera, kwlnGetColorRgb(), 2);
     if (func_003e8120(kwlnGetCamera()) != 0) {
         base = D_00887300;
         base[0](6, 1);
@@ -242,7 +259,8 @@ void mainDrawClearCameraAndSky(void) {
 // FUN_001015C0
 /* measured: func_001015c0 is MATCH with opt_propagation off. */
 #pragma opt_propagation off
-void func_001015c0(void) {
+/* Install threshold-tested sky state with source-alpha blending and register this state callback. */
+void mainDrawSetSkyThresholdBlendState(void) {
     void (**base)(u32, u32);
 
     RpSkyRenderStateSet(3, 0x717FB);
@@ -258,7 +276,7 @@ void func_001015c0(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    TnSetCallback(func_001015c0);
+    TnSetCallback(mainDrawSetSkyThresholdBlendState);
 }
 /* measured: func_001015c0 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -266,7 +284,8 @@ void func_001015c0(void) {
 // FUN_001016F0
 /* measured: func_001016f0 is MATCH with opt_propagation off. */
 #pragma opt_propagation off
-void func_001016f0(void) {
+/* Install the normal sky alpha-test and source-alpha blend state, then register this callback. */
+void mainDrawSetSkyAlphaBlendState(void) {
     void (**base)(u32, u32);
 
     RpSkyRenderStateSet(3, 0x71801);
@@ -282,7 +301,7 @@ void func_001016f0(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    TnSetCallback(func_001016f0);
+    TnSetCallback(mainDrawSetSkyAlphaBlendState);
 }
 /* measured: func_001016f0 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -290,7 +309,8 @@ void func_001016f0(void) {
 // FUN_00101820
 /* measured: func_00101820 is MATCH with opt_propagation off. */
 #pragma opt_propagation off
-void func_00101820(void) {
+/* Install additive sky blending: ALPHA_1 0x48 computes source times source-alpha plus destination. */
+void mainDrawSetSkyAdditiveBlendState(void) {
     void (**base)(u32, u32);
 
     RpSkyRenderStateSet(3, 0x71801);
@@ -306,7 +326,7 @@ void func_00101820(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    TnSetCallback(func_00101820);
+    TnSetCallback(mainDrawSetSkyAdditiveBlendState);
 }
 /* measured: func_00101820 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -314,7 +334,8 @@ void func_00101820(void) {
 // FUN_00101950
 /* measured: func_00101950 is MATCH with opt_propagation off. */
 #pragma opt_propagation off
-void func_00101950(void) {
+/* Install subtractive sky blending: ALPHA_1 0x42 computes destination minus source times source-alpha. */
+void mainDrawSetSkySubtractiveBlendState(void) {
     void (**base)(u32, u32);
 
     RpSkyRenderStateSet(3, 0x71801);
@@ -330,7 +351,7 @@ void func_00101950(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    TnSetCallback(func_00101950);
+    TnSetCallback(mainDrawSetSkySubtractiveBlendState);
 }
 /* measured: func_00101950 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -338,7 +359,8 @@ void func_00101950(void) {
 // FUN_00101A80
 /* measured: func_00101a80 is MATCH with opt_propagation off. */
 #pragma opt_propagation off
-void func_00101a80(void) {
+/* Install reverse sky blending: ALPHA_1 0x06 computes source minus destination times source-alpha. */
+void mainDrawSetSkyReverseBlendState(void) {
     void (**base)(u32, u32);
 
     RpSkyRenderStateSet(3, 0x71801);
@@ -354,41 +376,41 @@ void func_00101a80(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    TnSetCallback(func_00101a80);
+    TnSetCallback(mainDrawSetSkyReverseBlendState);
 }
 /* measured: func_00101a80 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
 
 /* Clear-OT task update: flushes debug print, clears the camera, resets the ordering table and installs the fixed render-state callbacks. */
 // FUN_00101BB0
-s32 mainDrawClearOtUpdate(u8 *arg0) {
-    u8 *temp_17;
-    s32 temp_16;
+s32 mainDrawClearOtUpdate(u8 *task) {
+    u8 *work;
+    s32 camera;
 
-    temp_17 = *(u8 **)(arg0 + 0x38);
+    work = ((KwlnTask *)task)->work;
     H_Dbprt_Flush();
-    temp_16 = kwlnGetCamera();
-    RwCameraClear(temp_16, kwlnGetColorRgb(), 3);
+    camera = kwlnGetCamera();
+    RwCameraClear(camera, kwlnGetColorRgb(), 3);
     PrimClearNodes(&D_00793E80, 0xD8);
-    *(s32 *)temp_17 = 0;
-    *(s32 *)(temp_17 + 4) = 0;
-    *(s32 *)(temp_17 + 0x30) = 0;
-    *(s32 *)(temp_17 + 0x34) = 0;
-    PrimAppendNode(&D_00793EB0, temp_17);
-    PrimAppendNode(&D_00794900, temp_17 + 0x30);
-    D_00793FA8[0] = func_001015c0;
+    ((MainDrawClearWork *)work)->nodes[0].next = 0;
+    ((MainDrawClearWork *)work)->nodes[0].previous = 0;
+    ((MainDrawClearWork *)work)->nodes[1].next = 0;
+    ((MainDrawClearWork *)work)->nodes[1].previous = 0;
+    PrimAppendNode(&D_00793EB0, work);
+    PrimAppendNode(&D_00794900, work + 0x30);
+    D_00793FA8[0] = mainDrawSetSkyThresholdBlendState;
     D_00793FB0[0] = 0;
-    D_00793FD8[0] = func_001016f0;
+    D_00793FD8[0] = mainDrawSetSkyAlphaBlendState;
     D_00793FE0[0] = 0;
-    D_00794008[0] = func_00101950;
+    D_00794008[0] = mainDrawSetSkySubtractiveBlendState;
     D_00794010[0] = 0;
-    D_00794038[0] = func_00101a80;
+    D_00794038[0] = mainDrawSetSkyReverseBlendState;
     D_00794040[0] = 0;
-    D_00794068[0] = func_00101820;
+    D_00794068[0] = mainDrawSetSkyAdditiveBlendState;
     D_00794070[0] = 0;
-    D_00794098[0] = func_00101a80;
+    D_00794098[0] = mainDrawSetSkyReverseBlendState;
     D_007940A0[0] = 0;
-    D_007940C8[0] = func_00101950;
+    D_007940C8[0] = mainDrawSetSkySubtractiveBlendState;
     D_007940D0[0] = 0;
     D_00793FBA[0] |= 1;
     D_00793FEA[0] |= 1;
@@ -397,19 +419,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_0079407A[0] |= 1;
     D_007940AA[0] |= 1;
     D_007940DA[0] |= 1;
-    D_00794188[0] = func_001015c0;
+    D_00794188[0] = mainDrawSetSkyThresholdBlendState;
     D_00794190[0] = 0;
-    D_007941B8[0] = func_001016f0;
+    D_007941B8[0] = mainDrawSetSkyAlphaBlendState;
     D_007941C0[0] = 0;
-    D_007941E8[0] = func_00101950;
+    D_007941E8[0] = mainDrawSetSkySubtractiveBlendState;
     D_007941F0[0] = 0;
-    D_00794218[0] = func_00101a80;
+    D_00794218[0] = mainDrawSetSkyReverseBlendState;
     D_00794220[0] = 0;
-    D_00794248[0] = func_00101820;
+    D_00794248[0] = mainDrawSetSkyAdditiveBlendState;
     D_00794250[0] = 0;
-    D_00794278[0] = func_00101a80;
+    D_00794278[0] = mainDrawSetSkyReverseBlendState;
     D_00794280[0] = 0;
-    D_007942A8[0] = func_00101950;
+    D_007942A8[0] = mainDrawSetSkySubtractiveBlendState;
     D_007942B0[0] = 0;
     D_0079419A[0] |= 1;
     D_007941CA[0] |= 1;
@@ -418,19 +440,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_0079425A[0] |= 1;
     D_0079428A[0] |= 1;
     D_007942BA[0] |= 1;
-    D_00794458[0] = func_001015c0;
+    D_00794458[0] = mainDrawSetSkyThresholdBlendState;
     D_00794460[0] = 0;
-    D_00794488[0] = func_001016f0;
+    D_00794488[0] = mainDrawSetSkyAlphaBlendState;
     D_00794490[0] = 0;
-    D_007944B8[0] = func_00101950;
+    D_007944B8[0] = mainDrawSetSkySubtractiveBlendState;
     D_007944C0[0] = 0;
-    D_007944E8[0] = func_00101a80;
+    D_007944E8[0] = mainDrawSetSkyReverseBlendState;
     D_007944F0[0] = 0;
-    D_00794518[0] = func_00101820;
+    D_00794518[0] = mainDrawSetSkyAdditiveBlendState;
     D_00794520[0] = 0;
-    D_00794548[0] = func_00101a80;
+    D_00794548[0] = mainDrawSetSkyReverseBlendState;
     D_00794550[0] = 0;
-    D_00794578[0] = func_00101950;
+    D_00794578[0] = mainDrawSetSkySubtractiveBlendState;
     D_00794580[0] = 0;
     D_0079446A[0] |= 1;
     D_0079449A[0] |= 1;
@@ -439,19 +461,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_0079452A[0] |= 1;
     D_0079455A[0] |= 1;
     D_0079458A[0] |= 1;
-    D_00794AE8[0] = func_001015c0;
+    D_00794AE8[0] = mainDrawSetSkyThresholdBlendState;
     D_00794AF0[0] = 0;
-    D_00794B18[0] = func_001016f0;
+    D_00794B18[0] = mainDrawSetSkyAlphaBlendState;
     D_00794B20[0] = 0;
-    D_00794B48[0] = func_00101950;
+    D_00794B48[0] = mainDrawSetSkySubtractiveBlendState;
     D_00794B50[0] = 0;
-    D_00794B78[0] = func_00101a80;
+    D_00794B78[0] = mainDrawSetSkyReverseBlendState;
     D_00794B80[0] = 0;
-    D_00794BA8[0] = func_00101820;
+    D_00794BA8[0] = mainDrawSetSkyAdditiveBlendState;
     D_00794BB0[0] = 0;
-    D_00794BD8[0] = func_00101a80;
+    D_00794BD8[0] = mainDrawSetSkyReverseBlendState;
     D_00794BE0[0] = 0;
-    D_00794C08[0] = func_00101950;
+    D_00794C08[0] = mainDrawSetSkySubtractiveBlendState;
     D_00794C10[0] = 0;
     D_00794AFA[0] |= 1;
     D_00794B2A[0] |= 1;
@@ -460,19 +482,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_00794BBA[0] |= 1;
     D_00794BEA[0] |= 1;
     D_00794C1A[0] |= 1;
-    D_00795CE8[0] = func_001015c0;
+    D_00795CE8[0] = mainDrawSetSkyThresholdBlendState;
     D_00795CF0[0] = 0;
-    D_00795D18[0] = func_001016f0;
+    D_00795D18[0] = mainDrawSetSkyAlphaBlendState;
     D_00795D20[0] = 0;
-    D_00795D48[0] = func_00101950;
+    D_00795D48[0] = mainDrawSetSkySubtractiveBlendState;
     D_00795D50[0] = 0;
-    D_00795D78[0] = func_00101a80;
+    D_00795D78[0] = mainDrawSetSkyReverseBlendState;
     D_00795D80[0] = 0;
-    D_00795DA8[0] = func_00101820;
+    D_00795DA8[0] = mainDrawSetSkyAdditiveBlendState;
     D_00795DB0[0] = 0;
-    D_00795DD8[0] = func_00101a80;
+    D_00795DD8[0] = mainDrawSetSkyReverseBlendState;
     D_00795DE0[0] = 0;
-    D_00795E08[0] = func_00101950;
+    D_00795E08[0] = mainDrawSetSkySubtractiveBlendState;
     D_00795E10[0] = 0;
     D_00795CFA[0] |= 1;
     D_00795D2A[0] |= 1;
@@ -481,19 +503,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_00795DBA[0] |= 1;
     D_00795DEA[0] |= 1;
     D_00795E1A[0] |= 1;
-    D_00796528[0] = func_001015c0;
+    D_00796528[0] = mainDrawSetSkyThresholdBlendState;
     D_00796530[0] = 0;
-    D_00796558[0] = func_001016f0;
+    D_00796558[0] = mainDrawSetSkyAlphaBlendState;
     D_00796560[0] = 0;
-    D_00796588[0] = func_00101950;
+    D_00796588[0] = mainDrawSetSkySubtractiveBlendState;
     D_00796590[0] = 0;
-    D_007965B8[0] = func_00101a80;
+    D_007965B8[0] = mainDrawSetSkyReverseBlendState;
     D_007965C0[0] = 0;
-    D_007965E8[0] = func_00101820;
+    D_007965E8[0] = mainDrawSetSkyAdditiveBlendState;
     D_007965F0[0] = 0;
-    D_00796618[0] = func_00101a80;
+    D_00796618[0] = mainDrawSetSkyReverseBlendState;
     D_00796620[0] = 0;
-    D_00796648[0] = func_00101950;
+    D_00796648[0] = mainDrawSetSkySubtractiveBlendState;
     D_00796650[0] = 0;
     D_0079653A[0] |= 1;
     D_0079656A[0] |= 1;
@@ -502,19 +524,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_007965FA[0] |= 1;
     D_0079662A[0] |= 1;
     D_0079665A[0] |= 1;
-    D_00796078[0] = func_001015c0;
+    D_00796078[0] = mainDrawSetSkyThresholdBlendState;
     D_00796080[0] = 0;
-    D_007960A8[0] = func_001016f0;
+    D_007960A8[0] = mainDrawSetSkyAlphaBlendState;
     D_007960B0[0] = 0;
-    D_007960D8[0] = func_00101950;
+    D_007960D8[0] = mainDrawSetSkySubtractiveBlendState;
     D_007960E0[0] = 0;
-    D_00796108[0] = func_00101a80;
+    D_00796108[0] = mainDrawSetSkyReverseBlendState;
     D_00796110[0] = 0;
-    D_00796138[0] = func_00101820;
+    D_00796138[0] = mainDrawSetSkyAdditiveBlendState;
     D_00796140[0] = 0;
-    D_00796168[0] = func_00101a80;
+    D_00796168[0] = mainDrawSetSkyReverseBlendState;
     D_00796170[0] = 0;
-    D_00796198[0] = func_00101950;
+    D_00796198[0] = mainDrawSetSkySubtractiveBlendState;
     D_007961A0[0] = 0;
     D_0079608A[0] |= 1;
     D_007960BA[0] |= 1;
@@ -523,19 +545,19 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_0079614A[0] |= 1;
     D_0079617A[0] |= 1;
     D_007961AA[0] |= 1;
-    D_00794698[0] = func_001015c0;
+    D_00794698[0] = mainDrawSetSkyThresholdBlendState;
     D_007946A0[0] = 0;
-    D_007946C8[0] = func_001016f0;
+    D_007946C8[0] = mainDrawSetSkyAlphaBlendState;
     D_007946D0[0] = 0;
-    D_007946F8[0] = func_00101950;
+    D_007946F8[0] = mainDrawSetSkySubtractiveBlendState;
     D_00794700[0] = 0;
-    D_00794728[0] = func_00101a80;
+    D_00794728[0] = mainDrawSetSkyReverseBlendState;
     D_00794730[0] = 0;
-    D_00794758[0] = func_00101820;
+    D_00794758[0] = mainDrawSetSkyAdditiveBlendState;
     D_00794760[0] = 0;
-    D_00794788[0] = func_00101a80;
+    D_00794788[0] = mainDrawSetSkyReverseBlendState;
     D_00794790[0] = 0;
-    D_007947B8[0] = func_00101950;
+    D_007947B8[0] = mainDrawSetSkySubtractiveBlendState;
     D_007947C0[0] = 0;
     D_007946AA[0] |= 1;
     D_007946DA[0] |= 1;
@@ -544,7 +566,7 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     D_0079476A[0] |= 1;
     D_0079479A[0] |= 1;
     D_007947CA[0] |= 1;
-    D_00795058[0] = func_001015c0;
+    D_00795058[0] = mainDrawSetSkyThresholdBlendState;
     D_00795060[0] = 0;
     D_0079506A[0] |= 1;
     return 0;
@@ -553,17 +575,17 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
 /* Starts the clear-OT task (priority 0x0A). */
 // FUN_00102490
 void mainDrawStartClearOt(void) {
-    u8 *temp_2;
-    s32 temp_2_2;
+    u8 *work;
+    s32 task;
 
     chkmemAllocSiteTag(&D_005DCAE8, 0x13B);
-    temp_2 = D_008873F4[0](1, 0x60, 0x40000);
-    temp_2_2 = (s32)kwlnTaskCreate((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(temp_2));
-    *(void **)(temp_2 + 8) = &D_001013A0;
-    *(s32 *)(temp_2 + 0x10) = 0;
-    *(void (**)(void))(temp_2 + 0x38) = mainDrawClearCameraAndSky;
-    *(s32 *)(temp_2 + 0x40) = 0;
-    if (temp_2_2 == 0) {
+    work = D_008873F4[0](1, 0x60, 0x40000);
+    task = (s32)kwlnTaskCreate((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(work));
+    ((MainDrawClearWork *)work)->nodes[0].callback = &D_001013A0;
+    ((MainDrawClearWork *)work)->nodes[0].argument = 0;
+    *(void (**)(void))(work + 0x38) = mainDrawClearCameraAndSky;
+    ((MainDrawClearWork *)work)->nodes[1].argument = 0;
+    if (task == 0) {
         kAssertFail(&D_005DCAE8, 0x14F);
     }
 }
@@ -571,14 +593,14 @@ void mainDrawStartClearOt(void) {
 /* Frame task update: walks the ordering-table buckets between the camera's begin and end updates. */
 // FUN_00102550
 s32 mainDrawFrameUpdate(u8 *unusedTask) {
-    u32 var_16;
+    u32 bucketIndex;
 
     if (func_003e8120(kwlnGetCamera()) != 0) {
-        var_16 = 0;
-        while (var_16 < 0xD8U) {
-            s32 off = var_16 * 0x30;
+        bucketIndex = 0;
+        while (bucketIndex < 0xD8U) {
+            s32 off = bucketIndex * 0x30;
             sdkOtFlushBuckets((s32)&D_00793E80 + off);
-            var_16 += 1;
+            bucketIndex += 1;
         }
     }
     func_003e8110(kwlnGetCamera());
@@ -587,8 +609,8 @@ s32 mainDrawFrameUpdate(u8 *unusedTask) {
 
 /* Destroy callback of the frame task: frees its work block. */
 // FUN_001025E0
-void mainDrawFrameDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
+void mainDrawFrameDestroy(u8 *task) {
+    jtbl_008873EC[0](*(void * *)&((KwlnTask *)task)->work);
 }
 
 /* Starts the mainDraw frame task (priority 0xC8). */

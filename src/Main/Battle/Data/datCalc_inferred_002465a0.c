@@ -57,12 +57,12 @@ s32 mdlNeckTestExists(void)
 // FUN_00246670
 void mdlNeckTestDestroy(void)
 {
-    s32 temp_2;
+    s32 task;
 
-    temp_2 = kwlnTaskGetTaskByName(D_006359B0);
-    if (temp_2 == 0) {
+    task = kwlnTaskGetTaskByName(D_006359B0);
+    if (task == 0) {
         kAssertFail(D_006359C0, 0x3D);
     }
-    kwlnTaskDestroyWithHierarchy(temp_2);
+    kwlnTaskDestroyWithHierarchy(task);
 }
 

@@ -1831,7 +1831,7 @@ void btlAct_NOP(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 btlUnitGetGroupBounds(u32, u32, RwV3d *, f32 *, f32 *, u32);
-    extern void func_001ba790(f32 *out, f32 *first, f32 *second, f32 weight);
+    extern void mdlBlendTranslationRotation(f32 *out, f32 *first, f32 *second, f32 weight);
     extern void btlMainCurveSetThreePoses(u16 *camera, f32 *first, f32 *middle, f32 *last, u16 mode);
     extern RtQuat *func_003dc740(RtQuat *rotation, const RwV3d *axis, f32 angle, s32 mode);
     extern f32 RwV3dLength(const RwV3d *vector);
@@ -1879,7 +1879,7 @@ void btlAct_NOP(u8 *camera)
                 frames[0].pos.y = 25.0f;
             }
             btlCameraBuildFramePair(camera, 1, 1, NULL, &frames[2]);
-            func_001ba790((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
+            mdlBlendTranslationRotation((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
             frames[1].pos.y = frames[0].pos.y;
             duration = uGpffff81a0;
             break;
@@ -1928,7 +1928,7 @@ void btlAct_NOP(u8 *camera)
             frames[2].pos.x = groupCenter.x + direction.x;
             frames[2].pos.y = groupCenter.y + direction.y;
             frames[2].pos.z = groupCenter.z + direction.z;
-            func_001ba790((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
+            mdlBlendTranslationRotation((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
             frames[1].pos.y = frames[0].pos.y;
             duration = 3.5f;
             break;
@@ -1960,7 +1960,7 @@ void btlAct_NOP(u8 *camera)
         if (frames[0].pos.y < 25.0f) {
             frames[0].pos.y = 25.0f;
         }
-        func_001ba790((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
+        mdlBlendTranslationRotation((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
         frames[1].pos.y = frames[0].pos.y;
         duration = 2.0f;
     }

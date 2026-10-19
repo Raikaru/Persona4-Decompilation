@@ -49,7 +49,7 @@ extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 ar
 extern s32 sdkListStateHandleInput(void *arg0);
 extern void sdkSndStopChannel(s32 arg0);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
-extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void sequenceRequest(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
 extern u16 D_008C024E[];
@@ -524,7 +524,7 @@ s32 cmpSystemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2)
         goto block_64;
     case 11:
         if (fadeStatus() != 0) {
-            func_001029a0(0x1B, 0, 0, 0xA);
+            sequenceRequest(0x1B, 0, 0, 0xA);
         }
         goto block_64;
     case 12:

@@ -51,7 +51,7 @@ extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern s32 datGetPartyId(s32 arg0);
-extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
+extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
 extern u8 *iGpffffb3e0;
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
@@ -575,7 +575,7 @@ loop_5_check:
         setup.formation = formation;
         setup.formationVariant = encounter->formationVariant;
     }
-    func_001029a0(6, &setup, 0x3C, 4);
+    sequenceRequest(6, &setup, 0x3C, 4);
     return 1;
 }
 

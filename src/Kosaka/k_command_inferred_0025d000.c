@@ -71,7 +71,7 @@ block_1:
 // FUN_0025D090
 s32 scrCommonCallNameEntry(void) {
     if (scrGetCmdTimer() == 0) {
-        func_001029a0(0x1C, 0, 0, 0);
+        sequenceRequest(0x1C, 0, 0, 0);
         goto block_4;
     }
     if (timeLimitTaskExists() == 0) {

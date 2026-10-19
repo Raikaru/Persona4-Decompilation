@@ -159,10 +159,10 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
             }
             rot = 1.0f - fade;
             sdkSpriteDrawNow(165.0f, 244.0f + 95.0f * fade, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, rot);
-            func_00366380(0xB0, 271 + 64.0f * fade, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 0.3f + 0.3f * rot);
+            sflDataDrawNarrowRoundedFrame(0xB0, 271 + 64.0f * fade, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 0.3f + 0.3f * rot);
         } else if (frame < 11) {
             t = (f32)(frame - 4) / 6.0f;
-            func_00366380(176.0f * (1.0f - t), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f + t, 0.3f - 0.2f * t);
+            sflDataDrawNarrowRoundedFrame(176.0f * (1.0f - t), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f + t, 0.3f - 0.2f * t);
         }
         font = (u8 *)msgCalResourceGet(1);
         {
@@ -214,7 +214,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
             t = 64.0f * rot;
             py = 113.0f + t;
             px = i * 0x53;
-            func_00366380(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
+            sflDataDrawNarrowRoundedFrame(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
             calDrawDateCell(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
             py = 163.0f - 5.0f * rot;
             calDrawWeather(px + 0x5D, py, 0.0f, 0xFF, calGetPackedDayEntry(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
@@ -231,10 +231,10 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
         if (frame >= 2) {
             if (frame < 0) {
                 t = sinf(1.5707964f * (f32)(frame - 1) / 4.0f);
-                func_00366380(0x12C, 145.0f + 24.0f * t, 0.0f, 0x50, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - 0.2f * t);
+                sflDataDrawNarrowRoundedFrame(0x12C, 145.0f + 24.0f * t, 0.0f, 0x50, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - 0.2f * t);
             } else if (frame < 8) {
                 t = (f32)(frame - 2) / 5.0f;
-                func_00366380(300.0f * (1.0f - t), 0xA9, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.3f - 0.2f * t);
+                sflDataDrawNarrowRoundedFrame(300.0f * (1.0f - t), 0xA9, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.3f - 0.2f * t);
             }
         }
         break;

@@ -13,7 +13,7 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern void mdlDestroyModelObject(s32 handle);
 extern void *memset(void *dest, s32 value, s32 size);
-extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
+extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
 extern s32 *MT_Scene_GetFrameState(void);
 extern s32 FldLoadTaskIsDone(s32 handle);
 extern s32 mtSceneResListPrepareAll(void);
@@ -73,7 +73,7 @@ s32 K_Test_Update(u8 *task)
             message.field1 = 6;
             message.field2 = 0;
             message.field4 = 0;
-            func_001029a0(9, &message, 0x1C, 3);
+            sequenceRequest(9, &message, 0x1C, 3);
             work->state += 1;
         }
         break;
@@ -89,7 +89,7 @@ s32 K_Test_Update(u8 *task)
             message.field1 = 2;
             message.field2 = 5;
             message.field4 = 0;
-            func_001029a0(9, &message, 0x1C, 3);
+            sequenceRequest(9, &message, 0x1C, 3);
             work->state = 1;
         }
         break;

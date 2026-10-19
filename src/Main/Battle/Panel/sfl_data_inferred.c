@@ -6,6 +6,25 @@
 #include "datPersona_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
+
+/* Reset clears the 0x18-byte details at +4; Load and all draw helpers agree. */
+typedef struct SflPersonaDetails
+{
+    s16 partyId;
+    s16 ranks[5];
+    s32 value;
+    u8 *row;
+    u8 arcana;
+    u8 level;
+    u8 pad16[2];
+} SflPersonaDetails;
+
+typedef struct SflPersonaState
+{
+    s16 kind;
+    u8 pad02[2];
+    SflPersonaDetails details;
+} SflPersonaState;
 typedef struct {
     s32 lo;
     s32 hi;
@@ -56,7 +75,7 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
 extern void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1);
 extern void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
+extern void sflDataDrawPartyEntry(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
@@ -102,9 +121,10 @@ extern f32 fGpffff8198;
  * halfword Y, while the immediate renderer takes its promoted signed word.
  */
 // FUN_00366380
-void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
-                   s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8,
-                   void *arg9, f32 fparg1, f32 fparg2, f32 fparg3)
+/* Construct the narrow rounded frame, expand its size, color its contour and submit it with the requested transform. */
+void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 height,
+                   s32 rgb, s32 alpha, s32 mode, s32 offsetX, s16 offsetY,
+                   void *queue, f32 angle, f32 scaleX, f32 scaleY)
 {
     extern s64 iGpffffabe8;
     extern const s32 D_0064E320[36];
@@ -143,9 +163,9 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
         dst->words.w1 = t2;
         dst++;
     } while (cnt > 0);
-    w = (f32)(arg2 - 10) * fparg2;
+    w = (f32)(width - 10) * scaleX;
     v[0].point.v[0] = w * 0.5f + 5.0f;
-    h = (f32)(arg3 - 10) * fparg3;
+    h = (f32)(height - 10) * scaleY;
     v[0].point.v[1] = h * 0.5f + 5.0f;
     v[5].point.v[0] = w + 5.0f;
     v[6].point.v[0] = v[5].point.v[0] + 2.0f;
@@ -163,16 +183,16 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
     v[14].point.v[1] = v[9].point.v[1] + 4.0f;
     v[15].point.v[1] = v[9].point.v[1] + 2.0f;
     v[16].point.v[1] = v[9].point.v[1];
-    arg7 = (queuedOffsetX = (s16)(s32)((f32)arg7 - v[0].point.v[0]));
-    centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0].point.v[1]));
+    offsetX = (queuedOffsetX = (s16)(s32)((f32)offsetX - v[0].point.v[0]));
+    centerY = (offsetY = (s16)(s32)((f32)offsetY - v[0].point.v[1]));
     i = 0;
-    rgba = ((u32)arg4 << 8) | (u32)arg5;
+    rgba = ((u32)rgb << 8) | (u32)alpha;
     r = rgba >> 24;
     g = rgba >> 16;
     b = rgba >> 8;
     a = rgba;
-    fx = (f32)arg0;
-    fy = (f32)arg1;
+    fx = (f32)x;
+    fy = (f32)y;
     while (i < 18) {
         p = &v[i];
         p->point.v[0] += fx;
@@ -184,18 +204,18 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
         c[3] = a;
         i++;
     }
-    if (arg9 != 0) {
-        if (arg5 == 0xFF) {
-            PrimQueueBatchAlpha(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
+    if (queue != 0) {
+        if (alpha == 0xFF) {
+            PrimQueueBatchAlpha(col, v, depth, 18, 5, mode, queuedOffsetX, offsetY, angle, scaleX, scaleY, queue);
         } else {
-            PrimQueueBatch(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+            PrimQueueBatch(col, v, depth, 18, 5, mode, offsetX, offsetY, angle, scaleX, scaleY, queue);
         }
-    } else if (arg5 == 0xFF) {
+    } else if (alpha == 0xFF) {
         iGpffffabe8 |= 0x80;
-        PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+        PrimDrawTransformed(col, v, depth, 18, 5, mode, offsetX, centerY, angle, scaleX, scaleY);
         iGpffffabe8 &= ~0x80;
     } else {
-        PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+        PrimDrawTransformed(col, v, depth, 18, 5, mode, offsetX, centerY, angle, scaleX, scaleY);
     }
 }
 
@@ -204,7 +224,8 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
  * the entry halfword load; the paired offset assignment preserves both real
  * primitive ABIs. Keep i = 0 before splitting the unsigned packed color.
  */
-void func_00366670(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
+/* Construct the alternate rounded frame contour with the wider corner steps and submit it with the requested transform. */
+void sflDataDrawWideRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s32 offsetX, s16 offsetY, void *queue, f32 angle, f32 scaleX, f32 scaleY) { extern s64 iGpffffabe8;
 extern const s32 D_0064E3B0[36];
 extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
@@ -241,9 +262,9 @@ do {
     dst->words.w1 = t2;
     dst++;
 } while (cnt > 0);
-w = (f32)(arg2 - 10) * fparg2;
+w = (f32)(width - 10) * scaleX;
 v[0].point.v[0] = w * 0.5f + 5.0f;
-h = (f32)(arg3 - 10) * fparg3;
+h = (f32)(height - 10) * scaleY;
 v[0].point.v[1] = h * 0.5f + 5.0f;
 v[5].point.v[0] = w + 5.0f;
 v[6].point.v[0] = v[5].point.v[0] + 3.0f;
@@ -261,16 +282,16 @@ v[13].point.v[1] = v[9].point.v[1] + 5.0f;
 v[14].point.v[1] = v[9].point.v[1] + 4.0f;
 v[15].point.v[1] = v[9].point.v[1] + 3.0f;
 v[16].point.v[1] = v[9].point.v[1];
-arg7 = (queuedOffsetX = (s16)(s32)((f32)arg7 - v[0].point.v[0]));
-centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0].point.v[1]));
+offsetX = (queuedOffsetX = (s16)(s32)((f32)offsetX - v[0].point.v[0]));
+centerY = (offsetY = (s16)(s32)((f32)offsetY - v[0].point.v[1]));
 i = 0;
-rgba = ((u32)arg4 << 8) | (u32)arg5;
+rgba = ((u32)rgb << 8) | (u32)alpha;
 r = rgba >> 24;
 g = rgba >> 16;
 b = rgba >> 8;
 a = rgba;
-fx = (f32)arg0;
-fy = (f32)arg1;
+fx = (f32)x;
+fy = (f32)y;
 while (i < 18) {
     p = &v[i];
     p->point.v[0] += fx;
@@ -282,18 +303,18 @@ while (i < 18) {
     c[3] = a;
     i++;
 }
-if (arg9 != 0) {
-    if (arg5 == 0xFF) {
-        PrimQueueBatchAlpha(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
+if (queue != 0) {
+    if (alpha == 0xFF) {
+        PrimQueueBatchAlpha(col, v, depth, 18, 5, mode, queuedOffsetX, offsetY, angle, scaleX, scaleY, queue);
     } else {
-        PrimQueueBatch(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+        PrimQueueBatch(col, v, depth, 18, 5, mode, offsetX, offsetY, angle, scaleX, scaleY, queue);
     }
-} else if (arg5 == 0xFF) {
+} else if (alpha == 0xFF) {
     iGpffffabe8 |= 0x80;
-    PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    PrimDrawTransformed(col, v, depth, 18, 5, mode, offsetX, centerY, angle, scaleX, scaleY);
     iGpffffabe8 &= ~0x80;
 } else {
-    PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    PrimDrawTransformed(col, v, depth, 18, 5, mode, offsetX, centerY, angle, scaleX, scaleY);
 } }
 
 /* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
@@ -378,7 +399,8 @@ void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
 }
 
 // FUN_00366C70
-s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+/* Draw a transformed textured quad, optionally rejecting the unwanted winding before submitting its sky vertices. Camera +0x80 is the near-plane scalar; its full header conflicts with local matrix tags. */
+s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                   s32 alpha, s32 mode, s16 centerX, s16 centerY,
                   struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2])
 {
@@ -457,8 +479,8 @@ s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         P4Vertex66C70 *vertex;
 
         point = (u8 *)points + i * 8;
-        transformed.x = *(f32 *)(point + 0) - (f32)centerX;
-        transformed.y = *(f32 *)(point + 4) - (f32)centerY;
+        transformed.x = ((f32 *)point)[0] - (f32)centerX;
+        transformed.y = ((f32 *)point)[1] - (f32)centerY;
         transformed.z = 0.0f;
         func_003e4320(&transformed, &transformed, matrix);
         transformed.x = transformed.x + (f32)x;
@@ -471,8 +493,8 @@ s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         vertex->g = (f32)g;
         vertex->b = (f32)b;
         vertex->a = (f32)a;
-        vertex->u = *(f32 *)((u8 *)uv + i * 8);
-        vertex->v = *(f32 *)((u8 *)uv + i * 8 + 4);
+        vertex->u = uv[i][0];
+        vertex->v = uv[i][1];
         vertex->w = inverse;
         i++;
     }
@@ -512,41 +534,41 @@ s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
 #pragma pop
 // Intent: Clears a persona panel state block: its id and the 0x18 bytes that follow [inferred]
 // FUN_003671D0
-void sflDataResetPersonaState(s16 *arg0)
+void sflDataResetPersonaState(s16 *state)
 {
-    memset((u8 *)arg0 + 4, 0, 0x18);
-    *arg0 = 0;
+    memset((u8 *)state + 4, 0, 0x18);
+    *state = 0;
 }
 
 // Intent: Draws one panel entry, dispatching on its kind byte (0-6) to the matching sprite or panel helper [inferred]
 // FUN_00367210
-void sflDataDrawEntry(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
+void sflDataDrawEntry(P4Pair position, f32 depth, s32 opacity, s16 *state)
 {
     s16 kind;
 
-    if (arg1 & 0xFF) {
-        kind = *arg2;
+    if (opacity & 0xFF) {
+        kind = *state;
         switch (kind) {
         case 0:
-            sflDataDrawPersonaPanel(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawPersonaPanel(*(s64 *)&position, depth, opacity, (u8 *)state);
             return;
         case 1:
-            sflDataDrawSpritePair(*(PairBits *)&arg0, arg4, arg1);
+            sflDataDrawSpritePair(*(PairBits *)&position, depth, opacity);
             return;
         case 2:
-            sflDataDrawByteValuePanel(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawByteValuePanel(*(s64 *)&position, depth, opacity, (u8 *)state);
             return;
         case 3:
-            func_00367940(arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawPartyEntry(position, depth, opacity, (u8 *)state);
             return;
         case 4:
-            sflDataDrawNumberValue(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawNumberValue(*(s64 *)&position, depth, opacity, (u8 *)state);
             return;
         case 5:
-            sflDataDrawTitledIcon(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawTitledIcon(*(s64 *)&position, depth, opacity, (u8 *)state);
             return;
         case 6:
-            sflDataDrawLevelBadge(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
+            sflDataDrawLevelBadge(*(s64 *)&position, depth, opacity, (u8 *)state);
             break;
         }
     }
@@ -561,14 +583,14 @@ void sflDataLoadPersonaState(void *work, s16 pcId)
     u16 personaId = datGetPersonaIdByUnit(pcId);
     PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)pcId);
     *(s16 *)state = pcId;
-    *(u8 **)(state + 16) = datPersonaGetRow(personaId);
-    *(u8 *)(state + 20) = datPersonaGetArcana(personaId);
-    *(u8 *)(state + 21) = datPersonaGetLevel((s32)persona);
+    ((SflPersonaDetails *)state)->row = datPersonaGetRow(personaId);
+    ((SflPersonaDetails *)state)->arcana = datPersonaGetArcana(personaId);
+    ((SflPersonaDetails *)state)->level = datPersonaGetLevel((s32)persona);
     if (pcId == 1) {
         s16 i;
-        *(s32 *)(state + 12) = datGetExperienceToNextLevel(pcId);
+        ((SflPersonaDetails *)state)->value = datGetExperienceToNextLevel(pcId);
         for (i = 0; i < 5; i++)
-            *(s16 *)(state + i * 2 + 2) = datCategoryRank(i);
+            ((SflPersonaDetails *)state)->ranks[i] = datCategoryRank(i);
     } else {
         s32 remaining;
         PersonaWork *other = (PersonaWork *)datPersonaGetRecord((u16)pcId);
@@ -577,48 +599,48 @@ void sflDataLoadPersonaState(void *work, s16 pcId)
         remaining = (s32)(next - datPersonaGetExp((s32)other));
         if (remaining < 0)
             remaining = 0;
-        *(s32 *)(state + 12) = remaining;
+        ((SflPersonaDetails *)state)->value = remaining;
     }
 }
 
 // Intent: Draws a persona panel by composing its six sub-draws at fixed offsets from the panel origin [inferred]
 // FUN_00367420
-void sflDataDrawPersonaPanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawPersonaPanel(s64 position, f32 depth, s32 opacity, u8 *state)
 {
-    f32 y = *((f32 *)&arg0 + 1);
+    f32 y = *((f32 *)&position + 1);
     PairBits pos;
-    extern void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+    extern void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state);
 
-    if (arg1 & 0xFF) {
-        pos.f.x = *(f32 *)&arg0 - 10.0f;
+    if (opacity & 0xFF) {
+        pos.f.x = *(f32 *)&position - 10.0f;
         pos.f.y = y + 20.0f;
-        sflDataDrawSpritePair(pos, fparg0, arg1);
+        sflDataDrawSpritePair(pos, depth, opacity);
 
-        pos.f.x = *(f32 *)&arg0 + 17.0f;
+        pos.f.x = *(f32 *)&position + 17.0f;
         pos.f.y = y + 76.0f;
-        sflDataDrawLevelBadge(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawLevelBadge(pos.raw, depth, opacity, state);
 
-        pos.f.x = *(f32 *)&arg0 + 105.0f;
+        pos.f.x = *(f32 *)&position + 105.0f;
         pos.f.y = y + 23.0f;
-        func_00367940(*(P4Pair *)&pos, fparg0, arg1, arg2);
+        sflDataDrawPartyEntry(*(P4Pair *)&pos, depth, opacity, state);
 
-        pos.f.x = *(f32 *)&arg0 + 98.0f;
+        pos.f.x = *(f32 *)&position + 98.0f;
         pos.f.y = y + 85.0f;
-        sflDataDrawNumberValue(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawNumberValue(pos.raw, depth, opacity, state);
 
-        pos.f.x = *(f32 *)&arg0 + 22.0f;
+        pos.f.x = *(f32 *)&position + 22.0f;
         pos.f.y = y + 111.0f;
-        sflDataDrawByteValuePanel(pos.raw, fparg0, arg1, arg2);
+        sflDataDrawByteValuePanel(pos.raw, depth, opacity, state);
 
-        pos.f.x = *(f32 *)&arg0 + 106.0f;
-        pos.f.y = *(f32 *)&arg0 + 108.0f;
-        sflDataDrawTitledIcon(pos.raw, fparg0, arg1, arg2);
+        pos.f.x = *(f32 *)&position + 106.0f;
+        pos.f.y = *(f32 *)&position + 108.0f;
+        sflDataDrawTitledIcon(pos.raw, depth, opacity, state);
     }
 }
 
 // Intent: Draws a two-sprite pair at a panel position with the given alpha [inferred]
 // FUN_003675F0
-void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1)
+void sflDataDrawSpritePair(PairBits position, f32 depth, s32 opacity)
 {
     s32 tex;
     s32 alpha;
@@ -627,18 +649,18 @@ void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1)
     if (tex == 0) {
         kAssertFail(D_0064E460, 0xB5);
     }
-    alpha = arg1 & 0xFF;
+    alpha = opacity & 0xFF;
     alpha = 0xFF - alpha;
-    sdkSpriteDrawOnceTinted(0, tex, 0x49, arg0.f.x, arg0.f.y,
-                  alpha & 0xFF, 0xFB, 0xA2, 0, fparg0, 0);
-    sdkSpriteDrawOnceTinted(0, tex, 0x48, 108.0f + arg0.f.x,
-                  arg0.f.y, alpha & 0xFF,
-                  0xFB, 0xA2, 0, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, tex, 0x49, position.f.x, position.f.y,
+                  alpha & 0xFF, 0xFB, 0xA2, 0, depth, 0);
+    sdkSpriteDrawOnceTinted(0, tex, 0x48, 108.0f + position.f.x,
+                  position.f.y, alpha & 0xFF,
+                  0xFB, 0xA2, 0, depth, 0);
 }
 
 // Intent: Draws a panel frame and a byte-valued count as digit sprites at the panel origin [inferred]
 // FUN_003676F0
-void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state)
 {
     f32 factor;
     s32 alpha;
@@ -650,8 +672,8 @@ void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     f32 ybase;
     f32 xbase;
 
-    factor = fparg0;
-    value = *(u8 *)(arg2 + 0x19);
+    factor = depth;
+    value = ((SflPersonaState *)state)->details.level;
     tex0 = resourceFindByName(D_005E5810);
     if (tex0 == 0) {
         kAssertFail(D_0064E460, 0xDD);
@@ -660,14 +682,14 @@ void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     if (tex1 == 0) {
         kAssertFail(D_0064E460, 0xDF);
     }
-    alpha = arg1 & 0xFF;
+    alpha = opacity & 0xFF;
     alpha = 0xFF - alpha;
-    y = *((f32 *)&arg0 + 1);
-    sdkSpriteDrawOnceTinted(0, tex1, 0x3C, *(f32 *)&arg0, y,
+    y = *((f32 *)&position + 1);
+    sdkSpriteDrawOnceTinted(0, tex1, 0x3C, *(f32 *)&position, y,
                   alpha, 0xFF, 0xFF, 0x81, factor, 0);
-    sdkSpriteDrawOnceTinted(0, tex1, 0x3B, *(f32 *)&arg0 + 76.0f, y,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x3B, *(f32 *)&position + 76.0f, y,
                   alpha, 0xFF, 0xFF, 0x81, factor, 0);
-    sdkSpriteDrawOnceTinted(0, tex1, 0x2A, *(f32 *)&arg0 + 7.0f, y + 38.0f,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x2A, *(f32 *)&position + 7.0f, y + 38.0f,
                   alpha, 0xFB, 0xA2, 0, factor, 0);
     if (value < 10) {
         offset = 11;
@@ -675,7 +697,7 @@ void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
         offset = 0;
     }
     ybase = y + 31.0f;
-    xbase = *(f32 *)&arg0 + 59.0f;
+    xbase = *(f32 *)&position + 59.0f;
     while (value > 0) {
         sdkSpriteDrawOnceTinted(0, tex1, (value % 10) + 0x1D,
                       xbase - (f32)offset, ybase,
@@ -689,7 +711,8 @@ void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
    its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
    masks once into $s0 (nd 78). */
 // FUN_00367940
-void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 buf[12]; f32 factor; factor = fparg0; datPanelResetCursor(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = *(s16 *)(arg2 + 4); datPanelDrawByKind(*(s64 *)&arg0, factor, arg1, buf, 1); }
+/* Draw the stored party entry through a packed 12-byte panel command; the command fields at +0/+6/+8 are preserved because no shared command layout is established here. */
+void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
 
 // Intent: Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px [inferred]
 // FUN_003679C0
@@ -698,7 +721,7 @@ void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 buf[12]; f3
    loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
 /* measured: func_003679c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawNumberValue(s64 position, f32 depth, s32 opacity, u8 *state)
 {
     f32 scale;
     s32 tex1;
@@ -709,8 +732,8 @@ void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     f32 y;
     f32 ty;
 
-    scale = fparg0;
-    y = *((f32 *)&arg0 + 1);
+    scale = depth;
+    y = *((f32 *)&position + 1);
     tex1 = resourceFindByName(D_005E5810);
     if (tex1 == 0) {
         kAssertFail(D_0064E460, 0x13D);
@@ -719,19 +742,19 @@ void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     if (tex2 == 0) {
         kAssertFail(D_0064E460, 0x13F);
     }
-    n = arg1 & 0xFF;
-    arg1 = 0xFF - n;
-    sdkSpriteDrawOnceTinted(0, tex1, 0x39, *(f32 *)&arg0, y, arg1, 0xFB, 0xA2, 0, scale, 0);
-    x = 130.0f + *(f32 *)&arg0;
+    n = opacity & 0xFF;
+    opacity = 0xFF - n;
+    sdkSpriteDrawOnceTinted(0, tex1, 0x39, *(f32 *)&position, y, opacity, 0xFB, 0xA2, 0, scale, 0);
+    x = 130.0f + *(f32 *)&position;
     ty = 4.0f + y;
-    value = *(s32 *)(arg2 + 0x10);
+    value = ((SflPersonaState *)state)->details.value;
     n = value;
     while (n >= 10) {
         x += 16.0f;
         n /= 10;
     }
     do {
-        sdkSpriteDrawOnceTinted(0, tex2, (value % 10) + 9, x, ty, arg1, 0x2D, 0x2D, 0x2D, scale, 0);
+        sdkSpriteDrawOnceTinted(0, tex2, (value % 10) + 9, x, ty, opacity, 0x2D, 0x2D, 0x2D, scale, 0);
         value /= 10;
         x -= 16.0f;
     } while (value > 0);
@@ -744,7 +767,7 @@ void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
    masks once into $s0 (nd 78). */
 /* measured: func_00367b80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state)
 {
     
     f32 scale;
@@ -753,8 +776,8 @@ void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     s32 value;
     f32 y;
 
-    scale = fparg0;
-    color = (arg1 & 0xFF) | 0xFFFFFF00;
+    scale = depth;
+    color = (opacity & 0xFF) | 0xFFFFFF00;
     tex = resourceFindByName(D_005E5810);
     if (tex == 0) {
         kAssertFail(D_0064E460, 0x174);
@@ -762,14 +785,14 @@ void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     if (resourceFindByName(D_005E5830) == 0) {
         kAssertFail(D_0064E460, 0x176);
     }
-    y = *((f32 *)&arg0 + 1);
-    frFontExDrawText((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(const char **)(arg2 + 0x14), 0, 0);
-    value = *(u8 *)(arg2 + 0x18);
+    y = *((f32 *)&position + 1);
+    frFontExDrawText((f32)(s32)*(f32 *)&position, (f32)(s32)y, 0.0f, color, 6, 1, *(const char * *)&((SflPersonaState *)state)->details.row, 0, 0);
+    value = ((SflPersonaState *)state)->details.arcana;
     if (value <= 0 || value >= 0x20) {
         kAssertFail(D_0064E460, 0x186);
     }
-    sdkSpriteDrawOnceTinted(0, tex, (u8)((u8)value - 1) + 0x21, *(f32 *)&arg0, 30.0f + y,
-                  (u8)(0xFF - (arg1 & 0xFF)), 0xEC, 0x7C, 0, scale, 0);
+    sdkSpriteDrawOnceTinted(0, tex, (u8)((u8)value - 1) + 0x21, *(f32 *)&position, 30.0f + y,
+                  (u8)(0xFF - (opacity & 0xFF)), 0xEC, 0x7C, 0, scale, 0);
 }
 
 /* measured: func_00367d00 MATCH -> MISMATCH without this pragma. */
@@ -783,7 +806,7 @@ void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 // measured: test ordered float loads with propagation disabled
 /* measured: func_00367d00 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+void sflDataDrawLevelBadge(s64 position, f32 depth, s32 opacity, u8 *state)
 {
     s32 alpha;
     u8 value;
@@ -799,8 +822,8 @@ void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     f32 first_x;
     f32 factor;
 
-    value = (u8)datCalcGetLevelById(*(s16 *)(arg2 + 4));
-    factor = fparg0;
+    value = (u8)datCalcGetLevelById(((SflPersonaState *)state)->details.partyId);
+    factor = depth;
     tex0 = resourceFindByName(D_005E5850);
     if (tex0 == 0) {
         kAssertFail(D_0064E460, 0x1A1);
@@ -809,19 +832,19 @@ void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     if (tex1 == 0) {
         kAssertFail(D_0064E460, 0x1A3);
     }
-    alpha = arg1 & 0xFF;
+    alpha = opacity & 0xFF;
     alpha = 0xFF - alpha;
-    y = *((f32 *)&arg0 + 1);
+    y = *((f32 *)&position + 1);
     first_y = y - 48.0f;
     first_const = 14.0f;
     first_9 = 9.0f;
-    first_x = *(f32 *)&arg0;
+    first_x = *(f32 *)&position;
     first_x = p4_00362f00_add(first_9, first_x);
     first_x = p4_00362f00_add(first_const, first_x);
     sdkSpriteDrawOnceTinted(0, tex0, 0xC9,
                   first_x, first_y,
                   alpha, 0xEF, 0x89, 0, factor, 0);
-    sdkSpriteDrawOnceTinted(0, tex1, 0x1E, *(f32 *)&arg0 + 58.0f,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x1E, *(f32 *)&position + 58.0f,
                   y - 23.0f, alpha, 0xD1, 0x6B, 0, factor, 0);
     if (value < 10) {
         offset = 11;
@@ -829,7 +852,7 @@ void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
         offset = 0;
     }
     ybase = first_y - 5.0f;
-    xbase = *(f32 *)&arg0 + 64.0f;
+    xbase = *(f32 *)&position + 64.0f;
     while (value > 0) {
         sdkSpriteDrawOnceTinted(0, tex0, (value % 10) + 0x1D,
                       xbase - (f32)offset, ybase,

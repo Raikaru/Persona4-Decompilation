@@ -27,7 +27,7 @@ extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027a6f0-0027a970 */
 
-extern void func_002746c0(s32 arg0, s32 arg1);
+extern void datSetIndexedWord(s32 arg0, s32 arg1);
 extern s32 func_0027b980(s32 arg0);
 extern s32 func_0027b9e0(s32 arg0);
 extern s32 func_0027ba40(s32 arg0);
@@ -147,7 +147,7 @@ void itfMesWindowAdvanceRow(u8 *arg0)
     extern void frFontEnableList(u8 *arg0);
     extern s32 frFontMeasureList(u8 *arg0);
     extern void frFontLoadSystemSlot(u8 *arg0);
-    extern void func_002746c0(s32 arg0, s32 arg1);
+    extern void datSetIndexedWord(s32 arg0, s32 arg1);
     extern void itfMesWindowBuildRow(u8 *arg0);
     extern void func_00440b68(void *arg0);
     extern void sdkSndResetChannel(s32 arg0, s32 arg1);
@@ -205,7 +205,7 @@ do_action:
                 }
                 index = 0;
                 while (index < 32) {
-                    func_002746c0(index,
+                    datSetIndexedWord(index,
                         *(s32 *)(arg0 + index * 4 + 0x94));
                     index += 1;
                 }

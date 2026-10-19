@@ -29,7 +29,8 @@ static const u32 sPlayerExpThreshold[MAX_CHARACTER_LEVEL] =
 
 
 // FUN_001059E0
-u8 func_001059e0(s32 exp)
+/* Map accumulated player experience to its level by scanning the complete threshold table. */
+u8 datLevelFromExp(s32 exp)
 {
     u8 level = 0;
     u8 index = 0;
@@ -62,9 +63,9 @@ extern s8 D_00641E60[];
 #pragma opt_loop_invariants off
 /* Callers pass a signed-halfword selector and narrow the returned word themselves. */
 // FUN_00313690
-s32 func_00313690(s16 arg0)
+s32 datGetSelectorByte(s16 index)
 {
-    return D_00641E60[(s16)arg0];
+    return D_00641E60[(s16)index];
 }
 
 
