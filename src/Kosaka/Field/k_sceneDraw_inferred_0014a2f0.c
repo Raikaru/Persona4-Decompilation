@@ -4,6 +4,7 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "Kosaka/k_sceneDraw_state.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -290,8 +291,8 @@ extern f32 D_008872F8[];
 /* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 /* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 // FUN_0014A2F0
-void FldState_SetEventViewMode(s32 arg0)
+void FldState_SetEventViewMode(s32 mode)
 {
-    *(s32 *)(iGpffff9db0 + 0x18) = arg0;
+    ((FldMapState *)iGpffff9db0)->eventViewMode = mode;
 }
 

@@ -4,6 +4,8 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_resource_internal.h"
+#include "Kosaka/k_sceneDraw_lighting.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -291,178 +293,185 @@ extern f32 D_008872F8[];
 /* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
 /* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 /* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
+/* Integer accesses to float members below preserve the original IEEE-754 word stores. */
+/* Initialize the NPC-light resource colors, tint and pair of rotated direction matrices. */
 // FUN_0014B1E0
 void SceneDraw_InitResList5(void) {
     extern f32 fGpffff8198;
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
-    s32 stack[3];
-    f32 temp_f0;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *var_16;
-    u8 *var_17;
-    u8 *var_18;
-    u8 *var_19;
-    u8 *var_20;
+    s32 rotationAxisBits[3];
+    f32 firstIntensity;
+    u8 *firstColorResource;
+    u8 *secondColorResource;
+    u8 *firstMatrixResource;
+    u8 *tintResource;
+    u8 *secondMatrixResource;
+    u8 *secondMatrix;
+    u8 *firstMatrix;
+    u8 *tint;
+    u8 *secondColor;
+    u8 *firstColor;
 
-    temp_2 = MT_Scene_GetResListHead(5);
-    if (temp_2 != NULL) {
-        var_20 = temp_2 + 0x140;
+    firstColorResource = MT_Scene_GetResListHead(5);
+    if (firstColorResource != NULL) {
+        firstColor = (u8 *)&((FldSceneLighting *)firstColorResource)->light.firstColor;
     } else {
-        var_20 = NULL;
+        firstColor = NULL;
     }
-    temp_2_2 = MT_Scene_GetResListHead(5);
-    if (temp_2_2 != NULL) {
-        var_19 = temp_2_2 + 0x150;
+    secondColorResource = MT_Scene_GetResListHead(5);
+    if (secondColorResource != NULL) {
+        secondColor = (u8 *)&((FldSceneLighting *)secondColorResource)->light.secondColor;
     } else {
-        var_19 = NULL;
+        secondColor = NULL;
     }
-    temp_2_3 = MT_Scene_GetResListHead(5);
-    if (temp_2_3 != NULL) {
-        var_17 = temp_2_3 + 0x160;
+    firstMatrixResource = MT_Scene_GetResListHead(5);
+    if (firstMatrixResource != NULL) {
+        firstMatrix = (u8 *)&((FldSceneLighting *)firstMatrixResource)->light.matrix;
     } else {
-        var_17 = NULL;
+        firstMatrix = NULL;
     }
-    temp_2_4 = MT_Scene_GetResListHead(5);
-    if (temp_2_4 != NULL) {
-        var_18 = temp_2_4 + 0x1A0;
+    tintResource = MT_Scene_GetResListHead(5);
+    if (tintResource != NULL) {
+        tint = (u8 *)&((FldSceneLighting *)tintResource)->tint;
     } else {
-        var_18 = NULL;
+        tint = NULL;
     }
-    temp_2_5 = MT_Scene_GetResListHead(5);
-    if (temp_2_5 != NULL) {
-        var_16 = temp_2_5 + 0x1B0;
+    secondMatrixResource = MT_Scene_GetResListHead(5);
+    if (secondMatrixResource != NULL) {
+        secondMatrix = (u8 *)&((FldSceneLighting *)secondMatrixResource)->secondMatrix;
     } else {
-        var_16 = NULL;
+        secondMatrix = NULL;
     }
-    temp_f0 = fGpffff8198;
-    *(f32 *)(var_20 + 0) = temp_f0;
-    *(f32 *)(var_20 + 4) = temp_f0;
-    *(f32 *)(var_20 + 8) = temp_f0;
-    *(s32 *)(var_20 + 0xC) = 0;
-    *(s32 *)(var_19 + 0) = 0x3F000000;
-    *(s32 *)(var_19 + 4) = 0x3F000000;
-    *(s32 *)(var_19 + 8) = 0x3F000000;
-    *(s32 *)(var_19 + 0xC) = 0;
-    *(s32 *)(var_18 + 0) = 0;
-    *(s32 *)(var_18 + 4) = 0;
-    *(s32 *)(var_18 + 8) = 0;
-    *(s32 *)(var_18 + 0xC) = 0;
-    *(s32 *)(var_17 + 0x28) = 0x3F800000;
-    *(s32 *)(var_17 + 0x14) = 0x3F800000;
-    *(s32 *)(var_17 + 0) = 0x3F800000;
-    *(s32 *)(var_17 + 0x10) = 0;
-    *(s32 *)(var_17 + 8) = 0;
-    *(s32 *)(var_17 + 4) = 0;
-    *(s32 *)(var_17 + 0x24) = 0;
-    *(s32 *)(var_17 + 0x20) = 0;
-    *(s32 *)(var_17 + 0x18) = 0;
-    *(s32 *)(var_17 + 0x38) = 0;
-    *(s32 *)(var_17 + 0x34) = 0;
-    *(s32 *)(var_17 + 0x30) = 0;
-    *(s32 *)(var_17 + 0xC) |= 0x20003;
-    stack[0] = 0;
-    stack[1] = 0x3F800000;
-    stack[2] = 0;
-    RwMatrixRotate(var_17, &stack[0], 2, -180.0f);
-    stack[0] = 0x3F800000;
-    stack[1] = 0;
-    stack[2] = 0;
-    RwMatrixRotate(var_17, &stack[0], 2, -45.0f);
-    *(s32 *)(var_16 + 0x28) = 0x3F800000;
-    *(s32 *)(var_16 + 0x14) = 0x3F800000;
-    *(s32 *)(var_16 + 0) = 0x3F800000;
-    *(s32 *)(var_16 + 0x10) = 0;
-    *(s32 *)(var_16 + 8) = 0;
-    *(s32 *)(var_16 + 4) = 0;
-    *(s32 *)(var_16 + 0x24) = 0;
-    *(s32 *)(var_16 + 0x20) = 0;
-    *(s32 *)(var_16 + 0x18) = 0;
-    *(s32 *)(var_16 + 0x38) = 0;
-    *(s32 *)(var_16 + 0x34) = 0;
-    *(s32 *)(var_16 + 0x30) = 0;
-    *(s32 *)(var_16 + 0xC) |= 0x20003;
-    stack[0] = 0;
-    stack[1] = 0x3F800000;
-    stack[2] = 0;
-    RwMatrixRotate(var_16, &stack[0], 2, -180.0f);
-    stack[0] = 0x3F800000;
-    stack[1] = 0;
-    stack[2] = 0;
-    RwMatrixRotate(var_16, &stack[0], 2, -45.0f);
+    firstIntensity = fGpffff8198;
+    ((SceneLightVector *)firstColor)->x = firstIntensity;
+    ((SceneLightVector *)firstColor)->y = firstIntensity;
+    ((SceneLightVector *)firstColor)->z = firstIntensity;
+    *(s32 *)&((SceneLightVector *)firstColor)->w = 0;
+    *(s32 *)&((SceneLightVector *)secondColor)->x = 0x3F000000;
+    *(s32 *)&((SceneLightVector *)secondColor)->y = 0x3F000000;
+    *(s32 *)&((SceneLightVector *)secondColor)->z = 0x3F000000;
+    *(s32 *)&((SceneLightVector *)secondColor)->w = 0;
+    *(s32 *)&((SceneLightVector *)tint)->x = 0;
+    *(s32 *)&((SceneLightVector *)tint)->y = 0;
+    *(s32 *)&((SceneLightVector *)tint)->z = 0;
+    *(s32 *)&((SceneLightVector *)tint)->w = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->at.z = 0x3F800000;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->up.y = 0x3F800000;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->right.x = 0x3F800000;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->up.x = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->right.z = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->right.y = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->at.y = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->at.x = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->up.z = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->pos.z = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->pos.y = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->pos.x = 0;
+    *(s32 *)&((SceneLightMatrix *)firstMatrix)->flags |= 0x20003;
+    rotationAxisBits[0] = 0;
+    rotationAxisBits[1] = 0x3F800000;
+    rotationAxisBits[2] = 0;
+    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -180.0f);
+    rotationAxisBits[0] = 0x3F800000;
+    rotationAxisBits[1] = 0;
+    rotationAxisBits[2] = 0;
+    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -45.0f);
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->at.z = 0x3F800000;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->up.y = 0x3F800000;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->right.x = 0x3F800000;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->up.x = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->right.z = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->right.y = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->at.y = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->at.x = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->up.z = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->pos.z = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->pos.y = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->pos.x = 0;
+    *(s32 *)&((SceneLightMatrix *)secondMatrix)->flags |= 0x20003;
+    rotationAxisBits[0] = 0;
+    rotationAxisBits[1] = 0x3F800000;
+    rotationAxisBits[2] = 0;
+    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -180.0f);
+    rotationAxisBits[0] = 0x3F800000;
+    rotationAxisBits[1] = 0;
+    rotationAxisBits[2] = 0;
+    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -45.0f);
 }
 
+/* Return the first capture-camera matrix handle, or zero when the resource is absent. */
 // FUN_0014B450
 s32 MT_Scene_GetCameraResFirst(void) {
-    s32 var_3;
-    u8 *temp_2;
+    s32 matrix;
+    u8 *resource;
 
-    temp_2 = MT_Scene_GetResListHead(0x14);
-    var_3 = 0;
-    if (temp_2 != NULL) {
-        var_3 = *(s32 *)(temp_2 + 0x148);
+    resource = MT_Scene_GetResListHead(0x14);
+    matrix = 0;
+    if (resource != NULL) {
+        matrix = ((ResrcRecord *)resource)->cameraRes[0];
     }
-    return var_3;
+    return matrix;
 }
 
+/* Return the second capture-camera matrix handle, or zero when the resource is absent. */
 // FUN_0014B490
 s32 MT_Scene_GetCameraResSecond(void) {
-    s32 var_3;
-    u8 *temp_2;
+    s32 matrix;
+    u8 *resource;
 
-    temp_2 = MT_Scene_GetResListHead(0x14);
-    var_3 = 0;
-    if (temp_2 != NULL) {
-        var_3 = *(s32 *)(temp_2 + 0x14C);
+    resource = MT_Scene_GetResListHead(0x14);
+    matrix = 0;
+    if (resource != NULL) {
+        matrix = ((ResrcRecord *)resource)->cameraRes[1];
     }
-    return var_3;
+    return matrix;
 }
 
+/* Return the capture-camera field of view, or zero when the resource is absent. */
 // FUN_0014B4D0
 f32 MT_Scene_GetCameraFov(void) {
-    f32 var_f0;
-    u8 *temp_2;
+    f32 fieldOfView;
+    u8 *resource;
 
-    temp_2 = MT_Scene_GetResListHead(0x14);
-    var_f0 = 0.0f;
-    if (temp_2 != NULL) {
-        var_f0 = *(f32 *)(temp_2 + 0x144);
+    resource = MT_Scene_GetResListHead(0x14);
+    fieldOfView = 0.0f;
+    if (resource != NULL) {
+        fieldOfView = ((SceneCaptureCameraResource *)resource)->value;
     }
-    return var_f0;
+    return fieldOfView;
 }
 
+/* Find the lowest unused ten-bit ID by restarting the list scan after every collision. */
 // FUN_0014B510
-u16 MT_Scene_FindFreeResId(s32 arg0)
+u16 MT_Scene_FindFreeResId(s32 resourceType)
 {
-    s32 var_17;
-    s32 temp_16;
-    u8 *var_2;
+    s32 freeId;
+    s32 type;
+    u8 *resource;
 
-    var_17 = 0;
-    temp_16 = arg0 & 0xFFFF;
-    var_2 = MT_Scene_GetResListHead(temp_16);
-    while (var_2 != NULL) {
-        if ((*(u16 *)var_2 & 0x3FF) == var_17) {
-            var_17 += 1;
-            var_2 = MT_Scene_GetResListHead(temp_16);
+    freeId = 0;
+    type = resourceType & 0xFFFF;
+    resource = MT_Scene_GetResListHead(type);
+    while (resource != NULL) {
+        if ((*(u16 *)resource & 0x3FF) == freeId) {
+            freeId += 1;
+            resource = MT_Scene_GetResListHead(type);
         } else {
-            var_2 = *(u8 **)(var_2 + 0x138);
+            resource = (u8 *)((ResrcRecord *)resource)->next;
         }
     }
-    return var_17 & 0xFFFF;
+    return freeId & 0xFFFF;
 }
 
+/* Round upward when the truncated fractional part is at least one half. */
 // FUN_0014B590
-f32 KDraw_RoundYawDeg(f32 fparg0) {
+f32 KDraw_RoundYawDeg(f32 angle) {
     s32 integer;
     f32 result;
 
-    integer = (s32)fparg0;
+    integer = (s32)angle;
     result = (f32)integer;
-    if (!((fparg0 - result) < 0.5f)) {
+    if (!((angle - result) < 0.5f)) {
         result = (f32)(integer + 1);
     }
     return result;

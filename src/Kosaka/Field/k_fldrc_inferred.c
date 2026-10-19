@@ -4,6 +4,11 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "h_cdvd_internal.h"
+#include "field_event_internal.h"
+#include "mdl_effect_internal.h"
+#include "primitive_queue_internal.h"
+#include "kwln_task_internal.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -124,7 +129,6 @@ extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
 extern u8 *func_003e9700(s32 arg0);
 
-extern void func_00440b68();
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -330,6 +334,59 @@ typedef struct {
 extern u32 ourGlobals[];
 #define RwIm2DGetNearScreenZ() \
     (((RwGlobalsHead_0014 *)ourGlobals)->dOpenDevice.zBufferNear)
+/* Axes work starts with an RW matrix; setters expose its translation,
+ * target flag at 0x44 and packed draw color at 0x48. */
+typedef struct FldRcAxesWork {
+    u8 pad00[0x30];
+    SVec3 position;
+    u8 pad3C[8];
+    s32 targeted;
+    Rgba8_0014 color;
+} FldRcAxesWork;
+
+/* Transition work is 0x50 bytes; its camera snapshot occupies 0x10..0x4F. */
+typedef struct FldRcTransitionWork {
+    s32 state, mode, frame;
+    u8 *child;
+    u8 pad10[0x20];
+    SVec3 direction;
+    u8 pad3C[4];
+    SVec3 position;
+    u8 pad4C[4];
+} FldRcTransitionWork;
+
+/* The loader allocates 0xFC bytes. Eight parallel clone arrays start at
+ * 0x24/0x44/0x64/0x78/0x9C; the final 64 bytes hold the resource path. */
+typedef struct FldRcEffectWork {
+    s32 state;
+    s32 file;
+    u32 duration;
+    s32 archiveSource;
+    s32 primaryActive;
+    s32 templateEffect;
+    u32 primaryElapsed;
+    s16 primaryPriority;
+    u8 pad1E[2];
+    s32 cloneCount;
+    s32 effects[8];
+    u32 elapsed[8];
+    s16 priority[8];
+    s32 primaryLock;
+    s32 locks[8];
+    s32 primaryHidden;
+    s32 hidden[8];
+    char path[0x40];
+} FldRcEffectWork;
+
+/* Four native sky2 vertices, followed by the texture and UV setup. */
+typedef struct FldRcScreenQuad {
+    RadarVertex vertices[4];
+    s32 texture;
+    f32 inverseZ;
+    f32 uMin, vMin, uMax, vMax;
+    s32 orientation;
+} FldRcScreenQuad;
+
 static inline void fieldTransitionScaleVector(SVec3 *destination, SVec3 *source, f32 scale)
 {
     destination->x = source->x * scale;
@@ -339,14 +396,14 @@ static inline void fieldTransitionScaleVector(SVec3 *destination, SVec3 *source,
 static inline s32 fieldTransitionChildReady(u8 *child)
 {
     if (child == NULL) return 1;
-    if (**(s32 **)(child + 0x38) > 0) return 1;
+    if (((FldRcEffectWork *)((KwlnTask *)child)->work)->state > 0) return 1;
     return 0;
 }
 static inline u32 fieldTransitionEntryActive(u32 index)
 {
     s32 active = 0;
     u8 *entry = D_007EF9B0 + index * 0x750;
-    if (*(s32 *)(entry + 0x48) != 0 && *(u8 **)(entry + 0x54) != NULL) active = 1;
+    if ((s32)((FldEventActor *)entry)->unit != 0 && (u8 *)(u32)((FldEventActor *)entry)->active != NULL) active = 1;
     return active != 0;
 }
 extern void fadeBeginTransition(s32 enabled, s32 mode);
@@ -367,36 +424,39 @@ extern u8 iGpffff9dd8[8];
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
 /* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
 // FUN_0014DCD0
-void FldRc_SetAxesTargeted(u8 *arg0, s32 arg1)
+void FldRc_SetAxesTargeted(u8 *task, s32 targeted)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x44) = arg1;
+    ((FldRcAxesWork *)((KwlnTask *)task)->work)->targeted = targeted;
 }
 
 // FUN_0014DCE0
-void FldRc_SetAxesColor(u8 *arg0, u8 *arg1)
+void FldRc_SetAxesColor(u8 *task, u8 *color)
 {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+    u8 *work = ((KwlnTask *)task)->work;
 
-    *(Rgba8_0014 *)(p + 0x48) = *(Rgba8_0014 *)arg1;
+    ((FldRcAxesWork *)work)->color = *(Rgba8_0014 *)color;
 }
 
+/* Set the axes matrix translation, then optimize and update its flags using engine tolerances. */
 // FUN_0014DD10
-void FldRc_SetAxesPosition(u8 *arg0, u8 *arg1) {
-    f32 sp20[4];
-    u8 *temp_16;
+void FldRc_SetAxesPosition(u8 *task, u8 *position) {
+    f32 tolerances[4];
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    *(SVec3 *)(temp_16 + 0x30) = *(SVec3 *)arg1;
-    RwEngineGetMatrixTolerances(&sp20[0]);
-    RwMatrixOptimize(temp_16, &sp20[0]);
-    RwMatrixUpdate(temp_16);
+    work = ((KwlnTask *)task)->work;
+    ((FldRcAxesWork *)work)->position = *(SVec3 *)position;
+    RwEngineGetMatrixTolerances(&tolerances[0]);
+    RwMatrixOptimize(work, &tolerances[0]);
+    RwMatrixUpdate(work);
 }
 
 /* measured probe: opt_propagation off preserves FldRc_DrawScreenQuad vtable and float stores. */
 /* measured: FldRc_DrawScreenQuad MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Configure textured screen-quad render state and fill UVs from the stored bounds. */
+/* measured: typing the final texture pointer read changed 116 bytes; retain the raw pointer reload after writing vertex UVs. */
 // FUN_0014DD80
-void FldRc_DrawScreenQuad(u8 *arg0, u8 *arg1) {
+void FldRc_DrawScreenQuad(u8 *context, u8 *quad) {
     void (**base)(u32, u32);
 
     base = D_00887300;
@@ -409,16 +469,16 @@ void FldRc_DrawScreenQuad(u8 *arg0, u8 *arg1) {
     base[0](0xC, 1);
     RpSkyRenderStateSet(2, (void *)0x44);
     RpSkyRenderStateSet(3, (void *)0x717FB);
-    if (*(s32 **)(arg1 + 0x100) != NULL) {
-        *(f32 *)(arg1 + 0x10) = *(f32 *)(arg1 + 0x108);
-        *(f32 *)(arg1 + 0x14) = *(f32 *)(arg1 + 0x10C);
-        *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x110);
-        *(f32 *)(arg1 + 0x54) = *(f32 *)(arg1 + 0x10C);
-        *(f32 *)(arg1 + 0x90) = *(f32 *)(arg1 + 0x108);
-        *(f32 *)(arg1 + 0x94) = *(f32 *)(arg1 + 0x114);
-        *(f32 *)(arg1 + 0xD0) = *(f32 *)(arg1 + 0x110);
-        *(f32 *)(arg1 + 0xD4) = *(f32 *)(arg1 + 0x114);
-        base[0](1, *(u32 *)(*(s32 **)(arg1 + 0x100)));
+    if (*(s32 * *)&((FldRcScreenQuad *)quad)->texture != NULL) {
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.u = ((FldRcScreenQuad *)quad)->uMin;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.v = ((FldRcScreenQuad *)quad)->vMin;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.u = ((FldRcScreenQuad *)quad)->uMax;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.v = ((FldRcScreenQuad *)quad)->vMin;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.u = ((FldRcScreenQuad *)quad)->uMin;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.v = ((FldRcScreenQuad *)quad)->vMax;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.u = ((FldRcScreenQuad *)quad)->uMax;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.v = ((FldRcScreenQuad *)quad)->vMax;
+        base[0](1, *(u32 *)(*(s32 **)(quad + 0x100)));
         return;
     }
     base[0](1, 0);
@@ -432,213 +492,214 @@ void FldRc_DrawScreenQuad(u8 *arg0, u8 *arg1) {
    vertex pointer are block-scoped, which is what puts the index in $a1
    instead of $v0, and the four bytes convert as (f32)(u32) so MWCC emits
    its own bltz/srl/or/cvt/add.s sequence.  No pragma. */
+/* Fill four screen vertices in the requested orientation and queue their render-state callback. */
 // FUN_0014DEF0
-void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
-                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   f32 fparg4, u8 *arg2, s32 arg3,
-                   f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
-                   f32 arg_sp0)
+void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
+                   f32 left, f32 top, f32 depthOffset, f32 width,
+                   f32 height, u8 *color, s32 texture,
+                   f32 uMin, f32 vMin, f32 uMax, s32 orientation,
+                   f32 vMax)
 {
-    extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    extern u8 *PrimQueueDrawPrimitive(void *queue, s32 quad, void *color, s32 texture);
     f32 z;
     f32 inverse;
     f32 right;
     f32 bottom;
     u8 *entry;
 
-    z = RwIm2DGetNearScreenZ() - fparg2;
-    if (fparg2 == 0.0f) {
-        z = RwIm2DGetNearScreenZ() - *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
+    z = RwIm2DGetNearScreenZ() - depthOffset;
+    if (depthOffset == 0.0f) {
+        z = RwIm2DGetNearScreenZ() - ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
     }
     inverse = 1.0f / z;
-    switch (arg4) {
+    switch (orientation) {
     case 0:
-        *(f32 *)(arg1 + 0) = fparg0;
-        *(f32 *)(arg1 + 4) = fparg1;
-        *(f32 *)(arg1 + 8) = z;
-        right = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0x40) = right;
-        *(f32 *)(arg1 + 0x44) = fparg1;
-        *(f32 *)(arg1 + 0x48) = z;
-        *(f32 *)(arg1 + 0x80) = fparg0;
-        bottom = fparg1 + fparg4;
-        *(f32 *)(arg1 + 0x84) = bottom;
-        *(f32 *)(arg1 + 0x88) = z;
-        *(f32 *)(arg1 + 0xC0) = right;
-        *(f32 *)(arg1 + 0xC4) = bottom;
-        *(f32 *)(arg1 + 0xC8) = z;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.x = left;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.z = z;
+        right = left + width;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.x = left;
+        bottom = top + height;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.z = z;
         break;
     case 1:
-        *(f32 *)(arg1 + 0x40) = fparg0;
-        *(f32 *)(arg1 + 0x44) = fparg1;
-        *(f32 *)(arg1 + 0x48) = z;
-        right = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0xC0) = right;
-        *(f32 *)(arg1 + 0xC4) = fparg1;
-        *(f32 *)(arg1 + 0xC8) = z;
-        *(f32 *)(arg1 + 0) = fparg0;
-        bottom = fparg1 + fparg4;
-        *(f32 *)(arg1 + 4) = bottom;
-        *(f32 *)(arg1 + 8) = z;
-        *(f32 *)(arg1 + 0x80) = right;
-        *(f32 *)(arg1 + 0x84) = bottom;
-        *(f32 *)(arg1 + 0x88) = z;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.x = left;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.z = z;
+        right = left + width;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.x = left;
+        bottom = top + height;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.z = z;
         break;
     case 2:
-        *(f32 *)(arg1 + 0xC0) = fparg0;
-        *(f32 *)(arg1 + 0xC4) = fparg1;
-        *(f32 *)(arg1 + 0xC8) = z;
-        right = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0x80) = right;
-        *(f32 *)(arg1 + 0x84) = fparg1;
-        *(f32 *)(arg1 + 0x88) = z;
-        *(f32 *)(arg1 + 0x40) = fparg0;
-        bottom = fparg1 + fparg4;
-        *(f32 *)(arg1 + 0x44) = bottom;
-        *(f32 *)(arg1 + 0x48) = z;
-        *(f32 *)(arg1 + 0) = right;
-        *(f32 *)(arg1 + 4) = bottom;
-        *(f32 *)(arg1 + 8) = z;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.x = left;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.z = z;
+        right = left + width;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.x = left;
+        bottom = top + height;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.z = z;
         break;
     case 3:
-        *(f32 *)(arg1 + 0x80) = fparg0;
-        *(f32 *)(arg1 + 0x84) = fparg1;
-        *(f32 *)(arg1 + 0x88) = z;
-        right = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0) = right;
-        *(f32 *)(arg1 + 4) = fparg1;
-        *(f32 *)(arg1 + 8) = z;
-        *(f32 *)(arg1 + 0xC0) = fparg0;
-        bottom = fparg1 + fparg4;
-        *(f32 *)(arg1 + 0xC4) = bottom;
-        *(f32 *)(arg1 + 0xC8) = z;
-        *(f32 *)(arg1 + 0x40) = right;
-        *(f32 *)(arg1 + 0x44) = bottom;
-        *(f32 *)(arg1 + 0x48) = z;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.x = left;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[2].u.els.scrVertex.z = z;
+        right = left + width;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.y = top;
+        ((FldRcScreenQuad *)quad)->vertices[0].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.x = left;
+        bottom = top + height;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[3].u.els.scrVertex.z = z;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.x = right;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.y = bottom;
+        ((FldRcScreenQuad *)quad)->vertices[1].u.els.scrVertex.z = z;
         break;
     }
-    *(f32 *)(arg1 + 0x18) = inverse;
-    *(f32 *)(arg1 + 0x58) = inverse;
-    *(f32 *)(arg1 + 0x98) = inverse;
-    *(f32 *)(arg1 + 0xD8) = inverse;
+    ((FldRcScreenQuad *)quad)->vertices[0].u.els.recipZ = inverse;
+    ((FldRcScreenQuad *)quad)->vertices[1].u.els.recipZ = inverse;
+    ((FldRcScreenQuad *)quad)->vertices[2].u.els.recipZ = inverse;
+    ((FldRcScreenQuad *)quad)->vertices[3].u.els.recipZ = inverse;
     {
         s32 i;
         u8 *vertex;
 
         for (i = 0; i < 4; i++) {
-            vertex = arg1 + (i << 6);
-            *(f32 *)(vertex + 0x20) = (f32)(u32)arg2[0];
-            *(f32 *)(vertex + 0x24) = (f32)(u32)arg2[1];
-            *(f32 *)(vertex + 0x28) = (f32)(u32)arg2[2];
-            *(f32 *)(vertex + 0x2C) = (f32)(u32)arg2[3];
+            vertex = quad + (i << 6);
+            ((RadarVertex *)vertex)->u.els.color.r = (f32)(u32)color[0];
+            ((RadarVertex *)vertex)->u.els.color.g = (f32)(u32)color[1];
+            ((RadarVertex *)vertex)->u.els.color.b = (f32)(u32)color[2];
+            ((RadarVertex *)vertex)->u.els.color.a = (f32)(u32)color[3];
         }
     }
-    *(s32 *)(arg1 + 0x100) = arg3;
-    *(f32 *)(arg1 + 0x104) = inverse;
-    *(f32 *)(arg1 + 0x108) = fparg5;
-    *(f32 *)(arg1 + 0x10C) = fparg6;
-    *(f32 *)(arg1 + 0x110) = fparg7;
-    *(f32 *)(arg1 + 0x114) = arg_sp0;
-    *(s32 *)(arg1 + 0x118) = arg4;
-    entry = PrimQueueDrawPrimitive(arg0, 4, arg1, 4);
-    *(void **)(entry + 8) = (void *)FldRc_DrawScreenQuad;
-    *(u8 **)(entry + 0x10) = arg1;
+    ((FldRcScreenQuad *)quad)->texture = texture;
+    ((FldRcScreenQuad *)quad)->inverseZ = inverse;
+    ((FldRcScreenQuad *)quad)->uMin = uMin;
+    ((FldRcScreenQuad *)quad)->vMin = vMin;
+    ((FldRcScreenQuad *)quad)->uMax = uMax;
+    ((FldRcScreenQuad *)quad)->vMax = vMax;
+    ((FldRcScreenQuad *)quad)->orientation = orientation;
+    entry = PrimQueueDrawPrimitive(queue, 4, quad, 4);
+    ((PrimQueueNode *)entry)->callback = (void *)FldRc_DrawScreenQuad;
+    ((PrimQueueNode *)entry)->argument.data = quad;
 }
 
+/* Load an effect template, then advance primary and cloned effects until their duration expires. */
+/* measured: remaining raw file/template/counter accesses changed codegen individually (256..402 differing bytes); keep byte-pointer aliasing across effect calls. */
 // FUN_0014E2A0
-s32 FldRc_FileLoadStep(u8 *arg0) {
-    extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-    extern s32 H_Cdvd_LookupRequest(u8 *arg0, s32 *arg1);
-    extern void H_Cdvd_Destroy(u8 *arg0);
+s32 FldRc_FileLoadStep(u8 *task) {
+    extern s32 H_Cdvd_LookupRequest(u8 *task, s32 *arg1);
 
     extern void func_004b11d0();
     extern void mdlEffectDestroy();
     extern u8 D_005DC7D0[];
-    s32 sp5C;
-    u8 *temp_18;
-    s32 temp_3;
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 var_19;
-    u8 *temp_2;
-    u8 *temp_5;
-    s32 *temp_10;
-    s32 *temp_11;
+    s32 resourceSize;
+    u8 *work;
+    s32 state;
+    s32 primaryActive;
+    s32 effect;
+    s32 slotIndex;
+    u8 *file;
+    u8 *slotWork;
+    s32 *effectSlot;
+    s32 *elapsedSlot;
 
-    temp_18 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)(temp_18 + 0);
-    switch (temp_3) {
+    work = ((KwlnTask *)task)->work;
+    state = ((FldRcEffectWork *)work)->state;
+    switch (state) {
     case 0:
-        if (*(s32 *)(temp_18 + 0xC) == 0) {
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_18 + 4)) != 0) {
-                temp_2 = *(u8 **)(temp_18 + 4);
-                if (temp_2 != NULL) {
-                    *(s32 *)(temp_18 + 0x14) =
-                        mdlEffectCreateFromResource(*(s32 *)(temp_2 + 0x110));
-                    H_Cdvd_Destroy(*(u8 **)(temp_18 + 4));
-                    *(u8 **)(temp_18 + 4) = NULL;
+        if (((FldRcEffectWork *)work)->archiveSource == 0) {
+            if (H_Cdvd_IsFileLoaded((HCdvd *)*(u8 * *)&((FldRcEffectWork *)work)->file) != 0) {
+                file = *(u8 **)(work + 4);
+                if (file != NULL) {
+                    ((FldRcEffectWork *)work)->templateEffect =
+                        mdlEffectCreateFromResource(*(s32 *)&((HCdvd *)file)->fileMemory);
+                    H_Cdvd_Destroy((HCdvd *)*(u8 **)(work + 4));
+                    *(u8 **)(work + 4) = NULL;
                 }
                 goto block_10;
             }
         } else {
-            *(s32 *)(temp_18 + 0x14) =
-                mdlEffectCreateFromResource(H_Cdvd_LookupRequest(temp_18 + 0xBC, &sp5C));
+            ((FldRcEffectWork *)work)->templateEffect =
+                mdlEffectCreateFromResource(H_Cdvd_LookupRequest(work + 0xBC, &resourceSize));
 block_10:
-            *(s32 *)(temp_18 + 0) = *(s32 *)(temp_18 + 0) + 1;
+            ((FldRcEffectWork *)work)->state = ((FldRcEffectWork *)work)->state + 1;
         }
     case 1:
         goto block_31;
     case 2:
-        temp_4 = *(s32 *)(temp_18 + 0x10);
-        if ((temp_4 == 0) && (*(s32 *)(temp_18 + 0x20) == 0)) {
-            *(s32 *)(temp_18 + 0) = 1;
+        primaryActive = ((FldRcEffectWork *)work)->primaryActive;
+        if ((primaryActive == 0) && (((FldRcEffectWork *)work)->cloneCount == 0)) {
+            ((FldRcEffectWork *)work)->state = 1;
         } else {
-            if ((temp_4 == 1) &&
-                (*(s32 *)(temp_18 + 0x74) != 1) &&
-                (*(s32 *)(temp_18 + 0x98) != 1)) {
-                if ((u32)*(u32 *)(temp_18 + 0x18) <
-                    (u32)*(u32 *)(temp_18 + 8)) {
-                    func_004b1190(*(u8 **)(temp_18 + 0x14));
+            if ((primaryActive == 1) &&
+                (((FldRcEffectWork *)work)->primaryLock != 1) &&
+                (((FldRcEffectWork *)work)->primaryHidden != 1)) {
+                if ((u32)((FldRcEffectWork *)work)->primaryElapsed <
+                    (u32)((FldRcEffectWork *)work)->duration) {
+                    func_004b1190(*(u8 * *)&((FldRcEffectWork *)work)->templateEffect);
                     func_004b11d0(
                         (s32)&D_005DC7D0 +
-                        (*(u16 *)(temp_18 + 0x1C) * 0x54),
-                        *(s32 *)(temp_18 + 0x14));
-                    *(u32 *)(temp_18 + 0x18) =
-                        *(u32 *)(temp_18 + 0x18) + 1;
+                        (*(u16 *)&((FldRcEffectWork *)work)->primaryPriority * 0x54),
+                        *(s32 *)(work + 0x14));
+                    *(u32 *)(work + 0x18) =
+                        *(u32 *)(work + 0x18) + 1;
                 } else {
-                    *(s32 *)(temp_18 + 0x10) = 0;
+                    *(s32 *)(work + 0x10) = 0;
                 }
             }
-            var_19 = 0;
+            slotIndex = 0;
             goto loop_test;
 loop_body:
-            temp_5 = temp_18 + (var_19 * 4);
-            if ((*(s32 *)(temp_5 + 0x78) != 1) &&
-                (*(s32 *)(temp_5 + 0x9C) != 1)) {
-                temp_10 = (s32 *)(temp_5 + 0x24);
-                temp_4_2 = *(s32 *)(temp_5 + 0x24);
-                if (temp_4_2 != 0) {
-                    temp_11 = (s32 *)(temp_5 + 0x44);
-                    if ((u32)*(u32 *)(temp_5 + 0x44) <
-                        (u32)*(u32 *)(temp_18 + 8)) {
-                        func_004b1190((u8 *)temp_4_2);
+            slotWork = work + (slotIndex * 4);
+            if ((((FldRcEffectWork *)slotWork)->locks[0] != 1) &&
+                (((FldRcEffectWork *)slotWork)->hidden[0] != 1)) {
+                effectSlot = (s32 *)(slotWork + 0x24);
+                effect = ((FldRcEffectWork *)slotWork)->effects[0];
+                if (effect != 0) {
+                    elapsedSlot = (s32 *)(slotWork + 0x44);
+                    if ((u32)((FldRcEffectWork *)slotWork)->elapsed[0] <
+                        (u32)((FldRcEffectWork *)work)->duration) {
+                        func_004b1190((u8 *)effect);
                         func_004b11d0(
                             (s32)&D_005DC7D0 +
-                            (*(u16 *)(temp_18 + var_19 * 2 + 0x64) *
+                            (*(u16 *)&((FldRcEffectWork *)work)->priority[slotIndex] *
                              0x54),
-                            *temp_10);
-                        *temp_11 = *temp_11 + 1;
+                            *effectSlot);
+                        *elapsedSlot = *elapsedSlot + 1;
                     } else {
-                        mdlEffectDestroy(temp_4_2);
-                        *temp_10 = 0;
-                        *(s32 *)(temp_18 + 0x20) =
-                            *(s32 *)(temp_18 + 0x20) - 1;
+                        mdlEffectDestroy(effect);
+                        *effectSlot = 0;
+                        ((FldRcEffectWork *)work)->cloneCount =
+                            ((FldRcEffectWork *)work)->cloneCount - 1;
                     }
                 }
             }
-            var_19 += 1;
+            slotIndex += 1;
 loop_test:
-            while (var_19 < 8) {
+            while (slotIndex < 8) {
                 goto loop_body;
             }
             goto block_31;
@@ -652,159 +713,169 @@ block_31:
     }
 }
 
+/* Destroy all live cloned effects and the template before freeing task work. */
+/* measured: typing either task-work access changed 10 bytes; retain those raw task-pointer loads around effect destruction. */
 // FUN_0014E540
-void FldRc_FileLoadDestroy(u8 *arg0) {
+void FldRc_FileLoadDestroy(u8 *task) {
     s32 i;
-    u8 *p;
-    s32 temp_4;
+    u8 *work;
+    s32 effect;
 
-    p = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(task + 0x38);
     for (i = 0; i < 8; i++) {
-        temp_4 = *(s32 *)(p + i * 4 + 0x24);
-        if (temp_4 != 0) {
-            mdlEffectDestroy(temp_4);
+        effect = ((FldRcEffectWork *)work)->effects[i];
+        if (effect != 0) {
+            mdlEffectDestroy(effect);
         }
     }
-    temp_4 = *(s32 *)(p + 0x14);
-    if (temp_4 != 0) {
-        mdlEffectDestroy(temp_4);
+    effect = ((FldRcEffectWork *)work)->templateEffect;
+    if (effect != 0) {
+        mdlEffectDestroy(effect);
     }
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(u8 **)(task + 0x38));
 }
 
+/* Create the effect-loader task from a path or an already selected load source. */
 // FUN_0014E5E0
-s32 FldRc_CreateFileLoadTask(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
-    s32 temp_17;
-    u8 *temp_2;
+s32 FldRc_CreateFileLoadTask(u8 *parent, u8 *path, s32 duration, s32 loadSource) {
+    s32 task;
+    u8 *work;
 
     chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
-    temp_2 = D_008873F4[0](1, 0xFC, 0x40000);
-    if (temp_2 == NULL) {
+    work = D_008873F4[0](1, 0xFC, 0x40000);
+    if (work == NULL) {
         return 0;
     }
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2));
-    if (arg3 == 0) {
-        func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
-        *(s32 *)(temp_2 + 4) = (s32)H_Cdvd_AcquireDirectory(arg1, 0);
+    task = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(work));
+    if (loadSource == 0) {
+        func_00440b68((const char *)&iGpffff9de8, &iGpffff9de0, 0xD0);
+        ((FldRcEffectWork *)work)->file = (s32)H_Cdvd_AcquireDirectory(path, 0);
     } else {
-        *(s32 *)(temp_2 + 4) = arg3;
-        *(s32 *)(temp_2 + 0xC) = 1;
+        ((FldRcEffectWork *)work)->file = loadSource;
+        ((FldRcEffectWork *)work)->archiveSource = 1;
     }
-    *(s32 *)(temp_2 + 8) = arg2;
-    strcpy(temp_2 + 0xBC, (const char *)arg1);
-    return temp_17;
+    *(s32 *)&((FldRcEffectWork *)work)->duration = duration;
+    strcpy((u8 *)((FldRcEffectWork *)work)->path, (const char *)path);
+    return task;
 }
 
 // FUN_0014E710
-s32 FldRc_FileLoadIsReady(u8 *arg0) {
-    if (arg0 == NULL) {
+s32 FldRc_FileLoadIsReady(u8 *task) {
+    if (task == NULL) {
         return 1;
     }
-    return *(s32 *)(*(u8 **)(arg0 + 0x38)) >= 1;
+    return ((FldRcEffectWork *)((KwlnTask *)task)->work)->state >= 1;
 }
 
 /* measured probe: optimization level 1 register allocation for FldRc_RequestPositionSlot. */
 /* measured: FldRc_RequestPositionSlot MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
+/* Start the primary effect or clone it into a free position slot; return the clone index or -1. */
+/* measured: typed clone-counter/priority array writes changed 2/142 bytes; retain their original integer-address helper shape. */
 // FUN_0014E740
-s32 FldRc_RequestPositionSlot(u8 *arg0, f32 *arg1) {
-    s32 temp_20;
-    s32 temp_4;
-    u8 *temp_19;
-    s32 temp_2;
-    s32 temp_3;
-    s32 var_17;
-    u8 *temp_16;
+s32 FldRc_RequestPositionSlot(u8 *task, f32 *position) {
+    s32 slotOffset;
+    s32 primaryActive;
+    u8 *effectSlot;
+    s32 effect;
+    s32 priority;
+    s32 slotIndex;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    var_17 = -1;
-    if (*(s32 *)(temp_16 + 0x10) == 1) {
-        var_17 = 0;
+    work = ((KwlnTask *)task)->work;
+    slotIndex = -1;
+    if (((FldRcEffectWork *)work)->primaryActive == 1) {
+        slotIndex = 0;
         goto loop_test_4;
 loop_body_4:
-        if (*(s32 *)(temp_16 + (var_17 * 4) + 0x24) == 0) {
+        if (((FldRcEffectWork *)work)->effects[slotIndex] == 0) {
             goto loop_done_4;
         }
-        var_17 += 1;
+        slotIndex += 1;
 loop_test_4:
-        if (var_17 < 8) {
+        if (slotIndex < 8) {
             goto loop_body_4;
         }
 loop_done_4:
-        if (var_17 >= 8) {
+        if (slotIndex >= 8) {
             kAssertFail(&iGpffff9de0, 0x100);
         }
-        temp_20 = var_17 * 4;
-        temp_19 = p4_e740_add(temp_20, temp_16) + 0x24;
-        temp_2 = mdlEffectClone(*(s32 *)(temp_16 + 0x14));
-        *(s32 *)temp_19 = temp_2;
-        mdlEffectSetChildPositionVec((void *)temp_2, arg1);
-        *(s32 *)(p4_e740_add(temp_20, temp_16) + 0x44) = 0;
-        temp_3 = 1;
-        *(s16 *)(p4_e740_add(var_17 * 2, temp_16) + 0x64) = temp_3;
-        *(s32 *)(temp_16 + 0x20) = *(s32 *)(temp_16 + 0x20) + 1;
+        slotOffset = slotIndex * 4;
+        effectSlot = p4_e740_add(slotOffset, work) + 0x24;
+        effect = mdlEffectClone(((FldRcEffectWork *)work)->templateEffect);
+        *(s32 *)effectSlot = effect;
+        mdlEffectSetChildPositionVec((void *)effect, position);
+        *(s32 *)(p4_e740_add(slotOffset, work) + 0x44) = 0;
+        priority = 1;
+        *(s16 *)(p4_e740_add(slotIndex * 2, work) + 0x64) = priority;
+        ((FldRcEffectWork *)work)->cloneCount = ((FldRcEffectWork *)work)->cloneCount + 1;
     } else {
-        mdlEffectStart(*(s32 *)(temp_16 + 0x14));
-        mdlEffectSetChildPositionVec(*(void **)(temp_16 + 0x14), arg1);
-        *(s32 *)(temp_16 + 0x18) = 0;
-        temp_4 = 1;
-        *(s32 *)(temp_16 + 0x10) = temp_4;
-        *(s16 *)(temp_16 + 0x1C) = temp_4;
+        mdlEffectStart(((FldRcEffectWork *)work)->templateEffect);
+        mdlEffectSetChildPositionVec(*(void * *)&((FldRcEffectWork *)work)->templateEffect, position);
+        *(s32 *)&((FldRcEffectWork *)work)->primaryElapsed = 0;
+        primaryActive = 1;
+        ((FldRcEffectWork *)work)->primaryActive = primaryActive;
+        ((FldRcEffectWork *)work)->primaryPriority = primaryActive;
     }
-    *(s32 *)temp_16 = 2;
-    return var_17;
+    ((FldRcEffectWork *)work)->state = 2;
+    return slotIndex;
 }
 
 /* measured probe: restore optimization level 2 after FldRc_RequestPositionSlot. */
 /* measured: FldRc_TransitionStep, FldRc_CreateTransitionTask MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
+/* measured: each typed indexed clone access changed one normalized byte; retain the raw integer-address helper shape. */
 // FUN_0014E880
-void FldRc_SetPositionSlotPriority(u8 *arg0, s32 arg1, s16 arg2) {
-    u8 *temp_4;
+void FldRc_SetPositionSlotPriority(u8 *task, s32 slotIndex, s16 priority) {
+    u8 *work;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    if (arg1 >= 0) {
-        if (*(s32 *)(p4_00141cf0_add((u32)(arg1 * 4), temp_4) + 0x24) != 0) {
-            *(s16 *)(p4_00141cf0_add((u32)(arg1 * 2), temp_4) + 0x64) = arg2;
+    work = ((KwlnTask *)task)->work;
+    if (slotIndex >= 0) {
+        if (*(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x24) != 0) {
+            *(s16 *)(p4_00141cf0_add((u32)(slotIndex * 2), work) + 0x64) = priority;
         }
     } else {
-        *(s16 *)(temp_4 + 0x1C) = arg2;
+        ((FldRcEffectWork *)work)->primaryPriority = priority;
     }
 }
 
+/* Return the elapsed update count of the primary effect or an indexed clone. */
+/* measured: typing the indexed counter access changed one normalized byte; retain its raw integer-address helper shape. */
 // FUN_0014E8C0
-s32 FldRc_GetPositionSlotCount(u8 *arg0, s32 arg1) {
-    u8 *temp_3;
+s32 FldRc_GetPositionSlotCount(u8 *task, s32 slotIndex) {
+    u8 *work;
 
-    temp_3 = *(u8 **)(arg0 + 0x38);
-    if (arg1 >= 0) {
-        return *(s32 *)(p4_00141cf0_add((u32)(arg1 * 4), temp_3) + 0x44);
+    work = ((KwlnTask *)task)->work;
+    if (slotIndex >= 0) {
+        return *(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x44);
     }
-    return *(s32 *)(temp_3 + 0x18);
+    return *(s32 *)&((FldRcEffectWork *)work)->primaryElapsed;
 }
 
+/* measured: typing the indexed lock access changed one normalized byte; retain its raw integer-address helper shape. */
 // FUN_0014E8F0
-void FldRc_SetPositionSlotLock(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *temp_4;
+void FldRc_SetPositionSlotLock(u8 *task, s32 slotIndex, s32 locked) {
+    u8 *work;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    if (arg1 == -1) {
-        *(s32 *)(temp_4 + 0x74) = arg2;
+    work = ((KwlnTask *)task)->work;
+    if (slotIndex == -1) {
+        ((FldRcEffectWork *)work)->primaryLock = locked;
         return;
     }
-    *(s32 *)(p4_00141cf0_add((u32)(arg1 * 4), temp_4) + 0x78) = arg2;
+    *(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x78) = locked;
 }
 
+/* measured: typing the indexed visibility access changed one normalized byte; retain its raw integer-address helper shape. */
 // FUN_0014E920
-void FldRc_SetPositionSlotVisibility(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *temp_4;
+void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
+    u8 *work;
 
-    temp_4 = *(u8 **)(arg0 + 0x38);
-    if (arg1 == -1) {
-        *(s32 *)(temp_4 + 0x98) = arg2;
+    work = ((KwlnTask *)task)->work;
+    if (slotIndex == -1) {
+        ((FldRcEffectWork *)work)->primaryHidden = hidden;
         return;
     }
-    *(s32 *)(p4_00141cf0_add((u32)(arg1 * 4), temp_4) + 0x9C) = arg2;
+    *(s32 *)(p4_00141cf0_add((u32)(slotIndex * 4), work) + 0x9C) = hidden;
 }
 
 /* 712/720 bytes; ten resolved relocations; eight zero alignment bytes.
@@ -812,6 +883,7 @@ void FldRc_SetPositionSlotVisibility(u8 *arg0, s32 arg1, s32 arg2) {
 #pragma push
 /* measured: FldRc_TransitionStep MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+/* measured: typing the remaining child read/frame increment changed 514..515 bytes; keep those byte-pointer accesses across transition callbacks. */
 // FUN_0014E950
 s32 FldRc_TransitionStep(u8 *task)
 {
@@ -822,14 +894,14 @@ s32 FldRc_TransitionStep(u8 *task)
     s32 state;
     u32 i;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((KwlnTask *)task)->work;
     state = *(s32 *)work;
     switch (state) {
         case 0:
         {
-            u8 *child = *(u8 **)(work + 0xC);
+            u8 *child = ((FldRcTransitionWork *)work)->child;
             if (fieldTransitionChildReady(child)) {
-                s32 *source = (s32 *)func_003e9700(*(s32 *)(((u8 *)(u32)kwlnGetCamera()) + 4));
+                s32 *source = (s32 *)func_003e9700((s32)((MdlEffectCamera *)(u32)kwlnGetCamera())->frame);
                 s32 *destination = (s32 *)(work + 0x10);
                 s32 count = 8;
                 do {
@@ -841,33 +913,33 @@ s32 FldRc_TransitionStep(u8 *task)
                     destination[1] = second;
                     destination += 2;
                 } while (count > 0);
-                direction = *(SVec3 *)(work + 0x30);
+                direction = ((FldRcTransitionWork *)work)->direction;
                 RwV3dNormalize(&direction.x, &direction.x);
                 fieldTransitionScaleVector(&direction, &direction, 700.0f);
-                position = *(SVec3 *)(work + 0x40);
+                position = ((FldRcTransitionWork *)work)->position;
                 position.x += direction.x;
                 position.y += direction.y;
                 position.z += direction.z;
                 FldRc_RequestPositionSlot(*(u8 **)(work + 0xC), &position.x);
                 sdkSndStartStream(1, 0xB, 3, 4);
-                *(s32 *)(work + 8) = 0;
+                ((FldRcTransitionWork *)work)->frame = 0;
                 ++*(s32 *)work;
             }
             break;
         }
         case 1:
         {
-            s32 frame = *(s32 *)(work + 8);
+            s32 frame = ((FldRcTransitionWork *)work)->frame;
             if (frame < 84) {
                 if (frame > 40) {
                     for (i = 0; i < 4; i++) {
                         if (fieldTransitionEntryActive(i)) {
                             u8 *entry = D_007EF9B0 + i * 0x750;
-                            u8 *object = *(u8 **)(entry + 0x54);
-                            *(u32 *)(object + 0x28) &= ~2U;
+                            u8 *object = (u8 *)(u32)((FldEventActor *)entry)->active;
+                            ((ResrcRecord *)object)->unk28 &= ~2U;
                         }
                     }
-                    if (*(s32 *)(work + 4) == 1) {
+                    if (((FldRcTransitionWork *)work)->mode == 1) {
                         s8 *source = (s8 *)iGpffff9dd8;
                         s8 *destination = (s8 *)color;
                         s32 count = 4;
@@ -899,56 +971,57 @@ s32 FldRc_TransitionStep(u8 *task)
 
 #pragma pop
 // FUN_0014EC20
-void FldRc_TransitionDestroy(u8 *arg0)
+void FldRc_TransitionDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
+/* Create the camera transition controller and its mode-specific effect-loader child. */
 // FUN_0014EC50
-s32 FldRc_CreateTransitionTask(u8 *arg0, s32 arg1) {
-    extern s32 FldRc_TransitionStep(u8 *arg0);
-    extern s32 H_Cdvd_AcquireDirectory(const void *arg0, s32 arg1);
+s32 FldRc_CreateTransitionTask(u8 *parent, s32 mode) {
+    extern s32 FldRc_TransitionStep(u8 *parent);
+    extern s32 H_Cdvd_AcquireDirectory(const void *parent, s32 mode);
     extern u8 D_005EFC40[];
-    u8 **allocator_table;
-    u8 *temp_2_2;
+    u8 **allocatorTable;
+    u8 *effectWork;
     s32 result;
-    u8 *temp_2;
+    u8 *work;
     u8 *header;
     chkmemAllocSiteTag(&iGpffff9de0, 0x2DF);
-    allocator_table = (u8 **)D_008873F4;
-    temp_2 = ((u8 *(*)(s32, s32, s32))allocator_table[0])(1, 0x50, 0x40000);
-    if (temp_2 == NULL) {
+    allocatorTable = (u8 **)D_008873F4;
+    work = ((u8 *(*)(s32, s32, s32))allocatorTable[0])(1, 0x50, 0x40000);
+    if (work == NULL) {
         return 0;
     }
     header = D_005EFC28;
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(header), 0xF, 0, 0, FldRc_TransitionStep, FldRc_TransitionDestroy, (u8 *)(temp_2));
-    *(s32 *)(temp_2 + 4) = arg1;
-    if (arg1 == 0) {
+    result = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(header), 0xF, 0, 0, FldRc_TransitionStep, FldRc_TransitionDestroy, (u8 *)(work));
+    ((FldRcTransitionWork *)work)->mode = mode;
+    if (mode == 0) {
         chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
-        temp_2_2 = ((u8 *(*)(s32, s32, s32))allocator_table[0])(1, 0xFC, 0x40000);
-        if (temp_2_2 == NULL) {
-            arg1 = 0;
+        effectWork = ((u8 *(*)(s32, s32, s32))allocatorTable[0])(1, 0xFC, 0x40000);
+        if (effectWork == NULL) {
+            mode = 0;
         } else {
-            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2_2));
-            func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
-            *(s32 *)(temp_2_2 + 4) = H_Cdvd_AcquireDirectory(&D_005EFC40, 0);
-            *(s32 *)(temp_2_2 + 8) = 0x53;
-            strcpy(temp_2_2 + 0xBC, (const char *)&D_005EFC40);
+            mode = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(effectWork));
+            func_00440b68((const char *)&iGpffff9de8, &iGpffff9de0, 0xD0);
+            ((FldRcEffectWork *)effectWork)->file = H_Cdvd_AcquireDirectory(&D_005EFC40, 0);
+            *(s32 *)&((FldRcEffectWork *)effectWork)->duration = 0x53;
+            strcpy((u8 *)((FldRcEffectWork *)effectWork)->path, (const char *)&D_005EFC40);
         }
-        *(s32 *)(temp_2 + 0xC) = arg1;
-    } else if (arg1 == 1) {
+        *(s32 *)&((FldRcTransitionWork *)work)->child = mode;
+    } else if (mode == 1) {
         chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
-        temp_2_2 = ((u8 *(*)(s32, s32, s32))allocator_table[0])(1, 0xFC, 0x40000);
-        if (temp_2_2 == NULL) {
-            arg1 = 0;
+        effectWork = ((u8 *(*)(s32, s32, s32))allocatorTable[0])(1, 0xFC, 0x40000);
+        if (effectWork == NULL) {
+            mode = 0;
         } else {
-            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2_2));
-            func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
-            *(s32 *)(temp_2_2 + 4) = H_Cdvd_AcquireDirectory(&D_005EFC40, 0);
-            *(s32 *)(temp_2_2 + 8) = 0x32;
-            strcpy(temp_2_2 + 0xBC, (const char *)&D_005EFC40);
+            mode = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(effectWork));
+            func_00440b68((const char *)&iGpffff9de8, &iGpffff9de0, 0xD0);
+            ((FldRcEffectWork *)effectWork)->file = H_Cdvd_AcquireDirectory(&D_005EFC40, 0);
+            *(s32 *)&((FldRcEffectWork *)effectWork)->duration = 0x32;
+            strcpy((u8 *)((FldRcEffectWork *)effectWork)->path, (const char *)&D_005EFC40);
         }
-        *(s32 *)(temp_2 + 0xC) = arg1;
+        *(s32 *)&((FldRcTransitionWork *)work)->child = mode;
     }
     return result;
 }
