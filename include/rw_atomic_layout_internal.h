@@ -11,12 +11,15 @@ struct RpGeometry;
  * geometry and renderCallBack retain their SDK offsets and pointer types. */
 struct RpAtomic
 {
-    u8 pad00[4];
+    u8 type, subType, flags, privateFlags;
     struct RwFrame *frame;
     u8 pad08[0x10];
     struct RpGeometry *geometry;
     u8 pad1C[0x2C];
     struct RpAtomic *(*renderCallBack)(struct RpAtomic *atomic);
+    u32 interpolatorFlags;             /* 0x4c: RpInterpolator.flags */
+    u8 pad50[0x1C];
+    struct RxPipeline *pipeline;       /* 0x6c */
 };
 
 #endif
