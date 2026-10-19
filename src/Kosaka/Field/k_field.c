@@ -108,7 +108,7 @@ extern void FldFrame_RotateTaskCreate(u8 *, s32, s32);
 extern u16 MT_Scene_FindFreeResId(s32);
 extern s32 MT_Scene_CreateModelFldRes(u16, s32);
 extern void SceneDraw_SetResVisible(u16, s32);
-extern void func_0015a350(f32 *);
+extern void fldBoardGetOccupiedCenter(f32 *);
 extern void mdlTranslateMatrix(s32, f32 *, s32);
 extern s32 scrStartProcedureIndex(s32, u8 *, s32);
 extern s32 FldMap_IsCurrentInBandA(void);
@@ -241,7 +241,7 @@ s32 FldRootUpdate(u8 *task)
             if (model != 0) {
                 modelId = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(10), model);
                 SceneDraw_SetResVisible(modelId, 1);
-                func_0015a350(position);
+                fldBoardGetOccupiedCenter(position);
                 mdlTranslateMatrix(work->model, position, 2);
                 object = MT_Scene_GetRes(modelId);
                 *(u32 *)(object + 0x28) |= 0x02000000;

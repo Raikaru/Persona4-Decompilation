@@ -180,7 +180,7 @@ extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 D_007E8BF8[];
 void *memset(void *arg0, s32 arg1, u32 arg2);
 s32 Encount_GetEntryRate(u16 arg0, u16 arg1, u16 arg2);
-s32 func_0015a320(void);
+s32 fldStepGetModelSlot(void);
 u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
 
 

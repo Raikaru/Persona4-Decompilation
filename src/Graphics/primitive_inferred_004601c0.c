@@ -233,76 +233,78 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
+/* Frustum-test a sphere and draw nine latitude rings in each of two perpendicular planes. */
 // FUN_004601C0
-void primSphereLine3D(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
-    struct Data_00712508 spE __attribute__((aligned(16)));
-    Code46RingPoint spF0;
-    f32 spA0[4][4];
-    s32 sp80[6];
-    f32 sp70[4];
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f21;
-    f32 temp_f22;
-    f32 var_f21;
+void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState) {
+    struct Data_00712508 rotationAxis __attribute__((aligned(16)));
+    Code46RingPoint ringCenter;
+    f32 matrix[4][4];
+    s32 savedStates[6];
+    f32 sphere[4];
+    f32 ringRadius;
+    f32 crossRadius;
+    f32 sliceValue;
+    f32 ringValue;
     u32 arcIndex;
     u32 arcIndexB;
     u32 restoreIndex;
     u32 saveIndex;
     s32 *stateEntry;
-    spE = D_00712508[0];
-    sp70[3] = fparg0;
-    sp70[0] = *(f32 *)(arg0 + 0);
-    sp70[1] = *(f32 *)(arg0 + 4);
-    sp70[2] = *(f32 *)(arg0 + 8);
-    if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0, (u8 *)&sp70[0]) != 0) {
-        if (arg2 != 0) {
+    rotationAxis = D_00712508[0];
+    sphere[3] = radius;
+    sphere[0] = ((RwV3d *)center)->x;
+    /* measured: typing either Y or Z snapshot grows 784B to 796B; retain only these raw loads. */
+    sphere[1] = *(f32 *)(center + 4);
+    sphere[2] = *(f32 *)(center + 8);
+    if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0, (u8 *)&sphere[0]) != 0) {
+        if (preserveState != 0) {
             for (saveIndex = 0; saveIndex < 6U; saveIndex++) {
                 stateEntry = &D_00712490[saveIndex * 2];
-                ((WindowRenderStateCall)D_00887304[0])((RwRenderState)(stateEntry[0]), (void *)(&sp80[saveIndex]));
+                ((WindowRenderStateCall)D_00887304[0])((RwRenderState)(stateEntry[0]), (void *)(&savedStates[saveIndex]));
                 D_00887300[0]((RwRenderState)(stateEntry[0]), (void *)(stateEntry[1]));
             }
             D_00887300[0]((RwRenderState)(1), (void *)(0));
             RpSkyRenderStateSet(2, (void *)(0x48));
             RpSkyRenderStateSet(3, (void *)(0x71801));
         }
-        spA0[2][2] = 1.0f;
-        spA0[1][1] = 1.0f;
-        spA0[0][0] = 1.0f;
-        var_f21 = 0.0f;
-        spA0[1][0] = 0.0f;
-        spA0[0][2] = 0.0f;
-        spA0[0][1] = 0.0f;
-        spA0[2][1] = 0.0f;
-        spA0[2][0] = 0.0f;
-        spA0[1][2] = 0.0f;
-        spA0[3][2] = 0.0f;
-        spA0[3][1] = 0.0f;
-        spA0[3][0] = 0.0f;
-        *(s32 *)&spA0[0][3] |= 0x20003;
+        matrix[2][2] = 1.0f;
+        matrix[1][1] = 1.0f;
+        matrix[0][0] = 1.0f;
+        ringValue = 0.0f;
+        matrix[1][0] = 0.0f;
+        matrix[0][2] = 0.0f;
+        matrix[0][1] = 0.0f;
+        matrix[2][1] = 0.0f;
+        matrix[2][0] = 0.0f;
+        matrix[1][2] = 0.0f;
+        matrix[3][2] = 0.0f;
+        matrix[3][1] = 0.0f;
+        matrix[3][0] = 0.0f;
+        /* Retail's identity macro preserves the unwritten flags word, as in primCircleLine3D. */
+        *(s32 *)&matrix[0][3] |= 0x20003;
         for (arcIndex = 0; arcIndex < 9U; arcIndex++) {
-            var_f21 += fGpffff81f0;
-            temp_f22 = fparg0 * cosf(var_f21);
-            temp_f12 = fparg0 * sinf(var_f21);
-            spF0.x = *(f32 *)(arg0 + 0);
-            spF0.y = *(f32 *)(arg0 + 4) + temp_f22;
-            spF0.z = *(f32 *)(arg0 + 8);
-            primCircleLine3D(&spF0, temp_f12, arg1, &spA0[0][0], 0);
+            ringValue += fGpffff81f0;
+            sliceValue = radius * cosf(ringValue);
+            ringRadius = radius * sinf(ringValue);
+            ringCenter.x = ((RwV3d *)center)->x;
+            ringCenter.y = ((RwV3d *)center)->y + sliceValue;
+            ringCenter.z = ((RwV3d *)center)->z;
+            primCircleLine3D(&ringCenter, ringRadius, color, &matrix[0][0], 0);
         }
-        RwMatrixRotate(&spA0[0][0], &spE, 2, 90.0f);
-        temp_f22 = 0.0f;
+        RwMatrixRotate(&matrix[0][0], &rotationAxis, 2, 90.0f);
+        sliceValue = 0.0f;
         for (arcIndexB = 0; arcIndexB < 9U; arcIndexB++) {
-            temp_f22 += fGpffff81f0;
-            var_f21 = fparg0 * cosf(temp_f22);
-            temp_f12_2 = fparg0 * sinf(temp_f22);
-            spF0.x = *(f32 *)(arg0 + 0);
-            spF0.y = *(f32 *)(arg0 + 4);
-            spF0.z = *(f32 *)(arg0 + 8) + var_f21;
-            primCircleLine3D(&spF0, temp_f12_2, arg1, &spA0[0][0], 0);
+            sliceValue += fGpffff81f0;
+            ringValue = radius * cosf(sliceValue);
+            crossRadius = radius * sinf(sliceValue);
+            ringCenter.x = ((RwV3d *)center)->x;
+            ringCenter.y = ((RwV3d *)center)->y;
+            ringCenter.z = ((RwV3d *)center)->z + ringValue;
+            primCircleLine3D(&ringCenter, crossRadius, color, &matrix[0][0], 0);
         }
-        if (arg2 != 0) {
+        if (preserveState != 0) {
             for (restoreIndex = 0; restoreIndex < 6U; restoreIndex++) {
-                ((WindowRenderStateCall)D_00887300[0])((RwRenderState)(D_00712490[restoreIndex * 2]), (void *)(sp80[restoreIndex]));
+                ((WindowRenderStateCall)D_00887300[0])((RwRenderState)(D_00712490[restoreIndex * 2]), (void *)(savedStates[restoreIndex]));
             }
         }
     }
@@ -423,10 +425,10 @@ void primCylinderLine3D(f32 *position, f32 radius, f32 height, u8 *color, s32 se
 
 // Creates the queue pool (tag 0x41002) and the batch pool (tag 0x41003) of 0x30-byte nodes; stores the handles in iGpffffba98 and iGpffffba9c.
 // FUN_00460910
-void PrimCreatePools(s32 arg0, s32 arg1)
+void PrimCreatePools(s32 queueCount, s32 batchCount)
 {
-    iGpffffba98 = func_003e1220(0x30, arg0, 4, 1, D_008E43C0, 0x41002);
-    iGpffffba9c = func_003e1220(0x30, arg1, 4, 1, D_008E43E4, 0x41003);
+    iGpffffba98 = func_003e1220(0x30, queueCount, 4, 1, D_008E43C0, 0x41002);
+    iGpffffba9c = func_003e1220(0x30, batchCount, 4, 1, D_008E43E4, 0x41003);
 }
 
 // Takes one zeroed 0x30-byte node from the queue pool (D_00724B88, tag 0x41002).
@@ -451,16 +453,16 @@ u8 *PrimAllocBatchNode(void)
 
 // Returns one node to the batch pool (D_00724B8C) through its free routine.
 // FUN_00460A50
-void PrimFreeBatchNode(s32 arg0)
+void PrimFreeBatchNode(s32 node)
 {
-    jtbl_008873FC[0](D_00724B8C, arg0);
+    jtbl_008873FC[0](D_00724B8C, node);
 }
 
 // Zeroes arg1 consecutive 0x30-byte nodes at arg0, then calls kwlnTaskRegisterCallback on the queue pool handle (D_00724B88).
 // FUN_00460A80
-void PrimClearNodes(s32 arg0, s32 arg1)
+void PrimClearNodes(s32 nodes, s32 count)
 {
-    memset((void *)arg0, 0, arg1 * 0x30);
+    memset((void *)nodes, 0, count * 0x30);
     kwlnTaskRegisterCallback(D_00724B88);
 }
 

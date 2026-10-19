@@ -3,12 +3,13 @@
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
+#include "rw_camera_internal.h"
 extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
-extern f32 cosf(f32 fparg0);
-extern f32 sinf(f32 fparg0);
+extern f32 cosf(f32 depth);
+extern f32 sinf(f32 depth);
 extern s32 iGpffffb9e8;
 struct RwCamera;
 struct RwSphere;
@@ -51,16 +52,7 @@ typedef struct {
 #include "rw_types_internal.h"
 typedef RwV3d Code45Vec3;
 
-typedef struct RwMatrixTag {
-    Code45Vec3 right;
-    u32 flags;
-    Code45Vec3 up;
-    u32 pad1;
-    Code45Vec3 at;
-    u32 pad2;
-    Code45Vec3 pos;
-    u32 pad3;
-} Code45Matrix;
+typedef RwMatrixTag Code45Matrix;
 
 typedef struct RwSphere {
     Code45Vec3 center;
@@ -238,7 +230,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045ce40-0045d890 */
 
-extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void K_ClumpLookAtBasis(u8 *colorData, u8 *rectangleData, u8 *preserveState, f32 *arg3);
 extern void mdlRenderInitializeBuffers(void);
 extern s32 kwlnGetCamera(void);
 #pragma push
@@ -253,49 +245,50 @@ extern s32 kwlnGetCamera(void);
 /* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
    the loop as retail; a named base local is coloured $a0 (archived nd 8). */
 /* measured: closes the hoisting scope after func_0045b430. */
+/* Expand signed rectangle coordinates into four Sky vertices, using the camera near plane for reciprocal depth. */
 // FUN_0045CE40
 s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z)
 {
-    f32 *v7;
+    f32 *vertices;
     s32 result;
     f32 inv;
 
-    v7 = out;
+    vertices = out;
     result = kwlnGetCamera();
-    inv = 1.0f / *(f32 *)((u8 *)result + 0x80);
+    inv = 1.0f / ((RwCamera *)result)->nearPlane;
     z = D_008872F8_abs[0] - z;
-    v7[0] = (f32)pos[0];
-    v7[1] = (f32)pos[1];
-    v7[2] = z;
-    v7[8] = (f32)colors[0];
-    v7[9] = (f32)colors[1];
-    v7[10] = (f32)colors[2];
-    v7[11] = (f32)colors[3];
-    v7[6] = inv;
-    v7[16] = (f32)(pos[0] + pos[2]);
-    v7[17] = (f32)pos[1];
-    v7[18] = z;
-    v7[24] = (f32)colors[0];
-    v7[25] = (f32)colors[1];
-    v7[26] = (f32)colors[2];
-    v7[27] = (f32)colors[3];
-    v7[22] = inv;
-    v7[32] = (f32)pos[0];
-    v7[33] = (f32)(pos[1] + pos[3]);
-    v7[34] = z;
-    v7[40] = (f32)colors[0];
-    v7[41] = (f32)colors[1];
-    v7[42] = (f32)colors[2];
-    v7[43] = (f32)colors[3];
-    v7[38] = inv;
-    v7[48] = (f32)(pos[0] + pos[2]);
-    v7[49] = (f32)(pos[1] + pos[3]);
-    v7[50] = z;
-    v7[56] = (f32)colors[0];
-    v7[57] = (f32)colors[1];
-    v7[58] = (f32)colors[2];
-    v7[59] = (f32)colors[3];
-    v7[54] = inv;
+    ((Code45Im2DVertex *)vertices)[0].position[0] = (f32)pos[0];
+    ((Code45Im2DVertex *)vertices)[0].position[1] = (f32)pos[1];
+    ((Code45Im2DVertex *)vertices)[0].position[2] = z;
+    ((Code45Im2DVertex *)vertices)[0].color[0] = (f32)colors[0];
+    ((Code45Im2DVertex *)vertices)[0].color[1] = (f32)colors[1];
+    ((Code45Im2DVertex *)vertices)[0].color[2] = (f32)colors[2];
+    ((Code45Im2DVertex *)vertices)[0].color[3] = (f32)colors[3];
+    ((Code45Im2DVertex *)vertices)[0].reciprocal = inv;
+    ((Code45Im2DVertex *)vertices)[1].position[0] = (f32)(pos[0] + pos[2]);
+    ((Code45Im2DVertex *)vertices)[1].position[1] = (f32)pos[1];
+    ((Code45Im2DVertex *)vertices)[1].position[2] = z;
+    ((Code45Im2DVertex *)vertices)[1].color[0] = (f32)colors[0];
+    ((Code45Im2DVertex *)vertices)[1].color[1] = (f32)colors[1];
+    ((Code45Im2DVertex *)vertices)[1].color[2] = (f32)colors[2];
+    ((Code45Im2DVertex *)vertices)[1].color[3] = (f32)colors[3];
+    ((Code45Im2DVertex *)vertices)[1].reciprocal = inv;
+    ((Code45Im2DVertex *)vertices)[2].position[0] = (f32)pos[0];
+    ((Code45Im2DVertex *)vertices)[2].position[1] = (f32)(pos[1] + pos[3]);
+    ((Code45Im2DVertex *)vertices)[2].position[2] = z;
+    ((Code45Im2DVertex *)vertices)[2].color[0] = (f32)colors[0];
+    ((Code45Im2DVertex *)vertices)[2].color[1] = (f32)colors[1];
+    ((Code45Im2DVertex *)vertices)[2].color[2] = (f32)colors[2];
+    ((Code45Im2DVertex *)vertices)[2].color[3] = (f32)colors[3];
+    ((Code45Im2DVertex *)vertices)[2].reciprocal = inv;
+    ((Code45Im2DVertex *)vertices)[3].position[0] = (f32)(pos[0] + pos[2]);
+    ((Code45Im2DVertex *)vertices)[3].position[1] = (f32)(pos[1] + pos[3]);
+    ((Code45Im2DVertex *)vertices)[3].position[2] = z;
+    ((Code45Im2DVertex *)vertices)[3].color[0] = (f32)colors[0];
+    ((Code45Im2DVertex *)vertices)[3].color[1] = (f32)colors[1];
+    ((Code45Im2DVertex *)vertices)[3].color[2] = (f32)colors[2];
+    ((Code45Im2DVertex *)vertices)[3].color[3] = (f32)colors[3];
+    ((Code45Im2DVertex *)vertices)[3].reciprocal = inv;
     return result;
 }
 
@@ -327,7 +320,7 @@ void PrimBuildRotatedRectangle(void *output, void *colorData, void *rectangle, f
     out = (f32 *)output;
     colors = (u8 *)colorData;
     pos = (s32 *)rectangle;
-    inv = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+    inv = 1.0f / ((RwCamera *)(u32)kwlnGetCamera())->nearPlane;
     depth = D_008872F8_abs[0] - depth;
     pos[2] = (s32)((f32)pos[2] * scaleX);
     pos[3] = (s32)((f32)pos[3] * scaleY);
@@ -360,20 +353,21 @@ void PrimBuildRotatedRectangle(void *output, void *colorData, void *rectangle, f
         f32 *dst;
         point = &corners[i];
         dst = (f32 *)((u8 *)out + i * 64);
-        dst[0] = point->x;
-        dst[1] = point->y;
-        dst[2] = depth;
-        dst[8] = (f32)(u32)colors[0];
-        dst[9] = (f32)(u32)colors[1];
-        dst[10] = (f32)(u32)colors[2];
-        dst[11] = (f32)(u32)colors[3];
-        dst[6] = inv;
+        ((Code45Im2DVertex *)dst)->position[0] = point->x;
+        ((Code45Im2DVertex *)dst)->position[1] = point->y;
+        ((Code45Im2DVertex *)dst)->position[2] = depth;
+        ((Code45Im2DVertex *)dst)->color[0] = (f32)(u32)colors[0];
+        ((Code45Im2DVertex *)dst)->color[1] = (f32)(u32)colors[1];
+        ((Code45Im2DVertex *)dst)->color[2] = (f32)(u32)colors[2];
+        ((Code45Im2DVertex *)dst)->color[3] = (f32)(u32)colors[3];
+        ((Code45Im2DVertex *)dst)->reciprocal = inv;
     }
 }
 
 #pragma pop
+/* Draw a flat four-corner rectangle, optionally saving the six immediate-mode render states. */
 // FUN_0045D6E0
-void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
+void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState)
 {
     struct {
         s32 saved[6];
@@ -385,8 +379,8 @@ void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
     u32 j;
     Code45RenderState *p;
 
-    work.pos = *(Code45Float4 *)arg1;
-    if (arg2 != 0) {
+    work.pos = *(Code45Float4 *)rectangleData;
+    if (preserveState != 0) {
         for (i = 0; i < 6; i++) {
             p = &D_00712490[i];
             D_00887304[0](p->state, (void *)&work.saved[i]);
@@ -397,9 +391,9 @@ void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
         RpSkyRenderStateSet(3, 0x717FB);
     }
     memset(work.out, 0, 0x100);
-    PrimBuildQuadVertices(work.out, arg0, (s32 *)&work.pos, fparg0);
+    PrimBuildQuadVertices(work.out, colorData, (s32 *)&work.pos, depth);
     D_00887310[0](4, work.out, 4);
-    if (arg2 != 0) {
+    if (preserveState != 0) {
         for (j = 0; j < 6; j++) {
             p = &D_00712490[j];
             D_00887300[0](p->state, work.saved[j]);
@@ -407,8 +401,9 @@ void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
     }
 }
 
+/* Consume a queued rectangle snapshot and release its packet after drawing. */
 // FUN_0045D890
-void PrimExecuteRectangle(void *unused, u8 *arg1)
+void PrimExecuteRectangle(void *unused, u8 *rectangleData)
 {
     struct {
         PrimitiveRectangleSignedWords pos;
@@ -423,7 +418,7 @@ void PrimExecuteRectangle(void *unused, u8 *arg1)
     u32 i;
     u32 j;
 
-    packet = (PrimitiveRectanglePacket *)arg1;
+    packet = (PrimitiveRectanglePacket *)rectangleData;
     work.pos = packet->rectangle.signedWords;
     scale = packet->depth;
     enabled = packet->saveState;
@@ -445,6 +440,6 @@ void PrimExecuteRectangle(void *unused, u8 *arg1)
             D_00887300[0](p->state, work.saved[j]);
         }
     }
-    D_008873EC[0](arg1);
+    D_008873EC[0](rectangleData);
 }
 

@@ -9,6 +9,15 @@ typedef union FieldSceneId {
     u16 half[2];
 } FieldSceneId;
 
+/* The field-board resource creator indexes sixteen template pointers at
+ * 0x28. The step destructor clears all sixteen native words. Preserve both
+ * pointer and integer address transports used by those consumers. */
+typedef union FieldSceneTemplateResource {
+    void *resource;
+    u32 address;
+    s32 signedAddress;
+} FieldSceneTemplateResource;
+
 typedef struct FieldSceneState {
     FieldSceneId field;
     FieldSceneId room;
@@ -20,7 +29,8 @@ typedef struct FieldSceneState {
     u8 pad18[4];
     void *sceneTask;
     void *filterTask;
-    u8 pad24[0x44];
+    u8 pad24[4];
+    FieldSceneTemplateResource templates[16]; /* 0x28 */
     void *primaryTasks[4];      /* 0x68 */
     void *secondaryTasks[4];    /* 0x78 */
     u8 pad88[8];

@@ -841,7 +841,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
     u32 RpRandom(void);
     u32 datGetFlag(s32);
     s32 FldStepIndex(void);
-    s32 func_0015a7c0(s32);
+    s32 fldStepSaveBoard(s32);
     void FldResource_Destroy(u8 *);
     s32 FldMap_IsCurrentInBandA(void);
     s32 FldMap_IsCurrentInBandB(void);
@@ -871,7 +871,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
     s32 MT_Scene_CreateModelFldRes(u16, s32);
     u16 MT_Scene_FindFreeResId(s32);
     void SceneDraw_SetResVisible(u16, u32);
-    void func_0015a350(struct P4_0015_Vec3 *);
+    void fldBoardGetOccupiedCenter(struct P4_0015_Vec3 *);
     struct RwMatrixTag *mdlTranslateMatrix(struct RwMatrixTag *, const struct RwV3d *, s32);
     s32 FldEvent_SpawnMover(s32, s32, s32);
     u8 *smapCreateSymbols(u8 *);
@@ -1237,7 +1237,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
                 work->viewFog = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
                 work->environmentFog = iGpffffba6c;
                 if (FldUnit_AllSlotsReady() != 0) {
-                    func_0015a7c0(FldStepIndex());
+                    fldStepSaveBoard(FldStepIndex());
                     if (((FldFrame *)MT_Scene_GetFrameState())->noiseTask != 0) {
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(((FldFrame *)MT_Scene_GetFrameState())->noiseTask));
                         ((FldFrame *)MT_Scene_GetFrameState())->noiseTask = 0;
@@ -1464,7 +1464,7 @@ s32 FldEvent_FieldToBattle(u8 *task)
                     if (tt != 0) {
                         u16 id = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(0xA), tt);
                         SceneDraw_SetResVisible(id, 1);
-                        func_0015a350((struct P4_0015_Vec3 *)(&translation));
+                        fldBoardGetOccupiedCenter((struct P4_0015_Vec3 *)(&translation));
                         mdlTranslateMatrix((struct RwMatrixTag *)(work->modelFile), (const struct RwV3d *)(&translation), 2);
                         {
                             u8 *r2 = (u8 *)MT_Scene_GetRes(id);

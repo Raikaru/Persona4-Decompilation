@@ -178,7 +178,7 @@ extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 D_007E8BF8[];
 void *memset(void *arg0, s32 arg1, u32 arg2);
 s32 Encount_GetEntryRate(u16 arg0, u16 arg1, u16 arg2);
-s32 func_0015a320(void);
+s32 fldStepGetModelSlot(void);
 u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
 
 /* Source unit: src/promoted/k_fldUnit.c */
@@ -2066,7 +2066,7 @@ void FldUnit_ApplySlotTint(u8 *entry, u8 *placement, s32 resourceId)
 
     if (entry != NULL) {
         variant = (s32)(((((FieldUnitObject *)entry)->encounter + 7)[0] & 1) != 0);
-        ((FieldUnitObject *)entry)->resourceId = (u16)MT_Scene_CreateModelFldRes(resourceId & 0xFFFF, (s32)mdlCloneModelObject((u8 *)(*(s32 *)(func_0015a320()))));
+        ((FieldUnitObject *)entry)->resourceId = (u16)MT_Scene_CreateModelFldRes(resourceId & 0xFFFF, (s32)mdlCloneModelObject((u8 *)(*(s32 *)(fldStepGetModelSlot()))));
         sceneResource = (u8 *)MT_Scene_GetRes(*(u16 *)(entry + 0xC));
         mdlSetAttachedOwner(*(u8 * *)&((ResrcRecord *)sceneResource)->slotHandle[1], D_005DC920);
         scaleOffset = variant * 0xC;
@@ -2151,7 +2151,7 @@ void FldUnit_UpdateEnemySlot(void)
     if (entryLimit == 0) {
         return;
     }
-    if (func_0015a320() == 0) {
+    if (fldStepGetModelSlot() == 0) {
         return;
     }
     i = 0;

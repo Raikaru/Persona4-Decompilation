@@ -1,6 +1,35 @@
 /* Original translation unit mdlSE.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "mdl_file_internal.h"
+#include "h_cdvd_request_internal.h"
+
+/* The allocator reserves 0x28 bytes; the shared file-object prefix is
+ * followed by two asynchronous requests. */
+typedef struct MdlSeRecord {
+    union {
+        MdlFileObject base;
+        struct { u8 pad00[0x0E]; s16 id; } identity;
+    };
+    void *primaryRequest;
+    void *secondaryRequest;
+    u8 unk1C[0x0C];
+} MdlSeRecord;
+typedef struct MdlSeCell {
+    s8 variants[4];
+    s32 flags;
+    s16 slotId;
+    s16 unk0A;
+} MdlSeCell;
+typedef struct MdlSeSlot {
+    union { s32 signedTick; u32 tick; };
+    u16 type;
+    u16 id;
+} MdlSeSlot;
+typedef struct MdlSeBankHeader {
+    u8 unk00[0xFC];
+    s32 size;
+} MdlSeBankHeader;
 
 extern void chkmemAllocSiteTag();
 extern void memset(void *dest, s32 value, s32 size);
@@ -24,18 +53,18 @@ extern s32 mdlSeAcquireSlot(u32 type, u16 id);
 
 /* Allocates a 40-byte sound record: flag word 1 at +8, the type and id at +0xC and +0xE, and the kind at +0x10. */
 // FUN_0047DEA0
-void *mdlSeCreateRecord(u32 arg0, u16 arg1, s32 arg2)
+void *mdlSeCreateRecord(u32 type, u16 id, s32 kind)
 {
-    void *temp_2;
+    void *record;
 
     chkmemAllocSiteTag(&D_007241D8, 0x2B);
-    temp_2 = jtbl_008873E8[0](0x28, 0x40000);
-    memset(temp_2, 0, 0x28);
-    *(s32 *)((u8 *)temp_2 + 8) = 1;
-    *(s16 *)((u8 *)temp_2 + 0xC) = arg0;
-    *(s16 *)((u8 *)temp_2 + 0xE) = arg1;
-    *(s16 *)((u8 *)temp_2 + 0x10) = arg2;
-    return temp_2;
+    record = jtbl_008873E8[0](0x28, 0x40000);
+    memset(record, 0, 0x28);
+    ((MdlSeRecord *)record)->base.references = 1;
+    ((MdlSeRecord *)record)->base.type = type;
+    ((MdlSeRecord *)record)->identity.id = id;
+    ((MdlSeRecord *)record)->base.mode = kind;
+    return record;
 }
 
 /* Acquires one of three sound slots for (type, id): reuses a slot already holding it, else takes the first slot whose model is not loaded, else evicts the slot with the smallest tick. Returns slot + 3. */
@@ -65,14 +94,14 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
     for (; (slotIndex = scanIndex & 0xFFFF) < 3U; scanIndex = (scanIndex + 1) & 0xFFFF)
     {
         slot = (u8*)D_00922C10 + (u16)scanIndex * 8;
-        slotType = *(u16*)(slot + 4);
-        if ((requestedType == slotType) && (requestedId == *(u16*)(slot + 6)))
+        slotType = ((MdlSeSlot *)slot)->type;
+        if ((requestedType == slotType) && (requestedId == ((MdlSeSlot *)slot)->id))
         {
             selectedSlot = slotIndex;
             break;
         }
         else if (((s32)slotType < 0xC) &&
-                 (mdlFindModelObject(slotType, *(u16*)((u8*)D_00922C10 + (u16)scanIndex * 8 + 6), 0) == 0))
+                 (mdlFindModelObject(slotType, ((MdlSeSlot *)((u8*)D_00922C10 + (u16)scanIndex * 8))->id, 0) == 0))
         {
             selectedSlot = slotIndex;
             break;
@@ -87,7 +116,7 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
         slot = (u8*)D_00922C10;
         for (; (evictionSlot = evictionIndex & 0xFFFF) < 3; evictionIndex = (evictionIndex + 1) & 0xFFFF)
         {
-            u32 tick = *(u32*)(slot + ((evictionIndex & 0xFFFF) * 8));
+            u32 tick = ((MdlSeSlot *)(slot + ((evictionIndex & 0xFFFF) * 8)))->tick;
             if (tick <= minimumTick)
             {
                 minimumTick = tick;
@@ -97,7 +126,8 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
     }
     byteOffset = selectedSlot * 8;
     iGpffffbb40 = (u32)iGpffffbb40 + 1;
-    *(s32*)((s32)D_00922C10 + byteOffset) = iGpffffbb40;
+    ((MdlSeSlot *)((s32)D_00922C10 + byteOffset))->signedTick = iGpffffbb40;
+    /* Keep linker-visible interior aliases for type/id rather than repointing relocations to D_00922C10. */
     *(u16*)((s32)D_00922C14 + byteOffset) = type;
     *(u16*)((s32)D_00922C16 + byteOffset) = id;
     return selectedSlot + 3;
@@ -125,53 +155,53 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
    switch does not have. */
 // FUN_0047E0F0
 #pragma opt_loop_invariants on
-s32 mdlSeFillEntryState(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
+s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
 {
     s16 row;
     u32 colOffL;
     s16 col;
     u8 *entry;
     s16 slotId;
-    s16 val;
+    s16 slotValue;
     s32 writeIndex;
     s32 scanIndex;
-    s32 idx;
-    s8 cv;
-    s8 first;
-    s8 neg1;
+    s32 variantIndex;
+    s8 variant;
+    s8 firstVariant;
+    s8 emptyVariant;
     s32 count;
     u16 kind;
     s16 mode;
     s32 flags;
     u8 *owner;
-    s8 sb[4];
+    s8 variants[4];
 
-    row = (s16)arg2;
+    row = (s16)rowIndex;
     if (row >= 0x1B) {
         return 0;
     }
-    col = (s16)arg1;
+    col = (s16)column;
     if (col >= 8) {
         return 0;
     }
     entry = (u8 *)((col * 3) * 4);
-    entry = *(u8 **)(arg0 + 12) + (row * 3) * 32 + (u32)entry;
-    slotId = *(s16 *)(entry + 8);
+    entry = *(u8 **)&((MdlMotionState *)state)->request + (row * 3) * 32 + (u32)entry;
+    slotId = ((MdlSeCell *)entry)->slotId;
     if (slotId == -1) {
         return 0;
     }
-    val = (col == 0) ? (s16)(slotId + (arg3 & 0xFFFF))
-                     : (s16)(slotId - *(s16 *)(entry - 4));
-    first = -1;
-    neg1 = -1;
+    slotValue = (col == 0) ? (s16)(slotId + (baseSlot & 0xFFFF))
+                     : (s16)(slotId - ((MdlSeCell *)entry)[-1].slotId);
+    firstVariant = -1;
+    emptyVariant = -1;
     writeIndex = 0;
     scanIndex = 0;
-    while ((idx = scanIndex & 0xFFFF) < 3) {
-        cv = *(s8 *)(entry + idx);
-        if (cv != neg1) {
-            sb[writeIndex & 0xFFFF] = cv;
-            if (first == neg1) {
-                first = sb[writeIndex & 0xFFFF];
+    while ((variantIndex = scanIndex & 0xFFFF) < 3) {
+        variant = ((MdlSeCell *)entry)->variants[variantIndex];
+        if (variant != emptyVariant) {
+            variants[writeIndex & 0xFFFF] = variant;
+            if (firstVariant == emptyVariant) {
+                firstVariant = variants[writeIndex & 0xFFFF];
             }
             writeIndex = (writeIndex + 1) & 0xFFFF;
         }
@@ -179,53 +209,54 @@ s32 mdlSeFillEntryState(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
     }
     count = writeIndex & 0xFFFF;
     if (count > 0) {
-        kind = *(u16 *)(*(u8 **)arg0 + 12);
+        kind = ((MdlFileObject *)*(u8 **)state)->type;
         mode = (kind == 1) ? 2 : 3;
-        *(s16 *)(arg0 + 18) = mode;
-        *(s16 *)(arg0 + 22) = val;
-        if ((*(u16 *)(arg0 + 16) & 0x40) == 0 || first == neg1) {
-            *(s16 *)(arg0 + 20) = sb[(u32)RpRandom() % (u32)count];
+        ((MdlMotionState *)state)->channel = mode;
+        ((MdlMotionState *)state)->waitTicks = slotValue;
+        if ((((MdlMotionState *)state)->flags & 0x40) == 0 || firstVariant == emptyVariant) {
+            ((MdlMotionState *)state)->streamFlags = variants[(u32)RpRandom() % (u32)count];
         } else {
-            *(s16 *)(arg0 + 20) = first;
+            ((MdlMotionState *)state)->streamFlags = firstVariant;
         }
-        *(s32 *)(arg0 + 24) = **(s32 **)arg0;
+        ((MdlMotionState *)state)->requestValue = **(s32 **)state;
     }
+    /* measured: typed cell flags cache across state writes (852B); raw reloads retain 848B MATCH. */
     flags = *(s32 *)(entry + 4);
     if (flags != -1) {
-        owner = *(u8 **)arg0;
-        if (*(u16 *)(owner + 12) == 1) {
-            *(s16 *)(arg0 + 28) = ((flags & 0x20000000) != 0) ^ 1;
-            *(s16 *)(arg0 + 30) = 11;
-            *(s16 *)(arg0 + 36) = val;
-            *(s16 *)(arg0 + 32) = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
-            *(s16 *)(arg0 + 34) = *(s32 *)(entry + 4);
+        owner = *(u8 **)state;
+        if (((MdlFileObject *)owner)->type == 1) {
+            ((MdlMotionState *)state)->pendingSlot = ((flags & 0x20000000) != 0) ^ 1;
+            ((MdlMotionState *)state)->pendingChannel = 11;
+            ((MdlMotionState *)state)->pendingTicks = slotValue;
+            ((MdlMotionState *)state)->pendingFlags = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
+            ((MdlMotionState *)state)->pendingKind = *(s32 *)(entry + 4);
         } else {
             if ((flags & 0x20000000) != 0) {
-                *(s16 *)(arg0 + 28) = 0;
+                ((MdlMotionState *)state)->pendingSlot = 0;
             } else if ((flags & 0x40000000) != 0) {
-                *(s16 *)(arg0 + 28) = 1;
+                ((MdlMotionState *)state)->pendingSlot = 1;
             } else if ((flags & 0x10000000) != 0) {
-                *(s16 *)(arg0 + 28) = *(s32 *)(owner + 4);
+                ((MdlMotionState *)state)->pendingSlot = ((MdlFileObject *)owner)->slot;
             }
-            switch (*(s32 *)(*(u8 **)arg0 + 4)) {
+            switch (((MdlFileObject *)*(u8 **)state)->slot) {
             case 3:
-                *(s16 *)(arg0 + 30) = 1;
+                ((MdlMotionState *)state)->pendingChannel = 1;
                 break;
             case 4:
-                *(s16 *)(arg0 + 30) = 2;
+                ((MdlMotionState *)state)->pendingChannel = 2;
                 break;
             case 5:
-                *(s16 *)(arg0 + 30) = 3;
+                ((MdlMotionState *)state)->pendingChannel = 3;
                 break;
             }
-            *(s16 *)(arg0 + 36) = val;
-            *(s16 *)(arg0 + 32) = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
-            *(s16 *)(arg0 + 34) = *(s32 *)(entry + 4);
+            ((MdlMotionState *)state)->pendingTicks = slotValue;
+            ((MdlMotionState *)state)->pendingFlags = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
+            ((MdlMotionState *)state)->pendingKind = *(s32 *)(entry + 4);
         }
     } else if (col == 0) {
-        *(s16 *)(arg0 + 36) = -2;
+        ((MdlMotionState *)state)->pendingTicks = -2;
     }
-    *(s16 *)(arg0 + 4) = arg2;
+    ((MdlMotionState *)state)->animation = rowIndex;
     return 1;
 }
 
@@ -245,84 +276,82 @@ s32 mdlSeIsLoaded(u32 type, u16 id) {
    (retail addiu $v1 / sra $v0 / bgez fix-up); hand-written shifts with an
    explicit negative branch were the archived nd 5 "register-class" residual. */
 // FUN_0047E450
-void mdlSeRequestLoad(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
+void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size)
 {
-    s32 arg3_p = arg3;
-    void ** arg0_p = arg0;
-    s32 sp16C;
-    u8 sp70[0x100];
-    void *sp180[3];
-    u32 sp170[3];
-    void *temp_16;
-    void *temp_2;
-    void *temp_2_2;
-    void *temp_2_3;
-    void *temp_4_2;
-    void *temp_4_3;
-    void *temp_4_5;
-    void *temp_4_6;
-    void *temp_5;
-    s32 temp_3_2;
-    s32 temp_4;
-    s32 temp_4_4;
-    s32 var_16;
-    s32 var_17;
-    s32 var_2;
+    s32 sourceBase = source;
+    void ** recordOwner = owner;
+    s32 chunkSize;
+    u8 bankHeader[0x100];
+    void *chunks[3];
+    u32 chunkSizes[3];
+    void *currentRecord;
+    void *record;
+    void *payload;
+    void *streamingRecord;
+    void *copiedRecord;
+    void *readyRecord;
+    void *queuedRecord;
+    void *pendingRecord;
+    void *existingRecord;
+    s32 kind;
+    s32 chunkStart;
+    s32 chunkIndex;
+    s32 sourceAddress;
 
-    var_17 = arg3_p;
-    temp_5 = *arg0;
-    if ((temp_5 == NULL) || ((*(u16 *)((u8 *)temp_5 + 0x12) & 1) == 0)) {
-        temp_4 = (u16)arg1;
-        switch (temp_4) {
+    sourceAddress = sourceBase;
+    existingRecord = *owner;
+    if ((existingRecord == NULL) || ((((MdlSeRecord *)existingRecord)->base.flags & 1) == 0)) {
+        kind = (u16)type;
+        switch (kind) {
         case 1:
-            if (temp_5 == NULL) {
+            if (existingRecord == NULL) {
                 chkmemAllocSiteTag(&D_007241D8, 0x2B);
-                temp_2 = jtbl_008873E8[0](0x28, 0x40000);
-                memset(temp_2, 0, 0x28);
-                *(s32 *)((u8 *)temp_2 + 8) = 1;
-                *(s16 *)((u8 *)temp_2 + 0xC) = (s16)arg1;
-                *(s16 *)((u8 *)temp_2 + 0xE) = (s16)arg2;
-                *(s16 *)((u8 *)temp_2 + 0x10) = 1;
-                *arg0 = temp_2;
+                record = jtbl_008873E8[0](0x28, 0x40000);
+                memset(record, 0, 0x28);
+                ((MdlSeRecord *)record)->base.references = 1;
+                ((MdlSeRecord *)record)->base.type = (s16)type;
+                ((MdlSeRecord *)record)->identity.id = (s16)id;
+                ((MdlSeRecord *)record)->base.mode = 1;
+                *owner = record;
             }
-            temp_16 = *arg0_p;
+            currentRecord = *recordOwner;
             chkmemAllocSiteTag(&D_007241D8, 0x49);
-            temp_2_2 = jtbl_008873E8[0](arg4, 0x40000);
-            *(void **)((u8 *)temp_16 + 0) = temp_2_2;
-            memcpy(temp_2_2, (void *)var_17, arg4);
-            temp_4_2 = *arg0_p;
-            *(u16 *)((u8 *)temp_4_2 + 0x12) &= 0xFFFD;
-            temp_4_3 = *arg0_p;
-            *(u16 *)((u8 *)temp_4_3 + 0x12) |= 1;
+            payload = jtbl_008873E8[0](size, 0x40000);
+            ((MdlSeRecord *)currentRecord)->base.data = payload;
+            memcpy(payload, (void *)sourceAddress, size);
+            copiedRecord = *recordOwner;
+            ((MdlSeRecord *)copiedRecord)->base.flags &= 0xFFFD;
+            readyRecord = *recordOwner;
+            ((MdlSeRecord *)readyRecord)->base.flags |= 1;
             return;
         case 2:
-            if (temp_5 == NULL) {
+            if (existingRecord == NULL) {
                 chkmemAllocSiteTag(&D_007241D8, 0x2B);
-                temp_2_3 = jtbl_008873E8[0](0x28, 0x40000);
-                memset(temp_2_3, 0, 0x28);
-                *(s32 *)((u8 *)temp_2_3 + 8) = 1;
-                *(s16 *)((u8 *)temp_2_3 + 0xC) = (s16)arg1;
-                *(s16 *)((u8 *)temp_2_3 + 0xE) = (s16)arg2;
-                *(s16 *)((u8 *)temp_2_3 + 0x10) = 2;
-                *arg0 = temp_2_3;
+                streamingRecord = jtbl_008873E8[0](0x28, 0x40000);
+                memset(streamingRecord, 0, 0x28);
+                ((MdlSeRecord *)streamingRecord)->base.references = 1;
+                ((MdlSeRecord *)streamingRecord)->base.type = (s16)type;
+                ((MdlSeRecord *)streamingRecord)->identity.id = (s16)id;
+                ((MdlSeRecord *)streamingRecord)->base.mode = 2;
+                *owner = streamingRecord;
             }
-            *(s32 *)((u8 *)(*arg0_p) + 0x14) = 0;
-            *(s32 *)((u8 *)(*arg0_p) + 4) = mdlSeAcquireSlot(arg1, arg2);
-            var_16 = 0;
-            while (var_16 < 3) {
-                memcpy(sp70, (void *)var_17, 0x100);
-                temp_4_4 = var_17 + 0x100;
-                sp180[var_16] = (void *)temp_4_4;
-                sp16C = *(s32 *)(sp70 + 0xFC);
-                sp170[var_16] = sp16C;
-                var_17 = temp_4_4 + ((sp16C + 0x3F) / 64) * 64;
-                var_16 += 1;
+            *(s32 *)&((MdlSeRecord *)*recordOwner)->primaryRequest = 0;
+            ((MdlSeRecord *)*recordOwner)->base.slot = mdlSeAcquireSlot(type, id);
+            chunkIndex = 0;
+            while (chunkIndex < 3) {
+                memcpy(bankHeader, (void *)sourceAddress, 0x100);
+                chunkStart = sourceAddress + 0x100;
+                chunks[chunkIndex] = (void *)chunkStart;
+                chunkSize = ((MdlSeBankHeader *)bankHeader)->size;
+                chunkSizes[chunkIndex] = chunkSize;
+                sourceAddress = chunkStart + ((chunkSize + 0x3F) / 64) * 64;
+                chunkIndex += 1;
             }
-            sdkSndQueueSlotRequest((s16)*(s32 *)((u8 *)(*arg0) + 4), sp180[0], sp170[0], sp180[1], sp170[1], sp180[2], sp170[2]);
-            temp_4_5 = *arg0_p;
-            *(u16 *)((u8 *)temp_4_5 + 0x12) |= 8;
-            temp_4_6 = *arg0_p;
-            *(u16 *)((u8 *)temp_4_6 + 0x12) |= 2;
+            sdkSndQueueSlotRequest((s16)((MdlSeRecord *)*owner)->base.slot, chunks[0], chunkSizes[0], chunks[1], chunkSizes[1], chunks[2], chunkSizes[2]);
+            queuedRecord = *recordOwner;
+            ((MdlSeRecord *)queuedRecord)->base.flags |= 8;
+            pendingRecord = *recordOwner;
+            ((MdlSeRecord *)pendingRecord)->base.flags |= 2;
             break;
         }
     }
@@ -342,9 +371,10 @@ static inline void copyLoadedRequest(void **owner, s32 requestOffset)
     u32 fileSize;
 
     node = *owner;
+    /* The shared inline copy selects the +0x14 or +0x18 request by byte offset. */
     request = *(void **)((u8 *)node + requestOffset);
-    fileSize = *(u32 *)((u8 *)request + 0x118);
-    source = *(void **)((u8 *)request + 0x110);
+    fileSize = ((HCdvdRequest *)request)->size;
+    source = ((HCdvdRequest *)request)->data;
     chkmemAllocSiteTag(&D_007241D8, 0x49);
     memory = jtbl_008873E8[0](fileSize, 0x40000);
     *(void **)node = memory;
@@ -370,62 +400,62 @@ s32 mdlSeUpdateRecord(void **owner)
     if (current == NULL) {
         return 1;
     }
-    flags = *(u16 *)((u8 *)current + 0x12);
+    flags = ((MdlSeRecord *)current)->base.flags;
     if ((flags & 1) != 0) {
         return 1;
     }
     if ((flags & 2) == 0) {
         return 1;
     }
-    mode = *(u16 *)((u8 *)current + 0xC);
+    mode = ((MdlSeRecord *)current)->base.type;
     switch (mode) {
     case 1:
-        if (H_Cdvd_IsFileLoaded(*(void **)((u8 *)current + 0x14)) != 0) {
+        if (H_Cdvd_IsFileLoaded(((MdlSeRecord *)current)->primaryRequest) != 0) {
             copyLoadedRequest(owner, 0x14);
-            request = *(void **)((u8 *)*owner + 0x14);
+            request = ((MdlSeRecord *)*owner)->primaryRequest;
             if (request != NULL) {
                 H_Cdvd_Destroy(request);
-                *(void **)((u8 *)*owner + 0x14) = NULL;
+                ((MdlSeRecord *)*owner)->primaryRequest = NULL;
             }
-            *(u16 *)((u8 *)*owner + 0x12) |= 1;
-            *(u16 *)((u8 *)*owner + 0x12) &= 0xFFFD;
+            ((MdlSeRecord *)*owner)->base.flags |= 1;
+            ((MdlSeRecord *)*owner)->base.flags &= 0xFFFD;
             return 1;
         }
         break;
     case 2:
-        request = *(void **)((u8 *)current + 0x18);
+        request = ((MdlSeRecord *)current)->secondaryRequest;
         if (request != NULL) {
             if (H_Cdvd_IsFileLoaded(request) == 0) {
                 return 0;
             }
             copyLoadedRequest(owner, 0x18);
-            H_Cdvd_Destroy(*(void **)((u8 *)*owner + 0x18));
-            *(void **)((u8 *)*owner + 0x18) = NULL;
+            H_Cdvd_Destroy(((MdlSeRecord *)*owner)->secondaryRequest);
+            ((MdlSeRecord *)*owner)->secondaryRequest = NULL;
         }
         current = *owner;
-        if ((*(u16 *)((u8 *)current + 0x12) & 8) == 0) {
-            if (H_Cdvd_IsFileLoaded(*(void **)((u8 *)current + 0x14)) == 0) {
+        if ((((MdlSeRecord *)current)->base.flags & 8) == 0) {
+            if (H_Cdvd_IsFileLoaded(((MdlSeRecord *)current)->primaryRequest) == 0) {
                 return 0;
             }
-            record0 = (void *)H_Cdvd_GetArchiveEntry(*(void **)((u8 *)*owner + 0x14), 0, (s32 *)&size0);
-            record1 = (void *)H_Cdvd_GetArchiveEntry(*(void **)((u8 *)*owner + 0x14), 1, (s32 *)&size1);
-            record2 = (void *)H_Cdvd_GetArchiveEntry(*(void **)((u8 *)*owner + 0x14), 2, (s32 *)&size2);
-            sdkSndQueueSlotRequest(*(s16 *)((u8 *)*owner + 4), record0, size0, record1, size1, record2, size2);
-            *(u16 *)((u8 *)*owner + 0x12) |= 8;
+            record0 = (void *)H_Cdvd_GetArchiveEntry(((MdlSeRecord *)*owner)->primaryRequest, 0, (s32 *)&size0);
+            record1 = (void *)H_Cdvd_GetArchiveEntry(((MdlSeRecord *)*owner)->primaryRequest, 1, (s32 *)&size1);
+            record2 = (void *)H_Cdvd_GetArchiveEntry(((MdlSeRecord *)*owner)->primaryRequest, 2, (s32 *)&size2);
+            sdkSndQueueSlotRequest(*(s16 *)&((MdlSeRecord *)*owner)->base.slot, record0, size0, record1, size1, record2, size2);
+            ((MdlSeRecord *)*owner)->base.flags |= 8;
             break;
         }
-        if (hsndSlotIsStarting(*(s16 *)((u8 *)current + 4)) == 0) {
+        if (hsndSlotIsStarting(*(s16 *)&((MdlSeRecord *)current)->base.slot) == 0) {
             return 0;
         }
-        request = *(void **)((u8 *)*owner + 0x14);
+        request = ((MdlSeRecord *)*owner)->primaryRequest;
         if (request != NULL) {
             H_Cdvd_Destroy(request);
-            *(void **)((u8 *)*owner + 0x14) = NULL;
+            ((MdlSeRecord *)*owner)->primaryRequest = NULL;
         }
-        *(u16 *)((u8 *)*owner + 0x12) |= 1;
-        *(u16 *)((u8 *)*owner + 0x12) &= 0xFFFD;
-        *(u16 *)((u8 *)*owner + 0x12) |= 4;
-        *(u16 *)((u8 *)*owner + 0x12) &= 0xFFF7;
+        ((MdlSeRecord *)*owner)->base.flags |= 1;
+        ((MdlSeRecord *)*owner)->base.flags &= 0xFFFD;
+        ((MdlSeRecord *)*owner)->base.flags |= 4;
+        ((MdlSeRecord *)*owner)->base.flags &= 0xFFF7;
         return 1;
     default:
         return 1;
