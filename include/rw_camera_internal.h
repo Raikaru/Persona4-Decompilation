@@ -4,6 +4,7 @@
 #include "type.h"
 #include "rw_types_internal.h"
 #include "rw_object_internal.h"
+#include "rw_raster_internal.h"
 
 typedef struct RwMatrixTag {
     RwV3d right;
@@ -16,16 +17,8 @@ typedef struct RwMatrixTag {
     u32 pad3;
 } RwMatrixTag;
 
-/* SDK layouts from rw/core/bacamera.h and baraster.h. Only the prefix
- * through fogPlane is needed here; camera frustum storage is omitted. */
-typedef struct RwRaster {
-    struct RwRaster *parent;
-    u8 *cpPixels;
-    u8 *palette;
-    s32 width;
-    s32 height;
-    s32 depth;
-} RwRaster;
+/* SDK bacamera.h prefix through fogPlane; camera frustum storage is omitted.
+ * The raster member uses the shared baraster.h layout. */
 
 typedef struct RwCamera {
     RwObjectHasFrame object;

@@ -3,21 +3,13 @@
 
 #include "type.h"
 #include "rw_types_internal.h"
+#include "rw_camera_internal.h"
 #include "rw/plcore/barenderstate.h"
 
 typedef RwV3d BtlShuffleVec3;
 
-/* The matrix tags and field layout agree with rw/plcore/bamatrix.h. */
-typedef struct RwMatrixTag {
-    BtlShuffleVec3 right;
-    u32 flags;
-    BtlShuffleVec3 up;
-    u32 pad1;
-    BtlShuffleVec3 at;
-    u32 pad2;
-    BtlShuffleVec3 pos;
-    u32 pad3;
-} BtlShuffleMatrix;
+/* Share the native matrix declaration with camera users. */
+typedef RwMatrixTag BtlShuffleMatrix;
 
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
