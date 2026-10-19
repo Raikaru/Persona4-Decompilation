@@ -7,31 +7,35 @@
 #include "scene_event_internal.h"
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
-extern void sdkSndStopChannel(s16 arg0);
+/* Channel ids occupy the low halfword of four-byte resource entries. */
+typedef struct EvtSoundChannel { s16 id; u8 pad02[2]; } EvtSoundChannel;
+typedef struct EvtSoundChannels { s32 count; EvtSoundChannel entries[1]; } EvtSoundChannels;
+
+extern void sdkSndStopChannel(s16 );
 extern s32 D_008825F0[10];
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
-// Event result slot: stores a call result in slot 'arg0' (0-9); out-of-range indices are ignored.
+// Event result slot: stores a call result in slot (0-9); out-of-range indices are ignored.
 // FUN_0028D020
-void evtResultSet(s32 arg0, s32 arg1) {
-    if ((arg0 >= 0xA) || (arg0 < 0)) {
+void evtResultSet(s32 slot, s32 value) {
+    if ((slot >= 0xA) || (slot < 0)) {
         return;
     }
-    D_008825F0[arg0] = arg1;
+    D_008825F0[slot] = value;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
-// Event result slot: reads slot 'arg0'; -1 for an out-of-range index.
+// Event result slot: reads slot; -1 for an out-of-range index.
 // FUN_0028D060
-s32 evtResultGet(s32 arg0) {
-    if (arg0 >= 0xA) {
+s32 evtResultGet(s32 slot) {
+    if (slot >= 0xA) {
         return -1;
     }
-    return D_008825F0[arg0];
+    return D_008825F0[slot];
 }
 #pragma pop
 
@@ -40,14 +44,15 @@ s32 evtResultGet(s32 arg0) {
 #pragma opt_propagation on
 // Event resource list: releases each resource id stored in the node's list.
 // FUN_0028D0A0
-void evtReleaseRes(u8 *arg0) {
+void evtReleaseRes(u8 *work) {
+    /* measured: remaining channel-entry byte access preserves b210 loop reload/address ordering; typed substitution loses MATCH. */
     s32 i;
 
     i = 0;
-    while (i < *(s32 *)(arg0 + 0xD4)) {
-        sdkSndStopChannel(*(s16 *)(arg0 + i * 4 + 0xD8));
+    while (i < ((EvtSoundChannels *)(work + 0xD4))->count) {
+        sdkSndStopChannel(*(s16 *)(work + i * 4 + 0xD8));
         i++;
     }
-    *(s32 *)(arg0 + 0xD4) = 0;
+    ((EvtSoundChannels *)(work + 0xD4))->count = 0;
 }
 #pragma pop

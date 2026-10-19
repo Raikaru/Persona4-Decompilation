@@ -19,7 +19,7 @@ extern u8 D_0064A6D0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 
-extern s32 func_00349340(u8 *task);
+extern s32 debugModelDrawClearScratch(u8 *task);
 extern void debugModelDrawDestroy(u8 *task);
 extern void fclModelBeginDraw(u8 *task, u8 *context);
 extern void mdlDestroyModelObject(u8 *task);
@@ -59,7 +59,7 @@ void fclDebugModelCreate(s32 parentTask)
 
     chkmemAllocSiteTag(D_0064A618, 0x555);
     work = D_008873F4[0](1, 0x1A0, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0064A630), 0xF, 0, 0, func_00349340, debugModelDrawDestroy, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0064A630), 0xF, 0, 0, debugModelDrawClearScratch, debugModelDrawDestroy, (u8 *)(work));
 }
 
 /* Model table entry addressed by (task+0x10)[model id]; 0x20 bytes. Field roles follow the

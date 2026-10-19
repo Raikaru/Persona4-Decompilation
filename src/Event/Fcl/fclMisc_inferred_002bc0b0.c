@@ -89,7 +89,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bc0b0-002bcbc0 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */

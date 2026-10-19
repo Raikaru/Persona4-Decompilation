@@ -99,7 +99,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
 
-extern void func_002b5120(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
 static inline s32 fclDigitIsZero(const s16 *value)
 {
     return *value == 0;

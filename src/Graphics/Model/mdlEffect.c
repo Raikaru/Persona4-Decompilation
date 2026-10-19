@@ -206,7 +206,7 @@ void btlUiSetWindowRect(u8 *command)
 }
 
 
-extern void func_002b5120(s32 input, u8 *data);
+extern void fclFadeRectSetRenderStates(s32 input, u8 *data);
 extern u32 datEntryGetFlags(s16 item);
 extern s32 fclFirstSetBitIndex(s32 input);
 extern void (*D_00887300[])(s32 input, s32 data);

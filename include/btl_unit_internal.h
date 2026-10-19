@@ -72,7 +72,15 @@ struct BtlUnit
     u8 *layerHandle;              /* 0xA00. Model object passed to the mdl layer helpers */
     u8 unk_a04[0x0A0C - 0x0A04];
     BtlUnit *childUnit;           /* 0xA0C. Child unit allocated by btlUnitCreate(2) in btlUnitInitChild */
-    u8 unk_a10[0x0A64 - 0x0A10];
+    u8 unk_a10[0x0A28 - 0x0A10];
+    union {
+        f32 ratio;
+        s32 bits;               /* Reset to the -1.0f bit pattern by the gauge packet */
+    } hpGauge;                  /* 0xA28 */
+    f32 hpRatio;                /* 0xA2C. Current HP / maximum HP */
+    u8 unk_a30[8];
+    s16 hpGaugeMarker;          /* 0xA38. Reset to -1 with hpGauge */
+    u8 unk_a3a[0x0A64 - 0x0A3A];
     DatUnit *datUnit;             /* 0xA64. Passed to datCalc accessors */
     BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
     BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */
