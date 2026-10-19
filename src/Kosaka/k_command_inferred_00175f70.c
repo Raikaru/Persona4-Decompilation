@@ -1,3 +1,5 @@
+#include "Kosaka/k_field_state_internal.h"
+#include "kwln_task_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "Kosaka/k_command_internal.h"
 #include "mt_scene_internal.h"
@@ -142,8 +144,19 @@ extern s32 iGpffffba48;
 
 typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec3_00178590 at; u32 pad2; Vec3_00178590 position; u32 pad3; } FieldMatrix_0017;
 extern f32 fabsf(f32 x);
+/* Choose the shorter wrapped heading arc and start a stepped turn for angles exceeding 45 degrees. */
+typedef struct FldHeadingTurnWork {
+    FieldMatrix_0017 matrix;
+    s32 state;
+    u8 pad44[8];
+    f32 startHeading, endHeading, headingStep;
+    s32 frame, frameCount;
+} FldHeadingTurnWork;
+
+/* measured: typing the remaining turn-state and step accesses individually loses MATCH; keep their byte
+ * aliases around the angle calculations. */
 // FUN_00175F70
-s32 FldEvent_BeginHeadingTurn(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 arg2, f32 arg3)
+s32 FldEvent_BeginHeadingTurn(const u8 *task, const FieldMatrix_0017 *matrix, f32 startHeading, f32 endHeading)
 {
     extern f32 fGpffff8558;
     extern f32 fabsf(f32);
@@ -155,19 +168,19 @@ s32 FldEvent_BeginHeadingTurn(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 
     f32 second;
     f32 direct;
     f32 wrapped;
-    work = *(u8 **)((u8 *)arg0 + 0x38);
+    work = ((KwlnTask *)task)->work;
     state = *(s32 *)(work + 0x40);
     if (state == 1)
         return 0;
-    first = arg2;
-    second = arg3;
-    *(FieldMatrix_0017 *)work = *arg1;
+    first = startHeading;
+    second = endHeading;
+    *(FieldMatrix_0017 *)work = *matrix;
     if (!(first <= 360.0f))
         first -= 360.0f;
-    *(f32 *)(work + 0x4C) = first;
+    ((FldHeadingTurnWork *)work)->startHeading = first;
     if (!(second <= 360.0f))
         second -= 360.0f;
-    *(f32 *)(work + 0x50) = second;
+    ((FldHeadingTurnWork *)work)->endHeading = second;
     if (first < second) {
         if (!(first <= fGpffff8558))
             first = 0.0f;
@@ -198,7 +211,7 @@ s32 FldEvent_BeginHeadingTurn(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 
         if (descending == 1)
             *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
     } else {
-        *(f32 *)(work + 0x54) = wrapped;
+        ((FldHeadingTurnWork *)work)->headingStep = wrapped;
         if (descending == 0)
             *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
     }
@@ -206,22 +219,23 @@ s32 FldEvent_BeginHeadingTurn(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 
         count = (s32)fabsf(*(f32 *)(work + 0x54)) / 30;
         if (count <= 0)
             count = 1;
-        *(s32 *)(work + 0x5C) = count;
-        *(s32 *)(work + 0x58) = 0;
-        *(f32 *)(work + 0x54) =
-            *(f32 *)(work + 0x54) / (f32) *(s32 *)(work + 0x5C);
-        *(s32 *)(work + 0x40) = 1;
+        ((FldHeadingTurnWork *)work)->frameCount = count;
+        ((FldHeadingTurnWork *)work)->frame = 0;
+        ((FldHeadingTurnWork *)work)->headingStep =
+            ((FldHeadingTurnWork *)work)->headingStep / (f32) ((FldHeadingTurnWork *)work)->frameCount;
+        ((FldHeadingTurnWork *)work)->state = 1;
         return 1;
     }
     return 0;
 }
 
 // FUN_001761D0
-s32 FldEvent_IsHeadingTurning(u8 *arg0)
+s32 FldEvent_IsHeadingTurning(u8 *task)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x40) == 1;
+    return ((FldHeadingTurnWork *)((KwlnTask *)task)->work)->state == 1;
 }
 
+/* Capture the calendar state image for later restoration by the matching script command. */
 // FUN_001761F0
 s32 K_Cmd_CAL_CAPTURE_STATE(void)
 {
@@ -229,6 +243,7 @@ s32 K_Cmd_CAL_CAPTURE_STATE(void)
     return 1;
 }
 
+/* Delay until command frame four, then return the saved-calendar restoration result. */
 // FUN_00176220
 s32 K_Cmd_CAL_RESTORE_STATE(void)
 {
@@ -246,6 +261,7 @@ void K_Cmd_RES_LIST_PREPARE(void)
     mtSceneResListPrepareAll();
 }
 
+/* Play the pending area cue only when no area-track request remains. */
 // FUN_001762A0
 s32 K_Cmd_AREA_TRACK_PLAY(void)
 {
@@ -255,6 +271,7 @@ s32 K_Cmd_AREA_TRACK_PLAY(void)
     return 1;
 }
 
+/* Wait for every resource model to prepare before tearing down the sequence scheduler. */
 // FUN_001762E0
 s32 K_Cmd_CALL_TITLE(void)
 {
@@ -265,6 +282,7 @@ s32 K_Cmd_CALL_TITLE(void)
     return 1;
 }
 
+/* Wait for model preparation before requesting the television sequence. */
 // FUN_00176320
 s32 K_Cmd_CALL_TV(void) {
     if (mtSceneResListPrepareAll() == 0) {
@@ -274,20 +292,22 @@ s32 K_Cmd_CALL_TV(void) {
     return 1;
 }
 
+/* Prepare resources, enable scheduling, and request the local map using the script map identifier. */
 // FUN_00176370
 s32 K_Cmd_CALL_LMAP(void) {
-    s32 sp1C;
+    s32 mapId;
 
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
-    memset(&sp1C, 0, 4);
-    sp1C = scrGetParamInt(0);
-    sequenceRequest(0xC, &sp1C, 4, 2);
+    memset(&mapId, 0, 4);
+    mapId = scrGetParamInt(0);
+    sequenceRequest(0xC, &mapId, 4, 2);
     return 1;
 }
 
+/* Prepare resources and request the food-court sequence with no payload. */
 // FUN_001763F0
 s32 K_Cmd_CALL_FOOD_COURT(void) {
     if (mtSceneResListPrepareAll() == 0) {
@@ -298,82 +318,87 @@ s32 K_Cmd_CALL_FOOD_COURT(void) {
     return 1;
 }
 
+/* Prepare resources and request a field sequence with a cleared 0x1C-byte parameter block. */
 // FUN_00176450
 s32 K_Cmd_CALL_FIELD(void)
 {
-    s16 sp10[14];
+    s16 fieldParameters[14];
 
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
-    memset(sp10, 0, 0x1C);
-    sp10[0] = (s16)scrGetParamInt(0);
-    sp10[1] = (s16)scrGetParamInt(1);
-    sp10[2] = (s16)scrGetParamInt(2);
-    sp10[4] = (s16)scrGetParamInt(3);
-    sequenceRequest(9, sp10, 0x1C, 2);
+    memset(fieldParameters, 0, 0x1C);
+    fieldParameters[0] = (s16)scrGetParamInt(0);
+    fieldParameters[1] = (s16)scrGetParamInt(1);
+    fieldParameters[2] = (s16)scrGetParamInt(2);
+    fieldParameters[4] = (s16)scrGetParamInt(3);
+    sequenceRequest(9, fieldParameters, 0x1C, 2);
     return 1;
 }
 
+/* The cached-selection halfword at +10 is inside SceneContext's reserved span; its owning member is not
+ * established, so retain the narrow store. */
 // FUN_00176500
 s32 K_Cmd_CALL_FIELD_RESET(void)
 {
-    s16 sp10[14];
+    s16 fieldParameters[14];
 
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
     }
     sdlSchedulerEnable();
     *(s16 *)(iGpffff9db0 + 0x10) = -1;
-    memset(sp10, 0, 0x1C);
-    sp10[0] = (s16)scrGetParamInt(0);
-    sp10[1] = (s16)scrGetParamInt(1);
-    sp10[2] = (s16)scrGetParamInt(2);
-    sp10[4] = (s16)scrGetParamInt(3);
-    sequenceRequest(9, sp10, 0x1C, 2);
+    memset(fieldParameters, 0, 0x1C);
+    fieldParameters[0] = (s16)scrGetParamInt(0);
+    fieldParameters[1] = (s16)scrGetParamInt(1);
+    fieldParameters[2] = (s16)scrGetParamInt(2);
+    fieldParameters[4] = (s16)scrGetParamInt(3);
+    sequenceRequest(9, fieldParameters, 0x1C, 2);
     return 1;
 }
 
+/* Wait for resource preparation, request the event sequence, then poll its completion. */
 // FUN_001765C0
 s32 K_Cmd_CALL_EVENT(void)
 {
-    s32 sp30[7];
-    s32 temp_17;
-    s32 temp_3;
-    s32 var_16;
+    s32 eventParameters[7];
+    s32 commandFrame;
+    s32 transitionFrame;
+    s32 complete;
 
 
-    var_16 = 0;
-    temp_17 = scrGetCmdTimer();
+    complete = 0;
+    commandFrame = scrGetCmdTimer();
     if (mtSceneResListPrepareAll() == 0) {
         iGpffffb304 = scrGetCmdTimer();
         return 0;
     }
-    if ((temp_17 == 0) || ((temp_17 - 1) == iGpffffb304))
+    if ((commandFrame == 0) || ((commandFrame - 1) == iGpffffb304))
         iGpffffb300 = 0;
-    sp30[3] = scrGetParamInt(0);
-    sp30[4] = scrGetParamInt(1);
-    sp30[5] = scrGetParamInt(2);
-    temp_3 = iGpffffb300;
-    if (temp_3 == 3) {
-        sequenceRequest(0xA, sp30, 0x1C, 2);
-    } else if (temp_3 > 0xA) {
+    eventParameters[3] = scrGetParamInt(0);
+    eventParameters[4] = scrGetParamInt(1);
+    eventParameters[5] = scrGetParamInt(2);
+    transitionFrame = iGpffffb300;
+    if (transitionFrame == 3) {
+        sequenceRequest(0xA, eventParameters, 0x1C, 2);
+    } else if (transitionFrame > 0xA) {
         if (kwlnGetCurrentWorkValue() == -1) {
             iGpffffb300 = 0;
-            var_16 = 1;
+            complete = 1;
         } else {
-            var_16 = 0;
+            complete = 0;
         }
     }
     iGpffffb300 += 1;
-    return var_16;
+    return complete;
 }
 
+/* Unload the previous non-dungeon scene and request the floor with room FFFF. */
 // FUN_001766E0
 s32 K_Cmd_CALL_DNG_FLOOR_ONLY(void)
 {
-    s32 sp18[2];
+    s32 floorParameters[2];
 
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
@@ -382,16 +407,17 @@ s32 K_Cmd_CALL_DNG_FLOOR_ONLY(void)
     if (kwlnGetCurrentWorkValue() != 0xB) {
         fieldSceneUnload();
     }
-    sp18[0] = scrGetParamInt(0);
-    sp18[1] = 0xFFFF;
-    sequenceRequest(0xB, sp18, 8, 4);
+    floorParameters[0] = scrGetParamInt(0);
+    floorParameters[1] = 0xFFFF;
+    sequenceRequest(0xB, floorParameters, 8, 4);
     return 1;
 }
 
+/* Unload the previous non-dungeon scene and request the script-selected floor and room. */
 // FUN_00176770
 s32 K_Cmd_CALL_DNG_FLOOR(void)
 {
-    s32 sp18[2];
+    s32 floorParameters[2];
 
     if (mtSceneResListPrepareAll() == 0) {
         return 0;
@@ -400,12 +426,13 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
         fieldSceneUnload();
     }
     sdlSchedulerEnable();
-    sp18[0] = scrGetParamInt(0);
-    sp18[1] = scrGetParamInt(1);
-    sequenceRequest(0xB, sp18, 8, 4);
+    floorParameters[0] = scrGetParamInt(0);
+    floorParameters[1] = scrGetParamInt(1);
+    sequenceRequest(0xB, floorParameters, 8, 4);
     return 1;
 }
 
+/* Advance the field step table by the script-selected amount. */
 // FUN_00176810
 s32 K_Cmd_FLD_MAP_STEP(void)
 {
@@ -413,6 +440,7 @@ s32 K_Cmd_FLD_MAP_STEP(void)
     return 1;
 }
 
+/* Reset the field step tables and finish the script command. */
 // FUN_00176850
 s32 K_Cmd_FLD_MAP_RESET(void)
 {

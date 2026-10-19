@@ -3,6 +3,7 @@
 
 #include "type.h"
 #include "rw_types_internal.h"
+#include "rw_object_internal.h"
 
 typedef struct RwMatrixTag {
     RwV3d right;
@@ -17,19 +18,6 @@ typedef struct RwMatrixTag {
 
 /* SDK layouts from rw/core/bacamera.h and baraster.h. Only the prefix
  * through fogPlane is needed here; camera frustum storage is omitted. */
-typedef struct RwObject {
-    u8 type;
-    u8 subType;
-    u8 flags;
-    u8 privateFlags;
-    void *parent;
-} RwObject;
-
-typedef struct RwObjectHasFrame {
-    RwObject object;
-    u8 pad08[0xC];
-} RwObjectHasFrame;
-
 typedef struct RwRaster {
     struct RwRaster *parent;
     u8 *cpPixels;

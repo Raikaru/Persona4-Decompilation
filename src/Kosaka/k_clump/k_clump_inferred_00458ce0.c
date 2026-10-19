@@ -1,3 +1,4 @@
+#include "effect_mesh_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -249,13 +250,13 @@ extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 /* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
 #pragma push
 u8 *K_ClumpMatPropScale(u8 *material, u8 *data) {
-    Code45Vec3 prop;
+    RwSurfaceProperties prop;
     s32 created;
     s32 i;
     s32 current;
     f32 *materialColor;
     if (K_Clump_MatUsrDataHasData((const RpMaterial *)material, (const char *)D_00711890_abs) == 0) {
-        materialColor = (f32 *)(material + 0xC);
+        materialColor = &((RpMaterial *)material)->surfaceProps.ambient;
         created = (s32)func_003bd000((const RpMaterial *)material, func_003bcfa0((RpMaterial *)material, (char *)D_00711890_abs, 2, 3));
         func_003bd0f0((u8 *)created, 0, materialColor[0]);
         func_003bd0f0((u8 *)created, 1, materialColor[1]);
@@ -275,22 +276,22 @@ loop_test:
     }
 loop_done:
     if (current != 0) {
-        prop.x = func_003bd090((u8 *)current, 0);
-        prop.y = func_003bd090((u8 *)current, 1);
-        prop.z = func_003bd090((u8 *)current, 2);
-        prop.x = prop.x * *(f32 *)(data + 0);
-        prop.y = prop.y * *(f32 *)(data + 4);
-        prop.z = prop.z * *(f32 *)(data + 8);
-        if (!(prop.x <= 1.0f)) {
-            prop.x = 1.0f;
+        prop.ambient = func_003bd090((u8 *)current, 0);
+        prop.specular = func_003bd090((u8 *)current, 1);
+        prop.diffuse = func_003bd090((u8 *)current, 2);
+        prop.ambient = prop.ambient * ((Code45Vec3 *)data)->x;
+        prop.specular = prop.specular * ((Code45Vec3 *)data)->y;
+        prop.diffuse = prop.diffuse * ((Code45Vec3 *)data)->z;
+        if (!(prop.ambient <= 1.0f)) {
+            prop.ambient = 1.0f;
         }
-        if (!(prop.y <= 1.0f)) {
-            prop.y = 1.0f;
+        if (!(prop.specular <= 1.0f)) {
+            prop.specular = 1.0f;
         }
-        if (!(prop.z <= 1.0f)) {
-            prop.z = 1.0f;
+        if (!(prop.diffuse <= 1.0f)) {
+            prop.diffuse = 1.0f;
         }
-        *(Code45Vec3 *)(material + 0xC) = prop;
+        ((RpMaterial *)material)->surfaceProps = prop;
     }
     return material;
 }

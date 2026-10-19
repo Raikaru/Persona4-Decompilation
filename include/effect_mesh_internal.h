@@ -8,10 +8,19 @@ typedef struct EffMeshColor {
     u8 c[4];
 } EffMeshColor;
 
-/* Native RpMaterial prefix: texture pointer followed by four color bytes. */
+/* Native three-real material coefficients from rw/plcore/batypes.h. */
+typedef struct RwSurfaceProperties {
+    f32 ambient, specular, diffuse;
+} RwSurfaceProperties;
+
+/* Native RpMaterial layout from rw/world/bamateri.h. */
 typedef struct RpMaterial {
     void *texture;
     EffMeshColor color;
+    void *pipeline; /* 0x08, rw/world/bamateri.h */
+    RwSurfaceProperties surfaceProps; /* 0x0C */
+    s16 referenceCount;
+    s16 pad1A;
 } RpMaterial;
 
 /* Native RenderWare prefixes from rw/sky2/rpworld.h. The SDK header itself

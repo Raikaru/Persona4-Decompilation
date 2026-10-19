@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 #include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -53,9 +54,9 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
 
 extern void sdkLboxClear(u8 *arg0);
 // FUN_00470210
-void sdkLboxDestroy(u8 *arg0)
+void sdkLboxDestroy(u8 *task)
 {
-    sdkLboxClear(arg0);
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    sdkLboxClear(task);
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 

@@ -68,18 +68,19 @@ s32 K_Cmd_DATE_DISP(void) {
     return 1;
 }
 
+/* Clear the five selection flags and set the one selected by an operand from zero through four. */
 // FUN_00299EA0
 s32 K_Cmd_FLAG_SELECT(void)
 {
-    s32 temp_16;
+    s32 selection;
 
-    temp_16 = scrGetParamInt(0);
+    selection = scrGetParamInt(0);
     datSetFlag(0x1203, 0);
     datSetFlag(0x1204, 0);
     datSetFlag(0x1205, 0);
     datSetFlag(0x1206, 0);
     datSetFlag(0x1207, 0);
-    switch (temp_16) {
+    switch (selection) {
     case 0:
         datSetFlag(0x1203);
         break;

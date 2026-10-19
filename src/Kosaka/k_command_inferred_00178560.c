@@ -1,3 +1,5 @@
+#include "scene_task_internal.h"
+#include "Kosaka/k_field_state_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "Kosaka/k_command_internal.h"
 #include "mt_scene_internal.h"
@@ -142,6 +144,14 @@ extern s32 iGpffffba48;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00178560-001788e0 */
 
+struct RwMatrixTag {
+    Vec3_00178590 right; u32 flags;
+    Vec3_00178590 up; u32 pad1;
+    Vec3_00178590 at; u32 pad2;
+    Vec3_00178590 pos; u32 pad3;
+};
+
+/* Request the field event grid-cell step and finish the script command. */
 // FUN_00178560
 s32 Cmd_StepGridCell(void)
 {
@@ -149,78 +159,83 @@ s32 Cmd_StepGridCell(void)
     return 1;
 }
 
+/* Compare the nearest entry forward axis to the direction from the player; return facing code 1 or 3. */
 // FUN_00178590
 s32 Cmd_GetNearestEntryFacing(void) {
-    Vec3_00178590 sp50;
-    Vec3_00178590 sp40;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f20_3;
-    S_00178590 *temp_2;
-    s32 var_17;
-    u8 *temp_2_2;
+    Vec3_00178590 direction;
+    Vec3_00178590 forward;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
+    S_00178590 *entry;
+    s32 facing;
+    u8 *matrix;
 
-    var_17 = 1;
-    temp_2 = FldEvent_GetNearestEntry();
-    if (temp_2 != NULL) {
-        temp_2_2 = mdlGetMatrix(temp_2->field_144);
-        sp40 = *(Vec3_00178590 *)(temp_2_2 + 0x20);
-        temp_f20 = *(f32 *)((u8 *)mdlGetMatrix(temp_2->field_144) + 0x30);
-        sp50.x = temp_f20 - *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)D_007EFA00) + 0x30);
-        temp_f20_2 = *(f32 *)((u8 *)mdlGetMatrix(temp_2->field_144) + 0x34);
-        sp50.y = temp_f20_2 - *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)D_007EFA00) + 0x34);
-        temp_f20_3 = *(f32 *)((u8 *)mdlGetMatrix(temp_2->field_144) + 0x38);
-        sp50.z = temp_f20_3 - *(f32 *)((u8 *)mdlGetMatrix(*(u8 **)D_007EFA00) + 0x38);
-        RwV3dNormalize(&sp50, &sp50);
-        RwV3dNormalize(&sp40, &sp40);
-        if ((sp50.x * sp40.x + sp50.y * sp40.y + sp50.z * sp40.z) < 0.0f) {
-            var_17 = 1;
+    facing = 1;
+    entry = FldEvent_GetNearestEntry();
+    if (entry != NULL) {
+        matrix = mdlGetMatrix(entry->field_144);
+        forward = ((struct RwMatrixTag *)(matrix))->at;
+        targetX = ((struct RwMatrixTag *)((u8 *)mdlGetMatrix(entry->field_144)))->pos.x;
+        direction.x = targetX - ((struct RwMatrixTag *)((u8 *)mdlGetMatrix(*(u8 **)D_007EFA00)))->pos.x;
+        targetY = ((struct RwMatrixTag *)((u8 *)mdlGetMatrix(entry->field_144)))->pos.y;
+        direction.y = targetY - ((struct RwMatrixTag *)((u8 *)mdlGetMatrix(*(u8 **)D_007EFA00)))->pos.y;
+        targetZ = ((struct RwMatrixTag *)((u8 *)mdlGetMatrix(entry->field_144)))->pos.z;
+        direction.z = targetZ - ((struct RwMatrixTag *)((u8 *)mdlGetMatrix(*(u8 **)D_007EFA00)))->pos.z;
+        RwV3dNormalize(&direction, &direction);
+        RwV3dNormalize(&forward, &forward);
+        if ((direction.x * forward.x + direction.y * forward.y + direction.z * forward.z) < 0.0f) {
+            facing = 1;
         } else {
-            var_17 = 3;
+            facing = 3;
         }
     }
-    scrSetReturnInt(var_17);
+    scrSetReturnInt(facing);
     return 1;
 }
 
 /* P4 flowscript library (build/p4flow/Field.json, index 0x1028): FLD_EFFECT_TRAESTO_START(), no parameters. Creates the transition task and waits for it. */
+/* Start the transition task once, then wait until the scheduler unlinks it. */
+/* The script context's +148 task tail has no shared layout; ScrData remains privately defined in
+ * scrTraceCode.c and does not describe this tail. */
 // FUN_001786F0
 s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
 {
-    s32 temp_2;
-    u8 *temp_16;
+    s32 transitionTask;
+    u8 *context;
 
-    temp_16 = scrGetContext();
-    temp_2 = scrGetAiState();
-    if (temp_2 == 0) {
-        scrSetTaskProc(*(s32 *)(temp_16 + 0x148), FldRc_CreateTransitionTask(0, 1));
+    context = scrGetContext();
+    transitionTask = scrGetAiState();
+    if (transitionTask == 0) {
+        scrSetTaskProc(*(s32 *)(context + 0x148), FldRc_CreateTransitionTask(0, 1));
         return 0;
     }
-    if (kwlnTaskIsLinked(temp_2) == 1) {
+    if (kwlnTaskIsLinked(transitionTask) == 1) {
         return 0;
     }
-    scrSetTaskProc(*(s32 *)(temp_16 + 0x148), 0);
+    scrSetTaskProc(*(s32 *)(context + 0x148), 0);
     return 1;
 }
 
 /* P4 flowscript library (build/p4flow/Field.json, index 0x1016): CALL_BATTLE(encounterId, param2). Starts the encounter and yields until it returns. */
+/* Poll the encounter transition and expose its completion flags as script result codes. */
 // FUN_00178790
 s32 K_Cmd_CALL_BATTLE(void)
 {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_2;
+    s32 flags;
+    s32 encounterId;
+    s32 encounterState;
 
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    temp_2 = FldEvent_BeginEncounter(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 8), temp_17 & 0xFFFF,
-                           temp_16 & 0xFFFF);
-    if (temp_2 & 1) {
+    encounterId = scrGetParamInt(0);
+    flags = scrGetParamInt(1);
+    encounterState = FldEvent_BeginEncounter(((FldSceneTasks *)MT_Scene_GetFrameState())->event, encounterId & 0xFFFF,
+                           flags & 0xFFFF);
+    if (encounterState & 1) {
         return 0;
     }
-    if (temp_2 & 0x80000000) {
+    if (encounterState & 0x80000000) {
         scrSetReturnInt(1);
-    } else if (temp_2 & 0x40000000) {
+    } else if (encounterState & 0x40000000) {
         scrSetReturnInt(2);
     } else {
         scrSetReturnInt(0);
@@ -228,28 +243,32 @@ s32 K_Cmd_CALL_BATTLE(void)
     return 1;
 }
 
+/* Select a weighted encounter using current field, room, step index, and script level. */
 // FUN_00178870
 s32 Cmd_PickEncounter(void)
 {
-    s32 a = scrGetParamInt(0);
-    u8 *p = iGpffff9db0;
-    u16 b = FldStepIndex();
+    s32 level = scrGetParamInt(0);
+    u8 *fieldState = iGpffff9db0;
+    u16 encounterIndex = FldStepIndex();
 
-    scrSetReturnInt(Encount_PickEncounter(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
+    scrSetReturnInt(Encount_PickEncounter((u16)((SceneContext *)fieldState)->majorId, (u16)((SceneContext *)fieldState)->minorId, encounterIndex, (u16)level) & 0xFFFF);
     return 1;
 }
 
+/* Set the sequence status from the current script context and append its two operands. */
+/* The script context's +124 status word has no shared layout; retain this access rather than introducing an
+ * incompatible second ScrData definition. */
 // FUN_001788E0
 s32 Cmd_StartFieldSequence(void)
 {
-    s32 temp_17;
-    s32 temp_16;
+    s32 sequenceId;
+    s32 value;
 
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
+    sequenceId = scrGetParamInt(0);
+    value = scrGetParamInt(1);
     fclMiscOrStateFlags(1);
     fclMiscSetStatusCode(*(s32 *)(scrGetContext() + 0x124));
-    fclMiscAddRecord(temp_17, temp_16, 0, 0);
+    fclMiscAddRecord(sequenceId, value, 0, 0);
     return 1;
 }
 

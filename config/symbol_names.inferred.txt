@@ -874,3 +874,5 @@ btlVoicePlayIdCue = 0x001F9A50; // type:func  evidence: inferred: plays the supp
 btlVoiceFadeOut = 0x001F9A90; // type:func  evidence: inferred: fades channel one over eight frames
 btlUnitNoop = 0x0019FC60; // type:func  evidence: inferred: Empty retail battle-unit hook; returns without side effects.
 btlCameraFrameNonpartyActionPair = 0x00225E00; // type:func  evidence: inferred: Calls btlCameraFrameUnitPair only for a non-NULL valid action whose unit genus is nonzero.
+scrCommonDiscardWideArgs = 0x00299AC0; // type:func  evidence: inferred: Fetch five s64 script operands and forward them to the no-op at 0029E990, then report command completion.
+scrCommonIgnoreWideArgs = 0x00299B70; // type:func  evidence: inferred: Fetch five s64 script operands and forward them to the separate no-op at 0029E9A0, then report command completion.

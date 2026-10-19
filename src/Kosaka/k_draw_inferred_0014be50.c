@@ -292,8 +292,9 @@ extern f32 D_008872F8[];
  * D_005EFB98 is one 12-byte (0,1,0) vector, not separate XY/Z objects.
  * Its aggregate copy preserves the grouped retail load/store schedule.
  * The predicate and subsequent height checks share the live triangle. */
+/* Test both triangles of each surface within a 100-unit vertical band; return the first hit or FFFF. */
 // FUN_0014BE50
-u16 FldFrame_PickSurfaceAtPoint(u8 *arg0, u8 **arg1) {
+u16 FldFrame_PickSurfaceAtPoint(u8 *point, u8 **selectedSurface) {
     f32 *triangle[3];
     RwV3d normal;
     f32 pointY;
@@ -313,28 +314,28 @@ u16 FldFrame_PickSurfaceAtPoint(u8 *arg0, u8 **arg1) {
         triangle[0] = (f32 *)(surface + 0x15C);
         triangle[1] = (f32 *)(surface + 0x168);
         triangle[2] = (f32 *)(surface + 0x174);
-        if ((K_FldFrame_IsPointInTriangle((f32 *)arg0, triangle, (f32 *)&normal) == 1) &&
+        if ((K_FldFrame_IsPointInTriangle((f32 *)point, triangle, (f32 *)&normal) == 1) &&
             (surfaceY = triangle[0][1],
-             pointY = *(f32 *)(arg0 + 4),
+             pointY = ((RwV3d *)point)->y,
              (pointY < (100.0f + surfaceY))) &&
             !(pointY <= (surfaceY - 100.0f))) {
-            selectedId = *(u16 *)surface;
-            *arg1 = surface;
+            selectedId = ((ResrcRecord *)surface)->resTypeId;
+            *selectedSurface = surface;
             goto done;
         }
         triangle[0] = (f32 *)(surface + 0x168);
         triangle[1] = (f32 *)(surface + 0x174);
         triangle[2] = (f32 *)(surface + 0x180);
-        if ((K_FldFrame_IsPointInTriangle((f32 *)arg0, triangle, (f32 *)&normal) == 1) &&
+        if ((K_FldFrame_IsPointInTriangle((f32 *)point, triangle, (f32 *)&normal) == 1) &&
             (secondSurfaceY = triangle[0][1],
-             secondPointY = *(f32 *)(arg0 + 4),
+             secondPointY = ((RwV3d *)point)->y,
              (secondPointY < (100.0f + secondSurfaceY))) &&
             !(secondPointY <= (secondSurfaceY - 100.0f))) {
-            selectedId = *(u16 *)surface;
-            *arg1 = surface;
+            selectedId = ((ResrcRecord *)surface)->resTypeId;
+            *selectedSurface = surface;
             goto done;
         }
-        surface = *(u8 **)(surface + 0x138);
+        surface = (u8 *)((ResrcRecord *)surface)->next;
     }
 done:
     return selectedId;
