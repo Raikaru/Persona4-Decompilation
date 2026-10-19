@@ -20,6 +20,11 @@
 //                             this function's translation unit
 //   string:"<text>"           a debug/panic string uniquely referenced here
 //   caller:<addr>             an already-named caller that fixes this role
+//   inferred: <behaviour>     weakest: a descriptive name chosen from the body,
+//                             callers and callees (Atlus module prefix +
+//                             CamelCase). Not an original symbol; these live in
+//                             symbol_names.inferred.txt and give way to any
+//                             stronger evidence above
 //
 // Recovered by tools/mine_name_strings.py class A ({name,fn} record
 // adjacency) in the run that produced the 89-entry symbol_names.strings.txt,
