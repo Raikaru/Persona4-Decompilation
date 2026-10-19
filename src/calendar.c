@@ -36,7 +36,7 @@ extern void calSplitDayOfYear(s32 month, s32 *output, s32 *option);
 extern u8 datGetTimeSlot(void);
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
-extern void func_00122520(s32 a, s32 b);
+extern void fadeBeginTransition(s32 a, s32 b);
 extern void datSetDateIndex(s32 a);
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern void calendarSyncFromDate(void);
@@ -109,7 +109,7 @@ s32 calendarInputUpdate(u8 *task)
         break;
     case 1:
         if (D_008C0276[0] & 0x40) {
-            func_00122520(1, 1);
+            fadeBeginTransition(1, 1);
             datSetDateIndex((s16)work->dateIndex);
             func_001029a0(0x1A, NULL, 0, 0);
             return -1;

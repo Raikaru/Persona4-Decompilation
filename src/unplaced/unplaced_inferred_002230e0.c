@@ -19,7 +19,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag();
 extern void memset();
 extern s32 btlResultHeroLvUpRun(u8 *task);
-extern void func_002230a0(u8 *task);
+extern void btlResultDestroyHeroLevelUpWork(u8 *task);
 extern void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback);
 extern s32 btlResultOverlayTick(u8 *task);
 extern u8 D_00795F20[];
@@ -56,7 +56,7 @@ s32 btlLogoTitleCreate(s32 arg0)
     chkmemAllocSiteTag(&D_00629698, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x74, 0x40000);
     memset(temp_2, 0, 0x74);
-    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, btlResultHeroLvUpRun, func_002230a0, (u8 *)(temp_2)));
+    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, btlResultHeroLvUpRun, btlResultDestroyHeroLevelUpWork, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);

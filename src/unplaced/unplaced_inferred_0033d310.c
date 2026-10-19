@@ -308,7 +308,7 @@ f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 al
          K_View_SetFov(view, MT_Scene_GetCameraFov());
          viewRec = kwlnGetCamera();
          func_003e9cb0(*(s32 *)(viewRec + 4), MT_Scene_GetCameraResFirst(), 0);
-         func_00122640(1, 0xA);
+         fadeBeginReturnTransition(1, 0xA);
          *(s8 *)work = *(s8 *)work + 1;
      case 8:
          if (fadeStatus() != 0) {

@@ -96,7 +96,7 @@ extern void *MT_Scene_GetRes(u32 id);
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
 extern void func_002e1ef0(void *a);
 extern u8 *func_002e2170(void *a, s32 b, s32 c);
-extern void func_002e2240(void *a, void *b, void *c);
+extern void comuDataRemoveAndReleaseNode(void *a, void *b, void *c);
 extern void RwV3dNormalize(void *a, void *b);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
@@ -705,7 +705,7 @@ s32 evtModelUpdateTask(u8 *unusedTask) {
         entry = (u8 *)((EvtModelQueueNode *)node)->entry;
         cb = ((EvtModelRec *)entry)->step;
         if ((cb != NULL) && (cb(list, entry) != 0)) {
-            func_002e2240(head, head + 4, node);
+            comuDataRemoveAndReleaseNode(head, head + 4, node);
         }
         node = next;
     }
@@ -738,7 +738,7 @@ void evtModelTaskDestroy(u8 *unusedTask) {
                 mdlSetBlendWeight(handle, fGpffff8218);
                 mdlSetLookAtRequested(handle);
             }
-            func_002e2240(head, head + 4, node);
+            comuDataRemoveAndReleaseNode(head, head + 4, node);
             node = next;
         }
     }
@@ -782,7 +782,7 @@ void evtModelFlushResource(s32 resourceId) {
                         mdlSetBlendWeight(handle, fGpffff8218);
                         mdlSetLookAtRequested(handle);
                     }
-                    func_002e2240(head, head + 4, node);
+                    comuDataRemoveAndReleaseNode(head, head + 4, node);
                 }
                 node = next;
             }
@@ -830,7 +830,7 @@ void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed) {
             nextNode = (u8 *)((EvtModelQueueNode *)node)->next;
             entry = (u8 *)((EvtModelQueueNode *)node)->entry;
             if ((((EvtModelRec *)entry)->id == masked) && (((EvtModelRec *)entry)->motion == 3)) {
-                func_002e2240(existingQueue, existingQueue + 4, node);
+                comuDataRemoveAndReleaseNode(existingQueue, existingQueue + 4, node);
             }
             node = nextNode;
         }
@@ -883,7 +883,7 @@ void evtModelQueueTimedMotion(u16 resourceId, u16 duration, s32 motion, f32 spee
             nextNode = (u8 *)((EvtModelQueueNode *)node)->next;
             entry = (u8 *)((EvtModelQueueNode *)node)->entry;
             if ((((EvtModelRec *)entry)->id == masked) && (((EvtModelRec *)entry)->motion == 3)) {
-                func_002e2240(existingQueue, existingQueue + 4, node);
+                comuDataRemoveAndReleaseNode(existingQueue, existingQueue + 4, node);
             }
             node = nextNode;
         }

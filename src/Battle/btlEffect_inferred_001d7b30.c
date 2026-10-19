@@ -46,7 +46,7 @@ typedef int (*code)();
 
 
 
-extern s32 func_00122640(s32 input, s32 value);
+extern s32 fadeBeginReturnTransition(s32 input, s32 value);
 
 extern void *btlPacketAlloc();
 
@@ -89,7 +89,7 @@ extern f32 fGpffff8110;
 /* measured: close opt_propagation after btlEffectFlagToColor. */
 // FUN_001D7B30
 s32 btlEffectSetFadeLevel(u16 *level) {
-    func_00122640(1, *level);
+    fadeBeginReturnTransition(1, *level);
     return 1;
 }
 

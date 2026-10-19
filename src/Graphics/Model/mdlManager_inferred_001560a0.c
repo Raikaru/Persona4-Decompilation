@@ -144,7 +144,7 @@ void MT_Scene_BeginValueStep(u8 *arg0, u16 arg1, u16 arg2, u16 arg3) {
     *(s16 *)(temp_16 + 0xDC) = arg3;
     *(s16 *)(temp_16 + 0xDE) = 0;
     *(s16 *)(temp_16 + 0xE0) = 0;
-    func_00122520(1, 0);
+    fadeBeginTransition(1, 0);
     *(s32 *)(temp_16 + 0) = 0x11;
 }
 #pragma pop

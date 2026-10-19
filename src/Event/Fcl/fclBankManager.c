@@ -13,7 +13,7 @@ extern void func_00446e88(u8 *, s32 *);
 extern u8 *func_002e2170(void *, void *, s32);
 typedef struct NmlistNode NmlistNode;
 typedef struct NmlistList NmlistList;
-extern NmlistNode *func_002e2240(NmlistList *, NmlistList *, int *);
+extern NmlistNode *comuDataRemoveAndReleaseNode(NmlistList *, NmlistList *, int *);
 extern s32 func_00440b68(const char *, ...);
 extern void fclBankSlotConfigure(s16, s16, s16, s16);
 extern void fclBankSetActive(s64, s32);
@@ -80,7 +80,7 @@ void fclBankCancelPending(void)
     node = (s32 *)fclBankWork()->pendingTail;
     while (node != NULL) {
         s32 *next = ((FclBankRequestNode *)node)->next;
-        func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
+        comuDataRemoveAndReleaseNode((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
         node = next;
     }
     func_00440b68(iGpffffa890, D_0063FBB0, 0xCA);
@@ -184,7 +184,7 @@ s64 fclBankAcquire(int *node)
     fclBankSetActive(slot->index, 1);
     slot->flags |= 1;
     slot->flags |= 2;
-    func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
+    comuDataRemoveAndReleaseNode((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
     func_00440b68(iGpffffa890, D_0063FBB0, 0x19D);
     fclBankLogf((u8 *)D_0063FBC8, slot->index);
     return selected;

@@ -14,7 +14,7 @@ extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
 extern u8 D_007963D0[];
 extern void PrimAppendNode();
-extern void func_002516f0();
+extern void cmmRankUpStepSparklePools();
 
 /* Absolute-addressed data (retail emits lui/addiu for these, so they must be
  * array-typed; scalar spelling would switch them to GPREL16). */
@@ -98,8 +98,8 @@ static void cmmRankUpLerpState(RankUpSpriteState *value, RankUpSpriteState *opti
 extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
         const struct RwV3d *axis, f32 angle, s32 combine);
 extern void RpSkyRenderStateSet(s32 value, s32 option1);
-extern u8 *func_00251570(s32 value, s32 option1);
-extern void func_00251850(u8 *value);
+extern u8 *cmmRankUpReserveSparkle(s32 value, s32 option1);
+extern void cmmRankUpFadeSparklePools(u8 *value);
 extern s32 shdSpriteSlotHandle(s32 value, s32 option1, u8 *option2);
 extern s32 datPortraitValue(s32 value);
 extern u32 RpRandom(void);
@@ -197,7 +197,7 @@ void cmmRankUpRunQueue(s32 unused, s32 *task) {
         }
         entry++;
     }
-    func_002516f0(base, ((CmmRankUpWork *)base)->callerArg);
+    cmmRankUpStepSparklePools(base, ((CmmRankUpWork *)base)->callerArg);
 }
 
 
@@ -283,7 +283,7 @@ extern f32 D_00635D2C[];
 extern f32 D_00635D30[];
 extern u8 D_00635D40[];
 extern u8 D_00636180[];
-extern u8 *func_00251d30(u8 *value);
+extern u8 *cmmRankUpFindFreeEntry(u8 *value);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern u8 *cmmKindRecord(s32 value);
@@ -378,7 +378,7 @@ void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
         break;
     }
     stepAddress = *(s32 *)&stepAddresses[kind];
-    p = func_00251d30(p);
+    p = cmmRankUpFindFreeEntry(p);
     if (p == NULL) {
         kAssertFail(D_00635CF8, 0x2A5);
     }
@@ -727,7 +727,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         RankUpParticlePrefix *particle;
         f32 y = state.y + displacement.v[1];
         f32 x = state.x + displacement.v[0];
-        particle = (RankUpParticlePrefix *)func_00251570(root, 0);
+        particle = (RankUpParticlePrefix *)cmmRankUpReserveSparkle(root, 0);
         if (particle != NULL) {
             particle->x = x;
             particle->y = y;
@@ -754,7 +754,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         frame = (s32)(5.0f * ((f32)RpRandom() / 2147483648.0f));
         displacement = positions.points[frame];
         y = displacement.v[1];
-        particle = (RankUpParticlePrefix *)func_00251570(root, 3);
+        particle = (RankUpParticlePrefix *)cmmRankUpReserveSparkle(root, 3);
         if (particle != NULL) {
             particle->timer = (s32)(100.0f * ((f32)RpRandom() / 2147483648.0f));
             particle->x = displacement.v[0];
@@ -762,14 +762,14 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
         }
     }
     if (*(s32 *)(work + 4) == 20) {
-        RankUpParticlePrefix *particle = (RankUpParticlePrefix *)func_00251570(root, 1);
+        RankUpParticlePrefix *particle = (RankUpParticlePrefix *)cmmRankUpReserveSparkle(root, 1);
         if (particle != NULL) {
             particle->flags |= 2;
             particle->timer = (s32)(100.0f * ((f32)RpRandom() / 2147483648.0f));
             particle->x = 123.0f;
             particle->y = 272.0f;
         }
-        particle = (RankUpParticlePrefix *)func_00251570(root, 2);
+        particle = (RankUpParticlePrefix *)cmmRankUpReserveSparkle(root, 2);
         if (particle != NULL) {
             particle->flags |= 4;
             particle->timer = (s32)(100.0f * ((f32)RpRandom() / 2147483648.0f));
@@ -777,7 +777,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
             particle->y = 419.0f;
         }
     } else if (*(s32 *)(work + 4) == 31) {
-        func_00251850((u8 *)root);
+        cmmRankUpFadeSparklePools((u8 *)root);
     }
     return done;
 }
@@ -3254,7 +3254,7 @@ extern void shdEffectFillFbufParams(u8 *dst, u8 option1, u32 option2, u32 option
 extern void shdEffectSetFargParams(u8 *dst, s32 option1, s32 option2, f32 farg0, f32 farg1);
 extern s32 shdEffectCreateBlurTask(s32 value, s32 option1, s32 option2, u8 *option3, void *renderContext);
 extern u8 *cmmRankUpFindResEntry();
-extern void func_002518d0();
+extern void cmmRankUpPlayRankSound();
 extern s32 FldPanel2dRelease();
 extern void kwlnTaskDestroyWithHierarchy();
 extern s32 kwlnTaskGetTaskByName();
@@ -3285,7 +3285,7 @@ extern void sdkSndStopChannel();
 extern void sdkSndFadeOutChannel();
 extern void sdkSndRequestTrack();
 extern s32 cmmRankUpCardTaskUpdate(u8 *task);
-extern void func_00251ce0(u8 *task);
+extern void cmmRankUpCardTaskDestroy(u8 *task);
 extern void PrimAppendNode();
 extern u8 *PrimAllocQueueNode();
 typedef struct { s32 values[5]; } RankUpUnlockFlags;
@@ -3408,7 +3408,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         shdEffectSetFargParams(blurParams, 0xFF, 0, fGpffff82a4, 0.25f);
         context->blurTask = shdEffectCreateBlurTask((s32)taskBytes, 1, 0, blurParams, D_005DC974);
         context->unk_40 = (s32)cmmRankUpFindResEntry();
-        func_002518d0(context->animationMode);
+        cmmRankUpPlayRankSound(context->animationMode);
     case 6:
         frameOrCommunity = context->mode + 1;
         context->mode = frameOrCommunity;
@@ -3437,7 +3437,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         cardWork = D_008873F4[0](1, 0x40, 0x40000);
         ((CmmRankUpCardTask *)cardWork)->relation = frameOrCommunity;
         ((CmmRankUpCardTask *)cardWork)->mode = rankOrFlags;
-        context->cardTask = (s32)kwlnTaskCreateChild((void *)(taskBytes), (const void *)(D_00635D08), 0xF, 0, 0, cmmRankUpCardTaskUpdate, func_00251ce0, (u8 *)(cardWork));
+        context->cardTask = (s32)kwlnTaskCreateChild((void *)(taskBytes), (const void *)(D_00635D08), 0xF, 0, 0, cmmRankUpCardTaskUpdate, cmmRankUpCardTaskDestroy, (u8 *)(cardWork));
     case 8:
         if (kwlnTaskGetTaskByName(D_00635D08) != 0) {
             goto tail;

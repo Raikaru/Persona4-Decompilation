@@ -398,7 +398,7 @@ void cldShapeListDraw(u8 **shapeWork)
     f32 scaleFactor;
     u8 *list;
     f32 time;
-    extern void func_002e2240(void *shapeWork, void *arg1, void *arg2);
+    extern void comuDataRemoveAndReleaseNode(void *shapeWork, void *arg1, void *arg2);
     extern f32 D_00761514;
     extern f32 D_00761658;
     extern f32 D_0076165C;
@@ -415,7 +415,7 @@ loop_body:
     nextNode = *(u8 **)(node + 0xC);
     if (cldShapeDraw(shapeWork, *(u8 **)(node + 0x14)) != 0) {
         list = *(u8 **)work;
-        func_002e2240(list, list + 4, node);
+        comuDataRemoveAndReleaseNode(list, list + 4, node);
     }
     node = nextNode;
 loop_test:

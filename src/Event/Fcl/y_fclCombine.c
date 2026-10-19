@@ -265,7 +265,7 @@ extern s32 datPersonaCountSkills(u8 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 nmMesWindowSlotStatus(s32);
 extern s32 fadeStatus(void);
-extern s32 func_00122520(s32, s32);
+extern s32 fadeBeginTransition(s32, s32);
 extern s16 cmmTopCommunityOfArcana(s32);
 extern s32 fclRollRareChance(s8);
 extern void fclDrawSetPlacementEx(u8 *, s32, s8, s32, s32);
@@ -397,7 +397,7 @@ extern void fclCombineDrawActionList(u8 *);
 extern void fclCombineMoveChoiceCursor(u8 *, s32 , u8 *);
 extern s32 fclCombineMenuCreate(u8 *);
 extern s32 kwlnTaskIsLinked(s32 );
-extern void func_00122640(s32, s32);
+extern void fadeBeginReturnTransition(s32, s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
 extern void fieldSceneLoad(s32, s32);
 extern void fieldSceneRequestRoom(s32);
@@ -2266,7 +2266,7 @@ void fclCombineMenuFusion(u8 *task) {
         }
         if ((s32)((s32)(func_002bb1c0(menuWork4->fD))) == (s32)((s32)(0))) {
             menuWork4->f1 = 0x33U;
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
         } else {
             menuWork4->f1 = 0x2DU;
         }
@@ -3604,7 +3604,7 @@ restoreTripleResultGrid:
         }
         if ((s32)((s32)(func_002bb1c0(menuWork->fD))) == (s32)((s32)(0))) {
             menuWork->f1 = 0x4CU;
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
         } else {
             menuWork->f1 = 0x46U;
         }
@@ -4286,7 +4286,7 @@ void fclCombineMenuMaterialPick(u8 *task) {
         }
         if (func_002bb1c0(p[0xD]) == 0) {
             p[1] = 0x5D;
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
         } else {
             p[1] = 0x57;
         }
@@ -4771,7 +4771,7 @@ void fclCombineMenuPreview(u8 *task) {
         }
         if (func_002bb1c0(p[0xD]) == 0) {
             p[1] = 0x6C;
-            func_00122520(1, 0xA);
+            fadeBeginTransition(1, 0xA);
         } else {
             p[1] = 0x69;
         }
@@ -10237,7 +10237,7 @@ s32 fclCombineTaskUpdate(u8 *task) {
         }
         break;
     case 3:
-        func_00122640(1, 0);
+        fadeBeginReturnTransition(1, 0);
         p[0] = 4;
         /* fallthrough */
     case 4:
@@ -10246,7 +10246,7 @@ s32 fclCombineTaskUpdate(u8 *task) {
         }
         break;
     case 5:
-        func_00122520(1, 0);
+        fadeBeginTransition(1, 0);
         p[0] = 6;
         /* fallthrough */
     case 6:

@@ -29,7 +29,7 @@ extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_006290E0[];
 extern void btlShuffleDrawSweep(s32 arg0, s32 *arg1);
-extern void func_0021dd60(u8 *task);
+extern void btlShuffleDestroyOverlayWork(u8 *task);
 extern s32 datPersonaCanLevelUp(PersonaWork *arg0);
 extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
 extern s32 btlShuffleTickFrame(u8 *task);
@@ -49,7 +49,7 @@ void btlShuffleStartOverlay(void)
         chkmemAllocSiteTag(&D_006290D0, 0x3A);
         work = (u8 *)jtbl_008873E8[0](0x34, 0x40000);
         memset(work, 0, 0x34);
-        (s32)kwlnTaskCreate((const void *)(&D_006290E0), 0x10, 0, 0, btlShuffleTickFrame, func_0021dd60, (u8 *)(work));
+        (s32)kwlnTaskCreate((const void *)(&D_006290E0), 0x10, 0, 0, btlShuffleTickFrame, btlShuffleDestroyOverlayWork, (u8 *)(work));
         *(void **)(work + 0xC) = (void *)btlShuffleDrawSweep;
         *(u8 **)(work + 0x14) = work;
     }

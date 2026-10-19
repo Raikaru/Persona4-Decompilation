@@ -135,8 +135,8 @@ loop_test:
 s32 shopSystemUpdate(u8 *arg0)
 {
     void fieldSceneLoad(s32 arg0, s32 arg1);
-    s32 func_00122520(s32 arg0, s32 arg1);
-    s32 func_00122640(s32 arg0, s32 arg1);
+    s32 fadeBeginTransition(s32 arg0, s32 arg1);
+    s32 fadeBeginReturnTransition(s32 arg0, s32 arg1);
     s32 fadeStatus(void);
     s32 fieldSceneLoadStep(void);
     void fieldSceneUnload(void);
@@ -172,7 +172,7 @@ s32 shopSystemUpdate(u8 *arg0)
         }
         goto block_24;
     case 3:
-        func_00122640(1, 0);
+        fadeBeginReturnTransition(1, 0);
         *(s8 *)work = 4;
         /* fallthrough */
     case 4:
@@ -185,7 +185,7 @@ s32 shopSystemUpdate(u8 *arg0)
         }
         goto block_24;
     case 5:
-        func_00122520(1, 0);
+        fadeBeginTransition(1, 0);
         *(s8 *)work = 6;
         /* fallthrough */
     case 6:

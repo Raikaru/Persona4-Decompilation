@@ -32,7 +32,7 @@ extern void PrimAppendNode(void *param, void *work);
 extern s32 datGetFlag(s32 id);
 extern s32 fadeStatus(void);
 extern s32 fadeState(void);
-extern void func_00122520(s32 a, s32 b);
+extern void fadeBeginTransition(s32 a, s32 b);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 kwlnTaskIsLinked(s32 handle);
 extern void kwlnTaskAddChild(void *a, void *b);
@@ -86,7 +86,7 @@ void edSrStep(void) {
                 sdkSndPlayCue(0x23, 1);
             }
             if ((edScrollIsActive() == 0) && (kwlnTaskIsLinked(*(s32 *)(p + 0x1250)) == 0)) {
-                func_00122520(fadeState(), 0xA);
+                fadeBeginTransition(fadeState(), 0xA);
                 *(s32 *)(p + 0x124C) = 3;
                 if (datGetFlag(0x1472) == 0) {
                     sdkSndStopChannel(0x3C);

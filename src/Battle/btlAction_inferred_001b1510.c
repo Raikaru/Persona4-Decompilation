@@ -39,7 +39,7 @@ extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern void btlMainLoadBattleFieldScene();
 extern void btlUnitRecordCommitPending(void);
-extern s32 func_00122640(s32 arg0, s32 arg1);
+extern s32 fadeBeginReturnTransition(s32 arg0, s32 arg1);
 extern s32 btlFormationAllocWork(s32 arg0);
 extern BtlPacket *btlFormationCreateNamedPacket(u32 arg0, const char *arg1, u16 arg2);
 extern u8 *btlSoundCreateSkillSEPacket(s32 arg0, s32 arg1);
@@ -106,7 +106,7 @@ extern s32 btlStatusWindowShowSlot0(u8 *arg0);
 extern s32 btlBossIsAllowedAction(void);
 extern s32 btlTaskSlotLinkedSlot4(void);
 extern void sdkSndResetChannel(s32 arg0, s32 arg1);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern void btlMainUnloadFieldScene(void);
 extern u8 D_005F7180[];
@@ -1747,7 +1747,7 @@ s32 btlMainEnemyDeadUpdate(void)
         *(s32 *)(temp4 + 0xC) = *(s32 *)(temp4 + 0xC) & 0xFFF7FFFF;
         sdkSndResetChannel(2, 0);
         if ((*(s32 *)(D_0076449C + 0xC) & 0x400) == 0) {
-            func_00122520(1, 0x1E);
+            fadeBeginTransition(1, 0x1E);
             H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);
         }
         if ((*(s32 *)(D_0076449C + 0xC) & 0x80) != 0) {
@@ -2077,7 +2077,7 @@ void btlMainLoseInit(void)
     *(s64 *)(work + 0x60) = *(s64 *)(*(u8 **)(iGpffffb3ac + 0x170));
     *(u16 *)(work + 0x48) = 0x2A;
     btlPacketEnqueue(work, 1);
-    func_00122520(1, 0x1E);
+    fadeBeginTransition(1, 0x1E);
     switch (btlCurrentUnitId()) {
     case 0x214:
         H_Fade_SetCustomColor(0, 0, 0);
@@ -2094,7 +2094,7 @@ s32 btlMainLoseUpdate(u8 *arg0)
     if ((*(s32 *)(arg0 + 8) == 0x6E) &&
         (datCalcIsDead(*(s32 *)(*(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30) + 0xA64), 0) != 0) &&
         ((*(s32 *)(D_0076449C + 0x10) & 0x20000000) == 0)) {
-        func_00122520(1, 1);
+        fadeBeginTransition(1, 1);
         H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);
     }
     if (btlUnitRecordFindByActionUID(*(s64 *)(*(u8 **)(D_0076449C + 0x170)),
@@ -2314,7 +2314,7 @@ s32 btlMainResultUpdate(void)
     temp_3 = (u8 *)iGpffffb3ac;
     if ((*(u8 *)(temp_3 + 0xC65) == 1) &&
         (*(s32 *)(temp_3 + 0xC) & 0x400)) {
-        func_00122640(1, 0xC);
+        fadeBeginReturnTransition(1, 0xC);
     }
     return 0x11;
 }

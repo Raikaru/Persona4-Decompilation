@@ -50,7 +50,7 @@ extern s32 sdkListStateHandleInput(void *arg0);
 extern void sdkSndStopChannel(s32 arg0);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
 extern u16 D_008C024E[];
 // FUN_00361970
@@ -510,7 +510,7 @@ s32 cmpSystemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2)
         if (nmMesWindowSlotStatus(*(s8 *)(arg2 + 0x3C)) == 0) {
             switch (nmMesWindowSlotResult(*(s8 *)(arg2 + 0x3C))) {
             case 0:
-                func_00122520(1, 0x1E);
+                fadeBeginTransition(1, 0x1E);
                 sdkSndStopChannel(0x1E);
                 sdkSndFadeOutChannelFrames(3, 0, 0x1E);
                 *arg0 = 0xB;

@@ -12,12 +12,13 @@ extern code DAT_008873ec_abs[];
 // retail never has.
 
 // FUN_0021DD60
-void func_0021dd60(u8 *unusedTask)
+/* Free the shuffle-overlay work block; registered by btlShuffleStartOverlay. */
+void btlShuffleDestroyOverlayWork(u8 *unusedTask)
 {
-    int iVar1;
+    int work;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    work = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](work);
 }
 
 
@@ -28,10 +29,11 @@ void func_0021dd60(u8 *unusedTask)
 // retail never has.
 
 // FUN_002230A0
-void func_002230a0(u8 *unusedTask)
+/* Free the hero level-up work block; registered alongside btlResultHeroLvUpRun. */
+void btlResultDestroyHeroLevelUpWork(u8 *unusedTask)
 {
-    int iVar1;
+    int work;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    work = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](work);
 }

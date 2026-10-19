@@ -37,7 +37,7 @@ extern void memcpy(void *dst, void *src, u32 size);
 extern s32 btlShuffleTaskCreate(s32 arg0, void *arg1);
 extern s32 btlResultSimpleCreateTask(s32 arg0);
 extern void PrimAppendNode(void *arg0, void *arg1);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern void fadeBeginTransition(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
 extern u8 D_00796340[];
 extern s32 btlShuffleUpdateTask(u8 *task);
@@ -1229,7 +1229,7 @@ s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
     value = *(s32 *)p + 1;
     *(s32 *)p = value;
     if (value == 0xC) {
-        func_00122520(1, 1);
+        fadeBeginTransition(1, 1);
         goto exit;
     }
     if (value <= 0xC) {

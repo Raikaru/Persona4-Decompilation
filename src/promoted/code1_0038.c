@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "sdktask.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_shuffle_draw_internal.h"
 #include "shd_misc_internal.h"
@@ -198,13 +199,16 @@ typedef struct {
 } Vertex_0038CAB0;
 
 // Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
+/* Reset the shuffle draw view, update its effects, then step their work.
+ * The child task's work is the 0x50-byte allocation made by btlShuffleEffSpawn;
+ * its first word holds the draw view returned by func_0036e910. */
 // FUN_0038D660
-s32 btlShuffleEffStep(u8 *arg0) {
+s32 btlShuffleEffStep(u8 *task) {
     s32 *work;
 
-    work = (s32 *)(*(s32 **)(arg0 + 0x38));
+    work = (s32 *)((SdkTask *)task)->work;
     btlShuffleDrawViewReset(*work);
-    btlShuffleEffUpdate(arg0);
+    btlShuffleEffUpdate(task);
     func_0038d330(work);
     return 0;
 }
