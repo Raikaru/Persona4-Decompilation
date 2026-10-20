@@ -102,6 +102,7 @@ extern void mdlEffectUpdateOrbitEmitter(u8 *emitterData);
  * constants one..half ($f24-$f20). */
 #pragma push
 /* measured: func_0048cdf0 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 1419B; adjacent-local declaration probe nd 1419B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 /* measured: func_0048cdf0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off

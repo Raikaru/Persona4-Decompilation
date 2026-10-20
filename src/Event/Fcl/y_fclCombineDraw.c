@@ -472,6 +472,7 @@ u8 *fclDrawGetResource(u8 *task) {
    77d0 arguments only to give the colour temporaries their retail stack
    homes (dropping them costs 8 words). */
 #pragma push
+/* measured: baseline C nd 601B; adjacent-local declaration probe nd 605B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 // Draw a combine-list row's bars and label at position, retaining its sprite handle in work+0x258.
 // Kinds 0x174 and 0x160 add extra cells; kind 0x16C draws through fclCombineDrawListRowPlain at a fixed position.
@@ -1701,6 +1702,7 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
 #pragma push
 /* measured: opt_lifetimes splits the two nonoverlapping transition-scale
    lifetimes and restores the retail saved-register allocation. */
+/* measured: baseline C nd 74B; adjacent-local declaration probe nd 74B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 /* The name sits two pixels below rowY. The digit pair and special-row
    backdrop retain rowY (retail keeps it unchanged in $f22). */
@@ -2032,6 +2034,7 @@ void fclCombineDrawPersonaCardAlt(u8 *task, s16 slot, FclVec2 startPosition, Fcl
    Evidence: docs/probe_archive/FclDraw_0031d630_worker4_20260920.md. */
 // Refresh slot's sprites, label and optional roster colors; firstSelectedSlot/secondSelectedSlot retain partner highlights.
 // FUN_0031D630
+/* measured: baseline C nd 6B; adjacent-local declaration probe nd 16B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 secondSelectedSlot, s64 skipRoster) {
     /* measured: Remaining row-task/color-source member substitutions change b210 codegen (nd 1..1159). */
@@ -2287,6 +2290,7 @@ void fclCombineFlashSlot(u8 *task, s8 slot) {
    domain. See build/first-party-finish-20260929/FclFinish/
    resume-header-call-domain.json and resume-e5-proof/receipt.json. */
 #pragma push
+/* measured: baseline C nd 31B; adjacent-local declaration probe nd 41B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 // Draw slot-field chips and values at position with delay/mode; alternateSprites, narrowLayout and variant select the layout.
 // FUN_0031E5B0
@@ -3054,6 +3058,7 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
    addressing. The first two colours are named inside the 83e0 arguments
    only to give their temporaries retail's stack homes (24 words without). */
 #pragma push
+/* measured: baseline C nd 1080B; adjacent-local declaration probe nd 1080B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 // Fcl combine grid cell refresh: for each roster row, redraws the row's cells with colours taken from the selected row (0x11E) and the availability counts, and resets the row sprite and its column header at the given order.
 // FUN_003218A0
@@ -3154,6 +3159,7 @@ static inline void fclShowCombineCursorArrows(u8 *work)
 // Handle grid navigation and transitions: confirm enters selectedState, cancel enters cancelState, and mode selects the card path.
 // FUN_00321E60
 #pragma push
+/* measured: baseline C nd 241B; adjacent-local declaration probe nd 241B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelState) {
     /* measured: Remaining selection/row-task member substitutions change b210 codegen (nd 602..4002). */
@@ -3720,6 +3726,7 @@ void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
    are passed as (s32) conversions so they stay locals (docs/matching.md,
    "Keep a load local alive"); together they give retail's $s1/$s2/$s3. */
 #pragma push
+/* measured: baseline C nd 18B; adjacent-local declaration probe nd 28B; retain settings for owner MATCH. */
 #pragma opt_lifetimes on
 // Redraw the pair-grid frame, headers, lists and side panels for mode using delayStep between rows.
 // FUN_00324680
@@ -4303,11 +4310,9 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
     }
 }
 
-/* Measured: keep the current x value loaded before its table adjustment.
-   The scoped propagation setting preserves retail floating-point load order.
+/* measured: the inline load/add boundary preserves the current-x load order
+   under baseline propagation; the helper needs no separate optimizer setting.
    Exact owner and contract proof: docs/probe_archive/FclDraw_00329310_exact_row_packets_worker2_20260921.md. */
-#pragma push
-#pragma opt_propagation off
 /* Apply the table displacement at a byte offset to a row coordinate. */
 /* measured: expanding the table load and addition changes owner instruction bytes; retain the inline load/add boundary. */
 static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
@@ -4317,7 +4322,6 @@ static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
     x += *adjustment;
     return x;
 }
-#pragma pop
 
 // Draw seven visible stage tiles and their shadows with duration and mode; later tiles add secondary pairs.
 // FUN_00329310
@@ -4411,6 +4415,7 @@ void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
    Evidence: build/first-party-finish-20260920/fcl-worker5. */
 // Slide the panel header from originX by slideOffset; variant chooses the label pair, and mode 0 creates the sprites.
 // FUN_003297F0
+/* measured: baseline C nd 1168B; adjacent-local declaration probe nd 1168B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void fclCombineSlideInHeaderSprites(f32 originX, f32 slideOffset, u8 *task, s64 variant, s8 mode) {
     FclDrawColor drawColor1;
@@ -4622,6 +4627,7 @@ void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
 // Fcl combine panel border: mode 0 creates the border sprites and fades them in (dark bars at the top and bottom edges, two labels and two scaled corner sprites). Any other mode fades them out from their current alpha.
 // FUN_0032A960
 #pragma push
+/* measured: baseline C nd 1123B; adjacent-local declaration probe nd 1123B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
     /* Signed-byte alpha stores retain byte aliasing with the surrounding animation packet. */
@@ -4729,13 +4735,11 @@ void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
     fclSpriteStartAlphaAt(0x2E3, ((FclCombineRowSprite *)fclSpriteEntry(0x2E3))->alpha, 0, 0, 0, 0);
 }
 #pragma pop
-/* measured: saved draw-contract recovery retains signed-byte digit values
-   and constructor-backed positions under scoped opt_propagation off.
-   Provenance and current checks: docs/probe_archive/Recovered_FclDraw_0032a960_0032b000.md. */
+/* measured: the existing position-storage copy loads both coordinates before
+   storing either, preserving owner MATCH under baseline propagation.
+   Provenance: docs/probe_archive/Recovered_FclDraw_0032a960_0032b000.md. */
 // Fcl combine counter: draws the counter value from func_00110140() as a bar (0x2CF) with two labels, the ones digit (0x2D0) always, the tens digit (0x2D1) from 10 up, and sprite 0x10D when the value is 100. mode 0 creates and fades in; any other mode fades out and repositions.
 // FUN_0032B000
-#pragma push
-#pragma opt_propagation off
 void fclCombineDrawCounter(u8 *task, s8 mode) {
     /* The image halfword at offset 4 is accessed without changing the surrounding constructor packet lifetimes. */
     FclDrawColor drawColor1;
@@ -4761,12 +4765,7 @@ void fclCombineDrawCounter(u8 *task, s8 mode) {
     u8 *p;
     (void)task;
     drawPosition2 = fclMakeVec2(266.0f, (f32)0x163);
-    {
-        f32 x = drawPosition2.x;
-        f32 y = drawPosition2.y;
-        origin.x = x;
-        origin.y = y;
-    }
+    fclCopyPositionStorage(&origin, &drawPosition2);
     counter = (s8)datGetPersonaCacheCompletionPercent();
     entryMode = (s8)mode;
     if (entryMode == 0) {
@@ -4848,7 +4847,6 @@ void fclCombineDrawCounter(u8 *task, s8 mode) {
     }
 }
 
-#pragma pop
 /* measured: 596B/608B, exact emitted instructions and three zero-tail words.
    The retail loop passes word-sized list indices; a narrowed call declaration
    inserts two normalization instructions. Removing the unused expression that

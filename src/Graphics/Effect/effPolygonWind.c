@@ -665,6 +665,7 @@ void FunnelWindPackColors(u8 *effect)
  * with it the loop matches retail exactly. */
 // Updates the funnel entries in a per-entry loop (0x30 stride).
 // FUN_004A3010
+/* measured: baseline C nd 120B; adjacent-local declaration probe nd 120B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 void FunnelWindUpdateEntries(u8 *effect)
 {
@@ -702,6 +703,7 @@ void FunnelWindUpdateEntries(u8 *effect)
 /* Reusing configOrCopyIndex as the replica index after its last dereference preserves the
  * retail saved-register allocation for the replication loop. */
 #pragma push
+/* measured: baseline C nd 439B; adjacent-local declaration probe nd 439B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 {
@@ -882,6 +884,7 @@ void FallingFunnelWindFreeBlock(u8 *effect) {
  * order a regalloc_whatif.py replay of the captured colouring derived. */
 
 #pragma push
+/* measured: baseline C nd 258B; adjacent-local declaration probe nd 257B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 // Updates the falling funnel wind strip: a call-free inner loop steps the centre along the normalised direction.
 // FUN_004A3640
@@ -1320,6 +1323,7 @@ void FallingFunnelWindPackColors(u8 *effect)
  * loop matches retail exactly (0x2C stride variant). */
 // Updates the falling funnel entries in a per-entry loop (0x2C stride variant).
 // FUN_004A4380
+/* measured: baseline C nd 120B; adjacent-local declaration probe nd 120B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 void FallingFunnelWindUpdateEntries(u8 *effect)
 {
@@ -1377,6 +1381,7 @@ void FallingFunnelWindUpdateEntries(u8 *effect)
    first color/UV strip, then duplicates it for the remaining meshes.
    See docs/probe_archive/Wind_004a4450_shared_initializer.md. */
 #pragma push
+/* measured: baseline C nd 469B; adjacent-local declaration probe nd 469B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 // Initialises the spiral wind entries from the config (0x2C stride).
 // FUN_004A4450
@@ -1961,6 +1966,7 @@ void SpiralWindPackColors(u8 *effect)
 
 // Allocates a wind entry from the kind table (kind below 4), copying the kind's stride-0x1C record.
 // FUN_004A5630
+/* measured: baseline C nd 46B; adjacent-local declaration probe nd 46B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void *WindAllocKindEntry(s32 kind, void *parameters)
 {

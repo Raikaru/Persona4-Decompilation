@@ -146,6 +146,7 @@ extern s32 btlVoiceIdPacketUpdate(u8 *context);
    and the frame shrinks from 0x1A0 to 0x190. */
 #pragma push
 /* measured: func_001fb480 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 1322B; adjacent-local declaration probe nd 1322B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* Draws a display-buffer textured quad, using a centered scaled rectangle or the full screen. */
 /* Draws the display-buffer texture over the full screen or a centered scaled quad, tinted by RGBA. */

@@ -52,6 +52,7 @@ extern Code1_0049Color iGpffffbb64;
 /* measured: func_00490c40 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Emit particles inside a changing radius and reflect directions at its boundary. */
+/* measured: direct fields, a separate emission accumulator and isolated toggles still differ (best isolated nd 1326 bytes); retain all three toggles. */
 // FUN_00490C40
 void mdlEffectUpdateBoundedEmitter(u8 *emitterData)
 {

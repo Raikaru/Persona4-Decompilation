@@ -33,6 +33,7 @@ extern Code1_0049Color iGpffffbb64;
 /* Kind-11 Sway update. See docs/probe_archive/sway-update-20261005 for
  * the actual-provider domain, source measurements and independent review. */
 /* Spawn and update sway particles with randomized motion, floor bounces, key sampling and optional trails. */
+/* measured: baseline removal and a structured primary loop still differ (best isolated nd 391 bytes); retain both toggles. */
 // FUN_00492100
 #include "sway_particle_internal.h"
 /* measured: b210 -O2 needs independent value propagation and loop-invariant

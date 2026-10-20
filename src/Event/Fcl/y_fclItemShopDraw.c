@@ -212,6 +212,7 @@ extern void nmMesWindowRequestRefresh(void);
    counter and slot index as block locals for retail's $s5/$s4 colouring.
    measured: normalized_diff 0; opt_loop_invariants on hoists the 140/340/20/10
    and (s8)1 loop constants into the preheaders as retail does. */
+/* measured: baseline C nd 22634B; adjacent-local declaration probe nd 22634B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 s32 fclItemShopUpdate(u8 *shopTask) {
     FclItemShopWork *shopFields = (FclItemShopWork *)((SdkTask *)shopTask)->work;
@@ -1737,6 +1738,7 @@ void fclItemShopDestroy(u8 *shopTask) {
 /* measured: object_size 324/window 336, normalized_diff 0 (retail tail is
    zero padding). MWCCPS2 needs opt_loop_invariants on to hoist the loop's
    `1` constant before the entry jump, matching retail's preheader materialisation. */
+/* measured: baseline C nd 9B; adjacent-local declaration probe nd 9B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 // FUN_0033BE40
 u8 *fclItemShopCreate(u8 *shopTask) {
@@ -2141,6 +2143,7 @@ void fclItemShopPanelDestroy(u8 *task) {
    measured: without this pragma mwcc rematerializes the 0xFF / 0x3F800000
    constants inside the loop body (nd 50+); with it they hoist to the
    preheader exactly as retail does (nd 0). */
+/* measured: baseline C nd 50B; adjacent-local declaration probe nd 50B; retain settings for owner MATCH. */
 #pragma opt_loop_invariants on
 u8 *fclItemShopPanelCreate(void *task, s32 panelIndex, s32 spriteFile) {
     FclObject *panelFields;

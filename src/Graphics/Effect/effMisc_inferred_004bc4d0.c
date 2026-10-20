@@ -131,6 +131,7 @@ void effMiscProgressAdvance(u8 *progress, f32 *elapsedStep)
 /* Interpolate two byte colors, optionally attenuating by the remaining fade. */
 // FUN_004BC540
 /* measured: func_004bc540 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline C nd 8B; adjacent-local declaration probe nd 15B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeight, u8 *output)
 {
