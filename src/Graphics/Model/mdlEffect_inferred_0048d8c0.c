@@ -46,12 +46,6 @@ extern f32 fGpffff8044;
 
 
 extern void (*jtbl_008873EC[])(void *);
-static inline f32 code1_0048_mul(f32 left, f32 right) {
-    return left * right;
-}
-static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
-    fn(value);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048d8c0-0048d8c0 */
 
@@ -179,11 +173,14 @@ void mdlEffectUpdateOrbitEmitter(u8 *emitterData)
     f32 a;
     f32 b;
     f32 c;
+    MdlEffectEmitterParameters *settings;
+    SpawnParticle *sampleParticle;
     count = ((MdlEffectEmitter *)emitter)->primaryCount.value;
     flags = ((MdlEffectEmitter *)emitter)->flags;
     particle = ((MdlEffectEmitter *)emitter)->particles;
     state = ((MdlEffectEmitter *)emitter)->state.scalars;
     parameters = ((MdlEffectEmitter *)emitter)->parameters;
+    settings = (MdlEffectEmitterParameters *)parameters;
     lifetime = ((MdlEffectEmitterParameters *)parameters)->lifetime;
     if (lifetime == 0) {
         return;
@@ -208,7 +205,7 @@ void mdlEffectUpdateOrbitEmitter(u8 *emitterData)
     if ((((MdlEffectEmitter *)emitter)->ticks == 0) && (((MdlEffectEmitterParameters *)parameters)->preroll != 0)) {
         initialPreroll = 1;
         preroll = initialPreroll;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(settings->emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sampleValue = (f32)((MdlEffectEmitter *)emitter)->primaryCount.value;
             spawnBudget = (s32)(sampleValue * prerollScale);
@@ -218,7 +215,7 @@ void mdlEffectUpdateOrbitEmitter(u8 *emitterData)
         goto post_init;
     } else {
         preroll = 0;
-        if (!(*(f32 *)(parameters + 0x28) <= 0.0f)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if (!(settings->emissionVariation <= 0.0f)) {
             f32 scale = (fGpffff807c - ((MdlEffectEmitterParameters *)parameters)->emissionVariation) * effMiscRandFloat(0);
             sample = ((MdlEffectEmitterParameters *)parameters)->emissionRate.signedValue;
             sampleValue = (f32)(u32)sample;
@@ -246,7 +243,8 @@ post_init:
     negativeOne = -1.0f;
     goto main_check;
 main_body:
-    if (*(s32 *)(particle + 16) < lifetime) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle = (SpawnParticle *)particle;
+    if (sampleParticle->age < lifetime) {
         goto skip_clear;
     }
     if (emissionDuration != 0) {
@@ -337,7 +335,7 @@ skip_clear:
         ((MdlEffectOrbitState *)state)->angleOffset = zero;
         ((MdlEffectOrbitState *)state)->angleScale = one;
     }
-    *(s32 *)(particle + 16) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    sampleParticle->age = 0;
     {
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)particle;
@@ -362,7 +360,7 @@ skip_clear:
         ((SpawnParticle *)particle)->position.lane[1] = ((SpawnParticle *)particle)->position.lane[1] + ((MdlEffectOrbitState *)state)->height;
         ((SpawnParticle *)particle)->age = (s32)scaledValue;
     }
-    mdlEffectSampleKeyState(particle, parameters, *(s32 *)(particle + 16), &previousPosition); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    mdlEffectSampleKeyState(particle, parameters, sampleParticle->age, &previousPosition);
     ((SpawnParticle *)particle)->size = ((SpawnParticle *)particle)->size * ((MdlEffectOrbitState *)state)->sizeScale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle * ((MdlEffectOrbitState *)state)->angleScale;
     ((SpawnParticle *)particle)->angle = ((SpawnParticle *)particle)->angle + ((MdlEffectOrbitState *)state)->angleOffset;

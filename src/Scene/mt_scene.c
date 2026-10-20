@@ -69,8 +69,8 @@ u32 MT_Scene_GetResManager(void)
 {
     return (u32)((MtScene *)PTR_DAT_00762ea0)->resManager;
 }
-// FUN_00145270
 /* Look up the packed resource type/id in the active manager. */
+// FUN_00145270
 u8 *MT_Scene_GetRes(u16 resTypeId)
 {
     if (gMtScene->resManager == NULL)
@@ -83,8 +83,8 @@ u8 *MT_Scene_GetRes(u16 resTypeId)
 
 
 
-// FUN_001452B0
 /* Return the selected resource list, or NULL when no manager is active. */
+// FUN_001452B0
 u8 *MT_Scene_GetResListHead(s32 resourceType)
 {
     u8 *resManager;
@@ -95,8 +95,8 @@ u8 *MT_Scene_GetResListHead(s32 resourceType)
     }
     return resrcMngGetListHead(resManager, (u8)(resourceType & 0xFF));
 }
-// FUN_00145300
 /* Count resources of the requested type; out-of-range types contribute nothing. */
+// FUN_00145300
 u32 MT_Scene_GetTotalResInList(u32 resType)
 {
     s32 i;
@@ -126,8 +126,8 @@ u32 MT_Scene_GetTotalResInList(u32 resType)
 
 
 
-// FUN_001458B0
 /* Allocate a character-light resource and return its packed type/id, or zero on failure. */
+// FUN_001458B0
 u16 MT_Scene_CreateResLightChar(u16 resId)
 {
     ResrcManager* resManager;
@@ -152,8 +152,8 @@ u16 MT_Scene_CreateResLightChar(u16 resId)
 
 
 
-// FUN_00145930
 /* Allocate an NPC-light resource and return its packed type/id, or zero on failure. */
+// FUN_00145930
 u16 MT_Scene_CreateResLightNpc(u16 resId)
 {
     ResrcManager* resManager;
@@ -178,8 +178,8 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 
 
 
-// FUN_00146E60
 /* Apply position and rotation only when the resource exists. */
+// FUN_00146E60
 void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 {
     u8 *resource;
@@ -201,9 +201,9 @@ void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 
 
 
-// FUN_00146EE0
 /* Forward the optional vector through the transform scale-input slot, as retail does. */
 /* The vector is forwarded to ApplyResTransform's scale slot; despite the current symbol name, this wrapper changes scale. */
+// FUN_00146EE0
 void MT_Scene_SetResAngles(u16 resourceId, u8 *scale)
 {
     u8 *resource;
@@ -222,8 +222,8 @@ void MT_Scene_SetResAngles(u16 resourceId, u8 *scale)
         (MT_Scene_ApplyResTransform)(resource, 0, 0, scale);
     }
 }
-// FUN_00146F50
 /* Build a Y/X/Z rotation followed by translation and copy the 64-byte RenderWare matrix. */
+// FUN_00146F50
 void MT_Scene_BuildResMatrix(u32* outputWords, const void* position, u32* angles)
 {
     u32 firstWord;

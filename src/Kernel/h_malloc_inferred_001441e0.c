@@ -175,13 +175,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
 typedef struct {
     u8 b0;
     u8 b1;
@@ -229,10 +222,6 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -298,8 +287,6 @@ extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 opt
 #pragma opt_lifetimes on
 // Intent: Calendar task update: kind 0 fills a 7-row day table from the date queries; kind 1 draws the rows and skips while input bit 0x800 is held [inferred]
 // FUN_001441E0
-/* The two arrays are proven by the local union. Array subscripts change four
- * normalized bytes under b210, so keep the measured index-before-base loads. */
 s32 calendarTaskUpdate(u8 *task) {
     extern s16 datGetDateIndex(void);
     extern s64 calGetDayTableValue(s32 day, u32 phase);
@@ -330,9 +317,9 @@ s32 calendarTaskUpdate(u8 *task) {
     extern char iGpffff9d90;
     extern char iGpffff9d98;
     extern char iGpffff9da0;
-    typedef union { struct { s32 kind; u16 a[7]; u16 b[7]; } fields; u16 words[16]; } State441e0;
+    typedef union { struct { s32 kind; u16 dayKinds[7]; u16 dayEntries[7]; } fields; u16 words[16]; } CalendarState;
     typedef union { struct { f32 x, y; } coordinates; s64 packed; } Pos441e0;
-    State441e0 *st;
+    CalendarState *st;
     s32 kind;
     s32 i;
     Pos441e0 pos;
@@ -343,7 +330,7 @@ s32 calendarTaskUpdate(u8 *task) {
     s32 t3;
     s32 v0;
     s32 v1;
-    st = (State441e0 *)((struct KwlnTask *)task)->work;
+    st = (CalendarState *)((struct KwlnTask *)task)->work;
     kind = st->fields.kind;
     switch (kind) {
     case 0:
@@ -367,7 +354,7 @@ s32 calendarTaskUpdate(u8 *task) {
         for (i = 0; i < 7; i++) {
             pos.coordinates.x = 5.0f;
             pos.coordinates.y = 20.0f + (f32)i;
-            v = *(u16 *)((u32)st + (u32)(i * 2) + 4);
+            v = ((CalendarState *)((u32)st + (u32)(i * 2)))->fields.dayKinds[0];
             switch (v) {
             case 0:
                 H_Dbprt_FmtAt(pos.packed, &iGpffff9ce4);
@@ -449,7 +436,7 @@ s32 calendarTaskUpdate(u8 *task) {
         for (i = 0; i < 7; i++) {
             pos.coordinates.x = 15.0f;
             pos.coordinates.y = 20.0f + (f32)i;
-            v = *(u16 *)((u32)st + (u32)(i * 2) + 0x12);
+            v = ((CalendarState *)((u32)st + (u32)(i * 2)))->fields.dayEntries[0];
             switch (v) {
             case 0:
                 H_Dbprt_FmtAt(pos.packed, &iGpffff9ce4);
@@ -619,8 +606,8 @@ loop_5_test:
     ((FieldSceneState *)iGpffff9db0)->primaryRoom = 0;
     stateAddress = iGpffff9db0;
     ((FieldSceneState *)stateAddress)->secondaryRoom = ((FieldSceneState *)stateAddress)->room.value;
-    *(s32 *)(iGpffff9db0 + 0x20) = FldFilterCreate(0);
-    *(s32 *)(iGpffff9db0 + 8) = resrcMngCreate();
+    *(s32 *)&(((FieldSceneState *)iGpffff9db0)->filterTask) = FldFilterCreate(0);
+    *(s32 *)&(((FieldSceneState *)iGpffff9db0)->resourceManager) = resrcMngCreate();
     MT_Scene_CreateResLightChar(0);
     SceneDraw_InitResList4();
     MT_Scene_CreateResLightNpc(0);
@@ -700,7 +687,7 @@ s32 fieldSceneLoadStep(void)
     u8 *sceneState;
 
     sceneState = iGpffff9db0;
-    if (*(s32 *)(sceneState + 8) == 0) {
+    if (*(s32 *)&(((FieldSceneState *)sceneState)->resourceManager) == 0) {
         return 1;
     }
     stateValue = ((FieldSceneState *)sceneState)->flags;
@@ -725,8 +712,8 @@ s32 fieldSceneLoadStep(void)
         if (FldResource_StepPartLoad((s32)stateAddress, (s32)sceneState) == 0) {
             return 0;
         }
-        if (*(s32 *)(iGpffff9db0 + 0x1C) == 0) {
-            *(s32 *)(iGpffff9db0 + 0x1C) = MT_SceneManager_Create();
+        if (*(s32 *)&(((FieldSceneState *)iGpffff9db0)->sceneTask) == 0) {
+            *(s32 *)&(((FieldSceneState *)iGpffff9db0)->sceneTask) = MT_SceneManager_Create();
         }
         return 1;
     }
@@ -736,6 +723,7 @@ s32 fieldSceneLoadStep(void)
  * Task-array byte cursors preserve traversal order; ResrcRecord supplies link layout. */
 // FUN_00145080
 void fieldSceneUnload(void) {
+    FieldSceneState *fieldSceneStateCursor;
     u8 *resourceManager;
     s32 primaryIndex;
     s32 taskOffset;
@@ -749,16 +737,16 @@ void fieldSceneUnload(void) {
     u8 *resource;
 
     scene = iGpffff9db0;
-    resourceManager = *(u8 **)(scene + 8);
-    sceneTask = *(u8 **)(scene + 0x1C);
+    resourceManager = ((FieldSceneState *)scene)->resourceManager;
+    sceneTask = ((FieldSceneState *)scene)->sceneTask;
     if (sceneTask != NULL) {
         kwlnTaskDestroyWithHierarchy((s32)sceneTask);
-        *(u8 **)(iGpffff9db0 + 0x1C) = NULL;
+        ((FieldSceneState *)iGpffff9db0)->sceneTask = NULL;
     }
-    if (*(u8 **)(iGpffff9db0 + 0x20) != NULL) {
+    if (((FieldSceneState *)iGpffff9db0)->filterTask != NULL) {
         kwlnTaskDumpAll();
-        kwlnTaskDestroyWithHierarchy(*(s32 *)(iGpffff9db0 + 0x20));
-        *(u8 **)(iGpffff9db0 + 0x20) = NULL;
+        kwlnTaskDestroyWithHierarchy(*(s32 *)&(((FieldSceneState *)iGpffff9db0)->filterTask));
+        ((FieldSceneState *)iGpffff9db0)->filterTask = NULL;
     }
     primaryIndex = 0;
     goto loop_8_test;
@@ -766,10 +754,11 @@ loop_8:
     scene = iGpffff9db0;
     taskOffset = primaryIndex * 4;
     scene += taskOffset;
-    primaryTask = *(u8 **)(scene + 0x68);
+    primaryTask = ((FieldSceneState *)scene)->primaryTasks[0];
     if (primaryTask != NULL) {
         kwlnTaskDestroyWithHierarchy((s32)primaryTask);
-        *(s32 *)(iGpffff9db0 + taskOffset + 0x68) = 0;
+        fieldSceneStateCursor = (FieldSceneState *)(iGpffff9db0 + taskOffset);
+        *(s32 *)&(fieldSceneStateCursor->primaryTasks[0]) = 0;
     }
     primaryIndex++;
 loop_8_test:
@@ -782,10 +771,11 @@ loop_13:
     scene = iGpffff9db0;
     taskOffset = secondaryIndex * 4;
     scene += taskOffset;
-    secondaryTask = *(u8 **)(scene + 0x78);
+    secondaryTask = ((FieldSceneState *)scene)->secondaryTasks[0];
     if (secondaryTask != NULL) {
         kwlnTaskDestroyWithHierarchy((s32)secondaryTask);
-        *(s32 *)(iGpffff9db0 + taskOffset + 0x78) = 0;
+        fieldSceneStateCursor = (FieldSceneState *)(iGpffff9db0 + taskOffset);
+        *(s32 *)&(fieldSceneStateCursor->secondaryTasks[0]) = 0;
     }
     secondaryIndex++;
 loop_13_test:
@@ -812,7 +802,7 @@ loop_20_test:
             goto loop_20_body;
         }
         resrcMngDestroy(resourceManager);
-        *(s32 *)(iGpffff9db0 + 8) = 0;
+        *(s32 *)&(((FieldSceneState *)iGpffff9db0)->resourceManager) = 0;
     }
     NpcTable_ReleaseSceneTable();
     NpcTable_ReleaseSecondaryTable();

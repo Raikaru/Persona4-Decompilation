@@ -28,12 +28,6 @@ extern void btlCameraLookAtQuat(void *out, const void *first,
 extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s64 scrGetParamInt();
-/* The surrounding wrappers use the raw s64 ABI; this typed view preserves
-   the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 extern u8 *scrGetAiState();
 

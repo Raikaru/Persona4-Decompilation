@@ -15,6 +15,12 @@ typedef struct ObjectParticleRecord {
     u8 pad15[3];
 } ObjectParticleRecord;
 
+/* RpClump starts with RwObject; its parent at +4 is the attached frame. */
+typedef struct RpClump {
+    u8 objectHeader[4];
+    void *frame;
+} RpClump;
+
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -130,8 +136,8 @@ void ObjectParticleFree(u8 *particle)
 
 // Creates an object particle from a parent record: sizes the record buffer from the parent's block and shares its clump; asserts the parent block exists.
 // FUN_004AE6D0
-/* Typed instance/parameter accesses changed this constructor from 432 to 444
- * bytes; retain the proven +0x58 list and +0x24 parameter-chain byte accesses. */
+/* Keep separate typed locals for the parent, allocation and parameter block;
+ * collapsing them into access-site casts changes constructor allocation. */
 void *ObjectParticleCreateFromParent(void *opaqueSource)
 {
     u8 *particle = opaqueSource;
@@ -139,39 +145,44 @@ void *ObjectParticleCreateFromParent(void *opaqueSource)
     u32 recordCapacity;
     u8 *parameters;
     u8 *createdObject;
-    if (*(u8 **)(particle + 0x58) == 0) {
+    ObjectParticleInstance *parent = (ObjectParticleInstance *)particle;
+    ObjectParticleInstance *created;
+    WaveSpawnParameters *settings;
+    if (parent->list == 0) {
         kAssertFail(D_00714520, 0x148);
     }
-    parameters = *(u8 **)(*(u8 **)(particle + 0x58) + 0x24);
+    parameters = (u8 *)((WaveSpawnEmitter *)parent->list)->originalParameters;
+    settings = (WaveSpawnParameters *)parameters;
     if (parameters == 0) {
         kAssertFail(D_00714520, 0x14A);
     }
-    sourceCount = *(u32 *)(parameters + 0x20);
+    sourceCount = (u32)settings->emissionDuration;
     if (sourceCount == 0) {
-        recordCapacity = *(u32 *)(parameters + 0xB8) * *(u32 *)(parameters + 0x24);
+        recordCapacity = (u32)settings->lifetime * settings->emissionRate;
     } else {
-        recordCapacity = sourceCount * *(u32 *)(parameters + 0x24);
+        recordCapacity = sourceCount * settings->emissionRate;
     }
     if (recordCapacity > 0x64) {
         recordCapacity = 0x64;
     }
     chkmemAllocSiteTag(D_00714508, 0x171);
     createdObject = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
+    created = (ObjectParticleInstance *)createdObject;
     memset(createdObject, 0, 0x94);
     if (createdObject == 0) {
         kAssertFail(D_00714520, 0xC5);
     }
-    *(u32 *)(createdObject + 0) = recordCapacity;
-    *(u32 *)(createdObject + 4) = -1;
-    *(u32 *)(createdObject + 8) = 0x3F800000;
-    *(u16 *)(createdObject + 0x7C) = 0x18;
-    *(u8 **)(createdObject + 0x80) = createdObject;
+    created->recordCount = recordCapacity;
+    created->packedColour = -1;
+    *(u32 *)&created->field_0x08 = 0x3F800000;
+    created->recordStride = 0x18;
+    created->self = (ObjectParticleInstance *)createdObject;
     if (createdObject == 0) {
         kAssertFail(D_00714520, 0x14C);
     }
     memcpy(createdObject + 0x10, particle + 0x10, 0x44);
-    ObjectParticleRebuildRecords(createdObject, *(u16 *)(*(u8 **)(particle + 0x58) + 0), parameters);
-    if (*(u32 *)(*(u8 **)(createdObject + 0x58) + 8) == 0) {
+    ObjectParticleRebuildRecords(createdObject, ((WaveSpawnEmitter *)parent->list)->kind, parameters);
+    if (((WaveSpawnEmitter *)created->list)->totalCount == 0) {
         return createdObject;
     }
     ObjectParticleShareClump(createdObject, particle);
@@ -250,14 +261,14 @@ void ObjectParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *sourceData)
    schedule on. */
 // Walks the resource records of the source until opcode 0: opcode 22 gathers the texture-name list, opcode 16 fetches the clump; the clump is stored at +0x54 with its atomic callback set.
 // FUN_004AEA70
-/* Typed +0x58/+0x54 accesses changed this 480-byte window to 484 bytes;
- * keep byte addressing for the list checks and final clump store. */
+/* A distinct typed instance pointer preserves the resource loop's stack layout. */
 void ObjectParticleLoadClump(u8 *particle, s32 resource, s32 resourceInput) {
     struct ObjectParticleResourceWork { s32 code; u32 value; u8 pad8[0x18]; s32 in1; s32 in2; s32 outpad; s32 out; } work;
     s32 stream; u8 *clump; u8 *textureDictionary;
+    ObjectParticleInstance *inst = (ObjectParticleInstance *)particle;
     clump = NULL; textureDictionary = NULL; work.out = 0;
-    if (*(u8 **)(particle + 0x58) == NULL) kAssertFail(D_00714520, 0x1B3);
-    if (*(s32 *)(*(u8 **)(particle + 0x58) + 8) == 0) kAssertFail(D_00714520, 0x1B4);
+    if (inst->list == NULL) kAssertFail(D_00714520, 0x1B3);
+    if ((s32)((WaveSpawnEmitter *)inst->list)->totalCount == 0) kAssertFail(D_00714520, 0x1B4);
     work.in1 = resource; work.in2 = resourceInput; stream = func_003e2f60(3, 1, &work.in1);
     while (func_003df3c0(stream, &work.code) != 0) {
       if (work.code == 0) goto done;
@@ -278,7 +289,7 @@ void ObjectParticleLoadClump(u8 *particle, s32 resource, s32 resourceInput) {
       }
     }
   done:
-    func_003e2e40(stream, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (clump == NULL) kAssertFail(D_00714520, 0x1DF); *(u8 **)(particle + 0x54) = clump; RpClumpForAllAtomics(clump, mdlEffectSetFlag40, NULL);
+    func_003e2e40(stream, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (clump == NULL) kAssertFail(D_00714520, 0x1DF); inst->clump = clump; RpClumpForAllAtomics(clump, mdlEffectSetFlag40, NULL);
 }
 
 
@@ -366,9 +377,8 @@ typedef struct EffObjectMatrix {
  * for func_004ae2f0 into the loop test, while keeping retail's lwc1/swc1
  * interleave. */
 // Draws the object particle's live records through RwMatrix transforms and the VU0 colour pack path, draws the clump atomics, and invokes TnInvokeCallback; colours are set through mdlEffectSetAllColors.
-/* Keep the two raw +0x10 age-to-float reloads: typed access changes alias
- * analysis (1968 bytes / normalized_diff 1089 versus the matching 1964).
- * The clump's +4 frame pointer remains raw; its surrounding layout is opaque here. */
+/* Access-site age reloads differed by 1089 normalized bytes (1968 versus 1964 bytes).
+ * Separate typed particle-record and clump pointers retain the original reloads. */
 // FUN_004AED70
 void ObjectParticleDraw(u8 *particle)
 {
@@ -424,6 +434,8 @@ void ObjectParticleDraw(u8 *particle)
     u8 *sourceRecord;
     u8 *objectRecord;
     u8 *clump;
+    SpawnParticle *spawnRecord;
+    RpClump *objectClump;
 
     self = (ObjectParticleInstance *)particle;
     colorWord = self->packedColour;
@@ -440,6 +452,7 @@ void ObjectParticleDraw(u8 *particle)
     sourceRecord = (u8 *)((WaveSpawnEmitter *)list)->particles;
     objectRecord = self->entries;
     clump = self->clump;
+    objectClump = (RpClump *)clump;
     {
         f32 v = self->field_0x08;
 
@@ -476,6 +489,7 @@ void ObjectParticleDraw(u8 *particle)
             base.pos[2] = snap[3].lane[2];
             for (i = 0; i < count; i++, sourceRecord += 0x20, objectRecord += 0x18) {
                 s32 life = ((SpawnParticle *)sourceRecord)->age;
+                spawnRecord = (SpawnParticle *)sourceRecord;
 
                 if (life >= 0) {
                     f32 f;
@@ -499,7 +513,7 @@ void ObjectParticleDraw(u8 *particle)
                     *(u32 *)&packedArg = *(u32 *)&packedA;
                     RpClumpForAllAtomics(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
                     {
-                        f32 age = (f32)*(s32 *)(sourceRecord + 0x10);
+                        f32 age = (f32)spawnRecord->age;
 
                         f = ((ObjectParticleRecord *)objectRecord)->angularVelocity * age;
                         f = f + 0.5f * (age * (self->ageFactor * age));
@@ -533,7 +547,7 @@ void ObjectParticleDraw(u8 *particle)
                     vec[1] = ((SpawnParticle *)sourceRecord)->position.lane[1];
                     vec[2] = ((SpawnParticle *)sourceRecord)->position.lane[2];
                     RwMatrixTranslate(&matB, vec, 2);
-                    func_003e9cb0(*(void **)(clump + 4), &matB, 0);
+                    func_003e9cb0(objectClump->frame, &matB, 0);
                     func_003bfe90(clump);
                 }
             }
@@ -557,6 +571,7 @@ void ObjectParticleDraw(u8 *particle)
             mask = 0x20003;
             gscale = fGpffff8048;
             for (; i < count; i++, sourceRecord += 0x20, objectRecord += 0x18) {
+                spawnRecord = (SpawnParticle *)sourceRecord;
                 if (((SpawnParticle *)sourceRecord)->age >= 0) {
                     f32 f;
 
@@ -592,7 +607,7 @@ void ObjectParticleDraw(u8 *particle)
                     *(u32 *)&packedArg = *(u32 *)&packedB;
                     RpClumpForAllAtomics(clump, (KClumpCallback)mdlEffectSetAllColors, &packedArg);
                     {
-                        f32 age = (f32)*(s32 *)(sourceRecord + 0x10);
+                        f32 age = (f32)spawnRecord->age;
 
                         f = ((ObjectParticleRecord *)objectRecord)->angularVelocity * age;
                         f = f + half * (age * (self->ageFactor * age));
@@ -623,7 +638,7 @@ void ObjectParticleDraw(u8 *particle)
                     }
                     RwMatrixScale(&matB, vec, 2);
                     RwMatrixTranslate(&matB, pos, 2);
-                    func_003e9cb0(*(void **)(clump + 4), &matB, 0);
+                    func_003e9cb0(objectClump->frame, &matB, 0);
                     func_003bfe90(clump);
                 }
             }

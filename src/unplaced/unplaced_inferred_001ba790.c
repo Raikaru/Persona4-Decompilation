@@ -10,16 +10,12 @@
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "rw_types_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
-static inline f32 mdlSlerpMultiply(f32 left, f32 right)
-{
-    return left * right;
-}
-
 extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
 extern f32 fGpffff8104;
 extern f32 fGpffff8054;
@@ -34,9 +30,10 @@ extern void func_003dcc70(f32 *result, f32 *from, f32 *to);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
-// FUN_001BA790
-/* Lerp translation and slerp quaternion rotation, clamping rotation at either endpoint.
+/* Blend translation and slerp the following quaternion independently.
+ * Translation extrapolates, while rotation copies an endpoint outside [0, 1].
  * The sine polynomial and scalar evaluation order mirror the quaternion macros. */
+// FUN_001BA790
 void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend)
 {
     struct MdlTransformSlerpCache {
@@ -98,7 +95,7 @@ void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend)
         polynomial = angleSquared * polynomial + fGpffff805c;
         polynomial = angleSquared * polynomial + fGpffff8060;
         polynomial = angleSquared * polynomial + fGpffff8108;
-        fromWeight = angle + mdlSlerpMultiply(angleSquared * angle, polynomial);
+        fromWeight = angle + operandOrderMultiply(angleSquared * angle, polynomial);
         angle = blend * cache.omega;
         angleSquared = angle * angle;
         polynomial = fGpffff8104 * angleSquared + fGpffff8054;
@@ -106,7 +103,7 @@ void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend)
         polynomial = angleSquared * polynomial + fGpffff805c;
         polynomial = angleSquared * polynomial + fGpffff8060;
         polynomial = angleSquared * polynomial + fGpffff8108;
-        blend = angle + mdlSlerpMultiply(angleSquared * angle, polynomial);
+        blend = angle + operandOrderMultiply(angleSquared * angle, polynomial);
     }
     result[3] = cache.fromX * fromWeight;
     result[4] = cache.fromY * fromWeight;

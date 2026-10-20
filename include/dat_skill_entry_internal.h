@@ -3,17 +3,28 @@
 
 #include "type.h"
 
-/* One row of the skill table (iGpffffb3b8), stride 0x28, indexed by skill id. The
-   table is read as u8 bytes in datCalc.c. Offsets are named by the
-   code that reads them; roles marked [inferred] are not yet pinned. Typed access
-   moves codegen where the constant offset folds (datCalc.c), so most sites stay raw. */
+/* One row of the skill table (iGpffffb3b8), stride 0x28, indexed by skill id.
+ * Byte-pointer interfaces and typed field/local forms preserve the measured
+ * address order in datCalc.c. Packed banks expose both byte and word readers;
+ * roles marked [inferred] are not yet pinned. */
 typedef struct DatSkillEntry
 {
     u8 flags00;         // 0x00. Bit 0x2 (skill is used), bit 0x40 (not applied to a target).
     u8 flags01;         // 0x01. Bit 0x2.
     u8 damageClass;     // 0x02. 1 physical, 2 magic; selects the datScriptRunCalc formula (datCalcSkillAmount, datCalcHitResult).
     u8 kind03;          // 0x03. Switch selector for the skill effect kind.
-    u8 unknown04[0x0A]; // 0x04..0x0D
+    union {
+        u8 unknown04[0x0A]; /* Packed cost/target bytes, also queried by the command and UI code. */
+        struct {
+            u16 costPercent; // 0x04. Percentage or direct cost, selected by flags00 bit 0x10.
+            u16 costFlat;    // 0x06. Added after the percentage or direct cost term.
+            u8 targetClass;  // 0x08. Classification returned by btlSkillClassifyTargets.
+            u8 targetSides;  // 0x09. Relative allied/opposing/auxiliary side bits.
+            u8 targetFilter; // 0x0A. Self, exclusion, death and status filters.
+            u8 pad0B;
+            u16 excludedStatus; // 0x0C. Passed to the target collector.
+        };
+    };
     u8 accuracy;        // 0x0E. Tested against 0 and 100 [inferred].
     u8 unknown0F[2];    // 0x0F..0x10
     u8 effectKind;      // 0x11. HP effect kind (datCalcSkillAmount). Tested against 0x10 and 8 [inferred].
@@ -21,9 +32,21 @@ typedef struct DatSkillEntry
     u8 spEffectKind;    // 0x14. SP effect kind (datCalcSkillAmount).
     u8 unknown15;       // 0x15
     s16 spPower;        // 0x16. SP power (datCalcSkillAmount).
-    u8 mode18;          // 0x18. Mode tested against 1, 2 and 3 [inferred].
-    u8 field19;         // 0x19. Compared with 100 (0x64) [inferred].
-    u8 unknown1A[0x0A]; // 0x1A..0x23
+    union {
+        struct {
+            u8 mode18;          // 0x18. Mode tested against 1, 2 and 3 [inferred].
+            u8 field19;         // 0x19. Compared with 100 (0x64) [inferred].
+            u8 unknown1A[0x0A]; // 0x1A..0x23. Packed status payload.
+        };
+        struct {
+            u8 pad18[4];
+            u32 statusMask;     // 0x1C. Low 24 bits select candidate statuses.
+            union {
+                u8 unknown20[4]; // 0x20..0x23
+                u32 buffMask;    // 0x20. btlEffectSelectTargetByStatus queries datCalcHasBuffMask.
+            };
+        };
+    };
     u8 kind24;          // 0x24. Switch selector and compared with 3, 6, 0xD, 0xE.
     u8 critRate;        // 0x25. 0 means never critical, 0x64 means always; datCalcHitResult rolls against it.
     u8 field26;         // 0x26

@@ -88,7 +88,9 @@ typedef struct {
     u8 alpha;
     u8 unknown6F[4];
     u8 flag73;
-    u8 unknown74[0x11];
+    u8 unknown74;
+    FclDrawColor colorStart;          /* 0x75: starting color copied by selection */
+    u8 unknown79[0xC];
     FclDrawColor color;
 } FclCombineRowSprite;
 

@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -62,19 +63,13 @@ typedef struct EncWeightedTable {
     EncWeightedEntry entries[2][30];
 } EncWeightedTable;
 
-/* measured: the operands must travel through this helper's parameters to get
-   retail's offset-first `addu $v0,$v0,$a0`; a base local or an m2c chain+base
-   callsite spelling is canonicalized back to base-first. Expanded at the use so
-   nothing stays live across the guard calls. */
-static inline u32 encSlot(u32 offset, u32 base)
-{
-    return offset + base;
-}
+/* measured: the retained byteAddressAdd calls keep retail's offset-first
+ * addu operands; the other eight former helper calls use plain sums. */
 
 /* This "load-sinking + addu-flip floor" needed BOTH levers at once, which is why
    the four spellings listed before (plain expr, base local, m2c chain+base,
    fully split statements) all stalled at nd 8: `#pragma opt_propagation off`
-   brings the single-use gp base load ahead of the index chain, and the `encSlot`
+   brings the single-use gp base load ahead of the index chain, and `byteAddressAdd`
    helper holds the offset-first addu. Either alone leaves the other wrong.
    The same pair matches the identically shaped FUN_00161B10 below. */
 /* Return encounter-entry flags only when the field and room belong to a supported encounter band. */
@@ -88,7 +83,7 @@ s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
     result = 0;
     if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         base = iGpffffb41c;
-        result = ((EncEntry *)encSlot((entryIndex & 0xFFFF) * 10, (u32)base))->rate2;
+        result = ((EncEntry *)((u32)byteAddressAdd((entryIndex & 0xFFFF) * 10, (u8 *)((u32)base))))->rate2;
     }
     return result;
 }
@@ -106,7 +101,7 @@ s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
     result = 0;
     if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         base = iGpffffb41c;
-        result = ((EncEntry *)encSlot((entryIndex & 0xFFFF) * 10, (u32)base))->rate4;
+        result = ((EncEntry *)((u32)byteAddressAdd((entryIndex & 0xFFFF) * 10, (u8 *)((u32)base))))->rate4;
     }
     return result;
 }
@@ -127,7 +122,7 @@ s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         base = iGpffffb41c;
         idx = entryIndex & 0xFFFF;
-        result = ((EncEntry *)encSlot(idx * 10, (u32)base))->rate3;
+        result = ((EncEntry *)((u32)byteAddressAdd(idx * 10, (u8 *)((u32)base))))->rate3;
         v = FldStepBandValue(idx) & 0xFF;
         if (v < 0xFF) {
             result = v;
@@ -172,8 +167,7 @@ s32 Encount_IsEncounterActive(s16 id) {
 }
 /* measured: closes the hoisting scope after Encount_IsEncounterActive. */
 #pragma opt_loop_invariants off
-/* measured: typing the remaining normal-rate array reads loses MATCH; retain the byte-address form while the
- * weighted entries and category fields stay typed. */
+/* Typed table aliases retain the two normal-rate load address orders under b210. */
 // FUN_00161630
 /* Choose a category, then draw an encounter from its weighted entries.
  * The three categories occupy entries [0,20), [20,25), and [25,30).
@@ -204,6 +198,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     u8 *tables;
     u8 *table;
     u8 *entries;
+    EncWeightedTable *weighted;
 
     selected = 0xFFFF;
     multiplier = 1.0f;
@@ -222,15 +217,16 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         multiplier = 0.0f;
     }
     tableOffset = tableId * 0xF8;
-    total = *(u8 *)(iGpffffb418 + tableOffset + alternate);
+    weighted = (EncWeightedTable *)(iGpffffb418 + tableOffset);
+    total = weighted->normalRates[alternate];
     if (datGetFlag(0x1410) == 0) {
         s32 available = (s32)(u16)level;
         if (available > 0) {
             total += (s32)multiplier *
-                ((EncWeightedTable *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418))))->specialRates[0];
+                ((EncWeightedTable *)((u8 *)((alternate) + (((tableOffset) + ((u32)iGpffffb418))))))->specialRates[0];
         }
         if (available >= 2) {
-            total += ((EncWeightedTable *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418))))->rareRates[0];
+            total += ((EncWeightedTable *)((u8 *)((alternate) + (((tableOffset) + ((u32)iGpffffb418))))))->rareRates[0];
         }
     }
     if (total == 0) {
@@ -239,13 +235,14 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     draw = (s32)(RpRandom() % (u32)total);
     tables = iGpffffb418;
     table = tables + tableOffset;
-    normalRate = *(u8 *)(table + alternate);
+    weighted = (EncWeightedTable *)table;
+    normalRate = weighted->normalRates[alternate];
     if (draw < normalRate) {
         kind = 1;
         first = 0;
         last = 20;
     } else if (draw < normalRate + (s32)multiplier *
-        ((EncWeightedTable *)((u8 *)encSlot(alternate, encSlot((u32)tableId * 0xF8, (u32)tables))))->specialRates[0]) {
+        ((EncWeightedTable *)((u8 *)((alternate) + (((u32)byteAddressAdd((u32)tableId * 0xF8, (u8 *)((u32)tables)))))))->specialRates[0]) {
         kind = 2;
         first = 20;
         last = 25;
@@ -275,8 +272,8 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         s32 offset = first * 4;
         cumulative += ((EncWeightedTable *)(entries + offset))->entries[0][0].weight;
         if (draw < cumulative) {
-            selected = ((EncWeightedTable *)((u8 *)encSlot(offset,
-                encSlot(alternateOffset, encSlot(tableOffset, (u32)tables)))))->entries[0][0].id;
+            selected = ((EncWeightedTable *)((u8 *)((offset) + (((alternateOffset) + (((tableOffset) + ((u32)tables)))))
+)))->entries[0][0].id;
             break;
         }
     }

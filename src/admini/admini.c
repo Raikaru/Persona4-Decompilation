@@ -6,6 +6,7 @@ extern char D_00711708[];
 
 
 
+/* HDD file-device exit-test callback: print " HDD EOF \n" and always return zero. */
 // FUN_00456690
 s32 adminiSeqExitTest(void)
 {

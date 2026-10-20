@@ -13,7 +13,8 @@ typedef struct BtlActionParameters
     u16 resolvedSkill;
     u16 persona;                 /* action +0x74 */
     u16 summonIds[3];            /* action +0x76 */
-    u8 pad0C[4];
+    u16 commandKind;             /* action +0x7C: command kinds 1/2 use skill */
+    u16 skill;                   /* action +0x7E */
     u16 drop;
     u8 dropChance;
     u8 pad13[5];
@@ -42,10 +43,15 @@ typedef struct BtlActionResolutionMessage
  * capacity is 25 (0xF0 + 25*0x20 = 0x410, inside the 0x41C end). */
 typedef struct BtlActionTargetBlock
 {
-    u8 unk_d8;
-    u8 hitRowCount;               /* 0xD9 */
-    u8 hitRepeatCount;           /* 0xDA. Secondary repetition count from skill resolution */
-    u8 resultFlags;              /* 0xDB. Bit 0 critical, bit 1 other outcomes */
+    union {
+        struct {
+            u8 unk_d8;
+            u8 hitRowCount;      /* 0xD9 */
+            u8 hitRepeatCount;   /* 0xDA. Secondary repetition count from skill resolution */
+            u8 resultFlags;     /* 0xDB. Bit 0 critical, bit 1 other outcomes */
+        };
+        s32 packedHitHeader;    /* 0xD8. Word interpretation used by the strided status scan. */
+    };
     u16 hitOutcome;              /* 0xDC. datCalcResolveSkillHit result */
     u16 targetFlags;              /* 0xDE. Tested with mask 6 */
     s32 reactionFlag;             /* 0xE0. Nonzero marks a reacting target */
@@ -61,7 +67,8 @@ typedef struct BtlActionTargetBlock
             u8 padF0[0x300];
             s16 (*savedCursors)[2];     /* 0x3F0: four {first, selected} pairs */
             u16 enduranceSkill;         /* 0x3F4 */
-            u8 pad3F6[0x1A];
+            u8 statusTurns[24];        /* 0x3F6: elapsed turns for each status bit */
+            u8 pad40E[2];
         } recovery;
     };
     u8 unk_410[0x41C - 0x410];
@@ -116,12 +123,21 @@ struct BtlAction
         u16 pursuitDelay;
     };
     s32 unk_428;             /* 0x428 */
-    s32 unk_42c;             /* 0x42C */
-    s16 unk_430;             /* 0x430 */
+    union {
+        s32 unk_42c;         /* 0x42C */
+        u16 roundupTimers[2]; /* Prompt delay and post-choice cooldown. */
+    };
+    union {
+        s16 unk_430;         /* 0x430 */
+        u16 endureResumeState; /* EndureUpdate resumes this state after its packet chain. */
+    };
     u8 unk_432[0x02];        /* 0x432 */
     s32 unk_434;             /* 0x434 */
     u8 unk_438[0x04];        /* 0x438 */
-    s16 unk_43c;             /* 0x43C */
+    union {
+        s16 unk_43c;         /* 0x43C */
+        u16 eventResumeState; /* EventUpdate resumes this state after its callback completes. */
+    };
     u8 unk_43e[0x02];        /* 0x43E */
     void *unk_440;           /* 0x440. Callback slot set beside state changes */
     union {

@@ -8,9 +8,9 @@
 extern u32 kwlnTaskGetWork(void *task);
 #pragma push
 #pragma opt_propagation on
-// Left func_: returns word 0 of a task work area. Blur-filter tasks store their mode there, but cmmRankUp and cmmScript call it on other task types, so no single name fits.
+/* Return the first work word shared by script, rank-up and filter task protocols. */
 // FUN_0025FF60
-s32 func_0025ff60(s32 task)
+s32 cmmScriptTaskGetWorkValue(s32 task)
 {
     s32 *p;
     p = (s32 *)kwlnTaskGetWork((void *)(u32)task);

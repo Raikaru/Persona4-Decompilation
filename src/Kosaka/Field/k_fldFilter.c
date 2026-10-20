@@ -14,7 +14,7 @@ extern f32 D_007643B4;
 
 /* Select a filter entry and render type; zero duration completes the crossfade immediately. */
 // FUN_00161460
-void FUN_00161460(s32 index, u32 type, s32 duration)
+void fldFilterBeginTransition(s32 index, u32 type, s32 duration)
 {
     if (duration == 0)
     {

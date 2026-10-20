@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "mdl_effect_dispatch_internal.h"
 #include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -102,11 +104,11 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
     extern u8 *EffBattleAllocWork();
 
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    id = *(s32 *)(instance + 0x2C);
+    id = MEMBER(s32, instance, MdlEffectBattleInstance, kind);
     base = (s32)iGpffffbba0;
     off = (base, id * 0x1C);
     /* The handler entry is byte-indexed by the selected runtime table; its record-specific callback type is not uniform. */
-    if (*(s32 *)(off + base + 0xC) == 0) {
+    if (((MdlEffectKindHandlers *)(off + base))->fromRecord.value == 0) {
         tex = ((MdlEffectBattleInstance *)instance)->resource;
         off = id & 0xFFFF;
         work = EffBattleAllocWork(off, tex);
@@ -133,7 +135,7 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
         {
             s32 idx2;
             /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            idx2 = *(s32 *)(instance + 0x2C) * 0x1C;
+            idx2 = MEMBER(s32, instance, MdlEffectBattleInstance, kind) * 0x1C;
             ((MdlEffectBattleInstance *)work)->work =
                 (*(s32 (**)(u8 *))((u8 *)(idx2 + (s32)iGpffffbba0 + 0xC)))(instance);
         }

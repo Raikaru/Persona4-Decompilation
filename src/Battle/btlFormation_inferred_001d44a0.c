@@ -1,3 +1,4 @@
+#include "model_battle_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
@@ -8,10 +9,6 @@
 #include "btl_formation_attach_internal.h"
 #include "btl_unit_internal.h"
 typedef struct BtlPacket BtlPacket;
-static inline s32 p4_001d7f10_add(s32 left, s32 right)
-{
-    return left + right;
-}
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -74,7 +71,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 /* Resolve a world-space attachment point, including camera-relative VU0 normalization.
- * The final raw word store clears the output vector padding lane. */
+ * The final word store clears the output vector padding lane. */
 // FUN_001D44A0
 void btlFormationVuTransform(f32 distance, f32 height, f32 *center, s32 *rotation, u8 *mode, u8 *position)
 {
@@ -194,12 +191,12 @@ void btlFormationVuTransform(f32 distance, f32 height, f32 *center, s32 *rotatio
         ((BtlAttachV4 *)position)->z = center[2] + offset[2];
         break;
     }
-    *(s32 *)((u8 *)position + 0xC) = 0;
+    *(s32 *)&((BtlAttachV4 *)position)->w = 0;
 }
 
+/* Scale and rotate the saved offset, then resolve the entry mode relative to the unit; matrixIndex
+ * doubles as a distance override for this callback. */
 // FUN_001D4780
-/* Scale and rotate the work offset, then apply the entry position mode relative to the unit. The raw
- * entry halfword retains the mode-specific distance interpretation. */
 void btlFormationTransformOffset(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value50;
@@ -220,7 +217,7 @@ void btlFormationTransformOffset(u8 *work, u8 *unit, u8 *attachment, f32 *positi
     u8 *attachmentMode;
 
     attachmentMode = attachment + 8;
-    matrixIndex = *(u16 *)(attachment + 0xC);
+    matrixIndex = ((BtlAttachEntry *)attachment)->mode.matrixIndex;
     if (matrixIndex == 0) {
         distance = ((BtlAttachWork *)work)->height * ((BtlUnit *)unit)->scale;
     } else {
@@ -237,8 +234,8 @@ void btlFormationTransformOffset(u8 *work, u8 *unit, u8 *attachment, f32 *positi
     btlFormationVuTransform(distance, halfRadius, &frame.value70, (s32 *)(work + 0x40), attachmentMode, (u8 *)position);
 }
 
-// FUN_001D48B0
 /* Use the indexed model attachment position when available, otherwise transform the saved unit offset. */
+// FUN_001D48B0
 void btlFormationOrientToUnit(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value30;
@@ -276,9 +273,9 @@ void btlFormationOrientToUnit(u8 *work, u8 *unit, u8 *attachment, f32 *position)
     position[2] = frame.value58;
 }
 
-// FUN_001D49C0
 /* Resolve a position on the alternate attached model, falling back to the unit model and saved offset.
- * The raw child-model slot is an opaque model-handle field. */
+ * The child model comes from the second weapon attachment slot. */
+// FUN_001D49C0
 void btlFormationApplyModelMatrix(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value50;
@@ -302,7 +299,7 @@ void btlFormationApplyModelMatrix(u8 *work, u8 *unit, u8 *attachment, f32 *posit
         btlUnitGetSphereWorldCenter(unit, &frame.value70);
     } else {
         model = ((BtlUnit *)unit)->layerHandle;
-        attachedModel = *(u8 **)(model + 0x29C);
+        attachedModel = ((Model *)model)->attachedWpns[1].wpnMdl;
         if (attachedModel == NULL) {
             attachedModel = model;
         }
@@ -323,9 +320,8 @@ void btlFormationApplyModelMatrix(u8 *work, u8 *unit, u8 *attachment, f32 *posit
     position[2] = frame.value78;
 }
 
+/* Resolve a position on the first weapon attachment, falling back to the unit model and saved offset. */
 // FUN_001D4B00
-/* Resolve a position on the other attached model, falling back to the unit model and saved offset. The
- * raw child-model slot is an opaque model-handle field. */
 void btlFormationApplyModelMatrixAlt(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         f32 value50;
@@ -349,7 +345,7 @@ void btlFormationApplyModelMatrixAlt(u8 *work, u8 *unit, u8 *attachment, f32 *po
         btlUnitGetSphereWorldCenter(unit, &frame.value70);
     } else {
         model = ((BtlUnit *)unit)->layerHandle;
-        attachedModel = *(u8 **)(model + 0x290);
+        attachedModel = ((Model *)model)->attachedWpns[0].wpnMdl;
         if (attachedModel == NULL) {
             attachedModel = model;
         }
@@ -370,9 +366,9 @@ void btlFormationApplyModelMatrixAlt(u8 *work, u8 *unit, u8 *attachment, f32 *po
     position[2] = frame.value78;
 }
 
-// FUN_001D4C40
 /* Build an attachment point around bounds of both battle sides; a nonzero entry distance overrides the
  * group radius. */
+// FUN_001D4C40
 void btlFormationOffsetTransformA(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         s32 zero0;
@@ -402,9 +398,9 @@ void btlFormationOffsetTransformA(u8 *work, u8 *unit, u8 *attachment, f32 *posit
     btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, attachmentMode, (u8 *)position);
 }
 
-// FUN_001D4CF0
 /* Build an attachment point around the unit side bounds, using the entry distance override when
  * present. */
+// FUN_001D4CF0
 void btlFormationOffsetTransformB(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         s32 zero0;
@@ -440,9 +436,9 @@ void btlFormationOffsetTransformB(u8 *work, u8 *unit, u8 *attachment, f32 *posit
     btlFormationVuTransform(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, attachmentMode, (u8 *)position);
 }
 
-// FUN_001D4DC0
 /* Build an attachment point around the opposing side bounds, using the entry distance override when
  * present. */
+// FUN_001D4DC0
 void btlFormationOffsetTransformC(u8 *work, u8 *unit, u8 *attachment, f32 *position) {
     struct Frame {
         s32 zero0;

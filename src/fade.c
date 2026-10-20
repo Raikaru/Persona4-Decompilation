@@ -27,6 +27,7 @@ extern char D_005E50B0[];
 
 
 
+/* Allocate the fade controller; return its parented update task, or zero on allocation failure. */
 // FUN_00122430
 /* Allocate the fade controller and attach its update and draw tasks to parentTask. */
 s32 fadeCreateController(s32 parentTask)
@@ -48,6 +49,7 @@ s32 fadeCreateController(s32 parentTask)
 
 
 
+/* Request an idle fade with a default thirty-frame duration; mode four also accepts state three. */
 // FUN_00122520
 /* Begin an idle fade; mode 4 can also request its special child while state 3 is active. */
 s32 fadeBeginTransition(s32 mode, s32 duration)
@@ -94,6 +96,7 @@ done:
 }
 
 
+/* Return from held fade state three, preserving the current mode when zero is supplied. */
 // FUN_00122640
 /* Start the return transition from state 3, defaulting nonpositive durations to 30 frames. */
 s32 fadeBeginReturnTransition(s32 mode, s32 duration)

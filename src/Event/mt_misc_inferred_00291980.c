@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -25,9 +26,7 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32, s32, s32,
@@ -68,9 +67,9 @@ s32 mtMiscReadSlotValues(u8 *eventWork, s32 slotIndex, s32 *outFlags, s32 *outRe
     if (slotIndex >= 5 || slotIndex < 0) {
         return 0;
     }
-    slot = code29AddOff(slotIndex * 4, eventWork);
+    slot = byteAddressAdd(slotIndex * 4, eventWork);
     *outFlags = ((EvtTypeTwoRecords *)(slot + 0x640))->values[0];
-    *outResourceId = (u16)((EvtTypeTwoRecords *)(code29AddOff(slotIndex * 2, eventWork) + 0x640))->ids[0];
+    *outResourceId = (u16)((EvtTypeTwoRecords *)(byteAddressAdd(slotIndex * 2, eventWork) + 0x640))->ids[0];
     return ((EvtTypeTwoRecords *)(slot + 0x640))->data[0];
 }
 

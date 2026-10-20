@@ -14,9 +14,14 @@ typedef struct FclObject {
     u8 unk06[0x2];
     f32 anchorValue;
     u8 pad0C[0x10];
-    FclVec2 targetPosition;      /* +0x1C: slide destination */
-    FclVec2 positionEnd;        /* +0x24: panel tween endpoint */
-    FclVec2 anchorPosition;
+    union {
+        struct {
+            FclVec2 targetPosition; /* +0x1C: slide destination */
+            FclVec2 positionEnd;    /* +0x24: panel tween endpoint */
+            FclVec2 anchorPosition;
+        };
+        FclVec2 positionKeys[3];    /* start, endpoint and current position */
+    };
     s16 positionFrames;
     s16 positionDuration;
     s16 positionDelay;
@@ -25,25 +30,55 @@ typedef struct FclObject {
     u8 unk3C[0x20];
     u8 pad5C[2];
     s16 alphaDuration;
-    u8 targetAlpha;
-    u8 pad61;
-    u8 alpha;
-    u8 unk63[0x16];
-    FclDrawColor color;
+    union {
+        struct {
+            u8 targetAlpha;
+            u8 pad61;
+            u8 alpha;
+        };
+        u8 alphaKeys[3];
+    };
+    u8 unk63[4];
+    s8 unk67; /* reset with the anchor alpha state */
+    u8 pad68[9];
+    union {
+        struct {
+            u8 pad71[8];
+            FclDrawColor color;
+        };
+        FclDrawColor colorKeys[3];
+    };
     u8 unk7D[0x8];
     s8 colorLoop;
     u8 pad86[2];
     s16 revealDuration;
     u8 pad8A[2];
-    f32 targetScale;
-    u8 pad90[4];
-    f32 scaleX;
-    u8 unk98[0x8];
-    f32 scale;
-    u8 padA4[0x18];
-    f32 targetTween;
-    f32 startTween;
-    f32 tweenValue;
+    union {
+        struct {
+            f32 targetScale;
+            u8 pad90[4];
+            f32 scaleX;
+        };
+        f32 scaleXKeys[3];
+    };
+    union {
+        struct {
+            u8 unk98[0x8];
+            f32 scale;
+        };
+        f32 scaleYKeys[3];
+    };
+    u8 padA4[3];
+    s8 unkA7; /* reset with the anchor scale state */
+    u8 padA8[0x14];
+    union {
+        struct {
+            f32 targetTween;
+            f32 startTween;
+            f32 tweenValue;
+        };
+        f32 tweenKeys[3];
+    };
     s16 tweenDuration;
     u8 padCA[5];
     u8 tweenLoop;

@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_ui_task_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
@@ -116,8 +117,8 @@ s32 btlPacketSetHpRatio(u8 **work)
 
     unit = *work;
     hp = (f32)(u32)datCalcGetHp((s32)((BtlUnit *)unit)->datUnit);
-    /* measured: typing both datUnit loads changes register allocation and loses MATCH. */
-    maximumHp = (f32)(u32)datCalcMaxHp(*(s32 *)(unit + 0xA64));
+    /* measured: access-site, typed-local and array datUnit loads produce 228 rather than 224 bytes. */
+    maximumHp = (f32)(u32)datCalcMaxHp(MEMBER(s32, unit, BtlUnit, datUnit));
     ((BtlUnit *)unit)->hpRatio = hp / maximumHp;
     ((BtlUnit *)unit)->hpGauge.bits = (s32)0xBF800000;
     ((BtlUnit *)unit)->hpGaugeMarker = -1;

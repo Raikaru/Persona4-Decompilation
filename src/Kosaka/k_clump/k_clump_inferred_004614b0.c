@@ -225,6 +225,7 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
+/* Enable depth testing and writing, then install the native movie sky alpha/test state. */
 // FUN_004614B0
 void movieNativeSkyStateEnter(void) {
     WindowRenderStateSet *tbl = (WindowRenderStateSet *)(u32)D_00887300;

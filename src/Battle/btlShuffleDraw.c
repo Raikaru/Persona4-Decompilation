@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 /* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
@@ -9,6 +10,7 @@
 #include "btl_shuffle_motion_internal.h"
 #include "sdktask.h"
 #include "rw_texture_internal.h"
+#include "rw_camera_internal.h"
 extern s32 btlShuffleDrawFlagA(u8 *task);
 extern void datTextSlotRelease();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -128,7 +130,7 @@ extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, s32 endFrame, f32 curve
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 day);
 extern char iGpffffa9d0;
-extern s32 iGpffffa9c8;
+extern u8 *iGpffffa9c8[2];
 extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void func_00440b68();
 extern void btlShuffleCalcRotateVector(u8 *state, f32 frameOffset, u8 *output);
@@ -320,8 +322,8 @@ void btlShuffleDrawLoadSprites(u8 *context) {
 
     directoryIndex = !(calGetDayWindowFlags((s16)datGetDateIndex()) & 1);
     func_00440b68(&iGpffffa9d0, D_0064EA20, 0xB5);
-    /* Keep the scalar GP declaration and its adjacent day-window slot as separate relocation-based storage. */
-    archive = (s32)(H_Cdvd_AcquireDirectory(*(u8 **)((u8 *)&iGpffffa9c8 + directoryIndex * 4), 1));
+    /* The two day-window directory pointers share the original GP-relative table base. */
+    archive = (s32)(H_Cdvd_AcquireDirectory(iGpffffa9c8[directoryIndex], 1));
     ((BtlShuffleContext *)context)->archive = archive;
     if (archive == 0) {
         kAssertFail(D_0064EA20, 0xB6);
@@ -691,7 +693,7 @@ void btlShuffleDrawCards(u8 *context) {
     texture = btlShuffleDrawFlagD(card);
     m = func_003e0f80();
     /* RwCamera frame link stays an EE address word at the existing matrix-helper ABI boundary. */
-    camera = *(s32 *)((u8 *)kwlnGetCamera() + 4);
+    camera = (s32)((RwCamera *)(u8 *)kwlnGetCamera())->object.object.parent;
     inv = 2.0f / (rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z +
                   rotation.w * rotation.w);
     t2 = rotation.x * inv;
@@ -1636,7 +1638,7 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
                 f32 offsetY;
                 u8 alpha;
                 /* Only the frame link is consumed; keep SDK camera storage opaque here. */
-                func_003e9700(*(struct RwFrame **)((u8 *)kwlnGetCamera() + 4));
+                func_003e9700((struct RwFrame *)((RwCamera *)(u8 *)kwlnGetCamera())->object.object.parent);
                 front_s4 = first;
                 back_s4 = second;
                 alpha = (u8)opacity;
@@ -1705,10 +1707,7 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
  * The four 64-byte sky2 vertices retain the PS2 screen/color/reciprocal-Z layout.
  * measured b210 -O2: 1236/1248 bytes, complete resolved retail instructions.
  * See docs/probe_archive/Shuffle_00377930_recovery.md. */
-static inline u8 *shuffleVertexSource377930(s32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 // FUN_00377930
 void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 *position, u8 *color, s32 restoreAlpha)
 {
@@ -1737,14 +1736,14 @@ void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 
 
     datw = D_008872F8_abs[0];
     /* The SDK camera remains opaque here; 0x80 is its verified near-plane scalar. */
-    scale = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+    scale = 1.0f / ((RwCamera *)(u8 *)kwlnGetCamera())->nearPlane;
     if (position != 0) {
         positionCopy = *(BtlShuffleVec3 *)position;
     } else {
-        chain = shuffleVertexSource377930(cardIndex * 0xE8, context);
+        chain = byteAddressAdd(cardIndex * 0xE8, (u8 *)(context));
         positionCopy = ((ShuffleContext *)chain)->records[0].motion.wander.output;
     }
-    chain = shuffleVertexSource377930(cardIndex * 0xE8, context);
+    chain = byteAddressAdd(cardIndex * 0xE8, (u8 *)(context));
     rotation = *(ShuffleVec4 *)&((ShuffleContext *)chain)->records[0].rotation.quaternion.output;
     card = context + cardIndex * 0xFB0;
     halfW = btlShuffleCardWidth(card) / 2.0f;

@@ -14,21 +14,9 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 #include "datPersona_internal.h"
-/* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
+#include "model_battle_internal.h"
+#include "btl_voice_internal.h"
 
-/* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -143,66 +131,66 @@ extern void btlSoundAdvanceSlotQueue(void);
 /* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
 /* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
 /* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
-// FUN_001F8380
 /* Set model flag 0x40 only for a unit with an active model. */
+// FUN_001F8380
 s32 btlSoundMarkSlotReady(u8 **work)
 {
-    /* Raw access: Only the model flag halfword at +0x2E0 is established here; the owning model layout is opaque. */
+    /* Ready state shares the model motion flags halfword. */
     u8 *unit;
     u8 *model;
 
     unit = *work;
     if ((s32)(((BtlUnit *)unit)->flags2) & 2) {
         model = ((BtlUnit *)unit)->layerHandle;
-        *(u16 *)(model + 0x2E0) |= 0x40;
+        ((Model *)model)->motion.flags |= 0x40;
     }
     return 1;
 }
 
-// FUN_001F83B0
 /* Create packet 0x90B to set the active model ready bit on its unit. */
+// FUN_001F83B0
 u8 *btlSoundCreateMarkReadyPacket(u32 value)
 {
-    /* Raw access: The allocator exposes void workData; this packet owns one scalar u32, not an offset-based object. */
+    /* The packet payload holds one scalar unit address. */
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x90B, 0x4);
     ((BtlPacket *)packet)->updateFunc = (void *)btlSoundMarkSlotReady;
-    *(u32 *)((BtlPacket *)packet)->workData = value;
+    *((u32 *)((BtlPacket *)packet)->workData) = value;
     return packet;
 }
 
-// FUN_001F8400
 /* Clear model flag 0x40 only for a unit with an active model. */
+// FUN_001F8400
 s32 btlSoundClearSlotReady(u8 **work)
 {
-    /* Raw access: Only the model flag halfword at +0x2E0 is established here; the owning model layout is opaque. */
+    /* Ready state shares the model motion flags halfword. */
     u8 *unit;
     u8 *model;
 
     unit = *work;
     if ((s32)(((BtlUnit *)unit)->flags2) & 2) {
         model = ((BtlUnit *)unit)->layerHandle;
-        *(u16 *)(model + 0x2E0) &= 0xFFBF;
+        ((Model *)model)->motion.flags &= 0xFFBF;
     }
     return 1;
 }
 
-// FUN_001F8430
 /* Create packet 0x90C to clear the active model ready bit on its unit. */
+// FUN_001F8430
 u8 *btlSoundCreateClearReadyPacket(u32 value)
 {
-    /* Raw access: The allocator exposes void workData; this packet owns one scalar u32, not an offset-based object. */
+    /* The packet payload holds one scalar unit address. */
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x90C, 0x4);
     ((BtlPacket *)packet)->updateFunc = (void *)btlSoundClearSlotReady;
-    *(u32 *)((BtlPacket *)packet)->workData = value;
+    *((u32 *)((BtlPacket *)packet)->workData) = value;
     return packet;
 }
 
-// FUN_001F8480
 /* Allocate and stream-load banks three through five, retrying requests that return state four. */
+// FUN_001F8480
 void btlSoundLoadBanks(void)
 {
     void **allocator;
@@ -264,14 +252,14 @@ loop_11_test:
     iGpffffb464 = 1;
 }
 
-// FUN_001F8690
 /* Play the narrowed voice index on bank/channel three using the stored sound selector. */
+// FUN_001F8690
 void btlSoundPlayIndexed(s32 voiceIndex) {
-    /* Raw access: The unclassified battle +0xB30 sound selector has no established owning playback subobject. */
+    /* The voice playback state supplies the indexed-source bank. */
     s32 value;
     u16 index;
 
-    value = *(u16 *)(iGpffffb3ac + 0xB30);
+    value = ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->bank;
     index = (u16)voiceIndex;
     sdkSndStartIndexedSource(value, 3, index);
 }
@@ -281,12 +269,12 @@ void btlSoundStopBank3(void) {
     sdkSndFadeOutChannelFrames(3, 0, 8);
 }
 
-// FUN_001F8700
 /* Resolve a persona voice variant; missing child units and enemy units have no voice. */
+// FUN_001F8700
 s32 btlSoundGetPersonaVoiceIndex(u8 *action, s32 voiceIndex)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 personaId;
     u8 *unit;
 
@@ -313,7 +301,7 @@ s32 btlSoundGetPersonaVoiceIndex(u8 *action, s32 voiceIndex)
     case 0xC8:
     case 0xCA:
     case 0xCC:
-        return (s32)D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x22;
+        return (s32)D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x22;
     case 0xC1:
     case 0xC3:
     case 0xC5:
@@ -321,18 +309,18 @@ s32 btlSoundGetPersonaVoiceIndex(u8 *action, s32 voiceIndex)
     case 0xC9:
     case 0xCB:
     case 0xCD:
-        return (s32)D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x23;
+        return (s32)D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x23;
     default:
         return -1;
     }
 }
 
-// FUN_001F8810
 /* Resolve a party slot voice only for a living, status-eligible non-selected actor. */
+// FUN_001F8810
 s32 btlSoundGetSlotVoiceIndex(u8 *action, s32 slot)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     u8 *unit;
 
     unit = (u8 *)(((BtlAction *)action)->unit);
@@ -352,20 +340,20 @@ s32 btlSoundGetSlotVoiceIndex(u8 *action, s32 slot)
     {
         return -1;
     }
-    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x1001D7) != 0)
+    if (datCalcChkBadStatus(*(s32 *)&((BtlUnit *)(u8 *)(actionState->unit))->datUnit, 0x1001D7) != 0)
     {
         return -1;
     }
-    return (s32)D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] +
+    return (s32)D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] +
            (s32)D_00624FD8[slot];
 }
 
-// FUN_001F8920
 /* Choose a random action voice from the unit-specific range, or return -1 when unavailable. */
+// FUN_001F8920
 s32 btlSoundPickActionVoice(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     extern s32 btlEncounterIsBoss(void);
     s32 voiceBase;
     s32 voice;
@@ -385,7 +373,7 @@ s32 btlSoundPickActionVoice(u8 *action)
     if (btlEncounterIsBoss() == 0) {
         return -1;
     }
-    unitId = *(u16 *)(*(u8 **)(action + 0x30) + 0xA4);
+    unitId = ((BtlUnit *)(u8 *)(actionState->unit))->charId;
     switch (unitId) {
     case 0x100:
         return datCalcRandomBelow(3) + 0x417;
@@ -422,8 +410,8 @@ s32 btlSoundPickActionVoice(u8 *action)
     }
 }
 
-// FUN_001F8B00
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F8B00
 s32 btlSoundPickIdleVoice(u8 *action)
 {
     s32 value;
@@ -440,8 +428,8 @@ s32 btlSoundPickIdleVoice(u8 *action)
     return value + datCalcRandomBelow(5);
 }
 
-// FUN_001F8B90
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F8B90
 s32 btlSoundPickHurtVoice(u8 *action)
 {
     s32 value;
@@ -458,8 +446,8 @@ s32 btlSoundPickHurtVoice(u8 *action)
     return value + datCalcRandomBelow(3);
 }
 
-// FUN_001F8C20
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
+// FUN_001F8C20
 s32 btlSoundPickDamageVoice(u8 *action, s32 variant)
 {
     s32 value;
@@ -480,8 +468,8 @@ s32 btlSoundPickDamageVoice(u8 *action, s32 variant)
     return value + datCalcRandomBelow(3);
 }
 
-// FUN_001F8CE0
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F8CE0
 s32 btlSoundPickDownVoice(u8 *action)
 {
     s32 value;
@@ -498,8 +486,8 @@ s32 btlSoundPickDownVoice(u8 *action)
     return value + datCalcRandomBelow(3);
 }
 
-// FUN_001F8D70
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
+// FUN_001F8D70
 s32 btlSoundPickCommandVoice(u8 *action, s32 variant)
 {
     s32 value;
@@ -519,8 +507,8 @@ s32 btlSoundPickCommandVoice(u8 *action, s32 variant)
     return value + datCalcRandomBelow(3);
 }
 
-// FUN_001F8E10
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F8E10
 s32 btlSoundPickStartVoice(u8 *action)
 {
     s32 value;
@@ -540,8 +528,8 @@ s32 btlSoundPickStartVoice(u8 *action)
 /* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
 /* measured: btlSoundPickPartnerCallVoice MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-// FUN_001F8EA0
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
+// FUN_001F8EA0
 s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant)
 {
     s32 five;
@@ -574,8 +562,8 @@ done:
 
 /* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
 /* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
-// FUN_001F8F40
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
+// FUN_001F8F40
 s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant)
 {
     s32 five;
@@ -607,8 +595,8 @@ s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant)
 
 /* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
 /* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
-// FUN_001F8FE0
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
+// FUN_001F8FE0
 s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant)
 {
     s32 five;
@@ -639,8 +627,8 @@ s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant)
 }
 
 /* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
-// FUN_001F9080
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F9080
 s32 btlSoundPickGuardVoice(u8 *action) {
     u8 *p;
 
@@ -655,12 +643,13 @@ s32 btlSoundPickGuardVoice(u8 *action) {
 }
 
 /* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
-// FUN_001F90E0
 /* Choose a living eligible party partner while channel three is idle, then select its voice variant. */
+// FUN_001F90E0
 s32 btlSoundPickRandomPartnerVoice(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlUnit *unitState;
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 voiceBase;
     s32 count;
     u8 *candidate;
@@ -685,10 +674,11 @@ s32 btlSoundPickRandomPartnerVoice(u8 *action)
     candidateCount = 0;
     candidate = ((BtlBattleState *)iGpffffb3ac)->unitLists[0];
     while (candidate != NULL) {
+        unitState = (BtlUnit *)candidate;
         if ((datCalcIsDead((s32)((u8 *)(((BtlUnit *)candidate)->datUnit)), 0) == 0) &&
-            (datCalcChkBadStatus(*(s32 *)(candidate + 0xA64), 0x1001D7) == 0) &&
+            (datCalcChkBadStatus(*(s32 *)&unitState->datUnit, 0x1001D7) == 0) &&
             (((BtlUnit *)candidate)->charId != 1) &&
-            (candidate != *(u8 **)(action + 0x30))) {
+            (candidate != (u8 *)(actionState->unit))) {
             candidates[(u16)candidateCount] = candidate;
             candidateCount = (u16)(candidateCount + 1);
         }
@@ -706,7 +696,7 @@ s32 btlSoundPickRandomPartnerVoice(u8 *action)
     unitId = 1;
     skippedId = 5;
     while (unitId <= 8) {
-        if (unitId == *(u16 *)(*(u8 **)(action + 0x30) + 0xA4)) {
+        if (unitId == ((BtlUnit *)(u8 *)(actionState->unit))->charId) {
             break;
         }
         if ((unitId != skippedId) && (unitId != ((BtlUnit *)partner)->charId)) {
@@ -719,12 +709,12 @@ s32 btlSoundPickRandomPartnerVoice(u8 *action)
 }
 
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
-// FUN_001F92C0
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F92C0
 s32 btlSoundPickStatusCueVoice(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 value;
 
     if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
@@ -740,16 +730,16 @@ s32 btlSoundPickStatusCueVoice(u8 *action)
                       0x1001D7) != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x51;
+    value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x51;
     return value + datCalcRandomBelow(3);
 }
 
-// FUN_001F93A0
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F93A0
 s32 btlSoundPickHpTierVoice(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 type;
     s32 value;
 
@@ -769,27 +759,27 @@ s32 btlSoundPickHpTierVoice(u8 *action)
     type = func_001ef720(2, 0x80000) & 0xFFFF;
     switch (type) {
     case 4:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x54;
+        value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x54;
         return value + datCalcRandomBelow(3);
     case 3:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x57;
+        value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x57;
         return value + datCalcRandomBelow(3);
     case 2:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x5A;
+        value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x5A;
         return value + datCalcRandomBelow(3);
     case 1:
-        value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x5D;
+        value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x5D;
         return value + datCalcRandomBelow(3);
     }
     return -1;
 }
 
-// FUN_001F9570
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F9570
 s32 btlSoundPickGroupVoice(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 value;
 
     if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
@@ -805,16 +795,16 @@ s32 btlSoundPickGroupVoice(u8 *action)
                       0x1001D7) != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x69;
+    value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x69;
     return value + datCalcRandomBelow(3);
 }
 
-// FUN_001F9650
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+// FUN_001F9650
 s32 btlSoundPickKnockVoice(u8 *action)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *actionState = (BtlAction *)(action);
+    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 value;
 
     if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus != 0) {
@@ -827,7 +817,7 @@ s32 btlSoundPickKnockVoice(u8 *action)
                       0x1001D7) != 0) {
         return -1;
     }
-    value = D_00624FC0[*(u16 *)(*(u8 **)(action + 0x30) + 0xA4)] + 0x66;
+    value = D_00624FC0[((BtlUnit *)(u8 *)(actionState->unit))->charId] + 0x66;
     return value + datCalcRandomBelow(3);
 }
 

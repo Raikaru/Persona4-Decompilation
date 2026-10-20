@@ -1,3 +1,4 @@
+#include "btl_unit_list_internal.h"
 #include "btl_unit_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -63,62 +64,7 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern void btlCameraSetUnitSlotValue(u8 *unit, s32 slotIndex, s32 slotValue);
 extern void btlTargetRemoveRadiusNode(u8 *unit);
@@ -137,10 +83,6 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern void (*jtbl_008873EC[])(void *data);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -182,11 +124,12 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
-// FUN_0019D550
 /* measured: typing the remaining pool clear or the two saved list-link loads changes MATCH to MISMATCH. */
 /* Release owned resources, detach radius/camera state, unlink the genus list and free the unit. */
+// FUN_0019D550
 void btlUnitUnlinkAndFree(u8 *incomingUnit)
 {
+    BtlUnit *typedUnit;
     u8 *unit;
     u8 genus;
     s32 placement;
@@ -197,6 +140,7 @@ void btlUnitUnlinkAndFree(u8 *incomingUnit)
     u8 *child;
 
     unit = incomingUnit;
+    typedUnit = (BtlUnit *)unit;
     genus = ((BtlUnit *)incomingUnit)->genus;
     btlUnitReleaseModel(unit);
     child = (u8 *)((BtlUnit *)unit)->childUnit;
@@ -210,24 +154,24 @@ void btlUnitUnlinkAndFree(u8 *incomingUnit)
     nodePool = ((BtlUnitResources *)(unit + 0xA04))->nodePool;
     if (nodePool != 0) {
         btlEffectFreeNodePool(nodePool);
-        *(s32 *)(unit + 0xA08) = 0;
+        *(s32 *)&((BtlUnit *)unit)->effectNodePool = 0;
     }
     btlTargetRemoveRadiusNode(unit);
     cameraSlot = ((BtlUnit *)unit)->cameraSlot;
     if (cameraSlot >= 0)
         btlCameraSetUnitSlotValue(unit, cameraSlot, 0);
-    next = *(u8 **)(unit + 0xA6C);
+    next = *(u8 * *)&typedUnit->nextUnit;
     if (next != NULL)
         ((BtlUnit *)next)->prevUnit = ((BtlUnit *)unit)->prevUnit;
     else
         btlUnitStoreListEndpoint((u8 *)((BtlUnit *)unit)->prevUnit, iGpffffb3ac,
-                      (u32)genus & 0xFF, 0x17C);
-    previous = *(u8 **)(unit + 0xA68);
+                      (u32)genus & 0xFF, 1);
+    previous = *(u8 * *)&typedUnit->prevUnit;
     if (previous != NULL)
         ((BtlUnit *)previous)->nextUnit = ((BtlUnit *)unit)->nextUnit;
     else
         btlUnitStoreListEndpoint((u8 *)((BtlUnit *)unit)->nextUnit, iGpffffb3ac,
-                      (u32)genus & 0xFF, 0x178);
+                      (u32)genus & 0xFF, 0);
     jtbl_008873EC[0](unit);
 }
 

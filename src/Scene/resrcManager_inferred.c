@@ -12,6 +12,7 @@
 #include "model_matrix_internal.h"
 #include "field_light_internal.h"
 #include "resrc_manager_internal.h"
+#include "mdl_file_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "rw/plcore/barenderstate.h"
 
@@ -307,14 +308,15 @@ u8 *resrcMngFindResById(u8 *manager, u16 resourceId) {
     }
     resource = ((u8 **)manager)[resourceType];
     while (resource != NULL) {
-        if (*(u16 *)resource == packedId) {
+        if (((ResrcHeader *)resource)->id == packedId) {
             return resource;
         }
-        resource = *(u8 * *)&((SceneUpdateResource *)resource)->next;
+        resource = *(u8 * *)&((ResrcHeader *)resource)->next;
     }
     return NULL;
 }
 
+/* Count the resources in a valid per-type linked list; out-of-range types return zero. */
 // FUN_001475C0
 /* Ported from P3FES resrcMngGetTotalResInList: P4 uses a 0x16-entry list
    table and the list link remains at offset 0x138. */
@@ -330,7 +332,7 @@ u32 resrcMngGetTotalResInList(u8 *resLists, u8 resType)
     currRes = ((u8 **)resLists)[resType];
     while (currRes != NULL) {
         total++;
-        currRes = *(u8 * *)&((SceneUpdateResource *)currRes)->next;
+        currRes = *(u8 * *)&((ResrcHeader *)currRes)->next;
     }
     return total;
 }
@@ -536,8 +538,8 @@ void resrcMngRenderCameraPair(u8 *unusedQueue, u8 *savedState) {
     func_003e8120(((u8 *)(u32)kwlnGetCamera()));
 }
 
+/* Install character lighting, selecting global or per-resource colors from the upper resource flags. */
 // FUN_00147BB0
-/* Select character lighting from global or per-resource colors according to the upper flag bits. */
 void resrcMngRenderAttached(u8 *unusedQueue, u8 *resource) {
     s32 flags;
     u8 *lightResource;
@@ -547,7 +549,7 @@ void resrcMngRenderAttached(u8 *unusedQueue, u8 *resource) {
     func_003c38b0(K_Clump_GetLightA(), lightResource + 0x140);
     func_003c38b0(K_Clump_GetLightC(), lightResource + 0x150);
     func_003e9cb0(((SceneRenderLight *)K_Clump_GetLightC())->frame, lightResource + 0x160, 0);
-    flags = *(s32 *)&((SceneUpdateResource *)resource)->flags;
+    flags = *(s32 *)&((ResrcHeader *)resource)->flags;
     if (flags & 0x80000000) {
         func_003c38b0(K_Clump_GetLightA(), resource + 0x168);
         func_003c38b0(K_Clump_GetLightC(), resource + 0x178);
@@ -564,8 +566,8 @@ void resrcMngRenderAttached(u8 *unusedQueue, u8 *resource) {
     func_003e8120(((u8 *)(u32)kwlnGetCamera()));
 }
 
+/* Install the type-5 NPC lighting colors and both light-frame matrices. */
 // FUN_00147D80
-/* Install the type-5 NPC lighting resource colors and matrices. */
 void resrcMngRenderCameraSlots(void) {
     u8 *lightResource;
 
@@ -579,8 +581,8 @@ void resrcMngRenderCameraSlots(void) {
     func_003e8120(((u8 *)(u32)kwlnGetCamera()));
 }
 
+/* Install the NPC resource-specific primary, tertiary and secondary colors and light matrices. */
 // FUN_00147E60
-/* Install the NPC resource-specific primary, tertiary and secondary lighting. */
 void resrcMngRenderAttachedPair(u8 *unusedQueue, u8 *resource) {
     func_003e8110(((u8 *)(u32)kwlnGetCamera()));
     func_003c38b0(K_Clump_GetLightA(), resource + 0x168);
@@ -591,8 +593,8 @@ void resrcMngRenderAttachedPair(u8 *unusedQueue, u8 *resource) {
     func_003e8120(((u8 *)(u32)kwlnGetCamera()));
 }
 
+/* Install object-model lighting from its shorter kind-specific resource tail. */
 // FUN_00147F30
-/* Install the object-model resource lighting, whose tail precedes the character tail by twelve bytes. */
 void resrcMngRenderAttachedAlt(u8 *unusedQueue, u8 *resource) {
     func_003e8110(((u8 *)(u32)kwlnGetCamera()));
     func_003c38b0(K_Clump_GetLightA(), resource + 0x15C);
@@ -604,9 +606,8 @@ void resrcMngRenderAttachedAlt(u8 *unusedQueue, u8 *resource) {
 }
 
 /* measured probe: opt_propagation off preserves 00148000 vector coloring. */
+/* Compare character-model camera distances, truncating their floating-point difference to a signed integer. */
 // FUN_00148000
-/* Compare character-model distances from the camera using a truncated signed difference. */
-/* Compare character-model distances from the camera using a truncated signed difference. Keep resource-member byte accesses: the typed rewrite retained member addresses across callbacks and exceeded the retail window; scene_resource_internal.h records the proven layout. */
 s32 resrcMngCompareDistanceArrA(const void *left, const void *right) {
     u8 *const *leftEntry = (u8 *const *)left;
     u8 *const *rightEntry = (u8 *const *)right;
@@ -626,6 +627,8 @@ s32 resrcMngCompareDistanceArrA(const void *left, const void *right) {
     u8 *rightResource;
     u8 *leftResource;
     u8 *cameraOrMatrix;
+    ResrcRecord *leftRecord;
+    ResrcRecord *rightRecord;
 
     cameraOrMatrix = ((u8 *)(u32)kwlnGetCamera());
     cameraOrMatrix = func_003e9700(((SceneRenderObject *)cameraOrMatrix)->frame);
@@ -637,23 +640,24 @@ s32 resrcMngCompareDistanceArrA(const void *left, const void *right) {
     frame.cameraPosition[2] = z;
     leftResource = *leftEntry;
     rightResource = *rightEntry;
-    frame.leftDelta[0] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(leftResource + 0x164)))->pos.x - frame.cameraPosition[0];
+    leftRecord = (ResrcRecord *)leftResource;
+    rightRecord = (ResrcRecord *)rightResource;
+    frame.leftDelta[0] = ((struct RwMatrix *)mdlGetMatrix(((ResrcRecord *)leftResource)->modelHandle164))->pos.x - frame.cameraPosition[0];
     cameraY = frame.cameraPosition[1];
-    frame.leftDelta[1] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(leftResource + 0x164)))->pos.y - cameraY;
+    frame.leftDelta[1] = ((struct RwMatrix *)mdlGetMatrix(leftRecord->modelHandle164))->pos.y - cameraY;
     distanceOrCameraZ = frame.cameraPosition[2];
-    frame.leftDelta[2] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(leftResource + 0x164)))->pos.z - distanceOrCameraZ;
-    frame.rightDelta[0] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(rightResource + 0x164)))->pos.x - frame.cameraPosition[0];
-    frame.rightDelta[1] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(rightResource + 0x164)))->pos.y - cameraY;
-    frame.rightDelta[2] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(rightResource + 0x164)))->pos.z - distanceOrCameraZ;
+    frame.leftDelta[2] = ((struct RwMatrix *)mdlGetMatrix(leftRecord->modelHandle164))->pos.z - distanceOrCameraZ;
+    frame.rightDelta[0] = ((struct RwMatrix *)mdlGetMatrix(((ResrcRecord *)rightResource)->modelHandle164))->pos.x - frame.cameraPosition[0];
+    frame.rightDelta[1] = ((struct RwMatrix *)mdlGetMatrix(rightRecord->modelHandle164))->pos.y - cameraY;
+    frame.rightDelta[2] = ((struct RwMatrix *)mdlGetMatrix(rightRecord->modelHandle164))->pos.z - distanceOrCameraZ;
     distanceOrCameraZ = RwV3dLength(frame.leftDelta);
     return (s32)(distanceOrCameraZ - RwV3dLength(frame.rightDelta));
 }
 
 /* measured: closes opt_propagation off for resrcMngCompareDistanceArrA. */
 /* measured: opt_propagation off preserves 00148140 vector coloring. */
+/* Compare NPC-model camera distances, truncating their floating-point difference to a signed integer. */
 // FUN_00148140
-/* Compare NPC-model distances from the camera using a truncated signed difference. */
-/* Compare NPC-model distances from the camera using a truncated signed difference. Keep resource-member byte accesses: the typed rewrite retained member addresses across callbacks and exceeded the retail window; scene_resource_internal.h records the proven layout. */
 s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
     u8 *const *leftEntry = (u8 *const *)left;
     u8 *const *rightEntry = (u8 *const *)right;
@@ -673,6 +677,8 @@ s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
     u8 *rightResource;
     u8 *leftResource;
     u8 *cameraOrMatrix;
+    ResrcRecord *leftRecord;
+    ResrcRecord *rightRecord;
 
     cameraOrMatrix = ((u8 *)(u32)kwlnGetCamera());
     cameraOrMatrix = func_003e9700(((SceneRenderObject *)cameraOrMatrix)->frame);
@@ -684,14 +690,16 @@ s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
     frame.cameraPosition[2] = z;
     leftResource = *leftEntry;
     rightResource = *rightEntry;
-    frame.leftDelta[0] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(leftResource + 0x164)))->pos.x - frame.cameraPosition[0];
+    leftRecord = (ResrcRecord *)leftResource;
+    rightRecord = (ResrcRecord *)rightResource;
+    frame.leftDelta[0] = ((struct RwMatrix *)mdlGetMatrix(((ResrcRecord *)leftResource)->modelHandle164))->pos.x - frame.cameraPosition[0];
     cameraY = frame.cameraPosition[1];
-    frame.leftDelta[1] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(leftResource + 0x164)))->pos.y - cameraY;
+    frame.leftDelta[1] = ((struct RwMatrix *)mdlGetMatrix(leftRecord->modelHandle164))->pos.y - cameraY;
     distanceOrCameraZ = frame.cameraPosition[2];
-    frame.leftDelta[2] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(leftResource + 0x164)))->pos.z - distanceOrCameraZ;
-    frame.rightDelta[0] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(rightResource + 0x164)))->pos.x - frame.cameraPosition[0];
-    frame.rightDelta[1] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(rightResource + 0x164)))->pos.y - cameraY;
-    frame.rightDelta[2] = ((struct RwMatrix *)mdlGetMatrix(*(void **)(rightResource + 0x164)))->pos.z - distanceOrCameraZ;
+    frame.leftDelta[2] = ((struct RwMatrix *)mdlGetMatrix(leftRecord->modelHandle164))->pos.z - distanceOrCameraZ;
+    frame.rightDelta[0] = ((struct RwMatrix *)mdlGetMatrix(((ResrcRecord *)rightResource)->modelHandle164))->pos.x - frame.cameraPosition[0];
+    frame.rightDelta[1] = ((struct RwMatrix *)mdlGetMatrix(rightRecord->modelHandle164))->pos.y - cameraY;
+    frame.rightDelta[2] = ((struct RwMatrix *)mdlGetMatrix(rightRecord->modelHandle164))->pos.z - distanceOrCameraZ;
     distanceOrCameraZ = RwV3dLength(frame.leftDelta);
     return (s32)(distanceOrCameraZ - RwV3dLength(frame.rightDelta));
 }
@@ -711,8 +719,8 @@ s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
 #pragma opt_loop_invariants on
 /* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
+/* Queue kind-specific model and lighting passes, sorting characters and translucent NPCs when enabled. */
 // FUN_00148280
-/* Queue the resource-kind-specific draw passes and sorted translucent resources. Keep resource-member byte accesses: the typed rewrite retained member addresses across callbacks and exceeded the retail window; scene_resource_internal.h records the proven layout. */
 s32 resrcMngRenderTask(u8 *unusedTask) {
     /* Retail returns zero at 001495E8, 00148318. */
     extern void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource);
@@ -753,6 +761,8 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern u8 D_007D2350[];
     extern u8 D_007D2400[];
     u8 **sortedEntry;
+    /* Measured: keep byte cursors alongside typed locals; access-site-only typing retains member addresses across callbacks. */
+    ResrcRecord *fieldRecord, *fieldModelRecord, *npcRecord, *resourceRecord;
     u8 *characters[64];
     u8 *translucentNpcs[64];
     RwV3d pos;
@@ -776,36 +786,40 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     u8 *entryCursor;
 
     fieldResources = MT_Scene_GetResListHead(0xC);
+    fieldRecord = (ResrcRecord *)fieldResources;
     fieldModels = MT_Scene_GetResListHead(0xA);
+    fieldModelRecord = (ResrcRecord *)fieldModels;
     effectResources = MT_Scene_GetResListHead(0xB);
     characterResources = MT_Scene_GetResListHead(1);
     npcResources = MT_Scene_GetResListHead(3);
+    npcRecord = (ResrcRecord *)npcResources;
     objectResources = MT_Scene_GetResListHead(2);
     alternateQueues = 0;
     if (D_007642E4 == 1) {
         return 0;
     }
-    if (*(s32 *)iGpffff9db0 >= 0xC8) {
+    if (((SceneContext *)iGpffff9db0)->majorId >= 0xC8) {
         alternateQueues = 1;
     }
     while (effectResources != NULL) {
-        if (*(s32 *)(effectResources + 0x28) & 2) {
-            mdlEffectAdvanceAndFlushWithTable(D_005DC7D0, *(void **)(effectResources + 0x144));
+        if ((s32)((ResrcRecord *)(effectResources))->flags & 2) {
+            mdlEffectAdvanceAndFlushWithTable(D_005DC7D0, ((ResrcRecord *)(effectResources))->slotHandle[1]);
         }
-        effectResources = *(u8 **)(effectResources + 0x138);
+        effectResources = (u8 *)((ResrcRecord *)(effectResources))->next;
     }
     while (fieldResources != NULL) {
-        if (*(s32 *)(fieldResources + 0x28) & 2) {
-            FldResource_QueueDrawCallbacks(D_00793EE0, *(u8 **)(fieldResources + 0x1A0));
+        if ((s32)((ResrcRecord *)(fieldResources))->flags & 2) {
+            FldResource_QueueDrawCallbacks(D_00793EE0, (u8 *)((ResrcRecord *)(fieldResources))->handle1A0);
             if (alternateQueues != 0) {
-                FldResource_QueueDrawCallbacksPrimary(D_00793F70, *(u8 **)(fieldResources + 0x1A0));
-                FldResource_QueueDrawCallbacksSecondary(D_00793F70, *(u8 **)(fieldResources + 0x1A0));
+                FldResource_QueueDrawCallbacksPrimary(D_00793F70, (u8 *)fieldRecord->handle1A0);
+                FldResource_QueueDrawCallbacksSecondary(D_00793F70, (u8 *)fieldRecord->handle1A0);
             } else {
-                FldResource_QueueDrawCallbacksPrimary(D_00794390, *(u8 **)(fieldResources + 0x1A0));
-                FldResource_QueueDrawCallbacksSecondary(D_00794390, *(u8 **)(fieldResources + 0x1A0));
+                FldResource_QueueDrawCallbacksPrimary(D_00794390, (u8 *)fieldRecord->handle1A0);
+                FldResource_QueueDrawCallbacksSecondary(D_00794390, (u8 *)fieldRecord->handle1A0);
             }
         }
-        fieldResources = *(u8 **)(fieldResources + 0x138);
+        fieldResources = (u8 *)((ResrcRecord *)(fieldResources))->next;
+        fieldRecord = (ResrcRecord *)fieldResources;
     }
     queueNode = PrimAllocQueueNode();
     ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderCameraFog;
@@ -828,41 +842,42 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
         PrimAppendNode(D_00794360, queueNode);
     }
     while (fieldModels != NULL) {
-        resourceFlags = *(s32 *)(fieldModels + 0x28);
+        resourceFlags = (s32)((ResrcRecord *)(fieldModels))->flags;
         if (resourceFlags & 2) {
             if (resourceFlags & 0x02000000) {
-                mdlQueueModelForDraw(D_007942D0, *(u8 **)(fieldModels + 0x144));
+                mdlQueueModelForDraw(D_007942D0, (u8 *)((ResrcRecord *)(fieldModels))->slotHandle[1]);
             } else if (resourceFlags & 0x01000000) {
-                mdlQueueModelForDraw(D_007947E0, *(u8 **)(fieldModels + 0x144));
-            } else if (K_Clump_StateFlagIsSet(*(const u32 **)(*(u8 **)(fieldModels + 0x144) + 0xE0)) == 1) {
+                mdlQueueModelForDraw(D_007947E0, (u8 *)((ResrcRecord *)(fieldModels))->slotHandle[1]);
+            } else if (K_Clump_StateFlagIsSet((const u32 *)((MdlFileModel *)((u8 *)((ResrcRecord *)(fieldModels))->slotHandle[1]))->drawBuckets) == 1) {
                 if (alternateQueues != 0) {
-                    mdlQueueModelForDraw(D_00793F10, *(u8 **)(fieldModels + 0x144));
+                    mdlQueueModelForDraw(D_00793F10, (u8 *)fieldModelRecord->slotHandle[1]);
                 } else {
-                    mdlQueueModelForDraw(D_00794300, *(u8 **)(fieldModels + 0x144));
+                    mdlQueueModelForDraw(D_00794300, (u8 *)fieldModelRecord->slotHandle[1]);
                 }
-                attachedModel = *(u8 **)(fieldModels + 0x16C);
-                if (attachedModel != NULL && (*(s32 *)(fieldModels + 0x28) & 0x20000000)) {
+                attachedModel = (u8 *)((ResrcRecord *)(fieldModels))->handle16C;
+                if (attachedModel != NULL && ((s32)fieldModelRecord->flags & 0x20000000)) {
                     mdlQueueModelForDraw(D_00794300, attachedModel);
                 }
-            } else if (hMaestroListSetHasEntries(*(u8 **)(*(u8 **)(fieldModels + 0x144) + 0xE0)) == 1) {
+            } else if (hMaestroListSetHasEntries((u8 *)((MdlFileModel *)((u8 *)fieldModelRecord->slotHandle[1]))->drawBuckets) == 1) {
                 if (alternateQueues != 0) {
-                    mdlQueueModelForDraw(D_00793F40, *(u8 **)(fieldModels + 0x144));
+                    mdlQueueModelForDraw(D_00793F40, (u8 *)fieldModelRecord->slotHandle[1]);
                 } else {
-                    mdlQueueModelForDraw(D_00794360, *(u8 **)(fieldModels + 0x144));
+                    mdlQueueModelForDraw(D_00794360, (u8 *)fieldModelRecord->slotHandle[1]);
                 }
-                attachedModel = *(u8 **)(fieldModels + 0x16C);
-                if (attachedModel != NULL && (*(s32 *)(fieldModels + 0x28) & 0x20000000)) {
+                attachedModel = (u8 *)((ResrcRecord *)(fieldModels))->handle16C;
+                if (attachedModel != NULL && ((s32)fieldModelRecord->flags & 0x20000000)) {
                     mdlQueueModelForDraw(D_00794360, attachedModel);
                 }
             } else {
-                mdlQueueModelForDraw(D_00793EE0, *(u8 **)(fieldModels + 0x144));
-                attachedModel = *(u8 **)(fieldModels + 0x16C);
-                if (attachedModel != NULL && (*(s32 *)(fieldModels + 0x28) & 0x20000000)) {
+                mdlQueueModelForDraw(D_00793EE0, (u8 *)fieldModelRecord->slotHandle[1]);
+                attachedModel = (u8 *)((ResrcRecord *)(fieldModels))->handle16C;
+                if (attachedModel != NULL && ((s32)fieldModelRecord->flags & 0x20000000)) {
                     mdlQueueModelForDraw(D_00793EE0, attachedModel);
                 }
             }
         }
-        fieldModels = *(u8 **)(fieldModels + 0x138);
+        fieldModels = (u8 *)((ResrcRecord *)(fieldModels))->next;
+        fieldModelRecord = (ResrcRecord *)fieldModels;
     }
     queueNode = PrimAllocQueueNode();
     ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderCamera;
@@ -903,16 +918,16 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             kAssertFail(D_005EFB00, 0x264);
         }
         characters[characterCount] = characterResources;
-        characterResources = *(u8 **)(characterResources + 0x138);
+        characterResources = (u8 *)((ResrcRecord *)(characterResources))->next;
         characterCount += 1;
     }
-    if (*(s32 *)(iGpffff9db0 + 0x14) == 1) {
+    if (((SceneContext *)iGpffff9db0)->sortCharacters == 1) {
         qsort(characters, characterCount, 4, resrcMngCompareDistanceArrA);
     }
     hasCharacterDrawSet = 0;
     for (characterIndex = (s32)(characterCount - 1); characterIndex >= 0; characterIndex--) {
         u8 **characterEntry = &characters[characterIndex];
-        s32 flags = *(s32 *)(*characterEntry + 0x28);
+        s32 flags = (s32)((ResrcRecord *)(*characterEntry))->flags;
 
         if (flags & 2) {
             if (flags & 0x04000000) {
@@ -925,22 +940,22 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 ((PrimQueueNode *)queueNode)->argument.data = *characterEntry;
                 PrimAppendNode((void *)(D_00793E80 + iGpffff9dd0 * 0x30), queueNode);
                 if (FldMap_IsCurrentInEitherBand() == 1 && (*(u16 *)*characterEntry & 0x3FF) >= 100) {
-                    mdlQueueModelForDraw(D_007943F0, *(u8 **)(*characterEntry + 0x164));
+                    mdlQueueModelForDraw(D_007943F0, (u8 *)((ResrcRecord *)(*characterEntry))->modelHandle164);
                 } else {
-                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*characterEntry + 0x164));
+                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)((ResrcRecord *)(*characterEntry))->modelHandle164);
                 }
-                if (*(u8 **)(*characterEntry + 0x228) != NULL && (*(s32 *)(*characterEntry + 0x28) & 0x20000000)) {
-                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*characterEntry + 0x228));
+                if ((u8 *)((ResrcRecord *)(*characterEntry))->handle228 != NULL && ((s32)((ResrcRecord *)(*characterEntry))->flags & 0x20000000)) {
+                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)((ResrcRecord *)(*characterEntry))->handle228);
                 }
                 for (attachmentIndex = 0; attachmentIndex < 2; attachmentIndex++) {
                     u8 *attachmentOwner = *characterEntry;
-                    if (*(s32 *)(attachmentOwner + attachmentIndex * 4 + 0x140) != 0) {
-                        if (mdlComputeIndexedAttachMatrix(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*characterEntry + 0x164)) + 0x30);
+                    if (((ResrcRecord *)(attachmentOwner))->slotHandleValue[attachmentIndex] != 0) {
+                        if (mdlComputeIndexedAttachMatrix(((ResrcRecord *)(attachmentOwner))->modelHandle164, 2, &pos) == 0) {
+                            pos = ((struct RwMatrix *)((u8 *)mdlGetMatrix(((ResrcRecord *)(*characterEntry))->modelHandle164)))->pos;
                             pos.y += 175.0f;
                         }
-                        mdlEffectSetChildPositionVec(*(void **)(*characterEntry + attachmentIndex * 4 + 0x140), (f32 *)&pos);
-                        mdlEffectFlushWithTable(D_005DC824, *(void **)(*characterEntry + attachmentIndex * 4 + 0x140));
+                        mdlEffectSetChildPositionVec(((ResrcRecord *)(*characterEntry))->slotHandle[attachmentIndex], (f32 *)&pos);
+                        mdlEffectFlushWithTable(D_005DC824, ((ResrcRecord *)(*characterEntry))->slotHandle[attachmentIndex]);
                     }
                 }
             }
@@ -948,25 +963,28 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     }
     if (hasCharacterDrawSet == 1) {
         u8 *resource = MT_Scene_GetResListHead(1);
+        resourceRecord = (ResrcRecord *)resource;
 
         while (resource != NULL) {
-            if (!(*(s32 *)(resource + 0x28) & 0x04000000)) {
-                resource = *(u8 **)(resource + 0x138);
+            if (!((s32)((ResrcRecord *)(resource))->flags & 0x04000000)) {
+                resource = (u8 *)((ResrcRecord *)(resource))->next;
+                resourceRecord = (ResrcRecord *)resource;
             } else {
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderCameraFade;
                 ((PrimQueueNode *)queueNode)->argument.data = D_007D2090;
-                PrimAppendNode((void *)(D_00793E80 + *(s32 *)(resource + 0x22C) * 0x30), queueNode);
+                PrimAppendNode((void *)(D_00793E80 + ((ResrcRecord *)(resource))->characterDrawSet * 0x30), queueNode);
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderAttached;
                 ((PrimQueueNode *)queueNode)->argument.data = resource;
-                PrimAppendNode((void *)(D_00793E80 + *(s32 *)(resource + 0x22C) * 0x30), queueNode);
-                mdlQueueModelForDraw((void *)(D_00793E80 + *(s32 *)(resource + 0x22C) * 0x30), *(u8 **)(resource + 0x164));
+                PrimAppendNode((void *)(D_00793E80 + resourceRecord->characterDrawSet * 0x30), queueNode);
+                mdlQueueModelForDraw((void *)(D_00793E80 + resourceRecord->characterDrawSet * 0x30), (u8 *)((ResrcRecord *)(resource))->modelHandle164);
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderCameraPair;
                 ((PrimQueueNode *)queueNode)->argument.data = D_007D2090;
-                PrimAppendNode((void *)(D_00793E80 + *(s32 *)(resource + 0x22C) * 0x30), queueNode);
-                resource = *(u8 **)(resource + 0x138);
+                PrimAppendNode((void *)(D_00793E80 + resourceRecord->characterDrawSet * 0x30), queueNode);
+                resource = (u8 *)((ResrcRecord *)(resource))->next;
+                resourceRecord = (ResrcRecord *)resource;
             }
         }
     }
@@ -979,74 +997,79 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     memset(translucentNpcs, 0, 0x100);
     translucentCount = 0;
     while (npcResources != NULL) {
-        if (*(u8 *)((u8 *)mdlGetColor(*(void **)(npcResources + 0x164)) + 3) < 0xFF) {
+        if (((RwRGBA *)((u8 *)mdlGetColor(((ResrcRecord *)(npcResources))->modelHandle164)))->alpha < 0xFF) {
             translucentNpcs[translucentCount] = npcResources;
             translucentCount += 1;
-            npcResources = *(u8 **)(npcResources + 0x138);
+            npcResources = (u8 *)((ResrcRecord *)(npcResources))->next;
+            npcRecord = (ResrcRecord *)npcResources;
         } else {
-            s32 flags = *(s32 *)(npcResources + 0x28);
+            s32 flags = (s32)((ResrcRecord *)(npcResources))->flags;
 
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
                 s32 attachmentIndex;
 
-                mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(npcResources + 0x164));
-                if (*(u8 **)(npcResources + 0x22C) != NULL && (*(s32 *)(npcResources + 0x28) & 0x20000000)) {
-                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(npcResources + 0x22C));
+                mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)npcRecord->modelHandle164);
+                if ((u8 *)((ResrcRecord *)(npcResources))->handle22C != NULL && ((s32)npcRecord->flags & 0x20000000)) {
+                    mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)((ResrcRecord *)(npcResources))->handle22C);
                 }
                 for (attachmentIndex = 0; attachmentIndex < 2; attachmentIndex++) {
-                    if (*(s32 *)(npcResources + attachmentIndex * 4 + 0x140) != 0) {
-                        if (mdlComputeIndexedAttachMatrix(*(void **)(npcResources + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(npcResources + 0x164)) + 0x30);
+                    if (((ResrcRecord *)(npcResources))->slotHandleValue[attachmentIndex] != 0) {
+                        if (mdlComputeIndexedAttachMatrix(npcRecord->modelHandle164, 2, &pos) == 0) {
+                            pos = ((struct RwMatrix *)((u8 *)mdlGetMatrix(npcRecord->modelHandle164)))->pos;
                             pos.y += 175.0f;
                         }
-                        mdlEffectSetChildPositionVec(*(void **)(npcResources + attachmentIndex * 4 + 0x140), (f32 *)&pos);
-                        mdlEffectFlushWithTable(D_005DC824, *(void **)(npcResources + attachmentIndex * 4 + 0x140));
+                        mdlEffectSetChildPositionVec(((ResrcRecord *)(npcResources))[0].slotHandle[attachmentIndex], (f32 *)&pos);
+                        mdlEffectFlushWithTable(D_005DC824, ((ResrcRecord *)(npcResources))[0].slotHandle[attachmentIndex]);
                     }
                 }
             }
-            npcResources = *(u8 **)(npcResources + 0x138);
+            npcResources = (u8 *)((ResrcRecord *)(npcResources))->next;
+            npcRecord = (ResrcRecord *)npcResources;
         }
     }
     {
         u8 *resource = MT_Scene_GetResListHead(3);
+        resourceRecord = (ResrcRecord *)resource;
 
         while (resource != NULL) {
-            if (*(u8 *)((u8 *)mdlGetColor(*(void **)(resource + 0x164)) + 3) < 0xFF) {
-                resource = *(u8 **)(resource + 0x138);
+            if (((RwRGBA *)((u8 *)mdlGetColor(((ResrcRecord *)(resource))->modelHandle164)))->alpha < 0xFF) {
+                resource = (u8 *)((ResrcRecord *)(resource))->next;
+                resourceRecord = (ResrcRecord *)resource;
             } else {
-                s32 flags = *(s32 *)(resource + 0x28);
+                s32 flags = (s32)((ResrcRecord *)(resource))->flags;
 
                 if ((flags & 0x10000000) && (flags & 2)) {
                     queueNode = PrimAllocQueueNode();
                     ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderAttachedPair;
                     ((PrimQueueNode *)queueNode)->argument.data = resource;
                     PrimAppendNode((void *)(D_00793E80 + iGpffff9dd0 * 0x30), queueNode);
-                    if (*(s32 *)(resource + 0x28) & 0x80000000) {
+                    if ((s32)resourceRecord->flags & 0x80000000) {
                         s32 attachmentIndex;
 
-                        mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(resource + 0x164));
-                        if (*(u8 **)(resource + 0x22C) != NULL && (*(s32 *)(resource + 0x28) & 0x20000000)) {
-                            mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(resource + 0x22C));
+                        mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)resourceRecord->modelHandle164);
+                        if ((u8 *)((ResrcRecord *)(resource))->handle22C != NULL && ((s32)resourceRecord->flags & 0x20000000)) {
+                            mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)((ResrcRecord *)(resource))->handle22C);
                         }
                         for (attachmentIndex = 0; attachmentIndex < 2; attachmentIndex++) {
-                            if (*(s32 *)(resource + attachmentIndex * 4 + 0x140) != 0) {
-                                if (mdlComputeIndexedAttachMatrix(*(void **)(resource + 0x164), 2, &pos) == 0) {
-                                    pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(resource + 0x164)) + 0x30);
+                            if (((ResrcRecord *)(resource))->slotHandleValue[attachmentIndex] != 0) {
+                                if (mdlComputeIndexedAttachMatrix(resourceRecord->modelHandle164, 2, &pos) == 0) {
+                                    pos = ((struct RwMatrix *)((u8 *)mdlGetMatrix(resourceRecord->modelHandle164)))->pos;
                                     pos.y += 175.0f;
                                 }
-                                mdlEffectSetChildPositionVec(*(void **)(resource + attachmentIndex * 4 + 0x140), (f32 *)&pos);
-                                mdlEffectFlushWithTable(D_005DC824, *(void **)(resource + attachmentIndex * 4 + 0x140));
+                                mdlEffectSetChildPositionVec(((ResrcRecord *)(resource))->slotHandle[attachmentIndex], (f32 *)&pos);
+                                mdlEffectFlushWithTable(D_005DC824, ((ResrcRecord *)(resource))->slotHandle[attachmentIndex]);
                             }
                         }
                     }
                 }
-                resource = *(u8 **)(resource + 0x138);
+                resource = (u8 *)((ResrcRecord *)(resource))->next;
+                resourceRecord = (ResrcRecord *)resource;
             }
         }
     }
     hasObjectDrawSet = 0;
     while (objectResources != NULL) {
-        s32 flags = *(s32 *)(objectResources + 0x28);
+        s32 flags = (s32)((ResrcRecord *)(objectResources))->flags;
 
         if (flags & 2) {
             if (flags & 0x04000000) {
@@ -1058,42 +1081,45 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderAttachedAlt;
                 ((PrimQueueNode *)queueNode)->argument.data = objectResources;
                 PrimAppendNode((void *)(D_00793E80 + iGpffff9dd0 * 0x30), queueNode);
-                mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(objectResources + 0x158));
+                mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), (u8 *)((ResrcRecord *)(objectResources))->modelHandle158);
             } else {
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderAttachedAlt;
                 ((PrimQueueNode *)queueNode)->argument.data = objectResources;
                 PrimAppendNode(D_007945A0, queueNode);
-                mdlQueueModelForDraw(D_007945A0, *(u8 **)(objectResources + 0x158));
+                mdlQueueModelForDraw(D_007945A0, (u8 *)((ResrcRecord *)(objectResources))->modelHandle158);
             }
         }
-        objectResources = *(u8 **)(objectResources + 0x138);
+        objectResources = (u8 *)((ResrcRecord *)(objectResources))->next;
     }
     if (hasObjectDrawSet == 1) {
         u8 *resource = MT_Scene_GetResListHead(2);
+        resourceRecord = (ResrcRecord *)resource;
 
         while (resource != NULL) {
-            if (!(*(s32 *)(resource + 0x28) & 0x04000000)) {
-                resource = *(u8 **)(resource + 0x138);
+            if (!((s32)((ResrcRecord *)(resource))->flags & 0x04000000)) {
+                resource = (u8 *)((ResrcRecord *)(resource))->next;
+                resourceRecord = (ResrcRecord *)resource;
             } else {
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderCameraFade;
                 ((PrimQueueNode *)queueNode)->argument.data = D_007D1F30;
-                PrimAppendNode((void *)(D_00793E80 + *(s32 *)(resource + 0x210) * 0x30), queueNode);
+                PrimAppendNode((void *)(D_00793E80 + ((ResrcRecord *)(resource))->objectDrawSet * 0x30), queueNode);
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderAttachedAlt;
                 ((PrimQueueNode *)queueNode)->argument.data = resource;
-                PrimAppendNode((void *)(D_00793E80 + *(s32 *)(resource + 0x210) * 0x30), queueNode);
-                mdlQueueModelForDraw((void *)(D_00793E80 + *(s32 *)(resource + 0x210) * 0x30), *(u8 **)(resource + 0x158));
+                PrimAppendNode((void *)(D_00793E80 + resourceRecord->objectDrawSet * 0x30), queueNode);
+                mdlQueueModelForDraw((void *)(D_00793E80 + resourceRecord->objectDrawSet * 0x30), (u8 *)((ResrcRecord *)(resource))->modelHandle158);
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderCameraPair;
                 ((PrimQueueNode *)queueNode)->argument.data = D_007D1F30;
-                PrimAppendNode((void *)(D_00793E80 + *(s32 *)(resource + 0x210) * 0x30), queueNode);
-                resource = *(u8 **)(resource + 0x138);
+                PrimAppendNode((void *)(D_00793E80 + resourceRecord->objectDrawSet * 0x30), queueNode);
+                resource = (u8 *)((ResrcRecord *)(resource))->next;
+                resourceRecord = (ResrcRecord *)resource;
             }
         }
     }
-    if (*(s32 *)(iGpffff9db0 + 0x18) == 1) {
+    if (((SceneContext *)iGpffff9db0)->sortNpcs == 1) {
         qsort(translucentNpcs, translucentCount, 4, resrcMngCompareDistanceArrB);
     }
     if (translucentCount != 0) {
@@ -1107,40 +1133,40 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             s32 flags;
 
             sortedEntry = &translucentNpcs[sortedIndex];
-            flags = *(s32 *)(*sortedEntry + 0x28);
+            flags = (s32)((ResrcRecord *)(*sortedEntry))->flags;
             if ((flags & 0x10000000) && (flags & 2) && !(flags & 0x80000000)) {
-                mdlQueueModelForDraw(D_007945D0, *(u8 **)(*sortedEntry + 0x164));
+                mdlQueueModelForDraw(D_007945D0, (u8 *)((ResrcRecord *)(*sortedEntry))->modelHandle164);
                 entryCursor = (u8 *)sortedEntry;
                 for (attachmentIndex = 0; attachmentIndex < 2; attachmentIndex++) {
                     u8 *attachmentOwner = *(u8 **)entryCursor;
-                    if (*(s32 *)(attachmentOwner + attachmentIndex * 4 + 0x140) != 0) {
-                        if (mdlComputeIndexedAttachMatrix(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(*(u8 **)entryCursor + 0x164)) + 0x30);
+                    if (((ResrcRecord *)(attachmentOwner))->slotHandleValue[attachmentIndex] != 0) {
+                        if (mdlComputeIndexedAttachMatrix(((ResrcRecord *)(attachmentOwner))->modelHandle164, 2, &pos) == 0) {
+                            pos = ((struct RwMatrix *)((u8 *)mdlGetMatrix(((ResrcRecord *)(*(u8 **)entryCursor))->modelHandle164)))->pos;
                             pos.y += 175.0f;
                         }
-                        mdlEffectSetChildPositionVec(*(void **)(*(u8 **)entryCursor + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                        mdlEffectSetChildPositionVec(((ResrcRecord *)(*(u8 **)entryCursor))->slotHandle[attachmentIndex], (f32 *)&pos);
                     }
                 }
             }
         }
     }    {
         for (sortedIndex = translucentCount - 1; sortedIndex >= 0; sortedIndex--) {
-            s32 flags = *(s32 *)(translucentNpcs[sortedIndex] + 0x28);
+            s32 flags = (s32)((ResrcRecord *)(translucentNpcs[sortedIndex]))->flags;
 
             if ((flags & 0x10000000) && (flags & 2) && (flags & 0x80000000)) {
                 queueNode = PrimAllocQueueNode();
                 ((PrimQueueNode *)queueNode)->callback = (void *)resrcMngRenderAttachedPair;
                 ((PrimQueueNode *)queueNode)->argument.data = translucentNpcs[sortedIndex];
                 PrimAppendNode(D_007945D0, queueNode);
-                mdlQueueModelForDraw(D_007945D0, *(u8 **)(translucentNpcs[sortedIndex] + 0x164));
+                mdlQueueModelForDraw(D_007945D0, (u8 *)((ResrcRecord *)(translucentNpcs[sortedIndex]))->modelHandle164);
                 for (attachmentIndex = 0; attachmentIndex < 2; attachmentIndex++) {
                     u8 *attachmentOwner = translucentNpcs[sortedIndex];
-                    if (*(s32 *)(attachmentOwner + attachmentIndex * 4 + 0x140) != 0) {
-                        if (mdlComputeIndexedAttachMatrix(*(void **)(attachmentOwner + 0x164), 2, &pos) == 0) {
-                            pos = *(RwV3d *)((u8 *)mdlGetMatrix(*(void **)(translucentNpcs[sortedIndex] + 0x164)) + 0x30);
+                    if (((ResrcRecord *)(attachmentOwner))->slotHandleValue[attachmentIndex] != 0) {
+                        if (mdlComputeIndexedAttachMatrix(((ResrcRecord *)(attachmentOwner))->modelHandle164, 2, &pos) == 0) {
+                            pos = ((struct RwMatrix *)((u8 *)mdlGetMatrix(((ResrcRecord *)(translucentNpcs[sortedIndex]))->modelHandle164)))->pos;
                             pos.y += 175.0f;
                         }
-                        mdlEffectSetChildPositionVec(*(void **)(translucentNpcs[sortedIndex] + attachmentIndex * 4 + 0x140), (f32 *)&pos);
+                        mdlEffectSetChildPositionVec(((ResrcRecord *)(translucentNpcs[sortedIndex]))->slotHandle[attachmentIndex], (f32 *)&pos);
                     }
                 }
             }
@@ -1178,8 +1204,8 @@ void resrcMngSetRenderSuppressed(s32 suppressed) {
     D_007642E4 = suppressed;
 }
 
+/* Choose the normal or alternate resource draw queues (indices 15 and 29). */
 // FUN_00149690
-/* Select normal or alternate draw queues (indices 15 and 29). */
 void resrcMngSelectDrawSet(s32 alternate) {
     if (alternate == 0) {
         iGpffff9dd0 = 0xF;
@@ -1193,11 +1219,13 @@ void resrcMngSelectDrawSet(s32 alternate) {
    float conversions before each upper clamp. Native b210 -O2:
    1504/1504 bytes, all relocations exact, no padding or inline asm.
    See Retained_color_and_sphere_20260922_worker6.md. */
+/* Scale resource, camera-clear and fog colors, clamping unsigned channel products at 255. */
 // FUN_001496C0
-/* Queue the resource-kind-specific draw passes and sorted translucent resources. Keep resource-member byte accesses: the typed rewrite retained member addresses across callbacks and exceeded the retail window; scene_resource_internal.h records the proven layout. */
-/* Color factors retain byte-addressed loads: array/typed access grew b210 code from 1504 to 1528 bytes by changing call-crossing address lifetimes. Resource offsets are documented in scene_resource_internal.h. */
 void resrcMngApplyColorFactors(void *value) {
     const u8 *factors;
+    /* Measured: this typed local keeps the original call-crossing factor address lifetime. */
+    RadarColorReal *colorFactors;
+    ResrcRecord *resourceRecord;
     u8 *resource;
     u32 fogColor;
     u8 *colorBytes;
@@ -1215,12 +1243,15 @@ void resrcMngApplyColorFactors(void *value) {
     u32 fogBlue;
     u32 fogAlpha;
     factors = (const u8 *)value;
+    colorFactors = (RadarColorReal *)factors;
     resource = MT_Scene_GetResListHead(0xC);
+    resourceRecord = (ResrcRecord *)resource;
     while (resource != NULL) {
-        MT_Scene_ScaleResColors(*(u32 **)(resource + 0x1A0), (const f32 *)factors);
-        resource = *(u8 **)(resource + 0x138);
+        MT_Scene_ScaleResColors((u32 *)((ResrcRecord *)(resource))->handle1A0, (const f32 *)factors);
+        resource = (u8 *)((ResrcRecord *)(resource))->next;
+        resourceRecord = (ResrcRecord *)resource;
     }
-    if ((*(f32 *)(factors + 0) <= 0.0f && *(f32 *)(factors + 4) <= 0.0f && *(f32 *)(factors + 8) <= 0.0f) || *(f32 *)(factors + 0xC) <= 0.0f) {
+    if ((((RadarColorReal *)factors)->r <= 0.0f && ((RadarColorReal *)factors)->g <= 0.0f && ((RadarColorReal *)factors)->b <= 0.0f) || ((RadarColorReal *)(factors))[0].a <= 0.0f) {
         resrcMngSetDrawEnabled(0, 1);
     } else {
         resrcMngSetDrawEnabled(1, 1);
@@ -1229,13 +1260,13 @@ void resrcMngApplyColorFactors(void *value) {
     color = *(const P4Bytes0014 *)colorBytes;
     fogColor = iGpffffba64 | (((u32)iGpffffba60 << 8) | (((u32)iGpffffba68 << 0x18) | ((u32)iGpffffba5c << 0x10)));
     redFactor = (f32)color.b0;
-    red = (u32)(redFactor * *(f32 *)(factors + 0));
+    red = (u32)(redFactor * ((RadarColorReal *)factors)->r);
     greenFactor = (f32)color.b1;
-    green = (u32)(greenFactor * *(f32 *)(factors + 4));
+    green = (u32)(greenFactor * ((RadarColorReal *)factors)->g);
     blueFactor = (f32)color.b2;
-    blue = (u32)(blueFactor * *(f32 *)(factors + 8));
+    blue = (u32)(blueFactor * ((RadarColorReal *)factors)->b);
     alphaFactor = (f32)color.b3;
-    alpha = (u32)(alphaFactor * *(f32 *)(factors + 0xC));
+    alpha = (u32)(alphaFactor * ((RadarColorReal *)factors)->a);
     if (alpha > 0xFF) { alpha = 0xFF; }
     if (blue > 0xFF) { blue = 0xFF; }
     if (green > 0xFF) { green = 0xFF; }
@@ -1243,16 +1274,16 @@ void resrcMngApplyColorFactors(void *value) {
     kwlnSetColorRgba(red & 0xFF, green & 0xFF, blue & 0xFF, alpha & 0xFF);
     fogRed = (fogColor >> 0x10) & 0xFF;
     redFactor = (f32)fogRed;
-    fogRed = (u32)(redFactor * *(f32 *)(factors + 0));
+    fogRed = (u32)(redFactor * ((RadarColorReal *)factors)->r);
     fogGreen = (fogColor >> 8) & 0xFF;
     greenFactor = (f32)fogGreen;
-    fogGreen = (u32)(greenFactor * *(f32 *)(factors + 4));
+    fogGreen = (u32)(greenFactor * colorFactors->g);
     fogBlue = fogColor & 0xFF;
     blueFactor = (f32)fogBlue;
-    fogBlue = (u32)(blueFactor * *(f32 *)(factors + 8));
+    fogBlue = (u32)(blueFactor * colorFactors->b);
     fogAlpha = (fogColor >> 0x18) & 0xFF;
     alphaFactor = (f32)fogAlpha;
-    fogAlpha = (u32)(alphaFactor * *(f32 *)(factors + 0xC));
+    fogAlpha = (u32)(alphaFactor * colorFactors->a);
     if (fogRed > 0xFF) { fogRed = 0xFF; }
     iGpffffba4c = (u8)fogRed;
     if (fogGreen > 0xFF) { fogGreen = 0xFF; }
@@ -1263,6 +1294,7 @@ void resrcMngApplyColorFactors(void *value) {
     iGpffffba58 = (u8)fogAlpha;
 }
 
+/* Return the first field resource primary color, or NULL when the list is empty. */
 // FUN_00149CA0
 u8 *resrcMngGetColorValue(void) {
     u8 *resource;
@@ -1274,6 +1306,7 @@ u8 *resrcMngGetColorValue(void) {
     return (u8 *)((SceneEnvironmentResource *)resource)->colorValue;
 }
 
+/* Return the first field resource secondary color, or NULL when the list is empty. */
 // FUN_00149CE0
 u8 *resrcMngGetColorTarget(void) {
     u8 *resource;
@@ -1285,6 +1318,7 @@ u8 *resrcMngGetColorTarget(void) {
     return (u8 *)((SceneEnvironmentResource *)resource)->colorTarget;
 }
 
+/* Return the first field resource light transform, or NULL when the list is empty. */
 // FUN_00149D20
 u8 *resrcMngGetTransform(void) {
     u8 *resource;
@@ -1296,32 +1330,32 @@ u8 *resrcMngGetTransform(void) {
     return (u8 *)&((SceneEnvironmentResource *)resource)->transform;
 }
 
+/* Forward the primary value through the active scene environment handle. */
 // FUN_00149D60
-/* Forward the primary environment value through the active scene environment handle. */
 void resrcMngSetEnvPrimary(s32 value)
 {
     MT_Scene_GetResListHead(12);
     FldFilterSetPrimary(((SceneContext *)D_00762EA0)->environment, value);
 }
 
+/* Forward the secondary value through the active scene environment handle. */
 // FUN_00149DB0
-/* Forward the secondary environment value through the active scene environment handle. */
 void resrcMngSetEnvSecondary(s32 value)
 {
     MT_Scene_GetResListHead(12);
     FldFilterSetSecondary(((SceneContext *)D_00762EA0)->environment, value);
 }
 
+/* Forward the tertiary value through the active scene environment handle. */
 // FUN_00149E00
-/* Forward the tertiary environment value through the active scene environment handle. */
 void resrcMngSetEnvTertiary(s32 value)
 {
     MT_Scene_GetResListHead(12);
     FldFilterSetTertiary(((SceneContext *)D_00762EA0)->environment, value);
 }
 
+/* Forward the intensity value through the active scene environment handle. */
 // FUN_00149E50
-/* Forward the environment intensity through the active scene environment handle. */
 void resrcMngSetEnvIntensity(s32 value)
 {
     MT_Scene_GetResListHead(12);
@@ -1414,11 +1448,11 @@ void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels)
     goto loop_5_test;
 loop_5_body:
     if (enabled == one) {
-        *(s32 *)&((SceneUpdateResource *)fieldResource)->flags = *(s32 *)&((SceneUpdateResource *)fieldResource)->flags | 2;
+        *(s32 *)&((ResrcHeader *)fieldResource)->flags = *(s32 *)&((ResrcHeader *)fieldResource)->flags | 2;
     } else {
-        *(s32 *)&((SceneUpdateResource *)fieldResource)->flags = *(s32 *)&((SceneUpdateResource *)fieldResource)->flags & mask;
+        *(s32 *)&((ResrcHeader *)fieldResource)->flags = *(s32 *)&((ResrcHeader *)fieldResource)->flags & mask;
     }
-    fieldResource = *(u8 * *)&((SceneUpdateResource *)fieldResource)->next;
+    fieldResource = *(u8 * *)&((ResrcHeader *)fieldResource)->next;
 loop_5_test:
     if (fieldResource != NULL) {
         goto loop_5_body;
@@ -1429,11 +1463,11 @@ loop_5_test:
     goto loop_12_test;
 loop_12_body:
     if (enabled == one) {
-        *(s32 *)&((SceneUpdateResource *)fieldModel)->flags = *(s32 *)&((SceneUpdateResource *)fieldModel)->flags | 2;
+        *(s32 *)&((ResrcHeader *)fieldModel)->flags = *(s32 *)&((ResrcHeader *)fieldModel)->flags | 2;
     } else {
-        *(s32 *)&((SceneUpdateResource *)fieldModel)->flags = *(s32 *)&((SceneUpdateResource *)fieldModel)->flags & mask;
+        *(s32 *)&((ResrcHeader *)fieldModel)->flags = *(s32 *)&((ResrcHeader *)fieldModel)->flags & mask;
     }
-    fieldModel = *(u8 * *)&((SceneUpdateResource *)fieldModel)->next;
+    fieldModel = *(u8 * *)&((ResrcHeader *)fieldModel)->next;
 loop_12_test:
     if (fieldModel != NULL) {
         goto loop_12_body;

@@ -62,62 +62,8 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
 
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -131,10 +77,6 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -159,11 +101,12 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off is scoped to func_001990d0. */
 /* measured: func_001990d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-// FUN_001990D0
-/* measured: typing the initial genus load changes MATCH to MISMATCH; the later genus access is typed. */
+/* measured: access-site typing of the later genus reload changes MATCH to MISMATCH; a distinct typed unit alias preserves it. */
 /* Resolve a genus-specific motion, including the formation override and special walking substitution. */
+// FUN_001990D0
 s64 btlUnitGetMotionId(u8 *unit, u16 motion)
 {
+    BtlUnit *unitFields = (BtlUnit *)unit;
     u8 kind;
     s32 index;
     s32 offset;
@@ -179,12 +122,11 @@ s64 btlUnitGetMotionId(u8 *unit, u16 motion)
         }
     case 0:
     case 2:
-        kind = *(u8 *)(unit + 0xA2);
+        kind = unitFields->genus;
         index = kind * 0x1E;
         table = D_005F6CA0 + index;
         offset = motion & 0xFFFF;
-        result = (s64)((s64)*(u8 *)btlUnitAddBaseToOffset(
-            offset, (s32)table) << 48) >> 48;
+        result = (s64)((s64)((u8 *)(s32)table)[offset] << 48) >> 48;
         if ((((BtlUnit *)unit)->stateFlags & 0x100) != 0) {
             if (kind == 0) {
                 if (((BtlUnit *)unit)->charId == 1) {

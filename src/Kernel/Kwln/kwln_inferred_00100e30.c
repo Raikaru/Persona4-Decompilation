@@ -57,7 +57,7 @@ extern void sdkSndUpdateDecodeSlots(void);
 extern void sdkSndUpdate(void);
 extern void sdkPadUpdateAll(void);
 extern s32 kwlnTaskRunFrame(void);
-extern void func_00466580(void);
+extern void hsfdSuspendWorker(void);
 extern void func_003e5510(s32);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
@@ -76,7 +76,7 @@ extern void mainDrawStartClearOt(void);
 extern void mainDrawStartFrame(void);
 extern void sequenceCreate(void);
 extern void sequenceRequest(s32 sequenceId, s32 parameters, s32 parameterSize, s32 delay);
-extern void func_0010d7b0(void);
+extern void datKernelInitNoop(void);
 extern void tickerStartTask(void);
 extern void fadeCreateController(s32 parentTask);
 extern u8 *resrcMngSpawnRenderTask(u8 *parentTask);
@@ -144,7 +144,7 @@ extern void sdkSndSetSlotTrack(s32 slotIndex, s32 trackId);
 extern void mdlRenderInitializeBuffers(void);
 extern void PrimCreatePools(s32 queueCount, s32 batchCount);
 extern void hMaestroCreateServicesTask(void);
-extern void func_00466680(void);
+extern void hsfdInitWorker(void);
 extern void sdkSetActiveHandle(s32 handle);
 extern void mdlResetModelTable(s32 model);
 extern void TnSetTableBase(s32 table);
@@ -163,8 +163,8 @@ extern void func_004d8c78(void);
 extern void func_004f2798(s32, s32);
 extern void func_004f34b0(s32);
 extern void func_004f5bf0(s32, s32, s32);
-extern void func_00100dd0(void);
-extern void func_00100e00(void);
+extern void kwlnPrintStreamError(void);
+extern void kwlnLogStreamError(void);
 extern void scrReleaseActiveHandle(void);
 extern u8 D_00559840[];
 extern u8 D_005C4EC0[];
@@ -189,6 +189,12 @@ extern s32 D_00764D3C[];
 extern u8 D_00764D50[];
 extern u8 D_00794510[];
 extern u8 D_007948A0[];
+/* The linker symbol anchors three consecutive single-precision constants. */
+typedef struct KwlnInitConstants {
+    f32 unk00;
+    f32 unk04;
+    f32 unk08;
+} KwlnInitConstants;
 extern f32 fGpffff8030;
 extern u8 iGpffff85d0;
 
@@ -234,7 +240,7 @@ void kwlnInitSubsystems(void)
     PrimCreatePools(0x7D0, 0x64);
     H_Cdvd_ResetStreamState();
     H_Cdvd_InitDevices();
-    func_0010d7b0();
+    datKernelInitNoop();
     mdlRenderInitializeBuffers();
     sdkSndInit();
     memset(&D_00764D10[0], 0, 0x14);
@@ -246,7 +252,7 @@ void kwlnInitSubsystems(void)
     func_004cd470(one, one);
     func_004ca720();
     func_004d8c78();
-    func_004cc200((s32)&func_00100e00, 0);
+    func_004cc200((s32)&kwlnLogStreamError, 0);
     func_00418b18((s32)&kwlnEnableInterrupts);
     D_00764D00[0] = 6;
     D_00764D04[0] = 4;
@@ -273,15 +279,13 @@ void kwlnInitSubsystems(void)
     func_004f2798((s32)((u8 *)&D_00761690 + 20), (s32)&D_005DB850);
     func_004c7188((s32)((u8 *)&D_00761690 + 8));
     memset(&D_00764D30[0], 0, 0x20);
-    /* This external scalar names only the start of a linker-owned constant
-     * sequence; no complete aggregate declaration proves the adjacent +8 value. */
-    D_00764D30[0] = *(f32 *)((u8 *)&fGpffff8030 + 8);
+    D_00764D30[0] = ((KwlnInitConstants *)&fGpffff8030)->unk08;
     one = 1;
     D_00764D34[0] = one;
     D_00764D38[0] = one;
     D_00764D3C[0] = 0;
     mwPlyInitSfdFx(&D_00764D30[0]);
-    func_004cc200((s32)&func_00100dd0, 0);
+    func_004cc200((s32)&kwlnPrintStreamError, 0);
     sdkSndSetSlotTrack(0, 1);
     sdkSndSetSlotTrack(1, 2);
     mdlResetModelTable((s32)&D_005DC878);
@@ -289,7 +293,7 @@ void kwlnInitSubsystems(void)
     sdkDbprtInit(kwlnGetCamera());
     RpSkySelectTrueTSClipper(1);
     RpSkySelectTrueTLClipper(1);
-    func_00466680();
+    hsfdInitWorker();
     TnInitModule(0xC7);
     TnSetTableBase((s32)&D_005DC7D0);
     mdlEffectSetGlobalValue((s32)&D_007948A0);
@@ -342,7 +346,7 @@ s32 kwlnRunFrame(void)
     if (kwlnTaskRunFrame() == 0) {
         return 0;
     }
-    func_00466580();
+    hsfdSuspendWorker();
     func_003e5510(1);
 block_5:
     counter0 = iGpffffb1a0;

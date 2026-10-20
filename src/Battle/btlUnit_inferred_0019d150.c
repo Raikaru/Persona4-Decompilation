@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_unit_movement_internal.h"
 #include "mdl_file_internal.h"
 #include "btl_effect_internal.h"
@@ -67,62 +68,9 @@ extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 extern void memset(void *data, s32 value, s32 option);
 
-/* Retail computes the unit record address as index-times-stride plus base;
-   MWCCPS2 emits a commutative addu in the order the operands reach it, so the
-   order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddRecordOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 btlUnitAddOffsetToBase(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *btlUnitOffsetWordTable(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 btlUnitAddBaseToOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 btlUnitOne(void)
-{
-    return 1;
-}
-static inline s64 btlUnitExtendSignedHalfword(s16 value)
-{
-    return value;
-}
-static inline s32 btlUnitMotionTableAddress(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 btlUnitAddProgress(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    /* offset selects a genus-list endpoint; retain byte addressing for the retail operand-order helper. */
-    *(u8 **)(address + offset) = stored;
-}
 
-static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
-{
-    btlUnitSetMotion(data, value, option, rate, flags);
-}
-static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
-{
-    scrStartProcedureChecked(data, value, option, rate);
-}
+
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -137,10 +85,6 @@ extern u8 *btlUnitCreate(s32 genus);
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
-static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
-{
-    btlUnitInitChild(data, value);
-}
 extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -182,8 +126,8 @@ extern u8 D_00794150[];
  * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
-// FUN_0019D150
 /* Queue visible, nontransparent models unless their model flags suppress drawing. */
+// FUN_0019D150
 void btlUnitQueueAllModelsForDraw(void)
 {
     u8 *model;
@@ -206,11 +150,12 @@ void btlUnitQueueAllModelsForDraw(void)
     }
 }
 
-// FUN_0019D210
 /* measured: typing the remaining genus/camera-slot accesses loses MATCH; list address helpers preserve retail operand order. */
 /* Allocate a 0xA70-byte unit, initialize movement/model state, and append it to its genus list. */
+// FUN_0019D210
 u8 *btlUnitCreate(s32 genus)
 {
+    BtlUnit *typedUnit;
     f32 movementRate;
     s32 battleAddress;
     s32 listOffset;
@@ -220,6 +165,7 @@ u8 *btlUnitCreate(s32 genus)
 
     chkmemAllocSiteTag(D_005F6D10, 0x3A);
     unit = (u8 *)D_008873E8[0](0xA70, 0x40000);
+    typedUnit = (BtlUnit *)unit;
     memset(unit, 0, 0xA70);
     ((BtlUnit *)unit)->genus = genus;
     if (iGpffffa0a8 >= 0x0FFFFFFFU) {
@@ -236,34 +182,30 @@ u8 *btlUnitCreate(s32 genus)
     ((BtlUnit *)unit)->sphereCenter.z = 0.0f;
     ((BtlUnitMovement *)(unit + 0xC4))->activity = 0;
     ((BtlUnitMovement *)(unit + 0xC4))->speed = 27.0f;
-    if (*(u8 *)(unit + 0xA2) == 0) {
+    if (typedUnit->genus == 0) {
         movementRate = 10.0f;
     } else {
         movementRate = 14.0f;
     }
     ((BtlUnitMovement *)(unit + 0xC4))->unk430 = 0.5f * movementRate;
     ((BtlUnit *)unit)->motionRate = 1.0f;
-    /* Signed camera-slot sentinel; the shared unit layout retains this span as bytes. */
-    *(s8 *)(unit + 0x9FC) = -1;
+    /* Negative camera slots have no camera ownership to release. */
+    ((BtlUnit *)unit)->cameraSlot = -1;
     ((BtlUnitResources *)(unit + 0xA04))->placement = btlEffectCreatePlacementEntry(unit);
     ((BtlUnitResources *)(unit + 0xA04))->nodePool = btlEffectAllocNodePool();
     ((BtlUnit *)unit)->prevUnit = NULL;
     listOffset = (genus & 0xFF) * 8;
     battleAddress = (s32)iGpffffb3ac;
-    tail = *(u8 **)((u8 *)btlUnitOffsetWordTable(
-        0x178, (s32 *)battleAddress) + listOffset);
+    tail = *(u8 **)((u8 *)((s32 *)((s32)((s32 *)battleAddress) + (MEMBER_OFFSET(BtlBattleState, unitLists[0])))) + listOffset);
     if (tail != NULL) {
         ((BtlUnit *)tail)->prevUnit = (BtlUnit *) unit;
         ((BtlUnit *)unit)->nextUnit = (BtlUnit *)
-            *(u8 **)((u8 *)btlUnitAddBaseToOffset(
-                listOffset, (s32)iGpffffb3ac) + 0x178);
+            ((BtlBattleState *)((u8 *)((listOffset) + ((s32)iGpffffb3ac))))->unitLists[0];
     } else {
-        *(u8 **)((u8 *)btlUnitAddBaseToOffset(
-            listOffset, battleAddress) + 0x17C) = unit;
+        ((BtlBattleState *)((u8 *)((listOffset) + (battleAddress))))->unitLists[1] = unit;
         ((BtlUnit *)unit)->nextUnit = NULL;
     }
-    *(u8 **)((u8 *)btlUnitAddBaseToOffset(
-        listOffset, (s32)iGpffffb3ac) + 0x178) = unit;
+    ((BtlBattleState *)((u8 *)((listOffset) + ((s32)iGpffffb3ac))))->unitLists[0] = unit;
     return unit;
 }
 

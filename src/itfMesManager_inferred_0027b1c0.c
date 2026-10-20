@@ -12,9 +12,6 @@ extern u16 D_008C024E[];
 
 extern s32 D_008815B0[];
 
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -25,9 +22,9 @@ extern void itfMesWindowAdvanceRow(u8 *window);
 extern void itfMesWindowCommitSelection(u8 *window);
 extern void itfMesWindowStepTransition(u8 *window);
 extern void itfMesWindowQueueCallback(s32 taskAddress);
-extern s32 func_0027bd40(s32 handle);
-extern s32 func_0027bda0(s32 handle);
-extern s32 func_0027be00(s32 handle);
+extern s32 itfMesWindowSendRowTransitionEnter(s32 handle);
+extern s32 itfMesWindowSendRowTransitionActive(s32 handle);
+extern s32 itfMesWindowSendRowTransitionLeave(s32 handle);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
@@ -37,10 +34,10 @@ extern void itfMesWindowStepState(u8 *window);
 extern void itfMesWindowAdvanceRow(u8 *window);
 extern void itfMesWindowCommitSelection(u8 *window);
 extern void itfMesWindowQueueCallback(s32 taskAddress);
-extern s32 func_0027b910(s32 handle);
-extern s32 func_0027bd40(s32 handle);
-extern s32 func_0027bda0(s32 handle);
-extern s32 func_0027be00(s32 handle);
+extern s32 itfMesWindowSendDrawLists(s32 handle);
+extern s32 itfMesWindowSendRowTransitionEnter(s32 handle);
+extern s32 itfMesWindowSendRowTransitionActive(s32 handle);
+extern s32 itfMesWindowSendRowTransitionLeave(s32 handle);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -103,14 +100,14 @@ node_done:
     case 0:
         break;
     case 1:
-        if (func_0027bd40(value) != 0)
+        if (itfMesWindowSendRowTransitionEnter(value) != 0)
             *state = 2;
         break;
     case 2:
-        func_0027bda0(value);
+        itfMesWindowSendRowTransitionActive(value);
         break;
     case 3:
-        if (func_0027be00(value) != 0)
+        if (itfMesWindowSendRowTransitionLeave(value) != 0)
             *state = 0;
         break;
     }
@@ -123,7 +120,7 @@ void itfMesWindowUpdateLists(u8 *window)
     extern s32 frFontDrawListDefault(s32 list);
     extern s32 frFontDrawListMode(s32 list, s32 mode);
     extern void itfMesWindowMarkRedraw(void);
-    extern s32 func_0027b910(s32 handle);
+    extern s32 itfMesWindowSendDrawLists(s32 handle);
     s32 flags;
     u32 mask;
     s32 value;
@@ -145,7 +142,7 @@ node_check:
         goto node_body;
     value = -1;
 node_done:
-    func_0027b910(value);
+    itfMesWindowSendDrawLists(value);
 
     {
         s32 first;

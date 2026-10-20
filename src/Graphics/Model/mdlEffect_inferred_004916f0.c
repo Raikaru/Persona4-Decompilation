@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "include_asm.h"
@@ -21,9 +22,6 @@ typedef struct {
 } Code1_0049Color;
 extern Code1_0049Color iGpffffbb64;
 
-static inline f32 code1_0049_mul(f32 left, f32 right) {
-    return left * right;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004916f0-004916f0 */
 
@@ -62,6 +60,13 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_004916F0
 void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
 {
+    MdlEffectEmitter *emitterCounts;
+    MdlEffectSwirlParameters *prerollParameters;
+    MdlEffectSwirlParameters *emissionParameters;
+    SpawnParticle *activeParticle;
+    SpawnParticle *resetParticle;
+    SpawnParticle *sampledParticle;
+
     extern void effMiscBuildRotationVU(void);
     extern f32 cosf(f32 emitterBytes);
     extern f32 sinf(f32 emitterBytes);
@@ -114,7 +119,7 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     f32 trigValue;
 
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    count = *(u32 *)(parent + 4);
+    count = (emitterCounts = (MdlEffectEmitter *)parent)->primaryCount.value;
     flags = ((MdlEffectEmitter *)parent)->flags;
     nodes = ((MdlEffectEmitter *)parent)->particles;
     state = ((MdlEffectEmitter *)parent)->state.scalars;
@@ -133,7 +138,7 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     {
         u_long128 *const capture = &origin;
         /* The complete 16-byte VU position copy retains its quadword storage representation. */
-        *capture = *(u_long128 *)(config + 0);
+        *capture = *(u_long128 *)&((MdlEffectSwirlParameters *)config)->common.position;
     }
     effectVuLoad10((const EffectVuVector *)(config + 16));
     effMiscBuildRotationVU();
@@ -146,7 +151,7 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
         initialPreroll = 1;
         preroll = initialPreroll;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+        if (!((prerollParameters = (MdlEffectSwirlParameters *)config)->common.emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - ((MdlEffectSwirlParameters *)config)->common.emissionVariation) * effMiscRandFloat(0);
             secondValue = (f32)((MdlEffectEmitter *)parent)->primaryCount.value;
             spawnBudget = (s32)(secondValue * prerollScale);
@@ -157,7 +162,7 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     } else {
         preroll = 0;
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        if (!(*(f32 *)(config + 40) <= 0.0f)) {
+        if (!((emissionParameters = (MdlEffectSwirlParameters *)config)->common.emissionVariation <= 0.0f)) {
             f32 scale = (fGpffff807c - ((MdlEffectSwirlParameters *)config)->common.emissionVariation) * effMiscRandFloat(0);
             countValue = ((MdlEffectSwirlParameters *)config)->common.emissionRate.signedValue;
             secondValue = (f32)(u32)countValue;
@@ -184,7 +189,7 @@ post_init:
     goto main_check;
 main_body:
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    if (*(s32 *)(nodes + 16) < lifetime) {
+    if ((activeParticle = (SpawnParticle *)nodes)->age < lifetime) {
         goto skip_clear;
     }
     if (emissionDuration != 0) {
@@ -228,9 +233,9 @@ skip_clear:
     angle = firstValue + half * (angleRange * (one - angle));
     trigValue = sinf(angle);
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    firstValue = *(f32 *)(config + 200) * trigValue;
+    firstValue = MEMBER(f32, config, MdlEffectSwirlParameters, startRadius) * trigValue;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    secondValue = *(f32 *)(config + 204) * trigValue;
+    secondValue = MEMBER(f32, config, MdlEffectSwirlParameters, endRadius) * trigValue;
     state[0] = firstValue;
     state[1] = (secondValue - firstValue) / (f32)lifetime;
     if ((((MdlEffectSwirlParameters *)config)->alternateDirection == 0) || ((index & 1) != 0)) {
@@ -282,7 +287,7 @@ skip_clear:
         state[8] = one;
     }
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    *(s32 *)(nodes + 16) = 0;
+    (resetParticle = (SpawnParticle *)nodes)->age = 0;
     {
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)nodes;
@@ -306,11 +311,11 @@ skip_clear:
         ((SpawnParticle *)nodes)->age = (s32)angle;
     }
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &previousPosition);
+    mdlEffectSampleKeyState(nodes, config, (sampledParticle = (SpawnParticle *)nodes)->age, &previousPosition);
     ((SpawnParticle *)nodes)->size = ((SpawnParticle *)nodes)->size * state[6];
     ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle * state[8];
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + state[7];
+    MEMBER(f32, nodes, SpawnParticle, angle) = MEMBER(f32, nodes, SpawnParticle, angle) + state[7];
     if (preroll != 0) {
         trailSpan = ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailCount.signedValue * ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailWidth;
         if (trailSpan != 0) {
@@ -353,7 +358,7 @@ else_branch:
     ((SpawnParticle *)nodes)->size = ((SpawnParticle *)nodes)->size * state[6];
     ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle * state[8];
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + state[7];
+    ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle + state[7];
     mdlEffectUpdateParticleTrail(parent, nodes);
     ((SpawnParticle *)nodes)->age = age + 1;
 next_iter2:

@@ -18,10 +18,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
@@ -109,10 +105,10 @@ void ObjectParticleAppendNode(u8 *instance) {
     emitter = ((ObjectParticleInstance *)instance)->list;
     if (emitter != NULL) {
         inner = ((MdlEffectEmitter *)emitter)->parameters;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x64) = 0;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x68) = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->previous = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->next = 0;
         PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x64);
     }
 }
@@ -126,10 +122,10 @@ void ObjectParticleUpdateAndAppendNode(u8 *instance) {
     emitter = ((ObjectParticleInstance *)instance)->list;
     if (emitter != NULL) {
         inner = ((MdlEffectEmitter *)emitter)->parameters;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x64) = 0;
-        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
-        *(s32 *)(instance + 0x68) = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->previous = 0;
+        /* The embedded draw-list link is cleared before this instance is appended. */
+        ((ObjectParticleInstance *)instance)->next = 0;
         PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x64);
     }
 }

@@ -4,6 +4,7 @@
 #include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_shuffle_motion_internal.h"
+#include "rw_camera_internal.h"
 
 /* RwCamera.viewWindow starts at 0x68; preserve the existing byte-base hoist. */
 typedef struct BtlShuffleCameraWindow { f32 x, y; } BtlShuffleCameraWindow;
@@ -168,7 +169,7 @@ f32 btlShuffleCalcEase(f32 depth) {
 // FUN_00371780
 void btlShuffleCalcLookAt(u8 *output, u8 *point) {
     /* The camera frame is an EE address word; pointer-typed reads change argument-load scheduling in b210. */
-    func_003e42a0(output, point, func_003e9700(*(s32 *)(kwlnGetCamera() + 4)));
+    func_003e42a0(output, point, func_003e9700((s32)((RwCamera *)kwlnGetCamera())->object.object.parent));
 }
 
 /* measured: best nd 29. Hoisting the ratio ahead of the rounding block
@@ -1200,7 +1201,7 @@ void btlShuffleCalcNormalizeOffset(u8 *point) {
     ShuffleVec3 difference;
     u8 *cameraMatrix;
 
-    cameraMatrix = func_003e9700(*(s32 *)(kwlnGetCamera() + 4));
+    cameraMatrix = func_003e9700((s32)((RwCamera *)kwlnGetCamera())->object.object.parent);
     cameraPosition = ((BtlShuffleMatrix *)cameraMatrix)->pos;
     difference.x = ((RwV3d *)point)->x - cameraPosition.x;
     difference.y = ((RwV3d *)point)->y - cameraPosition.y;

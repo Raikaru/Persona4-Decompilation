@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -80,6 +81,8 @@ typedef struct EffScreenSpriteRGBA {
 // FUN_004B1AD0
 void mdlEffectUpdateScreenSprite(u8 *instance)
 {
+    MdlEffectScreenSprite *spriteGeometryOwner;
+
     extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
     extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
     extern void mdlEffectWrapTrackFrames(s32 instance, u32 frame);
@@ -118,7 +121,7 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
     total = ((MdlEffectScreenSprite *)instance)->duration;
     count = ((MdlEffectScreenSprite *)instance)->age;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    sprite = *(u8 **)(instance + 0xA4);
+    sprite = *(u8 * *)&(spriteGeometryOwner = (MdlEffectScreenSprite *)instance)->geometry;
     if (count == 0) {
         return;
     }
@@ -162,7 +165,7 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
     spin = mdlEffectSampleScalarKeys(instance + 0x6C, count, total);
     spin += fGpffff8084;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    if (*(s32 *)(instance + 0xAC) != 0) {
+    if (MEMBER(s32, instance, MdlEffectScreenSprite, tracks) != 0) {
         f32 cellW;
         f32 cellH;
         f32 y0;
@@ -170,7 +173,7 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         f32 x1;
 
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlEffectWrapTrackFrames(*(s32 *)(instance + 0xAC), count);
+        mdlEffectWrapTrackFrames(MEMBER(s32, instance, MdlEffectScreenSprite, tracks), count);
         mdlEffectEvalSubPose(((MdlEffectScreenSprite *)instance)->tracks, animation);
         cellW = 16.0f * animation[12];
         cellH = 16.0f * animation[13];
@@ -194,7 +197,7 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         info.size[1] = (u32)animation[13];
         spin += animation[4];
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
+        func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&animation[5]);
     } else if ((void *)((MdlEffectScreenSprite *)instance)->tlp != NULL) {
         s32 w;
         s32 h;
@@ -219,7 +222,7 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         info.size[0] = (u32)texture[2];
         info.size[1] = (u32)texture[3];
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
+        func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&texture[4]);
     } else {
         s32 w;
         s32 h;
@@ -243,7 +246,7 @@ void mdlEffectUpdateScreenSprite(u8 *instance)
         info.size[1] = frame[1];
     }
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    RpGeometryLock(((RpAtomic *)*(u8 **)(sprite + 0x10))->geometry, 0xFF2);
+    RpGeometryLock(((RpAtomic *)MEMBER(u8 *, sprite, EffGeometryBlock, atomic))->geometry, 0xFF2);
     {
         u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)sprite)->atomic)->geometry;
 
@@ -330,17 +333,17 @@ f32 *camera;
     {
         u8 *scene = (u8 *)kwlnGetCamera();
 
-        /* This callback consumes the geometry frame word beyond the shared block prefix; no full frame-owning subtype is established here. */
-        func_003e9cb0(*(void **)(sprite + 0xC), (void *)((u32)((MdlEffectCamera *)scene)->frame + 0x10), 0);
+        /* The geometry block owns the frame that receives the projected transform. */
+        func_003e9cb0(((EffGeometryBlock *)sprite)->frame, (void *)((u32)((MdlEffectCamera *)scene)->frame + 0x10), 0);
     }
     *(u16 *)sprite &= 0xFFFE;
     {
         s32 light = TnGetOffset38(((MdlEffectScreenSprite *)instance)->scene);
 
-        /* The embedded draw-list link is opaque in the shared geometry-block type; retain its two word clears. */
-        *(u32 *)(sprite + 0x18) = 0;
-        /* The embedded draw-list link is opaque in the shared geometry-block type; retain its two word clears. */
-        *(u32 *)(sprite + 0x1C) = 0;
+        /* Clear the geometry block's embedded draw-list link before appending it. */
+        ((EffGeometryBlock *)sprite)->previous = 0;
+        /* Clear the geometry block's embedded draw-list link before appending it. */
+        ((EffGeometryBlock *)sprite)->next = 0;
         PrimAppendNode((void *)light, sprite + 0x18);
     }
 }

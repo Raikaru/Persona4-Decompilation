@@ -21,9 +21,7 @@ extern s32 cmmCommunityFindActiveSlotInGroup(s64 group);
 extern u8 *cmmSlotNameRecord(s32 slotId);
 extern s32 cmmCommunityGetCurrentId(void);
 extern u8 *cmmNameRecord(s32 nameId);
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
+
 extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
 extern s32 calGetDayWindowFlags(s32 day);
 extern s64 fclBankTryQueueRequest(s64 value, s32 index, s64 count);
@@ -52,6 +50,13 @@ extern s32 cmmCommunityGetCurrentId(void);
 // FUN_00270100
 s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
 {
+    FrFontContext *positionFields;
+    FrFontContext *streamFields;
+    FrFontContext *positionFieldsReload;
+    FrFontContext *streamFieldsReload;
+    FrFontContext *positionFieldsNextReload;
+    FrFontContext *streamFieldsNextReload;
+
     u32 flags;
     s64 requestKey;
     s16 requestState;
@@ -89,8 +94,8 @@ s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
         s32 low;
         u8 high;
         s32 decodedHigh;
-        base = *(u8 **)(context + 0x18);
-        offset = *(s32 *)(context + 0x10);
+        base = *(u8 * *)&(positionFields = (FrFontContext *)(context), positionFields)->position;
+        offset = (streamFields = (FrFontContext *)(context), streamFields)->stream;
         base += offset;
         low = (((u8 *)base)[4] - 1) & 0xFF;
         high = ((u8 *)base)[5];
@@ -121,9 +126,9 @@ s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
         s32 low;
         u8 high;
         s32 decodedHigh;
-        base = *(u8 **)(context + 0x18);
-        offset = *(s32 *)(context + 0x10);
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = *(u8 * *)&(positionFieldsReload = (FrFontContext *)(context), positionFieldsReload)->position;
+        offset = (streamFieldsReload = (FrFontContext *)(context), streamFieldsReload)->stream;
+        base = (u8 *)((u32)offset + (u32)base);
         low = (((u8 *)base)[0] - 1) & 0xFF;
         high = ((u8 *)base)[1];
         if (high == 0xFF) {
@@ -141,8 +146,8 @@ s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
         u8 high;
         s32 decodedHigh;
         s32 secondaryKey;
-        base = *(u8 **)((u8 *)context + 0x18);
-        offset = *(s32 *)((u8 *)context + 0x10);
+        base = *(u8 * *)&(positionFieldsNextReload = (FrFontContext *)((u8 *)context), positionFieldsNextReload)->position;
+        offset = (streamFieldsNextReload = (FrFontContext *)((u8 *)context), streamFieldsNextReload)->stream;
         base += offset;
         low = (((u8 *)base)[2] - 1) & 0xFF;
         high = ((u8 *)base)[3];
@@ -184,6 +189,9 @@ s32 frFontSettleBankRequestCommand(void)
 // FUN_002703D0
 s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
 {
+    FrFontContext *positionFields;
+    FrFontContext *streamFields;
+
     u16 resourceId;
     s32 value;
 
@@ -195,7 +203,7 @@ s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
         s32 low;
         base = (u8 *)((FrFontContext *)context)->position;
         offset = ((FrFontContext *)context)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (((u8 *)base)[0] - 1) & 0xFF;
         encodedHigh = ((u8 *)base)[1];
         if (encodedHigh == 0xFF) {
@@ -213,8 +221,8 @@ s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
         u8 secondEncodedHigh;
         s32 low;
         s32 secondKey;
-        base = *(u8 **)((u8 *)context + 0x18);
-        offset = *(s32 *)((u8 *)context + 0x10);
+        base = *(u8 * *)&(positionFields = (FrFontContext *)((u8 *)context), positionFields)->position;
+        offset = (streamFields = (FrFontContext *)((u8 *)context), streamFields)->stream;
         base += offset;
         low = (((u8 *)base)[2] - 1) & 0xFF;
         secondEncodedHigh = ((u8 *)base)[3];
@@ -247,6 +255,13 @@ s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
 // FUN_002704F0
 s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
 {
+    FrFontContext *positionFields;
+    FrFontContext *streamFields;
+    FrFontContext *positionFieldsReload;
+    FrFontContext *streamFieldsReload;
+    FrFontContext *positionFieldsNextReload;
+    FrFontContext *streamFieldsNextReload;
+
     s32 requestKey;
     struct FrFontCommandOperands {
         u8 pad0[0x10];
@@ -268,9 +283,9 @@ s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
         s32 decodedHigh;
         u8 operand;
         s32 low;
-        base = *(u8 **)(context + 0x18);
-        offset = *(s32 *)(context + 0x10);
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = *(u8 * *)&(positionFields = (FrFontContext *)(context), positionFields)->position;
+        offset = (streamFields = (FrFontContext *)(context), streamFields)->stream;
+        base = (u8 *)((u32)offset + (u32)base);
         low = (((u8 *)base)[0] - 1) & 0xFF;
         operand = ((u8 *)base)[1];
         if (operand == 0xFF) {
@@ -287,8 +302,8 @@ s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
         s32 decodedHigh;
         u8 operand;
         s32 low;
-        base = *(u8 **)((u8 *)context + 0x18);
-        offset = *(s32 *)((u8 *)context + 0x10);
+        base = *(u8 * *)&(positionFieldsReload = (FrFontContext *)((u8 *)context), positionFieldsReload)->position;
+        offset = (streamFieldsReload = (FrFontContext *)((u8 *)context), streamFieldsReload)->stream;
         base += offset;
         low = (((u8 *)base)[2] - 1) & 0xFF;
         operand = ((u8 *)base)[3];
@@ -325,8 +340,8 @@ s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
         s32 decodedHigh;
         u8 operand;
         s32 low;
-        base = *(u8 **)((const u8 *)context + 0x18);
-        offset = *(s32 *)((const u8 *)context + 0x10);
+        base = *(u8 * *)&(positionFieldsNextReload = (FrFontContext *)((const u8 *)context), positionFieldsNextReload)->position;
+        offset = (streamFieldsNextReload = (FrFontContext *)((const u8 *)context), streamFieldsNextReload)->stream;
         base += offset;
         low = (((u8 *)base)[6] - 1) & 0xFF;
         operand = ((u8 *)base)[7];
@@ -344,8 +359,8 @@ s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
         s32 decodedHigh;
         u8 operand;
         s32 low;
-        base = *(u8 **)((u8 *)(u32)context + 0x18);
-        offset = *(s32 *)((u8 *)(u32)context + 0x10);
+        base = *(u8 * *)&((FrFontContext *)((u8 *)(u32)context))->position;
+        offset = ((FrFontContext *)((u8 *)(u32)context))->stream;
         base += offset;
         low = (((u8 *)base)[8] - 1) & 0xFF;
         operand = ((u8 *)base)[9];
@@ -401,7 +416,7 @@ s32 itfMesSetSlotNameText(s32 unusedCommand, u8 *context) {
 
     base = (u32)((FrFontContext *)context)->position;
     offset = (u32)((FrFontContext *)context)->stream;
-    operand = (u8 *)add_retail_ptr(offset, base);
+    operand = (u8 *)(offset + base);
     low = (operand[0] - 1) & 0xFF;
     encodedHigh = operand[1];
     if (encodedHigh == 0xFF) {
@@ -508,7 +523,7 @@ s32 itfMesSetCommunityNameText(s32 unusedCommand, u8 *context) {
 
     base = (u32)((FrFontContext *)context)->position;
     offset = (u32)((FrFontContext *)context)->stream;
-    operand = (u8 *)add_retail_ptr(offset, base);
+    operand = (u8 *)(offset + base);
     value = (operand[0] - 1) & 0xFF;
     encodedHigh = operand[1];
     if (encodedHigh == 0xFF) {
@@ -542,6 +557,9 @@ s32 itfMesSetCommunityNameText(s32 unusedCommand, u8 *context) {
 // FUN_00270B80
 s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
 {
+    FrFontContext *positionFields;
+    FrFontContext *streamFields;
+
     s64 first;
     s64 second;
 
@@ -554,7 +572,7 @@ s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
 
         base = (u8 *)((FrFontContext *)context)->position;
         offset = ((FrFontContext *)context)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (base[0] - 1) & 0xFF;
         high = base[1];
         if (high == 0xFF)
@@ -570,8 +588,8 @@ s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
         u8 high;
         s32 low;
 
-        base = *(u8 **)((u8 *)context + 0x18);
-        offset = *(s32 *)((u8 *)context + 0x10);
+        base = *(u8 * *)&(positionFields = (FrFontContext *)((u8 *)context), positionFields)->position;
+        offset = (streamFields = (FrFontContext *)((u8 *)context), streamFields)->stream;
         base += offset;
         low = (base[2] - 1) & 0xFF;
         high = base[3];
@@ -599,6 +617,11 @@ s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
 // FUN_00270CA0
 s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
 {
+    FrFontContext *positionFields;
+    FrFontContext *streamFields;
+    FrFontContext *positionFieldsReload;
+    FrFontContext *streamFieldsReload;
+
     extern s32 cmmCommunityHasRecord(u16 communityId); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on cmmCommunityScriptAddPointsChecked */
     extern s32 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId);
     s32 second;
@@ -612,9 +635,9 @@ s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
         u8 high;
         s32 low;
 
-        base = *(u8 **)(context + 0x18);
-        offset = *(s32 *)(context + 0x10);
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = *(u8 * *)&(positionFields = (FrFontContext *)(context), positionFields)->position;
+        offset = (streamFields = (FrFontContext *)(context), streamFields)->stream;
+        base = (u8 *)((u32)offset + (u32)base);
         low = (base[0] - 1) & 0xFF;
         high = base[1];
         if (high == 0xFF)
@@ -630,8 +653,8 @@ s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
         u8 high;
         s32 low;
 
-        base = *(u8 **)((u8 *)context + 0x18);
-        offset = *(s32 *)((u8 *)context + 0x10);
+        base = *(u8 * *)&(positionFieldsReload = (FrFontContext *)((u8 *)context), positionFieldsReload)->position;
+        offset = (streamFieldsReload = (FrFontContext *)((u8 *)context), streamFieldsReload)->stream;
         base += offset;
         low = (base[2] - 1) & 0xFF;
         high = base[3];

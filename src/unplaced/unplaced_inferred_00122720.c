@@ -15,6 +15,7 @@ extern void cldTimeChangeCreate();
 extern s32 iGpffffb1cc;
 #pragma push
 #pragma opt_propagation on
+/* Report fade progress: 0 transitioning, 2 held, or 1 inactive/child-waiting. */
 // FUN_00122720
 /* The case values come from decoding the jump table at 0x007466C0 with
    tools/jtbl.py: entry 0 returns 1, entries 1/2/4/5 share one body returning

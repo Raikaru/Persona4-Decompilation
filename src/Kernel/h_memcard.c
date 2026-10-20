@@ -1,3 +1,4 @@
+#include "memcard_summary_internal.h"
 /* Source unit: src/Kernel/h_memcard_00464650.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
@@ -46,8 +47,8 @@ extern char D_00712938[];
 
 
 
-// FUN_00464650
 /* Begin a buffered load by resetting the card sequence and recording its inputs. */
+// FUN_00464650
 void H_Memcard_BeginLoad(s32 file, void* buffer, s32 size)
 {
     D_00764BC0 = 0;
@@ -74,8 +75,8 @@ void H_Memcard_SetSeqMode4(void)
     D_00764BC0 = 4;
 }
 
-// FUN_00465400
 /* Poll card presence/type and translate backend errors to the caller's status codes. */
+// FUN_00465400
 s32 H_Memcard_CheckCard(void)
 {
     s32 status;
@@ -156,8 +157,8 @@ void H_Memcard_SetAbort(void)
     D_00764B9C = 1;
 }
 
-// FUN_00465570
 /* Begin a buffered save by recording the file, buffer and result-address word. */
+// FUN_00465570
 void H_Memcard_BeginSave(s32 file, void* buffer, s32 resultAddress)
 {
     D_00764BC0 = 0;
@@ -170,9 +171,9 @@ void H_Memcard_BeginSave(s32 file, void* buffer, s32 resultAddress)
 
 
 
-// FUN_00465590
 /* Advance the asynchronous save sequence; return 100 on completion or a negative error.
  * D_00764BB0 holds the caller's result address as a 32-bit word, not an object offset. */
+// FUN_00465590
 s32 H_Memcard_SaveStep(void)
 {
     s32 cardMode;
@@ -277,7 +278,7 @@ s32 H_Memcard_SaveStep(void)
         {
             if (cardError != 0)
             {
-                *(s32 *)(uintptr_t)D_00764BB0 = cardCode;
+                ((s32 *)(uintptr_t)D_00764BB0)[0] = cardCode;
                 goto state3_message;
             }
             switch (cardCode)
@@ -308,8 +309,8 @@ state3_message:
 done:
     return 0;
 }
-// FUN_004659F0
 /* Select the caller's availability/summary table and restart slot enumeration. */
+// FUN_004659F0
 void H_Memcard_SetRecordTable(s32 recordTableAddress)
 {
     D_00764BC0 = 0;
@@ -318,9 +319,9 @@ void H_Memcard_SetRecordTable(s32 recordTableAddress)
     D_00764BB8 = 0;
     iGpffffbab0 = 0;
 }
-// FUN_00465A10
 /* Read sixteen 0x34-byte slot summaries, check their byte-sum checksum and mark availability.
  * The data cursor scans serialized bytes; the trailing u16 checksum lives at 0x32. */
+// FUN_00465A10
 s32 H_Memcard_LoadStep(void)
 {
     s32 cardMode;
@@ -435,7 +436,7 @@ s32 H_Memcard_LoadStep(void)
                 {
                     checksum = (u16)((checksum + recordData[i]) & 0xff);
                 }
-                if (*(u16 *)(recordData + 0x32) != (checksum & 0xff))
+                if (((McSaveRecord *)recordData)->checksum != (checksum & 0xff))
                 {
                     memset(recordData, 0, 0x34);
                 }
@@ -461,6 +462,7 @@ state3_done:
 done:
     return 0;
 }
+/* Restart card sequencing with operation and file index cleared; retained buffers are not freed. */
 // FUN_00465F20
 void H_Memcard_Reset(void)
 {
@@ -595,6 +597,7 @@ s32 H_Memcard_CreateSlotsStep(void)
 
 
 
+/* Select a save-slot file and restart its card operation without changing the buffer. */
 // FUN_00466260
 void H_Memcard_SetSlot(s32 slot)
 {

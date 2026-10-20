@@ -16,12 +16,6 @@ extern struct GDataEntry *datEntryAt(s16 itemId);
 extern u32 datEntryGetFlags(s16 itemId);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 flags);
-static inline u8 *code13AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
-static inline f32 code13Add(f32 left, f32 right) {
-    return left + right;
-}
 extern void sdkSpriteFreeNode(void *node);
 extern void radarDrawFrame(u8 *work);
 extern void radarResetEntries(u8 *work);
@@ -222,45 +216,6 @@ s32 radarCollectPartyChanges(u8 *state) {
 #pragma opt_propagation off
 #pragma pop
 /* measured: close family opt_propagation bracket. */
-#pragma opt_propagation on
-static inline s32 code13GroupBefore(u8 *arg0, s32 index)
-{
-    u32 selected;
-    selected = datEntryGetFlags(*(s16 *)(code13AddOff((index - 1) * 4, arg0) + 0x3E));
-    index = index - 1;
-    while (index > 0) {
-        if (datEntryGetFlags(*(s16 *)(arg0 + index * 4 + 0x3A)) != selected) break;
-        index--;
-    }
-    return index;
-}
-static inline s32 code13GroupBeforeOrSame(u8 *arg0, s32 total)
-{
-    if (total == 0) {
-        return total;
-    } else {
-        return code13GroupBefore(arg0, total);
-    }
-}
-static inline s32 code13GroupAfter(u8 *arg0, s32 total, s32 count, s32 wrap)
-{
-    s32 index;
-    u32 selected;
-    selected = datEntryGetFlags(*(s16 *)(code13AddOff(total * 4, arg0) + 0x3E));
-    index = total + 1;
-    while (index < count) {
-        if (datEntryGetFlags(*(s16 *)(arg0 + index * 4 + 0x3E)) != selected) break;
-        index++;
-    }
-    if (index >= count) index = wrap;
-    return index;
-}
-/* The sum's inline boundary preserves the retail column-before-row loads. */
-#pragma opt_propagation off
-static inline s32 code13SelectionSum(s32 row, s32 column)
-{
-    return row + column;
-}
 #pragma opt_propagation on
 /* Matched.  Same menu-state-machine family as radarTransferMenuUpdate, radarPersonaMenuUpdate
    and radarUpdateState: `*arg1 = (var_2 = 1)`, a switch on *arg0 whose arms

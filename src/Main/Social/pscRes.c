@@ -1,7 +1,26 @@
 /* Original translation unit pscRes.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
+#include "member_access.h"
+#include "member_access.h"
+#include "member_access.h"
+#include "h_cdvd_internal.h"
 
 /* Slot strides and fields are shared by allocation, retain/release and polling. */
+typedef struct PscImageEntry
+{
+    s32 offset;
+    s32 unk04;
+} PscImageEntry;
+
+typedef struct PscImageContainer
+{
+    u32 unk00;
+    u16 count;
+    u16 unk06;
+    PscImageEntry entries[];
+} PscImageContainer;
+
 typedef struct PscArcanaCard
 {
     u32 flags;
@@ -61,7 +80,6 @@ extern void pscResRetainPersonaCard(s32 personaId);
 extern s32 pscResFindFreePersonaSlot(void);
 extern u32 *pscResFindFreeRequest(void);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void func_00440b68(char *fmt, ...);
 extern s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
 extern char D_00723A78;
 extern char D_0064E4F0[];
@@ -86,8 +104,6 @@ extern u8 *func_003ec6a0(RwRaster *raster, u8 level, s32 lockMode);
 extern RwRaster *func_003ec2a0(RwRaster *raster);
 extern const u8 D_0064E4E0[];
 extern void *D_0072469C;
-extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
-extern void H_Cdvd_Destroy(void *cdvd);
 
 
 // Intent: Initialises the social card resource context: clears slot flags, refcounts and handles, and publishes it as the singleton [inferred]
@@ -123,10 +139,14 @@ void pscResInit(void *context) {
 }
 
 // Intent: Polls card resource loads: when a CD file completes, decodes it into its slot and marks the slot ready [inferred]
+/* Poll pending card files, decode completed images into their destination slots, and release each completed file request. */
 // FUN_0036B750
-/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
- * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
+/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
+ * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResUpdate(void) {
+    PscCardRequest *requestFields;
+    HCdvd *loadedFile;
+    PscResourceContext *cardContext;
     u8 *e;
     u8 *p;
     s32 i;
@@ -137,73 +157,80 @@ void pscResUpdate(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
+    cardContext = (PscResourceContext *)p;
     for (i = 0; i < 0x20; i++) {
         e = (u8 *)p + i * 0x124 + 0x294;
-        if (!(~*(u32 *)((u8 *)p + i * 0x124 + 0x294) & 1)) {
-            t = *(s32 *)(e + 4);
+        requestFields = (PscCardRequest *)e;
+        if (!(~((PscResourceContext *)p)->requests[i].flags & 1)) {
+            t = ((PscCardRequest *)e)->state;
             switch (t) {
             case 0:
                 kAssertFail(D_0064E4E0, 0xBF);
                 break;
             case 1:
-                if (H_Cdvd_IsFileLoaded(*(void **)(e + 8)) != 0) {
-                    t2 = *(s32 *)(e + 0x110);
+                if (H_Cdvd_IsFileLoaded((void *)((PscCardRequest *)e)->file) != 0) {
+                    t2 = ((PscCardRequest *)e)->kind;
                     switch (t2) {
                     case 2:
-                        switch (*(s32 *)(e + 0x114)) {
+                        switch (((PscCardRequest *)e)->slotIndex) {
                         case 0:
-                            if (!(~*(u32 *)((u8 *)p + 0x10) & 1)) {
+                            if (!(~((PscResourceContext *)p)->readyFlags & 1)) {
                                 kAssertFail(D_0064E4E0, 0xCD);
                             }
-                            *(s32 *)((u8 *)p + 4) = pscResDecodeImage((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
-                            *(u32 *)((u32)p + 0x10) |= 1;
-                            H_Cdvd_Destroy(*(void **)(e + 8));
+                            loadedFile = (HCdvd *)(uintptr_t)(u32)requestFields->file;
+                            ((PscResourceContext *)p)->baseRaster = pscResDecodeImage((void *)(u32)loadedFile->fileMemory);
+                            cardContext->readyFlags |= 1;
+                            H_Cdvd_Destroy((void *)requestFields->file);
                             *(u32 *)e &= ~1;
                             break;
                         case 1:
-                            if (!(~*(u32 *)((s32)p + 0x10) & 2)) {
+                            if (!(~((PscResourceContext *)p)->readyFlags & 2)) {
                                 kAssertFail(D_0064E4E0, 0xD4);
                             }
-                            *(s32 *)((u8 *)p + 8) = pscResDecodeImage((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
-                            *(u32 *)((u32 *)p + 4) |= 2;
-                            *(u32 *)((u8 *)p + 0) &= ~4;
-                            H_Cdvd_Destroy(*(void **)(e + 8));
+                            loadedFile = (HCdvd *)(uintptr_t)(u32)requestFields->file;
+                            ((PscResourceContext *)p)->miscW00Raster = pscResDecodeImage((void *)(u32)loadedFile->fileMemory);
+                            cardContext->readyFlags |= 2;
+                            ((PscResourceContext *)p)->flags &= ~4;
+                            H_Cdvd_Destroy((void *)requestFields->file);
                             *(u32 *)e &= ~1;
                             break;
                         case 2:
-                            if (!(~*(u32 *)((u32)p + 0x10) & 0x10)) {
+                            if (!(~((PscResourceContext *)p)->readyFlags & 0x10)) {
                                 kAssertFail(D_0064E4E0, 0xE0);
                             }
-                            *(s32 *)((u8 *)p + 0xC) = pscResDecodeImage((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
-                            *(u32 *)((u16 *)p + 8) |= 0x10;
-                            *(u32 *)((u8 *)p + 0) &= ~0x10;
-                            H_Cdvd_Destroy(*(void **)(e + 8));
+                            loadedFile = (HCdvd *)(uintptr_t)(u32)requestFields->file;
+                            ((PscResourceContext *)p)->miscW01Raster = pscResDecodeImage((void *)(u32)loadedFile->fileMemory);
+                            cardContext->readyFlags |= 0x10;
+                            ((PscResourceContext *)p)->flags &= ~0x10;
+                            H_Cdvd_Destroy((void *)requestFields->file);
                             *(u32 *)e &= ~1;
                             break;
                         }
                         break;
                     case 0:
-                        if (!(~*(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x54) & 2)) {
+                        if (!(~((PscResourceContext *)p)->arcana[((PscCardRequest *)e)->slotIndex].flags & 2)) {
                             kAssertFail(D_0064E4E0, 0xEB);
                         }
-                        *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x60) =
-                            pscResDecodeImage((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
-                        *(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x54) |= 2;
-                        H_Cdvd_Destroy(*(void **)(e + 8));
+                        loadedFile = (HCdvd *)(uintptr_t)(u32)requestFields->file;
+                        ((PscResourceContext *)p)->arcana[requestFields->slotIndex].raster =
+                            pscResDecodeImage((void *)(u32)loadedFile->fileMemory);
+                        ((PscResourceContext *)p)->arcana[requestFields->slotIndex].flags |= 2;
+                        H_Cdvd_Destroy((void *)requestFields->file);
                         *(u32 *)e &= ~1;
                         break;
                     case 1:
-                        if (!(~*(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x194) & 2)) {
+                        if (!(~((PscResourceContext *)p)->personas[((PscCardRequest *)e)->slotIndex].flags & 2)) {
                             kAssertFail(D_0064E4E0, 0xF3);
                         }
-                        *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x19C) =
-                            pscResDecodeImage((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
-                        *(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x194) |= 2;
-                        H_Cdvd_Destroy(*(void **)(e + 8));
+                        loadedFile = (HCdvd *)(uintptr_t)(u32)requestFields->file;
+                        ((PscResourceContext *)p)->personas[requestFields->slotIndex].raster =
+                            pscResDecodeImage((void *)(u32)loadedFile->fileMemory);
+                        ((PscResourceContext *)p)->personas[requestFields->slotIndex].flags |= 2;
+                        H_Cdvd_Destroy((void *)requestFields->file);
                         *(u32 *)e &= ~1;
                         break;
                     }
-                    *(s32 *)(e + 4) = 2;
+                    requestFields->state = 2;
                 }
                 break;
             case 2:
@@ -233,10 +260,12 @@ s32 pscResAnySlotInUse(void) {
 }
 
 // Intent: Frees every card raster and slot in the resource context and clears the singleton [inferred]
+/* Destroy every ready shared raster and occupied card-slot raster before unpublishing the resource context. */
 // FUN_0036BBF0
-/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
- * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
+/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
+ * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResDestroy(void) {
+    PscResourceContext *cardContext;
     u8 *p;
     s32 i;
     s32 j;
@@ -247,49 +276,51 @@ void pscResDestroy(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (*(u32 *)(p + 0x10) & 0x10) {
-        func_003ec330(*(s32 *)(p + 0xC));
+    cardContext = (PscResourceContext *)p;
+    if (((PscResourceContext *)p)->readyFlags & 0x10) {
+        func_003ec330(((PscResourceContext *)p)->miscW01Raster);
     }
-    if (*(u32 *)(p + 0x10) & 1) {
-        func_003ec330(*(s32 *)(p + 4));
+    if (cardContext->readyFlags & 1) {
+        func_003ec330(((PscResourceContext *)p)->baseRaster);
     }
-    if (*(u32 *)(p + 0x10) & 2) {
-        func_003ec330(*(s32 *)(p + 8));
+    if (cardContext->readyFlags & 2) {
+        func_003ec330(((PscResourceContext *)p)->miscW00Raster);
     }
-    if (*(u32 *)(p + 0x10) & 4) {
+    if (cardContext->readyFlags & 4) {
         for (i = 0; i < 7; i++) {
-            func_003ec330(*(s32 *)(p + i * 4 + 0x24));
+            func_003ec330(((PscResourceContext *)p)->textures[i]);
         }
     }
-    if (*(u32 *)(p + 0x10) & 8) {
+    if (cardContext->readyFlags & 8) {
         for (i = 0; i < 2; i++) {
-            func_003ec330(*(s32 *)(p + i * 4 + 0x40));
+            func_003ec330(((PscResourceContext *)p)->subTextures[i]);
         }
     }
     for (j = 0; j < 0x10; j++) {
-        v = *(u32 *)(p + j * 0x14 + 0x54);
+        v = *(u32 *)(p + j * 0x14 + MEMBER_OFFSET(PscResourceContext, arcana[0].flags));
         if (!(~v & 1)) {
             if (!(v & 2)) {
                 kAssertFail(D_0064E4E0, 0x13F);
             }
             e = p + j * 0x14 + 0x54;
-            func_003ec330(*(s32 *)(e + 0xC));
+            func_003ec330(((PscArcanaCard *)e)->raster);
         }
     }
     for (j = 0; j < 0x10; j++) {
-        v = *(u32 *)(p + j * 0x10 + 0x194);
+        v = *(u32 *)(p + j * 0x10 + MEMBER_OFFSET(PscResourceContext, personas[0].flags));
         if (!(~v & 1)) {
             if (!(v & 2)) {
                 kAssertFail(D_0064E4E0, 0x148);
             }
             e = p + j * 0x10 + 0x194;
-            func_003ec330(*(s32 *)(e + 8));
+            func_003ec330(((PscPersonaCard *)e)->raster);
         }
     }
     D_0072469C = 0;
 }
 
 
+/* Return the base card raster after asserting that its ready flag has been set. */
 // FUN_0036BE00
 /* Return the base card raster after asserting that its ready flag is set. */
 s32 pscResGetBaseRaster(void) {
@@ -321,20 +352,21 @@ s32 pscResGetMiscCardW00Raster(void) {
 }
 
 // Intent: Returns the raster of the loaded Arcana card for (group, index) [inferred]
+/* Find the requested Arcana group and card index and return its raster only after checking readiness. */
 // FUN_0036BEE0
-/* Typed slot members change b210 address folding; retain the byte-stride
- * accesses to PscArcanaCard/PscPersonaCard for MATCH. */
+/* The slot stride and fields follow the shared card layouts above. */
 s32 pscResGetArcanaRaster(s32 group, s32 cardIndex) {
+    PscResourceContext *cardContext;
     s32 i;
     s32 entryGroup;
     s32 entryIndex;
-    s32 scaled;
     void *p;
 
     if (D_0072469C == 0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
+    cardContext = (PscResourceContext *)p;
     for (i = 0; i < 0x10; i++) {
         entryGroup = ((PscResourceContext *)p)->arcana[i].group;
         if (entryGroup == group) {
@@ -347,21 +379,20 @@ s32 pscResGetArcanaRaster(s32 group, s32 cardIndex) {
     if (i >= 0x10) {
         kAssertFail(D_0064E4E0, 0x170);
     }
-    scaled = i * 0x14;
-    if (!(*(u32 *)((u8 *)((u32)scaled + (u32)p + 0x54)) & 2)) {
+    if (!(cardContext->arcana[i].flags & 2)) {
         kAssertFail(D_0064E4E0, 0x171);
     }
-    return *(s32 *)((u8 *)((s32)scaled + (s32)p + 0x60));
+    return cardContext->arcana[i].raster;
 }
 
 // Intent: Returns the raster of the loaded persona card with the given 16-bit id [inferred]
+/* Find the matching sixteen-bit persona identifier and return its raster only after checking readiness. */
 // FUN_0036BFF0
-/* Typed slot members change b210 address folding; retain the byte-stride
- * accesses to PscArcanaCard/PscPersonaCard for MATCH. */
+/* The slot stride and fields follow the shared card layouts above. */
 s32 pscResGetPersonaRaster(s32 personaId) {
+    PscResourceContext *cardContext;
     s32 i;
     u32 key;
-    s32 scaled;
     void *p;
     u16 v;
 
@@ -369,6 +400,7 @@ s32 pscResGetPersonaRaster(s32 personaId) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
+    cardContext = (PscResourceContext *)p;
     for (i = 0, key = personaId & 0xFFFF; i < 0x10; i++) {
         v = ((PscResourceContext *)p)->personas[i].id;
         if (v == key) {
@@ -378,11 +410,10 @@ s32 pscResGetPersonaRaster(s32 personaId) {
     if (i >= 0x10) {
         kAssertFail(D_0064E4E0, 0x182);
     }
-    scaled = i << 4;
-    if (!(*(u32 *)((u8 *)((u32)scaled + (u32)p + 0x194)) & 2)) {
+    if (!(cardContext->personas[i].flags & 2)) {
         kAssertFail(D_0064E4E0, 0x184);
     }
-    return *(s32 *)((u8 *)((s32)scaled + (s32)p + 0x19C));
+    return cardContext->personas[i].raster;
 }
 
 // Intent: Returns the raster of the misc card w_c01 [inferred]
@@ -493,10 +524,12 @@ void pscResReleaseMiscCardW01(void) {
 }
 
 // Intent: Takes a reference to misc card w_c00, starting its CD load (card/misc/w_c00.tmx) on first use [inferred]
+/* Retain the first miscellaneous card, scheduling its image file only when neither ready nor already loading. */
 // FUN_0036C450
-/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
- * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
+/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
+ * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResAcquireMiscCardW00(void) {
+    PscResourceContext *cardContext;
     void *p;
     void *q;
 
@@ -504,23 +537,24 @@ void pscResAcquireMiscCardW00(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (*(u32 *)((u8 *)p + 0x10) & 2) {
-        *(s32 *)((u8 *)p + 0x4C) += 1;
-    } else if (*(u32 *)((u8 *)p + 0) & 4) {
-        if (*(s32 *)((u8 *)p + 0x4C) == 0) {
+    cardContext = (PscResourceContext *)p;
+    if (((PscResourceContext *)p)->readyFlags & 2) {
+        ((PscResourceContext *)p)->miscW00References += 1;
+    } else if (((PscResourceContext *)p)->flags & 4) {
+        if (((PscResourceContext *)p)->miscW00References == 0) {
             kAssertFail(D_0064E4E0, 0x212);
         }
-        *(s32 *)((u8 *)((u32)p + 0x4C)) += 1;
+        cardContext->miscW00References += 1;
     } else {
-        *(s32 *)((u8 *)p + 0x4C) = 1;
-        *(u32 *)((u8 *)p + 0) |= 4;
+        ((PscResourceContext *)p)->miscW00References = 1;
+        ((PscResourceContext *)p)->flags |= 4;
         q = pscResFindFreeRequest();
-        *(s32 *)((u8 *)q + 0x110) = 2;
-        *(s32 *)((u8 *)q + 0x114) = 1;
+        ((PscCardRequest *)q)->kind = 2;
+        ((PscCardRequest *)q)->slotIndex = 1;
         func_00440b68(&D_00723A78, D_0064E4E0, 0x21E);
-        *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(D_0064E4F0, 0);
-        *(s32 *)((u8 *)q + 4) = 1;
-        *(u32 *)((u8 *)q + 0) |= 1;
+        ((PscCardRequest *)q)->file = H_Cdvd_AcquireDirectory(D_0064E4F0, 0);
+        ((PscCardRequest *)q)->state = 1;
+        ((PscCardRequest *)q)->flags |= 1;
     }
 }
 
@@ -625,10 +659,12 @@ void pscResAcquirePersonaCard(s32 personaId) {
 }
 
 // Intent: Takes a reference to misc card w_c01, starting its CD load (card/misc/w_c01.tmx) on first use [inferred]
+/* Retain the second miscellaneous card, scheduling its image file only when neither ready nor already loading. */
 // FUN_0036C900
-/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
- * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
+/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
+ * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResAcquireMiscCardW01(void) {
+    PscResourceContext *cardContext;
     void *p;
     void *q;
 
@@ -636,23 +672,24 @@ void pscResAcquireMiscCardW01(void) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (*(u32 *)((u8 *)p + 0x10) & 0x10) {
-        *(s32 *)((u8 *)p + 0x50) += 1;
-    } else if (*(u32 *)((u8 *)p + 0) & 0x10) {
-        if (*(s32 *)((u8 *)p + 0x50) == 0) {
+    cardContext = (PscResourceContext *)p;
+    if (((PscResourceContext *)p)->readyFlags & 0x10) {
+        ((PscResourceContext *)p)->miscW01References += 1;
+    } else if (((PscResourceContext *)p)->flags & 0x10) {
+        if (((PscResourceContext *)p)->miscW01References == 0) {
             kAssertFail(D_0064E4E0, 0x29B);
         }
-        *(s32 *)((u8 *)((u32)p + 0x50)) += 1;
+        cardContext->miscW01References += 1;
     } else {
-        *(s32 *)((u8 *)p + 0x50) = 1;
-        *(u32 *)((u8 *)p + 0) |= 0x10;
+        ((PscResourceContext *)p)->miscW01References = 1;
+        ((PscResourceContext *)p)->flags |= 0x10;
         q = pscResFindFreeRequest();
-        *(s32 *)((u8 *)q + 0x110) = 2;
-        *(s32 *)((u8 *)q + 0x114) = 2;
+        ((PscCardRequest *)q)->kind = 2;
+        ((PscCardRequest *)q)->slotIndex = 2;
         func_00440b68(&D_00723A78, D_0064E4E0, 0x2A7);
-        *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(D_0064E570, 0);
-        *(s32 *)((u8 *)q + 4) = 1;
-        *(u32 *)((u8 *)q + 0) |= 1;
+        ((PscCardRequest *)q)->file = H_Cdvd_AcquireDirectory(D_0064E570, 0);
+        ((PscCardRequest *)q)->state = 1;
+        ((PscCardRequest *)q)->flags |= 1;
     }
 }
 
@@ -912,47 +949,49 @@ s32 pscResGetMiscCardW00SubTexture(s32 textureIndex) {
 }
 
 // Intent: Decodes the w_c00 container's images into the context's texture sets [inferred]
+/* Decode the ten-entry miscellaneous container into seven textures, the base raster, and two secondary textures. */
 // FUN_0036D230
-/* Typed context/slot access changes b210 address lifetimes; keep raw accesses
- * to the PscResourceContext/PscCardRequest layouts above to preserve MATCH. */
+/* Per-access typing retains retail address lifetimes; remaining MEMBER_OFFSET
+ * accesses are measured compiler-aliasing exceptions in the named layouts. */
 void pscResBuildMiscCardW00(u8 *container) {
+    PscImageContainer *imageContainer = (PscImageContainer *)container;
+    PscResourceContext *cardContext;
     s32 i;
     u8 *p;
     s32 j;
     u8 *base2;
-    s32 off;
 
     if (D_0072469C == 0) {
         kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
-    if (!(~*(u32 *)((u32)p + 0x10) & 4)) {
+    cardContext = (PscResourceContext *)p;
+    if (!(~((PscResourceContext *)p)->readyFlags & 4)) {
         kAssertFail(D_0064E4E0, 0x3A4);
     }
-    if (!(~*(u32 *)((s32)p + 0x10) & 8)) {
+    if (!(~cardContext->readyFlags & 8)) {
         kAssertFail(D_0064E4E0, 0x3A5);
     }
-    if (!(~*(u32 *)((u32 *)p + 4) & 1)) {
+    if (!(~cardContext->readyFlags & 1)) {
         kAssertFail(D_0064E4E0, 0x3A6);
     }
-    if (*(u16 *)((u8 *)container + 4) != 10) {
+    if (((PscImageContainer *)container)->count != 10) {
         kAssertFail(D_0064E4E0, 0x3A7);
     }
     for (i = 0; i < 7; i++) {
-        off = i * 8;
-        *(s32 *)((u8 *)p + i * 4 + 0x24) =
-            pscResDecodeImage((u8 *)container + *(s32 *)(off + (u32)container + 8));
+        ((PscResourceContext *)p)->textures[i] =
+            pscResDecodeImage((u8 *)container + imageContainer->entries[i].offset);
     }
     base2 = (u8 *)container + 8;
-    *(s32 *)((u8 *)p + 4) =
-        pscResDecodeImage((u8 *)container + *(s32 *)((u8 *)container + 0x40));
+    ((PscResourceContext *)p)->baseRaster =
+        pscResDecodeImage((u8 *)container + ((PscImageContainer *)container)->entries[7].offset);
     for (j = 0; j < 2; j++) {
-        *(s32 *)((u8 *)p + j * 4 + 0x40) =
-            pscResDecodeImage((u8 *)container + *(s32 *)((u8 *)base2 + j * 8 + 0x40));
+        ((PscResourceContext *)p)->subTextures[j] =
+            pscResDecodeImage((u8 *)container + ((PscImageEntry *)base2)[j + 8].offset);
     }
-    *(u32 *)((u8 *)p + 0x10) |= 1;
-    *(u32 *)((u8 *)p + 0x10) |= 4;
-    *(u32 *)((u8 *)p + 0x10) |= 8;
+    ((PscResourceContext *)p)->readyFlags |= 1;
+    ((PscResourceContext *)p)->readyFlags |= 4;
+    ((PscResourceContext *)p)->readyFlags |= 8;
 }
 
 typedef struct PscImageHeader {

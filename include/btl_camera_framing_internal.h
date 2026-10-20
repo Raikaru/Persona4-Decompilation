@@ -6,6 +6,13 @@
 
 typedef struct BtlUnit BtlUnit;
 
+/* Choose the larger framing radius; equal or unordered inputs select the second. */
+static inline f32 btlCameraMaxRadius(f32 first, f32 second)
+{
+    if (first > second) return first;
+    return second;
+}
+
 /* Mode-specific work begins at camera+0x100. The rotating frame initializers
  * and updaters agree on these fields; other camera states reuse this storage. */
 typedef struct BtlCameraOrbitWork {

@@ -250,12 +250,14 @@ void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState) {
     u32 restoreIndex;
     u32 saveIndex;
     s32 *stateEntry;
+    RwV3d *sphereCenter = (RwV3d *)center;
     rotationAxis = D_00712508[0];
     sphere[3] = radius;
     sphere[0] = ((RwV3d *)center)->x;
-    /* measured: typing either Y or Z snapshot grows 784B to 796B; retain only these raw loads. */
-    sphere[1] = *(f32 *)(center + 4);
-    sphere[2] = *(f32 *)(center + 8);
+    /* measured: a retained typed center keeps both snapshot loads MATCH;
+     * access-site casts independently change the whole-file comparison. */
+    sphere[1] = sphereCenter->y;
+    sphere[2] = sphereCenter->z;
     if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0, (u8 *)&sphere[0]) != 0) {
         if (preserveState != 0) {
             for (saveIndex = 0; saveIndex < 6U; saveIndex++) {

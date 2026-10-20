@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0033d310-0033dc60 */
 
 #include "fcl_object_internal.h"
+#include "member_access.h"
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
@@ -85,7 +86,7 @@ void fclBustupObjChangeFlagBit(u8 *task, s32 bit, s8 clear) {
 s32 fclBustupObjTestFlagBit(u8 *task, s32 bit)
 {
     /* measured: remaining object/task byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
-    return (((FclObject *)*(u8 **)(task + 0x38))->spriteFlags & ((1 << bit) & 0xFFFF)) >> bit;
+    return (((FclObject *)((KwlnTask *)(task))->work)->spriteFlags & ((1 << bit) & 0xFFFF)) >> bit;
 }
 
 // FUN_0033D3C0
@@ -161,7 +162,7 @@ void fclBustupStartSlide(u8 *task)
 
     fclObjWork(task)->spriteFlags |= 1;
 
-    fclSpriteStartPosition(*(u8 **)(task + 0x38) + 4,
+    fclSpriteStartPosition(((KwlnTask *)(task))->work + 4,
                   fclObjWork(task)->anchorPosition,
                   fclObjWork(task)->targetPosition,
                   0,
@@ -282,7 +283,7 @@ f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 al
          goto out;
      case 1:
          if ((evtPMFileReaderIsDone(((FclCombineEventWork *)work)->reader) != 0) &&
-             (evtPMFileReaderGetFirstEntry(*(s32 *)(work + 4), &locals.fieldId,
+             (evtPMFileReaderGetFirstEntry(MEMBER(s32, work, FclCombineEventWork, reader), &locals.fieldId,
                             &locals.roomId, &locals.room, &locals.entryValue) == 1)) {
              fieldSceneLoad(locals.fieldId, locals.roomId);
              fieldSceneRequestRoom(locals.room);

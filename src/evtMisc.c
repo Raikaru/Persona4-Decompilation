@@ -54,7 +54,24 @@ extern code DAT_008873ec_abs[];
 
 
 
+/* Event blur records share a fixed prefix through the six signed tenths at +0x2C. */
+typedef struct EvtBlurFilterRecord {
+    u8 pad00[0x10];
+    s16 unk10;
+    u8 pad12, unk13;
+    s16 unk14, unk16;
+    u8 packedOptions[0x13];
+    u8 unk2B;
+    s16 unk2C, unk2E, unk30, unk32, unk34, unk36;
+} EvtBlurFilterRecord;
+/* Direct and copied filter providers keep their reference object in this common prefix. */
+typedef struct EvtBlurFilter { u8 pad00[0x28]; s32 reference; } EvtBlurFilter;
+/* Type-three's 44-byte template has integer endpoints and a float weight. */
+typedef struct EvtBlurFilterExtra { s32 mode, first; f32 weight; u8 pad0C[0x1C]; s32 last; } EvtBlurFilterExtra;
+
 typedef struct { f32 x, y, z; } SVec3;
+/* The serialized header precedes a variable-length 3n+1 point array. */
+typedef struct EvtBlurPointTable { u8 mode, count, pad02[2]; SVec3 points[1]; } EvtBlurPointTable;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
 u8 *effBlurFilterCreateRefObj(u16 *object, u16 slot);
 extern u8 D_0063C648[];
@@ -139,8 +156,8 @@ void evtBlurFilterEnsureBlock(s32 *slot) {
 
 
 // Copies the blur filter's point table (count = 3n+1 entries) into the destination, reversed when arg2 is 1 [inferred].
-// FUN_0028D1B0
 /* Point tables are packed 3n+1 triples after a four-byte byte header; preserve the vector-copy access widths. */
+// FUN_0028D1B0
 void evtBlurFilterCopyPoints(u8 *source, u8 *destination, s32 reverse) {
     /* Four-byte headers precede 12-byte positions; typed variable-length tables changed MWCC codegen. */
     u8 segmentCount;
@@ -156,11 +173,9 @@ void evtBlurFilterCopyPoints(u8 *source, u8 *destination, s32 reverse) {
     pointIndex = 0;
     while (pointIndex < pointCount) {
         if (reverse == 1) {
-            s32 off = ((pointCount - 1) - pointIndex) * 12;
-            *(SVec3 *)(destination + pointIndex * 12 + 4) = *(SVec3 *)(source + off + 4);
+            ((EvtBlurPointTable *)destination)->points[pointIndex] = ((EvtBlurPointTable *)source)->points[(pointCount - 1) - pointIndex];
         } else {
-            s32 off = pointIndex * 12;
-            *(SVec3 *)(destination + off + 4) = *(SVec3 *)(source + off + 4);
+            ((EvtBlurPointTable *)destination)->points[pointIndex] = ((EvtBlurPointTable *)source)->points[pointIndex];
         }
         pointIndex++;
     }
@@ -216,8 +231,8 @@ void evtBlurFilterTaskDestroy(u8 *unusedTask) {
 // retail never has.
 
 // Intent: Event command blur-filter task for types 1 and 2: builds the filter parameters from the record (mode, colours, alpha, timing) and creates the task under arg0 [inferred]
-// FUN_0028D390
 /* Only the filter reference slot at +0x28 is known here; the direct/copy filter allocation layout remains opaque. */
+// FUN_0028D390
 void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
 {
     /* Packed RGB/options occupy +0x18..0x2B and signed halfwords +0x10/+0x2C..0x36; typed access changed MWCC allocation. */
@@ -267,13 +282,13 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
         frame.params1.value28 = record[0x1B] >> 4;
         frame.params1.value2C = (f32)record[0x28] / 100.0f;
         frame.params1.value30 = (f32)record[0x29] / 100.0f;
-        frame.params1.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
-        frame.params1.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
-        frame.params1.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
-        frame.params1.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
-        frame.params1.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
-        frame.params1.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
-        frame.params1.valueB8 = *(s16 *)(record + 0x10);
+        frame.params1.value38 = (f32)((EvtBlurFilterRecord *)record)->unk30 / 10.0f;
+        frame.params1.value3C = (f32)((EvtBlurFilterRecord *)record)->unk32 / 10.0f;
+        frame.params1.value64 = (f32)((EvtBlurFilterRecord *)record)->unk34 / 10.0f;
+        frame.params1.value68 = (f32)((EvtBlurFilterRecord *)record)->unk36 / 10.0f;
+        frame.params1.value90 = (f32)((EvtBlurFilterRecord *)record)->unk2C / 10.0f;
+        frame.params1.value94 = (f32)((EvtBlurFilterRecord *)record)->unk2E / 10.0f;
+        frame.params1.valueB8 = ((EvtBlurFilterRecord *)record)->unk10;
 
         {
             EvtU128 *source;
@@ -377,13 +392,13 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
         frame.params2.value28 = record[0x1B] >> 4;
         frame.params2.value2C = (f32)record[0x28] / 100.0f;
         frame.params2.value30 = (f32)record[0x29] / 100.0f;
-        frame.params2.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
-        frame.params2.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
-        frame.params2.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
-        frame.params2.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
-        frame.params2.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
-        frame.params2.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
-        frame.params2.valueB8 = *(s16 *)(record + 0x10);
+        frame.params2.value38 = (f32)((EvtBlurFilterRecord *)record)->unk30 / 10.0f;
+        frame.params2.value3C = (f32)((EvtBlurFilterRecord *)record)->unk32 / 10.0f;
+        frame.params2.value64 = (f32)((EvtBlurFilterRecord *)record)->unk34 / 10.0f;
+        frame.params2.value68 = (f32)((EvtBlurFilterRecord *)record)->unk36 / 10.0f;
+        frame.params2.value90 = (f32)((EvtBlurFilterRecord *)record)->unk2C / 10.0f;
+        frame.params2.value94 = (f32)((EvtBlurFilterRecord *)record)->unk2E / 10.0f;
+        frame.params2.valueB8 = ((EvtBlurFilterRecord *)record)->unk10;
 
         {
             EvtU128 *source;
@@ -441,7 +456,7 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
         frame.filter1.argument = record[0x2A];
 
         filter2 = effBlurFilterDirectCreate(2, &frame.filter2);
-        *(s32 *)(filter2 + 0x28) =
+        ((EvtBlurFilter *)filter2)->reference =
             (s32)effBlurFilterCreateRefObj((u16 *)&frame.filter1.argument, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task2 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
@@ -526,13 +541,13 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         typeOneParams.value28 = record[0x1B] >> 4;
         typeOneParams.value2C = (f32)record[0x28] / 100.0f;
         typeOneParams.value30 = (f32)record[0x29] / 100.0f;
-        typeOneParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
-        typeOneParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
-        typeOneParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
-        typeOneParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
-        typeOneParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
-        typeOneParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
-        typeOneParams.valueB8 = *(s16 *)(record + 0x10);
+        typeOneParams.value38 = (f32)((EvtBlurFilterRecord *)record)->unk30 / 10.0f;
+        typeOneParams.value3C = (f32)((EvtBlurFilterRecord *)record)->unk32 / 10.0f;
+        typeOneParams.value64 = (f32)((EvtBlurFilterRecord *)record)->unk34 / 10.0f;
+        typeOneParams.value68 = (f32)((EvtBlurFilterRecord *)record)->unk36 / 10.0f;
+        typeOneParams.value90 = (f32)((EvtBlurFilterRecord *)record)->unk2C / 10.0f;
+        typeOneParams.value94 = (f32)((EvtBlurFilterRecord *)record)->unk2E / 10.0f;
+        typeOneParams.valueB8 = ((EvtBlurFilterRecord *)record)->unk10;
         {
             EvtU128 *source;
             EvtU128 *destination;
@@ -622,13 +637,13 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         typeTwoParams.value28 = record[0x1B] >> 4;
         typeTwoParams.value2C = (f32)record[0x28] / 100.0f;
         typeTwoParams.value30 = (f32)record[0x29] / 100.0f;
-        typeTwoParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
-        typeTwoParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
-        typeTwoParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
-        typeTwoParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
-        typeTwoParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
-        typeTwoParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
-        typeTwoParams.valueB8 = *(s16 *)(record + 0x10);
+        typeTwoParams.value38 = (f32)((EvtBlurFilterRecord *)record)->unk30 / 10.0f;
+        typeTwoParams.value3C = (f32)((EvtBlurFilterRecord *)record)->unk32 / 10.0f;
+        typeTwoParams.value64 = (f32)((EvtBlurFilterRecord *)record)->unk34 / 10.0f;
+        typeTwoParams.value68 = (f32)((EvtBlurFilterRecord *)record)->unk36 / 10.0f;
+        typeTwoParams.value90 = (f32)((EvtBlurFilterRecord *)record)->unk2C / 10.0f;
+        typeTwoParams.value94 = (f32)((EvtBlurFilterRecord *)record)->unk2E / 10.0f;
+        typeTwoParams.valueB8 = ((EvtBlurFilterRecord *)record)->unk10;
         {
             EvtU128 *source;
             EvtU128 *destination;
@@ -680,7 +695,7 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         }
         referenceKind = record[0x2A];
         filter = effBlurFilterCopiedCreate(2, &typeTwoFilter.params);
-        *(s32 *)(filter + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
+        ((EvtBlurFilter *)filter)->reference = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
@@ -723,13 +738,13 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         typeThreeParams.value28 = record[0x1B] >> 4;
         typeThreeParams.value2C = (f32)record[0x28] / 100.0f;
         typeThreeParams.value30 = (f32)record[0x29] / 100.0f;
-        typeThreeParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
-        typeThreeParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
-        typeThreeParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
-        typeThreeParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
-        typeThreeParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
-        typeThreeParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
-        typeThreeParams.valueB8 = *(s16 *)(record + 0x10);
+        typeThreeParams.value38 = (f32)((EvtBlurFilterRecord *)record)->unk30 / 10.0f;
+        typeThreeParams.value3C = (f32)((EvtBlurFilterRecord *)record)->unk32 / 10.0f;
+        typeThreeParams.value64 = (f32)((EvtBlurFilterRecord *)record)->unk34 / 10.0f;
+        typeThreeParams.value68 = (f32)((EvtBlurFilterRecord *)record)->unk36 / 10.0f;
+        typeThreeParams.value90 = (f32)((EvtBlurFilterRecord *)record)->unk2C / 10.0f;
+        typeThreeParams.value94 = (f32)((EvtBlurFilterRecord *)record)->unk2E / 10.0f;
+        typeThreeParams.valueB8 = ((EvtBlurFilterRecord *)record)->unk10;
         {
             EvtU128 *source;
             EvtU128 *destination;
@@ -775,10 +790,10 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
             }
         }
         /* This 44-byte template mixes word/float fields; its qword and tail copy shape is measured above. */
-        *(s32 *)(typeThreeExtra + 0x00) = record[0x2B];
-        *(s32 *)(typeThreeExtra + 0x04) = *(s16 *)(record + 0x14);
-        *(f32 *)(typeThreeExtra + 0x08) = (f32)record[0x13] / 100.0f;
-        *(s32 *)(typeThreeExtra + 0x28) = *(s16 *)(record + 0x16);
+        ((EvtBlurFilterExtra *)typeThreeExtra)->mode = record[0x2B];
+        ((EvtBlurFilterExtra *)typeThreeExtra)->first = ((EvtBlurFilterRecord *)record)->unk14;
+        ((EvtBlurFilterExtra *)typeThreeExtra)->weight = (f32)record[0x13] / 100.0f;
+        ((EvtBlurFilterExtra *)typeThreeExtra)->last = ((EvtBlurFilterRecord *)record)->unk16;
         {
             u32 *source;
             u32 *destination;
@@ -797,7 +812,7 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         }
         referenceKind = record[0x2A];
         filter = effBlurFilterCopiedCreate(3, &typeThreeFilter.params);
-        *(s32 *)(filter + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
+        ((EvtBlurFilter *)filter)->reference = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
@@ -840,13 +855,13 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         typeFiveParams.value28 = record[0x1B] >> 4;
         typeFiveParams.value2C = (f32)record[0x28] / 100.0f;
         typeFiveParams.value30 = (f32)record[0x29] / 100.0f;
-        typeFiveParams.value38 = (f32)*(s16 *)(record + 0x30) / 10.0f;
-        typeFiveParams.value3C = (f32)*(s16 *)(record + 0x32) / 10.0f;
-        typeFiveParams.value64 = (f32)*(s16 *)(record + 0x34) / 10.0f;
-        typeFiveParams.value68 = (f32)*(s16 *)(record + 0x36) / 10.0f;
-        typeFiveParams.value90 = (f32)*(s16 *)(record + 0x2C) / 10.0f;
-        typeFiveParams.value94 = (f32)*(s16 *)(record + 0x2E) / 10.0f;
-        typeFiveParams.valueB8 = *(s16 *)(record + 0x10);
+        typeFiveParams.value38 = (f32)((EvtBlurFilterRecord *)record)->unk30 / 10.0f;
+        typeFiveParams.value3C = (f32)((EvtBlurFilterRecord *)record)->unk32 / 10.0f;
+        typeFiveParams.value64 = (f32)((EvtBlurFilterRecord *)record)->unk34 / 10.0f;
+        typeFiveParams.value68 = (f32)((EvtBlurFilterRecord *)record)->unk36 / 10.0f;
+        typeFiveParams.value90 = (f32)((EvtBlurFilterRecord *)record)->unk2C / 10.0f;
+        typeFiveParams.value94 = (f32)((EvtBlurFilterRecord *)record)->unk2E / 10.0f;
+        typeFiveParams.valueB8 = ((EvtBlurFilterRecord *)record)->unk10;
         {
             EvtU128 *source;
             EvtU128 *destination;
@@ -900,7 +915,7 @@ s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record)
         }
         referenceKind = 0;
         filter = effBlurFilterCopiedCreate(5, &typeFiveFilter.params);
-        *(s32 *)(filter + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
+        ((EvtBlurFilter *)filter)->reference = (s32)effBlurFilterCreateRefObj((u16 *)&referenceKind, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
@@ -980,10 +995,10 @@ s32 evtTintTaskUpdate(u8 *unusedTask)
     kwlnSetColorRgba(r, g, b, 0);
 
     ((RwCamera *)kwlnGetCamera())->fogPlane =
-        *(f32 *)(work + 9) + progress * (*(f32 *)(work + 4) - *(f32 *)(work + 9));
+        ((EvtTintWork *)work)->startFog + progress * (((EvtTintWork *)work)->targetFog - ((EvtTintWork *)work)->startFog);
     kwlnGetCamera();
     D_00764B5C =
-        *(f32 *)(work + 10) + progress * (*(f32 *)(work + 5) - *(f32 *)(work + 10));
+        ((EvtTintWork *)work)->startValue + progress * (((EvtTintWork *)work)->targetValue - ((EvtTintWork *)work)->startValue);
 
     if (work[0] >= work[11]) {
         if (work[1] & 1) {
@@ -1007,8 +1022,8 @@ void evtTintTaskDestroy(u8 *unusedTask)
     DAT_008873ec_abs[0](work);
 }
 // Creates a tint task: copies five words of tint data and takes the colour from the kwln colour record and the camera distance [inferred].
-// FUN_0028F3A0
 /* The five command words mix flags, colors and floats; retain the serialized word-copy cursor and its load/store order. */
+// FUN_0028F3A0
 void evtCreateTintTask(s32 parentTask, s32 *parameters, s32 duration) {
     s32 v;
     s32 acc;
@@ -1053,8 +1068,8 @@ void evtTintTaskKill(void) {
     }
 }
 
-// FUN_0028F530
 /* Empty retail hook called for each type-3 NPC resource before its event node is allocated. */
+// FUN_0028F530
 void evtNpcResourceHook(u8 *resource) {
 }
 

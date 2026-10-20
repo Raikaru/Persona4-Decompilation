@@ -6,14 +6,17 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 #include "Kosaka/k_model_internal.h"
 extern u8 D_007EF9B0[];
 extern u8 D_007F16F0[];
-extern u8 D_007F16F2[];
-extern u8 D_007F16F4[];
+typedef struct { u16 id; u8 pad2[6]; } FldPartyCacheIdentity;
+extern FldPartyCacheIdentity D_007F16F2[];
+typedef struct { u8 *model; u8 pad4[4]; } FldPartyCacheModel;
+extern FldPartyCacheModel D_007F16F4[];
 extern void mdlDestroyModelObject();
 extern u8 D_007E8C00[];
 extern void memset(void *dst, s32 value, u32 size);
@@ -45,7 +48,10 @@ extern void mdlSetAttachedSlotValue(u8 *, u16, s32);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
 /* Four cached party models use an 8-byte (type, id, model) record. */
-typedef struct { u16 type, id; u8 *model; } FldPartyModelCache;
+typedef struct {
+    u16 type, id;
+    union { u8 *model; s32 modelAddress; };
+} FldPartyModelCache;
 typedef struct { s32 field, room; } FldDayEventLocation;
 /* Party model identity fields and the five 0xC-byte attachment entries read by this unit. */
 typedef struct {
@@ -81,9 +87,9 @@ void FldStateTablesClear(void)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
-// FUN_00162200
 /* Release one cached party model after marking its five attached slots for removal. */
-/* Raw access: D_007F16F2/F4 are interior aliases of the 8-byte cache; retain their native symbol-relative indexing. Attachment flags are at model +0x28C with stride 0xC. */
+// FUN_00162200
+/* Cache interior aliases retain their own symbols; attachment flags have stride 0xC. */
 void FldPartyModelRelease(s32 slot) {
     s32 savedSlot;
     s32 slotOffset;
@@ -93,25 +99,25 @@ void FldPartyModelRelease(s32 slot) {
     s32 attachmentIndex;
 
     savedSlot = slot;
-    if (*(u8 **)(D_007F16F4 + (slot * 8)) != 0) {
+    if (((FldPartyCacheModel *)((u8 *)D_007F16F4 + (slot * 8)))->model != 0) {
         attachmentIndex = 0;
         entry = D_007F16F0 + (slot * 8);
         goto loop_test;
 loop_body:
-        attachment = (u8 *)(*(s32 *)(entry + 4) + (attachmentIndex * 0xC));
-        *(u8 *)(attachment + 0x28C) =
-            (u8)(*(u8 *)(attachment + 0x28C) | 1);
+        attachment = (u8 *)(((FldPartyModelCache *)entry)->modelAddress + (attachmentIndex * 0xC));
+        ((FldPartyModelObject *)(attachment))->attachments[0].flags =
+            (u8)(((FldPartyModelObject *)(attachment))->attachments[0].flags | 1);
         attachmentIndex += 1;
 loop_test:
         if (attachmentIndex < 5) {
             goto loop_body;
         }
         slotOffset = savedSlot * 8;
-        modelSlot = (s32 *)(D_007F16F4 + slotOffset);
+        modelSlot = (s32 *)((u8 *)D_007F16F4 + slotOffset);
         mdlDestroyModelObject(*modelSlot);
         *modelSlot = 0;
-        *(s16 *)(entry + 0) = 0;
-        *(s16 *)(D_007F16F2 + slotOffset) = 0;
+        ((FldPartyModelCache *)(entry))->type = 0;
+        ((FldPartyCacheIdentity *)((u8 *)D_007F16F2 + slotOffset))->id = 0;
     }
 }
 #pragma pop
@@ -119,9 +125,9 @@ loop_test:
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Reset the four party actor slots and invalidate their cached model identities. */
 // FUN_001622D0
 #pragma opt_loop_invariants on
-/* Reset the four party actor slots and invalidate their cached model identities. */
 void FldSlotTablesReset(void) {
     s32 i = 0;
     s32 one = 1;
@@ -140,11 +146,11 @@ void FldSlotTablesReset(void) {
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Return the first of four party actor slots without a unit, or NULL. */
 // FUN_00162330
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
-/* Return the first of four party actor slots without a unit, or NULL. */
 u8 *FldSlotFindFree(void) {
     u8 *result = NULL;
     s32 slotIndex = 0;
@@ -165,11 +171,11 @@ u8 *FldSlotFindFree(void) {
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
+/* Return the first of fifteen object actor slots without a unit, or NULL. */
 // FUN_00162390
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
-/* Return the first of fifteen object actor slots without a unit, or NULL. */
 u8 *FldObjFindFree(void) {
     u8 *result = NULL;
     s32 slotIndex = 0;
@@ -192,8 +198,8 @@ u8 *FldObjFindFree(void) {
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma optimization_level 1
-// FUN_001623F0
 /* Test the current location against the day-event table and calendar phase, excluding March 20. */
+// FUN_001623F0
 s32 FldDayEventActive(void)
 {
     u8 *fieldState;
@@ -242,8 +248,8 @@ done:
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00162510
 /* Test the explicit field/room list used to choose party model resources. */
+// FUN_00162510
 s32 FldRoomIsListed(u16 field, u16 room)
 {
     s32 result;
@@ -323,11 +329,11 @@ done:
    default arm narrows `member` into a u16. The cache stores a 16-bit
    type key; the constructor takes a separate integer model kind. */
 /* Return the model only when both cached identity halfwords match. */
-/* Raw access: The id and model globals are interior cache aliases; byte indexing retains the native relocation symbols rather than rebasing them. */
+/* Typed interior aliases retain the id/model relocation symbols of the same cache. */
 static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 {
-    if (type == ((FldPartyModelCache *)(D_007F16F0 + slot * 8))->type && id == *(u16 *)(D_007F16F2 + slot * 8)) {
-        return *(u8 **)(D_007F16F4 + slot * 8);
+    if (type == ((FldPartyModelCache *)(D_007F16F0 + slot * 8))->type && id == D_007F16F2[slot].id) {
+        return D_007F16F4[slot].model;
     }
     return NULL;
 }
@@ -336,9 +342,9 @@ static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_00162680
 /* Choose the party member model for this field/calendar context, reusing or replacing its cache slot. */
-/* Raw access: The id/model globals are interior aliases of the 8-byte cache; preserve their native symbol-relative loads and stores. */
+// FUN_00162680
+/* The id/model aliases retain their native symbol-relative loads and stores. */
 u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
 {
     s32 i;
@@ -421,18 +427,18 @@ u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
                 mdlAttachSlotModelFromResource(obj, 0, 9, 0x163, D_005F13A0, 0);
                 mdlSetAttachedSlotValue(obj, 0, 0x1F4);
             }
-            if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
+            if (((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model != NULL) {
                 s32 j;
 
                 for (j = 0; j < 5; j++) {
                     ((FldPartyModelObject *)((FldPartyModelCache *)entry)->model)->attachments[j].flags |= 1;
                 }
-                mdlDestroyModelObject(*(u8 **)(D_007F16F4 + slot * 8));
-                *(u8 **)(D_007F16F4 + slot * 8) = NULL;
+                mdlDestroyModelObject(((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model);
+                ((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model = NULL;
             }
-            *(u8 **)(D_007F16F4 + slot * 8) = obj;
-            *(u16 *)entry = ((FldPartyModelObject *)obj)->type;
-            *(u16 *)(D_007F16F2 + slot * 8) = ((FldPartyModelObject *)*(u8 **)(D_007F16F4 + slot * 8))->id;
+            ((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model = obj;
+            ((FldPartyModelCache *)entry)->type = ((FldPartyModelObject *)obj)->type;
+            ((FldPartyCacheIdentity *)((u8 *)D_007F16F2 + slot * 8))->id = ((FldPartyModelObject *)((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model)->id;
         } else {
             mdlSetColor(obj, &iGpffff9f10);
             mdlSetLookAtRequested(obj);
@@ -448,18 +454,18 @@ u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
         if (obj == NULL) {
             obj = mdlFindOrCreateModelObject(1, m, 0);
             mdlRunSetupCallback(obj);
-            if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
+            if (((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model != NULL) {
                 s32 j;
 
                 for (j = 0; j < 5; j++) {
                     ((FldPartyModelObject *)((FldPartyModelCache *)entry)->model)->attachments[j].flags |= 1;
                 }
-                mdlDestroyModelObject(*(u8 **)(D_007F16F4 + slot * 8));
-                *(u8 **)(D_007F16F4 + slot * 8) = NULL;
+                mdlDestroyModelObject(((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model);
+                ((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model = NULL;
             }
-            *(u8 **)(D_007F16F4 + slot * 8) = obj;
-            *(u16 *)entry = ((FldPartyModelObject *)obj)->type;
-            *(u16 *)(D_007F16F2 + slot * 8) = ((FldPartyModelObject *)*(u8 **)(D_007F16F4 + slot * 8))->id;
+            ((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model = obj;
+            ((FldPartyModelCache *)entry)->type = ((FldPartyModelObject *)obj)->type;
+            ((FldPartyCacheIdentity *)((u8 *)D_007F16F2 + slot * 8))->id = ((FldPartyModelObject *)((FldPartyCacheModel *)((u8 *)D_007F16F4 + slot * 8))->model)->id;
         } else {
             mdlSetColor(obj, &iGpffff9f10);
             mdlSetLookAtRequested(obj);

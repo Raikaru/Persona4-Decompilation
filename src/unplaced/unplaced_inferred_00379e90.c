@@ -2,6 +2,8 @@
 
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "btl_shuffle_state_internal.h"
 extern void btlShuffleCalcResetPose(u8 *output);
 extern void btlShuffleDrawInitCard(u8 *context, s32 cardIndex, s32 output, f32 *endFrame, f32 *controlPoints, f32 *origin,
@@ -12,15 +14,6 @@ extern f32 fGpffff80d8;
 extern f32 fGpffff83e4;
 extern f32 fGpffff837c;
 extern void btlShuffleDrawSetTiming(u8 *context, s32 cardIndex, s32 delay, s32 duration, f32 *start);
-static inline f32 btlShuffleAddPoseDepth(f32 a, f32 b) {
-    return a + b;
-}
-
-static inline u8 *btlShuffleAddCardOffset(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-
 void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
 #pragma push
@@ -48,7 +41,7 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     work.eyeX = work.originX;
     work.eyeY = work.originY;
     originZ = work.originZ;
-    work.eyeZ = btlShuffleAddPoseDepth(originZ, 200.0f);
+    work.eyeZ = operandOrderAddFloat(originZ, 200.0f);
     work.axisX = 0.0f;
     work.axisY = cosf(fGpffff80d8);
     work.axisZ = -sinf(fGpffff80d8);
@@ -65,9 +58,12 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 /* Run the single-axis shuffle sequence; return one only after the terminal phase. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 239..2399); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00379F90
 s32 btlShuffleSeq1Run(u8 *context) {
+    BtlShuffleContext *contextFields = (BtlShuffleContext *)(context);
+    BtlShuffleSequence *sequenceFields;
+    BtlShuffleSequence *timingFields;
     extern s32 btlShuffleSeqPick(u8 *context, s32 count);
     extern s32 btlShuffleSeqLoadRecord(u8 *context);
     extern s32 btlShuffleSeqStep(u8 *context);
@@ -124,16 +120,18 @@ s32 btlShuffleSeq1Run(u8 *context) {
     s32 activatedCount;
     s32 m;
     sequence = context + 0x1F1D0;
+    sequenceFields = (BtlShuffleSequence *)(sequence);
     frameSpacing = (u16)(((BtlShuffleSequence *)sequence)->frames / ((BtlShuffleContext *)context)->cardCount);
     switch (((BtlShuffleContext *)context)->phase) {
     case 0:
         if (((BtlShuffleContext *)context)->unk1F30C != 0) {
-            ((BtlShuffleContext *)context)->elapsed = *(u16 *)(context + 0x1F2F0) + 1;
-            if (btlShuffleSeqPick(context, *(s32 *)(context + 0x1F304)) == 0) {
+            ((BtlShuffleContext *)context)->elapsed = contextFields->elapsed + 1;
+            if (btlShuffleSeqPick(context, contextFields->cardCount) == 0) {
                 break;
             }
         }
         timing = context + 0x1F1D0;
+    timingFields = (BtlShuffleSequence *)(timing);
         switch (((BtlShuffleContext *)context)->difficulty) {
         case 0:
             ((BtlShuffleSequence *)timing)->frames = 0x1A;
@@ -151,20 +149,20 @@ s32 btlShuffleSeq1Run(u8 *context) {
             kAssertFail(D_0064EAC0, 0x38);
             break;
         }
-        ((BtlShuffleSequence *)timing)->frames = *(u16 *)(timing + 2) * (1.0f + factor * (*(s32 *)(context + 0x1F304) - 3) / 5.0f);
+        ((BtlShuffleSequence *)timing)->frames = timingFields->frames * (1.0f + factor * (contextFields->cardCount - 3) / 5.0f);
         ((BtlShuffleContext *)context)->elapsed = 0;
         ((BtlShuffleSequence *)sequence)->selectedCard = -1;
         if (btlShuffleSeqLoadRecord(context) != 0) {
-            *(u32 *)(context + 0x1F2F8) = 1;
+            contextFields->phase = 1;
         } else {
-            *(u32 *)(context + 0x1F2F8) = 2;
+            contextFields->phase = 2;
         }
         break;
     case 1:
         if (btlShuffleSeqStep(context) == 0) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 2;
+        contextFields->phase = 2;
     case 2: {
         if (++((BtlShuffleContext *)context)->elapsed < 0) {
             break;
@@ -172,7 +170,7 @@ s32 btlShuffleSeq1Run(u8 *context) {
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
         btlShuffleDrawCardSetDetail(deck, 1);
-        *(u32 *)(context + 0x1F2F8) = 3;
+        contextFields->phase = 3;
         break;
     }
     case 3:
@@ -180,9 +178,9 @@ s32 btlShuffleSeq1Run(u8 *context) {
             deck = ((BtlShuffleContext *)context)->cardTask;
             btlShuffleDrawCardEndDetail(deck);
             ((BtlShuffleContext *)context)->elapsed = 0;
-            *(u32 *)(context + 0x1F2F8) = 4;
+            contextFields->phase = 4;
             ((BtlShuffleSequence *)sequence)->count = 0;
-            for (i = 0; i < *(s32 *)(context + 0x1F304); i++) {
+            for (i = 0; i < contextFields->cardCount; i++) {
                 work.base = ((BtlShuffleContext *)context)->cards[i].position;
                 btlShuffleInitSingleAxisPose(context, 0, &work.output.x);
                 dx = work.output.x - work.base.x;
@@ -201,51 +199,51 @@ s32 btlShuffleSeq1Run(u8 *context) {
             sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(context);
-            *(u32 *)(context + 0x1F2F8) = 0xE;
+            contextFields->phase = 0xE;
         }
         break;
     case 4:
         base = 0.0f;
-        for (k = 0; k < *(s32 *)(context + 0x1F304); k++) {
+        for (k = 0; k < contextFields->cardCount; k++) {
             if (btlShuffleDrawStateB(context + k * 0xE8 + 0x1D6A0) != 0) {
                 btlShuffleDrawSetPose(context, k, 0, 0xA);
                 activatedCount = ((BtlShuffleSequence *)sequence)->count;
-                offset = ((u16)frameSpacing * (*(s32 *)(context + 0x1F304) - activatedCount)) & 0xFFFF;
-                if (activatedCount >= *(s32 *)(context + 0x1F304)) {
+                offset = ((u16)frameSpacing * (contextFields->cardCount - activatedCount)) & 0xFFFF;
+                if (activatedCount >= contextFields->cardCount) {
                     kAssertFail(D_0064EAC0, 0x5F);
                 }
                 btlShuffleInitSingleAxisPose(context, k, (f32 *)0);
                 v2 = ((BtlShuffleContext *)context)->cards[k].axis;
                 v1 = ((BtlShuffleContext *)context)->cards[k].eye;
                 v0 = ((BtlShuffleContext *)context)->cards[k].origin;
-                btlShuffleDrawInitCard(context, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)*(s32 *)(context + 0x1F304)) * (f32)(*(s32 *)(context + 0x1F304) - activatedCount));
-                (*(s32 *)(sequence + 8))++;
+                btlShuffleDrawInitCard(context, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)contextFields->cardCount) * (f32)(contextFields->cardCount - activatedCount));
+                (sequenceFields->count)++;
             }
         }
-        ((BtlShuffleContext *)context)->elapsed = *(u16 *)(context + 0x1F2F0) + 1;
-        if (((BtlShuffleSequence *)sequence)->count != *(s32 *)(context + 0x1F304)) {
+        ((BtlShuffleContext *)context)->elapsed = contextFields->elapsed + 1;
+        if (((BtlShuffleSequence *)sequence)->count != contextFields->cardCount) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 5;
+        contextFields->phase = 5;
         ((BtlShuffleSequence *)sequence)->flags = ((BtlShuffleSequence *)sequence)->flags | 1;
-        *(u16 *)(context + 0x1F2F0) = 0;
+        contextFields->elapsed = 0;
         ((BtlShuffleSequence *)sequence)->choice = btlShuffleSeqRoll();
     case 5: {
         if (++((BtlShuffleContext *)context)->elapsed < ((BtlShuffleSequence *)sequence)->choice) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 7;
+        contextFields->phase = 7;
     }
     case 7:
         if (datGetFlag(0x1431) == 0) {
             btlShuffleSeqClearA(context, 1);
-            *(u32 *)(context + 0x1F2F8) = 0xF;
+            contextFields->phase = 0xF;
             ((BtlShuffleContext *)context)->elapsed = 0;
-            ((BtlShuffleContext *)context)->flags = *(u16 *)(context + 0x1F2F4) | 2;
+            ((BtlShuffleContext *)context)->flags = contextFields->flags | 2;
             break;
         }
         btlShuffleDrawViewStartCue(((BtlShuffleContext *)context)->viewTask);
-        *(u32 *)(context + 0x1F2F8) = 8;
+        contextFields->phase = 8;
     case 8:
         if (btlShuffleDrawViewIsCueIdle(((BtlShuffleContext *)context)->viewTask) == 0) {
             break;
@@ -253,7 +251,7 @@ s32 btlShuffleSeq1Run(u8 *context) {
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
         btlShuffleDrawCardSetDetail(deck, 2);
-        *(u32 *)(context + 0x1F2F8) = 9;
+        contextFields->phase = 9;
     case 9:
         if ((D_008C024E[0] & 0x40) == 0) {
             break;
@@ -262,38 +260,38 @@ s32 btlShuffleSeq1Run(u8 *context) {
         btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
         btlShuffleDrawCardEndDetail(((BtlShuffleContext *)context)->cardTask);
         sdkSndStartStream(1, 2, 2, 0xD);
-        *(u32 *)(context + 0x1F2F8) = 0xA;
+        contextFields->phase = 0xA;
         break;
     case 10:
         if (btlShuffleDrawStateB(context + (((BtlShuffleSequence *)sequence)->selectedCard * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
-        btlShuffleSeqMoveA(context, *(s32 *)(sequence + 0xC));
-        for (j = 0; j < *(s32 *)(context + 0x1F304); j++) {
-            if (j != *(s32 *)(sequence + 0xC)) {
+        btlShuffleSeqMoveA(context, sequenceFields->selectedCard);
+        for (j = 0; j < contextFields->cardCount; j++) {
+            if (j != sequenceFields->selectedCard) {
                 btlShuffleDrawSetFrames(context, j, 0xF, 0xFF, 0);
             }
         }
         sdkSndStartStream(1, 0, 5, 1);
-        *(u32 *)(context + 0x1F2F8) = 0xB;
+        contextFields->phase = 0xB;
     case 11:
         if (btlShuffleDrawStateA(context + (((BtlShuffleSequence *)sequence)->selectedCard * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
-        for (j = 0; j < *(s32 *)(context + 0x1F304); j++) {
-            if (j != *(s32 *)(sequence + 0xC)) {
+        for (j = 0; j < contextFields->cardCount; j++) {
+            if (j != sequenceFields->selectedCard) {
                 btlShuffleDrawPoll(context, j, 0);
             }
         }
         ((BtlShuffleSequence *)sequence)->flags = ((BtlShuffleSequence *)sequence)->flags & 0xFFFE;
-        btlShuffleSeqCardCount(context, *(s32 *)(sequence + 0xC));
-        *(u32 *)(context + 0x1F2F8) = 0xC;
+        btlShuffleSeqCardCount(context, sequenceFields->selectedCard);
+        contextFields->phase = 0xC;
         break;
     case 12:
         if (btlShuffleSeqDispatch(context) == 0) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 0xD;
+        contextFields->phase = 0xD;
     case 13:
         return 1;
     case 14:
@@ -301,9 +299,9 @@ s32 btlShuffleSeq1Run(u8 *context) {
             break;
         }
         if (((BtlShuffleContext *)context)->unk1F248 != 0) {
-            *(u32 *)(context + 0x1F2F8) = 0xD;
+            contextFields->phase = 0xD;
         } else {
-            *(u32 *)(context + 0x1F2F8) = 3;
+            contextFields->phase = 3;
         }
         break;
     case 15:
@@ -311,20 +309,20 @@ s32 btlShuffleSeq1Run(u8 *context) {
             break;
         }
         if (((BtlShuffleContext *)context)->flags & 2) {
-            *(u16 *)(context + 0x1F2F4) = *(u16 *)(context + 0x1F2F4) & 0xFFFD;
+            contextFields->flags = contextFields->flags & 0xFFFD;
         }
         if (++((BtlShuffleContext *)context)->elapsed < 0x1E) {
             break;
         }
         datSetFlag(0x1431, 1);
-        *(u32 *)(context + 0x1F2F8) = 7;
+        contextFields->phase = 7;
         break;
     default:
         kAssertFail(D_0064EAC0, 0x1B6);
         break;
     }
     if (((BtlShuffleSequence *)sequence)->flags & 1) {
-        for (j = 0; j < *(s32 *)(context + 0x1F304); j++) {
+        for (j = 0; j < contextFields->cardCount; j++) {
             if (j != ((BtlShuffleSequence *)sequence)->selectedCard) {
                 btlShuffleSeqRecord(context, j, frameSpacing);
             }
@@ -364,7 +362,7 @@ void btlShuffleInitAlternatingPose(u8 *context, s32 cardIndex, f32 *output) {
     work.eyeX = work.originX;
     work.eyeY = work.originY;
     originZ = work.originZ;
-    work.eyeZ = btlShuffleAddPoseDepth(originZ, 200.0f);
+    work.eyeZ = operandOrderAddFloat(originZ, 200.0f);
     parity = cardIndex & 1;
     if ((cardIndex < 0) && (parity != 0)) {
         parity -= 2;
@@ -429,9 +427,12 @@ extern s32 btlShuffleSeqDispatch(u8 *context);
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 /* Run the alternating-axis shuffle sequence, preserving deliberate fallthrough between completed phases. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 15..2371); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0037AD10
 s32 btlShuffleSeq2Run(u8 *context) {
+    BtlShuffleContext *contextFields = (BtlShuffleContext *)(context);
+    BtlShuffleSequence *sequenceFields;
+    BtlShuffleSequence *timingFields;
     struct {
         BtlShufflePoseVector base;
         BtlShufflePoseVector first;
@@ -459,13 +460,15 @@ s32 btlShuffleSeq2Run(u8 *context) {
     s32 activatedCount;
     s32 m;
     sequence = context + 0x1F1D0;
-    frameSpacing = (u16)(((BtlShuffleSequence *)sequence)->frames / *(s32 *)(context + 0x1F304));
+    sequenceFields = (BtlShuffleSequence *)(sequence);
+    frameSpacing = (u16)(((BtlShuffleSequence *)sequence)->frames / contextFields->cardCount);
     switch (((BtlShuffleContext *)context)->phase) {
     case 0:
-        if (btlShuffleSeqPick(context, *(s32 *)(context + 0x1F304)) == 0) {
+        if (btlShuffleSeqPick(context, contextFields->cardCount) == 0) {
             break;
         }
         timing = context + 0x1F1D0;
+    timingFields = (BtlShuffleSequence *)(timing);
         switch (((BtlShuffleContext *)context)->difficulty) {
         case 0:
             ((BtlShuffleSequence *)timing)->frames = 0x1A;
@@ -483,19 +486,19 @@ s32 btlShuffleSeq2Run(u8 *context) {
             kAssertFail(D_0064EAE0, 0x3A);
             break;
         }
-        ((BtlShuffleSequence *)timing)->frames = *(u16 *)(timing + 2) * (1.0f + factor * (((BtlShuffleContext *)context)->cardCount - 3) / 5.0f);
+        ((BtlShuffleSequence *)timing)->frames = timingFields->frames * (1.0f + factor * (((BtlShuffleContext *)context)->cardCount - 3) / 5.0f);
         ((BtlShuffleSequence *)sequence)->selectedCard = -1;
         if (btlShuffleSeqLoadRecord(context) != 0) {
-            *(u32 *)(context + 0x1F2F8) = 1;
+            contextFields->phase = 1;
         } else {
-            *(u32 *)(context + 0x1F2F8) = 2;
+            contextFields->phase = 2;
         }
         break;
     case 1:
         if (btlShuffleSeqStep(context) == 0) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 2;
+        contextFields->phase = 2;
     case 2: {
         if (++((BtlShuffleContext *)context)->elapsed < 0) {
             break;
@@ -503,7 +506,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
         btlShuffleDrawCardSetDetail(deck, 1);
-        *(u32 *)(context + 0x1F2F8) = 3;
+        contextFields->phase = 3;
         break;
     }
     case 3:
@@ -511,7 +514,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
             deck = ((BtlShuffleContext *)context)->cardTask;
             btlShuffleDrawCardEndDetail(deck);
             ((BtlShuffleContext *)context)->elapsed = 0;
-            *(u32 *)(context + 0x1F2F8) = 4;
+            contextFields->phase = 4;
             ((BtlShuffleSequence *)sequence)->count = 0;
             for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
                 xOff = 150.0f;
@@ -536,7 +539,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
             sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(context);
-            *(u32 *)(context + 0x1F2F8) = 0xE;
+            contextFields->phase = 0xE;
         }
         break;
     case 4:
@@ -545,42 +548,42 @@ s32 btlShuffleSeq2Run(u8 *context) {
             if (btlShuffleDrawStateB(context + k * 0xE8 + 0x1D6A0) != 0) {
                 btlShuffleDrawSetPose(context, k, 0, 0xA);
                 activatedCount = ((BtlShuffleSequence *)sequence)->count;
-                offset = ((u16)frameSpacing * (*(s32 *)(context + 0x1F304) - activatedCount)) & 0xFFFF;
-                if (activatedCount >= *(s32 *)(context + 0x1F304)) {
+                offset = ((u16)frameSpacing * (contextFields->cardCount - activatedCount)) & 0xFFFF;
+                if (activatedCount >= contextFields->cardCount) {
                     kAssertFail(D_0064EAE0, 0x6B);
                 }
                 btlShuffleInitAlternatingPose(context, k, (f32 *)0);
                 v2 = ((BtlShuffleContext *)context)->cards[k].axis;
                 v1 = ((BtlShuffleContext *)context)->cards[k].eye;
                 v0 = ((BtlShuffleContext *)context)->cards[k].origin;
-                btlShuffleDrawInitCard(context, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)*(s32 *)(context + 0x1F304)) * (f32)(*(s32 *)(context + 0x1F304) - activatedCount));
-                (*(s32 *)(sequence + 8))++;
+                btlShuffleDrawInitCard(context, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)contextFields->cardCount) * (f32)(contextFields->cardCount - activatedCount));
+                (sequenceFields->count)++;
             }
         }
-        ((BtlShuffleContext *)context)->elapsed = *(u16 *)(context + 0x1F2F0) + 1;
-        if (((BtlShuffleSequence *)sequence)->count != *(s32 *)(context + 0x1F304)) {
+        ((BtlShuffleContext *)context)->elapsed = contextFields->elapsed + 1;
+        if (((BtlShuffleSequence *)sequence)->count != contextFields->cardCount) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 5;
+        contextFields->phase = 5;
         ((BtlShuffleSequence *)sequence)->flags = ((BtlShuffleSequence *)sequence)->flags | 1;
-        *(u16 *)(context + 0x1F2F0) = 0;
+        contextFields->elapsed = 0;
         ((BtlShuffleSequence *)sequence)->choice = btlShuffleSeqRoll();
     case 5: {
         if (++((BtlShuffleContext *)context)->elapsed < ((BtlShuffleSequence *)sequence)->choice) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 7;
+        contextFields->phase = 7;
     }
     case 7:
         if (datGetFlag(0x1431) == 0) {
             btlShuffleSeqClearA(context, 1);
-            *(u32 *)(context + 0x1F2F8) = 0xF;
+            contextFields->phase = 0xF;
             ((BtlShuffleContext *)context)->elapsed = 0;
-            ((BtlShuffleContext *)context)->flags = *(u16 *)(context + 0x1F2F4) | 2;
+            ((BtlShuffleContext *)context)->flags = contextFields->flags | 2;
             break;
         }
         btlShuffleDrawViewStartCue(((BtlShuffleContext *)context)->viewTask);
-        *(u32 *)(context + 0x1F2F8) = 8;
+        contextFields->phase = 8;
     case 8:
         if (btlShuffleDrawViewIsCueIdle(((BtlShuffleContext *)context)->viewTask) == 0) {
             break;
@@ -588,7 +591,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
         btlShuffleDrawCardSetDetail(deck, 2);
-        *(u32 *)(context + 0x1F2F8) = 9;
+        contextFields->phase = 9;
     case 9:
         if ((D_008C024E[0] & 0x40) == 0) {
             break;
@@ -597,38 +600,38 @@ s32 btlShuffleSeq2Run(u8 *context) {
         btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
         btlShuffleDrawCardEndDetail(((BtlShuffleContext *)context)->cardTask);
         sdkSndStartStream(1, 2, 2, 0xD);
-        *(u32 *)(context + 0x1F2F8) = 0xA;
+        contextFields->phase = 0xA;
         break;
     case 10:
         if (btlShuffleDrawStateB(context + (((BtlShuffleSequence *)sequence)->selectedCard * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
-        btlShuffleSeqMoveA(context, *(s32 *)(sequence + 0xC));
+        btlShuffleSeqMoveA(context, sequenceFields->selectedCard);
         for (j = 0; j < ((BtlShuffleContext *)context)->cardCount; j++) {
-            if (j != *(s32 *)(sequence + 0xC)) {
+            if (j != sequenceFields->selectedCard) {
                 btlShuffleDrawSetFrames(context, j, 0xF, 0xFF, 0);
             }
         }
         sdkSndStartStream(1, 0, 5, 1);
-        *(u32 *)(context + 0x1F2F8) = 0xB;
+        contextFields->phase = 0xB;
     case 11:
         if (btlShuffleDrawStateA(context + (((BtlShuffleSequence *)sequence)->selectedCard * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
         for (j = 0; j < ((BtlShuffleContext *)context)->cardCount; j++) {
-            if (j != *(s32 *)(sequence + 0xC)) {
+            if (j != sequenceFields->selectedCard) {
                 btlShuffleDrawPoll(context, j, 0);
             }
         }
         ((BtlShuffleSequence *)sequence)->flags = ((BtlShuffleSequence *)sequence)->flags & 0xFFFE;
-        btlShuffleSeqCardCount(context, *(s32 *)(sequence + 0xC));
-        *(u32 *)(context + 0x1F2F8) = 0xC;
+        btlShuffleSeqCardCount(context, sequenceFields->selectedCard);
+        contextFields->phase = 0xC;
         break;
     case 12:
         if (btlShuffleSeqDispatch(context) == 0) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 0xD;
+        contextFields->phase = 0xD;
     case 13:
         return 1;
     case 14:
@@ -636,9 +639,9 @@ s32 btlShuffleSeq2Run(u8 *context) {
             break;
         }
         if (((BtlShuffleContext *)context)->unk1F248 != 0) {
-            *(u32 *)(context + 0x1F2F8) = 0xD;
+            contextFields->phase = 0xD;
         } else {
-            *(u32 *)(context + 0x1F2F8) = 3;
+            contextFields->phase = 3;
         }
         break;
     case 15:
@@ -646,13 +649,13 @@ s32 btlShuffleSeq2Run(u8 *context) {
             break;
         }
         if (((BtlShuffleContext *)context)->flags & 2) {
-            *(u16 *)(context + 0x1F2F4) = *(u16 *)(context + 0x1F2F4) & 0xFFFD;
+            contextFields->flags = contextFields->flags & 0xFFFD;
         }
         if (++((BtlShuffleContext *)context)->elapsed < 0x1E) {
             break;
         }
         datSetFlag(0x1431, 1);
-        *(u32 *)(context + 0x1F2F8) = 7;
+        contextFields->phase = 7;
         break;
     default:
         kAssertFail(D_0064EAE0, 0x19E);
@@ -696,7 +699,7 @@ void btlShuffleInitThreeAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     work.originY = work.originY - 25.0f;
     work.eyeX = work.originX;
     work.eyeY = work.originY;
-    work.eyeZ = btlShuffleAddPoseDepth(work.originZ, 200.0f);
+    work.eyeZ = operandOrderAddFloat(work.originZ, 200.0f);
     phase = cardIndex % 3;
     switch (phase) {
     case 0:
@@ -746,7 +749,7 @@ void btlShuffleCalcSetBezierTiming(u8 *context, s32 cardIndex, s32 output, s32 e
 
     xOffset = 150.0f;
     yOffset = 100.0f;
-    points.base = ((BtlShuffleContext *)btlShuffleAddCardOffset(cardIndex * 0xE8, context))->cards[0].position;
+    points.base = ((BtlShuffleContext *)byteAddressAdd(cardIndex * 0xE8, context))->cards[0].position;
     btlShuffleInitThreeAxisPose(context, 0, &points.output.x);
     remainder = cardIndex % 3;
     switch (remainder) {
@@ -782,9 +785,12 @@ void btlShuffleCalcSetBezierTiming(u8 *context, s32 cardIndex, s32 output, s32 e
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 /* Run the three-axis shuffle sequence and its staggered Bezier card entrances. */
-/* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 15..2154); retain only the failing byte-base accesses. */
+/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_0037BC80
 s32 btlShuffleSeq3Run(u8 *context) {
+    BtlShuffleContext *contextFields = (BtlShuffleContext *)(context);
+    BtlShuffleSequence *sequenceFields;
+    BtlShuffleSequence *timingFields;
     BtlShufflePoseVector v2;
     BtlShufflePoseVector v1;
     BtlShufflePoseVector v0;
@@ -801,13 +807,15 @@ s32 btlShuffleSeq3Run(u8 *context) {
     s32 activatedCount;
     s32 m;
     sequence = context + 0x1F1D0;
-    frameSpacing = (u16)(((BtlShuffleSequence *)sequence)->frames / *(s32 *)(context + 0x1F304));
+    sequenceFields = (BtlShuffleSequence *)(sequence);
+    frameSpacing = (u16)(((BtlShuffleSequence *)sequence)->frames / contextFields->cardCount);
     switch (((BtlShuffleContext *)context)->phase) {
     case 0:
-        if (btlShuffleSeqPick(context, *(s32 *)(context + 0x1F304)) == 0) {
+        if (btlShuffleSeqPick(context, contextFields->cardCount) == 0) {
             break;
         }
         timing = context + 0x1F1D0;
+    timingFields = (BtlShuffleSequence *)(timing);
         switch (((BtlShuffleContext *)context)->difficulty) {
         case 0:
             ((BtlShuffleSequence *)timing)->frames = 0x1A;
@@ -825,19 +833,19 @@ s32 btlShuffleSeq3Run(u8 *context) {
             kAssertFail(D_0064EB00, 0x3A);
             break;
         }
-        ((BtlShuffleSequence *)timing)->frames = *(u16 *)(timing + 2) * (1.0f + factor * (((BtlShuffleContext *)context)->cardCount - 3) / 5.0f);
+        ((BtlShuffleSequence *)timing)->frames = timingFields->frames * (1.0f + factor * (((BtlShuffleContext *)context)->cardCount - 3) / 5.0f);
         ((BtlShuffleSequence *)sequence)->selectedCard = -1;
         if (btlShuffleSeqLoadRecord(context) != 0) {
-            *(u32 *)(context + 0x1F2F8) = 1;
+            contextFields->phase = 1;
         } else {
-            *(u32 *)(context + 0x1F2F8) = 2;
+            contextFields->phase = 2;
         }
         break;
     case 1:
         if (btlShuffleSeqStep(context) == 0) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 2;
+        contextFields->phase = 2;
     case 2: {
         if (++((BtlShuffleContext *)context)->elapsed < 0) {
             break;
@@ -845,7 +853,7 @@ s32 btlShuffleSeq3Run(u8 *context) {
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
         btlShuffleDrawCardSetDetail(deck, 1);
-        *(u32 *)(context + 0x1F2F8) = 3;
+        contextFields->phase = 3;
         break;
     }
     case 3:
@@ -853,7 +861,7 @@ s32 btlShuffleSeq3Run(u8 *context) {
             deck = ((BtlShuffleContext *)context)->cardTask;
             btlShuffleDrawCardEndDetail(deck);
             ((BtlShuffleContext *)context)->elapsed = 0;
-            *(u32 *)(context + 0x1F2F8) = 4;
+            contextFields->phase = 4;
             ((BtlShuffleSequence *)sequence)->count = 0;
             for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
                 m = (u16)frameSpacing * i;
@@ -862,7 +870,7 @@ s32 btlShuffleSeq3Run(u8 *context) {
             sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(context);
-            *(u32 *)(context + 0x1F2F8) = 0xE;
+            contextFields->phase = 0xE;
         }
         break;
     case 4:
@@ -870,9 +878,9 @@ s32 btlShuffleSeq3Run(u8 *context) {
         for (k = 0; k < ((BtlShuffleContext *)context)->cardCount; k++) {
             if (btlShuffleDrawStateB(context + k * 0xE8 + 0x1D6A0) != 0) {
                 btlShuffleDrawSetPose(context, k, 0, 0xA);
-                offset = ((u16)frameSpacing * (*(s32 *)(context + 0x1F304) - k)) & 0xFFFF;
+                offset = ((u16)frameSpacing * (contextFields->cardCount - k)) & 0xFFFF;
                 activatedCount = ((BtlShuffleSequence *)sequence)->count;
-                if (activatedCount >= *(s32 *)(context + 0x1F304)) {
+                if (activatedCount >= contextFields->cardCount) {
                     kAssertFail(D_0064EB00, 0x72);
                 }
                 btlShuffleInitThreeAxisPose(context, k, (f32 *)0);
@@ -880,34 +888,34 @@ s32 btlShuffleSeq3Run(u8 *context) {
                 v2 = ((BtlShuffleContext *)context)->cards[k].axis;
                 v1 = ((BtlShuffleContext *)context)->cards[k].eye;
                 v0 = ((BtlShuffleContext *)context)->cards[k].origin;
-                btlShuffleDrawInitCard(context, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)*(s32 *)(context + 0x1F304)) * (f32)(*(s32 *)(context + 0x1F304) - activatedCount));
-                (*(s32 *)(sequence + 8))++;
+                btlShuffleDrawInitCard(context, k, offset, &v2.x, &v1.x, &v0.x, base, base + (360.0f / (f32)contextFields->cardCount) * (f32)(contextFields->cardCount - activatedCount));
+                (sequenceFields->count)++;
             }
         }
-        ((BtlShuffleContext *)context)->elapsed = *(u16 *)(context + 0x1F2F0) + 1;
-        if (((BtlShuffleSequence *)sequence)->count != *(s32 *)(context + 0x1F304)) {
+        ((BtlShuffleContext *)context)->elapsed = contextFields->elapsed + 1;
+        if (((BtlShuffleSequence *)sequence)->count != contextFields->cardCount) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 5;
+        contextFields->phase = 5;
         ((BtlShuffleSequence *)sequence)->flags = ((BtlShuffleSequence *)sequence)->flags | 1;
-        *(u16 *)(context + 0x1F2F0) = 0;
+        contextFields->elapsed = 0;
         ((BtlShuffleSequence *)sequence)->choice = btlShuffleSeqRoll();
     case 5: {
         if (++((BtlShuffleContext *)context)->elapsed < ((BtlShuffleSequence *)sequence)->choice) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 7;
+        contextFields->phase = 7;
     }
     case 7:
         if (datGetFlag(0x1431) == 0) {
             btlShuffleSeqClearA(context, 1);
-            *(u32 *)(context + 0x1F2F8) = 0xF;
+            contextFields->phase = 0xF;
             ((BtlShuffleContext *)context)->elapsed = 0;
-            ((BtlShuffleContext *)context)->flags = *(u16 *)(context + 0x1F2F4) | 2;
+            ((BtlShuffleContext *)context)->flags = contextFields->flags | 2;
             break;
         }
         btlShuffleDrawViewStartCue(((BtlShuffleContext *)context)->viewTask);
-        *(u32 *)(context + 0x1F2F8) = 8;
+        contextFields->phase = 8;
     case 8:
         if (btlShuffleDrawViewIsCueIdle(((BtlShuffleContext *)context)->viewTask) == 0) {
             break;
@@ -915,7 +923,7 @@ s32 btlShuffleSeq3Run(u8 *context) {
         deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
         btlShuffleDrawCardSetDetail(deck, 2);
-        *(u32 *)(context + 0x1F2F8) = 9;
+        contextFields->phase = 9;
     case 9:
         if ((D_008C024E[0] & 0x40) == 0) {
             break;
@@ -924,38 +932,38 @@ s32 btlShuffleSeq3Run(u8 *context) {
         btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
         btlShuffleDrawCardEndDetail(((BtlShuffleContext *)context)->cardTask);
         sdkSndStartStream(1, 2, 2, 0xD);
-        *(u32 *)(context + 0x1F2F8) = 0xA;
+        contextFields->phase = 0xA;
         break;
     case 10:
         if (btlShuffleDrawStateB(context + (((BtlShuffleSequence *)sequence)->selectedCard * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
-        btlShuffleSeqMoveA(context, *(s32 *)(sequence + 0xC));
+        btlShuffleSeqMoveA(context, sequenceFields->selectedCard);
         for (j = 0; j < ((BtlShuffleContext *)context)->cardCount; j++) {
-            if (j != *(s32 *)(sequence + 0xC)) {
+            if (j != sequenceFields->selectedCard) {
                 btlShuffleDrawSetFrames(context, j, 0xF, 0xFF, 0);
             }
         }
         sdkSndStartStream(1, 0, 5, 1);
-        *(u32 *)(context + 0x1F2F8) = 0xB;
+        contextFields->phase = 0xB;
     case 11:
         if (btlShuffleDrawStateA(context + (((BtlShuffleSequence *)sequence)->selectedCard * 0xE8) + 0x1D6A0) == 0) {
             break;
         }
         for (j = 0; j < ((BtlShuffleContext *)context)->cardCount; j++) {
-            if (j != *(s32 *)(sequence + 0xC)) {
+            if (j != sequenceFields->selectedCard) {
                 btlShuffleDrawPoll(context, j, 0);
             }
         }
         ((BtlShuffleSequence *)sequence)->flags = ((BtlShuffleSequence *)sequence)->flags & 0xFFFE;
-        btlShuffleSeqCardCount(context, *(s32 *)(sequence + 0xC));
-        *(u32 *)(context + 0x1F2F8) = 0xC;
+        btlShuffleSeqCardCount(context, sequenceFields->selectedCard);
+        contextFields->phase = 0xC;
         break;
     case 12:
         if (btlShuffleSeqDispatch(context) == 0) {
             break;
         }
-        *(u32 *)(context + 0x1F2F8) = 0xD;
+        contextFields->phase = 0xD;
     case 13:
         return 1;
     case 14:
@@ -963,9 +971,9 @@ s32 btlShuffleSeq3Run(u8 *context) {
             break;
         }
         if (((BtlShuffleContext *)context)->unk1F248 != 0) {
-            *(u32 *)(context + 0x1F2F8) = 0xD;
+            contextFields->phase = 0xD;
         } else {
-            *(u32 *)(context + 0x1F2F8) = 3;
+            contextFields->phase = 3;
         }
         break;
     case 15:
@@ -973,13 +981,13 @@ s32 btlShuffleSeq3Run(u8 *context) {
             break;
         }
         if (((BtlShuffleContext *)context)->flags & 2) {
-            *(u16 *)(context + 0x1F2F4) = *(u16 *)(context + 0x1F2F4) & 0xFFFD;
+            contextFields->flags = contextFields->flags & 0xFFFD;
         }
         if (++((BtlShuffleContext *)context)->elapsed < 0x1E) {
             break;
         }
         datSetFlag(0x1431, 1);
-        *(u32 *)(context + 0x1F2F8) = 7;
+        contextFields->phase = 7;
         break;
     default:
         kAssertFail(D_0064EB00, 0x1AF);

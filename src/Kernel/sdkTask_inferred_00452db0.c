@@ -1,4 +1,5 @@
 #include "sdk_pad_record.h"
+#include "sdk_pad_mask_column.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -35,9 +36,6 @@ extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
-static inline f32 add_f32(f32 a, f32 b) {
-    return a + b;
-}
 extern u8 *iGpffffb9e0;
 extern void (*D_00887304[])();
 extern void (*D_008873EC[])(void *);
@@ -138,18 +136,18 @@ extern s16 D_008D2B98[];
 
 extern s32 D_008D2F2C[];
 extern s16 D_008D2F34[];
-extern u8 D_008C02EC[];
+extern SdkPadMaskColumn D_008C02EC[]; /* buttons */
 extern u8 D_008C02EE[];
-extern u8 D_008C02F0[];
-extern u8 D_008C02F6[];
-extern u8 D_008C02F8[];
-extern u8 D_008C02FA[];
+extern SdkPadMaskColumn D_008C02F0[]; /* previousButtons */
+extern SdkPadMaskColumn D_008C02F6[]; /* directions */
+extern SdkPadMaskColumn D_008C02F8[]; /* directionPressed */
+extern SdkPadMaskColumn D_008C02FA[]; /* previousDirections */
 extern u8 D_008C02FC[];
 extern u8 D_008C02FD[];
 extern u8 D_008C02FE[];
 extern u8 D_008C02FF[];
 extern u8 D_008C0318[];
-extern u8 D_008C02F2[];
+extern SdkPadMaskColumn D_008C02F2[]; /* repeat */
 extern u8 D_008C0300[];
 extern u8 D_008C0314[];
 extern u8 D_008C0316[];
@@ -212,20 +210,10 @@ typedef struct Code45Im2DVertex {
 } Code45Im2DVertex;
 
 #pragma push
-static inline s32 overlayAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 
 #pragma pop
 #pragma push
-/* Character codes are normalized as bytes; the atlas column retains
- * the signed remainder operation used by the original renderer. */
-static inline s32 fontAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452db0-00452db0 */
 
@@ -242,8 +230,8 @@ extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 /* measured: func_00452db0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // Intent: cooks the raw input of slot `slot`. Keeps the raw button bits 4..7, sets the analog direction bits outside the 0x5B..0xA5 neutral band, and runs the button repeat.
-/* SdkPadRecord proves the field layout; interior-symbol accesses preserve
- * MATCH where typed record fields changed the measured address/load order. */
+/* Typed interior columns preserve MATCH where record-relative fields changed
+ * the measured address/load order. Each column row retains the 0x4A stride. */
 // FUN_00452DB0
 void sdkPadCookInput(s32 slot) {
     unsigned edgeOffset;
@@ -259,8 +247,8 @@ void sdkPadCookInput(s32 slot) {
     u8 *rightX;
 
     recordOffset = slot * 0x4A;
-    rawButtons = (u16 *)(D_008C02EC + recordOffset);
-    cooked = (u16 *)(D_008C02F6 + recordOffset);
+    rawButtons = (u16 *)((u8 *)D_008C02EC + recordOffset);
+    cooked = (u16 *)((u8 *)D_008C02F6 + recordOffset);
     *cooked = (u16)(*rawButtons & 0xF0);
     leftX = D_008C02FC + recordOffset;
     if ((s32)*leftX > 0xA5) {
@@ -293,12 +281,12 @@ void sdkPadCookInput(s32 slot) {
     /* The unsigned second offset preserves the retail stride recompute
        after the analog-byte accesses, without extending recordOffset's lifetime. */
     edgeOffset = (unsigned)slot * 0x4A;
-    raw = *(u16 *)(D_008C02EC + edgeOffset);
+    raw = D_008C02EC[slot].mask;
     edge = (u16 *)(D_008C02EE + edgeOffset);
-    *edge = (u16)(raw & (raw ^ *(u16 *)(D_008C02F0 + edgeOffset)));
-    directions = *(u16 *)(D_008C02F6 + edgeOffset);
-    *(u16 *)(D_008C02F8 + edgeOffset) = (u16)(directions & (directions ^ *(u16 *)(D_008C02FA + edgeOffset)));
-    *(u16 *)(D_008C02F2 + edgeOffset) = *edge;
+    *edge = (u16)(raw & (raw ^ D_008C02F0[slot].mask));
+    directions = D_008C02F6[slot].mask;
+    D_008C02F8[slot].mask = (u16)(directions & (directions ^ D_008C02FA[slot].mask));
+    D_008C02F2[slot].mask = *edge;
     sdkPadRepeatButton(slot, 0x1000, 0);
     sdkPadRepeatButton(slot, 0x4000, 1);
     sdkPadRepeatButton(slot, 0x8000, 2);

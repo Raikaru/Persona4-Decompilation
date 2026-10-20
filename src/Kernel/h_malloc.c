@@ -207,9 +207,9 @@ void gsPackTrxDir(u32* out, u32 value)
 }
 
 
-// FUN_0046A6F0
 /* Allocate count elements and clear the complete byte extent. Allocation failure
  * is passed directly to memset, matching the allocator's existing contract. */
+// FUN_0046A6F0
 
 void* H_Calloc(u32 count, size_t size)
 {

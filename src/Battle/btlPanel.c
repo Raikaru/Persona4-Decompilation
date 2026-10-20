@@ -44,9 +44,9 @@ typedef struct {
 
 /* 716/720 bytes; thirty-two resolved relocations; four zero alignment bytes.
  * Capture store indices but reload the panel index after readiness callbacks. */
+/* Incrementally load party/common sprites, release the archive, and publish panel readiness.
+ * The last four resource handles are looked up only after the twelve streamed entries finish. */
 // FUN_00202890
-/* Incrementally load party/common sprites, release the archive, and publish panel readiness. Measured:
- * direct resources[index] store reverses addu operands at offset 628; keep that indexed store raw. */
 s32 btlPanelIsEnabled(void* panelData)
 {
     BtlPanel* panel = (BtlPanel*)panelData;
@@ -102,7 +102,7 @@ s32 btlPanelIsEnabled(void* panelData)
 check:
     if (done == 0xC) {
         for (index = 0xC; index < 0x10; index++) {
-            *(s32 *)((u8 *)resources + index * 4 + 0x2C) = resourceFindByName(D_00626720[index]);
+            ((BtlPanelResources *)(u8 *)resources)->resources[index] = resourceFindByName(D_00626720[index]);
         }
         resources->flags |= 1;
         return 1;
@@ -131,9 +131,9 @@ u8* btlPanelCreatePacket(s32 ownerTask)
 
 
 
-// FUN_00202BE0
 /* Synchronously acquire the panel stream archive, upload its file image, and release the directory
  * handle. */
+// FUN_00202BE0
 void btlPanelLoadSync(void)
 {
     u8* t;

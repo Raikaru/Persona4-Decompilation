@@ -34,7 +34,8 @@ typedef struct FldFrame {
     u8 unk24[0x08];
     u8 *noiseTask;         /* 0x2C: FldNoiseTaskCreate result */
     u8 *panelTask;         /* 0x30: FldPanel2dSetState target */
-    u8 unk34[0x10];
+    u8 *dependentTasks[3]; /* 0x34: released by FldRootDestroy */
+    u8 unk40[4];
     u8 spawnColumn;        /* 0x44: column of the spawn cell; set by the board scan in k_fldResource.c */
     u8 spawnRow;           /* 0x45: row of the spawn cell; set by the board scan in k_fldResource.c */
     u8 cellPick[2];        /* 0x46: picked cell bytes, set by the board scan in k_fldResource.c */

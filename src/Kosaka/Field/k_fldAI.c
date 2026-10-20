@@ -1,4 +1,9 @@
-#include "Kosaka/k_fld_rw_internal.h"
+#include "member_access.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
+#include "rw_object_internal.h"
+#include "rw_camera_internal.h"
+#include "rw_frame_internal.h"
 #include "resrc_manager_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -88,7 +93,7 @@ typedef struct FldAIChaserWork {
     s32 positioned;
     s32 movementEnabled;
     union { s32 follower; u8 *followerPtr; };
-    s32 leader;
+    union { s32 leader; u8 *leaderPtr; };
     s32 formation;
     s32 previousFormation;
     s32 followerIndex;
@@ -106,7 +111,7 @@ typedef struct FldAIChaserWork {
     s32 idleFrames;
     f32 cameraNearPlane;
     s32 cameraNear;
-    s32 fadeTask;
+    union { s32 fadeTask; u8 *fadeTaskPtr; KwlnTask *fadeTaskHandle; };
     u8 pad70[4];
 } FldAIChaserWork;
 
@@ -142,7 +147,7 @@ typedef struct FldAIPatrolWork {
     f32 alpha;
     f32 cameraNearPlane;
     f32 fadeDistance;
-    s32 fadeTask;
+    union { s32 fadeTask; u8 *fadeTaskPtr; KwlnTask *fadeTaskHandle; };
     s32 timer;
     s32 returnDelay;
     s32 approachFrames;
@@ -191,17 +196,15 @@ typedef union FldFollowerPositionOutput {
     u8 bytes[sizeof(RwV3d)];
 } FldFollowerPositionOutput;
 
-static inline u8 *fldFollowerStorageOffset(u32 offset, u8 *entry)
-{
-    return (u8 *)(offset + (uintptr_t)entry);
-}
 
+/* Locate the follower model pointer without changing its byte-cursor interface. */
+/* measured: expansion removes the separately formed model-slot address and changes chaser loads and instruction count. */
 static inline u8 **fldFollowerModelSlot(u8 *entry)
 {
     return (u8 **)&((FldAINpc *)entry)->model;
 }
 
-/* Earlier whole-layout probe: 5392/5248 bytes. This mixed body keeps only independently measured raw sites. */
+/* Earlier whole-layout probe: 5392/5248 bytes. Named MEMBER accesses keep the independently measured alias-sensitive sites. */
 // FUN_0017D3C0
 s32 FldAI_ChaserUpdate(u8 *task)
 {
@@ -282,8 +285,8 @@ s32 FldAI_ChaserUpdate(u8 *task)
         u8 firstReady;
         u8 secondReady;
         firstUsed = 0;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        entry = *(u8 **)(work + 0x10);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        entry = MEMBER(u8 *, work, FldAIChaserWork, followerPtr); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
         if (((FldAINpc *)entry)->used == 0)
             goto firstAvailabilityDone;
         if ((void *)((FldAINpc *)entry)->movement == NULL)
@@ -294,8 +297,8 @@ firstAvailabilityDone:
         if (firstReady == 0)
             goto unavailable;
         secondUsed = 0;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        entry = *(u8 **)(work + 0x14);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        entry = MEMBER(u8 *, work, FldAIChaserWork, leaderPtr); /* measured: FldAIChaserWork.leaderPtr: local nd3650; MEMBER retains reload behavior. */
         if (((FldAINpc *)entry)->used == 0)
             goto secondAvailabilityDone;
         if ((void *)((FldAINpc *)entry)->movement == NULL)
@@ -347,10 +350,10 @@ discoveryAvailabilityDone:
         tileX = FldFrameTask_GetTileX((u8 *)((ResrcRecord *)D_007EFA00[1])->handle220);
         tileZ = FldFrameTask_GetTileZ((u8 *)((ResrcRecord *)D_007EFA00[1])->handle220);
         {
-            struct RwFrame *frame = (struct RwFrame *)((struct RwCamera *)(u8 *)(u32)kwlnGetCamera())->object.parent;
+            struct RwFrame *frame = (struct RwFrame *)((struct RwCamera *)(u8 *)(u32)kwlnGetCamera())->object.object.parent;
             FldFrameTask_GetPosition(selfPosition.bytes,
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                (u8 *)((ResrcRecord *)(((FldAINpc *)(*(u8 **)(work + 0x10)))->movement))->handle220);
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                (u8 *)((ResrcRecord *)(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->movement))->handle220); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
             focusPosition = *(RwV3d *)selfPosition.bytes;
             focusPosition.y += 180.0f;
             matrix = (u8 *)func_003e9700(frame);
@@ -360,42 +363,42 @@ discoveryAvailabilityDone:
         cameraDelta.y = focusPosition.y - cameraPosition.y;
         cameraDelta.z = focusPosition.z - cameraPosition.z;
         distance = RwV3dLength(&cameraDelta.x);
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (*(u8 **)(work + 0x6C) != NULL && KDraw_IsEffectDone((u8 *)((FldAIChaserWork *)work)->fadeTask) == 1) {
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        if (MEMBER(u8 *, work, FldAIChaserWork, fadeTaskPtr) != NULL && KDraw_IsEffectDone((u8 *)((FldAIChaserWork *)work)->fadeTask) == 1) { /* measured: FldAIChaserWork.fadeTaskPtr: local nd3287; MEMBER retains reload behavior. */
             mdlClearAlphaBlend(((ResrcRecord *)(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement))->modelHandle164);
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x6C));
-            *(u8 **)(work + 0x6C) = NULL;
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            kwlnTaskDestroyWithHierarchy(MEMBER(KwlnTask *, work, FldAIChaserWork, fadeTaskHandle)); /* measured: FldAIChaserWork.fadeTaskHandle: local nd3281; MEMBER retains reload behavior. */
+            MEMBER(u8 *, work, FldAIChaserWork, fadeTaskPtr) = NULL; /* measured: FldAIChaserWork.fadeTaskPtr: local nd3287; MEMBER retains reload behavior. */
         }
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (distance <= 110.0f + *(f32 *)(work + 0x64)) {
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        if (distance <= 110.0f + MEMBER(f32, work, FldAIChaserWork, cameraNearPlane)) { /* measured: FldAIChaserWork.cameraNearPlane: local nd3199; MEMBER retains reload behavior. */
             if ((u8 *)((FldAIChaserWork *)work)->fadeTask != NULL) {
                 mdlClearAlphaBlend(((ResrcRecord *)(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement))->modelHandle164);
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x6C));
-                *(u8 **)(work + 0x6C) = NULL;
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                kwlnTaskDestroyWithHierarchy(MEMBER(KwlnTask *, work, FldAIChaserWork, fadeTaskHandle)); /* measured: FldAIChaserWork.fadeTaskHandle: local nd3281; MEMBER retains reload behavior. */
+                MEMBER(u8 *, work, FldAIChaserWork, fadeTaskPtr) = NULL; /* measured: FldAIChaserWork.fadeTaskPtr: local nd3287; MEMBER retains reload behavior. */
             }
             mdlSetColor(((ResrcRecord *)(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement))->modelHandle164, &iGpffff9f58);
             ((FldAIChaserWork *)work)->cameraNear = 1;
         }
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (*(s32 *)(work + 0x68) == 1 && !(distance <= 110.0f + ((FldAIChaserWork *)work)->cameraNearPlane)) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            mdlSetAlphaBlend(((ResrcRecord *)(((FldAINpc *)(*(u8 **)(work + 0x10)))->movement))->modelHandle164);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        if (MEMBER(s32, work, FldAIChaserWork, cameraNear) == 1 && !(distance <= 110.0f + ((FldAIChaserWork *)work)->cameraNearPlane)) { /* measured: FldAIChaserWork.cameraNear: local nd3181; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            mdlSetAlphaBlend(((ResrcRecord *)(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->movement))->modelHandle164); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
             ((FldAIChaserWork *)work)->fadeTask = KMisc_CreateRmdFade((s32)task,
-                *(s32 *)(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement + 0x164), 0, 255, 10);
+                ((ResrcRecord *)(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement))->modelHandle164Value, 0, 255, 10);
             ((FldAIChaserWork *)work)->cameraNear = 0;
         }
         if (!(FldEvent_GetMoveStep() <= 0.0f))
             ((FldAIChaserWork *)work)->movementEnabled = 1;
         if (((FldAIChaserWork *)work)->movementEnabled == 0) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            currentAnimation = (s16)mdlGetLayerAnimation((s32)((FldAINpc *)(*(u8 **)(work + 0x10)))->model, 0);
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            desiredAnimation = FldCharacterAnimSelect(((FldAINpc *)(*(u8 **)(work + 0x10)))->animationId);
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            currentAnimation = (s16)mdlGetLayerAnimation((s32)((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->model, 0); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            desiredAnimation = FldCharacterAnimSelect(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->animationId); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
             if (currentAnimation != desiredAnimation) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                desiredAnimation = (s16)FldCharacterAnimSelect(((FldAINpc *)(*(u8 **)(work + 0x10)))->animationId);
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                desiredAnimation = (s16)FldCharacterAnimSelect(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->animationId); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                 mdlDispatchAnimIfPresent(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->model, 0, (s16)desiredAnimation, 0, 1);
             }
             break;
@@ -412,9 +415,9 @@ discoveryAvailabilityDone:
                 ((FldAIChaserWork *)work)->unk5c = 0;
                 ((FldAIChaserWork *)work)->unk4c = -1;
                 FldFrameTask_ClearFlags((u8 *)((ResrcRecord *)((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement)->handle220, 1);
-                *(s32 *)(work + 0x18) = 1;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                if (*(s32 *)(work + 0x1C) != *(s32 *)(work + 0x18)) {
+                MEMBER(s32, work, FldAIChaserWork, formation) = 1; /* measured: FldAIChaserWork.formation: local nd2762; MEMBER retains reload behavior. */
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                if (MEMBER(s32, work, FldAIChaserWork, previousFormation) != MEMBER(s32, work, FldAIChaserWork, formation)) { /* measured: FldAIChaserWork.previousFormation: local nd2755; FldAIChaserWork.formation: local nd2762; MEMBER retains reload behavior. */
                     u32 random = RpRandom() & 1;
                     u8 *otherTask = ((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->leader)->chaserTask;
                     if (otherTask != NULL) {
@@ -429,9 +432,9 @@ discoveryAvailabilityDone:
                     ((FldAIChaserWork *)work)->previousFormation = ((FldAIChaserWork *)work)->formation;
                 }
             } else {
-                *(s32 *)(work + 0x18) = 0;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                if (*(s32 *)(work + 0x1C) != *(s32 *)(work + 0x18)) {
+                MEMBER(s32, work, FldAIChaserWork, formation) = 0; /* measured: FldAIChaserWork.formation: local nd2762; MEMBER retains reload behavior. */
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                if (MEMBER(s32, work, FldAIChaserWork, previousFormation) != MEMBER(s32, work, FldAIChaserWork, formation)) { /* measured: FldAIChaserWork.previousFormation: local nd2755; FldAIChaserWork.formation: local nd2762; MEMBER retains reload behavior. */
                     u32 random = RpRandom() & 1;
                     u8 *otherTask = ((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->leader)->chaserTask;
                     if (otherTask != NULL) {
@@ -447,18 +450,18 @@ discoveryAvailabilityDone:
                 }
             }
         }
-        *(s32 *)(work + 0x18) = 0;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        matrix = mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model);
+        MEMBER(s32, work, FldAIChaserWork, formation) = 0; /* measured: FldAIChaserWork.formation: local nd2762; MEMBER retains reload behavior. */
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        matrix = mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
         selfForward = ((FldAIMatrix *)matrix)->forward;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        matrix = mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        matrix = mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
         selfRight = ((FldAIMatrix *)matrix)->right;
         RwV3dNormalize(&selfForward, &selfForward);
         RwV3dNormalize(&selfRight, &selfRight);
         memset(work + 0x30, 0, 12);
         memset(work + 0x3C, 0, 12);
-        *(s32 *)(work + 0x2C) = 0;
+        MEMBER(s32, work, FldAIChaserWork, neighborCount) = 0; /* measured: FldAIChaserWork.neighborCount: local nd3680; MEMBER retains reload behavior. */
         for (index = 0; index < 4; index++) {
             s32 neighborActive;
             u8 neighborReady;
@@ -471,22 +474,22 @@ discoveryAvailabilityDone:
             neighborActive = 1;
 neighborAvailabilityDone:
             neighborReady = neighborActive != 0;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            if (neighborReady && *(u8 **)(work + 0x10) != entry) {
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            if (neighborReady && MEMBER(u8 *, work, FldAIChaserWork, followerPtr) != entry) { /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                 u8 **otherModel = fldFollowerModelSlot(entry);
                 f32 candidate = FldEvent_GetVisibleDistance(
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    (const struct RwMatrix *)mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model),
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    (const struct RwMatrix *)mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model), /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                     (const RwV3d *)&((FldAIMatrix *)mdlGetMatrix(*otherModel))->pos,
                     ((FldAIChaserWork *)work)->visibleAngle, ((FldAIChaserWork *)work)->visibleDistance, 0.0f);
                 if (!(candidate < 0.0f) && candidate <= 80.0f) {
                     u8 **nearbyModel = (u8 **)&((FldAINpc *)(D_007EF9B0 + (u32)index * 0x750u))->model;
                     f32 coordinate;
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.x;
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.x; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                     separation.x = ((FldAIMatrix *)mdlGetMatrix(*nearbyModel))->pos.x - coordinate;
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.y;
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.y; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                     separation.y = ((FldAIMatrix *)mdlGetMatrix(*nearbyModel))->pos.y - coordinate;
                     coordinate = ((FldAIMatrix *)mdlGetMatrix(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->model))->pos.z;
                     separation.z = ((FldAIMatrix *)mdlGetMatrix(*nearbyModel))->pos.z - coordinate;
@@ -511,18 +514,18 @@ neighborAvailabilityDone:
         }
         {
             f32 coordinate;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x14))->model)))->pos.x;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            leaderDelta.x = coordinate - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.x;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x14))->model)))->pos.y;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            leaderDelta.y = coordinate - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.y;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x14))->model)))->pos.z;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            leaderDelta.z = coordinate - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.z;
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, leaderPtr))->model)))->pos.x; /* measured: FldAIChaserWork.leaderPtr: local nd3650; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            leaderDelta.x = coordinate - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.x; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, leaderPtr))->model)))->pos.y; /* measured: FldAIChaserWork.leaderPtr: local nd3650; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            leaderDelta.y = coordinate - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.y; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            coordinate = ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, leaderPtr))->model)))->pos.z; /* measured: FldAIChaserWork.leaderPtr: local nd3650; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            leaderDelta.z = coordinate - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.z; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
         }
         distance = RwV3dNormalize(&leaderDelta, &leaderDelta);
         if (FldEvent_GetMoveStep() <= 0.0f)
@@ -545,8 +548,8 @@ distanceChosen:
                 RwV3dNormalize(&leaderRight, &leaderRight);
                 switch (((FldAIChaserWork *)work)->followerIndex) {
                 case 1:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (*(s32 *)(work + 0x48) < 0) {
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    if (MEMBER(s32, work, FldAIChaserWork, lateralDirection) < 0) { /* measured: FldAIChaserWork.lateralDirection: local nd1595; MEMBER retains reload behavior. */
                         leaderRight.x = -leaderRight.x;
                         leaderRight.y = -leaderRight.y;
                         leaderRight.z = -leaderRight.z;
@@ -558,8 +561,8 @@ distanceChosen:
                     }
                     break;
                 case 2:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (*(s32 *)(work + 0x48) < 0) {
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    if (MEMBER(s32, work, FldAIChaserWork, lateralDirection) < 0) { /* measured: FldAIChaserWork.lateralDirection: local nd1595; MEMBER retains reload behavior. */
                         leaderRight.x = -leaderRight.x;
                         leaderRight.y = -leaderRight.y;
                         leaderRight.z = -leaderRight.z;
@@ -571,8 +574,8 @@ distanceChosen:
                     }
                     break;
                 case 3:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (*(s32 *)(work + 0x48) < 0) {
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    if (MEMBER(s32, work, FldAIChaserWork, lateralDirection) < 0) { /* measured: FldAIChaserWork.lateralDirection: local nd1595; MEMBER retains reload behavior. */
                         leaderRight.x = -leaderRight.x;
                         leaderRight.y = -leaderRight.y;
                         leaderRight.z = -leaderRight.z;
@@ -593,8 +596,8 @@ distanceChosen:
                 RwV3dNormalize(&leaderRight, &leaderRight);
                 switch (((FldAIChaserWork *)work)->followerIndex) {
                 case 1:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (*(s32 *)(work + 0x48) < 0) {
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    if (MEMBER(s32, work, FldAIChaserWork, lateralDirection) < 0) { /* measured: FldAIChaserWork.lateralDirection: local nd1595; MEMBER retains reload behavior. */
                         leaderRight.x = -leaderRight.x;
                         leaderRight.y = -leaderRight.y;
                         leaderRight.z = -leaderRight.z;
@@ -606,8 +609,8 @@ distanceChosen:
                     }
                     break;
                 case 2:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (*(s32 *)(work + 0x48) < 0) {
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    if (MEMBER(s32, work, FldAIChaserWork, lateralDirection) < 0) { /* measured: FldAIChaserWork.lateralDirection: local nd1595; MEMBER retains reload behavior. */
                         leaderRight.x = -leaderRight.x;
                         leaderRight.y = -leaderRight.y;
                         leaderRight.z = -leaderRight.z;
@@ -619,8 +622,8 @@ distanceChosen:
                     }
                     break;
                 case 3:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    if (*(s32 *)(work + 0x48) < 0) {
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    if (MEMBER(s32, work, FldAIChaserWork, lateralDirection) < 0) { /* measured: FldAIChaserWork.lateralDirection: local nd1595; MEMBER retains reload behavior. */
                         leaderRight.x = -leaderRight.x;
                         leaderRight.y = -leaderRight.y;
                         leaderRight.z = -leaderRight.z;
@@ -636,22 +639,22 @@ distanceChosen:
                     break;
                 }
             }
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            offset.x += ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.x;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            offset.y += ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.y;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            offset.z += ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.z;
-            *(f32 *)(work + 0x30) += offset.x;
-            *(f32 *)(work + 0x34) += offset.y;
-            *(f32 *)(work + 0x38) += offset.z;
-            *(f32 *)(work + 0x30) /= (f32)(((FldAIChaserWork *)work)->neighborCount + 1);
-            *(f32 *)(work + 0x34) /= (f32)(((FldAIChaserWork *)work)->neighborCount + 1);
-            *(f32 *)(work + 0x38) /= (f32)(((FldAIChaserWork *)work)->neighborCount + 1);
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            separation.x = ((FldAIChaserWork *)work)->positionSum.x - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.x;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            separation.y = ((FldAIChaserWork *)work)->positionSum.y - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)*(u8 **)(work + 0x10))->model)))->pos.y;
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            offset.x += ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.x; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            offset.y += ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.y; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            offset.z += ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.z; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            MEMBER(f32, work, FldAIChaserWork, positionSum.x) += offset.x; /* measured: FldAIChaserWork.positionSum.x: local nd904; MEMBER retains reload behavior. */
+            MEMBER(f32, work, FldAIChaserWork, positionSum.y) += offset.y; /* measured: FldAIChaserWork.positionSum.y: local nd891; MEMBER retains reload behavior. */
+            MEMBER(f32, work, FldAIChaserWork, positionSum.z) += offset.z; /* measured: FldAIChaserWork.positionSum.z: local nd878; MEMBER retains reload behavior. */
+            MEMBER(f32, work, FldAIChaserWork, positionSum.x) /= (f32)(((FldAIChaserWork *)work)->neighborCount + 1); /* measured: FldAIChaserWork.positionSum.x: local nd904; MEMBER retains reload behavior. */
+            MEMBER(f32, work, FldAIChaserWork, positionSum.y) /= (f32)(((FldAIChaserWork *)work)->neighborCount + 1); /* measured: FldAIChaserWork.positionSum.y: local nd891; MEMBER retains reload behavior. */
+            MEMBER(f32, work, FldAIChaserWork, positionSum.z) /= (f32)(((FldAIChaserWork *)work)->neighborCount + 1); /* measured: FldAIChaserWork.positionSum.z: local nd878; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            separation.x = ((FldAIChaserWork *)work)->positionSum.x - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.x; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            separation.y = ((FldAIChaserWork *)work)->positionSum.y - ((FldAIMatrix *)(mdlGetMatrix(((FldAINpc *)MEMBER(u8 *, work, FldAIChaserWork, followerPtr))->model)))->pos.y; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
             separation.z = ((FldAIChaserWork *)work)->positionSum.z - ((FldAIMatrix *)mdlGetMatrix(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->model))->pos.z;
             RwV3dNormalize(&separation, &separation);
             dot = selfForward.x * separation.x + selfForward.y * separation.y + selfForward.z * separation.z;
@@ -676,20 +679,20 @@ distanceChosen:
 moveFollower:
         {
             active = 0;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            historyIndex = ((FldAINpc *)(*(u8 **)(work + 0x10)))->historyIndex - 1;
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            historyIndex = ((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->historyIndex - 1; /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
             if (turn != 0.0f && speed != 0.0f)
                 FldFrameTask_Rotate((u8 *)((ResrcRecord *)((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement)->handle220, D_00756510, turn);
             if (speed != 0.0f)
                 FldFrameTask_StartMove((u8 *)((ResrcRecord *)((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->movement)->handle220, speed);
             if (historyIndex < 0) historyIndex = 63;
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-            entry = *(u8 **)(work + 0x10);
-            if (((FldAINpc *)fldFollowerStorageOffset(historyIndex, entry))->historyActive[0] != 0) {
+            /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+            entry = MEMBER(u8 *, work, FldAIChaserWork, followerPtr); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+            if (((FldAINpc *)byteAddressAdd(historyIndex, entry))->historyActive[0] != 0) {
                 FldFrameTask_GetPosition(historyPoint.bytes, (u8 *)((ResrcRecord *)((FldAINpc *)entry)->movement)->handle220);
                 historyDelta = *(RwV3d *)historyPoint.bytes;
                 {
-                    u8 *historySample = fldFollowerStorageOffset(historyIndex * 8, ((FldAIChaserWork *)work)->followerPtr);
+                    u8 *historySample = byteAddressAdd(historyIndex * 8, ((FldAIChaserWork *)work)->followerPtr);
                     historyPoint.value.x = ((FldAINpc *)historySample)->historySamples[0].x;
                     historyPoint.value.z = ((FldAINpc *)historySample)->historySamples[0].z;
                 }
@@ -699,36 +702,36 @@ moveFollower:
                 if (RwV3dLength(&historyDelta.x) < speed) active = 1;
             }
             if (speed == 0.0f || active == 1) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                if (*(s32 *)(work + 0x60) < 30) ((FldAIChaserWork *)work)->idleFrames += 1;
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                if (MEMBER(s32, work, FldAIChaserWork, idleFrames) < 30) ((FldAIChaserWork *)work)->idleFrames += 1; /* measured: FldAIChaserWork.idleFrames: local nd242; MEMBER retains reload behavior. */
                 else {
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    currentAnimation = (s16)mdlGetLayerAnimation((s32)((FldAINpc *)(*(u8 **)(work + 0x10)))->model, 0);
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    desiredAnimation = FldCharacterAnimSelect(((FldAINpc *)(*(u8 **)(work + 0x10)))->animationId);
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    currentAnimation = (s16)mdlGetLayerAnimation((s32)((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->model, 0); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    desiredAnimation = FldCharacterAnimSelect(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->animationId); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                     if (currentAnimation != desiredAnimation) {
-                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                        desiredAnimation = (s16)FldCharacterAnimSelect(((FldAINpc *)(*(u8 **)(work + 0x10)))->animationId);
+                        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                        desiredAnimation = (s16)FldCharacterAnimSelect(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->animationId); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                         mdlDispatchAnimIfPresent(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->model, 0, (s16)desiredAnimation, 16, 1);
                     }
                     ((FldAIChaserWork *)work)->idleFrames = 0;
                 }
             } else {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                currentAnimation = (s16)mdlGetLayerAnimation((s32)((FldAINpc *)(*(u8 **)(work + 0x10)))->model, 0);
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                desiredAnimation = FldMoveAnimSecondary(((FldAINpc *)(*(u8 **)(work + 0x10)))->animationId);
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                currentAnimation = (s16)mdlGetLayerAnimation((s32)((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->model, 0); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
+                /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                desiredAnimation = FldMoveAnimSecondary(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->animationId); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                 if (currentAnimation != desiredAnimation) {
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    desiredAnimation = (s16)FldMoveAnimSecondary(((FldAINpc *)(*(u8 **)(work + 0x10)))->animationId);
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    desiredAnimation = (s16)FldMoveAnimSecondary(((FldAINpc *)(MEMBER(u8 *, work, FldAIChaserWork, followerPtr)))->animationId); /* measured: FldAIChaserWork.followerPtr: local nd3647; MEMBER retains reload behavior. */
                     mdlDispatchAnimIfPresent(((FldAINpc *)(u8 *)((FldAIChaserWork *)work)->follower)->model, 0, (s16)desiredAnimation, 8, 1);
                     ((FldAIChaserWork *)work)->idleFrames = 0;
                 }
             }
         }
 movementComplete:
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        if (*(s32 *)(work + 8) == 0) ((FldAIChaserWork *)work)->positioned = 1;
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        if (MEMBER(s32, work, FldAIChaserWork, positioned) == 0) ((FldAIChaserWork *)work)->positioned = 1; /* measured: FldAIChaserWork.positioned: local nd59; MEMBER retains reload behavior. */
         break;
     case 2:
     default:
@@ -740,7 +743,7 @@ movementComplete:
 
 #pragma pop
 /* Release the follower transform and task-owned work. */
-/* measured: only the final task-work reload still requires the raw +0x38 form. */
+/* measured: the final task-work reload requires MEMBER to preserve callback aliasing. */
 // FUN_0017E840
 void FldAI_ChaserDestroy(u8 *task) {
     s32 h = ((FldAIChaserWork *)(((SdkTask *)task)->work))->transform;
@@ -748,8 +751,8 @@ void FldAI_ChaserDestroy(u8 *task) {
     if (h != 0) {
         func_003e0f40(h);
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+    jtbl_008873EC[0](MEMBER(void *, task, SdkTask, work)); /* measured: SdkTask.work: local nd5; MEMBER retains reload behavior. */
 }
 
 /* Create a follower controller linking a follower actor to its leader. */
@@ -793,8 +796,8 @@ void FldAI_ChaserEnable(u8 *task) {
 void FldAI_ChaserDisable(u8 *task) {
     u8 *p = ((SdkTask *)task)->work;
 
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    mdlDispatchAnimIfPresent(((FldAINpc *)(*(u8 **)(p + 0x10)))->model, 0,
+    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+    mdlDispatchAnimIfPresent(((FldAINpc *)(MEMBER(u8 *, p, FldAIChaserWork, followerPtr)))->model, 0, /* measured: FldAIChaserWork.followerPtr: local nd75; MEMBER retains reload behavior. */
                   (s16)FldCharacterAnimSelect(((FldAINpc *)(u8 *)((FldAIChaserWork *)p)->follower)->animationId), 0, 1);
     ((FldAIChaserWork *)p)->movementEnabled = 0;
 }
@@ -842,8 +845,8 @@ s32 FldAI_ChaserCanSeeTarget(u8 *actor)
         }
         return visible;
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    lineSource = mdlGetMatrix(*(u8 **)(actor + 0x50));
+    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+    lineSource = mdlGetMatrix(MEMBER(u8 *, actor, FldAINpc, model)); /* measured: FldAINpc.model: local nd543; MEMBER retains reload behavior. */
     line[0] = ((FldAIMatrix *)lineSource)->pos;
     lineDestination = mdlGetMatrix(D_007EFA00[0]);
     line[1] = ((FldAIMatrix *)lineDestination)->pos;
@@ -860,15 +863,15 @@ s32 FldAI_ChaserCanSeeTarget(u8 *actor)
     if (FldFrame_RaycastField((const RwV3d *)lineSource, (RwV3d *)lineDestination) == 1) {
         return 0;
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    selfMatrix = mdlGetMatrix(*(u8 **)(actor + 0x50));
+    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+    selfMatrix = mdlGetMatrix(MEMBER(u8 *, actor, FldAINpc, model)); /* measured: FldAINpc.model: local nd543; MEMBER retains reload behavior. */
     if (K_FldEvent_IsPosWithinFov(selfMatrix, mdlGetMatrix(D_007EFA00[0]) + 0x30,
                       ((FldAIConfig *)config)->fieldOfView) == 1) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        selfCoordinate = ((FldAIMatrix *)(mdlGetMatrix(*(u8 **)(actor + 0x50))))->pos.x;
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        selfCoordinate = ((FldAIMatrix *)(mdlGetMatrix(MEMBER(u8 *, actor, FldAINpc, model))))->pos.x; /* measured: FldAINpc.model: local nd543; MEMBER retains reload behavior. */
         separation.x = ((FldAIMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos.x - selfCoordinate;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        selfCoordinate = ((FldAIMatrix *)(mdlGetMatrix(*(u8 **)(actor + 0x50))))->pos.y;
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        selfCoordinate = ((FldAIMatrix *)(mdlGetMatrix(MEMBER(u8 *, actor, FldAINpc, model))))->pos.y; /* measured: FldAINpc.model: local nd543; MEMBER retains reload behavior. */
         separation.y = ((FldAIMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos.y - selfCoordinate;
         selfCoordinate = ((FldAIMatrix *)mdlGetMatrix(((FldAINpc *)actor)->model))->pos.z;
         separation.z = ((FldAIMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos.z - selfCoordinate;
@@ -921,8 +924,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
     s32 cellZ;
 
     result = 1;
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    if (*(s32 *)(work + 0x4C) < 0x10) {
+    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+    if (MEMBER(s32, work, FldAIPatrolWork, sampleStep) < 0x10) { /* measured: FldAIPatrolWork.sampleStep: local nd1406; MEMBER retains reload behavior. */
         unit = (u8 *)((FldAIPatrolWork *)work)->actor;
         originX = ((FldAINpc *)unit)->origin.x;
         originY = ((FldAINpc *)unit)->origin.y;
@@ -931,8 +934,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
         line[0].y = originY;
         line[0].z = originZ;
         line[1] = line[0];
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        cachedStep = *(s32 *)(work + 0x4C);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        cachedStep = MEMBER(s32, work, FldAIPatrolWork, sampleStep); /* measured: FldAIPatrolWork.sampleStep: local nd1406; MEMBER retains reload behavior. */
         if (cachedStep >= 4) {
             f32 centeredX = 600.0f + line[0].x;
             cellX = (s32)(centeredX / 1200.0f);
@@ -949,8 +952,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
                 goto tail;
             }
         }
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        tableStep = (s32)*(u32 *)(work + 0x4C);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        tableStep = (s32)MEMBER(u32, work, FldAIPatrolWork, sampleStep); /* measured: FldAIPatrolWork.sampleStep: local nd1415; MEMBER retains reload behavior. */
         firstOffset = D_005F1B40 + (tableStep * 0x18);
         offsets[0] = *(FldAIVec3 *)firstOffset;
         if ((tableStep >= 4) && (cachedStep < 8)) {
@@ -973,8 +976,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
         }
         endpointZ = line[0].z + offsets[0].z;
         line[0].z = endpointZ;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        secondOffset = D_005F1B4C + (*(s32 *)(work + 0x4C) * 0x18);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        secondOffset = D_005F1B4C + (MEMBER(s32, work, FldAIPatrolWork, sampleStep) * 0x18); /* measured: FldAIPatrolWork.sampleStep: local nd1406; MEMBER retains reload behavior. */
         offsets[1] = *(FldAIVec3 *)secondOffset;
         {
             f32 value = line[1].x + offsets[1].x;
@@ -996,8 +999,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
             if (cellB->occupied == 1) {
                 axis = 0;
                 if (FldFrame_RaycastField(line, &hit) == 1) {
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    s32 hitStep = *(s32 *)(work + 0x4C);
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    s32 hitStep = MEMBER(s32, work, FldAIPatrolWork, sampleStep); /* measured: FldAIPatrolWork.sampleStep: local nd1406; MEMBER retains reload behavior. */
                     if (hitStep >= 4) {
                         axis = hitStep & 1;
                         if ((hitStep < 0) && (axis != 0)) {
@@ -1082,8 +1085,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
                         }
                     }
                 } else {
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-                    s32 missStep = *(s32 *)(work + 0x4C);
+                    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+                    s32 missStep = MEMBER(s32, work, FldAIPatrolWork, sampleStep); /* measured: FldAIPatrolWork.sampleStep: local nd1406; MEMBER retains reload behavior. */
                     if (missStep >= 4) {
                         axis = missStep & 1;
                         if ((missStep < 0) && (axis != 0)) {
@@ -1153,10 +1156,7 @@ tail:
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
-static inline f32 fldAIScale(f32 scale, f32 speed)
-{
-    return scale * speed;
-}
+/* Accumulate a turn angle and return the value written back. */
 static inline f32 fldAIAccumulateTurn(f32 *angle, f32 turn)
 {
     f32 total = *angle + turn;
@@ -1291,7 +1291,7 @@ availabilityDone:
       return 0;
     }
     value = kwlnGetCamera();
-    value = (int)func_003e9700((struct RwFrame *)(unsigned int)((struct RwCamera *)value)->object.parent);
+    value = (int)func_003e9700((struct RwFrame *)(unsigned int)((struct RwCamera *)value)->object.object.parent);
     modelColor = (unsigned char *)mdlGetColor((void *)(unsigned int)((FldAINpc *)work[3])->model);
     {
         typedef struct { unsigned char c[4]; } FldAIColorBytes;
@@ -1327,17 +1327,17 @@ availabilityDone:
       ((FldAIPatrolWork *)work)->alpha = (float)(color.a = (unsigned char)(factor * 255.0f));
     }
     else {
-      *(float *)((u8 *)(u32)work + 0x7c) = (float)(color.a = 0xff);
+      ((FldAIPatrolWork *)((u8 *)(u32)work))->alpha = (float)(color.a = 0xff);
     }
     if (((FldAINpc *)work[3])->kind == '\x01') {
       mdlSetColor((void *)((FldAINpc *)((FldAIPatrolWork *)work)->actor)->model,&color);
     }
     for (value = (int)((FldAIModel *)(int)((FldAINpc *)work[3])->model)->effects[0]; value != 0;
         value = (int)((FldAIModelEffect *)value)->next) {
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      if (*(void **)(value + 8) != (void *)0x0) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        mdlEffectGetPackedColor(*(void **)(value + 8),(int *)&color);
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      if (MEMBER(void *, value, FldAIModelEffect, effect) != (void *)0x0) { /* measured: FldAIModelEffect.effect: local nd7733; MEMBER retains reload behavior. */
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        mdlEffectGetPackedColor(MEMBER(void *, value, FldAIModelEffect, effect),(int *)&color); /* measured: FldAIModelEffect.effect: local nd7733; MEMBER retains reload behavior. */
         distance = ((FldAIPatrolWork *)work)->alpha;
         color.a = (unsigned char)distance;
         mdlEffectSetPackedColor(((FldAIModelEffect *)value)->effect,(int *)&color);
@@ -1408,8 +1408,8 @@ availabilityDone:
           ((FldAINpc *)work[3])->flags = ((FldAINpc *)work[3])->flags | 2;
           distance = ((FldAIPatrolWork *)work)->alpha;
           unsignedValue = (unsigned int)distance;
-          /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-          value = KMisc_CreateRmdFade((int)task,*(int *)(((FldAIPatrolWork *)work)->actor + 0x50),unsignedValue,0,10);
+          /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+          value = KMisc_CreateRmdFade((int)task,MEMBER(int, ((FldAIPatrolWork *)work)->actor, FldAINpc, model),unsignedValue,0,10); /* measured: FldAINpc.model: local instruction mismatch; MEMBER retains reload behavior. */
           ((FldAIPatrolWork *)work)->fadeTask = value;
           ((FldAIPatrolWork *)work)->state = 4;
         }
@@ -1418,10 +1418,10 @@ availabilityDone:
           int cur = work[0x12];
           unsignedValue = cur != 0 ^ 1;
           accepted = 0;
-          if ((!(aiPos.x < ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[9]) &&
-               (aiPos.x <= ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[6])) &&
-              (!(aiPos.z < ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[0xb])) &&
-             (aiPos.z <= ((float *)fldFollowerStorageOffset(unsignedValue * 24, (u8 *)work))[8])) {
+          if ((!(aiPos.x < ((float *)byteAddressAdd(unsignedValue * 24, (u8 *)work))[9]) &&
+               (aiPos.x <= ((float *)((u8 *)work + (unsignedValue * 24)))[6])) &&
+              (!(aiPos.z < ((float *)((u8 *)work + (unsignedValue * 24)))[0xb])) &&
+             (aiPos.z <= ((float *)((u8 *)work + (unsignedValue * 24)))[8])) {
             accepted = 1;
           }
           if (accepted == 1) {
@@ -1486,9 +1486,9 @@ availabilityDone:
       state2Delta.y = ((FldAIPatrolWork *)work)->destination.y - patrolPosition.y;
       state2Delta.z = ((FldAIPatrolWork *)work)->destination.z - patrolPosition.z;
       distance = RwV3dNormalize(&state2Delta,&state2Delta);
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      factor = *(float *)((u8 *)(u32)work + 0x68);
-      factor = fldAIScale(iGpffff830c, factor);
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      factor = ((FldAIPatrolWork *)((u8 *)(u32)work))->speed;
+      factor = operandOrderMultiply(iGpffff830c, factor);
       if (!(distance <= factor)) {
         distance = factor;
       }
@@ -1578,8 +1578,8 @@ else {
       else {
         distance = ((FldAIPatrolWork *)work)->alpha;
         unsignedValue = (unsigned int)distance;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-        value = KMisc_CreateRmdFade((int)task,*(int *)(((FldAIPatrolWork *)work)->actor + 0x50),0,unsignedValue,10);
+        /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+        value = KMisc_CreateRmdFade((int)task,MEMBER(int, ((FldAIPatrolWork *)work)->actor, FldAINpc, model),0,unsignedValue,10); /* measured: FldAINpc.model: local instruction mismatch; MEMBER retains reload behavior. */
         ((FldAIPatrolWork *)work)->fadeTask = value;
         ((FldAIPatrolWork *)work)->state = ((FldAIPatrolWork *)work)->state + 1;
       }
@@ -1641,11 +1641,11 @@ else {
           state6Direction.y = state6Direction.y * 200.0f;
           state6Direction.z = state6Direction.z * 200.0f;
           value = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
-          *(float *)((u8 *)(u32)work + 0x50) = (state6Direction.x + ((FldAIMatrix *)value)->pos.x);
+          ((FldAIPatrolWork *)((u8 *)(u32)work))->destination.x = (state6Direction.x + ((FldAIMatrix *)value)->pos.x);
           value = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
-          *(float *)((u8 *)(u32)work + 0x54) = (state6Direction.y + ((FldAIMatrix *)value)->pos.y);
+          ((FldAIPatrolWork *)((u8 *)(u32)work))->destination.y = (state6Direction.y + ((FldAIMatrix *)value)->pos.y);
           value = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
-          *(float *)((u8 *)(u32)work + 0x58) = (state6Direction.z + ((FldAIMatrix *)value)->pos.z);
+          ((FldAIPatrolWork *)((u8 *)(u32)work))->destination.z = (state6Direction.z + ((FldAIMatrix *)value)->pos.z);
           value = (int)mdlGetMatrix((u8 *)(unsigned int)((FldAINpc *)((FldAIPatrolWork *)work)->actor)->model);
           aiPos6 = ((FldAIMatrix *)value)->pos;
           aiPos6.y = 0.0f;
@@ -1701,12 +1701,12 @@ else {
       }
       FldFrameTask_StartMove((unsigned char *)((ResrcRecord *)(int)((FldAINpc *)work[3])->movement)->handle220,distance);
       if (0 < work[0x18]) {
-        *(float *)((u8 *)(u32)work + 0x68) = (*(float *)((u8 *)(u32)work + 0x68) +
+        ((FldAIPatrolWork *)((u8 *)(u32)work))->speed = (((FldAIPatrolWork *)((u8 *)(u32)work))->speed +
                             (((FldAIConfig *)((FldAIPatrolWork *)work)->config)->chaseSpeed - ((FldAIConfig *)((FldAIPatrolWork *)work)->config)->walkSpeed) / 15.0f);
         ((FldAIPatrolWork *)work)->speedFrames = ((FldAIPatrolWork *)work)->speedFrames - 1;
       }
 else {
-        *(float *)((u8 *)(u32)work + 0x68) = ((FldAIPatrolWork *)work)->targetSpeed;
+        ((FldAIPatrolWork *)((u8 *)(u32)work))->speed = ((FldAIPatrolWork *)work)->targetSpeed;
       }
       if ((D_00764348 == 0) && (value = ((FldAIPatrolWork *)work)->actor, iGpffffb310 == 0)) {
         configAddress = (u32)iGpffffb2c8 + (unsigned int)((FldAINpc *)value)->kind * 0x180 + (unsigned int)((FldAINpc *)value)->configIndex * 0x40;
@@ -1832,12 +1832,12 @@ else {
       }
       FldFrameTask_StartMove((unsigned char *)((ResrcRecord *)(int)((FldAINpc *)work[3])->movement)->handle220,distance);
       if (0 < work[0x18]) {
-        *(float *)((u8 *)(u32)work + 0x68) = (*(float *)((u8 *)(u32)work + 0x68) +
+        ((FldAIPatrolWork *)((u8 *)(u32)work))->speed = (((FldAIPatrolWork *)((u8 *)(u32)work))->speed +
                             (((FldAIConfig *)((FldAIPatrolWork *)work)->config)->chaseSpeed - ((FldAIConfig *)((FldAIPatrolWork *)work)->config)->walkSpeed) / 15.0f);
         ((FldAIPatrolWork *)work)->speedFrames = ((FldAIPatrolWork *)work)->speedFrames - 1;
       }
 else {
-        *(float *)((u8 *)(u32)work + 0x68) = ((FldAIPatrolWork *)work)->targetSpeed;
+        ((FldAIPatrolWork *)((u8 *)(u32)work))->speed = ((FldAIPatrolWork *)work)->targetSpeed;
       }
       if ((D_00764348 == 0) && (value = ((FldAIPatrolWork *)work)->actor, iGpffffb310 == 0)) {
         configAddress = (u32)iGpffffb2c8 + (unsigned int)((FldAINpc *)value)->kind * 0x180 + (unsigned int)((FldAINpc *)value)->configIndex * 0x40;
@@ -1887,15 +1887,15 @@ else {
       weavePosition = ((FldAIMatrix *)value)->pos;
       weavePosition.y = 0.0f;
       turnAmount = sinf(((FldAIPatrolWork *)work)->weavePhase.value);
-      *(float *)((u8 *)(u32)work + 0x78) = (*(float *)((u8 *)(u32)work + 0x78) + fGpffff8218);
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      state9Direction.x = *(float *)((u8 *)(u32)work + 0x50) - weavePosition.x;
+      ((FldAIPatrolWork *)((u8 *)(u32)work))->weavePhase.value = (((FldAIPatrolWork *)((u8 *)(u32)work))->weavePhase.value + fGpffff8218);
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      state9Direction.x = ((FldAIPatrolWork *)((u8 *)(u32)work))->destination.x - weavePosition.x;
       distance = weavePosition.y;
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      state9Direction.y = *(float *)((u8 *)(u32)work + 0x54) - distance;
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      state9Direction.y = ((FldAIPatrolWork *)((u8 *)(u32)work))->destination.y - distance;
       factor = weavePosition.z;
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      state9Direction.z = *(float *)((u8 *)(u32)work + 0x58) - factor;
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      state9Direction.z = ((FldAIPatrolWork *)((u8 *)(u32)work))->destination.z - factor;
       RwV3dNormalize(&state9Direction,&state9Direction);
       state9Direction.x = state9Direction.x * 200.0f;
       state9Direction.y = state9Direction.y * 200.0f;
@@ -1903,7 +1903,7 @@ else {
       state9Direction.x = state9Direction.x + ((FldAIPatrolWork *)work)->destination.x;
       state9Direction.y = state9Direction.y + ((FldAIPatrolWork *)work)->destination.y;
       state9Direction.z = state9Direction.z + ((FldAIPatrolWork *)work)->destination.z;
-      turnAmount = fldAIScale(400.0f, turnAmount);
+      turnAmount = operandOrderMultiply(400.0f, turnAmount);
       state9Delta.x = state9Right.x * turnAmount;
       state9Delta.y = state9Right.y * turnAmount;
       state9Delta.z = state9Right.z * turnAmount;
@@ -1915,7 +1915,7 @@ else {
       state9Delta.z = state9Delta.z - factor;
       distance = RwV3dNormalize(&state9Delta,&state9Delta);
       factor = *(float *)&work[0x1a];
-      factor = fldAIScale(iGpffff830c, factor);
+      factor = operandOrderMultiply(iGpffff830c, factor);
       if (!(distance <= factor)) {
         distance = factor;
       }
@@ -1929,8 +1929,8 @@ else {
         ((FldAIPatrolWork *)work)->approachFrames = ((FldAIPatrolWork *)work)->approachFrames - 1;
       }
       factor = state9Delta.x * state9Forward.x + state9Delta.y * state9Forward.y + state9Delta.z * state9Forward.z;
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      turnAmount = 5.0f * (10.0f * *(float *)((u8 *)(u32)work + 0x68));
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      turnAmount = 5.0f * (10.0f * ((FldAIPatrolWork *)((u8 *)(u32)work))->speed);
       factor = 1.0f - factor;
       if (factor < turnAmount / 180.0f) {
         turnAmount = factor * 180.0f;
@@ -1972,7 +1972,7 @@ else {
       state10Delta.z = ((FldAIPatrolWork *)work)->destination.z - chargePosition.z;
       distance = RwV3dNormalize(&state10Delta,&state10Delta);
       factor = *(float *)&work[0x1a];
-      factor = fldAIScale(iGpffff830c, factor);
+      factor = operandOrderMultiply(iGpffff830c, factor);
       if (!(distance <= factor)) {
         distance = factor;
       }
@@ -1983,8 +1983,8 @@ else {
         mdlDispatchAnimIfPresent(((FldAINpc *)((FldAIPatrolWork *)work)->actor)->model,0,0,8,1);
       }
       turnAmount = state10Delta.x * state10Forward.x + state10Delta.y * state10Forward.y + state10Delta.z * state10Forward.z;
-      /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-      factor = 10.0f * *(float *)((u8 *)(u32)work + 0x68);
+      /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+      factor = 10.0f * ((FldAIPatrolWork *)((u8 *)(u32)work))->speed;
       turnAmount = 1.0f - turnAmount;
       if (turnAmount < factor / 180.0f) {
         factor = turnAmount * 180.0f;
@@ -2100,15 +2100,15 @@ else {
             mdlSetAlphaBlend(((FldAINpc *)work[3])->model);
             value = work[3];
             if (((FldAINpc *)value)->kind == '\0') {
-              /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-              value = KMisc_CreateRmdFade((int)task,*(int *)(value + 0x50),0xff,0,10);
+              /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+              value = KMisc_CreateRmdFade((int)task,MEMBER(int, value, FldAINpc, model),0xff,0,10); /* measured: FldAINpc.model: local instruction mismatch; MEMBER retains reload behavior. */
               ((FldAIPatrolWork *)work)->fadeTask = value;
             }
             else if (((FldAINpc *)value)->kind == '\x01') {
               distance = ((FldAIPatrolWork *)work)->alpha;
               unsignedValue = (unsigned int)distance;
-              /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-              value = KMisc_CreateRmdFade((int)task,*(int *)(value + 0x50),unsignedValue,0,10);
+              /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+              value = KMisc_CreateRmdFade((int)task,MEMBER(int, value, FldAINpc, model),unsignedValue,0,10); /* measured: FldAINpc.model: local instruction mismatch; MEMBER retains reload behavior. */
               ((FldAIPatrolWork *)work)->fadeTask = value;
             }
             ((FldAIPatrolWork *)work)->speed = ((FldAIConfig *)((FldAIPatrolWork *)work)->config)->walkSpeed;
@@ -2131,15 +2131,15 @@ else {
         FldFrameTask_SetPosition((unsigned char *)((ResrcRecord *)(int)((FldAINpc *)work[3])->movement)->handle220,(u8 *)&((FldAINpc *)work[3])->origin);
         value = ((FldAIPatrolWork *)work)->actor;
         if (((FldAINpc *)value)->kind == '\0') {
-          /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-          value = KMisc_CreateRmdFade((int)task,*(int *)(value + 0x50),0,0xff,10);
+          /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+          value = KMisc_CreateRmdFade((int)task,MEMBER(int, value, FldAINpc, model),0,0xff,10); /* measured: FldAINpc.model: local instruction mismatch; MEMBER retains reload behavior. */
           ((FldAIPatrolWork *)work)->fadeTask = value;
         }
         else if (((FldAINpc *)value)->kind == '\x01') {
           distance = ((FldAIPatrolWork *)work)->alpha;
           unsignedValue = (unsigned int)distance;
-          /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-          value = KMisc_CreateRmdFade((int)task,*(int *)(value + 0x50),0,unsignedValue,10);
+          /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+          value = KMisc_CreateRmdFade((int)task,MEMBER(int, value, FldAINpc, model),0,unsignedValue,10); /* measured: FldAINpc.model: local instruction mismatch; MEMBER retains reload behavior. */
           ((FldAIPatrolWork *)work)->fadeTask = value;
         }
         ((FldAIPatrolWork *)work)->state = 0xd;
@@ -2169,7 +2169,7 @@ else {
 #pragma pop
 
 /* Release the patrol transform and task-owned work. */
-/* measured: only the final task-work reload still requires the raw +0x38 form. */
+/* measured: the final task-work reload requires MEMBER to preserve callback aliasing. */
 // FUN_001821D0
 void FldAI_PatrolDestroy(u8 *task) {
     s32 h = ((FldAIPatrolWork *)(((SdkTask *)task)->work))->transform;
@@ -2177,8 +2177,8 @@ void FldAI_PatrolDestroy(u8 *task) {
     if (h != 0) {
         func_003e0f40(h);
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    /* Earlier typing probe changed instruction bytes here; the remaining access forms were remeasured individually. */
+    jtbl_008873EC[0](MEMBER(void *, task, SdkTask, work)); /* measured: SdkTask.work: local nd5; MEMBER retains reload behavior. */
 }
 
 /* Create a disabled patrol controller and capture its camera-distance fade range. */

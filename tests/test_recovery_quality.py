@@ -160,6 +160,34 @@ class DocumentedTests(unittest.TestCase):
         self.assertFalse(score(body, before=["// FUN_00123456"])["documented"])
 
 
+class FunctionBodyTests(unittest.TestCase):
+    """Every marked definition must be found, or its function silently goes unscored."""
+
+    def bodies(self, source):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "unit.c"
+            path.write_text(textwrap.dedent(source).lstrip(), encoding="utf-8")
+            return rq.function_bodies(path)
+
+    def test_definition_after_a_long_pragma_block_is_found(self) -> None:
+        pragmas = "\n".join(f"/* measured: reason {i} */\n#pragma schedule off" for i in range(10))
+        found = self.bodies(f"// FUN_00123456\n{pragmas}\nvoid fooUpdate(void)\n{{\n    return;\n}}\n")
+        self.assertIn("fooUpdate", found)
+        self.assertTrue(found["fooUpdate"][1].startswith("void fooUpdate(void)"))
+
+    def test_a_prototype_before_the_definition_is_not_the_body(self) -> None:
+        found = self.bodies("""
+            // FUN_00123456
+            void fooUpdate(void);
+            void fooUpdate(void)
+            {
+                return;
+            }
+            """)
+        self.assertTrue(found["fooUpdate"][1].startswith("void fooUpdate(void)\n{"))
+
+
 def status_rows(text):
     return {
         cells[0].strip(): cells[1].strip()

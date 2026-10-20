@@ -1,5 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/battle.c; members 00353b50-0035c670 */
-
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
+#include "cmm_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -39,6 +41,8 @@ extern u32 D_0064B310[];
 extern u8 D_0064B3F0[];
 extern u8 D_0064CC60[];
 extern u8 D_0064CC70[];
+/* This linker alias starts at the color word of each 0x1C-byte wipe preset. */
+typedef struct DatScreenWipeSlotColor { s32 color; } DatScreenWipeSlotColor;
 extern u8 D_0064CC78[];
 extern f32 D_00761260;
 typedef struct Float2
@@ -46,7 +50,7 @@ typedef struct Float2
     f32 x;
     f32 y;
 } Float2;
-
+#include "member_access.h"
 typedef struct DatMemberNotice {
     u16 flags;
     u8 pad2[2];
@@ -128,19 +132,12 @@ typedef struct DatPortraitLabel {
     DatTextSlot textSlot;
     void *module;
 } DatPortraitLabel;
-
 extern void datScreenWipeInit(u8 *, Float2 *, Float2 *);
 extern void datScreenWipeSetScale(u8 *, u8 *);
 extern void datScreenWipeSetTextureId(u8 *, u16 );
-static inline void datPortraitAccumulateProjection(f32 *total, f32 weight, f32 projection)
-{
-    *total += weight * projection;
-}
 
-static inline u32 datCommunityAddOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
+
 
 extern s32 nLineIsIdle(void);
 extern u32 D_0064B1E0[];
@@ -340,7 +337,7 @@ typedef struct {
     u8 * resource130C;
     u8 * resource1310;
 } CommunityMenu;
-typedef struct { void *raster; } CommunityTexture;
+typedef struct { union { void *raster; s32 rasterAddress; }; } CommunityTexture;
 typedef struct {
     Float2 position;
     Float2 scale;
@@ -553,29 +550,31 @@ void datCommunityCursorFeedback(s32 direction)
 }
 
 // Intent: Member notice state step: advance the notice from its opening states to its ready states, and clear the channel once it closes [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003540F0
 s32 datMemberNoticeStep(u8 *task)
 {
+    DatMemberNotice *typedWork;
     u8 *work;
     s32 state;
 
     work = ((SdkTask *)task)->work;
+    typedWork = (DatMemberNotice *)work;
     state = ((DatMemberNotice *)work)->state;
     switch (state) {
     case 0:
-        *(s32 *)(work + 4) = 1;
+        typedWork->state = 1;
         break;
     case 1:
         nmMesWindowStepSlot(((DatMemberNotice *)work)->messageSlot, 1);
-        if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) == 0) {
-            nmMesWindowCloseSlot(*(s8 *)(work + 8), 1);
+        if (nmMesWindowSlotStatus(typedWork->messageSlot) == 0) {
+            nmMesWindowCloseSlot(typedWork->messageSlot, 1);
             if ((*(u16 *)work & 1) != 0) {
                 fclMiscEnsureMesWindow(D_0064A790);
                 fclMesWindowShowItemRecord(7);
-                *(s32 *)(work + 4) = 2;
+                typedWork->state = 2;
             } else {
-                *(s32 *)(work + 4) = 3;
+                typedWork->state = 3;
             }
         }
         break;
@@ -584,7 +583,7 @@ s32 datMemberNoticeStep(u8 *task)
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             nmMesWindowResetCurrent();
-            *(s32 *)(work + 4) = 3;
+            typedWork->state = 3;
         }
         break;
     case 3:
@@ -608,10 +607,11 @@ void datMemberNoticeDestroy(u8 *task)
 }
 
 // Intent: Set up the member notice: set the member's notice flags, pick the message, and show the label and sub-label [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00354280
 void datMemberNoticeSetup(u8 *notice, s32 memberId, s32 modeFlags)
 {
+    DatMemberNotice *typedNotice = (DatMemberNotice *)notice;
     u8 label[0x40];
     u8 subLabel[0x40];
     s32 mode;
@@ -657,11 +657,11 @@ void datMemberNoticeSetup(u8 *notice, s32 memberId, s32 modeFlags)
     sprintf(label, &D_0064B340, msgId);
     sdkSndStartChannel(2, (const char *)label);
     frFontExCopyString((void *)(u32)datMemberNameLabel(memberId), label, 0x40);
-    nmMesWindowSetSlotString(*(s8 *)(notice + 8), 0, label);
+    nmMesWindowSetSlotString(typedNotice->messageSlot, 0, label);
     sprintf(subLabel, &iGpffffa958, memberId + 1);
     frFontExCopyString(subLabel, label, 0x40);
-    nmMesWindowSetSlotString(*(s8 *)(notice + 8), 1, label);
-    nmMesWindowShowSlotRecord(*(s8 *)(notice + 8), mode);
+    nmMesWindowSetSlotString(typedNotice->messageSlot, 1, label);
+    nmMesWindowShowSlotRecord(typedNotice->messageSlot, mode);
 }
 
 // Intent: Return the name label for a member id from the label table [inferred]
@@ -761,9 +761,10 @@ void datTextSlotSetString(s32 *slotWords, u8 *text)
 }
 
 // Intent: Text slot loading state machine: request the file named in the slot, wait for it, then create its resource and wait for the resource to finish [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00354830
 s32 datTextSlotLoadStep(u8 *slot) {
+    DatTextSlot *typedSlot = (DatTextSlot *)slot;
     s32 completed;
     s32 handle;
     s32 state;
@@ -794,9 +795,9 @@ s32 datTextSlotLoadStep(u8 *slot) {
         ((DatTextSlot *)slot)->result.handle =
             filerTakeCompletedRequest(((DatTextSlot *)slot)->resource, &completed, 0);
         if (completed != 0) {
-            *(s32 *)(slot + 4) = 0;
+            typedSlot->resource = 0;
             H_Cdvd_Destroy(((DatTextSlot *)slot)->request.node);
-            *(s32 *)(slot + 8) = 0;
+            typedSlot->request.handle = 0;
             ((DatTextSlot *)slot)->state = 3;
         }
         goto block_15;
@@ -810,27 +811,28 @@ block_15:
 }
 
 // Intent: Release the text slot's file handle and resource [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003549D0
 void datTextSlotRelease(u8 *slot)
 {
+    DatTextSlot *typedSlot = (DatTextSlot *)slot;
     s32 handle;
 
     handle = ((DatTextSlot *)slot)->resource;
     if (handle != 0) {
         sdkWrapStreamCloseCreate(handle, ((DatTextSlot *)slot)->request.handle);
-        *(s32 *)(slot + 4) = 0;
-        *(s32 *)(slot + 8) = 0;
+        typedSlot->resource = 0;
+        typedSlot->request.handle = 0;
         ((DatTextSlot *)slot)->result.handle = 0;
         return;
     }
     if (((DatTextSlot *)slot)->request.handle != 0) {
         H_Cdvd_Destroy(((DatTextSlot *)slot)->request.node);
-        *(s32 *)(slot + 8) = 0;
+        typedSlot->request.handle = 0;
     }
     if (((DatTextSlot *)slot)->result.handle != 0) {
         func_003ef3a0(((DatTextSlot *)slot)->result.node);
-        *(s32 *)(slot + 0xC) = 0;
+        typedSlot->result.handle = 0;
     }
 }
 
@@ -867,9 +869,10 @@ u8 *datScreenWipeTaskCreate(s32 parentAddress, u16 textureId) {
 }
 
 // Intent: Draw one step of the screen wipe: advance its blend toward the target, then draw its quad with the render state table [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00354BA0
 void datScreenWipeDraw(u8 *task) {
+    DatScreenWipe *typedWipe;
     extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
     extern f32 D_00761470;
@@ -906,6 +909,7 @@ void datScreenWipeDraw(u8 *task) {
     u32 base;
 
     wipe = ((SdkTask *)task)->work;
+    typedWipe = (DatScreenWipe *)wipe;
     depth = D_008872F8[0];
     reciprocalDepth = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     if ((((DatScreenWipe *)wipe)->loaded == 0) || (((DatScreenWipe *)wipe)->textureId == 0)) {
@@ -913,9 +917,9 @@ void datScreenWipeDraw(u8 *task) {
     }
     frame = ((DatScreenWipe *)wipe)->frame;
     if (frame < 100) {
-        *(s32 *)(wipe + 4) = frame + 1;
+        typedWipe->frame = frame + 1;
     }
-    frameValue = (f32)*(s32 *)(wipe + 4);
+    frameValue = (f32)typedWipe->frame;
     if (frameValue < 10.0f) {
         blend = sinf(D_00761470 * (frameValue / 10.0f));
     } else {
@@ -938,8 +942,8 @@ void datScreenWipeDraw(u8 *task) {
     vertices[0].u = 0;
     vertices[0].v = 0;
     vertices[0].reciprocalDepth = reciprocalDepth;
-    vertices[1].x = *(f32 *)(wipe + 0x10) + width;
-    vertices[1].y = *(f32 *)(wipe + 0x14);
+    vertices[1].x = typedWipe->position.x + width;
+    vertices[1].y = typedWipe->position.y;
     vertices[1].depth = depth;
     vertices[1].r = 0x437F0000;
     vertices[1].g = 0x437F0000;
@@ -948,8 +952,8 @@ void datScreenWipeDraw(u8 *task) {
     vertices[1].u = 0x3F800000;
     vertices[1].v = 0;
     vertices[1].reciprocalDepth = reciprocalDepth;
-    vertices[2].x = *(f32 *)(wipe + 0x10);
-    vertices[2].y = *(f32 *)(wipe + 0x14) + height;
+    vertices[2].x = typedWipe->position.x;
+    vertices[2].y = typedWipe->position.y + height;
     vertices[2].depth = depth;
     vertices[2].r = 0x437F0000;
     vertices[2].g = 0x437F0000;
@@ -958,8 +962,8 @@ void datScreenWipeDraw(u8 *task) {
     vertices[2].u = 0;
     vertices[2].v = 0x3F800000;
     vertices[2].reciprocalDepth = reciprocalDepth;
-    vertices[3].x = *(f32 *)(wipe + 0x10) + width;
-    vertices[3].y = *(f32 *)(wipe + 0x14) + height;
+    vertices[3].x = typedWipe->position.x + width;
+    vertices[3].y = typedWipe->position.y + height;
     vertices[3].depth = depth;
     vertices[3].r = 0x437F0000;
     vertices[3].g = 0x437F0000;
@@ -968,7 +972,7 @@ void datScreenWipeDraw(u8 *task) {
     vertices[3].u = 0x3F800000;
     vertices[3].v = 0x3F800000;
     vertices[3].reciprocalDepth = reciprocalDepth;
-    shdDrawColourQuad(0.0f, (*(u32 *)(wipe + 0xC) & ~0xFF) | (((((*(u32 *)(wipe + 0xC)) & 0xFF) * 0xFF) / *(u8 *)(wipe + 0xA)) & 0xFF), ((DatScreenWipe *)wipe)->offset.x + *(f32 *)(wipe + 0x30), ((DatScreenWipe *)wipe)->offset.y + *(f32 *)(wipe + 0x34), *(f32 *)(wipe + 0x10), *(f32 *)(wipe + 0x14), width, height, *(s32 **)(wipe + 0x150), 1, 0);
+    shdDrawColourQuad(0.0f, (((DatScreenWipe *)wipe)->color.u & ~0xFF) | (((((((DatScreenWipe *)wipe)->color.u) & 0xFF) * 0xFF) / typedWipe->alpha) & 0xFF), ((DatScreenWipe *)wipe)->offset.x + typedWipe->smoothed.x, ((DatScreenWipe *)wipe)->offset.y + typedWipe->smoothed.y, typedWipe->position.x, typedWipe->position.y, width, height, *(s32 **)&typedWipe->textSlot.result.handle, 1, 0);
     base = (u32)D_00887300;
     ((void (*)(u32, u32))*(u32 *)base)(6, 0);
     ((void (*)(u32, u32))*(u32 *)base)(7, 2);
@@ -1030,10 +1034,12 @@ void datScreenWipeInit(u8 *task, Float2 *start, Float2 *target)
 }
 
 // Intent: Set the screen wipe's texture from the member id and the day suffix, releasing the old text slot when the id changes [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00355190
 void datScreenWipeSetTextureId(u8 *task, u16 textureId)
 {
+    DatScreenWipe *typedWork;
+    SdkTask *typedTask = (SdkTask *)task;
     u8 path[0x100];
     s32 id;
     s8 suffix;
@@ -1041,6 +1047,7 @@ void datScreenWipeSetTextureId(u8 *task, u16 textureId)
     u8 *reloadedWork;
 
     work = ((SdkTask *)task)->work;
+    typedWork = (DatScreenWipe *)work;
     id = textureId & 0xFFFF;
     if (((DatScreenWipe *)work)->textureId != id) {
         if (calGetDayWindowFlags((s64)(s16)datGetDateIndex()) & 1) {
@@ -1061,9 +1068,9 @@ void datScreenWipeSetTextureId(u8 *task, u16 textureId)
                 ((DatScreenWipe *)work)->textSlot.state = 0;
             }
         }
-        *(u16 *)(work + 8) = textureId;
+        typedWork->textureId = textureId;
         ((DatScreenWipe *)work)->loaded = 0;
-        reloadedWork = *(u8 **)(task + 0x38);
+        reloadedWork = typedTask->work;
         ((DatScreenWipe *)reloadedWork)->position.x = ((DatScreenWipe *)reloadedWork)->start.x;
         ((DatScreenWipe *)reloadedWork)->position.y = ((DatScreenWipe *)reloadedWork)->start.y;
         ((DatScreenWipe *)reloadedWork)->smoothed.x = ((DatScreenWipe *)reloadedWork)->start.x;
@@ -1178,32 +1185,34 @@ s32 datScreenWipeUpdate(u8 *task)
 }
 
 // Intent: Screen wipe task destroy: release the wipe's texture handles and the work block [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003554B0
 void datScreenWipeDestroy(u8 *task)
 {
+    DatScreenWipe *typedWipe;
     s32 handle;
     s32 cdvdHandle;
     s32 loadResult;
     u8 *wipe;
 
     wipe = ((SdkTask *)task)->work;
+    typedWipe = (DatScreenWipe *)wipe;
     handle = ((DatScreenWipe *)wipe)->textSlot.resource;
     if (handle != 0) {
         sdkWrapStreamCloseCreate(handle, ((DatScreenWipe *)wipe)->textSlot.request.handle);
-        *(s32 *)(wipe + 0x148) = 0;
-        *(s32 *)(wipe + 0x14C) = 0;
+        typedWipe->textSlot.resource = 0;
+        typedWipe->textSlot.request.handle = 0;
         ((DatScreenWipe *)wipe)->textSlot.result.handle = 0;
     } else {
         cdvdHandle = ((DatScreenWipe *)wipe)->textSlot.request.handle;
         if (cdvdHandle != 0) {
             H_Cdvd_Destroy((u8 *)cdvdHandle);
-            *(s32 *)(wipe + 0x14C) = 0;
+            typedWipe->textSlot.request.handle = 0;
         }
         loadResult = ((DatScreenWipe *)wipe)->textSlot.result.handle;
         if (loadResult != 0) {
             func_003ef3a0((void *)loadResult);
-            *(s32 *)(wipe + 0x150) = 0;
+            typedWipe->textSlot.result.handle = 0;
         }
     }
     (*D_008873EC)(wipe);
@@ -1362,16 +1371,17 @@ ret0:
 /* Whether the frame counter at +0x10 has passed the style's threshold of the
    duration at +0xC (3/4 for style 0, 1/2 for style 1). */
 /* measured: typing the frame/duration reads changes the inlined draw instructions; style remains typed. */
+/* Test the style-specific half-duration or three-quarter-duration transition threshold. */
 static inline s32 datGridEffectPastThreshold(u8 *p)
 {
     switch (((DatGridEffect *)p)->style) {
     case 1:
-        if (*(s16 *)(p + 0x10) > *(s16 *)(p + 0xC) / 2) {
+        if (MEMBER(s16, p, DatGridEffect, frame) > MEMBER(s16, p, DatGridEffect, duration) / 2) {
             return 1;
         }
         break;
     case 0:
-        if (*(s16 *)(p + 0x10) > *(s16 *)(p + 0xC) * 3 / 4) {
+        if (MEMBER(s16, p, DatGridEffect, frame) > MEMBER(s16, p, DatGridEffect, duration) * 3 / 4) {
             return 1;
         }
         break;
@@ -1382,9 +1392,10 @@ static inline s32 datGridEffectPastThreshold(u8 *p)
 #pragma push
 #pragma optimization_level 2
 // Intent: Draw the grid effect's fifteen cells, each one fading in by its timer and drawn as a cell or a strip by its kind [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00355920
 void datGridEffectDraw(u8 *node, u8 *effect) {
+    DatGridEffect *typedGrid;
     extern u8 D_00887300[];
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
@@ -1407,6 +1418,7 @@ void datGridEffectDraw(u8 *node, u8 *effect) {
     union { s32 w; u8 b[4]; } col;
     (void)node;
     grid = effect;
+    typedGrid = (DatGridEffect *)grid;
     alpha = 0xFF;
     isZero = (((DatGridEffect *)grid)->kind == 0);
     tbl = (void (**)(u32, u32))D_00887300;
@@ -1429,10 +1441,10 @@ void datGridEffectDraw(u8 *node, u8 *effect) {
     }
     if ((((DatGridEffect *)grid)->flags & 2) != 0) {
         ((DatGridEffect *)grid)->tailFrame += 1;
-        switch (*(s32 *)(grid + 4)) {
+        switch (typedGrid->kind) {
         case 0: {
             s16 limit = ((DatGridEffect *)grid)->tailDuration;
-            s16 cnt = *(s16 *)(grid + 0x12);
+            s16 cnt = typedGrid->tailFrame;
             f32 fcnt = (f32)cnt;
             f32 flimit = (f32)limit;
             f32 start = fGpffff8504;
@@ -1458,22 +1470,22 @@ void datGridEffectDraw(u8 *node, u8 *effect) {
                     break;
                 }
             } else {
-                *(s32 *)(grid + 8) |= 4;
+                typedGrid->flags |= 4;
             }
             break;
         }
         case 1:
-            if (*(s16 *)(grid + 0x12) >= ((DatGridEffect *)grid)->tailDuration) {
-                *(s32 *)(grid + 8) |= 4;
+            if (typedGrid->tailFrame >= ((DatGridEffect *)grid)->tailDuration) {
+                typedGrid->flags |= 4;
             }
             break;
         case 2: {
             s16 limit = ((DatGridEffect *)grid)->tailDuration;
-            s16 cnt = *(s16 *)(grid + 0x12);
+            s16 cnt = typedGrid->tailFrame;
             if (cnt < limit) {
                 alpha = (u8)(255.0f * (1.0f - (f32)cnt / (f32)limit));
             } else {
-                *(s32 *)(grid + 8) |= 4;
+                typedGrid->flags |= 4;
             }
             break;
         }
@@ -1490,20 +1502,20 @@ void datGridEffectDraw(u8 *node, u8 *effect) {
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
     }
-    if ((*(s32 *)(grid + 8) & 1) != 0) {
+    if ((typedGrid->flags & 1) != 0) {
         ((DatGridEffect *)grid)->frame += 1;
-        if (*(s16 *)(grid + 0x10) <= *(s16 *)(grid + 0xC)) {
-            switch (*(s32 *)(grid + 4)) {
+        if (MEMBER(s16, grid, DatGridEffect, frame) <= MEMBER(s16, grid, DatGridEffect, duration)) {
+            switch (typedGrid->kind) {
             case 0:
-                if ((*(s32 *)(grid + 8) & 2) == 0 && ((DatGridEffect *)grid)->duration / 3 < *(s16 *)(grid + 0x10)) {
-                    *(s32 *)(grid + 8) |= 2;
+                if ((typedGrid->flags & 2) == 0 && ((DatGridEffect *)grid)->duration / 3 < MEMBER(s16, grid, DatGridEffect, frame)) {
+                    typedGrid->flags |= 2;
                 }
                 break;
             case 1:
             case 2:
-                if ((*(s32 *)(grid + 8) & 2) == 0) {
+                if ((typedGrid->flags & 2) == 0) {
                     if (datGridEffectPastThreshold(grid) != 0) {
-                        *(s32 *)(grid + 8) |= 2;
+                        typedGrid->flags |= 2;
                     }
                 }
                 break;
@@ -1512,11 +1524,11 @@ void datGridEffectDraw(u8 *node, u8 *effect) {
                 break;
             }
         } else {
-            *(s32 *)(grid + 8) &= ~1;
-            *(s32 *)(grid + 8) |= 2;
+            typedGrid->flags &= ~1;
+            typedGrid->flags |= 2;
         }
     }
-    if ((*(s32 *)(grid + 8) & 4) != 0) {
+    if ((typedGrid->flags & 4) != 0) {
         return;
     }
     col.b[0] = ((DatGridEffect *)grid)->color[0];
@@ -1597,7 +1609,7 @@ void datGridEffectDrawStrip(s64 positionBits, f32 depth, f32 radius, s32 color,
         useMask = 0;
     }
     shdDrawRadialFan(savedPosition[0].position, depth,
-                  *(s32 *)((u8 *)savedColor), savedColor[0],
+                  ((s32 *)(u8 *)savedColor)[0], savedColor[0],
                   radius, rotation, segmentCount, 1.0f, 1.0f, useMask);
 }
 #pragma pop
@@ -1793,15 +1805,16 @@ void datCommunityMenuInit(u8 *menuWork)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Community panel open step: move the panel from its closed state to open and report it as ready [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00356820
 s32 datCommunityPanelOpenStep(u8 *menuWork) {
+    CommunityMenu *typedMenuWork = (CommunityMenu *)menuWork;
     s32 v = ((CommunityMenu *)menuWork)->stage;
 
     switch (v) {
     case 0:
         v += 1;
-        *(s32 *)(menuWork + 0x14) = v;
+        typedMenuWork->stage = v;
         return 1;
     case 1:
         return 1;
@@ -1816,10 +1829,11 @@ s32 datCommunityPanelOpenStep(u8 *menuWork) {
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Community panel update: animate the panel's radar values, advance its rotation, update its helpers and draw the community list; returns 0 while any entry is still animating [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00356870
 s32 datCommunityPanelUpdate(u8 *menuWork)
 {
+    CommunityMenu *typedMenuWork = (CommunityMenu *)menuWork;
     s16 counter;
     s32 index;
     s32 result;
@@ -1831,7 +1845,7 @@ s32 datCommunityPanelUpdate(u8 *menuWork)
     result = 1;
     counter = ((CommunityMenu *)menuWork)->frame;
     if (counter < 0x64) {
-        *(s16 *)(menuWork + 0x20) = counter + 1;
+        typedMenuWork->frame = counter + 1;
     }
     index = 0;
     goto loop_test;
@@ -1840,13 +1854,13 @@ loop_body:
         ((index > 0) && (index <= 5)) ||
         ((index >= 0x27) && (index <= 0x28))) {
         slot = menuWork + (index * 0x30);
-        radarAnimateValue(slot + 0x150, *(s16 *)(menuWork + 0x20), 1);
+        radarAnimateValue(slot + 0x150, typedMenuWork->frame, 1);
     } else if (index == 0x26) {
         slot = menuWork + (index * 0x30);
-        radarAnimateValue(slot + 0x150, *(s16 *)(menuWork + 0x20), 2);
+        radarAnimateValue(slot + 0x150, typedMenuWork->frame, 2);
     } else {
         slot = menuWork + (index * 0x30);
-        radarAnimateValue(slot + 0x150, *(s16 *)(menuWork + 0x20), 0);
+        radarAnimateValue(slot + 0x150, typedMenuWork->frame, 0);
     }
     if (((MenuSlotAnimation *)(slot + 0x150))->currentAlpha != 0) {
         result = 0;
@@ -1857,8 +1871,8 @@ loop_test:
         goto loop_body;
     }
     ((CommunityMenu *)menuWork)->angle = ((CommunityMenu *)menuWork)->angle + 1;
-    if (*(s16 *)(menuWork + 0x22) > 0x168) {
-        *(s16 *)(menuWork + 0x22) = *(s16 *)(menuWork + 0x22) - 0x168;
+    if (typedMenuWork->angle > 0x168) {
+        typedMenuWork->angle = typedMenuWork->angle - 0x168;
     }
     datCommunityEntriesStep(menuWork);
     datCommunityBounceStep(menuWork);
@@ -1880,13 +1894,14 @@ loop_test:
  * The partial community layout preserves observed offsets without allocating data.
  * See docs/probe_archive/Community_menu_renderer_00356a10_20260930.md. */
 // Intent: Draw the community list: the entry layout, badges and text for the community menu [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00356A10
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 void datCommunityListDraw(u8 *work) {
+    CommunityMenu *typedWork = (CommunityMenu *)work;
     CommunityMenu *menu;
     extern void sdkRenderStateSetDefault(void);
     extern s32 frFontExDrawTextOutB(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
@@ -2162,7 +2177,7 @@ void datCommunityListDraw(u8 *work) {
         if ((selectedIndex < 0) || (selectedIndex >= 0x15)) {
             kAssertFail(&D_0064CC98, 0x2DD);
         }
-        selectedEntry = (u8 *)datCommunityAddOffset((u32)selectedIndex * 12, (u32)work);
+        selectedEntry = (u8 *)((u32)byteAddressAdd(((u32)selectedIndex * 12), (u8 *)(u32)work));
         selectedCount = ((DatCommunityRow *)(selectedEntry + 0x38))->rank;
         categoryIndex = (s32)((*(u8 *)&((DatCommunityRow *)(selectedEntry + 0x38))->arcana.s - 1) & 0xFF);
         selectedMode = (s32)(((DatCommunityRow *)(selectedEntry + 0x38))->mode);
@@ -2176,11 +2191,11 @@ void datCommunityListDraw(u8 *work) {
         gridOpacity = gridQuantized & 0xFF;
         for (cellIndex = 0; cellIndex < 0x6C; cellIndex++) {
             gridCell = (u8 *)(work + (cellIndex * 0x14));
-            if (*( s16 *)((u8 *)(gridCell) + (0x960)) >= 0) {
+            if (((CampGridEntry *)((u8 *)(gridCell) + (0x960)))->id >= 0) {
                 cellX = (position.x + (f32) ((((CampGridEntry *)(gridCell + 0x960))->columns - ((CampGridEntry *)(gridCell + 0x960))->column) * 0x2C));
                 cellY = (position.y + (f32) ((((CampGridEntry *)(gridCell + 0x960))->rows - ((CampGridEntry *)(gridCell + 0x960))->row) * 0x25));
                 cellBlend = (cmpGridCellFade(gridCell + 0x960, 0.5f, 0.5f, 1.0f));
-                cellPaletteBytes = (u8 *)((s32)&D_0064CC48 + (*( s16 *)((u8 *)(gridCell) + (0x960)) * 4));
+                cellPaletteBytes = (u8 *)((s32)&D_0064CC48 + (((CampGridEntry *)((u8 *)(gridCell) + (0x960)))->id * 4));
                 color = *(MenuColor *)cellPaletteBytes;
                 gridOpacityFloat = (f32)gridOpacity;
                 cellOpacityProduct = gridOpacityFloat * cellBlend;
@@ -2206,13 +2221,13 @@ void datCommunityListDraw(u8 *work) {
         sdkSpriteDrawAt(sprite, 88.0f + position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], titleOpacity);
         position.x = (183.0f + (originX + menu->titleOffset.x));
         position.y = (22.0f + (originY + menu->titleOffset.y));
-        categoryTexture = ((u8 **)((u8 *)datCommunityAddOffset((u32)(categoryIndex & 0xFF) * 4, (u32)work) + 0x12A4))[0];
+        categoryTexture = ((u8 **)((u8 *)((u32)byteAddressAdd(((u32)(categoryIndex & 0xFF) * 4), (u8 *)(u32)work)) + 0x12A4))[0];
         sdkSpriteDrawAt(categoryTexture, position.x - (sdkSpriteScaledWidth(categoryTexture) / 2.0f), position.y, 0xDDU, 0x74U, 0U, titleOpacity);
         position.x = (245.0f + (originX + menu->titleOffset.x));
         position.y = (19.0f + (originY + menu->titleOffset.y));
         rankColor = titleOpacity & 0xFF;
         nameColor = rankColor | ~0x7EFF;
-        nameId = (u16 *)((u8 *)datCommunityAddOffset((u32)(selectedIndex * 12), (u32)work) + 0x3A);
+        nameId = (u16 *)((u8 *)((u32)byteAddressAdd(((u32)(selectedIndex * 12)), (u8 *)(u32)work)) + 0x3A);
         frFontExDrawTextWithCharWidth(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)cmmNameRecord(*nameId), 0, -2);
         rankNames = cmmRankNameRecord((s16)*nameId);
         position.x = (130.0f + (originX + menu->titleOffset.x));
@@ -2284,7 +2299,7 @@ void datCommunityListDraw(u8 *work) {
             sdkSpriteDrawSized(sprite, position.x, position.y, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
             position.x = panelX + ((79.0f * panelScaleX) / 4096.0f);
             position.y = panelY + ((4.0f * panelScaleY) / 4096.0f);
-            sprite = ((u8 **)((u8 *)datCommunityAddOffset((u32)(u16)selectedCount * 4, (u32)work) + 0x11EC))[0];
+            sprite = ((u8 **)((u8 *)((u32)byteAddressAdd(((u32)(u16)selectedCount * 4), (u8 *)(u32)work)) + 0x11EC))[0];
         sdkSpriteDrawSized(sprite, position.x, position.y, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
         }
         portraitOpacity = (u8)(menu->portraitOpacity);
@@ -2395,7 +2410,7 @@ void datCommunityListDraw(u8 *work) {
         sprite = menu->resource1268;
         sdkSpriteDrawAt(sprite, (f32) 0x173 + position.x, position.y, palette->r, palette->g, palette->b, footerOpacity);
         if (menu->detailCount > 0) {
-            detailId = *(u16 *)((u8 *)datCommunityAddOffset((u32)(menu->selection[2] * 2), (u32)work) + 0x136);
+            detailId = (u16)typedWork->detailIds[menu->selection[2]];
             currentRank = (s32)(cmmCommunityRecordValue(*nameId) & 0xFFFF);
             detailValues = cmmDetailRecord((s16)detailId);
             position.x = (244.0f + (originX + menu->detailFooterOffset.x));
@@ -2406,7 +2421,7 @@ void datCommunityListDraw(u8 *work) {
             numberQuantized = (u8)numberOpacityProduct;
             numberOpacity = numberQuantized & 0xFF;
             numberColor = numberOpacity | ~0x7EFF;
-            detailValue = *(s16 *)((u8 *)datCommunityAddOffset((u32)(currentRank & 0xFFFF) * 2, (u32)detailValues) - 2);
+            detailValue = ((s16 *)((u8 *)((u32)byteAddressAdd(((u32)(currentRank & 0xFFFF) * 2), (u8 *)(u32)detailValues))))[-1];
             fclMesWindowDrawItem(position.x, position.y, 0.0f, numberColor, 1, 8, 7, detailValue - 1);
             numberColor = numberOpacity | ~0xFF;
             fclMesWindowDrawItem(position.x, 28.0f + position.y, 0.0f, numberColor, 1, 6, 7, detailValue);
@@ -2480,8 +2495,8 @@ s32 datCommunityPushValue(s32 menuAddress, s32 selectionIndex, s16 value)
     s32 off = selectionIndex * 2;
     u8 *p = (u8 *)(off + (s32)menuAddress);
 
-    *(s16 *)(p + 0x2A) = *(s16 *)(p + 0x24);
-    *(s16 *)(p + 0x24) = value;
+    ((CommunityMenu *)p)->previousSelection[0] = ((CommunityMenu *)p)->selection[0];
+    ((CommunityMenu *)p)->selection[0] = value;
     return 1;
 }
 #pragma pop
@@ -2491,10 +2506,11 @@ s32 datCommunityPushValue(s32 menuAddress, s32 selectionIndex, s16 value)
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 // Intent: Select the community table for a mode: fill its 43 entries and the table's count and width; returns 0 when the mode is already set [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00359400
 s32 datCommunitySetTableMode(u8 *menuWork, s32 mode)
 {
+    CommunityMenu *typedMenuWork = (CommunityMenu *)menuWork;
     extern u8 D_0064B420[];
     extern u8 D_0064B8E0[];
     extern u8 D_0064BDA0[];
@@ -2571,7 +2587,7 @@ table_loop_test:
             goto table_loop_body;
         }
     }
-    *(s32 *)(menuWork + 0x18) = mode;
+    typedMenuWork->tableMode = mode;
     ((CommunityMenu *)menuWork)->frame = 0;
     return 1;
 }
@@ -2582,7 +2598,7 @@ table_loop_test:
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Report whether every community entry's threshold is met and the external check passes; returns 1 when the community list is ready [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003596A0
 s32 datCommunityIsReady(u8 *menuWork) {
     s32 flag = 1;
@@ -2590,7 +2606,7 @@ s32 datCommunityIsReady(u8 *menuWork) {
     s32 v = ((CommunityMenu *)menuWork)->frame;
 
     while (i < 43) {
-        if (v < *(s32 *)(menuWork + i * 48 + 0x17C)) {
+        if (v < ((MenuSlotAnimation *)(menuWork + i * 48 + 0x150))->endFrame.s) {
             flag = 0;
         }
         i++;
@@ -2604,10 +2620,11 @@ s32 datCommunityIsReady(u8 *menuWork) {
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Release the community menu: free its sprite nodes, destroy its wipe and helper tasks, and reset its count [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_00359720
 void datCommunityMenuRelease(u8 *menuWork)
 {
+    CommunityMenu *typedMenuWork = (CommunityMenu *)menuWork;
     s32 handle;
     s32 wipeTask;
     s32 portraitTask;
@@ -2632,17 +2649,17 @@ loop_test:
     wipeTask = *(s32 *)&((CommunityMenu *)menuWork)->resource1308;
     if (wipeTask != 0) {
         kwlnTaskDestroyWithHierarchy(wipeTask);
-        *(s32 *)(menuWork + 0x1308) = 0;
+        *(s32 *)&typedMenuWork->resource1308 = 0;
     }
     portraitTask = *(s32 *)&((CommunityMenu *)menuWork)->resource130C;
     if (portraitTask != 0) {
         kwlnTaskDestroyWithHierarchy(portraitTask);
-        *(s32 *)(menuWork + 0x130C) = 0;
+        *(s32 *)&typedMenuWork->resource130C = 0;
     }
     labelTask = *(s32 *)&((CommunityMenu *)menuWork)->resource1310;
     if (labelTask != 0) {
         kwlnTaskDestroyWithHierarchy(labelTask);
-        *(s32 *)(menuWork + 0x1310) = 0;
+        *(s32 *)&typedMenuWork->resource1310 = 0;
     }
     ((CommunityMenu *)menuWork)->flags = 0;
     nmMesWindowReleaseHandle(0xB);
@@ -2666,9 +2683,7 @@ void datCommunityFillVisibleRecords(u8 *menuWork)
     u8 *valuePtr;
 
     table = cmmKindRecord(
-        *(u16 *)((u8 *)datCommunityAddOffset(
-            (s32)(((CommunityMenu *)menuWork)->selection[0] + ((CommunityMenu *)menuWork)->selection[1]) * 0xC,
-            (u32)menuWork) + 0x3A));
+        ((DatCommunityRow *)((u8 *)((u32)byteAddressAdd(((s32)(((CommunityMenu *)menuWork)->selection[0] + ((CommunityMenu *)menuWork)->selection[1]) * 0xC), (u8 *)(u32)menuWork)) + 0x38))->communityId);
     index = 0;
     count = 0;
     goto loop_test;
@@ -2676,7 +2691,7 @@ loop_body:
     entry = (u8 *)(table + (index * 8));
     valuePtr = entry + 0x28;
     if ((*(s32 *)valuePtr != 0) &&
-        ((flagId = *(s32 *)(entry + 0x24), flagId == 0) ||
+        ((flagId = (s32)((CmmKindRecord *)table)->eventSlots[index].gate, flagId == 0) ||
          (datGetFlag(flagId) != 0))) {
         ((CommunityMenu *)menuWork)->detailIds[count] = *(s32 *)valuePtr;
         count += 1;
@@ -2695,7 +2710,7 @@ loop_test:
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 // Intent: Set the five community slot positions: the active slots move to the off-screen start and the current slot to its resting position [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_003598D0
 void datCommunitySetSlotLayout(u8 *menuWork)
 {
@@ -2718,16 +2733,16 @@ void datCommunitySetSlotLayout(u8 *menuWork)
 loop_body:
     if (index != activeCount) {
         if (index < activeCount) {
-            *(f32 *)(menuWork + (index * 0x30) + 0x5AC) = offscreenAbove;
+            ((MenuSlotAnimation *)(menuWork + (index * 0x30) + 0x5A0))->targetY.f = offscreenAbove;
             ((MenuSlotAnimation *)((u8 *)(menuWork + 0x150) + index * 0x30 + 0x30))->targetY.f = offscreenAbove;
         } else {
-            *(f32 *)(menuWork + (index * 0x30) + 0x5AC) = offscreenBelow;
+            ((MenuSlotAnimation *)(menuWork + (index * 0x30) + 0x5A0))->targetY.f = offscreenBelow;
             ((MenuSlotAnimation *)((u8 *)(menuWork + 0x150) + index * 0x30 + 0x30))->targetY.f = offscreenBelow;
         }
-        *(f32 *)(menuWork + (index * 0x30) + 0x4B8) = restingX;
-        *(s16 *)(menuWork + (index * 0x30) + 0x4CE) = startFrame;
+        ((MenuSlotAnimation *)(menuWork + (index * 0x30) + 0x4B0))->targetX.f = restingX;
+        *(s16 *)&((MenuSlotAnimation *)(menuWork + (index * 0x30) + 0x4B0))->targetScaleX = startFrame;
     } else {
-        *(f32 *)(menuWork + (index * 0x30) + 0x5AC) = restingY;
+        ((MenuSlotAnimation *)(menuWork + (index * 0x30) + 0x5A0))->targetY.f = restingY;
         *(s16 *)&((MenuSlotAnimation *)((u8 *)(menuWork + 0x150) + index * 0x30 + 0x450))->targetScaleY = startFrame;
         ((MenuSlotAnimation *)((u8 *)(menuWork + 0x150) + index * 0x30 + 0x30))->targetY.f = restingY;
         *(s16 *)&((MenuSlotAnimation *)((u8 *)(menuWork + 0x150) + index * 0x30 + 0x30))->targetScaleY = startFrame;
@@ -2782,13 +2797,10 @@ void datCommunityResetOffset(u8 *menuWork)
    2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
 /* Party HUD panel draw. Each of the three panel groups has its own x/y/w/h
    locals (separate live ranges, as retail). Panel x/y/alpha and the sprite
-   table go through datCommunityIndexedAddress (offset + base). The panel width
+   table go through shared byteAddressAdd (offset + base). The panel width
    reads are spelled index-first, because retail recomputes index + arg1 for
    each width read; the heights use the panel structure. */
-static inline u8 *datCommunityIndexedAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 typedef struct {
     f32 x;
@@ -2877,10 +2889,10 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
         isSelf = (rowIndex == ((CommunityMenu *)menuWork)->selection[0]);
         mode = ((DatCommunityRow *)((u8 *)(off + (s32)menuWork) + 0x38))->mode;
     }
-    x = x0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x5A0))->currentX.f;
+    x = x0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x5A0))->currentX.f;
     rowY = 64.0f * (f32)rowIndex;
-    y = 81.0f + (rowY + (y0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x5A0))->currentY.f));
-    scale = (f32)datCommunityIndexedAddress(rowIndex * 48, menuWork)[0x5BA];
+    y = 81.0f + (rowY + (y0 + ((MenuSlotAnimation *)(((u8 *)((u32)(rowIndex * 48) + (u32)menuWork)) + 0x5A0))->currentY.f));
+    scale = (f32)((u8 *)((u32)(rowIndex * 48) + (u32)menuWork))[0x5BA];
     alpha = scale * fade;
     w = (f32)((MenuSlotAnimation *)((u8 *)((u8 *)(rowIndex * 48) + (u32)menuWork) + 0x5A0))->currentScaleX;
     h = (f32)((HudPanel_0035 *)(menuWork + 0x5B0))[rowIndex].h;
@@ -2904,9 +2916,9 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
     rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
     PrimDrawFlatRectangle(col, (u8 *)rc, 0.0f, 0);
-    x2 = 5.0f + (x0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x180))->currentX.f);
-    y2 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x180))->currentY.f));
-    scale = (f32)datCommunityIndexedAddress(rowIndex * 48, menuWork)[0x19A];
+    x2 = 5.0f + (x0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x180))->currentX.f);
+    y2 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x180))->currentY.f));
+    scale = (f32)byteAddressAdd((rowIndex * 48), menuWork)[0x19A];
     alpha = scale * fade;
     w2 = (f32)((MenuSlotAnimation *)((u8 *)((u8 *)(u32)(rowIndex * 48) + (u32)menuWork) + 0x180))->currentScaleX;
     h2 = (f32)((HudPanel_0035 *)(menuWork + 0x190))[rowIndex].h;
@@ -2928,7 +2940,7 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
                       ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
         px = 124.0f + x2;
         py = y2 + 14.0f * scale;
-        spr = ((u8 **)(datCommunityIndexedAddress((count & 0xFFFF) * 4, menuWork) + 0x11EC))[0];
+        spr = ((u8 **)(byteAddressAdd(((count & 0xFFFF) * 4), menuWork) + 0x11EC))[0];
         sdkSpriteDrawSized(spr, px, py, 0.0f,
                       ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     }
@@ -2943,7 +2955,7 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
                   ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 105.0f + x2;
     py = y2 + 33.0f * scale;
-    spr = ((u8 **)(datCommunityIndexedAddress(kind * 4, menuWork) + 0x12A0))[0];
+    spr = ((u8 **)(byteAddressAdd((kind * 4), menuWork) + 0x12A0))[0];
     sdkSpriteDrawSized(spr, px - sdkSpriteScaledWidth(spr) / 2.0f, py, 0.0f,
                   ctab[0], ctab[1], ctab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 156.0f + x2;
@@ -2987,15 +2999,15 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
         spr = cmmNameRecord(name);
         frFontExDrawTextWithCharWidth(px, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
-    x3 = 5.0f + (x0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x4B0))->currentX.f);
-    y3 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x4B0))->currentY.f));
-    scale = (f32)datCommunityIndexedAddress(rowIndex * 48, menuWork)[0x4CA];
+    x3 = 5.0f + (x0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x4B0))->currentX.f);
+    y3 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x4B0))->currentY.f));
+    scale = (f32)byteAddressAdd((rowIndex * 48), menuWork)[0x4CA];
     kind = scale * fade;
     w3 = (f32)((MenuSlotAnimation *)((u8 *)((u8 *)(u32)(rowIndex * 48) + (s32)menuWork) + 0x4B0))->currentScaleX;
     h3 = (f32)((HudPanel_0035 *)(menuWork + 0x4C0))[rowIndex].h;
     px = 15.0f + x3;
     py = 2.0f + y3;
-    spr = ((u8 **)(datCommunityIndexedAddress(mode * 4, menuWork) + 0x121C))[0];
+    spr = ((u8 **)(byteAddressAdd((mode * 4), menuWork) + 0x121C))[0];
     sdkSpriteDrawSized(spr, px, py, 0.0f,
                   0xFF, 0xFF, 0xFF, kind, w3, h3, 0, 0.0f, 0);
 }
@@ -3031,7 +3043,7 @@ void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse
     }
     pairSrc = D_0064CC70 + (slotIndex * 0x1C);
     pair = *(Float2 *)pairSrc;
-    value = *(s32 *)(D_0064CC78 + (slotIndex * 0x1C));
+    value = ((DatScreenWipeSlotColor *)(D_0064CC78 + (slotIndex * 0x1C)))->color;
     if (initialize != 0) {
         datScreenWipeInit(task, (Float2 *)posA, (Float2 *)posB);
     } else {
@@ -3158,7 +3170,7 @@ s32 datPortraitValue(u8 *task) {
  * the retail color conversions and row/index bases without synthetic padding.
  * See docs/probe_archive/Community_portrait_0035aff0_20260930.md. */
 // Intent: Draw the community portrait: its sprite and rendering passes for the selected state [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035AFF0
 #pragma push
 #pragma opt_loop_invariants on
@@ -3167,6 +3179,7 @@ s32 datPortraitValue(u8 *task) {
 #pragma opt_propagation off
 f32 datCommunityPortraitDraw(u8 *task, u8 opacity)
 {
+    SdkTask *typedTask = (SdkTask *)task;
     extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
     extern f32 datPortraitMoveStep(u8 *);
@@ -3224,7 +3237,7 @@ f32 datCommunityPortraitDraw(u8 *task, u8 opacity)
 
     /* The SDK task transports its work as u8 *; the captured value and the
      * post-camera visibility view deliberately have separate lifetimes. */
-    portrait = (CommunityPortrait *)*(u8 **)(task + 0x38);
+    portrait = (CommunityPortrait *)typedTask->work;
     z = D_008872F8[0];
     q = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     {
@@ -3414,10 +3427,11 @@ f32 datCommunityPortraitDraw(u8 *task, u8 opacity)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Advance the portrait's move step: count its timer, step its interpolation ratio to a maximum of 1 and move its position along an arc to the target [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035BAD0
 f32 datPortraitMoveStep(u8 *portraitWork)
 {
+    CommunityPortrait *typedPortraitWork = (CommunityPortrait *)portraitWork;
     f32 ratio;
     f32 angle;
     f32 fromX;
@@ -3426,13 +3440,13 @@ f32 datPortraitMoveStep(u8 *portraitWork)
 
     ((CommunityPortrait *)portraitWork)->effectFrame = ((CommunityPortrait *)portraitWork)->effectFrame + 1;
     if (((CommunityPortrait *)portraitWork)->effectFrame >= 0x64) {
-        *(s16 *)(portraitWork + 0x24) = 0;
+        typedPortraitWork->effectFrame = 0;
     }
     step = ((CommunityPortrait *)portraitWork)->transitionFrame;
     if (step < 0xA) {
-        *(s16 *)(portraitWork + 0x22) = (s16)(step + 1);
+        typedPortraitWork->transitionFrame = (s16)(step + 1);
     }
-    ratio = (f32)*(s16 *)(portraitWork + 0x22) / 10.0f;
+    ratio = (f32)typedPortraitWork->transitionFrame / 10.0f;
     if ((ratio < 0.0f) || (ratio > 1.0f)) {
         kAssertFail(&D_0064CC98, 0x881);
     }
@@ -3450,15 +3464,17 @@ f32 datPortraitMoveStep(u8 *portraitWork)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Set the portrait's text value: reset its position and step, and write its text slot as a placeholder, a blank, or a numbered label when the value changes [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035BC10
 void datPortraitSetValue(u8 *task, s8 portraitId, s32 flags)
 {
+    CommunityPortrait *typedPortraitWork;
     u8 *portraitWork;
     s8 previousPortraitId;
     u8 buf[0x100];
 
     portraitWork = ((SdkTask *)task)->work;
+    typedPortraitWork = (CommunityPortrait *)portraitWork;
     ((CommunityPortrait *)portraitWork)->transitionFrame = 0;
     ((CommunityPortrait *)portraitWork)->position.x = 71.5f;
     ((CommunityPortrait *)portraitWork)->position.y = 106.0f;
@@ -3489,7 +3505,7 @@ other_case:
     sprintf(buf, D_0064CD10, (s32)portraitId - 1);
     datTextSlotSetString((s32 *)(portraitWork + 0x30), buf);
 done:
-    *(s8 *)(portraitWork + 0x20) = portraitId;
+    typedPortraitWork->portraitId = portraitId;
     ((CommunityPortrait *)portraitWork)->flags = flags;
     ((CommunityPortrait *)portraitWork)->loaded = 0;
 unchanged: ;
@@ -3518,13 +3534,13 @@ f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin)
     direction.z = 20.0f;
     RwV3dNormalize(&direction, &direction);
     projection = direction.xy.x * normal.xy.x + direction.xy.y * normal.xy.y + direction.z * normal.z;
-    datPortraitAccumulateProjection(&total, 1.0f, projection);
+    operandOrderAccumulateProduct(&total, 1.0f, projection);
     direction.xy.x = second.x - origin.x;
     direction.xy.y = second.y - origin.y;
     direction.z = 20.0f;
     RwV3dNormalize(&direction, &direction);
     projection = direction.xy.x * normal.xy.x + direction.xy.y * normal.xy.y + direction.z * normal.z;
-    datPortraitAccumulateProjection(&total, 1.0f, projection);
+    operandOrderAccumulateProduct(&total, 1.0f, projection);
     if (!(total <= 1.0f)) total = 1.0f;
     return total;
 }
@@ -3569,15 +3585,17 @@ void datPortraitTextDestroy(u8 *task)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Create the portrait text task with its update and destroy callbacks and place it at its start position [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035BF10
 u8 *datPortraitTextTaskCreate(s32 parentAddress, u16 labelId, s32 flags)
 {
+    DatPortraitLabel *typedWork;
     u8 *work;
     u8 *task;
 
     chkmemAllocSiteTag(&D_0064CC98, 0x905);
     work = D_008873F4[0](1, 0x144, 0x40000);
+    typedWork = (DatPortraitLabel *)work;
     if (work == NULL) {
         kAssertFail(&D_0064CC98, 0x906);
     }
@@ -3586,7 +3604,7 @@ u8 *datPortraitTextTaskCreate(s32 parentAddress, u16 labelId, s32 flags)
     ((DatPortraitLabel *)work)->loaded = 0;
     ((DatPortraitLabel *)work)->target.x = 353.0f;
     *(s32 *)&((DatPortraitLabel *)work)->target.y = 0x42BC0000;
-    ((DatPortraitLabel *)work)->start.x = 300.0f + *(f32 *)(work + 0x10);
+    ((DatPortraitLabel *)work)->start.x = 300.0f + typedWork->target.x;
     ((DatPortraitLabel *)work)->start.y = ((DatPortraitLabel *)work)->target.y;
     datPortraitSetLabel((s32)task, labelId, flags);
     return task;
@@ -3598,10 +3616,11 @@ u8 *datPortraitTextTaskCreate(s32 parentAddress, u16 labelId, s32 flags)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // Intent: Draw the portrait text: its sprite pass with the portrait's colour, offset and opacity [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035C040
 f32 datPortraitTextDraw(u8 *task, u8 opacity)
 {
+    DatPortraitLabel *typedLabelWork;
     f32 tx;
     f32 ty;
     extern u8 *kwlnGetCamera(void);
@@ -3633,10 +3652,11 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
     LabelVertex vertices[4];
 
     labelWork = ((SdkTask *)task)->work;
+    typedLabelWork = (DatPortraitLabel *)labelWork;
     depth = D_008872F8[0];
     reciprocalDepth = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     {
-        u8 *visibilityWork = *(u8 **)(task + 0x38);
+        u8 *visibilityWork = MEMBER(u8 *, task, SdkTask, work);
         s32 flag;
         if ((((DatPortraitLabel *)visibilityWork)->loaded == 0) || (((DatPortraitLabel *)visibilityWork)->id == 0)) {
             flag = 0;
@@ -3649,9 +3669,9 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
     }
     transitionFrame = ((DatPortraitLabel *)labelWork)->transitionFrame;
     if (transitionFrame <= 9) {
-        *(s16 *)(labelWork + 0x22) = transitionFrame + 1;
+        typedLabelWork->transitionFrame = transitionFrame + 1;
     }
-    blend = sinf(fGpffff84a4 * ((f32)*(s16 *)(labelWork + 0x22) / 10.0f));
+    blend = sinf(fGpffff84a4 * ((f32)typedLabelWork->transitionFrame / 10.0f));
     if ((blend < 0.0f) || (blend > 1.0f)) {
         kAssertFail(&D_0064CC98, 0x936);
     }
@@ -3672,7 +3692,7 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
     tx = *(f32 *)labelWork;
     tx = tx + 256.0f;
     vertices[1].x = tx;
-    vertices[1].y = *(f32 *)(labelWork + 4);
+    vertices[1].y = typedLabelWork->position.y;
     vertices[1].depth = depth;
     vertices[1].r = 0x437F0000;
     vertices[1].g = 0x437F0000;
@@ -3682,7 +3702,7 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
     vertices[1].transitionFrame = 0;
     vertices[1].reciprocalDepth = reciprocalDepth;
     vertices[2].x = *(f32 *)labelWork;
-    ty = *(f32 *)(labelWork + 4);
+    ty = typedLabelWork->position.y;
     ty = ty + 256.0f;
     vertices[2].y = ty;
     vertices[2].depth = depth;
@@ -3696,7 +3716,7 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
     tx = *(f32 *)labelWork;
     tx = tx + 256.0f;
     vertices[3].x = tx;
-    ty = *(f32 *)(labelWork + 4);
+    ty = typedLabelWork->position.y;
     ty = ty + 256.0f;
     vertices[3].y = ty;
     vertices[3].depth = depth;
@@ -3707,9 +3727,9 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
     vertices[3].u = 0x3F800000;
     vertices[3].transitionFrame = 0x3F800000;
     vertices[3].reciprocalDepth = reciprocalDepth;
-    shdDrawColourQuad(0.0f, ((DatPortraitLabel *)labelWork)->color | (opacity & 0xFF), *(f32 *)(labelWork + 0x18) + -30.0f, *(f32 *)(labelWork + 0x1C), *(f32 *)labelWork, *(f32 *)(labelWork + 4), 256.0f, 256.0f, *(s32 **)(labelWork + 0x3C), 1, 0);
+    shdDrawColourQuad(0.0f, ((DatPortraitLabel *)labelWork)->color | (opacity & 0xFF), typedLabelWork->smoothed.x + -30.0f, typedLabelWork->smoothed.y, *(f32 *)labelWork, typedLabelWork->position.y, 256.0f, 256.0f, *(s32 **)&typedLabelWork->textSlot.result.handle, 1, 0);
     sdkRenderStateSetDefault();
-    D_00887300[0](1, *(s32 *)((DatPortraitLabel *)labelWork)->textSlot.result.node);
+    D_00887300[0](1, ((CommunityTexture *)((DatPortraitLabel *)labelWork)->textSlot.result.node)->rasterAddress);
     D_00887310[0](4, &vertices[0], 4);
     return blend;
 }
@@ -3720,10 +3740,11 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
 #pragma opt_propagation off
 #pragma opt_loop_invariants off
 // Intent: Set the portrait label for an id and flag set: choose the colour and suffix from the flags and write the label text, blank for ids without a day label [inferred]
-/* measured: typing the remaining byte-offset accesses changes whole-owner instructions; retain their original pointer/access shape beside the proven layout. */
+/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
 // FUN_0035C480
 void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags)
 {
+    DatPortraitLabel *typedWork;
     s8 daySuffix[8];
     u8 labelPath[0x100];
     f32 x;
@@ -3736,6 +3757,7 @@ void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags)
     extern u8 D_0064CD60[];
 
     work = ((SdkTask *)taskAddress)->work;
+    typedWork = (DatPortraitLabel *)work;
     ((DatPortraitLabel *)work)->transitionFrame = 0;
     x = ((DatPortraitLabel *)work)->start.x;
     y = ((DatPortraitLabel *)work)->start.y;
@@ -3808,7 +3830,7 @@ nonzero_case:
         datTextSlotSetString((s32 *)(work + 0x30), labelPath);
         goto done;
 done:
-        *(u16 *)(work + 0x20) = labelId;
+        typedWork->id = labelId;
         ((DatPortraitLabel *)work)->flags = flags;
         ((DatPortraitLabel *)work)->loaded = 0;
     }
@@ -3824,7 +3846,7 @@ done:
 // FUN_0035C670
 void datPortraitGetPosition(u8 *task, Vec2f *position)
 {
-    *position = *(Vec2f *)(((SdkTask *)task)->work);
+    *position = *(Vec2f *)&((CommunityPortrait *)((SdkTask *)task)->work)->position;
 }
 #pragma pop
 

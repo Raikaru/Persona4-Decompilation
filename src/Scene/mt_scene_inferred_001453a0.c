@@ -4,6 +4,7 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "effect_update_internal.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -258,8 +259,8 @@ extern f32 D_008872F8[];
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001453a0-00145780 */
 
-// FUN_001453A0
 /* Create the packed resource and initialize its model, camera or shadow handles. */
+// FUN_001453A0
 s32 MT_Scene_CreateRes08(u16 resourceId)
 {
     s32 resourceTypeId;
@@ -288,8 +289,8 @@ s32 MT_Scene_CreateRes08(u16 resourceId)
     return resourceTypeId;
 }
 
-// FUN_00145480
 /* Create the packed resource and initialize its model, camera or shadow handles. */
+// FUN_00145480
 s32 MT_Scene_CreateRes07(u16 resourceId) {
     s32 resourceTypeId;
     s32 manager;
@@ -309,15 +310,15 @@ s32 MT_Scene_CreateRes07(u16 resourceId) {
     return resourceTypeId;
 }
 
-// FUN_00145510
 /* Create the packed resource and initialize its model, camera or shadow handles. */
+// FUN_00145510
 s32 MT_Scene_CreateModelCharRes(u16 resourceId, void *model) {
     return MT_Scene_CreateModelCharShadowRes(resourceId, 0, model);
 }
 
-// FUN_00145540
 /* Create the packed resource and initialize its model, camera or shadow handles. */
-/* Model/shadow handles use ResrcRecord offsets 164/220/224; typed accesses retain member addresses across calls and grew this body from 336 to 344 bytes. */
+/* measured: only the model reload needs MEMBER; access-site, typed-local and array forms grow this body from 336 to 344 bytes. */
+// FUN_00145540
 s32 MT_Scene_CreateModelCharShadowRes(u16 resourceId, u16 shadowModelId, void *model) {
     s8 zeroPosition[0xC];
     s32 resourceTypeId;
@@ -351,17 +352,17 @@ s32 MT_Scene_CreateModelCharShadowRes(u16 resourceId, u16 shadowModelId, void *m
     if (resource == NULL) {
         return 0;
     }
-    *(void **)(resource + 0x164) = model;
+    *(void **)&((ResrcRecord *)resource)->modelHandle164 = model;
     mdlTranslateMatrix((RwMatrix *)model, (const RwV3d *)zeroPosition, 0);
-    RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(resource + 0x164)));
+    RwMatrixUpdate((u8 *)mdlGetMatrix(MEMBER(void *, resource, ResrcRecord, modelHandle164)));
     frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
-    *(s32 *)(resource + 0x220) = frameTask;
-    *(void **)(resource + 0x224) = FldShadow_CreateCaster((u8 *)frameTask, shadowId, shadowModelId);
+    *(s32 *)&((ResrcRecord *)resource)->handle220 = frameTask;
+    *(void **)&((ResrcRecord *)resource)->handle224 = FldShadow_CreateCaster((u8 *)frameTask, shadowId, shadowModelId);
     return resourceTypeId;
 }
 
-// FUN_00145690
 /* Create the packed resource and initialize its model, camera or shadow handles. */
+// FUN_00145690
 s32 MT_Scene_CreateModelUnkRes(u16 resourceId, s32 model) {
     s8 zeroPosition[0xC];
     s32 resourceTypeId;
@@ -397,8 +398,8 @@ s32 MT_Scene_CreateModelUnkRes(u16 resourceId, s32 model) {
     return resourceTypeId;
 }
 
-// FUN_00145780
 /* Create the packed resource and initialize its model, camera or shadow handles. */
+// FUN_00145780
 s32 MT_Scene_CreateModelNpcShadowRes(u16 resourceId, u16 shadowModelId, s32 model) {
     s8 zeroPosition[0xC];
     s32 resourceTypeId;
@@ -432,7 +433,7 @@ s32 MT_Scene_CreateModelNpcShadowRes(u16 resourceId, u16 shadowModelId, s32 mode
     if (resource == NULL) {
         return 0;
     }
-    *(s32 *)&((SceneUpdateResource *)resource)->flags = *(s32 *)&((SceneUpdateResource *)resource)->flags | 0x10000000;
+    *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 0x10000000;
     *(s32 *)&((ResrcRecord *)resource)->modelHandle164 = model;
     frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
     *(s32 *)&((ResrcRecord *)resource)->handle228 = frameTask;

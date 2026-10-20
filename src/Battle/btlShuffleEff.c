@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -31,10 +32,7 @@ extern void btlShuffleCalcLookAt(f32 *output, f32 *point);
 /* measured: the operands must travel through this helper's parameters to get
    retail's index-first `addu $v1,$v1,$s0`; rewriting the callsite expression as
    `offset + (u32)base` is canonicalized straight back to the base-first form. */
-static inline u32 bseSlot(u32 offset, u32 contextAddress)
-{
-    return offset + contextAddress;
-}
+
 
 /* Destroy every live trail effect and release the task work allocation. */
 // FUN_0038D6C0
@@ -128,21 +126,23 @@ void btlShuffleEffUpdate(u8 *task) {
     f32 *src;
     f32 stepPoint[2];
     f32 position[3];
+    BtlShuffleEffectSlot *slot;
 
     work = ((struct KwlnTask *)task)->work;
     for (i = 0; i < 9; i++) {
         if (((BtlShuffleEffectWork *)work)->activeMask & (u16)(1 << i)) {
             slotBase = work + i * 8 + 8;
+            slot = (BtlShuffleEffectSlot *)slotBase;
             src = &D_0064F110[i * 7];
             stepPoint[0] = src[0];
             stepPoint[1] = src[1];
             btlShuffleCalcStepPose(&stepPoint[0], src[2], &position[0]);
             btlShuffleCalcLookAt(position, position);
-            /* measured: typing the earlier effect reloads grows this function from 256 to 268 bytes. */
-            /* measured: either earlier typed effect reload grows Update from 256 to 268 bytes. */
-            mdlEffectSetChildPositionVec(*(u8 **)(slotBase + 4), position);
-            mdlEffectSetEulerRotation(*(u8 **)(slotBase + 4), src[3], src[4], src[5]);
-            mdlEffectSetUniformScale(((BtlShuffleEffectSlot *)slotBase)->effect, src[6]);
+            /* measured: access-site effect casts grew this function from 256 to 268 bytes. */
+            /* A dedicated slot alias retains both reloads and the 256-byte MATCH. */
+            mdlEffectSetChildPositionVec(slot->effect, position);
+            mdlEffectSetEulerRotation(slot->effect, src[3], src[4], src[5]);
+            mdlEffectSetUniformScale(slot->effect, src[6]);
         }
     }
 }
@@ -157,8 +157,10 @@ void btlShuffleEffInitTrail(u8 *task, s32 slotIndex) {
     s32 resourceOffset;
     s32 mask;
     s32 slotOffset;
+    BtlShuffleEffectWork *effects;
 
     work = ((struct KwlnTask *)task)->work;
+    effects = (BtlShuffleEffectWork *)work;
     contextAddress = ((BtlShuffleEffectWork *)work)->context;
     if (slotIndex < 0 || slotIndex >= 9) {
         kAssertFail(&D_0064F210[0], 0x165);
@@ -169,8 +171,8 @@ void btlShuffleEffInitTrail(u8 *task, s32 slotIndex) {
             kAssertFail(&D_0064F210[0], 0x3E);
         }
         mask = 1 << slotIndex;
-        /* measured: typing this mask test changes InitTrail register allocation; the mask store remains typed. */
-        if (!(*(u16 *)(work + 4) & (u16)mask)) {
+        /* measured: access-site mask typing changes allocation; the dedicated effects alias preserves MATCH. */
+        if (!(effects->activeMask & (u16)mask)) {
             slotOffset = slotIndex * 8;
             slotBase = (u8 *)(slotOffset + (s32)work);
             eff = &((BtlShuffleEffectSlot *)(slotBase + 8))->effect;
@@ -222,8 +224,8 @@ void btlShuffleEffSetup(u8 *task, s32 slotIndex)
         kAssertFail(&D_0064F210[0], 0x55);
     }
     /* measured: typing only the slot address grows Setup from 160 to 164 bytes; the effect load is typed. */
-    slot = (u8 **)(bseSlot(slotIndex * 8, (u32)eff) + 0xC);
-    held = ((BtlShuffleEffectSlot *)(bseSlot(slotIndex * 8, (u32)eff) + 8))->effect;
+    slot = (u8 **)((u32)byteAddressAdd(slotIndex * 8, (u8 *)((u32)eff)) + 0xC);
+    held = ((BtlShuffleEffectSlot *)(((slotIndex * 8) + ((u32)eff)) + 8))->effect;
     if (held != 0) {
         mdlEffectDestroy(held);
         *slot = 0;

@@ -2,8 +2,9 @@
 #define EVT_EFFECT_INTERNAL_H
 #include "type.h"
 
-/* evtEffectTableCreate allocates 0x190 bytes. Eight 0x2C-byte records occupy
- * +0x10..+0x16F; the sixteen resource-id slots follow at +0x170. */
+/* evtEffectTableCreate allocates 0x190 bytes. The live count drives iteration,
+ * but mtMisc slot accesses fix sixteen resource IDs at +0x170, leaving capacity
+ * for eight 0x2C-byte entries at +0x10; this is not a flexible-tail allocation. */
 typedef struct EvtEffectEntry {
     s32 kind;
     u8 filename[0x20];
@@ -18,4 +19,8 @@ typedef struct EvtEffectTable {
     EvtEffectEntry entries[8];
     u16 slots[16];
 } EvtEffectTable;
+
+typedef char EvtEffectEntrySizeCheck[sizeof(EvtEffectEntry) == 0x2C ? 1 : -1];
+typedef char EvtEffectTableSlotsOffsetCheck[(u32)&((EvtEffectTable *)0)->slots == 0x170 ? 1 : -1];
+typedef char EvtEffectTableSizeCheck[sizeof(EvtEffectTable) == 0x190 ? 1 : -1];
 #endif

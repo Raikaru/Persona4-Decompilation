@@ -74,10 +74,6 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
                           f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
                           u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
                           s16 pivotY);
-static inline u32 add_offset_first_0038(u32 offset, u32 base)
-{
-    return offset + base;
-}
 
 /* Window frame fade.  The 192 alpha is converted at each vertex (u8)(192.0f *
    scale) - the product is shared, the float->u8 conversion is not - and the
@@ -89,18 +85,7 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
    -0.2617994f is -15 degrees in radians (the sprite below is drawn at -15.0f);
    it and the other float literals are pooled in retail's gp data. */
 
-/* This helper retains the radius-scale operation with the same operand
- * order as the other circular drawing primitives. */
-static inline f32 code38ScaleRadius(f32 value, f32 scale)
-{
-    return scale * value;
-}
 
-static inline f32 code38QuarterTurnOffset(s32 index)
-{
-    extern f32 fGpffff83d8;
-    return fGpffff83d8 * (f32)index;
-}
 
 /* Persona list panel. The slide-in ease is 2t - t*t, clamped. Every
    position term is written with a (0.0f + K) origin, as the sibling ring
@@ -145,18 +130,6 @@ typedef struct Code38RingVertex {
     u32 tail[4];
 } Code38RingVertex;
 
-static inline void code38RingVertex(Code38RingVertex *vertex,
-    f32 x, f32 y, f32 depth, f32 reciprocalZ, u32 r, u32 g, u32 b, u32 a)
-{
-    vertex->x = x;
-    vertex->y = y;
-    vertex->z = depth;
-    vertex->color[0] = (f32)r;
-    vertex->color[1] = (f32)g;
-    vertex->color[2] = (f32)b;
-    vertex->color[3] = (f32)a;
-    vertex->reciprocalZ = reciprocalZ;
-}
 
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
  * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
@@ -213,73 +186,86 @@ s32 btlShuffleEffStep(u8 *task) {
     return 0;
 }
 
+/* RenderWare collision layouts from rw/inc/rpcollis.h and rw/core/babbox.h.
+ * The legacy aggregate headers require include paths this owner does not use. */
+typedef struct RwBBox { RwV3d sup, inf; } RwBBox;
+typedef struct RpCollSplit RpCollSplit;
+typedef struct RpCollTree {
+    u32 flags;
+    RwBBox bbox;
+    u16 numEntries, numSplits;
+    RpCollSplit *splits;
+    u16 *map;
+} RpCollTree;
+
 #pragma schedule on
 #pragma no_branch_likely on
+/* Allocate a collision tree with aligned split storage and an optional entry map. */
 // FUN_0038F990
-u8 *func_0038f990(u16 arg0, u16 arg1, f32 *arg2, s32 arg3)
+u8 *rpCollTreeCreate(u16 entryCount, u16 splitCount, f32 *bounds, s32 flags)
 {
-    u8 *temp_6;
-    s32 temp_16;
-    s32 temp_22;
-    s32 temp_4;
-    s32 var_17;
-    u8 *temp_2;
-    f32 temp_f1;
-    f32 temp_f0;
-    f32 temp_f2;
-    f32 temp_f3;
-    s32 fail_words[2];
-    temp_16 = arg1 & 0xFFFF;
-    var_17 = 0x28;
+    u8 *treeBytes;
+    s32 count;
+    s32 useMap;
+    s32 splitAddress;
+    s32 allocationSize;
+    u8 *cursor;
+    f32 componentY;
+    f32 componentX;
+    f32 componentZ;
+    f32 lowerX;
+    s32 failure[2];
+    count = splitCount & 0xFFFF;
+    allocationSize = 0x28;
 
-    if (temp_16 > 0) {
-        var_17 += (temp_16 * 0x10) + 0xF;
+    if (count > 0) {
+        allocationSize += (count * 0x10) + 0xF;
     }
     goto dispatch_0;
 
 add_0:
-    var_17 += ((arg0 & 0xFFFF) * 2) + 1;
+    allocationSize += ((entryCount & 0xFFFF) * 2) + 1;
 
 alloc_0:
-    temp_2 = jtbl_008873E8[0](var_17, 0x3002C);
-    if (temp_2 == NULL) {
+    cursor = jtbl_008873E8[0](allocationSize, 0x3002C);
+    if (cursor == NULL) {
         goto failure_0;
     }
-    *(s32 *)(temp_2 + 0) = arg3;
-    temp_6 = temp_2;
-    *(u16 *)(temp_2 + 0x1C) = arg0;
-    *(u16 *)(temp_2 + 0x1E) = arg1;
-    temp_f0 = arg2[0];
-    temp_f1 = arg2[1];
-    temp_f2 = arg2[2];
-    temp_f3 = arg2[3];
-    *(f32 *)(temp_2 + 4) = temp_f0;
-    *(f32 *)(temp_2 + 8) = temp_f1;
-    *(f32 *)(temp_2 + 0xC) = temp_f2;
-    *(f32 *)(temp_2 + 0x10) = temp_f3;
-    temp_f1 = *(f32 *)((u8 *)arg2 + 0x10);
-    temp_f0 = temp_f1;
-    temp_f1 = *(f32 *)((u8 *)arg2 + 0x14);
-    *(f32 *)(temp_2 + 0x14) = temp_f0;
-    *(f32 *)(temp_2 + 0x18) = temp_f1;
-    temp_2 += 0x28;
-    if (temp_16 <= 0) {
+    ((RpCollTree *)cursor)->flags = flags;
+    treeBytes = cursor;
+    ((RpCollTree *)cursor)->numEntries = entryCount;
+    ((RpCollTree *)cursor)->numSplits = splitCount;
+    componentX = bounds[0];
+    componentY = bounds[1];
+    componentZ = bounds[2];
+    lowerX = bounds[3];
+    ((RpCollTree *)cursor)->bbox.sup.x = componentX;
+    ((RpCollTree *)cursor)->bbox.sup.y = componentY;
+    ((RpCollTree *)cursor)->bbox.sup.z = componentZ;
+    ((RpCollTree *)cursor)->bbox.inf.x = lowerX;
+    componentY = ((RwBBox *)bounds)->inf.y;
+    componentX = componentY;
+    componentY = ((RwBBox *)bounds)->inf.z;
+    ((RpCollTree *)cursor)->bbox.inf.y = componentX;
+    ((RpCollTree *)cursor)->bbox.inf.z = componentY;
+    cursor += 0x28;
+    if (count <= 0) {
         goto zero_extra;
     }
-    temp_4 = ((s32)(temp_2 + 0xF)) & ~0xF;
-    temp_2 = (u8 *)(temp_4 + (temp_16 * 0x10));
-    *(s32 *)(temp_6 + 0x20) = temp_4;
+    splitAddress = ((s32)(cursor + 0xF)) & ~0xF;
+    cursor = (u8 *)(splitAddress + (count * 0x10));
+    *(s32 *)&((RpCollTree *)treeBytes)->splits = splitAddress;
 
 pointer_0:
-    if (temp_22 != 0) {
-        *(s32 *)(temp_6 + 0x24) = ((s32)(temp_2 + 1)) & ~1;
+    if (useMap != 0) {
+        *(s32 *)&((RpCollTree *)treeBytes)->map = ((s32)(cursor + 1)) & ~1;
     } else {
-        *(s32 *)(temp_6 + 0x24) = 0;
+        *(s32 *)&((RpCollTree *)treeBytes)->map = 0;
     }
-    return temp_6;
+    return treeBytes;
 dispatch_0:
-    temp_22 = arg3 & 1;
-    switch (temp_22) {
+    useMap = flags & 1;
+    switch (useMap) {
     case 0:
         goto alloc_0;
     default:
@@ -287,12 +273,12 @@ dispatch_0:
     }
 
 failure_0:
-    fail_words[0] = 0x11D;
-    fail_words[1] = func_003df590(0x80000013, var_17);
-    func_003df4d0(fail_words);
+    failure[0] = 0x11D;
+    failure[1] = func_003df590(0x80000013, allocationSize);
+    func_003df4d0(failure);
     return NULL;
 zero_extra:
-    *(s32 *)(temp_6 + 0x20) = 0;
+    *(s32 *)&((RpCollTree *)treeBytes)->splits = 0;
     goto pointer_0;
 }
 /* measured: closes the bracket opened above func_0038f990, which matches at
@@ -304,16 +290,17 @@ zero_extra:
 // slot (11 words); schedule on with the constant materialized first reproduces
 // retail's hoisted addiu $a1,0x30 + addu $v0,$a1,$v0 delay-slot pair (12 words).
 #pragma schedule on
+/* Return serialized collision-tree bytes, including chunk headers and the optional entry map. */
 // FUN_0038FB20
-s32 func_0038fb20(u8 *arg0) {
-    s32 var_2;
+s32 rpCollTreeStreamGetSize(u8 *treeBytes) {
+    s32 streamSize;
 
-    var_2 = 0x30;
-    var_2 += *(u16 *)(arg0 + 0x1E) * 0x10;
-    if (*(s32 *)arg0 & 1) {
-        var_2 += *(u16 *)(arg0 + 0x1C) * 2;
+    streamSize = 0x30;
+    streamSize += ((RpCollTree *)treeBytes)->numSplits * 0x10;
+    if ((s32)((RpCollTree *)treeBytes)->flags & 1) {
+        streamSize += ((RpCollTree *)treeBytes)->numEntries * 2;
     }
-    return var_2;
+    return streamSize;
 }
 // measured: closing bracket for the schedule-on above; the function body is
 // already compiled, so this off only satisfies decomp_lint P001 balance.

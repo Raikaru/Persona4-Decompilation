@@ -772,6 +772,7 @@ void* kwlnTaskCreateChild(void* parent, const void* taskName, s32 priority, s32 
     }
     return result;
 }
+/* Find a named task and request destruction of its entire child hierarchy. */
 // FUN_00452040
 u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
 {

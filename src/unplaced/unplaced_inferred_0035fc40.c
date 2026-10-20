@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0035fc40-0035fd60 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "scr_internal.h"
@@ -26,7 +27,7 @@ s32 datCommunityPanelOpenStepAlt(u8 *work)
     case 0:
         state += 1;
         /* measured: a typed state store shares its address with the load (72 versus 80 bytes). */
-        *(s32 *)(work + 0x14) = state;
+        MEMBER(s32, work, RadarMenuWork, state) = state;
         return 1;
     case 1:
         return 1;
@@ -53,12 +54,12 @@ s32 datCommunityMenuUpdate(u8 *work)
     counter = ((RadarMenuWork *)work)->elapsed;
     /* measured: typing the repeated elapsed accesses grows this update from 208 to 220 bytes. */
     if (counter < 0x64) {
-        *(s16 *)(work + 0x20) = counter + 1;
+        MEMBER(s16, work, RadarMenuWork, elapsed) = counter + 1;
     }
     index = 0;
     while (index < 0x1D) {
         panel = work + index * 0x30;
-        radarAnimateValue(panel + 0x48, *(s16 *)(work + 0x20), 0);
+        radarAnimateValue(panel + 0x48, MEMBER(s16, work, RadarMenuWork, elapsed), 0);
         if (((MenuSlotAnimation *)(panel + 0x48))->currentAlpha != 0) {
             allIdle = 0;
         }
@@ -155,13 +156,13 @@ void datCommunityMenuDraw(u8 *work)
         gridAlpha = (u8)(255.0f * opacityScale);
         nLineDrawSet(position, (u8)gridAlpha, background, 0.0f);
     }
-    if (*(s32 *)(work + 0x1C) & 1) {
+    if (((RadarMenuWork *)(work))->drawFlags & 1) {
         position.x = originX + ((RadarMenuWork *)work)->panels[6].currentX.f + 90.0f;
         position.y = originY + ((RadarMenuWork *)work)->panels[6].currentY.f + 91.0f;
         gridAlpha = (u8)((f32)((RadarMenuWork *)work)->panels[6].currentAlpha * opacityScale);
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[41].node, position.x, position.y, 0xFF, 0xFF, 0xFF, gridAlpha);
     }
-    if (*(s32 *)(work + 0x1C) & 2) {
+    if (MEMBER(s32, work, RadarMenuWork, drawFlags) & 2) {
         gridX = 23.0f + (595.0f + (originX + ((RadarMenuWork *)work)->panels[5].currentX.f));
         gridY = 280.0f + (originY + ((RadarMenuWork *)work)->panels[5].currentY.f);
         gridAlpha = (u8)((f32)((RadarMenuWork *)work)->panels[5].currentAlpha * opacityScale);
@@ -204,7 +205,7 @@ void datCommunityMenuDraw(u8 *work)
         }
         /* Smooth the cursor halfway toward the selected row using its old pair. */
         offsetX = 303.0f + originX;
-        offsetY = 133.0f + originY + (f32)(*(s16 *)(work + 0x28) * 0x30);
+        offsetY = 133.0f + originY + (f32)(((RadarMenuWork *)(work))->selectedHeader * 0x30);
         position = ((RadarMenuWork *)work)->cursor;
         offsetX = offsetX - position.x;
         offsetY = offsetY - position.y;
@@ -252,26 +253,26 @@ void datCommunityMenuDraw(u8 *work)
             sprite = ((RadarMenuWork *)work)->sprites[column * 2 + 2].node;
             sdkSpriteDrawAt(sprite, position.x + 4.0f, position.y + 20.0f, 0x80, 0x80, 0x80, labelOpacity);
         }
-        position.x = 468.0f + (originX + *(f32 *)(work + 0xE8));
-        position.y = 139.0f + (originY + *(f32 *)(work + 0xEC));
-        opacity = (u8)((f32)*(u8 *)(work + 0xF2) * opacityScale);
+        position.x = 468.0f + (originX + ((RadarMenuWork *)(work))->panels[3].currentX.f);
+        position.y = 139.0f + (originY + ((RadarMenuWork *)(work))->panels[3].currentY.f);
+        opacity = (u8)((f32)((RadarMenuWork *)(work))->panels[3].currentAlpha * opacityScale);
         sprite = ((RadarMenuWork *)work)->sprites[7].node;
         colorBytes[0] = D_0064B2E8[0];
         colorBytes[1] = D_0064B2E8[1];
         colorBytes[2] = D_0064B2E8[2];
         sdkSpriteDrawAt(sprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], opacity);
-        position.x = 53.0f + (567.0f + (originX + *(f32 *)(work + 0xE8)));
-        position.y = 269.0f + (originY + *(f32 *)(work + 0xEC));
-        opacity = (u8)((f32)*(u8 *)(work + 0xF2) * opacityScale);
+        position.x = 53.0f + (567.0f + (originX + MEMBER(f32, work, RadarMenuWork, panels[3].currentX.f)));
+        position.y = 269.0f + (originY + MEMBER(f32, work, RadarMenuWork, panels[3].currentY.f));
+        opacity = (u8)((f32)MEMBER(u8, work, RadarMenuWork, panels[3].currentAlpha) * opacityScale);
         textColor = opacity | ~0xFF;
-        frFontExCopyString(D_0064D448[*(s16 *)(work + 0x28)], text, 0x100);
+        frFontExCopyString(D_0064D448[MEMBER(s16, work, RadarMenuWork, selectedHeader)], text, 0x100);
         frFontExDrawText(position.x, position.y, 0.0f, textColor, 7, 1, text, 2, 0);
         position.x = 640.0f + (originX + ((RadarMenuWork *)work)->panels[7].currentX.f);
         position.y = 400.0f + (originY + ((RadarMenuWork *)work)->panels[7].currentY.f);
         opacity = (u8)((f32)((RadarMenuWork *)work)->panels[7].currentAlpha * opacityScale);
         sdkSpriteDrawFooter(position, 0.0f, opacity, ((RadarMenuWork *)work)->footerMode, ((RadarMenuWork *)work)->footerResource);
     }
-    if (*(s32 *)(work + 0x1C) & 4) {
+    if (MEMBER(s32, work, RadarMenuWork, drawFlags) & 4) {
         gridX = 23.0f + (595.0f + (originX + ((RadarMenuWork *)work)->panels[5].currentX.f));
         gridY = 430.0f + (originY + ((RadarMenuWork *)work)->panels[5].currentY.f);
         gridAlpha = (u8)((f32)((RadarMenuWork *)work)->panels[5].currentAlpha * opacityScale);
@@ -304,9 +305,9 @@ void datCommunityMenuDraw(u8 *work)
         }
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
-        position.x = 29.0f + (originX + *(f32 *)(work + 0x3B8));
-        position.y = -13.0f + (54.0f + (originY + *(f32 *)(work + 0x3BC)));
-        opacity = (u8)((f32)*(u8 *)(work + 0x3C2) * opacityScale);
+        position.x = 29.0f + (originX + ((RadarMenuWork *)(work))->panels[18].currentX.f);
+        position.y = -13.0f + (54.0f + (originY + ((RadarMenuWork *)(work))->panels[18].currentY.f));
+        opacity = (u8)((f32)((RadarMenuWork *)(work))->panels[18].currentAlpha * opacityScale);
         palette = (PaletteColor *)D_0064B2E8;
         sprite = ((RadarMenuWork *)work)->sprites[33].node;
         sdkSpriteDrawAt(sprite, position.x, position.y, palette->r, palette->g, palette->b, opacity);
@@ -315,9 +316,9 @@ void datCommunityMenuDraw(u8 *work)
         palette = (PaletteColor *)D_0064B2EC;
         sprite = ((RadarMenuWork *)work)->sprites[32].node;
         sdkSpriteDrawAt(sprite, position.x + 19.0f, position.y + 2.0f, palette->r, palette->g, palette->b, opacity);
-        position.x = 89.0f + (originX + *(f32 *)(work + 0x3B8));
-        position.y = -13.0f + (86.0f + (originY + *(f32 *)(work + 0x3BC)));
-        opacity = (u8)((f32)*(u8 *)(work + 0x3C2) * opacityScale);
+        position.x = 89.0f + (originX + MEMBER(f32, work, RadarMenuWork, panels[18].currentX.f));
+        position.y = -13.0f + (86.0f + (originY + MEMBER(f32, work, RadarMenuWork, panels[18].currentY.f)));
+        opacity = (u8)((f32)MEMBER(u8, work, RadarMenuWork, panels[18].currentAlpha) * opacityScale);
         palette = (PaletteColor *)D_0064B300;
         sprite = ((RadarMenuWork *)work)->sprites[13].node;
         offsetY = position.y + 4.0f;
@@ -326,9 +327,9 @@ void datCommunityMenuDraw(u8 *work)
         sdkSpriteDrawAt(sprite, position.x + 41.0f, offsetY, palette->r, palette->g, palette->b, opacity);
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[10].node, position.x, position.y, palette->r, palette->g, palette->b, opacity);
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[9].node, position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], opacity);
-        position.x = 302.0f + (originX + *(f32 *)(work + 0x3B8));
-        position.y = -13.0f + (79.0f + (originY + *(f32 *)(work + 0x3BC)));
-        opacity = (u8)((f32)*(u8 *)(work + 0x3C2) * opacityScale);
+        position.x = 302.0f + (originX + MEMBER(f32, work, RadarMenuWork, panels[18].currentX.f));
+        position.y = -13.0f + (79.0f + (originY + MEMBER(f32, work, RadarMenuWork, panels[18].currentY.f)));
+        opacity = (u8)((f32)MEMBER(u8, work, RadarMenuWork, panels[18].currentAlpha) * opacityScale);
         palette = (PaletteColor *)D_0064B300;
         sprite = ((RadarMenuWork *)work)->sprites[15].node;
         offsetY = position.y + 11.0f;
@@ -349,11 +350,11 @@ void datCommunityMenuDraw(u8 *work)
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[39].node, position.x, position.y, 0xFF, 0xFF, 0xFF, opacity);
         position.x = offsetX;
         position.y = offsetY + 3.0f;
-        position.y += (f32)((s32)(*(s16 *)(work + 0x2C) * 0x86) / (s32)(*(s32 *)(work + 0x38) - 6));
+        position.y += (f32)((s32)(((RadarMenuWork *)(work))->topRow * 0x86) / (s32)(((RadarMenuWork *)(work))->rowCount - 6));
         palette = (PaletteColor *)D_0064B2E8;
         sdkSpriteDrawAt(((RadarMenuWork *)work)->sprites[37].node, position.x, position.y, palette->r, palette->g, palette->b, opacity);
         for (column = 0; column < 6; column++) {
-            if ((*(s16 *)(work + 0x2C) + column) < *(s32 *)(work + 0x38)) {
+            if ((MEMBER(s16, work, RadarMenuWork, topRow) + column) < MEMBER(s32, work, RadarMenuWork, rowCount)) {
                 radarDrawColumn(column, work);
             }
         }
@@ -372,7 +373,7 @@ void datCommunityMenuDraw(u8 *work)
         PrimDrawFlatRectangle(colorBytes, rectangle.transport, 0.0f, 0);
         position.x = 212.0f + offsetX;
         position.y = (304.0f + offsetY) - 5.0f;
-        itemIndex = (s32)(((RadarMenuWork *)work)->selectedRow + *(s16 *)(work + 0x2C));
+        itemIndex = (s32)(((RadarMenuWork *)work)->selectedRow + MEMBER(s16, work, RadarMenuWork, topRow));
         if (datGetFlag(itemIndex + 0x100) != 0) {
             if (datGetFlag(itemIndex + 0x140) != 0) {
                 textColor = (opacity | 0xADADAD00);
@@ -385,7 +386,7 @@ void datCommunityMenuDraw(u8 *work)
             displayItem = 0;
         }
         fclMesWindowDrawTableItem(displayItem, (f32)(s32)position.x, (f32)(s32)position.y, 0.0f, textColor, 1, 8, 8);
-        if (*(s32 *)(work + 0x1C) & 8) {
+        if (MEMBER(s32, work, RadarMenuWork, drawFlags) & 8) {
             position.x = 85.0f + (originX + ((RadarMenuWork *)work)->panels[17].currentX.f);
             position.y = 325.0f + (originY + ((RadarMenuWork *)work)->panels[17].currentY.f);
             opacity = (u8)((f32)((RadarMenuWork *)work)->panels[17].currentAlpha * opacityScale);

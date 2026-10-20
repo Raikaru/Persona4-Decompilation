@@ -13,10 +13,11 @@ extern void movieNativeSkyStateEnter(void);
 
 
 // Intent: Append a node to the tail of an ordering-table list [inferred]
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460AC0
 void PrimAppendNode(u8 *list, u8 *node)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *tail;
 
     tail = list;
@@ -31,18 +32,19 @@ void PrimAppendNode(u8 *list, u8 *node)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
 }
 
 
 // Intent: Queue a state-set node (command 2) carrying a state and a value [inferred]
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460B60
 u8 *PrimQueueStateSet(u8 *list, s32 stateId, s32 stateValue)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -66,19 +68,20 @@ u8 *PrimQueueStateSet(u8 *list, s32 stateId, s32 stateValue)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 // Intent: Queue a state-set node (command 3) carrying a state and a value; same as PrimQueueStateSet with command 3 [inferred]
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460C70
 u8 *PrimQueueStateSetAlt(u8 *list, s32 stateId, s32 stateValue)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -102,19 +105,20 @@ u8 *PrimQueueStateSetAlt(u8 *list, s32 stateId, s32 stateValue)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 /* Queues a command-four draw-object payload; y_misc stores the returned draw node. */
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460D80
 u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -137,19 +141,20 @@ u8 *sdkOtQueueDrawObject(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 /* Queues a command-six clump payload used by field resource clump drawing. */
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460E80
 u8 *sdkOtQueueClump(u8 *list, s32 stateId)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -172,19 +177,20 @@ u8 *sdkOtQueueClump(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 /* Queues the command-seven clump payload used by FldResource_QueueDrawCallbacksPrimary. */
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00460F80
 u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -207,19 +213,20 @@ u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 /* Queues the command-eight clump payload used by FldResource_QueueDrawCallbacksSecondary. */
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00461080
 u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -242,19 +249,20 @@ u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 // Intent: Queue a node (command 9) whose callback is the sky-state entry routine [inferred]
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00461180
 u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -265,7 +273,7 @@ u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)node)->command = 9;
     ((OtPrimitiveNode *)node)->primitive = stateId;
-    *(u32 *)(node + 0x8) = (u32)movieNativeSkyStateEnter;
+    *(u32 *)&((OtPrimitiveNode *)node)->callback = (u32)movieNativeSkyStateEnter;
     ((OtPrimitiveNode *)node)->callbackData = 0;
     tail = list;
     if (list == 0) {
@@ -279,19 +287,20 @@ u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }
 
 
 /* Queues the command-ten world payload selected by the field resource world path. */
-/* measured: typing the remaining tail stores changes whole-owner instructions; retain byte-pointer stores after the next-link update. */
+/* measured: direct tail fields change instructions; typed list aliases retain the byte-pointer representation stores after updating next. */
 // FUN_00461290
 u8 *sdkOtQueueWorld(u8 *list, s32 stateId)
 {
+    OtPrimitiveNode *typedList = (OtPrimitiveNode *)list;
     u8 *node;
     u8 *tail;
 
@@ -314,9 +323,9 @@ u8 *sdkOtQueueWorld(u8 *list, s32 stateId)
     }
     ((OtPrimitiveNode *)tail)->next = (OtPrimitiveNode *)node;
     if ((u8 *)((OtPrimitiveNode *)node)->tail != 0) {
-        *(u8 **)(list + 4) = (u8 *)((OtPrimitiveNode *)node)->tail;
+        *(u8 **)&typedList->tail = (u8 *)((OtPrimitiveNode *)node)->tail;
     } else {
-        *(u8 **)(list + 4) = node;
+        *(u8 **)&typedList->tail = node;
     }
     return node;
 }

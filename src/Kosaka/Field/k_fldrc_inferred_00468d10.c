@@ -1,3 +1,4 @@
+#include "member_access.h"
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Event/Fcl/fclBankManager.c; members 00468d10-0046a430 */
 
 #include "include_asm.h"
@@ -93,6 +94,32 @@ typedef struct FldArchiveLoadNode {
     s32 cursor;
 } FldArchiveLoadNode;
 
+/* Movie metadata rows have a 0x28-byte stride; dimensions configure CRI and UV bounds. */
+typedef struct MovieDefinition {
+    s16 rasterKind;
+    u8 pad02[2];
+    u8 *path;
+    u8 pad08[4];
+    s32 maxWidth, maxHeight, usesLoopPlayer;
+    u8 pad18[4];
+    s32 fadeEnabled;
+    s16 fadeStartFrame, fadeOutFrames, fadeInFrames, unk26;
+} MovieDefinition;
+typedef char MovieDefinitionSize[sizeof(MovieDefinition) == 0x28 ? 1 : -1];
+/* sdkPak2.c owns this request; the second half of path supplies the registration directory. */
+typedef struct SdkPakRequest {
+    u8 *unk0, *next;
+    s32 state, entryCount, directoryAddress, unk14;
+    s8 path[0x200];
+    s32 handle, headerAddress;
+} SdkPakRequest;
+/* The list provider allocates at +0x10 and resets its count at +0x14. */
+typedef struct MovieResourceList {
+    u8 pad00[0x10];
+    struct RwSList *entries;
+    s32 count;
+} MovieResourceList;
+
 /* Pool metadata precedes the allocation region, in native eight-byte records. */
 typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 
@@ -100,10 +127,11 @@ typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 #pragma opt_propagation on
 #pragma opt_loop_invariants on
 /* Advance queued archive requests ten slots at a time and register their loaded archive entries. */
-/* measured: remaining raw state/entry/request accesses changed codegen even individually (8..488 differing bytes); the archive path remains a byte stream from its native header. */
+/* measured: retained byte-alias state/entry/request accesses changed codegen even individually (8..488 differing bytes); the archive path remains a byte stream from its native header. */
 // FUN_00468D10
 void movieLoadStep(void)
 {
+    SdkPakRequest *archiveRequest;
     extern s32 sdkPakStartEntryLoad(u8 *reader, s32 handleIndex);
     extern s32 func_004c9820(ADXF request);
     extern void *memset(void *dst, s32 value, size_t count);
@@ -133,15 +161,15 @@ void movieLoadStep(void)
                     break;
                 }
             }
-            *(s32 *)(node + 0xC) = 2;
+            MEMBER(s32, node, FldArchiveLoadNode, state) = 2;
             /* fall through */
         case 2:
             phase = 1;
             for (slot = 0; slot < 10; slot++) {
                 if (((FldArchiveLoadNode *)node)->requests[slot] != 0) {
                     if (func_004c9820(*(ADXF *)&((FldArchiveLoadNode *)node)->requests[slot]) == 3) {
-                        func_004c8a60(*(ADXF *)(node + 0x10 + slot * 4));
-                        *(s32 *)(node + 0x10 + slot * 4) = 0;
+                        func_004c8a60(*(ADXF *)(node + MEMBER_OFFSET(FldArchiveLoadNode, requests) + slot * 4));
+                        *(s32 *)(node + MEMBER_OFFSET(FldArchiveLoadNode, requests) + slot * 4) = 0;
                         if (sdkPakStartEntryLoad(node, slot) == 1) {
                             phase = 0;
                         }
@@ -151,7 +179,7 @@ void movieLoadStep(void)
                 }
             }
             if (phase != 0) {
-                *(s32 *)(node + 0xC) = 3;
+                MEMBER(s32, node, FldArchiveLoadNode, state) = 3;
             } else {
                 node = NULL;
                 break;
@@ -161,7 +189,8 @@ void movieLoadStep(void)
             memset(path, 0, 0x100);
             backslash = 0x5C;
             for (character = 0; character < 0x100; character++) {
-                value = *(s8 *)(((FldArchiveLoadNode *)node)->archive + character + 0x118);
+                archiveRequest = (SdkPakRequest *)(((FldArchiveLoadNode *)node)->archive + character);
+                value = archiveRequest->path[0x100];
                 if (value != 0) {
                     path[character] = value;
                 } else {
@@ -177,13 +206,13 @@ void movieLoadStep(void)
             for (phase = 0;
                  phase < ((FldArchiveLoadNode *)node)->endEntry - ((FldArchiveLoadNode *)node)->firstEntry;
                  phase++) {
-                if ((*(s32 **)(node + 0x38))[phase] != 0) {
+                if ((MEMBER(s32 *, node, FldArchiveLoadNode, entries))[phase] != 0) {
                     H_Cdvd_RegisterArchiveEntries((u8 *)path,
-                                  (u8 *)(*(s32 **)(node + 0x38))[phase], 1);
+                                  (u8 *)(MEMBER(s32 *, node, FldArchiveLoadNode, entries))[phase], 1);
                     (((FldArchiveLoadNode *)node)->entries)[phase] += 0x100;
                 }
             }
-            *(s32 *)(node + 0xC) = 4;
+            MEMBER(s32, node, FldArchiveLoadNode, state) = 4;
             break;
         case 4:
             node = *(u8 * *)&((FldArchiveLoadNode *)node)->next;
@@ -320,6 +349,9 @@ extern u32 ourGlobals[4096];
 /* Advance native movie playback, copy decoded frames, apply fades and submit the display quad. */
 // FUN_00468FF0
 void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
+    s32 *movieFadeEnabledColumn;
+    s32 *movieMaxHeightColumn;
+    s32 *movieMaxWidthColumn;
     extern s32 func_003d5fb0(u8 *context);
     extern s32 func_003d6010(u8 *context);
     extern s32 func_003df860(const struct RwSList *context);
@@ -437,21 +469,21 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             work->ownsList = 1;
         }
         if (work->startupTicks == 6) {
-            if (func_003df860(*(struct RwSList **)(D_0070B610 + 0x10)) != 0) {
+            if (func_003df860(((MovieResourceList *)D_0070B610)->entries) != 0) {
                 kAssertFail(D_00712FF8, 0x120);
             }
             func_003d6010(D_0070B610);
         }
         if (work->startupTicks == 0xA) {
             func_00440b68(D_00713010);
-            work->usesLoopPlayer = (*(s32 *)(D_00712C64 + (work->movieIndex * 0x28)));
+            work->usesLoopPlayer = (((s32 *)D_00712C64)[(work->movieIndex) * (0x28 / sizeof(s32))]);
             parameters = &work->parameters;
             memset(parameters, 0, sizeof(*parameters));
             parameters->compo = 0x11;
             parameters->mode = 1;
             parameters->max_bps = 0x4C4B40;
-            parameters->max_width = (*(s32 *)(D_00712C5C + (work->movieIndex * 0x28)));
-            parameters->max_height = (*(s32 *)(D_00712C60 + (work->movieIndex * 0x28)));
+            parameters->max_width = (((s32 *)D_00712C5C)[(work->movieIndex) * (0x28 / sizeof(s32))]);
+            parameters->max_height = (((s32 *)D_00712C60)[(work->movieIndex) * (0x28 / sizeof(s32))]);
             parameters->max_skip = 2;
             parameters->nsec = 1;
             parameters->buffmt = 2;
@@ -486,12 +518,12 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             mwPlySetFrmSync(playerHandle, 0);
             work->player = (void *)(playerHandle);
             if (work->usesLoopPlayer != 0) {
-                H_Cdvd_StartPlayback((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 1);
+                H_Cdvd_StartPlayback((void *)playerHandle, ((u8 * *)D_00712C54)[(work->movieIndex) * (0x28 / sizeof(u8 *))], 1);
             } else {
-                H_Cdvd_StartPlayback((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 0);
+                H_Cdvd_StartPlayback((void *)playerHandle, ((u8 * *)D_00712C54)[(work->movieIndex) * (0x28 / sizeof(u8 *))], 0);
             }
             chkmemSetLock(1);
-            rasterKind = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28)));
+            rasterKind = (((MovieDefinition *)D_00712C50)[work->movieIndex].rasterKind);
             switch (rasterKind) {
             case 0:
                 work->raster = RwRasterCreate(0x280, 0x1C0, 0x20, 0x584);
@@ -509,12 +541,12 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             for (; vertexIndex < 4; vertexIndex++) {
                 work->vertices[vertexIndex].u.els.scrVertex.z = ((MovieEnginePrefix *)ourGlobals)->device.zBufferNear;
                 work->vertices[vertexIndex].u.els.recipZ = initialReciprocalZ;
-                if ((*(s32 *)(D_00712C50 + (work->movieIndex * 0x28) + (0x1C))) != 0) {
+                if ((((MovieDefinition *)D_00712C50)[work->movieIndex].fadeEnabled) != 0) {
                     work->vertices[vertexIndex].u.els.color.red = 255.0f;
                     work->vertices[vertexIndex].u.els.color.green = 255.0f;
                     work->vertices[vertexIndex].u.els.color.blue = 255.0f;
                     work->vertices[vertexIndex].u.els.color.alpha = 0.0f;
-                    work->field1e6 = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28) + (0x22)));
+                    work->field1e6 = (((MovieDefinition *)D_00712C50)[work->movieIndex].fadeOutFrames);
                     work->field1e8 = 0;
                     work->state = 3;
                 } else {
@@ -528,7 +560,7 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             screenExtent.x = (f32)(((MdlEffectRaster *)(u32)((MdlEffectCamera *)kwlnGetCamera())->raster)->width);
             screenExtent.y = (f32)(((MdlEffectRaster *)(u32)((MdlEffectCamera *)kwlnGetCamera())->raster)->height);
             reciprocalZ = 1.0f / (((MdlEffectCamera *)kwlnGetCamera())->nearPlane);
-            if ((*(s16 *)(D_00712C50 + (work->movieIndex * 0x28))) == 0) {
+            if ((((MovieDefinition *)D_00712C50)[work->movieIndex].rasterKind) == 0) {
                 work->vertices[0].u.els.scrVertex.x = 0;
                 work->vertices[1].u.els.scrVertex.x = 0;
                 work->vertices[2].u.els.scrVertex.x = screenExtent.x;
@@ -558,8 +590,10 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
                 s32 textureWidth = 16;
                 s32 textureHeight = 16;
             recordOffset = work->movieIndex * 0x28;
-            neededWidth = (*(s32 *)(D_00712C5C + recordOffset)) + 1;
-            neededHeight = (*(s32 *)(D_00712C60 + recordOffset)) + 1;
+            movieMaxHeightColumn = (s32 *)((u8 *)D_00712C60 + recordOffset);
+            movieMaxWidthColumn = (s32 *)((u8 *)D_00712C5C + recordOffset);
+            neededWidth = (*movieMaxWidthColumn) + 1;
+            neededHeight = (*movieMaxHeightColumn) + 1;
             while (neededWidth > textureWidth) {
                 textureWidth *= 2;
             }
@@ -609,9 +643,13 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             iGpffffbaf8 = frame.frameNumber;
             if (work->state == 4) {
                 recordOffsetB = work->movieIndex * 0x28;
-                if ((*(s32 *)(D_00712C6C + recordOffsetB) != 0) && (frame.frameNumber >= (*(s16 *)(D_00712C70 + recordOffsetB)))) {
-                    work->fadeOutFrames = 0;
-                    work->state = 5;
+                movieFadeEnabledColumn = (s32 *)((u8 *)D_00712C6C + recordOffsetB);
+                if (*movieFadeEnabledColumn != 0) {
+                    s16 *fadeStartFrame = (s16 *)(D_00712C70 + recordOffsetB);
+                    if (frame.frameNumber >= *fadeStartFrame) {
+                        work->fadeOutFrames = 0;
+                        work->state = 5;
+                    }
                 }
             }
             work->width = frame.width;
@@ -623,14 +661,14 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
             iGpffffbae8 = (u32)((u32) (u32)work->imageBuffer);
             work->frame = frame;
             if (work->state == 3) {
-                if ((*(s16 *)(D_00712C74 + (work->movieIndex * 0x28))) == 0) {
+                if ((((s16 *)D_00712C74)[(work->movieIndex) * (0x28 / sizeof(s16))]) == 0) {
                     fadeInAlpha = 0xFF;
                     work->state = 4;
                 } else {
                     fadeInNext = work->fadeInFrames + 1;
                     work->fadeInFrames = fadeInNext;
                     movieId = work->movieIndex;
-                    if (fadeInNext == (*(s16 *)(D_00712C74 + (movieId * 0x28)))) {
+                    if (fadeInNext == (((s16 *)D_00712C74)[(movieId) * (0x28 / sizeof(s16))])) {
                         switch (movieId) {
                         case 4:
                         case 16:
@@ -649,7 +687,7 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
                         }
                         work->state = 4;
                     }
-                    fadeInAlpha = ((work->fadeInFrames * 0xFF) / (*(s16 *)(D_00712C74 + (work->movieIndex * 0x28)))) & 0xFF;
+                    fadeInAlpha = ((work->fadeInFrames * 0xFF) / (((s16 *)D_00712C74)[(work->movieIndex) * (0x28 / sizeof(s16))])) & 0xFF;
                 }
                 fadeInVertex = 0;
                 for (; fadeInVertex < 4; fadeInVertex++) {
@@ -664,7 +702,7 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
                 u32 fadeOutAlpha;
                 fadeOutNext = work->fadeOutFrames + 1;
                 work->fadeOutFrames = fadeOutNext;
-                fadeOutLength = (*(s16 *)(D_00712C72 + (work->movieIndex * 0x28)));
+                fadeOutLength = (((s16 *)D_00712C72)[(work->movieIndex) * (0x28 / sizeof(s16))]);
                 fadeOutAlpha = (0xFF - (((s32) (fadeOutNext * 0xFF) / fadeOutLength) & 0xFF)) & 0xFF;
                 if (fadeOutNext >= fadeOutLength) {
                     work->state = 6;
@@ -834,38 +872,41 @@ movieComplete:
 #pragma opt_propagation on
 #pragma opt_loop_invariants reset
 /* Release decoder, image and raster resources, then return movie work to its allocation pool. */
-/* measured: remaining raw player reads/resource clears changed codegen individually (41..186 differing bytes); keep byte-pointer aliasing across release calls. */
+/* measured: retained byte-alias player reads/resource clears changed codegen individually (41..186 differing bytes); keep byte-pointer aliasing across release calls. */
 // FUN_0046A020
 void mwPlayerTaskDestroy(u8 *task)
 {
+    MovieNativeWork *movieWork;
     u8 *work;
 
     work = ((KwlnTask *)task)->work;
+
+    movieWork = (MovieNativeWork *)work;
     if (*(s32 *)&((MovieNativeWork *)work)->player != 0) {
         if (((MovieNativeWork *)work)->usesLoopPlayer != 0) {
             mwPlyReleaseLp(*(s32 *)&((MovieNativeWork *)work)->player);
         }
-        func_005097e8(*(s32 *)(work + 4));
-        *(s32 *)(work + 4) = 0;
+        func_005097e8((s32)(movieWork->player));
+        movieWork->player = 0;
     }
     if (*(s32 *)&((MovieNativeWork *)work)->decoderWorkAddress != 0) {
         jtbl_008873EC[0]((void *)*(s32 *)&((MovieNativeWork *)work)->decoderWorkAddress);
-        *(s32 *)(work + 0x1E0) = 0;
+        movieWork->decoderWorkAddress = 0;
     }
     if (*(s32 *)&((MovieNativeWork *)work)->imageBuffer != 0) {
         jtbl_008873EC[0]((void *)*(s32 *)&((MovieNativeWork *)work)->imageBuffer);
-        *(s32 *)(work + 0x200) = 0;
+        movieWork->imageBuffer = 0;
         iGpffffbae8 = 0;
     }
     if (*(s32 *)&((MovieNativeWork *)work)->raster != 0) {
         RwRasterDestroy(((MovieNativeWork *)work)->raster);
-        *(s32 *)(work + 0xD0) = 0;
+        movieWork->raster = 0;
     }
     if (((MovieNativeWork *)work)->field1f4 == 0) {
         iGpffffbaec = 0;
     }
     if (((MovieNativeWork *)work)->ownsList != 0) {
-        *(s32 *)(work + 0x1FC) = 0;
+        movieWork->ownsList = 0;
         func_003d5fb0(D_0070B610);
     }
     poolFree((u32)work);
@@ -1030,6 +1071,7 @@ extern char D_00713078[], D_00713088[], D_007130A0[];
 extern char D_00756758[], D_00756748[], D_00756730[], D_00756720[];
 /* Inline overlap search preserves retail's early-return branches.
    The metadata table and count are reloaded on each retry. */
+/* Return the end of an overlapping movie-pool allocation, or the candidate unchanged. */
 static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
 {
     u32 i;

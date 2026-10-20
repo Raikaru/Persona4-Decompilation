@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_camera_framing_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -8,11 +9,6 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 
-/* Preserve source operand order in the camera's height products. */
-static inline f32 p4_cacd0_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
@@ -86,35 +82,10 @@ extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
-static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
-{
-    return first * second + third;
-}
-static inline void func_001c_copy_pair(s64 *first, f32 *second,
-                                       s64 *third, f32 *fourth)
-{
-    s64 pair;
-    f32 value;
-
-    pair = *third;
-    value = *fourth;
-    *first = pair;
-    *second = value;
-}
-static inline void func_001c_rotate(RwMatrix *first, const RwV3d *second,
-                                    f32 third, s32 fourth)
-{
-    RwMatrixRotate(first, second, third, fourth);
-}
 
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
 
-static inline f32 cameraSideRadius(f32 first, f32 second)
-{
-    if (first > second) return first;
-    return second;
-}
 
 /* Source unit: src/promoted/code1_001c.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c04e0-001c09a0 */
@@ -123,8 +94,8 @@ static inline f32 cameraSideRadius(f32 first, f32 second)
 // FUN_001C04E0
 void btlCameraFrameActionSide(u8 *camera)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
@@ -166,13 +137,13 @@ void btlCameraFrameActionSide(u8 *camera)
     f32 distance;
     f32 projection;
 
-    action = *(u8 **)(camera + 0xE0);
+    action = MEMBER(u8 *, camera, BtlCamera, action);
     unit = (u8*)((BtlAction *)action)->unit;
-    unit2 = (u8*)((BtlAction *)*(u8 **)(action + 0x38))->unit;
+    unit2 = (u8*)((BtlAction *)((BtlAction *)(action))->targets[0])->unit;
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &center1);
     btlUnitGetSphereWorldCenter((BtlUnit *)unit2, &center2);
-    radius1 = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
-    radius2 = *(f32 *)(unit2 + 0x90) * *(f32 *)(unit2 + 0x2C);
+    radius1 = MEMBER(f32, unit, BtlUnit, sphereRadius) * MEMBER(f32, unit, BtlUnit, scale);
+    radius2 = MEMBER(f32, unit2, BtlUnit, sphereRadius) * MEMBER(f32, unit2, BtlUnit, scale);
     direction.x = center1.x - center2.x;
     direction.y = center1.y - center2.y;
     direction.z = center1.z - center2.z;
@@ -206,7 +177,7 @@ void btlCameraFrameActionSide(u8 *camera)
     horizontal[0] = direction.z;
     horizontal[1] = -direction.x;
     eyeY = eyeBase.y;
-    position.y = 0.0f + eyeY + fGpffff8030 * (((BtlUnit *)unit)->unk_8c * *(f32 *)(unit + 0x2C));
+    position.y = 0.0f + eyeY + fGpffff8030 * (((BtlUnit *)unit)->unk_8c * MEMBER(f32, unit, BtlUnit, scale));
     dot2 = horizontal[0] * horizontal[2] + horizontal[1] * horizontal[3];
     if (!(dot2 < 0.0f)) {
         position.x = 0.0f + eyeBase.x + horizontal[0] * offset;
@@ -242,9 +213,9 @@ void btlCameraFrameActionSide(u8 *camera)
     btlCameraCopyPoseSnapshot((f32 *)(camera + 0x9C), (f32 *)&frame);
     btlCameraBuildPosePair(camera, &frame, &adjusted);
     btlMainCurveReset((u16 *)camera, (f32 *)&adjusted);
-    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
+    btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
                   3);
-    radius1 = cameraSideRadius(radius1, radius2);
+    radius1 = btlCameraMaxRadius(radius1, radius2);
     btlCameraSetupActionGeometry((u8*)((BtlCamera *)camera)->action, (u8 *)&center1, (f32 *)&center2, radius1, 3);
 }
 

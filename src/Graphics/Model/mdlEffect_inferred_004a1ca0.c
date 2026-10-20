@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
@@ -18,10 +19,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
@@ -145,10 +142,10 @@ void mdlEffectBuildWindFadeRows(u8 *instance, u8 *parameters)
     meshCount = ((MdlEffectWindParameters *)parameters)->meshCount;
     if (meshCount != 0) {
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)*(u8 **)(instance + 4))->model)->geometry;
+        geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)MEMBER(u8 *, instance, MdlEffectWindWork, geometry))->model)->geometry;
         RpGeometryLock((RpGeometry *)geometry, 0xFF8);
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)*(u8 **)(instance + 4))->model)->geometry;
+        geometry = (u8 *)((RpAtomic *)((MdlEffectMultipartGeometry *)MEMBER(u8 *, instance, MdlEffectWindWork, geometry))->model)->geometry;
         colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
         verticesBase = (u8 *)((RpGeometry *)geometry)->texCoords[0];
@@ -170,12 +167,12 @@ void mdlEffectBuildWindFadeRows(u8 *instance, u8 *parameters)
             }
             ((u32 *)colors)[0] = 0xFFFFFF;
             /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            *(u32 *)(colors + 4) = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
+            MEMBER(u32, colors, MdlEffectWindColorRow, colors[1]) = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
             ((PolygonWindColor *)colors)[2] = ((PolygonWindColor *)colors)[1];
             ((u32 *)colors)[3] = 0xFFFFFF;
             colors += 0x10;
             /* The first texture coordinate is initialized through its integer zero bit pattern; retain that representation. */
-            *(u32 *)(vertices + 0) = 0;
+            ((u32 *)vertices)[0] = 0;
             ((f32 *)vertices)[2] = step;
             ((f32 *)vertices)[4] = step * 2.0f;
             ((f32 *)vertices)[6] = step * 3.0f;

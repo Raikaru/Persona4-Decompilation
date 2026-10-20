@@ -6,17 +6,10 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "fcl_assist_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-static inline s32 p4_pack_or(s32 left, s32 right)
-{
-    return left | right;
-}
-static inline f32 p4_mul_left(f32 left, f32 right)
-{
-    return right * left;
-}
 
 
 
@@ -296,6 +289,7 @@ void fclMesWindowDrawItemCategory(f32 inputDepth, s16 item, s32 x, s32 y,
 }
 
 #pragma pop
+/* Draw an item using the signed-byte table selector and standard entry flag. */
 // FUN_002BC7A0
 void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                     s32 color, s32 font, s32 mode, s32 table)
@@ -327,6 +321,7 @@ void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
 // FUN_002BC890
 s32 fclMiscAttachSlot(u8 *manager, s32 slotIndex)
 {
+    FclAssistManager *managerFields = (FclAssistManager *)manager;
     s32 flags;
     u8 *slot;
     u8 *indexedSlot;
@@ -345,16 +340,16 @@ invalid_arg:
 valid_arg:
     indexedSlot = manager + (slotIndex * 0xC);
     slot = indexedSlot + 0x1C;
-    flags = *(s32 *)slot;
+    flags = ((FclAssistSlot *)slot)->flags;
     if (!(flags & 2)) {
-        node = *(u8 **)(*(u8 **)(manager + 0x18) + 4);
+        node = (u8 *)((FclAssistManager *)manager)->pending->head;
         goto loop_test;
 loop_body:
-        entry = *(u8 **)(node + 0x14);
-        if (*(s32 *)(entry + 4) == slotIndex) {
+        entry = ((FclAssistNode *)node)->data;
+        if (((FclAssistSlot *)entry)->index == slotIndex) {
             owner = entry;
         } else {
-            node = *(u8 **)(node + 0x10);
+            node = (u8 *)((FclAssistNode *)node)->next;
 loop_test:
             if (node != NULL) {
                 goto loop_body;
@@ -364,15 +359,15 @@ loop_test:
         goto loop_done;
 loop_done:
         if (owner == NULL) {
-            *(s32 *)(slot + 4) = slotIndex;
-            list = *(u8 **)(manager + 0x18);
-            newNode = nmListAppendNode(list, *(u16 *)(list + 0x10) + 1, 0);
+            ((FclAssistSlot *)slot)->index = slotIndex;
+            list = (u8 *)managerFields->pending;
+            newNode = nmListAppendNode(list, ((FclAssistList *)list)->count + 1, 0);
             if (newNode == NULL) kAssertFail(&D_007488E8, 0x52);
-            *(u8 **)(newNode + 0x14) = slot;
+            ((FclAssistNode *)newNode)->data = slot;
             return 1;
         }
     }
-    if (flags & 4) *(s32 *)slot = flags & ~4;
+    if (flags & 4) ((FclAssistSlot *)slot)->flags = flags & ~4;
     return 0;
 }
 
@@ -382,6 +377,8 @@ loop_done:
 // FUN_002BC9E0
 s32 fclMiscUpdateSlots(u8 *manager)
 {
+    FclAssistManager *managerFields = (FclAssistManager *)manager;
+    FclAssistSlot *pendingSlotFields;
     u8 path[0x20];
     s32 flags;
     s32 retiringFlags;
@@ -397,22 +394,23 @@ s32 fclMiscUpdateSlots(u8 *manager)
     if (manager == NULL) {
         kAssertFail(&D_0063F2A0, 0x558);
     }
-    pendingNode = *(u8 **)(*(u8 **)(manager + 0x18) + 4);
+    pendingNode = (u8 *)((FclAssistManager *)manager)->pending->head;
     if (pendingNode != NULL) {
-        pendingSlot = *(u8 **)(pendingNode + 0x14);
-        sprite = *(s32 *)(pendingSlot + 8);
+        pendingSlot = ((FclAssistNode *)pendingNode)->data;
+    pendingSlotFields = (FclAssistSlot *)pendingSlot;
+        sprite = ((FclAssistSlot *)pendingSlot)->sprite;
         if (sprite == 0) {
-            if (*(s32 *)(pendingSlot + 4) == 0) {
+            if (((FclAssistSlot *)pendingSlot)->index == 0) {
                 sprintf(path, &D_0063F340);
             } else if ((calGetDayWindowFlags((s16)datGetDateIndex()) & 1) != 0) {
-                sprintf(path, &D_0063F360, *(s32 *)(pendingSlot + 4));
+                sprintf(path, &D_0063F360, pendingSlotFields->index);
             } else {
-                sprintf(path, &D_0063F380, *(s32 *)(pendingSlot + 4));
+                sprintf(path, &D_0063F380, MEMBER(s32, pendingSlot, FclAssistSlot, index));
             }
-            *(s32 *)(pendingSlot + 8) = sdkSpriteRequestLoad(path);
+            MEMBER(s32, pendingSlot, FclAssistSlot, sprite) = sdkSpriteRequestLoad(path);
         } else if (hMaestroDecodeIsReady(sprite) != 0) {
-            *(s32 *)(pendingSlot + 0) = *(s32 *)(pendingSlot + 0) | 2;
-            list = *(u8 **)(manager + 0x18);
+            ((FclAssistSlot *)pendingSlot)->flags = ((FclAssistSlot *)pendingSlot)->flags | 2;
+            list = (u8 *)managerFields->pending;
             comuDataRemoveAndReleaseNode(list, list + 4, pendingNode);
         }
     }
@@ -420,21 +418,21 @@ s32 fclMiscUpdateSlots(u8 *manager)
     slotIndex = 0;
     goto loop_19;
 loop_20:
-    flags = *(s32 *)slot;
+    flags = ((FclAssistSlot *)slot)->flags;
     if (flags & 4) {
-        loadedSprite = *(s32 *)(slot + 8);
+        loadedSprite = ((FclAssistSlot *)slot)->sprite;
         if (loadedSprite != 0) {
             if (hMaestroDecodeIsReady(loadedSprite) != 0) {
-                retiringFlags = *(s32 *)slot & ~4;
-                *(s32 *)slot = retiringFlags;
-                *(s32 *)slot = retiringFlags & ~2;
-                sdkSpriteRelease(*(void **)(slot + 8));
-                *(s32 *)(slot + 8) = 0;
+                retiringFlags = ((FclAssistSlot *)slot)->flags & ~4;
+                ((FclAssistSlot *)slot)->flags = retiringFlags;
+                ((FclAssistSlot *)slot)->flags = retiringFlags & ~2;
+                sdkSpriteRelease(MEMBER(void *, slot, FclAssistSlot, sprite));
+                MEMBER(s32, slot, FclAssistSlot, sprite) = 0;
             }
         } else {
             emptyFlags = flags & ~4;
-            *(s32 *)slot = emptyFlags;
-            *(s32 *)slot = emptyFlags & ~2;
+            ((FclAssistSlot *)slot)->flags = emptyFlags;
+            ((FclAssistSlot *)slot)->flags = emptyFlags & ~2;
         }
     }
     slot += 0xC;

@@ -1,3 +1,4 @@
+#include "scr_data_internal.h"
 #include "scene_task_internal.h"
 #include "Kosaka/k_field_state_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -196,8 +197,7 @@ s32 Cmd_GetNearestEntryFacing(void) {
 
 /* P4 flowscript library (build/p4flow/Field.json, index 0x1028): FLD_EFFECT_TRAESTO_START(), no parameters. Creates the transition task and waits for it. */
 /* Start the transition task once, then wait until the scheduler unlinks it. */
-/* The script context's +148 task tail has no shared layout; ScrData remains privately defined in
- * scrTraceCode.c and does not describe this tail. */
+/* The scheduler handle belongs to the canonical script work, not a separate command allocation. */
 // FUN_001786F0
 s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
 {
@@ -207,13 +207,13 @@ s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
     context = scrGetContext();
     transitionTask = scrGetAiState();
     if (transitionTask == 0) {
-        scrSetTaskProc(*(s32 *)(context + 0x148), FldRc_CreateTransitionTask(0, 1));
+        scrSetTaskProc(((ScrScriptWork *)context)->taskId, FldRc_CreateTransitionTask(0, 1));
         return 0;
     }
     if (kwlnTaskIsLinked(transitionTask) == 1) {
         return 0;
     }
-    scrSetTaskProc(*(s32 *)(context + 0x148), 0);
+    scrSetTaskProc(((ScrScriptWork *)context)->taskId, 0);
     return 1;
 }
 
@@ -256,8 +256,7 @@ s32 Cmd_PickEncounter(void)
 }
 
 /* Set the sequence status from the current script context and append its two operands. */
-/* The script context's +124 status word has no shared layout; retain this access rather than introducing an
- * incompatible second ScrData definition. */
+/* This command forwards the script's message/status word without dereferencing it. */
 // FUN_001788E0
 s32 Cmd_StartFieldSequence(void)
 {
@@ -267,7 +266,7 @@ s32 Cmd_StartFieldSequence(void)
     sequenceId = scrGetParamInt(0);
     value = scrGetParamInt(1);
     fclMiscOrStateFlags(1);
-    fclMiscSetStatusCode(*(s32 *)(scrGetContext() + 0x124));
+    fclMiscSetStatusCode(((ScrScriptWork *)scrGetContext())->statusCode);
     fclMiscAddRecord(sequenceId, value, 0, 0);
     return 1;
 }

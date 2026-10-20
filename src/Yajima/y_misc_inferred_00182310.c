@@ -1,5 +1,5 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Kernel/Kwln/kwln.c; members 00182310-001852f0 */
-
+#include "member_access.h"
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
 #include "sdk_dbprt.h"
@@ -181,8 +181,8 @@ extern u8 *iGpffff9db0;
 extern s32 iGpffffb884;
 #pragma push
 #pragma opt_loop_invariants on
-// FUN_00182310
 /* Broadcast a pause value to the linked chaser/patrol task of each occupied, active actor slot. */
+// FUN_00182310
 void FldSlotBroadcastState(s32 state)
 {
     s32 slotIndex;
@@ -237,7 +237,8 @@ typedef struct {
 
 /* Plays the ambient cue for slot `id` and advances that slot's four-step
    variation counter.  Inlined into every trigger arm of FldAmbientTrigger. */
-static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
+/* Play an ambient cue and cycle the slot through four sound variations. */
+static inline void fldPlayAmbientCue(u16 id, s16 bank, s32 base)
 {
     extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
     extern s32 D_007F1760[];
@@ -251,8 +252,8 @@ static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 
 #pragma push
 #pragma opt_loop_invariants off
-// FUN_001823D0
 /* Select an ambient surface cue from the containing area quad and trigger it at the actor animation footfall frames. */
+// FUN_001823D0
 void FldAmbientTrigger(s32 model, u16 mode, u16 id)
 {
     extern u8 *MT_Scene_GetResListHead(s32 resourceType);
@@ -312,17 +313,17 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
         if (motionState == 9) {
             if (animation == FldMoveAnimPrimary(mode)) {
                 if ((animationFrame > 7.0f && animationFrame < 8.0f) || (animationFrame > 21.0f && animationFrame < 22.0f)) {
-                    func_001823d0_play(id, 1, area * 4);
+                    fldPlayAmbientCue(id, 1, area * 4);
                 }
             } else if (animation == FldMoveAnimSecondary(mode)) {
                 if ((animationFrame > 9.0f && animationFrame < 10.0f) || (animationFrame > 19.0f && animationFrame < 20.0f)) {
-                    func_001823d0_play(id, 1, area * 4);
+                    fldPlayAmbientCue(id, 1, area * 4);
                 }
             }
         } else if (motionState == 1) {
             if (animation == FldMoveAnimSecondary(mode)) {
                 if ((animationFrame > 9.0f && animationFrame < 10.0f) || (animationFrame > 19.0f && animationFrame < 20.0f)) {
-                    func_001823d0_play(id, 1, area * 4);
+                    fldPlayAmbientCue(id, 1, area * 4);
                 }
             }
         }
@@ -333,7 +334,7 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
                                         &((RainMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos, 1600.0f) != 0 &&
             animation == FldMoveAnimSecondary(mode)) {
             if ((animationFrame > 8.0f && animationFrame < 9.0f) || (animationFrame > 18.0f && animationFrame < 19.0f)) {
-                func_001823d0_play(id, 2, 0x18);
+                fldPlayAmbientCue(id, 2, 0x18);
             }
         }
         break;
@@ -343,7 +344,7 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
                                         &((RainMatrix *)mdlGetMatrix(D_007EFA00[0]))->pos, 1600.0f) != 0 &&
             animation == FldMoveAnimSecondary(mode)) {
             if ((animationFrame > 8.0f && animationFrame < 9.0f) || (animationFrame > 18.0f && animationFrame < 19.0f)) {
-                func_001823d0_play(id, 2, area * 4);
+                fldPlayAmbientCue(id, 2, area * 4);
             }
         }
         break;
@@ -354,8 +355,8 @@ void FldAmbientTrigger(s32 model, u16 mode, u16 id)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
-// FUN_00182B40
 /* Install the depth, shade and blend states used for the rain PTank draw. */
+// FUN_00182B40
 void FldRainRenderStateSet(void)
 {
     void (**fn)(s32, s32);
@@ -381,6 +382,7 @@ void FldRainRenderStateSet(void)
 /* PTank plugin slots use a runtime offset; fixed frame, texture, material and strided-lock fields are typed. */
 s32 FldRainUpdate(u8 *task)
 {
+    FldRainWork *rainWork;
     extern s32 kwlnGetCamera(void);
     extern RainMatrix *func_003e9700(struct RwFrame *frame);
     extern u32 RpRandom(void);
@@ -431,6 +433,7 @@ s32 FldRainUpdate(u8 *task)
     s32 jitterDirection;
 
     work = ((KwlnTask *)task)->work;
+    rainWork = (FldRainWork *)work;
     if (((FldRainWork *)work)->paused != 0) {
         return 0;
     }
@@ -449,98 +452,69 @@ s32 FldRainUpdate(u8 *task)
         columnsNeeded = ((FldRainWork *)work)->spanX / ((FldRainWork *)work)->spacing;
         ((FldRainWork *)work)->columnCount = (s32)columnsNeeded;
         /* measured: typing each retained access on this line loses owner MATCH. */
-        if (!((((FldRainWork *)work)->spanX / ((FldRainWork *)work)->spacing) <= (f32)*(s32 *)(work + 0x34))) {
+        if (!((((FldRainWork *)work)->spanX / ((FldRainWork *)work)->spacing) <= (f32)MEMBER(s32, work, FldRainWork, columnCount))) {
             /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s32 *)(work + 0x34) = *(s32 *)(work + 0x34) + 1;
+            rainWork->columnCount = MEMBER(s32, work, FldRainWork, columnCount) + 1;
         }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        *(s32 *)(work + 0x34) = *(s32 *)(work + 0x34) + 1;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldRainWork *)work)->dropCount = *(s32 *)(work + 0x34) * 8;
+        rainWork->columnCount = ((FldRainWork *)work)->columnCount + 1;
+        ((FldRainWork *)work)->dropCount = ((FldRainWork *)work)->columnCount * 8;
         cosf(fGpffff815c);
         ((FldRainWork *)work)->unk60 = 0;
         ((FldRainWork *)work)->verticalSpeed = ((FldRainWork *)work)->speed * sinf(fGpffff815c);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldRainWork *)work)->scale.x = ((FldRainWork *)work)->scale.y = ((FldRainWork *)work)->scale.z = *(f32 *)(work + 0x20);
+        ((FldRainWork *)work)->scale.x = ((FldRainWork *)work)->scale.y = ((FldRainWork *)work)->scale.z = rainWork->spacing;
         chkmemAllocSiteTag(D_005F1D80, 0x9D);
         allocator = (uintptr_t)D_008873F4;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldRainWork *)work)->drops.bytes = (*(RainAllocate *)allocator)(*(s32 *)(work + 0x40), 0x10, 0x40000);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        for (columnIndex = 0; columnIndex < *(s32 *)(work + 0x40); columnIndex++) {
+        ((FldRainWork *)work)->drops.bytes = (*(RainAllocate *)allocator)(rainWork->dropCount, 0x10, 0x40000);
+        for (columnIndex = 0; columnIndex < rainWork->dropCount; columnIndex++) {
             u8 *dropStorage;
             void *motion;
             chkmemAllocSiteTag(D_005F1D80, 0xA2);
             motion = (*(RainAllocate *)allocator)(((FldRainWork *)work)->trailLength, 8, 0x40000);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            dropStorage = *(u8 **)(work + 0x5C) + columnIndex * 0x10;
+            dropStorage = rainWork->drops.bytes + columnIndex * 0x10;
             ((RainDrop *)dropStorage)->motion = motion;
         }
         chkmemAllocSiteTag(D_005F1D80, 0xA6);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldRainWork *)work)->columnTimers.bytes = (*(RainAllocate *)allocator)(*(s32 *)(work + 0x34), 4, 0x40000);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        for (timerIndex = 0; timerIndex < *(s32 *)(work + 0x34); timerIndex++) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            ((s32 *)*(u8 **)(work + 0x38))[timerIndex] = (s32)(RpRandom() % (u32)((FldRainWork *)work)->spawnInterval);
+        ((FldRainWork *)work)->columnTimers.bytes = (*(RainAllocate *)allocator)(rainWork->columnCount, 4, 0x40000);
+        for (timerIndex = 0; timerIndex < rainWork->columnCount; timerIndex++) {
+            ((s32 *)rainWork->columnTimers.bytes)[timerIndex] = (s32)(RpRandom() % (u32)((FldRainWork *)work)->spawnInterval);
         }
         ((FldRainWork *)work)->intervalJitter = (s32)(fGpffff8198 * (f32)(u32)((FldRainWork *)work)->spawnInterval);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        if (*(s32 *)(work + 0x3C) == 0) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s32 *)(work + 0x3C) = 1;
+        if (rainWork->intervalJitter == 0) {
+            rainWork->intervalJitter = 1;
         }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldRainWork *)work)->atomic.atomic = func_003a2340(*(s32 *)(work + 0x40) * ((FldRainWork *)work)->trailLength, 0x2008000A, 0);
+        ((FldRainWork *)work)->atomic.atomic = func_003a2340(rainWork->dropCount * ((FldRainWork *)work)->trailLength, 0x2008000A, 0);
         ((FldRainWork *)work)->frame.frame = func_003e9320();
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.at.z = 1.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.up.y = 1.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.right.x = 1.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.up.x = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.right.z = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.right.y = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.at.y = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.at.x = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.up.z = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.pos.z = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.pos.y = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)(*(u8 **)(work + 0x0C)))->modelling.pos.x = 0.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((RwFrame *)*(u8 **)(work + 0x0C))->modelling.flags |= 0x20003;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        RpAtomicSetFrame(*(struct RpAtomic **)(work + 8), *(struct RwFrame **)(work + 0x0C));
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.at.z = 1.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.up.y = 1.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.right.x = 1.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.up.x = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.right.z = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.right.y = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.at.y = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.at.x = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.up.z = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.pos.z = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.pos.y = 0.0f;
+        ((RwFrame *)(rainWork->frame.bytes))->modelling.pos.x = 0.0f;
+        ((RwFrame *)rainWork->frame.bytes)->modelling.flags |= 0x20003;
+        RpAtomicSetFrame(rainWork->atomic.atomic, rainWork->frame.frame);
         /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
-        ((RpPTankAtomicExtPrv *)(*(u8 **)(*(u8 **)(work + 8) + iGpffffb610)))->instanceFlags |= 0x800000;
+        ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->instanceFlags |= 0x800000;
         /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
-        ((RpPTankAtomicExtPrv *)(*(u8 **)(*(u8 **)(work + 8) + iGpffffb610)))->activeCount = 0;
+        ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->activeCount = 0;
         /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
-        ((RpPTankAtomicExtPrv *)(*(u8 **)(*(u8 **)(work + 8) + iGpffffb610)))->unkB4 = 1;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        func_003a2950(*(struct RpAtomic **)(work + 8), 1, 0x44);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        func_003a2950(*(struct RpAtomic **)(work + 8), 2, 0x717FB);
+        ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->unkB4 = 1;
+        func_003a2950(rainWork->atomic.atomic, 1, 0x44);
+        func_003a2950(rainWork->atomic.atomic, 2, 0x717FB);
         {
             u8 *texture;
             texture = (u8 *)func_003ef650(func_003ef6d0(), (const char *)(D_005F1D10 + ((FldRainWork *)work)->textureIndex * 0x18));
             ((RwTexture *)texture)->filterAddressing = (((RwTexture *)texture)->filterAddressing & ~0xFF) | 2;
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            func_003c42b0(*((struct RpAtomic *)*(u8 **)(work + 8))->geometry->materials, (RwTexture *)texture);
+            func_003c42b0(*((struct RpAtomic *)rainWork->atomic.bytes)->geometry->materials, (RwTexture *)texture);
             /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
-            memcpy(((RpPTankAtomicExtPrv *)*(u8 **)(*(u8 **)(work + 8) + iGpffffb610))->unkE0, D_005F1D70, 0x10);
+            memcpy(((RpPTankAtomicExtPrv *)((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0])->unkE0, D_005F1D70, 0x10);
             /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
-            ((RpPTankAtomicExtPrv *)(*(u8 **)(*(u8 **)(work + 8) + iGpffffb610)))->instanceFlags |= 0x80000;
+            ((RpPTankAtomicExtPrv *)(((u8 **)(rainWork->atomic.bytes + iGpffffb610))[0]))->instanceFlags |= 0x80000;
             ((FldRainWork *)work)->matrix.matrix = func_003e0f80();
         }
         ((FldRainWork *)work)->state = ((FldRainWork *)work)->state + 1;
@@ -577,8 +551,7 @@ s32 FldRainUpdate(u8 *task)
                     halfSpacing = (s32)(((FldRainWork *)work)->spacing / 2.0f);
                     freeDrop->active = 1;
                     freeDrop->count = (s32)(RpRandom() % (u32)((FldRainWork *)work)->trailLength) + 1;
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    spacing = *(f32 *)(work + 0x20);
+                    spacing = rainWork->spacing;
                     freeDrop->x = (f32)columnIndex * spacing + (f32)(RpRandom() % (u32)halfSpacing) - spacing / 4.0f;
                 }
                 jitter = RpRandom() % (u32)(((FldRainWork *)work)->intervalJitter + 1);
@@ -587,26 +560,24 @@ s32 FldRainUpdate(u8 *task)
                 } else {
                     jitterDirection = -1;
                 }
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((s32 *)*(u8 **)(work + 0x38))[columnIndex] = ((FldRainWork *)work)->spawnInterval + (s32)(jitter * jitterDirection);
+                ((s32 *)rainWork->columnTimers.bytes)[columnIndex] = ((FldRainWork *)work)->spawnInterval + (s32)(jitter * jitterDirection);
             } else {
                 *columnTimer = spawnTimer - 1;
             }
         }
         func_003a2770(((FldRainWork *)work)->atomic.atomic, &matrixLock, 8, 0x40000000);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        func_003a2770(*(struct RpAtomic **)(work + 8), &colorLock, 2, 0x40000000);
+        func_003a2770(rainWork->atomic.atomic, &colorLock, 2, 0x40000000);
         ((FldRainWork *)work)->particleCount = 0;
         for (dropIndex = 0; dropIndex < ((FldRainWork *)work)->dropCount; dropIndex++) {
             RainDrop *drop;
             /* measured: typing each retained access on this line loses owner MATCH. */
-            drop = *(RainDrop **)(work + 0x5C);
+            drop = MEMBER(RainDrop *, work, FldRainWork, drops.drops);
             if (drop[(u32)dropIndex].active == 0) {
                 continue;
             }
             trailIndex = 0;
             /* measured: typing each retained access on this line loses owner MATCH. */
-            if ((*(RainDrop **)(work + 0x5C))[(u32)dropIndex].count <= 0) {
+            if ((MEMBER(RainDrop *, work, FldRainWork, drops.drops))[(u32)dropIndex].count <= 0) {
                 continue;
             }
             cameraPosition = &cameraMatrix->pos;
@@ -631,10 +602,8 @@ s32 FldRainUpdate(u8 *task)
                 RwV3dNormalize(&right, &right);
                 RwV3dNormalize(&up, &up);
                 RwV3dNormalize(&at, &at);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                **(RainMatrix **)(work + 0x10) = *cameraMatrix;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                RwMatrixScale(*(RainMatrix **)(work + 0x10), &((FldRainWork *)work)->scale, rwCOMBINEPOSTCONCAT);
+                *rainWork->matrix.matrix = *cameraMatrix;
+                RwMatrixScale(rainWork->matrix.matrix, &((FldRainWork *)work)->scale, rwCOMBINEPOSTCONCAT);
                 if (trailIndex > 0) {
                     u8 *previousMatrix;
                     f32 trailSpacing;
@@ -650,8 +619,7 @@ s32 FldRainUpdate(u8 *task)
                 } else {
                     f32 offsetX;
                     f32 offsetY;
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    offsetX = ((FldRainWork *)work)->origin.x - (*(RainDrop **)(work + 0x5C))[(u32)dropIndex].x;
+                    offsetX = ((FldRainWork *)work)->origin.x - (rainWork->drops.drops)[(u32)dropIndex].x;
                     right.x = right.x * offsetX;
                     right.y = right.y * offsetX;
                     right.z = right.z * offsetX;
@@ -677,43 +645,37 @@ s32 FldRainUpdate(u8 *task)
                         ((RainMotionStep *)motion)->elapsed = ((RainMotionStep *)motion)->elapsed + fGpffff841c;
                     }
                 }
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(RainMatrix *)matrixLock.data = **(RainMatrix **)(work + 0x10);
+                *(RainMatrix *)matrixLock.data = *rainWork->matrix.matrix;
                 ((RwRGBA *)colorLock.data)->red = 0xFF;
                 ((RwRGBA *)colorLock.data)->green = 0xFF;
                 ((RwRGBA *)colorLock.data)->blue = 0xFF;
                 ((RwRGBA *)colorLock.data)->alpha = (u8)(((FldRainWork *)work)->alpha - trailIndex * 5);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                if ((trailIndex == (*(RainDrop **)(work + 0x5C))[(u32)dropIndex].count - 1) && (((RainMatrix *)(*(u8 **)(work + 0x10)))->pos.y < -((FldRainWork *)work)->spacing)) {
+                if ((trailIndex == (rainWork->drops.drops)[(u32)dropIndex].count - 1) && (((RainMatrix *)(rainWork->matrix.bytes))->pos.y < -((FldRainWork *)work)->spacing)) {
+                    (rainWork->drops.drops)[(u32)dropIndex].active = 0;
                     /* measured: typing each retained access on this line loses owner MATCH. */
-                    (*(RainDrop **)(work + 0x5C))[(u32)dropIndex].active = 0;
-                    /* measured: typing each retained access on this line loses owner MATCH. */
-                    for (trailIndex = 0; trailIndex < (*(RainDrop **)(work + 0x5C))[(u32)dropIndex].count; trailIndex++) {
+                    for (trailIndex = 0; trailIndex < (MEMBER(RainDrop *, work, FldRainWork, drops.drops))[(u32)dropIndex].count; trailIndex++) {
                         /* measured: typing each retained access on this line loses owner MATCH. */
-                        (*(RainDrop **)(work + 0x5C))[(u32)dropIndex].steps[trailIndex].y = 0.0f;
-                        /* measured: typing each retained access on this line loses owner MATCH. */
-                        (*(RainDrop **)(work + 0x5C))[(u32)dropIndex].steps[trailIndex].elapsed = 0.0f;
+                        (MEMBER(RainDrop *, work, FldRainWork, drops.drops))[(u32)dropIndex].steps[trailIndex].y = 0.0f;
+                        (rainWork->drops.drops)[(u32)dropIndex].steps[trailIndex].elapsed = 0.0f;
                     }
                 }
                 matrixLock.data += matrixLock.stride;
                 colorLock.data += colorLock.stride;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                *(s32 *)(work + 0x74) = *(s32 *)(work + 0x74) + 1;
+                rainWork->particleCount = rainWork->particleCount + 1;
             }
         }
         {
             u8 *plugin;
             /* Runtime-selected PTank plugin slot, not a fixed atomic member. */
-            plugin = *(u8 **)(((FldRainWork *)work)->atomic.bytes + iGpffffb610);
+            plugin = ((u8 **)(((FldRainWork *)work)->atomic.bytes + iGpffffb610))[0];
             ((RpPTankAtomicExtPrv *)(plugin))->instanceFlags |= 0x800000;
             /* Runtime-selected PTank plugin slot; work-handle typing loses MATCH. */
-            ((RpPTankAtomicExtPrv *)(*(u8 **)(((FldRainWork *)work)->atomic.bytes + iGpffffb610)))->activeCount = *(s32 *)(work + 0x74);
+            ((RpPTankAtomicExtPrv *)(((u8 **)(((FldRainWork *)work)->atomic.bytes + iGpffffb610))[0]))->activeCount = rainWork->particleCount;
         }
         func_003a2920(((FldRainWork *)work)->atomic.atomic);
         {
             u8 *drawNode;
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            drawNode = sdkOtQueueDrawObject(D_00794420, *(s32 *)(work + 8));
+            drawNode = sdkOtQueueDrawObject(D_00794420, rainWork->atomic.handle);
             ((PrimQueueNode *)drawNode)->callback = FldRainRenderStateSet;
             ((PrimQueueNode *)drawNode)->argument.handle = 0;
         }
@@ -730,11 +692,12 @@ s32 FldRainUpdate(u8 *task)
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
-// FUN_001837F0
-#pragma opt_propagation off
 /* Release each drop motion buffer, the rain pool, timers and RenderWare handles before freeing task work. */
+#pragma opt_propagation off
+// FUN_001837F0
 void FldRainDestroy(u8 *task)
 {
+    KwlnTask *rainTask = (KwlnTask *)task;
     u8 *work;
     s32 dropIndex;
     void (**release)(void *);
@@ -753,16 +716,15 @@ void FldRainDestroy(u8 *task)
     if (((FldRainWork *)work)->matrix.handle != 0) {
         func_003e0f40(((FldRainWork *)work)->matrix.handle);
     }
-    /* measured: typing each retained access on this line loses owner MATCH. */
-    release[0](*(u8 **)(task + 0x38));
+    release[0](rainTask->work);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
-// FUN_001838D0
 /* Create a rain child task with the requested texture, depth, motion, trail length and spawn interval. */
+// FUN_001838D0
 void FldRainTaskCreate(u8 *parent, s32 textureIndex, f32 distance, f32 acceleration,
                    f32 speed, f32 spacing, s32 alpha, s32 trailLength, s32 spawnInterval)
 {
@@ -824,7 +786,7 @@ void FldRainRenderStateReset(u8 *unused, u8 *work)
     /* The render-state interface consumes the texture handle's leading raster word. */
     (*(void (**)(s32, s32))callback)(1,
                                       /* measured: typing each retained access on this line loses owner MATCH. */
-                                      *(s32 *)(((FldFogWork *)work)->texture));
+                                      MEMBER(s32, ((FldFogWork *)work)->texture, RwTexture, raster));
 }
 #pragma pop
 
@@ -850,6 +812,7 @@ void FldRainRenderStateReset(u8 *unused, u8 *work)
 /* Typed quad fields retain the measured signed/unsigned cursor address trees documented above. */
 s32 FldFogUpdate(u8 *task)
 {
+    FldFogWork *fogWork;
     extern f32 fabsf(f32 x);
     /* Retail returns zero at 001850F0, 00183BD4. */
     extern s32 kwlnGetCamera(void);
@@ -902,6 +865,7 @@ s32 FldFogUpdate(u8 *task)
     f32 halfChannelDelta3;
 
     work = ((KwlnTask *)task)->work;
+    fogWork = (FldFogWork *)work;
     camera = ((u8 *)(uintptr_t)kwlnGetCamera());
     nearDepth = ((RwCamera *)camera)->nearPlane;
     reciprocalDepth = 1.0f / nearDepth;
@@ -917,19 +881,17 @@ s32 FldFogUpdate(u8 *task)
         ((FldFogWork *)work)->right = ((FldFogWork *)work)->width / 2.0f;
         ((FldFogWork *)work)->bottom = ((FldFogWork *)work)->height / 2.0f;
         if (((FldFogWork *)work)->scrollX == 0.0f) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(f32 *)(work + 0x414) = ((FldFogWork *)work)->scrollY / 5.0f;
+            fogWork->scrollX = ((FldFogWork *)work)->scrollY / 5.0f;
             if ((RpRandom() & 1) != 0) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(work + 0x414) = *(f32 *)(work + 0x414) * -1.0f;
+                MEMBER(f32, work, FldFogWork, scrollX) = MEMBER(f32, work, FldFogWork, scrollX) * -1.0f;
             }
         }
         if (((FldFogWork *)work)->scrollY == 0.0f) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(f32 *)(work + 0x418) = *(f32 *)(work + 0x414) / 5.0f;
+            fogWork->scrollY = fogWork->scrollX / 5.0f;
             if ((RpRandom() & 1) != 0) {
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                *(f32 *)(work + 0x418) = *(f32 *)(work + 0x418) * -1.0f;
+                MEMBER(f32, work, FldFogWork, scrollY) = MEMBER(f32, work, FldFogWork, scrollY) * -1.0f;
             }
         }
         for (rowIndex = 0; rowIndex < 2; rowIndex++) {
@@ -937,53 +899,45 @@ s32 FldFogUpdate(u8 *task)
             quadRow = work + (rowIndex << 9);
             for (; columnIndex < 2; columnIndex++) {
                 quad = quadRow + (columnIndex << 8);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                halfExtent = *(s16 *)(work + 0x438) / 2;
+                halfExtent = fogWork->viewportWidth / 2;
                 gridCoordinate = columnIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
                 ((FldFogWork *)quad)->quads[0][0][0].x = (f32)((FldFogWork *)work)->x + gridOffset;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                halfExtent = *(s16 *)(work + 0x43A) / 2;
+                halfExtent = fogWork->viewportHeight / 2;
                 gridCoordinate = rowIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
                 ((FldFogWork *)quad)->quads[0][0][0].y = (f32)((FldFogWork *)work)->y + gridOffset;
                 ((FldFogWork *)quad)->quads[0][0][0].z = nearDepth;
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                halfExtent = *(s16 *)(work + 0x438) / 2;
+                halfExtent = MEMBER(s16, work, FldFogWork, viewportWidth) / 2;
                 gridCoordinate = columnIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FldFogWork *)quad)->quads[0][0][1].x = (f32)*(s16 *)(work + 0x438) / 2.0f + ((f32)*(s16 *)(work + 0x434) + gridOffset);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                halfExtent = *(s16 *)(work + 0x43A) / 2;
+                ((FldFogWork *)quad)->quads[0][0][1].x = (f32)MEMBER(s16, work, FldFogWork, viewportWidth) / 2.0f + ((f32)fogWork->x + gridOffset);
+                halfExtent = fogWork->viewportHeight / 2;
                 gridCoordinate = rowIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FldFogWork *)quad)->quads[0][0][1].y = (f32)*(s16 *)(work + 0x436) + gridOffset;
+                ((FldFogWork *)quad)->quads[0][0][1].y = (f32)fogWork->y + gridOffset;
                 ((FldFogWork *)quad)->quads[0][0][1].z = nearDepth;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                halfExtent = *(s16 *)(work + 0x438) / 2;
+                halfExtent = fogWork->viewportWidth / 2;
                 gridCoordinate = columnIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
+                ((FldFogWork *)quad)->quads[0][0][2].x = (f32)fogWork->x + gridOffset;
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FldFogWork *)quad)->quads[0][0][2].x = (f32)*(s16 *)(work + 0x434) + gridOffset;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                halfExtent = *(s16 *)(work + 0x43A) / 2;
+                halfExtent = MEMBER(s16, work, FldFogWork, viewportHeight) / 2;
                 gridCoordinate = rowIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
                 /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FldFogWork *)quad)->quads[0][0][2].y = (f32)*(s16 *)(work + 0x43A) / 2.0f + ((f32)*(s16 *)(work + 0x436) + gridOffset);
+                ((FldFogWork *)quad)->quads[0][0][2].y = (f32)MEMBER(s16, work, FldFogWork, viewportHeight) / 2.0f + ((f32)fogWork->y + gridOffset);
                 ((FldFogWork *)quad)->quads[0][0][2].z = nearDepth;
                 halfExtent = ((FldFogWork *)work)->viewportWidth / 2;
                 gridCoordinate = columnIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FldFogWork *)quad)->quads[0][0][3].x = (f32)((FldFogWork *)work)->viewportWidth / 2.0f + ((f32)*(s16 *)(work + 0x434) + gridOffset);
+                ((FldFogWork *)quad)->quads[0][0][3].x = (f32)((FldFogWork *)work)->viewportWidth / 2.0f + ((f32)fogWork->x + gridOffset);
                 halfExtent = ((FldFogWork *)work)->viewportHeight / 2;
                 gridCoordinate = rowIndex * halfExtent;
                 gridOffset = (f32)(s32)(u32)gridCoordinate;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((FldFogWork *)quad)->quads[0][0][3].y = (f32)((FldFogWork *)work)->viewportHeight / 2.0f + ((f32)*(s16 *)(work + 0x436) + gridOffset);
+                ((FldFogWork *)quad)->quads[0][0][3].y = (f32)((FldFogWork *)work)->viewportHeight / 2.0f + ((f32)fogWork->y + gridOffset);
                 ((FldFogWork *)quad)->quads[0][0][3].z = nearDepth;
                 ((FldFogWork *)quad)->quads[0][0][0].reciprocalDepth = reciprocalDepth;
                 ((FldFogWork *)quad)->quads[0][0][1].reciprocalDepth = reciprocalDepth;
@@ -1018,34 +972,26 @@ s32 FldFogUpdate(u8 *task)
                 ((FldFogWork *)quad)->quads[0][0][0].green = (f32)green;
                 ((FldFogWork *)quad)->quads[0][0][0].blue = (f32)blue;
                 ((FldFogWork *)quad)->quads[0][0][0].alpha = (f32)alpha;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x440);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel1 = (f32)(u32)*(u8 *)(work + 0x444);
+                lowChannel = fogWork->colors[0];
+                highChannel1 = (f32)(u32)fogWork->colors[4];
                 lowChannelFloat1 = (f32)(u32)lowChannel;
                 channelDelta1 = highChannel1 - lowChannelFloat1;
                 halfChannelDelta1 = channelDelta1 / 2.0f;
                 red = (s32)((f32)(u32)lowChannel + (f32)rowIndex * halfChannelDelta1);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x441);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel1 = (f32)(u32)*(u8 *)(work + 0x445);
+                lowChannel = fogWork->colors[1];
+                highChannel1 = (f32)(u32)fogWork->colors[5];
                 lowChannelFloat1 = (f32)(u32)lowChannel;
                 channelDelta1 = highChannel1 - lowChannelFloat1;
                 halfChannelDelta1 = channelDelta1 / 2.0f;
                 green = (s32)((f32)(u32)lowChannel + (f32)rowIndex * halfChannelDelta1);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x442);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel1 = (f32)(u32)*(u8 *)(work + 0x446);
+                lowChannel = fogWork->colors[2];
+                highChannel1 = (f32)(u32)fogWork->colors[6];
                 lowChannelFloat1 = (f32)(u32)lowChannel;
                 channelDelta1 = highChannel1 - lowChannelFloat1;
                 halfChannelDelta1 = channelDelta1 / 2.0f;
                 blue = (s32)((f32)(u32)lowChannel + (f32)rowIndex * halfChannelDelta1);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x443);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel1 = (f32)(u32)*(u8 *)(work + 0x447);
+                lowChannel = fogWork->colors[3];
+                highChannel1 = (f32)(u32)fogWork->colors[7];
                 lowChannelFloat1 = (f32)(u32)lowChannel;
                 channelDelta1 = highChannel1 - lowChannelFloat1;
                 halfChannelDelta1 = channelDelta1 / 2.0f;
@@ -1055,34 +1001,26 @@ s32 FldFogUpdate(u8 *task)
                 ((FldFogWork *)quad)->quads[0][0][1].green = (f32)green;
                 ((FldFogWork *)quad)->quads[0][0][1].blue = (f32)blue;
                 ((FldFogWork *)quad)->quads[0][0][1].alpha = (f32)alpha;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x440);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel2 = (f32)(u32)*(u8 *)(work + 0x444);
+                lowChannel = fogWork->colors[0];
+                highChannel2 = (f32)(u32)fogWork->colors[4];
                 lowChannelFloat2 = (f32)(u32)lowChannel;
                 channelDelta2 = highChannel2 - lowChannelFloat2;
                 halfChannelDelta2 = channelDelta2 / 2.0f;
                 red = (s32)((f32)(u32)lowChannel + ((f32)(rowIndex + 1)) * halfChannelDelta2);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x441);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel2 = (f32)(u32)*(u8 *)(work + 0x445);
+                lowChannel = fogWork->colors[1];
+                highChannel2 = (f32)(u32)fogWork->colors[5];
                 lowChannelFloat2 = (f32)(u32)lowChannel;
                 channelDelta2 = highChannel2 - lowChannelFloat2;
                 halfChannelDelta2 = channelDelta2 / 2.0f;
                 green = (s32)((f32)(u32)lowChannel + ((f32)(rowIndex + 1)) * halfChannelDelta2);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x442);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel2 = (f32)(u32)*(u8 *)(work + 0x446);
+                lowChannel = fogWork->colors[2];
+                highChannel2 = (f32)(u32)fogWork->colors[6];
                 lowChannelFloat2 = (f32)(u32)lowChannel;
                 channelDelta2 = highChannel2 - lowChannelFloat2;
                 halfChannelDelta2 = channelDelta2 / 2.0f;
                 blue = (s32)((f32)(u32)lowChannel + ((f32)(rowIndex + 1)) * halfChannelDelta2);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x443);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel2 = (f32)(u32)*(u8 *)(work + 0x447);
+                lowChannel = fogWork->colors[3];
+                highChannel2 = (f32)(u32)fogWork->colors[7];
                 lowChannelFloat2 = (f32)(u32)lowChannel;
                 channelDelta2 = highChannel2 - lowChannelFloat2;
                 halfChannelDelta2 = channelDelta2 / 2.0f;
@@ -1092,34 +1030,26 @@ s32 FldFogUpdate(u8 *task)
                 ((FldFogWork *)quad)->quads[0][0][2].green = (f32)green;
                 ((FldFogWork *)quad)->quads[0][0][2].blue = (f32)blue;
                 ((FldFogWork *)quad)->quads[0][0][2].alpha = (f32)alpha;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x440);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel3 = (f32)(u32)*(u8 *)(work + 0x444);
+                lowChannel = fogWork->colors[0];
+                highChannel3 = (f32)(u32)fogWork->colors[4];
                 lowChannelFloat3 = (f32)(u32)lowChannel;
                 channelDelta3 = highChannel3 - lowChannelFloat3;
                 halfChannelDelta3 = channelDelta3 / 2.0f;
                 red = (s32)((f32)(u32)lowChannel + ((f32)(rowIndex + 1)) * halfChannelDelta3);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x441);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel3 = (f32)(u32)*(u8 *)(work + 0x445);
+                lowChannel = fogWork->colors[1];
+                highChannel3 = (f32)(u32)fogWork->colors[5];
                 lowChannelFloat3 = (f32)(u32)lowChannel;
                 channelDelta3 = highChannel3 - lowChannelFloat3;
                 halfChannelDelta3 = channelDelta3 / 2.0f;
                 green = (s32)((f32)(u32)lowChannel + ((f32)(rowIndex + 1)) * halfChannelDelta3);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x442);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel3 = (f32)(u32)*(u8 *)(work + 0x446);
+                lowChannel = fogWork->colors[2];
+                highChannel3 = (f32)(u32)fogWork->colors[6];
                 lowChannelFloat3 = (f32)(u32)lowChannel;
                 channelDelta3 = highChannel3 - lowChannelFloat3;
                 halfChannelDelta3 = channelDelta3 / 2.0f;
                 blue = (s32)((f32)(u32)lowChannel + ((f32)(rowIndex + 1)) * halfChannelDelta3);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                lowChannel = *(u8 *)(work + 0x443);
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                highChannel3 = (f32)(u32)*(u8 *)(work + 0x447);
+                lowChannel = fogWork->colors[3];
+                highChannel3 = (f32)(u32)fogWork->colors[7];
                 lowChannelFloat3 = (f32)(u32)lowChannel;
                 channelDelta3 = highChannel3 - lowChannelFloat3;
                 halfChannelDelta3 = channelDelta3 / 2.0f;
@@ -1132,10 +1062,8 @@ s32 FldFogUpdate(u8 *task)
             }
         }
         ((FldFogWork *)work)->texture = (s32)func_003ef650(func_003ef6d0(), (const char *)(D_005F1D10 + ((FldFogWork *)work)->textureIndex * 0x18));
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldFogWork *)work)->halfWidth = (*(f32 *)(work + 0x458) - *(f32 *)(work + 0x450)) / 2.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((FldFogWork *)work)->halfHeight = (*(f32 *)(work + 0x45C) - *(f32 *)(work + 0x454)) / 2.0f;
+        ((FldFogWork *)work)->halfWidth = (fogWork->right - fogWork->left) / 2.0f;
+        ((FldFogWork *)work)->halfHeight = (fogWork->bottom - fogWork->top) / 2.0f;
         ((FldFogWork *)work)->state = ((FldFogWork *)work)->state + 1;
         break;
     }
@@ -1151,13 +1079,13 @@ s32 FldFogUpdate(u8 *task)
             f32 right;
             f32 bottom;
             /* measured: typing each retained access on this line loses owner MATCH. */
-            left = *(f32 *)(work + 0x42C) * (f32)columnIndex + *(f32 *)(work + 0x450);
+            left = MEMBER(f32, work, FldFogWork, halfWidth) * (f32)columnIndex + MEMBER(f32, work, FldFogWork, left);
             /* measured: typing each retained access on this line loses owner MATCH. */
-            top = *(f32 *)(work + 0x430) * (f32)rowIndex + *(f32 *)(work + 0x454);
+            top = MEMBER(f32, work, FldFogWork, halfHeight) * (f32)rowIndex + MEMBER(f32, work, FldFogWork, top);
             /* measured: typing each retained access on this line loses owner MATCH. */
-            right = *(f32 *)(work + 0x42C) * (f32)(columnIndex + 1) + *(f32 *)(work + 0x450);
+            right = MEMBER(f32, work, FldFogWork, halfWidth) * (f32)(columnIndex + 1) + MEMBER(f32, work, FldFogWork, left);
             /* measured: typing each retained access on this line loses owner MATCH. */
-            bottom = *(f32 *)(work + 0x430) * (f32)(rowIndex + 1) + *(f32 *)(work + 0x454);
+            bottom = MEMBER(f32, work, FldFogWork, halfHeight) * (f32)(rowIndex + 1) + MEMBER(f32, work, FldFogWork, top);
             ((FldFogWork *)((work + (rowIndex << 9)) + (columnIndex << 8)))->quads[0][0][0].u = left;
             ((FldFogWork *)((work + (rowIndex << 9)) + (columnIndex << 8)))->quads[0][0][0].v = top;
             ((FldFogWork *)((work + (rowIndex << 9)) + (columnIndex << 8)))->quads[0][0][1].u = right;
@@ -1172,26 +1100,21 @@ s32 FldFogUpdate(u8 *task)
     ((FldFogWork *)work)->left = ((FldFogWork *)work)->left + ((FldFogWork *)work)->scrollX;
     ((FldFogWork *)work)->top = ((FldFogWork *)work)->top + ((FldFogWork *)work)->scrollY;
     /* measured: typing each retained access on this line loses owner MATCH. */
-    *(f32 *)(work + 0x458) = *(f32 *)(work + 0x458) + *(f32 *)(work + 0x414);
+    MEMBER(f32, work, FldFogWork, right) = MEMBER(f32, work, FldFogWork, right) + fogWork->scrollX;
     /* measured: typing each retained access on this line loses owner MATCH. */
-    *(f32 *)(work + 0x45C) = *(f32 *)(work + 0x45C) + *(f32 *)(work + 0x418);
+    MEMBER(f32, work, FldFogWork, bottom) = MEMBER(f32, work, FldFogWork, bottom) + fogWork->scrollY;
     {
         f32 origin;
 
         origin = -((FldFogWork *)work)->width / 2.0f;
         if (!(fabsf(((FldFogWork *)work)->left - origin) < 1.0f)) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(f32 *)(work + 0x450) = origin;
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            ((FldFogWork *)work)->right = *(f32 *)(work + 0x424) / 2.0f;
+            fogWork->left = origin;
+            ((FldFogWork *)work)->right = fogWork->width / 2.0f;
         }
         origin = -((FldFogWork *)work)->height / 2.0f;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        if (!(fabsf(*(f32 *)(work + 0x454) - origin) < 1.0f)) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(f32 *)(work + 0x454) = origin;
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            ((FldFogWork *)work)->bottom = *(f32 *)(work + 0x428) / 2.0f;
+        if (!(fabsf(fogWork->top - origin) < 1.0f)) {
+            fogWork->top = origin;
+            ((FldFogWork *)work)->bottom = fogWork->height / 2.0f;
         }
     }
         break;
@@ -1216,8 +1139,8 @@ void FldFogDestroy(u8 *task)
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma optimization_level 1
-// FUN_00185150
 /* Create a textured fog task unless both endpoint colors are transparent; copy the viewport and scroll parameters. */
+// FUN_00185150
 s32 FldFogTaskCreate(s32 parent, s32 textureIndex, f32 width, f32 scrollX,
                   f32 scrollY, s16 x, s16 y, s16 viewportWidth, s16 viewportHeight,
                   s32 blendMode, u8 *colors)
@@ -1277,8 +1200,8 @@ s32 FldFogTaskCreate(s32 parent, s32 textureIndex, f32 width, f32 scrollX,
 #pragma optimization_level 1
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on
-// FUN_001852F0
 /* Append a GS A+D packet that writes the cached FRAME value to register 0x4C. */
+// FUN_001852F0
 void FldNoiseEmitTagged(void)
 {
     u_long128 *packet;

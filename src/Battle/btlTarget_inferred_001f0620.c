@@ -1,3 +1,4 @@
+#include "btl_sound_internal.h"
 #include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
@@ -13,21 +14,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
-/* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
-/* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -95,7 +82,7 @@ extern s32 btlActionIsPendingBit(s32);
 /* Evaluate a target-command availability mode, including encounter and protagonist restrictions. */
 s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind)
 {
-    /* Raw access: The 0x18-byte encounter flags rows have no established shared flags member; retain their leading word. */
+    /* Encounter rule rows have a 0x18-byte stride and a signed leading flag word. */
     s32 encounterFlags;
     s64 mode;
     u16 encounterId;
@@ -128,7 +115,7 @@ s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind)
         if (datCalcChkBadStatus((s32)(((BtlUnit *)actor)->datUnit), 8) != 0) return 0;
         return !datGetFlag(0x1438);
     case 6:
-        encounterFlags = *(s32 *)(iGpffffb414 + ((encounterId & 0xFFFF) * 0x18));
+        encounterFlags = (((BtlSoundTrackRule *)(iGpffffb414))[(encounterId & 0xFFFF)].flags);
         if (encounterFlags & 0x20) return 0;
         if ((encounterFlags & 1) == 0) return 0;
         return !btlActionIsPendingBit(0);
@@ -148,6 +135,7 @@ s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind)
 }
 
 #pragma pop
+/* Accept party IDs 1, 2, 7 and 8; every other ID is rejected. */
 // FUN_001F08C0
 /* Recognize the four unit IDs accepted by this target predicate. */
 s32 btlTargetCheckUnitIdGroup(u8 *unit)
@@ -175,6 +163,7 @@ s32 btlTargetCheckUnitIdGroup(u8 *unit)
     }
 }
 
+/* Honor the encounter overrides before testing the requested unit bitmap bit. */
 // FUN_001F0950
 /* Apply the encounter flag override before querying the requested bitmap bit. */
 s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex)

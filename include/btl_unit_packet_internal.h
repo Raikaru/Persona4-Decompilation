@@ -92,8 +92,15 @@ typedef struct BtlUnitModelLoadPacket {
     u8 *unit;
     s16 genus;                  /* 0x04 */
     s16 modelId;                /* 0x06 */
-    s16 motion;                 /* 0x08 */
-    u8 pad0A[6];
+    union {
+        s16 motion;             /* 0x08: model setup flags in the load callbacks */
+        u16 flags;
+    };
+    u8 pad0A[2];
+    union {
+        s32 resource;           /* 0x0C: directory request handle */
+        void *resourcePtr;
+    };
 } BtlUnitModelLoadPacket;        /* btlPacketAlloc(0x10F, 0x10) */
 
 typedef struct BtlUnitResourceLoadPacket {

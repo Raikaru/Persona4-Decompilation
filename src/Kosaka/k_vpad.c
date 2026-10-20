@@ -2,6 +2,7 @@
 /* Source unit: src/Kosaka/k_vpad_0015f720.c */
 #include "type.h"
 #include "rw_atomic_layout_internal.h"
+#include "member_access.h"
 
 typedef struct RuntimeVec3
 {
@@ -185,12 +186,16 @@ void Vpad_BuildRotatedQuad(RuntimeVec3* vertices, const RuntimeVec3* translation
 /* The input table stores two signed indices per entry. Keeping the pair
  * offset in one inlined helper preserves the owner expression while making
  * the complete pair address an explicit, natural C value. */
-/* The pair layout is RuntimeVpadPair. Typed table access changed the load/shift
- * ordering (eight differing bytes in RefreshSelection); retain its byte address. */
-static inline s32 vpad_pair_index(RuntimeWork* work, s32 index, s32 side)
+/* Select one signed matrix index from the configuration's two-index records. */
+/* measured: site/union indexing differs by 10 bytes and a typed flat local by
+ * 18 in Vpad_RefreshSelection. Byte-cursor MEMBER keeps the load/shift order;
+ * eight-byte pairs contain two four-byte signed indices selected by side. */
+/* Select one signed matrix index from a two-index configuration record. */
+/* measured: expanding the first-index call changes eight refresh bytes; the second-index call expands without a difference. */
+static inline s32 vpadPairIndex(RuntimeWork* work, s32 index, s32 side)
 {
-    return *(s32*)((u8*)*(s32**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
-                    index * 8 + side * 4);
+    return MEMBER(s32, (u8 *)((VpadConfig *)(uintptr_t)work->requestFlags)->pairs +
+                  index * 8 + side * 4, RuntimeVpadPair, first);
 }
 
 /* 324/336 bytes; seven resolved relocations and twelve zero alignment bytes.
@@ -215,11 +220,11 @@ void Vpad_RefreshSelection(RuntimeWork* work)
     {
         mdlCopyIndexedMatrix(
             (void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model,
-            vpad_pair_index(work, i, 0),
+            vpadPairIndex(work, i, 0),
             firstMatrix);
         mdlCopyIndexedMatrix(
             (void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model,
-            vpad_pair_index(work, i, 1),
+            MEMBER(s32, (u8 *)((VpadConfig *)(uintptr_t)(work)->requestFlags)->pairs + (i) * 8 + (1) * 4, RuntimeVpadPair, first),
             secondMatrix);
         ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
             *(RuntimeVec3*)&firstMatrix->values[12];

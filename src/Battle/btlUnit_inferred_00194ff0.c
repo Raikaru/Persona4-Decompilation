@@ -1,4 +1,6 @@
+#include "byte_address_internal.h"
 #include "btl_effect_internal.h"
+#include "btl_unit_record_internal.h"
 #include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -11,10 +13,6 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
-/* Formation offsets are signed XYZ halfwords; slot arithmetic advances by six bytes. */
-typedef struct BtlUnitSlotOffset {
-    s16 x, y, z;
-} BtlUnitSlotOffset;
 
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
@@ -92,10 +90,7 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *btlUnitAddPersonaOffset(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
+
 
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
@@ -138,7 +133,7 @@ extern u8 D_00794150[];
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 /* measured: aggregate Vec3 copies and float frame fields reproduce the 500-byte body. */
 /* Return the grid anchor and optionally its facing rotation and selected target point. */
-/* measured: the remaining action-state halfword changed MATCH when typed; selected-action/unit pointer chains retain their existing callback ABI. */
+/* measured: separate typed aliases retain the action-state and selected-action accesses that moved instructions with access-site fields. */
 // FUN_00194FF0
 void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outTarget)
 {
@@ -171,7 +166,7 @@ void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outT
                 btlUnitGetGroupBounds(2, 1, (RwV3d *)frame.vec, NULL, NULL, 1);
             } else {
                 btlUnitGetGridSphereCenter(
-                    *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
+                    (u8 *)((BtlAction *)((BtlBattleState *)iGpffffb3ac)->selectedAction)->unit,
                     frame.vec);
             }
             break;
@@ -182,11 +177,11 @@ void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outT
                     ((activeUnit = (u8 *)((BtlAction *)activeAction)->unit),
                      (((BtlUnit *)activeUnit)->genus == 0)) &&
                     ((((BtlAction *)activeAction)->flags & 4) == 0 ||
-                     *(u16 *)(activeAction + 0x16) != 0x1E)) {
+                     (u16)((BtlAction *)activeAction)->unk_16 != 0x1E)) {
                     btlUnitGetGridSphereCenter(activeUnit, frame.vec);
                 } else {
                     btlUnitGetGridSphereCenter(
-                        *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
+                        (u8 *)((BtlAction *)((BtlBattleState *)iGpffffb3ac)->selectedAction)->unit,
                         frame.vec);
                 }
             }
@@ -211,11 +206,11 @@ void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outT
    `dist = call; dist += 50.0f` gives the result-first add.s; stack arrays in
    declaration order tmp, pos, scaled, origin, rot. */
 /* Compute a slot position/rotation from character offsets or a motion-distance approach to the target. */
-/* Raw quaternion copies preserve the original aggregate type; the final signed formation halfword keeps offset-first integer address construction. */
-// FUN_001951F0
+/* Named quaternion copies preserve the original aggregate type; the typed formation slot keeps offset-first integer address construction. */
 /* measured: opt_propagation off keeps the per-use u8/u16 conversions and the
    named scaled index (`slotOffset = slotIndex * 6`) from being folded into one address. */
 /* measured: func_001951f0 MATCH -> MISMATCH without this pragma. */
+// FUN_001951F0
 #pragma opt_propagation off
 void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion, f32 *outPosition, f32 *outRotation, s32 slot)
 {
@@ -248,7 +243,7 @@ void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion, f3
     slotIndex = slot;
     if (slotIndex != 2) {
         if (outRotation != NULL) {
-            *(P4_95730_Vec4 *)outRotation = *(P4_95730_Vec4 *)(anchorUnit + 0x1C);
+            *(P4_95730_Vec4 *)outRotation = *(P4_95730_Vec4 *)&((BtlUnit *)anchorUnit)->rot;
         }
         if (outPosition != NULL) {
             btlUnitGetSphereWorldCenter(anchorUnit, origin);
@@ -277,7 +272,7 @@ void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion, f3
         forwardX = direction[0] * distance;
         forwardZ = direction[2] * distance;
         slotTable = iGpffffb3e0;
-        sideOffset = *(s16 *)((u8 *)(characterId * 0x58) + (s32)slotTable + 0xC);
+        sideOffset = ((BtlUnitChildRecord *)((u8 *)(characterId * 0x58) + (s32)slotTable))->slots[0].x;
         side = sideOffset * ((BtlUnit *)unit)->scale;
         RtQuatTransformVectors(direction, &D_0060A0D0, 1, rotation);
         direction[0] *= side;
@@ -308,7 +303,7 @@ s32 btlUnitGetPersonaAlphaColor(u8 *context) {
     if (context[0xA2] != 2) {
         return -1;
     }
-    e = btlUnitAddPersonaOffset(((BtlUnit *)context)->charId * 0x58, iGpffffb3e0);
+    e = byteAddressAdd(((BtlUnit *)context)->charId * 0x58, (u8 *)(iGpffffb3e0));
     return (e[0x56] << 24) | 0xFFFFFF;
 }
 

@@ -85,8 +85,9 @@ s64 func_004470f0(s64);
    down to one), and taking the address of the first member instead of the
    struct. Committed at nd 45. */
 
+/* String scanning installs this successful no-op as its stream callback. */
 // FUN_004420F8
-s32 func_004420f8(void) {
+s32 stdioScanStringStreamNoop(void) {
     return 0;
 }
 
@@ -162,20 +163,28 @@ done:
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443010);
 #endif
 
+/* Newlib's scatter-write request: vector pointer, vector count, bytes pending. */
+typedef struct StdioWriteRequest {
+    void *vectors;
+    s32 vectorCount;
+    s32 remainingBytes;
+} StdioWriteRequest;
+
 /* measured: 15 differing words, object 17 instrs / retail 17, exact count (third-party unit, so floorboard/opclass skip it). Control shape matches (delay-slot move, shared epilogue); residual is frame/saves and lw/sw register picks. Tried: loc/tag-hoist respelling (16 edits, neutral), all 8 singles + all 28 pragma pairs (all 15; peephole off 17). Retail saves $s0 with sd, b210 emits sq (file-top toolchain note): ~6 save/frame words permanently blocked. */
+/* Flush a scatter-write request and reset its consumed vector/byte counts. */
 // FUN_00444700 NONMATCHING
 #ifdef NON_MATCHING
-s32 __sprint(u8 *arg0, u8 *arg1) {
+s32 __sprint(u8 *stream, u8 *request) {
     extern s32 __sfvwrite(u8 *, u8 *);
     s32 result;
 
-    if (*(s32 *)(arg1 + 8) == 0) {
-        *(s32 *)(arg1 + 4) = 0;
+    if (((StdioWriteRequest *)request)->remainingBytes == 0) {
+        ((StdioWriteRequest *)request)->vectorCount = 0;
         return 0;
     }
-    result = __sfvwrite(arg0, arg1);
-    *(s32 *)(arg1 + 4) = 0;
-    *(s32 *)(arg1 + 8) = 0;
+    result = __sfvwrite(stream, request);
+    ((StdioWriteRequest *)request)->vectorCount = 0;
+    ((StdioWriteRequest *)request)->remainingBytes = 0;
     return result;
 }
 #else

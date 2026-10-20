@@ -37,11 +37,45 @@ typedef struct BtlAttachTable {
     BtlAttachEntry entries[32];
 } BtlAttachTable;
 
-typedef struct BtlFormationData {
+/* Two 0x314-byte resource blocks are copied before the reference-count tail. */
+typedef struct BtlFormationResourceEntry
+{
+    u8 kind;                    /* FE absent, FF reference, FD non-owning */
+    u8 pad01[3];
+    u32 resource;              /* file-relative offset, then an effect pointer */
+    u8 pad08[0x10];
+} BtlFormationResourceEntry;
+
+typedef struct BtlFormationResourceBlock
+{
     u8 pad00[8];
-    BtlAttachTable tables[2];
-    u16 flags; /* 0x630: bit 2 reuses template instances instead of cloning. */
-} BtlFormationData;
+    u32 unk08;
+    u32 duration;
+    u16 entryCount;
+    u8 pad12[2];
+    u32 unk14;
+    u8 pad18[4];
+    BtlFormationResourceEntry entries[31];
+    u8 pad304[0x10];
+} BtlFormationResourceBlock;
+
+typedef struct BtlFormationState
+{
+    union {
+        struct {
+            BtlFormationResourceBlock blocks[2];
+            u8 pad628[8];
+        };
+        /* Attachment access begins eight bytes into the same resource blocks. */
+        struct {
+            u8 pad00[8];
+            BtlAttachTable tables[2];
+        };
+    };
+    u16 flags;
+    u16 counter;
+    u32 value;
+} BtlFormationState;
 
 typedef struct BtlAttachWork
 {
@@ -65,5 +99,10 @@ typedef struct BtlAttachWork
     u8 **handles;
     BtlAttachV3 cachedPosition;
 } BtlAttachWork; /* 0x68 */
+
+/* The two access paths share the same 0x638-byte allocation from AllocWork. */
+typedef char BtlFormationStateFlagsOffsetCheck[(u32)&((BtlFormationState *)0)->flags == 0x630 ? 1 : -1];
+typedef char BtlFormationStateResourceOffsetCheck[(u32)&((BtlFormationState *)0)->value == 0x634 ? 1 : -1];
+typedef char BtlFormationStateSizeCheck[sizeof(BtlFormationState) == 0x638 ? 1 : -1];
 
 #endif

@@ -1,9 +1,11 @@
+#include "byte_address_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Original translation unit y_smap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
 #include "fcl_draw_types.h"
 #include "g_data_internal.h"
 #include "h_cdvd.h"
@@ -218,10 +220,11 @@ extern void smapSetCellMode(u8 *, s8);
 
 
 
-// FUN_002AC400
 /* Request the minimap sprite banks and directory, then wait for the map resource file to finish loading. */
+// FUN_002AC400
 s32 smapLoadStep(u8 *task) {
     u8 *work = ((KwlnTask *)task)->work;
+    SMapLoadWork *load = (SMapLoadWork *)work;
     s32 loaded;
 
     switch ((s8)((SMapLoadWork *)work)->phase) {
@@ -234,33 +237,28 @@ s32 smapLoadStep(u8 *task) {
         if (D_00764644 == 0) {
             kAssertFail(D_0063EF60, 0x95);
         }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        *(s8 *)(work + 4) += 1;
+        load->phase += 1;
         break;
     case 1:
         if (hMaestroDecodeIsReady(D_00764640) != 0 && hMaestroDecodeIsReady(D_00764644) != 0) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s8 *)(work + 4) += 1;
+            load->phase += 1;
         }
         break;
     case 2:
         func_00440b68(&D_00763928, D_0063EF60, 0xA0);
         ((SMapLoadWork *)work)->directory.handle = (s32)H_Cdvd_AcquireDirectory((u8 *)D_0063EFB0, 0);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        *(s8 *)(work + 4) += 1;
+        load->phase += 1;
         break;
     case 3:
         if (H_Cdvd_IsFileLoaded(((SMapLoadWork *)work)->directory.pointer) != 0) {
             ((SMapLoadWork *)work)->file = filerEnqueueRequest(0, D_0063EFB0, 0, 0, 0, 0, 0, 0, 0, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s8 *)(work + 4) += 1;
+            load->phase += 1;
         }
         break;
     case 4:
         D_00764648 = filerTakeCompletedRequest(((SMapLoadWork *)work)->file, &loaded, 0);
         if (loaded != 0) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            *(s32 *)(work + 8) = 0;
+            load->file = 0;
             H_Cdvd_Destroy(((SMapLoadWork *)work)->directory.pointer);
             return -1;
         }
@@ -285,8 +283,8 @@ void smapResetVisibility(u8 *task) {
     D_00764650 = 0;
 }
 
-// FUN_002AC6B0
 /* Allocate the minimap resource-loader work and register its task. */
+// FUN_002AC6B0
 void smapCreate(void) {
     u8 *work;
 
@@ -349,23 +347,22 @@ s32 smapGetSpriteHandle(void) {
 /* Reuse the field subsystem's 0x10-byte cells at frame + 0x54. */
 
 /* Do not cache the map provider: every retail field access calls it again. */
-#define SMAP_GRID_MAP_VIEW(address) ((FldFrameCell *)((address) + 0x54))
+#define SMAP_GRID_MAP_VIEW(address) (&((FldFrame *)(address))->cells[0][0])
 #define SMAP_GRID_SCAN_AT(rowOffset, columnOffset) \
     SMAP_GRID_MAP_VIEW((u8 *)((rowOffset) + (u32)MT_Scene_GetFrameState()) + (columnOffset))
 #define SMAP_GRID_OFFSET_AT(offset) \
     SMAP_GRID_MAP_VIEW((offset) + (u32)MT_Scene_GetFrameState())
 #define SMAP_GRID_CELL_AT(rowOffset, columnOffset) \
-    ((FldFrameCell *)(MT_Scene_GetFrameState() + (rowOffset) + (columnOffset) + 0x54))
+    (&((FldFrame *)(MT_Scene_GetFrameState() + (rowOffset) + (columnOffset)))->cells[0][0])
 #define SMAP_GRID_NEIGHBOR_AT(rowOffset, columnOffset, cellOffset) \
     (SMAP_GRID_CELL_AT(rowOffset, columnOffset) + (cellOffset))
 
-static inline u8 *smapRevealOffsetPtr(u32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
+
 
 #pragma push
 /* measured: fnalign 0 with the retail loop-invariant row/column preheaders. */
 #pragma opt_loop_invariants on
+/* Scan matching room cells and retain their anchor coordinates for reveal. */
 static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
                                       s32 cellRowOffset, s32 cellColumnOffset,
                                       s32 *rowSnapshot, s32 *columnSnapshot,
@@ -408,6 +405,7 @@ static inline s32 smapPrepareRoomReveal(u8 column, u8 row, s32 extent,
     return cellOffset;
 }
 
+/* Reveal matching room cells along the room orientation from its anchor. */
 static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
                                          s32 cellRowOffset, s32 cellColumnOffset,
                                          s32 cellOffset, s32 savedColumn,
@@ -431,7 +429,7 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
             revealKind = SMAP_GRID_SCAN_AT(revealColumn * 0x10, ((s8)*anchorRow + rowDelta) << 8)->type;
             revealMask = (1 << savedColumn) & 0xFFFF & 0xFFFF;
             if (revealKind == SMAP_GRID_OFFSET_AT(cellOffset)->type) {
-                visibility = (u16 *)((u8 *)smapRevealOffsetPtr((s8)*anchorRow * 2, (u8 *)D_00764658) + rowDelta * 2);
+                visibility = (u16 *)((u8 *)byteAddressAdd((s8)*anchorRow * 2, (u8 *)D_00764658) + rowDelta * 2);
                 *visibility |= revealMask;
             }
             step = (s16)(step + 1);
@@ -467,8 +465,8 @@ static inline void smapRevealRoomFootprint(u8 column, u8 row, s32 extent,
     }
 }
 
-// FUN_002AC750
 /* Visibility-row casts retain the measured offset-first bitmap address trees; these are packed halfword rows, not object fields. */
+// FUN_002AC750
 void smapRevealCell(u8 column, u8 row) {
     extern s32 fclSubClamped(s32, s32, s32, s32, s8);
     extern s64 smapCellKind(u8);
@@ -758,9 +756,9 @@ void smapRevealCell(u8 column, u8 row) {
                     longRoomVisibility = (u16 *)((u8 *)D_00764658 + (rowValue * 2));
                     *longRoomVisibility |= ((1 << ((s32)column)) & 0xFFFF);
                     longRoomRow = row;
-                    longRoomSecondRow = smapRevealOffsetPtr(longRoomRow * 2, (u8 *)D_00764658);
+                    longRoomSecondRow = byteAddressAdd(longRoomRow * 2, (u8 *)D_00764658);
                     (((u16 *)longRoomSecondRow)[1]) = (u16) ((((u16 *)longRoomSecondRow)[1]) | ((1 << ((s32)column)) & 0xFFFF));
-                    longRoomThirdRow = smapRevealOffsetPtr(longRoomRow * 2, (u8 *)D_00764658);
+                    longRoomThirdRow = byteAddressAdd(longRoomRow * 2, (u8 *)D_00764658);
                     (((u16 *)longRoomThirdRow)[2]) = (u16) ((((u16 *)longRoomThirdRow)[2]) | ((1 << ((s32)column)) & 0xFFFF));
                     return;
                 }
@@ -911,12 +909,13 @@ void smapSetStateValue(u8 *unused, u8 *work) {
  * byte coordinates use unsigned offsets. Both stay in the same byte domain.
  */
 #define SMAP_FIELD_CELL(row, column, offset) \
-    ((FldFrameCell *)(MT_Scene_GetFrameState() + (row) * 0x100 + (column) * 0x10 + (offset)))
+    (&((FldFrame *)MT_Scene_GetFrameState())->cells[(row)][(column) + ((offset) - 0x54) / 0x10])
 
-// FUN_002ADD90
 /* Update actor markers, reveal the player cell and connected neighbors, and position nearby minimap tiles. */
+// FUN_002ADD90
 s32 smapUpdateEntities(u8 *taskObject)
 {
+    SMapWork *map;
     YVec2f scale;
     YVec3f pos;
     YVec3f positionSnapshot;
@@ -931,8 +930,9 @@ s32 smapUpdateEntities(u8 *taskObject)
     u8 x;
 
     work = ((KwlnTask *)taskObject)->work;
+    map = (SMapWork *)work;
     /* Kind-specific scene tail; the embedded shared character prefix ends at 0x168. */
-    FldFrameTask_GetPosition((u8 *)&positionSnapshot, *(u8 **)(D_007EFA04[0] + 0x220));
+    FldFrameTask_GetPosition((u8 *)&positionSnapshot, (u8 *)((ResrcRecord *)D_007EFA04[0])->handle220);
     /* The provider writes all three floats; measured: an address-source copy matches, direct struct assignment does not. */
     pos = *(YVec3f *)&positionSnapshot;
     task = PrimAllocQueueNode();
@@ -943,27 +943,23 @@ s32 smapUpdateEntities(u8 *taskObject)
     ((PrimQueueNode *)task)->callback = smapSetStateValue;
     ((PrimQueueNode *)task)->argument.data = work;
     PrimAppendNode(D_00794E10, task);
-    /* measured: typing each retained access on this line loses owner MATCH. */
-    switch ((s8)work[4]) {
+    /* measured: direct, typed-local and array member forms change retail instructions. */
+    switch ((s8)MEMBER(u8, work, SMapWork, phase)) {
     case 0:
         smapUpdateItems(taskObject);
         (((SMapWork *)work)->phase)++;
         break;
     case 2:
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapWork *)work)->labelFrame = fclAddClamped(*(s16 *)(work + 0x766), 1, 5, 0, 1);
+        ((SMapWork *)work)->labelFrame = fclAddClamped(map->labelFrame, 1, 5, 0, 1);
         if ((s8)fclSpriteHasDisplayFlags(((SMapWork *)work)->labels[0]) == 0) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteSetRecordFlag(*(u8 **)(work + 0x748), 0, 1);
+            fclSpriteSetRecordFlag(map->labels[0], 0, 1);
         }
         if ((s8)fclSpriteHasDisplayFlags(((SMapWork *)work)->labels[1]) == 0) {
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteSetRecordFlag(*(u8 **)(work + 0x74C), 0, 1);
+            fclSpriteSetRecordFlag(map->labels[1], 0, 1);
         }
         /* fall through */
     case 5:
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapWork *)work)->transitionFrame = fclAddClamped(*(s16 *)(work + 0x764), 1, 10, 0, 1);
+        ((SMapWork *)work)->transitionFrame = fclAddClamped(map->transitionFrame, 1, 10, 0, 1);
         /* fall through */
     case 1:
         ((SMapWork *)work)->mode = 0;
@@ -1028,9 +1024,9 @@ s32 smapUpdateEntities(u8 *taskObject)
         for (tileX = 0; tileX < 13; tileX++) {
             for (tileY = 0; tileY < 13; tileY++) {
                 /* Kind-specific scene tail; the embedded shared character prefix ends at 0x168. */
-                s16 tx = tileX + (FldFrameTask_GetTileX(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
+                s16 tx = tileX + (FldFrameTask_GetTileX((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220) - 6);
                 /* Kind-specific scene tail; the embedded shared character prefix ends at 0x168. */
-                s16 ty = tileY + (FldFrameTask_GetTileZ(*(u8 **)(D_007EFA04[0] + 0x220)) - 6);
+                s16 ty = tileY + (FldFrameTask_GetTileZ((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220) - 6);
 
                 if ((tx > 0) && (ty > 0) && (tx < 16) && (ty < 24)) {
                     u8 **tile = &((SMapWork *)work)->cells[ty][tx];
@@ -1048,12 +1044,10 @@ s32 smapUpdateEntities(u8 *taskObject)
         smapClearSelection(taskObject);
         break;
     case 3:
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapWork *)work)->labelFrame = fclAddClamped(*(s16 *)(work + 0x766), 1, 5, 0, 1);
+        ((SMapWork *)work)->labelFrame = fclAddClamped(map->labelFrame, 1, 5, 0, 1);
         /* fall through */
     case 6:
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapWork *)work)->transitionFrame = fclAddClamped(*(s16 *)(work + 0x764), 1, 5, 0, 1);
+        ((SMapWork *)work)->transitionFrame = fclAddClamped(map->transitionFrame, 1, 5, 0, 1);
         /* fall through */
     case 4:
         smapClearSelection(taskObject);
@@ -1065,9 +1059,10 @@ s32 smapUpdateEntities(u8 *taskObject)
 }
 
 #undef SMAP_FIELD_CELL
-// FUN_002AE520
 /* Free the frame and strip sprites and release the map task work. */
+// FUN_002AE520
 void smapFreeSprites(u8 *task) {
+    KwlnTask *owner = (KwlnTask *)task;
     u8 *work;
     s16 spriteIndex;
 
@@ -1086,8 +1081,7 @@ void smapFreeSprites(u8 *task) {
     }
     sdkSpriteFreeNode(((SMapWork *)work)->ends[0]);
     sdkSpriteFreeNode(((SMapWork *)work)->ends[1]);
-    /* measured: typing each retained access on this line loses owner MATCH. */
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0](owner->work);
 }
 
 /* Each map query remains independent. The native row address and byte
@@ -1095,19 +1089,21 @@ void smapFreeSprites(u8 *task) {
  * tables contain signed byte pairs for each orientation.
  */
 #define SMAP_SCAN_CELL(rowOffset, column) \
-    ((FldFrameCell *)((u8 *)((rowOffset) + (u32)MT_Scene_GetFrameState()) + (u32)(column) * 0x10 + 0x54))
-/* Interleaved signed byte-pair tables keep their direction/pair byte offsets. */
+    (&((FldFrame *)((u8 *)((rowOffset) + (u32)MT_Scene_GetFrameState()) + (u32)(column) * 0x10))->cells[0][0])
+/* Four orientation pairs per tile portion; subsequent portions begin eight bytes later. */
+typedef struct SMapNeighbor { s8 offset[2]; } SMapNeighbor;
 #define SMAP_NEIGHBOR_OFFSET(table, direction, field) \
-    (*(s8 *)((u32)(table) + (direction) * 2 + (field)))
+    (((SMapNeighbor *)(table))[(direction) + (field) / 2].offset[(field) & 1])
 
 #pragma push
 /* Retain each selected offset table and issue screen constants at their uses. */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
-// FUN_002AE630
 /* Build tiles and marker children for the map, actor slots, scene points and active targets. */
+// FUN_002AE630
 u8 *smapCreateSymbols(u8 *parent)
 {
+    SMapWork *map;
     extern s8 D_0063EEE0[];
     extern s8 D_0063EF00[];
     extern s8 D_0063EF20[];
@@ -1146,19 +1142,19 @@ u8 *smapCreateSymbols(u8 *parent)
 
     chkmemAllocSiteTag(D_0063EF60, 0x389);
     work = D_008873F4[0](1, 0x768, 0x40000);
+    map = (SMapWork *)work;
     task = kwlnTaskCreateChild(parent, D_0063EFD8, 0xF, 0, 0,
                         smapUpdateEntities, smapFreeSprites, work);
     ((SMapWork *)work)->self = work;
     ((SMapWork *)work)->phase = 0;
     /* Kind-specific scene tail; the embedded shared character prefix ends at 0x168. */
-    originX = FldFrameTask_GetTileX(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
+    originX = FldFrameTask_GetTileX((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220) & 0xFF;
     /* Kind-specific scene tail; the embedded shared character prefix ends at 0x168. */
-    originY = FldFrameTask_GetTileZ(*(u8 **)(D_007EFA04[0] + 0x220)) & 0xFF;
+    originY = FldFrameTask_GetTileZ((u8 *)((ResrcRecord *)D_007EFA04[0])->handle220) & 0xFF;
     smapCellToWorld(&origin, (u32)originX, (u32)originY);
     ((SMapWork *)work)->origin = origin;
     D_00764660 = (u8)smapWorldToColumn(((SMapWork *)work)->origin);
-    /* measured: typing each retained access on this line loses owner MATCH. */
-    D_0076465C = (u8)smapWorldToRow(*(RwV3d *)(work + 8));
+    D_0076465C = (u8)smapWorldToRow(map->origin);
     ((SMapWork *)work)->cellSize = 0x12;
     for (rowIndex = 0; rowIndex < 0x18; rowIndex++) {
         u8 *taskRow;
@@ -1339,7 +1335,7 @@ u8 *smapCreateSymbols(u8 *parent)
         nodeMatrix = mdlGetMatrix(((SceneCharacterUpdate *)sceneNode)->model);
         ((SMapWork *)work)->pointMarkers[nodeIndex] = (u8 *)(mapSymbolPointCreate((s32)task, (s8)nodeIndex, (YVec3f *)(nodeMatrix + 0x30)));
         nodeIndex++;
-        sceneNode = (u8 *)((SceneUpdateResource *)sceneNode)->next;
+        sceneNode = (u8 *)((ResrcHeader *)sceneNode)->next;
     }
     return task;
 }
@@ -1350,10 +1346,10 @@ u8 *smapCreateSymbols(u8 *parent)
 #undef SMAP_SCAN_CELL
 /* Value initialization preserves the constructor's temporary before the label
    position is reused. Loop invariants hoist the final grid row's coordinates. */
+/* Switch between scrolling and fixed-map presentation, animating labels and resetting tile visibility. */
 // FUN_002AF3E0
 #pragma push
 #pragma opt_loop_invariants on
-/* Switch between scrolling and fixed-map presentation, animating labels and resetting tile visibility. */
 /* Access-site marker/cell fields retain the original byte cursors and measured index conversions. */
 void smapRefreshCells(u8 *task, s8 mode)
 {
@@ -1400,20 +1396,20 @@ void smapRefreshCells(u8 *task, s8 mode)
             YVec2f pos = fclMakeVec2(15.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 12);
             fclSpriteStartRevealScaleTask(((SMapWork *)work)->labels[0], 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartPositionTask(*(u8 **)(work + 0x748), pos,
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[0]), pos,
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartAlphaTask(*(u8 **)(work + 0x748), 255, 0, 0, 0, 3);
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[0]), 255, 0, 0, 0, 3);
             sdkSpriteFreeNode(resource);
             pos = fclMakeVec2(104.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 13);
             fclSpriteStartRevealScaleTask(((SMapWork *)work)->labels[1], 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartPositionTask(*(u8 **)(work + 0x74C), pos,
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[1]), pos,
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartAlphaTask(*(u8 **)(work + 0x74C), 255, 0, 0, 0, 3);
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[1]), 255, 0, 0, 0, 3);
             sdkSpriteFreeNode(resource);
         }
     } else {
@@ -1424,24 +1420,24 @@ void smapRefreshCells(u8 *task, s8 mode)
             YVec2f pos = fclMakeVec2(15.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 12);
             fclSpriteActivateTask(((SMapWork *)work)->labels[0], pos, 0x4D, 60008);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartRevealScaleTask(*(u8 **)(work + 0x748), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartPositionTask(*(u8 **)(work + 0x748),
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartRevealScaleTask(MEMBER(u8 *, work, SMapWork, labels[0]), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[0]),
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartAlphaTask(*(u8 **)(work + 0x748), 0, 255, 0, 0, 0);
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[0]), 0, 255, 0, 0, 0);
             sdkSpriteFreeNode(resource);
             pos = fclMakeVec2(104.0f, 406.0f);
             resource = sdkSpriteNewNode(D_00764644, 13);
             fclSpriteActivateTask(((SMapWork *)work)->labels[1], pos, 0x4D, 60008);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartRevealScaleTask(*(u8 **)(work + 0x74C), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartPositionTask(*(u8 **)(work + 0x74C),
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartRevealScaleTask(MEMBER(u8 *, work, SMapWork, labels[1]), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartPositionTask(MEMBER(u8 *, work, SMapWork, labels[1]),
                 fclMakeVec2(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
-            /* measured: typing each retained access on this line loses owner MATCH. */
-            fclSpriteStartAlphaTask(*(u8 **)(work + 0x74C), 0, 255, 0, 0, 0);
+            /* measured: direct, typed-local and array member forms change retail instructions. */
+            fclSpriteStartAlphaTask(MEMBER(u8 *, work, SMapWork, labels[1]), 0, 255, 0, 0, 0);
             sdkSpriteFreeNode(resource);
         }
         for (visibleRow = 0; visibleRow < 24; visibleRow++) {
@@ -1458,6 +1454,7 @@ void smapRefreshCells(u8 *task, s8 mode)
 }
 #pragma pop
 
+/* Select the ten-frame opening or five-frame closing phase and restart its transition counter. */
 // FUN_002AFB70
 void smapSetPhase(u8 *task, s8 mode) {
     u8 *work;
@@ -1596,11 +1593,12 @@ void smapTaskDestroy(u8 *task) {
    that follows. arg4 is u8 (andi, not a sign extension). opt_loop_invariants on hoists the per-row
    (arg7 + i) << 8 out of the tile scan's inner loop as retail does (measured: 8 -> 3 differing words;
    writing `j = 0` before the row offset, as retail emits it, then gives 0). */
+/* Create a tile from its cell type and variant; cache texture bounds and optional room-icon offsets. */
 // FUN_002B0250
 #pragma push
 #pragma opt_loop_invariants on
-/* Create a tile from its cell type and variant; cache texture bounds and optional room-icon offsets. */
 u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 origin, u8 anchorColumn, u8 anchorRow) {
+    SMapCell *tile;
     u8 anchor[8];
     u8 *task;
     u8 *cell;
@@ -1615,8 +1613,9 @@ u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 or
     }
     chkmemAllocSiteTag(D_0063EF60, 0x5C4);
     cell = D_008873F4[0](1, 0x160, 0x40000);
+    tile = (SMapCell *)cell;
     task = (u8 *)(s32)kwlnTaskCreateChild((void *)((s32)parent), (const void *)(D_0063EFD8), 0xF, 0, 0, smapDrawCell, smapTaskDestroy, cell);
-    *(u8 **)cell = cell;
+    ((SMapCell *)cell)->self = cell;
     ((SMapCell *)cell)->type = cellType;
     ((SMapCell *)cell)->variant = variant;
     ((SMapCell *)cell)->origin = origin;
@@ -1642,8 +1641,7 @@ u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 or
             } else if (variant == 2) {
                 ((SMapCell *)cell)->textureBounds[2] = 0.296875f;
                 ((SMapCell *)cell)->textureBounds[3] = 0.015625f;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((SMapCell *)cell)->textureBounds[0] = *(f32 *)(cell + 0x24) + 0.578125f;
+                ((SMapCell *)cell)->textureBounds[0] = tile->textureBounds[2] + 0.578125f;
                 ((SMapCell *)cell)->textureBounds[1] = ((SMapCell *)cell)->textureBounds[3] + 0.578125f;
                 ((SMapCell *)cell)->height = 37.0f;
                 ((SMapCell *)cell)->width = 37.0f;
@@ -1658,12 +1656,11 @@ u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 or
                 ((SMapCell *)cell)->textureBounds[1] = 0.859375f;
                 ((SMapCell *)cell)->width = 19.0f;
                 ((SMapCell *)cell)->height = 55.0f;
-                *(cell + 0x142) = 1;
+                tile->orientation = 1;
             } else if (variant == 2) {
                 ((SMapCell *)cell)->textureBounds[2] = 0.296875f;
                 ((SMapCell *)cell)->textureBounds[3] = 0.015625f;
-                /* measured: typing each retained access on this line loses owner MATCH. */
-                ((SMapCell *)cell)->textureBounds[0] = *(f32 *)(cell + 0x24) + 0.578125f;
+                ((SMapCell *)cell)->textureBounds[0] = tile->textureBounds[2] + 0.578125f;
                 ((SMapCell *)cell)->textureBounds[1] = ((SMapCell *)cell)->textureBounds[3] + 0.578125f;
                 ((SMapCell *)cell)->height = 37.0f;
                 ((SMapCell *)cell)->width = 37.0f;
@@ -1704,7 +1701,7 @@ u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 or
             ((SMapCell *)cell)->width = 37.0f;
             ((SMapCell *)cell)->height = 37.0f;
             if (origin == 2 || origin == 1) {
-                *(cell + 0x142) = 2;
+                tile->orientation = 2;
             }
         } else if (variant == 2) {
             ((SMapCell *)cell)->textureBounds[3] = 0.296875f;
@@ -1729,13 +1726,13 @@ u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 or
             rowOfs = (anchorRow + rowStep) << 8;
             for (; columnStep < 2; columnStep++) {
                 map = MT_Scene_GetFrameState();
-                kind = ((FldFrameCell *)(rowOfs + (u32)map + (anchorColumn + columnStep) * 0x10 + 0x54))->flags >> 4;
+                kind = ((FldFrameCell *)(rowOfs + (u32)map + (anchorColumn + columnStep) * 0x10 + MEMBER_OFFSET(FldFrame, cells)))->flags >> 4;
                 if (kind == 2) {
                     ((SMapCell *)cell)->iconOffset.x = 9.0f;
                     ((SMapCell *)cell)->iconOffset.y = 9.0f;
                     ((SMapCell *)cell)->visibilityColumnOffset = (u8)columnStep;
                     ((SMapCell *)cell)->visibilityRowOffset = (u8)rowStep;
-                    *(cell + 0x14C) = 1;
+                    tile->hasIcon = 1;
                     return task;
                 }
             }
@@ -1745,9 +1742,10 @@ u8 *smapBuildTiles(u8 *parent, u8 column, u8 row, u8 cellType, u8 variant, u8 or
 }
 #pragma pop
 
-// FUN_002B07A0
 /* Set cell texture coordinates and bind the texture selected by its type and variant. */
+// FUN_002B07A0
 void smapDrawLabel(u8 *unused, u8 *cell) {
+    SMapCell *tile = (SMapCell *)cell;
     u8 *renderStates;
     u8 textureName[0x80];
     u8 cellType;
@@ -1784,8 +1782,7 @@ void smapDrawLabel(u8 *unused, u8 *cell) {
     }
     cellType = ((SMapCell *)cell)->type;
     if (cellType >= 9) {
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        if (*(u8 *)(cell + 5) == 1) {
+        if ((u8)tile->variant == 1) {
             switch (cellType) {
             case 9:
             case 10:
@@ -1800,8 +1797,8 @@ void smapDrawLabel(u8 *unused, u8 *cell) {
                 sprintf(textureName, D_0063EFF0, cellType);
                 break;
             }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        } else if (*(u8 *)(cell + 5) == 3) {
+        /* measured: direct, typed-local and array member forms change retail instructions. */
+        } else if (MEMBER(u8, cell, SMapCell, variant) == 3) {
             sprintf(textureName, D_0063EFF0, cellType);
         } else {
             switch (cellType) {
@@ -1820,8 +1817,7 @@ void smapDrawLabel(u8 *unused, u8 *cell) {
             }
         }
     } else if (cellType == 2) {
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        if (*(u8 *)(cell + 5) == 1) {
+        if ((u8)tile->variant == 1) {
             sprintf(textureName, D_0063F090, cellType);
         } else {
             sprintf(textureName, D_0063F0B0, cellType);
@@ -2037,6 +2033,7 @@ void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u
 #pragma pop
 
 
+/* Store the cell scroll offset and request one draw in scrolling-map mode. */
 // FUN_002B10A0
 void smapSetPosition(u8 *task, YVec2f offset) {
     u8 *cell = ((KwlnTask *)task)->work;
@@ -2117,8 +2114,8 @@ int smapWorldToRow(RwV3d position)
    retail $f1/$f0). Tried 6 orderings (q-before-p, k-split, x-local,
    reversed decls, buf-indexed read, computed ptr) — all nd 11-38.
    Load-hoist/schedule floor. */
-// FUN_002B1260
 /* Convert the player position within a 1200-unit grid column to a centered map-pixel offset. */
+// FUN_002B1260
 f32 smapPlayerOffsetX(u8 *task, f32 cellSize) {
     YVec3f position;
     u8 positionBuffer[0xC];
@@ -2143,8 +2140,8 @@ f32 smapPlayerOffsetX(u8 *task, f32 cellSize) {
    load to mid-chain but flips const to $f4/result $f2 (nd 10); const-first
    and named-m variants stay nd 11. Load-hoist/schedule floor, same as
    func_002b1260. */
-// FUN_002B1320
 /* Convert the player position within a 1200-unit grid row to a centered map-pixel offset. */
+// FUN_002B1320
 f32 smapPlayerOffsetZ(u8 *task, f32 cellSize) {
     YVec3f position;
     u8 positionBuffer[0xC];
@@ -2159,8 +2156,8 @@ f32 smapPlayerOffsetZ(u8 *task, f32 cellSize) {
     scale = cellSize / 1200.0f;
     return cellSize / 2.0f - relativeZ * scale;
 }
-// FUN_002B13E0
 /* Convert a world X coordinate within its grid cell to a centered map-pixel offset. */
+// FUN_002B13E0
 f32 smapPositionOffsetX(f32 cellSize, YVec3f *position) {
     YVec3f positionCopy, cellPosition;
     f32 column, relativeX, scale;
@@ -2173,8 +2170,8 @@ f32 smapPositionOffsetX(f32 cellSize, YVec3f *position) {
     return cellSize / 2.0f - relativeX * scale;
 }
 
-// FUN_002B1480
 /* Convert a world Z coordinate within its grid cell to a centered map-pixel offset. */
+// FUN_002B1480
 f32 smapPositionOffsetZ(f32 cellSize, YVec3f *position) {
     YVec3f offsetPosition, cellPosition, positionCopy;
     f32 row, relativeZ, scale;
@@ -2198,11 +2195,12 @@ f32 smapPositionOffsetZ(f32 cellSize, YVec3f *position) {
    `i1 = 0` and `k = 0` are written before the value they precede in retail (`i1 = 0; t4n = ...`), and the two
    ld/sd prologue copies write sp+8 from iGpffffa840 then sp+0 from iGpffffa848.
    opt_loop_invariants on hoists the guard compare/lui out of the loops. */
+/* Animate the map frame and strip sprites between scrolling and fixed-map panel layouts. */
 // FUN_002B1520
 #pragma push
 #pragma opt_loop_invariants on
-/* Animate the map frame and strip sprites between scrolling and fixed-map panel layouts. */
 void smapDrawPanel(s32 unused, u8 *work) {
+    SMapWork *map = (SMapWork *)work;
     u32 renderStates;
     u8 panelPositions[0x10];
     f32 scale;
@@ -2248,19 +2246,15 @@ void smapDrawPanel(s32 unused, u8 *work) {
         f32 t4n;
         u8 bv;
         t1 = fclEaseInterpolate(0, 179.0f, 312.0f, (f32)((SMapWork *)work)->transitionFrame, 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        t2 = fclEaseInterpolate(0, (f32)443, 312.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        t3 = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
+        t2 = fclEaseInterpolate(0, (f32)443, 312.0f, (f32)map->transitionFrame, 10.0f);
+        t3 = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)map->transitionFrame, 10.0f);
         t4 = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)((SMapWork *)work)->labelFrame, 5.0f);
         ((SMapItem *)(((SMapWork *)work)->ends[0]))->x = t1;
         ((SMapItem *)(((SMapWork *)work)->ends[1]))->x = t2;
         t3n = 255.0f - t3;
         bv = (u8)t3n;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapItem *)(*(u8 **)(work + 0x80)))->alphaSubtract = bv;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapItem *)(*(u8 **)(work + 0x7C)))->alphaSubtract = bv;
+        ((SMapItem *)((u8 *)map->ends[1]))->alphaSubtract = bv;
+        ((SMapItem *)((u8 *)map->ends[0]))->alphaSubtract = bv;
         fadeStrip = 0;
         t4n = 255.0f - t4;
         for (; fadeStrip < 3; fadeStrip++) {
@@ -2270,25 +2264,18 @@ void smapDrawPanel(s32 unused, u8 *work) {
                 ((SMapItem *)(((SMapWork *)work)->strips[(s32)fadeStrip][(s32)fadeSprite]))->alphaSubtract = vv;
             }
         }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        sdkSpriteDraw(*(u8 **)(work + 0x7C), 0);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        sdkSpriteDraw(*(u8 **)(work + 0x80), 0);
+        sdkSpriteDraw((u8 *)map->ends[0], 0);
+        sdkSpriteDraw((u8 *)map->ends[1], 0);
         for (drawStrip = 0; drawStrip < 3; drawStrip++) {
             for (drawSprite = 0; drawSprite < 6; drawSprite++) {
                 sdkSpriteDraw((u8 *)((SMapWork *)work)->strips[(s32)drawStrip][(s32)drawSprite], 0);
             }
         }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapPanelPositions *)panelPositions)->points[1].position.y = fclEaseInterpolate(0, (f32)327, 264.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)327, (f32)341, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        scale = fclEaseInterpolate(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameWidth = fclEaseInterpolate(0, 183.0f, 120.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameBottom = fclEaseInterpolate(0, 332.0f, (f32)395, (f32)*(s16 *)(work + 0x764), 10.0f);
+        ((SMapPanelPositions *)panelPositions)->points[1].position.y = fclEaseInterpolate(0, (f32)327, 264.0f, (f32)map->transitionFrame, 10.0f);
+        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)327, (f32)341, (f32)map->transitionFrame, 10.0f);
+        scale = fclEaseInterpolate(0, iGpffff84f4, 1.0f, (f32)map->transitionFrame, 10.0f);
+        frameWidth = fclEaseInterpolate(0, 183.0f, 120.0f, (f32)map->transitionFrame, 10.0f);
+        frameBottom = fclEaseInterpolate(0, 332.0f, (f32)395, (f32)map->transitionFrame, 10.0f);
         break;
     }
     case 3: {
@@ -2300,19 +2287,15 @@ void smapDrawPanel(s32 unused, u8 *work) {
         f32 t4n;
         u8 bv;
         t1 = fclEaseInterpolate(0, 312.0f, 179.0f, (f32)((SMapWork *)work)->transitionFrame, 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        t2 = fclEaseInterpolate(0, 312.0f, (f32)443, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        t3 = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s16 *)(work + 0x764), 5.0f);
+        t2 = fclEaseInterpolate(0, 312.0f, (f32)443, (f32)map->transitionFrame, 5.0f);
+        t3 = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)map->transitionFrame, 5.0f);
         t4 = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)((SMapWork *)work)->labelFrame, 5.0f);
         ((SMapItem *)(((SMapWork *)work)->ends[0]))->x = t1;
         ((SMapItem *)(((SMapWork *)work)->ends[1]))->x = t2;
         t3n = 255.0f - t3;
         bv = (u8)t3n;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapItem *)(*(u8 **)(work + 0x80)))->alphaSubtract = bv;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapItem *)(*(u8 **)(work + 0x7C)))->alphaSubtract = bv;
+        ((SMapItem *)((u8 *)map->ends[1]))->alphaSubtract = bv;
+        ((SMapItem *)((u8 *)map->ends[0]))->alphaSubtract = bv;
         revealStrip = 0;
         t4n = 255.0f - t4;
         for (; revealStrip < 3; revealStrip++) {
@@ -2322,16 +2305,11 @@ void smapDrawPanel(s32 unused, u8 *work) {
                 ((SMapItem *)(((SMapWork *)work)->strips[(s32)revealStrip][(s32)revealSprite]))->alphaSubtract = vv;
             }
         }
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapPanelPositions *)panelPositions)->points[1].position.y = fclEaseInterpolate(0, 264.0f, (f32)327, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)341, (f32)327, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        scale = fclEaseInterpolate(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameWidth = fclEaseInterpolate(0, 120.0f, 183.0f, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameBottom = fclEaseInterpolate(0, (f32)395, 332.0f, (f32)*(s16 *)(work + 0x764), 5.0f);
+        ((SMapPanelPositions *)panelPositions)->points[1].position.y = fclEaseInterpolate(0, 264.0f, (f32)327, (f32)map->transitionFrame, 5.0f);
+        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)341, (f32)327, (f32)map->transitionFrame, 5.0f);
+        scale = fclEaseInterpolate(0, 1.0f, iGpffff84f4, (f32)map->transitionFrame, 5.0f);
+        frameWidth = fclEaseInterpolate(0, 120.0f, 183.0f, (f32)map->transitionFrame, 5.0f);
+        frameBottom = fclEaseInterpolate(0, (f32)395, 332.0f, (f32)map->transitionFrame, 5.0f);
         /* fallthrough */
     }
     case 4:
@@ -2345,26 +2323,18 @@ void smapDrawPanel(s32 unused, u8 *work) {
         break;
     case 5:
         ((SMapPanelPositions *)panelPositions)->points[1].position.y = fclEaseInterpolate(0, (f32)327, 264.0f, (f32)((SMapWork *)work)->transitionFrame, 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)327, (f32)341, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        scale = fclEaseInterpolate(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameWidth = fclEaseInterpolate(0, 183.0f, 120.0f, (f32)*(s16 *)(work + 0x764), 10.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameBottom = fclEaseInterpolate(0, 332.0f, (f32)395, (f32)*(s16 *)(work + 0x764), 10.0f);
+        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)327, (f32)341, (f32)map->transitionFrame, 10.0f);
+        scale = fclEaseInterpolate(0, iGpffff84f4, 1.0f, (f32)map->transitionFrame, 10.0f);
+        frameWidth = fclEaseInterpolate(0, 183.0f, 120.0f, (f32)map->transitionFrame, 10.0f);
+        frameBottom = fclEaseInterpolate(0, 332.0f, (f32)395, (f32)map->transitionFrame, 10.0f);
         mapSymbolMarkerSetVariant(((SMapWork *)work)->playerMarker, 0);
         break;
     case 6:
         ((SMapPanelPositions *)panelPositions)->points[1].position.y = fclEaseInterpolate(0, 264.0f, (f32)327, (f32)((SMapWork *)work)->transitionFrame, 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)341, (f32)327, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        scale = fclEaseInterpolate(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameWidth = fclEaseInterpolate(0, 120.0f, 183.0f, (f32)*(s16 *)(work + 0x764), 5.0f);
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        frameBottom = fclEaseInterpolate(0, (f32)395, 332.0f, (f32)*(s16 *)(work + 0x764), 5.0f);
+        ((SMapPanelPositions *)panelPositions)->points[0].position.y = fclEaseInterpolate(0, (f32)341, (f32)327, (f32)map->transitionFrame, 5.0f);
+        scale = fclEaseInterpolate(0, 1.0f, iGpffff84f4, (f32)map->transitionFrame, 5.0f);
+        frameWidth = fclEaseInterpolate(0, 120.0f, 183.0f, (f32)map->transitionFrame, 5.0f);
+        frameBottom = fclEaseInterpolate(0, (f32)395, 332.0f, (f32)map->transitionFrame, 5.0f);
         mapSymbolMarkerSetVariant(((SMapWork *)work)->playerMarker, 1);
         break;
     default:
@@ -2372,11 +2342,11 @@ void smapDrawPanel(s32 unused, u8 *work) {
     }
     if (scale > iGpffff84f4) {
         ((SMapItem *)(((SMapWork *)work)->corners[1]))->y = ((SMapPanelPositions *)panelPositions)->points[1].position.y;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapItem *)(((SMapWork *)work)->corners[0]))->y = *(f32 *)(panelPositions + 12);
+        /* measured: direct, typed-local and array member forms change retail instructions. */
+        ((SMapItem *)(((SMapWork *)work)->corners[0]))->y = MEMBER(f32, panelPositions, SMapPanelPositions, points[1].position.y);
         ((SMapItem *)(((SMapWork *)work)->corners[3]))->y = ((SMapPanelPositions *)panelPositions)->points[0].position.y;
-        /* measured: typing each retained access on this line loses owner MATCH. */
-        ((SMapItem *)(((SMapWork *)work)->corners[2]))->y = *(f32 *)(panelPositions + 4);
+        /* measured: direct, typed-local and array member forms change retail instructions. */
+        ((SMapItem *)(((SMapWork *)work)->corners[2]))->y = MEMBER(f32, panelPositions, SMapPanelPositions, points[0].position.y);
         cornerIndex = 0;
         fixedScale = scale * 4096.0f;
         for (; cornerIndex < 4; cornerIndex++) {
@@ -2388,15 +2358,14 @@ void smapDrawPanel(s32 unused, u8 *work) {
             sdkSpriteDraw(*pp, 0);
         }
     }
-    /* measured: typing each retained access on this line loses owner MATCH. */
-    *(f32 *)(fclGetWorkPointer(((SMapWork *)work)->frames[0]) + 0x10) = frameWidth;
+    ((SMapRectangle *)fclGetWorkPointer(((SMapWork *)work)->frames[0]))->height = frameWidth;
     ((SMapRectangle *)fclGetWorkPointer(((SMapWork *)work)->frames[2]))->position.y = frameBottom;
 }
 #pragma opt_loop_invariants off
 #pragma pop
 
-// FUN_002B2240
 /* Clear the embedded ordering-table node's next/tail links before appending it again. */
+// FUN_002B2240
 void smapClearSelection(u8 *task) {
     u8 *work = ((KwlnTask *)task)->work;
 
@@ -2417,11 +2386,11 @@ void smapClearSelection(u8 *task) {
    gives the constant-first operand order (a self-update `y = -99.0f + y`
    is variable-first). Prior archive: build/WBYList_y_smap_2290_candidate.c
    (nd 409). */
-// FUN_002B2290
 /* measured: opt_loop_invariants on hoists the loop-3 float constants into
    $a0/$v1 and fixes loop 1 addu operand order (nd 18 -> 0 with it). */
-#pragma opt_loop_invariants on
 /* Allocate the map corner, strip and end sprites and initialize their queued panel draw node. */
+// FUN_002B2290
+#pragma opt_loop_invariants on
 void smapUpdateItems(u8 *task)
 {
     s16 cornerIndex;
@@ -2476,8 +2445,8 @@ void smapUpdateItems(u8 *task)
 /* measured: closes the loop-invariant bracket; the file default is off. */
 #pragma opt_loop_invariants off
 
-// FUN_002B2500
 /* Install the blend, depth and texture states used by queued map rectangles. */
+// FUN_002B2500
 void smapSetRenderStates(void) {
     u8 *fp = (u8 *)D_00887300;
 
@@ -2504,8 +2473,8 @@ void smapSetRenderStates(void) {
 #pragma schedule off
 // measured: probe propagation-off load ordering.
 #pragma opt_propagation off
-// FUN_002B25D0
 /* Populate four colored rectangle vertices and queue a draw with the map render-state callback. */
+// FUN_002B25D0
 s32 smapUpdateOverlay(u8 *task) {
     f32 reciprocalDepth;
     f32 nearDepth;
@@ -2565,8 +2534,8 @@ void smapDestroyOverlay(u8 *task)
    v0 through the work initialization: 260B/272B, twelve resolved references
    exact, and every sibling body, reference and owned data section preserved.
    Proof: build/cos20814/worker3-ui/rectangle_relocation_proof.json. */
-// FUN_002B2830
 /* Allocate a rectangle work block and register it as a child map-overlay task. */
+// FUN_002B2830
 u8 *smapCreateOverlay(u8 *parent, YVec2f position, f32 width, f32 height, u32 color) {
     u8 *work;
     u8 *task;

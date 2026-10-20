@@ -11,12 +11,6 @@
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *config);
 extern void *D_00609850[];
-/* The surrounding wrappers use the raw s64 ABI; this typed view preserves
-   the 32-bit call result at this store site. */
-static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
 
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -97,8 +91,8 @@ extern s32 btlCurrentUnitId(void);
  * consumes its low20 bits; higher bits have no role in table selection. */
 /* Select a weighted status-dependent AI command and dispatch its packed target condition. */
 void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlAction *statusAction = (BtlAction *)action;
+
     extern s32 datGetMoney();
     extern void btlAICommandSetActionCode(u8 *action, u8 *command, u16);
     extern s32 datCalcRandomBelow(u32 limit);
@@ -128,13 +122,13 @@ void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
     u8 *unit;
     s32 (*callback)(u8 *, s64);
 
-    ((BtlTargetRecord *)command)->count = 0;
-    ((BtlTargetRecord *)command)->command = 0;
-    ((BtlTargetRecord *)command)->skill = 0;
-    ((BtlTargetRecord *)command)->kind = 0;
-    ((BtlTargetRecord *)command)->unk50 = 0;
-    ((BtlTargetRecord *)command)->unk54 = 0;
-    ((BtlTargetRecord *)command)->unk58 = 0;
+    ((BtlAiCommandWork *)command)->targetCount = 0;
+    ((BtlAiCommandWork *)command)->command = 0;
+    ((BtlAiCommandWork *)command)->skill = 0;
+    ((BtlAiCommandWork *)command)->kind = 0;
+    ((BtlAiCommandWork *)command)->unk50 = 0;
+    ((BtlAiCommandWork *)command)->unk54 = 0;
+    ((BtlAiCommandWork *)command)->unk58 = 0;
     memset(command + 0x3E, 0, 6);
     table = NULL;
     entry = NULL;
@@ -156,7 +150,7 @@ void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
         }
         if (((s32 (*)(u8 *, s32))D_006098BC[0])(action, 1) != 0)
             state++;
-        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0)
+        if (statusAction->unit->genus == 0)
             table = D_00609E50;
         else
             table = D_00609EF0;
@@ -184,7 +178,7 @@ void btlAiSelectStatusCommand(u8 *action, u8 *command, u32 status) {
         row = table + (state & 0xFFFF) * 0x28;
         goto eb4a0_sum_test;
 eb4a0_sum_body:
-        sum = (sum + *(u8 *)(row + ((u16)index * 8))) & 0xFFFF;
+        sum = (sum + ((BtlAiWeightedCommand *)row)[(u16)index].weight) & 0xFFFF;
         index = (index + 1) & 0xFFFF;
 eb4a0_sum_test:
         if ((index & 0xFFFF) < 5)
@@ -228,8 +222,8 @@ void btlTargetEndDamagePhase(void) {
     }
 }
 
+/* Allow damage-phase controls unless battle flag 0x80 or encounter 0x215 forbids them. */
 // FUN_001EB860
-/* Disable the damage-phase controls for flag 0x80 and encounter 0x215. */
 s32 btlTargetCanControlDamagePhase(void) {
     u8 *battle;
     s32 result;

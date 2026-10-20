@@ -4,9 +4,12 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "fcl_assist_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
+#include "itf_mes_objects.h"
+#include "scene_task_internal.h"
 
 
 extern int *comuDataRemoveAndReleaseNode(int *, int *, int *);
@@ -63,7 +66,7 @@ extern u32 D_0076466C;
 // FUN_0014A2E0
 void fclMiscSetExternalWord(u32 value)
 {
-    *(u32 *)(PTR_DAT_00762ea0 + 0x14) = value;
+    ((SceneContext *)PTR_DAT_00762ea0)->sortCharacters = value;
 }
 
 /* Attach user data to the message window subtable; only its +0x18 member is known here. */
@@ -73,7 +76,7 @@ void fclMesWindowSetUserData(s32 handle, void *userdata)
     int subTable;
 
     subTable = itfMesWindowGetSubTable(handle);
-    *(void **)(subTable + 0x18) = userdata;
+    ((ItfMesProcedure *)subTable)->userdata = userdata;
 }
 
 
@@ -141,6 +144,7 @@ void fclMiscCreateAssistTask(void)
 // FUN_002BCE00
 s32 msgAssistUpdate(u8 *unusedTask)
 {
+    FclAssistManager *managerFields;
     u8 *manager;
     u8 *head;
     u8 *entry;
@@ -149,7 +153,8 @@ s32 msgAssistUpdate(u8 *unusedTask)
     s32 i;
 
     manager = (u8 *)(uintptr_t)iGpffffb57c;
-    flags = *(s32 *)(manager + 4);
+    managerFields = (FclAssistManager *)manager;
+    flags = ((FclAssistManager *)manager)->flags;
     if ((flags & 1) != 0)
     {
         if ((flags & 2) != 0)
@@ -157,7 +162,7 @@ s32 msgAssistUpdate(u8 *unusedTask)
             fclMiscPruneLists((int *)manager);
             if (fclMiscPendingIsEmpty() != 0)
             {
-                *(s32 *)(manager + 4) &= ~2;
+                managerFields->flags &= ~2;
                 fclMiscSetWord14(0);
                 comuDataClearList(*(void **)manager,
                               (u8 *)*(void **)manager + 4);
@@ -170,35 +175,35 @@ s32 msgAssistUpdate(u8 *unusedTask)
             }
             goto update_tail;
         }
-        head = *(u8 **)((u8 *)*(u32 *)manager + 4);
+        head = (u8 *)((FclAssistList *)*(u32 *)manager)->head;
         if (head == NULL)
         {
             item = NULL;
             goto process_item;
         }
-        item = *(u8 **)(head + 0x14);
+        item = ((FclAssistNode *)head)->data;
 process_item:
         if (item == NULL)
         {
             goto update_tail;
         }
-        *(s32 *)(manager + 4) = flags & ~1;
-        fclMiscAcquireHandle(item + 0x10, *(u8 **)(item + 0x28));
+        MEMBER(s32, manager, FclAssistManager, flags) = flags & ~1;
+        fclMiscAcquireHandle(item + 0x10, ((FclAssistEntry *)item)->source);
         fclMiscAttachSlot(manager, 0);
-        fclMiscAttachSlot(manager, *(s32 *)(item + 0x2c));
-        *(s32 *)(item + 4) |= 2;
-        *(s32 *)(item + 4) |= 1;
+        fclMiscAttachSlot(manager, ((FclAssistEntry *)item)->slotIndex);
+        ((FclAssistEntry *)item)->flags |= 2;
+        ((FclAssistEntry *)item)->flags |= 1;
     }
 update_tail:
-    head = *(u8 **)((u8 *)*(u32 *)manager + 4);
+    head = (u8 *)((FclAssistList *)*(u32 *)manager)->head;
     if (head != NULL)
     {
-        entry = *(u8 **)(head + 0x14);
-        if ((*(s32 *)(entry + 4) & 2) != 0)
+        entry = ((FclAssistNode *)head)->data;
+        if ((((FclAssistEntry *)entry)->flags & 2) != 0)
         {
             if (fclMiscTryReleaseEntry(manager, entry) != 0)
             {
-                *(s32 *)(manager + 4) |= 1;
+                MEMBER(s32, manager, FclAssistManager, flags) |= 1;
                 comuDataRemoveAndReleaseNode(*(int **)manager,
                               (int *)((u8 *)*(int **)manager + 4),
                               (int *)head);
@@ -212,6 +217,8 @@ update_tail:
 /* Typed entry/slot accesses changed codegen (nd405); retain offsets from fcl_assist_internal.h. */
 // FUN_002BCFB0
 s32 fclMiscTryReleaseEntry(u8 *manager, u8 *entry) {
+    FclAssistEntry *entryFields = (FclAssistEntry *)entry;
+    FclAssistManager *managerFields = (FclAssistManager *)manager;
     extern u32 fclMiscCloseHandle(u32 *);
     /* measured: s8 here regresses func_002bcfb0 (MATCH -> MISMATCH); the s32 extern keeps its compare. */
     extern s32 fclMiscHandleState(int *); /* lint: allow H011 -- measured: s8 regresses func_002bcfb0 MATCH->MISMATCH; retail consumes the full register */
@@ -220,18 +227,18 @@ s32 fclMiscTryReleaseEntry(u8 *manager, u8 *entry) {
     s32 flags;
     u8 *slotBase;
 
-    flags = *(s32 *)(entry + 4);
+    flags = ((FclAssistEntry *)entry)->flags;
     if (flags & 4) {
-        if (!(itfMesWindowGetFlags(*(s32 *)(entry + 0x10)) & 0x3300)) {
+        if (!(itfMesWindowGetFlags(((FclAssistEntry *)entry)->window.handle) & 0x3300)) {
             fclMiscReleaseHandle((int *)(entry + 0x10));
-            if (!(*(s32 *)(manager + 0x14) & 1)) {
+            if (!(((FclAssistManager *)manager)->stateFlags & 1)) {
                 if (manager == NULL) {
                     kAssertFail(&D_0063F2A0, 0x58F);
                 }
-                *(s32 *)(manager + 0x1C) |= 4;
+                ((FclAssistManager *)manager)->slots[0].flags |= 4;
             }
-            slotIndex = *(s32 *)(entry + 0x2C);
-            if (!(*(s32 *)(manager + 0x14) & (1 << slotIndex))) {
+            slotIndex = ((FclAssistEntry *)entry)->slotIndex;
+            if (!(managerFields->stateFlags & (1 << slotIndex))) {
                 if (manager == NULL) {
                     kAssertFail(&D_0063F2A0, 0x58F);
                 }
@@ -239,7 +246,7 @@ s32 fclMiscTryReleaseEntry(u8 *manager, u8 *entry) {
                     kAssertFail(&D_0063F2A0, 0x590);
                 }
                 slotBase = manager + (slotIndex * 0xC);
-                *(s32 *)(slotBase + 0x1C) |= 4;
+                ((FclAssistSlot *)(slotBase + 0x1C))->flags |= 4;
             }
             return 1;
         }
@@ -249,23 +256,23 @@ s32 fclMiscTryReleaseEntry(u8 *manager, u8 *entry) {
         if (manager == NULL) {
             kAssertFail(&D_0063F2A0, 0x587);
         }
-        if (!(*(s32 *)(manager + 0x1C) & 2)) {
+        if (!(((FclAssistManager *)manager)->slots[0].flags & 2)) {
             return 0;
         }
-        activeSlotIndex = *(s32 *)(entry + 0x2C);
+        activeSlotIndex = ((FclAssistEntry *)entry)->slotIndex;
         if (manager == NULL) {
             kAssertFail(&D_0063F2A0, 0x587);
         }
-        if (!(*(s32 *)(manager + (activeSlotIndex * 0xC) + 0x1C) & 2)) {
+        if (!(((FclAssistManager *)manager)->slots[activeSlotIndex].flags & 2)) {
             return 0;
         }
-        *(s32 *)(entry + 4) &= ~1;
-        fclMiscActivateHandle(entry + 0x10, *(s32 *)(entry + 0x2C), *(s32 *)(entry + 0x20));
+        entryFields->flags &= ~1;
+        fclMiscActivateHandle(entry + 0x10, MEMBER(s32, entry, FclAssistEntry, slotIndex), MEMBER(s32, entry, FclAssistEntry, record));
     }
     fclMiscUpdateHandle((int *)(entry + 0x10));
     if (fclMiscHandleState((int *)(entry + 0x10)) == 0) {
         fclMiscCloseHandle((u32 *)(entry + 0x10));
-        *(s32 *)(entry + 4) |= 4;
+        MEMBER(s32, entry, FclAssistEntry, flags) |= 4;
     }
     return 0;
 }
@@ -278,11 +285,11 @@ s32 fclMiscSlotValue(s32 slotIndex)
 
     entry = (u8*)iGpffffb57c;
     entry = (u8*)(slotIndex * 0xc) + (u32)entry;
-    if ((*(s32*)(entry + 0x1c) & 2) == 0)
+    if ((((FclAssistSlot *)(entry + 0x1C))->flags & 2) == 0)
     {
         return 0;
     }
-    return *(s32*)(entry + 0x24);
+    return ((FclAssistSlot *)(entry + 0x1C))->sprite;
 }
 /* Returns 1 when the pending list at iGpffffb57c+0x18 has no entries. */
 // FUN_002BD220
@@ -356,13 +363,15 @@ void fclMiscSetDoneFlag(void)
 // FUN_002BD440
 void fclMiscCloseActiveHandle(void)
 {
+    FclAssistEntry *contextFields;
     u8 *context;
 
-    if (*(int *)(*piGpffffb57c + 4) != 0) {
-        context = *(u8 **)(*(int *)(*piGpffffb57c + 4) + 0x14);
-        if ((*(u32 *)(context + 4) & 2) != 0) {
+    if ((int)((FclAssistList *)*piGpffffb57c)->head != 0) {
+        context = (u8 *)((FclAssistNode *)((FclAssistList *)*piGpffffb57c)->head)->data;
+    contextFields = (FclAssistEntry *)context;
+        if ((((FclAssistEntry *)context)->flags & 2) != 0) {
             fclMiscCloseHandle(context + 0x10);
-            *(u32 *)(context + 4) |= 4;
+            contextFields->flags |= 4;
         }
     }
 }
@@ -452,6 +461,7 @@ s8 fclMiscHandleState(int *window)
 // FUN_002BD660
 void fclMiscUpdateHandle(int *window)
 {
+    FclAssistHandle *windowFields = (FclAssistHandle *)window;
     int state;
     s8 mode;
 
@@ -459,21 +469,21 @@ void fclMiscUpdateHandle(int *window)
     if (state < 0) {
         return;
     }
-    mode = *(s8 *)((u8 *)window + 4);
+    mode = ((FclAssistHandle *)window)->mode;
     switch (mode) {
     case 0:
         return;
     case 1:
         if (itfMesWindowState(state) < 0) {
-            *(u8 *)(window + 1) = 2;
+            windowFields->mode = 2;
         }
         break;
     case 2:
         if (window[2] >= 0) {
             window[2] = -1;
         }
-        if (*(s8 *)((u8 *)window + 5) == 0) {
-            *(u8 *)(window + 1) = 3;
+        if (((FclAssistHandle *)window)->suspended == 0) {
+            MEMBER(u8, (u8 *)window, FclAssistHandle, mode) = 3;
         }
         break;
     case 3:

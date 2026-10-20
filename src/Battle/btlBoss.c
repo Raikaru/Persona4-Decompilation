@@ -1,3 +1,6 @@
+#include "member_access.h"
+/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
+ * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_internal.h"
@@ -60,8 +63,8 @@ s32 btlBossUnitsSameGenus(BtlUnit* first, BtlUnit* second)
 
 
 
+/* Reject a distinct same-side target only for a non-enemy actor outside status 0x100; return one when unrestricted. */
 // FUN_0022FC00
-/* Reject targeting outside boss mode, for enemies/self, mismatched genera, or acting-unit status bit 0x100. */
 s32 btlBossTargetBlocked(u8* action)
 {
     u8 genus;
@@ -99,8 +102,8 @@ s32 btlBossTargetBlocked(u8* action)
     }
     return 0;
 }
+/* Return zero only for two enemy units during a boss encounter; all other pairs are accepted. */
 // FUN_0022FCE0
-/* In boss mode, reject a pair when both units have enemy genus. */
 u32 btlBossFlagPairOk(s32 first, s32 second)
 {
     u8 value;
@@ -121,8 +124,8 @@ u32 btlBossFlagPairOk(s32 first, s32 second)
 
 
 
+/* Report unrestricted actions outside enabled boss enemy actions; otherwise invert the skill target-reach predicate. */
 // FUN_0022FD30
-/* Require an attached enemy unit and a skill that reaches its targets while boss mode is enabled. */
 s32 btlBossActionBlocked(u8* action)
 {
     if ((*(s32 *)&((BtlBattleState *)DAT_0076449c)->flags & 0x200000) == 0)
@@ -153,7 +156,7 @@ void btlBossCollectTargets(u8 *preferredAction)
     u8 *previousAction;
     u8 *action;
 
-    battleFlags = *(s32 *)(DAT_0076449c + 0xC);
+    battleFlags = *(s32 *)&((BtlBattleState *)(DAT_0076449c))->flags;
     if ((battleFlags & 0x200000) != 0)
     {
         encounterFlags = (s32 *)(iGpffffb414 +
@@ -161,23 +164,23 @@ void btlBossCollectTargets(u8 *preferredAction)
         memset(DAT_0076449c + 0x29C, 0, 0x30);
         battle = DAT_0076449c;
         queueSlot = (u8 **)(battle + 0x29C);
-        action = *(u8 **)(battle + 0x174);
+        action = *(u8 * *)&((BtlBattleState *)(battle))->actions;
 loop_2:
-        previousAction = *(u8 **)(action + 0x450);
+        previousAction = *(u8 * *)&((BtlAction *)(action))->next;
         if (previousAction != NULL)
         {
             action = previousAction;
             goto loop_2;
         }
 loop_4:
-        if (((*(u16 *)(action + 0x1A) & 1) != 0) ^ 1)
+        if (((*(u16 *)&((BtlAction *)(action))->unk_1a & 1) != 0) ^ 1)
             goto loop_4_next;
-        if (datCalcIsDead((*(BtlUnit **)(action + 0x30))->datUnit, 0) != 0)
+        if (datCalcIsDead((*(BtlUnit * *)&((BtlAction *)(action))->unit)->datUnit, 0) != 0)
             goto loop_4_next;
         {
             *queueSlot = action;
             queueSlot += 1;
-            actionFlags = *(u16 *)(action + 0x1A);
+            actionFlags = MEMBER(u16, action, BtlAction, unk_1a);
             if ((actionFlags & 0x2000) != 0)
             {
                 queueSlot[0] = action;
@@ -193,7 +196,7 @@ loop_4:
             }
         }
 loop_4_next:
-        action = *(u8 **)(action + 0x44C);
+        action = *(u8 * *)&((BtlAction *)(action))->previous;
         switch ((u32)action)
         {
         case 0:
@@ -205,7 +208,7 @@ loop_4_done:
         if ((*encounterFlags & 0x10) != 0)
             btlActionQueueSortKeepingKind(1);
         if ((preferredAction != NULL) &&
-            (datCalcIsDead((*(BtlUnit **)(preferredAction + 0x30))->datUnit, 0) == 0))
+            (datCalcIsDead((*(BtlUnit * *)&((BtlAction *)(preferredAction))->unit)->datUnit, 0) == 0))
         {
 loop_16:
             frontAction = btlActionGetQueueFront();
@@ -333,8 +336,8 @@ loop_done:
 }
 
 #pragma opt_loop_invariants off
+/* Select encounters that use the special boss-opening action path; unlisted encounter IDs return zero. */
 // FUN_00230210
-/* Recognize the boss encounter IDs that use the special opening-motion handling. */
 s32 btlBossIsAllowedAction(void)
 {
     s32 encounterId;
@@ -379,8 +382,8 @@ s32 btlBossIsAllowedAction(void)
         return 0;
     }
 }
+/* Clear the pending formation cue for the enumerated boss unit IDs; leave other units and ordinary encounters unchanged. */
 // FUN_00230340
-/* Reset the pending boss cue to -1 for the listed attached enemy units. */
 void btlBossResetPendingCue(u8 *action)
 {
     u8 *unit;
@@ -411,8 +414,8 @@ void btlBossResetPendingCue(u8 *action)
         }
     }
 }
+/* Format the current encounter resource path and acquire its directory into the battle boss-resource handle. */
 // FUN_002303E0
-/* Format the current boss resource directory and begin its asynchronous acquisition. */
 u32 btlBossLoadPakInit(void* work)
 {
     u8 buf[0x80];
@@ -424,8 +427,8 @@ u32 btlBossLoadPakInit(void* work)
 
 
 
+/* Wait for the boss resource directory, then allocate encounter slots; a missing handle completes immediately. */
 // FUN_00230450
-/* Wait for the boss directory, then allocate encounter slots; return one when ready. */
 u32 btlBossLoadPakUpdate(void* work)
 {
     u32 handle;
@@ -443,8 +446,8 @@ u32 btlBossLoadPakUpdate(void* work)
     return 0;
 }
 
+/* Create the boss-resource loading packet with asynchronous initialization and completion callbacks, clearing flag bit zero. */
 // FUN_002304B0
-/* Create a boss-resource load packet with initialization and polling callbacks. */
 BtlPacket* btlBossCreateLoadPakPacket(void)
 {
     BtlPacket* packet;
@@ -464,8 +467,8 @@ typedef struct BtlBossEndBgmWork {
     u32 loaded;    // 0x04
 } BtlBossEndBgmWork;
 
+/* Acquire the encounter end-BGM directory on the first step, then report completion after its load finishes. */
 // FUN_00230500
-/* Acquire the encounter end-BGM directory once, then poll for completion. */
 u32 btlBossLoadEndBgmStep(BtlBossEndBgmWork* work)
 {
     u8 buf[0x80];

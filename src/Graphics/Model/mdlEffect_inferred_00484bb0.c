@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "mdl_effect_dispatch_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
@@ -50,12 +52,6 @@ extern f32 fGpffff8044;
 
 
 extern void (*jtbl_008873EC[])(void *);
-static inline f32 code1_0048_mul(f32 left, f32 right) {
-    return left * right;
-}
-static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
-    fn(value);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484bb0-00485870 */
 
@@ -100,6 +96,8 @@ typedef struct Code48InitialState {
 #pragma opt_propagation off
 u8 *mdlEffectBuildFromResource(u8 *effect)
 {
+    MdlEffectTree *cloneTree;
+
     extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
     extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
     extern void mdlEffectSetChildScales(u8 *effect, f32 value);
@@ -137,12 +135,12 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
             kAssertFail(D_00713470, 0x547);
         }
         memset(clone, 0, 0x90);
-        *(s32 *)(clone + 0x80) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        (cloneTree = (MdlEffectTree *)clone)->childCount = 0; /* measured: the separate typed pointer preserves MATCH under b210. */
         *(s32 *)&((MdlEffectTree *)clone)->frame = 0;
         mdlEffectInitParticleState(clone);
         /* Retail initializes both vectors from the first input quad. */
         *(u_long128 *)clone = *(u_long128 *)input;
-        *(u_long128 *)((MdlEffectState *)clone)->rotation = *(u_long128 *)input; /* Transfer the complete quadword representation, including the VU W lane. */
+        *(u_long128 *)&((MdlEffectState *)clone)->rotation = *(u_long128 *)input; /* Transfer the complete quadword representation, including the VU W lane. */
         ((MdlEffectState *)clone)->multiplier = ((MdlEffectState *)input)->multiplier;
         ((MdlEffectState *)clone)->flags.signedValue = ((MdlEffectState *)input)->flags.signedValue;
         if (((MdlEffectNode *)input)->children != NULL) {
@@ -173,17 +171,17 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)linkedSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)linkedSource)->sourceKind;
-                    if (*(u16 *)(prim + 0x4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x2DE);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))(linkedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                        (((MdlEffectPrimitiveHandlers *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))->create)(linkedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
                     ((MdlEffectNode *)nodeClone)->primitive = prim;
                 } else {
                     found = mdlEffectFindNodeById(input, ((MdlEffectNode *)node)->id);
@@ -200,20 +198,20 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)childSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)childSource)->sourceKind;
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6) + 0x14) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x321);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6) + 0x14))(((MdlEffectPrimitiveRecord *)childSource)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                        (((MdlEffectPrimitiveHandlers *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))->clone)(((MdlEffectPrimitiveRecord *)childSource)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
                     ((MdlEffectNode *)nodeClone)->primitive = prim;
                 }
                 mdlEffectCopyRecord(nodeClone, node);
                 strcpy((char *)nodeClone + 0x9C, (const char *)node + 0x9C);
                 *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
-                if (*(u8 **)(clone + 0x88) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
                     ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
                 } else {
@@ -258,7 +256,7 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     sourceIndex = ((MdlEffectNode *)cur)->sourceIndex;
                     slot = base + sourceIndex * 0xC0;
                     target = input + ((MdlEffectNode *)slot)->id;
-                    if (*(s32 *)(target + 0x24) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(s32, target, MdlEffectSource, secondaryCount) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x5BE);
                     }
                     *(s32 *)parameterCount = ((MdlEffectSource *)target)->secondaryCount;
@@ -281,17 +279,17 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)indexedSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)indexedSource)->sourceKind;
-                    if (*(u16 *)(prim + 0x4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x2DE);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))(indexedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                        (((MdlEffectPrimitiveHandlers *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))->create)(indexedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
                     ((MdlEffectNode *)nodeClone)->primitive = prim;
                     *(s32 *)parameterCount = 0;
                     *(s32 *)parameterOffset = 0;
@@ -307,17 +305,17 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)indexedSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)indexedSource)->sourceKind;
-                    if (*(u16 *)(prim + 0x4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x2DE);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))(indexedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                        (((MdlEffectPrimitiveHandlers *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))->create)(indexedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
                     ((MdlEffectNode *)nodeClone)->primitive = prim;
                 }
             } else {
@@ -333,20 +331,20 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                 }
                 memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
-                *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                 ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)childSource)->id;
                 ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)childSource)->sourceKind;
-                if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6) + 0x14) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                     kAssertFail(D_00713470, 0x321);
                 }
                 ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
-                    (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6) + 0x14))(((MdlEffectPrimitiveRecord *)childSource)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                    (((MdlEffectPrimitiveHandlers *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))->clone)(((MdlEffectPrimitiveRecord *)childSource)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
                 ((MdlEffectNode *)nodeClone)->primitive = prim;
             }
             mdlEffectCopyRecord(nodeClone, cur);
             strcpy((char *)nodeClone + 0x9C, (const char *)cur + 0x9C);
             *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
-            if (*(u8 **)(clone + 0x88) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                 ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
                 ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
             } else {
@@ -448,7 +446,7 @@ void mdlEffectCommitTreeFrame(u8 *effect)
         if ((((MdlEffectNode *)child)->flags & 2) != 0) {
             continue;
         }
-        if ((*(s32 *)(child + 0x68) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if ((MEMBER(s32, child, MdlEffectState, flags.signedValue) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
             mdlEffectResolveChildOffset(child, (u8 *)&work.origin, &work.position);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
             childFlags = ((MdlEffectState *)child)->flags.signedValue;
@@ -576,7 +574,7 @@ void mdlEffectFlushTreeFrame(u8 *effect)
             continue;
         }
         if ((flags & mask) == 0) {
-            if ((*(s32 *)(child + 0x68) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            if ((MEMBER(s32, child, MdlEffectState, flags.signedValue) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                 mdlEffectResolveChildOffset(child, (u8 *)&work.origin, &work.position);
                 __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
                 childFlags = ((MdlEffectState *)child)->flags.signedValue;

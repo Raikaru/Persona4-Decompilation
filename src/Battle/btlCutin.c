@@ -1,3 +1,4 @@
+#include "h_cdvd_request_internal.h"
 #include "btl_effect_internal.h"
 /* Original translation unit btlCutin.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
@@ -51,8 +52,7 @@ extern char D_00625160[];
 /* Exact under MWCC b210/O2: evaluate the case-0 count first, use the
    table element directly for the first format call, then retain the
    table-element address for the loop. */
-/* Build cut-in resource paths from the request and day window, then start the required asynchronous loads.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Build cut-in resource paths from the request and day window, then start the required asynchronous loads. */
 // FUN_001F9CF0
 void btlCutinLoad(u8 *request) {
     s32 slotOffset;
@@ -65,45 +65,44 @@ void btlCutinLoad(u8 *request) {
     case 0: {
         const char **suffix;
         s32 count;
-        count = *(s16 *)(request + 8);
+        count = ((BtlCutinRequest *)(request))->count;
         sprintf(path, D_00625060, count + 1, count + 1, iGpffffa520[dayWindow]);
         suffix = &iGpffffa520[dayWindow];
         func_00440b68(iGpffffa528, D_00625090, 0x26);
-        *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+        *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinHandles[0] = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         slotIndex = 0;
         while (slotIndex < count) {
             slotOffset = slotIndex * 4;
             sprintf(path, D_006250A0, count + 1, count + 1,
                           D_00625050[slotIndex],
-                          *(s16 *)(request + slotIndex * 2 + 2), *suffix);
+                          ((BtlCutinRequest *)(request))->ids[slotIndex], *suffix);
             func_00440b68(iGpffffa528, D_00625090, 0x2C);
-            *(s32 *)(iGpffffb3ac + slotOffset + 0xB70) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+            *(s32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinHandles[1] = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
             slotIndex++;
         }
         sprintf(path, D_006250D0, count + 1, count + 1);
         func_00440b68(iGpffffa528, D_00625090, 0x2F);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+        *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinHandle = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     }
     case 2:
-        sprintf(path, D_00625100, *(s16 *)(request + 2), iGpffffa520[dayWindow]);
+        sprintf(path, D_00625100, ((BtlCutinRequest *)(request))->ids[0], iGpffffa520[dayWindow]);
         func_00440b68(iGpffffa528, D_00625090, 0x35);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+        *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinHandle = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     case 4:
-        if (*(s16 *)(request + 2) < 0xB) sprintf(path, D_00625130, *(s16 *)(request + 2));
-        else sprintf(path, D_00625160, *(s16 *)(request + 2));
+        if (((BtlCutinRequest *)(request))->ids[0] < 0xB) sprintf(path, D_00625130, ((BtlCutinRequest *)(request))->ids[0]);
+        else sprintf(path, D_00625160, ((BtlCutinRequest *)(request))->ids[0]);
         func_00440b68(iGpffffa528, D_00625090, 0x40);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
+        *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinHandle = (u32)H_Cdvd_AcquireDirectory((u8 *)path, 0);
         break;
     }
-    *(u16 *)(iGpffffb3ac + 0xB50) = *(u16 *)request;
+    ((BtlBattleState *)(iGpffffb3ac))->cutinKind = *(u16 *)request;
 }
 
 
 
-/* Poll all pending resource handles; build loaded effects unless cancellation is pending, and release each loaded handle.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Poll all pending resource handles; build loaded effects unless cancellation is pending, and release each loaded handle. */
 // FUN_001F9FA0
 s32 btlCutinLoadStatus(void) {
     s32 slotIndex;
@@ -112,30 +111,30 @@ s32 btlCutinLoadStatus(void) {
 
     allLoaded = 1;
     for (slotIndex = 0; slotIndex < 4; slotIndex++) {
-        u8 *handle = *(u8 **)((u32)slotIndex * 4 + (u32)iGpffffb3ac + 0xB6C);
+        u8 *handle = ((BtlBattleState *)((u32)slotIndex * 4 + (u32)iGpffffb3ac))->cutinHandles[0];
         if (handle != NULL) {
             if (H_Cdvd_IsFileLoaded(handle) != 0) {
-                if (!(*(s32 *)(iGpffffb3ac + 0xB4C) & 1)) {
+                if (!(*(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinFlags & 1)) {
                     slotOffset = slotIndex * 4;
-                    *(u8 **)(iGpffffb3ac + slotOffset + 0xB5C) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + slotOffset + 0xB6C) + 0x110));
+                    ((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinEffects[0] = mdlEffectBuildFromResource(*(u8 * *)&((HCdvdRequest *)(((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinHandles[0]))->data);
                 }
                 slotOffset = slotIndex * 4;
-                H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + slotOffset + 0xB6C));
-                *(u8 **)(iGpffffb3ac + slotOffset + 0xB6C) = 0;
+                H_Cdvd_Destroy(((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinHandles[0]);
+                ((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinHandles[0] = 0;
             } else {
                 allLoaded = 0;
             }
         }
     }
-    if (allLoaded != 0 && H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
-        s32 flags = *(s32 *)(iGpffffb3ac + 0xB4C);
+    if (allLoaded != 0 && H_Cdvd_IsFileLoaded(((BtlBattleState *)(iGpffffb3ac))->cutinHandle) != 0) {
+        s32 flags = *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinFlags;
         if (!(flags & 1)) {
-            *(u8 **)(iGpffffb3ac + 0xB54) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
+            ((BtlBattleState *)(iGpffffb3ac))->cutinEffect = mdlEffectBuildFromResource(*(u8 * *)&((HCdvdRequest *)(((BtlBattleState *)(iGpffffb3ac))->cutinHandle))->data);
         } else {
-            *(s32 *)(iGpffffb3ac + 0xB4C) = flags & ~1;
+            *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinFlags = flags & ~1;
         }
-        H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + 0xB58));
-        *(u8 **)(iGpffffb3ac + 0xB58) = 0;
+        H_Cdvd_Destroy(((BtlBattleState *)(iGpffffb3ac))->cutinHandle);
+        ((BtlBattleState *)(iGpffffb3ac))->cutinHandle = 0;
         return 1;
     }
     return 0;
@@ -153,8 +152,7 @@ u8 *btlCutinCreatePacket(u8 *request) {
     return p;
 }
 
-/* Advance and draw unfinished cut-in effects, destroy completed ones, and report when all are finished.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Advance and draw unfinished cut-in effects, destroy completed ones, and report when all are finished. */
 // FUN_001FA190
 s32 btlCutinUpdate(s32 *elapsed) {
     u8 *savedTable;
@@ -168,29 +166,29 @@ s32 btlCutinUpdate(s32 *elapsed) {
     savedTable = TnGetTableBase();
     TnSetTableBase(&D_005DC8CC);
     for (slotIndex = 0; slotIndex < 4; slotIndex++) {
-        effect = *(s32 *)((u32)slotIndex * 4 + (u32)iGpffffb3ac + 0xB5C);
+        effect = *(s32 *)&((BtlBattleState *)((u32)slotIndex * 4 + (u32)iGpffffb3ac))->cutinEffects[0];
         if (effect != 0) {
             if (mdlEffectIsFinished(effect) == 0) {
                 slotOffset = slotIndex * 4;
-                mdlEffectCommitTreeFrame(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
-                mdlEffectFlushTreeFrame(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
+                mdlEffectCommitTreeFrame(*(s32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinEffects[0]);
+                mdlEffectFlushTreeFrame(*(s32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinEffects[0]);
                 allFinished = 0;
             } else {
                 slotOffset = slotIndex * 4;
-                mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + slotOffset + 0xB5C));
-                *(s32 *)(iGpffffb3ac + slotOffset + 0xB5C) = 0;
+                mdlEffectDestroyWithNodes(*(s32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinEffects[0]);
+                *(s32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->cutinEffects[0] = 0;
             }
         }
     }
-    mainEffect = *(s32 *)(iGpffffb3ac + 0xB54);
+    mainEffect = *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinEffect;
     if (mainEffect != 0) {
         if (mdlEffectIsFinished(mainEffect) == 0) {
-            mdlEffectCommitTreeFrame(*(s32 *)(iGpffffb3ac + 0xB54));
-            mdlEffectFlushTreeFrame(*(s32 *)(iGpffffb3ac + 0xB54));
+            mdlEffectCommitTreeFrame(*(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinEffect);
+            mdlEffectFlushTreeFrame(*(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinEffect);
             allFinished = 0;
         } else {
-            mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + 0xB54));
-            *(s32 *)(iGpffffb3ac + 0xB54) = 0;
+            mdlEffectDestroyWithNodes(*(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinEffect);
+            *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinEffect = 0;
         }
     }
     TnSetTableBase(savedTable);
@@ -209,8 +207,7 @@ u8 *btlCutinCreateEndPacket(void) {
     return p;
 }
 
-/* Cancel unfinished loads or destroy loaded cut-in effects; pending loads are marked for discard when they complete.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Cancel unfinished loads or destroy loaded cut-in effects; pending loads are marked for discard when they complete. */
 // FUN_001FA370
 s32 btlCutinPoll(void) {
     s32 i;
@@ -223,24 +220,24 @@ s32 btlCutinPoll(void) {
         base = iGpffffb3ac;
         off = i * 4;
         p = base + off;
-        if (*(s32 *)(p + 0xB6C) != 0) {
-            *(s32 *)(base + 0xB4C) |= 1;
+        if (*(s32 *)&((BtlBattleState *)(p))->cutinHandles[0] != 0) {
+            *(s32 *)&((BtlBattleState *)(base))->cutinFlags |= 1;
         } else {
-            h = *(s32 *)(p + 0xB5C);
+            h = *(s32 *)&((BtlBattleState *)(p))->cutinEffects[0];
             if (h != 0) {
                 mdlEffectDestroyWithNodes(h);
-                *(s32 *)(iGpffffb3ac + off + 0xB5C) = 0;
+                *(s32 *)&((BtlBattleState *)(iGpffffb3ac + off))->cutinEffects[0] = 0;
             }
         }
     }
     base = iGpffffb3ac;
-    if (*(s32 *)(base + 0xB58) != 0) {
-        *(s32 *)(base + 0xB4C) |= 1;
+    if (*(s32 *)&((BtlBattleState *)(base))->cutinHandle != 0) {
+        *(s32 *)&((BtlBattleState *)(base))->cutinFlags |= 1;
     } else {
-        h = *(s32 *)(base + 0xB54);
+        h = *(s32 *)&((BtlBattleState *)(base))->cutinEffect;
         if (h != 0) {
             mdlEffectDestroyWithNodes(h);
-            *(s32 *)(iGpffffb3ac + 0xB54) = 0;
+            *(s32 *)&((BtlBattleState *)(iGpffffb3ac))->cutinEffect = 0;
         }
     }
     return 1;

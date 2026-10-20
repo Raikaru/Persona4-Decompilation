@@ -1,6 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00285cc0-002866c0 */
 
 #include "field_transition_internal.h"
+#include "member_access.h"
+#include "evt_movie_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -20,6 +22,22 @@ extern void fieldSceneRequestSecondaryRoom(s16 );
 extern s32 fieldSceneLoadStep(void);
 extern void func_00440b68();
 extern u8 D_0063C310[];
+/* Same 0x40-byte reader work allocated in evtPMFileReader.c. */
+typedef struct EvtPMReader {
+    s32 state, useAllocatedTables, loadDirectory, eventId, variantId, unk14;
+    u16 completionFlag;
+    u8 pad1A[2];
+    s32 directoryA, directoryB, directoryC;
+    s32 ownedTableA, ownedTableB, ownedTableC;
+    s32 tableA, tableB, tableC;
+} EvtPMReader;
+
+/* Sixteen-byte references in the movie's +0x40 section. Kind 4 appends primary+offset. */
+typedef struct EvtEffectReference {
+    s32 unk00, offset, kind;
+    u8 pad0C[4];
+} EvtEffectReference;
+
 typedef struct {
     u8 pad[0x76C];
     s32 loadWords[15];
@@ -133,93 +151,93 @@ s32 evtStepEventTask(u8 *sdkTaskBytes) {
     data = (u8 *)kwlnTaskGetWork(sdkTaskBytes);
     switch (((EvtEventWork *)data)->loadState) {
     case 0:
-        *(s32 *)(data + 0x76C) = 1;
+        MEMBER(s32, data, EvtEventWork, loadState) = 1;
         ((EvtEventWork *)data)->loadFlags |= 2;
     case 1:
         if ((((EvtEventWork *)data)->loadFlags & 2) &&
             (((EvtEventWork *)data)->loadFlags & 1)) {
-            *(s32 *)(data + 0x76C) = 2;
-            *(u32 *)(data + 0x770) &= ~2;
+            MEMBER(s32, data, EvtEventWork, loadState) = 2;
+            MEMBER(u32, data, EvtEventWork, loadFlags) &= ~2;
         }
         break;
     case 2:
-        *(s32 *)(data + 0x76C) = 3;
+        MEMBER(s32, data, EvtEventWork, loadState) = 3;
         if (((EvtEventWork *)data)->readerHandle == 0) {
             evtDestroyEventScene(data, (*(u32 *)data & 0x80000000) != 0);
             evtApplyEventBlock((EvtLoaderBlock *)data);
             *(u32 *)data |= 1;
             ((EvtEventWork *)data)->fov = K_View_GetFov(kwlnGetCamera());
-            *(s32 *)(data + 0x77C) =
+            MEMBER(s32, data, EvtEventWork, readerHandle) =
                 evtPMFileReaderCreate(((EvtEventWork *)data)->eventId[0],
                               ((EvtEventWork *)data)->eventId[1],
                               ((EvtEventWork *)data)->eventId[2],
-                              *(s32 *)(data + 0x788));
+                              ((EvtEventWork *)(data))->readerMode);
         }
     case 3:
         if (evtPMFileReaderIsDone(((EvtEventWork *)data)->readerHandle) != 0) {
             flag = (*(u32 *)data & 0x80000000) != 0;
             if (flag != 0) {
-                *(s32 *)(data + 0x76C) = 4;
+                MEMBER(s32, data, EvtEventWork, loadState) = 4;
             } else {
-                *(s32 *)(data + 0x76C) = 8;
+                MEMBER(s32, data, EvtEventWork, loadState) = 8;
             }
-            info = evtPMFileReaderGetWork(*(s32 *)(data + 0x77C));
+            info = evtPMFileReaderGetWork(MEMBER(s32, data, EvtEventWork, readerHandle));
             ((EvtEventWork *)data)->sceneSource = evtPolygonMovieAlloc();
-            evtPolygonMovieBind(data + 0x678, *(u8 **)(data + 4),
-                          *(u8 **)(info + 0x34), *(u8 **)(info + 0x38),
-                          *(u8 **)(info + 0x3C));
+            evtPolygonMovieBind(data + 0x678, MEMBER(u8 *, data, EvtEventWork, sceneSource),
+                          (u8 *)((EvtPMReader *)(info))->tableA, (u8 *)((EvtPMReader *)(info))->tableB,
+                          (u8 *)((EvtPMReader *)(info))->tableC);
         }
         break;
     case 4:
         if (evtRequestFieldRoom(((EvtEventWork *)data)->sceneSource) != 0) {
-            *(s32 *)(data + 0x76C) = 5;
+            MEMBER(s32, data, EvtEventWork, loadState) = 5;
         } else {
-            *(s32 *)(data + 0x76C) = 8;
+            MEMBER(s32, data, EvtEventWork, loadState) = 8;
             break;
         }
     case 5:
         if (fieldSceneLoadStep() != 0) {
-            *(s32 *)(data + 0x76C) = 8;
+            MEMBER(s32, data, EvtEventWork, loadState) = 8;
         }
         break;
     case 8:
-        *(s32 *)(data + 0x76C) = 9;
+        MEMBER(s32, data, EvtEventWork, loadState) = 9;
         node = MT_Scene_GetResListHead(3);
         while (node != NULL) {
-            node = (u8 *)((SceneUpdateResource *)node)->next;
+            node = (u8 *)((ResrcHeader *)node)->next;
         }
     case 9:
-        *(s32 *)(data + 0x76C) = 10;
+        MEMBER(s32, data, EvtEventWork, loadState) = 10;
         ((EvtEventWork *)data)->effectTable = evtEffectTableCreate();
         i = 0;
         goto func_00285dd0_loop_check;
 func_00285dd0_loop_body:
-        resource = *(u8 **)(resource + 0x40);
+        resource = ((EvtPolygonMovieWork *)(resource))->unk40;
         entry = resource + i * 0x10;
-        switch (*(s32 *)(entry + 8)) {
+        switch (((EvtEffectReference *)(entry))->kind) {
         case 4:
-            mtMiscAppendEntry(*(s32 *)(data + 0x5D0),
-                          *(s32 *)(((EvtEventWork *)data)->sceneSource + 0x10) +
-                              *(s32 *)(entry + 4));
+            mtMiscAppendEntry(MEMBER(s32, data, EvtEventWork, effectTable),
+                          (s32)((EvtPolygonMovieWork *)(((EvtEventWork *)data)->sceneSource))->primary +
+                              ((EvtEffectReference *)(entry))->offset);
             break;
         }
         i++;
 func_00285dd0_loop_check:
         resource = (u8 *)((s32 *)data)[1];
-        if (i < *(s32 *)(resource + 0x44)) {
+        if (i < ((EvtPolygonMovieWork *)(resource))->count44) {
             goto func_00285dd0_loop_body;
         }
-        evtEffectSequenceReset(*(s32 *)(data + 0x5D0));
+        evtEffectSequenceReset(MEMBER(s32, data, EvtEventWork, effectTable));
     case 10:
         if (evtEffectLoadStep(((EvtEventWork *)data)->effectTable) != 0) {
-            *(s32 *)(data + 0x76C) = 11;
+            MEMBER(s32, data, EvtEventWork, loadState) = 11;
         }
         break;
     case 11:
-        *(s32 *)(data + 0x76C) = 12;
+        MEMBER(s32, data, EvtEventWork, loadState) = 12;
         mtMiscBuildScene((s32)((EvtEventWork *)data)->sceneSource, data);
     case 12:
-        *(s32 *)(data + 0x76C) = 13;
+        MEMBER(s32, data, EvtEventWork, loadState) = 13;
         if (((EvtEventWork *)data)->flags44 & 1) {
             if (((EvtEventWork *)data)->eventId[0] >= 500) {
                 sprintf(path, D_0063C340,
@@ -231,23 +249,23 @@ func_00285dd0_loop_check:
             }
             ((EvtEventWork *)data)->streamTask = sdkSndCreateStreamTask(taskAddress, 2, 0, path);
         } else {
-            *(s32 *)(data + 0x76C) = 14;
+            MEMBER(s32, data, EvtEventWork, loadState) = 14;
             break;
         }
     case 13:
         if (sdkSndStreamTaskReap(((EvtEventWork *)data)->streamTask) != 0) {
-            *(s32 *)(data + 0x76C) = 14;
+            MEMBER(s32, data, EvtEventWork, loadState) = 14;
         }
         break;
     case 14:
-        *(s32 *)(data + 0x76C) = 0;
+        MEMBER(s32, data, EvtEventWork, loadState) = 0;
         ((EvtEventWork *)data)->loadFlags &= ~1;
         result = mtMiscDispatchKeyAction(((EvtEventWork *)data)->eventId[0],
                                ((EvtEventWork *)data)->eventId[1]);
         if ((result != 1) && (result != 2)) {
             evtPMFileReaderGetWork(taskAddress);
-            result = cmmTableLookupValue(*(s32 *)(data + 0x78C),
-                                   *(s32 *)(data + 0x790),
+            result = cmmTableLookupValue(MEMBER(s32, data, EvtEventWork, eventId[0]),
+                                   MEMBER(s32, data, EvtEventWork, eventId[1]),
                                    ((EvtEventWork *)data)->eventId[2]);
             if (result > 0) {
                 mtMiscPlayCue(result);
@@ -404,7 +422,7 @@ s32 evtCheckCondition(u8 *key) {
         }
         goto fail;
     default:
-        func_00440b68(D_0063C380, *(s32 *)(key + 0x38));
+        func_00440b68(D_0063C380, ((EvtChildNode *)(key))->kind);
         memset(key + 8, 0, 8);
         return 1;
     }
@@ -474,7 +492,7 @@ void evtAppendNodeToList(u8 *owner, u8 *child) {
 
     previous = (u8 *)((EvtNode *)owner)->childHead;
     if (previous == NULL) {
-        *(u8 **)(owner + 0x68) = (u8 *)child;
+        MEMBER(u8 *, owner, EvtNode, childHead) = (u8 *)child;
         ((EvtNode *)owner)->childTail = (EvtChildNode *)((u8 *)child);
         ((EvtChildNode *)(u8 *)child)->childNext = NULL;
         ((EvtChildNode *)(u8 *)child)->childPrev = NULL;
@@ -483,9 +501,9 @@ void evtAppendNodeToList(u8 *owner, u8 *child) {
     goto loop_7_check;
 loop_7_body:
     if ((s32)*(u16 *)child < (s32)*(u16 *)previous) {
-        node = *(u8 **)(previous + 0x50);
+        node = MEMBER(u8 *, previous, EvtChildNode, childPrev);
         if (node == NULL) {
-            *(u8 **)(owner + 0x68) = (u8 *)child;
+            MEMBER(u8 *, owner, EvtNode, childHead) = (u8 *)child;
             ((EvtChildNode *)previous)->childPrev = (EvtChildNode *)((u8 *)child);
             ((EvtChildNode *)(u8 *)child)->childPrev = NULL;
             ((EvtChildNode *)(u8 *)child)->childNext = (EvtChildNode *)(previous);
@@ -507,7 +525,7 @@ block_24:
     if (previous != NULL) {
         goto done;
     }
-    *(u8 **)((u8 *)((EvtNode *)owner)->childTail + 0x4C) = (u8 *)child;
+    MEMBER(u8 *, (u8 *)((EvtNode *)owner)->childTail, EvtChildNode, childNext) = (u8 *)child;
     ((EvtChildNode *)(u8 *)child)->childPrev = ((EvtNode *)owner)->childTail;
     ((EvtChildNode *)(u8 *)child)->childNext = NULL;
     ((EvtNode *)owner)->childTail = (EvtChildNode *)((u8 *)child);

@@ -1,6 +1,7 @@
 /* Whole-file translation unit: src/Main/init.c */
 /* Original filename recovered from embedded __FILE__ strings. */
 #include "type.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
 #include "h_cdvd_internal.h"
@@ -43,29 +44,32 @@ extern char D_005E46E8[];
 extern u8 D_0079BF00[];
 
 /* Init-data read step: loads init/itemtbl.bin once the file is ready, then unloads the handle. */
+/* Load the initialization item table, copy its bytes into the builtin table, then release the completed file. */
 // FUN_001117C0
-/* Typed read-work fields add saved-register/address temporaries under b210;
- * retain byte accesses to InitDataReadWork and HCdvd (+0x110/+0x118) for MATCH. */
+/* Initial whole-work typing added address temporaries; access-site fields and
+ * the shared typed work pointer below preserve the retail allocation. */
 s32 initDataReadStep(u8 *task)
 {
+    InitDataReadWork *readWork;
     u8 *work;
     s32 state;
     u8 *file;
 
     work = ((KwlnTask *)task)->work;
-    state = *(s32 *)work;
+    readWork = (InitDataReadWork *)work;
+    state = ((InitDataReadWork *)work)->state;
     switch (state) {
     case 0:
         func_00440b68(&D_00762CB8, &D_00762CC0, 0x1FA);
-        *(u8 **)(work + 4) = H_Cdvd_AcquireDirectory(D_005E46A0, 0);
-        *(s32 *)work += 1;
+        ((InitDataReadWork *)work)->file = H_Cdvd_AcquireDirectory(D_005E46A0, 0);
+        ((InitDataReadWork *)work)->state += 1;
         break;
     case 1:
-        if (H_Cdvd_IsFileLoaded((HCdvd *)*(u8 **)(work + 4)) == 1) {
-            file = *(u8 **)(work + 4);
-            memcpy(&D_0079BF00, *(u8 **)(file + 0x110), *(s32 *)(file + 0x118));
-            H_Cdvd_Destroy((HCdvd *)*(u8 **)(work + 4));
-            *(u8 **)(work + 4) = NULL;
+        if (H_Cdvd_IsFileLoaded((HCdvd *)((InitDataReadWork *)work)->file) == 1) {
+            file = readWork->file;
+            memcpy(&D_0079BF00, ((HCdvd *)file)->fileMemory, MEMBER(s32, file, HCdvd, fileSize));
+            H_Cdvd_Destroy((HCdvd *)readWork->file);
+            readWork->file = NULL;
             datEntryTableUseBuiltin();
             return -1;
         }
@@ -75,19 +79,22 @@ s32 initDataReadStep(u8 *task)
 }
 
 /* Destroy callback of the init-data read task: releases the pending read handle. */
+/* Release any outstanding initialization file before freeing the read task work. */
 // FUN_001118A0
-/* Typed read-work fields add saved-register/address temporaries under b210;
- * retain byte accesses to InitDataReadWork and HCdvd (+0x110/+0x118) for MATCH. */
+/* Initial whole-work typing added address temporaries; access-site fields and
+ * the shared typed work pointer below preserve the retail allocation. */
 void initDataReadDestroy(u8 *task)
 {
+    InitDataReadWork *readWork;
     u8 *work;
     u8 *file;
 
     work = ((KwlnTask *)task)->work;
-    file = *(u8 **)(work + 4);
+    readWork = (InitDataReadWork *)work;
+    file = ((InitDataReadWork *)work)->file;
     if (file != NULL) {
         H_Cdvd_Destroy((HCdvd *)file);
-        *(u8 **)(work + 4) = NULL;
+        readWork->file = NULL;
     }
     jtbl_008873EC[0](work);
 }

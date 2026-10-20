@@ -1,3 +1,5 @@
+#include "member_access.h"
+#include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
 #include "camp_menu_internal.h"
 #include "btl_shuffle_result_internal.h"
@@ -102,7 +104,12 @@ extern u8 D_005EEC20[];
 extern u8 D_005EF0A0[];
 extern u8 D_005EF530[];
 extern u8 D_005EF540[];
-extern u8 D_005EF548[];
+/* Interior color column of the 0x1C-byte wipe endpoint/offset records. */
+typedef struct RadarWipeColor {
+    s32 color;
+    u8 pad04[0x18];
+} RadarWipeColor;
+extern RadarWipeColor D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 extern void datScreenWipeSetTarget(u8 *task, u8 *target);
@@ -165,13 +172,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
-static inline f32 p4_0014_recip(f32 value)
-{
-    return 1.0f / value;
-}
 typedef struct {
     u8 b0;
     u8 b1;
@@ -231,10 +231,6 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -296,6 +292,7 @@ extern void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32
 // FUN_001400F0
 void radarDrawFrame(u8 *work)
 {
+    CampMenu *menuState = (CampMenu *)work;
     extern void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, u8 opacity, u8 *state);
     extern void radarDrawSegment(s64 work, s64 value, s32 context, f32 depth, u8 option);
     void *sprite;
@@ -358,11 +355,11 @@ void radarDrawFrame(u8 *work)
             }
         }
     }
-    if ((*(s32 *)(work + 0x1C) & 0x800) != 0) { /* measured: access-site field typing here loses MATCH. */
+    if ((menuState->flags & 0x800) != 0) {
         datScreenWipeSetAlpha(((CampMenu *)work)->wipeTask.node, (u8)(255.0f * opacity));
-        datScreenWipeDraw(*(void **)(work + 0x3C)); /* measured: access-site field typing here loses MATCH. */
+        datScreenWipeDraw((void *)(menuState->wipeTask.handle));
     }
-    if ((*(s32 *)(work + 0x1C) & 0x8) != 0) { /* measured: access-site field typing here loses MATCH. */
+    if ((menuState->flags & 0x8) != 0) {
         for (i = 0; i < ((CampMenu *)work)->partyCount; i++) {
             u8 *row = work + i * 0x30;
             void *sprite;
@@ -417,63 +414,63 @@ void radarDrawFrame(u8 *work)
                           fontColor, fontStyle, 1, name, 8, 0);
         }
     }
-    if ((*(s32 *)(work + 0x1C) & 0x10) != 0) { /* measured: access-site field typing here loses MATCH. */
+    if ((menuState->flags & 0x10) != 0) {
         position.xy.x = (105.0f + (originX + ((CampMenu *)work)->entries[9].currentX.f));
         position.xy.y = (23.0f + (originY + ((CampMenu *)work)->entries[9].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[9].currentAlpha * opacity);
-        *(s16 *)(primaryLabels + 0) = 3; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)primaryLabels)->kind = 3; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (98.0f + (originX + ((CampMenu *)work)->entries[10].currentX.f));
         position.xy.y = (85.0f + (originY + ((CampMenu *)work)->entries[10].currentY.f));
-        alpha = (u8)((f32)(u32)work[0x20A] * opacity); /* measured: typing this byte access loses MATCH. */
-        *(s16 *)(primaryLabels + 0) = 4; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        alpha = (u8)((f32)(u32)MEMBER(u8, work, CampMenu, entries[9].currentAlpha) * opacity); /* measured: typing this byte access loses MATCH. */
+        ((SflPersonaState *)primaryLabels)->kind = 4; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
     }
-    if ((*(s32 *)(work + 0x1C) & 0x80) != 0) { /* measured: access-site field typing here loses MATCH. */
+    if ((menuState->flags & 0x80) != 0) {
         position.xy.x = ((originX + ((CampMenu *)work)->entries[11].currentX.f) - 10.0f);
         position.xy.y = (20.0f + (originY + ((CampMenu *)work)->entries[11].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[11].currentAlpha * opacity);
-        *(s16 *)(primaryLabels + 0) = 1; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)primaryLabels)->kind = 1; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (17.0f + (originX + ((CampMenu *)work)->entries[12].currentX.f));
         position.xy.y = (76.0f + (originY + ((CampMenu *)work)->entries[12].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[12].currentAlpha * opacity);
-        *(s16 *)(primaryLabels + 0) = 6; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)primaryLabels)->kind = 6; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (106.0f + (originX + ((CampMenu *)work)->entries[13].currentX.f));
         position.xy.y = (108.0f + (originY + ((CampMenu *)work)->entries[13].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[13].currentAlpha * opacity);
-        *(s16 *)(primaryLabels + 0) = 5; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)primaryLabels)->kind = 5; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (22.0f + (originX + ((CampMenu *)work)->entries[14].currentX.f));
         position.xy.y = (111.0f + (originY + ((CampMenu *)work)->entries[14].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[14].currentAlpha * opacity);
-        *(s16 *)(primaryLabels + 0) = 2; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)primaryLabels)->kind = 2; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
     }
-    if ((*(s32 *)(work + 0x1C) & 0x400) != 0) { /* measured: access-site field typing here loses MATCH. */
+    if ((menuState->flags & 0x400) != 0) {
         position.xy.x = (105.0f + (originX + ((CampMenu *)work)->entries[35].currentX.f));
         position.xy.y = (23.0f + (originY + ((CampMenu *)work)->entries[35].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[35].currentAlpha * opacity);
-        *(s16 *)(secondaryLabels + 0) = 3; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)secondaryLabels)->kind = 3; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = (98.0f + (originX + ((CampMenu *)work)->entries[37].currentX.f));
         position.xy.y = (85.0f + (originY + ((CampMenu *)work)->entries[37].currentY.f));
-        alpha = (u8)((f32)(u32)work[0x6EA] * opacity); /* measured: typing this byte access loses MATCH. */
-        *(s16 *)(secondaryLabels + 0) = 4; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        alpha = (u8)((f32)(u32)MEMBER(u8, work, CampMenu, entries[35].currentAlpha) * opacity); /* measured: typing this byte access loses MATCH. */
+        ((SflPersonaState *)secondaryLabels)->kind = 4; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = ((originX + ((CampMenu *)work)->entries[36].currentX.f) - 10.0f);
         position.xy.y = (20.0f + (originY + ((CampMenu *)work)->entries[36].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[36].currentAlpha * opacity);
-        *(s16 *)(secondaryLabels + 0) = 1; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)secondaryLabels)->kind = 1; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = (17.0f + (originX + ((CampMenu *)work)->entries[38].currentX.f));
         position.xy.y = (76.0f + (originY + ((CampMenu *)work)->entries[38].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[38].currentAlpha * opacity);
-        *(s16 *)(secondaryLabels + 0) = 6; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
+        ((SflPersonaState *)secondaryLabels)->kind = 6; /* Packed provider-owned persona-label header: only its low halfword is replaced. */
         sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
     }
-    if ((*(s32 *)(work + 0x1C) & 0x20) != 0) { /* measured: access-site field typing here loses MATCH. */
+    if ((menuState->flags & 0x20) != 0) {
         f32 radarOpacity;
         i = 0;
         radarOpacity = 255.0f * opacity;
@@ -566,31 +563,31 @@ void radarDrawFrame(u8 *work)
     }
     {
         sprite = ((CampMenu *)work)->sprites[24].object;
-        if ((*(s32 *)(work + 0x1C) & 1) != 0) { /* measured: access-site field typing here loses MATCH. */
+        if ((menuState->flags & 1) != 0) {
             position.xy.x = (19.0f + (originX + ((CampMenu *)work)->entries[18].currentX.f));
             position.xy.y = (18.0f + (originY + ((CampMenu *)work)->entries[18].currentY.f));
             alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[18].currentAlpha * opacity);
             sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
-        if ((*(s32 *)(work + 0x1C) & 2) != 0) { /* measured: access-site field typing here loses MATCH. */
+        if ((menuState->flags & 2) != 0) {
             position.xy.x = (39.0f + (originX + ((CampMenu *)work)->entries[19].currentX.f));
             position.xy.y = (f32)0x171 + (originY + ((CampMenu *)work)->entries[19].currentY.f);
             alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[19].currentAlpha * opacity);
             sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
-        if ((*(s32 *)(work + 0x1C) & 4) != 0) { /* measured: access-site field typing here loses MATCH. */
+        if ((menuState->flags & 4) != 0) {
             position.xy.x = (420.0f + (originX + ((CampMenu *)work)->entries[20].currentX.f));
             position.xy.y = (18.0f + (originY + ((CampMenu *)work)->entries[20].currentY.f));
             alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[20].currentAlpha * opacity);
             sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
-        if ((*(s32 *)(work + 0x1C) & 0x100) != 0) { /* measured: access-site field typing here loses MATCH. */
+        if ((menuState->flags & 0x100) != 0) {
             position.xy.x = (62.0f + (originX + ((CampMenu *)work)->entries[21].currentX.f));
             position.xy.y = (59.0f + (originY + ((CampMenu *)work)->entries[21].currentY.f));
             alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[21].currentAlpha * opacity);
             sdkSpriteDrawAt(((CampMenu *)work)->sprites[11].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
-        if ((*(s32 *)(work + 0x1C) & 0x200) != 0) { /* measured: access-site field typing here loses MATCH. */
+        if ((menuState->flags & 0x200) != 0) {
             position.xy.x = (60.0f + (originX + ((CampMenu *)work)->entries[22].currentX.f));
             position.xy.y = (410.0f + (originY + ((CampMenu *)work)->entries[22].currentY.f));
             alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[22].currentAlpha * opacity);
@@ -599,7 +596,7 @@ void radarDrawFrame(u8 *work)
         position.xy.x = (640.0f + (originX + ((CampMenu *)work)->entries[16].currentX.f));
         position.xy.y = (400.0f + (originY + ((CampMenu *)work)->entries[16].currentY.f));
         alpha = (u8)((f32)(u32)((CampMenu *)work)->entries[16].currentAlpha * opacity);
-        sdkSpriteDrawFooter(position.xy, 0.0f, alpha, ((CampMenu *)work)->labelKind, *(s32 *)(work + 0x1874)); /* measured: access-site field typing here loses MATCH. */
+        sdkSpriteDrawFooter(position.xy, 0.0f, alpha, ((CampMenu *)work)->labelKind, MEMBER(s32, work, CampMenu, spritePack));
     }
 }
 
@@ -610,7 +607,7 @@ void radarDrawFrame(u8 *work)
 s32 radarPushValue(u8 *work, s32 value, s32 context) {
     u8 *entryBase;
 
-    entryBase = p4_00141cf0_add((u32)(value * 2), work);
+    entryBase = byteAddressAdd((u32)(value * sizeof(((CampMenu *)0)->selection[0])), work);
     ((CampMenu *)entryBase)->selection[1] = ((CampMenu *)entryBase)->selection[0];
     ((CampMenu *)entryBase)->selection[0] = context;
     return 1;
@@ -634,6 +631,7 @@ void radarResetEntries(u8 *work) {
  * Earlier whole-layout probe grew the 784B window to 788B; measured site exceptions are below. */
 // FUN_00141D80
 s32 radarSetMode(u8 *work, s32 value) {
+    CampMenu *menuState = (CampMenu *)work;
     s32 i;
     s32 j;
     u8 *table;
@@ -669,7 +667,7 @@ s32 radarSetMode(u8 *work, s32 value) {
     case 3:
         table = D_005EE7A0;
         ((CampMenu *)work)->flags = 0xBDB;
-        if (((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)work)->selection[0] * 2), work))->partyIds[0] == 1) {
+        if (((CampMenu *)byteAddressAdd((u32)(((CampMenu *)work)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), work))->partyIds[0] == 1) {
             ((CampMenu *)work)->labelKind = 6;
         } else {
             ((CampMenu *)work)->labelKind = 5;
@@ -678,7 +676,7 @@ s32 radarSetMode(u8 *work, s32 value) {
     case 4:
         table = D_005EEC20;
         ((CampMenu *)work)->flags = 0xED2;
-        if (((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)work)->selection[0] * 2), work))->partyIds[0] == 1) {
+        if (((CampMenu *)byteAddressAdd((u32)(((CampMenu *)work)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), work))->partyIds[0] == 1) {
             ((CampMenu *)work)->labelKind = 6;
         } else {
             ((CampMenu *)work)->labelKind = 5;
@@ -709,7 +707,7 @@ s32 radarSetMode(u8 *work, s32 value) {
             ((CampMenu *)dst)->entries[0].startFrame.s = ((CampSlotLayout *)src)->startFrame;
             ((CampMenu *)dst)->entries[0].endFrame.s = ((CampSlotLayout *)src)->endFrame;
         }
-        *(s32 *)(work + 0x18) = value; /* measured: access-site field typing here loses MATCH. */
+        menuState->mode = value;
         ((CampMenu *)work)->frame = 0;
     }
     return 1;
@@ -806,6 +804,7 @@ void radarResetStateMirrored(u8 *work) {
 /* Select five radar target coordinates from the selected persona's label values.
  * Byte cursors preserve the measured O1 index-before-base address order. */
 void radarLoadSlotCoords(u8 *work) {
+    CampMenu *rankSource;
     extern u8 iGpffff9cd8[8];
     extern u8 D_005EF5A0[];
     s32 i;
@@ -818,7 +817,8 @@ void radarLoadSlotCoords(u8 *work) {
     base = iGpffff9cd8;
     table = D_005EF5A0;
     while (i < 5) {
-        value = *(s16 *)(work + (base[i] * 2) + 0x187E) - 1; /* Packed provider-owned persona-label halfword table within the seven-word snapshot. */
+        rankSource = (CampMenu *)(work + (base[i] * 2));
+        value = rankSource->primaryLabelState.details.ranks[0] - 1; /* Packed provider-owned persona-label halfword table within the seven-word snapshot. */
         coordinateEntry = table + i * 0x28 + value * 8;
         entryBase = work + i * 0x30;
         ((CampMenu *)entryBase)->entries[28].targetX.f = ((Float2_0014 *)coordinateEntry)->x;
@@ -834,6 +834,7 @@ void radarLoadSlotCoords(u8 *work) {
  * The shifted sprite cursor retains the original handle-clearing order. */
 // FUN_001422B0
 void radarDestroy(u8 *work) {
+    CampMenu *menuState = (CampMenu *)work;
     s32 sprite;
     s32 wipeTask;
 s32 i;
@@ -852,7 +853,7 @@ s32 i;
     wipeTask = ((CampMenu *)work)->wipeTask.handle;
     if (wipeTask != 0) {
         kwlnTaskDestroyWithHierarchy(wipeTask);
-        *(s32 *)(work + 0x3C) = 0; /* measured: access-site field typing here loses MATCH. */
+        menuState->wipeTask.handle = 0;
     }
     ((CampMenu *)work)->flags = 0;
 }
@@ -966,8 +967,8 @@ void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option
         break;
     }
 
-    sdkSpriteDrawAt(((CampMenu *)p4_00141cf0_add(option * 4, context))->sprites[4].node, pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, value);
-    str = (u8 *)cmmRankStringAt((s16) kind, *(s16 *)(p4_00141cf0_add(kind * 2, context) + 0x187E)); /* Packed provider-owned persona-label halfword table within the seven-word snapshot. */
+    sdkSpriteDrawAt(((CampMenu *)byteAddressAdd(option * sizeof(((CampMenu *)0)->sprites[0]), context))->sprites[4].node, pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, value);
+    str = (u8 *)cmmRankStringAt((s16) kind, ((CampMenu *)byteAddressAdd(kind * sizeof(((CampMenu *)0)->primaryLabelState.details.ranks[0]), context))->primaryLabelState.details.ranks[0]); /* Packed provider-owned persona-label halfword table within the seven-word snapshot. */
     frFontExDrawTextOutA(61.0f + pos.x + D_005EF6E0[option * 2],
                   62.0f + positionY + D_005EF6E4[option * 2],
                   0.0f,
@@ -1144,7 +1145,7 @@ void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option) {
     }
     offsetEntry = D_005EF540 + (value * 0x1C);
     pair = *(Float2_0014 *)offsetEntry;
-    color = *(s32 *)(D_005EF548 + (value * 0x1C)); /* Linker interior alias: the color word is at +0x18 of each 0x1C-byte record. */
+    color = D_005EF548[value].color;
     if (context != 0) {
         datScreenWipeInit(work, (Float2_0014 *)startPosition, (Float2_0014 *)endPosition);
     } else {
@@ -1161,13 +1162,14 @@ void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option) {
     datScreenWipeSetScale(work, NULL);
 }
 
-/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
+/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses the measured shared byteAddressAdd for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
 /* Drive camp menu navigation, transitions, persona labels and the three-frame fade.
  * Earlier whole-layout probe grew the 2192B window to 2208B; measured site exceptions are below.
  * The list query and persona labels are external provider-owned packed records. */
 // FUN_00142F20
 s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
 {
+    CampMenu *menuState = (CampMenu *)context;
     u8 query[0x30];
     f32 alpha;
     s32 resultFlag;
@@ -1222,7 +1224,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
             nLineSelectSet(0x16);
             base4 = context + 0x1878;
             sflDataResetPersonaState(base4);
-            sflDataLoadPersonaState(base4, ((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)context)->selection[0] * 2), context))->partyIds[0]);
+            sflDataLoadPersonaState(base4, ((CampMenu *)byteAddressAdd((u32)(((CampMenu *)context)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
             lsrc4 = (s32 *)(context + 0x1878);
             ldst4 = (s32 *)(context + 0x1894);
             n4 = 7;
@@ -1241,7 +1243,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
             sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
             if (sdkListStateHandleInput(query) != 0) {
                 radarPushValue(context, 0, ((BtlShuffleResultCursor *)query)->row);
-                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context))->partyIds[0]); /* measured: access-site field typing here loses MATCH. */
+                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
@@ -1264,7 +1266,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
             ((CampMenu *)context)->background = datCommunityRequestExit();
             *work = 9;
         } else if (D_008C024E[0] & 0x80) {
-            if (((CampMenu *)p4_00141cf0_add((u32)(((CampMenu *)context)->selection[0] * 2), context))->partyIds[0] == 1) {
+            if (((CampMenu *)byteAddressAdd((u32)(((CampMenu *)context)->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0] == 1) {
                 radarSetMode(context, 5);
                 radarLoadSlotCoords(context);
                 *work = 7;
@@ -1299,13 +1301,13 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
                 } while (n6 > 0);
                 base6 = context + 0x1878;
                 sflDataResetPersonaState(base6);
-                sflDataLoadPersonaState(base6, ((CampMenu *)p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context))->partyIds[0]); /* measured: access-site field typing here loses MATCH. */
-                if (((CampMenu *)p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context))->partyIds[0] == 1) { /* measured: access-site field typing here loses MATCH. */
+                sflDataLoadPersonaState(base6, ((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
+                if (((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0] == 1) {
                     ((CampMenu *)context)->labelKind = 6;
                 } else {
                     ((CampMenu *)context)->labelKind = 5;
                 }
-                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)p4_00141cf0_add((u32)(*(s16 *)(context + 0x34) * 2), context))->partyIds[0]); /* measured: access-site field typing here loses MATCH. */
+                datScreenWipeSetTextureId(((CampMenu *)context)->wipeTask.node, (u16)((CampMenu *)byteAddressAdd((u32)(menuState->selection[0] * sizeof(((CampMenu *)0)->partyIds[0])), context))->partyIds[0]);
                 sdkSndStartStream(0, 1, 0, 5);
             }
         }
@@ -1341,7 +1343,7 @@ s32 radarUpdateState(u32 *work, s32 *value, u8 *context)
         if ((++((CampMenu *)context)->fadeFrame & 0xFFFF) >= 3) {
             resultFlag = 1;
         } else {
-            alpha = (1.0f - ((f32)*(u16 *)(context + 0xC) / 3.0f)) * 255.0f; /* measured: access-site field typing here loses MATCH. */
+            alpha = (1.0f - ((f32)menuState->fadeFrame / 3.0f)) * 255.0f;
             queryResult = (u8)alpha;
             *(u8 *)context = queryResult;
             resultFlag = 0;

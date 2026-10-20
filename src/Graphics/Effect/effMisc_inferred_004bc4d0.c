@@ -6,6 +6,7 @@
 #include "btl_shuffle_draw_internal.h"
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
+#include "effect_mesh_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern s32 iGpffffbb9c;
@@ -64,6 +65,11 @@ typedef struct {
     s32 centerZBits;
     f32 radius;
 } EffMiscBounds;
+
+/* Reset traverses the native twelve-byte XYZ vertex as integer bit patterns. */
+typedef struct EffMiscVertex {
+    s32 xBits, yBits, zBits;
+} EffMiscVertex;
 #pragma push
 #pragma pop
 #pragma push
@@ -83,7 +89,10 @@ typedef struct EffMiscProgress {
     s32 unkC;
     u8 pad10[0x18];
     s32 unk28;
-    f32 elapsed;
+    union {
+        f32 elapsed;
+        s32 elapsedBits;
+    };
     f32 start;
     f32 duration;
     s16 kind;
@@ -105,7 +114,7 @@ void effMiscProgressReset(u8 *progress)
 {
     ((EffMiscProgress *)progress)->flags = 0;
     /* Reset the elapsed float through its original integer bit store. */
-    *(s32 *)(progress + 0x2c) = 0;
+    ((EffMiscProgress *)progress)->elapsedBits = 0;
     ((EffMiscProgress *)progress)->unk8 = 0;
     ((EffMiscProgress *)progress)->unkC = 0;
 }
@@ -194,8 +203,7 @@ void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeight, u8 
 /* measured: restore propagation for the rest of the unit. */
 /* Clear geometry colors and positions; kind selects the generated vertex count.
  * The two traversals clear colors and XYZ independently, then reset the bounds. */
-/* Geometry offsets and position bit stores stay raw: native typed access
- * shortened this function to 312 bytes versus retail's matching 320-byte shape. */
+/* Preserve separate byte cursors alongside the typed progress and mesh pointers. */
 // FUN_004BCCF0
 void effMiscProgressResetWork(u8 *progress, u8 *geometry, u8 *unusedSource, s32 vertexCount)
 {
@@ -207,21 +215,23 @@ void effMiscProgressResetWork(u8 *progress, u8 *geometry, u8 *unusedSource, s32 
     u8 *morphTarget;
     u8 *colorCursor;
     s32 positionIndex;
+    RpGeometry *mesh = (RpGeometry *)geometry;
+    EffMiscVertex *vertex;
 
     workCount = vertexCount;
     kind = ((EffMiscProgress *)progress)->kind;
     switch (kind) {
     case 0:
-        workCount = (*(s32 *)(*(u8 **)(progress + 0) + 0xC) * 2) + 1;
+        workCount = (((EffMiscProgressSource *)((EffMiscProgress *)progress)->source)->segmentCount * 2) + 1;
         break;
     case 1:
-        workCount = (*(s32 *)(*(u8 **)(progress + 0) + 0xC) * 3) + 6;
+        workCount = (((EffMiscProgressSource *)((EffMiscProgress *)progress)->source)->segmentCount * 3) + 6;
         break;
     case 2:
-        workCount = (*(s32 *)(*(u8 **)(progress + 0) + 0xC) * 3) + 6;
+        workCount = (((EffMiscProgressSource *)((EffMiscProgress *)progress)->source)->segmentCount * 3) + 6;
         break;
     }
-    colorCursor = *(u8 **)(geometry + 0x30);
+    colorCursor = (u8 *)mesh->colors;
     colorIndex = 0;
     while (colorIndex < workCount) {
         colorCursor[0] = 0;
@@ -231,21 +241,23 @@ void effMiscProgressResetWork(u8 *progress, u8 *geometry, u8 *unusedSource, s32 
         colorIndex += 1;
         colorCursor += 4;
     }
-    positionCursor = *(u8 **)(*(u8 **)(geometry + 0x5C) + 0x14);
+    positionCursor = (u8 *)mesh->morphTarget->vertices;
+    vertex = (EffMiscVertex *)positionCursor;
     positionIndex = 0;
     while (positionIndex < workCount) {
-        *(s32 *)(positionCursor + 0) = 0;
-        *(s32 *)(positionCursor + 4) = 0;
-        *(s32 *)(positionCursor + 8) = 0;
+        vertex->xBits = 0;
+        vertex->yBits = 0;
+        vertex->zBits = 0;
         positionIndex += 1;
         positionCursor += 0xC;
+        vertex = (EffMiscVertex *)positionCursor;
     }
     bounds.centerXBits = 0;
     bounds.centerYBits = 0;
     bounds.centerZBits = 0;
     bounds.radius = (f32)1000000000;
-    morphTarget = *(u8 **)(geometry + 0x5C);
+    morphTarget = (u8 *)mesh->morphTarget;
     /* Bounding-sphere XYZ are cleared with the original integer bit stores. */
-    *(EffMiscBounds *)(morphTarget + 4) = bounds;
+    ((EffMiscBounds *)((RpMorphTarget *)morphTarget)->boundingSphere)[0] = bounds;
 }
 

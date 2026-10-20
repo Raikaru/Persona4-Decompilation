@@ -2,6 +2,10 @@
 #define RW_GEOMETRY_LAYOUT_INTERNAL_H
 
 #include "rw_types_internal.h"
+#include "rw_object_internal.h"
+
+/* SDK batextur.h texture-coordinate pair. */
+typedef struct RwTexCoords { f32 u, v; } RwTexCoords;
 
 /* SDK rpworld.h geometry/morph layouts and material prefix; opaque spans are not accessed here. */
 typedef struct RwSphere {
@@ -18,10 +22,20 @@ struct RpMorphTarget {
 };
 
 struct RpGeometry {
-    u8 pad00[0x2C];
+    RwObject object;
+    u32 flags;
+    u16 lockedSinceLastInst;
+    s16 refCount;
+    s32 numTriangles;
+    s32 numVertices;
+    s32 numMorphTargets;
+    s32 numTexCoordSets;
+    struct { struct RpMaterial **materials; s32 numMaterials, space; } matList;
     struct RpTriangle *triangles;
     RwRGBA *preLitLum;
-    u8 pad34[0x28];
+    RwTexCoords *texCoords[8];
+    struct RpMeshHeader *mesh;
+    struct RwResEntry *repEntry;
     struct RpMorphTarget *morphTarget;
 };
 

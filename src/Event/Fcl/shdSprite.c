@@ -1,5 +1,6 @@
 /* Original translation unit shdSprite.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
 #include "sdk_sprite_loader.h"
 #include "include_asm.h"
 
@@ -66,6 +67,10 @@ extern u8 D_00637280[];
 // FUN_0025EF20
 u8 *sdkSpritePackCreate(u8 *descriptor)
 {
+    u8 **destinationEntry;
+    const void **sourceEntry;
+    const char **nameEntry;
+    ShdSpriteDescriptor *descriptorFields = (ShdSpriteDescriptor *)descriptor;
     s32 size;
     s32 i;
     s32 totalSize;
@@ -78,50 +83,52 @@ u8 *sdkSpritePackCreate(u8 *descriptor)
 
     size = 0x10;
     i = 0;
-    for (; i < *(s32 *)(descriptor + 4); i += 1) {
+    for (; i < ((ShdSpriteDescriptor *)descriptor)->spriteCount; i += 1) {
         offset = i * 4;
-        size += strlen(
-            *(const char **)((u8 *)(u32)(*(s32 *)descriptor) + offset)) + 1;
+        nameEntry = (const char **)((u8 *)(u32)(MEMBER(s32, descriptor, ShdSpriteDescriptor, names)) + offset);
+        size += strlen(*nameEntry) + 1;
     }
     totalSize = size + (size & 1);
-    i = *(s32 *)(descriptor + 4) * 8;
-    i += *(s32 *)(descriptor + 0xC) * 8;
+    i = ((ShdSpriteDescriptor *)descriptor)->spriteCount * 8;
+    i += descriptorFields->remapCount * 8;
     i += 0x14;
     totalSize = (u32)((u8 *)(i) + totalSize);
     chkmemAllocSiteTag(&D_00637280, 0x7E);
     result = D_008873F4[0](1, totalSize, 0x40000);
-    *(s32 *)result = 0;
+    ((ShdSpritePack *)result)->loadIndex = 0;
     data = result + 0x14;
-    *(u8 **)(result + 4) = data;
-    *(u8 **)(result + 8) = data + 0x10;
-    memcpy(*(void **)(result + 4), descriptor, 0x10);
-    cursor = *(u8 **)(result + 8) + *(s32 *)(descriptor + 4) * 4;
-    *(u8 **)(*(u8 **)(result + 4)) = cursor;
-    cursor += *(s32 *)(descriptor + 4) * 4;
+    ((ShdSpritePack *)result)->descriptor = (ShdSpriteDescriptor *)data;
+    ((ShdSpritePack *)result)->sprites = (u8 **)(data + 0x10);
+    memcpy(((ShdSpritePack *)result)->descriptor, descriptor, 0x10);
+    cursor = MEMBER(u8 *, result, ShdSpritePack, sprites) + MEMBER(s32, descriptor, ShdSpriteDescriptor, spriteCount) * 4;
+    MEMBER(u8 *, MEMBER(u8 *, result, ShdSpritePack, descriptor), ShdSpriteDescriptor, names) = cursor;
+    cursor += MEMBER(s32, descriptor, ShdSpriteDescriptor, spriteCount) * 4;
     j = 0;
-    for (; j < *(s32 *)(descriptor + 4); j += 1) {
+    for (; j < MEMBER(s32, descriptor, ShdSpriteDescriptor, spriteCount); j += 1) {
         offset = j * 4;
-        length = strlen(
-            *(const char **)((u8 *)(u32)(*(s32 *)descriptor) + offset)) + 1;
+        nameEntry = (const char **)((u8 *)(u32)(MEMBER(s32, descriptor, ShdSpriteDescriptor, names)) + offset);
+        length = strlen(*nameEntry) + 1;
+        sourceEntry = (const void **)((u8 *)(u32)(MEMBER(s32, descriptor, ShdSpriteDescriptor, names)) + offset);
         memcpy(
             cursor,
-            *(const void **)((u8 *)(u32)(*(s32 *)descriptor) + offset),
+            *sourceEntry,
             length);
-        *(u8 **)(*(u8 **)(*(u8 **)(result + 4)) + offset) = cursor;
+        destinationEntry = (u8 **)(MEMBER(u8 *, MEMBER(u8 *, result, ShdSpritePack, descriptor), ShdSpriteDescriptor, names) + offset);
+        *destinationEntry = cursor;
         cursor += length;
     }
     if (((u32)cursor & 1) != 0) {
         cursor += 1;
     }
-    if (*(u8 **)(descriptor + 8) != NULL) {
+    if (((ShdSpriteDescriptor *)descriptor)->remap != NULL) {
         memcpy(
             cursor,
-            *(u8 **)(descriptor + 8),
-            *(s32 *)(descriptor + 0xC) * 8);
-        *(u8 **)(*(u8 **)(result + 4) + 8) = cursor;
-        *(u8 **)(result + 0xC) = *(u8 **)(*(u8 **)(result + 4) + 8);
+            ((ShdSpriteDescriptor *)descriptor)->remap,
+            ((ShdSpriteDescriptor *)descriptor)->remapCount * 8);
+        ((ShdSpritePack *)result)->descriptor->remap = (ShdSpriteRemap *)cursor;
+        ((ShdSpritePack *)result)->remap = ((ShdSpritePack *)result)->descriptor->remap;
     }
-    *(s32 *)(result + 0x10) = *(s32 *)(descriptor + 0xC);
+    ((ShdSpritePack *)result)->remapCount = ((ShdSpriteDescriptor *)descriptor)->remapCount;
     return result;
 }
 
@@ -132,6 +139,8 @@ u8 *sdkSpritePackCreate(u8 *descriptor)
 // FUN_0025F110
 s32 shdSpriteEnsureLoaded(u8 *pack)
 {
+    u8 **runtimeEntry;
+    ShdSpritePack *packFields = (ShdSpritePack *)pack;
     s32 H_Cdvd_LookupRequest(s32, s32 *);
     u8 *sdkSpriteRequestLoad(const char *);
     u32 hMaestroDecodeIsReady(s16 *);
@@ -142,36 +151,37 @@ s32 shdSpriteEnsureLoaded(u8 *pack)
     s32 *table;
     s32 loaded;
 
-    table = *(s32 **)(pack + 4);
-    index = *(s32 *)pack;
+    table = MEMBER(s32 *, pack, ShdSpritePack, descriptor);
+    index = ((ShdSpritePack *)pack)->loadIndex;
     if (index >= table[1]) {
         return 1;
     }
     for (;;) {
-        result = *(u8 **)(pack + 8);
+        result = (u8 *)((ShdSpritePack *)pack)->sprites;
         offset = index * 4;
-        if (*(u8 **)(result + offset) == NULL) {
+        runtimeEntry = (u8 **)(result + offset);
+        if (*runtimeEntry == NULL) {
             loaded = H_Cdvd_LookupRequest(
-                (s32)*(u8 **)(*(u8 **)(*(u8 **)(pack + 4)) + index * 4),
+                (s32)((u8 **)MEMBER(u8 *, MEMBER(u8 *, pack, ShdSpritePack, descriptor), ShdSpriteDescriptor, names))[index],
                 &requestState);
             if (loaded != 0) {
-                *(u8 **)(*(u8 **)(pack + 8) + index * 4) =
+                packFields->sprites[index] =
                     sdkSpriteAdoptBlob((u32)loaded);
             } else {
-                *(u8 **)(*(u8 **)(pack + 8) + index * 4) =
+                ((u8 **)MEMBER(u8 *, pack, ShdSpritePack, sprites))[index] =
                     sdkSpriteRequestLoad(
-                        (const char *)(*(u8 **)(*(u8 **)
-                            (*(u8 **)(pack + 4)) + index * 4)));
+                        (const char *)((ShdSpritePack *)pack)->descriptor->
+                            names[index]);
             }
         } else {
             if (hMaestroDecodeIsReady(
-                    (s16 *)*(u8 **)(result + index * 4)) == 0) {
+                    (s16 *)((u8 **)result)[index]) == 0) {
                 goto fail;
             }
-            *(s32 *)pack = *(s32 *)pack + 1;
+            ((ShdSpritePack *)pack)->loadIndex = ((ShdSpritePack *)pack)->loadIndex + 1;
         }
-        table = *(s32 **)(pack + 4);
-        index = *(s32 *)pack;
+        table = MEMBER(s32 *, pack, ShdSpritePack, descriptor);
+        index = ((ShdSpritePack *)pack)->loadIndex;
         if (index >= table[1]) {
             break;
         }
@@ -231,6 +241,7 @@ s32 shdSpriteSlotHandle(s32 entryId, s32 entryOffset, u8 *pack)
     return sdkSpriteSlotHandle(sprite, (entryId & 0xFFFF) + entryOffset);
 }
 
+/* Draw a sprite immediately with default size, rotation, and unit scale; returns zero. */
 // FUN_0025F3F0
 s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags)
 {
@@ -258,6 +269,7 @@ s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId
     return 0;
 }
 
+/* Queue a sprite with default size, rotation, and unit scale; returns zero. */
 // FUN_0025F500
 s32 shdSpriteDrawQueued(s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags, void *drawList, f32 x, f32 y, f32 depth)
 {

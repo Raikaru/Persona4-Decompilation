@@ -11,8 +11,9 @@ extern s16 D_008D2B98[];
 #pragma push
 #pragma optimization_level 2
 #pragma opt_propagation on
+/* Return channel zero's current cue identifier, or minus one while that channel is inactive. */
 // FUN_00459760
-s16 func_00459760(void)
+s16 hsndGetCurrentCue(void)
 {
     if (D_008D2B90[0] == 0) {
         return -1;

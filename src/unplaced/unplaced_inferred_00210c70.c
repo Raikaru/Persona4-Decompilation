@@ -1,10 +1,13 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00210c70-00218730 */
 
 #include "datCalc_unit_internal.h"
+#include "member_access.h"
+#include "rw_camera_internal.h"
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
@@ -66,21 +69,6 @@ extern f32 fGpffff84a0;
 extern s32 datCalcMaxHp(s32);
 extern void btlDamageDrawPanel(u8 *, u8 *);
 extern void btlTransitionDrawFrame(u8 *, u8 *);
-static inline f32 ws14_mul(f32 left, f32 right)
-{
-    return left * right;
-}
-
-static inline f32 ws14_add(f32 left, f32 right)
-{
-    return left + right;
-}
-
-static inline f32 ws14_sub(f32 left, f32 right)
-{
-    return left - right;
-}
-
 typedef struct BtlUnit BtlUnit;
 
 typedef struct RwV3d RwV3d;
@@ -139,13 +127,13 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
     transition = entry;
     panel = (s32 *)kwlnTaskGetWork(((BtlDamageState *)task)->task);
     if (((((BtlDamageEntry *)transition)->flags & 2) && (((BtlDamageEntry *)transition)->age >= 6)) || (((BtlDamageEntry *)transition)->age >= 0x19)) {
-        *(u16 *)(transition + 0x14) &= ~1U;
+        MEMBER(u16, transition, BtlDamageEntry, flags) &= ~1U;
         alive = 0;
     } else {
         alive = 1;
     }
     if (alive != 0) {
-        if (*(u16 *)(transition + 0x14) & 8) {
+        if (MEMBER(u16, transition, BtlDamageEntry, flags) & 8) {
             btlUnitGetHudAnchor((BtlUnit *)((BtlDamageEntry *)transition)->unit, (RwV3d *)(transition + 4));
         }
         if (btlTargetFindInRange((s32)(transition + 4), (u8 *)pos) != 0) {
@@ -157,17 +145,17 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
                 btlTransitionStepStretch(task, transition, work, (u8 *)&info);
                 drew = 1;
             }
-            if (*(u16 *)(transition + 0x20) & 2) {
+            if (MEMBER(u16, transition, BtlDamageEntry, drawFlags) & 2) {
                 btlTransitionStepExpand(task, transition, work, (u8 *)&info);
                 drew = 1;
             }
-            if (*(u16 *)(transition + 0x20) & 4) {
+            if (MEMBER(u16, transition, BtlDamageEntry, drawFlags) & 4) {
                 btlTransitionStepPulse(task, transition, pos[0] - 86.0f, pos[1] - 86.0f);
                 drew = 1;
             }
-            if (*(u16 *)(transition + 0x20) & 8) {
-                icon = (s32 *)kwlnTaskGetWork(*(void **)(task + 4));
-                stage = *(s32 *)(transition + 0x10);
+            if (MEMBER(u16, transition, BtlDamageEntry, drawFlags) & 8) {
+                icon = (s32 *)kwlnTaskGetWork(MEMBER(void *, task, BtlDamageState, task));
+                stage = MEMBER(s32, transition, BtlDamageEntry, age);
                 rate = btlSelectionEaseCurve(stage, 0, 4, 0);
                 scale = 0.0f;
                 if (!(rate <= scale)) {
@@ -180,8 +168,8 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
                 rate = btlSelectionEaseCurve(stage, 5, 7, 0);
                 if (!(rate <= 0.0f)) {
                     alpha = 255.0f * rate;
-                    fade = ws14_mul(20.0f, ws14_sub(1.0f, rate));
-                    height = ws14_add(75.0f, fade);
+                    fade = operandOrderMultiply(20.0f, operandOrderSubtract(1.0f, rate));
+                    height = ((75.0f) + (fade));
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)alpha);
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)alpha);
                 }
@@ -198,13 +186,13 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
                 base = 83.0f;
                 numeralMode = 1;
                 first = numeralMode;
-                if ((*(u16 *)(transition + 0x20) & 0x30) == 0x30) {
+                if ((MEMBER(u16, transition, BtlDamageEntry, drawFlags) & 0x30) == 0x30) {
                     shift = -10.0f;
                 } else {
                     shift = 0.0f;
                 }
             }
-            if (*(u16 *)(transition + 0x20) & 0x10) {
+            if (MEMBER(u16, transition, BtlDamageEntry, drawFlags) & 0x10) {
                 s32 hpAmount;
                 s32 hpColor;
                 s32 hpBackground;
@@ -228,13 +216,13 @@ void btlDamageDrawPanel(u8 *drawState, u8 *entry)
                 }
                 if (info.drawGauge != 0) {
                     unit = ((BtlDamageEntry *)transition)->unit;
-                    /* HP gauge scale (+0xA2C) is in the shared BtlUnit layout's unnamed HUD tail. */
-                    btlGaugeDrawUnit(*(s32 *)(task + 4), unit, info.gaugeX,
-                                  info.gaugeY + shift, 0xFF, *(f32 *)(unit + 0xA2C));
+                    /* The current HP ratio scales the unit gauge. */
+                    btlGaugeDrawUnit(MEMBER(s32, task, BtlDamageState, task), unit, info.gaugeX,
+                                  info.gaugeY + shift, 0xFF, ((BtlUnit *)(unit))->hpRatio);
                 }
                 base += 27.0f;
             }
-            if (*(u16 *)(transition + 0x20) & 0x20) {
+            if (MEMBER(u16, transition, BtlDamageEntry, drawFlags) & 0x20) {
                 s32 spAmount;
                 s32 spColor;
                 s32 spBackground;
@@ -288,13 +276,13 @@ static void btlDamageBuildTrail(u8 *state, u8 *output)
             cursor--;
             weight *= 0.75f;
         }
-        if (!(*(u16 *)(state + 0x16) & 2) && frame > 4) {
+        if (!(MEMBER(u16, state, BtlDamageState, trailFlags) & 2) && frame > 4) {
             phase = frame;
             if (frame >= 8) {
                 phase = 0;
             }
             if (phase % 2 == 0 && phase / 2 == 0) {
-                *(u16 *)(state + 0x16) |= 2;
+                MEMBER(u16, state, BtlDamageState, trailFlags) |= 2;
             }
         }
         if (frame >= 18) {
@@ -305,7 +293,7 @@ static void btlDamageBuildTrail(u8 *state, u8 *output)
     } else {
         ((BtlDamageTrail *)output)->count = 4;
     }
-    if (*(u16 *)(state + 0x16) & 4) {
+    if (MEMBER(u16, state, BtlDamageState, trailFlags) & 4) {
         s32 frame;
         f32 alpha;
 
@@ -319,12 +307,12 @@ static void btlDamageBuildTrail(u8 *state, u8 *output)
         }
         ((BtlDamageTrail *)output)->scale = alpha;
         if (frame > 3) {
-            *(u16 *)(state + 0x16) &= 0xFFFB;
+            MEMBER(u16, state, BtlDamageState, trailFlags) &= 0xFFFB;
         }
     } else {
         ((BtlDamageTrail *)output)->scale = 1.0f;
     }
-    if (*(u16 *)(state + 0x16) & 2) {
+    if (MEMBER(u16, state, BtlDamageState, trailFlags) & 2) {
         s32 frame;
         s32 trail;
         u16 phase;
@@ -341,15 +329,15 @@ static void btlDamageBuildTrail(u8 *state, u8 *output)
             decay = (f32)state[0x18 + trail];
             decay *= 0.75f;
             state[0x18 + trail] = (u8)decay;
-            sum = *(u16 *)(output + 8 + trail * 2) + state[0x18 + trail];
+            sum = ((BtlDamageTrail *)output)->alpha[trail] + state[0x18 + trail];
             if (sum > 255) {
                 sum = 255;
             }
-            *(u16 *)(output + 8 + trail * 2) = sum;
+            ((BtlDamageTrail *)output)->alpha[trail] = sum;
         }
     }
     if (++((BtlDamageState *)state)->trailFrame >= 144) {
-        *(u16 *)(state + 0x14) = 0;
+        MEMBER(u16, state, BtlDamageState, trailFrame) = 0;
     }
 }
 #pragma pop
@@ -397,8 +385,8 @@ void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
         frame.bytes[2] = 0;
         frame.bytes[3] = 0xFF;
         barHeight = 21.0f * scale;
-        barY = ws14_mul(scale, -10.5f);
-        barY = ws14_add(fGpffff84a0, barY);
+        barY = operandOrderMultiply(scale, -10.5f);
+        barY = operandOrderAddFloat(fGpffff84a0, barY);
         btlPanelDrawQuad(14.0f, barY, 0.0f, 12.0f, barHeight,
                       37.0f, 218.0f, 49.0f, 239.0f, frame);
         btlPanelDrawQuad(26.0f, barY, 0.0f, 112.0f, barHeight,
@@ -410,7 +398,7 @@ void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
         frame.bytes[1] = 0x1B;
         frame.bytes[2] = 0;
         frame.bytes[3] = 0xFF;
-        btlPanelDrawQuad(24.0f, fGpffff84a0 + ws14_mul(scale, -9.5f),
+        btlPanelDrawQuad(24.0f, fGpffff84a0 + operandOrderMultiply(scale, -9.5f),
                       0.0f, 116.0f, 19.0f * scale, 136.0f,
                       235.0f, 252.0f, 254.0f, frame);
         return;
@@ -495,7 +483,7 @@ void btlDamageDrawList(u8 *drawContext, u8 *state)
                 btlTransitionDrawFrame((u8 *)hud, state);
                 return;
             }
-            *(u16 *)(state + 8) = flags & 0xFFF7;
+            MEMBER(u16, state, BtlDamageState, flags) = flags & 0xFFF7;
         }
     }
 }
@@ -549,12 +537,12 @@ void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
                         continue;
                     }
                     btlUiSetOrigin(context, screen[0] - 86.0f, screen[1] - 86.0f);
-                    draw = (u8 *)kwlnTaskGetWork(*(void **)(state + 4));
+                    draw = (u8 *)kwlnTaskGetWork(MEMBER(void *, state, BtlDamageState, task));
                     /* Status pulse counter (+0xA44) is outside the shared BtlUnit's named tail. */
-                    if (++*(u16 *)(unit + 0xA44) >= 25) {
-                        *(u16 *)(unit + 0xA44) = 0;
+                    if (++((BtlUnit *)(unit))->statusPulseFrame >= 25) {
+                        MEMBER(u16, unit, BtlUnit, statusPulseFrame) = 0;
                     }
-                    pulse = sinf((fGpffff81e0 * (f32)(s32)*(u16 *)(unit + 0xA44)) / 25.0f);
+                    pulse = sinf((fGpffff81e0 * (f32)(s32)MEMBER(u16, unit, BtlUnit, statusPulseFrame)) / 25.0f);
                     btlUiDrawSpriteFaded(draw, 10, 17, 64.0f, (0.0f + 45.0f) + 10.0f * pulse,
                                    12, 79, 85, 255);
                     btlUiDrawSpriteFaded(draw, 10, 17, 64.0f, (0.0f + 37.0f) + 5.0f * pulse,
@@ -564,7 +552,7 @@ void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
                 }
             }
         }
-        flags = *(u16 *)(state + 8);
+        flags = MEMBER(u16, state, BtlDamageState, flags);
         if (flags & 2) {
             if (((BtlDamageState *)state)->fadeFrame < 30) {
                 frame = ((BtlDamageState *)state)->fadeFrame;
@@ -575,10 +563,10 @@ void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
                 }
                 fade.step = (s16)(s32)(12.0f * btlSelectionEaseCurve(frame, 1, 12, 0));
                 fade.scale = 1.0f - btlSelectionEaseCurve(frame, 20, 30, 0);
-                *(u16 *)(state + 0xA) += 1;
+                MEMBER(u16, state, BtlDamageState, fadeFrame) += 1;
                 btlPanelDrawGauge(context, (u8 *)&fade);
             } else {
-                *(u16 *)(state + 8) = flags & 0xFFFD;
+                MEMBER(u16, state, BtlDamageState, flags) = flags & 0xFFFD;
             }
         }
     }
@@ -638,7 +626,7 @@ void btlDamageStart(u8 *task, u8 *action)
         ((BtlDamageState *)state)->flags &= 0xFFFB;
     }
     sdkSndStartStream(1, 0xF, 2, 0xD);
-    *(u16 *)(state + 8) |= 2;
+    MEMBER(u16, state, BtlDamageState, flags) |= 2;
 }
 
 // Intent: start the damage flash when the popup is idle. [inferred]
@@ -699,6 +687,7 @@ void btlDamageSetSource(u8 *task, s32 source) {
 /* Encounter-transition geometry uses the actual sky-vertex, UV and matrix
  * layouts. Each direction owns its frame ratio; vertex opacity is narrowed
  * independently. See docs/probe_archive/Battle_transition_00212270_20260922.md. */
+/* Evaluate the quadratic radius curve for the transition exit. */
 static inline f32 btlTransitionExitCurve(f32 coefficient, f32 fraction)
 {
     f32 eased = coefficient * fraction - fraction * fraction;
@@ -758,8 +747,8 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     (void)callback;
     work = (u8 *)(u32)workAddress;
     camera = (u8 *)(u32)kwlnGetCamera();
-    /* Raw RwCamera near plane (+0x80): this owner uses lightweight, non-RwCamera RenderWare declarations. */
-    barReciprocalZ = 1.0f / *(f32 *)(camera + 0x80);
+    /* Camera projection uses the canonical RenderWare near-plane field. */
+    barReciprocalZ = 1.0f / ((RwCamera *)(camera))->nearPlane;
     animationFrame = ((BtlEncounterWork *)work)->animationFrame;
     if (animationFrame == 0) {
         return;
@@ -812,7 +801,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     opacity = (u32)packedColor & 0xFF;
     fanDepth = D_008872F8[0];
     camera = (u8 *)(u32)kwlnGetCamera();
-    fanReciprocalZ = 1.0f / *(f32 *)(camera + 0x80);
+    fanReciprocalZ = 1.0f / ((RwCamera *)(camera))->nearPlane;
     fan[0].u.els.scrVertex.x = 640.0f;
     fan[0].u.els.scrVertex.y = 0.0f;
     fan[0].u.els.scrVertex.z = fanDepth;
@@ -867,13 +856,13 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         alpha = 0xFF;
         ((BtlEncounterWork *)work)->rotationFrame += 1;
         if (((BtlEncounterWork *)work)->rotationFrame == 0x15) {
-            *(s32 *)(work + 0x3C) = 0;
+            MEMBER(s32, work, BtlEncounterWork, rotationFrame) = 0;
         }
-        angle = 90.0f - (360.0f * (f32)*(s32 *)(work + 0x3C)) / 21.0f;
+        angle = 90.0f - (360.0f * (f32)MEMBER(s32, work, BtlEncounterWork, rotationFrame)) / 21.0f;
     } else if (((BtlEncounterWork *)work)->rotationFrame < 0xC) {
         f32 ratio;
-        *(s32 *)(work + 0x3C) += 1;
-        ratio = (f32)*(s32 *)(work + 0x3C) / 12.0f;
+        MEMBER(s32, work, BtlEncounterWork, rotationFrame) += 1;
+        ratio = (f32)MEMBER(s32, work, BtlEncounterWork, rotationFrame) / 12.0f;
         eased = easeCoefficient * ratio - ratio * ratio;
         angle = 90.0f - 180.0f * eased;
         alpha = 0xFF;
@@ -1096,7 +1085,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         slideOffset = 400.0f * (1.0f - (1.0f - eased));
         sdkSpriteDrawOnceAt(((BtlEncounterWork *)work)->sprite, 0, 165.0f + slideOffset, 170.0f,
             0, 0, 0, labelAlpha);
-        sdkSpriteDrawOnceAt(*(s32 *)(work + 4), 1, (f32)313 - slideOffset, 224.0f,
+        sdkSpriteDrawOnceAt(MEMBER(s32, work, BtlEncounterWork, sprite), 1, (f32)313 - slideOffset, 224.0f,
             0, 0, 0, labelAlpha);
         return;
     }
@@ -1120,7 +1109,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         sdkSpriteDrawOnceScaled(((BtlEncounterWork *)work)->sprite, 0, 165.0f,
             170.0f + 28.0f * labelProgress, 0.0f, 0, 0, 0,
             0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
-        sdkSpriteDrawOnceScaled(*(s32 *)(work + 4), 1, (f32)313,
+        sdkSpriteDrawOnceScaled(MEMBER(s32, work, BtlEncounterWork, sprite), 1, (f32)313,
             224.0f + 26.5f * labelProgress, 0.0f, 0, 0, 0,
             0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
     }
@@ -1157,7 +1146,7 @@ s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
         case 3:
             introFrame = ((BtlEncounterWork *)work)->animationFrame;
             if (introFrame < 0x24) {
-                *(s32 *)(work + 0x38) = introFrame + 1;
+                MEMBER(s32, work, BtlEncounterWork, animationFrame) = introFrame + 1;
             } else if ((((BtlEncounterWork *)work)->finish == 1) &&
                        (((BtlEncounterWork *)work)->rotationFrame == 0)) {
                 ((BtlEncounterWork *)work)->state = 4;
@@ -1386,32 +1375,32 @@ void btlEncounterUpdateEntries(u8 *state)
     while (entry != NULL) {
         if ((((BtlEncounterEntry *)state)->flags & 1) != 0) {
             if (((BtlPortraitState *)(entry + 0xA10))->slideFrame > -2) {
-                *(s16 *)(entry + 0xA16) = ((BtlPortraitState *)(entry + 0xA10))->slideFrame - 1;
+                MEMBER(s16, entry, BtlUnit, portrait.slideFrame) = ((BtlPortraitState *)(entry + 0xA10))->slideFrame - 1;
             }
         } else {
             if (((BtlPortraitState *)(entry + 0xA10))->slideFrame < 0x19) {
-                *(s16 *)(entry + 0xA16) = ((BtlPortraitState *)(entry + 0xA10))->slideFrame + 1;
+                MEMBER(s16, entry, BtlUnit, portrait.slideFrame) = ((BtlPortraitState *)(entry + 0xA10))->slideFrame + 1;
             }
         }
         if ((((BtlEncounterEntry *)state)->flags & 2) == 0) {
             ((BtlPortraitState *)(entry + 0xA10))->emphasisFrame = ((BtlPortraitState *)(entry + 0xA10))->emphasisFrame - 2;
             if (((BtlPortraitState *)(entry + 0xA10))->emphasisFrame < 0) {
-                *(s16 *)(entry + 0xA14) = 0;
+                MEMBER(s16, entry, BtlUnit, portrait.emphasisFrame) = 0;
             }
         } else {
             if (((BtlPortraitState *)(entry + 0xA10))->emphasisFrame < 8) {
-                *(s16 *)(entry + 0xA14) = ((BtlPortraitState *)(entry + 0xA10))->emphasisFrame + 1;
+                MEMBER(s16, entry, BtlUnit, portrait.emphasisFrame) = ((BtlPortraitState *)(entry + 0xA10))->emphasisFrame + 1;
             }
         }
         entry = (u8 *)((BtlUnit *)entry)->prevUnit;
     }
     if ((((BtlEncounterEntry *)state)->flags & 4) != 0) {
         if (((BtlEncounterEntry *)state)->messageFrame < 10) {
-            *(s16 *)(state + 4) = ((BtlEncounterEntry *)state)->messageFrame + 1;
+            MEMBER(s16, state, BtlEncounterEntry, messageFrame) = ((BtlEncounterEntry *)state)->messageFrame + 1;
         }
     } else {
         if (((BtlEncounterEntry *)state)->messageFrame > 0) {
-            *(s16 *)(state + 4) = ((BtlEncounterEntry *)state)->messageFrame - 1;
+            MEMBER(s16, state, BtlEncounterEntry, messageFrame) = ((BtlEncounterEntry *)state)->messageFrame - 1;
         }
     }
 }
@@ -1599,7 +1588,7 @@ void btlEncounterBuildStatusIcon(u8 *unit, u8 *icon)
         ((BtlStatusIcon *)icon)->colors[4][2] = 0x89;
         return;
     default:
-        *(s32 *)(icon + 0x14) = 0;
+        MEMBER(s32, icon, BtlStatusIcon, status) = 0;
         ((BtlStatusIcon *)icon)->colors[0][0] = 0xFF;
         ((BtlStatusIcon *)icon)->colors[0][1] = 0xAF;
         ((BtlStatusIcon *)icon)->colors[0][2] = 0x20;
@@ -1684,9 +1673,9 @@ void btlPortraitDraw(s32 *hud, u8 *unit, f32 originX, f32 originY, s32 rowIndex)
     context = (u8 *)hud + 0x80C;
     btlEncounterBuildStatusIcon(unit, (u8 *)&colors);
     hp = datCalcGetHp((s32)((BtlUnit *)unit)->datUnit) & 0xFFFF;
-    sp = datCalcGetSp(*(s32 *)(unit + 0xA64)) & 0xFFFF;
-    maxHp = datCalcMaxHp(*(DatUnit **)(unit + 0xA64)) & 0xFFFF;
-    maxSp = datCalcMaxSp(*(DatUnit **)(unit + 0xA64)) & 0xFFFF;
+    sp = datCalcGetSp(MEMBER(s32, unit, BtlUnit, datUnit)) & 0xFFFF;
+    maxHp = datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)) & 0xFFFF;
+    maxSp = datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)) & 0xFFFF;
     tile = ((BtlUnit *)unit)->charId;
     if (tile < 9) {
         tile -= 1;
@@ -1947,8 +1936,8 @@ void btlPortraitDraw(s32 *hud, u8 *unit, f32 originX, f32 originY, s32 rowIndex)
         alpha2 = (u8)(255.0f * pulseWeight);
         btlUiDrawSpriteFaded((u8 *)hud, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
             0x22, alpha2);
-        *(s16 *)(unit + 0xA1A) += 1;
-        if (*(s16 *)(unit + 0xA1A) >= 0x18) {
+        MEMBER(s16, unit, BtlUnit, portrait.pulseFrame) += 1;
+        if (MEMBER(s16, unit, BtlUnit, portrait.pulseFrame) >= 0x18) {
             ((BtlPortraitState *)(unit + 0xA10))->flags &= ~2;
         }
     }
@@ -2122,13 +2111,13 @@ void btlPortraitDrawFlash(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
             ((BtlPortraitState *)(unit + 0xA10))->flashFrame += 1;
             if (((BtlPortraitState *)(unit + 0xA10))->flashFrame >= 0x18) {
                 ((BtlPortraitState *)(unit + 0xA10))->flags &= ~4;
-                *(s16 *)(unit + 0xA1C) = 0x18;
+                MEMBER(s16, unit, BtlUnit, portrait.flashFrame) = 0x18;
             }
         } else if ((flags & 0x10) != 0) {
             ((BtlPortraitState *)(unit + 0xA10))->flashFrame -= 1;
             if (((BtlPortraitState *)(unit + 0xA10))->flashFrame < 0xB) {
                 ((BtlPortraitState *)(unit + 0xA10))->flags &= ~0x10;
-                *(s16 *)(unit + 0xA1C) = 0xA;
+                MEMBER(s16, unit, BtlUnit, portrait.flashFrame) = 0xA;
             }
         }
         frame = (f32)((BtlPortraitState *)(unit + 0xA10))->flashFrame;
@@ -2257,20 +2246,20 @@ void btlPortraitDrawPulse(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
             rate = 1.0f + 15.0f * curve;
             frame = 255.0f * (1.0f - curve);
             alpha = (u8)frame;
-            *(f32 *)(unit + 0xA20) = *(f32 *)(unit + 0xA20) - D_007615AC;
+            MEMBER(f32, unit, BtlUnit, portrait.pulsePhase) = MEMBER(f32, unit, BtlUnit, portrait.pulsePhase) - D_007615AC;
         } else {
             rate = 1.0f + 10.0f * (1.0f - curve);
             frame = 255.0f * curve;
             alpha = (u8)frame;
-            *(f32 *)(unit + 0xA20) = *(f32 *)(unit + 0xA20) - D_007615B0;
+            MEMBER(f32, unit, BtlUnit, portrait.pulsePhase) = MEMBER(f32, unit, BtlUnit, portrait.pulsePhase) - D_007615B0;
         }
-        frame = *(f32 *)(unit + 0xA20);
+        frame = MEMBER(f32, unit, BtlUnit, portrait.pulsePhase);
         if (frame <= 0.5f) {
             if ((((BtlPortraitState *)(unit + 0xA10))->flags & 0x80) != 0) {
                 ((BtlPortraitState *)(unit + 0xA10))->angle = 170.0f;
             }
             ((BtlPortraitState *)(unit + 0xA10))->flags &= ~0xA0;
-            *(f32 *)(unit + 0xA20) = 0.5f;
+            MEMBER(f32, unit, BtlUnit, portrait.pulsePhase) = 0.5f;
         }
     } else {
         rate = 1.0f;
@@ -2280,7 +2269,7 @@ void btlPortraitDrawPulse(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
     ((BtlPortraitState *)(unit + 0xA10))->angle = frame;
     if (frame < -180.0f) {
         frame = frame + 360.0f;
-        *(f32 *)(unit + 0xA24) = frame;
+        MEMBER(f32, unit, BtlUnit, portrait.angle) = frame;
     }
     if (((BtlPortraitState *)(unit + 0xA10))->emphasisFrame < 9) {
         frame = (f32)((BtlPortraitState *)(unit + 0xA10))->emphasisFrame;
@@ -2342,7 +2331,7 @@ void btlPortraitDrawPulse(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
         originX = originX + 180.0f * curve;
     }
     btlUiSetRect(hud, originX, originY, 136.0f, 136.0f);
-    btlUiSetTileOffset((u8 *)hud, 0x42, 0x41, *(f32 *)(unit + 0xA24));
+    btlUiSetTileOffset((u8 *)hud, 0x42, 0x41, MEMBER(f32, unit, BtlUnit, portrait.angle));
     btlUiDrawSpriteFaded((u8 *)hud, 8, 0xD, 13.0f, 12.0f, 0xFE, 0xFF, 0x22, alpha);
     btlUiSetTileOffset((u8 *)hud, 0, 0, 0.0f);
 }
@@ -2412,7 +2401,7 @@ void btlPortraitDrawRoster(u8 *drawContext, u8 *entry)
                         ((BtlPortraitState *)(old + 0xA10))->pulsePhase = 1.0f;
                     }
                 }
-                *(u8 **)(entry + 8) = old;
+                MEMBER(u8 *, entry, BtlEncounterEntry, selectedUnit) = old;
             }
         } else {
             old = ((BtlEncounterEntry *)entry)->selectedUnit;
@@ -2425,7 +2414,7 @@ void btlPortraitDrawRoster(u8 *drawContext, u8 *entry)
                     flags |= 0x80; ((BtlPortraitState *)(old + 0xA10))->flags = flags;
                     ((BtlPortraitState *)(old + 0xA10))->pulsePhase = 1.0f;
                 }
-                *(u8 **)(entry + 8) = NULL;
+                MEMBER(u8 *, entry, BtlEncounterEntry, selectedUnit) = NULL;
             }
         }
         i = 0;
@@ -2557,7 +2546,7 @@ void btlPanelInitRecord(u8 *panel, s32 task) {
 
 /* Empty panel hook; the retail body has no side effects. */
 // FUN_00216E50
-void btlPanelNoOp(void)
+void btlPanelInitNoop(void)
 {
 }
 
@@ -2647,21 +2636,21 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
         ((BtlMessagePanel *)panel)->elapsed = ((BtlMessagePanel *)panel)->duration;
         if (((BtlMessagePanel *)panel)->mode == 1) {
             if (((BtlMessagePanel *)panel)->unit != 0) {
-                itfMesWindowSetString((u8 *)(*(s32 *)(panel + 0x18)), 0,
+                itfMesWindowSetString((u8 *)(MEMBER(s32, panel, BtlMessagePanel, window)), 0,
                               (u8 *)btlUnitGetDataRow((u8 *)((BtlMessagePanel *)panel)->unit));
             }
-            itfMesWindowSetGlyphStyle(*(s32 *)(panel + 0x18), 2, 0, 0xFF, 0xFF);
-            itfMesWindowBindRecord(*(s32 *)(panel + 0x18), ((BtlMessagePanel *)panel)->record, 0);
-            itfMesWindowSetGlyphStyle(*(s32 *)(panel + 0x18), 2, 0, 0xFF, 0xFF);
-            itfMesWindowSetFlagBits(*(s32 *)(panel + 0x18), 0x800000);
-            measuredWidth = itfMesWindowMeasureText(*(s32 *)(panel + 0x18), *(s32 *)(panel + 0x1C), 0, 2);
+            itfMesWindowSetGlyphStyle(MEMBER(s32, panel, BtlMessagePanel, window), 2, 0, 0xFF, 0xFF);
+            itfMesWindowBindRecord(MEMBER(s32, panel, BtlMessagePanel, window), ((BtlMessagePanel *)panel)->record, 0);
+            itfMesWindowSetGlyphStyle(MEMBER(s32, panel, BtlMessagePanel, window), 2, 0, 0xFF, 0xFF);
+            itfMesWindowSetFlagBits(MEMBER(s32, panel, BtlMessagePanel, window), 0x800000);
+            measuredWidth = itfMesWindowMeasureText(MEMBER(s32, panel, BtlMessagePanel, window), MEMBER(s32, panel, BtlMessagePanel, record), 0, 2);
             textWidth = measuredWidth / 16;
-            if (*(u16 *)(panel + 0x10) & 4) {
+            if (MEMBER(u16, panel, BtlMessagePanel, flags) & 4) {
                 halfWidth = textWidth / 2;
-                itfMesWindowMove(*(s32 *)(panel + 0x18), (0xD0 - halfWidth) << 4, 0x2A0);
+                itfMesWindowMove(MEMBER(s32, panel, BtlMessagePanel, window), (0xD0 - halfWidth) << 4, 0x2A0);
             } else {
                 halfWidth = textWidth / 2;
-                itfMesWindowMove(*(s32 *)(panel + 0x18), (0x12F - halfWidth) << 4, 0x2B0);
+                itfMesWindowMove(MEMBER(s32, panel, BtlMessagePanel, window), (0x12F - halfWidth) << 4, 0x2B0);
             }
         } else {
             frFontSetFlagBits(1);
@@ -2673,7 +2662,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
             frFontClearFlagBits(1);
             frFontSetFlagBits(2);
             textWidth = frFontNodeWidth(((BtlMessagePanel *)panel)->fontList);
-            if (*(u16 *)(panel + 0x10) & 4) {
+            if (MEMBER(u16, panel, BtlMessagePanel, flags) & 4) {
                 frFontMoveListTo(((BtlMessagePanel *)panel)->fontList, (0xD1 - textWidth / 2) << 4, 0x2A0);
             } else {
                 frFontMoveListTo(((BtlMessagePanel *)panel)->fontList, (0x130 - textWidth / 2) << 4, 0x2A0);
@@ -2682,15 +2671,15 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
             frFontSetGlyphColor(((BtlMessagePanel *)panel)->fontList, -1);
         }
         ((BtlMessagePanel *)panel)->textWidth = textWidth;
-        *(s32 *)(panel + 8) = 0;
-        *(u16 *)(panel + 0x14) = 2;
-        *(u16 *)(panel + 0x10) |= 2;
+        MEMBER(s32, panel, BtlMessagePanel, elapsed) = 0;
+        MEMBER(u16, panel, BtlMessagePanel, state) = 2;
+        MEMBER(u16, panel, BtlMessagePanel, flags) |= 2;
     }
     /* Fall through: initialize and draw the message in the same update. */
     case 2: {
         if ((((BtlMessagePanel *)panel)->flags & 1) == 0 &&
             (((BtlMessagePanel *)panel)->elapsed)++ >= ((BtlMessagePanel *)panel)->duration) {
-            activePanel = (u8 *)kwlnTaskGetWork(*(void **)(panel + 0x3C)) + 0x84C;
+            activePanel = (u8 *)kwlnTaskGetWork(MEMBER(void *, panel, BtlMessagePanel, task)) + 0x84C;
             if (((BtlMessagePanel *)activePanel)->fontList != 0) {
                 frFontListKeepOrRelease(((BtlMessagePanel *)activePanel)->fontList);
                 ((BtlMessagePanel *)activePanel)->fontList = 0;
@@ -2699,11 +2688,11 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
             ((BtlMessagePanel *)activePanel)->flags &= (u16)~2;
             ((BtlMessagePanel *)activePanel)->fadeFrame = 0;
             ((BtlMessagePanel *)activePanel)->elapsed = ((BtlMessagePanel *)activePanel)->duration;
-            *(u16 *)(panel + 0x14) = 0;
-        } else if (*(u16 *)(panel + 0x10) & 2) {
+            MEMBER(u16, panel, BtlMessagePanel, state) = 0;
+        } else if (MEMBER(u16, panel, BtlMessagePanel, flags) & 2) {
             count = ((BtlMessagePanel *)panel)->fadeFrame;
             if (count < 4) {
-                progress = (f32)(u32)++*(u16 *)(panel + 0x16) / 4.0f;
+                progress = (f32)(u32)++MEMBER(u16, panel, BtlMessagePanel, fadeFrame) / 4.0f;
                 fade = 2.0f * progress - progress * progress;
                 if (((BtlMessagePanel *)panel)->mode != 1) {
                     void *renderStates = (void *)D_00887300;
@@ -2716,7 +2705,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
                     box.x = 104;
                     box.width = 400;
                     box.height = 20;
-                    boxOffset = ws14_mul(16.0f, fade);
+                    boxOffset = ((16.0f) * (fade));
                     box.y = (s32)(103.0f - (f32)box.height - boxOffset);
                     firstBoxY = (f32)box.y;
                     PrimDrawFlatRectangle(colorBytes, (f32 *)&box, 0.0f, 0);
@@ -2739,7 +2728,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
                 colorBytes[3] = 0xFF;
                 animated = 0;
             }
-            if (*(u16 *)(panel + 0x10) & 8) {
+            if (MEMBER(u16, panel, BtlMessagePanel, flags) & 8) {
                 btlUiSetOrigin((u8 *)hud, 0.0f, 81.0f);
                 btlUiDrawSpriteEntry((u8 *)hud, 10, 44, 186.0f, fade);
                 btlUiDrawSpriteEntry((u8 *)hud, 10, 41, 402.0f, fade);
@@ -2749,7 +2738,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
                 btlUiDrawSpriteEntry((u8 *)hud, 10, 40, 0.0f, fade);
                 btlUiDrawSpriteEntry((u8 *)hud, 10, 41, 400.0f, fade);
                 btlUiSetScale((u8 *)hud, 1.0f, 1.0f);
-                if ((*(u16 *)(panel + 0x10) & 4) && colorBytes[3] > 0) {
+                if ((MEMBER(u16, panel, BtlMessagePanel, flags) & 4) && colorBytes[3] > 0) {
                     DatUnit *bits;
                     s32 allAttacks;
                     s8 attackSprite;
@@ -2901,9 +2890,9 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
         }
         btlUiSetOrigin((u8 *)hud, 0.0f, -8.0f);
         btlUiSetScale((u8 *)hud, 1.0f, 1.0f);
-        btlUiDrawSpriteFaded((u8 *)hud, 9, 0x52, ws14_add(379.0f, ws14_mul(-400.0f, 1.0f - fade)),
+        btlUiDrawSpriteFaded((u8 *)hud, 9, 0x52, operandOrderAddFloat(379.0f, operandOrderMultiply(-400.0f, 1.0f - fade)),
                       303.0f, 0x21, 0x21, 0x21, 0xFF);
-        progress = (f32)(*(s32 *)(panel + 0x34) - 4) / 6.0f;
+        progress = (f32)(MEMBER(s32, panel, BtlMessagePanel, choiceFrame) - 4) / 6.0f;
         if (progress > 1.0f) {
             fade = 1.0f;
         } else if (progress < 0.0f) {
@@ -2930,7 +2919,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
         if (fade == 1.0f) {
             if (((BtlMessagePanel *)panel)->choiceStarted == 0) {
                 itfMesWindowRunEntry(((BtlMessagePanel *)panel)->choiceWindow, ((BtlMessagePanel *)panel)->choiceRecord, 1, 0xF561);
-                *(s32 *)(panel + 0x38) = 1;
+                MEMBER(s32, panel, BtlMessagePanel, choiceStarted) = 1;
             }
             itfMesWindowDrawEntry(31.0f, 300.0f, 0.0f, -1, 0, 0, 0,
                           ((BtlMessagePanel *)panel)->choiceWindow, ((BtlMessagePanel *)panel)->choiceRecord);
@@ -2938,16 +2927,16 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
             if (key == 0) {
                 if (((BtlMessagePanel *)panel)->result == -1) {
                     if (D_008C024E[0] & 0x40) {
-                        *(s16 *)(panel + 0x28) = 0;
+                        MEMBER(s16, panel, BtlMessagePanel, result) = 0;
                     } else if (D_008C024E[0] & 0x20) {
-                        *(s16 *)(panel + 0x28) = 1;
+                        MEMBER(s16, panel, BtlMessagePanel, result) = 1;
                     }
                 }
             } else {
-                *(s16 *)(panel + 0x2A) = key - 1;
+                MEMBER(s16, panel, BtlMessagePanel, inputDelay) = key - 1;
             }
         }
-        (*(s32 *)(panel + 0x34))++;
+        (MEMBER(s32, panel, BtlMessagePanel, choiceFrame))++;
     }
 }
 
@@ -3102,7 +3091,7 @@ void btlMessageRelease(s32 task)
 }
 
 // Intent: set up a message from a unit's flags and start its state. [inferred]
-/* b210: nested action-pointer reloads must remain raw; the surrounding unit and enemy records are typed. */
+/* b210: MEMBER preserves nested action-pointer reloads; unit and enemy records remain typed. */
 // FUN_00218560
 void btlMessageSetup(u8 *task, u8 *action)
 {
@@ -3119,9 +3108,9 @@ void btlMessageSetup(u8 *task, u8 *action)
     } else {
         *(u16 *)message &= 0xFFF7;
     }
-    if (((BtlUnit *)*(u8 **)(action + 0x30))->genus == 1 &&
+    if (((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->genus == 1 &&
         (((DatEnemyRecord *)iGpffffb3c4)[
-                  ((DatUnit *)(u8 *)((BtlUnit *)*(u8 **)(action + 0x30))->datUnit)->id].flags &
+                  ((DatUnit *)(u8 *)((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->datUnit)->id].flags &
          0x4000) != 0) {
         *(u16 *)message |= 8;
     }

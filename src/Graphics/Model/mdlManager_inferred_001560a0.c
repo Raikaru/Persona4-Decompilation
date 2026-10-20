@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/battle.c; members 001560a0-0015c730 */
 
 #include "mt_scene_internal.h"
@@ -14,6 +15,7 @@
 #include "scene_resource_internal.h"
 #include "h_cdvd_request_internal.h"
 #include "rw_camera_internal.h"
+#include "member_access.h"
 typedef struct FldTileAttributePair {
     union { s16 directions; u8 directionBytes[2]; };
     s16 attributes;
@@ -142,7 +144,7 @@ typedef struct FldStepEntryRecord {
 /* Field-model resources use the common scene prefix and store a parent
  * at 0x140 and model at 0x144. The toggle at 0x150 remains unidentified. */
 typedef struct SceneFieldModelResource {
-    SceneUpdateResource base;
+    ResrcHeader base;
     union { u32 parentAddress; u8 *parent; };
     union { s32 modelAddress; u8 *model; };
     u8 unk148[8];
@@ -209,18 +211,9 @@ extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 task, s32 value);
 extern void MT_Scene_ReleaseWork(s32 task);
 extern void mdlDestroyModelObject(s32 model);
-/* Forces b210's offset-first addu operand order. Measured typed cell accesses
- * otherwise swap the two addu source registers in grid routines.
- * The CSE-off placement body keeps the equivalent native integer sum inline. */
-static inline u32 fldAddByteOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
+/* measured: byteAddressAdd retains offset-first addu operands at two board
+ * scans and the preload-task lookup; all other address sums expand directly. */
 
-static inline u8 *fldOffsetPointer(u8 *base, s32 offset)
-{
-    return base + offset;
-}
 
 extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 extern s32 mdlGetClump(s32 model);
@@ -256,6 +249,8 @@ extern s32 FldCellFindPlacement(void *templateData, u32 *outX, u32 *outY);
 extern void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind);
 extern void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
                           s32 limit, s32 *foundTypeTwo, s32 *foundHighType);
+/* Place the selected special tile using its direction and narrowed cell coordinates. */
+/* measured: direct dispatch changes nine bytes of the spread routine through argument-load/register ordering. */
 static inline void fldPlaceSpecialShape(u8 specialDirection, s32 x, s32 y,
                                         u8 *tile)
 {
@@ -580,6 +575,7 @@ void FldLoadTaskUnloadScene(u8 *task)
 #pragma pop
 
 
+/* Rotate the low four directional bits and wrap their overflow into the nibble. */
 static inline u32 fldTileRotateNibble(u32 bits, s32 turns)
 {
     u32 shifted = (bits & 0xF) << turns;
@@ -1072,8 +1068,8 @@ void FldCellSpreadToNeighbour(s32 column, s32 row, s32 sourceColumn, s32 sourceR
     u32 rowByteOffset;
 
     work = (u8 *)MT_Scene_GetFrameState();
-    work = fldOffsetPointer(work, row << 8);
-    work = fldOffsetPointer(work, column << 4);
+    work = ((work) + (row << 8));
+    work = ((work) + (column << 4));
     if (((FldFrameCell *)(work + 0x54))->occupied != 0) {
         return;
     }
@@ -1132,7 +1128,7 @@ main_loop:
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 3) {
+    if (((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type == 3) {
         mode = ((FieldSceneState *)iGpffff9db0)->field.value;
         if ((mode == 0x2E) || (mode == 0x42) ||
             (mode == 0x2C) || (mode == 0x40)) {
@@ -1148,7 +1144,7 @@ main_loop:
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 2) {
+    if (((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type == 2) {
         mode = ((FieldSceneState *)iGpffff9db0)->field.value;
         if ((mode == 0x2E) || (mode == 0x42) ||
             (mode == 0x2C) || (mode == 0x40)) {
@@ -1160,7 +1156,7 @@ main_loop:
 
     if (D_0076432C == 0) {
         work = (u8 *)MT_Scene_GetFrameState();
-        if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 2) {
+        if (((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type == 2) {
             choice = 0;
             direction = RpRandom() & 3;
             goto try_choice;
@@ -1168,7 +1164,7 @@ main_loop:
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type < 9) {
+    if (((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type < 9) {
         goto choose_limited;
     }
     mode = D_0076432C;
@@ -1211,17 +1207,17 @@ choose_limited:
     }
 
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 3) &&
+    if ((((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type == 3) &&
         (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 3)) {
         goto main_loop;
     }
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 7) &&
+    if ((((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type == 7) &&
         (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 7)) {
         goto main_loop;
     }
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)sourceCellOffset, (u32)work) + 0x54))->type == 8) &&
+    if ((((FldFrameCell *)((u8 *)(((u32)sourceCellOffset) + ((u32)work)) + 0x54))->type == 8) &&
         (((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xC + choice))->templates[0] == 8)) {
         goto main_loop;
     }
@@ -1297,7 +1293,7 @@ x_body:
     goto edge_test;
 edge_body:
     work = (u8 *)MT_Scene_GetFrameState();
-    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)cellOffset, (u32)work) + 0x54))->exits &
+    if ((((FldFrameCell *)((u8 *)(((u32)cellOffset) + ((u32)work)) + 0x54))->exits &
          (1U << (edge + 4))) != 0) {
         switch (edge) {
         case 0:
@@ -1472,9 +1468,9 @@ border_rows_test:
             for (i = 0; i < 0x10; i = i + 1) {
                 offset = i * 0x10;
                 t = (u8 *)MT_Scene_GetFrameState();
-                if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)(j * 0x100), (u32)t) + offset + 0x54))->occupied == 1) {
+                if (((FldFrameCell *)((u8 *)((u32)byteAddressAdd((u32)(j * 0x100), (u8 *)((u32)t))) + offset + 0x54))->occupied == 1) {
                     t = (u8 *)MT_Scene_GetFrameState();
-                    if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)(j * 0x100), (u32)t) + offset + 0x54))->type == 5) {
+                    if (((FldFrameCell *)((u8 *)((u32)byteAddressAdd((u32)(j * 0x100), (u8 *)((u32)t))) + offset + 0x54))->type == 5) {
                         t = (u8 *)MT_Scene_GetFrameState();
                         columnDistance = func_0043c6a0(((FldFrame *)t)->cellPick[0] - i);
                         t = (u8 *)MT_Scene_GetFrameState();
@@ -1695,11 +1691,11 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
       templateCount = D_005F0591[D_0076432C * 0xc];
     }
     templateScan = 0;
-    gridOffset = fldAddByteOffset((u32)rowOffset, (u32)gridOffset);
+    gridOffset = (((u32)rowOffset) + ((u32)gridOffset));
     while (templateScan < templateCount) {
       templateKind = ((FldTileTemplateSet *)(D_005F0590 + D_0076432C * 0xc + templateScan))->templates[0];
       grid = (u8 *)MT_Scene_GetFrameState();
-      if (templateKind == ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->type) {
+      if (templateKind == ((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->type) {
         templateIndex = templateScan;
         break;
       }
@@ -1714,23 +1710,23 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
     templateOffset = templateIndex * 4;
     grid = (u8 *)MT_Scene_GetFrameState();
     rotation = (u16)((((FldFrameCell *)(grid + cloneRow + cloneColumn + 0x54))->kind + 4) % 4);
-    clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)((FieldSceneState *)fldAddByteOffset((u32)templateOffset, (u32)iGpffff9db0))->templates[0].address, &worldPosition, rotation);
+    clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)((FieldSceneState *)(((u32)templateOffset) + ((u32)iGpffff9db0)))->templates[0].address, &worldPosition, rotation);
     resourceId = (u16)MT_Scene_CreateFldRes(parentId,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
     SceneDraw_SetResVisible((u16)resourceId,1);
     resrcMngResetRenderSlots();
-    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)(((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->shapeZ);
+    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)(((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->shapeZ);
         rowIndex = rowIndex + 1) {
       columnIndex = 0;
       occupiedRowOffset = (checkedY + rowIndex) * 0x100;
-      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)(((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->shapeX);
+      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)(((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->shapeX);
           columnIndex = columnIndex + 1) {
         occupiedColumnOffset = (checkedX + columnIndex) * 0x10;
         grid = (u8 *)MT_Scene_GetFrameState();
-        ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x54))->resourceId = (u16)resourceId;
+        ((FldFrameCell *)((u8 *)(((u32)occupiedRowOffset) + ((u32)grid)) + occupiedColumnOffset + 0x54))->resourceId = (u16)resourceId;
         grid = (u8 *)MT_Scene_GetFrameState();
         {
-          u8 *cell = (u8 *)fldAddByteOffset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset;
+          u8 *cell = (u8 *)(((u32)occupiedRowOffset) + ((u32)grid)) + occupiedColumnOffset;
           cell[0x5c] = 1;
         }
       }
@@ -1756,14 +1752,14 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
       SceneDraw_SetResVisible((u16)resourceId,1);
     }
     clonedModel->count2 = 0;
-    if (((k_fldResource *)((FieldSceneState *)fldAddByteOffset((u32)templateOffset, (u32)iGpffff9db0))->templates[0].signedAddress)->pointDataAddress != 0) {
+    if (((k_fldResource *)((FieldSceneState *)(((u32)templateOffset) + ((u32)iGpffff9db0)))->templates[0].signedAddress)->pointDataAddress != 0) {
       u32 *matrix;
       s32 cornerIndex;
       u8 *data;
       u32 format;
       u32 versionBase;
       matrix = (u32 *)func_003e0f80();
-      data = (u8 *)((k_fldResource *)((FieldSceneState *)fldAddByteOffset((u32)templateOffset, (u32)iGpffff9db0))->templates[0].signedAddress)->pointDataAddress;
+      data = (u8 *)((k_fldResource *)((FieldSceneState *)(((u32)templateOffset) + ((u32)iGpffff9db0)))->templates[0].signedAddress)->pointDataAddress;
       format = ((FldPointTableHeader *)data)->version;
       versionBase = 0x10000;
       if (format == versionBase) {
@@ -1783,7 +1779,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
         u8 *volumeUnit;
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           grid = (u8 *)MT_Scene_GetFrameState();
-          if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->type == '\x06') {
+          if (((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->type == '\x06') {
             volumeId = 0x3fe;
           }
           else {
@@ -1797,7 +1793,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
             f32 cornerAngle;
             u8 *cornerBase;
             grid = (u8 *)MT_Scene_GetFrameState();
-            cornerAngle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+            cornerAngle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
             matrix[2] = 0;
@@ -1825,7 +1821,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           primaryPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1855,7 +1851,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
         if (FldMap_IsCurrentInBandA() == 1) {
           secondaryPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1885,7 +1881,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
         if (FldMap_IsCurrentInBandA() == 1) {
           tertiaryPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1916,7 +1912,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
           if (FldMap_IsCurrentInBandA() == 1) {
             extraPoint = ((FieldSerializedPointRecord *)record)->position;
             grid = (u8 *)MT_Scene_GetFrameState();
-            angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+            angle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
             matrix[2] = 0;
@@ -1948,7 +1944,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
           u8 *lightUnit;
           lightPosition = ((FieldSerializedLightRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1983,7 +1979,7 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
         for (recordIndex = 0; recordIndex < ((FldPointTableHeader *)data)->finalPointCount; recordIndex = recordIndex + 1, record = record + 0x14) {
           finalPoint = ((FieldSerializedPointRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)(((u32)gridOffset) + ((u32)grid)) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -2084,10 +2080,11 @@ s32 FldStepTaskUpdate(u8 *task)
     u8 *p;
     u32 n;
     u8 *base;
+    FldStepWork *stepWork;
 
-    /* measured: typed state/flag writes and handle reads emit 764-772B
-     * against the 752B window. Retain those byte aliases; other fields are typed. */
+    /* measured: retain a typed work pointer for handle and flag accesses. */
     work = ((SdkTask *)task)->work;
+    stepWork = (FldStepWork *)work;
     FldStepUpdateBandRes();
     switch (((FldStepWork *)work)->state) {
     case 0:
@@ -2096,7 +2093,7 @@ s32 FldStepTaskUpdate(u8 *task)
         FldStepPreloadBegin();
         *(s32 *)work += 1;
     case 1:
-        if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
+        if (FldStepCopyLoadedFile(stepWork->filePointer) != 0) {
             ((FldStepWork *)work)->fileHandle = 0;
             if (((FldStepWork *)work)->modelObject == 0 || mdlPrepareModel(((FldStepWork *)work)->modelObject) != 0) {
                 if (FldStepPreloadCreateTasks() != 0 && FldStepPreloadFinish() != 0) {
@@ -2109,12 +2106,12 @@ s32 FldStepTaskUpdate(u8 *task)
                     *(s32 *)work += 1;
     case 3:
                     base = ((FldStepWork *)work)->entries;
-                    *(s32 *)(work + 0x24) = ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags | 0x80000000;
+                    stepWork->flags = ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags | 0x80000000;
                     rec = (u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)((FldStepWork *)work)->entries;
                     ((FldStepWork *)work)->rootTask = FldRootCreate(task, ((FldStepEntryRecord *)rec)->fieldId, ((FldStepEntryRecord *)rec)->roomId, ((FldStepWork *)work)->entryHalf[0], 0, 0,
                                                           ((FldStepWork *)work)->flags, ((FldStepEntryRecord *)rec)->unk08, ((FldStepEntryRecord *)rec)->unk09,
                                                           ((FldStepEntryRecord *)rec)->value, -1, -1, -1, -1);
-                    *(s32 *)(work + 0x24) = 0;
+                    stepWork->flags = 0;
                     *(s32 *)work += 1;
                 }
             }
@@ -2141,15 +2138,15 @@ s32 FldStepTaskUpdate(u8 *task)
                 n--;
             } while (n != 0);
         }
-        if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
+        if (FldStepCopyLoadedFile(stepWork->filePointer) != 0) {
             ((FldStepWork *)work)->fileHandle = 0;
             base = ((FldStepWork *)work)->entries;
-            *(s32 *)(work + 0x24) |= ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags;
+            stepWork->flags |= ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags;
             rec = (u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)((FldStepWork *)work)->entries;
             ((FldStepWork *)work)->rootTask = FldRootCreate(task, ((FldStepEntryRecord *)rec)->fieldId, ((FldStepEntryRecord *)rec)->roomId, ((FldStepWork *)work)->entryHalf[0], 0, 0,
                                                   ((FldStepWork *)work)->flags, ((FldStepEntryRecord *)rec)->unk08, ((FldStepEntryRecord *)rec)->unk09,
                                                   ((FldStepEntryRecord *)rec)->value, -1, -1, -1, -1);
-            *(s32 *)(work + 0x24) = 0;
+            stepWork->flags = 0;
             *(s32 *)work = 4;
         }
         break;
@@ -2177,9 +2174,10 @@ void FldStepTaskDestroy(u8 *task)
     s32 columnIndex;
     u8 *workBlock;
     u8 *scriptData;
+    SdkTask *stepTask = (SdkTask *)task;
 
-    /* measured: typed task work loads remove the final reload (nd10); raw retains MATCH in the 320B window. */
-    workBlock = *(u8 **)(task + 0x38);
+    /* measured: retain the typed task pointer across destruction callbacks. */
+    workBlock = stepTask->work;
     if (FldMap_IsCurrentInEitherBand() == 1) {
         fldStepSaveBoard(((FldStepWork *)workBlock)->stepIndex);
     }
@@ -2215,7 +2213,7 @@ loop_14_test:
         goto loop_14_body;
     }
     ((FieldSceneState *)iGpffff9db0)->field.value = 0;
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](stepTask->work);
 }
 #pragma pop
 
@@ -2256,10 +2254,12 @@ void FldStepAdvance(s32 stepDelta)
     s32 index;
     s32 *entry;
     u8 *first;
+    FldStepWork *stepWork;
 
     root = D_00764334;
     if (root != NULL) {
         state = ((SdkTask *)root)->work;
+        stepWork = (FldStepWork *)state;
         if (stepDelta < 0) {
             ((FldStepWork *)state)->entryValue = 0x3FF;
         } else {
@@ -2269,11 +2269,10 @@ void FldStepAdvance(s32 stepDelta)
         entryOffset = ((FldStepWork *)state)->stepIndex * 0x10;
         base = ((FldStepWork *)state)->entriesAddress;
         first = (u8 *)(base + entryOffset);
-        /* measured: typed roomId loads fold the +2 address adjustment and shrink
-         * this 336B routine to 324B. Keep its two room-halfword cursors byte-based. */
+        /* Preserve the room-halfword cursor while naming its proven member. */
         if (((((FldStepEntryRecord *)first)->fieldId != ((FldStepEntryRecord *)(first + stepByteDelta))->fieldId) ||
-             (*(u16 *)(base + 2 + entryOffset) !=
-              *(u16 *)fldOffsetPointer((u8 *)(base + 2 + entryOffset), stepByteDelta))) &&
+             (*(u16 *)(base + MEMBER_OFFSET(FldStepEntryRecord, roomId) + entryOffset) !=
+              *(u16 *)(((u8 *)(base + MEMBER_OFFSET(FldStepEntryRecord, roomId) + entryOffset)) + (stepByteDelta)))) &&
             (((((FldStepWork *)state)->flags |= 0x80000000),
               FldMap_IsCurrentInBandA(base, entryOffset, stepByteDelta) == 1) ||
              (FldMap_IsCurrentInBandB() == 1))) {
@@ -2287,8 +2286,8 @@ void FldStepAdvance(s32 stepDelta)
                 index += 1;
             }
         }
-        /* measured: typing this final index update grows 336B to 348B; other step fields stay typed. */
-        *(s32 *)(state + 4) += stepDelta;
+        /* measured: retained typed work preserves the final index update. */
+        stepWork->stepIndex += stepDelta;
         MT_Scene_SetWorkValue(((FldStepWork *)state)->rootPointer, 1);
         *(s32 *)state = 5;
     }
@@ -2462,9 +2461,7 @@ void fldBoardGetOccupiedCenter(RwV3d *center)
         x = 0;
         row = y << 8;
         while (x < 0x10) {
-            if (((FldFrameCell *)(fldOffsetPointer(
-                            (u8 *)(row + (s32)(u8 *)MT_Scene_GetFrameState()),
-                            x << 4) + 0x54))->occupied == 1) {
+            if (((FldFrameCell *)((((u8 *)(row + (s32)(u8 *)MT_Scene_GetFrameState())) + (x << 4)) + 0x54))->occupied == 1) {
                 if (x <= minColumn) {
                     minColumn = x;
                 }
@@ -2865,21 +2862,21 @@ copy_inner_body:
     destColumn = columnIndex * 0x10;
 
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].occupied;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->occupied = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->occupied = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].flags;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->flags = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->flags = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].type;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->type = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].kind;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->kind = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->kind = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].shapeX;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->shapeX = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->shapeX = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].shapeZ;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->shapeZ = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->shapeZ = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].exits;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->exits = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->exits = value;
     value = ((FldStepSavedTables *)sourceCell)->grids[0][0][0].attributes;
-    ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->unk0B = value;
+    ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->unk0B = value;
 
     columnIndex++;
 copy_inner_test:
@@ -2903,18 +2900,18 @@ scan_outer_body:
     goto scan_inner_test;
 scan_inner_body:
     destColumn = scanColumn * 0x10;
-    if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->occupied == 1) &&
-        ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->flags & 0xF) != 0)) {
-        if (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 6) {
+    if ((((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->occupied == 1) &&
+        ((((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->flags & 0xF) != 0)) {
+        if (((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->type == 6) {
             ((FldFrame *)MT_Scene_GetFrameState())->spawnColumn = (u8)scanColumn;
             ((FldFrame *)MT_Scene_GetFrameState())->spawnRow = (u8)scanRow;
         }
-        if ((((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 0xA) ||
-            (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 0xC) ||
-            (((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->type == 0xE)) {
+        if ((((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->type == 0xA) ||
+            (((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->type == 0xC) ||
+            (((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->type == 0xE)) {
             ((FldFrame *)MT_Scene_GetFrameState())->cellPick[0] = (u8)scanColumn;
             ((FldFrame *)MT_Scene_GetFrameState())->cellPick[1] = (u8)scanRow;
-            value = ((FldFrameCell *)((u8 *)fldAddByteOffset((u32)destRow, (u32)MT_Scene_GetFrameState()) + destColumn + 0x54))->kind;
+            value = ((FldFrameCell *)((u8 *)(((u32)destRow) + ((u32)MT_Scene_GetFrameState())) + destColumn + 0x54))->kind;
             ((FldFrame *)MT_Scene_GetFrameState())->unk48[1] = value;
         }
     }
@@ -2996,6 +2993,7 @@ void FldStepRefreshBandResVisibility(void)
     s32 flag;
     s32 cellColumn;
     s32 cellRow;
+    SceneFieldModelResource *modelResource;
 
     entry = MT_Scene_GetResListHead(0xA);
     if (FldMap_IsCurrentInBandA() == 0) {
@@ -3005,11 +3003,12 @@ void FldStepRefreshBandResVisibility(void)
     }
     while (entry != NULL) {
 body:
+            modelResource = (SceneFieldModelResource *)entry;
             cellColumn = (s32)((((RwMatrixTag *)mdlGetMatrix(((SceneFieldModelResource *)entry)->modelAddress))->pos.x +
                              600.0f) /
                             1200.0f);
-            /* measured: later typed model-handle reads change scheduling (nd233+) or exceed the 416B window. */
-            cellRow = (s32)((((RwMatrixTag *)mdlGetMatrix(*(s32 *)(entry + 0x144)))->pos.z +
+            /* measured: retain the typed resource for callback handle reads. */
+            cellRow = (s32)((((RwMatrixTag *)mdlGetMatrix(modelResource->modelAddress))->pos.z +
                              600.0f) /
                             1200.0f);
             flag = 0;
@@ -3019,17 +3018,17 @@ body:
             }
             if (flag == 1) {
                 if (K_Clump_ClumpHasMatUsrData(
-                        mdlGetClump(*(s32 *)(entry + 0x144)),
+                        mdlGetClump(modelResource->modelAddress),
                         D_005F0690) != 0) {
-                    mdlDispatchAnimIfPresent((u8*)*(s32 *)(entry + 0x144), 0, 2, 0, 0);
+                    mdlDispatchAnimIfPresent((u8*)modelResource->modelAddress, 0, 2, 0, 0);
                 }
                 if (K_Clump_ClumpHasMatUsrData(
-                        mdlGetClump(*(s32 *)(entry + 0x144)),
+                        mdlGetClump(modelResource->modelAddress),
                         D_005F06A0) != 0) {
                     ((SceneFieldModelResource *)entry)->unk150 = 0;
                 }
             }
-            entry = (u8 *)((SceneUpdateResource *)entry)->next;
+            entry = (u8 *)((ResrcHeader *)entry)->next;
         }
 }
 #pragma pop
@@ -3151,9 +3150,11 @@ void FldStepUpdateBandRes(void)
     s32 j;
     u8 *work;
     u8 *object;
+    ResrcRecord *player;
 
     fieldResources = MT_Scene_GetResListHead(0xC);
     playerResource = MT_Scene_GetRes(0x400);
+    player = (ResrcRecord *)playerResource;
     modelResources = MT_Scene_GetResListHead(0xA);
     alternateResources = MT_Scene_GetResListHead(0xB);
     tileColumn = 0;
@@ -3161,12 +3162,12 @@ void FldStepUpdateBandRes(void)
     if (FldMap_IsCurrentInEitherBand() != 0) {
         if (playerResource != NULL) {
             tileColumn = FldFrameTask_GetTileX(((ResrcRecord *)playerResource)->handle220);
-            /* measured: typing this second handle read changes scheduling (1780B to 1784B). */
-            tileRow = FldFrameTask_GetTileZ(*(s32 *)(playerResource + 0x220));
+            /* measured: retain the typed player resource for the second read. */
+            tileRow = FldFrameTask_GetTileZ(player->handle220);
             goto clear_test;
 clear_body:
-            ((SceneUpdateResource *)fieldResources)->flags &= ~2U;
-            fieldResources = (u8 *)((SceneUpdateResource *)fieldResources)->next;
+            ((ResrcHeader *)fieldResources)->flags &= ~2U;
+            fieldResources = (u8 *)((ResrcHeader *)fieldResources)->next;
 clear_test:
             if (fieldResources != NULL) {
                 goto clear_body;
@@ -3175,8 +3176,8 @@ clear_test:
         } else {
             goto set_test;
 set_body:
-            ((SceneUpdateResource *)fieldResources)->flags |= 2;
-            fieldResources = (u8 *)((SceneUpdateResource *)fieldResources)->next;
+            ((ResrcHeader *)fieldResources)->flags |= 2;
+            fieldResources = (u8 *)((ResrcHeader *)fieldResources)->next;
 set_test:
             if (fieldResources != NULL) {
                 goto set_body;
@@ -3235,13 +3236,13 @@ set_test:
 list_a_body:
         object = ((ResrcRecord *)modelResources)->slotHandle[0];
         if (object != NULL) {
-            if ((((SceneUpdateResource *)object)->flags & 2) != 0) {
-                ((SceneUpdateResource *)modelResources)->flags |= 2;
+            if ((((ResrcHeader *)object)->flags & 2) != 0) {
+                ((ResrcHeader *)modelResources)->flags |= 2;
             } else {
-                ((SceneUpdateResource *)modelResources)->flags &= ~2U;
+                ((ResrcHeader *)modelResources)->flags &= ~2U;
             }
         }
-        modelResources = (u8 *)((SceneUpdateResource *)modelResources)->next;
+        modelResources = (u8 *)((ResrcHeader *)modelResources)->next;
 list_a_test:
         if (modelResources != NULL) {
             goto list_a_body;
@@ -3250,12 +3251,12 @@ list_a_test:
         goto list_b_test;
 list_b_body:
         object = ((ResrcRecord *)alternateResources)->slotHandle[0];
-        if ((((SceneUpdateResource *)object)->flags & 2) != 0) {
-            ((SceneUpdateResource *)alternateResources)->flags |= 2;
+        if ((((ResrcHeader *)object)->flags & 2) != 0) {
+            ((ResrcHeader *)alternateResources)->flags |= 2;
         } else {
-            ((SceneUpdateResource *)alternateResources)->flags &= ~2U;
+            ((ResrcHeader *)alternateResources)->flags &= ~2U;
         }
-        alternateResources = (u8 *)((SceneUpdateResource *)alternateResources)->next;
+        alternateResources = (u8 *)((ResrcHeader *)alternateResources)->next;
 list_b_test:
         if (alternateResources != NULL) {
             goto list_b_body;
@@ -3268,7 +3269,7 @@ array_a_body:
         if (((FldUnitVisibilityState *)work)->active != 0) {
             object = ((FldUnitVisibilityState *)work)->resource;
             if (object != NULL) {
-                ((SceneUpdateResource *)object)->flags &= ~2U;
+                ((ResrcHeader *)object)->flags &= ~2U;
             }
         }
         i++;
@@ -3284,7 +3285,7 @@ array_b_body:
         if (work != NULL) {
             object = ((FldUnitVisibilityState *)work)->resource;
             if (object != NULL) {
-                ((SceneUpdateResource *)object)->flags |= 2;
+                ((ResrcHeader *)object)->flags |= 2;
             }
         }
         j++;
@@ -3312,7 +3313,7 @@ s32 FldStepFileTask(s32 index)
         return 0;
     }
     p = ((SdkTask *)work)->work;
-    p = (u8 *)fldAddByteOffset((u32)(index * 4), (u32)p);
+    p = (u8 *)((u32)byteAddressAdd((u32)(index * 4), (u8 *)((u32)p)));
     return ((FldStepWork *)p)->preloadTasks[0];
 }
 #pragma pop
@@ -3346,6 +3347,7 @@ void FldStepPreloadBegin(void) {
 // FUN_0015C280
 s32 FldStepPreloadCreateTasks(void) {
     u8 *workBlock;
+    FldStepWork *stepWork;
 
     if (iGpffffb218 == 0) {
         return 1;
@@ -3355,15 +3357,16 @@ s32 FldStepPreloadCreateTasks(void) {
         return 1;
     }
     workBlock = ((SdkTask *)iGpffffb244)->work;
+    stepWork = (FldStepWork *)workBlock;
     if (H_Cdvd_IsFileLoaded(iGpffffb218) == 0) {
         return 0;
     }
-    /* measured: typing either readiness read grows 224B to 236B; the task stores match typed. */
-    if (*(s32 *)(workBlock + 0x40) == 0) {
+    /* measured: retained typed work keeps both readiness loads MATCH. */
+    if (stepWork->preloadTasks[0] == 0) {
         ((FldStepWork *)workBlock)->preloadTasks[0] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F06E0, 0x1E, iGpffffb218);
     }
-    if (*(s32 *)(workBlock + 0x44) == 0) {
+    if (stepWork->preloadTasks[1] == 0) {
         ((FldStepWork *)workBlock)->preloadTasks[1] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F0700, 0x14, iGpffffb218);
     }
@@ -3437,22 +3440,25 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
     u8 *copyDst;
     u8 *copySrc;
     s32 size;
+    FldStepWork *stepWork;
+    HCdvdRequest *request = (HCdvdRequest *)handle;
     if (iGpffffb244 == NULL) {
         return 1;
     }
     workBlock = ((SdkTask *)iGpffffb244)->work;
+    stepWork = (FldStepWork *)workBlock;
     if (handle == NULL) {
         return 1;
     }
     if (H_Cdvd_IsFileLoaded() != 0) {
         chkmemAllocSiteTag(D_005F05E8, 0xC30);
         size = ((HCdvdRequest *)handle)->signedSize;
-        /* measured: typing the allocated-buffer store grows 216B to 228B; retain only its raw alias. */
-        *(u8 **)(workBlock + 0x2C) =
+        /* measured: retained typed work keeps the allocated buffer store MATCH. */
+        stepWork->scriptData =
             (u8 *)D_008873F4[0](1, size, 0x40000);
-        /* measured: typing either post-allocation size reload grows 216B to 228B. */
-        ((FldStepWork *)workBlock)->scriptSize = *(s32 *)(handle + 0x118);
-        size = *(s32 *)(handle + 0x118);
+        /* measured: retained typed request preserves post-allocation size reads. */
+        ((FldStepWork *)workBlock)->scriptSize = request->signedSize;
+        size = request->signedSize;
         copyDst = ((FldStepWork *)workBlock)->scriptData;
         copySrc = ((HCdvdRequest *)handle)->data;
         memcpy(copyDst, copySrc, size);

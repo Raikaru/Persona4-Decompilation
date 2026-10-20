@@ -84,6 +84,15 @@ typedef struct {
     s32 endFrame;
 } CmpConfigMotion;
 
+/* Twenty-byte row definitions consumed by the configuration transition code. */
+typedef struct {
+    Vec2f target;
+    u8 opacity;
+    u8 pad09[3];
+    s32 startFrame;
+    s32 endFrame;
+} CmpConfigLayout;
+
 typedef struct {
     s16 targetHeight;
     s16 height;
@@ -181,8 +190,9 @@ s32 cmpConfigIsFlagsSynced(u8 *task) {
 
 // Resets the config menu state: clears the option values and cursor, then selects table mode 0 through cmpConfigSetMode.
 // FUN_0035C830
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpConfigWork rewrite changed 426 instruction bytes and was reverted. */
+/* measured: earlier CmpConfigWork typing changed 426 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpConfigInitState(u8* work) {
+    CmpConfigWork *menu = (CmpConfigWork *)work;
     s32 resource;
     s16 i;
     s16 j;
@@ -194,31 +204,31 @@ void cmpConfigInitState(u8* work) {
     u8 code;
     s32 result;
 
-    *(s32 *)(work + 0x20) = -1;
+    menu->tableMode = -1;
     cmpConfigSetMode(work, 0);
-    *(s32 *)(work + 0x08) = 0;
-    *(s32 *)(work + 0x0C) = 0;
-    *(u8 *)(work + 0x00) = 0xFF;
-    *(s32 *)(work + 0x18) = 0;
-    *(s32 *)(work + 0x20) = -1;
+    *(s32 *)&menu->origin.x = 0;
+    *(s32 *)&menu->origin.y = 0;
+    menu->opacity = 0xFF;
+    menu->phase = 0;
+    menu->tableMode = -1;
     for (i = 0; i <= 0; i++) {
-        *(s32 *)(work + i * 4 + 0x30) = 0;
+        ((CmpConfigWork *)(work + i * 4))->selectedOption = 0;
     }
     j = 0;
     table = D_0064D070;
     for (; j < 18; j++) {
         src = table + j * 20;
         dst = work + j * 48;
-        *(f32 *)(dst + 0x88) = *(f32 *)(src + 0x00);
-        *(f32 *)(dst + 0x8C) = *(f32 *)(src + 0x04);
-        *(u8 *)(dst + 0x92) = *(u8 *)(src + 0x08);
+        ((CmpConfigWork *)dst)->motion[0].position.x = ((CmpConfigLayout *)src)->target.x;
+        ((CmpConfigWork *)dst)->motion[0].position.y = ((CmpConfigLayout *)src)->target.y;
+        ((CmpConfigWork *)dst)->motion[0].opacity = ((CmpConfigLayout *)src)->opacity;
     }
     resource = (s32)(u32)resourceFindByName((char *)D_005E5850);
     if (resource == 0) {
         kAssertFail(D_0064D3C8, 0x12F);
     }
     result = (s32)(u32)resourceFindByName((char *)D_005E57F0);
-    *(s32 *)(work + 0x474) = result;
+    menu->helpTexture = result;
     for (k = 0; k < 11; k++) {
         dst = work + k * 4 + 0x448;
         code = D_0064D3B8[k];
@@ -228,14 +238,14 @@ void cmpConfigInitState(u8* work) {
         }
     }
     for (m = 0; m < 6; m++) {
-        *(u16 *)(work + m * 2 + 0x3A) = 5;
+        ((CmpConfigWork *)(work + m * 2))->timers[0] = 5;
         result = datGetFlag(D_0064D3A0[m]);
         if (result != 0) {
-            *(s32 *)(work + m * 4 + 0x60) = 0;
-            *(s32 *)(work + m * 4 + 0x48) = 1;
+            ((CmpConfigWork *)(work + m * 4))->previousOptions[0] = 0;
+            ((CmpConfigWork *)(work + m * 4))->options[0] = 1;
         } else {
-            *(s32 *)(work + m * 4 + 0x60) = 1;
-            *(s32 *)(work + m * 4 + 0x48) = 0;
+            ((CmpConfigWork *)(work + m * 4))->previousOptions[0] = 1;
+            ((CmpConfigWork *)(work + m * 4))->options[0] = 0;
         }
     }
 }
@@ -349,33 +359,34 @@ block_9:
 
 // Switches the config table to mode 0, 1 or 2 and loads its 18-row layout; unknown modes assert.
 // FUN_0035CE10
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpConfigWork rewrite changed 279 instruction bytes and was reverted. */
+/* measured: earlier CmpConfigWork typing changed 279 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpConfigSetMode(u8* work, s32 mode) {
+    CmpConfigWork *menu = (CmpConfigWork *)work;
     u8* layoutTable = 0;
     s32 i;
     s32 j;
 
-    if (*(s32*)(work + 0x20) == mode) {
+    if (menu->tableMode == mode) {
         return 0;
     }
     for (i = 0; i < 18; i++) {
-        *(f32*)(work + i * 48 + 0x78) = *(f32*)(work + i * 48 + 0x88);
-        *(f32*)(work + i * 48 + 0x7C) = *(f32*)(work + i * 48 + 0x8C);
-        *(u8*)(work + i * 48 + 0x90) = *(u8*)(work + i * 48 + 0x92);
+        ((CmpConfigWork *)(work + i * 48))->motion[0].start.x = ((CmpConfigWork *)(work + i * 48))->motion[0].position.x;
+        ((CmpConfigWork *)(work + i * 48))->motion[0].start.y = ((CmpConfigWork *)(work + i * 48))->motion[0].position.y;
+        ((CmpConfigWork *)(work + i * 48))->motion[0].startOpacity = ((CmpConfigWork *)(work + i * 48))->motion[0].opacity;
     }
     switch (mode) {
     case 0:
         layoutTable = D_0064CD90;
-        *(s32*)(work + 0x24) = 3;
-        *(u16*)(work + 0x38) = 0x12;
+        menu->visible = 3;
+        menu->helpStyle = 0x12;
         break;
     case 1:
         layoutTable = D_0064D070;
-        *(s32*)(work + 0x24) = 3;
+        menu->visible = 3;
         break;
     case 2:
         layoutTable = D_0064CF00;
-        *(s32*)(work + 0x24) = 3;
+        menu->visible = 3;
         break;
     default:
         kAssertFail(D_0064D3C8, 0x207);
@@ -383,28 +394,28 @@ s32 cmpConfigSetMode(u8* work, s32 mode) {
     }
     if (layoutTable != 0) {
         for (j = 0; j < 18; j++) {
-            *(f32*)(work + j * 48 + 0x80) = *(f32*)(layoutTable + j * 20 + 0);
-            *(f32*)(work + j * 48 + 0x84) = *(f32*)(layoutTable + j * 20 + 4);
-            *(u8*)(work + j * 48 + 0x91) = *(u8*)(layoutTable + j * 20 + 8);
-            *(s32*)(work + j * 48 + 0xA0) = *(s32*)(layoutTable + j * 20 + 0xC);
-            *(s32*)(work + j * 48 + 0xA4) = *(s32*)(layoutTable + j * 20 + 0x10);
+            ((CmpConfigWork *)(work + j * 48))->motion[0].target.x = ((CmpConfigLayout *)(layoutTable + j * 20))->target.x;
+            ((CmpConfigWork *)(work + j * 48))->motion[0].target.y = ((CmpConfigLayout *)(layoutTable + j * 20))->target.y;
+            ((CmpConfigWork *)(work + j * 48))->motion[0].targetOpacity = ((CmpConfigLayout *)(layoutTable + j * 20))->opacity;
+            ((CmpConfigWork *)(work + j * 48))->motion[0].startFrame = ((CmpConfigLayout *)(layoutTable + j * 20))->startFrame;
+            ((CmpConfigWork *)(work + j * 48))->motion[0].endFrame = ((CmpConfigLayout *)(layoutTable + j * 20))->endFrame;
         }
-        *(s32*)(work + 0x20) = mode;
-        *(u16*)(work + 0x28) = 0;
+        menu->tableMode = mode;
+        *(u16 *)&menu->frame = 0;
     }
     return 1;
 }
 
 // Advances the config phase from 0 to 1; returns 1 in phases 0 and 1, else 0 [inferred].
 // FUN_0035CFB0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpConfigWork rewrite changed 45 instruction bytes and was reverted. */
 s32 cmpConfigAdvancePhase(u8 *work) {
-    s32 phase = *(s32 *)(work + 0x18);
+    CmpConfigWork *menu = (CmpConfigWork *)work;
+    s32 phase = menu->phase;
 
     switch (phase) {
     case 0:
         phase += 1;
-        *(s32 *)(work + 0x18) = phase;
+        menu->phase = phase;
         return 1;
     case 1:
         return 1;
@@ -415,15 +426,15 @@ s32 cmpConfigAdvancePhase(u8 *work) {
 
 // Per-frame update: advances the frame counter (capped at 100), animates the 18 rows, runs the graph animation and draws the screen.
 // FUN_0035D000
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpConfigWork rewrite changed 123 instruction bytes and was reverted. */
 void cmpConfigUpdateFrame(u8* unusedNode, u8* work) {
+    CmpConfigWork *menu = (CmpConfigWork *)work;
     s32 i;
 
-    if (*(s16 *)(work + 0x28) < 0x64) {
-        *(s16 *)(work + 0x28) = *(s16 *)(work + 0x28) + 1;
+    if (menu->frame < 0x64) {
+        menu->frame = menu->frame + 1;
     }
     for (i = 0; i < 18; i++) {
-        s16 frame = *(s16 *)(work + 0x28);
+        s16 frame = menu->frame;
 
         radarAnimateValue(work + i * 48 + 0x78, frame, 0);
     }
@@ -433,10 +444,7 @@ void cmpConfigUpdateFrame(u8* unusedNode, u8* work) {
 
 
 
-static inline u32 cmpConfigPackGrayText(u8 alpha, u8 shade)
-{
-    return ((u32)shade << 24) | ((u32)shade << 16) | ((u32)shade << 8) | alpha;
-}
+
 
 /* Draw the live configuration graph, option rows, reset button and help text.
    The complete position/color records are shared across all draw phases.
@@ -579,7 +587,7 @@ void cmpConfigDraw(u8 *work) {
                 } else {
                     selected = 0;
                     if (index == 2) {
-                        textColor = cmpConfigPackGrayText(alpha, 0x80);
+                        textColor = (((u32)(0x80) << 24) | ((u32)(0x80) << 16) | ((u32)(0x80) << 8) | (alpha));
                     } else {
                         textColor = (alpha & 0xFF) | 0x80808000;
                     }
@@ -680,16 +688,17 @@ void cmpConfigSyncFlags(u8* work) {
 
 // Advances the graph phase counters and sets each of the 11 graph bars from its distance to the top and bottom targets [inferred].
 // FUN_0035DDF0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpConfigWork rewrite changed 335 instruction bytes and was reverted. */
+/* measured: earlier CmpConfigWork typing changed 335 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpConfigAnimateGraph(u8 *work)
 {
+    CmpConfigWork *menu = (CmpConfigWork *)work;
     s32 top; s32 bottom; s32 i; s32 topDistance; s32 bottomDistance; s64 score; s16 topHeight; s16 bottomHeight; u8 *barBase;
-    *(s16 *)(work + 0x2A) = *(s16 *)(work + 0x2A) + 1;
-    if (*(s16 *)(work + 0x2A) >= 0x19) *(s16 *)(work + 0x2A) = 0;
-    *(s16 *)(work + 0x2C) = *(s16 *)(work + 0x2C) + 1;
-    if (*(s16 *)(work + 0x2C) >= 0x1E) *(s16 *)(work + 0x2C) = 0;
-    top = (s32)((11.0f * (f32)*(s16 *)(work + 0x2A)) / 25.0f);
-    bottom = (s32)(11.0f * (1.0f - ((f32)*(s16 *)(work + 0x2C) / 30.0f)));
+    menu->graphFrame = menu->graphFrame + 1;
+    if (menu->graphFrame >= 0x19) menu->graphFrame = 0;
+    menu->graphFrame2 = menu->graphFrame2 + 1;
+    if (menu->graphFrame2 >= 0x1E) menu->graphFrame2 = 0;
+    top = (s32)((11.0f * (f32)menu->graphFrame) / 25.0f);
+    bottom = (s32)(11.0f * (1.0f - ((f32)menu->graphFrame2 / 30.0f)));
     i = 0;
     while (i < 0xB) {
         if (i < top) topDistance = top - i; else topDistance = i - top;
@@ -700,7 +709,7 @@ void cmpConfigAnimateGraph(u8 *work)
         bottomHeight = (s16)(8 - bottomDistance * 2);
         if (score < bottomHeight) score = bottomHeight;
         barBase = work + i * 0xA;
-        *(s16 *)(barBase + 0x3D8) = (s16)score;
+        ((CmpConfigWork *)barBase)->graph[0].targetHeight = (s16)score;
         datSmoothTargetStep(barBase + 0x3D8);
         i++;
     }

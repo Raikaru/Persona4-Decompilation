@@ -57,9 +57,9 @@ u8 *nmListAllocNode(s32 payloadSize) {
     return node;
 }
 
-void func_002e1cd0(void);
-void func_002e1ce0(void);
-void func_002e1cf0(void);
+void comuDataInsertNoop(void);
+void comuDataRemoveNoop(void);
+void comuDataUpdateNoop(void);
 
 /* Allocate a list manager and install supplied callbacks or the default callbacks. */
 // FUN_002E1DB0
@@ -81,17 +81,17 @@ u8 *nmListAllocManager(s32 payloadSize, code onInsert, code onRemove, code onUpd
     if (onInsert != NULL) {
         ((NmlistManager *)node)->onInsert = onInsert;
     } else {
-        ((NmlistManager *)node)->onInsert = (code)func_002e1cd0;
+        ((NmlistManager *)node)->onInsert = (code)comuDataInsertNoop;
     }
     if (onRemove != NULL) {
         ((NmlistManager *)node)->onRemove = onRemove;
     } else {
-        ((NmlistManager *)node)->onRemove = (code)func_002e1ce0;
+        ((NmlistManager *)node)->onRemove = (code)comuDataRemoveNoop;
     }
     if (onUpdate != NULL) {
         ((NmlistManager *)node)->onUpdate = onUpdate;
     } else {
-        ((NmlistManager *)node)->onUpdate = (code)func_002e1cf0;
+        ((NmlistManager *)node)->onUpdate = (code)comuDataUpdateNoop;
     }
     return node;
 }

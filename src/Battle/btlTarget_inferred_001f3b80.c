@@ -1,3 +1,5 @@
+#include "byte_address_internal.h"
+#include "btl_target_message_internal.h"
 #include "btl_sound_internal.h"
 #include "h_cdvd_request_internal.h"
 #include "btl_action_internal.h"
@@ -18,14 +20,10 @@
 #include "g_data_internal.h"
 #include "datPersona_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
+
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
+
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -111,16 +109,15 @@ extern s32 btlTargetGroupStateMatches(u8 *context);
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
 /* Resolve a message id through the loaded twelve-byte relative-offset table. */
-/* The loaded message resource has a relative-offset directory; only its twelve-byte row stride and +4 offset word are established here. */
+/* Directory entry offsets are relative to the beginning of the loaded message payload. */
 // FUN_001F3B80
 s32 btlTargetGetMessageRecord(s32 messageId) {
     s32 messageTable;
     s32 value;
 
-    messageTable = *(s32 *)(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->handle + 0x110);
-    value = *(s32 *)((u8 *)addOffsetFirst((u32)((messageId & 0xFFFF) * 0xC),
-                                          (u32)messageTable) + 4);
-    return (s32)addBaseFirst((u32)messageTable, (u32)value);
+    messageTable = ((s32)(((HCdvdRequest *)(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->handle))->data));
+    value = (((BtlTargetMessageEntry *)((u8 *)(u32)byteAddressAdd((u32)((messageId & 0xFFFF) * 0xC), (u8 *)((u32)messageTable))))->offset);
+    return (s32)(((u32)messageTable) + ((u32)value));
 }
 
 /* Native b210 -O2 recovery: 932 bytes plus 12 zero tail bytes.
@@ -131,7 +128,7 @@ s32 btlTargetGetMessageRecord(s32 messageId) {
    The four unused arguments retain D_0060AB20's callback contract.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
 /* Select an encounter message using enemy flags, affinity scans, and relative party level. */
-/* Raw enemy metadata retains its 0x3C stride; its flag word is known, but the complete enemy row and resource ownership are still opaque. */
+/* Enemy metadata uses the shared 0x3C-byte status row and its leading flags. */
 // FUN_001F3BB0
 s32 btlTargetPickAffinityMessage(s32 context, s32 value, s32 option, s32 extra)
 {
@@ -171,14 +168,14 @@ s32 btlTargetPickAffinityMessage(s32 context, s32 value, s32 option, s32 extra)
     hasSkill = datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(actorId & 0xFFFF), 0x10D) != -1;
 
     averageLevel = func_001ef4d0(2, 0x80000) & 0xFFFF;
-    referenceLevel = datCalcGetLevel(*(u8 **)(*(u8 **)(((BtlBattleState *)iGpffffb3ac)->selectedAction + 0x30) + 0xA64)) & 0xFF;
+    referenceLevel = datCalcGetLevel(((u8 *)(((BtlUnit *)(((u8 *)(((BtlAction *)(((BtlBattleState *)iGpffffb3ac)->selectedAction))->unit))))->datUnit))) & 0xFF;
     levelAdvantage = (averageLevel - referenceLevel) >= 4;
 
-    firstNode = *(ResistanceScanNode **)(iGpffffb3ac + 0x180);
+    firstNode = ((ResistanceScanNode *)(((BtlBattleState *)(iGpffffb3ac))->unitLists[2]));
     flagNode = firstNode;
     metadata = iGpffffb3c4;
     for (; flagNode != NULL; flagNode = flagNode->next) {
-        flags = *(u16 *)(metadata + (flagNode->id * 0x3C));
+        flags = (((BtlSoundEnemyStatusRow *)(metadata))[flagNode->id].flags);
         if ((flags & 0x40) != 0) {
             return 1;
         }
@@ -229,7 +226,7 @@ s32 btlTargetPickAffinityMessage(s32 context, s32 value, s32 option, s32 extra)
         {
             s32 secondElement;
 
-            for (scanPosition = (uintptr_t)*(ResistanceScanNode **)(iGpffffb3ac + 0x180);
+            for (scanPosition = (uintptr_t)((ResistanceScanNode *)(((BtlBattleState *)(iGpffffb3ac))->unitLists[2]));
                  scanPosition != 0;
                  scanPosition = (uintptr_t)((ResistanceScanNode *)scanPosition)->next) {
                 for (secondElement = 0; secondElement < 8; secondElement++) {

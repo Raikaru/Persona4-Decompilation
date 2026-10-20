@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_camera_framing_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -6,13 +7,9 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "effect_instance_internal.h"
 
-/* Preserve source operand order in the camera's height products. */
-static inline f32 p4_cacd0_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
@@ -107,35 +104,23 @@ extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
-static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
-{
-    return first * second + third;
-}
-static inline void func_001c_copy_pair(s64 *first, f32 *second,
-                                       s64 *third, f32 *fourth)
+
+/* Snapshot the paired coordinates and trailing component before writing either output. */
+static inline void btlCameraCopyPoseComponents(s64 *outPair, f32 *outComponent,
+                                       s64 *inPair, f32 *inComponent)
 {
     s64 pair;
-    f32 value;
+    f32 component;
 
-    pair = *third;
-    value = *fourth;
-    *first = pair;
-    *second = value;
-}
-static inline void func_001c_rotate(RwMatrix *first, const RwV3d *second,
-                                    f32 third, s32 fourth)
-{
-    RwMatrixRotate(first, second, third, fourth);
+    pair = *inPair;
+    component = *inComponent;
+    *outPair = pair;
+    *outComponent = component;
 }
 
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
 
-static inline f32 cameraSideRadius(f32 first, f32 second)
-{
-    if (first > second) return first;
-    return second;
-}
 
 /* Source unit: src/promoted/code1_001c.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001ce470-001cff00 */
@@ -169,7 +154,7 @@ void btlCameraFrameFixed(u8 *camera)
     if (((BtlCamera *)camera)->frame == 0) {
         btlCameraLookAtQuat(&frame.value1C,
                       (f32 *)D_00607DD0, D_00607DF0, D_0060A0E0);
-        func_001c_copy_pair((s64 *)&frame.value10,
+        btlCameraCopyPoseComponents((s64 *)&frame.value10,
                             &frame.value18,
                             (s64 *)D_00607DD0,
                             (f32 *)D_00607DD8);
@@ -204,7 +189,7 @@ void btlCameraFrameFixed(u8 *camera)
 // FUN_001CE620
 void btlCameraFrameRotated(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFactor)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 matrix[0x40];
@@ -215,15 +200,14 @@ void btlCameraFrameRotated(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFacto
     } frame;
     f32 scale;
 
-    if (*(s32 *)(camera + 0x120) != 0) {
+    if (((BtlCamera *)(camera))->orbit.refreshBounds != 0) {
         ((BtlCameraOrbitWork *)(camera + 0x100))->radius =
             btlUnitGetGroupBounds(3, 0, (RwV3d *)(camera + 0x104), 0, 0, 1);
         ((BtlCameraOrbitWork *)(camera + 0x100))->focus.y = 0.0f;
         ((BtlCameraOrbitWork *)(camera + 0x100))->refreshBounds = 0;
     }
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0D0, pitch, 0);
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0E0,
-                     ((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw, 2);
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0D0), (pitch), (0));
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0E0), (((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw), (2));
     func_003e4320((RwV3d *)frame.transformed, (const RwV3d *)(&D_0060A0F0), (const RwMatrix *)frame.matrix);
     scale = (((BtlCameraOrbitWork *)(camera + 0x100))->radius * distanceFactor) /
             tanf(fGpffff8110 *
@@ -284,7 +268,7 @@ void btlCameraFrameRotatedAlt(u8 *camera) {
 // FUN_001CE8C0
 void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFactor)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 matrix[0x40];
@@ -297,14 +281,14 @@ void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceF
     } frame;
     f32 scale;
 
-    if (*(s32 *)(camera + 0x120) != 0) {
+    if (((BtlCamera *)(camera))->orbit.refreshBounds != 0) {
         btlUnitGetGroupBounds(2, 1, (RwV3d *)(frame.target), 0, 0, 1);
         ((BtlCameraOrbitWork *)(camera + 0x100))->radius =
             btlUnitGetGroupBounds(3, 0, (RwV3d *)(camera + 0x104), 0, 0, 2);
-        *(f32 *)(camera + 0x108) = 0.0f;
-        frame.diff[0] = *(f32 *)(camera + 0x104) - frame.target[0];
-        frame.diff[1] = *(f32 *)(camera + 0x108) - frame.target[1];
-        frame.diff[2] = *(f32 *)(camera + 0x10C) - frame.target[2];
+        ((BtlCamera *)(camera))->orbit.focus.y = 0.0f;
+        frame.diff[0] = ((BtlCamera *)(camera))->orbit.focus.x - frame.target[0];
+        frame.diff[1] = ((BtlCamera *)(camera))->orbit.focus.y - frame.target[1];
+        frame.diff[2] = ((BtlCamera *)(camera))->orbit.focus.z - frame.target[2];
         scale = fGpffff8100 * RwV3dNormalize((RwV3d *)frame.diff, (const RwV3d *)frame.diff);
         frame.diff[0] *= scale;
         frame.diff[1] *= scale;
@@ -323,11 +307,10 @@ void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceF
                       (const RwV3d *)(camera + 0x110));
         ((BtlCameraOrbitWork *)(camera + 0x100))->refreshBounds = 0;
     }
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0D0, pitch, 0);
-    func_001c_rotate((RwMatrix *)frame.matrix, (const RwV3d *)D_0060A0E0,
-                     ((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw, 2);
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0D0), (pitch), (0));
+    RwMatrixRotate(((RwMatrix *)frame.matrix), ((const RwV3d *)D_0060A0E0), (((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw), (2));
     func_003e4320((RwV3d *)frame.diff, (const RwV3d *)(camera + 0x110), (const RwMatrix *)frame.matrix);
-    if (*(f32 *)(camera + 0x11C) < 600.0f) {
+    if (((BtlCamera *)(camera))->orbit.radius < 600.0f) {
         ((BtlCameraOrbitWork *)(camera + 0x100))->radius = 600.0f;
     }
     scale = (((BtlCameraOrbitWork *)(camera + 0x100))->radius * distanceFactor) /
@@ -355,7 +338,7 @@ void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceF
 // FUN_001CEBA0
 void btlCameraSetUnitFlags(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     s32 index;
     s32 check;
@@ -371,14 +354,13 @@ void btlCameraSetUnitFlags(u8 *camera)
         while (current != NULL) {
             if ((s32)((BtlBattleState *)iGpffffb3ac)->selectedAction != (s32)current) {
                 if ((((BtlAction *)current)->unk_1a & 1) != 0) {
-                    if (((BtlUnit *)(*(u8 **)(current + 0x30)))->genus != 1) {
+                    if (((BtlUnit *)(MEMBER(u8 *, current, BtlAction, unit)))->genus != 1) {
                         index = 0;
                         count = ((BtlBattleState *)iGpffffb3ac)->partyActionCount;
                         goto loop_test;
 loop_body:
                         index16 = (u16)index;
-                        if (*(u8 **)(iGpffffb3ac + 0xC48 +
-                                     index16 * 4) == current) {
+                        if (((BtlBattleState *)(iGpffffb3ac))->partyActions[index16] == current) {
                             goto search_done;
                         }
                         index = (index + 1) & 0xFFFF;
@@ -389,7 +371,7 @@ loop_test:
                         }
 search_done:
                         if (check == count) {
-                            btlUnitSetFlags(*(u8 **)(current + 0x30), 2,
+                            btlUnitSetFlags(MEMBER(u8 *, current, BtlAction, unit), 2,
                                           count, iGpffffb3ac, index);
                             ((BtlUnit *)((u8 *)((BtlAction *)current)->unit))->cols[1].alpha = 0;
                         }
@@ -410,7 +392,7 @@ void btlCameraFrameRotatedWideAlt(u8 *camera) {
 // FUN_001CECE0
 void btlAct_ROUNDUP_MES(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 first[0x1C];
@@ -434,9 +416,9 @@ void btlAct_ROUNDUP_MES(u8 *camera)
     frame.target[1] = 0.0f;
     btlUnitGetGridSphereCenter((BtlUnit *)(work), (RwV3d *)(frame.source));
     frame.source[1] +=
-        (((BtlUnit *)work)->unk_8c * *(f32 *)(work + 0x2C)) * 0.5f;
+        (((BtlUnit *)work)->unk_8c * MEMBER(f32, work, BtlUnit, scale)) * 0.5f;
     btlCameraLookAtQuat(frame.second.rotation, frame.source, frame.target, D_0060A0E0);
-    scale /= tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    scale /= tanf(fGpffff8110 * (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
     frame.second.direction.x = frame.source[0] - frame.target[0];
     frame.second.direction.y = frame.source[1] - frame.target[1];
     frame.second.direction.z = frame.source[2] - frame.target[2];
@@ -516,7 +498,7 @@ void btlCameraFrameSpawn(u8 *camera, u8 *defaultScript)
     s16 mode;
     u8 *target;
 
-    mode = *(s16 *)((u8 *)((BtlCamera *)camera)->action + 0x448);
+    mode = ((BtlAction *)((u8 *)((BtlCamera *)camera)->action))->cooperation.mode;
     target = defaultScript;
     switch (mode) {
     case 1:
@@ -583,11 +565,11 @@ void btlCameraFrameMatrixOffset(u8 *camera)
     RwMatrixRotate((RwMatrix *)(u8 *)&frame, (const RwV3d *)D_0060A0E0,
                   ((BtlCameraOrbitWork *)(camera + 0x100))->angle.yaw, 2);
     func_003e4320((RwV3d *)(u8 *)&frame.vec80[0], (const RwV3d *)(&D_0060A0F0), (const RwMatrix *)(u8 *)&frame);
-    frame.vec60[0] = func_001c_mul_add(frame.vec80[0],
+    frame.vec60[0] = operandOrderMultiplyAdd(frame.vec80[0],
                                         400.0f, frame.vec90[0]);
-    frame.vec60[1] = func_001c_mul_add(frame.vec80[1],
+    frame.vec60[1] = operandOrderMultiplyAdd(frame.vec80[1],
                                         400.0f, frame.vec90[1]);
-    frame.vec60[2] = func_001c_mul_add(frame.vec80[2],
+    frame.vec60[2] = operandOrderMultiplyAdd(frame.vec80[2],
                                         400.0f, frame.vec90[2]);
     btlCameraLookAtQuat(&frame.value6C, &frame.vec60[0],
                   &frame.vec90[0], D_0060A0E0);
@@ -603,7 +585,7 @@ void btlCameraFrameMatrixOffset(u8 *camera)
 // FUN_001CF350
 void btlCameraFrameClampedRotate(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct {
         f32 firstX;
@@ -675,7 +657,7 @@ void btlCameraFrameClampedRotate(u8 *camera)
     frame.focusZ = frame.groupZ + frame.directionZ;
     extentOrOffset = extentOrOffset * fGpffff80e8;
     cameraDistance = extentOrOffset / tanf(fGpffff8110 *
-                                         (0.5f * *(f32 *)(camera + 0xB8)));
+                                         (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
     RwMatrixRotate((RwMatrix *)frame.rotationMatrix, (const RwV3d *)D_0060A0D0, 32.5f, 0);
     func_003e4320((RwV3d *)&frame.directionX, (const RwV3d *)D_0060A100, (const RwMatrix *)frame.rotationMatrix);
     RtQuatTransformVectors((RwV3d *)&frame.scaledX, (const RwV3d *)&frame.directionX, 1,
@@ -733,7 +715,7 @@ void btlCameraFrameClampedRotate(u8 *camera)
 // FUN_001CF730
 void btlAct_ALL(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct {
         f32 firstX;
@@ -805,8 +787,8 @@ void btlAct_ALL(u8 *camera)
         extentOrOffset = 450.0f;
     }
     cameraDistance = extentOrOffset / tanf(fGpffff8110 *
-                                          (0.5f * *(f32 *)(camera + 0xB8)));
-    func_001c_rotate((RwMatrix *)frame.rotationMatrix, (const RwV3d *)D_0060A0D0, 35.0f, 0);
+                                          (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
+    RwMatrixRotate(((RwMatrix *)frame.rotationMatrix), ((const RwV3d *)D_0060A0D0), (35.0f), (0));
     func_003e4320((RwV3d *)&frame.directionX, (const RwV3d *)D_0060A100, (const RwMatrix *)frame.rotationMatrix);
     RtQuatTransformVectors((RwV3d *)&frame.scaledX, (const RwV3d *)&frame.directionX, 1,
                   (const RtQuat *)(work + 0x1C));
@@ -859,7 +841,7 @@ void btlAct_ALL(u8 *camera)
 // FUN_001CFAD0
 void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct {
         f32 first[7];
@@ -882,7 +864,7 @@ void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
     btlUnitGetAnimBoundsWorldCenter((BtlUnit *)unit, (RwV3d *)work.center);
     if (status == 0) {
         work.center[1] = 0.0f + work.center[1] + fGpffff810c *
-                         (((BtlUnit *)unit)->unk_8c * *(f32 *)(unit + 0x2C));
+                         (((BtlUnit *)unit)->unk_8c * MEMBER(f32, unit, BtlUnit, scale));
     } else {
         work.center[1] = 0.0f + work.center[1] - fGpffff810c *
                          (((BtlUnit *)unit)->unk_8c * ((BtlUnit *)unit)->scale);
@@ -914,11 +896,11 @@ void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
         secondFactor = -30.0f;
         break;
     }
-    func_001c_rotate(&work.rotation, (const RwV3d *)D_0060A0E0, 0.5f * -secondFactor, 0);
+    RwMatrixRotate((&work.rotation), ((const RwV3d *)D_0060A0E0), (0.5f * -secondFactor), (0));
     func_003e4320((RwV3d *)work.scaled, (const RwV3d *)work.direction,
                   &work.rotation);
     firstScale = firstScale /
-        tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        tanf(fGpffff8110 * (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
     work.scaled[0] = work.scaled[0] * firstScale;
     work.scaled[1] = work.scaled[1] * firstScale;
     work.scaled[2] = work.scaled[2] * firstScale;
@@ -926,7 +908,7 @@ void btlCameraFrameStatusRoll(u8 *camera, f32 firstFactor, f32 secondFactor)
     work.first[1] = work.center[1] + work.scaled[1];
     work.first[2] = work.center[2] + work.scaled[2];
     btlCameraLookAtQuat(&work.first[3], work.first, work.center, D_0060A0E0);
-    func_001c_rotate(&work.rotation, (const RwV3d *)D_0060A0E0, 0.5f * secondFactor, 0);
+    RwMatrixRotate((&work.rotation), ((const RwV3d *)D_0060A0E0), (0.5f * secondFactor), (0));
     func_003e4320((RwV3d *)work.scaled, (const RwV3d *)work.direction,
                   &work.rotation);
     firstFactor = firstFactor /

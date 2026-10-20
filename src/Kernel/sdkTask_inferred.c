@@ -1,4 +1,5 @@
 #include "sdk_pad_record.h"
+#include "sdk_pad_mask_column.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -35,9 +36,6 @@ extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
-static inline f32 add_f32(f32 a, f32 b) {
-    return a + b;
-}
 extern u8 *iGpffffb9e0;
 extern void (*D_00887304[])();
 extern void (*D_008873EC[])(void *);
@@ -137,8 +135,8 @@ extern s16 D_008D2B98[];
 
 extern s32 D_008D2F2C[];
 extern s16 D_008D2F34[];
-extern u8 D_008C02EC[];
-extern u8 D_008C02EE[];
+extern SdkPadMaskColumn D_008C02EC[]; /* buttons */
+extern SdkPadMaskColumn D_008C02EE[]; /* pressed */
 extern u8 D_008C02F0[];
 extern u8 D_008C02F6[];
 extern u8 D_008C02F8[];
@@ -211,20 +209,10 @@ typedef struct Code45Im2DVertex {
 } Code45Im2DVertex;
 
 #pragma push
-static inline s32 overlayAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 
 #pragma pop
 #pragma push
-/* Character codes are normalized as bytes; the atlas column retains
- * the signed remainder operation used by the original renderer. */
-static inline s32 fontAtlasColumn(s32 value)
-{
-    return value % 16;
-}
 
 #pragma pop
 
@@ -238,8 +226,7 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma pop
 // Intent: per-button repeat timer for record `arg0`. A button in the first mask resets its timer to 7. A held button counts the timer down and, at zero, re-sends its bit and reloads the timer to 3.
-/* SdkPadRecord fixes the 0x4A stride and field roles; keep interior-symbol
- * loads because replacing them with typed record accesses lost MATCH. */
+/* Record-relative fields lost MATCH; typed interior columns retain the 0x4A stride. */
 // FUN_00453250
 void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex) {
     s32 bits;
@@ -249,11 +236,11 @@ void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex) {
 
     recordOffset = slot * 0x4A;
     bits = button & 0xFFFF;
-    if (bits & *(u16 *)(D_008C02EE + recordOffset)) {
-        *(u8 *)(D_008C0300 + recordOffset + timerIndex) = 7;
+    if (bits & D_008C02EE[slot].mask) {
+        D_008C0300[recordOffset + timerIndex] = 7;
         return;
     }
-    if (bits & *(u16 *)(D_008C02EC + recordOffset)) {
+    if (bits & D_008C02EC[slot].mask) {
         timer = D_008C0300 + recordOffset;
         timer = timer + timerIndex;
         *timer -= 1;

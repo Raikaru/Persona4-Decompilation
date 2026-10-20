@@ -1,15 +1,10 @@
+#include "operand_order_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "cmm_internal.h"
 #include "effect_instance_internal.h"
 
-static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
-    return left * right + base;
-}
-static inline f32 p4_0025_add(f32 left, f32 right) {
-    return left + right;
-}
 extern s32 D_006367C0[];
 extern void sdkSndStartChannel(s32 channelIndex, const char *path);
 extern void memset(void *input, s32 secondInput, s32 thirdInput);
@@ -40,19 +35,18 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
 
 
 /* Whole units of `range` covered by the random fraction `unit`. */
-static inline u32 p4_0025_span(f32 range, f32 unit)
-{
-    return (u32)(range * unit);
-}
+
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 00250ad0-002518d0 */
 
 
 
-// FUN_00250AD0
 /* Animate and draw one rank-up sparkle; return nonzero after its fade or burst finishes. */
+// FUN_00250AD0
 s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
 {
+    CmmRankUpCardTask *cardWork = (CmmRankUpCardTask *)card;
+
     /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
     extern s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags, s16 width, s16 height, f32 rotation, f32 scaleX, f32 scaleY);
     extern u32 RpRandom(void);
@@ -81,16 +75,16 @@ s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
         level = sinf((3.1415927f * (f32)sparkle[3]) / 120.0f);
         size = 42.0f * scale;
         shdSpriteDrawNowEx(*(f32 *)&sparkle[1] - size, *(f32 *)&sparkle[2] - size, 0.0f, 0xFFFFFF,
-                      (u8)(255.0f * (0.1f + 0.2f * level) * fade), 0x1B, 0, *(u8 **)(card + 0x10), 1,
+                      (u8)(255.0f * (0.1f + 0.2f * level) * fade), 0x1B, 0, ((CmmRankUpCardTask *)card)->slot10.sprites, 1,
                       (s16)size, (s16)size, 0.0f, scale, scale);
         level = (f32)RpRandom() / 2147483648.0f;
         shdSpriteDrawNowEx(*(f32 *)&sparkle[1] - size, *(f32 *)&sparkle[2] - size, 0.0f, 0xFFFFFF,
-                      (u8)(255.0f * (0.1f + 0.4f * level) * fade), 0x1B, 0, *(u8 **)(card + 0x10), 1,
+                      (u8)(255.0f * (0.1f + 0.4f * level) * fade), 0x1B, 0, cardWork->slot10.sprites, 1,
                       (s16)size, (s16)size, 0.0f, scale, scale);
         level = (1.0f + sinf(-1.5707964f + (6.2831855f * (f32)sparkle[5]) / (f32)sparkle[6])) / 2.0f;
         size = 42.0f * 0.6f;
         shdSpriteDrawNowEx(*(f32 *)&sparkle[1] - size, *(f32 *)&sparkle[2] - size, 0.0f, 0xFFFFFF,
-                      (u8)(255.0f * (0.3f * level) * fade), 0x1B, 0, *(u8 **)(card + 0x10), 1,
+                      (u8)(255.0f * (0.3f * level) * fade), 0x1B, 0, cardWork->slot10.sprites, 1,
                       (s16)size, (s16)size, (360.0f * (f32)sparkle[3]) / 120.0f, 0.6f, 0.6f);
         level += 0.2f * ((f32)RpRandom() / 2147483648.0f) - 0.1f;
         if (level < 0.0f) {
@@ -99,7 +93,7 @@ s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
             level = 1.0f;
         }
         shdSpriteDrawNowEx(*(f32 *)&sparkle[1] - size, *(f32 *)&sparkle[2] - size, 0.0f, 0xFFFFFF,
-                      (u8)(255.0f * (0.3f * level) * fade), 0x1B, 0, *(u8 **)(card + 0x10), 1,
+                      (u8)(255.0f * (0.3f * level) * fade), 0x1B, 0, cardWork->slot10.sprites, 1,
                       (s16)size, (s16)size, (360.0f * (f32)sparkle[3]) / 120.0f, 0.6f, 0.6f);
         if (++sparkle[5] >= sparkle[6]) {
             sparkle[5] = 0;
@@ -117,10 +111,10 @@ s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
     ra = (f32)RpRandom() / 2147483648.0f;
     ry = (f32)RpRandom() / 2147483648.0f;
     rx = (f32)RpRandom() / 2147483648.0f;
-    shdSpriteDrawNowEx((*(f32 *)&sparkle[1] + (f32)p4_0025_span(1.0f, rx)) - 19.0f * scale,
-                  (*(f32 *)&sparkle[2] + (f32)p4_0025_span(1.0f, ry)) - 19.0f * scale,
-                  0.0f, 0xFFFFFF, (u8)(fade2 * (f32)(p4_0025_span(127.0f, ra) + 128)),
-                  0x2F, 0, *(u8 **)(card + 0x10), 1, 0, 0, 0.0f, scale, scale);
+    shdSpriteDrawNowEx((*(f32 *)&sparkle[1] + (f32)operandOrderUnsignedProduct(1.0f, rx)) - 19.0f * scale,
+                  (*(f32 *)&sparkle[2] + (f32)operandOrderUnsignedProduct(1.0f, ry)) - 19.0f * scale,
+                  0.0f, 0xFFFFFF, (u8)(fade2 * (f32)(((u32)(127.0f * ra)) + 128)),
+                  0x2F, 0, ((CmmRankUpCardTask *)card)->slot10.sprites, 1, 0, 0, 0.0f, scale, scale);
     if (++sparkle[3] >= 30) {
         return 1;
     }
@@ -128,8 +122,8 @@ s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
     return 0;
 }
 
-// FUN_00251570
 /* Reserve and zero the first free 0x20-byte sparkle in the selected pool (12, 4 or 3 slots). */
+// FUN_00251570
 u8 *cmmRankUpReserveSparkle(s32 workAddress, s32 poolKind) {
     u8 *slot;
     s32 slotIndex;
@@ -196,8 +190,8 @@ done:
     return NULL;
 }
 
-// FUN_002516F0
 /* Step all three sparkle pools and clear the active bit when a sparkle finishes. */
+// FUN_002516F0
 void cmmRankUpStepSparklePools(u8 *work, u8 *card) {
     /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
     s32 firstIndex;
@@ -248,8 +242,8 @@ loop_17_test:
     }
 }
 
-// FUN_00251850
 /* Request fade-out (bit 3) on active sparkles in the first two pools. */
+// FUN_00251850
 void cmmRankUpFadeSparklePools(u8 *work) {
     /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
     s32 firstIndex;
@@ -289,8 +283,8 @@ loop_9_test:
     }
 }
 
-// FUN_002518D0
 /* Select the rank-up sound for ranks 0 through 12; other ranks leave the channel unchanged. */
+// FUN_002518D0
 void cmmRankUpPlayRankSound(s32 rank) {
     if ((rank > 0) && (rank < 10)) {
         sdkSndStartChannel(2, D_00635C00);

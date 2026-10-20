@@ -11,22 +11,14 @@ extern u8 D_006359C0[];
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-static inline f32 mul_f32_ordered(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+
+
 
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 002466e0-002466e0 */
-
+/* IMANISHI (STAFF) sequence poll hook at row 0x005DD250 +8; retail returns without defining a result. See sequenceRequest: start/poll/stop use row offsets +4/+8/+12. */
 // FUN_002466E0
-void func_002466e0(void)
+void imanishiStaffPollNoop(void)
 {
 }
 

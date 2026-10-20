@@ -2,6 +2,8 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_shuffle_card_internal.h"
+#include "rw_camera_internal.h"
+#include "member_access.h"
 
 
 extern void sflDataSetupQuadPanel(void);
@@ -153,7 +155,7 @@ void btlShuffleCardUpdateCards(u8 *card)
     color[3] = 0xFF;
     btlShuffleCardBindSlot(card, color);
     /* measured: typing the camera parent pointer swaps the argument move/load (two instructions). */
-    pscModelSetParentFrame(card, *(s32 *)((u8 *)kwlnGetCamera() + 4));
+    pscModelSetParentFrame(card, MEMBER(s32, (u8 *)kwlnGetCamera(), RwCamera, object.object.parent));
     ((BtlShuffleCard *)card)->flags |= 1;
 }
 

@@ -1,6 +1,9 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0020e010-0020ff00 */
 
 #include "btl_skill_target_internal.h"
+#include "member_access.h"
+#include "btl_hud_internal.h"
+#include "rw_camera_internal.h"
 #include "btl_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_motion_internal.h"
@@ -52,6 +55,12 @@ typedef struct BattleRenderDispatch {
 
 extern void btlSelectionSwapRowState(u8 *from, u8 *to);
 /* Row offsets are shared by swap and target-mode dispatch. */
+typedef struct BtlSelectionAmounts {
+    s32 hp, sp;
+    u16 kind;
+    u8 pad0A[2];
+} BtlSelectionAmounts;
+
 typedef struct BtlSelectionRow {
     u16 drawMode;
     s16 state;
@@ -81,6 +90,9 @@ typedef struct BtlTransitionOutput {
     s32 ready;
     f32 x, y;
 } BtlTransitionOutput;
+
+typedef struct BtlPanelOffset { f32 x, y; } BtlPanelOffset;
+typedef struct BtlPanelCoordinate { f32 value; } BtlPanelCoordinate;
 
 typedef struct BtlPanelGaugeState {
     u8 alpha;
@@ -112,7 +124,7 @@ void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
         u8 gap[4];
         u8 vector[12];
     } work;
-    /* Unit flag word +A10 and parent-task prefix have no complete layout here. */
+    /* The selection flag shares the unit portrait-state word at +A10. */
     u8 *drawWork;
     u16 targetState;
     u16 drawMode;
@@ -121,7 +133,7 @@ void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
     targetState = ((BtlSelectionRow *)row)->state;
     if (targetState == 0) {
         if (((BtlUnit *)unit)->genus == 0) {
-            *(s32 *)(unit + 0xA10) &= ~0x200;
+            ((BtlUnit *)(unit))->portrait.flags &= ~0x200;
         }
         return;
     }
@@ -136,10 +148,10 @@ void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
         goto flag_clear;
     }
 flag_set:
-    *(s32 *)(unit + 0xA10) |= 0x200;
+    ((BtlUnit *)(unit))->portrait.flags |= 0x200;
     goto flags_done;
 flag_clear:
-    *(s32 *)(unit + 0xA10) &= ~0x200;
+    ((BtlUnit *)(unit))->portrait.flags &= ~0x200;
 flags_done:
     btlUnitGetAttachedSphereCenter(unit, (f32 *)work.vector);
     if (btlTargetFindInRange((f32 *)work.vector, (f32 *)work.value) != 0) {
@@ -192,7 +204,7 @@ void btlSelectionSwapRowState(u8 *from, u8 *to) {
 // FUN_0020E250
 void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags)
 {
-    /* Entry/output layouts are proven; typed fields change MWCC aliasing and lose MATCH. */
+    /* MEMBER names the measured entry/output fields without changing MWCC byte-base aliasing. */
     u8 *state;
     u8 **list;
     u8 *entry;
@@ -204,42 +216,42 @@ void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *positi
 
     state = (u8 *)kwlnTaskGetWork(task);
     list = (u8 **)(state + 0x75C);
-    if (*(s32 *)entryData != 0 || *(s32 *)(entryData + 1) != 0 ||
-        *(u16 *)((u8 *)entryData + 8) != 0) {
+    if (*(s32 *)entryData != 0 || ((BtlSelectionAmounts *)entryData)->sp != 0 ||
+        ((BtlSelectionAmounts *)((u8 *)entryData))->kind != 0) {
         chkmemAllocSiteTag(&D_00626C30, 0x3A);
         allocated = (u8 *)jtbl_008873E8[0](0x28, 0x40000);
         newEntry = allocated;
         x = position[0];
         y = position[1];
         z = position[2];
-        *(f32 *)(newEntry + 4) = x;
-        *(f32 *)(newEntry + 8) = y;
-        *(f32 *)(newEntry + 0xC) = z;
+        ((BtlSelectionEntry *)(newEntry))->x = x;
+        ((BtlSelectionEntry *)(newEntry))->y = y;
+        ((BtlSelectionEntry *)(newEntry))->z = z;
         memcpy(newEntry + 0x18, entryData, 0xC);
-        *(s32 *)(newEntry + 0x10) = 0;
-        *(u16 *)(newEntry + 0x14) = flags;
+        ((BtlSelectionEntry *)(newEntry))->frame = 0;
+        ((BtlSelectionEntry *)(newEntry))->flags = flags;
         *(s32 *)newEntry = unitHandle;
-        *(u16 *)(newEntry + 0x14) |= 1;
-        *(u16 *)(*(u8 **)newEntry + 0xA0) += 1;
-        for (entry = *(u8 **)list; entry != NULL; entry = *(u8 **)(entry + 0x24)) {
-            if ((*(u16 *)(entry + 0x20) & 0xF) == 0 &&
+        ((BtlSelectionEntry *)(newEntry))->flags |= 1;
+        ((BtlUnit *)(*(u8 **)newEntry))->pendingPacketCount += 1;
+        for (entry = *(u8 **)list; entry != NULL; entry = (u8 *)((BtlSelectionEntry *)(entry))->next) {
+            if ((((BtlSelectionEntry *)(entry))->kind & 0xF) == 0 &&
                 *(s32 *)entry == unitHandle) {
-                if ((*(u16 *)(entry + 0x14) & 2) == 0) {
-                    *(s32 *)(entry + 0x10) = 0;
-                    *(u16 *)(entry + 0x14) |= 2;
+                if ((((BtlSelectionEntry *)(entry))->flags & 2) == 0) {
+                    ((BtlSelectionEntry *)(entry))->frame = 0;
+                    MEMBER(u16, entry, BtlSelectionEntry, flags) |= 2;
                 }
-                if ((*(u16 *)(newEntry + 0x14) & 4) == 0) {
-                    x = *(f32 *)(entry + 4);
-                    y = *(f32 *)(entry + 8);
-                    z = *(f32 *)(entry + 0xC);
-                    *(f32 *)(newEntry + 4) = x;
-                    *(f32 *)(newEntry + 8) = y;
-                    *(f32 *)(newEntry + 0xC) = z;
-                    *(u16 *)(newEntry + 0x14) |= 4;
+                if ((((BtlSelectionEntry *)(newEntry))->flags & 4) == 0) {
+                    x = ((BtlSelectionEntry *)(entry))->x;
+                    y = ((BtlSelectionEntry *)(entry))->y;
+                    z = ((BtlSelectionEntry *)(entry))->z;
+                    ((BtlSelectionEntry *)(newEntry))->x = x;
+                    ((BtlSelectionEntry *)(newEntry))->y = y;
+                    ((BtlSelectionEntry *)(newEntry))->z = z;
+                    MEMBER(u16, newEntry, BtlSelectionEntry, flags) |= 4;
                 }
             }
         }
-        *(u8 **)(newEntry + 0x24) = *(u8 **)list;
+        ((BtlSelectionEntry *)(newEntry))->next = (struct BtlSelectionEntry *)(*(u8 **)list);
         *(u8 **)list = newEntry;
     }
 }
@@ -351,14 +363,14 @@ done:
 void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
                    f32 x, f32 y, s32 color, u8 *output)
 {
-    /* Entry/output layouts are proven; typed fields change MWCC aliasing and lose MATCH. */
+    /* MEMBER names the measured entry/output fields without changing MWCC byte-base aliasing. */
     Vec2f position;
     s32 frame;
     f32 fade;
     f32 slide;
-    kwlnTaskGetWork(*(void **)(task + 4));
-    frame = *(s32 *)(transition + 0x10);
-    if (*(u16 *)(transition + 0x14) & 2) {
+    kwlnTaskGetWork(((BtlDamageState *)(task))->task);
+    frame = ((BtlSelectionEntry *)(transition))->frame;
+    if (((BtlSelectionEntry *)(transition))->flags & 2) {
         if (frame < 3) fade = 0.0f;
         else if (frame < 9) fade = (f32)(frame - 3) / 6.0f;
         else fade = 1.0f;
@@ -381,16 +393,16 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
         else fade = 1.0f;
         output[4] = (u8)(255.0f * fade);
         *(f32 *)output = 10.0f * (1.0f - fade);
-        if (*(u16 *)(transition + 0x14) & 4) {
-            *(f32 *)(output + 0xC) = 55.0f;
-            *(f32 *)(output + 0x10) = 89.0f;
-            *(s32 *)(output + 8) = 1;
+        if (MEMBER(u16, transition, BtlSelectionEntry, flags) & 4) {
+            ((BtlTransitionOutput *)(output))->x = 55.0f;
+            ((BtlTransitionOutput *)(output))->y = 89.0f;
+            ((BtlTransitionOutput *)(output))->ready = 1;
         } else if (frame == 3) {
             btlGaugeSetActive(panel, 1);
         } else if (frame > 3) {
-            *(f32 *)(output + 0xC) = 55.0f;
-            *(f32 *)(output + 0x10) = 89.0f;
-            *(s32 *)(output + 8) = 1;
+            ((BtlTransitionOutput *)(output))->x = 55.0f;
+            ((BtlTransitionOutput *)(output))->y = 89.0f;
+            ((BtlTransitionOutput *)(output))->ready = 1;
         }
     }
 }
@@ -409,7 +421,7 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
 // FUN_0020EA60
 void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
-    /* Task +4 is the owner context; its full prefix is not established here. */
+    /* The damage-state task member supplies the owning HUD context. */
     u8 *work;
     s32 frame;
     u8 alpha;
@@ -418,7 +430,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 stretch;
     f32 fade;
     f32 y;
-    work = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
+    work = (u8 *)kwlnTaskGetWork(((BtlDamageState *)(task))->task);
     frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -473,7 +485,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
 /* Retail-exact: 1460 bytes, 7 call relocations, 12 zero alignment bytes. */
 void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
-    /* Task +4 is the owner context; its full prefix is not established here. */
+    /* The damage-state task member supplies the owning HUD context. */
     u8 *work;
     s32 frame;
     u8 alpha;
@@ -484,7 +496,7 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 fade;
     f32 offset;
     f32 y;
-    work = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
+    work = (u8 *)kwlnTaskGetWork(((BtlDamageState *)(task))->task);
     frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -549,11 +561,11 @@ void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
     f32 scale;
     f32 labelProgress;
     f32 ringProgress;
-    /* Task +4 is the owner context; its complete prefix is not established here. */
+    /* The damage-state task member supplies the owning HUD context. */
     u8 *drawWork;
     s32 frame;
 
-    drawWork = (u8 *)kwlnTaskGetWork(*(void **)(task + 4));
+    drawWork = (u8 *)kwlnTaskGetWork(((BtlDamageState *)(task))->task);
     frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) {
         ringProgress = 0.0f;
@@ -605,9 +617,7 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         {-98.0f, -92.0f},
         {98.0f, 92.0f}
     };
-    /* One interleaved coordinate block, with complete X-origin and
-       Y-origin array views. Each row advances eight bytes inside its
-       actual array; the leading firstX overlays the first coordinate. */
+    /* X and Y cursors start at successive floats in the interleaved origin table. */
     union {
         f32 fromX[6];
         struct { f32 firstX; f32 fromY[5]; } y;
@@ -633,7 +643,6 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
     u8 blue;
     u8 green;
 
-    /* Interleaved coordinate rows retain byte indexing to preserve MWCC address trees. */
     if (index != 0) {
         scaleY = fGpffff8210 * ((BtlPanelGaugeState *)state)->extent;
         half = index / 6;
@@ -662,12 +671,13 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         adjustmentX = (f32)flipX * width;
         scaleX = fGpffff8210;
         adjustmentX = adjustmentX / scaleX;
-        offsetX = *(f32 *)((u8 *)&offsets[0].fromX + rowOffset);
+        offsetX = ((BtlPanelOffset *)((u8 *)offsets + rowOffset))->x;
         drawX = scaleX * (drawX * (offsetX + adjustmentX));
         height = btlUiSpriteHeight(work, 10, sprite);
         adjustmentY = (f32)flipY * height;
         adjustmentY = adjustmentY / scaleY;
-        offsetY = *(f32 *)((u8 *)&offsets[0].y.fromY + rowOffset);
+        /* measured: three-row array storage changes 47 bytes; preserve the Y-origin sub-object base. */
+        offsetY = ((BtlPanelCoordinate *)((u8 *)&offsets[0].y.fromY + rowOffset))->value;
         drawY = scaleY * (drawY * (offsetY + adjustmentY));
         btlUiSetOrigin(work,
                      (0.0f + (f32)0x117) + fGpffff8210 * corners[flipX][0],
@@ -797,8 +807,8 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
     s32 channel3;
     f32 depth;
     f32 reciprocal;
-    /* Intro frame at +E and camera near plane at +80 use separate, partial layouts. */
-    frame = ++*(u16 *)(transition + 0xE);
+    /* Damage flash timing and the RenderWare near plane use their respective layouts. */
+    frame = ++((BtlDamageState *)(transition))->flashFrame;
     center.x = 302.0f;
     center.y = 224.0f;
     renderer = (BattleRenderDispatch *)D_00887300;
@@ -915,7 +925,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
         channel2 = (s32)((packedColor >> 8) & 0xFF);
         channel3 = (s32)(packedColor & 0xFF);
         depth = D_008872F8[0];
-        reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+        reciprocal = 1.0f / ((RwCamera *)((u8 *)(u32)kwlnGetCamera()))->nearPlane;
         vertices[0][0] = 640.0f;
         vertices[0][1] = 0.0f;
         vertices[0][2] = depth;

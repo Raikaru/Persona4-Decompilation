@@ -35,9 +35,17 @@ extern u8 D_007132F0[];
 extern u8 D_00713470[];
 extern u8 D_00713488[];
 extern u8 D_0071348C[];
-extern u8 D_00713480[];
+typedef struct MdlEffectConstructorSlot {
+    EffectInstanceConstructor create;
+    u8 pad4[0x3C];
+} MdlEffectConstructorSlot;
+typedef struct MdlEffectReleaseSlot {
+    s32 (*release)(s32);
+    u8 pad4[0x3C];
+} MdlEffectReleaseSlot;
+extern MdlEffectConstructorSlot D_00713480[];
 extern u8 D_00713494[];
-extern u8 D_00713490[];
+extern MdlEffectReleaseSlot D_00713490[];
 extern void *memset(void *dst, s32 value, u32 size);
 extern u8 D_0071349C[];
 extern u8 D_007134A0[];
@@ -48,12 +56,6 @@ extern f32 fGpffff8044;
 
 
 extern void (*jtbl_008873EC[])(void *);
-static inline f32 code1_0048_mul(f32 left, f32 right) {
-    return left * right;
-}
-static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
-    fn(value);
-}
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484570-004846d0 */
 
@@ -66,6 +68,7 @@ u8 *mdlEffectCreatePrimitiveRecord(u8 *source)
     u32 tag;
     u16 kind;
     u8 *record;
+    MdlEffectPrimitiveRecord *primitive;
 
     tag = ((MdlEffectPrimitiveRecord *)source)->tag.value;
     if (tag <= 0xD2U) {
@@ -81,18 +84,19 @@ code1_0048_84570_after_check:
         kAssertFail(D_00713470, 0x22);
     }
     memset(record, 0, 0x2C);
+    primitive = (MdlEffectPrimitiveRecord *)record;
     ((MdlEffectPrimitiveRecord *)record)->tag.signedValue = 0xD2;
-    *(u16 *)(record + 4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    primitive->kind = kind;
     ((MdlEffectPrimitiveRecord *)record)->id = ((MdlEffectPrimitiveRecord *)source)->id;
     ((MdlEffectPrimitiveRecord *)record)->sourceKind = ((MdlEffectPrimitiveRecord *)source)->sourceKind;
-    if (*(u16 *)(record + 4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    if (primitive->kind >= 0x21U) {
         kAssertFail(D_00713470, 0x2DD);
     }
-    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(record + 4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+    if (D_00713480[primitive->kind].create == NULL) {
         kAssertFail(D_00713470, 0x2DE);
     }
     ((MdlEffectPrimitiveRecord *)record)->instance.pointer =
-        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)record)->kind << 6)))( /* The 0x40-byte kind table has slot-specific callback signatures. */
+        D_00713480[((MdlEffectPrimitiveRecord *)record)->kind].create(
             source);
     return record;
 }
@@ -102,17 +106,16 @@ code1_0048_84570_after_check:
 void mdlEffectDestroyPrimitiveRecord(u8 *recordData) {
     s32 (*releaseCallback)(s32);
     u8 *record;
+    MdlEffectPrimitiveRecord *primitive;
 
     record = recordData;
-    if (*(s32 *)(record + 8) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
-        releaseCallback = *(s32 (**)(s32))(D_00713490 +
-            (*(u16 *)(record + 4) << 6)); /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+    primitive = (MdlEffectPrimitiveRecord *)record;
+    if (primitive->instance.handle != 0) {
+        releaseCallback = D_00713490[primitive->kind].release;
         if (releaseCallback == NULL) {
             kAssertFail(D_00713470, 0x2EB);
         }
-        code1_0048_call(
-            *(s32 (**)(s32))(D_00713490 + (((MdlEffectPrimitiveRecord *)record)->kind << 6)),
-            ((MdlEffectPrimitiveRecord *)record)->instance.handle);
+        (D_00713490[((MdlEffectPrimitiveRecord *)record)->kind].release)(((MdlEffectPrimitiveRecord *)record)->instance.handle);
     }
     mdlEffectReleasePrimarySource(record);
     mdlEffectReleaseSecondarySource(record);

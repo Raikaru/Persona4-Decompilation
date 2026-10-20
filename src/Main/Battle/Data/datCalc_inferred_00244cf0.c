@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "operand_order_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 extern f32 datScriptCalcFloat(s32 term, s32 parameter);
@@ -12,14 +13,6 @@ extern u8 D_006359C0[];
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-static inline f32 mul_f32_ordered(f32 left, f32 right)
-{
-    return left * right;
-}
-static inline f32 add_f32_ordered(f32 left, f32 right)
-{
-    return left + right;
-}
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
@@ -44,7 +37,7 @@ void datScriptCalcPhysicalDamageScaled(void)
     damage = scaledTerm / powerTerm;
     scaledTerm = datScriptCalcFloat(0xD, 0);
     scaledTerm = scaledTerm / 5.0f;
-    scaledTerm = mul_f32_ordered(damage, scaledTerm);
+    scaledTerm = operandOrderMultiply(damage, scaledTerm);
     powerTerm = sqrtf(scaledTerm);
     damage = 10.0f * powerTerm;
     damage *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);

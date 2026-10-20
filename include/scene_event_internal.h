@@ -260,7 +260,10 @@ struct EvtChildNode {
     u16 start;                /* +0x00: sort key, compared by evtAppendNodeToList and evtFindBestChoice */
     u16 unk02;                /* +0x02: cleared by kind 0x35 */
     s32 unk04;                /* +0x04: -1 on create, 0 for kind 0x0A */
-    u8 unk08[0x08];
+    union {
+        u8 unk08[0x08];
+        EvtRecordPosition position;
+    };
     union {
         struct {
             EvtChildPayload payload;  /* +0x10..+0x2F: payload typed by the parent kind */
@@ -331,6 +334,11 @@ typedef struct EvtEnvironmentSlot {
     f32 value;
 } EvtEnvironmentSlot;
 
+/* Channel ids occupy the low halfword of four-byte event resource entries.
+ * The partial array describes its first record; release iterates the stored count. */
+typedef struct EvtSoundChannel { s16 id; u8 pad02[2]; } EvtSoundChannel;
+typedef struct EvtSoundChannels { s32 count; EvtSoundChannel entries[1]; } EvtSoundChannels;
+
 /* Event work block (0x7B0 bytes): kwlnTaskGetWork of EvtEventTask.eventTask. */
 struct EvtEventWork {
     s32 waitFlags;            /* +0x00: wait bits cleared by evtUpdateNodeWaitFlags */
@@ -355,14 +363,31 @@ struct EvtEventWork {
     f32 savedCamera[2];       /* +0x98: camera x/y */
     u8 padA0[0x1A];
     s16 resultSlot;           /* +0xBA: message selection result slot */
-    u8 padBC[0x70];
+    u8 padBC[0xD4 - 0xBC];
+    EvtSoundChannels sound;   /* +0xD4: channel-resource list released with the event */
+    u8 padDC[0x12C - 0xDC];
     u8 *cameraResource;       /* +0x12C: camera record owner used by evtNodeLoadCameraRecords */
-    u8 pad130[0x4A0];
+    u8 pad130[0x524 - 0x130];
+    s32 exclusiveKind;        /* +0x524: kind 0/1 selects exclusive scene resource */
+    u8 pad528[0x5D0 - 0x528];
     s32 effectTable;          /* +0x5D0: effect table handle */
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
-    u8 messageWindow[0x4C];   /* +0x678: message window, runs to at least +0x6C4 */
-    s32 waitTask[3];          /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
+    union {
+        u8 messageWindow[0x4C]; /* +0x678: original byte-addressed window API */
+        struct {
+            u8 pad00[8];
+            s32 manager;        /* +0x680: itfMes manager handle */
+            u8 pad0C[0x10];
+            s32 unk694;         /* +0x694: base preceding the kind-indexed resource slots */
+            s32 slots[5];       /* +0x698: EVT_FUNCTION_000C substitution values */
+            u8 pad34[0x18];
+        } messageControl;
+    };
+    union {
+        s32 waitTask[3];      /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
+        u8 *waitTaskPointers[3];
+    };
     s32 taskSlots[3];         /* +0x6D0: filter child tasks */
     u8 pad6DC[0x74];
     f32 fov;                  /* +0x750: field of view (K_View_GetFov) */
@@ -379,9 +404,17 @@ struct EvtEventWork {
     s32 readerHandle;         /* +0x77C: PM file reader handle (evtPMFileReaderCreate) */
     s32 streamTask;           /* +0x780: sound stream task (sdkSndCreateStreamTask) */
     u8 unk784[0x04];
-    u8 unk788[0x04];          /* +0x788: word passed to evtPMFileReaderCreate, role unknown */
+    s32 readerMode;           /* +0x788: table-allocation mode passed to evtPMFileReaderCreate */
     s32 eventId[3];           /* +0x78C..+0x794: event id words (evtSetId) */
-    u8 unk798[0x18];
+    u8 unk798[8];
+    s32 handleCount;          /* +0x7A0 */
+    union {
+        s32 address;
+        s32 *words;
+        u8 **blocks;
+        u8 *bytes;
+    } handles;               /* +0x7A4: resource copies released by evtClearHandles */
+    u8 pad7A8[8];
 };
 
 /* mt_misc scene source record: the arg0 block of mtMiscBuildScene and its
@@ -426,7 +459,10 @@ struct EvtSceneRecord
         u8 unk_06[6];
         struct { s16 value06; u16 count08; s16 value0A; };
     };
-    s16 position[4];          /* 0x0C. Four halfwords copied into the scene node */
+    union {
+        s16 position[4];      /* +0x0C: packed scene-key coordinates */
+        EvtRecordPosition coordinates;
+    };
     s16 unk_14;               /* 0x14 */
     union {
         s16 word;             /* 0x16. Read as a halfword by types 4 and 19 */

@@ -27,18 +27,11 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 /* Element addresses for the scene source tables. The helpers keep the
    base + index * stride arithmetic of the original reads: indexing the
    typed array instead reorders the table-base load against the shift. */
-static inline MtMiscSceneRecord16 *mtMiscSceneRecord16At(MtMiscSceneSource *source, s32 index) {
-    return (MtMiscSceneRecord16 *)((u8 *)source->records94 + index * 0x10);
-}
-static inline EvtSceneRecord *evtSceneRecordAt(MtMiscSceneSource *source, s32 index) {
-    return (EvtSceneRecord *)((u8 *)source->records98 + index * 0x3C);
-}
+
+
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32 source, s32 eventWork, s32 nodeData, s32 recordCount,
                           s32, f32, s32, s32,
@@ -109,11 +102,11 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
   for (; recordIndex < source->countAC; recordIndex += 1) {
     if (source->header->kind == 4)
     {
-      recordType = mtMiscSceneRecord16At(source, recordIndex)->type;
+      recordType = (&(source)->records94[recordIndex])->type;
     }
     else
     {
-      recordType = evtSceneRecordAt(source, recordIndex)->type;
+      recordType = (&(source)->records98[recordIndex])->type;
     }
     if ((recordType & 0xFFFF) != 4)
     {
@@ -121,11 +114,11 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
     }
     if (source->header->kind == 4)
     {
-      recordId = mtMiscSceneRecord16At(source, recordIndex)->id;
+      recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (recordIndex) * 0x10))->id;
     }
     else
     {
-      recordId = evtSceneRecordAt(source, recordIndex)->id;
+      recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (recordIndex) * 0x3C))->id;
     }
     {
       EvtRecordPosition positionCopy;
@@ -138,12 +131,12 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
       childNode = evtNodeCreate(parentNode, recordId & 0xFFFF, eventWork);
       recordData = recordIndex * 0x3C;
       sourceRecord = (u8 *)source->records98 + recordData;
-      positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)sourceRecord)->position;
+      positionCopy = ((EvtSceneRecord *)sourceRecord)->coordinates;
       position = positionCopy;
-      *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+      ((EvtChildNode *)childNode)->position = position;
       if (source->header->kind == 4)
       {
-        recordFlags = mtMiscSceneRecord16At(source, recordIndex)->unk_04;
+        recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (recordIndex) * 0x10))->unk_04;
       }
       else
       {
@@ -152,7 +145,7 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
       ((EvtChildNode *)childNode)->unk02 = recordFlags;
       if (source->header->kind == 4)
       {
-        firstSetting = &mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+        firstSetting = &(&(source)->records94[recordIndex])->unk_08;
       }
       else
       {
@@ -161,7 +154,7 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
       ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.halfword = *firstSetting;
       if (source->header->kind == 4)
       {
-        secondSettingSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+        secondSettingSource = (u8 *)&(&(source)->records94[recordIndex])->unk_08;
       }
       else
       {
@@ -170,7 +163,7 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
       *((s16 *)(childNode + 0x12)) = ((EvtRecordParameters *)secondSettingSource)->unk00.halves.second;
       if (source->header->kind == 4)
       {
-        firstByteSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+        firstByteSource = (u8 *)&(&(source)->records94[recordIndex])->unk_08;
       }
       else
       {
@@ -179,7 +172,7 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
       *((s8 *)(childNode + 0x14)) = ((EvtRecordParameters *)firstByteSource)->unk04.bytes.first;
       if (source->header->kind == 4)
       {
-        secondByteSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+        secondByteSource = (u8 *)&(&(source)->records94[recordIndex])->unk_08;
       }
       else
       {
@@ -188,7 +181,7 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
       *((s8 *)(childNode + 0x15)) = ((EvtRecordParameters *)secondByteSource)->unk04.bytes.second;
       if (source->header->kind == 4)
       {
-        thirdByteSource = (u8 *)&mtMiscSceneRecord16At(source, recordIndex)->unk_08;
+        thirdByteSource = (u8 *)&(&(source)->records94[recordIndex])->unk_08;
       }
       else
       {
@@ -429,11 +422,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; enableIndex < source->countAC; enableIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, enableIndex)->type;
+        recordType = (&(source)->records94[enableIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, enableIndex)->type;
+        recordType = (&(source)->records98[enableIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x31)
       {
@@ -441,11 +434,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, enableIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (enableIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, enableIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (enableIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -453,12 +446,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(enableParent, recordId & 0xFFFF, eventWork);
         recordOffset = enableIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, enableIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[enableIndex])->unk_08;
         }
         else
         {
@@ -467,7 +460,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, enableIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[enableIndex])->unk_08;
         }
         else
         {
@@ -485,11 +478,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
   for (; recordIndex < source->countAC; recordIndex += 1) {
     if (source->header->kind == 4)
     {
-      recordType = mtMiscSceneRecord16At(source, recordIndex)->type;
+      recordType = (&(source)->records94[recordIndex])->type;
     }
     else
     {
-      recordType = evtSceneRecordAt(source, recordIndex)->type;
+      recordType = (&(source)->records98[recordIndex])->type;
     }
     if ((recordType & 0xFFFF) != 0x22)
     {
@@ -497,11 +490,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     }
     if (source->header->kind == 4)
     {
-      recordId = mtMiscSceneRecord16At(source, recordIndex)->id;
+      recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (recordIndex) * 0x10))->id;
     }
     else
     {
-      recordId = evtSceneRecordAt(source, recordIndex)->id;
+      recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (recordIndex) * 0x3C))->id;
     }
     {
       EvtRecordPosition positionCopy;
@@ -509,9 +502,9 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       childNode = evtNodeCreate(waitNode, recordId & 0xFFFF, eventWork);
       recordOffset = recordIndex * 0x3C;
       recordParameters = (u8 *)source->records98 + recordOffset;
-      positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+      positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
       position = positionCopy;
-      *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+      ((EvtChildNode *)childNode)->position = position;
     }
   }
   evtNodeLoadRecords24((u8 *)source, eventWork);
@@ -524,11 +517,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       for (; placementIndex < source->countAC; placementIndex += 1) {
         if (source->header->kind == 4)
         {
-          recordType = mtMiscSceneRecord16At(source, placementIndex)->type;
+          recordType = (&(source)->records94[placementIndex])->type;
         }
         else
         {
-          recordType = evtSceneRecordAt(source, placementIndex)->type;
+          recordType = (&(source)->records98[placementIndex])->type;
         }
         if ((recordType & 0xFFFF) != 0x25)
         {
@@ -536,11 +529,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         }
         if (source->header->kind == 4)
         {
-          recordId = mtMiscSceneRecord16At(source, placementIndex)->id;
+          recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (placementIndex) * 0x10))->id;
         }
         else
         {
-          recordId = evtSceneRecordAt(source, placementIndex)->id;
+          recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (placementIndex) * 0x3C))->id;
         }
         {
           EvtRecordPosition positionCopy;
@@ -548,12 +541,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
           childNode = evtNodeCreate(placementParent, recordId & 0xFFFF, eventWork);
           recordOffset = placementIndex * 0x3C;
           recordParameters = (u8 *)source->records98 + recordOffset;
-          positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+          positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
           position = positionCopy;
-          *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+          ((EvtChildNode *)childNode)->position = position;
           if (source->header->kind == 4)
           {
-            recordParameters = (u8 *)&mtMiscSceneRecord16At(source, placementIndex)->unk_08;
+            recordParameters = (u8 *)&(&(source)->records94[placementIndex])->unk_08;
           }
           else
           {
@@ -572,11 +565,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; choiceIndex < source->countAC; choiceIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, choiceIndex)->type;
+        recordType = (&(source)->records94[choiceIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, choiceIndex)->type;
+        recordType = (&(source)->records98[choiceIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x26)
       {
@@ -584,11 +577,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, choiceIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (choiceIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, choiceIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (choiceIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -596,12 +589,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(choiceParent, recordId & 0xFFFF, eventWork);
         recordOffset = choiceIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, choiceIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[choiceIndex])->unk_08;
         }
         else
         {
@@ -610,7 +603,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, choiceIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[choiceIndex])->unk_08;
         }
         else
         {
@@ -629,11 +622,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; streamIndex < source->countAC; streamIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, streamIndex)->type;
+        recordType = (&(source)->records94[streamIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, streamIndex)->type;
+        recordType = (&(source)->records98[streamIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x32)
       {
@@ -641,11 +634,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, streamIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (streamIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, streamIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (streamIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -653,12 +646,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(streamParent, recordId & 0xFFFF, eventWork);
         recordOffset = streamIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, streamIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[streamIndex])->unk_08;
         }
         else
         {
@@ -676,11 +669,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; labelIndex < source->countAC; labelIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, labelIndex)->type;
+        recordType = (&(source)->records94[labelIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, labelIndex)->type;
+        recordType = (&(source)->records98[labelIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x33)
       {
@@ -688,11 +681,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, labelIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (labelIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, labelIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (labelIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -700,12 +693,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(labelParent, recordId & 0xFFFF, eventWork);
         recordOffset = labelIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, labelIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[labelIndex])->unk_08;
         }
         else
         {
@@ -724,11 +717,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; environmentIndex < source->countAC; environmentIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, environmentIndex)->type;
+        recordType = (&(source)->records94[environmentIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, environmentIndex)->type;
+        recordType = (&(source)->records98[environmentIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x35)
       {
@@ -736,11 +729,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, environmentIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (environmentIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, environmentIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (environmentIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -748,12 +741,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(environmentParent, recordId & 0xFFFF, eventWork);
         recordOffset = environmentIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, environmentIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (environmentIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -762,7 +755,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, environmentIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[environmentIndex])->unk_08;
         }
         else
         {
@@ -780,11 +773,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; screenColorIndex < source->countAC; screenColorIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, screenColorIndex)->type;
+        recordType = (&(source)->records94[screenColorIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, screenColorIndex)->type;
+        recordType = (&(source)->records98[screenColorIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x37)
       {
@@ -792,11 +785,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, screenColorIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (screenColorIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, screenColorIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (screenColorIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -804,12 +797,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(screenColorParent, recordId & 0xFFFF, eventWork);
         recordOffset = screenColorIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, screenColorIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (screenColorIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -818,7 +811,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, screenColorIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[screenColorIndex])->unk_08;
         }
         else
         {
@@ -836,11 +829,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; taskHandleIndex < source->countAC; taskHandleIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, taskHandleIndex)->type;
+        recordType = (&(source)->records94[taskHandleIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, taskHandleIndex)->type;
+        recordType = (&(source)->records98[taskHandleIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x38)
       {
@@ -848,11 +841,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, taskHandleIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (taskHandleIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, taskHandleIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (taskHandleIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -860,12 +853,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(taskHandleParent, recordId & 0xFFFF, eventWork);
         recordOffset = taskHandleIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, taskHandleIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (taskHandleIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -874,7 +867,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, taskHandleIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[taskHandleIndex])->unk_08;
         }
         else
         {
@@ -892,11 +885,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; cameraPositionIndex < source->countAC; cameraPositionIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, cameraPositionIndex)->type;
+        recordType = (&(source)->records94[cameraPositionIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, cameraPositionIndex)->type;
+        recordType = (&(source)->records98[cameraPositionIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x39)
       {
@@ -904,11 +897,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, cameraPositionIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (cameraPositionIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, cameraPositionIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (cameraPositionIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -916,12 +909,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(cameraPositionParent, recordId & 0xFFFF, eventWork);
         recordOffset = cameraPositionIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, cameraPositionIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (cameraPositionIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -930,7 +923,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, cameraPositionIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[cameraPositionIndex])->unk_08;
         }
         else
         {
@@ -951,11 +944,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; soundTrackIndex < source->countAC; soundTrackIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, soundTrackIndex)->type;
+        recordType = (&(source)->records94[soundTrackIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, soundTrackIndex)->type;
+        recordType = (&(source)->records98[soundTrackIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x36)
       {
@@ -963,11 +956,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, soundTrackIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (soundTrackIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, soundTrackIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (soundTrackIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -975,12 +968,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(soundTrackParent, recordId & 0xFFFF, eventWork);
         recordOffset = soundTrackIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, soundTrackIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[soundTrackIndex])->unk_08;
         }
         else
         {
@@ -999,11 +992,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; commandIndex < source->countAC; commandIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, commandIndex)->type;
+        recordType = (&(source)->records94[commandIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, commandIndex)->type;
+        recordType = (&(source)->records98[commandIndex])->type;
       }
       if ((recordType & 0xFFFF) != 6)
       {
@@ -1011,11 +1004,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, commandIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (commandIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, commandIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (commandIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -1023,12 +1016,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(commandParent, recordId & 0xFFFF, eventWork);
         recordOffset = commandIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, commandIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (commandIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -1037,7 +1030,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, commandIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[commandIndex])->unk_08;
         }
         else
         {
@@ -1058,11 +1051,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; rangeFlagIndex < source->countAC; rangeFlagIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, rangeFlagIndex)->type;
+        recordType = (&(source)->records94[rangeFlagIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, rangeFlagIndex)->type;
+        recordType = (&(source)->records98[rangeFlagIndex])->type;
       }
       if ((recordType & 0xFFFF) != 7)
       {
@@ -1070,11 +1063,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, rangeFlagIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (rangeFlagIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, rangeFlagIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (rangeFlagIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -1082,12 +1075,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(rangeFlagParent, recordId & 0xFFFF, eventWork);
         recordOffset = rangeFlagIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, rangeFlagIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (rangeFlagIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -1096,7 +1089,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, rangeFlagIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[rangeFlagIndex])->unk_08;
         }
         else
         {
@@ -1114,11 +1107,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
     for (; drawIndex < source->countAC; drawIndex += 1) {
       if (source->header->kind == 4)
       {
-        recordType = mtMiscSceneRecord16At(source, drawIndex)->type;
+        recordType = (&(source)->records94[drawIndex])->type;
       }
       else
       {
-        recordType = evtSceneRecordAt(source, drawIndex)->type;
+        recordType = (&(source)->records98[drawIndex])->type;
       }
       if ((recordType & 0xFFFF) != 0x1C)
       {
@@ -1126,11 +1119,11 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
       }
       if (source->header->kind == 4)
       {
-        recordId = mtMiscSceneRecord16At(source, drawIndex)->id;
+        recordId = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (drawIndex) * 0x10))->id;
       }
       else
       {
-        recordId = evtSceneRecordAt(source, drawIndex)->id;
+        recordId = ((EvtSceneRecord *)((u8 *)(source)->records98 + (drawIndex) * 0x3C))->id;
       }
       {
         EvtRecordPosition positionCopy;
@@ -1138,12 +1131,12 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         childNode = evtNodeCreate(drawParent, recordId & 0xFFFF, eventWork);
         recordOffset = drawIndex * 0x3C;
         recordParameters = (u8 *)source->records98 + recordOffset;
-        positionCopy = *(EvtRecordPosition *)((EvtSceneRecord *)recordParameters)->position;
+        positionCopy = ((EvtSceneRecord *)recordParameters)->coordinates;
         position = positionCopy;
-        *(EvtRecordPosition *)((EvtChildNode *)childNode)->unk08 = position;
+        ((EvtChildNode *)childNode)->position = position;
         if (source->header->kind == 4)
         {
-          recordFlags = mtMiscSceneRecord16At(source, drawIndex)->unk_04;
+          recordFlags = ((MtMiscSceneRecord16 *)((u8 *)(source)->records94 + (drawIndex) * 0x10))->unk_04;
         }
         else
         {
@@ -1152,7 +1145,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtChildNode *)childNode)->unk02 = recordFlags;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, drawIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[drawIndex])->unk_08;
         }
         else
         {
@@ -1161,7 +1154,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         ((EvtRecordParameters *)&((EvtChildNode *)childNode)->payload)->unk00.word = ((EvtRecordParameters *)recordParameters)->unk00.word;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, drawIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[drawIndex])->unk_08;
         }
         else
         {
@@ -1170,7 +1163,7 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
         *((s32 *)(childNode + 0x14)) = ((EvtRecordParameters *)recordParameters)->unk04.word;
         if (source->header->kind == 4)
         {
-          recordParameters = (u8 *)&mtMiscSceneRecord16At(source, drawIndex)->unk_08;
+          recordParameters = (u8 *)&(&(source)->records94[drawIndex])->unk_08;
         }
         else
         {

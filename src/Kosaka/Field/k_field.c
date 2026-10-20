@@ -1,3 +1,10 @@
+#include "member_access.h"
+#include "field_scene_internal.h"
+#include "field_frame_internal.h"
+#include "resrc_manager_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "rw_frame_internal.h"
+#include "Kosaka/k_fldStep_internal.h"
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 /* Original translation unit k_field.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -140,7 +147,7 @@ extern void sequenceRequest(s32, void *, s32, s32);
 
 #pragma opt_propagation off
 /* Advance field loading, scripts and task creation, then wait for an exit or event completion. */
-/* Remaining casts span resource flags, step entries, scene globals and CDVD requests, not the typed root-work object. */
+/* Resource flags, step-file selection and CDVD payloads use their shared storage layouts. */
 // FUN_00155360
 s32 FldRootUpdate(u8 *task)
 {
@@ -244,7 +251,7 @@ s32 FldRootUpdate(u8 *task)
                 fldBoardGetOccupiedCenter(position);
                 mdlTranslateMatrix(work->model, position, 2);
                 object = MT_Scene_GetRes(modelId);
-                *(u32 *)(object + 0x28) |= 0x02000000;
+                ((ResrcRecord *)(object))->unk28 |= 0x02000000;
             }
             work->state++;
         }
@@ -258,7 +265,7 @@ s32 FldRootUpdate(u8 *task)
                     work->scriptTask = scrStartProcedureIndex(15, D_007D3D64[0], work->room - 1);
                 }
                 if (FldMap_IsCurrentInBandA() == 1) {
-                    work->roomData = FldStepLoadNumberedFile(*(u8 *)(FldStepEntry() + 0xC));
+                    work->roomData = FldStepLoadNumberedFile(((FldStepRecord *)(FldStepEntry()))->fileId);
                 }
             }
             work->state++;
@@ -280,7 +287,7 @@ s32 FldRootUpdate(u8 *task)
         }
         D_007D2530[0] = FldUnit_SpawnEncounterTask(task, -1);
         if ((FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1) &&
-            (*(s32 *)(iGpffff9db0 + 0) != 0x44 || *(s32 *)(iGpffff9db0 + 4) != 1)) {
+            (((FieldSceneState *)(iGpffff9db0))->field.value != 0x44 || ((FieldSceneState *)(iGpffff9db0))->room.value != 1)) {
             D_007D2528[0] = smapCreateSymbols(task);
             ySymbolSetEnabled(1);
         }
@@ -303,8 +310,8 @@ s32 FldRootUpdate(u8 *task)
         if (fadeStatus() == 0) break;
         iGpffffb210 = 3;
         if (FldMap_IsCurrentInBandA() == 1) {
-            work->scriptTask = scrStartProcedureChecked(15, *(u8 **)(work->roomData + 0x110),
-                *(s32 *)(work->roomData + 0x118), 0);
+            work->scriptTask = scrStartProcedureChecked(15, (u8 *)((HCdvdRequest *)(work->roomData))->data,
+                ((HCdvdRequest *)(work->roomData))->signedSize, 0);
         } else if (D_007D3D64[0] != NULL && iGpffffb268 == 0) {
             scriptSize = D_007D3D68[0];
             work->scriptTask = scrStartProcedureChecked(15, D_007D3D64[0], scriptSize, work->room - 1);
@@ -354,10 +361,11 @@ s32 FldRootUpdate(u8 *task)
 /* measured: FldRootDestroy now matches at normalized_diff 0 (object 540B/window 544B); spelling the second range as <= 0x1E makes MWCCPS2 use the retail $at branch temporary, with the same trailing window nop. */
 // Committed at nd 0.
 /* Release field resources and dependent tasks before resetting the camera frame. */
-/* Raw fixed-offset access retained: the equivalent typed-field rewrite changed b210 code generation in whole-file verification. */
+/* MEMBER retains the measured scalar task-handle reloads across destruction callbacks. */
 // FUN_00155BF0
 void FldRootDestroy(u8 *task)
 {
+    KFieldStateWork *stateWork;
     u8 *work;
     s32 eventReader;
     s32 resource;
@@ -367,7 +375,8 @@ void FldRootDestroy(u8 *task)
     s32 *frameSlot;
     s32 resourceIndex;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((SdkTask *)(task))->work;
+    stateWork = (KFieldStateWork *)work;
     if (iGpffffb20c == 1) {
         calendarPopValue();
     }
@@ -376,7 +385,7 @@ void FldRootDestroy(u8 *task)
     fclMiscPruneGlobal();
     KFIELD_D_007D2540 = 0;
     resrcMngSelectDrawSet(0);
-    eventReader = *(s32 *)(work + 0x3C);
+    eventReader = ((KFieldStateWork *)(work))->eventReader;
     if (eventReader != 0) {
         kwlnTaskDestroyWithHierarchy(eventReader);
         resourceIndex = 0;
@@ -387,7 +396,7 @@ void FldRootDestroy(u8 *task)
             if (resource != 0) {
                 FldResource_Destroy(resource);
                 *resourceSlot = 0;
-                *(s32 *)(iGpffff9db0 + offset + 0x28) = 0;
+                ((FieldSceneState *)(iGpffff9db0 + offset))->templates[0].signedAddress = 0;
             }
             resourceIndex += 1;
         }
@@ -397,17 +406,17 @@ void FldRootDestroy(u8 *task)
         kwlnGetCurrentWorkValue() != 0xA) {
         FldSlotTablesReset();
     }
-    if ((u16)*(u16 *)(work + 0x18) < 0x15) {
+    if ((u16)stateWork->field < 0x15) {
         goto field_special;
     }
-    if (*(u16 *)(work + 0x18) <= 0x1E) {
+    if (((KFieldStateWork *)(work))->field <= 0x1E) {
         goto field_call;
     }
 field_special:
-    if (*(u16 *)(work + 0x18) != 6) {
+    if (stateWork->field != 6) {
         goto field_done;
     }
-    if (*(u16 *)(work + 0x1A) != 1) {
+    if (((KFieldStateWork *)(work))->room != 1) {
         goto field_done;
     }
 field_call:
@@ -421,15 +430,15 @@ field_done:
     offset = 0;
     while (offset < 3) {
         frameSlot = (s32 *)KFIELD_D_007D2510 + offset;
-        childTask = *(s32 *)((u8 *)frameSlot + 0x34);
+        childTask = MEMBER(s32, (u8 *)frameSlot, FldFrame, dependentTasks[0]); /* measured: FldFrame.dependentTasks[0]: local instruction mismatch; MEMBER retains reload behavior. */
         if (childTask != 0) {
             kwlnTaskDestroyWithHierarchy(childTask);
-            *(s32 *)((u8 *)frameSlot + 0x34) = 0;
+            MEMBER(s32, (u8 *)frameSlot, FldFrame, dependentTasks[0]) = 0; /* measured: FldFrame.dependentTasks[0]: local instruction mismatch; MEMBER retains reload behavior. */
         }
         offset += 1;
     }
-    func_003e9df0(*(s32 *)(kwlnGetCamera() + 4));
-    KFIELD_JTBL_008873EC(*(s32 *)(task + 0x38));
+    func_003e9df0((s32)((RwCamera *)(kwlnGetCamera()))->object.object.parent);
+    KFIELD_JTBL_008873EC(MEMBER(s32, task, SdkTask, work)); /* measured: SdkTask.work: local instruction mismatch; MEMBER retains reload behavior. */
 }
 
 extern void kwlnTaskDumpAll(void);
@@ -469,7 +478,7 @@ extern s32 FldRootUpdate(u8 *);
    of its two stores. */
 #pragma opt_propagation off
 /* Allocate the field controller, select event-driven or direct entry, and reset camera placement. */
-/* Remaining casts cover scene/camera records and address-taken stack slots; keep the measured scalar-pair and stack reload shapes. */
+/* Scene/camera fields are named; address-taken stack slots retain the measured scalar-pair and stack reload shapes. */
 s32 FldRootCreate(u8 *parent, u16 field, u16 room, u16 entry, s16 spawn, s16 direction, s32 sceneFlags, u8 loadMode,
                   s64 secondaryMode, s64 transitionValue, s64 eventId, s64 eventMajor, s64 eventMinor, s64 eventFlags)
 {
@@ -507,7 +516,7 @@ s32 FldRootCreate(u8 *parent, u16 field, u16 room, u16 entry, s16 spawn, s16 dir
         ((KFieldStateWork *)work)->spawn = spawn;
         ((KFieldStateWork *)work)->direction = direction;
         ((KFieldStateWork *)work)->entry = entry;
-        *(s32 *)(iGpffff9db0 + 0x88) = sceneFlags;
+        ((FieldSceneState *)(iGpffff9db0))->sceneFlags = sceneFlags;
         D_007D255A[0] = loadMode;
         D_007D255B[0] = *(u8 *)&secondaryMode;
         D_007D255C[0] = *(s32 *)&transitionValue;
@@ -518,12 +527,12 @@ s32 FldRootCreate(u8 *parent, u16 field, u16 room, u16 entry, s16 spawn, s16 dir
     positionZ = D_005EFF40[0];
     *(s64 *)&pos.x = positionXY;
     pos.z = positionZ;
-    func_003e9df0(*(s32 *)(kwlnGetCamera() + 4));
-    cam = *(u8 **)(kwlnGetCamera() + 4);
-    *(KFieldVec3 *)(cam + 0x40) = pos;
+    func_003e9df0((s32)((RwCamera *)(kwlnGetCamera()))->object.object.parent);
+    cam = (u8 *)((RwCamera *)(kwlnGetCamera()))->object.object.parent;
+    *(KFieldVec3 *)&((RwFrame *)(cam))->modelling.pos = pos;
     RwEngineGetMatrixTolerances(matrix);
-    RwMatrixOptimize(*(u8 **)(kwlnGetCamera() + 4) + 0x10, matrix);
-    func_003e9680(*(u8 **)(kwlnGetCamera() + 4));
+    RwMatrixOptimize((u8 *)((RwCamera *)(kwlnGetCamera()))->object.object.parent + 0x10, matrix);
+    func_003e9680((u8 *)((RwCamera *)(kwlnGetCamera()))->object.object.parent);
     return handle;
 }
 

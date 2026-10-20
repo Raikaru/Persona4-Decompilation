@@ -12,10 +12,6 @@ extern void evtPolygonMovieLerpPose(s32, f32, f32 *, f32 *, f32 *);
 s32 evtCheckCondition(u8 *);
 typedef struct EvtMatrixPayload { f32 first, second; } EvtMatrixPayload;
 
-static inline s32 evtAddKeyFrameOffset(u16 keyFrame, s16 offset) {
-    return (s32)keyFrame + offset;
-}
-
 #pragma push
 #pragma opt_loop_invariants on
 // Finds the node range for a key: walks the event node list and reports the first and last matching nodes [inferred].
@@ -34,7 +30,7 @@ void evtFindNodeRange(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
     *arg3 = (u8 *)((EvtNode *)arg0)->childHead;
     goto loop_4_test;
 loop_4_body:
-    frame = evtAddKeyFrameOffset(((EvtChildNode *)node)->start, frameOffset);
+    frame = ((s32)(((EvtChildNode *)node)->start) + (frameOffset));
     if (frame > arg1) {
         goto block_8;
     }

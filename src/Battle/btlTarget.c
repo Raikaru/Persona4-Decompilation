@@ -1,4 +1,5 @@
 #include "mdl_effect_internal.h"
+#include "member_access.h"
 #include "btl_target_internal.h"
 #include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlTarget_001eb440.c */
@@ -55,15 +56,15 @@ extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fabsf(f32 x);
 extern u8 *iGpffffb3ac;
 
+/* Submit an empty packet and command 0x20 with the same script delay. */
 // FUN_001EA9A0
-/* Submit an empty target packet and command 0x20 with the same script-specified delay. */
 s32 btlTargetScriptEnqueue(void) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+
     s64 delay;
     s64 command;
     u8 *emptyPacket;
     u8 *commandPacket;
+
 
     command = scrGetParamInt(0);
     delay = scrGetParamInt(1);
@@ -71,11 +72,12 @@ s32 btlTargetScriptEnqueue(void) {
     ((BtlPacket *)emptyPacket)->delay = (s16)delay;
     btlPacketEnqueue(emptyPacket, 1);
     commandPacket = btlTargetCreateSimplePacket(0x20, command);
-    *(s16 *)(commandPacket + 0x48) = (s16)delay;
+    MEMBER(s16, commandPacket, BtlPacket, delay) = (s16)delay;
     btlPacketEnqueue(commandPacket, 1);
     return 1;
 }
 
+/* Submit an empty target packet with the script-specified frame delay. */
 // FUN_001EAA30
 /* Submit an empty target packet with a script-specified frame delay. */
 s32 btlTargetScriptEnqueueS32(void)
@@ -90,8 +92,8 @@ s32 btlTargetScriptEnqueueS32(void)
     return 1;
 }
 
+/* Choose a weighted AI command and dispatch its packed target condition. */
 // FUN_001EB1D0
-/* Choose a weighted AI command, then dispatch its packed high-byte target condition. */
 s32 btlTargetAIPickAction(void) {
     s32 targetCondition;
     u32 index;
@@ -162,8 +164,8 @@ extern void btlUnitUpdateHpGauge(void* source, u8* packet, s32* hpDelta);
 
 
 
+/* Return the genus bitmask of selected actions; duplicate targets share a bit. */
 // FUN_001EB440
-/* Build a genus mask from the selected actions; repeated targets contribute the same bit. */
 u16 btlTargetGetUnitIndex(BtlTarget* target)
 {
     u16 mask = 0;
@@ -180,19 +182,20 @@ u16 btlTargetGetUnitIndex(BtlTarget* target)
 #pragma opt_loop_invariants off
 
 
+/* Start the action procedure once, then wait until its task is unlinked. */
 // FUN_001EBA20
-/* Start the action procedure once and wait until its task is no longer linked. */
 s32 btlTargetSpawnActionProc(u8 *work) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+
     s32 result;
     u8 *command;
+    BtlTargetProcedure *procedureWork = (BtlTargetProcedure *)work;
+
 
     if (((BtlTargetProcedure *)work)->started == 0) {
         btlAICommandSpawnActionProc(*(u8 **)work, *(u8 **)work + 0x38,
                      ((BtlTargetProcedure *)work)->script, ((BtlTargetProcedure *)work)->procedure);
         ((BtlAiCommandWork *)((u8 *)((BtlTargetProcedure *)work)->action + 0x38))->procedureActive = 1;
-        *(s32 *)(work + 8) = 1;
+        procedureWork->started = 1;
         goto zero_path;
     }
     command = *(u8 **)work + 0x38;
@@ -209,7 +212,7 @@ check_call:
     if (kwlnTaskIsLinked((s32)(((BtlAiCommandWork *)command)->procedureTask)) != 0)
         goto result_zero;
     ((BtlAiCommandWork *)command)->procedureActive = 0;
-    *(s32 *)(command + 0x4C) = 0;
+    MEMBER(s32, command, BtlAiCommandWork, procedureTask) = 0;
     result = 1;
     goto common;
 result_zero:
@@ -225,8 +228,8 @@ done:
     return result;
 }
 
-// FUN_001EC1C0
 /* Build a yaw rotation from the XZ displacement; coincident positions use zero heading. */
+// FUN_001EC1C0
 void btlTargetBlendVectors(u8 *rotation, u8 *first, u8 *second) {
     f32 deltaX;
     f32 deltaZ;
@@ -240,6 +243,7 @@ void btlTargetBlendVectors(u8 *rotation, u8 *first, u8 *second) {
     func_003dc740(rotation, D_0060A0E0, heading, 0);
 }
 
+/* Return the planar XZ distance, deliberately ignoring vertical displacement. */
 // FUN_001EC250
 f32 btlTargetVectorDistance(const RwV3d* first, const RwV3d* second)
 {
@@ -276,12 +280,11 @@ f32 btlTargetQuatAngle(BtlTargetQuaternionHolder *right, BtlTargetQuaternionHold
 /* measured: close opt_propagation probe for btlTargetQuatAngle. */
 #pragma opt_propagation on
 
+/* Return perpendicular line distance and optionally write the two-coordinate projection. */
 // FUN_001EC3D0
-/* Return the perpendicular distance to a line, optionally writing the projected point. */
 f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+
     extern f32 func_003e41e0(f32 *first, f32 *second);
     extern f32 fabsf(f32 first);
     f32 delta[2];
@@ -289,11 +292,12 @@ f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection)
     f32 vy;
     f32 cross;
 
+
     delta[0] = ((RwV3d *)first)->x - ((RwV3d *)second)->x;
     delta[1] = ((RwV3d *)first)->y - ((RwV3d *)second)->y;
     func_003e41e0(delta, delta);
     vx = ((RwV3d *)point)->x - ((RwV3d *)first)->x;
-    vy = *(f32 *)(point + 4) - *(f32 *)(first + 4);
+    vy = MEMBER(f32, point, RwV3d, y) - MEMBER(f32, first, RwV3d, y);
     cross = (vx * delta[1]) + (vy * -delta[0]);
     if (projection != NULL) {
         ((RwV3d *)projection)->x = ((RwV3d *)point)->x - cross * delta[1];
@@ -372,8 +376,8 @@ f32 btlTargetSmoothStep(f32 value, volatile f32* state)
 
 
 
+/* Round XZ coordinates to 25-unit cells relative to the 1750-unit origin. */
 // FUN_001EC6D0
-/* Round XZ to 25-unit cells after adding the 1750-unit grid origin. */
 void btlTargetPositionToCell(s16* outX, s16* outZ, f32* position)
 {
     s32 x = (s32)(position[0] + 1750.0f);
@@ -399,6 +403,7 @@ void btlTargetPositionToCell(s16* outX, s16* outZ, f32* position)
     }
 }
 
+/* Write the four cell-rounded XZ radius bounds into the unit obstacle. */
 // FUN_001EC790
 /* measured: opt_propagation off keeps zMax materialization before the
    xMaxWorld conversion, matching retail's instruction order. */
@@ -496,6 +501,7 @@ s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
    `i`/`j` tied, moving `corner` to the top of its block cost 23, hoisting
    `i` above `node` cost 40, and spelling `corner` as `node + i * 0x130 + 8`
    cost 223.  A 28-pair pragma sweep was entirely neutral or worse. */
+/* Reject a graph edge crossing an active midpoint link or an obstacle edge. */
 // FUN_001ECA10
 s32 btlTargetRangeCheck(u8 *first, u8 *second)
 {
@@ -615,6 +621,7 @@ s32 btlTargetRangeCheck(u8 *first, u8 *second)
     }
     return blocked;
 }
+/* Return -1, zero or one for the oriented planar cross product. */
 // FUN_001ECDE0
 /* Private leaf: all twelve retail calls belong to this geometry unit. */
 static s32 btlTargetCrossSign(const f32* first, const f32* second, const f32* point)
@@ -632,6 +639,9 @@ nonpositive:
     return -(cross < 0.0f);
 }
 
+/* Return one for an obstacle crossing or a corner within the segment margin.
+ * Obstacles containing either endpoint are skipped. */
+/* Return one for obstacle crossings or corners within the segment margin; skip endpoint-containing obstacles. */
 // FUN_001ECE50
 /* 520/528 bytes; all six relocations resolve exactly with the private leaf. */
 s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin)
@@ -684,8 +694,8 @@ s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin)
     return 0;
 }
 
+/* Return the planar cross-product sign, assigning collinear points to the positive side. */
 // FUN_001ED330
-/* Return the planar cross-product sign, treating collinear points as the positive side. */
 int btlTargetCheckSide(const float* first, const float* second, const float* point)
 {
     int side;
@@ -705,8 +715,8 @@ int btlTargetCheckSide(const float* first, const float* second, const float* poi
 }
 
 
+/* Reset the route point count and traversal cursor without clearing its points. */
 // FUN_001EEC50
-/* Reset the route point count and traversal cursor without clearing the point array. */
 void btlTargetResetWork(void* work)
 {
     ((BtlTargetRoute *)work)->count = 0;
@@ -716,13 +726,12 @@ void btlTargetResetWork(void* work)
 // FUN_001F0A40
 void btlTargetClearWork(void* work)
 {
-    /* Raw access: The caller passes its target block; its halfword at +0x14 is still inside the shared opaque +0xE8..0xEF span. */
-    *(u16*)((u8*)work + 0x14) = 0;
+    ((BtlActionResolutionMessage *)((u8 *)work + 0x10))->messageCode = 0;
 }
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 // FUN_001F0610
-s32 func_001f0610(void)
+s32 btlTargetSkillAuxiliaryMessageNoop(void)
 {
     return -1;
 }
@@ -742,13 +751,12 @@ void btlTargetPacketAddPending(void* arg)
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d7df0 (verified MATCH there). */
 
+/* Apply recorded HP/SP, status and buff changes, then notify death and reaction transitions. */
 // FUN_001F3010
-/* Apply the recorded HP/SP, status and buff changes, then notify death and reaction transitions. */
 s32 btlTargetApplyHpSpChange(u8* work)
 {
-    /* Raw layout: The defeat-stat slots at battle +0xC5C/+0xCE4 and action halfword +0x3F4 are not classified by the shared layouts. */
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* MEMBER preserves the three measured status-word reloads across callbacks. */
+
     s32 wasStatusHigh;
     s32 wasDead;
     s32 preserveHp;
@@ -765,22 +773,28 @@ s32 btlTargetApplyHpSpChange(u8* work)
     u8* deadUnit;
     u8* action;
     u8* unit;
-    u8* maxLevel;
+    s32* maxLevel;
     u8* battle;
     u8* killBattle;
     u8* levelBattle;
     u8* source;
+    BtlTargetPacketWork *packetWork = (BtlTargetPacketWork *)work;
+    BtlUnit *targetUnit;
+    BtlUnit *defeatedUnit;
+    BtlAction *targetAction;
 
     action = (u8*)(((BtlTargetPacketWork *)work)->action);
+    targetAction = (BtlAction *)action;
     if ((((BtlAction *)action)->unk_1a & 1) == 0) {
         return 1;
     }
     unit = (u8*)(((BtlAction *)action)->unit);
-    wasDead = datCalcIsDead(*(u8**)(unit + 0xa64), 0);
-    wasLowHp = datCalcIsLowHp(*(u8**)(unit + 0xa64));
-    wasStatusOne = datCalcChkBadStatus((s32)*(u8**)(unit + 0xa64), 1);
-    wasStatusHigh = datCalcChkBadStatus((s32)*(u8**)(unit + 0xa64), 0x100000);
-    if (*(u16*)(work + 0x2a) & BTL_HIT_RESULT_CRITICAL) {
+    targetUnit = (BtlUnit *)unit;
+    wasDead = datCalcIsDead((u8 *)targetUnit->datUnit, 0);
+    wasLowHp = datCalcIsLowHp((u8 *)targetUnit->datUnit);
+    wasStatusOne = datCalcChkBadStatus((s32)(u8 *)targetUnit->datUnit, 1);
+    wasStatusHigh = datCalcChkBadStatus((s32)(u8 *)targetUnit->datUnit, 0x100000);
+    if (packetWork->targetFlags & BTL_HIT_RESULT_CRITICAL) {
         ((BtlAction *)action)->flags = ((BtlAction *)action)->flags | BTL_ACTION_FLAG_HIT_CRITICAL;
     }
     if (((BtlTargetPacketWork *)work)->targetFlags & BTL_HIT_RESULT_WEAK) {
@@ -792,8 +806,8 @@ s32 btlTargetApplyHpSpChange(u8* work)
     if (((BtlTargetPacketWork *)work)->result.flags & 0x200) {
         ((BtlAction *)action)->unk_1a = ((BtlAction *)action)->unk_1a | 0x80;
     }
-    if (*(u16*)(work + 0x26) & 0x80) {
-        if (datCalcIsGuarding(*(u8**)(unit + 0xa64)) != 0) {
+    if (packetWork->result.flags & 0x80) {
+        if (datCalcIsGuarding((u8 *)targetUnit->datUnit) != 0) {
             datCalcClearStatusBlocked((u8*)(((BtlUnit *)unit)->datUnit));
         } else {
             datCalcSetStatusBlocked((u8*)(((BtlUnit *)unit)->datUnit));
@@ -801,22 +815,22 @@ s32 btlTargetApplyHpSpChange(u8* work)
     }
     if ((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x10) {
         datCalcAddHp((u8*)(((BtlUnit *)unit)->datUnit), ((BtlTargetPacketWork *)work)->result.hpDelta);
-        datCalcAddSp(*(u8**)(unit + 0xa64), ((BtlTargetPacketWork *)work)->result.spDelta);
+        datCalcAddSp((u8 *)targetUnit->datUnit, ((BtlTargetPacketWork *)work)->result.spDelta);
         datAddMoney(((BtlTargetPacketWork *)work)->result.field14);
     }
     hpDelta = ((BtlTargetPacketWork *)work)->result.hpDelta;
     if ((hpDelta < 0) || (spDelta = ((BtlTargetPacketWork *)work)->result.spDelta, spDelta < 0)) {
         btlPanelStartRingEffect(unit);
-        if ((*(u16*)(work + 0x26) & 0x300) == 0) {
+        if ((packetWork->result.flags & 0x300) == 0) {
             datCalcClearStatusBlocked((u8*)(((BtlUnit *)unit)->datUnit));
         }
     } else if ((hpDelta > 0) || (spDelta > 0)) {
         btlPanelStartPulseEffect(unit);
     }
     if ((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x20) {
-        btlSoundClearStatusCounters(action, *(s32*)(work + 0x10));
-        datCalcSetBadStatus(*(u8**)(unit + 0xa64), *(s32*)(work + 0x10));
-        datCalcClearBadStatus(*(u8**)(unit + 0xa64), *(s32*)(work + 0x14));
+        btlSoundClearStatusCounters(action, MEMBER(s32, work, BtlTargetPacketWork, result.addedStatus));
+        datCalcSetBadStatus((u8 *)((BtlUnit *)unit)->datUnit, MEMBER(s32, work, BtlTargetPacketWork, result.addedStatus));
+        datCalcClearBadStatus((u8 *)targetUnit->datUnit, MEMBER(s32, work, BtlTargetPacketWork, result.removedStatus));
     }
     buffMask = (s32)(((BtlTargetPacketWork *)work)->result.field10);
     if (buffMask != 0) {
@@ -826,65 +840,66 @@ s32 btlTargetApplyHpSpChange(u8* work)
         if (((BtlUnit *)unit)->genus == 1) {
             battle = iGpffffb3ac;
             ((BtlBattleState *)battle)->unkC5A = ((BtlBattleState *)battle)->unkC5A + 1;
-            if (*(u16*)(work + 0x26) & 8) {
+            if (packetWork->result.flags & 8) {
                 killBattle = iGpffffb3ac;
-                *(u16*)(killBattle + 0xc5c) = *(u16*)(killBattle + 0xc5c) + 1;
+                ((BtlBattleState *)killBattle)->unkC5C = ((BtlBattleState *)killBattle)->unkC5C + 1;
             }
-            level = datCalcGetLevel(*(u8**)(unit + 0xa64)) & 0xff;
+            level = datCalcGetLevel((u8 *)targetUnit->datUnit) & 0xff;
             levelBattle = iGpffffb3ac;
-            *(s32*)(levelBattle + 0xce4) = *(s32*)(levelBattle + 0xce4) + level;
-            maxLevel = iGpffffb3ac + 0xce0;
-            if (*(s32*)maxLevel < level) {
-                *(s32*)maxLevel = level;
+            ((BtlBattleState *)levelBattle)->unkCE4 = ((BtlBattleState *)levelBattle)->unkCE4 + level;
+            maxLevel = &((BtlBattleState *)iGpffffb3ac)->maximumDefeatedLevel;
+            if (*maxLevel < level) {
+                *maxLevel = level;
             }
         }
-        preserveHp = (*(u16*)(work + 0x26) & 0x10) != 0;
-        deadUnit = *(u8**)(action + 0x30);
-        datCalcClearStatusBlocked(*(u8**)(deadUnit + 0xa64));
+        preserveHp = (packetWork->result.flags & 0x10) != 0;
+        deadUnit = (u8 *)targetAction->unit;
+        defeatedUnit = (BtlUnit *)deadUnit;
+        datCalcClearStatusBlocked((u8 *)defeatedUnit->datUnit);
         if (preserveHp == 1) {
-            if (*(u16*)(action + 0x3f4) != 0x154) {
+            if (((BtlAction *)action)->targetBlock.recovery.enduranceSkill != 0x154) {
                 datCalcSetHp((u8*)(((BtlUnit *)deadUnit)->datUnit), 1);
             }
             datCalcClearBadStatus((u8*)(((BtlUnit *)deadUnit)->datUnit), 0x80000);
             ((BtlUnit *)deadUnit)->flags3 = (s32)(((BtlUnit *)deadUnit)->flags3) | 0x10;
         } else {
             datCalcSetHp((u8*)(((BtlUnit *)deadUnit)->datUnit), 0);
-            datCalcClearBadStatus(*(u8**)(deadUnit + 0xa64), 0xffffff);
-            datCalcSetBadStatus(*(u8**)(deadUnit + 0xa64), 0x80000);
+            datCalcClearBadStatus((u8 *)defeatedUnit->datUnit, 0xffffff);
+            datCalcSetBadStatus((u8 *)defeatedUnit->datUnit, 0x80000);
             unitFlags = (s32)(((BtlUnit *)deadUnit)->flags3) | 1;
             ((BtlUnit *)deadUnit)->flags3 = unitFlags;
             ((BtlUnit *)deadUnit)->flags3 = unitFlags & ~0x10;
         }
-        if (datCalcIsDead(*(u8**)(unit + 0xa64), 0) != 0) {
+        if (datCalcIsDead((u8 *)targetUnit->datUnit, 0) != 0) {
             if (((BtlBattleState *)iGpffffb3ac)->selectedAction == action) {
                 datEntryDrawGatedByFlag39(0x19, 0x96, 0x19, 0);
-                btlActionRunTargetCallback(action, 0x10, (*(s32*)(work + 0x10) & 0x80000) != 0, 0, 2);
+                btlActionRunTargetCallback(action, 0x10, ((s32)packetWork->result.addedStatus & 0x80000) != 0, 0, 2);
             } else {
                 btlActionRunTargetCallback(action, 0x1c, 0, 0, 0);
             }
         }
-    } else if ((datCalcIsLowHp(*(u8**)(unit + 0xa64)) != 0) && (wasLowHp == 0)) {
+    } else if ((datCalcIsLowHp((u8 *)targetUnit->datUnit) != 0) && (wasLowHp == 0)) {
         btlActionRunTargetCallback(action, 0x1b, 0, 0, 0);
     } else {
-        targetGenus = *(u8*)(*(u8**)(action + 0x30) + 0xa2);
-        if ((targetGenus == 0) && (targetGenus != *(u8*)(*(u8**)((u8*)(((BtlTargetPacketWork *)work)->source) + 0x30) + 0xa2))) {
-            if ((datCalcChkBadStatus((s32)*(u8**)(unit + 0xa64), 1) != 0) && (wasStatusOne == 0)) {
+        targetGenus = targetAction->unit->genus;
+        if ((targetGenus == 0) && (targetGenus != ((BtlTargetPacketWork *)work)->source->unit->genus)) {
+            if ((datCalcChkBadStatus((s32)(u8 *)targetUnit->datUnit, 1) != 0) && (wasStatusOne == 0)) {
                 btlActionRunTargetCallback(action, 0x16, 0, 0, 0);
-            } else if ((datCalcChkBadStatus((s32)*(u8**)(unit + 0xa64), 0x100000) != 0) && (wasStatusHigh == 0)) {
+            } else if ((datCalcChkBadStatus((s32)(u8 *)targetUnit->datUnit, 0x100000) != 0) && (wasStatusHigh == 0)) {
                 btlActionRunTargetCallback(action, 0x17, 0, 0, 0);
             } else if (((BtlTargetPacketWork *)work)->effect & 6) {
                 btlActionRunTargetCallback(action, 0x1a, 0, 0, 0);
             }
-        } else if ((datCalcChkBadStatus((s32)*(u8**)(unit + 0xa64), 0x100000) == 0) || (wasStatusHigh == 1)) {
+        } else if ((datCalcChkBadStatus((s32)(u8 *)targetUnit->datUnit, 0x100000) == 0) || (wasStatusHigh == 1)) {
             source = (u8*)(((BtlTargetPacketWork *)work)->source);
             sourceGenus = ((BtlUnit *)((u8*)(((BtlAction *)source)->unit)))->genus;
             if ((sourceGenus == 0) &&
-                (sourceGenus != *(u8*)(*(u8**)(action + 0x30) + 0xa2)) &&
+                (sourceGenus != targetAction->unit->genus) &&
                 !(((BtlTargetPacketWork *)work)->effect & 4) &&
-                (*(s32*)(work + 8) != 0 || ((BtlTargetPacketWork *)work)->result.spDelta != 0 ||
-                 *(s32*)(work + 0x10) != 0 || *(s32*)(work + 0x14) != 0 ||
-                 *(s32*)(work + 0x18) != 0)) {
-                hitFlags = *(u16*)(work + 0x2a);
+                (packetWork->result.hpDelta != 0 || ((BtlTargetPacketWork *)work)->result.spDelta != 0 ||
+                 (s32)packetWork->result.addedStatus != 0 || (s32)((BtlTargetPacketWork *)work)->result.removedStatus != 0 ||
+                 (s32)packetWork->result.field10 != 0)) {
+                hitFlags = packetWork->targetFlags;
                 if (hitFlags & 2) {
                     btlActionRunTargetCallback(source, 0x14, 0, 0, 0);
                 } else if (hitFlags & 4) {
@@ -897,8 +912,8 @@ s32 btlTargetApplyHpSpChange(u8* work)
     btlUnitUpdateStatusMotion(unit, 6);
     return 1;
 }
-// FUN_001F36B0
 /* Release the source and target unit references acquired by packet initialization. */
+// FUN_001F36B0
 void btlTargetPacketReleasePending(void* arg)
 {
     BtlTargetPacketWork* work = (BtlTargetPacketWork*)arg;
@@ -908,8 +923,8 @@ void btlTargetPacketReleasePending(void* arg)
 
 
 
+/* Copy the hit result into packet 0x700 and retain both participating units. */
 // FUN_001F36E0
-/* Copy the 0x20-byte result into packet 0x700 and retain both participating units. */
 BtlPacket* btlTargetCreateDataPacket(s32 source, s32 action, const void* result, u16 effect, u16 targetFlags)
 {
     BtlPacket* packet;
@@ -927,8 +942,8 @@ BtlPacket* btlTargetCreateDataPacket(s32 source, s32 action, const void* result,
     ((BtlTargetPacketWork *)work)->targetFlags = targetFlags;
     return packet;
 }
+/* Retain the action unit while its state packet remains queued. */
 // FUN_001F37B0
-/* Retain the action unit while its state packet is queued. */
 void btlTargetActionAddPending(u8* arg)
 {
     BtlAction* action;
@@ -936,8 +951,8 @@ void btlTargetActionAddPending(u8* arg)
     action = *(BtlAction**)arg;
     action->unit->pendingPacketCount++;
 }
+/* Reset or increment the action counter; otherwise clamp positive values before decrementing. */
 // FUN_001F37D0
-/* Reset, increment or saturating-decrement the action counter according to work flags. */
 u32 btlTargetStatePacketUpdate(void* arg)
 {
     BtlTargetStatePacketWork* work = (BtlTargetStatePacketWork*)arg;
@@ -966,8 +981,8 @@ u32 btlTargetStatePacketUpdate(void* arg)
     return 1;
 }
 
-// FUN_001F3850
 /* Release the unit reference held by the action state packet. */
+// FUN_001F3850
 void btlTargetReleaseUnitPending(u8* work)
 {
     s32 action;
@@ -978,10 +993,10 @@ void btlTargetReleaseUnitPending(u8* work)
     ((BtlUnit *)unit)->pendingPacketCount = ((BtlUnit *)unit)->pendingPacketCount - 1;
 }
 
+/* Create packet 0x701 with pending-unit lifetime hooks and an action-counter update. */
 // FUN_001F3870
 /* The allocator result remains in v0 through packet initialization; all eleven
  * retail callers use it for submission or dependency setup. */
-/* Create packet 0x701 with pending-unit lifetime hooks and an action-counter update. */
 u8 *btlTargetCreateActionPacket(u8 *action, u8 flags)
 {
     u8 *packet;
@@ -997,8 +1012,8 @@ u8 *btlTargetCreateActionPacket(u8 *action, u8 flags)
     return packet;
 }
 
-// FUN_001F38E0
 /* Acquire the pending-unit reference for a flagged-buff packet. */
+// FUN_001F38E0
 void btlTargetAdvanceWorkPtr(u8 **work)
 {
     u8 *unit;
@@ -1007,8 +1022,8 @@ void btlTargetAdvanceWorkPtr(u8 **work)
     ((BtlUnit *)unit)->pendingPacketCount = (u16)(((BtlUnit *)unit)->pendingPacketCount + 1);
 }
 
-// FUN_001F3930
 /* Release the pending-unit reference acquired for the flagged-buff packet. */
+// FUN_001F3930
 void btlTargetAdvanceWorkCount(s32* work)
 {
     s32 action;
@@ -1019,21 +1034,22 @@ void btlTargetAdvanceWorkCount(s32* work)
     ((BtlUnit *)unit)->pendingPacketCount = ((BtlUnit *)unit)->pendingPacketCount - 1;
 }
 
+/* Create packet 0x703 to clear flagged buffs while retaining its action unit. */
 // FUN_001F3950
-/* Create packet 0x703 to clear flagged buffs, retaining its action unit until destruction. */
 u8 *btlTargetCreateRecordPacket(u8 *action)
 {
-    /* Raw access: The allocator exposes void workData; packet 0x703 owns just the action pointer. */
+    /* This packet owns only an action reference, without the state flags. */
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x703, 4);
     ((BtlPacket *)packet)->initFunc = (BtlPacketFunc)btlTargetAdvanceWorkPtr;
     ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlTargetClearFlaggedBuffs;
     ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlTargetAdvanceWorkCount;
-    *(u8 **)((BtlPacket *)packet)->workData = action;
+    ((BtlTargetStatePacketWork *)((BtlPacket *)packet)->workData)->action = (BtlAction *)action;
     return packet;
 }
 
+/* Acquire the pending-unit reference for the target-hit packet. */
 // FUN_001F39B0
 /* Acquire the pending-unit reference for the target-hit packet. */
 void btlTargetRewindWorkPtr(u8 **work)
@@ -1044,8 +1060,8 @@ void btlTargetRewindWorkPtr(u8 **work)
     ((BtlUnit *)unit)->pendingPacketCount = (u16)(((BtlUnit *)unit)->pendingPacketCount + 1);
 }
 
-// FUN_001F3B00
 /* Release the pending-unit reference acquired for the target-hit packet. */
+// FUN_001F3B00
 void btlTargetRewindWorkCount(s32* work)
 {
     s32 action;
@@ -1056,27 +1072,25 @@ void btlTargetRewindWorkCount(s32* work)
     ((BtlUnit *)unit)->pendingPacketCount = ((BtlUnit *)unit)->pendingPacketCount - 1;
 }
 
+/* Create packet 0x702 to consume action cost while retaining its action unit. */
 // FUN_001F3B20
-/* Create packet 0x702 with the target-hit callback and pending-unit lifetime hooks. */
 u8 *btlTargetCreateHitPacket(u8 *action)
 {
-    /* Raw access: The allocator exposes void workData; packet 0x702 owns just the action pointer. */
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    /* This packet owns only an action reference, without the state flags. */
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x702, 4);
     ((BtlPacket *)packet)->initFunc = (BtlPacketFunc)btlTargetRewindWorkPtr;
     ((BtlPacket *)packet)->updateFunc = (BtlPacketFunc)btlTargetConsumeActionCost;
     ((BtlPacket *)packet)->destroyFunc = (BtlPacketFunc)btlTargetRewindWorkCount;
-    *(u8 **)((BtlPacket *)packet)->workData = action;
+    ((BtlTargetStatePacketWork *)((BtlPacket *)packet)->workData)->action = (BtlAction *)action;
     return packet;
 }
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F3FD0
-s32 func_001f3fd0(void)
+s32 btlTargetMessageReservedFirstNoop(void)
 {
     return -1;
 }
@@ -1085,7 +1099,7 @@ s32 func_001f3fd0(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F4250
-s32 func_001f4250(void)
+s32 btlTargetMessageReservedSecondNoop(void)
 {
     return -1;
 }
@@ -1094,7 +1108,7 @@ s32 func_001f4250(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F4260
-s32 func_001f4260(void)
+s32 btlTargetMessageReservedThirdNoop(void)
 {
     return -1;
 }
@@ -1103,7 +1117,7 @@ s32 func_001f4260(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F4270
-s32 func_001f4270(void)
+s32 btlTargetMessageReservedFourthNoop(void)
 {
     return -1;
 }
@@ -1112,7 +1126,7 @@ s32 func_001f4270(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F4280
-s32 func_001f4280(void)
+s32 btlTargetMessageReservedFifthNoop(void)
 {
     return -1;
 }
@@ -1121,11 +1135,12 @@ s32 func_001f4280(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F4290
-s32 func_001f4290(void)
+s32 btlTargetMessageReservedSixthNoop(void)
 {
     return -1;
 }
 
+/* Create a cached-dispatch command packet and clear its execution state. */
 // FUN_001F5F70
 BtlPacket* btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument,
                         u32 extraArgument, u32 flags)
@@ -1145,6 +1160,8 @@ BtlPacket* btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument,
     return packet;
 }
 
+/* Issue the packet's sound playback request and complete immediately. */
+/* Issue the packet sound playback request and complete immediately. */
 // FUN_001F6000
 u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work)
 {
@@ -1152,6 +1169,7 @@ u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work)
     return 1;
 }
 
+/* Create a workless packet whose update cancels target playback. */
 // FUN_001F60C0
 BtlPacket* btlTargetCreateEmptyPacket(void)
 {
@@ -1162,7 +1180,7 @@ BtlPacket* btlTargetCreateEmptyPacket(void)
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 // FUN_001F9710
-s32 func_001f9710(void)
+s32 btlTargetVoiceReservedFirstNoop(void)
 {
     return -1;
 }
@@ -1171,7 +1189,7 @@ s32 func_001f9710(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F9720
-s32 func_001f9720(void)
+s32 btlTargetVoiceReservedSecondNoop(void)
 {
     return -1;
 }
@@ -1180,13 +1198,13 @@ s32 func_001f9720(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
 
 // FUN_001F9730
-s32 func_001f9730(void)
+s32 btlTargetVoiceReservedThirdNoop(void)
 {
     return -1;
 }
 
 // FUN_001F9740
-s32 func_001f9740(void)
+s32 btlTargetVoiceReservedFourthNoop(void)
 {
     return -1;
 }

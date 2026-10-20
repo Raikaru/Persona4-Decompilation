@@ -38,13 +38,10 @@ s32 sdkSndStopChannel(s16 fadeFrames);
 
 extern s64 scrGetParamIntS64(s32);
 extern void sdkSndRequestTrack(s32 trackId);
-extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrCommandFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern s32 D_0063CB50[];
-extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrCommandAlternateFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern u8 D_0063CFA0[];
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
@@ -66,8 +63,8 @@ extern s32 D_0063E830[];
 
 extern void mtMiscCollectType1Records(u8 *eventWork);
 extern void mtMiscCollectType2Records(u8 *eventWork);
-extern void func_0029e990(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
-extern void func_0029e9a0(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrCommandFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
+extern void scrCommandAlternateFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern void scrDiscardArgs(void *, ...);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
@@ -233,7 +230,7 @@ s32 scrCommonDiscardWideArgs(void) {
     third = scrGetParamIntS64(2);
     fourth = scrGetParamIntS64(3);
     fifth = scrGetParamIntS64(4);
-    func_0029e990(first, second, third, fourth, fifth);
+    scrCommandFiveOperandNoop(first, second, third, fourth, fifth);
     return 1;
 }
 
@@ -251,7 +248,7 @@ s32 scrCommonIgnoreWideArgs(void) {
     third = scrGetParamIntS64(2);
     fourth = scrGetParamIntS64(3);
     fifth = scrGetParamIntS64(4);
-    func_0029e9a0(first, second, third, fourth, fifth);
+    scrCommandAlternateFiveOperandNoop(first, second, third, fourth, fifth);
     return 1;
 }
 

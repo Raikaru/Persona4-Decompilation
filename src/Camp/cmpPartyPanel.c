@@ -1,8 +1,11 @@
+#include "operand_order_internal.h"
+#include "byte_address_internal.h"
 /* Original translation unit cmpPartyPanel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "sdktask.h"
 #include "type.h"
 #include "btl_shuffle_draw_internal.h"
+#include "rw_camera_internal.h"
 
 void kAssertFail(void*, s32);
 void sdkSpriteRelease(u8 *node);
@@ -39,21 +42,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void* ptr);
 
 typedef struct { f32 x, y; } Vec2f;
-static inline u8 *cmpPartyPanelOffsetAddress(u32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
+
 /* Reuse the existing SDK Sky2 fields: four consecutive 0x40-byte vertices.
  * Integer color stores preserve the original floating-point bit patterns. */
 typedef struct { BtlShuffleSkyFields vertices[4]; } CmpPartyPanelGaugePacket;
-static inline f32 cmpPartyPanelAdd(f32 left, f32 right) {
-    return left + right;
-}
-static inline f32 cmpPartyPanelMultiply(f32 left, f32 right) {
-    return left * right;
-}
-static inline f32 cmpPartyPanelMultiplyReversed(f32 right, f32 left) {
-    return right * left;
-}
+
+
 
 typedef struct {
     Vec2f start;
@@ -91,15 +85,17 @@ typedef char CmpPartyPanelWorkSize[sizeof(CmpPartyPanelWork)==0xe0?1:-1];
 /* Set a row transition, using the current position when the start is omitted. */
 // FUN_00362FD0
 void cmpPartyPanelSetRowMotion(u8* motion, f32* start, f32* target, s16 duration) {
+    Vec2f *startPosition = (Vec2f *)start;
+    Vec2f *targetPosition = (Vec2f *)target;
     if (start == NULL) {
         ((CmpPartyPanelMotion *)motion)->start = ((CmpPartyPanelMotion *)motion)->current;
     } else {
-        ((CmpPartyPanelMotion *)motion)->start = *(Vec2f*)(start);
+        ((CmpPartyPanelMotion *)motion)->start = *startPosition;
     }
     if (target == NULL) {
         kAssertFail(D_0064E290, 0x92);
     }
-    ((CmpPartyPanelMotion *)motion)->end = *(Vec2f*)(target);
+    ((CmpPartyPanelMotion *)motion)->end = *targetPosition;
     ((CmpPartyPanelMotion *)motion)->current = ((CmpPartyPanelMotion *)motion)->start;
     ((CmpPartyPanelMotion *)motion)->frame = 0;
     ((CmpPartyPanelMotion *)motion)->duration = duration;
@@ -124,19 +120,19 @@ void cmpPartyPanelDrawGauge(f32 originX, f32 originY, f32 fillRatio) {
     y = originY;
     z = fillRatio;
     depth = D_008872F8[0];
-    /* Raw SDK near-plane read keeps this Camp TU independent of the full
+    /* The lightweight SDK layout keeps this Camp TU independent of the full
        camera header configuration; bacamera.h establishes nearPlane at +0x80. */
-    reciprocalDepth = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
-    leftX = cmpPartyPanelMultiply(41.0f, z);
-    rightX = cmpPartyPanelAdd(x, leftX);
+    reciprocalDepth = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
+    leftX = ((41.0f) * (z));
+    rightX = ((x) + (leftX));
     leftX = rightX;
-    rightX = cmpPartyPanelAdd(3.0f, leftX);
+    rightX = operandOrderAddFloat(3.0f, leftX);
     leftX = rightX;
     packet.vertices[0].scrVertex.x = leftX;
     unfilledRatio = 1.0f - z;
     slantedY = unfilledRatio;
-    slantedY = cmpPartyPanelMultiply(20.0f, slantedY);
-    slantedY = cmpPartyPanelAdd(y, slantedY);
+    slantedY = operandOrderMultiply(20.0f, slantedY);
+    slantedY = operandOrderAddFloat(y, slantedY);
     packet.vertices[0].scrVertex.y = slantedY;
     packet.vertices[0].scrVertex.z = depth;
     *(s32 *)&packet.vertices[0].color.r = 0x41A80000;
@@ -203,7 +199,7 @@ void cmpPartyPanelDrawRow(u8* work, s64 rowIndex)
         if (portraitSprite == 0) {
             kAssertFail(D_0064E290, 0x109);
         }
-        xy = ((CmpPartyPanelWork *)(cmpPartyPanelOffsetAddress(rowOffset, work)))->rows[0].motion.current;
+        xy = ((CmpPartyPanelWork *)(byteAddressAdd(rowOffset, work)))->rows[0].motion.current;
         hpCur = datCalcGetHpById(id) & 0xFFFF;
         hpMax = datCalcMaxHpById(id) & 0xFFFF;
         spCur = datCalcGetSpById(id) & 0xFFFF;
@@ -226,21 +222,22 @@ void cmpPartyPanelDrawRow(u8* work, s64 rowIndex)
 
 /* Advance ready row motions and draw all live party rows when visibility bit 0 is set. */
 // FUN_00363540
-/* Raw work-relative loads retain MWCC alias scheduling; the CmpPartyPanelWork rewrite changed 150 instruction bytes and was reverted. */
+/* measured: earlier CmpPartyPanelWork typing changed 150 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPartyPanelDraw(u8* unusedNode, u8* work) {
+    CmpPartyPanelWork *menu = (CmpPartyPanelWork *)work;
     s32 motionIndex;
     s32 drawIndex;
     u8* rowBase;
 
-    for (motionIndex = 0; motionIndex < *(s16*)(work + 0xA); motionIndex++) {
+    for (motionIndex = 0; motionIndex < menu->count; motionIndex++) {
         rowBase = work + (s16)motionIndex * 0x28;
-        if (*(s32*)(rowBase + 0x30) != 0) {
+        if (((CmpPartyPanelWork *)(rowBase))->rows[0].ready != 0) {
             cmpPartyPanelStepRowMotion(rowBase + 0x10);
         }
     }
-    if (*(u16*)(work + 0) & 1) {
+    if (menu->flags & 1) {
         sdkRenderStateSetDefault();
-        for (drawIndex = 0; drawIndex < *(s16*)(work + 0xA); drawIndex++) {
+        for (drawIndex = 0; drawIndex < menu->count; drawIndex++) {
             cmpPartyPanelDrawRow(work, (s64)(s16)drawIndex);
         }
     }
@@ -260,6 +257,7 @@ void cmpPartyPanelDraw(u8* unusedNode, u8* work) {
  * the seven case-table entries at 007528E0 and all six siblings are exact. */
 #pragma opt_loop_invariants on
 /* Repeated row placement shares the signed roster-count contract. */
+/* Place one party row using the bottom-aligned row count and index. */
 static inline void cmpPartyPanelSetRowPosition(Vec2f *position, f32 x, s16 count, s32 index)
 {
     position->x = x;
@@ -356,7 +354,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
                     }
                 }
                 cmpPartyPanelSetRowPosition(&position, 640.0f, work->count, changed);
-                row = (CmpPartyPanelRow *)(cmpPartyPanelOffsetAddress(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
+                row = (CmpPartyPanelRow *)(byteAddressAdd(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
                 row->motion.start = row->motion.current;
                 row->motion.end = position;
                 row->motion.current = row->motion.start;
@@ -399,7 +397,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
             }
             if (changed < count) {
                 cmpPartyPanelSetRowPosition(&position, 640.0f, work->count, changed);
-                row = (CmpPartyPanelRow *)(cmpPartyPanelOffsetAddress(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
+                row = (CmpPartyPanelRow *)(byteAddressAdd(changed * sizeof(CmpPartyPanelRow), (u8 *)work) + 0x10);
                 row->motion.start = row->motion.current;
                 row->motion.end = position;
                 row->motion.current = row->motion.start;
@@ -482,22 +480,23 @@ s32 cmpPartyPanelTaskStep(u8 *task)
 
 /* Release the shared gauge sprite and each party portrait, then free the task work. */
 // FUN_003640F0
-/* Raw work-relative loads retain MWCC alias scheduling; the CmpPartyPanelWork rewrite changed 103 instruction bytes and was reverted. */
+/* measured: earlier CmpPartyPanelWork typing changed 103 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPartyPanelTaskDestroy(u8* task) {
-    u8* work = *(u8**)(task + 0x38);
+    u8* work = ((SdkTask *)task)->work;
+    CmpPartyPanelWork *menu = (CmpPartyPanelWork *)work;
     s32 rowIndex;
     u8* rowBase;
     u8* spriteSlot;
 
-    if (*(s32*)(work + 0xC) != 0) {
-        sdkSpriteRelease(*(void**)(work + 0xC));
-        *(s32*)(work + 0xC) = 0;
+    if (*(s32 *)&menu->sprite != 0) {
+        sdkSpriteRelease(*(void* *)&menu->sprite);
+        *(s32 *)&menu->sprite = 0;
     }
-    for (rowIndex = 0; rowIndex < *(s16*)(work + 0xA); rowIndex++) {
+    for (rowIndex = 0; rowIndex < menu->count; rowIndex++) {
         rowBase = work + rowIndex * 0x28;
         spriteSlot = rowBase + 0x2C;
-        if (*(s32*)(rowBase + 0x2C) != 0) {
-            sdkSpriteRelease(*(void**)(rowBase + 0x2C));
+        if (*(s32 *)&((CmpPartyPanelWork *)(rowBase))->rows[0].sprite != 0) {
+            sdkSpriteRelease(*(void* *)&((CmpPartyPanelWork *)(rowBase))->rows[0].sprite);
             *(s32*)spriteSlot = 0;
         }
     }

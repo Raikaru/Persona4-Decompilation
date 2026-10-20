@@ -1,3 +1,5 @@
+#include "mdl_effect_drawable_internal.h"
+#include "mdl_effect_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -17,10 +19,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
@@ -110,9 +108,10 @@ void mdlEffectMultiplyPaletteColorVU(u8 *parameters, u8 *entry, s32 elapsed)
     s32 quotient;
     s32 remainder;
     f32 fraction;
+    MdlEffectPaletteParameters *palette;
 
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    segmentDuration = *(s32 *)(parameters + 0x38) / 6;
+    palette = (MdlEffectPaletteParameters *)parameters;
+    segmentDuration = ((MdlEffectPaletteParameters *)parameters)->duration / 6;
     if (segmentDuration > 0) {
         __asm__ volatile(
             ".set noreorder\n"
@@ -124,9 +123,8 @@ void mdlEffectMultiplyPaletteColorVU(u8 *parameters, u8 *entry, s32 elapsed)
         quotient = elapsed / segmentDuration;
         remainder = elapsed % segmentDuration;
         fraction = (f32)remainder / (f32)segmentDuration;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        colorIndex = (*(s8 *)(entry + 0x14) + quotient) % 6;
-        nextColor = ((s32 *)p4_add_u32(((colorIndex + 1) % 6) * 4, (u32)parameters))[0xF];
+        colorIndex = (((MdlEffectDirectionEntry *)entry)->face.signedValue + quotient) % 6;
+        nextColor = palette->colors[(colorIndex + 1) % 6];
         __asm__ volatile(
             ".set noreorder\n"
             "lwc1 $f0, -0x7e0c($gp)\n"
@@ -143,7 +141,7 @@ void mdlEffectMultiplyPaletteColorVU(u8 *parameters, u8 *entry, s32 elapsed)
             :
             : "r"(&nextColor)
             : "$2", "$vf2", "$vf11", "memory");
-        currentColor = ((s32 *)p4_add_u32(colorIndex * 4, (u32)parameters))[0xF];
+        currentColor = palette->colors[colorIndex];
         __asm__ volatile(
             ".set noreorder\n"
             "lw $2, 0(%0)\n"
@@ -177,8 +175,7 @@ void mdlEffectMultiplyPaletteColorVU(u8 *parameters, u8 *entry, s32 elapsed)
             : "f"(1.0f - fraction), "f"(fraction)
             : "$3", "$vf2", "$vf10", "$vf11", "$vf12", "memory");
     } else {
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        fixedColor = ((s32 *)p4_add_u32(*(s8 *)(entry + 0x14) * 4, (u32)parameters))[0xF];
+        fixedColor = palette->colors[((MdlEffectDirectionEntry *)entry)->face.signedValue];
         __asm__ volatile(
             ".set noreorder\n"
             "lw $3, -0x7e0c($gp)\n"

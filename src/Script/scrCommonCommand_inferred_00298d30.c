@@ -28,9 +28,6 @@ extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 extern s32 kwlnTaskGetTaskByName(void *name);
-static inline u8 *code29AddOff(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,

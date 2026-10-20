@@ -101,6 +101,7 @@ extern u8 D_006253B0[];
 // FUN_00202180
 s32 btlPacketStepSpriteTable(u8 *work)
 {
+    BtlPanelPacketWork *workFields = (BtlPanelPacketWork *)work;
     s64 value;
     s32 shortDuration;
     u16 entryIndex;
@@ -115,7 +116,7 @@ s32 btlPacketStepSpriteTable(u8 *work)
         shortDuration = 1;
     }
     if (((BtlPanelPacketWork *)work)->elapsed == 0) {
-        entryIndex = *(u16 *)(work + 4);
+        entryIndex = workFields->selector.index;
         if (entryIndex == 0) {
             return 1;
         }
@@ -127,12 +128,12 @@ s32 btlPacketStepSpriteTable(u8 *work)
         }
         btlPanelMarkEntryStarted(((BtlBattleState *)D_0076449C)->uiTask);
     }
-    *(u32 *)(work + 8) = *(u32 *)(work + 8) + 1;
+    workFields->elapsed = workFields->elapsed + 1;
     if (shortDuration == 0) {
-        if (*(u32 *)(work + 8) >= 0x20U) {
+        if (workFields->elapsed >= 0x20U) {
             return 1;
         }
-    } else if (*(u32 *)(work + 8) >= 0x10U) {
+    } else if (workFields->elapsed >= 0x10U) {
         return 1;
     }
     return 0;

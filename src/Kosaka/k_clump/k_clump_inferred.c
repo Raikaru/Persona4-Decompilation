@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_file_internal.h"
 #include "Kosaka/k_clump_draw_internal.h"
 #include "include_asm.h"
@@ -243,21 +244,27 @@ typedef struct MovieNativeWork {
 // FUN_00462230
 void movieNativeSkyDraw(u8 *bucket)
 {
+    OtPrimitiveNode *primitiveNode;
+    MdlFileModel *skyModel;
     u8 *self;
     u8 *work;
     WindowRenderStateSet *table;
 
     self = bucket;
+
+    primitiveNode = (OtPrimitiveNode *)self;
     work = (u8 *)((OtPrimitiveNode *)self)->primitive;
-    if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
+    skyModel = (MdlFileModel *)work;
+    if ((skyModel->flags & 0x400) != 0) {
         mdlClumpSetEnvMapValue(((MdlFileModel *)work)->clump, 1);
     }
     mdlDrawSkyPass(work);
-    if ((*(s32 *)(work + 0xE0) == 0) ||
+    if ((skyModel->drawBuckets == 0) ||
         ((((MdlFileModel *)work)->flags & 0x800) != 0)) {
         RpSkyRenderStateSet(2, (void *)(((MdlFileModel *)work)->skyAlpha));
         RpSkyRenderStateSet(3, (void *)(((MdlFileModel *)work)->skyTest));
         self = (u8 *)D_00887300;
+        primitiveNode = (OtPrimitiveNode *)self;
         ((WindowRenderStateSet *)self)[0]((RwRenderState)(6), (void *)(1));
         ((WindowRenderStateSet *)self)[0]((RwRenderState)(8), (void *)(0));
         mdlDrawVisibleAtomics(((MdlFileModel *)work)->clump);
@@ -266,7 +273,7 @@ void movieNativeSkyDraw(u8 *bucket)
         table[0]((RwRenderState)(6), (void *)(1));
         table[0]((RwRenderState)(8), (void *)(0));
         ((OtPrimitiveNode *)self)->reserved1A |= 2;
-        *(s32 *)(self + 0x1C) = ((MdlFileModel *)work)->drawBuckets;
+        primitiveNode->primitive = ((MdlFileModel *)work)->drawBuckets;
         movieNativeDrawPass1(self);
         movieNativeDrawPass2(self);
         movieNativeDrawPass3(self);
@@ -315,7 +322,7 @@ void sdkOtFlushBuckets(u8 *firstBucket)
     while (bucket != NULL) {
         startCallback = (void (*)(u8 *, s32, void *))(u32)((OtPrimitiveNode *)bucket)->callback;
         if ((startCallback != NULL) && (((((OtPrimitiveNode *)bucket)->reserved1A & 1) == 0) || (*(u32 *)bucket != 0))) {
-            startCallback(bucket + 0x1C, *(s32 *)(bucket + 0x10), (void *)startCallback);
+            startCallback(bucket + 0x1C, MEMBER(s32, bucket, OtPrimitiveNode, callbackData), (void *)startCallback);
         }
 
         type = ((OtPrimitiveNode *)bucket)->command;
@@ -336,7 +343,7 @@ void sdkOtFlushBuckets(u8 *firstBucket)
             D_00887300[0]((RwRenderState)(((OtPrimitiveNode *)bucket)->primitive), (void *)((s32)((OtPrimitiveNode *)bucket)->vertices));
             break;
         case 3:
-            RpSkyRenderStateSet(((OtPrimitiveNode *)bucket)->primitive, (void *)(*(s32 *)(bucket + 0x20)));
+            RpSkyRenderStateSet(((OtPrimitiveNode *)bucket)->primitive, (void *)(MEMBER(s32, bucket, OtPrimitiveNode, vertices)));
             break;
         case 4:
             {
@@ -368,31 +375,31 @@ void sdkOtFlushBuckets(u8 *firstBucket)
             D_00887310[0](((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, ((OtPrimitiveNode *)bucket)->count);
             break;
         case 12:
-            D_00887314[0](((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, ((OtPrimitiveNode *)bucket)->count, (void *)((OtPrimitiveNode *)bucket)->reserved28[0], *(s32 *)(bucket + 0x2C));
+            D_00887314[0](((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, ((OtPrimitiveNode *)bucket)->count, (void *)((OtPrimitiveNode *)bucket)->reserved28[0], MEMBER(s32, bucket, OtPrimitiveNode, reserved28[1]));
             break;
         case 13:
-            D_00887308[0](((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20), ((OtPrimitiveNode *)bucket)->count, *(s32 *)(bucket + 0x28));
+            D_00887308[0](((OtPrimitiveNode *)bucket)->primitive, MEMBER(s32, bucket, OtPrimitiveNode, vertices), ((OtPrimitiveNode *)bucket)->count, MEMBER(s32, bucket, OtPrimitiveNode, reserved28[0]));
             break;
         case 14:
-            D_0088730C[0](((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20), ((OtPrimitiveNode *)bucket)->count, *(s32 *)(bucket + 0x28), *(s32 *)(bucket + 0x2C));
+            D_0088730C[0](((OtPrimitiveNode *)bucket)->primitive, MEMBER(s32, bucket, OtPrimitiveNode, vertices), ((OtPrimitiveNode *)bucket)->count, MEMBER(s32, bucket, OtPrimitiveNode, reserved28[0]), MEMBER(s32, bucket, OtPrimitiveNode, reserved28[1]));
             break;
         case 15:
-            func_00410420((void *)((OtPrimitiveNode *)bucket)->primitive, *(u32 *)(bucket + 0x20), (void *)((OtPrimitiveNode *)bucket)->count, ((OtPrimitiveNode *)bucket)->reserved28[0]);
+            func_00410420((void *)((OtPrimitiveNode *)bucket)->primitive, MEMBER(u32, bucket, OtPrimitiveNode, vertices), (void *)((OtPrimitiveNode *)bucket)->count, ((OtPrimitiveNode *)bucket)->reserved28[0]);
             break;
         case 16:
             func_004104d0();
             break;
         case 17:
-            func_00410930(((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20));
+            func_00410930(((OtPrimitiveNode *)bucket)->primitive, MEMBER(s32, bucket, OtPrimitiveNode, vertices));
             break;
         case 18:
-            func_00410800(((OtPrimitiveNode *)bucket)->primitive, *(s32 *)(bucket + 0x20), ((OtPrimitiveNode *)bucket)->count);
+            func_00410800(((OtPrimitiveNode *)bucket)->primitive, MEMBER(s32, bucket, OtPrimitiveNode, vertices), ((OtPrimitiveNode *)bucket)->count);
             break;
         case 19:
             func_004106a0(((OtPrimitiveNode *)bucket)->primitive);
             break;
         case 20:
-            func_00410520((u32)((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, *(u32 *)(bucket + 0x24));
+            func_00410520((u32)((OtPrimitiveNode *)bucket)->primitive, ((OtPrimitiveNode *)bucket)->vertices, MEMBER(u32, bucket, OtPrimitiveNode, count));
             break;
         case 21:
             TnDispatchObjectCallback((void *)((OtPrimitiveNode *)bucket)->primitive);
@@ -424,7 +431,7 @@ void sdkOtFlushBuckets(u8 *firstBucket)
 
         endCallback = (void (*)(u8 *, s32, void *))(u32)((OtPrimitiveNode *)bucket)->endCallback;
         if ((endCallback != NULL) && (((((OtPrimitiveNode *)bucket)->reserved1A & 1) == 0) || (*(u32 *)bucket != 0))) {
-            endCallback(bucket + 0x1C, *(s32 *)(bucket + 0x14), (void *)endCallback);
+            endCallback(bucket + 0x1C, MEMBER(s32, bucket, OtPrimitiveNode, endCallbackData), (void *)endCallback);
         }
 
         bucket = *(u8 **)bucket;

@@ -41,8 +41,9 @@ extern u8 D_0063F560[];
 /* measured: retain pair loads before stores and retail's written load order. */
 #pragma push
 #pragma pop
+/* Default list insertion callback: accept the operation without additional work. */
 // FUN_002E1CD0
-s32 func_002e1cd0(void)
+s32 comuDataInsertNoop(void)
 {
     return 0;
 }

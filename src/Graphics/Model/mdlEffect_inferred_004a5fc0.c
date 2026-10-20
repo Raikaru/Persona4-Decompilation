@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
@@ -18,10 +19,6 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
-static inline u32 p4_add_u32(u32 left, u32 right)
-{
-    return left + right;
-}
 extern PolygonWindColor iGpffffbb64;
 extern void EffSpriteUpdate(u8 *instance);
 extern u8 D_0071413C[];
@@ -102,6 +99,9 @@ typedef struct EffSpriteRGBA {
 // FUN_004A5FC0
 void EffSpriteUpdate(u8 *instance)
 {
+    MdlEffectAnimatedSprite *spriteState;
+    MdlEffectAnimatedSprite *spriteGeometryOwner;
+
     extern void GeometryBlockSetFrameMatrix(void *instance, void *value, void *count, f32 flags);
     extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
     extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
@@ -137,9 +137,9 @@ void EffSpriteUpdate(u8 *instance)
 
     total = ((MdlEffectAnimatedSprite *)instance)->duration;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    count = *(s32 *)(instance + 0x2C);
+    count = (spriteState = (MdlEffectAnimatedSprite *)instance)->age;
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    sprite = *(u8 **)(instance + 0xC8);
+    sprite = (spriteGeometryOwner = (MdlEffectAnimatedSprite *)instance)->geometry;
     if (count == 0) {
         return;
     }
@@ -189,7 +189,7 @@ void EffSpriteUpdate(u8 *instance)
     scale = scale * ((MdlEffectAnimatedSprite *)instance)->sizeScale;
     spin = mdlEffectSampleScalarKeys(instance + 0x90, count, total);
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    if (*(s32 *)(instance + 0xD0) != 0) {
+    if (MEMBER(s32, instance, MdlEffectAnimatedSprite, tracks) != 0) {
         f32 cellW;
         f32 cellH;
         f32 y0;
@@ -197,7 +197,7 @@ void EffSpriteUpdate(u8 *instance)
         f32 x1;
 
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        mdlEffectWrapTrackFrames(*(s32 *)(instance + 0xD0), count);
+        mdlEffectWrapTrackFrames(MEMBER(s32, instance, MdlEffectAnimatedSprite, tracks), count);
         mdlEffectEvalSubPose(((MdlEffectAnimatedSprite *)instance)->tracks, animation);
         cellW = 16.0f * animation[12];
         cellH = 16.0f * animation[13];
@@ -221,7 +221,7 @@ void EffSpriteUpdate(u8 *instance)
         info.size[1] = (u32)animation[13];
         spin += animation[4];
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
+        func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&animation[5]);
     } else if ((void *)((MdlEffectAnimatedSprite *)instance)->tlp != NULL) {
         s32 w;
         s32 h;
@@ -246,7 +246,7 @@ void EffSpriteUpdate(u8 *instance)
         info.size[0] = (u32)texture[2];
         info.size[1] = (u32)texture[3];
         /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
+        func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&texture[4]);
     } else {
         s32 w;
         s32 h;
@@ -270,7 +270,7 @@ void EffSpriteUpdate(u8 *instance)
         info.size[1] = frame[1];
     }
     /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    RpGeometryLock(((RpAtomic *)*(u8 **)(sprite + 0x10))->geometry, 0xFF2);
+    RpGeometryLock(((RpAtomic *)MEMBER(u8 *, sprite, EffGeometryBlock, atomic))->geometry, 0xFF2);
     {
         u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)sprite)->atomic)->geometry;
 

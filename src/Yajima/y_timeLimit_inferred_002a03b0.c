@@ -77,13 +77,11 @@ extern u8 iGpffffa7e8;
 extern void yTimeNameDrawSelections(u8 *task, s32 preserveStatus);
 /* 3888/3888 bytes. Keep the remaining-alpha accumulator separate from
  * the narrowed active alpha, and apply each cursor offset before drawing. */
-// FUN_002A03B0
 /* Draw the interactive name-entry keyboard, selection fades, cursor and the two eight-character name buffers. */
-/* Draw the interactive name-entry keyboard, selection fades, cursor and both names.
- * Byte-domain tween-array and glyph-row addresses are retained: typed array accesses changed the matching code. */
-/* Raw work/row offsets retain the original alias and address trees: both typed-array and typed-scalar rewrites failed MATCH.
- * The corresponding layout is NameEntryWork in name_entry_internal.h. */
+// FUN_002A03B0
 void yTimeNameDrawKeyboard(u8 *task) {
+    KwlnTask *owner = (KwlnTask *)task;
+    NameEntryWork *entry;
     extern u8 iGpffffb528[4];
     extern s32 iGpffffb538;
     extern s32 yTimeLimitDrawIdlePulse(u8 *task);
@@ -136,23 +134,24 @@ void yTimeNameDrawKeyboard(u8 *task) {
     s32 glyph;
     s32 spriteIndex;
 
-    work = *(u8 **)(task + 0x38);
+    work = ((KwlnTask *)task)->work;
+    entry = (NameEntryWork *)work;
     sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xA4, iGpffffb540, 1);
-    backgroundFrame = *(s32 *)(work + 0x1C68) + 1;
-    *(s32 *)(work + 0x1C68) = backgroundFrame;
+    backgroundFrame = ((NameEntryWork *)work)->backgroundFrame + 1;
+    ((NameEntryWork *)work)->backgroundFrame = backgroundFrame;
     if (backgroundFrame > 0x5A0) {
-        *(s32 *)(work + 0x1C68) = 0;
+        entry->backgroundFrame = 0;
     }
-    sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(work + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
-    sdkSpriteDrawNow(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(work + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+    sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(entry->backgroundFrame * -0x168) / 1440.0f, 1.0f, 1.0f);
+    sdkSpriteDrawNow(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(entry->backgroundFrame * -0x168) / 1440.0f, 1.0f, 1.0f);
     sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
     sdkSpriteDrawNowUnscaled(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
-    yTimeTrackAdvance(work + 0x2A8);
-    transitionAlpha = (u8)(255.0f * yTimeTrackProgress(work + 0x2A8));
-    yTimeTrackCurrentKey(work + 0x2A8, pos);
+    yTimeTrackAdvance((u8 *)&((NameEntryWork *)work)->modeTransition);
+    transitionAlpha = (u8)(255.0f * yTimeTrackProgress((u8 *)&entry->modeTransition));
+    yTimeTrackCurrentKey((u8 *)&entry->modeTransition, pos);
     px = pos[0];
     py = pos[1];
-    selectionState = *(s32 *)(work + 0x1C34);
+    selectionState = ((NameEntryWork *)work)->selectionState[1];
     if (selectionState == 0) {
         inactiveAlpha = transitionAlpha & 0xFF;
         activeAlpha = 0;
@@ -172,13 +171,13 @@ void yTimeNameDrawKeyboard(u8 *task) {
     sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, activeAlpha, 0x13, iGpffffb540, 1);
     sdkSpriteDrawNowUnscaled(labelX, py, 0.0f, 0xFFFFFF, activeAlpha, 0x12, iGpffffb540, 1);
     yTimeNameDrawSelections(task, 0);
-    if (*(s32 *)(work + 0x1C34) != 0) {
+    if (entry->selectionState[1] != 0) {
         transitionAlpha = 0xFF;
     }
-    inputWork = *(u8 **)(task + 0x38);
+    inputWork = owner->work;
     sdkSpriteDrawNowUnscaled(229.0f, 150.0f, 0.0f, 0x4972FF, transitionAlpha, 0x17, iGpffffb540, 1);
     sdkSpriteDrawNowUnscaled(229.0f, 182.0f, 0.0f, 0x4972FF, transitionAlpha, 0x17, iGpffffb540, 1);
-    if (*(s32 *)(inputWork + 0x14) != 3) {
+    if (((NameEntryWork *)inputWork)->inputState != 3) {
         nameCursor = iGpffffb538;
         if (nameCursor < 8) {
             nameCursorX = (nameCursor * 0x1C) + 0xE3;
@@ -189,11 +188,11 @@ void yTimeNameDrawKeyboard(u8 *task) {
         }
         sdkSpriteDrawNowUnscaled((f32)nameCursorX, (f32)nameCursorY, 0.0f, 0xCCFF33, transitionAlpha, 0x18, iGpffffb540, 1);
     }
-    yTimeTrackProgress(work + 0x210);
-    yTimeTrackCurrentKey(work + 0x210, pos);
-    selectedCell = *(s32 *)(work + 0x24) / 5;
-    previousCell = *(s32 *)(work + 0x30) / 5;
-    changedCell = *(s32 *)(work + 0x3C) / 5;
+    yTimeTrackProgress((u8 *)&((NameEntryWork *)work)->rowOrigin);
+    yTimeTrackCurrentKey((u8 *)&entry->rowOrigin, pos);
+    selectedCell = ((NameEntryWork *)work)->cellIndex / 5;
+    previousCell = ((NameEntryWork *)work)->previousCellIndex / 5;
+    changedCell = ((NameEntryWork *)work)->changedCellIndex / 5;
     cellIndex = 0;
     while (cellIndex < 0x18) {
         cellX = (f32)(((cellIndex / 6) * 0x94) + 0x19);
@@ -211,14 +210,14 @@ void yTimeNameDrawKeyboard(u8 *task) {
         if (cellIndex == 0x17) {
             sdkSpriteDrawNowUnscaled((f32)0x24A, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1E, iGpffffb540, 1);
         }
-        if (*(s32 *)(work + 0x14) != 3) {
+        if (((NameEntryWork *)work)->inputState != 3) {
             if ((selectedCell != previousCell) && (cellIndex == changedCell)) {
-                changedTween = work + (cellIndex * 0x98) + 0x340;
+                changedTween = (u8 *)&((NameEntryWork *)work)->cells[cellIndex];
                 yTimeTrackClear((s32)changedTween);
                 yTimeTrackAppendKey((s32)changedTween, 0, 0, 0, 0,
                               fGpffff8204, 0, 0, 0x14);
             }
-            cellTween = work + (cellIndex * 0x98) + 0x340;
+            cellTween = (u8 *)&((NameEntryWork *)work)->cells[cellIndex];
             yTimeTrackAdvance(cellTween);
             if (cellIndex == selectedCell) {
                 sdkSpriteDrawNowUnscaled(cellX, cellY, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
@@ -255,9 +254,9 @@ void yTimeNameDrawKeyboard(u8 *task) {
         cellIndex += 1;
     }
     yTimeLimitDrawIdlePulse(task);
-    if (*(s32 *)(work + 0x14) != 3) {
-        cursorRow = *(s32 *)(work + 0x20);
-        cursorColumn = *(s32 *)(work + 0x1C);
+    if (((NameEntryWork *)work)->inputState != 3) {
+        cursorRow = ((NameEntryWork *)work)->cursorRow;
+        cursorColumn = ((NameEntryWork *)work)->cursorColumn;
         cursorX = (f32)((cursorColumn % 5) * 0x1B);
         cursorGroup = cursorColumn / 5;
         switch (cursorGroup) {
@@ -284,7 +283,7 @@ void yTimeNameDrawKeyboard(u8 *task) {
         rowBase = D_007485D0 + (glyphRow * 0x28);
         yBase = (glyphRow * 25) + 0xE5;
         for (; glyphColumn < 0x14; glyphColumn++) {
-            glyph = *(s16 *)(rowBase + (glyphColumn * 2));
+            glyph = ((s16 *)rowBase)[glyphColumn];
             if (glyph >= 0) {
                 spriteIndex = glyph + 0x20;
                 glyphX = (f32)((glyphColumn % 5) * 0x1B);
@@ -307,8 +306,8 @@ void yTimeNameDrawKeyboard(u8 *task) {
             }
         }
     }
-    if ((*(s32 *)(work + 0x14) == 3) &&
-        (*(s32 *)(work + 8) == 0)) {
+    if ((entry->inputState == 3) &&
+        (((NameEntryWork *)work)->transitionStarted == 0)) {
         sdkSpriteDrawNowUnscaled(0.0f, 102.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAC, iGpffffb540, 1);
     }
     if ((strlen(D_00882EF0) >> 1) != 0) {

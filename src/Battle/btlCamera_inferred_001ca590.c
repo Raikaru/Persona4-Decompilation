@@ -1,3 +1,4 @@
+#include "member_access.h"
 #include "btl_camera_framing_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -6,13 +7,11 @@
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "effect_instance_internal.h"
 
 /* Preserve source operand order in the camera's height products. */
-static inline f32 p4_cacd0_mul(f32 left, f32 right)
-{
-    return left * right;
-}
+
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
@@ -101,35 +100,10 @@ extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
-static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
-{
-    return first * second + third;
-}
-static inline void func_001c_copy_pair(s64 *first, f32 *second,
-                                       s64 *third, f32 *fourth)
-{
-    s64 pair;
-    f32 value;
-
-    pair = *third;
-    value = *fourth;
-    *first = pair;
-    *second = value;
-}
-static inline void func_001c_rotate(RwMatrix *first, const RwV3d *second,
-                                    f32 third, s32 fourth)
-{
-    RwMatrixRotate(first, second, third, fourth);
-}
 
 
 /* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
 
-static inline f32 cameraSideRadius(f32 first, f32 second)
-{
-    if (first > second) return first;
-    return second;
-}
 
 /* Source unit: src/promoted/code1_001c.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001ca590-001cbf80 */
@@ -140,8 +114,8 @@ static inline f32 cameraSideRadius(f32 first, f32 second)
 // FUN_001CA590
 void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     f32 xz[2];
     RwV3d alternateEye;
@@ -190,17 +164,17 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
 
     action = (u8 *)((BtlCamera *)camera)->action;
     actorUnit = (u8 *)((BtlAction *)action)->unit;
-    targetUnit = (u8 *)((BtlAction *)(*(u8 **)(action + 0x38)))->unit;
+    targetUnit = (u8 *)((BtlAction *)(((BtlAction *)(action))->targets[0]))->unit;
     btlCameraCopyPose((f32 *)&frames[0], (f32 *)(camera + 0x9C));
-    actorPosition.x = *(f32 *)(actorUnit + 0xDC);
-    actorPosition.y = ((BtlUnit *)actorUnit)->sphereCenter.y * *(f32 *)(actorUnit + 0x2C);
-    actorPosition.z = *(f32 *)(actorUnit + 0xE4);
+    actorPosition.x = MEMBER(f32, actorUnit, BtlUnit, moveDestination.x);
+    actorPosition.y = ((BtlUnit *)actorUnit)->sphereCenter.y * MEMBER(f32, actorUnit, BtlUnit, scale);
+    actorPosition.z = MEMBER(f32, actorUnit, BtlUnit, moveDestination.z);
     btlUnitGetSphereWorldCenter((BtlUnit *)targetUnit, &targetPosition);
-    height = (0.0f + actorPosition.y + p4_cacd0_mul(((BtlUnit *)actorUnit)->unk_8c, *(f32 *)(actorUnit + 0x2C)) * fGpffff8118);
-    height += (0.0f + targetPosition.y + p4_cacd0_mul(((BtlUnit *)targetUnit)->unk_8c, *(f32 *)(targetUnit + 0x2C)) * fGpffff8118);
-    extent = 0.0f + *(f32 *)(actorUnit + 0xE8);
-    extent += *(f32 *)(actorUnit + 0x90) * *(f32 *)(actorUnit + 0x2C);
-    extent += *(f32 *)(targetUnit + 0x90) * *(f32 *)(targetUnit + 0x2C);
+    height = (0.0f + actorPosition.y + operandOrderMultiply(((BtlUnit *)actorUnit)->unk_8c, MEMBER(f32, actorUnit, BtlUnit, scale)) * fGpffff8118);
+    height += (0.0f + targetPosition.y + ((((BtlUnit *)targetUnit)->unk_8c) * (MEMBER(f32, targetUnit, BtlUnit, scale))) * fGpffff8118);
+    extent = 0.0f + MEMBER(f32, actorUnit, BtlUnit, stoppingDistance);
+    extent += MEMBER(f32, actorUnit, BtlUnit, sphereRadius) * MEMBER(f32, actorUnit, BtlUnit, scale);
+    extent += MEMBER(f32, targetUnit, BtlUnit, sphereRadius) * MEMBER(f32, targetUnit, BtlUnit, scale);
     targetPosition.y = 0.0f;
     actorPosition.y = 0.0f;
     zero = 0.0f;
@@ -241,7 +215,7 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
     if (extent < 400.0f) {
         extent = 400.0f;
     }
-    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
     distance = (0.5f * extent) / tanHalfFov;
     RtQuatTransformVectors((RwV3d *)&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
     direction.y = viewDirection.y;
@@ -306,8 +280,8 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
 // FUN_001CACD0
 void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Quat {
         f32 x;
@@ -354,11 +328,11 @@ void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
 
     action = (u8 *)((BtlCamera *)camera)->action;
     actorUnit = (u8 *)((BtlAction *)action)->unit;
-    targetUnit = (u8 *)((BtlAction *)(*(u8 **)(action + 0x38)))->unit;
+    targetUnit = (u8 *)((BtlAction *)(((BtlAction *)(action))->targets[0]))->unit;
     btlCameraCopyPose((f32 *)&work.frames[0], (f32 *)(camera + 0x9C));
-    prod = ((BtlUnit *)actorUnit)->sphereCenter.y * *(f32 *)(actorUnit + 0x2C);
+    prod = ((BtlUnit *)actorUnit)->sphereCenter.y * MEMBER(f32, actorUnit, BtlUnit, scale);
     btlUnitGetSphereWorldCenter(targetUnit, (f32 *)&work.unit);
-    height = (0.0f + prod + p4_cacd0_mul(((BtlUnit *)actorUnit)->unk_8c, ((BtlUnit *)actorUnit)->scale) * fGpffff8118);
+    height = (0.0f + prod + operandOrderMultiply(((BtlUnit *)actorUnit)->unk_8c, ((BtlUnit *)actorUnit)->scale) * fGpffff8118);
     height += (0.0f + work.unit.y + (((BtlUnit *)targetUnit)->unk_8c * ((BtlUnit *)targetUnit)->scale) * fGpffff8118);
     work.unit.y = 0.0f;
     zero = 0.0f;
@@ -372,7 +346,7 @@ void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
     work.scaled.x = work.scaled.x + work.unit.x;
     work.scaled.y = work.scaled.y + work.unit.y;
     work.scaled.z = work.scaled.z + work.unit.z;
-    height = p4_cacd0_mul(0.5f, height);
+    height = operandOrderMultiply(0.5f, height);
     work.scaled.y = height;
     work.xzA[0] = work.diff.z;
     work.xzA[1] = -work.diff.x;
@@ -425,7 +399,7 @@ void btlCameraFrameFourPoseCurve(u8 *camera, f32 sweepAngle, f32 duration)
 // FUN_001CB0F0
 void btlCameraUpdateSweepFrame(u8 *camera)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
 
     u8 *action;
     u8 *battle;
@@ -435,7 +409,7 @@ void btlCameraUpdateSweepFrame(u8 *camera)
     if (((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->genus != 0) {
         return;
     }
-    ((BtlCameraActionWork *)(camera + 0x100))->sweepTarget = (u8 *)(*(s32 *)(action + 0x38));
+    ((BtlCameraActionWork *)(camera + 0x100))->sweepTarget = (u8 *)((s32)((BtlAction *)(action))->targets[0]);
     battle = iGpffffb3ac;
     if (((s32)((BtlBattleState *)battle)->flags & 0x200000) == 0) {
         mode = ((BtlBattleState *)battle)->camera.repeatedStateCount;
@@ -464,7 +438,7 @@ void btlCameraUpdateSweepFrame(u8 *camera)
 // FUN_001CB200
 void btlCameraHoldFrame(u8 *camera)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
 
     s32 active;
     u16 mode;
@@ -474,7 +448,7 @@ void btlCameraHoldFrame(u8 *camera)
     active = 0;
     if ((action != NULL) &&
         (((BtlAction *)action)->unk_6a == 1) &&
-        ((s32)((BtlCameraActionWork *)(camera + 0x100))->sweepTarget == *(s32 *)(action + 0x38)) &&
+        ((s32)((BtlCameraActionWork *)(camera + 0x100))->sweepTarget == (s32)((BtlAction *)(action))->targets[0]) &&
         ((active = ((BtlAction *)action)->unk_1a & 1, active != 0)) &&
         (((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->genus == 0)) {
         mode = ((BtlBattleState *)iGpffffb3ac)->camera.repeatedStateCount;
@@ -546,15 +520,15 @@ void btlCameraEffectListTickAlt(void) {
 // FUN_001CB460
 void btlCameraFrameRandomCut(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u16 value;
     s32 flag_offset;
     s32 index_offset;
     u8 *target;
 
-    value = ((BtlUnit *)((u8 *)((BtlAction *)(*(u8 **)(camera + 0xE0)))->unit))->charId;
-    if (btlActionHasNoTargetClass(*(u8 **)(camera + 0xE0)) != 0) {
+    value = ((BtlUnit *)((u8 *)((BtlAction *)(MEMBER(u8 *, camera, BtlCamera, action)))->unit))->charId;
+    if (btlActionHasNoTargetClass(MEMBER(u8 *, camera, BtlCamera, action)) != 0) {
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
         target = (u8 *)&D_005FA2D0 + index_offset;
@@ -569,11 +543,11 @@ void btlCameraFrameRandomCut(u8 *camera)
 // FUN_001CB540
 void btlCameraFrameAnimWait(u8 *camera)
 {
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u8 *action;
 
-    if (btlActionHasNoTargetClass(*(u8 **)(camera + 0xE0)) != 0) {
+    if (btlActionHasNoTargetClass(MEMBER(u8 *, camera, BtlCamera, action)) != 0) {
         btlCameraUpdateEffectList(camera);
         goto done;
     }
@@ -589,7 +563,7 @@ void btlCameraFrameAnimWait(u8 *camera)
     if (((BtlCamera *)camera)->delay == 0) {
         btlCameraSetupActionGeometry(action, NULL, NULL, 0.0f, 0x11);
     }
-    if (btlCameraUnitAnimFinished(camera, *(u8 **)(camera + 0x12C)) != 0) {
+    if (btlCameraUnitAnimFinished(camera, MEMBER(u8 *, camera, BtlCamera, animationUnit)) != 0) {
         btlUnitSetChildValue((BtlUnitStateWork*)((BtlCamera *)camera)->animationUnit, ((BtlCamera *)camera)->animationValue);
     }
 done:
@@ -601,8 +575,8 @@ done:
 // FUN_001CB610
 void btlCameraFrameRotateView(u8 *camera)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Vec3 {
         f32 x;
@@ -637,7 +611,7 @@ void btlCameraFrameRotateView(u8 *camera)
     f32 rotationAngle;
     f32 y;
 
-    target = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x38);
+    target = ((BtlAction *)(MEMBER(u8 *, camera, BtlCamera, action)))->targets[0];
     target = (u8 *)((BtlAction *)(target))->unit;
     btlUnitGetAnimBoundsWorldCenter((BtlUnit *)target, (RwV3d *)&work.center.x);
     work.center.y = 0.0f + work.center.y +
@@ -661,7 +635,7 @@ void btlCameraFrameRotateView(u8 *camera)
     func_003e4320((RwV3d *)&work.scaled, (const RwV3d *)&work.direction, (const RwMatrix *)&work.rotation);
     angleScale = 115.0f /
                  tanf(fGpffff8110 *
-                      (0.5f * *(f32 *)(camera + 0xB8)));
+                      (0.5f * MEMBER(f32, camera, BtlCamera, fovRad)));
     work.scaled.x = work.scaled.x * angleScale;
     work.scaled.y = work.scaled.y * angleScale;
     work.scaled.z = work.scaled.z * angleScale;
@@ -705,8 +679,8 @@ void btlCameraAttackScfUpdate(void) {}
 // FUN_001CB970
 void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
 {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -751,9 +725,9 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
     extern f32 fGpffff8128;
     extern f32 fGpffff8138;
 
-    action = *(u8 **)(camera + 0xE0);
+    action = MEMBER(u8 *, camera, BtlCamera, action);
     actor = (u8 *)((BtlAction *)action)->unit;
-    target = (u8 *)((BtlAction *)(*(u8 **)(action + 0x38)))->unit;
+    target = (u8 *)((BtlAction *)(((BtlAction *)(action))->targets[0]))->unit;
     btlUnitGetAnimBoundsWorldCenter((BtlUnit *)actor, &actorPosition);
     btlUnitGetAnimBoundsWorldCenter((BtlUnit *)target, &targetPosition);
     direction.x = actorPosition.x - targetPosition.x;
@@ -790,9 +764,9 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
         selectedUnit = target;
         otherUnit = actor;
         basePosition = targetPosition;
-        sideRadius = fGpffff8128 * (((BtlUnit *)target)->sphereRadius * *(f32 *)(target + 0x2C));
+        sideRadius = fGpffff8128 * (((BtlUnit *)target)->sphereRadius * ((BtlUnit *)(target))->scale);
         radiusFactor = 2.5f;
-        actorPosition.y = (actorPosition.y + 0.0f) - 0.25f * (((BtlUnit *)target)->unk_8c * *(f32 *)(target + 0x2C));
+        actorPosition.y = (actorPosition.y + 0.0f) - 0.25f * (((BtlUnit *)target)->unk_8c * ((BtlUnit *)(target))->scale);
         if (actorPosition.y < 100.0f) actorPosition.y = 100.0f;
         direction.x = actorPosition.x - targetPosition.x;
         direction.y = actorPosition.y - targetPosition.y;
@@ -863,12 +837,12 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
 /* Record motion duration and target action for subsequent camera wait updates. */
 // FUN_001CBF80
 void btlCameraWaitMotionFrames(u8 *camera) {
-    /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
-    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
+    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     ((BtlCameraMotionWaitWork *)(camera + 0x100))->duration =
-        btlUnitMotionFrames((u8 *)((BtlAction *)(*(u8 **)(camera + 0xE0)))->unit, 4, 1.0f);
-    ((BtlCameraMotionWaitWork *)(camera + 0x100))->targetAction = *(s32 *)((u8 *)((BtlCamera *)camera)->action + 0x38);
+        btlUnitMotionFrames((u8 *)((BtlAction *)(MEMBER(u8 *, camera, BtlCamera, action)))->unit, 4, 1.0f);
+    ((BtlCameraMotionWaitWork *)(camera + 0x100))->targetAction = (s32)((BtlAction *)((u8 *)((BtlCamera *)camera)->action))->targets[0];
     ((BtlCameraMotionWaitWork *)(camera + 0x100))->elapsed = 0;
 }
 

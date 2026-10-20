@@ -50,19 +50,6 @@ typedef struct BtlDamageTrail {
     u8 pad1A[6];
 } BtlDamageTrail;
 
-/* Unit subobject at +0xA10, initialized by btlEncounterInitParams.
- * Flags 1/2 run ring/pulse; 4/0x10 grow/shrink flash; 0x20/0x80 fade rotation. */
-typedef struct BtlPortraitState {
-    s32 flags;
-    s16 emphasisFrame;
-    s16 slideFrame;
-    s16 ringFrame;
-    s16 pulseFrame;
-    s16 flashFrame;
-    u8 pad0E[2];
-    f32 pulsePhase;
-    f32 angle;
-} BtlPortraitState;
 
 typedef struct BtlEncounterEntry {
     s32 flags;

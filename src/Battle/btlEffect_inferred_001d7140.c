@@ -22,11 +22,12 @@ extern void mdlDestroyModelObject(u32 model);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/btlFormation/btlFormation_grouped.c; members 001d7140-001d7140 */
 
 /* measured: live MATCH, object 372B/window 384B, normalized_diff 0; integer-domain global base plus source-driven addu operand order. */
-/* Rebuild dirty visible placements from the selected formation slot, then apply visibility flags and packed color.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Rebuild dirty visible placements from the selected formation slot, then apply visibility flags and packed color. */
 // FUN_001D7140
 void btlEffectRefreshPlacementState(u8* placement)
 {
+    BtlEffectNode *nodeState;
+    BtlEffectPlacement *placementState = (BtlEffectPlacement *)(placement);
     s16 slotIndex;
     s32 formationOrState;
     s32 effect;
@@ -39,61 +40,62 @@ void btlEffectRefreshPlacementState(u8* placement)
     u8* hiddenNode;
     s32 slotOffset;
 
-    if ((*(u32*)((u8*)DAT_0076449c + 0xC) & 0x40000) != 0)
+    if ((((BtlBattleState *)((u8*)DAT_0076449c))->flags & 0x40000) != 0)
     {
         if ((*placement & 1) != 0)
         {
-            node = *(u8**)(placement + 8);
-            formationOrState = *(s32*)(node + 0x10);
+            node = *(u8* *)&((BtlEffectPlacement *)(placement))->node;
+            nodeState = (BtlEffectNode *)(node);
+            formationOrState = *(s32 *)&((BtlEffectNode *)(node))->formation;
             if (formationOrState != 0)
             {
                 btlFormationResetState((u8*)formationOrState);
-                *(s32*)(node + 0x10) = 0;
+                *(s32 *)&nodeState->formation = 0;
             }
-            effect = *(s32*)(node + 0x14);
+            effect = *(s32 *)&((BtlEffectNode *)(node))->effect;
             if (effect != 0)
             {
                 mdlEffectDestroyWithNodes((u32)effect);
-                *(s32*)(node + 0x14) = 0;
+                *(s32 *)&nodeState->effect = 0;
             }
-            model = *(s32*)(node + 0x18);
+            model = *(s32 *)&((BtlEffectNode *)(node))->model;
             if (model != 0)
             {
                 mdlDestroyModelObject((u32)model);
-                *(s32*)(node + 0x18) = 0;
+                *(s32 *)&nodeState->model = 0;
             }
-            *(s32*)(node + 4) = -1;
-            *(s8*)(node + 8) = 0x14;
-            *(s32*)(node + 0xC) = 0;
-            *(u16*)(node + 0) = 0x200;
-            oldFormation = *(s32*)(placement + 0xC);
+            *(s32 *)&((BtlEffectNode *)(node))->color = -1;
+            *(s8 *)&((BtlEffectNode *)(node))->fadeStep = 0x14;
+            *(s32 *)&((BtlEffectNode *)(node))->counter = 0;
+            ((BtlEffectNode *)(node))->flags = 0x200;
+            oldFormation = *(s32 *)&((BtlEffectPlacement *)(placement))->formation;
             if (oldFormation != 0)
             {
                 btlFormationSetPlacement((u32)oldFormation);
-                *(s32*)(placement + 0xC) = 0;
+                *(s32 *)&placementState->formation = 0;
             }
-            slotIndex = *(s16*)(placement + 0x10);
+            slotIndex = ((BtlEffectPlacement *)(placement))->slotIndex;
             if (slotIndex != -1)
             {
                 formationOrState = (s32)DAT_0076449c;
                 slotOffset = slotIndex * 4;
-                formation = *(s32*)((u8*)(slotOffset + formationOrState + 0xD04));
-                *(s32*)(placement + 0xC) = formation;
+                formation = *(s32 *)&((BtlBattleState *)((u8 *)(slotOffset + formationOrState)))->formations[0];
+                *(s32 *)&placementState->formation = formation;
                 btlFormationCopyDefault((u8*)formation);
-                unit = *(s32*)(placement + 4);
-                *(s32*)(*(u8**)(placement + 8) + 0x10) =
-                    (s32)btlFormationAllocEntry(*(u8**)(placement + 0xC), 1, unit, unit, 0);
+                unit = ((BtlEffectPlacement *)(placement))->unit;
+                *(s32 *)&((BtlEffectNode *)(*(u8* *)&placementState->node))->formation =
+                    (s32)btlFormationAllocEntry(placementState->formation, 1, unit, unit, 0);
             }
             *placement &= (u8)~1;
         }
-        if (*(s16*)(placement + 0x10) != -1)
+        if (((BtlEffectPlacement *)(placement))->slotIndex != -1)
         {
-            visibleNode = *(u8**)(placement + 8);
+            visibleNode = *(u8* *)&((BtlEffectPlacement *)(placement))->node;
             *(u16*)visibleNode |= 0x30;
-            *(s32*)(*(u8**)(placement + 8) + 4) = *(s32*)(placement + 0x14);
+            *(s32 *)&((BtlEffectNode *)(*(u8* *)&((BtlEffectPlacement *)(placement))->node))->color = *(s32 *)&((BtlEffectPlacement *)(placement))->color;
             return;
         }
-        hiddenNode = *(u8**)(placement + 8);
+        hiddenNode = *(u8* *)&((BtlEffectPlacement *)(placement))->node;
         *(u16*)hiddenNode &= (u16)~0x30;
     }
 }

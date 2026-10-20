@@ -37,10 +37,6 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 mtSceneMulF32(f32 left, f32 right)
-{
-    return left * right;
-}
 extern void PrimDrawContour(f32 x, f32 y, f32 depth,
                           s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
                           s32 originX, s32 originY,
@@ -51,14 +47,7 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *rbRingNextNode(s32 offset, u32 *base)
-{
-    return (u32 *)((u8 *)base + offset + 8);
-}
-static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
-{
-    return base + index;
-}
+
 
 
 extern u8 D_00637420[];
@@ -174,7 +163,7 @@ s32 frFontAppendItemNameCommand(s32 unusedCommand, u8 *context)
     s32 forcePalette;
     streamOffset = ((FrFontContext *)context)->position;
     streamBase = ((FrFontContext *)context)->stream;
-    stream = mtSceneBytePairAt((u8 *)streamBase, (u32)streamOffset);
+    stream = (((u8 *)streamBase) + (u32)streamOffset);
     low = (stream[0] - 1) & 0xFF;
     highByte = stream[1];
     if (highByte == 0xFF) {

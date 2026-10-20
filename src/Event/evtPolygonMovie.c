@@ -66,12 +66,12 @@ void evtPolygonMovieLerpPose(s32 enabled, f32 blend, f32 *fromPose, f32 *toPose,
             do {
                 /* Copy float representations in word pairs without changing their bits. */
                 s32 firstWord = *(s32 *)source;
-                s32 secondWord = *(s32 *)(source + 1);
+                s32 secondWord = ((s32 *)source)[1];
 
                 source += 2;
                 pairsRemaining -= 1;
                 *(s32 *)destination = firstWord;
-                *(s32 *)(destination + 1) = secondWord;
+                ((s32 *)destination)[1] = secondWord;
                 destination += 2;
             } while (pairsRemaining > 0);
             return;
@@ -133,8 +133,8 @@ u8 *evtPolygonMovieAlloc(void)
    moves; propagation-off and loop-invariant analysis preserve the traversals.
    See docs/probe_archive/evtPolygonMovie_0028fc40_167e607.md. */
 // Intent: Binds the primary, secondary and overlay resource sections into the work block; opens the message window when one is bound [inferred]
-/* measured: each remaining raw work access lost MATCH when typed individually;
- * member-address hoisting in the fully typed body grew code from 2088 to 2708 bytes. */
+/* measured: access-site-only typing grew the body from 2088 to 2708 bytes;
+ * one separate typed work local preserves all section reloads and MATCH. */
 // FUN_0028FC40
 #pragma push
 #pragma opt_propagation off
@@ -142,6 +142,7 @@ u8 *evtPolygonMovieAlloc(void)
 #pragma opt_loop_invariants on
 u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *overlay)
 {
+    EvtPolygonMovieWork *movie = (EvtPolygonMovieWork *)work;
     s32 recordIndex;
     u8 *entry;
     s32 code;
@@ -159,28 +160,28 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
         return NULL;
     }
     ((EvtPolygonMovieWork *)work)->flags = 0;
-    *(u8 **)(work + 0x10) = primary;
-    *(u8 **)(work + 0x14) = primary + 0x20;
+    movie->primary = primary;
+    movie->primaryRecords = primary + 0x20;
     ((EvtPolygonMovieWork *)work)->unk18 = NULL;
-    *(s32 *)(work + 0x1C) = 0;
+    movie->count1C = 0;
     ((EvtPolygonMovieWork *)work)->unk20 = NULL;
-    *(s32 *)(work + 0x24) = 0;
+    movie->count24 = 0;
     ((EvtPolygonMovieWork *)work)->unk28 = NULL;
     ((EvtPolygonMovieWork *)work)->unk2C = NULL;
     ((EvtPolygonMovieWork *)work)->unk30 = NULL;
     ((EvtPolygonMovieWork *)work)->unk34 = NULL;
-    *(s32 *)(work + 0x38) = 0;
+    movie->count38 = 0;
     ((EvtPolygonMovieWork *)work)->unk3C = NULL;
     ((EvtPolygonMovieWork *)work)->unk40 = NULL;
-    *(s32 *)(work + 0x44) = 0;
+    movie->count44 = 0;
     ((EvtPolygonMovieWork *)work)->unk48 = NULL;
-    *(s32 *)(work + 0x50) = 0;
-    *(s32 *)(work + 0x4C) = 0;
+    movie->count50 = 0;
+    movie->message = 0;
     ((EvtPolygonMovieWork *)work)->unk54 = NULL;
-    *(s32 *)(work + 0x58) = 0;
+    movie->count58 = 0;
     ((EvtPolygonMovieWork *)work)->unk5C = NULL;
     for (recordIndex = 0; recordIndex < ((EvtMovieFileHeader *)((EvtPolygonMovieWork *)work)->primary)->recordCount; recordIndex++) {
-        primaryRecords = *(u8 **)(work + 0x14);
+        primaryRecords = movie->primaryRecords;
         entry = primaryRecords + recordIndex * 0x10;
         code = ((EvtMovieSection *)entry)->code;
         if (code == 0x1B) {
@@ -188,27 +189,27 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
         }
         switch (code) {
         case 2:
-            *(u8 **)(work + 0x20) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk20 = primary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count24 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 10:
-            *(u8 **)(work + 0x28) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk28 = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 11:
-            *(u8 **)(work + 0x2C) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk2C = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 12:
-            *(u8 **)(work + 0x30) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk30 = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 3:
-            *(u8 **)(work + 0x34) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk34 = primary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count38 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 9:
-            *(u8 **)(work + 0x3C) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk3C = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 1:
-            *(u8 **)(work + 0x18) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk18 = primary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count1C = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 6:
@@ -216,75 +217,75 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
             ((EvtPolygonMovieWork *)work)->count50 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 7:
-            *(u8 **)(work + 0x40) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk40 = primary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count44 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 8:
-            *(u8 **)(work + 0x48) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk48 = primary + ((EvtMovieSection *)entry)->offset;
             break;
         case 22:
-            *(u8 **)(work + 0x54) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk54 = primary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count58 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->primaryRecords + recordIndex * 0x10))->count;
             break;
         case 23:
-            *(u8 **)(work + 0x5C) = primary + ((EvtMovieSection *)entry)->offset;
+            movie->unk5C = primary + ((EvtMovieSection *)entry)->offset;
             break;
         default:
             kAssertFail(D_0063C6A0, 0x1C3);
             break;
         }
     }
-    *(u8 **)(work + 0x80) = secondary;
+    movie->secondary = secondary;
     if (secondary != NULL) {
-        *(u8 **)(work + 0x84) = secondary + 0x20;
+        movie->secondaryRecords = secondary + 0x20;
     } else {
         ((EvtPolygonMovieWork *)work)->secondaryRecords = NULL;
     }
     ((EvtPolygonMovieWork *)work)->unk88 = NULL;
-    *(s32 *)(work + 0x8C) = 0;
+    movie->count8C = 0;
     ((EvtPolygonMovieWork *)work)->unk90 = NULL;
-    *(s32 *)(work + 0x94) = 0;
-    *(s32 *)(work + 0xAC) = 0;
+    movie->unk94 = 0;
+    movie->countAC = 0;
     ((EvtPolygonMovieWork *)work)->unkB0 = NULL;
-    *(s32 *)(work + 0xB4) = 0;
+    movie->countB4 = 0;
     ((EvtPolygonMovieWork *)work)->unkB8 = NULL;
-    *(s32 *)(work + 0xBC) = 0;
+    movie->countBC = 0;
     ((EvtPolygonMovieWork *)work)->unkC0 = NULL;
-    *(s32 *)(work + 0xC4) = 0;
+    movie->countC4 = 0;
     ((EvtPolygonMovieWork *)work)->unkC8 = NULL;
-    *(s32 *)(work + 0xCC) = 0;
+    movie->countCC = 0;
     ((EvtPolygonMovieWork *)work)->unkD0 = NULL;
-    *(s32 *)(work + 0xD4) = 0;
+    movie->countD4 = 0;
     ((EvtPolygonMovieWork *)work)->unkD8 = NULL;
-    *(s32 *)(work + 0xDC) = 0;
+    movie->countDC = 0;
     ((EvtPolygonMovieWork *)work)->unkE0 = NULL;
-    *(s32 *)(work + 0xE4) = 0;
+    movie->countE4 = 0;
     ((EvtPolygonMovieWork *)work)->unkE8 = NULL;
-    *(s32 *)(work + 0xEC) = 0;
+    movie->countEC = 0;
     ((EvtPolygonMovieWork *)work)->unkF0 = NULL;
-    *(s32 *)(work + 0xF4) = 0;
+    movie->countF4 = 0;
     ((EvtPolygonMovieWork *)work)->unk100 = NULL;
-    *(s32 *)(work + 0x104) = 0;
+    movie->count104 = 0;
     ((EvtPolygonMovieWork *)work)->unkF8 = NULL;
-    *(s32 *)(work + 0xFC) = 0;
+    movie->countFC = 0;
     ((EvtPolygonMovieWork *)work)->unk108 = NULL;
-    *(s32 *)(work + 0x10C) = 0;
+    movie->count10C = 0;
     ((EvtPolygonMovieWork *)work)->unk60 = NULL;
-    *(s32 *)(work + 0x64) = 0;
+    movie->count64 = 0;
     if (secondary == NULL) {
         return work;
     }
     func_00440b68(D_0063C6C0, ((EvtMovieFileHeader *)((EvtPolygonMovieWork *)work)->secondary)->recordCount);
-    for (recordIndex = 0; recordIndex < ((EvtMovieFileHeader *)*(u8 **)(work + 0x80))->recordCount; recordIndex++) {
-        secondaryRecords = *(u8 **)(work + 0x84);
+    for (recordIndex = 0; recordIndex < ((EvtMovieFileHeader *)movie->secondary)->recordCount; recordIndex++) {
+        secondaryRecords = movie->secondaryRecords;
         entry = secondaryRecords + recordIndex * 0x10;
         code = ((EvtMovieSection *)entry)->code;
         switch (code) {
         case 0:
-            *(u8 **)(work + 0x90) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unk90 = secondary + ((EvtMovieSection *)entry)->offset;
             break;
         case 4:
-            if (((EvtMovieFileHeader *)*(u8 **)(work + 0x80))->version == 4) {
+            if (((EvtMovieFileHeader *)movie->secondary)->version == 4) {
                 ((EvtPolygonMovieWork *)work)->unk94 = secondary + ((EvtMovieSection *)entry)->offset;
                 ((EvtPolygonMovieWork *)work)->unk98 = NULL;
             } else {
@@ -294,60 +295,60 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
             ((EvtPolygonMovieWork *)work)->countAC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 1:
-            *(u8 **)(work + 0x88) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unk88 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count8C = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 5:
-            *(u8 **)(work + 0xB0) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkB0 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countB4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 13:
-            *(u8 **)(work + 0xB8) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkB8 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countBC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 14:
-            *(u8 **)(work + 0xC0) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkC0 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countC4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 15:
-            *(u8 **)(work + 0xC8) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkC8 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countCC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 16:
-            *(u8 **)(work + 0xD0) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkD0 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countD4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 17:
-            *(u8 **)(work + 0xD8) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkD8 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countDC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 18:
-            *(u8 **)(work + 0xE0) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkE0 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countE4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 19:
-            *(u8 **)(work + 0xE8) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkE8 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countEC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 20:
-            *(u8 **)(work + 0xF0) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkF0 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countF4 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 24:
-            *(u8 **)(work + 0xF8) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unkF8 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countFC = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 21:
-            *(u8 **)(work + 0x100) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unk100 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count104 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             func_00440b68(D_0063C6E0);
             break;
         case 25:
-            *(u8 **)(work + 0x108) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unk108 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count10C = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         case 26:
-            *(u8 **)(work + 0x60) = secondary + ((EvtMovieSection *)entry)->offset;
+            movie->unk60 = secondary + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->count64 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->secondaryRecords + recordIndex * 0x10))->count;
             break;
         default:
@@ -355,29 +356,29 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
             break;
         }
     }
-    if (*(u8 **)(work + 0x90) != NULL) {
+    if (movie->unk90 != NULL) {
         if (((EvtPolygonMovieWork *)work)->message != NULL && ((EvtPolygonMovieWork *)work)->count50 > 0) {
             evtMessageWindowOpen(messageContext, (s32)((EvtPolygonMovieWork *)work)->message);
         }
     }
-    *(u8 **)(work + 0x9C) = overlay;
+    movie->overlay = overlay;
     if (overlay != NULL) {
-        *(u8 **)(work + 0xA0) = overlay + 0x20;
+        movie->overlayRecords = overlay + 0x20;
     } else {
         ((EvtPolygonMovieWork *)work)->overlayRecords = NULL;
     }
     ((EvtPolygonMovieWork *)work)->unkA4 = NULL;
-    *(s32 *)(work + 0xA8) = 0;
+    movie->countA8 = 0;
     if (overlay == NULL) {
         return work;
     }
     for (overlayIndex = 0; overlayIndex < ((EvtMovieFileHeader *)((EvtPolygonMovieWork *)work)->overlay)->recordCount; overlayIndex++) {
-        overlayRecords = *(u8 **)(work + 0xA0);
+        overlayRecords = movie->overlayRecords;
         entry = overlayRecords + overlayIndex * 0x10;
         code = ((EvtMovieSection *)entry)->code;
         switch (code) {
         case 4:
-            *(u8 **)(work + 0xA4) = overlay + ((EvtMovieSection *)entry)->offset;
+            movie->unkA4 = overlay + ((EvtMovieSection *)entry)->offset;
             ((EvtPolygonMovieWork *)work)->countA8 = ((EvtMovieSection *)(((EvtPolygonMovieWork *)work)->overlayRecords + overlayIndex * 0x10))->count;
             break;
         default:

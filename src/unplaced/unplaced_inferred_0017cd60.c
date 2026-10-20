@@ -21,6 +21,11 @@ typedef struct
     f32 second;
 } FldIconProjection;
 
+/* Interior symbols name columns within fixed-stride records. */
+typedef struct FldIconPositionColumn { s32 coordinate; u8 pad04[4]; } FldIconPositionColumn;
+typedef struct FldSmapSizeColumn { s32 extent; u8 pad04[4]; } FldSmapSizeColumn;
+typedef struct FldSmapUvColumn { f32 coordinate; u8 pad04[12]; } FldSmapUvColumn;
+
 extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_007F1740[];
 extern u8 D_005F1950[];
@@ -90,11 +95,11 @@ typedef struct {
 #pragma opt_loop_invariants off
 /* 764/768 bytes; fourteen resolved relocations; four zero alignment bytes.
  * Preserve unsigned frame updates and the three ordered sprite draws. */
-// FUN_0017CD60
-/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
 /* Initialize or draw the three player-icon sprites with a repeating fifteen-frame sine animation. */
+// FUN_0017CD60
 s32 FldPlayerIconUpdate(u8 *task)
 {
+    FldPlayerIconWork *iconWork;
     u8 *work;
     f32 easing;
     f32 inverse;
@@ -104,42 +109,43 @@ s32 FldPlayerIconUpdate(u8 *task)
     f32 x;
     f32 y;
 
-    work = *(u8 **)(task + 0x38);
-    if (*(s32 *)(work + 4) == 0) {
+    work = ((SdkTask *)task)->work;
+    iconWork = (FldPlayerIconWork *)work;
+    if (((FldPlayerIconWork *)work)->active == 0) {
         return 0;
     }
-    switch (*(s32 *)work) {
+    switch (((FldPlayerIconWork *)work)->state) {
     case 0:
-        *(s32 *)(work + 8) = (s32)resourceFindByName(D_005E5850);
-        *(u16 *)(work + 0xC) = 320;
-        *(u16 *)(work + 0xE) = 240;
-        *(s32 *)work = *(s32 *)work + 1;
+        ((FldPlayerIconWork *)work)->texture.integer = (s32)resourceFindByName(D_005E5850);
+        ((FldPlayerIconWork *)work)->x.halfword = 320;
+        ((FldPlayerIconWork *)work)->y.halfword = 240;
+        ((FldPlayerIconWork *)work)->state = ((FldPlayerIconWork *)work)->state + 1;
         goto done;
     case 1:
-        counter = *(u16 *)(work + 0x10);
+        counter = ((FldPlayerIconWork *)work)->frame;
         frame = (f32)(u16)counter;
         easing = sinf((iGpffff82fc * frame) / 15.0f);
         inverse = 1.0f - easing;
-        sdkSpriteDrawQueued((f32)(*(u16 *)(work + 0xC) + 10),
-                      (f32)(*(u16 *)(work + 0xE) + 25), 1000.0f,
-                      0xFFFFFF, 0xFF, 0xC4, (void *)(*(u32 *)(work + 8)),
+        sdkSpriteDrawQueued((f32)(((FldPlayerIconWork *)work)->x.halfword + 10),
+                      (f32)(((FldPlayerIconWork *)work)->y.halfword + 25), 1000.0f,
+                      0xFFFFFF, 0xFF, 0xC4, (void *)(((FldPlayerIconWork *)work)->texture.word),
                       1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         opacity = (s32)(128.0f * easing) + 0x80;
-        x = (f32)(*(u16 *)(work + 0xC) + 0x6E);
-        y = (f32)(*(u16 *)(work + 0xE) + 0x22);
+        x = (f32)(iconWork->x.halfword + 0x6E);
+        y = (f32)(iconWork->y.halfword + 0x22);
         opacity = (0xFF < opacity) ? 0xFF : opacity;
         sdkSpriteDrawQueued(x, y, 1000.0f,
-                      0xFFFFFF, opacity & 0xFF, 0xC6, (void *)(*(u32 *)(work + 8)),
+                      0xFFFFFF, opacity & 0xFF, 0xC6, (void *)(iconWork->texture.word),
                       1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        sdkSpriteDrawQueued((f32)(*(u16 *)(work + 0xC) + 0x6E),
-                      (f32)(*(u16 *)(work + 0xE) + 0xF +
+        sdkSpriteDrawQueued((f32)(iconWork->x.halfword + 0x6E),
+                      (f32)(iconWork->y.halfword + 0xF +
                             (s32)(3.0f * inverse)), 1000.0f,
-                      0xFFFFFF, 0xFF, 0xC5, (void *)(*(u32 *)(work + 8)),
+                      0xFFFFFF, 0xFF, 0xC5, (void *)(iconWork->texture.word),
                       1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        counter = *(u16 *)(work + 0x10) + 1;
-        *(u16 *)(work + 0x10) = counter;
-        if (0xF < *(u16 *)(work + 0x10)) {
-            *(u16 *)(work + 0x10) = 0;
+        counter = iconWork->frame + 1;
+        iconWork->frame = counter;
+        if (0xF < iconWork->frame) {
+            iconWork->frame = 0;
         }
         goto done;
     case 2:
@@ -165,8 +171,8 @@ void FldPlayerIconDestroy(u8 *task)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
-// FUN_0017D070
 /* Clear the fixed player-icon work block and register its child task. */
+// FUN_0017D070
 s32 FldPlayerIconTaskCreate(u8 *task)
 {
     memset(D_007F1740, 0, 0x20);
@@ -188,9 +194,9 @@ void FldPlayerIconSetActive(u8 *task, s32 active)
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
+/* X/Y symbols name separate columns of interleaved eight-byte position records. */
 // FUN_0017D100
 /* Project the player model and choose one of three fixed icon positions from its horizontal screen region. */
-/* Raw access: The X/Y globals name separate components of interleaved 8-byte position records; retain each component symbol in the indexed loads. */
 void FldPlayerIconUpdatePos(u8 *task)
 {
     FldIconProjection projectedPosition;
@@ -212,17 +218,17 @@ void FldPlayerIconUpdatePos(u8 *task)
         screenRegion = 2;
     }
     positionOffset = screenRegion * 8;
-    ((FldPlayerIconWork *)work)->x.shortValue = *(s32 *)((u8 *)D_005F1930 + positionOffset);
-    ((FldPlayerIconWork *)work)->y.shortValue = *(s32 *)((u8 *)D_005F1934 + positionOffset);
+    ((FldPlayerIconWork *)work)->x.shortValue = ((FldIconPositionColumn *)((u8 *)D_005F1930 + positionOffset))->coordinate;
+    ((FldPlayerIconWork *)work)->y.shortValue = ((FldIconPositionColumn *)((u8 *)D_005F1934 + positionOffset))->coordinate;
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
+/* Preserve the distinct interior symbols for the two eight-byte size columns. */
 // FUN_0017D1F0
 /* Read the tile dimensions for its type and queue a quad, including the one-pixel size expansion. */
-/* Raw access: The size globals name separate components of interleaved 8-byte records; keep their distinct native relocation symbols. */
 void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
                    f32 x, f32 y, f32 depth, s32 flags)
 {
@@ -230,8 +236,8 @@ void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
 
     sizeOffset = tileType * 8;
     FldSmapTileQueueQuad(queue, context, tileType, variant,
-                  *(s32 *)(D_005F1A60 + sizeOffset) + 1,
-                  *(s32 *)(D_005F1A64 + sizeOffset) + 1, flags,
+                  ((FldSmapSizeColumn *)(D_005F1A60 + sizeOffset))->extent + 1,
+                  ((FldSmapSizeColumn *)(D_005F1A64 + sizeOffset))->extent + 1, flags,
                   x, y, depth);
 }
 #pragma pop
@@ -240,9 +246,9 @@ void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 #pragma optimization_level 1
+/* UV symbols are interior aliases of sixteen-byte tuples; the draw API also receives the first-component pointer. */
 // FUN_0017D240
 /* Resolve the variant texture name and queue a tile with the type-specific UV tuple. */
-/* Raw access: The four UV globals are interior aliases of 16-byte tuples; the draw API also consumes the first-component pointer, so retain the component-relative addressing. */
 void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
                    s32 height, s32 flags, f32 x, f32 y, f32 depth)
 {
@@ -287,10 +293,10 @@ void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32
     FldRc_QueueScreenQuad(drawQueue, drawContext,
                   drawX, drawY, drawDepth, quadWidth, quadHeight,
                   (void *)&iGpffff9f54, texture,
-                  *(f32 *)(uvData = (f32 *)(D_005F1970 + uvOffset)),
-                  *(f32 *)(D_005F1974 + uvOffset),
-                  *(f32 *)(D_005F1978 + uvOffset),
+                  *(uvData = &((FldSmapUvColumn *)(D_005F1970 + uvOffset))->coordinate),
+                  ((FldSmapUvColumn *)(D_005F1974 + uvOffset))->coordinate,
+                  ((FldSmapUvColumn *)(D_005F1978 + uvOffset))->coordinate,
                   drawFlags, uvData,
-                  *(f32 *)(D_005F197C + uvOffset));
+                  ((FldSmapUvColumn *)(D_005F197C + uvOffset))->coordinate);
 }
 #pragma pop

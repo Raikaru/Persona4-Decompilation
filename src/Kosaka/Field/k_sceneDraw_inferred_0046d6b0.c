@@ -330,10 +330,11 @@ typedef struct {
  * then four fill vertices. Each vertex is the 0x40-byte Sky immediate format. */
 typedef struct WindowRect { s32 x, y, width, height; } WindowRect;
 typedef struct WindowColor { u8 r, g, b, a; } WindowColor;
+struct FInput { f32 f0, f4, f8, fC; };
 typedef struct WindowWork {
     s32 state, enabled;
     u8 pad08[4];
-    WindowRect rect;
+    union { WindowRect rect; struct FInput rectFloat; };
     WindowColor first, second;
     u8 pad24[0xC];
     f32 borderProgress[4];
@@ -368,7 +369,8 @@ typedef struct ControllerEntry {
     void *argument;
     struct ControllerEntry *previous, *next;
 } ControllerEntry;
-static inline u8 *controller_create_window(u8 *parent,
+/* Create a controller window using independent rectangle and color copies. */
+static inline u8 *sdkControllerCreateWindow(u8 *parent,
     s32 x, s32 y, s32 width, s32 height,
     const ControllerColor *firstSource, const ControllerColor *secondSource)
 {
@@ -425,6 +427,7 @@ void kAssertFailAt(const void *msg, const void *file, u32 line) {}
  * retain these byte aliases while all vertex fields stay typed. */
 // FUN_0046D750
 s32 sdkWindowUpdate(u8 *task) {
+    WindowWork *windowWork;
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 (*D_00887310[])(s32, void *, s32);
@@ -442,6 +445,8 @@ s32 sdkWindowUpdate(u8 *task) {
     s32 (**drawPrimitive)(s32, void *, s32);
 
     work = ((KwlnTask *)task)->work;
+
+    windowWork = (WindowWork *)work;
     state = ((WindowWork *)work)->state;
     switch (state) {
     case 0:
@@ -514,10 +519,10 @@ test0k:
         if (fillVertexIndex < 4) {
             goto body0k;
         }
-        *(f32 *)(work + 0x40) = (f32)*(u8 *)(work + 0x23);
-        *(u8 *)(work + 0x23) = 0;
+        windowWork->targetAlpha = (f32)windowWork->second.a;
+        windowWork->second.a = 0;
         ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
-        *(u8 *)(work + 0x23) = (u8)(((WindowWork *)work)->targetAlpha);
+        windowWork->second.a = (u8)(((WindowWork *)work)->targetAlpha);
         fillVertexIndex = 0;
         goto test0k2;
 body0k2:
@@ -534,8 +539,8 @@ test0k2:
         ((WindowWork *)work)->state = 6;
         break;
     case 1:
-        if (!(*(f32 *)(work + 0x30) < (f32)*(s32 *)(work + 0x14))) {
-            ((WindowWork *)work)->borderProgress[0] = (f32)*(s32 *)(work + 0x14);
+        if (!(windowWork->borderProgress[0] < (f32)windowWork->rect.width)) {
+            ((WindowWork *)work)->borderProgress[0] = (f32)windowWork->rect.width;
             ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
         ((WindowWork *)work)->borderVertices[0].x = (f32)((WindowWork *)work)->rect.x;
@@ -549,8 +554,8 @@ test0k2:
         ((WindowWork *)work)->borderProgress[0] = ((WindowWork *)work)->borderProgress[0] + (f32)((WindowWork *)work)->rect.width / 2.0f;
         break;
     case 2:
-        if (!(*(f32 *)(work + 0x34) < (f32)*(s32 *)(work + 0x18))) {
-            ((WindowWork *)work)->borderProgress[1] = (f32)*(s32 *)(work + 0x18);
+        if (!(windowWork->borderProgress[1] < (f32)windowWork->rect.height)) {
+            ((WindowWork *)work)->borderProgress[1] = (f32)windowWork->rect.height;
             ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
         ((WindowWork *)work)->borderVertices[4].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width - 2);
@@ -564,8 +569,8 @@ test0k2:
         ((WindowWork *)work)->borderProgress[1] = ((WindowWork *)work)->borderProgress[1] + (f32)((WindowWork *)work)->rect.height / 2.0f;
         break;
     case 3:
-        if (!(*(f32 *)(work + 0x38) < (f32)*(s32 *)(work + 0x14))) {
-            ((WindowWork *)work)->borderProgress[2] = (f32)*(s32 *)(work + 0x14);
+        if (!(windowWork->borderProgress[2] < (f32)windowWork->rect.width)) {
+            ((WindowWork *)work)->borderProgress[2] = (f32)windowWork->rect.width;
             ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
         ((WindowWork *)work)->borderVertices[8].x = (f32)(((WindowWork *)work)->rect.x + ((WindowWork *)work)->rect.width) - ((WindowWork *)work)->borderProgress[2];
@@ -579,8 +584,8 @@ test0k2:
         ((WindowWork *)work)->borderProgress[2] = ((WindowWork *)work)->borderProgress[2] + (f32)((WindowWork *)work)->rect.width / 2.0f;
         break;
     case 4:
-        if (!(*(f32 *)(work + 0x3C) < (f32)*(s32 *)(work + 0x18))) {
-            ((WindowWork *)work)->borderProgress[3] = (f32)*(s32 *)(work + 0x18);
+        if (!(windowWork->borderProgress[3] < (f32)windowWork->rect.height)) {
+            ((WindowWork *)work)->borderProgress[3] = (f32)windowWork->rect.height;
             ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
         ((WindowWork *)work)->borderVertices[12].x = (f32)((WindowWork *)work)->rect.x;
@@ -595,15 +600,15 @@ test0k2:
         break;
     case 5: {
         u8 c;
-        c = (u8)(*(f32 *)(work + 0x40));
-        if (*(u8 *)(work + 0x23) < c) {
+        c = (u8)(windowWork->targetAlpha);
+        if (windowWork->second.a < c) {
             f32 fb;
             f32 f;
-            fb = (f32)*(u8 *)(work + 0x23);
-            f = fb + *(f32 *)(work + 0x40) / 8.0f;
-            *(u8 *)(work + 0x23) = (u8)f;
+            fb = (f32)windowWork->second.a;
+            f = fb + windowWork->targetAlpha / 8.0f;
+            windowWork->second.a = (u8)f;
         } else {
-            ((WindowWork *)work)->second.a = (u8)(*(f32 *)(work + 0x40));
+            ((WindowWork *)work)->second.a = (u8)(windowWork->targetAlpha);
             ((WindowWork *)work)->state = ((WindowWork *)work)->state + 1;
         }
         for (fillVertexIndex = 0; fillVertexIndex < 4; fillVertexIndex++) {
@@ -619,10 +624,10 @@ test0k2:
         sdkWindowSetRect(task, work + 0xC);
         break;
     case 7:
-        if (*(u8 *)(work + 0x23) > 0) {
+        if (windowWork->second.a > 0) {
             ((WindowWork *)work)->second.a = ((WindowWork *)work)->second.a - 1;
         }
-        if (*(u8 *)(work + 0x1F) > 0) {
+        if (windowWork->first.a > 0) {
             ((WindowWork *)work)->first.a = ((WindowWork *)work)->first.a - 1;
         }
         borderIndex = 0;
@@ -694,15 +699,16 @@ test7k:
 /* measured: typed task->work changes generated instructions across the free/close callbacks; retain byte-pointer aliasing. */
 /* measured: typing the initial task-work load changes this callback's instructions; its buffer and final
  * task-work read remain typed. */
-// FUN_0046E7F0
 /* Keep the table address cached without changing the free callback type. */
+// FUN_0046E7F0
 #pragma push
 /* measured: sdkWindowDestroy MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 void sdkWindowDestroy(u8 *task)
 {
+    KwlnTask *ownerTask = (KwlnTask *)task;
     void (**tbl)(void *) = jtbl_008873EC;
-    u8 *work = *(u8 **)(task + 0x38);
+    u8 *work = ownerTask->work;
 
     tbl[0](((WindowWork *)work)->buffer);
     tbl[0](((KwlnTask *)task)->work);
@@ -773,12 +779,7 @@ void sdkWindowSetCommand(u8 *task, s32 enabled)
 // FUN_0046EA60
 void sdkWindowSetRect(u8 *task, u8 *rectangle)
 {
-    struct FInput {
-        f32 f0;
-        f32 f4;
-        f32 f8;
-        f32 fC;
-    };
+
     union Input {
         struct {
             s32 rectangleLeft;
@@ -803,7 +804,7 @@ void sdkWindowSetRect(u8 *task, u8 *rectangle)
     input = *(union Input *)rectangle;
     record = ((KwlnTask *)task)->work;
     if (((WindowWork *)record)->state == 6) {
-        *(struct FInput *)(record + 0xC) = input.f;
+        ((WindowWork *)record)->rectFloat = input.f;
         leftReal = (f32)input.i.rectangleLeft;
         ((WindowWork *)record)->borderVertices[0].x = leftReal;
         topReal = (f32)input.i.rectangleTop;
@@ -873,6 +874,7 @@ void sdkWindowSetRect(u8 *task, u8 *rectangle)
  * row, value, and callback fields are typed. */
 // FUN_0046EC70
 void sdkLboxDrawEntries(u8 *task) {
+    ControllerWork *controller;
     extern char *strcpy(char *dst, const char *src);
     extern s32 strlen(const void *str);
     extern s32 fptodp(f32 value);
@@ -897,8 +899,9 @@ void sdkLboxDrawEntries(u8 *task) {
     char text[0x108];
     f32 position[2];
     work = ((KwlnTask *)task)->work;
+    controller = (ControllerWork *)work;
     entry = (u8 *)((ControllerWork *)work)->firstEntry;
-    position[0] = (f32)(*(s32 *)(work + 0x18) + 2);
+    position[0] = (f32)(controller->rectangle.x + 2);
     position[1] = (f32)(((ControllerWork *)work)->rectangle.y + 2);
     for (rowIndex = 0; entry != NULL; rowIndex++) {
         s32 first;
@@ -919,7 +922,7 @@ void sdkLboxDrawEntries(u8 *task) {
                 sprintf(text, &iGpffffb06c, entry + 0x108);
                 rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
                 position[0] = (f32)(((ControllerWork *)work)->columnWidth + (rightEdge - ((ControllerWork *)work)->measureText(text)));
-                ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
+                ((void (*)(f32 *, void *, void *))(void *)(controller->drawText))(position, &iGpffffb064, text);
                 break;
             }
             case 2: {
@@ -927,9 +930,9 @@ void sdkLboxDrawEntries(u8 *task) {
                 rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
                 position[0] = (f32)(((ControllerWork *)work)->columnWidth + (rightEdge - ((ControllerWork *)work)->measureText(text)));
                 if (((ControllerEntry *)entry)->integerValue == 1) {
-                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, &iGpffffb078);
+                    ((void (*)(f32 *, void *, void *))(void *)(controller->drawText))(position, &iGpffffb064, &iGpffffb078);
                 } else {
-                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, &iGpffffb080);
+                    ((void (*)(f32 *, void *, void *))(void *)(controller->drawText))(position, &iGpffffb064, &iGpffffb080);
                 }
                 break;
             }
@@ -938,12 +941,12 @@ void sdkLboxDrawEntries(u8 *task) {
                     sprintf(text, &iGpffffb088, ((ControllerEntry *)entry)->integerValue);
                     rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
                     position[0] = (f32)(rightEdge - ((ControllerWork *)work)->measureText(text));
-                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
+                    ((void (*)(f32 *, void *, void *))(void *)(controller->drawText))(position, &iGpffffb064, text);
                 } else {
                     sprintf(text, &iGpffffb090, ((ControllerEntry *)entry)->integerValue);
                     rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
                     position[0] = (f32)(rightEdge - ((ControllerWork *)work)->measureText(text));
-                    ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
+                    ((void (*)(f32 *, void *, void *))(void *)(controller->drawText))(position, &iGpffffb064, text);
                 }
                 break;
             }
@@ -953,7 +956,7 @@ void sdkLboxDrawEntries(u8 *task) {
                 sprintf(text, &iGpffffb098, v);
                 rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
                 position[0] = (f32)(rightEdge - ((ControllerWork *)work)->measureText(text));
-                ((void (*)(f32 *, void *, void *))*(void **)(work + 0x154))(position, &iGpffffb064, text);
+                ((void (*)(f32 *, void *, void *))(void *)(controller->drawText))(position, &iGpffffb064, text);
                 break;
             }
             }
@@ -1100,7 +1103,7 @@ s32 sdkLboxUpdate(u8 *task)
         theme = work->theme;
         switch (theme) {
         case 0:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_00764134, &D_00764138);
@@ -1110,7 +1113,7 @@ s32 sdkLboxUpdate(u8 *task)
             D_007641A8.alpha = 0x40U;
             break;
         case 1:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_0076413C, &D_00764140);
@@ -1120,7 +1123,7 @@ s32 sdkLboxUpdate(u8 *task)
             D_007641A8.alpha = 0x60U;
             break;
         case 2:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_00764144, &D_00764148);
@@ -1130,7 +1133,7 @@ s32 sdkLboxUpdate(u8 *task)
             D_007641A8.alpha = 0x60U;
             break;
         case 3:
-            work->window = controller_create_window(task,
+            work->window = sdkControllerCreateWindow(task,
                 work->rectangle.x, work->rectangle.y,
                 work->rectangle.width, work->rectangle.height,
                 &D_0076414C, &D_00764150);
@@ -1441,4 +1444,6 @@ update_callback:
     }
     return 0;
 }
+/* Close the controller helper optimization scope. */
+#pragma pop
 

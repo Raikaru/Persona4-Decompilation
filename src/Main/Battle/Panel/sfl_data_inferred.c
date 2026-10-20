@@ -1,5 +1,8 @@
 #include "include_asm.h"
+#include "operand_order_internal.h"
+#include "dat_panel_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
@@ -68,10 +71,6 @@ extern char D_005E5830[];
 extern char D_0064E460[];
 extern char D_0064E280[];
 
-static inline f32 p4_00362f00_add(f32 left, f32 right)
-{
-    return left + right;
-}
 extern void sflDataDrawSpritePair(PairBits position, f32 depth, s32 opacity);
 extern void sflDataDrawPersonaPanel(s64 position, f32 depth, s32 opacity, u8 *state);
 extern void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state);
@@ -219,6 +218,7 @@ void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 heigh
     }
 }
 
+/* Build the wider rounded-frame contour and dispatch it through the requested immediate or queued transform. */
 // FUN_00366670
 /* 752/752 bytes, ten resolved relocations. The explicit table copy preserves
  * the entry halfword load; the paired offset assignment preserves both real
@@ -398,8 +398,9 @@ void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     }
 }
 
+/* Transform a textured screen quad into sky vertices, optionally rejecting its winding before submission. */
 // FUN_00366C70
-/* Draw a transformed textured quad, optionally rejecting the unwanted winding before submitting its sky vertices. Camera +0x80 is the near-plane scalar; its full header conflicts with local matrix tags. */
+/* Draw a transformed textured quad, optionally rejecting the unwanted winding before submitting its sky vertices. The camera prefix supplies its near-plane scalar without importing SDK matrix tags. */
 s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                   s32 alpha, s32 mode, s16 centerX, s16 centerY,
                   struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2])
@@ -466,7 +467,7 @@ s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     if (uv == NULL) {
         uv = defaultUv;
     }
-    inverse = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
+    inverse = 1.0f / ((MdlEffectCamera *)kwlnGetCamera())->nearPlane;
     depth = D_008872F8[0] - z;
     packed = ((u32)rgb << 8) | (u32)alpha;
     r = (packed >> 24) & 0xFF;
@@ -710,9 +711,10 @@ void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state)
 /* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
    its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
    masks once into $s0 (nd 78). */
+/* Draw the stored party member through a kind-three panel command using the full-name style. */
 // FUN_00367940
-/* Draw the stored party entry through a packed 12-byte panel command; the command fields at +0/+6/+8 are preserved because no shared command layout is established here. */
-void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
+/* Draw the stored party entry through a packed 12-byte panel command; DatPanelEntry names its unit, style, and kind fields. */
+void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); ((DatPanelEntry *)buf)->kind = 3; ((DatPanelEntry *)buf)->style = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
 
 // Intent: Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px [inferred]
 // FUN_003679C0
@@ -839,8 +841,8 @@ void sflDataDrawLevelBadge(s64 position, f32 depth, s32 opacity, u8 *state)
     first_const = 14.0f;
     first_9 = 9.0f;
     first_x = *(f32 *)&position;
-    first_x = p4_00362f00_add(first_9, first_x);
-    first_x = p4_00362f00_add(first_const, first_x);
+    first_x = operandOrderAddFloat(first_9, first_x);
+    first_x = operandOrderAddFloat(first_const, first_x);
     sdkSpriteDrawOnceTinted(0, tex0, 0xC9,
                   first_x, first_y,
                   alpha, 0xEF, 0x89, 0, factor, 0);
