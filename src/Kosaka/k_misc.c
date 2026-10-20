@@ -36,8 +36,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);  /* RwCalloc slot */
 extern void (*jtbl_008873EC[])(void*);      /* RwFree slot */
 
 extern u8 kwlnTaskDestroyWithHierarchy(void* task);        /* kwlnTaskDestroyWithHierarchy */
-extern u8* mdlGetColor(void* mdl);        /* mdlGetColor */
-extern void mdlSetColor(void* mdl, void* color); /* mdlSetColor */
+extern u8* mdlGetColor(void* model);        /* mdlGetColor */
+extern void mdlSetColor(void* model, void* color); /* mdlSetColor */
 extern char D_005EFB28[];                   /* "k_misc.c" */
 extern char D_005EFB40[];                   /* "delay model(RMD) destroy" */
 extern char D_005EFB60[];                   /* "script shutdown(kosaka)" */

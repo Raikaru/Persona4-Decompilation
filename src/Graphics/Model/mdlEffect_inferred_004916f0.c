@@ -66,9 +66,9 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     extern f32 cosf(f32 emitterBytes);
     extern f32 sinf(f32 emitterBytes);
     extern f32 fabsf(f32 emitterBytes);
-    extern void mdlEffectSampleKeyState(u8 *emitterBytes, u8 *value, s32 count, u_long128 *flags);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void mdlEffectUpdateParticleTrail(u8 *emitterBytes, u8 *value);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     extern f32 fGpffff8084;

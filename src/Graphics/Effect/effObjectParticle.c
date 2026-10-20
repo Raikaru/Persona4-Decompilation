@@ -18,17 +18,17 @@ typedef struct ObjectParticleRecord {
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void mdlEffectFreeEmitterAllocation(void *ptr);
+extern void mdlEffectFreeEmitterAllocation(void *instance);
 extern void func_003c0700(void *particle);
 extern u8 *func_003c0520(void *ptr);
 extern void kAssertFail(const char *file, s32 line);
 extern char D_00714520[];
-extern void *mdlEffectSetFlag40(void *object, void *data);
-extern void mdlEffectAdvanceEmitter(void *particle);
-extern void mdlEffectInitDirectionEntry(void *particle, void *sourceId);
+extern void *mdlEffectSetFlag40(void *instance, void *data);
+extern void mdlEffectAdvanceEmitter(void *object);
+extern void mdlEffectInitDirectionEntry(void *parameters, void *entry);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern u8 *mdlEffectAllocateTrackPath(u16 particle, u32 sourceId, void *sourceData);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern u8 *mdlEffectAllocateTrackPath(u16 kind, u32 primaryCount, void *parameters);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00714508[];
@@ -39,11 +39,11 @@ extern u8 *func_003e6a90(s32 particle);
 extern void func_003ef1b0(void *particle);
 extern u8 *func_003c0f20(s32 particle);
 extern void func_003e2ce0(s32 particle, u32 sourceId);
-extern void K_Clump_FreeTextureNameList(void *particle);
+extern void K_Clump_FreeTextureNameList(void *listHead);
 
-void ObjectParticleLoadClump(u8 *particle, s32 sourceId, s32 sourceData);
+void ObjectParticleLoadClump(u8 *particle, s32 resource, s32 resourceInput);
 
-void ObjectParticleShareClump(u8 *particle, u8 *sourceId);
+void ObjectParticleShareClump(u8 *particle, u8 *sourceParticle);
 void ObjectParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *sourceData);
 
 // Creates an object particle from an effect source: sizes the record buffer from the source's count (capped at 100), copies its 0x44-byte header, rebuilds the records and loads the clump when the kind at +0x1C is 3 and the lookup returns one.
@@ -372,17 +372,17 @@ typedef struct EffObjectMatrix {
 // FUN_004AED70
 void ObjectParticleDraw(u8 *particle)
 {
-    extern u_long128 mdlEffectLoadQuadB(int emitterAddress, u32 *snapshot);
-    extern u_long128 mdlEffectLoadQuadA(int emitterAddress, u32 *snapshot);
+    extern u_long128 mdlEffectLoadQuadB(int instance, u32 *quadData);
+    extern u_long128 mdlEffectLoadQuadA(int instance, u32 *quadData);
     extern void effMiscBuildRotationVU(void);
-    extern void mdlEffectMultiplyPaletteColorVU(u8 *a, u8 *b, s32 c);
-    extern void *mdlEffectSetAllColors(void *object, void *data);
+    extern void mdlEffectMultiplyPaletteColorVU(u8 *parameters, u8 *entry, s32 elapsed);
+    extern void *mdlEffectSetAllColors(void *instance, void *value);
     extern u8 *func_003bfe90(u8 *particle);
     extern void RwMatrixMultiply(EffObjectMatrix *dst, EffObjectMatrix *a, EffObjectMatrix *b);
     extern void RwMatrixRotate(EffObjectMatrix *m, f32 *axis, f32 angle, s32 op);
     extern void RwMatrixScale(EffObjectMatrix *m, f32 *scale, s32 op);
     extern void RwMatrixTranslate(EffObjectMatrix *m, f32 *pos, s32 op);
-    extern void func_003e9cb0(void *a, EffObjectMatrix *b, s32 c);
+    extern void func_003e9cb0(void *frame, EffObjectMatrix *transform, s32 combine);
     extern void TnInvokeCallback(void);
     extern f32 fGpffff81f4;
     extern f32 fGpffff8048;

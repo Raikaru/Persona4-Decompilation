@@ -12,15 +12,15 @@
 #include "btl_cond_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s32 datCalcMaxHp();
 extern s64 scrGetParamInt();
 extern s32 datCalcGetHp();
 
-extern s32 datCalcSkillElement(u8 *unit, u16 skill);
-extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
 extern u8 *scrGetAiState();
@@ -487,7 +487,7 @@ s32 btlEffectScriptChooseBestSkill(void) {
     extern void scrSetReturnInt(s32 retVal);
     extern s32 datCalcElementBit(s16 element);
     extern s32 datCalcSkillElement(u8 *unit, s32 skillId);
-    extern u16 btlSkillClassifyTargets(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
+    extern u16 btlSkillClassifyTargets(u8 *action, u8 *selection, s32 skillId, u32 reverseSides);
     extern s32 datCalcUsesWeaponProperties(s32 skillId);
     extern u32 datCalcSkillCost(u8 *unit, s32 skillId);
     extern u16 datCalcThresholdKind(u8 *unusedUnit, s32 skillId);

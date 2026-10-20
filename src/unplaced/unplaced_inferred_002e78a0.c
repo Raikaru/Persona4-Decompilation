@@ -18,7 +18,7 @@
 typedef struct FclCombineHeaderTasks { struct KwlnTask *tasks[2]; } FclCombineHeaderTasks;
 
 extern void (*jtbl_008873EC[])(void *);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern u32 datGetMoney(void);
 s16 datGetDateIndex(void);
 void calSplitDayOfYear(s64 , s32 *, s32 *);
@@ -128,10 +128,10 @@ void fclAddMoney(s32 value)
 s32 fclCombineMenuUpdate(u8 *task)
 {
     void fclCombineMenuRoot(u8 *task);
-    u8 *fclSpriteEntry(s16 task);
+    u8 *fclSpriteEntry(s16 index);
     s16 fclSpriteFlagBit(s16 task, s16 );
     s32 fclPackRgba(u8, u8, u8, u8);
-    u32 datPersonaNamePart1(s16 task);
+    u32 datPersonaNamePart1(s16 unitId);
     
     void fclDrawSetFlag(u8 *task, s8 );
     void fclCombineMenuFusion(u8 *task);
@@ -291,7 +291,7 @@ void fclCombineMenuDestroy(u8 *task)
 {
     /* measured: remaining header-task entries preserve b210 loop index/address scheduling; typed substitution loses MATCH. */
     /* measured: remaining combine task accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
-    s8 yListSlotRelease(s8 task);
+    s8 yListSlotRelease(s8 list);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *task);
     s16 i;
     s64 j;

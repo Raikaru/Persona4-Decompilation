@@ -20,13 +20,13 @@ extern u16 D_008817E8[];
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowCommitSelection(u8 *value);
+extern void itfMesWindowCommitSelection(u8 *window);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027ac50-0027ac50 */
 
-extern s32 itfMesWindowPollSelection(u8 *value);
+extern s32 itfMesWindowPollSelection(u8 *window);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -41,8 +41,8 @@ extern s32 itfMesWindowPollSelection(u8 *value);
 // FUN_0027AC50
 void itfMesWindowCommitSelection(u8 *window)
 {
-    extern s32 frFontListKeepOrRelease(s32 window);
-    extern void frFontRunCommand(s32 window, s32 index, s32 count);
+    extern s32 frFontListKeepOrRelease(s32 list);
+    extern void frFontRunCommand(s32 stream, s32 mode, s32 command);
     extern s32 itfMesReleaseTagRun();
     extern s32 itfMesWindowPollSelection(u8 *window);
     u8 *state;

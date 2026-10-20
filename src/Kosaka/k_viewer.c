@@ -20,10 +20,10 @@ extern s32 D_00764350;
 extern s32 D_00764494;
 
 extern void FldStepResetTables(void);
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 
 extern s32 kwlnGetCurrentWorkValue(void);
-extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 
 extern s32 FldViewerUpdate(u8 *task);
 extern void FldViewerDestroy(u8 *task);

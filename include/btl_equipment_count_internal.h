@@ -8,6 +8,6 @@
  * 001b3138/3188/31d8 consume that word directly; numerical callers explicitly
  * narrow it before multiplication. The result is always in [0, 2]. */
 // Intent: count (0..2) of the unit's two equipment slots whose value equals arg1; see the note above.
-s32 datCalcCountSlotsWithValue(u8 *unit, s32 value);
+s32 datCalcCountSlotsWithValue(u8 *unit, s32 property);
 
 #endif

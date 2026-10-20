@@ -22,7 +22,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *input);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -52,7 +52,7 @@ extern u8 D_00714144[];
 
 
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
@@ -60,8 +60,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 input, s32 value, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -79,7 +79,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a7a90-004a7a90 */
 
-extern u8 *mdlEffectCreateGridForRecord(u8 *input);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 /* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
 /* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
 /* measured: loop-invariant hoisting recovers the shared fade constants and

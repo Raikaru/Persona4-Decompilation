@@ -35,7 +35,7 @@ typedef struct SdkPakReader {
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern s32 func_004c8708(u8 *, s32 , s32 , s32 );
-extern s32 chkmemAllocAligned(s32 size, s32 align, s32 flags);
+extern s32 chkmemAllocAligned(s32 size, s32 alignment, s32 flags);
 extern void func_004c9010(s32 , s32 , s32 );
 extern s32 func_004c85a0(u8 *, s32 );
 extern s32 func_004c9820(s32 );

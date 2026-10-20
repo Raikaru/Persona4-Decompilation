@@ -18,7 +18,7 @@ extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *center);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern s32 mdlComputeIndexedAttachMatrix();
 extern void mdlUpdateModelMatrix(u8 *model);
 extern void mdlPrepareItemSlots(u8 *model);

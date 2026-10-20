@@ -8,11 +8,11 @@
 #include "camp_menu_internal.h"
 #include "cmp_skill_internal.h"
 
-extern u32 datCalcGetHpById(s16 work);
-extern u32 datCalcGetSpById(s16 work);
-extern s32 cmpSkillApplySelected(s16 work, s16 targetId, s32 skillIndex, u8 *menu);
+extern u32 datCalcGetHpById(s16 unitId);
+extern u32 datCalcGetSpById(s16 unitId);
+extern s32 cmpSkillApplySelected(s16 casterId, s16 targetId, s32 skillIndex, u8 *menu);
 struct GDataEntry;
-extern s32 datCalcSkillEffectFlagsById(s16 work, s16 targetId, u32 skillId, u32 flags);
+extern s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 flags);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -22,17 +22,17 @@ static inline f32 code13Add(f32 left, f32 right) {
 extern void radarDrawFrame(u8 *work);
 extern void radarResetEntries(u8 *work);
 extern void radarAnimateValue(void *work, s32 frame, s32 mode);
-extern s32 datIsSkillAvailable(s32 work);
+extern s32 datIsSkillAvailable(s32 skillId);
 extern void func_0010b3b0(s16 work);
-extern s32 datCalcThresholdTriggerById(s16 work, u32 skillId);
-extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1,
+extern s32 datCalcThresholdTriggerById(s16 unitId, u32 skillId);
+extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                           u8 red, u8 green, u8 blue, u8 alpha);
-extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                           u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
-                          s32 work, s32 font, s32 mode, s32 item);
+                          s32 color, s32 font, s32 mode, s32 item);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
 extern u8 D_0064B2E0[];
@@ -44,18 +44,18 @@ extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
 extern u8 D_0064B30C[];
 typedef signed __int128 code13S128;
-extern void datSetUnitHp(s16 work, s16 hp);
-extern void datSetUnitSp(s16 work, s16 sp);
-extern void datSetFlag(s32 work, s32 enabled);
-extern void datCalcApplySkillEffectById(s16 work, s16 targetId, u32 skillId, u32 flags);
+extern void datSetUnitHp(s16 unitId, s16 hp);
+extern void datSetUnitSp(s16 unitId, s16 sp);
+extern void datSetFlag(s32 flagId, s32 enabled);
+extern void datCalcApplySkillEffectById(s16 sourceId, s16 targetId, u32 skillId, u32 flags);
 extern s32 FldStepNotAtBoundaryQuery(void);
 extern void cmpSkillRandomizeCellMotions(u8 *work);
 extern void *memset(void *work, s32, u32);
-extern s16 datBuildMemberIdList(s16 *work);
-extern u8 *datScreenWipeTaskCreate(s32 work, u16 textureId);
-extern u8 *resourceFindByName(char *work);
-extern u8 *sdkSpriteNewNode(u32 work, u32 recordIndex);
-extern void kAssertFail(void *work, s32 line);
+extern s16 datBuildMemberIdList(s16 *ids);
+extern u8 *datScreenWipeTaskCreate(s32 parentAddress, u16 textureId);
+extern u8 *resourceFindByName(char *name);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
+extern void kAssertFail(void *file, s32 line);
 extern s32 radarSetMode(u8 *work, s32 value);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];

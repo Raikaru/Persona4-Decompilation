@@ -5,7 +5,7 @@
 
 typedef PscVec PanelVec3;
 
-extern void pscLightInitQuad(u8* work);
+extern void pscLightInitQuad(u8* dst);
 
 extern f32 D_00761480;
 extern f32 D_00761484;

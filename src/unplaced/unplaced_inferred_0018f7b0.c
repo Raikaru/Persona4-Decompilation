@@ -26,15 +26,15 @@ static inline s32 fldMapCellAddOffset(s32 first, s32 second)
     return first + second;
 }
 
-extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern u8 D_007966D0[];
 extern void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
                            f32 x, f32 y, f32 depth, s32 flags);
 extern void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
-                          f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                          f32 fparg4, u8 *color, s32 texture,
-                          f32 fparg5, f32 fparg6, f32 fparg7, s32 orientation,
-                          f32 arg_sp0);
+                          f32 left, f32 top, f32 depthOffset, f32 width,
+                          f32 height, u8 *color, s32 texture,
+                          f32 uMin, f32 vMin, f32 uMax, s32 orientation,
+                          f32 vMax);
 extern void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
                           s32 height, s32 flags, f32 x, f32 y, f32 depth);
 /* One 0x4A-byte pad record; the pads start at 0x8C0240 (sdkPadInit). */
@@ -92,20 +92,20 @@ void FldMapTestCellsClear(u8 *work, u16 column, u16 row)
 #pragma pop
 
 extern const KWindowEntryDescriptor D_005F5FD0[];
-extern void kwlnSetColorRgba(u8 work, u8 column, u8 row, u8 alpha);
-extern s32 sdkLboxAddEntry(u8 *work, u8 *column);
+extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
+extern s32 sdkLboxAddEntry(u8 *task, u8 *text);
 extern void sprintf(void *dst, const char *fmt, ...);
-extern u8 *FldStepLoadFilePair(s32 firstId, s32 secondId);
-extern s32 FldStepLoadHandleIsDone(u8 *work);
-extern void FldStepLoadHandleDestroy(u8 *work);
-extern s32 fldStepLoadHandleAlwaysReady(u8 *work);
+extern u8 *FldStepLoadFilePair(s32 fieldId, s32 roomId);
+extern s32 FldStepLoadHandleIsDone(u8 *handle);
+extern void FldStepLoadHandleDestroy(u8 *handle);
+extern s32 fldStepLoadHandleAlwaysReady(u8 *unusedHandle);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern void FldTileRotateAttributes(void *shape, u32 mask);
+extern void FldTileRotateAttributes(void *templateData, u32 directionMask);
 typedef struct {
     s16 data[0x2B];
 } FieldPanelShape;
 
-void FldMapTestCellsFill(u8 *work, s16 *shape, u16 column, u16 row, s16 rotation);
+void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation);
 
 #pragma push
 #pragma opt_loop_invariants off

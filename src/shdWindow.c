@@ -47,7 +47,7 @@ extern u8 D_00796670[];
 extern u16 D_008C024E[];
 extern u16 D_008C0276[];
 
-extern s32 shdWindowTaskUpdate(u8 *task);
+extern s32 shdWindowTaskUpdate(u8 *sdkTaskBytes);
 extern void shdWindowDrawQueued(s32, s32);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
@@ -151,8 +151,8 @@ s32 shdDrawTextBlock(f32 x, f32 y, s32 unusedColor, s32 color, s32 entryIndex,
 // prop/dead/loopinv/strength pairs; 157 csoff+propoff, 165 csoff group,
 // 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c shdDrawEntryRow --pairs`.
-extern s8 frFontExGlyphHeight(char font);
-extern void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 packedColor);
+extern s8 frFontExGlyphHeight(char index);
+extern void K_SineRingDraw(f32 centerX, f32 centerY, f32 depth, s32 packedColor);
 // MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
 // at the two func_00366670 calls: retail materialises that first float
 // argument before the packed-colour shift/mask pair, this file did it after.

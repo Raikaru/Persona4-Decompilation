@@ -32,7 +32,7 @@ typedef struct FclCombineSpriteWork {
 } FclCombineSpriteWork;
 extern void nLineDrawCurrent();
 void nLineUpdate();
-void PrimAppendNode(u8 *task, u8 *startAlpha);
+void PrimAppendNode(u8 *list, u8 *node);
 extern u8 D_00793E80[];
 extern s32 D_00882FC0[];
 extern s32 D_00882FC4[];

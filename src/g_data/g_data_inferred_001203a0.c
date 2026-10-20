@@ -9,8 +9,8 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
-extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 fparg0, s32 preserveState);
-extern u8 *resourceFindByName(char *filename);
+extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
+extern u8 *resourceFindByName(char *name);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
                           u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern void kAssertFail(const void *file, s32 line);
@@ -30,18 +30,18 @@ void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s
 #pragma opt_lifetimes on
 void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
-    extern u8 *resourceFindByName(char *filename);
+    extern u8 *resourceFindByName(char *name);
     extern void kAssertFail(const void *file, s32 line);
-    extern u32 datPersonaDisplayName(s16 unit);
-    extern u32 datPersonaNamePart1(s16 unit);
+    extern u32 datPersonaDisplayName(s16 unitId);
+    extern u32 datPersonaNamePart1(s16 unitId);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
-    extern u32 datCalcGetHpById(s16 unit);
-    extern u16 datCalcMaxHpById(s16 unit);
-    extern u32 datCalcGetSpById(s16 unit);
-    extern u16 datCalcMaxSpById(s16 unit);
-    extern void sdkSpriteDrawOnceTinted(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
-    extern void sdkSpriteDrawOnce(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
-    extern void PrimDrawFlatRectangle(void *color, void *rectangle, f32 depth, s32 mode);
+    extern u32 datCalcGetHpById(s16 unitId);
+    extern u16 datCalcMaxHpById(s16 unitId);
+    extern u32 datCalcGetSpById(s16 unitId);
+    extern u16 datCalcMaxSpById(s16 unitId);
+    extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
+    extern void sdkSpriteDrawOnce(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, f32 z, s32 setStates);
+    extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
     extern u8 D_005E4F88[];

@@ -9,7 +9,7 @@
 
 extern s32 iGpffffb3ac;
 /* Canonical grouped function declarations. */
-static u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action);
+static u32 btlOrderRemoveAction(BtlAction** actions, u32 capacity, BtlAction* action);
 /* Source unit: src/Battle/btlOrder_001b0d00.c */
 
 extern s32 btlActionQueueMoveToBack(u8 *action);

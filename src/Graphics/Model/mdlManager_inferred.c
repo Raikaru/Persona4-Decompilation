@@ -40,14 +40,14 @@ struct RuntimeWork;
 extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
-extern u8 *sdkLboxFindEntry(u8 *task, s32 entryId);
+extern u8 *sdkLboxFindEntry(u8 *task, s32 key);
 extern void sdkLboxRecalcLayout(u8 *task);
 
 
-extern void sdkListStateSetCount(u8 *task, s32 entryId);
-extern s32 sdkListStateGetCount(u8 *task);
-extern s32 sdkListStateGetScroll(u8 *task);
-extern s32 sdkListStateGetCursor(u8 *task);
+extern void sdkListStateSetCount(u8 *state, s32 value);
+extern s32 sdkListStateGetCount(u8 *state);
+extern s32 sdkListStateGetScroll(u8 *state);
+extern s32 sdkListStateGetCursor(u8 *state);
 /* measured: sdkLboxGetSelectedId's final `index*0xA4 + base` add emitted
  * addu $v0,$s0,$v0 where retail has addu $v0,$v0,$s0; both plain C operand
  * orders compile identically (nd 2). Routing the add through this

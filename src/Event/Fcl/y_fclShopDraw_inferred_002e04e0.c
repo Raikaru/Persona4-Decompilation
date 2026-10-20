@@ -18,7 +18,7 @@ typedef struct NmlistManager {
     u8 *data;
 } NmlistManager;
 
-extern void fclSpriteStartPosition(u8 *sprite, FclVec2 start, FclVec2 end, u32 mode, s32 duration, s32 delay);
+extern void fclSpriteStartPosition(u8 *animation, FclVec2 start, FclVec2 end, u32 mode, s32 duration, s32 delay);
 extern u8 *iGpffffb588;
 extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
 extern s32 fclBankQueueRequest();
@@ -123,8 +123,8 @@ void fclObjStartSlideFade(u8 *task, s64 spriteId, f32 startScaleY, f32 endScaleY
     f32 positionY;
     u8 *handle;
     u8 *work;
-    extern u8 *sdkSpriteNewNode(u32 task, u32 spriteId);
-    extern f32 sdkSpriteScaledHeight(u8 *task);
+    extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
+    extern f32 sdkSpriteScaledHeight(u8 *sprite);
     u8 *base;
     extern void sdkSpriteFreeNode(void *node);
     work = (u8 *)fclObjWork(task);
@@ -176,7 +176,7 @@ void fclObjStartTween(u8 *task, f32 first, f32 second, u8 mode, s32 duration, s6
 // FUN_002E0970
 void fclObjStartColor(u8 *task, FclDrawColor startColor, FclDrawColor endColor, u8 mode, s16 duration, s64 delay)
 {
-    extern void fclSpriteStartColor(u8 *task, FclDrawColor startColor, FclDrawColor endColor, u8 mode, s16 duration, s16 delay);
+    extern void fclSpriteStartColor(u8 *animation, FclDrawColor start, FclDrawColor end, u8 mode, s16 duration, s16 delay);
     fclSpriteStartColor(fclObjSprite(task), startColor, endColor, mode, duration, delay);
 }
 

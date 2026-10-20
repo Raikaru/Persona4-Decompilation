@@ -29,8 +29,8 @@ extern f32 fGpffff809c;
 extern u8 D_00713180[];
 extern u8 D_007131A0[];
 extern u8 D_007131C0[];
-extern s32 K_Clump_MatUsrDataHasData(void* a, u8* b);
-extern f32 K_Clump_MatUsrDataGetFloat(const RpMaterial* a, const char* b);
+extern s32 K_Clump_MatUsrDataHasData(void* material, u8* name);
+extern f32 K_Clump_MatUsrDataGetFloat(const RpMaterial* material, const char* name);
 extern s32 mdlSeUpdateRecord(void** owner);
 
 extern u32 RpHAnimFrameGetHierarchy(s32 object);
@@ -42,13 +42,13 @@ extern void func_003e0e20(void *owner, void *input, s32 mode);
 extern f32 DAT_0076112c;
 extern void func_0039a260(void* a, void* b);
 extern void func_0039ab20(void* a, int b, int c, int d);
-extern int mdlComputeAttachMatrix(void* buf, void* v, u32 idx, void* obj);
-extern void* K_Clump_FindIntUsrDataFrame(void* obj, const char* name, s32 idx);
+extern int mdlComputeAttachMatrix(void* destination, void* tableData, u32 attachmentId, void* clumpData);
+extern void* K_Clump_FindIntUsrDataFrame(void* object, const char* name, s32 value);
 extern u8* func_003e9700(u8* a);
 extern void func_003d5840(void* a, void* b);
 extern u8* func_003d5790(s32 numNodes, s32 maxInterpKeyFrameSize);
 extern s32 func_003d5e40(u8* a, f32 b);
-extern void hMaestroUpdateClumpObjects(void* clump, void* hierarchy);
+extern void hMaestroUpdateClumpObjects(void* clump, void* context);
 
 typedef struct RtAnimAnimation RtAnimAnimation;
 
@@ -122,7 +122,7 @@ extern s32 func_003b85b0(u8* object);
 extern void func_003b8520(u8* object, s32 value);
 extern s32 func_00399b10(s32 object);
 extern u32 func_003b8500(int object);
-extern void mdlSetupMatFXMaterial(int object);
+extern void mdlSetupMatFXMaterial(int material);
 
 typedef struct MdlAnimResourceEntry
 {
@@ -142,7 +142,7 @@ typedef struct MdlAnimEntryTable
 // 8 bytes
 
 
-extern void mdlMatAnimFreeList(int resource);
+extern void mdlMatAnimFreeList(int list);
 extern void (*DAT_008873ec[])(void* memory);
 
 extern s32 func_003df7f0(u8* owner);
@@ -160,17 +160,17 @@ extern int strcmp(const char* s1, const char* s2);
 extern char DAT_007641c8[1];
 
 extern u32 func_003df5d0();
-extern int mdlAppendUniqueListEntry(int object, void* data);
+extern int mdlAppendUniqueListEntry(int entry, void* listData);
 extern void* mdlMatFXSetEnvMapValueCallback(void*, void*);
 extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
 extern void* mdlDrawAtomicIfVisible(void*, void*);
-extern void* mdlSetFrameColorIfNamed(void* object, void* data);
-extern void* mdlForEachAtomicListEntry(void* object, void* data);
-extern u32 mdlGetFrameNameUserData(void* object);
+extern void* mdlSetFrameColorIfNamed(void* atomic, void* context);
+extern void* mdlForEachAtomicListEntry(void* atomic, void* data);
+extern u32 mdlGetFrameNameUserData(void* frame);
 extern int strncmp();
 extern int func_003d8130();
 extern void RtAnimInterpolatorSetAnimLoopCallBack();
-extern void* mdlAnimLoopCallback(void* object, void* data);
+extern void* mdlAnimLoopCallback(void* interpolator, void* control);
 extern char gp0xffff9d10;
 extern u8 LAB_00474a50;
 extern u8 LAB_00474a50_abs[];
@@ -180,29 +180,29 @@ extern u8 LAB_00474a90_abs[];
 extern s32 func_00397470(u8* frame);
 extern void RwMatrixMultiply(void* a, void* b, void* c);
 
-extern void K_Clump_EnsureMatColorUsrData(u8* owner);
-extern void* mdlMatColorScaleCallback(void* object, void* data);
+extern void K_Clump_EnsureMatColorUsrData(u8* material);
+extern void* mdlMatColorScaleCallback(void* atomic, void* context);
 extern u8 D_00713160[];
-extern s32 K_Clump_CountIntUsrData(void* object, const char* data);
+extern s32 K_Clump_CountIntUsrData(void* object, const char* name);
 extern u8 D_007131D8[];
 extern f32 DAT_00761130;
 extern u8 D_00713138[];
 extern u8 D_007241d0;
 extern void func_00440b68(void* a, void* b, int c);
-extern u8* H_Cdvd_AcquireDirectory(u8* a, s32 b);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
 extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void* memset(void* destination, int value, size_t count);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
-extern void mdlDestroyModelObject(u8* a0);
+extern void mdlDestroyModelObject(u8* model);
 extern void mdlEffectEmitTagPair(void);
-extern s32 mdlPrepareModel(u8* a);
+extern s32 mdlPrepareModel(u8* model);
 extern void* func_003bfae0(void);
 extern int RwCameraFrustumTestSphere(void* a, void* b);
 extern void* D_008872E0[];
-extern void mdlAllocAuxBlock(void* a);
-extern void mdlSetAuxResource(void* a, void* b);
-extern void mdlSetAuxPair(void* a, void* b);
+extern void mdlAllocAuxBlock(void* model);
+extern void mdlSetAuxResource(void* model, void* path);
+extern void mdlSetAuxPair(void* model, void* pairData);
 typedef void (*FnVoidPtr)(void*);
 
 extern s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name);
@@ -603,27 +603,27 @@ typedef char MdlAuxiliaryOffset[(offsetof(Model, auxiliary) == 0x30C) ? 1 : -1];
 typedef char MdlFrameRootOffset[(offsetof(MdlFrame, root) == 0xA0) ? 1 : -1];
 
 
-extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
-extern void mdlSetAttachedModelMatrices(Model* mdl, RwMatrix* matrix);
-extern void mdlDetachSlotModel(u8* mdl, u16 wpnIdx);
+extern void func_003e9cb0(void* frame, void* transform, u32 combine);
+extern void mdlSetAttachedModelMatrices(Model* model, RwMatrix* matrix);
+extern void mdlDetachSlotModel(u8* model, u16 slotIndex);
 extern void mdlEffectListCallFlagged();
 extern void mdlNoopSecondaryEffect();
-extern void mdlInitObjectSlots(u8* a);
-extern void mdlSetAttachedSlotValue(u8* a, u16 b, s32 c);
+extern void mdlInitObjectSlots(u8* state);
+extern void mdlSetAttachedSlotValue(u8* model, u16 slotIndex, s32 frameId);
 extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
 extern void* mdlAllocModelObject(u32 type, u16 id);
-extern s32 mdlLayerIsPresent(void* a, s32 b);
+extern s32 mdlLayerIsPresent(void* model, s32 layer);
 extern u32* func_003971d0(u8*, s32, s32, s32);
-extern void* sdkClumpCreateBuckets(void* object);
+extern void* sdkClumpCreateBuckets(void* sourceClump);
 extern void mdlEffectListRefreshHandles();
 extern void* func_003c0520();
-extern u32 *mdlEffectListCopy(u32 **head);
-extern u32 *mdlEffectListWrapShared(u32 **head);
+extern u32 *mdlEffectListCopy(u32 **source);
+extern u32 *mdlEffectListWrapShared(u32 **source);
 extern void mdlRetainObject();
-extern s32 mdlPrepareSlotModel(u8* model, u16 index);
-extern void mdlCopyModelState(u8* a, u8* b);
-extern void mdlSetAuxValue(void* a, int b);
+extern s32 mdlPrepareSlotModel(u8* model, u16 slotIndex);
+extern void mdlCopyModelState(u8* source, u8* destination);
+extern void mdlSetAuxValue(void* model, int value);
 
 
 
@@ -680,7 +680,7 @@ u8* mdlDispatchAnimTableCreate(u16 count)
 void mdlDispatchAnimTableRelease(u8* table)
 {
     extern s32 func_003d5300(u8* table);
-    extern void func_003d5830(u8* table);
+    extern void func_003d5830(u8* value);
     s32 offset;
     u8* baseAnimation;
     u8* entryAnimation;
@@ -1695,7 +1695,7 @@ s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerStat
 #pragma pop
 
 extern s32 func_00397c40(void* hierarchy);
-extern s32 mdlUpdateHierarchyPose(u8 *a, u8 *b, u8 *c, void *d);
+extern s32 mdlUpdateHierarchyPose(u8 *hierarchyData, u8 *layerState, u8 *controllerState, void *parentTransform);
 /* Per-node hook installed by mdlInstallHierarchyScaleHook. Scales the node's translation by the stored vector when the node matches the saved pointer, then calls the previous hook. */
 // FUN_00472F30
 void mdlHierarchyScaleHook(u8* matrix, int keyFrame)
@@ -2212,7 +2212,7 @@ void mdlRebaseLayerPose(u8 *layer)
 }
 #pragma pop
 
-extern void mdlRebaseLayerPose(u8* a);
+extern void mdlRebaseLayerPose(u8* layer);
 extern s32 func_003d5e90(void* a, void* b, void* c, f32 d);
 /* Native b210 O2 MATCH: 1432B/window 1440B; the remaining eight bytes are zero.
    Narrow each animation index after its table guard, including the repeated
@@ -2571,12 +2571,12 @@ void mdlReleaseAnimEntryTable(MdlAnimEntryTable* table)
 
 
 
-extern void mdlMatAnimCopyNodeMaterial(int *a);
-extern void mdlMatAnimUpdateList(u8 **a, f32 b, u8 **c, f32 d, f32 e);
-extern void mdlMatAnimApplyWithPivot(u8 **a, f32 b, f32 c);
-extern void mdlMatAnimApplyScaled(u8 **a, f32 b);
-extern f32 mdlMatAnimMaxDuration(u8 **a);
-extern void* mdlResolveLoopAnimation(void* a, u8* b);
+extern void mdlMatAnimCopyNodeMaterial(int *object);
+extern void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2, f32 scale3);
+extern void mdlMatAnimApplyWithPivot(u8 **list, f32 scale1, f32 scale2);
+extern void mdlMatAnimApplyScaled(u8 **list, f32 scale);
+extern f32 mdlMatAnimMaxDuration(u8 **list);
+extern void* mdlResolveLoopAnimation(void* interpolator, u8* layer);
 /* measured: u8* params fixed the data+0xC address-CSE (nd 106 -> 54) and
    the mdlMatAnimUpdateList call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
    a1=$s0 move is deliberate, fixing it removes the shift). Residual
@@ -3503,22 +3503,22 @@ typedef struct MdlDrawState {
 } MdlDrawState;
 
 extern void RpSkyRenderStateSet(s32 a, s32 b);
-extern void mdlClumpApplyMatColorScale(void* a, u32* b, u16 c);
-extern void mdlUpdateModelMatrix(Model* a);
+extern void mdlClumpApplyMatColorScale(void* clump, u32* color, u16 flags);
+extern void mdlUpdateModelMatrix(Model* model);
 extern s32 RtQuatConvertFromMatrix(RtQuat* out, const RwMatrix* in);
 extern RwV3d* RtQuatTransformVectors(RwV3d* out, const RwV3d* in, s32 count, const RtQuat* quat);
 extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_0044b920(f32 value);
 extern u8 *K_Clump_GetLightB(void);
 extern u8 *K_Clump_GetLightC(void);
-extern void mdlUpdateBlendTrack(u8* a, u8* b);
-extern void mdlDrawVisibleAtomics(void* a);
-extern void* mdlGetMatrix(void* a);
-extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
-extern s32 mdlPrepareSlotModel(u8* model, u16 index);
-extern void mdlEffectListBuildTransforms(u8** a, u8* b);
-extern void mdlEffectListSetUniformScale(s32* a, f32* b);
-extern void mdlRefreshSecondaryEffect(u8* a, void* model);
+extern void mdlUpdateBlendTrack(u8* state, u8* layer);
+extern void mdlDrawVisibleAtomics(void* clump);
+extern void* mdlGetMatrix(void* model);
+extern s32 mdlCopyIndexedMatrix(void* model, s32 index, void* destination);
+extern s32 mdlPrepareSlotModel(u8* model, u16 slotIndex);
+extern void mdlEffectListBuildTransforms(u8** list, u8* model);
+extern void mdlEffectListSetUniformScale(s32* list, f32* scale);
+extern void mdlRefreshSecondaryEffect(u8* attachment, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
 extern void (*D_00887304[])(s32, void*);
 
@@ -3955,7 +3955,7 @@ void mdlUpdateDrawState(MdlDrawState* owner)
 
 extern void RpSkyRenderStateSet(s32 a, s32 b);
 extern void (*D_00887304[])(s32, void*);
-extern void mdlDrawVisibleAtomics(void* a);
+extern void mdlDrawVisibleAtomics(void* clump);
 extern void* func_003bfae0_1(void* a);
 extern void (*D_00887300_abs[])(s32, s32);
 /* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
@@ -4246,8 +4246,8 @@ void *mdlSetFrameColorIfNamed(void *atomic, void *context)
 {
     extern s32 strlen(s32 packedColor);
     extern s32 strncmp(s32 a, s32 b, s32 c);
-    extern u32 K_Clump_MatUsrDataGetInt(void* object, void* name);
-    extern void K_ClumpMatColorStore(void* object, void* data);
+    extern u32 K_Clump_MatUsrDataGetInt(void* material, void* name);
+    extern void K_ClumpMatColorStore(void* material, void* color);
     u8 color[4];
     u8 *namedColor;
     u32 packedColor;
@@ -4538,7 +4538,7 @@ void* mdlFindModelObject(u32 type, u16 id, u32 flags)
     return model;
 }
 
-extern void mdlFreeAuxBlock(void* a);
+extern void mdlFreeAuxBlock(void* model);
 /* measured: MATCH (468B instructions plus 12 zero-tail bytes). The u16
    loop counter preserves retail masks; the canonical hierarchy constructor
    prototype preserves load-before-move argument materialization. */
@@ -4998,20 +4998,20 @@ void mdlUpdateModelMatrix(Model* model)
 
 
 
-extern void mdlAdvanceAnimControl(void* a, void* b);
-extern u8* mdlAdvanceLayer(u8* a, u8* b, s32 c);
-extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
-extern void* mdlGetMatrix(void* a);
-extern void mdlEffectListReleaseHandles(u32 *a);
-extern void mdlClearWrapperHandle(u32 a);
-extern void mdlSetWrapperValue(u32 a, void* b);
-extern void mdlRefreshSecondaryEffect(u8* a, void* model);
-extern void mdlEffectListSetUniformScale(s32* a, f32* b);
-extern void mdlEffectListBuildTransforms(u8** a, u8* b);
-extern void mdlTickMotionState(void* a);
-extern void mdlSetLayerWeight(u8* a, s32 b, f32 c);
-extern void mdlCopyScale(void* a, RwV3d* b);
-extern int mdlHasActiveMode(void* a);
+extern void mdlAdvanceAnimControl(void* controlData, void* layerData);
+extern u8* mdlAdvanceLayer(u8* layer, u8* previousLayer, s32 updatePose);
+extern s32 mdlCopyIndexedMatrix(void* model, s32 index, void* destination);
+extern void* mdlGetMatrix(void* model);
+extern void mdlEffectListReleaseHandles(u32 *list);
+extern void mdlClearWrapperHandle(u32 wrapper);
+extern void mdlSetWrapperValue(u32 wrapper, void* value);
+extern void mdlRefreshSecondaryEffect(u8* attachment, void* model);
+extern void mdlEffectListSetUniformScale(s32* list, f32* scale);
+extern void mdlEffectListBuildTransforms(u8** list, u8* model);
+extern void mdlTickMotionState(void* state);
+extern void mdlSetLayerWeight(u8* model, s32 layer, f32 speed);
+extern void mdlCopyScale(void* model, RwV3d* scale);
+extern int mdlHasActiveMode(void* model);
 /* Measured: 1080B/window 1088B, MATCH with two zero-padding words.
    Cache predicate inputs only until their immediate call; reload every
    callback-visible field afterward. CSE-off retains per-phase matrix
@@ -5156,7 +5156,7 @@ void mdlSetResetCallback(void* model, int callback, int context)
     *(int *)&((Model *)model)->resetData = context;
 }
 
-extern void mdlUpdateBlendTrack(u8* a, u8* b);
+extern void mdlUpdateBlendTrack(u8* state, u8* layer);
 extern void mdlEffectEmitMaskedTagPair(u32 a);
 extern s64 iGpffffabe8;
 
@@ -6518,16 +6518,16 @@ s32 mdlReadAuxChunks(u8 *model)
     extern s32 func_003ef1b0(void *dictionary);
     /* H011: pointer parameters keep D_0070B610 an address constant per call;
        the u32 definition in rtanim.c makes b210 hoist it (measured MISMATCH). */
-    extern u32 func_003d60e0(void *schema, void *dictionary);
+    extern u32 func_003d60e0(void *object, void *value);
     extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
         s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
         const void *resultKind, s32 memoryKind);
     extern u32 mdlEffectListCreate(void);
-    extern u32 *mdlEffectListAppendBlock(u32 **head, s32 data, u32 length, u16 index, u32 flags);
-    extern u32 *mdlEffectListAppendNode(u32 *head, u32 *node, u16 index);
-    extern u32 *mdlEffectListWrapCopy(s32 data, s32 length);
+    extern u32 *mdlEffectListAppendBlock(u32 **list, s32 source, u32 size, u16 matrixIndex, u32 flags);
+    extern u32 *mdlEffectListAppendNode(u32 *list, u32 *sourceNode, u16 matrixIndex);
+    extern u32 *mdlEffectListWrapCopy(s32 source, s32 size);
     extern s32 *mdlMatAnimCreateList(void);
-    extern s32 mdlMatAnimLoadChunk(void *stream, u8 **head, u32 kind, void *clump);
+    extern s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump);
     extern u8 D_0070B610[];
 
 #define LOAD_LAYER() ((MdlCloneLayer *)(model + 0xec + (u32)state->layer * 0xa4))
@@ -6958,15 +6958,15 @@ s32 mdlReadAuxChunks(u8 *model)
 
 
 
-extern u8 *filerTakeCompletedRequest(u8 *request, s32 *ready, s32 *handle);
+extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
 extern s32 func_003ef1b0(void* dictionary);
 extern s32 func_003e2e40(void* stream, void* data);
-extern void* func_003d60e0(void* schema, void* dictionary);
+extern void* func_003d60e0(void* object, void* value);
 extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path,
     s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
     s32 resultKind, s32 memoryKind);
 extern s32 *mdlMatAnimCreateList(void);
-extern s32 mdlMatAnimLoadChunk(void *stream, u8 **head, u32 kind, void *clump);
+extern s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump);
 extern u8 D_0070B610[];
 /* Native b210 O2 MATCH: 1944B/window 1952B; the remaining eight bytes are zero.
    Poll results retain their real pointer type and their status/stream outputs.

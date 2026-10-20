@@ -63,7 +63,7 @@ extern u8 D_0060A0E0[];
 extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
-extern void btlUnitOverridePacketUpdate(u8 *data);
+extern void btlUnitOverridePacketUpdate(u8 *packet);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -131,7 +131,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -149,10 +149,10 @@ extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00195710-00195730 */
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
-extern s64 btlPacketEnqueue(u8 *data, u32 value);
-extern void btlPacketStepSide(s32 data);
-extern void btlUnitHoldPendingOverride(u8 *data);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
+extern s64 btlPacketEnqueue(u8 *context, u32 value);
+extern void btlPacketStepSide(s32 side);
+extern void btlUnitHoldPendingOverride(u8 *context);
 /* measured: optimization_level 1 with the index and value locals declared
    before the loop reproduces func_00194470 exactly, object 284 bytes against
    the 288-byte window at nd 0; -O2 reorders the initialisation. */

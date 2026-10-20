@@ -61,7 +61,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b2a00-004b2a00 */
 
-extern s32 effCrossfadeCaptureDisplay(u8 *input);
+extern s32 effCrossfadeCaptureDisplay(u8 *object);
 #pragma push
 #pragma pop
 /* measured: close the opt_propagation bracket around func_004b2780. */

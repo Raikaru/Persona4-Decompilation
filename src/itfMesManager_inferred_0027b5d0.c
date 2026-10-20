@@ -22,11 +22,11 @@ extern void itfMesFlushPendingCallback(s32 value);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowQueueCallback(s32 value);
+extern void itfMesWindowQueueCallback(s32 taskAddress);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *value, u8 *index);
+extern void PrimAppendNode(u8 *list, u8 *node);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b5d0-0027b5d0 */
 

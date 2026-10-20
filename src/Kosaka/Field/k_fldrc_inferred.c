@@ -147,9 +147,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                           u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -406,8 +406,8 @@ static inline u32 fieldTransitionEntryActive(u32 index)
     if ((s32)((FldEventActor *)entry)->unit != 0 && (u8 *)(u32)((FldEventActor *)entry)->active != NULL) active = 1;
     return active != 0;
 }
-extern void fadeBeginTransition(s32 enabled, s32 mode);
-extern void H_Fade_SetCustomColor(s32 red, s32 green, s32 blue);
+extern void fadeBeginTransition(s32 mode, s32 duration);
+extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
 extern void RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];
 /* measured probe: optimization_level 1 on c780. */
@@ -500,7 +500,7 @@ void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
                    f32 uMin, f32 vMin, f32 uMax, s32 orientation,
                    f32 vMax)
 {
-    extern u8 *PrimQueueDrawPrimitive(void *queue, s32 quad, void *color, s32 texture);
+    extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count);
     f32 z;
     f32 inverse;
     f32 right;
@@ -610,7 +610,7 @@ void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
 /* measured: remaining raw file/template/counter accesses changed codegen individually (256..402 differing bytes); keep byte-pointer aliasing across effect calls. */
 // FUN_0014E2A0
 s32 FldRc_FileLoadStep(u8 *task) {
-    extern s32 H_Cdvd_LookupRequest(u8 *task, s32 *slot);
+    extern s32 H_Cdvd_LookupRequest(u8 *pathAddress, s32 *slot);
 
     extern void mdlEffectFlushWithTable();
     extern void mdlEffectDestroy();
@@ -979,8 +979,8 @@ void FldRc_TransitionDestroy(u8 *task)
 /* Create the camera transition controller and its mode-specific effect-loader child. */
 // FUN_0014EC50
 s32 FldRc_CreateTransitionTask(u8 *parent, s32 mode) {
-    extern s32 FldRc_TransitionStep(u8 *parent);
-    extern s32 H_Cdvd_AcquireDirectory(const void *parent, s32 mode);
+    extern s32 FldRc_TransitionStep(u8 *task);
+    extern s32 H_Cdvd_AcquireDirectory(const void *path, s32 flags);
     extern u8 D_005EFC40[];
     u8 **allocatorTable;
     u8 *effectWork;

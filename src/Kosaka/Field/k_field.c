@@ -436,11 +436,11 @@ extern void kwlnTaskDumpAll(void);
 extern u8 *D_007D3D64[];
 extern u8 D_005EFF10[];
 extern u8 D_005EFF48[];
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void resrcMngSetRenderSuppressed(s32 );
-extern s32 evtPMFileReaderCreate(s32 a, s32 b, s32 c, s32 d);
+extern s32 evtPMFileReaderCreate(s32 eventId, s32 variantId, s32 value, s32 useAllocatedTables);
 extern void scrDebugDumpWorkList(s32 );
 extern void FldResource_OpenPrimaryFile(u16 , u16 );
 extern u8 D_007D255A[];

@@ -26,12 +26,12 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void mdlEffectReleaseTrackResource(u8 *object);
-extern void mdlEffectSelectResourceEntry(u8 *object, s32 input);
-extern u8 *mdlEffectLoadTrackResource(s32 *object);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void mdlEffectReleaseTrackResource(u8 *resource);
+extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
+extern u8 *mdlEffectLoadTrackResource(s32 *source);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern s32 TnUploadStreamTagged(s32 object);
+extern s32 TnUploadStreamTagged(s32 stream);
 extern void func_003ef3a0(void *object);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];

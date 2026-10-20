@@ -27,10 +27,10 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern void effMiscQuatMultiplyVU(void);
-extern void mdlEffectAimDirection(u8 *effect, u8 *target);
-extern f32 func_0044b920(f32 effect);
-extern f32 func_0044b950(f32 effect, f32 target);
-extern void effMiscEulerToQuatVU(f32 effect, f32 target, f32 output);
+extern void mdlEffectAimDirection(u8 *position, u8 *output);
+extern f32 func_0044b920(f32 value);
+extern f32 func_0044b950(f32 left, f32 right);
+extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];

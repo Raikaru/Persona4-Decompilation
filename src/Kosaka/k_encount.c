@@ -12,13 +12,13 @@
  *       encounter-record table used by Encount_FindRecord
  */
 
-extern s32 FldMap_IsInBandA(s32 field, s32 room);
-extern s32 FldMap_IsInBandB(s32 field, s32 room);
+extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
+extern s32 FldMap_IsInBandB(s32 fieldId, s32 roomId);
 extern s32 FldStepBandValue();
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern s64 calGetDayEntryByPhase(s32 day, u32 time);
+extern s64 calGetDayEntryByPhase(s32 day, u32 phase);
 extern u32 datGetFlag(s32 bit);
 extern u32 RpRandom(void);
 extern void kAssertFail(void *file, s32 line);

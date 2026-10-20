@@ -87,10 +87,10 @@ u8 *fldStepFindEligibleRecord(u16 *records)
     extern s16 datGetDateIndex(void);
     extern s64 calGetDayEntryByPhase(s32 records, u32);
     extern u8 datGetTimeSlot(void);
-    extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
-    extern s32 calGetWeekdayOfDay(s32 date);
-    extern s32 calHasDayEntry(s32 date);
-    extern u32 clndIsDateInRange(u32 firstMonth, u32 firstDay, u32 lastMonth, u32 lastDay);
+    extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+    extern s32 calGetWeekdayOfDay(s32 dateIndex);
+    extern s32 calHasDayEntry(s32 day);
+    extern u32 clndIsDateInRange(u32 startMonth, u32 startDay, u32 endMonth, u32 endDay);
     extern u32 datGetFlag(s32 bit);
     s32 month;
     s32 day;

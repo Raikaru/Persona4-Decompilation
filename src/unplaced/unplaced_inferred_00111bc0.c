@@ -61,7 +61,7 @@ typedef struct DatEntryRecord {
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 *datPersonaGetSkills(void);
-extern s32 datPersonaCollectLearnableSkills(u8 *persona, void *skills, void *levels);
+extern s32 datPersonaCollectLearnableSkills(u8 *persona, void *outputSkills, void *outputLevels);
 typedef struct {
     f32 x;
     f32 y;
@@ -84,7 +84,7 @@ extern void sdkSpriteDrawOnceTinted(s32 parent, s32 , s32 , f32 x, f32 y,
                           u8 , u8 , u8 , u8 ,
                           f32 z, s32 );
 extern u32 datEntryGetFlags(s16 );
-extern s32 resourceFindByName(void *param);
+extern s32 resourceFindByName(void *name);
 extern u16 datEntryGetPrimaryValue(s16 );
 extern u16 datEntryGetSecondaryValue(s16 );
 extern u16 datEntryGetMiddleBandValue(s16 );

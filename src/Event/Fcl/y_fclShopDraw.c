@@ -205,7 +205,7 @@ s32 fclDecimalDigitCount(s32);
 void fclDrawNumber(Vec2f, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
 u8 *resourceFindByName(char *);
 s32 yListValueAtFor(u8 *, s32);
-s32 datItemCount(s16 id);
+s32 datItemCount(s16 itemId);
 u16 datItemValue(s16);
 void fclMesWindowDraw(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void fclDrawEquipHelpSprite(s32, Vec2f, f32, s32, u8, s32, u8 *);

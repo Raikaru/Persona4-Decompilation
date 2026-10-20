@@ -40,12 +40,12 @@ extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 extern void btlUiSetRenderMode(s32 mode);
 extern void btlGaugeSetActive(u8 *gauge, s32 active);
-extern void btlUiSetOrigin(u8 *work, f32 fparg0, f32 fparg1);
-extern void btlUiSetRect(s32 *work, f32 fp0, f32 fp1, f32 fp2, f32 fp3);
+extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+extern void btlUiSetRect(s32 *work, f32 x, f32 y, f32 width, f32 height);
 extern void btlUiSetRenderStates(void);
-extern void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 fparg0);
-extern void btlUiSetScale(u8 *work, f32 fparg0, f32 fparg1);
-extern void btlUiSetFactorXY(u8 *work, f32 fparg0, f32 fparg1);
+extern void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor);
+extern void btlUiSetScale(u8 *work, f32 x, f32 y);
+extern void btlUiSetFactorXY(u8 *work, f32 x, f32 y);
 typedef struct BattleRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BattleRenderDispatch;
@@ -99,13 +99,13 @@ typedef struct BtlPanelGaugeState {
 // FUN_0020E010
 void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
 {
-    extern void btlUnitGetAttachedSphereCenter(u8 *unit, f32 *center);
-    extern s32 btlTargetFindInRange(f32 *center, f32 *result);
-    extern void btlUiSetOrigin(u8 *drawWork, f32 x, f32 y);
-    extern void btlPanelCursorDrawA(s32 mode, u8 *row, u8 *unit, f32 *position);
-    extern void btlPanelCursorDrawB(s32 mode, u8 *row, u8 *unit, f32 *position);
-    extern void btlPanelCursorDrawC(s32 mode, u8 *row, u8 *unit, f32 *position);
-    extern void btlPanelCursorDrawD(s32 mode, u8 *row, u8 *unit, f32 *position);
+    extern void btlUnitGetAttachedSphereCenter(u8 *context, f32 *value);
+    extern s32 btlTargetFindInRange(f32 *position, f32 *output);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+    extern void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    extern void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    extern void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position);
+    extern void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position);
     struct BtlTargetProjection {
         u8 pad[8];
         u8 value[4];
@@ -591,8 +591,8 @@ void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
 #pragma pop
 
 extern f32 fGpffff8210;
-f32 btlUiSpriteWidth(u8 *task, s32 transition, s32 segment);
-f32 btlUiSpriteHeight(u8 *task, s32 transition, s32 segment);
+f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
+f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
@@ -693,7 +693,7 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
 /* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
 void btlPanelDrawGauge(u8 *work, u8 *state)
 {
-    extern void btlPanelDrawIndexed(u8 *work, u8 *state, s32 color, s32 index);
+    extern void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index);
     extern f32 D_00761300;
     extern f32 fGpffff8110;
     extern f32 fGpffff84ac;

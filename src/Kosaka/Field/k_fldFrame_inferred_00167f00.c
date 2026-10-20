@@ -97,7 +97,7 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
-extern void chkmemAllocSiteTag(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 D_007F1730[];
@@ -116,7 +116,7 @@ extern u8 *iGpffffb2c8;
 extern u8 *iGpffffb2cc;
 extern u8 D_007E7B20[];
 extern u8 *mdlGetMatrix();
-extern void mdlScale(void *task, void *value, s32 normal);
+extern void mdlScale(void *model, void *scale, s32 combineOp);
 extern u8 D_005F12E0[];
 extern u8 D_005F15F8[];
 extern u8 D_005F1630[];
@@ -125,7 +125,7 @@ extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 FldFrameTask_Update(u8 *task);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void mdlAdvanceModelFromFlags(s32 task);
+extern void mdlAdvanceModelFromFlags(s32 model);
 extern s32 iGpffff9f00;
 extern char D_005F11E8[];
 extern char D_005F1200[];
@@ -133,7 +133,7 @@ extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 FldDayEventActive();
 extern s32 D_005F1350[];
-extern void mdlAttachSlotModelFromResource(void *task, u16 value, u32 normal, u16 id,
+extern void mdlAttachSlotModelFromResource(void *model, u16 slotIndex, u32 type, u16 id,
                            void *resource, u32 flags);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
@@ -152,9 +152,9 @@ typedef struct FldMoveScratch
 } FldMoveScratch;
 
 extern s32 FldMap_IsCurrentInBandA(void);
-extern s32 FldFrame_RaycastFieldWorlds(RwV3d *task, RwV3d *value, f32 amount,
-                         u16 normal);
-extern void FldAmbientTrigger(s32 task, u16 value, u16 normal);
+extern s32 FldFrame_RaycastFieldWorlds(RwV3d *origin, RwV3d *vector, f32 fraction,
+                         u16 fieldId);
+extern void FldAmbientTrigger(s32 model, u16 mode, u16 id);
 
 
 

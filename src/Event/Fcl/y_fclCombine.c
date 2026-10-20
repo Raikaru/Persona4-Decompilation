@@ -377,11 +377,11 @@ extern u32 fclGetMoney(void);
 extern u8 *cmbCardEffCreateTask(u8 *, s8);
 
 extern void cmmDateSelectionRefresh(u8 *task);
-extern s32 fclBustupCreate(u8 *task);
+extern s32 fclBustupCreate(u8 *parent);
 
 
 extern void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
-extern void fclSpriteSetBaseScale(u8 *task, f32 depth);
+extern void fclSpriteSetBaseScale(u8 *task, f32 scale);
 extern void fclSpriteSetOrder(u8 *task, u32 order);
 extern void fclSpriteSetHidden(u8 *task, u8 hidden);
 extern void fclSpriteSetMode(u8 *task, u8 mode);
@@ -447,7 +447,7 @@ extern u8 *iGpffffb44c;
 extern s8 iGpffffa8a8;
 extern u16 cmmCommunityRecordValue(s32 );
 extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 );
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern u8 D_00641880[];
 extern u8 D_0063FCA0[];
 extern u8 D_006406F0[];

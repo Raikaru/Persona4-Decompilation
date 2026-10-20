@@ -27,7 +27,7 @@ extern void kwlnTaskDestroyWithHierarchy(s32 task);
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-extern s32 kwlnTaskGetTaskByName(void *path);
+extern s32 kwlnTaskGetTaskByName(void *name);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -36,8 +36,8 @@ extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
                           s32);
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 image, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 alphaSubtract, s32 centered);
+extern void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX,
+                          f32 scaleY, s32 alphaSubtract, s32 centered);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
 extern s32 D_0076462C;

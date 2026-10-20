@@ -12,13 +12,13 @@ typedef struct {
 } Vec2f;
 
 void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 unusedKind);
-void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 arg4_2);
+void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName);
 typedef struct KwlnTask KwlnTask;
 
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
                           u8 alphaSubtract, u8 fade, f32 z, s32 setStates);
-extern s32 resourceFindByName(void *param);
+extern s32 resourceFindByName(void *name);
 extern u16 datEntryGetPrimaryValue(s16 itemId);
 extern u16 datEntryGetMiddleBandValue(s16 itemId);
 extern u16 datEntryGetLastBandValue(s16 itemId);

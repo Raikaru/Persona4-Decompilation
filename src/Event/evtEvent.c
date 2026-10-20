@@ -8,7 +8,7 @@ extern s32 evtFindTask();
 void kwlnTaskDestroyWithHierarchy(s32 task);
 extern u32 kwlnTaskGetWork(void *task);
 extern void (*jtbl_008873EC[])(void *);
-void evtMemAccount(s32 category, s32 bytes);
+void evtMemAccount(s32 slot, s32 byteCount);
 
 s32 kwlnTaskGetTaskByName(void *name);
 extern s32 D_0063C2F8[];

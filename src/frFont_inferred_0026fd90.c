@@ -11,7 +11,7 @@ extern s32 iGpffffa730;
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 MT_SceneManager_TaskUpdate(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
@@ -41,10 +41,10 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
-                          s32 value, s32 index, s32 count, s32 flags,
-                          s32 mode, s32 kind,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern u8 D_00881530[];
@@ -73,25 +73,25 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void calDrawWeather(s32 value, s32 index, f32 fparg0, u8 count,
-                           s32 flags, s32 mode, f32 fparg1, f32 fparg2,
-                           s32 kind, s32 effect, s32 tail,
-                           s32 arg_sp0);
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
+                           s32 clipLeft, s32 clipWidth, s32 font,
+                           s32 forcedHighlight);
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
-extern u32 datGetItemNameId(s16 id);
+extern u32 datGetItemNameId(s16 itemId);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];
-extern void frFontUpdateTextWork(u8 *value);
+extern void frFontUpdateTextWork(u8 *context);
 extern u8 iGpffffa734;
 
-extern s32 frFontDataEntryClass(s64 value);
+extern s32 frFontDataEntryClass(s64 entryId);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026fd90-0026fff0 */
 
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
-extern s32 mtSceneUnitDepthCompare(u8 **value, u8 **index);
+extern s32 mtSceneUnitDepthCompare(u8 **left, u8 **right);
 extern f32 D_007612C4;
 /* Three trail-segment layouts (mode 0/1/2). The 0xC0-byte point tables are
  * struct copies; each loop's i = 0 precedes the invariant scale products,

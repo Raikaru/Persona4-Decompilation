@@ -14,23 +14,23 @@ struct BtlPanel
     s16 index;      // 0x3E
 };
 
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
-s32 datGetFlag(s32 id);
-s32 btlUnitFindInSideById(s32 a, s32 b);
-s32 sdkSpriteCreateFromName(u32 param);
-s32 hMaestroDecodeIsReady(s32 param);
-s32 resourceFindByName(u32 param);
-extern u8* kwlnTaskGetWork(s32 param);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
+s32 datGetFlag(s32 bit);
+s32 btlUnitFindInSideById(s32 genus, s32 characterId);
+s32 sdkSpriteCreateFromName(u32 name);
+s32 hMaestroDecodeIsReady(s32 state);
+s32 resourceFindByName(u32 name);
+extern u8* kwlnTaskGetWork(s32 task);
 extern char iGpffffa578;
 extern s32 iGpffffa570;
 extern char D_00626780[];
 extern u8 D_00626790[];
 extern u8 D_006267B0[];
 extern u32 D_00626720[];
-extern u8* btlPacketAlloc(u32 type, u32 workSize);
+extern u8* btlPacketAlloc(u32 packetType, u32 workSize);
 void memset(void* dst, s32 value, u32 size);
-void H_Cdvd_ReadSync(u8* ptr);
-s32 TnUploadStream(s32 param);
+void H_Cdvd_ReadSync(u8* cdvd);
+s32 TnUploadStream(s32 stream);
 extern s32 iGpffffb470;
 extern u8 D_006267D0[];
 
@@ -113,7 +113,7 @@ check:
 
 
 // FUN_00202B60
-s32 btlPanelIsEnabled(void* panel);
+s32 btlPanelIsEnabled(void* panelData);
 
 /* Create the panel resource loader packet, clear its work, and associate it with the owning task. */
 u8* btlPanelCreatePacket(s32 ownerTask)

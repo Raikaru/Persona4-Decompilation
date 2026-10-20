@@ -9,8 +9,8 @@ typedef struct { f32 x, y; } Vec2f;
 
 void kAssertFail(void*, s32);
 void sdkSpriteFreeNode(void *node);
-void PrimAppendNode(void* param, void* work);
-void datSetFlag(s32 a, s32 b);
+void PrimAppendNode(void* list, void* node);
+void datSetFlag(s32 flagId, s32 enabled);
 s32 datCommunityDetailStep(u32*, s32*, u8*);
 s32 nLineIsIdle(void);
 void chkmemAllocSiteTag(void* file, s32 line);
@@ -20,11 +20,11 @@ void nLineSetActive(s32);
 void* resourceFindByName(char*);
 s32 sdkSpriteNewNode();
 s32 datGetFlag(s32);
-void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
+void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags);
 void radarAnimateValue(void*, s32, s32);
 void datSmoothTargetStep(void*);
 void sdkRenderStateSetDefault(void);
-void nLineDrawSet(Vec2f position, s32 alpha, s32 mode, f32 depth);
+void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset);
 void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
 void sdkSpriteDrawSized(u8 *, f32, f32, f32,
                    u8, u8, u8, u8,
@@ -452,7 +452,7 @@ static inline u32 cmpConfigPackGrayText(u8 alpha, u8 shade)
 
 void cmpConfigDraw(u8 *work) {
     extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
-                             int charWidth);
+                             int unused);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
                              int charWidth);
     CmpConfigWork *menu;

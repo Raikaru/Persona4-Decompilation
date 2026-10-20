@@ -11,7 +11,7 @@ extern s32 D_00764BC0; /* sMemcardSeqMode */
 extern s32 *D_00764BA8; /* caller's slot availability and serialized summary table */
 extern s32 iGpffffbab0;
 
-extern s32 memcardPollCommand(s32* command, s32* result, s32* error);
+extern s32 memcardPollCommand(s32* command, s32* result, s32* succeeded);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32* status);
 extern s32 D_00764B9C;
 extern s32 D_00764BA4;
@@ -33,7 +33,7 @@ extern char D_007127B0[];
 extern char D_007128B0[];
 extern char D_007128E0[];
 extern s32 D_008E4910[];
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);

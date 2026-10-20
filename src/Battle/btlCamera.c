@@ -38,23 +38,23 @@ typedef struct BtlCameraPacketSetState
     u16 state;         // 0x04
 } BtlCameraPacketSetState;
 
-void btlCameraSetState(s32 state, BtlAction* action, u32 third);
+void btlCameraSetState(s32 state, BtlAction* action, u32 clearUnitFlags);
 
 
-BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
+BtlPacket* btlPacketAlloc(u32 packetType, s32 workSize);
 u32 btlCameraUpdateSetStatePacket(void* work);
 
-void btlCameraBuildLookAtFrame(float *first,float *second,float *third,float *fourth);
+void btlCameraBuildLookAtFrame(float *matrix,float *target,float *eye,float *up);
 void RtQuatConvertFromMatrix(void* out, void* in);
 
 u16 btlCameraSelectMode(void* camera);
-void btlCameraFrameActionDegrees(u8* camera, f32 angle, f32 distance);
-void btlCameraFrameTargetPose(u8* camera, s32 arg);
-void btlCameraFrameFlagged(void* camera, s32 arg);
-void btlCameraFrameRandomOrbit(void* camera, u32 arg);
+void btlCameraFrameActionDegrees(u8* camera, f32 nearDegrees, f32 farDegrees);
+void btlCameraFrameTargetPose(u8* camera, s32 first);
+void btlCameraFrameFlagged(void* camera, s32 first);
+void btlCameraFrameRandomOrbit(void* camera, u32 unused);
 void btlCameraSetLimitFrame(u8* camera, f32 suppliedLimit, s32 reverse, s32 preserveSide);
 extern u8 D_005FE1D0[];
-extern u32 datCalcRandomBelow(u32 value);
+extern u32 datCalcRandomBelow(u32 limit);
 void FUN_0043f9c8(void* memory, s32 value, u32 size);
 u32 btlCameraIsEnabled(void *camera);
 
@@ -79,7 +79,7 @@ f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
 RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void btlCameraLookAtQuat(void* out, const void* first, const void* second, const void* config);
-void btlCameraSetupActionGeometry(u8* second, u8* third, f32* fourth, f32 first, u16 mode);
+void btlCameraSetupActionGeometry(u8* action, u8* first, f32* second, f32 radius, u16 mode);
 
 static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
 {
@@ -88,17 +88,17 @@ static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
 extern f32 btlUnitGetGroupBounds(u32, u32, void*, f32*, void*, u32);
 extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
 extern f32 tanf(f32 x);
-extern void btlUnitGetSphereWorldCenter(void *unit, void *center);
+extern void btlUnitGetSphereWorldCenter(void *unit, void *dst);
 extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
-extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *value, RwV3d *option);
+extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *outPosition);
 extern RwV3d* RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count,
                           const RtQuat *quat);
-extern void btlMainCurveReset(u16 *value, f32 *option);
-void btlMainCurveSetPoses(u16* work, f32* first, f32* second, u16 mode);
-void btlCameraCopyPose(f32 *out, f32 *in);
+extern void btlMainCurveReset(u16 *curve, f32 *pose);
+void btlMainCurveSetPoses(u16* curve, f32* firstPose, f32* lastPose, u16 mode);
+void btlCameraCopyPose(f32 *destination, f32 *source);
 void btlCameraFrameSlerpTarget(u8 *camera, f32 *out);
-void btlCameraStartEffect(u8* camera, void* data, s32 mode);
-extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+void btlCameraStartEffect(u8* camera, void* script, s32 options);
+extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* right, P4Vec4Holder_001EC2B0* left);
 extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fGpffff8104;
@@ -116,7 +116,7 @@ extern f32 fGpffff8094;
 extern f32 D_0076122C;
 extern f32 D_00761278;
 extern RwV3d D_0060A100;
-extern void btlTargetBlendVectors(void* out, void* first, void* second);
+extern void btlTargetBlendVectors(void* rotation, void* first, void* second);
 typedef struct BtlCameraSlerpResult
 {
     f32 current0;
@@ -136,7 +136,7 @@ static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
 }
 extern u8 D_005FC900[];
 extern u8 D_005FDE00[];
-void btlCameraSetDuration(u8* camera, f32 step);
+void btlCameraSetDuration(u8* work, f32 value);
 
 void btlCameraFrameOrbit(void *camera, float angle, float distanceScale, float heightScale, float minimumDistance);
 
@@ -279,7 +279,7 @@ s32 btlCameraStateRecordFlag(u8 *camera)
 /* Select the encounter-specific camera callback, reset timing, and optionally clear unit visibility flags. */
 void btlCameraSetState(s32 state, BtlAction* action, u32 clearUnitFlags)
 {
-    extern u8 *btlEncounterGetRecord(s32 value);
+    extern u8 *btlEncounterGetRecord(s32 index);
     extern void btlCameraClearAllUnitFlags(void);
     extern u8 D_005F74C0[];
     u8 *entry;
@@ -695,7 +695,7 @@ void btlCameraFrameActionTarget(u8* camera)
     extern void btlCameraCopyPose(f32*, f32*);
     extern RwV3d D_0060A100;
     extern void btlUnitGetAnchorPose(u8*, u8*, f32*, f32*);
-    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* right, P4Vec4Holder_001EC2B0* left);
     extern void func_003dcc70(f32*, f32*, void*);
     extern f32 tanf(f32);
     extern f32 func_003e41e0(f32*, f32*);
@@ -1123,7 +1123,7 @@ u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                  P4CameraFrame *firstOut, P4CameraFrame *secondOut)
 {
     extern RwV3d D_0060A0D0;
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     f32 distance;
     RwV3d direction;
     RwV3d diff;
@@ -1407,7 +1407,7 @@ void btlCameraSelectPreset(int cameraAddress)
 
 
 extern f32 fGpffff8118;
-extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
 extern f32 RwV3dLength(f32 *vector);
 extern RwV3d D_0060A0D0;
 
@@ -1837,8 +1837,8 @@ void btlAct_NOP(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 btlUnitGetGroupBounds(u32, u32, RwV3d *, f32 *, f32 *, u32);
-    extern void mdlBlendTranslationRotation(f32 *out, f32 *first, f32 *second, f32 weight);
-    extern void btlMainCurveSetThreePoses(u16 *camera, f32 *first, f32 *middle, f32 *last, u16 mode);
+    extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
+    extern void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 *lastPose, u16 mode);
     extern RtQuat *func_003dc740(RtQuat *rotation, const RwV3d *axis, f32 angle, s32 mode);
     extern f32 RwV3dLength(const RwV3d *vector);
     extern f32 fGpffff8128;
@@ -2233,7 +2233,7 @@ void btlAct_CONDITION(u8 *camera)
 void btlCameraFrameActionFocus(u8* camera)
 {
     extern void btlCameraCopyPose(f32*, f32*);
-    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* right, P4Vec4Holder_001EC2B0* left);
     extern void func_003dcc70(f32*, f32*, void*);
     extern f32 tanf(f32);
     extern f32 func_003e41e0(f32*, f32*);
@@ -2504,19 +2504,19 @@ static inline f32 btlCamera_product(f32 left, f32 right)
 /* Advance a camera script row, derive actor-relative positions/foci, and select the timing curve. */
 s32 btlCameraFrameActionStart(u8 *camera, u8 *work)
 {
-    extern u8 *btlActionFindByUnit(s32 camera);
-    extern void btlUnitGetSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
-    extern void btlTargetBlendVectors(u8 *out, u8 *first, u8 *second);
+    extern u8 *btlActionFindByUnit(s32 unit);
+    extern void btlUnitGetSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *outPosition);
+    extern void btlTargetBlendVectors(u8 *rotation, u8 *first, u8 *second);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
-    extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *outPosition);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
     extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
     extern RwV3d *func_003e4320(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
-    extern void btlMainCurveSetPoses(u16 *camera, f32 *first, f32 *second, u16 mode);
-    extern void btlCameraSetSpringDuration(u8 *camera, f32 work);
-    extern void btlCameraSetDuration(u8 *camera, f32 work);
-    extern void btlCameraSetTransitionDuration(u8 *camera, f32 work);
+    extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
+    extern void btlCameraSetSpringDuration(u8 *camera, f32 seconds);
+    extern void btlCameraSetDuration(u8 *work, f32 value);
+    extern void btlCameraSetTransitionDuration(u8 *camera, f32 seconds);
     extern RwV3d D_0060A0E0;
     extern RwV3d D_0060A0F0;
     extern RwV3d D_0060A100;

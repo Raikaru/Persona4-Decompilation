@@ -15,7 +15,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *input, s32 value);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 

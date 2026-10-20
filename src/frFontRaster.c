@@ -63,7 +63,7 @@ extern s32 (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitiv
 /* Runtime helpers (old-style where retail passes no prototype-driven
  * zero-extension). */
 extern void kAssertFail(const void *file, u32 line);
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void func_00440b68();
 extern s32 kwlnGetCamera(void);
 extern void *memset(void *dst, s32 value, u32 size);
@@ -73,8 +73,8 @@ extern int func_003ec6a0(u32 tex, s32, s32);
 extern void func_003ec2a0(u32 tex);
 extern u32 func_003ec3d0(u32 tex, s32);
 extern void func_003ec2e0(u32 tex);
-extern u8 *frFontAcquireGlyph(u8 *glyph, u32 palette);
-extern s32 frFontFreeListInsert(u8 *slot);
+extern u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex);
+extern s32 frFontFreeListInsert(u8 *freeNode);
 
 // Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
 // donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)

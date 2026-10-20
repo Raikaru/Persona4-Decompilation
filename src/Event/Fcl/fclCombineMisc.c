@@ -36,7 +36,7 @@ extern char D_00642F30[];
 extern s32 fclFuseRecipeLookup(u16 *output, s32 recipeKind, u16 *ingredients, s32 ingredientCount);
 extern u8 fclFuseTripleArcana(u8 *firstPersona, u8 *secondPersona, u8 *thirdPersona);
 extern s32 fclFuseLowestCandidateAtLeast(u32 arcana, s32 minimumLevel, u16 *excluded);
-extern s32 datGetFlag(s32 id);
+extern s32 datGetFlag(s32 bit);
 extern u8 D_006420A0[];
 extern u8 D_00642F00[];
 extern u8 D_00642F04[];
@@ -428,8 +428,8 @@ typedef struct {
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u32 datPersonaCountSkills(void *persona);
 extern u8 *yListAllocIndexTable(void);
-extern void fclListAddUnique(u8 *list, s16 id);
-extern void fclListRemoveId(u8 *list, s16 id);
+extern void fclListAddUnique(u8 *list, s16 itemId);
+extern void fclListRemoveId(u8 *list, s16 itemId);
 extern void fclFreeWorkBlock(u8 *work);
 extern void func_00440b68(const void *message);
 extern void chkmemAllocSiteTag(const void *file, s32 line);

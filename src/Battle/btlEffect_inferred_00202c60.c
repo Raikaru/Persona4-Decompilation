@@ -23,20 +23,20 @@ typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
-extern s32 cmmCommunityForArcana(s16 context);
-extern u16 cmmCommunityRecordValue(s32 context);
-extern void btlSelectionResetSubList(u8 *context, u8 *value);
-extern u16 btlSelectionConfirmSubList(u8 *context, u8 *value);
+extern s32 cmmCommunityForArcana(s16 arcanaValue);
+extern u16 cmmCommunityRecordValue(s32 communityId);
+extern void btlSelectionResetSubList(u8 *selection, u8 *panel);
+extern u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel);
 extern void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState);
 extern void btlSelectionDrawSubList(void);
 extern void btlSelectionEndSubList(void);
 extern void btlSelectionUpdateWindow();
 
-extern u32 datGetFlag(s32 context);
+extern u32 datGetFlag(s32 bit);
 
 extern void memset(void *destination, s32 value, u32 size);
-extern void btlSelectionSetRepeat(u8 *context, s16 *value);
-extern u32 datGetItemNameId(s16 context);
+extern void btlSelectionSetRepeat(u8 *selection, s16 *repeatMasks);
+extern u32 datGetItemNameId(s16 itemId);
 extern s32 btlTargetCanControlDamagePhase(void);
 
 static inline u8 *btlSelectionAddByteOffset(u32 offset, u8 *base)
@@ -48,28 +48,28 @@ static inline u8 *btlSelectionAddByteOffset(u32 offset, u8 *base)
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern s32 datPersonaGetLevel(u8 *context);
-extern u16 frFontSetFlagBits(s16 context);
-extern u16 frFontClearFlagBits(u16 context);
+extern s32 datPersonaGetLevel(u8 *persona);
+extern u16 frFontSetFlagBits(s16 bits);
+extern u16 frFontClearFlagBits(u16 bits);
 
-extern u32 btlFormationCurrentEntry(void *context);
-extern void shdPersonaFinishPhase(u8 *context);
-extern s32 shdPersonaIsTransitioning(u8 *context);
-extern void shdPersonaSetDisplayState(u8 *context, s32 value, u32 option, s8 flags);
-extern void shdPersonaStartSlideIn(u8 *context);
-extern void shdPersonaBeginClose(u8 *context);
-extern void shdPersonaBeginDisplayAndEndSelection(u8 *context, s32 value, s32 option, s8 flags);
-extern void shdPersonaBeginDisplay(u8 *context, s32 value, s32 option, s8 flags);
-extern u32 shdPersonaIsSelectionActive(u8 *context);
-extern void shdPersonaBeginSelection(u8 *context);
-extern void shdPersonaEndSelection(u8 *context, s32 value);
-extern void shdPersonaStepSelectionCursor(u8 *context);
-extern void btlUiDrawSpriteEntry(u8 *context, s32 value, s32 option, f32 x, f32 y);
+extern u32 btlFormationCurrentEntry(void *formation);
+extern void shdPersonaFinishPhase(u8 *task);
+extern s32 shdPersonaIsTransitioning(u8 *task);
+extern void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, s8 cursor);
+extern void shdPersonaStartSlideIn(u8 *task);
+extern void shdPersonaBeginClose(u8 *task);
+extern void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAddress, s8 cursor);
+extern void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 cursor);
+extern u32 shdPersonaIsSelectionActive(u8 *task);
+extern void shdPersonaBeginSelection(u8 *task);
+extern void shdPersonaEndSelection(u8 *task, s32 mode);
+extern void shdPersonaStepSelectionCursor(u8 *task);
+extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-extern void btlPanelSetCountdown(s32 context, s32 value);
-extern void btlPanelStartEntry(s32 context, s32 value);
+extern void btlPanelSetCountdown(s32 task, s32 duration);
+extern void btlPanelStartEntry(s32 task, s32 text);
 
 
 
@@ -91,16 +91,16 @@ extern f32 cosf(f32 x);
 extern f32 sinf(f32 x);
 typedef void (*BtlSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
                                     u8 opacity, s32 highlighted, s32 showDetail);
-extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
+extern void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
                          BtlSelectionDraw drawSelection);
 
-extern void btlPanelDrawSkillEntry(u8 *context, s32 value, f32 fx, f32 fy, u8 option, s32 flags, s32 extra);
-extern void btlSelectionDrawList(u8 *context, u8 *value, f32 x, f32 y,
+extern void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y, u8 opacity, s32 highlighted, s32 showDetail);
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY,
                           BtlSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
-                         u8 opacity, s32 highlighted, s32 show_detail);
+                         u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
-extern void PrimDrawFlatRectangle(u8 *context, f32 *value, f32 x, s32 option);
+extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -124,53 +124,53 @@ extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
-extern void btlUiSetRenderMode(s32 context);
+extern void btlUiSetRenderMode(s32 mode);
 extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
-extern u16 datCalcUnderlyingSkillId(s64 context);
+extern u16 datCalcUnderlyingSkillId(s64 personaSkillId);
 extern void btlSelectionRefreshList(u16 *flags, u8 *work);
 extern s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel);
 extern void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState);
-extern void btlPanelDrawStrip(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
+extern void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 extend);
 extern void btlSelectionSaveCursor();
-extern void btlSelectionDrawBar(u8 *unused, u8 *value, f32 *option);
-extern u8 *btlActionFindByUnit(s32 context);
+extern void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin);
+extern u8 *btlActionFindByUnit(s32 unit);
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
-extern void btlPanelUpdate(void *context);
+extern void btlPanelUpdate(void *panel);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
-extern void btlSelectionUpdateTransition(u8 *context);
+extern void btlSelectionUpdateTransition(u8 *transition);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
 extern u8 D_00794FF0[];
 extern u8 D_00795020[];
 extern u8 D_00795080[];
 
-extern void btlPanelInitWork(u8 *context, s32 value);
-extern void btlPanelDrawFrame(s32 context, u8 *value);
-extern void btlSelectionUpdateTransition(u8 *context);
-extern void btlPanelDrawBackdropGrid(s32 context, u8 *value);
+extern void btlPanelInitWork(u8 *panel, s32 task);
+extern void btlPanelDrawFrame(s32 unused, u8 *panel);
+extern void btlSelectionUpdateTransition(u8 *transition);
+extern void btlPanelDrawBackdropGrid(s32 unused, u8 *panel);
 extern void btlPanelDrawDetail(void);
-extern void btlPanelDrawSkyFrame(s32 context, u8 *value);
-extern void btlSelectionInitTransition(u8 *context, s32 value);
-extern void btlSelectionDrawTargetFrame(u8 *context, u8 *value);
+extern void btlPanelDrawSkyFrame(s32 unused, u8 *panel);
+extern void btlSelectionInitTransition(u8 *transition, s32 task);
+extern void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition);
 extern u8 D_006253B0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202c60-0020bfd0 */
 
-extern void btlUiSetOrigin(u8 *context, f32 x, f32 y);
+extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
 extern void btlUiSetRenderStates(void);
-extern void btlUiDrawSpriteEntry(u8 *context, s32 value, s32 option, f32 x, f32 y);
-extern void btlUiSetScale(u8 *context, f32 x, f32 y);
-extern void btlUiSetRenderMode(s32 context);
-extern void btlUiSetAlpha(u8 *context, f32 x);
-extern void btlUiSelectEffect(s32 context, u32 value);
-extern void btlSelectionDispatchTargetMode(s32 context, u8 *value, u8 *option);
-extern void btlSelectionSwapRowState(u8 *context, u8 *value);
+extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y);
+extern void btlUiSetScale(u8 *work, f32 x, f32 y);
+extern void btlUiSetRenderMode(s32 mode);
+extern void btlUiSetAlpha(u8 *work, f32 alpha);
+extern void btlUiSelectEffect(s32 unit, u32 entryId);
+extern void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit);
+extern void btlSelectionSwapRowState(u8 *from, u8 *to);
 typedef struct BtlSelection {
     u16 flags;
     s16 first;
@@ -200,18 +200,18 @@ extern void shdDisableBlendFlag(void);
 typedef struct { u8 b0, b1, b2, b3; } BtlSkillIconColor;
 extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
                           BtlSkillIconColor color, u16 skill, s32 texture);
-extern u32 datCalcSkillCost(u8 *unit, s32 skill);
-extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
-extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
-extern s16 datGetUnitAiTactic(s16 context);
-extern u32 datPersonaNamePart1(s16 context);
-extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 mode,
-                         s32 style, s32 flags, s32 handle, s32 index);
+extern u32 datCalcSkillCost(u8 *unit, s32 skillId);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
+extern u16 datCalcThresholdKind(u8 *unusedUnit, s32 skillId);
+extern s16 datGetUnitAiTactic(s16 unitId);
+extern u32 datPersonaNamePart1(s16 unitId);
+extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex,
+                         s32 effect, s32 flags, s32 handle, s32 recordIndex);
 typedef struct BtlPanelRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BtlPanelRenderDispatch;
-extern s32 datItemCount(s16 id);
-extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
+extern s32 datItemCount(s16 itemId);
+extern s32 datCalcIsFlaggedPersonaSkill(s32 skillId);
 extern u8 *iGpffffb3b8;
 typedef struct {
     s16 id;
@@ -324,13 +324,13 @@ static inline void btlPanelDrawExtendedStrip(BtlPanelRenderDispatch *renderer,
     (*setState)(6, 0);
 }
 struct FrFontNode;
-extern u16 datGetSkillPropertyByte(s32 context);
-extern s32 btlUnitGetDataRowAlt(u8 *context);
-extern void btlEffectSelectNeighbourTarget(u8 *context, u8 *value);
+extern u16 datGetSkillPropertyByte(s32 skillId);
+extern s32 btlUnitGetDataRowAlt(u8 *unit);
+extern void btlEffectSelectNeighbourTarget(u8 *action, u8 *selection);
 extern void btlPanelReleaseText(s32 task);
 extern void btlPanelMarkEntryTimed(s32 task);
-extern void btlPanelSetTarget(u8 *task, s32 value);
-extern void btlSelectionSetRowIdle(u8 *context);
+extern void btlPanelSetTarget(u8 *task, s32 unit);
+extern void btlSelectionSetRowIdle(u8 *row);
 extern u16 D_008C024E[];
 /* measured: caching D_00887300 in s0 reproduces retail's one-time
    lui/addiu vtable materialization across these callback calls. */
@@ -1511,8 +1511,8 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 z, s32 color,
-                              s32 mode, s32 flags, s32 skill);
+    extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth, s32 color,
+                              s32 font, s32 mode, s32 item);
     u8 *glyphs;
     u8 *unit;
     s32 skill;
@@ -1616,8 +1616,8 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern void datEntryDrawFlagIcon(Vec2f context, f32 x, s32 value,
-                              s16 option, s32 flags, s32 extra);
+    extern void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor,
+                              s16 itemId, s32 itemTexture, s32 badgeTexture);
     u8 *glyphs;
     u8 tone;
     s32 itemOffset;
@@ -2269,32 +2269,32 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
 s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 btlTargetCheckCommandAvailability(u8 *context, s64 value);
-    extern s32 btlActionRunTargetCallback(s32 context, u16 value, s32 option, s32 flags, s32 extra);
+    extern s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind);
+    extern s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra, s32 argumentMode);
     extern s32 datCalcDefaultSkillId(u8 *unit);
-    extern u8 *shdPersonaTaskCreate(s32 context, s32 value, s32 option, s32 flags, s32 extra);
-    extern void btlSelectionInit(u8 *context, s16 value, s16 option, void *a, void *b, void *c, void *d, u8 *blue);
-    extern void btlSelectionSetOwner(u8 *context, void *value);
-    extern void btlUiSelectEffect(s32 context, u32 value);
-    extern void btlSelectionResetState(u8 *context, u8 *value);
-    extern u16 btlSelectionHandleSkillInput(u8 *context, u8 *value);
-    extern void btlSelectionDrawSkillPanel(u8 *context, s32 value, f32 *option);
-    extern void btlSelectionStepAnim(u8 *context, u8 *value, f32 *option);
-    extern void btlSelectionSaveCursorSecond(u8 *context, u8 *value);
-    extern void btlSelectionResetPageState(u8 *context, u8 *value);
-    extern u16 btlSelectionHandleItemInput(u8 *context, u8 *value);
-    extern void btlSelectionDrawItemPanel(u8 *context, s32 value, f32 *option);
-    extern void btlSelectionStepItemAnim(u8 *context, u8 *value, f32 *option);
-    extern void btlSelectionSaveCursorThird(u8 *context, u8 *value);
-    extern void btlSelectionResetSubListState(u8 *context, u8 *value);
-    extern u16 btlSelectionOpenSubList(u8 *context, s32 value, u8 **option);
-    extern void btlSelectionDrawTitle(u8 *context, u8 *value, f32 *option);
-    extern void btlSelectionDrawPersonaList(u8 *context, u8 *value, f32 *option);
-    extern void btlSelectionSaveCursorFourth(u8 *context, u8 *value);
-    extern void btlSelectionResetCursorState(u16 *context, u8 *value);
-    extern u16 btlSelectionHandleSwapInput(u8 *context, u8 *value);
-    extern void btlSelectionDrawSwapPanel(u8 *context, u8 *value, f32 *option);
-    extern void btlSelectionDrawLevelList(s32 context, u8 *value, f32 *option);
+    extern u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDuration, s32 closeDuration);
+    extern void btlSelectionInit(u8 *selection, s16 pageSize, s16 count, void *initialize, void *handleInput, void *draw, void *saveCursor, u8 *owner);
+    extern void btlSelectionSetOwner(u8 *selection, void *callback);
+    extern void btlUiSelectEffect(s32 unit, u32 entryId);
+    extern void btlSelectionResetState(u8 *selection, u8 *panel);
+    extern u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel);
+    extern void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer);
+    extern void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin);
+    extern void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel);
+    extern void btlSelectionResetPageState(u8 *selection, u8 *panel);
+    extern u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel);
+    extern void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer);
+    extern void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin);
+    extern void btlSelectionSaveCursorThird(u8 *selection, u8 *panel);
+    extern void btlSelectionResetSubListState(u8 *selection, u8 *panel);
+    extern u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel);
+    extern void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer);
+    extern void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin);
+    extern void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel);
+    extern void btlSelectionResetCursorState(u16 *selection, u8 *panel);
+    extern u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel);
+    extern void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer);
+    extern void btlSelectionDrawLevelList(s32 selection, u8 *panel, f32 *origin);
     extern void btlSelectionEndSwapList(void);
     u8 *work;
     u8 *panel;
@@ -2473,7 +2473,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 btlTargetCheckCommandAvailability(u8 *selection, s64 work);
+    extern s32 btlTargetCheckCommandAvailability(u8 *action, s64 kind);
     extern s32 btlTargetCanControlDamagePhase(void);
     extern f64 fptodp(f32 value);
     extern f64 func_0044b310(f64 value);
@@ -2796,8 +2796,8 @@ void btlSelectionResetState(u8 *selection, u8 *panel)
 /* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
 {
-    extern s32 datCalcThresholdTrigger(u8 *selection, s32 panel);
-    extern s32 datCalcUsesWeaponProperties(s32 selection);
+    extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
+    extern s32 datCalcUsesWeaponProperties(s32 skillId);
     s32 flags;
     u16 result;
     u16 skill;
@@ -3302,12 +3302,12 @@ void btlSelectionResetSubList(u8 *selection, u8 *panel)
  * MATCH; preserve their byte-addressed loads. */
 u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel)
 {
-    extern s16 datGetUnitAiTactic(s16 selection);
-    extern void datSetUnitAiTactic(s16 selection, s16 panel);
-    extern u8 *btlActionFindByUnit(s32 selection);
+    extern s16 datGetUnitAiTactic(s16 unitId);
+    extern void datSetUnitAiTactic(s16 unitId, s16 value);
+    extern u8 *btlActionFindByUnit(s32 unit);
     extern u8 *func_001f99c0(u8 *selection, u16 panel, s32 option, s32 flags,
                               s32 extra);
-    extern s64 btlPacketEnqueue(u8 *selection, u32 panel);
+    extern s64 btlPacketEnqueue(u8 *context, u32 value);
     s16 selected;
     u8 *action;
     s32 toggledFlags;
@@ -3373,11 +3373,11 @@ void btlSelectionDrawSubList(void)
 void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern s16 datGetUnitAiTactic(s16 selection);
-    extern u32 datPersonaNamePart1(s16 selection);
+    extern s16 datGetUnitAiTactic(s16 unitId);
+    extern u32 datPersonaNamePart1(s16 unitId);
     extern s32 frFontNodeWidth(struct FrFontNode *node);
-    extern void frFontMoveListTo(s32 node, s32 x, s32 y);
-    extern s32 frFontListKeepOrRelease(s32 node);
+    extern void frFontMoveListTo(s32 list, s32 x, s32 y);
+    extern s32 frFontListKeepOrRelease(s32 list);
     BtlPanelRenderDispatch *renderer;
     s32 rect[4];
     Color4 color;
@@ -3823,8 +3823,8 @@ void btlPanelUpdate(void *panel)
 // FUN_0020B1A0
 void btlPanelDrawFrame(s32 unused, u8 *panel)
 {
-    extern void btlPanelDrawOutlineFill(u8 *unused, f32 x, f32 y,
-                              u8 panel, u8 option, u8 flags, s32 extra);
+    extern void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY,
+                              u8 r, u8 g, u8 b, s32 a);
     u8 *glyphs;
     s16 frame;
     s16 growthFrame;
@@ -3881,7 +3881,7 @@ void btlPanelDrawFrame(s32 unused, u8 *panel)
  * accesses remain typed. */
 void btlPanelDrawBackdropGrid(s32 unused, u8 *panel)
 {
-    extern void btlPanelDrawSpriteGrid(u8 *unused, f32 x, f32 y, u8 panel);
+    extern void btlPanelDrawSpriteGrid(u8 *glyphs, f32 unusedScaleX, f32 unusedScaleY, u8 opacity);
     extern u8 D_00626BE0[];
     u8 *glyphs;
     s16 frame;
@@ -3941,7 +3941,7 @@ void btlPanelDrawDetail(void)
 // FUN_0020B5B0
 void btlPanelDrawSkyFrame(s32 unused, u8 *panel)
 {
-    extern void effMiscDrawScreenColor(u8 *unused, s32 panel);
+    extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
     u8 *glyphs;
     void (**base)(u32, u32);
     u8 work[4];
@@ -3970,15 +3970,15 @@ void btlPanelDrawSkyFrame(s32 unused, u8 *panel)
 /* measured: restore opt_propagation after func_0020b5b0. */
 /* measured: btlSelectionMarkTargets, btlSelectionResetUnitFlags MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
-extern u32 btlEffectCollectGenusMask(u8 *context);
-extern u16 datGetSkillPropertyByte(s32 context);
-extern s32 datCalcSkillElement(u8 *context, u16 value);
-extern s32 datCalcElementBit(s16 context);
-extern s8 datCalcGetBuffStatus(u8 *context, s32 value);
-extern s32 datCalcGetElementAffinity(u8 *context, s32 value);
-extern s32 btlTargetTestUnitFlag(s32 context, s32 value);
-extern void btlSelectionSetRowState(u8 *context, s16 value);
-extern void btlSelectionSetRowIdle(u8 *context);
+extern u32 btlEffectCollectGenusMask(u8 *selection);
+extern u16 datGetSkillPropertyByte(s32 skillId);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
+extern s32 datCalcElementBit(s16 element);
+extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
+extern s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex);
+extern void btlSelectionSetRowState(u8 *row, s16 state);
+extern void btlSelectionSetRowIdle(u8 *row);
 
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
@@ -4208,17 +4208,17 @@ void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition)
         f32 screenPosition[2];
         f32 sphereCenter[2];
     } Frame;
-    extern u32 kwlnTaskGetWork(void *unused);
+    extern u32 kwlnTaskGetWork(void *task);
     extern void btlUiSetRenderStates(void);
     extern u8 *btlActionGetQueueSecond(void);
-    extern void btlUnitGetAttachedSphereCenter(u8 *unused, f32 *transition);
-    extern s32 btlTargetFindInRange(f32 *unused, f32 *transition);
-    extern void btlUiSetOrigin(u8 *unused, f32 x, f32 y);
-    extern void btlUiDrawSpriteFaded(u8 *unused, s32 transition, s32 option, f32 x,
+    extern void btlUnitGetAttachedSphereCenter(u8 *context, f32 *value);
+    extern s32 btlTargetFindInRange(f32 *position, f32 *output);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+    extern void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x,
                                f32 y, s32 red, s32 green, s32 blue,
-                               s32 alpha);
-    extern void btlUiSetRenderMode(s32 unused);
-    extern void btlSelectionDispatchTargetMode(s32 unused, u8 *transition, u8 *option);
+                               s32 opacity);
+    extern void btlUiSetRenderMode(s32 mode);
+    extern void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit);
     Frame frame;
     u8 *glyphs;
     u8 *action;

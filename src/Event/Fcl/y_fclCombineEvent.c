@@ -33,18 +33,18 @@ extern void fclCombineEventTaskDestroy(u8 *task);
 extern s32 fclCombineEventGate(u8 *task);
 extern s32 fclCombineEventSceneUpdate(u8 *task);
 extern s32 evtGetEventFrame(void);
-extern void datSetFlag(s32 a, s32 b);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern u16 D_008C024E[];
-extern s32 evtPMFileReaderCreate(s32 a, s32 b, s32 c, s32 d);
+extern s32 evtPMFileReaderCreate(s32 eventId, s32 variantId, s32 value, s32 useAllocatedTables);
 extern s32 evtPMFileReaderIsDone(s32 task);
-extern s32 evtPMFileReaderGetFirstEntry(s32 task, s32 *a, s32 *b, s32 *c, s32 *d);
-extern void fieldSceneLoad(s32 a, s32 b);
-extern void fieldSceneRequestRoom(s32 a);
-extern void fieldSceneRequestSecondaryRoom(s32 a);
+extern s32 evtPMFileReaderGetFirstEntry(s32 task, s32 *firstValue, s32 *secondValue, s32 *byteValue, s32 *halfwordValue);
+extern void fieldSceneLoad(s32 fieldId, s32 roomId);
+extern void fieldSceneRequestRoom(s32 roomId);
+extern void fieldSceneRequestSecondaryRoom(s32 roomId);
 extern s32 fieldSceneLoadStep(void);
 extern s32 evtCreateEventTask(s32 a, s32 b, s32 c); /* lint: allow H011 -- caller stores the returned handle; the definition takes two arguments and ignores the third */
-extern s32 kwlnTaskIsLinked(s32 handle);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern s32 kwlnTaskIsLinked(s32 target);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void fieldSceneUnload(void);
 
 

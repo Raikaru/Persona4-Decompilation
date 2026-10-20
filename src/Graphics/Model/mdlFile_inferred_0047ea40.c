@@ -33,9 +33,9 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
 }
 
 extern s32 mdlSeUpdateRecord(void **owner);
-extern s32 mdlSeFillEntryState(u8 *state, s16 animation, s16 blendTicks, u16 flags);
-extern s32 hsndSlotIsStarting(s16 state);
-extern s32 sdkSndIsChannelPlaying(s16 state);
+extern s32 mdlSeFillEntryState(u8 *state, s16 column, s16 rowIndex, u16 baseSlot);
+extern s32 hsndSlotIsStarting(s16 slotIndex);
+extern s32 sdkSndIsChannelPlaying(s16 channelIndex);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
@@ -55,7 +55,7 @@ static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ea40-0047ed60 */
 
-extern void sdkSndStartSourceStream(s16 state, s32 animation, s16 blendTicks);
+extern void sdkSndStartSourceStream(s16 channelIndex, s32 source, s16 sourceAux);
 static inline void code1_0047_abd0(s16 state, s32 animation, s16 blendTicks)
 {
     sdkSndStartSourceStream(state, animation, blendTicks);

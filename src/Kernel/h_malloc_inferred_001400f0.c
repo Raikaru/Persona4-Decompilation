@@ -105,16 +105,16 @@ extern u8 D_005EF540[];
 extern u8 D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
-extern void datScreenWipeSetTarget(u8 *work, u8 *value);
-extern void datScreenWipeInit(u8 *work, Float2_0014 *value, Float2_0014 *context);
-extern void datScreenWipeSetOffset(u8 *work, Float2_0014 value);
-extern void datScreenWipeSetColor(u8 *work, s32 value);
-extern void datScreenWipeSetScale(u8 *work, u8 *value);
+extern void datScreenWipeSetTarget(u8 *task, u8 *target);
+extern void datScreenWipeInit(u8 *task, Float2_0014 *start, Float2_0014 *target);
+extern void datScreenWipeSetOffset(u8 *task, Float2_0014 offset);
+extern void datScreenWipeSetColor(u8 *task, s32 color);
+extern void datScreenWipeSetScale(u8 *task, u8 *scale);
 
 
 
 extern void sdkSpriteFreeNode(void *node);
-extern void kwlnTaskDestroyWithHierarchy(s32 work);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -125,10 +125,10 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void kAssertFail(const void *work, s32 value);
+extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern s32 datCalcGetLevelById(s32 work);
+extern s32 datCalcGetLevelById(s32 unitId);
 extern u8 D_007EF9B0[];
 extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
@@ -153,9 +153,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *work, f32 depth, f32 coordinate, f32 scale,
-                          u8 value, u8 context, u8 option, u8 fourth, u16 fifth,
-                          u16 sixth, s16 seventh, f32 rotation, s16 extra);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -193,18 +193,18 @@ extern s32 radarAdvanceStage(u8 *work);
 extern s32 radarEntriesReady(u8 *work);
 extern void radarDestroy(u8 *work);
 extern void radarLoadSlotCoords(u8 *work);
-extern s32 nLineSelectSet(s32 work);
-extern void nLineSelectSetImmediate(s32 work);
+extern s32 nLineSelectSet(s32 setIndex);
+extern void nLineSelectSetImmediate(s32 setIndex);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
-extern void datScreenWipeSetTextureId(u8 *work, s32 value);
-extern void sflDataResetPersonaState(void *work);
+extern void datScreenWipeSetTextureId(u8 *task, s32 textureId);
+extern void sflDataResetPersonaState(void *state);
 extern void sflDataLoadPersonaState(void *work, s16 pcId);
-extern void sdkListStateConfigure(void *work, s32 value, s32 context, s32 option, s32 fourth);
-extern void sdkListStateSetActive(void *work, s32 value);
-extern void sdkListStateSetSecondaryMasks(void *work, s32 value, s32 context, s32 option, s32 fourth);
-extern s32 sdkListStateHandleInput(void *work);
+extern void sdkListStateConfigure(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern void sdkListStateSetActive(void *state, s32 value);
+extern void sdkListStateSetSecondaryMasks(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern s32 sdkListStateHandleInput(void *state);
 extern void radarDrawEdge(u8 *work, s32 value, s32 context, s32 option);
 
 
@@ -217,7 +217,7 @@ extern u8 D_005EFAA0[];
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void datCommunityEntryStep(u8 *work);
+extern void datCommunityEntryStep(u8 *communityEntry);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -274,17 +274,17 @@ extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 extern void sdkRenderStateSetDefault(void);
-extern void nLineDrawSet(Float2_0014 work, s32 value, s32 context, f32 depth);
-extern f32 cmpGridCellFade(u8 *work, f32 depth, f32 coordinate, f32 scale);
-extern void sdkSpriteDrawAt(void *work, f32 depth, f32 coordinate, u8 value, u8 context, u8 option, u8 fourth);
-extern void sdkSpriteDrawSized(u8 *work, f32 depth, f32 coordinate, f32 scale, u8 value, u8 context, u8 option, u8 fourth, u16 fifth, u16 sixth, s16 seventh, f32 rotation, s16 extra);
-extern void sdkSpriteDrawFooter(Float2_0014 work, f32 depth, u8 value, s32 context, s32 option);
-extern void datScreenWipeSetAlpha(u8 *work, u8 value);
-extern void datScreenWipeDraw(void *work);
-extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
-extern s32 datCalcGetLevelById(s32 work);
-extern u32 datPersonaNamePart1(s16 work);
-extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
+extern void nLineDrawSet(Float2_0014 position, s32 alpha, s32 setIndex, f32 depthOffset);
+extern f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount);
+extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+extern void sdkSpriteDrawFooter(Float2_0014 unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
+extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
+extern void datScreenWipeDraw(void *task);
+extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 opacity, s16 *state);
+extern s32 datCalcGetLevelById(s32 unitId);
+extern u32 datPersonaNamePart1(s16 unitId);
+extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 unused);
 extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option);
 extern void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option);
 
@@ -296,7 +296,7 @@ extern void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32
 // FUN_001400F0
 void radarDrawFrame(u8 *work)
 {
-    extern void radarDrawPolygon(Float2_0014 pos, f32 depth, u8 opacity, u8 *state);
+    extern void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, u8 opacity, u8 *state);
     extern void radarDrawSegment(s64 work, s64 value, s32 context, f32 depth, u8 option);
     void *sprite;
     f32 opacity;
@@ -914,9 +914,9 @@ void radarDrawText(Float2_0014 pos, f32 depth, u8 value, u8 *context, s32 option
     extern f32 D_005EF6E0[];
     extern f32 D_005EF6E4[];
     extern void kAssertFail(const void *file, s32 line);
-    extern void datGridEffectDrawStrip(s64 work, f32 f0, f32 f1, s32 value, f32 f2, s32 context, s32 option);
-    extern void sdkSpriteDrawAt(void *work, f32 depth, f32 coordinate, u8 value, u8 context, u8 option, u8 fourth);
-    extern s32 cmmRankStringAt(s16 work, s16 value);
+    extern void datGridEffectDrawStrip(s64 positionBits, f32 depth, f32 radius, s32 color, f32 rotation, s32 segments, s32 masked);
+    extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern s32 cmmRankStringAt(s16 value, s16 option);
     extern s32 frFontExDrawTextOutA(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
 
     f32 savedDepth;
@@ -995,7 +995,7 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
-    extern void sdkSpriteDrawAt(void *work, f32 depth, f32 coordinate, u8 value, u8 context, u8 option, u8 fourth);
+    extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     union { RadarVertex vertices[7]; u8 bytes[7 * sizeof(RadarVertex)]; } packet;
     f32 screenDepth;
     f32 reciprocalNear;

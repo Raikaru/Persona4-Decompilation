@@ -92,7 +92,7 @@ extern void PrimAppendNode(void *list, void *node);
 extern void fadeBeginTransition(s32 mode, s32 duration);
 extern s32 fadeStatus(void);
 extern u8 D_00796340[];
-extern s32 btlShuffleUpdateTask(u8 *task);
+extern s32 btlShuffleUpdateTask(u8 *sdkTaskBytes);
 extern void (*jtbl_008873EC[])(void *);
 extern void btlGaugeSetActive();
 extern s32 btlShuffleTaskIsLoading(KwlnTask *task);
@@ -100,11 +100,11 @@ extern void btlShuffleTaskRequestCancel(s32);
 extern void btlResultSimpleSetupEntries(s32);
 extern void btlShuffleDrawSweep(s32 unusedTask, s32 *frameState);
 extern void btlUiSetScale(void *work, f32 x, f32 y);
-extern void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 fparg0, f32 fparg1, f32 fparg2);
+extern void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 x, f32 y, f32 fill);
 extern s32 datCalcMaxHp(s32 unit);
 extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern f32 fGpffff8498;
-extern s32 btlShuffleTickFrame(u8 *task);
+extern s32 btlShuffleTickFrame(u8 *sdkTaskBytes);
 extern void btlXpPrepareAwards(u8 *awards, u8 *reward);
 extern void btlXpApplyAwards(u8 *awards, u8 *reward);
 extern void btlXpAddRosterExp(u8 *awards);
@@ -142,7 +142,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
     s32 *renderWork;
     s32 tick;
     s32 flags;
-    extern void btlUiSetOrigin(u8 *task, f32 fparg0, f32 fparg1);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
 
     renderWork = (s32 *)kwlnTaskGetWork(((BtlFlourishState *)state)->renderTask);
     if ((*renderWork & 1) == 0) {
@@ -662,7 +662,7 @@ void btlEffectDrawSkyPulse(s32 packedColor, u16 frame)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
     extern void RpSkyRenderStateSet(s32 packedColor, s32 frame);
-    extern void effMiscDrawScreenColor(u8 *packedColor, s32 frame);
+    extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern f32 fGpffff84a4;
@@ -1037,15 +1037,15 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     extern s32 btlShuffleTaskIsCancelRequested(s32 task);
     extern s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task);
     extern void btlShuffleTaskSetBusy(s32 task);
-    extern void btlXpPrepareAwards(u8 *task, u8 *reward);
+    extern void btlXpPrepareAwards(u8 *awards, u8 *reward);
     extern s32 btlResultSimpleSetDoneFlag(s32 task);
     extern s32 btlShuffleTaskIsBusy(s32 task);
     extern void btlShuffleTaskResetPhase(s32 task);
     extern s32 btlResultSimpleIsDone(s32 task);
     extern void btlResultSimpleOnConfirm(s32 task);
-    extern s32 btlLogoTitleCreate(s32 task);
-    extern s32 btlResultOverlayCreate(s32 task);
-    extern s32 btlResultSummaryCreate(s32 task);
+    extern s32 btlLogoTitleCreate(s32 parent);
+    extern s32 btlResultOverlayCreate(s32 parent);
+    extern s32 btlResultSummaryCreate(s32 parent);
     extern s32 btlLogoTitleIsReady(KwlnTask *task);
     extern void btlLogoTitleAdvance(KwlnTask *task);
     extern s32 btlResultOverlayIsReady(KwlnTask *task);

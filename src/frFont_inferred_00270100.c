@@ -11,21 +11,21 @@ extern u16 D_008C024E[];
 
 extern s32 frFontGetMode(void);
 extern void fclBankMarkSettled(void);
-extern void frFontUpdateTextWork(u8 *value);
-extern void frFontLayoutText(u8 *value, u8 *index);
+extern void frFontUpdateTextWork(u8 *context);
+extern void frFontLayoutText(u8 *text, u8 *context);
 
 extern s32 D_008815B0[];
 
-extern void MT_Scene_SetResMotionSlot(u32 value, s16 index, s16 count, s16 flags, s16 mode);
-extern s32 cmmCommunityFindActiveSlotInGroup(s64 value);
-extern u8 *cmmSlotNameRecord(s32 value);
+extern void MT_Scene_SetResMotionSlot(u32 resourceId, s16 firstAnimation, s16 firstFrame, s16 nextAnimation, s16 nextFrame);
+extern s32 cmmCommunityFindActiveSlotInGroup(s64 group);
+extern u8 *cmmSlotNameRecord(s32 slotId);
 extern s32 cmmCommunityGetCurrentId(void);
-extern u8 *cmmNameRecord(s32 value);
+extern u8 *cmmNameRecord(s32 nameId);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
-extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
-extern s32 calGetDayWindowFlags(s32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
+extern s32 calGetDayWindowFlags(s32 day);
 extern s64 fclBankTryQueueRequest(s64 value, s32 index, s64 count);
 extern void fclBankSetReadyFlag(void);
 
@@ -34,11 +34,11 @@ extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
 extern s16 datGetDateIndex(void);
-extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
 extern s32 sprintf(void *value, const void *index, s32 count);
 extern u8 iGpffffa738;
-extern s32 calGetWeekOfYear(s32 value);
-extern void frFontExCopyString(void *value, void *index, s32 count);
+extern s32 calGetWeekOfYear(s32 dateIndex);
+extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
 extern s8 D_0063BAB0[];
 extern s32 cmmCommunityGetCurrentId(void);
 
@@ -599,8 +599,8 @@ s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
 // FUN_00270CA0
 s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
 {
-    extern s32 cmmCommunityHasRecord(u16 unusedCommand); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on cmmCommunityScriptAddPointsChecked */
-    extern s32 cmmCommunityAddPoints(s32 unusedCommand, s32 context, s32 count);
+    extern s32 cmmCommunityHasRecord(u16 communityId); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on cmmCommunityScriptAddPointsChecked */
+    extern s32 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId);
     s32 second;
     s32 first;
     s32 third;

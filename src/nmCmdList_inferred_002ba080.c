@@ -140,8 +140,8 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     typedef struct {
         u32 word;
     } DigitStoredWord __attribute__((packed));
-    extern void fclSpriteStartEntrance(u8 *draw, FclVec2 position, u32 color0, u32 color1, u8 alpha0,
-                              u8 alpha1, f32 height, f32 depth, s32 duration, s32 delay, s8 mode,
+    extern void fclSpriteStartEntrance(u8 *animation, FclVec2 position, u32 startColor, u32 endColor, u8 startAlpha,
+                              u8 endAlpha, f32 height, f32 depth, s32 duration, s32 delay, s8 outgoing,
                               s8 reverse);
     FclBoundsPacket bounds;
     FclBoundsBytes firstBounds, secondBounds;

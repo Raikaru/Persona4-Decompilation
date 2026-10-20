@@ -18,7 +18,7 @@ u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u8 D_006290F0[];
 u32 kwlnTaskGetWork(void *task);
 extern void datSetFlag(s32 work, s32);
-extern s32 datCalcGetLevelById(s32 work);
+extern s32 datCalcGetLevelById(s32 unitId);
 // Intent: Report whether a shuffle child task has its cancel-request bit (0x4) set in its flag word [inferred]
 // FUN_002218E0
 s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task)

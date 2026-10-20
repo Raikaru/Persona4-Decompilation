@@ -8,8 +8,8 @@
  * sites use these named forms). */
 extern void H_Cdvd_BuildPathUppercase(const char* src, char* dst);
 extern void H_Cdvd_NormalizePath(const char* src, char* dst);
-extern void H_Cdvd_SplitPath(const char* path, char* fileName, char* directory);
-extern void H_Cdvd_SelectDirectory(const char* directory);
+extern void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst);
+extern void H_Cdvd_SelectDirectory(const char* dir);
 
 extern void strcpy(char* destination, const char* source);
 extern u32 strlen(const char* text);
@@ -65,8 +65,8 @@ typedef struct HCdvdRequestView
     s16 archiveFileCount;
 } HCdvdRequestView;
 extern char* strcat(char* destination, const char* source);
-extern void H_Cdvd_RegisterRequest(void* requestData, void* fileMemory, u32 fileSize,
-                          const char* path);
+extern void H_Cdvd_RegisterRequest(void* request, void* value, u32 slot,
+                          const char* name);
 
 typedef struct ArchiveEntryHeader
 {

@@ -130,18 +130,18 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlUnitCreate(s32 data);
+extern u8 *btlUnitCreate(s32 genus);
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
     btlUnitInitChild(data, value);
 }
-extern void chkmemAllocSiteTag(void *data, s32 value);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -149,7 +149,7 @@ extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
-extern void mdlQueueModelForDraw(void *data, void *value);
+extern void mdlQueueModelForDraw(void *queue, void *model);
 extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019d150-0019d210 */

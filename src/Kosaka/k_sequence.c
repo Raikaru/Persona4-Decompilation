@@ -11,9 +11,9 @@ extern s32 FldRootCreate(s32 parent, u16 field, u16 room, u16 entry, s16 spawn,
                          s16 direction, s32 sceneFlags, u8 loadMode, s64 secondaryMode, s64 transitionValue,
                          s64 eventId, s64 eventMajor, s64 eventMinor, s64 eventFlags);
 extern void kAssertFail(const char *file, s32 line);
-extern s32 kwlnTaskGetTaskByName(void *path);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
-extern s32 kwlnTaskIsLinked(s32 buf);
+extern s32 kwlnTaskGetTaskByName(void *name);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
+extern s32 kwlnTaskIsLinked(s32 target);
 extern void FldLmapCreate(s32 parent, s32 selectedSlot, s32 enableToggle);
 extern void FldViewerCreate(s32 parentTask);
 extern void K_Viewer_Create(s32 parentTask);

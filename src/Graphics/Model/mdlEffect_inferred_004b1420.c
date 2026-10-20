@@ -40,7 +40,7 @@ extern u8 D_00714650[];
 extern u8 D_00714660[];
 extern u8 D_00714658[];
 
-extern void mdlEffectGetPositionVec(u8 *effect, u32 *position);
+extern void mdlEffectGetPositionVec(u8 *object, u32 *output);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
 extern void func_004bd6a0(u8 *effect, s32 position);

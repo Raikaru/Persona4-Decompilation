@@ -5,13 +5,13 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-extern void btlEffectResetEntry(void* input);
-extern void btlFormationSetPlacement(u32 input);
+extern void btlEffectResetEntry(void* node);
+extern void btlFormationSetPlacement(u32 formation);
 extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
-extern void chkmemAllocSiteTag(const void* msg, s32 id);
+extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void memset(void* dst, s32 value, u32 size);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */

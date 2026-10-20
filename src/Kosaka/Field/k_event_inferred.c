@@ -248,7 +248,7 @@ extern u8 D_005EF6A0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
-extern s32 datCalcGetLevelById(s32 work);
+extern s32 datCalcGetLevelById(s32 unitId);
 
 
 #pragma pop
@@ -703,7 +703,7 @@ void FldEventDrawMarker(u8 *queueNode, u8 *curve)
     extern s32 func_003bb330(u8 *queueNode);
     extern void func_003bb3a0(u8 *queueNode, s32 curve, void *);
     extern void primLine3D(void *queueNode, void *curve, void *, s32 );
-    extern void primSphereLine3D(u8 *position, f32 size, u8 *color, s32 setStates);
+    extern void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState);
     extern f32 D_005EFBB8[];
     extern u8 D_005EFBBC[];
     extern u8 D_005EFBBD[];

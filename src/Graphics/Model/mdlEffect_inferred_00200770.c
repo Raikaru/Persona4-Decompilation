@@ -63,13 +63,13 @@ extern f32 fGpffff84a4;
 extern f32 fGpffff81a8;
 typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
                                     u8 opacity, s32 highlighted, s32 showDetail);
-extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
+extern void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
-                         u8 opacity, s32 highlighted, s32 show_detail);
+                         u8 opacity, s32 highlighted, s32 showDetail);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -95,7 +95,7 @@ extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
-extern void btlCameraSetState(s32 state, BtlAction *action, u32 flags);
+extern void btlCameraSetState(s32 state, BtlAction *action, u32 clearUnitFlags);
 extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern u8 *btlActionFindByUnit(s32 unit);
 extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -137,17 +137,17 @@ void btlUiUpdateModelCurve(u8 *command)
         u8 modelMatrix[0x40];
         Vec3 scaleOrPosition;
     } Frame;
-    extern void btlCameraSetupActionGeometry(u8 *model, u8 *target, f32 *position, f32 command, u16 flags);
+    extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
     extern u16 btlCameraGetState(void);
-    extern void mdlEffectBuildBasisRows(void *command, void *model);
-    extern void mdlApplyModelMatrix(void *command, void *model, s32 target);
-    extern void mdlScale(void *command, f32 *model, s32 target);
+    extern void mdlEffectBuildBasisRows(void *output, void *orientation);
+    extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+    extern void mdlScale(void *model, f32 *scale, s32 combineOp);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-    extern void mdlSetLayerWeight(void *command, s32 model, f32 target);
-    extern void mdlAdvanceModelFromFlags(void *command);
-    extern s32 mdlCopyIndexedMatrix(void *command, s32 model, void *target);
-    extern void btlCameraLookAtQuat(void *command, const void *model, const void *target, const void *position);
-    extern void btlMainCurveReset(u16 *command, f32 *model);
+    extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
+    extern void mdlAdvanceModelFromFlags(void *model);
+    extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
+    extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
+    extern void btlMainCurveReset(u16 *curve, f32 *pose);
     extern u8 *iGpffffb474;
     Frame frame;
     u8 *modelReference;

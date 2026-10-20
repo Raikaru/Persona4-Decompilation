@@ -47,8 +47,8 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern s32 btlTargetClearFlaggedBuffs(u8 **);
 extern s32 btlTargetConsumeActionCost(u8 **);
-extern void btlSoundRequestPlayback(u16 command, u32 param); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
-extern u32 btlActionCachedDispatch(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
+extern void btlSoundRequestPlayback(u16 channel, u32 playbackId); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
+extern u32 btlActionCachedDispatch(void* context); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern u32 btlTargetCancelPlayback(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern f32 RwV3dLength(const RwV3d* vector);
 extern f32 func_003e41e0(f32* out, f32* in);
@@ -134,30 +134,30 @@ typedef struct BtlTargetStatePacketWork {
     u8 flags;
 } BtlTargetStatePacketWork;
 
-BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 void memcpy(void* dst, const void* src, u32 size);
 void btlTargetPacketReleasePending(void* arg);
-s32 btlTargetApplyHpSpChange(u8* arg);
+s32 btlTargetApplyHpSpChange(u8* work);
 extern u8* iGpffffb3ac;
-extern void datAddMoney(s32 arg);
+extern void datAddMoney(s32 delta);
 extern void datEntryDrawGatedByFlag39(s32, s32, s32, s32);
-extern void btlSoundClearStatusCounters(void* action, s32 flags);
+extern void btlSoundClearStatusCounters(void* action, s32 previousStatuses);
 extern void btlActionRunTargetCallback(void* action, s32 effect, s32, s32, s32);
 extern void btlPanelStartRingEffect(void* unit);
 extern void btlPanelStartPulseEffect(void* unit);
-extern s32 datCalcGetLevel(void* data);
-extern void datCalcSetHp(void* data, s32 value);
-extern void datCalcAddHp(void* data, s32 value);
-extern void datCalcAddSp(void* data, s32 value);
-extern void datCalcSetBadStatus(void* data, s32 value);
-extern void datCalcClearBadStatus(void* data, s32 value);
+extern s32 datCalcGetLevel(void* unit);
+extern void datCalcSetHp(void* unit, s32 hp);
+extern void datCalcAddHp(void* unit, s32 hpDelta);
+extern void datCalcAddSp(void* unit, s32 spDelta);
+extern void datCalcSetBadStatus(void* unit, s32 badStatus);
+extern void datCalcClearBadStatus(void* unit, s32 badStatus);
 extern u32 datCalcChkBadStatus(s32, u32);
-extern void datCalcApplyBuffMask(void* data, s32 value, s32 mode);
-extern s32 datCalcIsDead(void* data, s32 mode);
-extern s32 datCalcIsLowHp(void* data);
-extern s32 datCalcIsGuarding(void* data);
-extern void datCalcSetStatusBlocked(void* data);
-extern void datCalcClearStatusBlocked(void* data);
+extern void datCalcApplyBuffMask(void* unit, s32 mask, s32 delta);
+extern s32 datCalcIsDead(void* unit, s32 hpDelta);
+extern s32 datCalcIsLowHp(void* unit);
+extern s32 datCalcIsGuarding(void* unitFlags);
+extern void datCalcSetStatusBlocked(void* unitFlags);
+extern void datCalcClearStatusBlocked(void* unitFlags);
 extern void btlUnitUpdateHpGauge(void* source, u8* packet, s32* hpDelta);
 
 

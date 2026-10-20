@@ -11,29 +11,29 @@ void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 de
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
 
-extern u32 kwlnTaskIsLinked(KwlnTask* task);
+extern u32 kwlnTaskIsLinked(KwlnTask* target);
 extern void scrSetReturnInt(s32 retVal);
 extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 extern void kAssertFail(const char* file, u32 line);
 extern void func_00440b68(const char* fmt, ...);
-extern void datSetFlag(s32 flag, s32 value);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern u32 RpRandom(void);
 extern float scrGetParamFloat(s32 paramIdx);
-extern void scrSetReturnFloat(float value);
+extern void scrSetReturnFloat(float retVal);
 extern float sqrtf(float x);
 extern char* scrGetParamString(s32 paramIdx);
 extern void fadeBeginReturnTransition(s32 mode, s32 duration);
 extern void fadeBeginTransition(s32 mode, s32 duration);
 extern s32 fadeStatus(void);
 extern s32 kwlnGetCurrentWorkValue(void);
-extern s32 scrGetLabelAddr(s32 index);
-extern void scrSetCurrentLabel(s32 addr);
-extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
+extern s32 scrGetLabelAddr(s32 lblIdx);
+extern void scrSetCurrentLabel(s32 labelAddress);
+extern void datEntryDrawGatedByFlag39(s16 port, s16 sequence, s16 duration, s16 flags);
 extern void datStopPadRumble(void);
 extern s32 datGetScriptValue(s32 index);
 extern void* scrGetContext(void);
-extern void* scrStartProcedureWork(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
+extern void* scrStartProcedureWork(s32 priority, void* header, void* entries, void* procedures, void* labels, void* instructions, void* messages, void* strings, s32 procedureIndex);
 
 extern char D_0063CFB0[];
 extern char D_0063CFC8[];

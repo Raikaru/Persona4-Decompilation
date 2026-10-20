@@ -13,7 +13,7 @@
 #include "shd_misc_internal.h"
 #include "fcl_combine_internal.h"
 extern void (*jtbl_008873EC[])(void *);
-extern void sdkSpriteRelease(void *ptr);
+extern void sdkSpriteRelease(void *node);
 typedef FclVec2 F2_0033;
 
 /* Allocated as 0x2C bytes by fclBustupCreate; start/end/current are Vec2 pairs. */

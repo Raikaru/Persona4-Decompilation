@@ -29,7 +29,7 @@ typedef struct EffRingColorRow {
 
 extern void kAssertFail();
 extern u8 D_00713EF0[];
-extern void GeometryBlockDestroy(void *geometry);
+extern void GeometryBlockDestroy(void *block);
 extern void (*jtbl_008873EC[])(void *);
 extern void RingInstanceDestroy(void *instance);
 
@@ -38,11 +38,11 @@ extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00713390[];
 extern s32 mdlEffectSamplePackedColor();
 extern void GeometryBlockSetFrameMatrixCombined(void *geometry, void *position, void *rotation, void *scale);
-extern void GeometryBlockBindResource(s32 geometry, s32 resource);
+extern void GeometryBlockBindResource(s32 block, s32 resourceId);
 extern f32 iGpffff8044;
 extern f32 fGpffff8044;
 extern void RingInstanceStop(void *instance);
-extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 flags);
+extern u8 *GeometryCreateStripGrid(u16 rowCount, void *indices, s32 verticesPerRow, s32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00713330[];
 extern LineNovaColor iGpffffbb64; /* default packed material color */

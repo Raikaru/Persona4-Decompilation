@@ -6,10 +6,10 @@
 #include "btl_panel_internal.h"
 
 extern u32 kwlnTaskGetWork(void *task);
-extern void btlUiSetTileOffset(u8 *work, s16 mode, s32 tile, f32 angle);
+extern void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor);
 extern void btlUiSetRenderMode(s32 mode);
 extern void btlUnitGaugeClear(u8 *work, s32 unused);
-extern f32 btlGaugeHpRatio(u8 *work);
+extern f32 btlGaugeHpRatio(u8 *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void kAssertFail(void *file, s32 line);
 extern f32 iGpffff83d4[2];
@@ -453,7 +453,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
 /* Update the green four-segment/ring target cursor and its HP gauge.Measured: only the annotated individual accesses still lose MATCH when typed. */
 void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
-    extern void btlUiSetScale(u8 *work, f32 scaleX, f32 scaleY);
+    extern void btlUiSetScale(u8 *work, f32 x, f32 y);
     extern f32 D_00626C20[];
     extern f32 fGpffff84a4;
     typedef struct { f32 values[4]; } CursorDirections;

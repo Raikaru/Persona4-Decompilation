@@ -156,12 +156,12 @@ s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId)
 void FldHbnSpawnLights(u8 *header, s32 mode)
 {
     /* Raw accesses retained: the proven request/record layouts above changed whole-file codegen when substituted. */
-    extern s32 MT_Scene_CreatePointRes14(u16 header, f32 *mode, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes15(u16 header, f32 *mode, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes16(u16 header, f32 *mode, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes17(u16 header, f32 *mode, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes18(u16 header, f32 *mode, f32 fparg0);
-    extern s32 MT_Scene_CreatePointRes19(u16 header, f32 *mode, f32 fparg0);
+    extern s32 MT_Scene_CreatePointRes14(u16 resourceId, f32 *position, f32 radius);
+    extern s32 MT_Scene_CreatePointRes15(u16 resourceId, f32 *position, f32 radius);
+    extern s32 MT_Scene_CreatePointRes16(u16 resourceId, f32 *position, f32 radius);
+    extern s32 MT_Scene_CreatePointRes17(u16 resourceId, f32 *position, f32 radius);
+    extern s32 MT_Scene_CreatePointRes18(u16 resourceId, f32 *position, f32 radius);
+    extern s32 MT_Scene_CreatePointRes19(u16 resourceId, f32 *position, f32 radius);
     extern s32 FldMap_IsCurrentInBandA(void);
     extern s32 FldMap_IsCurrentInBandB(void);
     u8 *lightCursor;

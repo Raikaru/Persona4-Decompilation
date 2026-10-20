@@ -29,39 +29,39 @@ extern void PrimAppendNode(void *, void *);
 extern u8 *kwlnTaskGetWork();
 extern void sdkSpriteRelease(void *);
 void kAssertFail(const void *file, s32 line);
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 
 s32 sdkSndFadeOutChannel();
 s32 sdkSndStopChannel();
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
-s32 cldDayChangeTaskUpdate(u8 *task);
-void cldDayChangeStopTask(u8 *task);
-void cldDayChangeDrawFrame(s32 value, s32 option1);
-s32 cldDayChangeUpdateState(u8 *value);
-void cldDayChangeAddRenderTask(s32 value, u8 *option1);
-void cldDayChangeTaskDestroy(u8 *value);
+s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes);
+void cldDayChangeStopTask(u8 *unusedTask);
+void cldDayChangeDrawFrame(s32 unused, s32 task);
+s32 cldDayChangeUpdateState(u8 *task);
+void cldDayChangeAddRenderTask(s32 task, u8 *renderList);
+void cldDayChangeTaskDestroy(u8 *task);
 void shdEnableBlendFlag(s32 value, s32 option1, s32 option2, s32 option3,
                    u8 *option4, s32 option5, s32 option6);
 void shdDisableBlendFlag(void);
-void PrimDrawPoints(void *value, void *option1, f32 floatValue, s32 option2, s32 option3,
-                   s32 option4);
+void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType,
+                   s32 preserveState);
 extern f32 iGpffff84a4;
 extern f32 iGpffff84a4;
 extern f32 cosf(f32 floatValue);
 extern f32 sinf(f32 floatValue);
-void cldDayChangeDrawMonthOutline(s32 value, s32 option1, f32 floatValue, s32 option2, s32 option3);
-void cldDayChangeDrawMarker(s32 value, s32 option1, f32 floatValue, s32 option2, u32 option3,
-                   s32 option4);
-void cldDayChangeDrawPolygon(s32 value, s32 option1, f32 floatValue, u32 option2, s32 option3,
-                   u8 *option4, s32 option5, f32 floatOption1, f32 floatOption2);
+void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 month);
+void cldDayChangeDrawMarker(s32 x, s32 y, f32 depth, s32 opacity, u32 month,
+                   s32 sprites);
+void cldDayChangeDrawPolygon(s32 x, s32 y, f32 depth, u32 rgb, s32 opacity,
+                   u8 *points, s32 pointCount, f32 scaleX, f32 scaleY);
 s32 sprintf(char *buf, const char *fmt, ...);
-u8 *H_Cdvd_LookupRequest(void *value, u32 *option1);
+u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
 u8 *sdkSpriteRequestLoad(const char *name);
-s32 hMaestroDecodeIsReady(s32 param);
+s32 hMaestroDecodeIsReady(s32 state);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern u8 D_006376F0[];
-void PrimDrawFlatRectangle(u8 *value, f32 *option1, f32 floatValue, s32 option2);
+void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 
 
 /* Creates the day-change display task with its update and destroy callbacks. */

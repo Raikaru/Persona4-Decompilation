@@ -135,8 +135,8 @@ s32 btlTargetGetMessageRecord(s32 messageId) {
 // FUN_001F3BB0
 s32 btlTargetPickAffinityMessage(s32 context, s32 value, s32 option, s32 extra)
 {
-    extern s32 datCalcGetLevel(u8 *context);
-    extern s32 datCalcGetElementAffinity(u8 *context, s32 value);
+    extern s32 datCalcGetLevel(u8 *unit);
+    extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
         u16 id;

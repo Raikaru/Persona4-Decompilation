@@ -5,10 +5,10 @@
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
-u32 btlEffectSelectSelfCandidate(void* object);
-/* Seed the action candidate array with the action itself and set the candidate count to one. */
+u32 btlEffectSelectSelfTarget(void* object);
+/* Make the action its own sole selected target: first selected-target slot (+0x38) and count (+0x6A). */
 // FUN_001DC680
-u32 btlEffectSelectSelfCandidate(void* object)
+u32 btlEffectSelectSelfTarget(void* object)
 {
     *(void **)&((BtlAction *)object)->unk_38 = object;
     ((BtlAction *)object)->unk_6a = 1;
