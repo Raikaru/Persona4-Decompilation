@@ -2,6 +2,7 @@
 #include "list_item_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
@@ -169,8 +170,8 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
  * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
 #pragma push
 #pragma pop
-// FUN_00266A40
 /* Request a different day by setting bit 0 and recording the requested day. */
+// FUN_00266A40
 s32 cldDayChangeRequest(u32 unused, s32 day) {
     u8 *work = kwlnTaskGetWork();
 
@@ -181,8 +182,8 @@ s32 cldDayChangeRequest(u32 unused, s32 day) {
     return 0;
 }
 
-// FUN_00266A90
 /* Mark the linked day-change task complete by setting bit 1. */
+// FUN_00266A90
 void cldDayChangeMarkDone(u8 *task) {
     u8 *work;
 
@@ -192,8 +193,8 @@ void cldDayChangeMarkDone(u8 *task) {
     }
 }
 
-// FUN_00266AE0
 /* Report completion unless a live request remains pending without acknowledgement (bit 2). */
+// FUN_00266AE0
 s32 cldDayChangeIsDone(s32 task)
 {
     u8 *work;
@@ -218,8 +219,8 @@ void mtSceneBuildSpriteTable(void) {
     sdkSpritePackCreate(D_00637420);
 }
 
-// FUN_00266BA0
 /* Load the period-change sprites, wait for readiness, then animate for sixty frames. */
+// FUN_00266BA0
 s32 cldTimeChangeUpdate(u8 *task)
 {
     s32 month;
@@ -259,9 +260,9 @@ s32 cldTimeChangeUpdate(u8 *task)
     return 0;
 }
 
-// FUN_00266CC0
 /* Draw the sixty-frame period transition: enter, swap labels, then slide and fade away. */
-/* Draw the sixty-frame period transition: enter, swap labels, then slide and fade away. Raw work offsets follow scene_task_internal.h; typed members changed b210 call-crossing address lifetimes and exceeded the retail window. */
+/* measured: MEMBER retains only individually probed call-crossing period, timer and sprite reloads; access-site, typed-local and array forms change instructions or exceed the 2032-byte window. */
+// FUN_00266CC0
 void cldTimeChangeDraw(s32 unusedQueue, s32 task)
 {
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -274,73 +275,73 @@ void cldTimeChangeDraw(s32 unusedQueue, s32 task)
     s32 alpha;
 
     work = kwlnTaskGetWork(task);
-    firstPeriod = *(s32 *)(work + 0xC);
-    secondPeriod = *(s32 *)(work + 0x10);
+    firstPeriod = *(s32 *)&((CldTimeChangeWork *)work)->firstPeriod;
+    secondPeriod = *(s32 *)&((CldTimeChangeWork *)work)->secondPeriod;
     if (calHasDayEntry(datGetDateIndex()) != 0) {
-        if (*(s32 *)(work + 0xC) == 3) {
+        if (MEMBER(s32, work, CldTimeChangeWork, firstPeriod) == 3) {
             firstPeriod = 6;
         }
-        if (*(s32 *)(work + 0x10) == 3) {
+        if (MEMBER(s32, work, CldTimeChangeWork, secondPeriod) == 3) {
             secondPeriod = 6;
         }
     }
     switch (*(s32 *)work) {
     case 2:
-        elapsedFrames = *(s32 *)(work + 0x14);
+        elapsedFrames = *(s32 *)&((CldTimeChangeWork *)work)->elapsedFrames;
         if (elapsedFrames < 15) {
             f32 sineAmount = sinf((fGpffff84a4 * (f32)elapsedFrames) / 15.0f);
 
-            shdSpriteDrawNowEx(200.0f * (1.0f - sineAmount), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, sineAmount, 1.0f);
-            elapsedFrames = *(s32 *)(work + 0x14);
+            shdSpriteDrawNowEx(200.0f * (1.0f - sineAmount), 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)&((CldTimeChangeWork *)work)->sprites.pointer, 1, 0, 0, 0.0f, sineAmount, 1.0f);
+            elapsedFrames = MEMBER(s32, work, CldTimeChangeWork, elapsedFrames);
             if (elapsedFrames > 10) {
                 alpha = (u8)(255.0f * ((f32)(elapsedFrames - 10) / 5.0f));
-                shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, alpha, firstPeriod + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, alpha, firstPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
         } else if (elapsedFrames < 20) {
-            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, 0xFF, firstPeriod + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)&((CldTimeChangeWork *)work)->sprites.pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, 0xFF, firstPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         } else if (elapsedFrames < 25) {
             f32 sineAmount = sinf((fGpffff84a4 * (f32)(elapsedFrames - 20)) / 5.0f);
-            s32 spriteWidth = shdSpriteEntryWidth(0, 0, *(u8 **)(work + 4));
+            s32 spriteWidth = shdSpriteEntryWidth(0, 0, *(u8 **)&((CldTimeChangeWork *)work)->sprites.pointer);
             f32 remainingScale = 1.0f - sineAmount;
 
-            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, remainingScale, 1.0f);
-            spriteWidth = shdSpriteEntryWidth(firstPeriod + 1, 0, *(u8 **)(work + 4));
-            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0, 0xFF, firstPeriod + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, remainingScale, 1.0f);
+            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, remainingScale, 1.0f);
+            spriteWidth = shdSpriteEntryWidth(firstPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer));
+            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0, 0xFF, firstPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, remainingScale, 1.0f);
         } else if (elapsedFrames < 30) {
             f32 remainingScale;
             s32 spriteWidth;
             f32 sineAmount;
 
             sineAmount = 1.0f - sinf((fGpffff84a4 * (f32)(elapsedFrames - 25)) / 5.0f);
-            spriteWidth = shdSpriteEntryWidth(0, 0, *(u8 **)(work + 4));
+            spriteWidth = shdSpriteEntryWidth(0, 0, *(u8 **)&((CldTimeChangeWork *)work)->sprites.pointer);
             remainingScale = 1.0f - sineAmount;
 
-            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, remainingScale, 1.0f);
-            spriteWidth = shdSpriteEntryWidth(secondPeriod + 1, 0, *(u8 **)(work + 4));
-            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0, 0xFF, secondPeriod + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, remainingScale, 1.0f);
+            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, remainingScale, 1.0f);
+            spriteWidth = shdSpriteEntryWidth(secondPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer));
+            shdSpriteDrawNowEx(((f32)spriteWidth / 2.0f) * sineAmount, 0.0f, 0.0f, 0, 0xFF, secondPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, remainingScale, 1.0f);
         } else if (elapsedFrames < 40) {
-            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, 0xFF, secondPeriod + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, *(u8 **)&((CldTimeChangeWork *)work)->sprites.pointer, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, 0xFF, secondPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         } else if (elapsedFrames < 60) {
             f32 sineAmount = sinf((fGpffff84a4 * (f32)(elapsedFrames - 40)) / 20.0f);
             f32 remainingScale = 1.0f - sineAmount;
 
             alpha = (u8)(255.0f * remainingScale);
-            shdSpriteDrawNowEx(-200.0f * sineAmount, 0.0f, 0.0f, 0xFFFFFF, alpha, 0, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, remainingScale, 1.0f);
-            elapsedFrames = *(s32 *)(work + 0x14);
+            shdSpriteDrawNowEx(-200.0f * sineAmount, 0.0f, 0.0f, 0xFFFFFF, alpha, 0, 0, *(u8 **)&((CldTimeChangeWork *)work)->sprites.pointer, 1, 0, 0, 0.0f, remainingScale, 1.0f);
+            elapsedFrames = MEMBER(s32, work, CldTimeChangeWork, elapsedFrames);
             if (elapsedFrames < 45) {
                 remainingScale = (f32)(elapsedFrames - 40) / 5.0f;
                 alpha = (u8)(255.0f * (1.0f - remainingScale));
-                shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, alpha, secondPeriod + 1, 0, *(u8 **)(work + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                shdSpriteDrawNowEx(0.0f, 0.0f, 0.0f, 0, alpha, secondPeriod + 1, 0, MEMBER(u8 *, work, CldTimeChangeWork, sprites.pointer), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
         }
         break;
     }
 }
 
-// FUN_002674B0
 /* Queue the period-transition draw callback with its task handle. */
+// FUN_002674B0
 void cldTimeChangeQueueDraw(s32 taskHandle, u8 *queue) {
     u8 *node;
 
@@ -350,8 +351,8 @@ void cldTimeChangeQueueDraw(s32 taskHandle, u8 *queue) {
     PrimAppendNode(queue, node);
 }
 
-// FUN_00267510
 /* Destroy an allocated sprite pack before releasing the task work. */
+// FUN_00267510
 void mtSceneSpriteTableTaskDestroy(u8 *unusedTask) {
     u8 *work;
     s32 spriteHandle;
@@ -386,9 +387,9 @@ s32 cldTimeChangeCreate(s32 parentTask, s32 firstPeriod, s32 secondPeriod, s32 d
     return result;
 }
 
-// FUN_00267670
 /* Draw each shape, remove completed entries and grow the shared scale along a cubic curve. */
-/* Draw each shape, remove completed entries and grow the shared scale along a cubic curve. Raw work offsets follow scene_task_internal.h; typed members changed b210 call-crossing address lifetimes and exceeded the retail window. */
+/* measured: MEMBER retains three elapsed/scale accesses; access-site, typed-local and array forms grow this body from 304 to 308 bytes. */
+// FUN_00267670
 void cldShapeListDraw(u8 **shapeWork)
 {
     u8 *work;
@@ -408,12 +409,12 @@ void cldShapeListDraw(u8 **shapeWork)
                               f32 t);
 
     work = (u8 *)shapeWork;
-    *(s32 *)(work + 0xC) = 0xFF;
-    node = *(u8 **)(*(u8 **)work + 8);
+    *(s32 *)&((CldShapeWork *)work)->alpha = 0xFF;
+    node = *(u8 **)&((CldShapeList *)*(u8 **)work)->head;
     goto loop_test;
 loop_body:
-    nextNode = *(u8 **)(node + 0xC);
-    if (cldShapeDraw(shapeWork, *(u8 **)(node + 0x14)) != 0) {
+    nextNode = *(u8 **)&((CldShapeNode *)node)->link0C;
+    if (cldShapeDraw(shapeWork, *(u8 **)&((CldShapeNode *)node)->entry) != 0) {
         list = *(u8 **)work;
         comuDataRemoveAndReleaseNode(list, list + 4, node);
     }
@@ -422,18 +423,18 @@ loop_test:
     if (node != NULL) {
         goto loop_body;
     }
-    if ((*(f32 *)(work + 4) > 0.0f) ||
-        (*(u16 *)(*(u8 **)work + 0x10) != 0)) {
-        *(f32 *)(work + 4) += 1.0f;
-        if (*(f32 *)(work + 8) == 0.0f) {
-            *(f32 *)(work + 8) = D_00761514;
+    if ((*(f32 *)&((CldShapeWork *)work)->elapsed > 0.0f) ||
+        (((CldShapeList *)*(u8 **)work)->count != 0)) {
+        MEMBER(f32, work, CldShapeWork, elapsed) += 1.0f;
+        if (*(f32 *)&((CldShapeWork *)work)->scale == 0.0f) {
+            MEMBER(f32, work, CldShapeWork, scale) = D_00761514;
             return;
         }
-        time = mtSceneNormalizeShapeTime(*(f32 *)(work + 4));
+        time = mtSceneNormalizeShapeTime(MEMBER(f32, work, CldShapeWork, elapsed));
         scaleFactor = MT_Scene_CubicBezier(D_00761658, D_00761658,
                                D_0076165C, D_00761260, time);
-        previousScale = *(f32 *)(work + 8);
-        *(f32 *)(work + 8) = scaleFactor * previousScale + previousScale;
+        previousScale = *(f32 *)&((CldShapeWork *)work)->scale;
+        *(f32 *)&((CldShapeWork *)work)->scale = scaleFactor * previousScale + previousScale;
     }
 }
 
@@ -461,8 +462,8 @@ f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
 /* Copy complete table objects; renderer callbacks may change the item index. */
 /* measured: cldShapeDraw MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-// FUN_00267800
 /* Draw the indexed contour with depth and opacity derived from the transition scale. */
+// FUN_00267800
 s32 cldShapeDraw(u8 **shapeWork, u8 *entry)
 {
     f32 position[4];
@@ -531,8 +532,8 @@ s32 cldShapeDraw(u8 **shapeWork, u8 *entry)
 
 /* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
-// FUN_00267B20
 /* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
+// FUN_00267B20
 #pragma opt_propagation off
 /* Draw contour fill, outline and closing edge; shape 9 takes the single-pass special path. */
 void PrimDrawContour(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 unusedMode, s32 shape, s32 originX, s32 originY,
