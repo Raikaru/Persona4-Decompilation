@@ -5,6 +5,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "include_asm.h"
+#include "member_access.h"
 
 /* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit the lq/sq
    quadword copy retail uses, with no inline asm. */
@@ -66,7 +67,7 @@ extern void RingInstanceAdvance(u8 *instance);
 // Creates a ring handle: a 4-byte handle plus geometry copies with per-vertex colour rows (minimum three segments).
 // FUN_00498DA0
 u8 *RingCreateHandle(u8 *parameters) {
-    /* Earlier whole-layout probe: normalized_diff 123; remaining raw sites are isolated below. */
+    /* Earlier whole-layout probe: normalized_diff 123; separate typed locals now preserve the original reload lifetimes. */
     u8 *handle;
     u8 *geometry;
     s32 rowCount;
@@ -75,6 +76,7 @@ u8 *RingCreateHandle(u8 *parameters) {
     s32 outerColor;
     u32 rowIndex;
     u8 *colors;
+    EffRingParameters *ringParameters = (EffRingParameters *)parameters;
 
     chkmemAllocSiteTag(D_00713EF0, 0x39);
     handle = (u8 *)(*jtbl_008873E8)(4, 0x40000);
@@ -83,10 +85,10 @@ u8 *RingCreateHandle(u8 *parameters) {
     }
     if (((EffRingParameters *)parameters)->segments.count < 3) {
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        *(u32 *)(parameters + 0x38) = 3;
+        ringParameters->segments.count = 3;
     }
     /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x38), D_00713330, 4, 0x48);
+    geometry = GeometryCreateStripGrid(ringParameters->segments.low, D_00713330, 4, 0x48);
     *(u32 *)handle = (u32)geometry;
     rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 4;
     colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
@@ -123,7 +125,7 @@ void RingDestroyHandle(void **handle)
 // FUN_00498F10
 void RingRebuildCircle(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 462; remaining raw sites are isolated below. */
+    /* Earlier whole-layout probe: normalized_diff 462; separate typed locals now preserve the original reload lifetimes. */
     u_long128 direction;
     u_long128 innerRadiusVector;
     u_long128 middleRadiusVector;
@@ -148,10 +150,12 @@ void RingRebuildCircle(u8 *instance)
     u8 *geometry;
     u8 *parameters;
     u8 *vertices;
+    EffGeometryBlock *geometryBlock;
 
     handle = ((EffRingInstance *)instance)->work.bytes;
     parameters = ((EffRingInstance *)instance)->parameters;
     geometry = *(u8 **)handle;
+    geometryBlock = (EffGeometryBlock *)geometry;
     age = ((EffRingInstance *)instance)->age;
     duration = ((EffRingParameters *)parameters)->duration;
     if ((duration >= age) || (duration == 0)) {
@@ -176,7 +180,7 @@ void RingRebuildCircle(u8 *instance)
         rowCount = vertexCount / 4;
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
+        vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         angle = 0.0f;
         segmentCount = (f32)((EffRingParameters *)parameters)->segments.count;
         angleStep = fGpffff80d0 / segmentCount;
@@ -291,11 +295,13 @@ void RingUpdateRowColour(u8 *instance)
   u8 *material;
   f32 scale;
   u8 *baseColor;
+  EffGeometryBlock *geometryBlock;
 
   ring = (u8 *)instance;
   value = ((EffRingInstance *)ring)->work.signedBits;
   parameters = ((EffRingInstance *)ring)->parameters;
   geometry = *(u16 **)value;
+  geometryBlock = (EffGeometryBlock *)geometry;
   age = ((EffRingInstance *)ring)->age;
   duration = ((EffRingParameters *)parameters)->duration;
   if (((u32)age <= (u32)duration) || (duration == 0)) {
@@ -351,7 +357,7 @@ void RingUpdateRowColour(u8 *instance)
       colourStack[15] = 0xff;
     }
     /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    if (((RpMaterial *)*(s32 *)(geometry + 10))->color.c[3] != 0) {
+    if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
       GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
       if (((EffRingParameters *)parameters)->visible != 0) {
         *geometry = *geometry | 1;
@@ -387,7 +393,7 @@ void RingWriteLineColour(u8 *instance) {
 // Creates a ring with a per-vertex random scale and a texture from the kind table.
 // FUN_00499510
 u8 *RingCreateRandomScaled(u8 *parameters) {
-    /* Earlier parameter-only probe: normalized_diff 286; remaining raw sites are isolated below. */
+    /* Earlier parameter-only probe: normalized_diff 286; separate typed locals now preserve the original reload lifetimes. */
     u8 *block;
     u8 *scales;
     u32 segmentCount;
@@ -399,13 +405,14 @@ u8 *RingCreateRandomScaled(u8 *parameters) {
     s32 middleColor;
     f32 spread;
     f32 randomFactor;
+    EffRingParameters *ringParameters = (EffRingParameters *)parameters;
 
     if (((EffRingParameters *)parameters)->segments.count < 3) {
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        *(u32 *)(parameters + 0x38) = 3;
+        ringParameters->segments.count = 3;
     }
     /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    segmentCount = *(u32 *)(parameters + 0x38);
+    segmentCount = ringParameters->segments.count;
     chkmemAllocSiteTag(D_00713EF0, 0x10F);
     scaleBytes = segmentCount * 4;
     scales = (u8 *)(*jtbl_008873E8)(scaleBytes + 0x10, 0x40000);
@@ -417,8 +424,8 @@ u8 *RingCreateRandomScaled(u8 *parameters) {
     ((EffRingRandomBlock *)block)->allocation = scales;
     memcpy(parameters + 0x5C, parameters, 0x5C);
     ((EffRingRandomBlock *)block)->sourceInstance = RingCreateKindInstance(1, parameters + 0x5C);
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    *(u32 *)(block + 8) = (u32)GeometryCreateTableGrid(segmentCount & 0xFFFF, 2, 4, D_00713390, 0x48);
+    /* Typed pointer/integer stores, a typed local, and array form all reorder the following color loads (181 differing bytes). */
+    MEMBER(u32, block, EffRingRandomBlock, geometry) = (u32)GeometryCreateTableGrid(segmentCount & 0xFFFF, 2, 4, D_00713390, 0x48);
     colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)((EffRingRandomBlock *)block)->geometry)->atomic)->geometry->colors;
     innerColor = ((EffRingParameters *)parameters)->innerColor;
     outerColor = ((EffRingParameters *)parameters)->middleColor;
@@ -458,7 +465,7 @@ void RingDestroyBlock(u8 *block)
 // FUN_00499730
 void RingRebuildStrip(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 428; remaining raw sites are isolated below. */
+    /* Earlier whole-layout probe: normalized_diff 428; separate typed locals now preserve the original reload lifetimes. */
     u8 *block;
     u8 *sourceInstance;
     u8 **sourceHandle;
@@ -484,12 +491,14 @@ void RingRebuildStrip(u8 *instance)
     u8 *updatedSource;
     u8 *sourceRwGeometry;
     u8 *rwGeometry;
+    EffGeometryBlock *geometryBlock;
 
     block = ((EffRingInstance *)instance)->work.bytes;
     sourceInstance = ((EffRingRandomBlock *)block)->sourceInstance;
     sourceHandle = (u8 **)((EffRingInstance *)sourceInstance)->work.bytes;
     parameters = ((EffRingInstance *)instance)->parameters;
     geometry = ((EffRingRandomBlock *)block)->geometry;
+    geometryBlock = (EffGeometryBlock *)geometry;
     scales = ((EffRingRandomBlock *)block)->scales;
     age = ((EffRingInstance *)instance)->age;
     duration = ((EffRingParameters *)parameters)->duration;
@@ -502,7 +511,7 @@ void RingRebuildStrip(u8 *instance)
         sourceGeometry = *sourceHandle;
         lastVertex = ((EffGeometryBlock *)sourceGeometry)->vertexCount - 1;
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
+        vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         sourceVertices = (u8 *)((RpAtomic *)((EffGeometryBlock *)sourceGeometry)->atomic)->geometry->morphTarget->vertices;
         if (((EffRingRandomParameters *)parameters)->skipVertices == 0) {
             counter = 0;
@@ -613,10 +622,12 @@ void RingUpdateLineSegment(u8 *instance)
     u8 *baseColor;
     f32 scale;
     u_long128 *destinationQuad;
+    EffGeometryBlock *geometryBlock;
 
     block = ((EffRingInstance *)instance)->work.bytes;
     parameters = ((EffRingInstance *)instance)->parameters;
     geometry = ((EffRingRandomBlock *)block)->geometry;
+    geometryBlock = (EffGeometryBlock *)geometry;
     if (((u32)((EffRingParameters *)parameters)->duration >= (u32)((EffRingInstance *)instance)->age) ||
         (((EffRingParameters *)parameters)->duration == 0)) {
         sampledColor = mdlEffectSamplePackedColor(parameters, parameters + 0x24,
@@ -674,7 +685,7 @@ void RingUpdateLineSegment(u8 *instance)
             colourStack[15] = 0xFF;
         }
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        if (((RpMaterial *)*(u8 **)(geometry + 0x14))->color.c[3] != 0) {
+        if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
             ((EffRingInstance *)((EffRingRandomBlock *)block)->sourceInstance)->packedColor =
                 ((EffRingInstance *)instance)->packedColor;
             destinationQuad = (u_long128 *)(((EffRingRandomBlock *)block)->sourceInstance + 0x20);
@@ -717,7 +728,7 @@ void RingWriteLineColourAlt(u8 *instance) {
 // Creates a ring handle with geometry copies and per-vertex colour rows. Same body as RingCreateHandle.
 // FUN_00499CD0
 u8 *RingCreateHandleAlt(u8 *parameters) {
-    /* Earlier whole-layout probe: normalized_diff 123; remaining raw sites are isolated below. */
+    /* Earlier whole-layout probe: normalized_diff 123; separate typed locals now preserve the original reload lifetimes. */
     u8 *handle;
     u8 *geometry;
     s32 rowCount;
@@ -726,6 +737,7 @@ u8 *RingCreateHandleAlt(u8 *parameters) {
     s32 outerColor;
     u32 rowIndex;
     u8 *colors;
+    EffRingParameters *ringParameters = (EffRingParameters *)parameters;
 
     chkmemAllocSiteTag(D_00713EF0, 0x1E6);
     handle = (u8 *)(*jtbl_008873E8)(4, 0x40000);
@@ -734,10 +746,10 @@ u8 *RingCreateHandleAlt(u8 *parameters) {
     }
     if (((EffRingParameters *)parameters)->segments.count < 3) {
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        *(u32 *)(parameters + 0x38) = 3;
+        ringParameters->segments.count = 3;
     }
     /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x38), D_00713330, 4, 0x48);
+    geometry = GeometryCreateStripGrid(ringParameters->segments.low, D_00713330, 4, 0x48);
     *(u32 *)handle = (u32)geometry;
     rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 4;
     colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry->colors;
@@ -772,7 +784,7 @@ void RingDestroyHandleAlt(void **handle)
 // FUN_00499E40
 void RingRebuildCircleScaled(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 434; remaining raw sites are isolated below. */
+    /* Earlier whole-layout probe: normalized_diff 434; separate typed locals now preserve the original reload lifetimes. */
     u8 *parameters;
     u8 *geometry;
     s32 age;
@@ -798,11 +810,13 @@ void RingRebuildCircleScaled(u8 *instance)
     u_long128 middleRadiusVector;
     u_long128 outerRadiusVector;
     u8 *rwGeometry;
+    EffGeometryBlock *geometryBlock;
 
     {
         u8 *handle = ((EffRingInstance *)instance)->work.bytes;
         parameters = ((EffRingInstance *)instance)->parameters;
         geometry = *(u8 **)handle;
+        geometryBlock = (EffGeometryBlock *)geometry;
         age = ((EffRingInstance *)instance)->age;
         duration = ((EffRingParameters *)parameters)->duration;
     }
@@ -828,7 +842,7 @@ void RingRebuildCircleScaled(u8 *instance)
         rowCount = vertexCount / 4;
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
         /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-        vertices = (u8 *)((RpAtomic *)*(u8 **)(geometry + 0x10))->geometry->morphTarget->vertices;
+        vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         phase = 0.0f;
         segmentCount = (f32)((EffRingParameters *)parameters)->segments.count;
         step = fGpffff80d0 / segmentCount;
@@ -918,11 +932,13 @@ void RingUpdateRowColourAlt(u8 *instance)
   u8 *material;
   f32 scale;
   u8 *baseColor;
+  EffGeometryBlock *geometryBlock;
 
   ring = (u8 *)instance;
   value = ((EffRingInstance *)ring)->work.signedBits;
   parameters = ((EffRingInstance *)ring)->parameters;
   geometry = *(u16 **)value;
+  geometryBlock = (EffGeometryBlock *)geometry;
   age = ((EffRingInstance *)ring)->age;
   duration = ((EffRingParameters *)parameters)->duration;
   if (((u32)age <= (u32)duration) || (duration == 0)) {
@@ -978,7 +994,7 @@ void RingUpdateRowColourAlt(u8 *instance)
       colourStack[15] = 0xff;
     }
     /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
-    if (((RpMaterial *)*(s32 *)(geometry + 10))->color.c[3] != 0) {
+    if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
       GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
       if (((EffRingParameters *)parameters)->visible != 0) {
         *geometry = *geometry | 1;

@@ -3,6 +3,8 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "rw_camera_internal.h"
+#include "particle_spawn_internal.h"
 
 typedef struct DistortParticleNode {
     u8 pad00[0x18];
@@ -83,14 +85,17 @@ typedef struct DistortParticleParameters {
     u8 pad00[0x20];
     s32 count; /* +0x20 */
     u32 multiplier; /* +0x24 */
-    u8 pad28[0x90];
+    u8 pad28[0x28];
+    u32 alphaDivisor; /* +0x50: mode-one draw divides the source alpha by this value */
+    u8 pad54[0x64];
     u32 fallbackCount; /* +0xB8 */
     u8 padBC[0x4];
     s32 unkC0; /* +0xC0 */
 } DistortParticleParameters;
 
 typedef struct DistortTextureReference {
-    u8 pad00[0x54];
+    u8 *raster; /* +0x00: native RwTexture raster link */
+    u8 pad04[0x50];
     s32 references; /* +0x54 */
 } DistortTextureReference;
 
@@ -218,36 +223,41 @@ void DistortParticleFree(u8 *particle) {
 // Creates a distortion particle from a parent record: sizes the record buffer from the parent's block and shares its texture; asserts the parent block exists.
 // FUN_004AF920
 void *DistortParticleCreateFromParent(void *opaqueSource) {
-    /* The layouts above document these offsets. Keep byte accesses: the typed rewrite changes MWCC register allocation (normalized_diff 218). */
+    /* Access-site typing differed by 218 normalized bytes; separate typed locals preserve the original reload lifetimes. */
     u8 *parent = opaqueSource;
     s32 sourceCount;
     u32 recordCount;
     u8 *parameters;
     u8 *particle;
+    DistortParticleInstance *parentInstance = (DistortParticleInstance *)parent;
+    DistortParticleInstance *instance;
+    DistortParticleParameters *settings;
 
-    if (*(u8 **)(parent + 0x5C) == NULL) {
+    if (parentInstance->list == NULL) {
         kAssertFail(D_00714550, 0xB3);
     }
-    parameters = *(u8 **)(*(u8 **)(parent + 0x5C) + 0x24);
+    parameters = (u8 *)((WaveSpawnEmitter *)parentInstance->list)->originalParameters;
+    settings = (DistortParticleParameters *)parameters;
     if (parameters == NULL) {
         kAssertFail(D_00714550, 0xB5);
     }
-    sourceCount = *(s32 *)(parameters + 0x20);
+    sourceCount = settings->count;
     if (sourceCount == 0) {
-        recordCount = *(u32 *)(parameters + 0xB8) * *(u32 *)(parameters + 0x24);
+        recordCount = settings->fallbackCount * settings->multiplier;
     } else {
-        recordCount = (u32)sourceCount * *(u32 *)(parameters + 0x24);
+        recordCount = (u32)sourceCount * settings->multiplier;
     }
     if (recordCount > 0x64) {
         recordCount = 0x64;
     }
     particle = DistortParticleAlloc(recordCount);
+    instance = (DistortParticleInstance *)particle;
     if (particle == NULL) {
         kAssertFail(D_00714550, 0xB7);
     }
     memcpy(particle + 0xC, parent + 0xC, 0x48);
-    DistortParticleRebuildRecords(particle, *(u16 *)(*(u8 **)(parent + 0x5C) + 0), parameters);
-    if (*(s32 *)(*(u8 **)(particle + 0x5C) + 8) == 0) {
+    DistortParticleRebuildRecords(particle, ((WaveSpawnEmitter *)parentInstance->list)->kind, parameters);
+    if (((DistortParticleSourceList *)instance->list)->count == 0) {
         return particle;
     }
     DistortParticleShareTexture(particle, parent);
@@ -278,31 +288,33 @@ void DistortParticleShareTexture(u8 *destination, u8 *source) {
 // Rebuilds the source block for id source with parameters options, then re-allocates the record table and seeds every record.
 // FUN_004AFB10
 void DistortParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *parameters) {
-    /* The layouts above document these offsets. Keep byte accesses: the typed rewrite changes MWCC register allocation (normalized_diff 212). */
+    /* Access-site typing differed by 212 normalized bytes; separate typed locals preserve the original reload lifetimes. */
     u32 recordCount;
     u8 *record;
     u32 recordIndex;
     u8 *records;
+    DistortParticleInstance *instance = (DistortParticleInstance *)particle;
+    DistortParticleHeader *header = (DistortParticleHeader *)particle;
 
-    if (*(u8 **)(particle + 0x5C) != NULL) {
-        mdlEffectFreeEmitterAllocation(*(u8 **)(particle + 0x5C));
+    if (instance->list != NULL) {
+        mdlEffectFreeEmitterAllocation(instance->list);
     }
-    if (*(s32 *)(parameters + 0xC0) != 0) {
+    if (((DistortParticleParameters *)parameters)->unkC0 != 0) {
         kAssertFail(D_00714550, 0xF4);
     }
-    *(u8 **)(particle + 0x5C) = mdlEffectAllocateTrackPath(sourceId & 0xFFFF, *(s32 *)(particle + 0), parameters);
-    if (*(u8 **)(particle + 0x68) != NULL) {
-        (*jtbl_008873EC)(*(u8 **)(particle + 0x68));
+    instance->list = mdlEffectAllocateTrackPath(sourceId & 0xFFFF, header->recordCount.signedValue, parameters);
+    if (instance->table != NULL) {
+        (*jtbl_008873EC)(instance->table);
     }
-    recordCount = *(u32 *)(*(u8 **)(particle + 0x5C) + 8);
+    recordCount = (u32)((DistortParticleSourceList *)instance->list)->count;
     chkmemAllocSiteTag(D_00714550, 0xFE);
     records = (u8 *)(*jtbl_008873E8)(recordCount * 0x1C, 0x40000);
-    *(u8 **)(particle + 0x68) = records;
+    instance->table = records;
     if (records == NULL) {
         kAssertFail(D_00714550, 0xFF);
     }
-    record = *(u8 **)(particle + 0x68);
-    *(u8 **)(particle + 0x64) = record;
+    record = instance->table;
+    instance->field_0x64 = record;
     recordIndex = 0;
     while (recordIndex < recordCount) {
         DistortParticleSeedRecord(particle, record);
@@ -327,21 +339,23 @@ void DistortParticleReleaseSource(u8 *particle)
 // Seeds one 0x1C-byte record from the particle's parameters: random offsets, sizes, scale and the fade value at +0x24.
 // FUN_004AFC80
 void DistortParticleSeedRecord(u8 *particle, u8 *record) {
-    /* The layouts above document these offsets. Keep byte accesses: the typed rewrite changes MWCC register allocation (normalized_diff 295). */
+    /* Access-site typing differed by 295 normalized bytes; separate typed locals preserve the original reload lifetimes. */
     f32 sizeVariation;
     f32 sizeFactor;
     f32 fadeVariation;
+    DistortParticleHeader *header = (DistortParticleHeader *)particle;
+    DistortParticleRecord *entry = (DistortParticleRecord *)record;
 
-    sizeVariation = *(f32 *)(particle + 0xC);
+    sizeVariation = header->sizeVariation;
     sizeFactor = (1.0f - sizeVariation) + sizeVariation * effMiscRandFloat(0);
-    *(f32 *)(record + 0) = fGpffff8080 * effMiscRandFloat(0);
-    *(f32 *)(record + 0xC) = fGpffff8080 * effMiscRandFloat(0);
-    *(f32 *)(record + 4) = *(f32 *)(particle + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
-    *(f32 *)(record + 0x10) = *(f32 *)(particle + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
-    *(f32 *)(record + 8) = sizeFactor * (*(f32 *)(particle + 0x10) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
-    *(f32 *)(record + 0x14) = sizeFactor * (*(f32 *)(particle + 0x14) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
-    fadeVariation = *(f32 *)(particle + 0x24);
-    *(f32 *)(record + 0x18) = (1.0f - fadeVariation) + fadeVariation * effMiscRandFloat(0);
+    entry->xPhase = fGpffff8080 * effMiscRandFloat(0);
+    entry->yPhase = fGpffff8080 * effMiscRandFloat(0);
+    entry->xStep = header->phaseStep * (0.5f + 0.5f * effMiscRandFloat(0));
+    entry->yStep = header->phaseStep * (0.5f + 0.5f * effMiscRandFloat(0));
+    entry->xAmplitude = sizeFactor * (header->xAmplitude * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
+    entry->yAmplitude = sizeFactor * (header->yAmplitude * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
+    fadeVariation = header->fadeVariation;
+    entry->scale = (1.0f - fadeVariation) + fadeVariation * effMiscRandFloat(0);
 }
 
 /* DistortParticleDrawSky, MATCH 2026-10-07. Rewritten from retail asm on the matched
@@ -378,7 +392,7 @@ typedef struct DistortVec3 {
 // FUN_004AFE20
 void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *position, void *colorScale, void *textureSize, s32 drawMode, s32 uvIndex)
 {
-    /* The layouts above document these offsets. Keep byte accesses: the typed rewrite changes MWCC register allocation (normalized_diff 1319). */
+    /* Access-site typing differed by 1319 normalized bytes; separate typed locals preserve the original reload lifetimes. */
     extern void RpSkyRenderStateGet(s32 param, void *out);
     extern void RpSkyRenderStateSet(s32 param, s32 value);
     extern f32 cosf(f32 param);
@@ -429,8 +443,12 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
     f32 xSine;
     f32 ySine;
     s32 outsideView;
+    DistortParticleHeader *header = (DistortParticleHeader *)particle;
+    DistortParticleInstance *instance = (DistortParticleInstance *)particle;
+    DistortParticleRecord *entry = (DistortParticleRecord *)record;
+    DistortParticleSourceRecord *source = (DistortParticleSourceRecord *)sourceRecord;
 
-    sourceColor = *(s32 *)((u8 *)sourceRecord + 0x14);
+    sourceColor = source->color;
     {
         const s32 *word = &sourceColor;
         f32 scale;
@@ -467,9 +485,9 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
     }
     RpSkyRenderStateGet(2, &savedTextureState);
     RpSkyRenderStateGet(3, &savedBlendState);
-    base = *(f32 *)((u8 *)sourceRecord + 0x18);
-    horizontalScale = base + *(f32 *)(record + 0x8) * cosf(*(f32 *)(record + 0x0));
-    verticalScale = base + *(f32 *)(record + 0x14) * cosf(*(f32 *)(record + 0xC));
+    base = source->scale;
+    horizontalScale = base + entry->xAmplitude * cosf(entry->xPhase);
+    verticalScale = base + entry->yAmplitude * cosf(entry->yPhase);
     mode = drawMode & 0xFF;
     switch (mode) {
     case 0:
@@ -495,14 +513,14 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
     case 1: {
         f32 scale;
 
-        if (*(f32 *)(particle + 0x28) < fGpffff80f0 || *(f32 *)(particle + 0x2C) < ((f32 *)&fGpffff80f0)[0]) {
+        if (header->xSize < fGpffff80f0 || header->ySize < ((f32 *)&fGpffff80f0)[0]) {
             return;
         }
-        ((u8 *)&packed)[3] = (u8)((255.0f * (f32)(*(u32 *)((u32)sourceRecord + 0x14) >> 24)) /
-                                  (f32)*(u32 *)(*(u8 **)(*(u8 **)(particle + 0x5C) + 0x20) + 0x50));
-        scale = *(f32 *)(record + 0x18);
-        sizeX = scale * (*(f32 *)(particle + 0x28) * ((((f32 *)textureSize)[0] * horizontalScale) / 32.0f));
-        sizeY = scale * (*(f32 *)(particle + 0x2C) * ((((f32 *)textureSize)[1] * verticalScale) / 32.0f));
+        ((u8 *)&packed)[3] = (u8)((255.0f * (f32)((u32)source->color >> 24)) /
+                                  (f32)((DistortParticleParameters *)((WaveSpawnEmitter *)instance->list)->parameters)->alphaDivisor);
+        scale = entry->scale;
+        sizeX = scale * (header->xSize * ((((f32 *)textureSize)[0] * horizontalScale) / 32.0f));
+        sizeY = scale * (header->ySize * ((((f32 *)textureSize)[1] * verticalScale) / 32.0f));
         quad[0].r = 255.0f;
         quad[0].g = 255.0f;
         quad[0].b = 255.0f;
@@ -541,15 +559,15 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
     }
     bufferNear = D_008872FC[0];
     bufferFar = D_008872F8[0];
-    cameraFar = *(f32 *)((u8 *)kwlnGetCamera() + 0x84);
-    cameraNear = *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+    cameraFar = ((RwCamera *)kwlnGetCamera())->farPlane;
+    cameraNear = ((RwCamera *)kwlnGetCamera())->nearPlane;
     depth = (cameraNear / cameraPosition.z) * ((cameraPosition.z - cameraFar) * ((bufferFar - bufferNear) / (cameraNear - cameraFar))) + (bufferNear + 0.0f);
     if (depth < 0.0f) {
         depth = 0.0f;
     }
     recip = 1.0f / depth;
-    cosine = cosf(fGpffff8084 + *(f32 *)((u8 *)sourceRecord + 0x1C));
-    sine = sinf(fGpffff8084 + *(f32 *)((u32)sourceRecord + 0x1C));
+    cosine = cosf(fGpffff8084 + source->angle);
+    sine = sinf(fGpffff8084 + source->angle);
     xCosine = sizeX * cosine;
     yCosine = sizeY * cosine;
     xSine = sizeX * sine;
@@ -592,9 +610,10 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
         primitiveTable = (u32)D_00887310;
         ((s32 (**)(s32, DistortVertex *, s32))primitiveTable)[0](4, quad, 4);
         mdlEffectEmitTagPair();
-        ((void (**)(u32, u32))setStateTable)[0](1, **(u32 **)(particle + 0x60));
+        ((void (**)(u32, u32))setStateTable)[0](1, *(u32 *)instance->texture);
         RpSkyRenderStateSet(2, savedTextureState | 0x10);
         uv = (uvIndex & 0xFF) << 5;
+        /* Interleaved UV-table linker interior aliases: each label names one lane of a 0x20-byte row. */
         quad[0].u = *(f32 *)((u8 *)D_00714570 + uv);
         quad[0].v = *(f32 *)((u8 *)D_00714574 + uv);
         quad[1].u = *(f32 *)((u8 *)D_00714578 + uv);
@@ -619,7 +638,7 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
 // Advances the record table: re-seeds each record whose source-side word at +0x10 is zero, then steps the live records by their +4 and +0x10 deltas.
 // FUN_004B0A80
 void DistortParticleUpdateRecords(u8 *particle) {
-    /* The layouts above document these offsets. Keep byte accesses: the typed rewrite changes MWCC register allocation (normalized_diff 466). */
+    /* Access-site typing differed by 466 normalized bytes; separate typed locals preserve the original reload lifetimes. */
     f32 sizeVariation;
     f32 sizeFactor;
     f32 fadeVariation;
@@ -628,32 +647,40 @@ void DistortParticleUpdateRecords(u8 *particle) {
     u8 *record;
     s32 recordIndex;
     u8 *sourceList;
+    DistortParticleInstance *instance = (DistortParticleInstance *)particle;
+    DistortParticleHeader *header = (DistortParticleHeader *)particle;
+    DistortParticleSourceList *list;
+    DistortParticleSourceRecord *source;
+    DistortParticleRecord *entry;
 
-    mdlEffectAdvanceEmitter(*(u8 **)(particle + 0x5C));
-    sourceList = *(u8 **)(particle + 0x5C);
-    recordCount = *(s32 *)(sourceList + 8);
-    if ((recordCount != 0) && (*(s32 *)(sourceList + 0x10) != 0)) {
-        sourceRecord = *(u8 **)(sourceList + 0x18);
-        record = *(u8 **)(particle + 0x64);
-        *(f32 *)(particle + 0x54) = *(f32 *)(particle + 0x54) + *(f32 *)(particle + 0x1C);
-        *(f32 *)(particle + 0x58) = *(f32 *)(particle + 0x58) + *(f32 *)(particle + 0x20);
+    mdlEffectAdvanceEmitter(instance->list);
+    sourceList = instance->list;
+    list = (DistortParticleSourceList *)sourceList;
+    recordCount = list->count;
+    if ((recordCount != 0) && (list->active != 0)) {
+        sourceRecord = list->records;
+        record = instance->field_0x64;
+        header->xScroll.scalar = header->xScroll.scalar + header->xScrollStep;
+        header->yScroll.scalar = header->yScroll.scalar + header->yScrollStep;
         recordIndex = 0;
         while (recordIndex < recordCount) {
-            if (*(s32 *)(sourceRecord + 0x10) == 0) {
-                sizeVariation = *(f32 *)(particle + 0xC);
+            source = (DistortParticleSourceRecord *)sourceRecord;
+            entry = (DistortParticleRecord *)record;
+            if (source->state == 0) {
+                sizeVariation = header->sizeVariation;
                 sizeFactor = (1.0f - sizeVariation) + sizeVariation * effMiscRandFloat(0);
-                *(f32 *)(record + 0) = fGpffff8080 * effMiscRandFloat(0);
-                *(f32 *)(record + 0xC) = fGpffff8080 * effMiscRandFloat(0);
-                *(f32 *)(record + 4) = *(f32 *)(particle + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
-                *(f32 *)(record + 0x10) = *(f32 *)(particle + 0x18) * (0.5f + 0.5f * effMiscRandFloat(0));
-                *(f32 *)(record + 8) = sizeFactor * (*(f32 *)(particle + 0x10) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
-                *(f32 *)(record + 0x14) = sizeFactor * (*(f32 *)(particle + 0x14) * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
-                fadeVariation = *(f32 *)(particle + 0x24);
-                *(f32 *)(record + 0x18) = (1.0f - fadeVariation) + fadeVariation * effMiscRandFloat(0);
+                entry->xPhase = fGpffff8080 * effMiscRandFloat(0);
+                entry->yPhase = fGpffff8080 * effMiscRandFloat(0);
+                entry->xStep = header->phaseStep * (0.5f + 0.5f * effMiscRandFloat(0));
+                entry->yStep = header->phaseStep * (0.5f + 0.5f * effMiscRandFloat(0));
+                entry->xAmplitude = sizeFactor * (header->xAmplitude * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
+                entry->yAmplitude = sizeFactor * (header->yAmplitude * (fGpffff809c + fGpffff8098 * effMiscRandFloat(0)));
+                fadeVariation = header->fadeVariation;
+                entry->scale = (1.0f - fadeVariation) + fadeVariation * effMiscRandFloat(0);
             }
-            if (*(s32 *)(sourceRecord + 0x10) >= 0) {
-                *(f32 *)(record + 0) = *(f32 *)(record + 0) + *(f32 *)(record + 4);
-                *(f32 *)(record + 0xC) = *(f32 *)(record + 0xC) + *(f32 *)(record + 0x10);
+            if (source->state >= 0) {
+                entry->xPhase = entry->xPhase + entry->xStep;
+                entry->yPhase = entry->yPhase + entry->yStep;
             }
             recordIndex += 1;
             sourceRecord += 0x20;
@@ -665,7 +692,7 @@ void DistortParticleUpdateRecords(u8 *particle) {
 // Projects the live records: when bit 0 of the source word at +0xC is clear each record is drawn directly; when set, the matrix from TnSlotObject(0x15) is applied to each record first.
 // FUN_004B0CE0
 void DistortParticleProjectRecords(u8 *particle, s32 drawMode) {
-    /* The layouts above document these offsets. Keep byte accesses: the typed rewrite changes MWCC register allocation (normalized_diff 444). */
+    /* Access-site typing differed by 444 normalized bytes; separate typed locals preserve the original reload lifetimes. */
     s32 particleColor;
     s32 *pt;
     f32 textureSize[2];
@@ -683,22 +710,28 @@ void DistortParticleProjectRecords(u8 *particle, s32 drawMode) {
     u8 *updatedList;
     u8 *record;
     s32 scale;
+    DistortParticleInstance *instance = (DistortParticleInstance *)particle;
+    DistortParticleHeader *header = (DistortParticleHeader *)particle;
+    DistortParticleSourceList *list;
+    DistortParticleRaster *textureRaster;
 
-    sourceList = *(u8 **)(particle + 0x5C);
-    recordCount = *(s32 *)(sourceList + 8);
-    if ((recordCount != 0) && (*(s32 *)(sourceList + 0x10) != 0)) {
-        if (*(s32 *)(particle + 0x60) == 0) {
+    sourceList = instance->list;
+    list = (DistortParticleSourceList *)sourceList;
+    recordCount = list->count;
+    if ((recordCount != 0) && (list->active != 0)) {
+        if ((s32)instance->texture == 0) {
             kAssertFail(D_00714550, 0x265);
         }
-        sourceRecord = *(u8 **)(*(u8 **)(particle + 0x5C) + 0x18);
-        record = *(u8 **)(particle + 0x64);
-        raster = *(u8 **)(s32)TnSlotObject(0x15);
+        sourceRecord = ((DistortParticleSourceList *)instance->list)->records;
+        record = instance->field_0x64;
+        raster = ((DistortTextureReference *)(s32)TnSlotObject(0x15))->raster;
+        textureRaster = (DistortParticleRaster *)raster;
         if ((drawMode & 0xFF) == 1) {
             D_00887300[0](1, (u32)raster);
         }
-        textureSize[0] = (f32) * (s32 *)(raster + 0xC);
-        textureSize[1] = (f32) * (s32 *)(raster + 0x10);
-        particleColor = *(s32 *)(particle + 4);
+        textureSize[0] = (f32)textureRaster->unk0C;
+        textureSize[1] = (f32)textureRaster->unk10;
+        particleColor = header->color;
         pt = &particleColor;
         scale = iGpffff81f4;
         __asm__ volatile(
@@ -714,11 +747,11 @@ void DistortParticleProjectRecords(u8 *particle, s32 drawMode) {
             : "r"(pt), "r"(scale)
             : "$2", "$3", "$vf2", "$vf10", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(colorScale) : "$vf10", "memory");
-        updatedList = *(u8 **)(particle + 0x5C);
-        if (!(*(s32 *)(updatedList + 0xC) & 1)) {
+        updatedList = instance->list;
+        if (!(((DistortParticleSourceList *)updatedList)->flags & 1)) {
             recordIndex = 0;
             while (recordIndex < recordCount) {
-                if (*(s32 *)(sourceRecord + 0x10) >= 0) {
+                if (((DistortParticleSourceRecord *)sourceRecord)->state >= 0) {
                     DistortParticleDrawSky(particle, record, sourceRecord, sourceRecord, colorScale, textureSize, drawMode, effMiscRand(0) & 3);
                 }
                 recordIndex += 1;
@@ -727,7 +760,7 @@ void DistortParticleProjectRecords(u8 *particle, s32 drawMode) {
             }
         } else {
             mdlEffectLoadQuadB(updatedList, rotation);
-            mdlEffectLoadQuadA(*(u8 **)(particle + 0x5C), translation);
+            mdlEffectLoadQuadA(instance->list, translation);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(rotation) : "$vf10", "memory");
             effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(translation) : "$vf31", "memory");
@@ -741,7 +774,7 @@ void DistortParticleProjectRecords(u8 *particle, s32 drawMode) {
                 : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
             transformedIndex = 0;
             while (transformedIndex < recordCount) {
-                if (*(s32 *)(sourceRecord + 0x10) >= 0) {
+                if (((DistortParticleSourceRecord *)sourceRecord)->state >= 0) {
                     __asm__ volatile(
                         "lqc2 $vf28, 0(%0)     \n"
                         "lqc2 $vf29, 16(%0)    \n"
