@@ -2,6 +2,7 @@
 #include "list_item_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
@@ -111,8 +112,8 @@ extern f32 D_007612C4;
 /* measured: closes the optimization_level bracket (nd 0). */
 /* Copy complete table objects; renderer callbacks may change the item index. */
 // Intent: Scene icon task update, the callback created by MT_Scene_SpawnIconTask [inferred]
+/* measured: only the post-destroy clear requires MEMBER; access-site, typed-local and array forms change 42 bytes. */
 // FUN_00268A70
-/* The effect is at +4 in SceneIconWork; typed member access retains an extra member address across the destroy call (16 differing words). */
 s32 MT_Scene_IconTaskUpdate(u8 *task)
 {
     s32 remainingFrames;
@@ -122,26 +123,26 @@ s32 MT_Scene_IconTaskUpdate(u8 *task)
     remainingFrames = ((SceneIconWork *)work)->remainingFrames - 1;
     ((SceneIconWork *)work)->remainingFrames = remainingFrames;
     if (remainingFrames < 0) {
-        mdlEffectDestroy((u8 *)*(s32 *)(work + 4));
-        *(s32 *)(work + 4) = 0;
+        mdlEffectDestroy((u8 *)*(s32 *)&((SceneIconWork *)work)->value.handle);
+        MEMBER(s32, work, SceneIconWork, value.handle) = 0;
         return -1;
     }
     return 0;
 }
 
 // Intent: Scene icon task destroy: releases the icon resource and the task work block [inferred]
+/* measured: only the post-destroy clear requires MEMBER; access-site, typed-local and array forms grow this body to 92 bytes (80-byte window). */
 // FUN_00268AD0
-/* Keep the +4 effect slot as a raw access: the typed member form changes b210 address lifetimes across destruction. */
 void MT_Scene_IconTaskDestroy(u8 *task)
 {
     u8 *work;
     u8 *effect;
 
     work = ((struct KwlnTask *)task)->work;
-    effect = *(u8 **)(work + 4);
+    effect = *(u8 **)&((SceneIconWork *)work)->value.effect;
     if (effect != NULL) {
         mdlEffectDestroy(effect);
-        *(u8 **)(work + 4) = NULL;
+        MEMBER(u8 *, work, SceneIconWork, value.effect) = NULL;
     }
     jtbl_008873EC[0](work);
 }
