@@ -8,7 +8,7 @@
 #include "kwln_task_internal.h"
 #include "message_handle.h"
 #include "shd_misc_internal.h"
-
+#include "resrc_manager_internal.h"
 /* Marker update reads these bytes from its task work; the prefix is owned
    by the marker drawing routines, not interpreted here. */
 typedef struct YSymbolMarker {
@@ -25,7 +25,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
     return right * left;
 }
 extern void (*jtbl_008873EC[])(void *);
-
+#include "member_access.h"
 
 
 extern u8 *D_0072466C;
@@ -577,8 +577,8 @@ s32 datItemPriceCompare(const void *left, const void *right) {
     return -(s32)(rightPrice < leftPrice);
 }
 
-// FUN_002B32A0
 /* Return the limit once reached, otherwise the enabled fallback or zero. */
+// FUN_002B32A0
 s32 fclSelectBoundedFallback(s32 value, s32 limit, s32 enabled, s32 fallback)
 {
     s32 result;
@@ -739,7 +739,7 @@ s32 mapSymbolTaskUpdate(u8 *task)
     if (ySymbolIsEnabled() == 0) {
         return 0;
     }
-    /* Player actor +0x220 remains byte-addressed: its owner layout is not established here. */
+    /* The cached player resource owns the field-frame task in handle220. */
     if (((YSymbolMarker *)p)->hidden == 1) {
         return 0;
     }
@@ -754,13 +754,13 @@ s32 mapSymbolTaskUpdate(u8 *task)
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 172.0f;
         out.x = mapPosition -
-                smapPlayerOffsetX(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
+                smapPlayerOffsetX(((ResrcRecord *)((u8 **)D_007EFA04)[0])->handle220,
                               18.0f);
         mapPosition = ((f32)smapWorldToRow(
                         mdlGetMatrix(D_007EFA00[0]) + 0x30) *
                     18.0f) + 9.0f;
         out.y = mapPosition -
-                smapPlayerOffsetZ(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
+                smapPlayerOffsetZ(((ResrcRecord *)((u8 **)D_007EFA04)[0])->handle220,
                               18.0f) - 2.0f;
     }
     color = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);

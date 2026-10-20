@@ -4,7 +4,7 @@
 #include "type.h"
 #include "g_data_internal.h"
 #include "kwln_task_internal.h"
-
+#include "member_access.h"
 /* gp-relative global at 0x0076467C (gp - 0x4A74): pointer to the active list. */
 static u8 *iGpffffb58c;
 /* Shared runtime-loaded persona records; storage is owned by cmmMisc.c. */
@@ -121,8 +121,8 @@ void yListCreate(s32 filterA, s32 filterB, s8 kind, s8 order) {
     ((YListItemWork *)(work))->order = order;
 }
 
-// FUN_002E2590
 /* Create a filtered child item list without replacing the active-list handle. */
+// FUN_002E2590
 void yListCreateChild(s32 parent, s32 filterA, s32 filterB, s8 kind, s8 order) {
     u8 *work;
 
@@ -135,7 +135,7 @@ void yListCreateChild(s32 parent, s32 filterA, s32 filterB, s8 kind, s8 order) {
     ((YListItemWork *)(work))->enabled = 1;
     ((YListItemWork *)(work))->order = order;
 }
-
+/* Return the active item count, or minus one when no list task exists. */
 // FUN_002E2670
 s16 yListCount(void) {
     u8 *task = iGpffffb58c;
@@ -168,8 +168,8 @@ s32 yListLastIndexFor(void *task) {
     return fclSubClamped(((YListItemWork *)(((KwlnTask *)((u8 *)task))->work))->count, 1, 0, 0, 1);
 }
 
-// FUN_002E2740
 /* Read an ID using the list kind's paired or compact row representation. */
+// FUN_002E2740
 s32 yListValueAt(s32 index) {
     u8 *task = iGpffffb58c;
     u8 *work;
@@ -209,8 +209,8 @@ s32 yListValueAt(s32 index) {
     }
 }
 
-// FUN_002E2830
 /* Read a task-owned list ID using its kind-dependent row stride. */
+// FUN_002E2830
 s32 yListValueAtFor(u8 *task, s32 index) {
     u8 *work = ((KwlnTask *)(task))->work;
 
@@ -239,8 +239,8 @@ s32 yListValueAtFor(u8 *task, s32 index) {
     }
 }
 
-// FUN_002E28F0
 /* Read the paired quantity, or return one for kinds without quantities. */
+// FUN_002E28F0
 s16 yListAuxValueAtFor(u8 *task, s32 index) {
     u8 *work = ((KwlnTask *)(task))->work;
 
@@ -264,7 +264,7 @@ s16 yListAuxValueAtFor(u8 *task, s32 index) {
         return -1;
     }
 }
-
+/* Destroy the active list hierarchy and clear its shared handle when present. */
 // FUN_002E29A0
 void yListDestroy(void) {
     u8 *task = iGpffffb58c;
@@ -274,7 +274,7 @@ void yListDestroy(void) {
         iGpffffb58c = NULL;
     }
 }
-
+/* Return the active list kind, using minus one when no active task exists. */
 // FUN_002E29D0
 s8 yListKind(void) {
     u8 *task = iGpffffb58c;
@@ -296,8 +296,8 @@ s8 yListKindFor(void *task) {
 #pragma opt_loop_invariants on
 static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 *filter = *(u8 **)(owner + 0x38);
     if (*(s32 *)(filter + 4) == 0 && *(s32 *)(filter + 8) == 0) {
         return 1;
@@ -320,8 +320,8 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 // FUN_002E2A10
 /* Rebuild the active filtered item list, optionally moving flagged IDs first or sorting by price. */
 void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     s32 reorder[0x600];
     s32 sortedIds[0x600];
     s32 outputCount;
@@ -336,7 +336,7 @@ void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
     if (task == NULL) {
         return;
     }
-    work = *(YListItemWork **)(task + 0x38);
+    work = MEMBER(YListItemWork *, task, KwlnTask, work);
     work->filterA = filterA;
     work->filterB = filterB;
     work->kind = kind;
@@ -496,8 +496,8 @@ void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
 // FUN_002E3560
 /* Rebuild a task-owned filtered item list with the selected ordering mode. */
 void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     s32 reorder[0x600];
     s32 sortedIds[0x600];
     s32 outputCount;
@@ -507,7 +507,7 @@ void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
     s32 value;
     s32 accepted;
     YListItemWork *work;
-    work = *(YListItemWork **)(task + 0x38);
+    work = MEMBER(YListItemWork *, task, KwlnTask, work);
     work->filterA = filterA;
     work->filterB = filterB;
     work->kind = kind;
@@ -667,42 +667,42 @@ void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
 #pragma push
 #pragma opt_lifetimes on
 s32 yListSlotRefresh(u8 *task) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     DatPersonaRecord registered;
     DatPersonaRecord current;
     s16 slotIndex;
     u16 *selectedRecord;
     u8 *work;
     u32 kind;
-    work = *(u8 **)(task + 0x38);
+    work = ((KwlnTask *)task)->work;
     if (*(s8 *)work == 1) {
         return 0;
     }
-    *(s32 *)(work + 8) = 0;
-    kind = *(u32 *)(work + 4);
+    ((YListPersonaWork *)work)->count.value = 0;
+    kind = ((YListPersonaWork *)work)->kind.unsignedValue;
     switch (kind) {
     case 0:
         for (slotIndex = 1; slotIndex < 0xC; slotIndex++) {
             datPersonaInitRecord(work + ((slotIndex - 1) * 0x30) + 0x14, (u16)slotIndex);
-            *(s32 *)(work + 8) += 1;
+            MEMBER(s32, work, YListPersonaWork, count.value) += 1;
         }
         break;
     case 1:
         for (slotIndex = 0; slotIndex < (datPersonaRosterCapacity() & 0xFFFF); slotIndex++) {
             if (datPersonaRosterSlotActive(slotIndex) == 1) {
-                memset(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, 0, 0x30);
-                memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
-                *(s32 *)(work + 8) += 1;
+                memset(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0xA4, 0, 0x30);
+                memcpy(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
+                MEMBER(s32, work, YListPersonaWork, count.value) += 1;
             }
         }
         break;
     case 2:
         for (slotIndex = 0; slotIndex < 0x100; slotIndex++) {
             if (datPersonaCachedRecord(slotIndex) != 0) {
-                memset(work + (*(s32 *)(work + 8) * 0x30) + 0x14, 0, 0x30);
-                memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0x14, datPersonaCachedRecord(slotIndex), 0x30);
-                *(s32 *)(work + 8) += 1;
+                memset(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0x14, 0, 0x30);
+                memcpy(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0x14, datPersonaCachedRecord(slotIndex), 0x30);
+                MEMBER(s32, work, YListPersonaWork, count.value) += 1;
             }
         }
         break;
@@ -711,9 +711,9 @@ s32 yListSlotRefresh(u8 *task) {
             if (datPersonaRosterSlotActive(slotIndex) == 1) {
                 selectedRecord = (u16 *)datPersonaGetRecord(1);
                 if (selectedRecord != (u16 *)datPersonaRosterSlot(slotIndex)) {
-                    memset(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, 0, 0x30);
-                    memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
-                    *(s32 *)(work + 8) += 1;
+                    memset(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0xA4, 0, 0x30);
+                    memcpy(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
+                    MEMBER(s32, work, YListPersonaWork, count.value) += 1;
                 }
             }
         }
@@ -722,12 +722,12 @@ s32 yListSlotRefresh(u8 *task) {
         for (slotIndex = 0; slotIndex < (datPersonaRosterCapacity() & 0xFFFF); slotIndex++) {
             if (datPersonaRosterSlotActive(slotIndex) == 1) {
                 memcpy(&current, datPersonaRosterSlot(slotIndex), 0x30);
-                if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
+                if (((YListPersonaMetadata *)iGpffffb3d4)[current.id].arcana < 0x16) {
                     memcpy(&registered, datPersonaCachedRecord(current.id), 0x30);
                     if (yListRecordsDiffer((u8 *)&current, (u8 *)&registered) == 1) {
-                        memset(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, 0, 0x30);
-                        memcpy(work + (*(s32 *)(work + 8) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
-                        *(s32 *)(work + 8) += 1;
+                        memset(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0xA4, 0, 0x30);
+                        memcpy(work + (MEMBER(s32, work, YListPersonaWork, count.value) * 0x30) + 0xA4, datPersonaRosterSlot(slotIndex), 0x30);
+                        MEMBER(s32, work, YListPersonaWork, count.value) += 1;
                     }
                 }
             }
@@ -736,14 +736,14 @@ s32 yListSlotRefresh(u8 *task) {
     case 7:
         for (slotIndex = 1; slotIndex < 0xC0; slotIndex++) {
             datPersonaInitRecord(work + ((slotIndex - 1) * 0x30) + 0x14, (u16)slotIndex);
-            *(s32 *)(work + 8) += 1;
+            MEMBER(s32, work, YListPersonaWork, count.value) += 1;
         }
         break;
     case 8:
         datPersonaInitAllRecords();
         for (slotIndex = 1; slotIndex < 0xC0; slotIndex++) {
             datPersonaInitRecord(work + ((slotIndex - 1) * 0x30) + 0x14, (u16)slotIndex);
-            *(s32 *)(work + 8) += 1;
+            MEMBER(s32, work, YListPersonaWork, count.value) += 1;
         }
         break;
     default:
@@ -800,8 +800,8 @@ void yListSlotCreate(s32 kind, s8 list) {
         ((YListPersonaWork *)work)->ready = 1;
     }
 }
-// FUN_002E47B0
 /* Return the first unused slot among the fifteen persona-list handles, or minus one. */
+// FUN_002E47B0
 s8 yListSlotFindFree(void) {
     s16 listIndex = 0;
     u8 **slots = D_00882F70;
@@ -814,7 +814,7 @@ s8 yListSlotFindFree(void) {
     }
     return -1;
 }
-
+/* Destroy an occupied persona-list slot and clear its reusable handle. */
 // FUN_002E4820
 void yListSlotRelease(s8 list) {
     u8 **p = &D_00882F70[list];
@@ -830,8 +830,8 @@ u8 *yListSlotWork(s8 list) {
     return ((KwlnTask *)(D_00882F70[list]))->work;
 }
 
-// FUN_002E48A0
 /* Select a persona record from the full-record or roster representation. */
+// FUN_002E48A0
 u8 *yListSlotEntry(s8 list, s16 index) {
     u8 *work = ((KwlnTask *)(D_00882F70[list]))->work;
 
@@ -892,11 +892,11 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
         chunks = 6;
         do {
             s32 firstWord = *(s32 *)source;
-            s32 secondWord = *(s32 *)(source + 4);
+            s32 secondWord = ((s32 *)source)[1];
             source += 8;
             chunks--;
             *(s32 *)destination = firstWord;
-            *(s32 *)(destination + 4) = secondWord;
+            ((s32 *)destination)[1] = secondWord;
             destination += 8;
         } while (chunks > 0);
         break;
@@ -912,11 +912,11 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
         chunks = 6;
         do {
             s32 firstWord = *(s32 *)source;
-            s32 secondWord = *(s32 *)(source + 4);
+            s32 secondWord = ((s32 *)source)[1];
             source += 8;
             chunks--;
             *(s32 *)destination = firstWord;
-            *(s32 *)(destination + 4) = secondWord;
+            ((s32 *)destination)[1] = secondWord;
             destination += 8;
         } while (chunks > 0);
         break;
@@ -928,11 +928,11 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
         defaultChunks = 6;
         do {
             s32 firstWord = *(s32 *)defaultSource;
-            s32 secondWord = *(s32 *)(defaultSource + 4);
+            s32 secondWord = ((s32 *)defaultSource)[1];
             defaultSource += 8;
             defaultChunks--;
             *(s32 *)destination = firstWord;
-            *(s32 *)(destination + 4) = secondWord;
+            ((s32 *)destination)[1] = secondWord;
             destination += 8;
         } while (defaultChunks > 0);
         break;
@@ -944,14 +944,14 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
 
 
 static inline u8 *yListWork(s8 list) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     return *(u8 **)(D_00882F70[list] + 0x38);
 }
 
 static inline u8 *yListEntryInWork(u8 *work, s16 index) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     switch (*(u32 *)(work + 4)) {
     case 0:
     case 2:
@@ -1081,8 +1081,8 @@ void yListBuildPairFlags(void) {
 }
 #pragma pop
 
-// FUN_002E5270
 /* Compare level, base stats, second stat bonuses, skills and experience of two records. */
+// FUN_002E5270
 s32 yListRecordsDiffer(u8 *left, u8 *right) {
     s16 statIndex;
     s16 bonusIndex;
@@ -1108,14 +1108,14 @@ s32 yListRecordsDiffer(u8 *left, u8 *right) {
     }
     return (u32)((DatPersonaRecord *)(left))->exp != (u32)((DatPersonaRecord *)(right))->exp;
 }
-// FUN_002E53B0
+/* Test whether an allocated list contains the requested persona ID. */
 /* measured: without `opt_loop_invariants on` MWCC rematerializes the switch
    jump-table base (lui/addiu) inside the loop body instead of hoisting it into
    the preheader as retail does, giving nd 30+. */
 #pragma opt_loop_invariants on
 /* measured: without `opt_loop_invariants on` the switch jump-table base is
    rematerialized in the loop body instead of hoisted to the preheader (nd 30+). */
-/* Test whether an allocated list contains the requested persona ID. */
+// FUN_002E53B0
 s32 yListSlotContainsId(s8 list, s16 id) {
     u8 **slot = &D_00882F70[list];
     u8 *task;
@@ -1388,8 +1388,9 @@ extern s32 yListIsExcludedId(u16 , u16 *);
 /* Fill eligible persona IDs around the requested level, widening an empty search until it yields more than five. */
 void yListSlotFillNearLevel(s8 list, u16 *exclude, s8 requestedLevel)
 {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    YListPersonaWork *nearLevelList;
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 *work;
     s16 lowerLevel;
     s32 level;
@@ -1416,7 +1417,8 @@ void yListSlotFillNearLevel(s8 list, u16 *exclude, s8 requestedLevel)
     if (*slotp == NULL) {
         return;
     }
-    work = *(u8 **)(*slotp + 0x38);
+    work = ((KwlnTask *)*slotp)->work;
+    nearLevelList = (YListPersonaWork *)work;
     yListSlotClear(list);
     level = (s8)requestedLevel;
     lowerLevel = (s16)fclSubClamped(level, 10, 1, 0x63, 1);
@@ -1445,9 +1447,9 @@ void yListSlotFillNearLevel(s8 list, u16 *exclude, s8 requestedLevel)
         if (yListIsExcludedId(id, exclude) != 0) {
             continue;
         }
-        if (*(u8 **)(u32)slotp != NULL) {
-            for (initialRow = 0; initialRow < *(s32 *)(*(u8 **)(*(u8 **)(u32)slotp + 0x38) + 8); initialRow++) {
-                if (signedIndex == *(u16 *)(yListSlotEntry(list, initialRow) + 2)) {
+        if (((u8 **)(u32)slotp)[0] != NULL) {
+            for (initialRow = 0; initialRow < ((YListPersonaWork *)((KwlnTask *)((u8 **)(u32)slotp)[0])->work)->count.value; initialRow++) {
+                if (signedIndex == ((DatPersonaRecord *)yListSlotEntry(list, initialRow))->id) {
                     found = 1;
                     goto initialSearchDone;
                 }
@@ -1466,9 +1468,9 @@ initialSearchDone:
         if (upperLevel < metadata[3] || lowLimit > metadata[3]) {
             continue;
         }
-        rowIndex = *(s16 *)(work + 8);
-        refreshedWork = *(u8 **)(*slotp + 0x38);
-        clearKind = *(u32 *)(refreshedWork + 4);
+        rowIndex = ((YListPersonaWork *)work)->count.half;
+        refreshedWork = ((KwlnTask *)*slotp)->work;
+        clearKind = ((YListPersonaWork *)refreshedWork)->kind.unsignedValue;
         switch (clearKind) {
         case 0:
         case 2:
@@ -1487,9 +1489,9 @@ initialSearchDone:
             break;
         }
         memset(clearDestination, 0, 0x30);
-        rowIndex = *(s16 *)(work + 8);
-        refreshedWork = *(u8 **)(*slotp + 0x38);
-        initializeKind = *(u32 *)(refreshedWork + 4);
+        rowIndex = nearLevelList->count.half;
+        refreshedWork = ((KwlnTask *)*slotp)->work;
+        initializeKind = ((YListPersonaWork *)refreshedWork)->kind.unsignedValue;
         switch (initializeKind) {
         case 0:
         case 2:
@@ -1508,12 +1510,12 @@ initialSearchDone:
             break;
         }
         datPersonaInitRecord(initializeDestination, id);
-        *(s32 *)(work + 8) = *(s32 *)(work + 8) + 1;
+        nearLevelList->count.value = nearLevelList->count.value + 1;
     }
-    if (level >= 0x3C && *(s32 *)(work + 8) < 3) {
+    if (level >= 0x3C && ((YListPersonaWork *)work)->count.value < 3) {
         yListSlotClear(list);
     }
-    if (*(s32 *)(work + 8) != 0) {
+    if (((YListPersonaWork *)work)->count.value != 0) {
         return;
     }
     outer = 0;
@@ -1548,8 +1550,8 @@ initialSearchDone:
                 continue;
             }
             if (*slotp != NULL) {
-                for (expandedRow = 0; expandedRow < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); expandedRow++) {
-                    if (signedIndex == *(u16 *)(yListSlotEntry(list, expandedRow) + 2)) {
+                for (expandedRow = 0; expandedRow < ((YListPersonaWork *)((KwlnTask *)*slotp)->work)->count.value; expandedRow++) {
+                    if (signedIndex == ((DatPersonaRecord *)yListSlotEntry(list, expandedRow))->id) {
                         found = 1;
                         goto expandedSearchDone;
                     }
@@ -1568,9 +1570,9 @@ expandedSearchDone:
             if (expandedHighLimit < metadata[3] || expandedLowLimit > metadata[3]) {
                 continue;
             }
-            rowIndex = *(s16 *)(work + 8);
-            refreshedWork = *(u8 **)(*slotp + 0x38);
-            clearKind = *(u32 *)(refreshedWork + 4);
+            rowIndex = nearLevelList->count.half;
+            refreshedWork = ((KwlnTask *)*slotp)->work;
+            clearKind = ((YListPersonaWork *)refreshedWork)->kind.unsignedValue;
             switch (clearKind) {
             case 0:
             case 2:
@@ -1589,9 +1591,9 @@ expandedSearchDone:
                 break;
             }
             memset(clearDestination, 0, 0x30);
-            rowIndex = *(s16 *)(work + 8);
-            refreshedWork = *(u8 **)(*slotp + 0x38);
-            initializeKind = *(u32 *)(refreshedWork + 4);
+            rowIndex = nearLevelList->count.half;
+            refreshedWork = ((KwlnTask *)*slotp)->work;
+            initializeKind = ((YListPersonaWork *)refreshedWork)->kind.unsignedValue;
             switch (initializeKind) {
             case 0:
             case 2:
@@ -1610,10 +1612,10 @@ expandedSearchDone:
                 break;
             }
             datPersonaInitRecord(initializeDestination, id);
-            *(s32 *)(work + 8) = *(s32 *)(work + 8) + 1;
+            nearLevelList->count.value = nearLevelList->count.value + 1;
         }
         outer++;
-    } while (*(s32 *)(work + 8) <= 5);
+    } while (nearLevelList->count.value <= 5);
 }
 #pragma pop
 
@@ -1640,8 +1642,8 @@ s32 yListIsExcludedId(u16 id, u16 *exclude) {
 
 static inline u8 *yListEntry(s8 list, s16 index)
 {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 *p = *(u8 **)(D_00882F70[list] + 0x38);
 
     switch (*(u32 *)(p + 4)) {
@@ -1662,8 +1664,8 @@ static inline u8 *yListEntry(s8 list, s16 index)
 
 static inline s32 yListContains(s8 list, s16 id)
 {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     s16 k;
 
     if (D_00882F70[list] != NULL) {
@@ -1687,8 +1689,9 @@ static inline s32 yListContains(s8 list, s16 id)
 /* Fill eligible arcana-one personas up to level plus three, excluding supplied IDs. */
 void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
 {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    YListPersonaWork *levelList;
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 *data;
     s32 limit;
     s16 i;
@@ -1696,7 +1699,8 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
     if (D_00882F70[list] == NULL) {
         return;
     }
-    data = *(u8 **)(D_00882F70[list] + 0x38);
+    data = ((KwlnTask *)D_00882F70[list])->work;
+    levelList = (YListPersonaWork *)data;
     yListSlotClear(list);
     limit = (s16)fclAddClamped(level, 3, 99, 1, 1);
     for (i = 0; i < 0xC0; i++) {
@@ -1704,9 +1708,9 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
             if (cmmCommunityIsListable((u16)i) != 0 && cmmCommunityPassesFlagGate((u16)i) != 0 && yListExcluded(i, exclude) == 0 &&
                 yListContains(list, i) == 0 && cmmCommunityHasFlagGate((u16)i) == 0 &&
                 limit >= iGpffffb3d4[i * 0xE + 3]) {
-                memset(yListEntry(list, *(s32 *)(data + 8)), 0, 0x30);
-                datPersonaInitRecord(yListEntry(list, *(s32 *)(data + 8)), i);
-                *(s32 *)(data + 8) += 1;
+                memset(yListEntry(list, ((YListPersonaWork *)data)->count.value), 0, 0x30);
+                datPersonaInitRecord(yListEntry(list, levelList->count.value), i);
+                levelList->count.value += 1;
             }
         }
     }
@@ -1829,8 +1833,8 @@ s32 yListCompareByWeightedKeyDesc(const void *left, const void *right) {
 #pragma opt_loop_invariants on
 /* Sort indices by the weighted key, then rebuild records from their cached persona IDs. */
 void yListSlotSortWeighted(s8 list) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 **slot = &D_00882F70[list];
     u8 *task;
     u8 *work;
@@ -1850,20 +1854,20 @@ void yListSlotSortWeighted(s8 list) {
         return;
     }
     workPointer = (u8 **)(task + 0x38);
-    work = *(u8 **)(task + 0x38);
-    for (collectIndex = 0; collectIndex < *(s32 *)(*(u8 **)(task + 0x38) + 8); collectIndex++) {
+    work = ((KwlnTask *)task)->work;
+    for (collectIndex = 0; collectIndex < ((YListPersonaWork *)MEMBER(u8 *, task, KwlnTask, work))->count.value; collectIndex++) {
         sortedIndices[collectIndex] = collectIndex;
     }
-    qsort(sortedIndices, *(u16 *)((u8 *)*workPointer + 8), 2, yListCompareByWeightedKeyDesc);
+    qsort(sortedIndices, ((YListPersonaWork *)(u8 *)*workPointer)->count.unsignedHalf, 2, yListCompareByWeightedKeyDesc);
     readIndex = 0;
-    count = *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8);
+    count = ((YListPersonaWork *)((KwlnTask *)(u8 *)*slot)->work)->count.value;
     if (count > 0) {
-        sourceWork = *(u8 **)((u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)list * 4) + 0x38);
+        sourceWork = ((KwlnTask *)(u8 *)D_00882F70[(u32)(s8)list])->work;
         for (; readIndex < count; readIndex++) {
             u8 *sourceRecord;
 
             sortedIndex = sortedIndices[readIndex];
-            switch (*(u32 *)(sourceWork + 4)) {
+            switch (((YListPersonaWork *)sourceWork)->kind.unsignedValue) {
             case 0:
             case 2:
             case 7:
@@ -1880,10 +1884,10 @@ void yListSlotSortWeighted(s8 list) {
                 sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0x14;
                 break;
             }
-            sortedIds[readIndex] = *(u16 *)(sourceRecord + 2);
+            sortedIds[readIndex] = ((DatPersonaRecord *)sourceRecord)->id;
         }
     }
-    for (writeIndex = 0; writeIndex < *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8); writeIndex++) {
+    for (writeIndex = 0; writeIndex < ((YListPersonaWork *)((KwlnTask *)(u8 *)*slot)->work)->count.value; writeIndex++) {
         destination = work + ((writeIndex * 3) * 0x10) + 0x14;
 
         memset(destination, 0, 0x30);
@@ -1989,8 +1993,8 @@ s32 yListCompareByKeyDesc(const void *left, const void *right) {
 #pragma opt_loop_invariants on
 /* Sort indices by level, then rebuild records from their cached persona IDs. */
 void yListSlotSortByKey(s8 list) {
-    /* Layouts are proven above; typed accesses changed the retail codegen in
-       whole-file comparison. Keep the original byte-address form here. */
+    /* Fields use access-site typing where it preserves retail output;
+       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 **slot = &D_00882F70[list];
     u8 *task;
     u8 *work;
@@ -2010,21 +2014,21 @@ void yListSlotSortByKey(s8 list) {
         return;
     }
     workPointer = (u8 **)(task + 0x38);
-    work = *(u8 **)(task + 0x38);
-    for (collectIndex = 0; collectIndex < *(s32 *)(*(u8 **)(task + 0x38) + 8); collectIndex++) {
+    work = ((KwlnTask *)task)->work;
+    for (collectIndex = 0; collectIndex < ((YListPersonaWork *)MEMBER(u8 *, task, KwlnTask, work))->count.value; collectIndex++) {
         sortedIndices[collectIndex] = collectIndex;
     }
-    qsort(sortedIndices, *(u16 *)((u8 *)*workPointer + 8), 2, yListCompareByKeyDesc);
+    qsort(sortedIndices, ((YListPersonaWork *)(u8 *)*workPointer)->count.unsignedHalf, 2, yListCompareByKeyDesc);
     readIndex = 0;
-    count = *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8);
+    count = ((YListPersonaWork *)((KwlnTask *)(u8 *)*slot)->work)->count.value;
     if (count > 0) {
-        sourceWork = *(u8 **)(*(u8 **)((u8 *)D_00882F70 +
-              (u32)(s8)list * 4) + 0x38);
+        sourceWork = ((KwlnTask *)D_00882F70[(u32)(s8)list])->work;
+
         for (; readIndex < count; readIndex++) {
             u8 *sourceRecord;
 
             sortedIndex = sortedIndices[readIndex];
-            switch (*(u32 *)(sourceWork + 4)) {
+            switch (((YListPersonaWork *)sourceWork)->kind.unsignedValue) {
             case 0:
             case 2:
             case 7:
@@ -2041,10 +2045,10 @@ void yListSlotSortByKey(s8 list) {
                 sourceRecord = sourceWork + ((sortedIndex * 3) * 0x10) + 0x14;
                 break;
             }
-            sortedIds[readIndex] = *(u16 *)(sourceRecord + 2);
+            sortedIds[readIndex] = ((DatPersonaRecord *)sourceRecord)->id;
         }
     }
-    for (writeIndex = 0; writeIndex < *(s32 *)(*(u8 **)((u8 *)*slot + 0x38) + 8); writeIndex++) {
+    for (writeIndex = 0; writeIndex < ((YListPersonaWork *)((KwlnTask *)(u8 *)*slot)->work)->count.value; writeIndex++) {
         destination = work + ((writeIndex * 3) * 0x10) + 0x14;
 
         memset(destination, 0, 0x30);
