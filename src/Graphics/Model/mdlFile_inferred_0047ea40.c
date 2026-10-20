@@ -77,8 +77,7 @@ void mdlRetainObject(u8 **destination, u8 **source)
 // FUN_0047EA70
 void mdlInitObjectSlots(u8 *state)
 {
-    /* Initialization clears the object pointer through its original integer-word representation. */
-    *(s32 *)(state + 0) = 0;
+    ((MdlMotionState *)state)->object = NULL;
     ((MdlMotionState *)state)->retries = -1;
     ((MdlMotionState *)state)->waitTicks = -1;
     ((MdlMotionState *)state)->pendingTicks = -1;
@@ -176,8 +175,8 @@ void mdlRequestMotionAnim(u8 *state, s16 animation, u16 blendTicks)
 
 /* measured: the retry counter is stored as an s32 sum and re-read through the s16 slot
    (`n = x + 1; x = n; temp = x;`): the reload forwards to a dsll32/dsra32 after the sh,
-   as retail. The call argument re-reads the slot as `*(s16 *)((u32)state + 8)` so it is
-   not CSE'd with the forwarded value and stays a real lh (retail). */
+   as retail. The call argument re-reads the typed retry member through the original
+   integer-address cast so it is not CSE'd with the forwarded value (retail lh). */
 /* Advances a motion state by one tick: counts down the wait and pending-start timers, starts a queued request when its timer expires, and retries a failed start up to eight times. */
 // FUN_0047ED60
 void mdlTickMotionState(u8 *state)
@@ -193,13 +192,14 @@ void mdlTickMotionState(u8 *state)
     s16 streamFlags;
     s32 requestValue;
     s32 retry;
+    MdlMotionState *motion;
 
     mdlSeUpdateRecord((void **)state);
+    motion = (MdlMotionState *)state;
     object = *(u8 **)state;
     if (object != NULL && (((MdlFileObject *)object)->flags & 1) != 0) {
         retryReady = 1;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        waitTicks = *(s16 *)(state + 0x16);
+        waitTicks = motion->waitTicks;
         if (waitTicks >= 0) {
             if (waitTicks == 0) {
                 scratch = ((((MdlMotionState *)state)->flags & 0x20) != 0);
@@ -215,15 +215,13 @@ void mdlTickMotionState(u8 *state)
                 retryReady = 0;
             }
         }
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        pendingTicks = *(s16 *)(state + 0x24);
+        pendingTicks = motion->pendingTicks;
         if (pendingTicks >= 0) {
             if (pendingTicks == 0) {
                 channel = ((MdlMotionState *)state)->pendingChannel;
                 streamFlags = ((MdlMotionState *)state)->pendingFlags;
                 scratch = ((MdlMotionState *)state)->pendingKind;
-                /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-                sdkSndStartStream(*(s16 *)(state + 0x1C), channel, streamFlags,
+                sdkSndStartStream(motion->pendingSlot, channel, streamFlags,
                               scratch);
                 ((MdlMotionState *)state)->activeSlot = ((MdlMotionState *)state)->pendingSlot;
                 ((MdlMotionState *)state)->pendingTicks = -1;
@@ -232,8 +230,7 @@ void mdlTickMotionState(u8 *state)
                 retryReady = 0;
             }
         } else if (pendingTicks == -2) {
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            pendingSlot = *(s16 *)(state + 0x26);
+            pendingSlot = motion->activeSlot;
             if (pendingSlot >= 0) {
                 sdkSndStopStream(pendingSlot, ((MdlMotionState *)state)->pendingChannel);
                 ((MdlMotionState *)state)->activeSlot = -1;
@@ -241,18 +238,14 @@ void mdlTickMotionState(u8 *state)
             ((MdlMotionState *)state)->pendingTicks = -1;
         }
         if (((MdlMotionState *)state)->request != 0 && retryReady == 1 &&
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            *(s16 *)(state + 8) != -1) {
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            retry = *(s16 *)(state + 8) + 1;
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            *(s16 *)(state + 8) = retry;
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            retryCount = *(s16 *)(state + 8);
+            motion->retries != -1) {
+            retry = motion->retries + 1;
+            motion->retries = retry;
+            retryCount = motion->retries;
             if (retryCount < 8) {
                 requestValue = ((MdlMotionState *)state)->blendTicks;
                 /* measured: the integer-address retry reload must stay separate from the forwarded halfword value, as documented above. */
-                if (mdlSeFillEntryState(state, *(s16 *)((u32)state + 8),
+                if (mdlSeFillEntryState(state, ((MdlMotionState *)(u32)state)->retries,
                                   ((MdlMotionState *)state)->animation, (u16)requestValue) == 0) {
                     ((MdlMotionState *)state)->retries = -1;
                 }

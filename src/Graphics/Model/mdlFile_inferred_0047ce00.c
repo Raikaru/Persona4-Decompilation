@@ -69,30 +69,28 @@ s32 mdlAdvanceAuxLoad(u8 *model)
     s32 ret;
     u8 *obj;
     u32 entrySize;
+    MdlFileAuxiliary *auxiliary;
 
     obj = ((MdlFileModel *)model)->auxiliary;
+    auxiliary = (MdlFileAuxiliary *)obj;
     if (obj == NULL) {
         return 1;
     }
     ret = 0;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-    switch (*(u8 *)(obj + 0x3C)) {
+    switch (auxiliary->state) {
     case 0:
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        if (*(u8 **)(obj + 0x38) != NULL) {
+        if (auxiliary->file != NULL) {
             if ((((MdlFileModel *)model)->flags & 0x4000) != 0) {
                 H_Cdvd_ReadSync(((MdlFileAuxiliary *)obj)->file);
             }
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-            if (H_Cdvd_IsFileLoaded((HCdvd *)*(u8 **)(obj + 0x38)) == 0) {
+            if (H_Cdvd_IsFileLoaded((HCdvd *)auxiliary->file) == 0) {
                 goto ret_label;
             }
             if (((MdlFileAuxiliary *)obj)->archived == 0) {
                 ((MdlFileAuxiliary *)obj)->data = (s32)((HCdvd *)((MdlFileAuxiliary *)obj)->file)->fileMemory;
                 ((MdlFileAuxiliary *)obj)->size = (s32)((HCdvd *)((MdlFileAuxiliary *)obj)->file)->fileSize;
             } else {
-                /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-                ((MdlFileAuxiliary *)obj)->data = (s32)H_Cdvd_GetArchiveEntry(*(u8 **)(obj + 0x38), 0, (s32 *)&entrySize);
+                ((MdlFileAuxiliary *)obj)->data = (s32)H_Cdvd_GetArchiveEntry(auxiliary->file, 0, (s32 *)&entrySize);
                 ((MdlFileAuxiliary *)obj)->size = entrySize;
                 mdlSeRequestLoad((void **)((u32)model + 0x2D0), ((MdlFileModel *)model)->type, ((MdlFileModel *)model)->id,
                               (s32)H_Cdvd_GetArchiveEntry(((MdlFileAuxiliary *)obj)->file, 1, (s32 *)&entrySize), entrySize);
@@ -104,8 +102,7 @@ s32 mdlAdvanceAuxLoad(u8 *model)
             ((MdlFileAuxiliary *)obj)->state = 2;
         }
     case 1:
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        if (*(u8 *)(obj + 0x3C) == 1) {
+        if (auxiliary->state == 1) {
 c660_again:
             if (mdlPollAuxResources(model) == 0) {
                 goto ret_label;
@@ -116,8 +113,7 @@ c660_again:
         if (mdlReadAuxChunks(model) == 0) {
             goto L_case2_fail;
         }
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
-        *(u8 *)(obj + 0x3C) = 3;
+        auxiliary->state = 3;
         goto L_D8_check;
 L_case2_fail:
         ((MdlFileAuxiliary *)obj)->state = 1;

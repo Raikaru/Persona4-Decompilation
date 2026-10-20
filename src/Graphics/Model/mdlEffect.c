@@ -2329,7 +2329,7 @@ extern void EffSpriteUpdate(u8 *instance);
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 *WindAllocKindEntry(u16 kind, u8 *parameters);
 extern u8 D_0071413C[];
-extern void func_004adb50();
+extern void mdlEffectUpdateModelChildTransforms();
 extern void mdlEffectDrawModelChildren(u8 *instance);
 extern f32 iGpffff8080;
 extern void (*D_008873ec[])(void *);
@@ -3316,7 +3316,7 @@ void mdlEffectDrawModelChildren(u8 *instance)
 /* Runs the model-effect update pass followed by the child drawing pass. */
 // FUN_004ADFA0
 void mdlEffectUpdateAndDrawModelChildren(u8 *instance) {
-    func_004adb50();
+    mdlEffectUpdateModelChildTransforms();
     mdlEffectDrawModelChildren(instance);
 }
 

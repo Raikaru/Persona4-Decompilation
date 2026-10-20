@@ -51,8 +51,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484520-00484520 */
 
+/* Default data callback for unsupported primitive kinds; ignores the supplied state. */
 // FUN_00484520
-void func_00484520(void)
+void mdlEffectPrimitiveDataNoop(void)
 {
 }
 
