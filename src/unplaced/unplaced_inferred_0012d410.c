@@ -59,8 +59,8 @@ typedef union Code12FrameVectorTransfer {
     Code12FrameVector vector;
 } Code12FrameVectorTransfer;
 
+/* Use the preserved optimization-level defaults except for measured scoped overrides. */
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Change the selected title slot, preserve the old selection and start layout mode 2. */
 // FUN_0012DB80
@@ -78,8 +78,8 @@ s32 titleSelectSlot(u8 *menu, s32 selection)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
+/* measured: goto and while wrap loops both leave 243 differing bytes without invariant hoisting. */
 #pragma opt_loop_invariants on
 /* Set slot transition endpoints for adjacent moves and wraparound selection. */
 // FUN_0012DC00
@@ -233,8 +233,8 @@ extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
 extern void titleLayoutSlots(u8 *menu);
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
+/* measured: byte-stride and typed target indexing both leave 383 differing bytes without hoisting. */
 #pragma opt_loop_invariants on
 /* Snapshot eleven slot animations and set the target table for the requested mode. */
 // FUN_0012DEA0
@@ -337,9 +337,7 @@ s32 titleSlotSetMode(u8 *menu, s32 mode)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
 /* Free all 21 sprite nodes in the title selector. */
 // FUN_0012E150
 void titleFreeSpriteNodes(s32 menuAddress)
@@ -364,9 +362,7 @@ void titleFreeSpriteNodes(s32 menuAddress)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
 /* Report whether all eleven slot end frames have elapsed and the external line is idle. */
 // FUN_0012E1D0
 s32 titleSlotFramesElapsed(u8 *menu)
@@ -386,9 +382,7 @@ s32 titleSlotFramesElapsed(u8 *menu)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
 /* Treat modes 1/2 as settled; otherwise check all slot end frames and line idleness. */
 // FUN_0012E250
 s32 titleSlotsSettled(u8 *menu)
@@ -420,10 +414,9 @@ block_loop:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
+/* measured: typed target indexing and sizeof stride retain 755 differing bytes without hoisting. */
 #pragma opt_loop_invariants on
-#pragma opt_rebuildconditionals off
 /* Initialize the 0x1BE8-byte radar menu, its animation arrays, inventory and sprite nodes. */
 // FUN_0012E2F0
 /* Earlier whole-layout typing probe: RadarMenu array accesses changed codegen (nd 712).; access-site and typed-local forms now match. */
@@ -543,10 +536,7 @@ s32 titleStateInit(u8 *menu)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation off
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
 /* Collect held item IDs 0x300..0x5FF and their counts into the inventory list. */
 // FUN_0012E7C0
 void titleCollectFlaggedIds(u8 *menu)
@@ -587,10 +577,7 @@ guard_done:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
 /* Advance mode 0 to 1 and report whether the menu is in either wait mode. */
 // FUN_0012E8B0
 /* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 45).; access-site and typed-local forms now match. */
@@ -613,10 +600,7 @@ s32 titleAdvanceWait(u8 *menu)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
 /* Advance the thirty entry animations, then the scatter, indicator and draw passes. */
 // FUN_0012E900
 /* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 162).; access-site and typed-local forms now match. */
@@ -653,10 +637,7 @@ loop_test_0012e900:
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
 /* Advance twelve scatter animations and update all 84 grid entries. */
 // FUN_0012FDF0
 /* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 147).; access-site and typed-local forms now match. */
@@ -685,11 +666,8 @@ void radarStepSlotAnimB(u8 *menu)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
-#pragma opt_common_subs off
+/* measured: a typed menu local removes the cached counter address (direct casts differed by 102 bytes). */
 /* Advance the two indicator animations with the shared capped frame counter. */
 // FUN_0012FEB0
 void radarStepPairAnim(u8 *menu)
@@ -697,24 +675,21 @@ void radarStepPairAnim(u8 *menu)
     s32 i;
     u8 *p;
     s32 v;
+    RadarMenu *radarMenu = (RadarMenu *)menu;
 
-    v = ((RadarMenu *)menu)->indicatorFrame;
+    v = radarMenu->indicatorFrame;
     if (v < 0x64) {
-        ((RadarMenu *)menu)->indicatorFrame = v + 1;
+        radarMenu->indicatorFrame = v + 1;
     }
     for (i = 0; i < 2; i++) {
         p = menu + i * 0x30 + 0x1AB8;
-        radarAnimateValue(p, ((RadarMenu *)menu)->indicatorFrame, 0);
+        radarAnimateValue(p, radarMenu->indicatorFrame, 0);
     }
 }
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
-#pragma opt_common_subs on
 /* The selection is passed as a word; the field stores its low halfword. */
 /* Push one of three selection halfwords into its previous-selection slot. */
 // FUN_0012FF40
@@ -738,11 +713,7 @@ extern u8 D_005E6C80[];
 extern u8 D_005E6FD0[];
 extern u8 D_005E7320[];
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants off
-#pragma opt_rebuildconditionals on
-#pragma opt_common_subs off
 /* Snapshot thirty entries and apply the layout table, flags and target animation values. */
 // FUN_0012FF60
 /* Earlier whole-layout typing probe: RadarMenu/RadarSlotTarget access changed codegen (nd 663).; access-site and typed-local forms now match. */
@@ -825,9 +796,7 @@ s32 titleSetMenuLayout(u8 *menu, u32 layout)
         kAssertFail(D_005E76C8, 0x4ab);
         break;
     }
-#pragma opt_common_subs on
-/* measured: opt_loop_invariants on hoists the table-loop constants and
-   stride calculations into retail's preheader (without it, nd is nonzero). */
+/* measured: byte-stride and typed target indexing leave 195 differing bytes without hoisting. */
 #pragma opt_loop_invariants on
     if (table != 0) {
         for (j = 0; j < 30; j++) {

@@ -26,7 +26,9 @@ extern u8 D_0064B2EC[];
 extern u8 D_0064B2F0[];
 extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
+/* Use the configured optimization defaults except for measured scoped overrides. */
 #pragma push
+/* measured: literal and named-constant forms both leave 76 differing bytes without invariant hoisting. */
 #pragma opt_loop_invariants on
 // Intent: Shift each of the four slots' positions and alphas into their previous values, highlight the selected slot, and reset the counter at +0x1C [inferred]
 // FUN_001302D0
@@ -54,8 +56,6 @@ void radarPushSlotState(u8 *menu) {
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Intent: Reset the indicator's colours and positions, choosing the x offset by comparing the counters at +0x24 and +0x2A [inferred]
 // FUN_00130360
 /* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 32).; access-site and typed-local forms now match. */
@@ -87,10 +87,8 @@ void radarResetIndicator(u8 *menu) {
     }
     ((RadarMenu *)(menu))->indicatorFrame = 0;
 }
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 1
 // Intent: Randomize the scatter of each of the twelve entries with probability three in four; the others keep their current alpha [inferred]
 // FUN_00130430
@@ -134,7 +132,6 @@ void radarRandomizeEntries(u8 *menu)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
 // Intent: Free the 51 sprite nodes in the radar sprite table and clear the count at +0x14 [inferred]
 // FUN_00130580
@@ -160,7 +157,6 @@ void radarFreeSpriteNodes(u8 *menu) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
 // Intent: Return 1 when the value at +0x1C is at least the threshold of every one of the 30 entries and the external check passes [inferred]
 // FUN_00130600
@@ -180,8 +176,8 @@ s32 radarEntriesCoverValue(u8 *menu) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
+/* measured: typed, MEMBER and sprite snapshots leave 98/160 differing bytes; retain the load before alpha math. */
 #pragma opt_propagation off
 // Intent: Draw one radar entry row: the panel row with its highlight, the level digits and the icon, at the slot position and fade [inferred]
 // FUN_00130680
@@ -280,12 +276,11 @@ void radarDrawEntryRow(u8 *menu, s32 partyIndex)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
+/* measured: typed and MEMBER loads leave 15 differing bytes; a sprite snapshot leaves 106. */
+#pragma opt_propagation off
 // Intent: Draw a sprite at the given position and another 340 units to its right, with the given colour [inferred]
 // FUN_00130C30
-/* measured: opt_propagation off probe for radarDrawSpritePair ordering. */
-#pragma opt_propagation off
 void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor)
 {
     f32 c0;
@@ -309,9 +304,7 @@ void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 /* 1476/1488 bytes; fourteen resolved relocations and twelve zero tail bytes.
  * The position and color copies have their full object extents. Keep the
  * original Y component and the shared sprite cursor across the draw pairs. */
