@@ -975,3 +975,6 @@ btlVoiceUpdateNoop = 0x001F9BE0; // type:func  evidence: inferred: empty voice u
 btlTargetSpecialHitNoop = 0x001F9CD0; // type:func  evidence: inferred: empty hook called by skill resolution for reflected or blocked special hit outcomes
 btlTargetAffinityKnowledgeBypassNoop = 0x001F9CE0; // type:func  evidence: inferred: always returns zero at affinity-knowledge gates so enemy bitmap checks are never bypassed
 btlPacketInitNoop = 0x00194660; // type:func  evidence: inferred: empty packet-subsystem initialization hook called by btlInit between target and camera setup
+rpCollTreeCreate = 0x0038F990; // type:func  evidence: inferred: allocate collision-tree bounds, counts, aligned split storage and optional entry map
+rpCollTreeStreamGetSize = 0x0038FB20; // type:func  evidence: inferred: compute serialized collision-tree chunk size from split count and optional entry map
+stdioScanStringStreamNoop = 0x004420F8; // type:func  evidence: inferred: zero-return stream callback installed by sscanf and __scan_string_with_context

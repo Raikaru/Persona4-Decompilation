@@ -85,8 +85,9 @@ s64 func_004470f0(s64);
    down to one), and taking the address of the first member instead of the
    struct. Committed at nd 45. */
 
+/* String scanning installs this successful no-op as its stream callback. */
 // FUN_004420F8
-s32 func_004420f8(void) {
+s32 stdioScanStringStreamNoop(void) {
     return 0;
 }
 

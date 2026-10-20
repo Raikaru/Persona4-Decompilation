@@ -1,5 +1,6 @@
 /* Original translation unit shdWindow.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "sdk_snd_internal.h"
 #include "include_asm.h"
@@ -179,7 +180,7 @@ extern void K_SineRingDraw(f32 centerX, f32 centerY, f32 depth, s32 packedColor)
 // after one, two, three or four of them, all compile identically.  After
 // five it scores 4, after six or more it scores 6 again.
 // Intent: Draw one entry row: a bar and its text, chosen by the row kind [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0025DD30
 void shdDrawEntryRow(f32 offsetX, f32 offsetY, s32 color, u8 *data) {
     struct ShdWindowQuad { f32 a, b, c, d; };
@@ -203,20 +204,20 @@ void shdDrawEntryRow(f32 offsetX, f32 offsetY, s32 color, u8 *data) {
     } else {
         textY = (150.0f + offsetY) - 6.0f;
     }
-    textHeight = shdDrawTextBlock(textX, textY, 0xFFFFFF, color, *(s32 *)(data + 0xC), 1);
+    textHeight = shdDrawTextBlock(textX, textY, 0xFFFFFF, color, MEMBER(s32, data, ShdWindowWork, entryIndex), 1);
     y = (s32)(49.0f + (textY + (f32)(textHeight >> 1)));
     switch (kind) {
     case 2:
         if (((ShdWindowWork *)data)->selection == 0) {
             u32 combined = (color & 0xFF) | -256;
             sflDataDrawWideRoundedFrame((s32)(110.0f + offsetX), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            frFontExDrawText(163.0f + offsetX, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 0x14) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
-            frFontExDrawText((f32)293 + offsetX, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 0x14) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
+            frFontExDrawText(163.0f + offsetX, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[MEMBER(s32, data, ShdWindowWork, selection) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
+            frFontExDrawText((f32)293 + offsetX, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[MEMBER(s32, data, ShdWindowWork, selection) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
         } else {
             u32 combined = (color & 0xFF) | -256;
             sflDataDrawWideRoundedFrame((s32)(240.0f + offsetX), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            frFontExDrawText(163.0f + offsetX, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 0x14) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
-            frFontExDrawText(3.0f + ((f32)293 + offsetX), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 0x14) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
+            frFontExDrawText(163.0f + offsetX, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[MEMBER(s32, data, ShdWindowWork, selection) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
+            frFontExDrawText(3.0f + ((f32)293 + offsetX), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[MEMBER(s32, data, ShdWindowWork, selection) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
         }
         break;
     case 1:
@@ -225,7 +226,7 @@ void shdDrawEntryRow(f32 offsetX, f32 offsetY, s32 color, u8 *data) {
     }
 }
 // Intent: Window task update: run the open and close state machine and queue the draw callback [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0025E170
 s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
 {
@@ -267,7 +268,7 @@ s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
         nextFrame = ((ShdWindowWork *)work)->delay + 1;
         ((ShdWindowWork *)work)->delay = nextFrame;
         if (nextFrame >= 5) {
-            *(s32 *)(work + 0x10) = 0;
+            MEMBER(s32, work, ShdWindowWork, delay) = 0;
             ((ShdWindowWork *)work)->state = 6;
         }
         goto block_37;
@@ -291,12 +292,12 @@ s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
                 if (((ShdWindowWork *)work)->selection != 0) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                *(s32 *)(work + 0x14) = 0;
+                MEMBER(s32, work, ShdWindowWork, selection) = 0;
             } else if (D_008C0276[0] & 0x2000) {
                 if (((ShdWindowWork *)work)->selection != 1) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                *(s32 *)(work + 0x14) = 1;
+                MEMBER(s32, work, ShdWindowWork, selection) = 1;
             } else if (D_008C024E[0] & 0x40) {
                 ((ShdWindowWork *)work)->flags = ((ShdWindowWork *)work)->flags | 4;
                 sdkSndStartStream(0, 0, 0, 1);
@@ -329,7 +330,7 @@ block_37:
 // count clamp reproduce retail's branch layout. Packing the color channels
 // through (s8)(s32) preserves the retail sign-extension sequence.
 // Intent: Queued window draw: step the open or close counter and draw the bar and its row [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0025E4A0
 void shdWindowDrawQueued(s32 unusedQueue, s32 taskHandle)
 {
@@ -349,16 +350,16 @@ void shdWindowDrawQueued(s32 unusedQueue, s32 taskHandle)
     if (flags & 1) {
         count = ((ShdWindowAnimation *)animation)->frame;
         if (count < 5) {
-            *(s32 *)(animation + 0x10) = count + 1;
+            MEMBER(s32, animation, ShdWindowAnimation, frame) = count + 1;
         } else {
             ((ShdWindowAnimation *)animation)->flags = flags & ~1;
-            *(s32 *)(animation + 0x10) = 7;
+            MEMBER(s32, animation, ShdWindowAnimation, frame) = 7;
         }
         action = 1;
     } else if (flags & 2) {
         count = ((ShdWindowAnimation *)animation)->frame;
         if (count > 0) {
-            *(s32 *)(animation + 0x10) = count - 1;
+            MEMBER(s32, animation, ShdWindowAnimation, frame) = count - 1;
         } else {
             ((ShdWindowAnimation *)animation)->flags = flags & ~2;
         }
@@ -408,14 +409,14 @@ void shdWindowTaskCreate(s32 parentTask, s32 value, s32 entryIndex)
 }
 
 // Intent: Mark the window as finished by setting bit 4 of its flags [inferred]
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
 // FUN_0025E8B0
 void shdWindowMarkDone(void) {
     u8 *work = (u8 *)kwlnTaskGetWork();
     s32 flags = ((ShdWindowWork *)work)->flags;
 
     if (!(flags & 4)) {
-        *(s32 *)(work + 0x4) = flags | 4;
+        MEMBER(s32, work, ShdWindowWork, flags) = flags | 4;
     }
 }
 
