@@ -362,7 +362,7 @@ void btlFormationUpdateAttachments(s32 work)
         return;
     }
     frame = w->frame;
-    if (frame == 0 || ((w->flags & 0x1000) && frame == ((BtlFormationData *)w->owner)->tables[1].unk04) || (w->flags & 0x100)) {
+    if (frame == 0 || ((w->flags & 0x1000) && frame == ((BtlFormationState *)w->owner)->tables[1].unk04) || (w->flags & 0x100)) {
         w->scale = *(BtlAttachV3 *)(unit + 0x80);
         w->radius = ((BtlUnit *)unit)->unk_8c;
         w->height = ((BtlUnit *)unit)->sphereRadius;
@@ -393,7 +393,7 @@ void btlFormationUpdateAttachments(s32 work)
         if (*handles == 0) {
             u8 mode;
 
-            if ((((BtlFormationData *)w->owner)->flags & 4) && entry->state != 0xFD) {
+            if ((((BtlFormationState *)w->owner)->flags & 4) && entry->state != 0xFD) {
                 *handles = entry->resource;
                 created = 0;
                 entry->state = 0xFD;
