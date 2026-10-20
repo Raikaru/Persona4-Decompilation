@@ -409,6 +409,12 @@ typedef struct TitleRecordBlock {
     s32 startFrame;
     f32 animationSpeed;
 } TitleRecordBlock;
+
+/* Interior aliases select scalar columns of the 0x28-byte scene records. */
+typedef struct TitleSceneColumn {
+    f32 value;
+    u8 pad4[0x24];
+} TitleSceneColumn;
 static inline f32 *titleCopyRect(u8 *destination, const u8 *source)
 {
     *(TitleRect *)destination = *(const TitleRect *)source;
@@ -459,8 +465,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     f32 sceneFade;
     u32 *workWords;
     TitleTask *titleTask;
-    extern u8 D_005E5234[];
-    extern u8 D_005E5238[];
+    extern TitleSceneColumn D_005E5234[];
+    extern TitleSceneColumn D_005E5238[];
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
     extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
@@ -483,10 +489,10 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern u8 D_005E5230[];
-    extern u8 D_005E523C[];
-    extern u8 D_005E5240[];
-    extern u8 D_005E5248[];
-    extern u8 D_005E5254[];
+    extern TitleSceneColumn D_005E523C[];
+    extern TitleSceneColumn D_005E5240[];
+    extern TitleSceneColumn D_005E5248[];
+    extern TitleSceneColumn D_005E5254[];
     extern s32 D_005E5370[];
     extern s32 D_005E538C[];
     extern s32 D_005E5398[];
@@ -1613,11 +1619,11 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
 
             sceneOffset = (s32)(titleTask->selectedScene * 0x28);
             /* These globals are interior aliases of the scene table, not objects. */
-            titleX = *(f32 *)(D_005E5234 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
-            titleY = *(f32 *)(D_005E5238 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
-            modelPitch = *(f32 *)(D_005E523C + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
-            modelYaw = *(f32 *)(D_005E5240 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
-            modelScale = *(f32 *)(D_005E5248 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
+            titleX = ((TitleSceneColumn *)((u8 *)D_005E5234 + sceneOffset))->value;
+            titleY = ((TitleSceneColumn *)((u8 *)D_005E5238 + sceneOffset))->value;
+            modelPitch = ((TitleSceneColumn *)((u8 *)D_005E523C + sceneOffset))->value;
+            modelYaw = ((TitleSceneColumn *)((u8 *)D_005E5240 + sceneOffset))->value;
+            modelScale = ((TitleSceneColumn *)((u8 *)D_005E5248 + sceneOffset))->value;
             /* The model flags word at +0xD8 has no public layout in this unit. */
             modelFlags = (s32)((((MdlFileModel *)selectedModel)->flags) & ~8);
             (((MdlFileModel *)selectedModel)->flags) = modelFlags;
@@ -1630,7 +1636,7 @@ spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
             if (selectedScene >= 0x13U) {
                 kAssertFail(D_005E5548, 0xEB);
             }
-            mdlSetLayerWeight(selectedModel, 0, *(f32 *)(D_005E5254 + selectedScene * 0x28)); /* Linker interior alias of the scene row; keep its relocation base. */
+            mdlSetLayerWeight(selectedModel, 0, D_005E5254[selectedScene].value);
             /* Replace writes the matrix fields and flags before concatenation.
              * Provider padding remains unspecified; do not synthesize values. */
             RwMatrixRotate(&titleMatrix, &titleYawAxis, modelYaw, 0);
@@ -1811,7 +1817,7 @@ s32 titleMusicStreamStep(u8 *context);
 // Kept in bucket: diff 1978 when moved; cause not diagnosed (uses static inline code12QuaternionMatrix).
 /* Drive title loading, camera setup, input, configuration and exit fades. */
 // FUN_0012AA70
-/* Historical full-layout typing: 3056 -> 3072 bytes, normalized_diff 1475. Access-site probes now keep all matching members. */
+/* Historical full-layout typing: 3056 -> 3072 bytes, normalized_diff 1475. Access-site and separate typed-local probes now keep every member matched. */
 
 
 s32 titleTaskUpdate(u8 *task)
@@ -1869,8 +1875,10 @@ s32 titleTaskUpdate(u8 *task)
     u32 pressed;
     u8 *activeModel;
     u8 *animation;
+    TitleTask *titleWork;
 
     work = (u8 *)kwlnTaskGetWork(task);
+    titleWork = (TitleTask *)work;
     initialRotation.packed = D_005E56F0;
     rotation = initialRotation;
     initialTranslation.vector = D_005E5700[0].vector;
@@ -1916,10 +1924,10 @@ s32 titleTaskUpdate(u8 *task)
         } else {
             pressed = 0;
         }
-        if ((pressed != 0) || (*(s32 *)(work + 0x14) >= 0xEC)) { /* measured: this access-site member rewrite changes instruction bytes. */
+        if ((pressed != 0) || (titleWork->sceneFrame >= 0xEC)) {
             ((TitleTask *)(work))->flags = ((TitleTask *)(work))->flags & ~2;
-            if (*(s32 *)(work + 0x14) < 0xEC) { /* measured: this access-site member rewrite changes instruction bytes. */
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2; /* measured: this access-site member rewrite changes instruction bytes. */
+            if (titleWork->sceneFrame < 0xEC) {
+                titleWork->flags = titleWork->flags | 2;
                 ((TitleTask *)(work))->fadeFrames = 0xA;
             }
             ((TitleTask *)work)->currentState = 6;
@@ -1937,7 +1945,7 @@ s32 titleTaskUpdate(u8 *task)
         func_003e81c0(kwlnGetCamera(), 25600.0f);
         func_003e8180(kwlnGetCamera(), 10.0f);
         if (mdlPrepareModel(((TitleTask *)(work))->models[0]) != 0) {
-            activeModel = *(u8 **)(work + 0x44); /* measured: this access-site member rewrite changes instruction bytes. */
+            activeModel = titleWork->models[0];
         } else {
             activeModel = 0;
         }
@@ -1949,9 +1957,9 @@ s32 titleTaskUpdate(u8 *task)
             if (modelIndex >= 0xF) {
                 activeModel = 0;
             } else {
-                result = mdlPrepareModel(*(u8 **)(work + modelIndex * 4 + 0x44)); /* measured: this access-site member rewrite changes instruction bytes. */
+                result = mdlPrepareModel(((TitleTask *)work)->models[modelIndex]);
                 if (result != 0) {
-                    activeModel = *(u8 **)(work + modelIndex * 4 + 0x44); /* measured: this access-site member rewrite changes instruction bytes. */
+                    activeModel = ((TitleTask *)work)->models[modelIndex];
                 } else {
                     activeModel = 0;
                 }
@@ -2002,7 +2010,7 @@ s32 titleTaskUpdate(u8 *task)
                 resetIndex++;
             }
         }
-        *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2; /* measured: this access-site member rewrite changes instruction bytes. */
+        titleWork->flags = titleWork->flags | 2;
     case 7:
         result = ((TitleTask *)(work))->sceneFrame + 1;
         ((TitleTask *)(work))->sceneFrame = result;
@@ -2042,14 +2050,14 @@ s32 titleTaskUpdate(u8 *task)
         ((TitleTask *)(work))->scroll = 0;
     case 9:
         ((TitleTask *)(work))->sceneFrame = ((TitleTask *)(work))->sceneFrame + 1;
-        if ((D_008C024E[0] & 0x20) || (*(s32 *)(work + 0x14) >= 0x1C2)) { /* measured: this access-site member rewrite changes instruction bytes. */
+        if ((D_008C024E[0] & 0x20) || (titleWork->sceneFrame >= 0x1C2)) {
             ((TitleTask *)(work))->fadeFrames = 0xD;
             ((TitleTask *)work)->currentState = 6;
         } else {
             result = titleMusicStreamStep(work);
             switch (result) {
             case 0:
-                *(s32 *)(work + 0x14) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+                titleWork->sceneFrame = 0;
                 break;
             case 1:
                 ((TitleTask *)work)->currentState = 0xA;
@@ -2097,11 +2105,11 @@ s32 titleTaskUpdate(u8 *task)
         ((TitleTask *)(work))->childTask = cmpConfigCreate(task, 1);
     case 15:
         if (cmpConfigIsStepDone((u8 *)(u32)((TitleTask *)(work))->childTask) != 0) {
-            if (cmpConfigIsFlagsSynced(*(u8 **)(work + 0x34)) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+            if (cmpConfigIsFlagsSynced((u8 *)(u32)titleWork->childTask) != 0) {
                 calCaptureDayFlagMask();
             }
-            kwlnTaskDestroyWithHierarchy(*(u8 **)(work + 0x34)); /* measured: this access-site member rewrite changes instruction bytes. */
-            *(s32 *)(work + 0x34) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            kwlnTaskDestroyWithHierarchy((u8 *)(u32)titleWork->childTask);
+            titleWork->childTask = 0;
             ((TitleTask *)work)->currentState = 8;
         }
         break;
@@ -2299,7 +2307,7 @@ void titleSlotTableInit(u8 *menu)
         spriteOffset = spriteIndex * 4;
         spriteSlot = (s32 *)(menu + spriteOffset + 0x3C);
         sprite = (s32)sdkSpriteNewNode(spritePack,
-                                 *(u32 *)((u8 *)D_005E5B60 + spriteOffset)); /* measured: this access-site member rewrite changes instruction bytes. */
+                                 ((u32 *)D_005E5B60)[spriteIndex]);
         *spriteSlot = sprite;
         if (sprite == 0) {
             kAssertFail(D_005E5BB8, 0xC9);
@@ -2354,7 +2362,7 @@ void titleSlotTableInit(u8 *menu)
 // Kept in bucket: diff 43 when moved; cause not diagnosed.
 /* Advance title selector tweens and draw each visible option; return completion. */
 // FUN_0012D630
-/* Historical update-phase typing: 1364/1360 bytes, normalized_diff 979. Access-site probes now keep all matching members. */
+/* Historical update-phase typing: 1364/1360 bytes, normalized_diff 979. The separate menuWork pointer preserves all frame accesses. */
 
 
 s32 titleSlotUpdateAndDraw(u8 *menu)
@@ -2378,8 +2386,10 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
     f32 labelY;
     u8 numberColor;
     u8 informationColor;
+    CampMenuWork *menuWork;
 
     bytes = menu;
+    menuWork = (CampMenuWork *)bytes;
     finished = 1;
     switch (((CampMenuWork *)(bytes))->state) {
     case 0:
@@ -2388,11 +2398,11 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
             break;
         }
         if (((CampMenuWork *)(bytes))->frame < 100) {
-            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+            menuWork->frame = ((CampMenuWork *)(bytes))->frame + 1;
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+            radarAnimateValue(rowBytes + 0x94, menuWork->frame, 0);
             if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
@@ -2400,11 +2410,11 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
         break;
     case 1:
         if (((CampMenuWork *)(bytes))->frame < 100) {
-            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+            menuWork->frame = ((CampMenuWork *)(bytes))->frame + 1;
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+            radarAnimateValue(rowBytes + 0x94, menuWork->frame, 0);
             if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
@@ -2416,11 +2426,11 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
             break;
         }
         if (((CampMenuWork *)(bytes))->frame < 100) {
-            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+            menuWork->frame = ((CampMenuWork *)(bytes))->frame + 1;
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 2); /* measured: this access-site member rewrite changes instruction bytes. */
+            radarAnimateValue(rowBytes + 0x94, menuWork->frame, 2);
             if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
@@ -2428,11 +2438,11 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
         break;
     case 3:
         if (((CampMenuWork *)(bytes))->frame < 100) {
-            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+            menuWork->frame = ((CampMenuWork *)(bytes))->frame + 1;
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+            radarAnimateValue(rowBytes + 0x94, menuWork->frame, 0);
             if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
@@ -2556,7 +2566,7 @@ typedef struct {
  * Preserve the independent position/opacity views across renderer calls. */
 // Kept in bucket: diff 1481 when moved; cause not diagnosed.
 // FUN_0012E9D0
-/* Historical full-layout typing: 5200/5152 bytes, normalized_diff 4107. Access-site probes now keep all matching members. */
+/* Historical full-layout typing: 5200/5152 bytes, normalized_diff 4107. A separate radarWork pointer keeps the remaining flag and selection accesses matched. */
 void radarDrawPanel(u8 *state)
 {
     extern void sdkRenderStateSetDefault(void);
@@ -2619,6 +2629,7 @@ void radarDrawPanel(u8 *state)
     s32 textIndex;
     u8 *panelSprite;
     s16 selection;
+    RadarMenu *radarWork = (RadarMenu *)state;
     sdkRenderStateSetDefault();
     originX = ((RadarMenu *)state)->x.f;
     originY = ((RadarMenu *)state)->y.f;
@@ -2672,28 +2683,28 @@ void radarDrawPanel(u8 *state)
             }
         }
     }
-    if ((*(s32 *)(state + 0x14) & 1) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 1) != 0) {
         position.xy.x = 152.0f + (originX + ((RadarMenu *)state)->entries[0].currentX.f);
         position.xy.y = 370.0f + (originY + ((RadarMenu *)state)->entries[0].currentY.f);
         scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[0].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
         sdkSpriteDrawAt(((RadarMenu *)state)->sprites[49].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
-    if ((*(s32 *)(state + 0x14) & 0x40) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 0x40) != 0) {
         position.xy.x = 16.0f + (originX + ((RadarMenu *)state)->entries[25].currentX.f);
         position.xy.y = 405.0f + (originY + ((RadarMenu *)state)->entries[25].currentY.f);
         scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[25].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
         sdkSpriteDrawAt(((RadarMenu *)state)->sprites[28].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
-    if ((*(s32 *)(state + 0x14) & 0x80) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 0x80) != 0) {
         position.xy.x = 62.0f + (originX + ((RadarMenu *)state)->entries[26].currentX.f);
         position.xy.y = 405.0f + (originY + ((RadarMenu *)state)->entries[26].currentY.f);
         scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[26].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
         sdkSpriteDrawAt(((RadarMenu *)state)->sprites[29].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
-    if ((*(s32 *)(state + 0x14) & 8) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 8) != 0) {
         u8 headingAlpha;
         position.xy.x = 271.0f + (originX + ((RadarMenu *)state)->entries[8].currentX.f);
         position.xy.y = 21.0f + (originY + ((RadarMenu *)state)->entries[8].currentY.f);
@@ -2720,12 +2731,12 @@ void radarDrawPanel(u8 *state)
 
         datEntryDrawRow(position.xy, 0.0f, headingAlpha, (u8 *)&label);
     }
-    if ((*(s32 *)(state + 0x14) & 4) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 4) != 0) {
         for (labelIndex = 0; labelIndex < ((RadarMenu *)state)->partyCount; labelIndex++) {
             radarDrawEntryRow(state, labelIndex);
         }
     }
-    if ((*(s32 *)(state + 0x14) & 0x400) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 0x400) != 0) {
         value = ((RadarMenu *)state)->indicators[1].currentX.f + (originX + ((RadarMenu *)state)->entries[15].currentX.f);
         rowY = ((RadarMenu *)state)->indicators[1].currentY.f + (originY + ((RadarMenu *)state)->entries[15].currentY.f);
         scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[15].currentAlpha * opacityScale;
@@ -2742,14 +2753,14 @@ void radarDrawPanel(u8 *state)
         position.xy.y = 35.0f + rowY;
         scrollRange = (s32)((RadarMenu *)state)->inventoryCount - 6;
         if (scrollRange > 0) {
-            scrollPosition = (s32)*(s16 *)(state + 0x24) * 134; /* measured: this access-site member rewrite changes instruction bytes. */
+            scrollPosition = (s32)radarWork->selection[1] * 134;
             position.xy.y += (f32)(scrollPosition / scrollRange);
         }
         theme = D_0064B2E8;
         sdkSpriteDrawAt(((RadarMenu *)state)->sprites[13].object, position.xy.x, position.xy.y, theme[0], theme[1], theme[2],
             cachedAlpha);
     }
-    if ((*(s32 *)(state + 0x14) & 2) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if ((radarWork->flags & 2) != 0) {
         if (((RadarMenu *)state)->inventoryCount == 0) {
             position.xy.x = 280.0f + (originX + ((RadarMenu *)state)->entries[1].currentX.f);
             position.xy.y = 20.0f + (originY + ((RadarMenu *)state)->entries[1].currentY.f);
@@ -2757,28 +2768,28 @@ void radarDrawPanel(u8 *state)
             frFontExDrawText(position.xy.x, position.xy.y, 0.0f, (fontAlpha | ~0xFF), 6, 1, (const char *)iGpffff9cc8,
                 0, 0);
         } else {
-            if (*(u8 *)(state + 0x1AD2) > 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+            if (((RadarMenu *)state)->indicators[0].currentAlpha > 0) {
                 position.xy.x = originX + ((RadarMenu *)state)->indicators[0].currentX.f;
                 position.xy.y = originY + ((RadarMenu *)state)->indicators[0].currentY.f;
                 theme = D_0064B2E4;
                 panelSprite = ((RadarMenu *)state)->sprites[0].node;
                 sdkSpriteDrawSized(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
-                    *(u8 *)(state + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0); /* measured: this access-site member rewrite changes instruction bytes. */
+                    ((RadarMenu *)state)->indicators[0].currentAlpha, 0x1000, 0x1000, 0, 0.0f, 0);
             }
             for (rowIndex = 0; rowIndex < 6; rowIndex++) {
                 u8 iconAlpha;
                 u8 *iconSprite;
-                itemIndex = rowIndex + *(s16 *)(state + 0x24); /* measured: this access-site member rewrite changes instruction bytes. */
-                if (itemIndex < *(s16 *)(state + 0xC3E)) { /* measured: this access-site member rewrite changes instruction bytes. */
+                itemIndex = rowIndex + radarWork->selection[1];
+                if (itemIndex < radarWork->inventoryCount) {
                     row = state + itemIndex * 4;
                     itemId = ((RadarMenu *)row)->inventory[0].id;
                     quantity = ((RadarMenu *)row)->inventory[0].count;
                     itemFlags = datEntryGetFlags(itemId);
-                    selection = *(s16 *)(state + 0x22); /* measured: this access-site member rewrite changes instruction bytes. */
+                    selection = radarWork->selection[0];
                     if (rowIndex == selection) {
                         theme = D_0064B2E8;
                         palette = D_0064B2EC;
-                        if ((*(s32 *)(state + 0x14) & 0x100) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+                        if ((radarWork->flags & 0x100) != 0) {
                             continue;
                         }
                         position.xy.x = 223.0f + (originX + ((RadarMenu *)state)->entries[1].currentX.f);
@@ -2832,7 +2843,7 @@ void radarDrawPanel(u8 *state)
                     label.drawName = 1;
                     label.drawStats = 0;
                     label.layout = 4;
-                    if (rowIndex == *(s16 *)(state + 0x22)) { /* measured: this access-site member rewrite changes instruction bytes. */
+                    if (rowIndex == radarWork->selection[0]) {
                         label.iconFlags = 0;
                         label.palette = 3;
                     } else {
@@ -2845,15 +2856,15 @@ void radarDrawPanel(u8 *state)
             }
         }
     }
-    if (((*(s32 *)(state + 0x14) & 0x100) != 0) && (((RadarMenu *)state)->inventoryCount != 0)) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if (((radarWork->flags & 0x100) != 0) && (((RadarMenu *)state)->inventoryCount != 0)) {
         position.xy.x = 223.0f + (originX + ((RadarMenu *)state)->entries[1].currentX.f);
-        selection = *(s16 *)(state + 0x22); /* measured: this access-site member rewrite changes instruction bytes. */
+        selection = radarWork->selection[0];
         position.xy.y = 21.0f + (((RadarMenu *)state)->entries[1].currentY.f + (originY + 34.0f * (f32)selection));
         scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[16].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        itemId = *(s16 *)(state + 0x24); /* measured: this access-site member rewrite changes instruction bytes. */
+        itemId = radarWork->selection[1];
         detailLabel.itemId = ((s16 *)(state + 0x3E))[(itemId + selection) * 2];
-        detailLabel.quantity = ((s16 *)(state + 0x40))[(itemId + *(s16 *)(state + 0x22)) * 2]; /* measured: this access-site member rewrite changes instruction bytes. */
+        detailLabel.quantity = ((s16 *)(state + 0x40))[(itemId + radarWork->selection[0]) * 2];
         detailLabel.priceMode = -1;
         detailLabel.drawName = 1;
         /* comparisonItem is only consumed when statistics are enabled. */
@@ -2869,7 +2880,7 @@ void radarDrawPanel(u8 *state)
     value = (f32)((RadarMenu *)state)->entries[28].currentAlpha;
     scaledAlpha = value * opacityScale;
     alphaByte = (u8)scaledAlpha;
-    sdkSpriteDrawFooter(position.xy, 0.0f, (u8)(alphaByte & 0xFF), ((RadarMenu *)state)->unkC40, *(s32 *)(state + 0x1BE4)); /* measured: this access-site member rewrite changes instruction bytes. */
+    sdkSpriteDrawFooter(position.xy, 0.0f, (u8)(alphaByte & 0xFF), ((RadarMenu *)state)->unkC40, *(s32 *)&radarWork->spritePack); /* Footer API transports the pack handle as a signed word. */
 }
 
 #pragma pop

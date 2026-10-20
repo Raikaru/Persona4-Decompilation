@@ -13,6 +13,10 @@
 #include "field_frame_internal.h"
 #include "field_panel_internal.h"
 #include "field_npc_control_internal.h"
+#include "mdl_file_internal.h"
+#include "rw_object_internal.h"
+#include "resrc_manager_internal.h"
+#include "cmm_internal.h"
 extern void *FldRc_ReplaceGeometryTextures(void *object, void *data);
 
 #include "rw_types_internal.h"
@@ -531,14 +535,14 @@ s32 FldNpcControlUpdate(u8 *task)
       outsideFrustum = 0;
       renderObject = mdlGetClump(((FldActorObject *)work->actor)->model);
       RpClumpForAllAtomics((void *)renderObject, (KClumpCallback)FldRcAtomicFrustumTest, &outsideFrustum);
-      /* Scene state has three position-slot tasks at +0x34; no shared layout exists. */
+      /* The scene frame owns three position-slot tasks in dependentTasks. */
       value = (s32)MT_Scene_GetFrameState();
-      if (*(s32 *)(value + work->actorIndex * 4 + 0x34) != 0) {
+      if ((s32)((FldFrame *)value)->dependentTasks[work->actorIndex] != 0) {
         s32 actorVisible;
         u8 *visibilityTarget;
         actorVisible = (outsideFrustum != 0) ^ 1;
         value = (s32)MT_Scene_GetFrameState();
-        visibilityTarget = *(u8 **)(value + work->actorIndex * 4 + 0x34);
+        visibilityTarget = ((FldFrame *)value)->dependentTasks[work->actorIndex];
         FldRc_SetPositionSlotVisibility(visibilityTarget,work->positionSlot,actorVisible);
       }
       if ((((FldActorObject *)work->actor)->flags & 2) == 0) {
@@ -546,13 +550,13 @@ s32 FldNpcControlUpdate(u8 *task)
       }
     }
     actorModel = ((FldActorObject *)work->actor)->model;
-    /* Model resource type/ID are private prefix halfwords at +0xD4/+0xD6. */
-    resourceId = *(u16 *)(actorModel + 0xd4);
-    if ((((((resourceId != 5) || (*(u16 *)(actorModel + 0xd6) != 0x45ed)) &&
-          ((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x461f)))) &&
-         ((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x4651)))) &&
-        ((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x46b5)))) &&
-       (((resourceId != 5 || (*(u16 *)(actorModel + 0xd6) != 0x46e7)) &&
+    /* Model-file type and ID select the actors excluded from automatic look-at. */
+    resourceId = ((MdlFileModel *)actorModel)->type;
+    if ((((((resourceId != 5) || (((MdlFileModel *)actorModel)->id != 0x45ed)) &&
+          ((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x461f)))) &&
+         ((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x4651)))) &&
+        ((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x46b5)))) &&
+       (((resourceId != 5 || (((MdlFileModel *)actorModel)->id != 0x46e7)) &&
         (fldBothReady_0018a200())))) {
       renderObject = mdlGetMatrix(((void **)D_007EFA00)[0]);
       actorMatrix = mdlGetMatrix(actorModel);
@@ -619,14 +623,14 @@ s32 FldNpcControlUpdate(u8 *task)
         mdlSetLookAtRequested(((FldActorObject *)work->actor)->model);
       }
     }
-    /* Camera/frame prefixes are opaque here: frame at +4, frame position at +0x30. */
+    /* Follow the camera parent frame to its matrix position. */
     value = kwlnGetCamera();
-    matrixFirstWord = *(u32 *)(value + 4);
+    matrixFirstWord = (u32)((RwObject *)value)->parent;
     FldFrameTask_GetPosition((u8 *)&movementPosition[0],((FldActorObject *)work->actor)->movementTask);
     *(FldCopyVec *)cameraTarget = *(FldCopyVec *)movementPosition;
     cameraTarget[1] = cameraTarget[1] + 180.0f;
     value = func_003e9700(matrixFirstWord);
-    *(FldCopyVec *)cameraPosition = *(FldCopyVec *)(value + 0x30);
+    *(FldCopyVec *)cameraPosition = *(FldCopyVec *)&((RainMatrix *)value)->pos;
     cameraDelta[0] = cameraTarget[0] - cameraPosition[0];
     cameraDelta[1] = cameraTarget[1] - cameraPosition[1];
     cameraDelta[2] = cameraTarget[2] - cameraPosition[2];
@@ -649,7 +653,7 @@ s32 FldNpcControlUpdate(u8 *task)
     if ((work->cameraNear == 1) && (!(distance <= work->cameraHeight + 55.0f))) {
       mdlSetAlphaBlend(((FldActorObject *)work->actor)->model);
       /* The fade API and animation query accept the model address as an integer handle. */
-      objectAddress = KMisc_CreateRmdFade((s32)task,*(s32 *)(work->actor + 0x164),0,0xff,10);
+      objectAddress = KMisc_CreateRmdFade((s32)task,((ResrcRecord *)work->actor)->modelHandle164Value,0,0xff,10);
       work->effectTask = objectAddress;
       work->cameraNear = 0;
     }
@@ -683,11 +687,11 @@ s32 FldNpcControlUpdate(u8 *task)
         RwMatrixUpdate(renderObject);
         mdlSetColor(((FldActorObject *)work->actor)->model, &D_00763074);
         value = (s32)MT_Scene_GetResListHead(5);
-        /* Resource-list records expose a vector at +0x1F0; remaining layout is unknown. */
-        initialX = *(f32 *)(value + 0x1f0);
+        /* The type-5 resource supplies the clump lighting scale vector. */
+        initialX = ((ResrcRecord *)value)->lightScale[0];
         initialZero = 0.0f;
-        if (((initialZero != initialX) || (initialZero != *(f32 *)(value + 0x1f8))) ||
-           (initialZero != *(f32 *)(value + 500))) {
+        if (((initialZero != initialX) || (initialZero != ((ResrcRecord *)value)->lightScale[2])) ||
+           (initialZero != ((ResrcRecord *)value)->lightScale[1])) {
           objectData = (void *)mdlGetClump(((FldActorObject *)work->actor)->model);
           FldRc_SetClumpVector(objectData,(u8 *)value + 0x1f0);
         }
@@ -701,29 +705,29 @@ s32 FldNpcControlUpdate(u8 *task)
     value = kwlnGetCurrentWorkValue();
     if (value == 9) {
       value = (s32)MT_Scene_GetFrameState();
-      if (*(s32 *)(value + 0x34) == 0) {
+      if ((s32)((FldFrame *)value)->dependentTasks[0] == 0) {
         break;
       }
       value = (s32)MT_Scene_GetFrameState();
-      value = FldRc_FileLoadIsReady(*(u8 **)(value + 0x34));
+      value = FldRc_FileLoadIsReady(((FldFrame *)value)->dependentTasks[0]);
       if (value == 0) {
         break;
       }
       value = (s32)MT_Scene_GetFrameState();
-      if (*(s32 *)(value + 0x38) == 0) {
+      if ((s32)((FldFrame *)value)->dependentTasks[1] == 0) {
         break;
       }
       value = (s32)MT_Scene_GetFrameState();
-      value = FldRc_FileLoadIsReady(*(u8 **)(value + 0x38));
+      value = FldRc_FileLoadIsReady(((FldFrame *)value)->dependentTasks[1]);
       if (value == 0) {
         break;
       }
       value = (s32)MT_Scene_GetFrameState();
-      if (*(s32 *)(value + 0x3c) == 0) {
+      if ((s32)((FldFrame *)value)->dependentTasks[2] == 0) {
         break;
       }
       value = (s32)MT_Scene_GetFrameState();
-      value = FldRc_FileLoadIsReady(*(u8 **)(value + 0x3c));
+      value = FldRc_FileLoadIsReady(((FldFrame *)value)->dependentTasks[2]);
       if (value == 0) {
         break;
       }
@@ -747,8 +751,8 @@ s32 FldNpcControlUpdate(u8 *task)
         animationId = (s16)objectAddress;
         resourceKey = (u16)animationId;
         value = (s32)cmmKindRecord(resourceKey);
-        /* cmmKindRecord exposes flags at +4; its record layout is not declared here. */
-        if ((*(u32 *)(value + 4) & 1) != 0) {
+        /* Community-kind flag 1 enables counterpart resolution before testing event flags. */
+        if ((((CmmKindRecord *)value)->flags & 1) != 0) {
           counterpartId = cmmResolveCounterpart((s16)resourceKey);
           animationId = (s16)counterpartId;
         }
@@ -770,9 +774,9 @@ s32 FldNpcControlUpdate(u8 *task)
         }
         actorOffset = actorIndex * 4;
         value = (s32)MT_Scene_GetFrameState();
-        objectAddress = FldRc_RequestPositionSlot(*(u8 **)(value + actorOffset + 0x34),&attachPosition[0]);
+        objectAddress = FldRc_RequestPositionSlot(((FldFrame *)(value + actorOffset))->dependentTasks[0],&attachPosition[0]);
         value = (s32)MT_Scene_GetFrameState();
-        FldRc_SetPositionSlotPriority(*(u8 **)(value + actorOffset + 0x34),objectAddress,4);
+        FldRc_SetPositionSlotPriority(((FldFrame *)(value + actorOffset))->dependentTasks[0],objectAddress,4);
         work->actorIndex = actorIndex;
         work->positionSlot = objectAddress;
       }
@@ -844,7 +848,7 @@ s32 FldNpcControlUpdate(u8 *task)
   case 2:
     ((FldActorObject *)work->actor)->flags = ((FldActorObject *)work->actor)->flags | 0x10000000;
     mdlSetAlphaBlend(((FldActorObject *)work->actor)->model);
-    objectAddress = KMisc_CreateRmdFade((s32)task,*(s32 *)(work->actor + 0x164),0,0xff,8);
+    objectAddress = KMisc_CreateRmdFade((s32)task,((ResrcRecord *)work->actor)->modelHandle164Value,0,0xff,8);
     work->effectTask = objectAddress;
     work->state = work->state + 1;
     break;
@@ -874,7 +878,7 @@ s32 FldNpcControlUpdate(u8 *task)
           if (work->savedAnimation != 0xffffffff) {
             break;
           }
-          animationId = mdlGetLayerAnimation(*(s32 *)(work->actor + 0x164), 0);
+          animationId = mdlGetLayerAnimation(((ResrcRecord *)work->actor)->modelHandle164Value, 0);
           work->savedAnimation = (s32)animationId;
           objectAddress = work->actor;
           updateAnimationKind = ((FldActorObject *)objectAddress)->kind;
@@ -907,7 +911,7 @@ s32 FldNpcControlUpdate(u8 *task)
       {
         FldNpcControlWork *pathWork;
         if (((movementMode != 4) || work->progress.value != 1.0f) &&
-            (animationId = mdlGetLayerAnimation(*(s32 *)(objectAddress + 0x164), 0), animationId != 1)) {
+            (animationId = mdlGetLayerAnimation(((ResrcRecord *)objectAddress)->modelHandle164Value, 0), animationId != 1)) {
           mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,1,4,1);
         }
         func_003bb5b0((void *)(u32)((FldActorObject *)work->actor)->curve, 10, work->progress.value, &pathSample[0], 0);
@@ -961,7 +965,7 @@ s32 FldNpcControlUpdate(u8 *task)
         if ((s32)pauseFrames >= 1) {
           work->pauseFrames = pauseFrames - 1;
         } else {
-          if ((pauseFrames == 0) && (animationId = mdlGetLayerAnimation(*(s32 *)(objectAddress + 0x164), 0), animationId != 1)) {
+          if ((pauseFrames == 0) && (animationId = mdlGetLayerAnimation(((ResrcRecord *)objectAddress)->modelHandle164Value, 0), animationId != 1)) {
             mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,1,4,1);
           }
           if ((s32)work->turnFrames > 0) {
@@ -1039,7 +1043,7 @@ s32 FldNpcControlUpdate(u8 *task)
     *(FldCopyVec *)turnForwardVector = *(FldCopyVec *)&actorMatrix->at;
     /* Preserve the retail two-word cursor copy of the matrix basis. */
     modelBasis = (f32 *)mdlGetMatrix(((FldActorObject *)work->actor)->model);
-    *(FldCopyVec *)turnRightVector = *(FldCopyVec *)(modelBasis);
+    *(FldCopyVec *)turnRightVector = *(FldCopyVec *)&((RainMatrix *)modelBasis)->right;
     turnForward = (RainVector *)turnForwardVector;
     RwV3dNormalize(turnForward, turnForward);
     turnRight = (RainVector *)turnRightVector;
@@ -1080,7 +1084,7 @@ s32 FldNpcControlUpdate(u8 *task)
     break;
   case 7:
     finalModel = ((FldActorObject *)work->actor)->model;
-    if (finalModel[0xee] == 1 &&
+    if (((MdlFileModel *)finalModel)->finished == 1 &&
        (animationId = mdlGetLayerAnimation((s32)finalModel, 0), animationId != 0)) {
       mdlDispatchAnimIfPresent(((FldActorObject *)work->actor)->model,0,0,8,1);
     }
@@ -1164,49 +1168,60 @@ typedef struct MaterialTextureContext {
 /* MATCH: stage the s32 byte count without a conflicting callee prototype.
    Unsigned elapsed subtraction preserves retail timer wrap. 332B/336B,
    normalized_diff 0; only four zero-tail bytes are absent. */
+
+/* The supporter constructor allocates 0x14 bytes; its last word owns the script task. */
+typedef struct FldSupporterWork {
+    s32 state;
+    s32 active;
+    union { s32 timer; u32 timerBits; };
+    s32 frame;
+    s32 scriptTask;
+} FldSupporterWork;
 #pragma push
 #pragma opt_propagation off
 // Kept in bucket: diff 7 when moved; cause not diagnosed.
 /* Run the support procedure after its delay, then wait for that script to finish. */
 // FUN_0018DDE0
-/* Work is {state, hidden, delay, startFrame, scriptTask} at 0x00..0x10.
- * Member access produced 360B in the 336B window (normalized_diff 240);
- * preserve the mixed signed/unsigned byte accesses instead of steering. */
+/* Historical all-access-site typing produced 360B in the 336B window (normalized_diff 240).
+ * The separate support pointer keeps the three remaining stores matched;
+ * timerBits preserves the unsigned timer store and elapsed subtraction wraps. */
 s32 FldSupporterUpdate(u8 *task)
 {
     u8 *work;
     s32 state;
+    FldSupporterWork *support;
 
-    work = *(u8 **)(task + 0x38);
-    if ((*(s32 *)(work + 4) == 1))
+    work = (u8 *)((KwlnTask *)task)->work;
+    support = (FldSupporterWork *)work;
+    if ((((FldSupporterWork *)work)->active == 1))
         return 0;
     if (scrGetWorkCount() > 0)
         return 0;
-    state = *(s32 *)(work + 0);
+    state = ((FldSupporterWork *)work)->state;
     switch (state) {
     default:
         break;
     case 0:
-        *(s32 *)(work + 0xC) = D_0076428C;
-        *(s32 *)(work + 0) = *(s32 *)(work + 0) + 1;
+        ((FldSupporterWork *)work)->frame = D_0076428C;
+        ((FldSupporterWork *)work)->state = ((FldSupporterWork *)work)->state + 1;
         /* fallthrough */
     case 1:
-        if (((u32)D_0076428C - (u32)*(s32 *)(work + 0xC)) > (u32)(*(s32 *)(work + 8))) {
+        if (((u32)D_0076428C - (u32)((FldSupporterWork *)work)->frame) > (u32)(((FldSupporterWork *)work)->timer)) {
             s32 size;
 
             size = iGpffffb278;
-            *(s32 *)(work + 0x10) = scrStartProcedureChecked(0xF, iGpffffb27c, size, 0);
-            *(s32 *)(work + 0) = 2;
-            *(u32 *)(work + 8) = 0x384U;
-            *(s32 *)(work + 0xC) = D_0076428C;
+            ((FldSupporterWork *)work)->scriptTask = scrStartProcedureChecked(0xF, iGpffffb27c, size, 0);
+            ((FldSupporterWork *)work)->state = 2;
+            support->timerBits = 0x384U;
+            support->frame = D_0076428C;
         }
         break;
     case 2:
-        if (kwlnTaskIsLinked(*(s32 *)(work + 0x10)) == 1)
+        if (kwlnTaskIsLinked(((FldSupporterWork *)work)->scriptTask) == 1)
             return 0;
-        *(s32 *)(work + 0x10) = 0;
-        *(s32 *)(work + 0xC) = D_0076428C;
-        *(s32 *)(work + 0) = 1;
+        support->scriptTask = 0;
+        ((FldSupporterWork *)work)->frame = D_0076428C;
+        ((FldSupporterWork *)work)->state = 1;
         break;
     case 3:
         return -1;
@@ -1227,18 +1242,27 @@ typedef struct {
 typedef struct {
     u8 r, g, b, a;
 } PanelColor;
-typedef struct {
-    u8 occupied;
-    u8 flags;
-    u16 resourceId;
-    u8 shape;
-    u8 rotation;
-    u8 unknown06[10];
-} MapTestCell;
-typedef struct {
-    u8 header[0x54];
-    MapTestCell cells[24][16];
+/* Unlike FldFrame, the map-test work places its cell array at +0x2C. */
+typedef struct MapTestGrid {
+    u8 header[0x2C];
+    FldFrameCell cells[24][16];
 } MapTestGrid;
+
+/* Rotation preserves a 0x56-byte pattern: 3-byte flag rows and 12-byte attribute rows. */
+typedef struct FldMapShapeAttribute {
+    u8 exits;
+    u8 unk1;
+    u8 pad2[2];
+} FldMapShapeAttribute;
+typedef struct FldMapShape {
+    s8 type;
+    u8 width;
+    u8 height;
+    u8 pad3[0xA];
+    u8 flags[3][3];
+    u8 pad16[0x1C];
+    FldMapShapeAttribute attributes[3][3];
+} FldMapShape;
 
 /* k_maptest.c: dungeon map generation test. The input image contains the
    button halfword; the map uses 16-byte cells and RGBA colors. Keep the
@@ -1249,10 +1273,10 @@ typedef struct {
 #pragma opt_propagation off
 // Kept in bucket: diff 142 when moved; cause not diagnosed.
 // FUN_0018F7B0
-/* Cells start at grid+0x2C with 0x10-byte columns/0x100-byte rows.
- * Pattern flags have 3-byte rows, attributes 12-byte rows at +0x32.
- * Typed cell/pattern traversal kept the 240-byte size but differed by 169
- * normalized bytes; retain these offset cursors, not allocation steering. */
+/* Fill the unoccupied cells of a rotated map-test shape at (x, y).
+ * Cell rows are 0x100 bytes; pattern flags and attributes have distinct strides.
+ * measured: cell-pointer and cell-array stores differ; MapTestGrid member stores
+ * preserve the original 240-byte function. The separate shape local keeps header loads matched. */
 void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
 {
     s32 rowIndex;
@@ -1265,29 +1289,31 @@ void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
     s32 sourceRowAddress;
     s32 cellAddress;
     s32 sourceAddress;
+    FldMapShape *shape;
 
     pattern = (u8 *)shapeData;
+    shape = (FldMapShape *)pattern;
     occupied = (rotation == rotation);
     originAddress = (x) * 0x10 + (((y) << 8) + (s32)grid);
-    *(u8 *)(originAddress + 0x2D) = occupied;
+    ((FldFrameCell *)(originAddress + 0x2C))->flags = occupied;
     rowIndex = 0;
-    while (rowIndex < (s32)pattern[2]) {
+    while (rowIndex < (s32)shape->height) {
         columnIndex = 0;
         rowAddress = originAddress + (rowIndex << 8);
         flagsAddress = (s32)pattern + rowIndex * 3;
         sourceRowAddress = (s32)pattern + rowIndex * 12;
-        while (columnIndex < (s32)pattern[1]) {
+        while (columnIndex < (s32)shape->width) {
             cellAddress = rowAddress + (columnIndex << 4);
-            if (*(u8 *)(cellAddress + 0x2C) == 0) {
-                *(u8 *)(cellAddress + 0x2C) = occupied;
-                *(u8 *)(cellAddress + 0x2D) |= *(u8 *)(flagsAddress + columnIndex + 13);
+            if (((FldFrameCell *)(cellAddress + 0x2C))->occupied == 0) {
+                ((FldFrameCell *)(cellAddress + 0x2C))->occupied = occupied;
+                ((MapTestGrid *)cellAddress)->cells[0][0].flags |= ((FldMapShape *)(flagsAddress + columnIndex))->flags[0][0];
                 sourceAddress = sourceRowAddress + (columnIndex << 2);
-                *(u8 *)(cellAddress + 0x36) = *(u8 *)(sourceAddress + 0x32);
-                *(u8 *)(cellAddress + 0x32) = pattern[1];
-                *(u8 *)(cellAddress + 0x33) = pattern[2];
-                *(s8 *)(cellAddress + 0x30) = *(s8 *)pattern;
-                *(u8 *)(cellAddress + 0x31) = rotation;
-                *(u8 *)(cellAddress + 0x37) = *(u8 *)(sourceAddress + 0x33);
+                ((MapTestGrid *)cellAddress)->cells[0][0].exits = ((FldMapShape *)sourceAddress)->attributes[0][0].exits;
+                ((MapTestGrid *)cellAddress)->cells[0][0].shapeX = shape->width;
+                ((MapTestGrid *)cellAddress)->cells[0][0].shapeZ = shape->height;
+                ((MapTestGrid *)cellAddress)->cells[0][0].type = shape->type;
+                ((MapTestGrid *)cellAddress)->cells[0][0].kind = rotation;
+                ((MapTestGrid *)cellAddress)->cells[0][0].unk0B = ((FldMapShape *)sourceAddress)->attributes[0][0].unk1;
             }
             columnIndex += 1;
         }
