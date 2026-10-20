@@ -1170,17 +1170,19 @@ s32 sdkSndStreamTaskUpdate(u8 *task)
 /* ================================================================== */
 
 // Intent: destroy callback for a stream-load task: frees its handle and its work block.
-/* measured: typing the final request-address clear loses MATCH; the preceding request test and release remain typed. */
+/* measured: direct typing of the final request clear loses MATCH; a local stream-work alias preserves that clear and the typed release. */
 // FUN_0045B120
 void sdkSndStreamTaskDestroy(u8 *task)
 {
+    SdkSndStreamWork *typedW;
     u8 *w;
 
     w = ((SdkTask *)task)->work;
+    typedW = (SdkSndStreamWork *)w;
     if (((SdkSndStreamWork *)w)->requestAddress != 0)
     {
         H_Cdvd_Destroy((void *)((SdkSndStreamWork *)w)->requestAddress);
-        *(s32 *)(w + 0x114) = 0;
+        typedW->requestAddress = 0;
     }
     jtbl_008873EC[0](w);
 }

@@ -2,7 +2,7 @@
 /* Persona 4 USA decompilation - sdkPak2.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
-
+#include "member_access.h"
 /* The loader reads a count from header +4, then a sector-offset directory.
  * The path span ends at the handle at +0x218. Unknown words retain offsets. */
 typedef struct SdkPakHeader {
@@ -66,10 +66,10 @@ void sdkPakUpdateDirectoryLoads(void) {
             break;
         case 1:
             ((SdkPakRequest *)request)->handle = func_004c85a0(request + 0x18, 0);
-            *(s32 *)(request + 8) = 2;
+            MEMBER(s32, request, SdkPakRequest, state) = 2;
         case 2:
             func_004c9010(((SdkPakRequest *)request)->handle, 1, ((SdkPakRequest *)request)->headerAddress);
-            *(s32 *)(request + 8) = 3;
+            MEMBER(s32, request, SdkPakRequest, state) = 3;
         case 3:
             if (func_004c9820(((SdkPakRequest *)request)->handle) != 3) {
                 goto fail3;
@@ -78,8 +78,8 @@ void sdkPakUpdateDirectoryLoads(void) {
             sectorCount = (((SdkPakHeader *)((SdkPakRequest *)request)->headerAddress)->entryCount * 4 + 0x7FF) / 0x800;
             chkmemAllocSiteTag(D_00712AC0, 0x63);
             ((SdkPakRequest *)request)->directoryAddress = chkmemAllocAligned(sectorCount << 11, 0x40, 0x40000);
-            func_004c9010(*(s32 *)(request + 0x218), sectorCount, *(s32 *)(request + 0x10));
-            *(s32 *)(request + 8) = 5;
+            func_004c9010(MEMBER(s32, request, SdkPakRequest, handle), sectorCount, MEMBER(s32, request, SdkPakRequest, directoryAddress));
+            MEMBER(s32, request, SdkPakRequest, state) = 5;
             goto case5;
 fail3:
             request = NULL;
@@ -89,9 +89,9 @@ case5:
             if (func_004c9820(((SdkPakRequest *)request)->handle) != 3) {
                 goto fail5;
             }
-            func_004c8a60(*(s32 *)(request + 0x218));
-            *(s32 *)(request + 0x218) = 0;
-            *(s32 *)(request + 8) = 6;
+            func_004c8a60(MEMBER(s32, request, SdkPakRequest, handle));
+            MEMBER(s32, request, SdkPakRequest, handle) = 0;
+            MEMBER(s32, request, SdkPakRequest, state) = 6;
             goto case6;
 fail5:
             request = NULL;
@@ -119,6 +119,7 @@ case6:
 // FUN_00468BF0
 s32 sdkPakStartEntryLoad(u8 *reader, s32 handleIndex)
 {
+    SdkPakReader *typedReader = (SdkPakReader *)reader;
     s32 firstEntry;
     s32 entryIndex;
     s32 sectorCount;
@@ -135,19 +136,19 @@ s32 sdkPakStartEntryLoad(u8 *reader, s32 handleIndex)
         directoryCursor = (u8 *)directoryOffset;
         package = ((SdkPakReader *)reader)->package;
         sectorCount = ((s32 *)(directoryCursor + (u32)(u8 *)((SdkPakRequest *)package)->directoryAddress))[2] -
-              *(s32 *)(directoryCursor + (u32)*(u8* *)&((SdkPakRequest *)package)->directoryAddress + 4);
+              ((s32 *)(directoryCursor + (u32)*(u8* *)&((SdkPakRequest *)package)->directoryAddress))[1];
         if (sectorCount != 0) {
             handleSlot = (u8 *)(handleIndex * 4) + (u32)reader + 0x10;
             *(s32 *)handleSlot = func_004c8708(
                 package + 0x18, 0,
                 ((s32 *)(directoryCursor + (u32)(u8 *)((SdkPakRequest *)package)->directoryAddress))[1], sectorCount);
             chkmemAllocSiteTag(D_00712AC0, 0xC7);
-            *(s32 *)(*(u8 **)(reader + 0x38) + *(s32 *)(reader + 0x44) * 4) =
+            ((s32 *)typedReader->buffers)[typedReader->nextEntry] =
                 chkmemAllocAligned(sectorCount << 11, 0x40, 0x40000);
             func_004c9010(*(s32 *)handleSlot, sectorCount,
-                          *(s32 *)(((SdkPakReader *)reader)->buffers + *(s32 *)(reader + 0x44) * 4));
+                          ((s32 *)((SdkPakReader *)reader)->buffers)[typedReader->nextEntry]);
         }
-        *(s32 *)(reader + 0x44) = *(s32 *)(reader + 0x44) + 1;
+        typedReader->nextEntry = typedReader->nextEntry + 1;
         return 1;
     }
     return 0;

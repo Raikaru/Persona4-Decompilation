@@ -4,7 +4,7 @@
 #include "type.h"
 #include "h_cdvd_internal.h"
 #include "sdktask.h"
-
+#include "member_access.h"
 /* Request offsets are shared by the polling loop and worker dispatch below.
  * The 0x80-byte path regions end at the next path/state field. */
 typedef union SdkWrapDirectory {
@@ -75,7 +75,7 @@ extern f32 iGpffffbb24;
  * The pointer switch retains the retail null guard and separate backedge. */
 #pragma opt_loop_invariants on
 /* Poll queued directory requests and wake the resource worker once ready. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */
 // FUN_00466C60
 void sdkWrapPollRequests(void)
 {
@@ -89,7 +89,7 @@ void sdkWrapPollRequests(void)
             for (;;) {
                 switch (((SdkWrapRequest *)request)->state) {
                 case 0:
-                    if (*(s8 *)(request + 0xA4) != 0) {
+                    if (MEMBER(s8, request, SdkWrapRequest, directoryPath[0]) != 0) {
                         locked = func_0042ba20();
                         func_00440b68(iGpffffb010, D_00712978, 0x233);
                         ((SdkWrapRequest *)request)->directory.bytes =
@@ -97,7 +97,7 @@ void sdkWrapPollRequests(void)
                         if (locked != 0) {
                             func_0042ba70();
                         }
-                        *(s32 *)(request + 0x1A4) = 1;
+                        MEMBER(s32, request, SdkWrapRequest, state) = 1;
                         goto next_queue;
                     }
                     ((SdkWrapRequest *)request)->directory.bytes = NULL;
@@ -111,9 +111,9 @@ void sdkWrapPollRequests(void)
                         }
                         locked = 0;
                 enqueue:
-                        *(s16 *)(iGpffffbae0 + queueIndex * 8) = 1;
-                        *(u8 **)(iGpffffbae0 + queueIndex * 8 + 4) = request;
-                        *(s32 *)(request + 0x1A4) = 2;
+                        ((SdkWrapWorker *)(iGpffffbae0 + queueIndex * 8))->ready = 1;
+                        ((SdkWrapWorker *)(iGpffffbae0 + queueIndex * 8))->request = request;
+                        MEMBER(s32, request, SdkWrapRequest, state) = 2;
                         WakeupThread(*((s32 *)&D_00724BC8 + queueIndex));
                     }
                     if (locked != 0) {
@@ -146,10 +146,13 @@ next_queue:
 }
 #pragma opt_loop_invariants reset
 /* Resource worker loop: dispatch a ready request and release its directory. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */
 // FUN_00466E80
 void sdkWrapWorkerThread(u8 *worker)
 {
+    SdkWrapRequest *typedRequest;
+    SdkWrapWorker *typedWorker = (SdkWrapWorker *)worker;
+    SdkWrapRequest *typedNextRequest;
     extern void func_00421700(void);
     extern void func_003eaa80(u8 *worker);
     extern s32 func_003ef740(u8 *worker, s32 value);
@@ -192,91 +195,94 @@ wait_start:
 process:
     for (;;) {
         request = ((SdkWrapWorker *)worker)->request;
+        typedRequest = (SdkWrapRequest *)request;
         switch (((SdkWrapRequest *)request)->operation) {
         case 0:
-            if (*(s8 *)(request + 0x124) != 0) {
+            if ((s8)typedRequest->contextPath[0] != 0) {
                 func_003eaa80(((SdkWrapRequest *)request)->contextPath);
             }
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1B4) =
-                func_003ef740(*(u8 **)(worker + 4) + 0x24, 0);
+            ((SdkWrapRequest *)typedWorker->request)->unk1B4 =
+                func_003ef740(typedWorker->request + 0x24, 0);
             func_003eaa80((u8 *)&iGpffffb01c - 4);
             break;
         case 1:
-            if (*(s8 *)(request + 0x124) != 0) {
+            if ((s8)typedRequest->contextPath[0] != 0) {
                 func_003eaa80(((SdkWrapRequest *)request)->contextPath);
             }
-            *(u8 **)(*(u8 **)(worker + 4) + 0x10) =
-                func_003be180(*(s32 *)(*(u8 **)(worker + 4) + 8));
+            ((SdkWrapRequest *)typedWorker->request)->resource =
+                func_003be180(((SdkWrapRequest *)typedWorker->request)->resourceId);
             func_003eaa80((u8 *)&iGpffffb01c - 4);
             break;
         case 2:
-            if (*(s8 *)(request + 0x124) != 0) {
+            if ((s8)typedRequest->contextPath[0] != 0) {
                 func_003eaa80(((SdkWrapRequest *)request)->contextPath);
             }
-            if (*(s32 *)(*(u8 **)(worker + 4) + 0x1CC) != 0) {
-                func_003d60e0(D_0070B610, *(s32 *)(*(u8 **)(worker + 4) + 0x1CC));
+            if (((SdkWrapRequest *)typedWorker->request)->unk1CC != 0) {
+                func_003d60e0(D_0070B610, ((SdkWrapRequest *)typedWorker->request)->unk1CC);
             }
-            *(s32 *)(*(u8 **)(worker + 4) + 0xC) =
-                (s32)func_003c0f20(*(s32 *)(*(u8 **)(worker + 4) + 8));
+            ((SdkWrapRequest *)typedWorker->request)->result =
+                (s32)func_003c0f20(((SdkWrapRequest *)typedWorker->request)->resourceId);
             func_003eaa80((u8 *)&iGpffffb01c - 4);
             break;
         case 3:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x14) =
+            ((SdkWrapRequest *)typedWorker->request)->unk14 =
                 func_003d5330(((SdkWrapRequest *)request)->path);
             break;
         case 4:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1BC) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1BC =
                 func_003e2910(((SdkWrapRequest *)request)->resourceId,
                               ((SdkWrapRequest *)request)->unk1C4,
                               ((SdkWrapRequest *)request)->unk1C0);
         case 5:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x18) =
-                (s32)func_00395290(*(s32 *)(*(u8 **)(worker + 4) + 8));
+            ((SdkWrapRequest *)typedWorker->request)->unk18 =
+                (s32)func_00395290(((SdkWrapRequest *)typedWorker->request)->resourceId);
             break;
         case 6:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1C) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1C =
                 func_003bba90(((SdkWrapRequest *)request)->path);
             break;
         case 7:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1C8) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1C8 =
                 func_003d6350(((SdkWrapRequest *)request)->unk20, ((SdkWrapRequest *)request)->resourceId);
             break;
         case 8:
-            *(u8 **)(*(u8 **)(worker + 4) + 0x1D0) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1D0 =
                 func_003e6a90(((SdkWrapRequest *)request)->resourceId);
             break;
         case 9:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1B8) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1B8 =
                 tmxUploadStream(((SdkWrapRequest *)request)->unk1C4, 0);
             break;
         case 10:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1C4) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1C4 =
                 func_003eaf60(((SdkWrapRequest *)request)->path);
             break;
         case 11:
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1C) =
+            ((SdkWrapRequest *)typedWorker->request)->unk1C =
                 func_003bb210(((SdkWrapRequest *)request)->resourceId);
             break;
         }
-        if (*(s32 *)(*(u8 **)(worker + 4) + 0x1B0) != 0) {
+        if (((SdkWrapRequest *)typedWorker->request)->directory.handle != 0) {
             locked = func_0042ba20();
-            H_Cdvd_Destroy(*(struct HCdvd **)(*(u8 **)(worker + 4) + 0x1B0));
-            *(s32 *)(*(u8 **)(worker + 4) + 0x1B0) = 0;
+            H_Cdvd_Destroy(((SdkWrapRequest *)typedWorker->request)->directory.cdvd);
+            ((SdkWrapRequest *)typedWorker->request)->directory.handle = 0;
             if (locked != 0) {
                 func_0042ba70();
             }
         }
         locked = func_0042ba20();
-        *(s32 *)(*(u8 **)(worker + 4) + 0x1A4) = 3;
-        request = *(u8 **)(worker + 4);
+        ((SdkWrapRequest *)((SdkWrapWorker *)worker)->request)->state = 3;
+        request = ((SdkWrapWorker *)worker)->request;
+        typedRequest = (SdkWrapRequest *)request;
         if (((SdkWrapRequest *)request)->operation != 8 &&
             ((SdkWrapRequest *)request)->operation != 2) {
             nextRequest = ((SdkWrapRequest *)request)->next;
+            typedNextRequest = (SdkWrapRequest *)nextRequest;
             if (nextRequest != NULL &&
                 ((SdkWrapRequest *)nextRequest)->state == 0 &&
-                *(s8 *)(nextRequest + 0xA4) == 0) {
-                *(s32 *)(nextRequest + 0x1A4) = 2;
-                *(u8 **)(worker + 4) = nextRequest;
+                (s8)((SdkWrapRequest *)nextRequest)->directoryPath[0] == 0) {
+                typedNextRequest->state = 2;
+                typedWorker->request = nextRequest;
                 if (locked != 0) {
                     func_0042ba70();
                 }
@@ -294,15 +300,17 @@ process:
 /* The stream-close callback registered by func_004672c0. It sits inside the
    func_00466e80 verify window and is not in the retail function table, so its
    marker splits the window: 820B + padding, then this 200B callback. */
-/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */
 // FUN_004671C0
 s32 sdkWrapStreamCloseUpdate(u8 *task)
 {
+    SdkWrapStreamWork *typedStreamWork;
     s32 completed;
     u8 *streamWork;
     s32 result;
 
     streamWork = ((SdkTask *)task)->work;
+    typedStreamWork = (SdkWrapStreamWork *)streamWork;
     result = filerTakeCompletedRequest(((SdkWrapStreamWork *)streamWork)->handle, &completed, 0);
     if (completed != 0) {
         if (((SdkWrapStreamWork *)streamWork)->directory != NULL) {
@@ -313,11 +321,11 @@ s32 sdkWrapStreamCloseUpdate(u8 *task)
         if (result != 0) {
             func_003ef3a0(result);
         }
-        if (*(u8 **)(streamWork + 4) != NULL) {
-            H_Cdvd_Destroy(*(struct HCdvd **)(streamWork + 4));
+        if (typedStreamWork->directory != NULL) {
+            H_Cdvd_Destroy(*(struct HCdvd **)&typedStreamWork->directory);
         }
         ((SdkWrapStreamWork *)streamWork)->handle = 0;
-        *(u8 **)(streamWork + 4) = NULL;
+        typedStreamWork->directory = NULL;
         return -1;
     }
     return 0;
