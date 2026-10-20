@@ -1,4 +1,5 @@
 #include "member_access.h"
+#include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -165,9 +166,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-static inline u8 *p4_e740_add(s32 offset, u8 *base) {
-    return (u8 *)(offset + (u32)base);
-}
 typedef struct {
     u8 b0;
     u8 b1;
@@ -214,10 +212,6 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
-static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -385,19 +379,22 @@ typedef struct FldRcScreenQuad {
     s32 orientation;
 } FldRcScreenQuad;
 
-static inline void fieldTransitionScaleVector(SVec3 *destination, SVec3 *source, f32 scale)
+/* Scale all three transition-vector components into the destination. */
+static inline void fldTransitionScaleVector(SVec3 *destination, SVec3 *source, f32 scale)
 {
     destination->x = source->x * scale;
     destination->y = source->y * scale;
     destination->z = source->z * scale;
 }
-static inline s32 fieldTransitionChildReady(u8 *child)
+/* Treat a missing transition child or a positive child state as ready. */
+static inline s32 fldTransitionChildReady(u8 *child)
 {
     if (child == NULL) return 1;
     if (((FldRcEffectWork *)((KwlnTask *)child)->work)->state > 0) return 1;
     return 0;
 }
-static inline u32 fieldTransitionEntryActive(u32 index)
+/* Test whether the indexed field actor has both unit and active state. */
+static inline u32 fldTransitionEntryActive(u32 index)
 {
     s32 active = 0;
     u8 *entry = D_007EF9B0 + index * 0x750;
@@ -805,13 +802,13 @@ loop_done_4:
             kAssertFail(&iGpffff9de0, 0x100);
         }
         slotOffset = slotIndex * 4;
-        effectSlot = p4_e740_add(slotOffset, work) + 0x24;
+        effectSlot = byteAddressAdd(slotOffset, work) + 0x24;
         effect = mdlEffectClone(((FldRcEffectWork *)work)->templateEffect);
         *(s32 *)effectSlot = effect;
         mdlEffectSetChildPositionVec((void *)effect, position);
-        ((FldRcEffectWork *)p4_e740_add(slotOffset, work))->elapsed[0] = 0;
+        ((FldRcEffectWork *)byteAddressAdd(slotOffset, work))->elapsed[0] = 0;
         priority = 1;
-        ((FldRcEffectWork *)p4_e740_add(slotIndex * 2, work))->priority[0] = priority;
+        ((FldRcEffectWork *)byteAddressAdd(slotIndex * 2, work))->priority[0] = priority;
         ((FldRcEffectWork *)work)->cloneCount = ((FldRcEffectWork *)work)->cloneCount + 1;
     } else {
         mdlEffectStart(((FldRcEffectWork *)work)->templateEffect);
@@ -835,8 +832,8 @@ void FldRc_SetPositionSlotPriority(u8 *task, s32 slotIndex, s16 priority) {
 
     work = ((KwlnTask *)task)->work;
     if (slotIndex >= 0) {
-        if (((FldRcEffectWork *)p4_00141cf0_add((u32)(slotIndex * 4), work))->effects[0] != 0) {
-            ((FldRcEffectWork *)p4_00141cf0_add((u32)(slotIndex * 2), work))->priority[0] = priority;
+        if (((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->effects[0] != 0) {
+            ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 2), work))->priority[0] = priority;
         }
     } else {
         ((FldRcEffectWork *)work)->primaryPriority = priority;
@@ -851,7 +848,7 @@ s32 FldRc_GetPositionSlotCount(u8 *task, s32 slotIndex) {
 
     work = ((KwlnTask *)task)->work;
     if (slotIndex >= 0) {
-        return (s32)(((FldRcEffectWork *)p4_00141cf0_add((u32)(slotIndex * 4), work))->elapsed[0]);
+        return (s32)(((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->elapsed[0]);
     }
     return *(s32 *)&((FldRcEffectWork *)work)->primaryElapsed;
 }
@@ -866,7 +863,7 @@ void FldRc_SetPositionSlotLock(u8 *task, s32 slotIndex, s32 locked) {
         ((FldRcEffectWork *)work)->primaryLock = locked;
         return;
     }
-    ((FldRcEffectWork *)p4_00141cf0_add((u32)(slotIndex * 4), work))->locks[0] = locked;
+    ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->locks[0] = locked;
 }
 
 /* measured: typing the indexed visibility access changed one normalized byte; retain its raw integer-address helper shape. */
@@ -879,7 +876,7 @@ void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
         ((FldRcEffectWork *)work)->primaryHidden = hidden;
         return;
     }
-    ((FldRcEffectWork *)p4_00141cf0_add((u32)(slotIndex * 4), work))->hidden[0] = hidden;
+    ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->hidden[0] = hidden;
 }
 
 /* 712/720 bytes; ten resolved relocations; eight zero alignment bytes.
@@ -907,7 +904,7 @@ s32 FldRc_TransitionStep(u8 *task)
         case 0:
         {
             u8 *child = ((FldRcTransitionWork *)work)->child;
-            if (fieldTransitionChildReady(child)) {
+            if (fldTransitionChildReady(child)) {
                 s32 *source = (s32 *)func_003e9700((s32)((MdlEffectCamera *)(u32)kwlnGetCamera())->frame);
                 s32 *destination = (s32 *)(work + 0x10);
                 s32 count = 8;
@@ -922,7 +919,7 @@ s32 FldRc_TransitionStep(u8 *task)
                 } while (count > 0);
                 direction = ((FldRcTransitionWork *)work)->direction;
                 RwV3dNormalize(&direction.x, &direction.x);
-                fieldTransitionScaleVector(&direction, &direction, 700.0f);
+                fldTransitionScaleVector(&direction, &direction, 700.0f);
                 position = ((FldRcTransitionWork *)work)->position;
                 position.x += direction.x;
                 position.y += direction.y;
@@ -940,7 +937,7 @@ s32 FldRc_TransitionStep(u8 *task)
             if (frame < 84) {
                 if (frame > 40) {
                     for (i = 0; i < 4; i++) {
-                        if (fieldTransitionEntryActive(i)) {
+                        if (fldTransitionEntryActive(i)) {
                             u8 *entry = D_007EF9B0 + i * 0x750;
                             u8 *object = (u8 *)(u32)((FldEventActor *)entry)->active;
                             ((ResrcRecord *)object)->unk28 &= ~2U;

@@ -148,6 +148,7 @@ typedef char FldCameraFileSize[sizeof(FldCameraFile) == 0x250 ? 1 : -1];
 extern s32 FldStepEntry(void);
 /* Use the packed step's environment state when a step record exists. */
 /* FldStepEntry returns a packed step record; only its +0x0D environment-state byte is established here. */
+/* Use the active step environment state, retaining the supplied state when absent. */
 static inline s32 fldEnvironmentEventState(s32 state)
 {
     u8 *entry;

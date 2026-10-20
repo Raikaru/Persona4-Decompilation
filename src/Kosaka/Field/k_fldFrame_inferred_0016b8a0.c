@@ -262,6 +262,7 @@ typedef struct FldRaySelectionResource
     u8 pad18[0xA08];
     u8 *cameraPath; /* 0xA20: curve passed to func_003bb330/func_003bb5b0. */
 } FldRaySelectionResource;
+/* Choose the preferred world or fallback; same preferred/fallback rule as fldFrameSelectWorld. */
 static inline void fldRaySelectWorld(const FldRaySelectionResource *selected, void **destination)
 {
     void *world = selected->preferred;

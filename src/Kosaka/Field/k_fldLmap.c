@@ -1,4 +1,5 @@
 #include "member_access.h"
+#include "operand_order_internal.h"
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 /* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -205,7 +206,6 @@ extern s32 FldLmapUpdate(u8 *task);
 typedef struct FldLmapMatrix {
     s32 words[16];
 } FldLmapMatrix;
-static inline f32 mulFp(f32 left, f32 right) { return left * right; }
 /* Load calendar-dependent map sprite assets; return -1 after all sprite requests complete. */
 // FUN_001866D0
 s32 FldLmapLoadUpdate(u8 *task)
@@ -1394,7 +1394,7 @@ s32 FldLmapPathUpdate(u8 *task)
         direction[1] = *slotEyeYColumn - pathWork->eye.y;
         /* measured: typing the retained access changes b210 output (normalized_diff 444); retain pointer/MEMBER spelling. */
         direction[2] = *slotEyeZColumn - pathWork->eye.z;
-        eyeDistance = mulFp(RwV3dNormalize(&direction[0], &direction[0]), progress);
+        eyeDistance = operandOrderMultiply(RwV3dNormalize(&direction[0], &direction[0]), progress);
         direction[0] = direction[0] * eyeDistance;
         direction[1] = direction[1] * eyeDistance;
         direction[2] = direction[2] * eyeDistance;
@@ -1411,7 +1411,7 @@ s32 FldLmapPathUpdate(u8 *task)
         direction[1] = *slotTargetYColumn - pathWork->target.y;
         /* measured: typing the retained access changes b210 output (normalized_diff 295); retain pointer/MEMBER spelling. */
         direction[2] = *slotTargetZColumn - pathWork->target.z;
-        targetDistance = mulFp(RwV3dNormalize(&direction[0], &direction[0]), progress);
+        targetDistance = operandOrderMultiply(RwV3dNormalize(&direction[0], &direction[0]), progress);
         direction[0] = direction[0] * targetDistance;
         direction[1] = direction[1] * targetDistance;
         direction[2] = direction[2] * targetDistance;

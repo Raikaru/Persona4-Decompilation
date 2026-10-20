@@ -1,4 +1,5 @@
 #include "member_access.h"
+#include "byte_address_internal.h"
 #include "primitive_queue_internal.h"
 #include "Kosaka/k_fldResource_internal.h"
 #include "resrc_manager_internal.h"
@@ -235,12 +236,6 @@ s32 FldResource_IsSecondaryFileLoaded(void)
 }
 
 
-/* Form an address in the field work object after calculating the record offset. */
-static inline u8 *fldResourceWorkOffset(u32 offset, u8 *work)
-{
-    return (u8 *)(offset + (uintptr_t)work);
-}
-
 typedef struct FldResourcePreset
 {
     u8 ordinaryCount;
@@ -329,9 +324,10 @@ void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
             iGpffffb204 = H_Cdvd_AcquireDirectory(fieldPath, 1);
         }
         work = iGpffff9db0;
-        ((FldResourceWork *)fldResourceWorkOffset(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].majorId = (s16)majorId;
+        /* measured: plain queued-work addressing reverses the addu sources. */
+        ((FldResourceWork *)byteAddressAdd(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].majorId = (s16)majorId;
         work = iGpffff9db0;
-        ((FldResourceWork *)fldResourceWorkOffset(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].minorId = (s16)minorId;
+        ((FldResourceWork *)byteAddressAdd(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].minorId = (s16)minorId;
         ((FldResourceWork *)iGpffff9db0)->queuedCount += 1;
     }
     iGpffffb208 = chkmemGetBytes();
@@ -459,6 +455,7 @@ void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
 #pragma push
 /* measured: O1 preserves the publication-loop pointer/offset lifetimes (fnalign 0). */
 #pragma optimization_level 1
+/* Treat a missing file as ready; otherwise query asynchronous file completion. */
 static inline s32 fldResourceIsReady(u8 *file)
 {
     if (file == NULL) {
@@ -470,6 +467,7 @@ static inline s32 fldResourceIsReady(u8 *file)
     return 0;
 }
 
+/* Return the supplied missing-file result or query asynchronous file completion. */
 static inline s32 fldResourceIsReadyWithDefault(u8 *file, s32 one)
 {
     if (file == NULL) {

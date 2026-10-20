@@ -122,10 +122,6 @@ typedef struct FldDataLoadWork {
 } FldDataLoadWork;
 typedef char FldDataLoadWorkSizeCheck[sizeof(FldDataLoadWork) == 0xF4 ? 1 : -1];
 
-static inline u8 fldDataModelReady(void)
-{
-    return mdlPrepareModel((u8 *)D_00764364) != 0;
-}
 
 /* Source unit: src/promoted/k_fldData.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldData.c; members 0015d730-0015e7d0 */
@@ -207,7 +203,7 @@ s32 FldStartupDataUpdate(u8 *task)
         work->state = work->state + 1;
         /* Start polling after queuing the first-stage resources. */
     case 1:
-        if (fldDataModelReady()) {
+        if (((u8)(mdlPrepareModel((u8 *)D_00764364) != 0))) {
             if (H_Cdvd_IsFileLoaded(work->mapFile) == 0) {
                 return 0;
             }

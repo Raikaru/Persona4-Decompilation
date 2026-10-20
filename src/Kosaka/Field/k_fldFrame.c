@@ -1,5 +1,6 @@
 /* Source unit: src/Kosaka/Field/k_fldFrame.c */
 #include "include_asm.h"
+#include "byte_address_internal.h"
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
@@ -185,6 +186,7 @@ RwV3d* FldFrame_ClosestPointOnSegment(RwV3d* dst, const RwV3d* point,
 
 /* Find an exactly equal normal in the collected world-space planes. */
 /* The collector normal array starts at +0x300; typed count access changed the inlined sphere callback by four bytes in verification. */
+/* Find an exactly equal collision normal in the byte-addressed collector. */
 static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
 {
     s32 index;
@@ -457,15 +459,9 @@ s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f3
 }
 
 #pragma pop
-/* Keep the scaled offset and collector address in the integer domain
- * until the resulting address points into the collector storage. */
-static inline u8 *fldFrameCollectorOffset(u32 offset, FldFrameCollisionCollector *collector)
-{
-    return (u8 *)(offset + (uintptr_t)collector);
-}
-
 /* Find an exactly equal transformed normal in the collision collector. */
 /* Compare named normal-array components while retaining independent X/Y/Z value lifetimes. */
+/* Find an exactly equal normal in the local collision collector. */
 static inline s32 fldFrameFindLocalPlane(FldFrameCollisionCollector *collector, const RwV3d *normal)
 {
     s32 index;
@@ -582,7 +578,8 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
         count = collector->count;
         if (index >= 0)
         {
-            fbase = fldFrameCollectorOffset(4 * index, collector);
+        /* measured: plain collector addressing swaps the offset/base addu sources. */
+            fbase = byteAddressAdd(4 * index, (u8 *)collector);
             fraction = (f32 *)(fbase + 0x600);
             if (distance < *fraction)
             {
@@ -603,14 +600,14 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
         }
         else
         {
-            fraction = (f32 *)(fldFrameCollectorOffset(4 * count, collector) + 0x600);
+            fraction = (f32 *)(byteAddressAdd(4 * count, (u8 *)collector) + 0x600);
             if (distance < *fraction)
             {
                 record = (u8 *)collector + 12 * count;
                 *(RwV3d *)record = projected;
-                record = fldFrameCollectorOffset(12 * collector->count, collector);
+                record = ((u8 *)collector + (12 * collector->count));
                 collector->normals[collector->count] = normal;
-                fraction = (f32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0x600);
+                fraction = (f32 *)(byteAddressAdd(4 * collector->count, (u8 *)collector) + 0x600);
                 *fraction = distance;
                 if (collector->mode == 1)
                 {
@@ -1248,6 +1245,7 @@ typedef struct FldSelectionNode
     FldSelectionResource* resource;
 } FldSelectionNode;
 
+/* Choose the preferred world or fallback; same preferred/fallback rule as fldRaySelectWorld. */
 static inline void fldFrameSelectWorld(FldSelectionResource* selected, void** dst)
 {
     void* world = selected->preferred;

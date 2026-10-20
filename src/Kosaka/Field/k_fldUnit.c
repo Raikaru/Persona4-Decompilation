@@ -357,19 +357,26 @@ typedef struct FldPairSelection {
     s32 actorId;
 } FldPairSelection;
 
-static inline FieldUnitAnimationLayer *fieldUnitLayerAt(FieldUnitRecord *unit, s32 index)
+/* Locate a model animation layer for the selected unit. */
+/* measured: expansion moves the model-pointer load before the animation-layer index shifts and changes registers. */
+static inline FieldUnitAnimationLayer *fldUnitLayerAt(FieldUnitRecord *unit, s32 index)
 {
     return &unit->model->layers[index];
 }
-static inline FieldUnitSamplePair *fieldUnitSampleAt(FieldUnitRecord *unit, s32 index)
+/* Locate the indexed pair of cached unit samples. */
+/* measured: expansion reverses the addu operands for the first sample member. */
+static inline FieldUnitSamplePair *fldUnitSampleAt(FieldUnitRecord *unit, s32 index)
 {
     return &unit->samples[index];
 }
-static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
+/* Locate a party unit using an index read through its original pointer. */
+/* measured: expansion changes unit-index allocation and grows the facing-update frame from 0xc0 to 0xd0. */
+static inline FieldUnitRecord *fldUnitSlotAt(const s32 *index)
 {
     return &((FieldUnitRecord *)D_007EF9B0)[*index];
 }
-static inline s32 fieldUnitCalendarRoomMatch(void)
+/* Test the current room and calendar parity, excluding March twentieth. */
+static inline s32 fldUnitCalendarRoomMatch(void)
 {
     extern s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day);
     extern s16 datGetDateIndex(void);
@@ -417,6 +424,7 @@ room_done:
 }
 s32 FldEvent_IsCellOccupied(u8 *position);
 /* Pick a random placement and reject it when it is too close to a party member. */
+/* Choose an unoccupied placement away from the active party members. */
 static inline u8 *fldChooseRandomSpawn(V3 *delta)
 {
     u32 count;
@@ -659,23 +667,23 @@ void FldUnit_UpdateFacing(void)
         if (partyIndex == 0) {
             FldFrameTask_SetHeight((*sceneResource)->movementTask, 60.0f);
             if ((*characterModel)->kind != 1) {
-                s32 foundEligibleRoom = fieldUnitCalendarRoomMatch();
+                s32 foundEligibleRoom = fldUnitCalendarRoomMatch();
 
                 if (foundEligibleRoom == 0) {
                     s32 layerIndex;
 
                     for (layerIndex = 0; layerIndex < 5; layerIndex++) {
-                        fieldUnitLayerAt(unit, layerIndex)->flags &= ~1;
+                        fldUnitLayerAt(unit, layerIndex)->flags &= ~1;
                     }
                 } else {
                     s32 layerIndex;
 
                     for (layerIndex = 0; layerIndex < 5; layerIndex++) {
-                        fieldUnitLayerAt(unit, layerIndex)->flags |= 1;
+                        fldUnitLayerAt(unit, layerIndex)->flags |= 1;
                     }
                 }
                 mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
-                              FldCharacterAnimSelect(fieldUnitSlotAt(&partyIndex)->characterId), 0, 1);
+                              FldCharacterAnimSelect(fldUnitSlotAt(&partyIndex)->characterId), 0, 1);
             }
         } else {
             FldFrameTask_SetHeight((*sceneResource)->movementTask, 35.0f);
@@ -703,7 +711,7 @@ void FldUnit_UpdateFacing(void)
                 spawnPosition.y = 2.0f;
                 spawnPosition.z = 1200.0f *
                     (f32)(u32)((FldFrame *)MT_Scene_GetFrameState())->spawnRow;
-                unitForSetup = fieldUnitSlotAt(&partyIndex);
+                unitForSetup = fldUnitSlotAt(&partyIndex);
                 gridRow = (u8 *)MT_Scene_GetFrameState() +
                     (((FldFrame *)MT_Scene_GetFrameState())->spawnRow << 8);
                 FldFrameTask_Rotate((*sceneResource)->movementTask, D_00756510,
@@ -802,14 +810,14 @@ void FldUnit_UpdateFacing(void)
         }
         /* Each follower tracks the preceding party member. */
         if (partyIndex != 0) {
-            FieldUnitRecord *unitForUpdate = fieldUnitSlotAt(&partyIndex);
+            FieldUnitRecord *unitForUpdate = fldUnitSlotAt(&partyIndex);
 
             ((FieldUnitRecord *)(u32)unitForUpdate)->followerTask =
                 FldAI_SpawnChaser(0, (u8 *)unitForUpdate,
                              D_007EF9B0 + (partyIndex - 1) * 0x750);
         }
         {
-            FieldUnitRecord *unitForUpdate = fieldUnitSlotAt(&partyIndex);
+            FieldUnitRecord *unitForUpdate = fldUnitSlotAt(&partyIndex);
             FieldUnitSceneResource **resourceForUpdate;
             f32 initialSampleValue;
             s32 sampleIndex;
@@ -821,8 +829,8 @@ void FldUnit_UpdateFacing(void)
             sampleIndex = 0;
             initialSampleValue = D_007615DC;
             for (; sampleIndex < 0x40; sampleIndex++) {
-                fieldUnitSampleAt(unitForUpdate, sampleIndex)->value0 = initialSampleValue;
-                fieldUnitSampleAt(unitForUpdate, sampleIndex)->value1 = initialSampleValue;
+                fldUnitSampleAt(unitForUpdate, sampleIndex)->value0 = initialSampleValue;
+                (&(unitForUpdate)->samples[sampleIndex])->value1 = initialSampleValue;
             }
         }
         {

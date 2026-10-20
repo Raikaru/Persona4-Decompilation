@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "operand_order_internal.h"
 #include "dat_panel_internal.h"
 #include "type.h"
 #include "mdl_effect_internal.h"
@@ -70,10 +71,6 @@ extern char D_005E5830[];
 extern char D_0064E460[];
 extern char D_0064E280[];
 
-static inline f32 p4_00362f00_add(f32 left, f32 right)
-{
-    return left + right;
-}
 extern void sflDataDrawSpritePair(PairBits position, f32 depth, s32 opacity);
 extern void sflDataDrawPersonaPanel(s64 position, f32 depth, s32 opacity, u8 *state);
 extern void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state);
@@ -844,8 +841,8 @@ void sflDataDrawLevelBadge(s64 position, f32 depth, s32 opacity, u8 *state)
     first_const = 14.0f;
     first_9 = 9.0f;
     first_x = *(f32 *)&position;
-    first_x = p4_00362f00_add(first_9, first_x);
-    first_x = p4_00362f00_add(first_const, first_x);
+    first_x = operandOrderAddFloat(first_9, first_x);
+    first_x = operandOrderAddFloat(first_const, first_x);
     sdkSpriteDrawOnceTinted(0, tex0, 0xC9,
                   first_x, first_y,
                   alpha, 0xEF, 0x89, 0, factor, 0);

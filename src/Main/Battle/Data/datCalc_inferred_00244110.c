@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "operand_order_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 extern s32 datScriptTargetIsNotEnemy(void);
@@ -14,10 +15,6 @@ extern u8 D_006359C0[];
 extern f32 D_00761260;
 /* fGpffff811c: scale on the attacker-side term when the target is an enemy [inferred]. */
 extern f32 fGpffff811c;
-static inline f32 mul_f32_ordered(f32 left, f32 right)
-{
-    return left * right;
-}
 /* Two scripted damage formulas, datScriptCalcPhysicalDamage and datScriptCalcMagicDamage,
    driven by datScriptCalcFloat selectors and the fGpffff* float constants (documented beside
    their externs). Each is a separate retail function with its own C body. */
@@ -46,11 +43,11 @@ void datScriptCalcPhysicalDamage(void)
             damageTerm = datScriptCalcFloat(0xE, 2);
             damageTerm += datScriptCalcFloat(0xE, 2);
             powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0) / 2.0f;
-            powerTerm = mul_f32_ordered(30.0f, powerTerm);
+            powerTerm = operandOrderMultiply(30.0f, powerTerm);
             scaledTerm = 5.0f * damageTerm;
             damageTerm = powerTerm / scaledTerm;
             scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
-            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            scaledTerm = operandOrderMultiply(damageTerm, scaledTerm);
             powerTerm = sqrtf(scaledTerm);
             damageTerm = 10.0f * powerTerm;
             damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
@@ -64,11 +61,11 @@ void datScriptCalcPhysicalDamage(void)
             scaledTerm = fGpffff811c * powerTerm;
             damageTerm = scaledTerm;
             powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-            powerTerm = mul_f32_ordered(30.0f, powerTerm);
-            scaledTerm = mul_f32_ordered(5.0f, damageTerm);
+            powerTerm = operandOrderMultiply(30.0f, powerTerm);
+            scaledTerm = operandOrderMultiply(5.0f, damageTerm);
             damageTerm = powerTerm / scaledTerm;
             scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
-            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            scaledTerm = operandOrderMultiply(damageTerm, scaledTerm);
             powerTerm = sqrtf(scaledTerm);
             damageTerm = 10.0f * powerTerm;
             damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
@@ -80,11 +77,11 @@ void datScriptCalcPhysicalDamage(void)
             damageTerm = datScriptCalcFloat(0xE, 2);
             damageTerm += datScriptCalcFloat(0xE, 2);
             powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-            powerTerm = mul_f32_ordered(30.0f, powerTerm);
+            powerTerm = operandOrderMultiply(30.0f, powerTerm);
             scaledTerm = 5.0f * damageTerm;
             damageTerm = powerTerm / scaledTerm;
             scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
-            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            scaledTerm = operandOrderMultiply(damageTerm, scaledTerm);
             powerTerm = sqrtf(scaledTerm);
             damageTerm = 10.0f * powerTerm;
             damageTerm *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
@@ -98,11 +95,11 @@ void datScriptCalcPhysicalDamage(void)
             scaledTerm = fGpffff811c * powerTerm;
             damageTerm = scaledTerm;
             powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-            powerTerm = mul_f32_ordered(30.0f, powerTerm);
-            scaledTerm = mul_f32_ordered(5.0f, damageTerm);
+            powerTerm = operandOrderMultiply(30.0f, powerTerm);
+            scaledTerm = operandOrderMultiply(5.0f, damageTerm);
             damageTerm = powerTerm / scaledTerm;
             scaledTerm = datScriptCalcFloat(0xD, 0) / 5.0f;
-            scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+            scaledTerm = operandOrderMultiply(damageTerm, scaledTerm);
             powerTerm = sqrtf(scaledTerm);
             damageTerm = 10.0f * powerTerm;
             powerTerm = damageTerm * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
@@ -134,11 +131,11 @@ void datScriptCalcMagicDamage(void)
         damageTerm = datScriptCalcFloat(0xE, 2);
         damageTerm += datScriptCalcFloat(0xE, 2);
         powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-        powerTerm = mul_f32_ordered(30.0f, powerTerm);
+        powerTerm = operandOrderMultiply(30.0f, powerTerm);
         scaledTerm = 5.0f * damageTerm;
         damageTerm = powerTerm / scaledTerm;
         scaledTerm = datScriptCalcFloat(0xD, 1) / 5.0f;
-        scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+        scaledTerm = operandOrderMultiply(damageTerm, scaledTerm);
         powerTerm = sqrtf(scaledTerm);
         baseDamage = 10.0f * powerTerm;
         baseDamage *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
@@ -154,11 +151,11 @@ void datScriptCalcMagicDamage(void)
         scaledTerm = fGpffff811c * powerTerm;
         damageTerm = scaledTerm;
         powerTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
-        powerTerm = mul_f32_ordered(30.0f, powerTerm);
-        scaledTerm = mul_f32_ordered(5.0f, damageTerm);
+        powerTerm = operandOrderMultiply(30.0f, powerTerm);
+        scaledTerm = operandOrderMultiply(5.0f, damageTerm);
         damageTerm = powerTerm / scaledTerm;
         scaledTerm = datScriptCalcFloat(0xD, 1) / 5.0f;
-        scaledTerm = mul_f32_ordered(damageTerm, scaledTerm);
+        scaledTerm = operandOrderMultiply(damageTerm, scaledTerm);
         powerTerm = sqrtf(scaledTerm);
         baseDamage = 10.0f * powerTerm;
         damageTerm = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
