@@ -1,4 +1,5 @@
 /* Original translation unit cmmScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "operand_order_internal.h"
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
@@ -1356,7 +1357,7 @@ s32 cmmScriptStepPopupBanner(u8 *unusedParent, u8 *work)
     if (loadTask == 0) {
         kAssertFail(D_006359F0, 0x392);
     }
-    loaded = (*(u32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
+    loaded = (((CmmScriptTask *)kwlnTaskGetWork(loadTask))->flags & 1) != 0;
     if (loaded == 0) {
         kAssertFail(D_006359F0, 0x39D);
     }
@@ -1507,13 +1508,11 @@ done:
 /* Keep the displacement product separate from the anchor addition. The
    retail steady animation rounds this multiplication before adding the
    sprite baseline, while its bounce expressions use the accumulator. */
-static inline f32 cmmScoreProduct(f32 phase, f32 scale)
-{
-    f32 value;
-    value = scale * phase;
-    return value;
-}
 
+
+
+
+/* Return the score atlas after asserting that its loading task has completed. */
 static inline void *cmmScoreAtlas(void)
 {
     u8 *task;
@@ -1524,13 +1523,14 @@ static inline void *cmmScoreAtlas(void)
     if (loadTask == NULL) {
         kAssertFail(D_006359F0, 0x392);
     }
-    loaded = (*(u32 *)kwlnTaskGetWork(loadTask) & 1) != 0;
+    loaded = (((CmmScriptTask *)kwlnTaskGetWork(loadTask))->flags & 1) != 0;
     if (loaded == 0) {
         kAssertFail(D_006359F0, 0x39D);
     }
     return (void *)(u32)((CmmScriptTask *)(kwlnTaskGetWork(task)))->data;
 }
 
+/* Return zero before the first frame and saturate values at the limit. */
 static inline s32 cmmScoreClamp(s32 value, s32 first, s32 limit)
 {
     if (value < first) {
@@ -1542,6 +1542,7 @@ static inline s32 cmmScoreClamp(s32 value, s32 first, s32 limit)
     return limit;
 }
 
+/* Compute the score bounce displacement on either side of the phase transition. */
 static inline f32 cmmScoreBounce(f32 phase, f32 extent, f32 baseline)
 {
     if (phase > 0.0f) {
@@ -1550,6 +1551,7 @@ static inline f32 cmmScoreBounce(f32 phase, f32 extent, f32 baseline)
     return phase * 10.0f + 10.0f;
 }
 
+/* Choose the negative or positive displacement scale from the phase sign. */
 static inline f32 cmmScoreDisplacement(f32 phase, f32 negative, f32 positive)
 {
     if (phase < 0.0f) {
@@ -1743,7 +1745,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(((cmmScriptEntry *)work)->timer.frame % 60)) / 60.0f);
         phase = (phase + 1.0f) / 2.0f;
         sdkSpriteDrawQueued(44.0f, 10.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x6EB3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        sdkSpriteDrawQueued(26.0f, 135.0f + cmmScoreProduct(phase, 5.0f), 0.0f, 0x50B6, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(26.0f, 135.0f + operandOrderRoundedProduct(phase, 5.0f), 0.0f, 0x50B6, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(15.0f, 199.0f + cmmScoreDisplacement(phase, 6.0f, 3.0f), 0.0f, 0x63B3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(entry->timer.frame % 80)) / 80.0f); /* measured: this access-site member rewrite changes instruction bytes. */
         phase = (phase + 1.0f) / 2.0f;
@@ -2004,10 +2006,7 @@ s32 cmmScriptStepFishingRound(u8 *work)
 done:
     return 0;
 }
-static inline f32 cmmFishingBlend(f32 delta, f32 ratio, f32 origin)
-{
-    return 0.0f + origin + delta * ratio;
-}
+
 
 // Fishing aim step: state 0 clears the catch flags, spawns the handles, arms entry 1, and picks a random 90-to-449-frame countdown to the next direction prompt; later steps update progress from direction input.
 // FUN_0024F790
@@ -2151,17 +2150,17 @@ s32 cmmScriptStepFishingAim(u8 *work)
     {
         f32 delta = finish.value[0] - start.value[0];
         f32 origin = start.value[0];
-        result.value[0] = cmmFishingBlend(delta, ratio, origin);
+        result.value[0] = (0.0f + origin + delta * ratio);
     }
     {
         f32 delta = finish.value[1] - start.value[1];
         f32 origin = start.value[1];
-        result.value[1] = cmmFishingBlend(delta, ratio, origin);
+        result.value[1] = (0.0f + origin + delta * ratio);
     }
     {
         f32 delta = finish.value[2] - start.value[2];
         f32 origin = start.value[2];
-        result.value[2] = cmmFishingBlend(delta, ratio, origin);
+        result.value[2] = (0.0f + origin + delta * ratio);
     }
     task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);

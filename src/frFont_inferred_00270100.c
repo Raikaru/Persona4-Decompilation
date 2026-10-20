@@ -21,9 +21,7 @@ extern s32 cmmCommunityFindActiveSlotInGroup(s64 group);
 extern u8 *cmmSlotNameRecord(s32 slotId);
 extern s32 cmmCommunityGetCurrentId(void);
 extern u8 *cmmNameRecord(s32 nameId);
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
+
 extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
 extern s32 calGetDayWindowFlags(s32 day);
 extern s64 fclBankTryQueueRequest(s64 value, s32 index, s64 count);
@@ -130,7 +128,7 @@ s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
         s32 decodedHigh;
         base = *(u8 * *)&(positionFieldsReload = (FrFontContext *)(context), positionFieldsReload)->position;
         offset = (streamFieldsReload = (FrFontContext *)(context), streamFieldsReload)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (((u8 *)base)[0] - 1) & 0xFF;
         high = ((u8 *)base)[1];
         if (high == 0xFF) {
@@ -205,7 +203,7 @@ s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
         s32 low;
         base = (u8 *)((FrFontContext *)context)->position;
         offset = ((FrFontContext *)context)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (((u8 *)base)[0] - 1) & 0xFF;
         encodedHigh = ((u8 *)base)[1];
         if (encodedHigh == 0xFF) {
@@ -287,7 +285,7 @@ s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
         s32 low;
         base = *(u8 * *)&(positionFields = (FrFontContext *)(context), positionFields)->position;
         offset = (streamFields = (FrFontContext *)(context), streamFields)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (((u8 *)base)[0] - 1) & 0xFF;
         operand = ((u8 *)base)[1];
         if (operand == 0xFF) {
@@ -418,7 +416,7 @@ s32 itfMesSetSlotNameText(s32 unusedCommand, u8 *context) {
 
     base = (u32)((FrFontContext *)context)->position;
     offset = (u32)((FrFontContext *)context)->stream;
-    operand = (u8 *)add_retail_ptr(offset, base);
+    operand = (u8 *)(offset + base);
     low = (operand[0] - 1) & 0xFF;
     encodedHigh = operand[1];
     if (encodedHigh == 0xFF) {
@@ -525,7 +523,7 @@ s32 itfMesSetCommunityNameText(s32 unusedCommand, u8 *context) {
 
     base = (u32)((FrFontContext *)context)->position;
     offset = (u32)((FrFontContext *)context)->stream;
-    operand = (u8 *)add_retail_ptr(offset, base);
+    operand = (u8 *)(offset + base);
     value = (operand[0] - 1) & 0xFF;
     encodedHigh = operand[1];
     if (encodedHigh == 0xFF) {
@@ -574,7 +572,7 @@ s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
 
         base = (u8 *)((FrFontContext *)context)->position;
         offset = ((FrFontContext *)context)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (base[0] - 1) & 0xFF;
         high = base[1];
         if (high == 0xFF)
@@ -639,7 +637,7 @@ s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
 
         base = *(u8 * *)&(positionFields = (FrFontContext *)(context), positionFields)->position;
         offset = (streamFields = (FrFontContext *)(context), streamFields)->stream;
-        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        base = (u8 *)((u32)offset + (u32)base);
         low = (base[0] - 1) & 0xFF;
         high = base[1];
         if (high == 0xFF)

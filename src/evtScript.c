@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "model_callbacks_internal.h"
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -56,10 +57,7 @@ extern void frFontSetGlyphColor(u8 *list, s32 color);
    retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
    scaled+p, a named s32 local) is canonicalized back to base-first. Expand it at
    the use rather than through a local, so nothing stays live across a call. */
-static inline u32 evtSlot(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
 
 extern void frFontListKeepOrRelease(u8 *list);
 extern f32 sinf(f32 floatInput);
@@ -200,7 +198,7 @@ s32 evtCmdSetEventSlot(void) {
     if (evtMessageWindowIsOpen((u32 *)((EvtEventWork *)p)->messageWindow) == 0) {
         return 1;
     }
-    ((EvtEventWork *)((u8 *)evtSlot(slot * 4, (u32)p)))->messageControl.slots[0] = value;
+    ((EvtEventWork *)((u8 *)((u32)byteAddressAdd((slot * 4), (u8 *)(u32)p))))->messageControl.slots[0] = value;
     return 1;
 }
 

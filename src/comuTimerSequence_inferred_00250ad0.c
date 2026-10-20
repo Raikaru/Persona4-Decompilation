@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -34,10 +35,7 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
 
 
 /* Whole units of `range` covered by the random fraction `unit`. */
-static inline u32 p4_0025_span(f32 range, f32 unit)
-{
-    return (u32)(range * unit);
-}
+
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 00250ad0-002518d0 */
 
@@ -113,9 +111,9 @@ s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
     ra = (f32)RpRandom() / 2147483648.0f;
     ry = (f32)RpRandom() / 2147483648.0f;
     rx = (f32)RpRandom() / 2147483648.0f;
-    shdSpriteDrawNowEx((*(f32 *)&sparkle[1] + (f32)p4_0025_span(1.0f, rx)) - 19.0f * scale,
-                  (*(f32 *)&sparkle[2] + (f32)p4_0025_span(1.0f, ry)) - 19.0f * scale,
-                  0.0f, 0xFFFFFF, (u8)(fade2 * (f32)(p4_0025_span(127.0f, ra) + 128)),
+    shdSpriteDrawNowEx((*(f32 *)&sparkle[1] + (f32)operandOrderUnsignedProduct(1.0f, rx)) - 19.0f * scale,
+                  (*(f32 *)&sparkle[2] + (f32)operandOrderUnsignedProduct(1.0f, ry)) - 19.0f * scale,
+                  0.0f, 0xFFFFFF, (u8)(fade2 * (f32)(((u32)(127.0f * ra)) + 128)),
                   0x2F, 0, ((CmmRankUpCardTask *)card)->slot10.sprites, 1, 0, 0, 0.0f, scale, scale);
     if (++sparkle[3] >= 30) {
         return 1;

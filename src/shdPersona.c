@@ -879,10 +879,7 @@ void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 a
    orderings/type shapes incl. s64 5-arg, Vec2f, s32 5-arg, u8 vs s32 byte
    locals, statement permutations — all nd >= 15. Scheduling/materialisation
    order floor, same family as shdPersonaDispCtlUpdate. */
-static inline u8 shdPackedLow(s32 *value)
-{
-    return *((u8 *)value);
-}
+
 
 
 
@@ -927,7 +924,7 @@ void shdPersonaDrawLevelDigits(s64 packedPosition, f32 depth, s32 color, u32 lev
     inv -= *((u8 *)&packed + 3);
     do {
         sdkSpriteDrawOnceTinted(0, id, (rem % 10) + 0x1D, f, y, inv,
-                      shdPackedLow(&packed), b1, b2, farg, 0);
+                      (*((u8 *)&packed)), b1, b2, farg, 0);
         n = ((u32)(n & 0xFF) / 10U) & 0xFF;
         f -= 22.0f;
         rem = n;
@@ -1160,7 +1157,8 @@ void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth
    retail's masks. opt_loop_invariants on preserves the draw-loop constants.
    Proof: build/cos20814/worker3-ui/persona_00117980_relocation_proof.json
    and persona_00117980_siblings.json. */
-static inline f32 personaSinePhase(s32 frame, s32 first, s32 last)
+/* Ease a bounded frame interval through its configured sine phase. */
+static inline f32 shdPersonaSinePhase(s32 frame, s32 first, s32 last)
 {
     if (frame < first) {
         return 0.0f;
@@ -1171,7 +1169,8 @@ static inline f32 personaSinePhase(s32 frame, s32 first, s32 last)
     return 1.0f;
 }
 
-static inline f32 personaLinearPhase(s32 frame, s32 first, s32 last)
+/* Return linear interval progress clamped before its start and after its end. */
+static inline f32 shdPersonaLinearPhase(s32 frame, s32 first, s32 last)
 {
     if (frame < first) {
         return 0.0f;
@@ -1182,7 +1181,8 @@ static inline f32 personaLinearPhase(s32 frame, s32 first, s32 last)
     return 1.0f;
 }
 
-static inline f32 personaPulseEnvelope(u16 frame)
+/* Apply five-frame sine dips following the five configured pulse keyframes. */
+static inline f32 shdPersonaPulseEnvelope(u16 frame)
 {
     u16 keyframes[5] = {10, 30, 35, 90, 95};
     u32 index;
@@ -1195,12 +1195,15 @@ static inline f32 personaPulseEnvelope(u16 frame)
     return 1.0f;
 }
 
-static inline u8 personaModulatedOpacity(u8 opacity, f32 factor)
+/* Combine normalized opacity and the effect factor before converting to a byte. */
+/* measured: plain expansion changes opacity-load timing and normalization FPR allocation. */
+static inline u8 shdPersonaModulatedOpacity(u8 opacity, f32 factor)
 {
     return (u8)((255.0f * factor) * ((f32)opacity / 255.0f));
 }
 
-static inline f32 personaFallingPhase(s32 frame, s32 first, s32 last)
+/* Return the complement of clamped linear progress through the frame interval. */
+static inline f32 shdPersonaFallingPhase(s32 frame, s32 first, s32 last)
 {
     f32 progress;
     if (frame < first) {
@@ -1275,13 +1278,13 @@ void shdPersonaDrawEffect(u8 *panel)
                 growth = 1.0f;
             }
             frameCount = MEMBER(u16, effect, ShdPersonaEffect, frame);
-            t1 = personaSinePhase(frameCount, 4, 5);
+            t1 = shdPersonaSinePhase(frameCount, 4, 5);
             panelScale = D_007611AC * growth - D_00761288 * t1;
         } else {
             panelScale = 1.0f;
         }
         frameCount = MEMBER(u16, effect, ShdPersonaEffect, frame);
-        fade = personaLinearPhase(frameCount, 0, 15);
+        fade = shdPersonaLinearPhase(frameCount, 0, 15);
         {
             f32 fc = (f32)col;
             opacityValue = fc * fade;
@@ -1292,7 +1295,7 @@ void shdPersonaDrawEffect(u8 *panel)
             ((ShdPersonaEffect *)effect)->flags = ((ShdPersonaEffect *)effect)->flags | 1;
         }
     } else if ((((ShdPersonaEffect *)effect)->flags & 2) != 0) {
-        col = personaModulatedOpacity(b[0x505], personaFallingPhase(((ShdPersonaEffect *)effect)->frame, 0, 3));
+        col = shdPersonaModulatedOpacity(b[0x505], shdPersonaFallingPhase(((ShdPersonaEffect *)effect)->frame, 0, 3));
         alpha = col;
         panelScale = 1.0f;
         if (++MEMBER(u16, effect, ShdPersonaEffect, frame) >= 3) {
@@ -1410,7 +1413,7 @@ void shdPersonaDrawEffect(u8 *panel)
     drawPosition.x = 523.0f;
     drawPosition.y = 91.0f - panelScale * 30.0f;
     sdkSpriteDrawOnceScaled(((PersonaRenderWork *)b)->sprites[2], 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
-    pulseScale = panelScale * personaPulseEnvelope(MEMBER(u16, effect, ShdPersonaEffect, pulseFrame));
+    pulseScale = panelScale * shdPersonaPulseEnvelope(MEMBER(u16, effect, ShdPersonaEffect, pulseFrame));
     drawPosition.x = 542.0f;
     drawPosition.y = (1.0f - pulseScale) * 20.0f + 76.0f;
     sdkSpriteDrawOnceScaled(MEMBER(s32, b, PersonaRenderWork, sprites[2]), 0xB5, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(pulseScale * 4096.0f), 0.0f, 0, 0);
@@ -4677,13 +4680,10 @@ extern u16 D_008C024C[];
  * measured: native b210, 2780B/2784B, 111 resolved code relocations,
  * complete 36B and 64B switch tables, and four retail zero-tail bytes.
  * Proof: build/game-resume-20260921/persona-w2. */
-static inline const u16 *personaLevelRow(const u8 *list, s32 index)
-{
-    const u16 *skills = (const u16 *)(list + 2);
-    return skills + index;
-}
 
-static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 replacement)
+
+/* Replace the persona skill and its active-skill entry when replacement succeeds. */
+static inline s32 shdPersonaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 replacement)
 {
     u8 *data = parent->work;
     if (*(u8 **)data == NULL) {
@@ -4836,7 +4836,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
             } else {
                 vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
-            if (vv != *personaLevelRow(pc, work->index)) {
+            if (vv != *((const u16 *)(pc + 2) + (work->index))) {
                 kAssertFail(D_005E4868, 0x139A);
             }
             work->state = 6;
@@ -4902,7 +4902,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
             } else {
                 u16 vv2;
                 u8 *bb;
-                vv2 = *personaLevelRow(pc, work->index);
+                vv2 = *((const u16 *)(pc + 2) + (work->index));
                 bb = work->parentTask->work;
                 if (*(u8 **)bb == NULL) {
                     kAssertFail(D_005E4868, 0xE21);
@@ -4952,7 +4952,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
         } else {
             u32 highlightSkill;
             u8 *bb;
-            personaReplaceLevelSkill(work->parentTask, work->previousSkill, work->replacement);
+            shdPersonaReplaceLevelSkill(work->parentTask, work->previousSkill, work->replacement);
             highlightSkill = work->replacement;
             bb = work->parentTask->work;
             if ((((PersonaRenderWork *)bb)->flags & 0x8000) == 0) {
@@ -5024,7 +5024,7 @@ s32 shdPersonaLevelUpStep(u8 *task)
         if (nmMesWindowCurrentOpenState() == 0) {
             u16 vv;
             u8 *bb;
-            vv = *personaLevelRow(pc, work->index);
+            vv = *((const u16 *)(pc + 2) + (work->index));
             bb = work->parentTask->work;
             if (*(u8 **)bb == NULL) {
                 kAssertFail(D_005E4868, 0xE21);

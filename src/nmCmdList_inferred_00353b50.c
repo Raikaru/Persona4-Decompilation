@@ -1,4 +1,6 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/battle.c; members 00353b50-0035c670 */
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "cmm_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -133,15 +135,9 @@ typedef struct DatPortraitLabel {
 extern void datScreenWipeInit(u8 *, Float2 *, Float2 *);
 extern void datScreenWipeSetScale(u8 *, u8 *);
 extern void datScreenWipeSetTextureId(u8 *, u16 );
-static inline void datPortraitAccumulateProjection(f32 *total, f32 weight, f32 projection)
-{
-    *total += weight * projection;
-}
 
-static inline u32 datCommunityAddOffset(u32 offset, u32 base)
-{
-    return offset + base;
-}
+
+
 
 extern s32 nLineIsIdle(void);
 extern u32 D_0064B1E0[];
@@ -1375,6 +1371,7 @@ ret0:
 /* Whether the frame counter at +0x10 has passed the style's threshold of the
    duration at +0xC (3/4 for style 0, 1/2 for style 1). */
 /* measured: typing the frame/duration reads changes the inlined draw instructions; style remains typed. */
+/* Test the style-specific half-duration or three-quarter-duration transition threshold. */
 static inline s32 datGridEffectPastThreshold(u8 *p)
 {
     switch (((DatGridEffect *)p)->style) {
@@ -2180,7 +2177,7 @@ void datCommunityListDraw(u8 *work) {
         if ((selectedIndex < 0) || (selectedIndex >= 0x15)) {
             kAssertFail(&D_0064CC98, 0x2DD);
         }
-        selectedEntry = (u8 *)datCommunityAddOffset((u32)selectedIndex * 12, (u32)work);
+        selectedEntry = (u8 *)((u32)byteAddressAdd(((u32)selectedIndex * 12), (u8 *)(u32)work));
         selectedCount = ((DatCommunityRow *)(selectedEntry + 0x38))->rank;
         categoryIndex = (s32)((*(u8 *)&((DatCommunityRow *)(selectedEntry + 0x38))->arcana.s - 1) & 0xFF);
         selectedMode = (s32)(((DatCommunityRow *)(selectedEntry + 0x38))->mode);
@@ -2224,13 +2221,13 @@ void datCommunityListDraw(u8 *work) {
         sdkSpriteDrawAt(sprite, 88.0f + position.x, position.y, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], titleOpacity);
         position.x = (183.0f + (originX + menu->titleOffset.x));
         position.y = (22.0f + (originY + menu->titleOffset.y));
-        categoryTexture = ((u8 **)((u8 *)datCommunityAddOffset((u32)(categoryIndex & 0xFF) * 4, (u32)work) + 0x12A4))[0];
+        categoryTexture = ((u8 **)((u8 *)((u32)byteAddressAdd(((u32)(categoryIndex & 0xFF) * 4), (u8 *)(u32)work)) + 0x12A4))[0];
         sdkSpriteDrawAt(categoryTexture, position.x - (sdkSpriteScaledWidth(categoryTexture) / 2.0f), position.y, 0xDDU, 0x74U, 0U, titleOpacity);
         position.x = (245.0f + (originX + menu->titleOffset.x));
         position.y = (19.0f + (originY + menu->titleOffset.y));
         rankColor = titleOpacity & 0xFF;
         nameColor = rankColor | ~0x7EFF;
-        nameId = (u16 *)((u8 *)datCommunityAddOffset((u32)(selectedIndex * 12), (u32)work) + 0x3A);
+        nameId = (u16 *)((u8 *)((u32)byteAddressAdd(((u32)(selectedIndex * 12)), (u8 *)(u32)work)) + 0x3A);
         frFontExDrawTextWithCharWidth(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)cmmNameRecord(*nameId), 0, -2);
         rankNames = cmmRankNameRecord((s16)*nameId);
         position.x = (130.0f + (originX + menu->titleOffset.x));
@@ -2302,7 +2299,7 @@ void datCommunityListDraw(u8 *work) {
             sdkSpriteDrawSized(sprite, position.x, position.y, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
             position.x = panelX + ((79.0f * panelScaleX) / 4096.0f);
             position.y = panelY + ((4.0f * panelScaleY) / 4096.0f);
-            sprite = ((u8 **)((u8 *)datCommunityAddOffset((u32)(u16)selectedCount * 4, (u32)work) + 0x11EC))[0];
+            sprite = ((u8 **)((u8 *)((u32)byteAddressAdd(((u32)(u16)selectedCount * 4), (u8 *)(u32)work)) + 0x11EC))[0];
         sdkSpriteDrawSized(sprite, position.x, position.y, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], panelOpacity, (u16)panelScaleX, (u16)panelScaleY, (s64)0, 0.0f, (s64)0);
         }
         portraitOpacity = (u8)(menu->portraitOpacity);
@@ -2424,7 +2421,7 @@ void datCommunityListDraw(u8 *work) {
             numberQuantized = (u8)numberOpacityProduct;
             numberOpacity = numberQuantized & 0xFF;
             numberColor = numberOpacity | ~0x7EFF;
-            detailValue = ((s16 *)((u8 *)datCommunityAddOffset((u32)(currentRank & 0xFFFF) * 2, (u32)detailValues)))[-1];
+            detailValue = ((s16 *)((u8 *)((u32)byteAddressAdd(((u32)(currentRank & 0xFFFF) * 2), (u8 *)(u32)detailValues))))[-1];
             fclMesWindowDrawItem(position.x, position.y, 0.0f, numberColor, 1, 8, 7, detailValue - 1);
             numberColor = numberOpacity | ~0xFF;
             fclMesWindowDrawItem(position.x, 28.0f + position.y, 0.0f, numberColor, 1, 6, 7, detailValue);
@@ -2686,9 +2683,7 @@ void datCommunityFillVisibleRecords(u8 *menuWork)
     u8 *valuePtr;
 
     table = cmmKindRecord(
-        ((DatCommunityRow *)((u8 *)datCommunityAddOffset(
-            (s32)(((CommunityMenu *)menuWork)->selection[0] + ((CommunityMenu *)menuWork)->selection[1]) * 0xC,
-            (u32)menuWork) + 0x38))->communityId);
+        ((DatCommunityRow *)((u8 *)((u32)byteAddressAdd(((s32)(((CommunityMenu *)menuWork)->selection[0] + ((CommunityMenu *)menuWork)->selection[1]) * 0xC), (u8 *)(u32)menuWork)) + 0x38))->communityId);
     index = 0;
     count = 0;
     goto loop_test;
@@ -2802,13 +2797,10 @@ void datCommunityResetOffset(u8 *menuWork)
    2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
 /* Party HUD panel draw. Each of the three panel groups has its own x/y/w/h
    locals (separate live ranges, as retail). Panel x/y/alpha and the sprite
-   table go through datCommunityIndexedAddress (offset + base). The panel width
+   table go through shared byteAddressAdd (offset + base). The panel width
    reads are spelled index-first, because retail recomputes index + arg1 for
    each width read; the heights use the panel structure. */
-static inline u8 *datCommunityIndexedAddress(u32 offset, u8 *base)
-{
-    return (u8 *)((u32)offset + (u32)base);
-}
+
 
 typedef struct {
     f32 x;
@@ -2897,10 +2889,10 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
         isSelf = (rowIndex == ((CommunityMenu *)menuWork)->selection[0]);
         mode = ((DatCommunityRow *)((u8 *)(off + (s32)menuWork) + 0x38))->mode;
     }
-    x = x0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x5A0))->currentX.f;
+    x = x0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x5A0))->currentX.f;
     rowY = 64.0f * (f32)rowIndex;
-    y = 81.0f + (rowY + (y0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x5A0))->currentY.f));
-    scale = (f32)datCommunityIndexedAddress(rowIndex * 48, menuWork)[0x5BA];
+    y = 81.0f + (rowY + (y0 + ((MenuSlotAnimation *)(((u8 *)((u32)(rowIndex * 48) + (u32)menuWork)) + 0x5A0))->currentY.f));
+    scale = (f32)((u8 *)((u32)(rowIndex * 48) + (u32)menuWork))[0x5BA];
     alpha = scale * fade;
     w = (f32)((MenuSlotAnimation *)((u8 *)((u8 *)(rowIndex * 48) + (u32)menuWork) + 0x5A0))->currentScaleX;
     h = (f32)((HudPanel_0035 *)(menuWork + 0x5B0))[rowIndex].h;
@@ -2924,9 +2916,9 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
     rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
     PrimDrawFlatRectangle(col, (u8 *)rc, 0.0f, 0);
-    x2 = 5.0f + (x0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x180))->currentX.f);
-    y2 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x180))->currentY.f));
-    scale = (f32)datCommunityIndexedAddress(rowIndex * 48, menuWork)[0x19A];
+    x2 = 5.0f + (x0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x180))->currentX.f);
+    y2 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x180))->currentY.f));
+    scale = (f32)byteAddressAdd((rowIndex * 48), menuWork)[0x19A];
     alpha = scale * fade;
     w2 = (f32)((MenuSlotAnimation *)((u8 *)((u8 *)(u32)(rowIndex * 48) + (u32)menuWork) + 0x180))->currentScaleX;
     h2 = (f32)((HudPanel_0035 *)(menuWork + 0x190))[rowIndex].h;
@@ -2948,7 +2940,7 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
                       ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
         px = 124.0f + x2;
         py = y2 + 14.0f * scale;
-        spr = ((u8 **)(datCommunityIndexedAddress((count & 0xFFFF) * 4, menuWork) + 0x11EC))[0];
+        spr = ((u8 **)(byteAddressAdd(((count & 0xFFFF) * 4), menuWork) + 0x11EC))[0];
         sdkSpriteDrawSized(spr, px, py, 0.0f,
                       ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     }
@@ -2963,7 +2955,7 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
                   ptab[0], ptab[1], ptab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 105.0f + x2;
     py = y2 + 33.0f * scale;
-    spr = ((u8 **)(datCommunityIndexedAddress(kind * 4, menuWork) + 0x12A0))[0];
+    spr = ((u8 **)(byteAddressAdd((kind * 4), menuWork) + 0x12A0))[0];
     sdkSpriteDrawSized(spr, px - sdkSpriteScaledWidth(spr) / 2.0f, py, 0.0f,
                   ctab[0], ctab[1], ctab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 156.0f + x2;
@@ -3007,15 +2999,15 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
         spr = cmmNameRecord(name);
         frFontExDrawTextWithCharWidth(px, scale, 0.0f, -0x100 | nameAlpha, nameColor, 1, spr, 0, -1);
     }
-    x3 = 5.0f + (x0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x4B0))->currentX.f);
-    y3 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(datCommunityIndexedAddress(rowIndex * 48, menuWork) + 0x4B0))->currentY.f));
-    scale = (f32)datCommunityIndexedAddress(rowIndex * 48, menuWork)[0x4CA];
+    x3 = 5.0f + (x0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x4B0))->currentX.f);
+    y3 = 78.0f + (rowY + (y0 + ((MenuSlotAnimation *)(byteAddressAdd((rowIndex * 48), menuWork) + 0x4B0))->currentY.f));
+    scale = (f32)byteAddressAdd((rowIndex * 48), menuWork)[0x4CA];
     kind = scale * fade;
     w3 = (f32)((MenuSlotAnimation *)((u8 *)((u8 *)(u32)(rowIndex * 48) + (s32)menuWork) + 0x4B0))->currentScaleX;
     h3 = (f32)((HudPanel_0035 *)(menuWork + 0x4C0))[rowIndex].h;
     px = 15.0f + x3;
     py = 2.0f + y3;
-    spr = ((u8 **)(datCommunityIndexedAddress(mode * 4, menuWork) + 0x121C))[0];
+    spr = ((u8 **)(byteAddressAdd((mode * 4), menuWork) + 0x121C))[0];
     sdkSpriteDrawSized(spr, px, py, 0.0f,
                   0xFF, 0xFF, 0xFF, kind, w3, h3, 0, 0.0f, 0);
 }
@@ -3542,13 +3534,13 @@ f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin)
     direction.z = 20.0f;
     RwV3dNormalize(&direction, &direction);
     projection = direction.xy.x * normal.xy.x + direction.xy.y * normal.xy.y + direction.z * normal.z;
-    datPortraitAccumulateProjection(&total, 1.0f, projection);
+    operandOrderAccumulateProduct(&total, 1.0f, projection);
     direction.xy.x = second.x - origin.x;
     direction.xy.y = second.y - origin.y;
     direction.z = 20.0f;
     RwV3dNormalize(&direction, &direction);
     projection = direction.xy.x * normal.xy.x + direction.xy.y * normal.xy.y + direction.z * normal.z;
-    datPortraitAccumulateProjection(&total, 1.0f, projection);
+    operandOrderAccumulateProduct(&total, 1.0f, projection);
     if (!(total <= 1.0f)) total = 1.0f;
     return total;
 }

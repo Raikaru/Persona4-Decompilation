@@ -1,4 +1,5 @@
 /* Original translation unit shdMisc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "operand_order_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "shd_misc_internal.h"
@@ -393,7 +394,9 @@ void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
 
 /* The far-column store retains the origin load, and the separate Y
  * accumulation preserves the fused rotation before its offset add. */
-static inline void shdFarX(f32 *out, const f32 *origin,
+/* Store the rotated far-column X coordinate relative to the wedge origin. */
+/* measured: plain expansion changes wedge-coordinate FPR allocation and arithmetic scheduling. */
+static inline void shdStoreWedgeFarX(f32 *out, const f32 *origin,
                            f32 offset, f32 length, f32 sine)
 {
     *out = (0.0f + (*origin + offset)) - length * sine;
@@ -450,7 +453,7 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 blend, s3
         vertices[2][10] = (f32)(u32)blue;
         vertices[2][11] = (f32)(u32)alpha;
         vertices[2][6] = reciprocal;
-        shdFarX(&vertices[3][0], &origin_x, 71.0f * cosine, 473, sine);
+        shdStoreWedgeFarX(&vertices[3][0], &origin_x, 71.0f * cosine, 473, sine);
         far_y = (0.0f + origin_y) + 473 * cosine;
         far_y += 71.0f * sine;
         vertices[3][1] = far_y;
@@ -469,7 +472,7 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 blend, s3
         vertices[2][10] = (f32)(u32)blue;
         vertices[2][11] = (f32)(u32)alpha;
         vertices[2][6] = reciprocal;
-        shdFarX(&vertices[3][0], &origin_x, 71.0f * cosine, 402.0f, sine);
+        shdStoreWedgeFarX(&vertices[3][0], &origin_x, 71.0f * cosine, 402.0f, sine);
         far_y = (0.0f + origin_y) + 402.0f * cosine;
         far_y += 71.0f * sine;
         vertices[3][1] = far_y;
@@ -553,20 +556,20 @@ void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color, f32 radius, f32 i
  * their actual operations; the native 1088-byte window is exact. */
 #pragma push
 #pragma opt_loop_invariants on
-static inline f32 outlineSignedExtent(s32 sign, f32 extent)
-{
-    return (f32)sign * extent;
-}
-static inline f32 outlineExtent(s32 isTip, s32 half, f32 width, f32 height)
+
+/* Combine width and height contributions for one rectangle-outline axis. */
+/* measured: plain expansion changes outline phase/index register allocation and coordinate scheduling. */
+static inline f32 shdOutlineExtent(s32 isTip, s32 half, f32 width, f32 height)
 {
     return width * (f32)half + height * (f32)isTip;
 }
-static inline f32 outlineAxis(s32 phase, f32 width, f32 height)
+/* Select the signed axis extent for the current rectangle-outline phase. */
+static inline f32 shdOutlineAxis(s32 phase, f32 width, f32 height)
 {
     s32 isTip = (phase % 4) == 1;
     s32 half = ((phase + 1) % 4) / 2;
-    f32 extent = outlineExtent(isTip, half, width, height);
-    return outlineSignedExtent(phase < 4 ? 1 : -1, extent);
+    f32 extent = shdOutlineExtent(isTip, half, width, height);
+    return operandOrderMultiply((f32)(phase < 4 ? 1 : -1), extent);
 }
 // Intent: Draw a ten-vertex rectangle outline rotated by the angle [inferred]
 // FUN_00365AC0
@@ -600,8 +603,8 @@ void shdDrawRectOutline(Vec2f position, f32 depth, s32 color, f32 angle, f32 wid
     for (; i < 10; i++) {
         s32 mod8a = i % 8;
         s32 mod8b = (i + 6) % 8;
-        f32 X = outlineAxis(mod8a, width, height);
-        f32 Y = outlineAxis(mod8b, width, height);
+        f32 X = shdOutlineAxis(mod8a, width, height);
+        f32 Y = shdOutlineAxis(mod8b, width, height);
         f32 *row;
         row = &output[i * 16];
         row[0] = originX + X * rotationB - Y * rotationA;
@@ -628,7 +631,8 @@ void shdDrawRectOutline(Vec2f position, f32 depth, s32 color, f32 angle, f32 wid
  * lifetimes. Inline validation and alpha/blue/green/red snapshots reproduce
  * 1148 executable bytes and 17 resolved relocations; four zero bytes align
  * the next function. */
-static inline s32 radialCheckedSegmentCount(u32 segments)
+/* Validate and return the low-halfword radial segment count before mesh generation. */
+static inline s32 shdCheckedRadialSegmentCount(u32 segments)
 {
     s32 count = (s32)(segments & 0xFFFF);
     if (count <= 0 || count > 100) {
@@ -672,7 +676,7 @@ void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     origin_x = position.x;
     far_depth = D_008872F8[0];
     reciprocal = 1.0f / ((MdlEffectCamera *)(u8 *)(u32)kwlnGetCamera())->nearPlane;
-    num_segments = radialCheckedSegmentCount(segments);
+    num_segments = shdCheckedRadialSegmentCount(segments);
     vertices[0][0] = position.x;
     vertices[0][1] = origin_y;
     far_depth -= depth;
