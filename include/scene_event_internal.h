@@ -260,7 +260,10 @@ struct EvtChildNode {
     u16 start;                /* +0x00: sort key, compared by evtAppendNodeToList and evtFindBestChoice */
     u16 unk02;                /* +0x02: cleared by kind 0x35 */
     s32 unk04;                /* +0x04: -1 on create, 0 for kind 0x0A */
-    u8 unk08[0x08];
+    union {
+        u8 unk08[0x08];
+        EvtRecordPosition position;
+    };
     union {
         struct {
             EvtChildPayload payload;  /* +0x10..+0x2F: payload typed by the parent kind */
@@ -381,7 +384,10 @@ struct EvtEventWork {
             u8 pad34[0x18];
         } messageControl;
     };
-    s32 waitTask[3];          /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
+    union {
+        s32 waitTask[3];      /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
+        u8 *waitTaskPointers[3];
+    };
     s32 taskSlots[3];         /* +0x6D0: filter child tasks */
     u8 pad6DC[0x74];
     f32 fov;                  /* +0x750: field of view (K_View_GetFov) */
@@ -453,7 +459,10 @@ struct EvtSceneRecord
         u8 unk_06[6];
         struct { s16 value06; u16 count08; s16 value0A; };
     };
-    s16 position[4];          /* 0x0C. Four halfwords copied into the scene node */
+    union {
+        s16 position[4];      /* +0x0C: packed scene-key coordinates */
+        EvtRecordPosition coordinates;
+    };
     s16 unk_14;               /* 0x14 */
     union {
         s16 word;             /* 0x16. Read as a halfword by types 4 and 19 */

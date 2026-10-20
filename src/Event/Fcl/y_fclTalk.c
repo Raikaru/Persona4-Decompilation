@@ -5,6 +5,7 @@
 /* Persona 4 USA decompilation - y_fclTalk.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "member_access.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_0064A000[];
@@ -88,7 +89,8 @@ void weaponShopTalkCreate(u8 *parent) {
 /* Select the first flagged item-shop message whose calendar window includes today, then release its message slot. */
 // FUN_00332060
 s32 itemShopTalkUpdate(u8 *task) {
-    /* measured: typing both flag reads retains a field address across datGetFlag and loses MATCH; keep the reload raw. */
+    FclShopTalkRecord *talkRecord;
+    /* measured: access-site typing hoists the flag address; a separate typed record local preserves the reload. */
     s8 *work;
     u8 *entry;
     s8 i;
@@ -114,12 +116,13 @@ state_zero:
     currentDate = calendarDate;
     do {
         entry = D_006450E0 + (i * 0xC);
+        talkRecord = (FclShopTalkRecord *)entry;
         startDate = (s16)(((FclShopTalkRecord *)entry)->startDay +
                     100 * (fclCalendarMonthOrder(((FclShopTalkRecord *)entry)->startMonth) & 0xFF));
         endDate = (s16)(((FclShopTalkRecord *)entry)->endDay +
                     100 * (fclCalendarMonthOrder(((FclShopTalkRecord *)entry)->endMonth) & 0xFF));
         if (datGetFlag(((FclShopTalkRecord *)entry)->flag) != 0 ||
-            *(s32 *)(entry + 4) == 0) {
+            talkRecord->flag == 0) {
             if (startDate > currentDate) {
                 goto scan_next;
             }
@@ -199,7 +202,8 @@ void wshopMaterialTalkShowRequirement(u8 *task, s32 itemId, s32 materialInfo) {
 /* Build the date-gated material candidate list, show a randomly selected requirement and wait for dialogue completion. */
 // FUN_00332520
 s32 wshopMaterialTalkUpdate(u8 *task) {
-    /* measured: typed item/count writes retain member addresses across calls and lose MATCH; keep those stores/reloads byte-based. */
+    FclMaterialTalkWork *materialWork;
+    /* measured: a typed work local preserves the count reloads; MEMBER retains the indexed selection address order. */
     s8 *work;
     s32 currentDate;
     s16 calendarDate;
@@ -213,6 +217,7 @@ s32 wshopMaterialTalkUpdate(u8 *task) {
     s16 endDate;
 
     work = (s8 *)((KwlnTask *)task)->work;
+    materialWork = (FclMaterialTalkWork *)work;
     calendarDate = (s16)(100 * (fclCalendarMonthOrder(fclCalendarMonth()) & 0xFF) +
                         (fclCalendarDay() & 0xFF));
     index = 0;
@@ -251,9 +256,9 @@ state_zero_next_32520:
     return -1;
 
 state_one_32520:
-    *(s32 *)(work + 0x1804) = 0;
+    ((FclMaterialTalkWork *)work)->count = 0;
     for (i = 0; i < 0x600; i++) {
-        *(s32 *)(work + (i * 4) + 4) = 0;
+        ((FclMaterialTalkWork *)work)->items[i] = 0;
         category = datEntryEvaluateFlags((s16)i);
         if (category != 0x10 && category != 0x11 && category != 0x12) {
             if (work[0x1808] == datItemAvailableMonth((s16)i)) {
@@ -265,9 +270,9 @@ state_one_32520:
                         fclMoonPhaseAtLeast(
                             (datItemMoonGateSecond((s16)i) & 0xFFF00) >> 8,
                             datItemMoonGateSecond((s16)i) & 0xFF) == 0) {
-                        *(s32 *)(work + (*(s32 *)(work + 0x1804) * 4) + 4) = i;
-                        *(s32 *)(work + 0x1804) =
-                            *(s32 *)(work + 0x1804) + 1;
+                        ((FclMaterialTalkWork *)work)->items[materialWork->count] = i;
+                        materialWork->count =
+                            materialWork->count + 1;
                     }
                 }
             }
@@ -281,8 +286,8 @@ state_two_32520:
         work[1] = nmMesWindowAcquire(D_00645240);
         nmMesWindowShowSlotRecord(work[1], 0x1D);
     } else {
-        offset = (RpRandom() % *(s32 *)(work + 0x1804)) * 4;
-        selected = *(s32 *)(offset + (u32)work + 4);
+        offset = (RpRandom() % materialWork->count) * 4;
+        selected = MEMBER(s32, offset + (u32)work, FclMaterialTalkWork, items[0]);
         if (((datItemMoonGateFirst((s16)selected) & 0xFFF00) >> 8) != 0x500) {
             wshopMaterialTalkShowRequirement(task, selected,
                           datItemMoonGateFirst((s16)selected));
