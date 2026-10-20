@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "member_access.h"
 #include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
@@ -236,8 +237,8 @@ s32 hFadeTaskUpdate(u8 *work) {
                 {
                     u8 alpha;
 
-                    /* Same variant field; keeping this load raw avoids an extra shared-address addiu. */
-                    if (*(u16 *)(work + 6) == 1) {
+                    /* measured: Direct, local and indexed variant fields add shared-address instructions; MEMBER keeps MATCH. */
+                    if (MEMBER(u16, work, MdlEffectFadeParameters, variant) == 1) {
                         alpha = 6;
                     } else {
                         alpha = 0x0A;

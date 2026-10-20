@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 /* Original translation unit tnEffect.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "member_access.h"
 #include "effect_instance_internal.h"
 #include "rw_camera_internal.h"
 
@@ -13,6 +14,8 @@ typedef struct TnTexture {
 } TnTexture;
 
 typedef void (*TNFunc)(s32, s32);
+typedef struct TnSkyList { u8 pad0[0x20]; u8 *texture; } TnSkyList;
+
 typedef struct TnDrawNode {
     u16 flags;
     u8 pad2[0xE];
@@ -243,9 +246,9 @@ void TnDispatchBlurDirect(void *effect) {
 // Draws the sky-state object through ObjectParticleDraw with table entry 0x14 set to 2 then 1; state 8 and the sky render state toggle when the object's word +0x54 is zero.
 // FUN_00481740
 void TnDispatchSkyDraw(void *effect) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 174 differing bytes). Offsets remain as observed. */
-    u8 *obj = *(u8 **)(*(u8 **)((u8 *)effect + 0x58) + 0x20);
+    /* Earlier whole-layout comparison: 174 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
+    u8 *obj = ((TnSkyList *)((ObjectParticleInstance *)(u8 *)effect)->list)->texture;
     TNFunc *tbl;
     TNFunc *tbl2;
     if (((TnFlags *)effect)->flag32 & 1) {
@@ -255,7 +258,7 @@ void TnDispatchSkyDraw(void *effect) {
         tbl = (TNFunc *)D_00887300_abs;
         (*tbl)(6, 0);
     }
-    if (*(s32 *)(obj + 0x54) == 0) {
+    if (((TnTexture *)obj)->skyState == 0) {
         (*tbl)(8, 1);
         RpSkyRenderStateSet(3, 0x70003);
     }
@@ -263,11 +266,11 @@ void TnDispatchSkyDraw(void *effect) {
     (*tbl2)(0x14, 2);
     ObjectParticleDraw(effect);
     (*tbl2)(0x14, 1);
-    if (*(s32 *)(obj + 0x54) == 0) {
+    if (MEMBER(s32, obj, TnTexture, skyState) == 0) {
         (*tbl)(8, 0);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    if (!(*(u8 *)((u8 *)effect + 0x32) & 1)) {
+    if (!(MEMBER(u8, (u8 *)effect, TnFlags, flag32) & 1)) {
         (*tbl)(6, 1);
     }
 }
@@ -281,8 +284,8 @@ void TnDispatchBillboards(void *effect) {
 // Draws both halves of the paired effect under render-state table entry 6, toggled by bit 0 of the byte at +0x30.
 // FUN_004818C0
 void TnDispatchPairedDraw(void *effect) {
-    /* Raw fields retained: the typed layout rewrite changed MWCC code generation
-     * (owner comparison: 135 differing bytes). Offsets remain as observed. */
+    /* Earlier whole-layout comparison: 135 differing bytes.
+     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     TNFunc *tbl;
     if (((TnFlags *)effect)->flag30 & 1) {
         tbl = (TNFunc *)D_00887300_abs;
@@ -293,7 +296,7 @@ void TnDispatchPairedDraw(void *effect) {
     }
     DistortParticleProjectRecordsNoSky(effect);
     DistortParticleProjectRecordsSky(effect);
-    if (!(*(u8 *)((u8 *)effect + 0x30) & 1)) {
+    if (!(MEMBER(u8, (u8 *)effect, TnFlags, flag30) & 1)) {
         (*tbl)(6, 1);
     }
 }
