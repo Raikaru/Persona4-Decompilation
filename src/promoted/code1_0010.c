@@ -89,7 +89,7 @@ extern void mainDrawStartClearOt(void);
 extern void mainDrawStartFrame(void);
 extern void sequenceCreate(void);
 extern void sequenceRequest(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_0010d7b0(void);
+extern void datKernelInitNoop(void);
 extern void tickerStartTask(void);
 extern void fadeCreateController(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
