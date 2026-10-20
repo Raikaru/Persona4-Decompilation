@@ -979,3 +979,4 @@ rpCollTreeCreate = 0x0038F990; // type:func  evidence: inferred: allocate collis
 rpCollTreeStreamGetSize = 0x0038FB20; // type:func  evidence: inferred: compute serialized collision-tree chunk size from split count and optional entry map
 stdioScanStringStreamNoop = 0x004420F8; // type:func  evidence: inferred: zero-return stream callback installed by sscanf and __scan_string_with_context
 chkmemInitRenderWareMemoryFunctions = 0x0044F510; // type:func  evidence: inferred: Installs the current-task pool-owner callback and checked allocation/free/reallocation/zero-allocation callbacks, returning their table to RwEngineInit
+acsfdrGetElapsedTicks = 0x004BD750; // type:func  evidence: inferred: returns ACSFDR fader elapsed active-processing calls at +8, cleared by ACSFDR_FadeVol and incremented by ACSFDR_Process
