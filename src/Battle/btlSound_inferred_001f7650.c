@@ -299,20 +299,21 @@ void btlSoundRefreshSlotChannel(u8 *work)
 // FUN_001F7B40
 s32 btlSoundSetSlotChannel(u8 *work)
 {
+    BtlSoundCueWork *cueWork = (BtlSoundCueWork *)(work);
     u16 channel;
     u16 cue;
     u8 *slotBase;
     u32 offset;
 
     /* measured: typing this request reload grows SetSlotChannel from 224 to 232 bytes; later cache accesses are typed. */
-    cue = *(u16 *)(work + 2);
+    cue = cueWork->cue;
     channel = ((BtlSoundCueWork *)work)->channel;
     offset = channel * 6;
     slotBase = (u8 *)(offset + (u32)iGpffffb3ac);
     if ((((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].cue != cue) ||
         (((BtlSoundQueue *)(slotBase + 0xAC8))->channels[0].variant != ((BtlSoundCueWork *)work)->variant)) {
         sdkSndStartStream(1, (s16)channel, (s16)cue,
-                      (s16)*(u16 *)(work + 4));
+                      (s16)cueWork->variant);
         cue = ((BtlSoundCueWork *)work)->cue;
         slotBase = iGpffffb3ac;
         offset = (u32)slotBase;
