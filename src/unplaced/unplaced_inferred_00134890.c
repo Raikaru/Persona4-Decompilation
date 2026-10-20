@@ -115,9 +115,10 @@ typedef struct {
     void * unk1588; /* +0x1588 */
 } RadarTransferWork;
 
+/* Use the preserved optimization-level defaults except for measured scoped overrides. */
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
+/* measured: separate assignments and declaration initializers both fold float stores (194 differing bytes). */
 #pragma opt_propagation off
 // Intent: Reset the layout state, choosing the target and start positions by comparing the counters at +0x2C and +0x34 [inferred]
 // FUN_00134890
@@ -175,9 +176,7 @@ void radarResetLayout(u8 *work)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Reset the state, clear the cursor, and store two indices at +0xC7A and +0xC7C [inferred]
 // FUN_00134990
 void radarResetAndSetIndices(u8 *work, s16 sourceIndex, s16 targetIndex) {
@@ -203,9 +202,7 @@ void radarResetAndSetIndices(u8 *work, s16 sourceIndex, s16 targetIndex) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Reset the state and begin a slide in from the +50 offset, copying the entry at +0x30 [inferred]
 // FUN_001349F0
 /* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
@@ -229,9 +226,7 @@ void radarBeginSlideIn(u8 *work) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Reset the state and begin a slide out to the -50 offset, copying the entry at +0x30 [inferred]
 // FUN_00134A50
 /* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
@@ -255,9 +250,7 @@ void radarBeginSlideOut(u8 *work) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Free the 52 sprite nodes in the second radar sprite table, then release the entries listed at +0x38 [inferred]
 // FUN_00134AB0
 void radarReleaseSpritesAndEntries(u8 *work) {
@@ -288,9 +281,7 @@ void radarReleaseSpritesAndEntries(u8 *work) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Return 1 when the value at +0x20 is at least the threshold of every one of the 41 entries and the external check passes [inferred]
 // FUN_00134B60
 /* Earlier direct-field typing changed codegen; the indexed/stride access below preserves the retail image. */
@@ -310,9 +301,7 @@ s32 radarWideEntriesCoverValue(u8 *work) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Map the first set flag bit to an icon mode from 7 to 13 [inferred]
 // FUN_00134DA0
 s32 radarFlagToIconMode(s32 flags) {
@@ -351,13 +340,9 @@ done:
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Draw a palette sprite pair at the given position, with the colour set chosen by the mode value [inferred]
 // FUN_00134E50
-/* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
-#pragma opt_propagation off
 void radarDrawPalettePair(u8 *work, s64 position, s64 mode, u8 alpha)
 {
     f32 drawY;
@@ -384,18 +369,16 @@ void radarDrawPalettePair(u8 *work, s64 position, s64 mode, u8 alpha)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
+/* measured: RGB typing keeps the shared palette address; byte indexing differed by 320 bytes. */
 // Intent: Draw a palette sprite set for mode 0 (four sprites) or mode 1 (two sprites) [inferred]
 // FUN_00134F40
-/* measured: transfer the neighboring mixed-ABI palette branch shape. */
-#pragma opt_propagation off
 void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
 {
     f32 drawY;
     s32 sprite;
-    u8 *color;
+    typedef struct { u8 red, green, blue; } PaletteColor;
+    PaletteColor *color;
 
     switch ((s16)mode) {
     case 0:
@@ -419,25 +402,23 @@ void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha);
         break;
     case 1:
-        color = D_0064B2E8;
+        color = (PaletteColor *)D_0064B2E8;
         sprite = ((RadarTransferWork *)work)->unk155C;
         drawY = ((f32 *)&position)[1];
         sdkSpriteDrawAt((void *)sprite,
                       2.0f + ((f32 *)&position)[0], drawY,
-                      color[0], color[1], color[2], alpha);
+                      color->red, color->green, color->blue, alpha);
         sprite = ((RadarTransferWork *)work)->unk1560;
         sdkSpriteDrawAt((void *)sprite,
                       474.0f + ((f32 *)&position)[0], drawY,
-                      color[0], color[1], color[2], alpha);
+                      color->red, color->green, color->blue, alpha);
         break;
     }
 }
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Draw one item card: the bordered panel, its corner sprites, the entry row, and the value and count text [inferred]
 // FUN_00135130
 void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
@@ -529,9 +510,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
 #pragma optimization_level 2
-#pragma opt_propagation on
 // Intent: Draw the header frame sprites when bit 2 of the flags is set, and the palette set when bit 1 is set [inferred]
 // FUN_00135520
 void radarDrawHeaderFrame(u8 *work, PackedVec2f position, u8 alpha, u16 flags)
