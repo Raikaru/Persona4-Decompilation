@@ -24,8 +24,8 @@ def fixture_from_source(source):
     copy2_match=re.search(r'        modelMatrix = .*?;',s)
     copy2=raw[copy2_match.start():copy2_match.end()]
     assert copy2 == ('        modelMatrix = *(MovementMatrix *)&((RwFrame *)((u8 *)mdlGetClumpFrame('
-                     '((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)))->modelling;')
-    copy2=copy2.replace('mdlGetClumpFrame(((ResrcRecord *)(*(s32 *)(h + 0x18)))->modelHandle164)', 'modelFrame')
+                     '((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164)))->modelling;')
+    copy2=copy2.replace('mdlGetClumpFrame(((ResrcRecord *)(MEMBER(s32, h, FldEventWork, resource)))->modelHandle164)', 'modelFrame')
     identity=raw[s.index('        mat.right.x ='):s.index('        RwMatrixRotate(&mat')]
     head='''#include <stdint.h>
     #include <stddef.h>

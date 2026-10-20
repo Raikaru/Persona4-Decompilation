@@ -6,6 +6,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "h_cdvd_request_internal.h"
 #include "Kosaka/k_fldFilter_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
@@ -90,8 +91,8 @@ s32 FldEnemyLoadTable(u8 *file)
         return 0;
     }
     iGpffffb2c8 = D_007E7B20;
-    size = *(u32 *)(file + 0x118);
-    src = *(void **)(((u8 *)file + size) - size + 0x110);
+    size = ((HCdvdRequest *)(file))->size;
+    src = ((HCdvdRequest *)(((u8 *)file + size) - size))->data;
     memcpy(iGpffffb2c8, src, size);
     iGpffffb2cc = iGpffffb2c8 + 0x300;
     H_Cdvd_Destroy(file);
